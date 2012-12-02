@@ -1,0 +1,65 @@
+textarea.coderunner-answer, table.coderunner-test-results td,
+table.coderunnerexamples td,
+.testcaseexpression, .testcaseresult, .testcasestdin {
+    font-family:courier,monospace;
+}
+
+textarea.coderunner-answer {
+    width:100%;
+}
+
+p.for-example-para {
+    font-weight: bold;
+}
+
+div.coderunner-examples {
+    padding-bottom: 10px;
+}
+
+div.outcome {
+    overflow: auto;
+}
+
+table.coderunner-test-results td, table.coderunner-test-results th,
+table.coderunnerexamples td, table.coderunnerexamples th {
+    border: 1px solid #B0B0B0;
+}
+
+table.coderunner-test-results .header, table.coderunnerexamples .header {
+    text-align: left;
+}
+
+
+div.coderunner-test-results-good {
+    background-color: #AAFFAA;
+}
+
+
+div.coderunner-test-results-bad {
+    background-color: #FFAAAA;
+}
+
+div.coderunner-feedback {
+	border:none;
+	padding-bottom: 15px;
+}
+
+input[id~="grading"] {
+    color:grey;
+}
+
+p.coderunner-spacer {
+    font-size: 5px;
+}
+
+
+
+/* Add lines I seem to have somehow overridden in styles.php */
+
+tr.r0 td {
+    background-color:#F5F5F5
+}
+
+tr.r1 td {
+    background-color:#E5E5E5
+}

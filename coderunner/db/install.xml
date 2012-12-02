@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="question/type/coderunner/db" VERSION="20121113" COMMENT="XMLDB file for Moodle question/type/coderunner"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../../lib/xmldb/xmldb.xsd"
+>
+  <TABLES>
+
+    <TABLE NAME="quest_coderunner_options" NEXT="quest_coderunner_types" COMMENT="Extension of the coderunner question table">
+      <FIELDS>
+         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="questionid" COMMENT="Every home should have one" />
+         <FIELD NAME="questionid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" PREVIOUS="id" NEXT="coderunner_type" COMMENT="The question this option applies to" />
+         <FIELD NAME="coderunner_type" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" PREVIOUS="questionid" COMMENT="The (subtype) of this particular coderunner question" />
+       </FIELDS>
+       <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="questionid"/>
+        <KEY NAME="questionid" TYPE="foreign" FIELDS="questionid" REFTABLE="questions" REFFIELDS="id" PREVIOUS="primary" NEXT="coderunner_type" />
+        <KEY NAME="coderunner_type" TYPE="foreign" FIELDS="coderunner_type" REFTABLE="quest_coderunner_types" REFFIELDS="name" PREVIOUS="questionid" />
+      </KEYS>
+    </TABLE>
+
+
+    <TABLE NAME="quest_coderunner_types" NEXT="quest_coderunner_testcases" PREVIOUS="quest_coderunner_options" COMMENT="A named type for a coderunner question, such as 'C_function'. Is essentially just a list of templates to be applied until a valid validator response is returned." >
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="is_custom" />
+        <FIELD NAME="is_custom" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" NEXT="coderunner_type" PREVIOUS="id" SEQUENCE="false" COMMENT="Boolean, true iff this is a one-off type for use by a particular question. If so, it does not appear in a type menu and is deleted with the question" />
+        <FIELD NAME="coderunner_type" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" NEXT="comment" PREVIOUS="is_custom" COMMENT="Unique name for this question type" />
+        <FIELD NAME="comment" TYPE="text" LENGTH="medium" NOTNULL="true" SEQUENCE="false" NEXT="combinator_template" PREVIOUS="coderunner_type" COMMENT="Brief explanation of this type, for use as an HTML title or help popup" />
+        <FIELD NAME="combinator_template" TYPE="text" LENGTH="medium" NOTNULL="false" SEQUENCE="false" NEXT="test_splitter_re" PREVIOUS="comment" COMMENT="An optional template to be used to combine all tests into a single run" />
+        <FIELD NAME="test_splitter_re" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" NEXT="per_test_template" PREVIOUS="combinator_template" COMMENT="The regular expression argument to preg_split to split output from the combinator run into the basic tests again. Meaningful only if combinator template provided" />
+        <FIELD NAME="per_test_template" TYPE="text" LENGTH="medium" NOTNULL="true" SEQUENCE="false" NEXT="language" PREVIOUS="test_splitter_re" COMMENT="A template to build a test run for each test case. Required." />
+        <FIELD NAME="language" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" NEXT="sandbox" PREVIOUS="per_test_template" COMMENT="The programming language, to be passed to the sandbox" />
+        <FIELD NAME="sandbox" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" NEXT="validator" PREVIOUS="language" COMMENT="The PHP class name of the sandbox to use" />
+        <FIELD NAME="validator" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" PREVIOUS="sandbox" COMMENT="The PHP class name of the validator to use to check results from the sandbox" />
+      </FIELDS>
+      <KEYS>
+          <KEY NAME="primary" TYPE="primary" FIELDS="id" />
+      </KEYS>
+      <INDEXES>
+          <INDEX NAME="coderunner_type" UNIQUE="true" FIELDS="coderunner_type"/>
+      </INDEXES>
+    </TABLE>
+
+
+    <TABLE NAME="quest_coderunner_testcases" PREVIOUS="quest_coderunner_types" COMMENT="A test case is a test to perform on a student's code answer; should output the given output. A test case is regarded as an extension of an 'answer' in Moodle parlance.">
+      <FIELDS>
+        <FIELD NAME="id"         TYPE="int"  LENGTH="10" NOTNULL="true" UNSIGNED="false" SEQUENCE="true" NEXT="questionid"/>
+        <FIELD NAME="questionid" TYPE="int"  LENGTH="10" NOTNULL="true" UNSIGNED="false" SEQUENCE="false" COMMENT="Foreign key referencing question to which this test case relates" PREVIOUS="id" NEXT="testcode"/>
+        <FIELD NAME="testcode"   TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="The code for this test, to be combined with the student's code to construct a test program" PREVIOUS="questionid" NEXT="stdin"/>
+        <FIELD NAME="stdin"      TYPE="text" LENGTH="medium" NOTNULL="false" SEQUENCE="false" COMMENT="The standard input to the program during the test. Empty for most questions" PREVIOUS="testcode" NEXT="output" />
+        <FIELD NAME="output"     TYPE="text" LENGTH="medium" NOTNULL="false" SEQUENCE="false" COMMENT="The expected output after running the student's code and executing the shell input" PREVIOUS="stdin" NEXT="useasexample"/>
+        <FIELD NAME="useasexample" TYPE="int" LENGTH="1" NOTNULL="false" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="True if this testcase is to be displayed in the spec as an example of how the function works." PREVIOUS="output" NEXT="display"/>
+        <FIELD NAME="display"    TYPE="char" LENGTH="30" NOTNULL="true" DEFAULT="SHOW" SEQUENCE="false" COMMENT="Controls display of this testcase to the students. One of SHOW, HIDE, HIDE_IF_FAIL, HIDE_IF_SUCCEED" PREVIOUS="useasexample" NEXT="hiderestiffail"/>
+        <FIELD NAME="hiderestiffail" TYPE="int" LENGTH="1" NOTNULL="false" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="If this test fails, hide all subsequent tests regardless of their display settings" PREVIOUS="display"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="questionid"/>
+        <KEY NAME="questionid" TYPE="foreign" FIELDS="questionid" REFTABLE="questions" REFFIELDS="id" PREVIOUS="primary"/>
+      </KEYS>
+    </TABLE>
+
+  </TABLES>
+</XMLDB>
