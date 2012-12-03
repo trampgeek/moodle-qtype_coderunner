@@ -32,7 +32,7 @@ else:
 	for (src,dest) in dirs:
             if os.path.isdir("{0}/{1}".format(basedir, dest)):
 	        continue  # Directory already exists
-            if subprocess.call("ln -s {0}/{1} {2}/{3}".format(basedir, dest, installdir, src), shell=True) != 0:
+            if subprocess.call("ln -s {0}/{1} {2}/{3}".format(installdir, src, basedir, dest), shell=True) != 0:
                 raise OSError("Failed to create symbolic link")
 
     except Exception as e:
