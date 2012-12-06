@@ -192,7 +192,10 @@ class qtype_coderunner_question extends question_graded_automatically {
             // We have the option of running all tests at once.
             // Only do this if there are no stdins.
             assert($this->test_splitter_re != '');
-            $templateParams = array('STUDENT_ANSWER' => $code, 'TESTCASES' => $testCases);
+            $templateParams = array(
+                'STUDENT_ANSWER' => $code,
+                'ESCAPED_STUDENT_ANSWER' => str_replace('"', '\"', $code),
+                'TESTCASES' => $testCases);
             $testProg = $twig->render($this->combinator_template, $templateParams);
 
             $run = $sandbox->execute($testProg, $this->language, NULL);
@@ -240,7 +243,10 @@ class qtype_coderunner_question extends question_graded_automatically {
         if (!isset($outcome)) {
             $outcome = new TestingOutcome();
             foreach ($testCases as $testCase) {
-                $templateParams = array('STUDENT_ANSWER' => $code, 'TEST' => $testCase);
+                $templateParams = array(
+                    'STUDENT_ANSWER' => $code,
+                    'ESCAPED_STUDENT_ANSWER' => str_replace('"', '\"', $code),
+                    'TEST' => $testCase);
                 $testProg = $twig->render($this->template, $templateParams);
                 $input = isset($testCase->stdin) ? $testCase->stdin : '';
                 $run = $sandbox->execute($testProg, $this->language, $input);
@@ -283,7 +289,8 @@ class qtype_coderunner_question extends question_graded_automatically {
     private function makeErrorMessage($run) {
         $err = "***" . Sandbox::resultString($run->result) . "***";
         if ($run->result === Sandbox::RESULT_RUNTIME_ERROR) {
-            $err .= " (signal $run->signal)";
+            $sig = $run->signal;
+            $err .= " (signal $sig)";
         }
         return $this->merge("\n", array($run->cmpinfo, $run->stderr, $run->output, $err));
     }

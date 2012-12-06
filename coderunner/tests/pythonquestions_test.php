@@ -118,6 +118,33 @@ class qtype_coderunner_python_question_test extends basic_testcase {
     }
 
 
+    public function test_student_answer_variable() {
+        $q = test_question_maker::make_question('coderunner', 'studentanswervar');
+        $code = "\"\"\"Line1\n\"Line2\"\n'Line3'\nLine4\n\"\"\"";
+        $response = array('answer' => $code);
+        $result = $q->grade_response($response);
+        list($mark, $grade, $cache) = $result;
+        $this->assertEquals($mark, 1);
+        $this->assertEquals($grade, question_state::$gradedright);
+    }
+
+
+    public function test_illegal_open_error() {
+        $q = test_question_maker::make_question('coderunner', 'sqr');
+        $code = "def sqr(x):\n    f = open('/tmp/xxx');\n    return x * x";
+        $response = array('answer' => $code);
+        $result = $q->grade_response($response);
+        list($mark, $grade, $cache) = $result;
+        $this->assertEquals($mark, 0);
+        $this->assertEquals($grade, question_state::$gradedwrong);
+        $this->assertTrue(isset($cache['_testoutcome']));
+        $testOutcome = unserialize($cache['_testoutcome']);
+        $this->assertEquals(count($testOutcome->testResults), 1);
+        $this->assertFalse($testOutcome->testResults[0]->isCorrect);
+        $this->assertTrue(strpos($testOutcome->testResults[0]->got, "ILLEGAL FILE ACCESS") !== FALSE);
+    }
+
+
     public function test_grade_delayed_runtime_error() {
         $q = test_question_maker::make_question('coderunner', 'sqr');
         $code = "def sqr(x):\n  if x != 11:\n    return x * x\n  else:\n    return y";

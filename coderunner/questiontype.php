@@ -186,7 +186,7 @@ class qtype_coderunner extends question_type {
             } else {
                 // A new testcase
                 $tc->questionid = $question->id;
-                $testcase->id = $DB->insert_record($testcaseTable, $tc);
+                $id = $DB->insert_record($testcaseTable, $tc);
             }
         }
 

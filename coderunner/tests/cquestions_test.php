@@ -231,7 +231,7 @@ int sqr(int n) {
         $this->assertTrue(isset($cache['_testoutcome']));
         $testOutcome = unserialize($cache['_testoutcome']);
         $this->assertEquals(count($testOutcome->testResults), 2);
-        $this->assertEquals($testOutcome->testResults[1]->got, "***Illegal function call***\n");
+        $this->assertTrue(strpos($testOutcome->testResults[1]->got, "***Illegal function call***") !== FALSE);
     }
 }
 

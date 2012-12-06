@@ -34,6 +34,7 @@ defined('MOODLE_INTERNAL') || die();
 class qtype_coderunner_test_helper extends question_test_helper {
     public function get_test_questions() {
         return array('sqr', 'helloFunc', 'copyStdin', 'timeout', 'exceptions',
+            'studentanswervar',
             'sqrC', 'sqrNoSemicolons', 'helloProgC',
             'copyStdinC', 'timeoutC', 'exceptionsC', 'strToUpper',
             'strToUpperFullMain', 'stringDelete');
@@ -182,6 +183,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
         return $coderunner;
     }
 
+
     /**
      * Makes a coderunner question that loops forever, to test sandbox timeout.
      * @return qtype_coderunner_question
@@ -198,6 +200,34 @@ class qtype_coderunner_test_helper extends question_test_helper {
             (object) array('testcode' => 'timeout()',
                           'stdin'       => '',
                           'output'      => '',
+                          'useasexample' => 0,
+                          'display' => 'SHOW',
+                          'hiderestiffail' =>  0)
+        );
+        $coderunner->qtype = question_bank::get_qtype('coderunner');
+        $coderunner->unitgradingtype = 0;
+        $coderunner->unitpenalty = 0.2;
+        $this->getOptions($coderunner);
+        return $coderunner;
+    }
+
+
+    /**
+     * Makes a coderunner question that's just designed to show if the
+     * __student_answer__ variable is correctly set within each test case.
+     */
+    public function make_coderunner_question_studentanswervar() {
+        question_bank::load_question_definition_classes('coderunner');
+        $coderunner = new qtype_coderunner_question();
+        test_question_maker::initialise_a_question($coderunner);
+        $coderunner->name = 'Function to generate a timeout';
+        $coderunner->options = array('coderunner_type' => 'python3_basic');
+        $coderunner->questiontext = 'Write a bit of code';
+        $coderunner->generalfeedback = 'No feedback available for coderunner questions.';
+        $coderunner->testcases = array(
+            (object) array('testcode' => 'print(__student_answer__)',
+                          'stdin'       => '',
+                          'output'      => "\"\"\"Line1\n\"Line2\"\n'Line3'\nLine4\n\"\"\"",
                           'useasexample' => 0,
                           'display' => 'SHOW',
                           'hiderestiffail' =>  0)
@@ -550,6 +580,54 @@ int main() {
                            'output'         => 'aaaaabbbbb',
                            'stdin'          => '',
                            'display'        => 'SHOW',
+                           'hiderestiffail' => 0,
+                           'useasexample'   => 0)
+        );
+        $coderunner->qtype = question_bank::get_qtype('coderunner');
+        $coderunner->unitgradingtype = 0;
+        $coderunner->unitpenalty = 0.2;
+        $this->getOptions($coderunner);
+        return $coderunner;
+    }
+
+ // Now the matlab-question helper stuff
+    // ===============================
+
+   /**
+     * Makes a coderunner question asking for a sqr() function
+     * @return qtype_coderunner_question
+     */
+    public function make_coderunner_question_sqrmatlab() {
+        question_bank::load_question_definition_classes('coderunner');
+        $coderunner = new qtype_coderunner_question();
+        test_question_maker::initialise_a_question($coderunner);
+        $coderunner->name = 'Function to square a number n';
+        $coderunner->questiontext = 'Write a function sqr(n) that returns n squared.';
+        $coderunner->generalfeedback = 'No feedback available for coderunner questions.';
+        $coderunner->options = array('coderunner_type' => 'matlab_function');
+        $coderunner->testcases = array(
+            (object) array('testcode'       => 'disp(sqr(0));',
+                           'stdin'          => '',
+                           'output'         => '0',
+                           'display'        => 'SHOW',
+                           'hiderestiffail' => 0,
+                           'useasexample'   => 1),
+            (object) array('testcode'       => 'disp(sqr(7));',
+                           'output'         => '49',
+                            'stdin'          => '',
+                           'display'        => 'SHOW',
+                           'hiderestiffail' => 0,
+                           'useasexample'   => 1),
+            (object) array('testcode'       => 'disp(sqr(-11));',
+                           'output'         => '121',
+                           'stdin'          => '',
+                           'display'        => 'SHOW',
+                           'hiderestiffail' => 0,
+                           'useasexample'   => 0),
+           (object) array('testcode'        => 'disp(sqr(-16));',
+                           'output'         => '256',
+                           'stdin'          => '',
+                           'display'        => 'HIDE',
                            'hiderestiffail' => 0,
                            'useasexample'   => 0)
         );

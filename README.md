@@ -33,20 +33,17 @@ CodeRunner requires Moodle version 2. Furthermore, to run the testsuite,
 a Moodle version >= 2.3 is required, since the tests have been changed from
 using SimpleTest to PHPUnit, as required by version 2.3.
 
-CodeRunner should be installed in the <moodlehome>/local directory as follows
+There are two stages to installation:
 
-1. cd <moodlehome>/local
-2. git clone https://github.com/trampgeek/CodeRunner.git
-3. cd CodeRunner
-4. ./install
+1. installing the sandbox, in which
+student code is run in (hopefully) a safe way
+2. installing the CodeRunner
+module itself.
+3. Configuring the sandbox for your own environment and languages
 
-All going well, you should then have symbolic links from <moodlehome>/question/type
-and <moodlehome>/question/behaviour to the <moodlehome>/local/CodeRunner/CodeRunner
-and <moodlehome>/local/CodeRunner/adaptive_adapted_for_coderunner directories
-respectively. There should also be a symbolic link from local/Twig to
-local/CodeRunner/Twig.
+1. Installing the sandbox
 
-The liu sandbox now needs to be installed. This can be obtained from
+   The liu sandbox should be installed first. This can be obtained from
 http://sourceforge.net/projects/libsandbox/.  Both the binary and the
 Python2 interface need to be installed. Note that CodeRunner does *not*
 currently work with the Python3 interface to the sandbox, though it is
@@ -57,12 +54,38 @@ Python version 2). Note that the pysandbox download must be the one appropriate
 to the installed  version of Python2 (currently typically 2.6 on RHEL systems
 on 2.7 on most other flavours of Linux).
 
-Assuming you're on a Moodle version >=2.3, you should be able to test the
+2. Installing CodeRunner
+
+   CodeRunner should be installed in the <moodlehome>/local directory as follows
+
+    cd <moodlehome>/local
+    git clone https://github.com/trampgeek/CodeRunner.git
+    cd CodeRunner
+    ./install
+
+    All going well, you should then have symbolic links from <moodlehome>/question/type
+and <moodlehome>/question/behaviour to the <moodlehome>/local/CodeRunner/CodeRunner
+and <moodlehome>/local/CodeRunner/adaptive_adapted_for_coderunner directories
+respectively. There should also be a symbolic link from local/Twig to
+local/CodeRunner/Twig.
+
+3. Configuring the Sandbox
+
+   The last step in installation involves configuring the sandbox appropriately
+for your particular environment. This involves deciding what subset of the
+file system a student programming, executing within the sandbox, is allowed
+to see. The simple answer of "nothing" is possible for statically-linked
+C programs but most other environments (normally dynamically-linked C,
+Python, Matlab, Java etc) will require
+dynamic loading of modules at run time from various parts of the file system.
+
+
+Assuming you're on a Moodle version >=2.3, you should now be able to test the
 CodeRunner installation with the commands:
 
     cd <moodlehome>
     php admin/tool/phpunit/cli/init.php
-    phpunit --testsuite="php admin/tool/phpunit/cli/init.php"
+    phpunit --testsuite="qtype_coderunner test suite"
 
 If all that goes well, you should be in business.
 

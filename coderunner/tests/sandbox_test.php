@@ -41,7 +41,7 @@ class qtype_coderunner_sandbox_test extends basic_testcase {
         fclose($handle);
 
         $run = array(
-            'args' => array('/usr/bin/python3', '-BESsu'),
+            'cmd' => '/usr/bin/python3 -BESsu {{COPIED_EXECUTABLE}}',
             'filename' => $srcfname,
             'input'  => '',
             'quota'  => array(
@@ -49,6 +49,17 @@ class qtype_coderunner_sandbox_test extends basic_testcase {
                 'cpu'       => 5000,     // 5 secs
                 'memory'    => 64000000, // 64MB
                 'disk'      => 1048576   // 1 MB
+            ),
+            'readableDirs' => array(
+                '/lib/',
+                '/lib64/',
+                '/opt/python3/',
+                '/etc/',
+                '/usr/local/lib',
+                '/usr/lib',
+                '/usr/bin',
+                '/proc/meminfo',
+                '/usr/include'
             )
         );
 

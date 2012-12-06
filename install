@@ -9,7 +9,7 @@ def printFailMessage():
     print("Symbolic links can not be built by this script.")
     print("You will need to manually make the following symbolic links to ")
     print("directories in this module:")
-    print("<moodlehome>/question/type/coderunner -> CodeRunner")
+    print("<moodlehome>/question/type/coderunner -> coderunner")
     print("<moodlehome>/question/behaviour/adaptive_adapted_for_coderunner -> adaptive_adapted_for_coderunner")
     print("<moodlehome>/local/Twig -> Twig")
 
@@ -26,7 +26,7 @@ else:
         basedir = cwd[0:pos]
         installdir = cwd[0:pos + len(searchString)]
         dirs = [("Twig", "moodle/local/Twig"),
-		("CodeRunner", "moodle/question/type/coderunner"),
+		("coderunner", "moodle/question/type/coderunner"),
 		("adaptive_adapted_for_coderunner", "moodle/question/behaviour/adaptive_adapted_for_coderunner")]
 
 	for (src,dest) in dirs:
