@@ -13,10 +13,12 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
     $python3Basic =  array(
         'coderunner_type' => 'python3_basic',
         'is_custom' => 0,
-        'comment' => 'Used for most Python questions. For each test case, ' .
+        'comment' => 'Used for most Python3 questions. For each test case, ' .
                      'runs the student code followed by the test code',
         'combinator_template' => <<<EOT
 {{ STUDENT_ANSWER }}
+
+__student_answer__ = """{{ ESCAPED_STUDENT_ANSWER }}"""
 
 SEPARATOR = "#<ab@17943918#@>#"
 
@@ -29,11 +31,54 @@ print(SEPARATOR)
 EOT
 ,
         'test_splitter_re' => "|#<ab@17943918#@>#\n|ms",
-        'per_test_template' => "{{STUDENT_ANSWER}}\n\n{{TEST.testcode}}",
+        'per_test_template' => <<<EOT
+{{STUDENT_ANSWER}}
+
+__student_answer__ = """{{ ESCAPED_STUDENT_ANSWER }}"""
+
+{{TEST.testcode}}
+EOT
+,
         'language' => 'python3',
         'sandbox'  => 'LiuSandbox',
         'validator' => 'BasicValidator'
     );
+
+    // ===============================================================
+    $python2Basic =  array(
+        'coderunner_type' => 'python2_basic',
+        'is_custom' => 0,
+        'comment' => 'Used for most Python2 questions. For each test case, ' .
+                     'runs the student code followed by the test code',
+        'combinator_template' => <<<EOT
+{{ STUDENT_ANSWER }}
+
+__student_answer__ = """{{ ESCAPED_STUDENT_ANSWER }}"""
+
+SEPARATOR = "#<ab@17943918#@>#"
+
+{% for TEST in TESTCASES %}
+{{ TEST.testcode }};
+{% if not loop.last %}
+print(SEPARATOR)
+{% endif %}
+{% endfor %}
+EOT
+,
+        'test_splitter_re' => "|#<ab@17943918#@>#\n|ms",
+        'per_test_template' => <<<EOT
+{{STUDENT_ANSWER}}
+
+__student_answer__ = """{{ ESCAPED_STUDENT_ANSWER }}"""
+
+{{TEST.testcode}}
+EOT
+,
+        'language' => 'python2',
+        'sandbox'  => 'LiuSandbox',
+        'validator' => 'BasicValidator'
+    );
+
 
     // ===============================================================
     $python2pypy =  array(
@@ -152,6 +197,32 @@ EOT
     );
 
     // ===============================================================
+    $matlabFunction =  array(
+        'coderunner_type' => 'matlab_function',
+        'is_custom' => 0,
+        'comment' => 'Used for Matlab function questions. Student code must be ' .
+                     'a function declaration, which is tested with each testcase.',
+        'combinator_template' => <<<EOT
+function tester()
+   {% for TEST in TESTCASES %}
+   {{ TEST.testcode }};
+   {% if not loop.last %}
+   disp('#<ab@17943918#@>#');
+{% endif %}
+{% endfor %}
+   quit();
+end
+
+{{ STUDENT_ANSWER }}
+EOT
+,
+        'test_splitter_re' => "|#<ab@17943918#@>#\n|ms",
+        'per_test_template' => "function tester()\n  {{TEST.testcode}};quit();\nend\n\n{{STUDENT_ANSWER}}",
+        'language' => 'matlab',
+        'sandbox'  => 'NullSandbox',
+        'validator' => 'BasicValidator'
+    );
+    // ===============================================================
     $javaProgram = array(
         'coderunner_type' => 'java_program',
         'is_custom' => 0,
@@ -237,8 +308,8 @@ EOT
         'validator' => 'BasicValidator'
     );
 
-    $types = array($python3Basic, $python2pypy, $cFunction,
-        $cFunctionSideEffects, $cProgram, $cFullMainTests);
+    $types = array($python3Basic, $python2Basic, $cFunction,
+        $cFunctionSideEffects, $cProgram, $cFullMainTests, $matlabFunction);
 
     $success = TRUE;
     foreach ($types as $type) {

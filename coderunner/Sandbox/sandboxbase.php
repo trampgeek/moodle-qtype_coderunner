@@ -1,5 +1,5 @@
 <?php
-/** The base class for the pycode Sandbox classes.
+/** The base class for the CodeRunner Sandbox classes.
  *  Essentially just defines the API, which is heavily based on the ideone
  *  API, which should be consulted for details:
  *  see ideone.com/files/ideone-api.pdf
@@ -63,7 +63,7 @@ abstract class Sandbox {
             15 => "OK",
             17 => "Memory limit exceeded",
             19 => "Illegal function call",
-            20 => "Pycode error: please tell a tutor",
+            20 => "CodeRunner error: please tell a tutor",
             30 => "Excessive output",
             31 => "Abnormal termination"
         );

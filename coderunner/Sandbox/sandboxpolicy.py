@@ -14,18 +14,7 @@ class SelectiveOpenPolicy(SandboxPolicy):
     SC_open   = (2, 0)  if arch() == 'x86_64' else (5, 0)
     SC_unlink = (87, 0) if arch() == 'x86_64' else (10, 0)
     O_CLOEXEC = 0O2000000
-    READABLE_FILE_PATHS = ['/lib/',
-        '/lib64/',
-        '/opt/python3',
-        '/etc/ld.so.cache',
-        '/etc/nsswitch.conf',
-        '/usr/local/lib/python',
-        '/usr/lib/python',
-        '/usr/bin/lib/python',
-        '/proc/meminfo',
-        '/usr/lib/pymodules/',
-        '/usr/include/python',
-        '/etc/default/apport']
+    READABLE_FILE_PATHS = []  # Default readable file paths
 
     WRITEABLE_FILE_PATHS = []
 
@@ -42,20 +31,37 @@ class SelectiveOpenPolicy(SandboxPolicy):
         6,      # lstat
         13,     # rt_sigaction
         14,     # rt_sigprocmask
+        15,     # rt_sigreturn
         21,     # access
+        #22,     # pipe MATLAB
         32,     # dup
         33,     # dup3
+        39,     # getpid MATLAB
+        #41,     # sendfile MATLAB **CONSIDER**
+        #42,     # socket MATLAB **CONSIDER**
+        #43,     # connect MATLAB **CONSIDER**
+        #56,     # clone MATLAB THIS IS A NO-NO. Breaks sandbox.
+        #59,     # execve MATLAB ** CONSIDER **
+        #61,     # wait4 MATLAB
         72,     # fcntl
         78,     # getdents
         79,     # getcwd
+        #80,     # chdir MATLAB **CONSIDER**
         89,     # readlink
         97,     # getrlimit
+        100,    # times
         102,    # getuid
         104,    # getgid
         107,    # geteuid
         108,    # getegid
+        #110,    # getppid MATLAB
+        #111,    # getpgrp MATLAB
         202,    # futex
+        #203,    # sched_setaffinity MATLAB
+        #204,    # sched_getaffinity MATLAB
         218,    # set_tid_address
+        #257,    # openat MATLAB ***CONSIDER***
+        #269,    # faccessat MATLAB
         273,    # set_robust_list
     ])
 
@@ -99,7 +105,7 @@ class SelectiveOpenPolicy(SandboxPolicy):
         return a
 
     def _KILL_RF(self, e, a): # restricted func.
-        self.error = "(SYSCALL #{})".format(e.data)
+        self.error = "ILLEGAL SYSTEM CALL (#{})".format(e.data)
         a.type, a.data = S_ACTION_KILL, S_RESULT_RF
         return a
 
@@ -109,7 +115,7 @@ class SelectiveOpenPolicy(SandboxPolicy):
 
         if '..' in path:
             # Kill any attempt to work up the file tree
-            self.error = "*** ILLEGAL FILE ACCESS **** ({},{})".format(path, mode)
+            self.error = "ILLEGAL FILE ACCESS ({},{})".format(path, mode)
             return SandboxAction(S_ACTION_KILL, S_RESULT_RF)
         elif not path.startswith('/'):
             # Allow all access to the current directory (which is a special directory in /tmp)
@@ -121,7 +127,7 @@ class SelectiveOpenPolicy(SandboxPolicy):
                                 mode == O_RDONLY or
                                 mode == O_RDONLY|self.O_CLOEXEC):
                         return SandboxAction(S_ACTION_CONT)
-            self.error = "*** ILLEGAL FILE ACCESS **** ({},{})".format(path, mode)
+            self.error = "ILLEGAL FILE ACCESS ({},{})".format(path, mode)
             return SandboxAction(S_ACTION_KILL, S_RESULT_RF)
 
     def SYS_unlink(self, e, a):
