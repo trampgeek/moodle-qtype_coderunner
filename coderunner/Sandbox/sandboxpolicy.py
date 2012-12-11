@@ -105,7 +105,7 @@ class SelectiveOpenPolicy(SandboxPolicy):
         return a
 
     def _KILL_RF(self, e, a): # restricted func.
-        self.error = "ILLEGAL SYSTEM CALL (#{})".format(e.data)
+        self.error = "ILLEGAL SYSTEM CALL (#{0})".format(e.data)
         a.type, a.data = S_ACTION_KILL, S_RESULT_RF
         return a
 
@@ -115,7 +115,7 @@ class SelectiveOpenPolicy(SandboxPolicy):
 
         if '..' in path:
             # Kill any attempt to work up the file tree
-            self.error = "ILLEGAL FILE ACCESS ({},{})".format(path, mode)
+            self.error = "ILLEGAL FILE ACCESS ({0},{1})".format(path, mode)
             return SandboxAction(S_ACTION_KILL, S_RESULT_RF)
         elif not path.startswith('/'):
             # Allow all access to the current directory (which is a special directory in /tmp)
@@ -127,7 +127,7 @@ class SelectiveOpenPolicy(SandboxPolicy):
                                 mode == O_RDONLY or
                                 mode == O_RDONLY|self.O_CLOEXEC):
                         return SandboxAction(S_ACTION_CONT)
-            self.error = "ILLEGAL FILE ACCESS ({},{})".format(path, mode)
+            self.error = "ILLEGAL FILE ACCESS ({0},{1})".format(path, mode)
             return SandboxAction(S_ACTION_KILL, S_RESULT_RF)
 
     def SYS_unlink(self, e, a):
@@ -136,5 +136,5 @@ class SelectiveOpenPolicy(SandboxPolicy):
         if path.startswith('/tmp/'):
             return self._CONT(e, a)
         else:
-            self.error = "Attempt to unlink {}".format(path)
+            self.error = "Attempt to unlink {0}".format(path)
             return SandboxAction(S_ACTION_KILL, S_RESULT_RF)
