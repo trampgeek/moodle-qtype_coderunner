@@ -1,10 +1,10 @@
-textarea.coderunner-answer, table.coderunner-test-results td,
+.coderunner-answer, table.coderunner-test-results td,
 table.coderunnerexamples td,
 .testcaseexpression, .testcaseresult, .testcasestdin {
     font-family:courier,monospace;
 }
 
-textarea.coderunner-answer {
+.coderunner-answer {
     width:100%;
 }
 
@@ -53,7 +53,6 @@ p.coderunner-spacer {
 }
 
 
-
 /* Add lines I seem to have somehow overridden in styles.php */
 
 tr.r0 td {
@@ -63,3 +62,4 @@ tr.r0 td {
 tr.r1 td {
     background-color:#E5E5E5
 }
+

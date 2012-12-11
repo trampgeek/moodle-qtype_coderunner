@@ -1,7 +1,7 @@
 // Prevent multiple submissions while a question is being graded.
 // Done by adding the id attribute containing the word "grading",
 // which is detected by the CSS and used to grey the text. Subsequent
-// clicks are then ignored. [Seems complex but simply disabling the 
+// clicks are then ignored. [Seems complex but simply disabling the
 // button doesn't work as Moodle then won't correctly postprocess the
 // click.]
 
@@ -28,13 +28,13 @@ function submitClicked(e) {
 
 
 // Script for editing the textbox, ripped off codingbat.com
-	
+
 function insertNewline(ta) {
   if (ta.selectionStart != undefined) {  // firefox etc.
     var before = ta.value.substring(0, ta.selectionStart);
     var indent = figureIndent(before);
     var selSave = ta.selectionEnd;
-    var after = ta.value.substring(ta.selectionEnd, ta.value.length)       
+    var after = ta.value.substring(ta.selectionEnd, ta.value.length)
 
     // update the text field
     var tmp = ta.scrollTop;  // inhibit annoying auto-scroll
@@ -57,7 +57,7 @@ function insertNewline(ta) {
      r.text = "\n" + i;
      return false;
   }
-     
+
   return true;
 }
 
@@ -69,7 +69,7 @@ function insertTab(ta, e) {
     var before = ta.value.substring(0, ta.selectionStart);
     var spaces = figureTab(before);
     var selSave = ta.selectionEnd;
-    var after = ta.value.substring(ta.selectionEnd, ta.value.length)       
+    var after = ta.value.substring(ta.selectionEnd, ta.value.length)
 
     // update the text field
     var tmp = ta.scrollTop;  // inhibit annoying auto-scroll
@@ -90,7 +90,7 @@ function insertTab(ta, e) {
 
   }
   else return true  // Can't handle this browser
-  
+
   startCursor2(ta, pos)
   e.preventDefault()
   return false
@@ -130,7 +130,7 @@ function ignoreNL(e) {
   }
   else if (e.keyCode !== undefined) {  // Safari, IE4+
     keynum = e.keyCode
-  } 
+  }
   else { // ?
     keynum = window.e.keyCode
   }
@@ -147,7 +147,7 @@ function keydown(e, element) {
   }
   else if (e.keyCode !== undefined) {  // Safari, IE4+
     keynum = e.keyCode
-  } 
+  }
   else { // ?
     keynum = window.e.keyCode
   }

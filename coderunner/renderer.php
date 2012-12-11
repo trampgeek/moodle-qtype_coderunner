@@ -80,8 +80,9 @@ class qtype_coderunner_renderer extends qtype_renderer {
             'class' => 'coderunner-answer',
             'name' => $responsefieldname,
             'id' => $responsefieldname,
-            'cols' => 80,
-            'rows' => 18,
+            //'style' => 'position: relative; height:400px; width: 100%; background-color: white; font-size:100%',
+            'cols'      => '80',
+            'rows'      => 18,
             'onkeydown' => 'keydown(event, this)',
             'onkeyup' => 'ignoreNL(event)',
             'onkeypress' => 'ignoreNL(event)'
@@ -95,6 +96,20 @@ class qtype_coderunner_renderer extends qtype_renderer {
         $currentrating = $qa->get_last_qt_var('rating', 0);
         $qtext .= html_writer::tag('textarea', s($currentanswer), $ta_attributes);
 
+        /*
+        // Load ACE JavaScript editor. TODO: figure out where this belongs
+        $qtext .= html_writer::tag('script', '', array(
+            'src' => "http://d1n0x3qji82z53.cloudfront.net/src-min-noconflict/ace.js",
+            'type' => "text/javascript",
+            'charset' => 'utf8'));
+
+        $qtext .= html_writer::tag('script', <<<EOT
+var editor = ace.edit("$responsefieldname");
+editor.setTheme("ace/theme/chrome");
+editor.getSession().setMode("ace/mode/python");
+EOT
+            , array('type' => "text/javascript", 'charset' => 'utf8'));
+*/
         if ($qa->get_state() == question_state::$invalid) {
             $qtext .= html_writer::nonempty_tag('div',
                     $question->get_validation_error(array('answer' => $currentanswer)),
