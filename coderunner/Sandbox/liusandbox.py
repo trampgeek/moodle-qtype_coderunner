@@ -10,13 +10,6 @@ from sandbox import *
 from sandboxpolicy import SelectiveOpenPolicy
 
 
-def makeTempFile(contents, prefix, dir):
-    tf = tempfile.TemporaryFile(dir=dir, prefix=prefix)
-    if contents is not None:
-        tf.write(contents.encode('utf-8'))
-        tf.seek(0)
-    return tf
-
 # Main program
 # Usage: liusandbox.py jsonEncodedRunSpec
 
@@ -27,40 +20,27 @@ if __name__ == '__main__':
 
     try:
         assert len(sys.argv) == 2
-        workdir = tempfile.mkdtemp(dir="/tmp", prefix="coderunner_")
-        os.chdir(workdir)
         runSpecFile = open(sys.argv[1])
-
         jsonData = runSpecFile.read()
         runSpec = json.loads(jsonData)
         runSpecFile.close()
 
-        filename = runSpec['filename']
-
-        copy(filename, workdir)  # Copy the source/executable to the working dir
-        basename = os.path.basename(filename)
-        if '.' in basename:
-            basenameStripped = basename[:basename.rindex('.')] # Remove extension
-        else:
-            basenameStripped = basename
-        copyfilename = os.sep.join([workdir, basename])
-
         if runSpec['input']:
-            inputFile = makeTempFile(runSpec['input'], 'in_', workdir)
+            inputFile = open('prog.in', 'w+')
+            inputFile.write(runSpec['input'])
+            inputFile.seek(0)
         else:
             inputFile = open('/dev/null')
 
-        outputFile = makeTempFile(None, 'out_', workdir)
-        stderrFile = makeTempFile(None, 'err_', workdir)
-        cmd = runSpec['cmd'].replace('{{COPIED_EXECUTABLE}}', copyfilename)
-        cmd = cmd.replace('{{SOURCE_FILE_BASENAME}}', basenameStripped)
+        outputFile = open('prog.out', 'w+')
+        stderrFile = open('prog.err', 'w+')
+        cmd = runSpec['cmd']
 
         cookbook = {
-            'args':   cmd.split(),          # command/args to execute
+            'args':   cmd,                  # command/args to execute
             'stdin':  inputFile,            # input to targeted program
             'stdout': outputFile,           # output from targeted program
             'stderr': stderrFile,           # error from targeted program
-            #'owner' : 'nobody',   # TODO: see if there's any way to make this work
             'quota':  runSpec['quota']
         }
 
@@ -68,6 +48,7 @@ if __name__ == '__main__':
 
         s = Sandbox(**cookbook)
         readableDirs = runSpec['readableDirs']
+        workdir = runSpec['workdir']
         s.policy = SelectiveOpenPolicy(s, readableDirs, extraWriteablePaths=[workdir])
 
         s.run()
@@ -92,9 +73,6 @@ if __name__ == '__main__':
         result = { 'returnCode': retCode, 'output': output, 'stderr': stderr, 'details': details}
         print(json.dumps(result))
 
-        if workdir is not None:
-            rmtree(workdir)
-            pass
 
 
 

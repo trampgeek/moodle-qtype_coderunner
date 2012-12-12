@@ -201,7 +201,7 @@ class qtype_coderunner_question extends question_graded_automatically {
             $run = $sandbox->execute($testProg, $this->language, NULL);
 
             if ($run->result === SANDBOX::RESULT_COMPILATION_ERROR) {
-                $outcome = new TestingOutcome(TestingOutcome::STATUS_SYNTAX_ERROR, $run->stderr);
+                $outcome = new TestingOutcome(TestingOutcome::STATUS_SYNTAX_ERROR, $run->cmpinfo);
             }
             else if ($run->result === SANDBOX::RESULT_ABNORMAL_TERMINATION) {
                 // Could be a syntax error but might be a runtime error on just one test case so abandon combinator approach

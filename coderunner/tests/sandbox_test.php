@@ -35,14 +35,16 @@ class qtype_coderunner_sandbox_test extends basic_testcase {
     public function test_liu_sandbox_raw() {
         // Test the Python3 interface to the Liu sandbox directly.
         global $CFG;
-        $srcfname = tempnam("/tmp", "coderunnersrc_");
-        $handle = fopen($srcfname, "w");
+        $dirname = tempnam("/tmp", "coderunnertest_");
+        unlink($dirname);
+        mkdir($dirname);
+        chdir($dirname);
+        $handle = fopen('sourceFile', "w");
         fwrite($handle, "print('Hello Sandbox')\nprint('Python rulz')");
         fclose($handle);
 
         $run = array(
-            'cmd' => '/usr/bin/python3 -BESsu {{COPIED_EXECUTABLE}}',
-            'filename' => $srcfname,
+            'cmd' => array('/usr/bin/python3', '-BESsu', 'sourceFile'),
             'input'  => '',
             'quota'  => array(
                 'wallclock' => 30000,    // 30 secs
@@ -50,6 +52,7 @@ class qtype_coderunner_sandbox_test extends basic_testcase {
                 'memory'    => 64000000, // 64MB
                 'disk'      => 1048576   // 1 MB
             ),
+            'workdir'      => $dirname,
             'readableDirs' => array(
                 '/lib/',
                 '/lib64/',
@@ -63,20 +66,19 @@ class qtype_coderunner_sandbox_test extends basic_testcase {
             )
         );
 
-        $tmpfname = tempnam("/tmp", "coderunner_");
-        $handle = fopen($tmpfname, "w");
+        $handle = fopen('runspec.json', "w");
         fwrite($handle, json_encode($run));
         fclose($handle);
         $output = array();
-        $cmd = $CFG->dirroot . "/question/type/coderunner/Sandbox/liusandbox.py $tmpfname";
+        $cmd = $CFG->dirroot . "/question/type/coderunner/Sandbox/liusandbox.py runspec.json";
         exec($cmd, $output, $returnVar);
         $outputJson = $output[0];
         $result = json_decode($outputJson);
         $this->assertEquals($result->returnCode, 'OK');
         $this->assertEquals($result->output, "Hello Sandbox\nPython rulz\n");
         $this->assertEquals($result->stderr, '');
-        unlink($srcfname);
-        unlink($tmpfname);
+        chdir('..');
+        $this->delTree($dirname);
     }
 
 
@@ -97,10 +99,8 @@ class qtype_coderunner_sandbox_test extends basic_testcase {
         $sandbox = new LiuSandbox();
         $code = "print 'Hello Sandbox'\nprint 'Python rulz' ";
         $result = $sandbox->execute($code, 'python3', NULL);
-        $this->assertEquals($result->result, Sandbox::RESULT_ABNORMAL_TERMINATION);
-        $this->assertTrue(strpos($result->stderr, 'SyntaxError') !== FALSE);
+        $this->assertEquals($result->result, Sandbox::RESULT_COMPILATION_ERROR);
         $this->assertEquals($result->signal, 0);
-        $this->assertEquals($result->cmpinfo, '');
         $sandbox->close();
     }
 
@@ -121,10 +121,9 @@ class qtype_coderunner_sandbox_test extends basic_testcase {
         $sandbox = new LiuSandbox();
         $code = "print 'Hello Sandbox'\nprint: 'Python rulz' ";
         $result = $sandbox->execute($code, 'python2', NULL);
-        $this->assertEquals($result->result, Sandbox::RESULT_ABNORMAL_TERMINATION);
-        $this->assertTrue(strpos($result->stderr, 'SyntaxError') !== FALSE);
+        $this->assertEquals($result->result, Sandbox::RESULT_COMPILATION_ERROR);
+        $this->assertTrue(strpos($result->cmpinfo, 'SyntaxError') !== FALSE);
         $this->assertEquals($result->signal, 0);
-        $this->assertEquals($result->cmpinfo, '');
         $sandbox->close();
     }
 
@@ -211,6 +210,15 @@ f.close()
         $result = $sandbox->execute($code, 'python3', NULL);
         $this->assertEquals($result->result, Sandbox::RESULT_ILLEGAL_SYSCALL);
         $sandbox->close();
+    }
+
+
+    private function delTree($dir) {
+        $files = array_diff(scandir($dir), array('.','..'));
+        foreach ($files as $file) {
+            (is_dir("$dir/$file")) ? $this->delTree("$dir/$file") : unlink("$dir/$file");
+        }
+        return rmdir($dir);
     }
 
 }

@@ -173,7 +173,7 @@ EOT
             $fb .= html_writer::tag('p', '&nbsp;', array('class' => 'coderunner-spacer'));
             if ($testOutcome->status != $testOutcome::STATUS_VALID) {
                 $fb .= html_writer::tag('h3', 'Syntax Error(s)');
-                $fb .= html_writer::tag('p', $testOutcome->errorMessage);
+                $fb .= html_writer::tag('p', str_replace("\n", "<br />", s($testOutcome->errorMessage)));
             }
             else {
                 $fb .= $this->buildResultsTable($testCases, $testResults);

@@ -97,9 +97,8 @@ class qtype_coderunner_python_question_test extends basic_testcase {
         $this->assertEquals($grade, question_state::$gradedwrong);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testOutcome = unserialize($cache['_testoutcome']);
-        $this->assertEquals($testOutcome->status, TestingOutcome::STATUS_VALID);
-        $this->assertEquals(count($testOutcome->testResults), 1);
-        $this->assertTrue(strpos($testOutcome->testResults[0]->got, 'SyntaxError') !== FALSE);
+        $this->assertEquals($testOutcome->status, TestingOutcome::STATUS_SYNTAX_ERROR);
+        $this->assertEquals(count($testOutcome->testResults), 0);
     }
 
 

@@ -23,7 +23,7 @@ __student_answer__ = """{{ ESCAPED_STUDENT_ANSWER }}"""
 SEPARATOR = "#<ab@17943918#@>#"
 
 {% for TEST in TESTCASES %}
-{{ TEST.testcode }};
+{{ TEST.testcode }}
 {% if not loop.last %}
 print(SEPARATOR)
 {% endif %}
