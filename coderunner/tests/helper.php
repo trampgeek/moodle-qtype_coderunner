@@ -37,7 +37,8 @@ class qtype_coderunner_test_helper extends question_test_helper {
             'studentanswervar',
             'sqrC', 'sqrNoSemicolons', 'helloProgC',
             'copyStdinC', 'timeoutC', 'exceptionsC', 'strToUpper',
-            'strToUpperFullMain', 'stringDelete');
+            'strToUpperFullMain', 'stringDelete',
+            'sqrmatlab');
     }
 
     /**

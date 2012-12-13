@@ -32,7 +32,10 @@ class Matlab_Task extends LanguageTask {
     }
 
     public function compile() {
-        $this->executableFileName = $this->sourceFileName;
+        $this->executableFileName = $this->sourceFileName . '.m';
+        if (!copy($this->sourceFileName, $this->executableFileName)) {
+            throw new coding_exception("Matlab_Task: couldn't copy source file");
+        }
     }
 
     public function readableDirs() {
@@ -45,10 +48,28 @@ class Matlab_Task extends LanguageTask {
              "-nodisplay",
              "-nojvm",
              "-r",
-             basename($this->executableFileName),
+             "'" . basename($this->sourceFileName) . "()'",
              '> prog.out',
-             '2> prog.err'
+             '2> prog.err',
+             '</dev/null'
          );
+     }
+
+
+     public function filterOutput($out) {
+         $lines = explode("\n", $out);
+         $outlines = array();
+         $headerEnded = FALSE;
+         foreach ($lines as $line) {
+             $line = trim($line);
+             if ($headerEnded && $line != '') {
+                 $outlines[] = $line;
+             }
+             if (strpos($line, 'For product information, visit www.mathworks.com.') !== FALSE) {
+                 $headerEnded = TRUE;
+             }
+         }
+         return implode("\n", $outlines);
      }
 };
 
@@ -60,16 +81,18 @@ class Matlab_Task extends LanguageTask {
 // ==============================================================
 
 class NullSandbox extends LocalSandbox {
-    private $LANGUAGES = array('matlab');
 
     public function __construct($user=NULL, $pass=NULL) {
         LocalSandbox::__construct($user, $pass);
     }
 
     public function getLanguages() {
-        return (object) array('error' => Sandbox::OK,
-            'languages' => 'matlab');
+        return (object) array(
+            'error' => Sandbox::OK,
+            'languages' => array('matlab')
+        );
     }
+
 
     protected function createTask($language, $source) {
         $reqdClass = ucwords($language) . "_Task";
@@ -84,17 +107,21 @@ class NullSandbox extends LocalSandbox {
         $cmd = implode(' ', $this->task->getRunCommand());
         $workdir = $this->task->workdir;
         chdir($this->task->workdir);
+        $fout = fopen('cmd', 'w');
+        fwrite($fout, $cmd);
+        fclose($fout);
+        // debugging("Executing cmd: $cmd");
         exec($cmd, $output, $returnVar);
+        $this->task->stderr = file_get_contents('prog.err');
+        if ($this->task->stderr != '') {
+            $this->task->result = Sandbox::RESULT_ABNORMAL_TERMINATION;
 
-        if ($returnVar != 0) {
-            $this->task->result == Sandbox::RESULT_RUNTIME_ERROR;
         }
         else {
-            $this->task->result == Sandbox::RESULT_SUCCESS;
+            $this->task->result = Sandbox::RESULT_SUCCESS;
         }
-        
-        $this->task->output = file_get_contents('prog.out');
-        $this->task->stderr = file_get_contents('prog.err');
+
+        $this->task->output = $this->task->filterOutput(file_get_contents('prog.out'));
         $this->task->cmpinfo = '';
         $this->task->signal = 0;
         $this->task->time = 0;

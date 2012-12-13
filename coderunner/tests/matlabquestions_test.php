@@ -68,7 +68,7 @@ class qtype_coderunner_matlab_question_test extends basic_testcase {
         $this->assertTrue(isset($cache['_testoutcome']));
         $testOutcome = unserialize($cache['_testoutcome']);
         $this->assertEquals(count($testOutcome->testResults), 4);
-        $this->assertTrue($testOutcome->allCorrect());
+        $this->assertFalse($testOutcome->allCorrect());
     }
 
 
@@ -80,8 +80,8 @@ class qtype_coderunner_matlab_question_test extends basic_testcase {
         $this->assertEquals($grade, question_state::$gradedwrong);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testOutcome = unserialize($cache['_testoutcome']);
-        $this->assertEquals(count($testOutcome->testResults), 4);
-        $this->assertTrue($testOutcome->allCorrect());
+        $this->assertEquals(count($testOutcome->testResults), 1);
+        $this->assertTrue(strpos($testOutcome->testResults[0]->got, "Abnormal termination") !== FALSE);
     }
 }
 

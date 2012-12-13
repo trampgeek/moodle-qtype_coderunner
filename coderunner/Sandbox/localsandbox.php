@@ -66,6 +66,14 @@ abstract class LanguageTask {
     public abstract function readableDirs();
 
 
+    // Override the following function if the output from executing a program
+    // in this language needs post-filtering to remove stuff like
+    // header output.
+    public function filterOutput($out) {
+        return $out;
+    }
+
+
     public function close() {
         if (!isset($this->sourceFileName)) {
             throw new coding_exception('LanguageTask::close(): no source file');

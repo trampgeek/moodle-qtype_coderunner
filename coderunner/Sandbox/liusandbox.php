@@ -51,6 +51,7 @@ class Python3_Task extends LanguageTask {
              '/usr/bin/python3', '-BESs', basename($this->executableFileName)
          );
      }
+
 };
 
 // =============================================================
@@ -214,7 +215,7 @@ class LiuSandbox extends LocalSandbox {
         // Copy result parameters into $this->task, clean-up and return
 
         $this->task->result = $this->RESULT_CODES[$result->returnCode];
-        $this->task->output = $result->output;
+        $this->task->output = $this->task->filterOutput($result->output);
         $this->task->stderr = $result->stderr;
         $this->task->cmpinfo = '';
         if (isset($result->details->signal_info)) {
