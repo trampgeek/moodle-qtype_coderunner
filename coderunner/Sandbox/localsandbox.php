@@ -78,7 +78,7 @@ abstract class LanguageTask {
         if (!isset($this->sourceFileName)) {
             throw new coding_exception('LanguageTask::close(): no source file');
         }
-        $this->delTree($this->workdir);
+        // $this->delTree($this->workdir);
     }
 
 

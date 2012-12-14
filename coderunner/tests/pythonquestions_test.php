@@ -140,7 +140,6 @@ class qtype_coderunner_python_question_test extends basic_testcase {
         $testOutcome = unserialize($cache['_testoutcome']);
         $this->assertEquals(count($testOutcome->testResults), 1);
         $this->assertFalse($testOutcome->testResults[0]->isCorrect);
-        $this->assertTrue(strpos($testOutcome->testResults[0]->got, "ILLEGAL FILE ACCESS") !== FALSE);
     }
 
 

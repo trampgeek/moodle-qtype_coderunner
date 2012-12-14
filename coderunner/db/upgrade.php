@@ -75,7 +75,7 @@ __student_answer__ = """{{ ESCAPED_STUDENT_ANSWER }}"""
 EOT
 ,
         'language' => 'python2',
-        'sandbox'  => 'LiuSandbox',
+        'sandbox'  => 'VbSandbox', // For testing VbSandbox
         'validator' => 'BasicValidator'
     );
 
@@ -219,7 +219,7 @@ EOT
         'test_splitter_re' => "|#<ab@17943918#@>#\n|ms",
         'per_test_template' => "function tester()\n  {{TEST.testcode}};quit();\nend\n\n{{STUDENT_ANSWER}}",
         'language' => 'matlab',
-        'sandbox'  => 'NullSandbox',
+        'sandbox'  => 'VbSandbox',
         'validator' => 'BasicValidator'
     );
     // ===============================================================
