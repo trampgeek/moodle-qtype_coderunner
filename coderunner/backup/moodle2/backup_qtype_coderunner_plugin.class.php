@@ -36,33 +36,51 @@ class backup_qtype_coderunner_plugin extends backup_qtype_plugin {
         return 'coderunner';
     }
 
-
-   /**
-    * Add the testcases to a coderunner question backup structure.
-    * @param nested_backup_element $element The backup structure for the base question
-    */
-    function add_quest_coderunner_testcases($element) {
+  
+   // Add the options to a coderunner question type structure
+    function add_quest_coderunner_options($element) {
         // Check $element is one nested_backup_element
-        $qtype = $this->qtype();
         if (! $element instanceof backup_nested_element) {
-            throw new backup_step_exception("question_{$qtype}_testcases_bad_parent_element", $element);
+            throw new backup_step_exception("quest_coderunner_options_bad_parent_element", $element);
         }
 
         // Define the elements
-        $testcases = new backup_nested_element('testcases');
-        $testcase = new backup_nested_element('testcase', array('id'), array(
+        $options = new backup_nested_element('coderunner_options');
+        $option = new backup_nested_element('coderunner_option', array('id'), array('coderunner_type'));
+
+        // Build the tree
+        $element->add_child($options);
+        $options->add_child($option);
+
+        // Set the source
+        $option->set_source_table("quest_coderunner_options", array('questionid' => backup::VAR_PARENTID));
+    }
+
+
+    // Add the testcases table to the coderunner question structure
+    function add_quest_coderunner_testcases($element) {
+        // Check $element is one nested_backup_element
+        if (! $element instanceof backup_nested_element) {
+            throw new backup_step_exception("quest_testcases_bad_parent_element", $element);
+        }
+
+        // Define the elements
+        $testcases = new backup_nested_element('coderunner_testcases');
+        $testcase = new backup_nested_element('coderunner_testcase', array('id'), array(
             'testcode', 'output', 'useasexample', 'display', 'hiderestiffail', 'stdin'));
 
         // Build the tree
         $element->add_child($testcases);
         $testcases->add_child($testcase);
 
-        // Set the sources
-        $testcase->set_source_table("question_{$qtype}_testcases", array('questionid' => backup::VAR_PARENTID));
+        // Set the source
+        $testcase->set_source_table("quest_coderunner_testcases", array('questionid' => backup::VAR_PARENTID));
 
         // TODO Find out what the next line means
         // don't need to annotate ids nor files
     }
+
+
 
     /**
      * Returns the qtype information to attach to question element
@@ -70,7 +88,7 @@ class backup_qtype_coderunner_plugin extends backup_qtype_plugin {
     protected function define_question_plugin_structure() {
 
         // Define the virtual plugin element with the condition to fulfill
-        $plugin = $this->get_plugin_element(null, '../../qtype', $this->qtype());
+        $plugin = $this->get_plugin_element(null, '../../qtype', 'coderunner');
 
         // Create one standard named plugin element (the visible container)
         $pluginwrapper = new backup_nested_element($this->get_recommended_name());
@@ -78,7 +96,8 @@ class backup_qtype_coderunner_plugin extends backup_qtype_plugin {
         // connect the visible container ASAP
         $plugin->add_child($pluginwrapper);
 
-        // Add in the testcases
+        // Add in the testcases tables
+        $this->add_quest_coderunner_options($pluginwrapper);
         $this->add_quest_coderunner_testcases($pluginwrapper);
 
         // don't need to annotate ids nor files

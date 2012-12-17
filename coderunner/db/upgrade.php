@@ -75,7 +75,7 @@ __student_answer__ = """{{ ESCAPED_STUDENT_ANSWER }}"""
 EOT
 ,
         'language' => 'python2',
-        'sandbox'  => 'VbSandbox', // For testing VbSandbox
+        'sandbox'  => 'LiuSandbox',
         'validator' => 'BasicValidator'
     );
 

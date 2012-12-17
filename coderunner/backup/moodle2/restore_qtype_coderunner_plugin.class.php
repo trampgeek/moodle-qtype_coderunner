@@ -38,6 +38,21 @@ class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
         return 'coderunner';
     }
 
+
+	/*
+	 * Add the options to the restore structure
+	 */
+    private function add_question_options(&$paths) {
+        // Check $paths is an array
+        if (!is_array($paths)) {
+            throw new restore_step_exception('paths_must_be_array', $paths);
+        }
+
+        $elename = 'coderunner_options';
+        $elepath = $this->get_pathfor('/coderunner_options/coderunner_option');
+        $paths[] = new restore_path_element($elename, $elepath);
+    }
+
 	/*
 	 * Add the testcases to the restore structure
 	 */
@@ -47,8 +62,8 @@ class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
             throw new restore_step_exception('paths_must_be_array', $paths);
         }
 
-        $elename = 'testcases';
-        $elepath = $this->get_pathfor('/testcases/testcase');
+        $elename = 'coderunner_testcases';
+        $elepath = $this->get_pathfor('/coderunner_testcases/coderunner_testcase');
         $paths[] = new restore_path_element($elename, $elepath);
     }
 
@@ -59,7 +74,8 @@ class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
 
         $paths = array();
 
-        // This qtype uses testcases rather than answers; add them
+        // Add options and testcases to the restore structure
+        $this->add_question_options($paths);
         $this->add_question_testcases($paths);
 
         return $paths; // And return the paths
@@ -68,9 +84,8 @@ class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
     /*
      * Called during restore to process the testcases within the
      * backup element.
-     * TODO Check this out. It's copied from multichoice with some trepidation.
      */
-    public function process_testcases($data) {
+    public function process_coderunner_testcases($data) {
         global $DB;
 
         $data = (object)$data;
@@ -81,12 +96,37 @@ class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
         $newquestionid   = $this->get_new_parentid('question');
         $questioncreated = $this->get_mappingid('question_created', $oldquestionid) ? true : false;
 
-        // If the question has been created by restore, we need to create its question_testcases too
+        // If the question has been created by restore, we need to create its question_testcases and options too
         if ($questioncreated) {
             $data->questionid = $newquestionid;
             // Insert record
-            $qtype= $this->qtype();
-            $newitemid = $DB->insert_record("question_{$qtype}_testcases", $data);
+            $newitemid = $DB->insert_record("quest_coderunner_testcases", $data);
+        } else {
+            // Nothing to remap if the question already existed
+            // TODO: determine if the above statement is true!!
+        }
+    }
+
+    /*
+     * Called during restore to process the options within the
+     * backup element.
+     */
+    public function process_coderunner_options($data) {
+        global $DB;
+
+        $data = (object)$data;
+        $oldid = $data->id;
+
+        // Detect if the question is created or mapped
+        $oldquestionid   = $this->get_old_parentid('question');
+        $newquestionid   = $this->get_new_parentid('question');
+        $questioncreated = $this->get_mappingid('question_created', $oldquestionid) ? true : false;
+
+        // If the question has been created by restore, we need to create its question_testcases and options too
+        if ($questioncreated) {
+            $data->questionid = $newquestionid;
+            // Insert record
+            $newitemid = $DB->insert_record("quest_coderunner_options", $data);
         } else {
             // Nothing to remap if the question already existed
             // TODO: determine if the above statement is true!!
