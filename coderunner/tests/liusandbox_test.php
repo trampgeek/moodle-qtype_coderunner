@@ -1,6 +1,6 @@
 <?php
 /**
- * Unit tests for coderunner's sandbox class.
+ * Unit tests for coderunner's liusandbox class.
  *
  * @package    qtype
  * @subpackage coderunner
@@ -11,7 +11,7 @@
 global $CFG;
 require_once($CFG->dirroot . '/question/type/coderunner/Sandbox/liusandbox.php');
 
-class qtype_coderunner_sandbox_test extends basic_testcase {
+class qtype_coderunner_liusandbox_test extends basic_testcase {
     public function setUp() {
     }
 

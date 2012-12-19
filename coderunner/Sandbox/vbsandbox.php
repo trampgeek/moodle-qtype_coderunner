@@ -32,7 +32,7 @@ define('AUTHENTICATE', ' --username sandbox --password LinuxSandbox ');
 // Language definitions.
 //
 // ==============================================================
-class Matlab_Task extends LanguageTask {
+class Matlab_VbTask extends LanguageTask {
     public function __construct($source) {
         LanguageTask::__construct($source);
     }
@@ -52,20 +52,22 @@ class Matlab_Task extends LanguageTask {
         return array();  // Irrelevant for this sandbox
      }
 
+
+     // Return the command to pass to VirtualBox as a list of arguments,
+     // starting with the program to run followed by a list of its arguments.
      public function getRunCommand() {
-         // For Matlab, VB is configured with a special script 'matlab' that
-         // cd's into the temp directory given as $1 then
-         // executes the command:
-         //    matlab -nodisplay -nojvm -r $2 >prog.out 2>prog.err </dev/null
-         // Resource constraints should be applied as well before executing.
-         // TODO: add resource constraints
          return array(
-             "/home/sandbox/vbmatlab",
+             "/home/sandbox/vbrunner",
              $this->workdir,
-             basename($this->sourceFileName),
-             '> prog.out',
-             '2> prog.err',
-             '</dev/null'
+             10, // Seconds of execution time allowed
+             800000000,  // Max mem allowed (800MB!!)
+             0,  // Max num processes set 0 (i.e. disabled) as matlab barfs at any reasonable number (TODO: why?)
+             '/usr/local/matlab/bin/glnxa64/MATLAB',
+             '-nojvm',
+             '-nodesktop',
+             '-singleCompThread',
+             '-r',
+             basename($this->sourceFileName)
          );
      }
 
@@ -87,7 +89,7 @@ class Matlab_Task extends LanguageTask {
      }
 };
 
-class Python2_Task extends LanguageTask {
+class Python2_VbTask extends LanguageTask {
     public function __construct($source) {
         LanguageTask::__construct($source);
     }
@@ -104,14 +106,17 @@ class Python2_Task extends LanguageTask {
         return array();  // Irrelevant for this sandbox
      }
 
+     // Return the command to pass to VirtualBox as a list of arguments,
+     // starting with the program to run followed by a list of its arguments.
      public function getRunCommand() {
         return array(
-             "/home/sandbox/vbpython2",
+             "/home/sandbox/vbrunner",
              $this->workdir,
-             $this->sourceFileName,
-             '> prog.out',
-             '2> prog.err',
-             '</dev/null'
+             3,   // Seconds of execution time allowed
+             100000000,  // Max mem allowed (100MB)
+             4,     // Max num processes
+             '/usr/bin/python2',
+             $this->sourceFileName
          );
      }
 };
@@ -138,7 +143,7 @@ class VbSandbox extends LocalSandbox {
 
 
     protected function createTask($language, $source) {
-        $reqdClass = ucwords($language) . "_Task";
+        $reqdClass = ucwords($language) . "_VbTask";
         return new $reqdClass($source);
     }
 
@@ -151,21 +156,30 @@ class VbSandbox extends LocalSandbox {
         $exec = array_shift($args);
         $workdir = $this->task->workdir;
         try {
+            $this->task->cmpinfo = ''; // Set defaults first
+            $this->task->signal = 0;
+            $this->task->time = 0;
+            $this->task->memory = 0;
             if (!$this->sandboxRunning()) {
                 $this->startSandbox();
             }
 
             $dirOnVb = $this->copyTempDir($workdir);
-            if ($input == '') {
-                array_push($args, "</dev/null");
-            } else {
+
+            if ($input != '') {
                 $this->putVbData($input, $dirOnVb, "prog.in");
-                array_push($args, "<prog.in");
             }
+
             $this->runInVb($exec, $args);
             $this->task->stderr = $this->getVbFileContents("/tmp/$dirOnVb/prog.err");
             if ($this->task->stderr != '') {
-                $this->task->result = Sandbox::RESULT_ABNORMAL_TERMINATION;
+                if ($this->task->stderr == "Killed by signal #9\n") {
+                    $this->task->result = Sandbox::RESULT_TIME_LIMIT;
+                    $this->task->signal = 9;
+                    $this->task->stderr = '';
+                } else {
+                    $this->task->result = Sandbox::RESULT_ABNORMAL_TERMINATION;
+                }
             }
             else {
                 $this->task->result = Sandbox::RESULT_SUCCESS;
@@ -173,10 +187,6 @@ class VbSandbox extends LocalSandbox {
 
             $this->task->output = $this->task->filterOutput(
                     $this->getVbFileContents("/tmp/$dirOnVb/prog.out"));
-            $this->task->cmpinfo = '';
-            $this->task->signal = 0;
-            $this->task->time = 0;
-            $this->task->memory = 0;
         }
         catch (Exception $e) {
             $this->task->result = Sandbox::RESULT_INTERNAL_ERR;
@@ -194,8 +204,9 @@ class VbSandbox extends LocalSandbox {
 
 
     private function runInVb($executable, $args) {
+        $maxTime = 2000 * $args[1];  // Backup timeout (msecs) if script fails somehow
         $cmd = "guestcontrol LinuxSandbox execute $executable " .
-                AUTHENTICATE . " --wait-stdout -- 2>&1 " .
+                AUTHENTICATE . " --wait-stdout --timeout $maxTime -- 2>&1 " .
                 implode(' ', $args);
         return $this->doVbmCommand($cmd);
     }
@@ -297,8 +308,8 @@ class VbSandbox extends LocalSandbox {
 
     // Execute the given VBoxManager command, returning stdout.
     private function doVbmCommand($cmd) {
-        //debugging($cmd);
-        $handle = popen('VBoxManage 2>&1 ' . $cmd, 'r');
+        $cmd = 'VBoxManage 2>&1 ' . $cmd;
+        $handle = popen($cmd, 'r');
         $result = fread($handle, MAX_VB_READ);
         pclose($handle);
         return $result;

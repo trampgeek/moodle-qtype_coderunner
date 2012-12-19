@@ -209,7 +209,7 @@ class qtype_coderunner_question extends question_graded_automatically {
             }
             else if ($run->result === Sandbox::RESULT_SUCCESS) {
                 if ($run->stderr) {
-                    throw new coding_exception('Unexpected non-empty stderr from standbox');
+                    throw new coding_exception('Unexpected non-empty stderr from sandbox');
                 }
 
                 $outputs = preg_split($this->test_splitter_re, $run->output);
