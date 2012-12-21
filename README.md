@@ -29,21 +29,22 @@ accommodate additional languages with very little custom code.
 Installation
 ------------
 
-CodeRunner requires Moodle version 2. Furthermore, to run the testsuite,
+CodeRunner requires Moodle version 2.1 or later. Furthermore, to run the testsuite,
 a Moodle version >= 2.3 is required, since the tests have been changed from
 using SimpleTest to PHPUnit, as required by version 2.3.
 
-There are two stages to installation:
+There are three stages to installation:
 
-1. installing the sandbox, in which
-student code is run in (hopefully) a safe way
+1. installing a sandbox, in which
+student code can be run in (hopefully) a safe way
 2. installing the CodeRunner
 module itself.
 3. Configuring the sandbox for your own environment and languages
 
-1. Installing the sandbox
+1. Installing the Liu sandbox
 
-   The liu sandbox should be installed first. This can be obtained from
+   The main sandbox for normal use (Python, C, C++) is the
+Liu sandbox. It should be installed first. It can be obtained from
 http://sourceforge.net/projects/libsandbox/.  Both the binary and the
 Python2 interface need to be installed. Note that CodeRunner does *not*
 currently work with the Python3 interface to the sandbox, though it is
@@ -69,7 +70,7 @@ and <moodlehome>/local/CodeRunner/adaptive_adapted_for_coderunner directories
 respectively. There should also be a symbolic link from local/Twig to
 local/CodeRunner/Twig.
 
-3. Configuring the Sandbox
+3. Configuring the Liu Sandbox
 
    The last step in installation involves configuring the sandbox appropriately
 for your particular environment. This involves deciding what subset of the
@@ -78,10 +79,20 @@ to see. The simple answer of "nothing" is possible for statically-linked
 C programs but most other environments (normally dynamically-linked C,
 Python, Matlab, Java etc) will require
 dynamic loading of modules at run time from various parts of the file system.
-
-
+The default downloaded configuration supports standard Linux Python2
+and C questions, and Python3 questions if Python3 is installed in the /opt
+directory tree (which is where it landed up on the development server for
+some reason or other). Other languages will require some tweaking. [TODO:
+provide more documentation on this.]
+vbsandbox
 Assuming you're on a Moodle version >=2.3, you should now be able to test the
-CodeRunner installation with the commands:
+CodeRunner installation with phpunit. However, unless you are planning on running
+the VirtualBox sandbox and/or Matlab you should first move or remove the two files
+
+    <moodlehome>/local/coderunner/Coderunner/tests/vbsandbox_test.php
+    <moodlehome>/local/coderunner/Coderunner/tests/matlabquestions_test.php
+
+You should then be able to run the tests with
 
     cd <moodlehome>
     php admin/tool/phpunit/cli/init.php
@@ -91,9 +102,76 @@ If all that goes well, you should be in business.
 
 Please email me if you have problems with the installation.
 
+More on Sandboxing
+------------------
+
+The system is designed with a pluggable sandbox architecture. Two other
+sandboxes are currently provided: VbSandbox, which runs code in a VirtualBox
+within the host and NullSandbox which isn't a true sandbox at all but runs
+code natively on the host, albeit with resource constraints on time,
+number of processes, max filesize etc.
+
+The VirtualBox sandbox was intended for use with MatLab, which won't run in
+the LiuSandbox as it is multithreaded and very heavy on system calls, leading
+to performance issues. The code has been developed and debugged up to the point
+where it was ready for production testing, but when it was moved onto the
+production server -- a vmware Virtual Machine -- it was discovered that
+VirtualBox will not run on another VM. Thus, the VirtualBox sandbox is usable
+only on real host, not on a virtualised host. This isn't very useful in our
+environment, so further development of the VirtualBox sandbox has been
+discontinued. However, the code has been left in the system in case it is
+needed by other users or even by ourselves in the future. Some notes on
+installing the VirtualBox sandbox are given in the section "Notes on the
+VirtualBox Sandbox" below.
+
+The so-called NullSandbox limits the resource usage of a task, which is
+sufficient for some low-risk environments where only responsible users with
+logins are using the system.  However, it does not provide *any* protection against
+malicious programs. In particular, since the submitted code is run by the
+web-server user, it can read all the temporary files created while other users
+are submitting their CodeRunner code and, worse, it can read the Moodle
+and various apache configuration files that contain  such as information
+the Moodle database password. In our own University environment we intend
+to use the NullSandbox only to support a smallish class of Matlab students,
+simply because Matlab doesn't play well in other (real) sandboxes. We will
+set aside a dedicated VM for running just the Moodle quizzes for this class.
+
+Use the NullSandbox at your own risk!
+
+
+Notes on the VirtualBox Sandbox
+----------------------
+
+As explained above, the VirtualBox sandbox is not in production use, but the
+following brief documentation remains for the benefit of anyone who wishes
+to resurrect it.
+
+Installing the VirtualBox sandbox is somewhat complicated. The following gives
+just the general idea:
+
+1. Install VirtualBox on the server, including the GuestAdditions.
+1. Add the web server user (www-data on Ubuntu) to the group vboxusers.
+1. Login as the user www-data (or whoever), e.g. using 'ssh -Y www-data@localhost'
+1. Create an Ubuntu server virtual machine (no GUI) called LinuxSandbox
+1. Set up a user 'sandbox' with password 'LinuxSandbox' on that VM
+1. Copy the file <moodlehome>/local/CodeRunner/coderunner/Sandbox/vbrunner into
+that user's home directory. Make it executable.
+1. Install and configure any languages you wish to use in the sandbox. Python2
+is the only one that will run "out of the box".
+1. Add to the file vbsandbox.php a class Lang_VbTask for each Language 'Lang'
+you need to support. Use the existing Python2_VbTask and Matlab_VbTask classes
+as templates.
+1. If necessary, add appropriate question-type entries to db/update.php.
+
+Note that when testing the virtualbox sandbox, with code vbsandbox_test.php,
+you must be logged in as the web-server user, i.e. www-data (Ubuntu) or apache
+(Red Hat, Fedora etc).
+
 
 How programming quizzes should work
 -----------------------------------
+
+Historical notes and a diatribe on the use of Adaptive Mode questions ...
 
 The original pycode was inspired by [CodingBat](http://codingbat.com), a site where
 students submit Python or Java code that implements a simple function or

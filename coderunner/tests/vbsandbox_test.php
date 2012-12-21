@@ -15,6 +15,13 @@ require_once($CFG->dirroot . '/question/type/coderunner/Sandbox/vbsandbox.php');
 
 class qtype_coderunner_vbsandbox_test extends basic_testcase {
     public function setUp() {
+        $handle = popen('whoami', 'r');
+        $result = fread($handle, 200);
+        pclose($handle);
+        if (strpos($result, 'www-data') === FALSE &&
+            strpos($result, 'apache') === FALSE) {
+            throw new Exception('vbsandbox tests must be run by the web-server user.');
+        }
     }
 
     public function tearDown() {
@@ -84,9 +91,6 @@ class qtype_coderunner_vbsandbox_test extends basic_testcase {
         $this->assertEquals($result->cmpinfo, '');
         $sandbox->close();
     }
-
-    // Matlab tests are in a separate file
-
 }
 
 ?>

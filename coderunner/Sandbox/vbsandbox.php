@@ -308,7 +308,7 @@ class VbSandbox extends LocalSandbox {
 
     // Execute the given VBoxManager command, returning stdout.
     private function doVbmCommand($cmd) {
-        $cmd = 'VBoxManage 2>&1 ' . $cmd;
+        $cmd = 'VBoxManage ' . $cmd;
         $handle = popen($cmd, 'r');
         $result = fread($handle, MAX_VB_READ);
         pclose($handle);

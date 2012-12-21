@@ -36,7 +36,7 @@ else:
                 raise OSError("Failed to create symbolic link")
 
     except Exception as e:
-	print("Exception when making symbolic links: " + str(e))
-	printFailMessage()
+        print("Exception when making symbolic links: " + str(e))
+	    printFailMessage()
 
 

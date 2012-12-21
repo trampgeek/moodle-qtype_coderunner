@@ -79,6 +79,40 @@ EOT
         'validator' => 'BasicValidator'
     );
 
+    // ===============================================================
+    $python2NullSandbox =  array(
+        'coderunner_type' => 'python2_nullsandbox',
+        'is_custom' => 0,
+        'comment' => 'Used for testing the null sandbox.',
+        'combinator_template' => <<<EOT
+{{ STUDENT_ANSWER }}
+
+__student_answer__ = """{{ ESCAPED_STUDENT_ANSWER }}"""
+
+SEPARATOR = "#<ab@17943918#@>#"
+
+{% for TEST in TESTCASES %}
+{{ TEST.testcode }};
+{% if not loop.last %}
+print(SEPARATOR)
+{% endif %}
+{% endfor %}
+EOT
+,
+        'test_splitter_re' => "|#<ab@17943918#@>#\n|ms",
+        'per_test_template' => <<<EOT
+{{STUDENT_ANSWER}}
+
+__student_answer__ = """{{ ESCAPED_STUDENT_ANSWER }}"""
+
+{{TEST.testcode}}
+EOT
+,
+        'language' => 'python2',
+        'sandbox'  => 'NullSandbox',
+        'validator' => 'BasicValidator'
+    );
+
 
     // ===============================================================
     $python2pypy =  array(
@@ -219,7 +253,7 @@ EOT
         'test_splitter_re' => "|#<ab@17943918#@>#\n|ms",
         'per_test_template' => "function tester()\n  {{TEST.testcode}};quit();\nend\n\n{{STUDENT_ANSWER}}",
         'language' => 'matlab',
-        'sandbox'  => 'VbSandbox',
+        'sandbox'  => 'NullSandbox',
         'validator' => 'BasicValidator'
     );
     // ===============================================================
@@ -309,7 +343,8 @@ EOT
     );
 
     $types = array($python3Basic, $python2Basic, $cFunction,
-        $cFunctionSideEffects, $cProgram, $cFullMainTests, $matlabFunction);
+        $cFunctionSideEffects, $cProgram, $cFullMainTests, $matlabFunction,
+        $python2NullSandbox);
 
     $success = TRUE;
     foreach ($types as $type) {
