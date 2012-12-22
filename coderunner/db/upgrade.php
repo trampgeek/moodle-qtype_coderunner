@@ -283,10 +283,15 @@ EOT
                 'wrap all tests into a single compile-and-run step',
         'combinator_template' => <<<EOT
 public class Main {
-    String SEPARATOR = "#<ab@17943918#@>#";
+    static String SEPARATOR = "#<ab@17943918#@>#";
     {{ STUDENT_ANSWER }}
 
     public static void main(String[] args) {
+        Main main = new Main();
+        main.runTests();
+    }
+
+    public void runTests() {
 {% for testCase in TESTCASES %}
     {{ testCase.testcode }};
     {% if not loop.last %}
@@ -297,6 +302,7 @@ public class Main {
 }
 EOT
 ,
+        // Now the test-per-program template
         'test_splitter_re' => "|#<ab@17943918#@>#\n|ms",
         'per_test_template' => <<<EOT
 public class Main {
@@ -304,13 +310,18 @@ public class Main {
     {{ STUDENT_ANSWER }}
 
     public static void main(String[] args) {
-        {{ TEST.testcode }}
+        Main main = new Main();
+        main.runTests();
+    }
+
+    public void runTests() {
+        {{ TEST.testcode }};
     }
 }
 EOT
 ,
         'language' => 'Java',
-        'sandbox'  => 'LiuSandbox',
+        'sandbox'  => 'NullSandbox',
         'validator' => 'BasicValidator'
     );
 
@@ -320,7 +331,7 @@ EOT
         'is_custom' => 0,
         'comment' => 'Used for Java write-a-method questions where ' .
                 'the method is essentially a stand-alone function ' .
-                'but might have side effects (e.g. generate output). ' .
+                'but might have side effects (e.g. consume input). ' .
                 'Differs from type java_method in that it does not attempt to ' .
                 'wrap all tests into a single run, but tests each case ' .
                 'with a separate program.',
@@ -332,6 +343,11 @@ public class Main {
     {{ STUDENT_ANSWER }}
 
     public static void main(String[] args) {
+        Main main = new Main();
+        main.runTests();
+    }
+
+    public void runTests() {
         {{ TEST.testcode }};
     }
 }
@@ -342,9 +358,81 @@ EOT
         'validator' => 'BasicValidator'
     );
 
-    $types = array($python3Basic, $python2Basic, $cFunction,
-        $cFunctionSideEffects, $cProgram, $cFullMainTests, $matlabFunction,
-        $python2NullSandbox);
+
+   // ===============================================================
+    $javaClass = array(
+        'coderunner_type' => 'java_class',
+        'is_custom' => 0,
+        'comment' => 'Used for Java write-a-class questions where ' .
+                'the student submits a complete class as their answer. ' .
+                'Since the test cases for such questions will typically ' .
+                'instantiate an object of the class and perform some tests' .
+                'on it, no attempt is made to combine the different test cases ' .
+                'into a single executable. Hence, this type of question is ' .
+                'likely to be relatively slow to mark, requiring multiple ' .
+                'compilations and runs. Each test case code is assumed to be ' .
+                'a set of statements to be wrapped into the static void main ' .
+                'method of a separate Main class.',
+        'combinator_template' => NULL,
+        'test_splitter_re' => '',
+        'per_test_template' => <<<EOT
+{{ STUDENT_ANSWER }}
+
+public class __Tester__ {
+
+    public static void main(String[] args) {
+        __Tester__ main = new __Tester__();
+        main.runTests();
+    }
+
+    public void runTests() {
+        {{ TEST.testcode }};
+    }
+}
+
+EOT
+,
+        'language' => 'Java',
+        'sandbox'  => 'NullSandbox',
+        'validator' => 'BasicValidator'
+    );
+
+
+  // ===============================================================
+    $javaProgram = array(
+        'coderunner_type' => 'java_program',
+        'is_custom' => 0,
+        'comment' => 'Used for Java write-a-program questions where ' .
+                'the student submits a complete program as their answer. ' .
+                'The program is executed for each test case. There is no ' .
+                'test code, just stdin test data (though this isn\'t actually ' .
+                'checked: caveat emptor). ' ,
+        'combinator_template' => NULL,
+        'test_splitter_re' => '',
+        'per_test_template' => <<<EOT
+{{ STUDENT_ANSWER }}
+EOT
+,
+        'language' => 'Java',
+        'sandbox'  => 'NullSandbox',
+        'validator' => 'BasicValidator'
+    );
+
+    // List of currently supported question types
+    // ==========================================
+    $types = array(
+        $python3Basic,
+        $python2Basic,
+        $cFunction,
+        $cFunctionSideEffects,
+        $cProgram,
+        $cFullMainTests,
+        $matlabFunction,
+        $python2NullSandbox,
+        $javaMethod,
+        $javaMethodSideEffects,
+        $javaClass,
+        $javaProgram);
 
     $success = TRUE;
     foreach ($types as $type) {

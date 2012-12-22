@@ -61,7 +61,6 @@ class Matlab_VbTask extends LanguageTask {
              $this->workdir,
              10, // Seconds of execution time allowed
              800000000,  // Max mem allowed (800MB!!)
-             0,  // Max num processes set 0 (i.e. disabled) as matlab barfs at any reasonable number (TODO: why?)
              '/usr/local/matlab/bin/glnxa64/MATLAB',
              '-nojvm',
              '-nodesktop',
@@ -114,7 +113,6 @@ class Python2_VbTask extends LanguageTask {
              $this->workdir,
              3,   // Seconds of execution time allowed
              100000000,  // Max mem allowed (100MB)
-             4,     // Max num processes
              '/usr/bin/python2',
              $this->sourceFileName
          );

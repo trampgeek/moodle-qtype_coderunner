@@ -48,9 +48,8 @@ class Matlab_ns_Task extends LanguageTask {
          return array(
              dirname(__FILE__)  . "/localrunner.py",
              $this->workdir,
-             10,         // Seconds of execution time allowed
+             5,         // Seconds of execution time allowed
              800000000,  // Max mem allowed (800MB!!)
-             0,  // Max num processes set 0 (i.e. disabled) as matlab barfs at any reasonable number (TODO: why?)
              '/usr/local/Matlab2012a/bin/glnxa64/MATLAB',
              '-nojvm',
              '-nodesktop',
@@ -95,7 +94,7 @@ class Python2_ns_Task extends LanguageTask {
         return array();  // Irrelevant for this sandbox
      }
 
-     // Return the command to pass to VirtualBox as a list of arguments,
+     // Return the command to pass to localrunner as a list of arguments,
      // starting with the program to run followed by a list of its arguments.
      public function getRunCommand() {
         return array(
@@ -103,10 +102,75 @@ class Python2_ns_Task extends LanguageTask {
              $this->workdir,
              3,   // Seconds of execution time allowed
              100000000,  // Max mem allowed (100MB)
-             4,     // Max num processes
              '/usr/bin/python2',
              $this->sourceFileName
          );
+     }
+};
+
+class Java_ns_Task extends LanguageTask {
+    public function __construct($source) {
+        LanguageTask::__construct($source);
+    }
+
+    public function getVersion() {
+        return 'Java 1.6';
+    }
+
+    public function compile() {
+        $prog = file_get_contents($this->sourceFileName);
+        if (($this->mainClassName = $this->getMainClass($prog)) === FALSE) {
+            $this->cmpinfo = "Bad submission: no main class found";
+        }
+        else {
+            exec("mv {$this->sourceFileName} {$this->mainClassName}.java", $output, $returnVar);
+            if ($returnVar !== 0) {
+                throw new coding_exception("Java compile: couldn't rename source file");
+            }
+            $this->sourceFileName = "{$this->mainClassName}.java";
+            exec("/usr/bin/javac {$this->sourceFileName} 2>compile.out", $output, $returnVar);
+            if ($returnVar == 0) {
+                $this->cmpinfo = '';
+                $this->executableFileName = $this->sourceFileName;
+            }
+            else {
+                $this->cmpinfo = file_get_contents('compile.out');
+            }
+        }
+    }
+
+
+    public function readableDirs() {
+        return array(
+            '/'  // Irrelevant in the null sandbox
+        );
+     }
+
+     public function getRunCommand() {
+         return array(
+             dirname(__FILE__)  . "/localrunner.py",
+             $this->workdir,
+             3,   // Seconds of execution time allowed
+             800000000,  // Max mem allowed (800MB -- why does it need so much?!)
+             '/usr/bin/java',
+             $this->mainClassName
+         );
+     }
+
+
+     // Return the name of the main class in the given prog, or FALSE if no
+     // such class found. Uses a regular expression to find a public class with
+     // a public static void main method.
+     // Not totally safe as it doesn't parse the file, e.g. would be fooled
+     // by a commented-out main class with a different name.
+     private function getMainClass($prog) {
+         $pattern = '/(^|\W)public\s+class\s+(\w+)\s*\{.*?public\s+static\s+void\s+main\s*\(\s*String/ms';
+         if (preg_match_all($pattern, $prog, $matches) !== 1) {
+             return FALSE;
+         }
+         else {
+             return $matches[2][0];
+         }
      }
 };
 
@@ -125,7 +189,7 @@ class NullSandbox extends LocalSandbox {
     public function getLanguages() {
         return (object) array(
             'error' => Sandbox::OK,
-            'languages' => array('matlab', 'python2')
+            'languages' => array('matlab', 'python2', 'Java')
         );
     }
 
@@ -161,7 +225,12 @@ class NullSandbox extends LocalSandbox {
             $result = fread($handle, MAX_READ);
             pclose($handle);
 
-            $this->task->stderr = file_get_contents("$workdir/prog.err");
+            if (file_exists("$workdir/prog.err")) {
+                $this->task->stderr = file_get_contents("$workdir/prog.err");
+            }
+            else {
+                $this->task->stderr = '';
+            }
             if ($this->task->stderr != '') {
                 if ($this->task->stderr == "Killed by signal #9\n") {
                     $this->task->result = Sandbox::RESULT_TIME_LIMIT;

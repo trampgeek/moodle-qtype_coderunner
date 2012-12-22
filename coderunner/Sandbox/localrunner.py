@@ -3,10 +3,7 @@
 # The script that's called by the PHP localsandbox class to run a job
 # locally.
 # Should reside in the same 'Sandbox' directory as the php sandbox code.
-# Usage: localrunner.py workingDirPath timeoutInSecs memLimitInBytes maxProcesses progToRun arg1 arg2 ...
-
-# Set maxProcesses to 0 to prevent a limitation on forking (apparently
-# necessary for supporting Matlab for reasons that aren't clear).
+# Usage: localrunner.py workingDirPath timeoutInSecs memLimitInBytes progToRun arg1 arg2 ...
 
 # If the executing program requires stdin, it should be in a file prog.in
 # within the working directory. Otherwise, /dev/null is used.
@@ -20,19 +17,20 @@ import resource
 import subprocess
 
 def setlimits():
+    # Set resource limits for the child process.
+    # Unfortunately can't limit processes to control fork bombs because
+    # the NPROC limit is per user (apache) not per process like all others.
     global timeout, maxmem, maxprocs
     resource.setrlimit(resource.RLIMIT_CPU, (timeout, timeout))
     resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
-    resource.setrlimit(resource.RLIMIT_AS, (maxmem, maxmem))
-    if maxprocs != 0:
-        resource.setrlimit(resource.RLIMIT_NPROC, (maxprocs, maxprocs))
+    #resource.setrlimit(resource.RLIMIT_AS, (maxmem, maxmem))
     resource.setrlimit(resource.RLIMIT_NOFILE, (20, 20))
     resource.setrlimit(resource.RLIMIT_FSIZE, (2000000, 2000000))
 
 os.chdir(sys.argv[1])
 timeout = int(sys.argv[2])
 maxmem = int(sys.argv[3])
-maxprocs = int(sys.argv[4])
+
 sys.stdout = open("prog.out", "w")
 sys.stderr = open("prog.err", "w")
 if os.path.exists("prog.in"):
@@ -40,7 +38,7 @@ if os.path.exists("prog.in"):
 else:
 	sys.stdin = open("/dev/null", "r")
 
-p = subprocess.Popen(sys.argv[5:],
+p = subprocess.Popen(sys.argv[4:],
 	stdout = sys.stdout,
 	stdin = sys.stdin,
 	stderr = sys.stderr,

@@ -96,6 +96,47 @@ class Python2_Task extends LanguageTask {
      }
 };
 
+
+// =============================================================
+
+class Java_Task extends LanguageTask {
+    public function __construct($source) {
+        LanguageTask::__construct($source);
+    }
+
+    public function getVersion() {
+        return 'Java 1.6';
+    }
+
+    public function compile() {
+        exec("mv {$this->sourceFileName} Main.java", $output, $returnVar);
+        if ($returnVar !== 0) {
+            throw new coding_exception("Java compile: couldn't rename source file");
+        }
+        $this->sourceFileName = "Main.java";
+        exec("/usr/bin/javac {$this->sourceFileName} 2>compile.out", $output, $returnVar);
+        if ($returnVar == 0) {
+            $this->cmpinfo = '';
+            $this->executableFileName = $this->sourceFileName;
+        }
+        else {
+            $this->cmpinfo = file_get_contents('compile.out');
+        }
+    }
+
+    public function readableDirs() {
+        return array(
+            '/'  // *TODO* Fix me
+        );
+     }
+
+     public function getRunCommand() {
+         return array(
+             '/usr/lib/jvm/java-6-openjdk-amd64/jre/bin/java', 'Main'
+         );
+     }
+};
+
 // =============================================================
 
 class C_Task extends LanguageTask {
@@ -143,7 +184,7 @@ class C_Task extends LanguageTask {
 // ==============================================================
 
 class LiuSandbox extends LocalSandbox {
-    private $LANGUAGES = array('C', 'python2', 'python3');
+    private $LANGUAGES = array('C', 'python2', 'python3', 'Java');
 
     private $RESULT_CODES = array(
             'PD' => Sandbox::RESULT_INTERNAL_ERR,  // Pending???

@@ -37,6 +37,6 @@ else:
 
     except Exception as e:
         print("Exception when making symbolic links: " + str(e))
-	    printFailMessage()
+        printFailMessage()
 
 

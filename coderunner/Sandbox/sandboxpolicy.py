@@ -112,6 +112,7 @@ class SelectiveOpenPolicy(SandboxPolicy):
     def SYS_open(self, e, a):
         pathBytes, mode = self.sbox.dump(T_STRING, e.ext1), e.ext2
         path = pathBytes.decode('utf8').strip()
+        path = collapseDotDots(path)
 
         if '..' in path:
             # Kill any attempt to work up the file tree
@@ -138,3 +139,24 @@ class SelectiveOpenPolicy(SandboxPolicy):
         else:
             self.error = "Attempt to unlink {0}".format(path)
             return SandboxAction(S_ACTION_KILL, S_RESULT_RF)
+
+
+# Attempt to collapse '..' elements in a path. If not possible,
+# the path is left untouched. Otherwise, the adjusted version is returned.
+def collapseDotDots(path):
+    bits = path.split('/')
+    newBits = []
+    for bit in bits:
+        if bit == '..':
+            if len(newBits) > 0:
+                newBits = newBits[:-1]
+            else:
+                newBits.append(bit)
+        else:
+            newBits.append(bit)
+    if len(newBits) == 0:
+        return path
+    elif len(newBits) == 1 and newBits[0] == '':
+        return '/'
+    else:
+        return '/'.join(newBits)

@@ -38,7 +38,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
             'sqrC', 'sqrNoSemicolons', 'helloProgC',
             'copyStdinC', 'timeoutC', 'exceptionsC', 'strToUpper',
             'strToUpperFullMain', 'stringDelete',
-            'sqrmatlab');
+            'sqrmatlab', 'sqrjava', 'nameclass', 'printsquares');
     }
 
     /**
@@ -631,6 +631,125 @@ int main() {
                            'display'        => 'HIDE',
                            'hiderestiffail' => 0,
                            'useasexample'   => 0)
+        );
+        $coderunner->qtype = question_bank::get_qtype('coderunner');
+        $coderunner->unitgradingtype = 0;
+        $coderunner->unitpenalty = 0.2;
+        $this->getOptions($coderunner);
+        return $coderunner;
+    }
+
+
+/* Now Java questions
+ * ==================
+ */
+    /**
+     * Makes a coderunner question asking for a sqr() method in Java
+     * @return qtype_coderunner_question
+     */
+    public function make_coderunner_question_sqrjava() {
+        question_bank::load_question_definition_classes('coderunner');
+        $coderunner = new qtype_coderunner_question();
+        test_question_maker::initialise_a_question($coderunner);
+        $coderunner->name = 'Method to square a number n';
+        $coderunner->questiontext = 'Write a method int sqr(int n) that returns n squared.';
+        $coderunner->generalfeedback = 'No feedback available for coderunner questions.';
+        $coderunner->options = array('coderunner_type' => 'java_method');
+        $coderunner->testcases = array(
+            (object) array('testcode'       => 'System.out.println(sqr(0))',
+                           'stdin'          => '',
+                           'output'         => '0',
+                           'display'        => 'SHOW',
+                           'hiderestiffail' => 0,
+                           'useasexample'   => 1),
+            (object) array('testcode'       => 'System.out.println(sqr(7))',
+                           'output'         => '49',
+                            'stdin'          => '',
+                           'display'        => 'SHOW',
+                           'hiderestiffail' => 0,
+                           'useasexample'   => 1),
+            (object) array('testcode'       => 'System.out.println(sqr(-11))',
+                           'output'         => '121',
+                           'stdin'          => '',
+                           'display'        => 'SHOW',
+                           'hiderestiffail' => 0,
+                           'useasexample'   => 0),
+           (object) array('testcode'        => 'System.out.println(sqr(16))',
+                           'output'         => '256',
+                           'stdin'          => '',
+                           'display'        => 'HIDE',
+                           'hiderestiffail' => 0,
+                           'useasexample'   => 0)
+        );
+        $coderunner->qtype = question_bank::get_qtype('coderunner');
+        $coderunner->unitgradingtype = 0;
+        $coderunner->unitpenalty = 0.2;
+        $this->getOptions($coderunner);
+        return $coderunner;
+    }
+
+   /**
+     * Makes a coderunner question asking for a Java 'Name' class
+     * @return qtype_coderunner_question
+     */
+    public function make_coderunner_question_nameclass() {
+        question_bank::load_question_definition_classes('coderunner');
+        $coderunner = new qtype_coderunner_question();
+        test_question_maker::initialise_a_question($coderunner);
+        $coderunner->name = 'Name class';
+        $coderunner->questiontext = 'Write a class Name with a constructor ' .
+                'that has firstName and lastName parameters with a toString ' .
+                'method that returns firstName space lastName';
+        $coderunner->generalfeedback = 'No feedback available for coderunner questions.';
+        $coderunner->options = array('coderunner_type' => 'java_class');
+        $coderunner->testcases = array(
+            (object) array('testcode'       => 'System.out.println(new Name("Joe", "Brown"))',
+                           'stdin'          => '',
+                           'output'         => 'Joe Brown',
+                           'display'        => 'SHOW',
+                           'hiderestiffail' => 0,
+                           'useasexample'   => 1),
+            (object) array('testcode'       => 'System.out.println(new Name("a", "b"))',
+                           'output'         => 'a b',
+                            'stdin'          => '',
+                           'display'        => 'SHOW',
+                           'hiderestiffail' => 0,
+                           'useasexample'   => 1)
+        );
+        $coderunner->qtype = question_bank::get_qtype('coderunner');
+        $coderunner->unitgradingtype = 0;
+        $coderunner->unitpenalty = 0.2;
+        $this->getOptions($coderunner);
+        return $coderunner;
+    }
+
+/**
+     * Makes a coderunner question asking for a program that prints squares
+     * of numbers from 1 up to and including a value read from stdin.
+     * @return qtype_coderunner_question
+     */
+    public function make_coderunner_question_printsquares() {
+        question_bank::load_question_definition_classes('coderunner');
+        $coderunner = new qtype_coderunner_question();
+        test_question_maker::initialise_a_question($coderunner);
+        $coderunner->name = 'Name class';
+        $coderunner->questiontext = 'Write a program squares that reads an integer from stdin and prints ' .
+                'the squares of all integers from 1 up to that number, all on one line, space separated.';
+        $coderunner->generalfeedback = 'No feedback available for coderunner questions.';
+        $coderunner->options = array('coderunner_type' => 'java_program');
+        $coderunner->testcases = array(
+            (object) array('testcode'       => '',
+                           'stdin'          => "5\n",
+                           'output'         => "1 4 9 16 25\n",
+                           'display'        => 'SHOW',
+                           'hiderestiffail' => 0,
+                           'useasexample'   => 1),
+            (object) array('testcode'       => '',
+                           'stdin'          => "1\n",
+                           'output'         => "1\n",
+                           'display'        => 'SHOW',
+                           'hiderestiffail' => 0,
+                           'useasexample'   => 1)
         );
         $coderunner->qtype = question_bank::get_qtype('coderunner');
         $coderunner->unitgradingtype = 0;
