@@ -1,4 +1,6 @@
-// Prevent multiple submissions while a question is being graded.
+// This script has been replaced by the EditArea script for now.
+//
+// // Prevent multiple submissions while a question is being graded.
 // Done by adding the id attribute containing the word "grading",
 // which is detected by the CSS and used to grey the text. Subsequent
 // clicks are then ignored. [Seems complex but simply disabling the

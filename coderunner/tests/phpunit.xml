@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="/home/richard/CADDY/moodle/lib/phpunit/phpunit.xsd"
+        bootstrap="/home/richard/CADDY/moodle/lib/phpunit/bootstrap.php"
+        convertErrorsToExceptions="true"
+        convertNoticesToExceptions="true"
+        convertWarningsToExceptions="true"
+        processIsolation="false"        backupGlobals="false"
+        backupStaticAttributes="false"
+        stopOnError="false"
+        stopOnFailure="false"
+        stopOnIncomplete="false"
+        stopOnSkipped="false"
+        strict="false"
+        printerClass="Hint_ResultPrinter"
+        >
+
+    <php>
+        <!--<const name="PHPUNIT_LONGTEST" value="1"/> uncomment to execute also slow or otherwise expensive tests-->
+    </php>
+
+
+    <testsuites>
+         <testsuite name="qtype_coderunner test suite">
+            <directory suffix="_test.php">/home/richard/CADDY/moodle/local/CodeRunner/coderunner/tests</directory>
+        </testsuite>
+
+    </testsuites>
+
+</phpunit>

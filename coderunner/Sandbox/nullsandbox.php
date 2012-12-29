@@ -46,10 +46,14 @@ class Matlab_ns_Task extends LanguageTask {
 
      public function getRunCommand() {
          return array(
-             dirname(__FILE__)  . "/localrunner.py",
-             $this->workdir,
-             5,         // Seconds of execution time allowed
-             800000000,  // Max mem allowed (800MB!!)
+             dirname(__FILE__)  . "/runguard",
+             "--user=coderunner",
+             "--time=5",             // Seconds of execution time allowed
+             "--memsize=2000000",    // Max kb mem allowed (2GB!)
+             "--filesize=10000",     // Max file sizes (10MB)
+             "--nproc=10",           // At most 10 processes/threads
+             "--no-core",
+             "--streamsize=10000",   // Max stdout/stderr sizes (10MB)
              '/usr/local/Matlab2012a/bin/glnxa64/MATLAB',
              '-nojvm',
              '-nodesktop',
@@ -98,10 +102,14 @@ class Python2_ns_Task extends LanguageTask {
      // starting with the program to run followed by a list of its arguments.
      public function getRunCommand() {
         return array(
-             dirname(__FILE__)  . "/localrunner.py",
-             $this->workdir,
-             3,   // Seconds of execution time allowed
-             100000000,  // Max mem allowed (100MB)
+             dirname(__FILE__)  . "/runguard",
+             "--user=coderunner",
+             "--time=3",             // Seconds of execution time allowed
+             "--memsize=100000",     // Max kb mem allowed (100MB)
+             "--filesize=10000",     // Max file sizes (10MB)
+             "--nproc=2",            // At most 2 processes/threads
+             "--no-core",
+             "--streamsize=10000",   // Max stdout/stderr sizes (10MB)
              '/usr/bin/python2',
              $this->sourceFileName
          );
@@ -120,7 +128,7 @@ class Java_ns_Task extends LanguageTask {
     public function compile() {
         $prog = file_get_contents($this->sourceFileName);
         if (($this->mainClassName = $this->getMainClass($prog)) === FALSE) {
-            $this->cmpinfo = "Bad submission: no main class found";
+            $this->cmpinfo = "Error: no main class found, or multiple main classes. [Did you write a public class when asked for a non-public one?]";
         }
         else {
             exec("mv {$this->sourceFileName} {$this->mainClassName}.java", $output, $returnVar);
@@ -148,11 +156,19 @@ class Java_ns_Task extends LanguageTask {
 
      public function getRunCommand() {
          return array(
-             dirname(__FILE__)  . "/localrunner.py",
-             $this->workdir,
-             3,   // Seconds of execution time allowed
-             800000000,  // Max mem allowed (800MB -- why does it need so much?!)
+             dirname(__FILE__)  . "/runguard",
+             "--user=coderunner",
+             "--time=5",              // Seconds of execution time allowed
+             "--memsize=2000000",     // Max kb mem allowed (2GB Why does it need so much?)
+             "--filesize=10000",      // Max file sizes (10MB)
+             "--nproc=20",            // At most 20 processes/threads (why so many needed??)
+             "--no-core",
+             "--streamsize=10000",    // Max stdout/stderr sizes (10MB)
              '/usr/bin/java',
+             "-Xrs",   //  reduces usage signals by java, because that generates debug
+                       //  output when program is terminated on timelimit exceeded.
+             "-Xss8m",
+             "-Xmx200m",
              $this->mainClassName
          );
      }
@@ -206,7 +222,7 @@ class NullSandbox extends LocalSandbox {
     // Results are all left in $this->task for later access by
     // getSubmissionDetails
     protected function runInSandbox($input) {
-        $cmd = implode(' ', $this->task->getRunCommand()) . ' >prog.out 2>&1';
+        $cmd = implode(' ', $this->task->getRunCommand()) . ">prog.out 2>prog.err";
         $workdir = $this->task->workdir;
         chdir($workdir);
         try {
@@ -219,6 +235,7 @@ class NullSandbox extends LocalSandbox {
                 $f = fopen('prog.in', 'w');
                 fwrite($f, $input);
                 fclose($f);
+                $cmd .= " <prog.in";
             }
 
             $handle = popen($cmd, 'r');
@@ -232,7 +249,7 @@ class NullSandbox extends LocalSandbox {
                 $this->task->stderr = '';
             }
             if ($this->task->stderr != '') {
-                if ($this->task->stderr == "Killed by signal #9\n") {
+                if (strpos($this->task->stderr, "warning: timelimit exceeded")) {
                     $this->task->result = Sandbox::RESULT_TIME_LIMIT;
                     $this->task->signal = 9;
                     $this->task->stderr = '';

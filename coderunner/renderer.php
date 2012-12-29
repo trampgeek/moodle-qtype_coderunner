@@ -56,6 +56,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
      * @return string HTML fragment.
      */
     public function formulation_and_controls(question_attempt $qa, question_display_options $options) {
+        global $CFG;
         $question = $qa->get_question();
         $qtext = $question->format_questiontext($qa);
         $testcases = $question->testcases;
@@ -96,20 +97,27 @@ class qtype_coderunner_renderer extends qtype_renderer {
         $currentrating = $qa->get_last_qt_var('rating', 0);
         $qtext .= html_writer::tag('textarea', s($currentanswer), $ta_attributes);
 
-        /*
-        // Load ACE JavaScript editor. TODO: figure out where this belongs
+        // Load editarea script to do syntax highlighting.
+        // TODO: figure out the moodle-approved way of doing this
         $qtext .= html_writer::tag('script', '', array(
-            'src' => "http://d1n0x3qji82z53.cloudfront.net/src-min-noconflict/ace.js",
-            'type' => "text/javascript",
+            'src'     => $CFG->wwwroot . "/local/CodeRunner/coderunner/editarea_0_8_2/edit_area/edit_area_full.js",
+            'type'    => "text/javascript",
             'charset' => 'utf8'));
+        $lang = ucwords($question->language);
+        if ($lang === 'Python2') $lang = 'Pythontwo';  // Work around limitations of ...
+        if ($lang === 'Python3') $lang = 'Pythonthree'; // ... editarea.
 
-        $qtext .= html_writer::tag('script', <<<EOT
-var editor = ace.edit("$responsefieldname");
-editor.setTheme("ace/theme/chrome");
-editor.getSession().setMode("ace/mode/python");
-EOT
-            , array('type' => "text/javascript", 'charset' => 'utf8'));
-*/
+        $qtext .= html_writer::tag('script',
+                    "editAreaLoader.init({ " .
+                    "id : \"$responsefieldname\"" .
+                    ",syntax: \"$lang\"" .
+                    ",replace_tab_by_spaces: \"4\"" .
+                    // ",display: \"later\"" .  // TODO: decide whether on or off is best default
+                    ",font_size: \"12\"" .
+                    ",toolbar: \"search, go_to_line, |, undo, redo, |, select_font,|, highlight, reset_highlight, |, help\"" .
+                    ",start_highlight: true})"
+        , array('type' => "text/javascript", 'charset' => 'utf8'));
+
         if ($qa->get_state() == question_state::$invalid) {
             $qtext .= html_writer::nonempty_tag('div',
                     $question->get_validation_error(array('answer' => $currentanswer)),
