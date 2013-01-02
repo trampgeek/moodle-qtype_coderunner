@@ -81,7 +81,7 @@ class qtype_coderunner extends question_type {
      * @return mixed array as above, or null to tell the base class to do nothing.
      */
     public function extra_question_fields() {
-        return array('quest_coderunner_options', 'coderunner_type');
+        return array('quest_coderunner_options', 'coderunner_type', 'all_or_nothing');
     }
 
     /**
@@ -129,6 +129,7 @@ class qtype_coderunner extends question_type {
             $testcase->useasexample = isset($question->useasexample[$i]);
             $testcase->display = $question->display[$i];
             $testcase->hiderestiffail = isset($question->hiderestiffail[$i]);
+            $testcase->mark = trim($question->mark[$i]) == '' ? 1.0 : floatval($question->mark[$i]);
             $testcases[] = $testcase;
         }
 
@@ -145,6 +146,9 @@ class qtype_coderunner extends question_type {
         global $DB;
 
         assert(isset($question->coderunner_type));
+        if (!isset($question->all_or_nothing)) { // Unchecked checkboxes aren't posted
+            $question->all_or_nothing = false;
+        }
 
         parent::save_question_options($question);
 
@@ -219,6 +223,7 @@ class qtype_coderunner extends question_type {
         $question->template = $row->per_test_template;
         $question->sandbox = $row->sandbox;
         $question->validator = $row->validator;
+        $question->all_or_nothing = $question->options->all_or_nothing;
 
         if (!$question->testcases = $DB->get_records('quest_coderunner_testcases',
                 array('questionid' => $question->id), 'id ASC')) {
@@ -253,6 +258,7 @@ class qtype_coderunner extends question_type {
         $question->template = $questiondata->template;
         $question->sandbox = $questiondata->sandbox;
         $question->validator = $questiondata->validator;
+        $question->all_or_nothing = $questiondata->all_or_nothing;
     }
 
 
@@ -373,8 +379,9 @@ class qtype_coderunner extends question_type {
             $qo->$field = $format->getpath($data, array('#', $field, 0, '#'), '');
         }
 
+        // Temporary hack for porting from pycode. TODO: remove!
         if (!isset($qo->coderunner_type) || $qo->coderunner_type == '') {
-            $qo->coderunner_type = 'python3_basic';
+            $qo->coderunner_type = 'python3';
         }
 
         $testcases = $data['#']['testcases'][0]['#']['testcase'];
@@ -386,7 +393,12 @@ class qtype_coderunner extends question_type {
             $tc->testcode = $testcase['#']['testcode'][0]['#']['text'][0]['#'];
             $tc->stdin = $testcase['#']['stdin'][0]['#']['text'][0]['#'];
             $tc->output = $testcase['#']['output'][0]['#']['text'][0]['#'];
+            $tc->mark = $testcase['#']['mark'][0]['#']['text'][0]['#'];
             $tc->display = 'SHOW';
+            $tc->mark = 1.0;
+            if (isset($testcase['@']['mark'])) {
+                $tc->mark = floatval($testcase['@']['mark']);
+            }
             if (isset($testcase['@']['hidden']) && $testcase['@']['hidden'] == "1") {
                 $tc->display = 'HIDE';  // Handle old-style export too
             }
@@ -400,7 +412,6 @@ class qtype_coderunner extends question_type {
                 $tc->hiderestiffail = 0;
             }
             $tc->useasexample = $testcase['@']['useasexample'] == "1" ? 1 : 0;
-            //debugging(print_r($tc->stdin, TRUE) . "length " . strlen($tc->stdin));
             $qo->testcases[] = $tc;
         }
 
@@ -426,7 +437,8 @@ class qtype_coderunner extends question_type {
         foreach ($question->testcases as $testcase) {
             $useasexample = $testcase->useasexample ? 1 : 0;
             $hiderestiffail = $testcase->hiderestiffail ? 1 : 0;
-            $expout .= "      <testcase useasexample=\"$useasexample\" hiderestiffail=\"$hiderestiffail\">\n";
+            $mark = sprintf("%.7f", $testcase->mark);
+            $expout .= "      <testcase useasexample=\"$useasexample\" hiderestiffail=\"$hiderestiffail\" mark=\"$mark\" >\n";
             foreach (array('testcode', 'stdin', 'output', 'display') as $field) {
                 //$exportedValue = $format->xml_escape($testcase->$field);
                 $exportedValue = $format->writetext($testcase->$field, 4);

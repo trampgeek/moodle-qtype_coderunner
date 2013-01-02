@@ -153,10 +153,13 @@ class qtype_coderunner_question extends question_graded_automatically {
 
         $dataToCache = array('_testoutcome' => $testOutcomeSerial);
         if ($testOutcome->allCorrect()) {
-            return array(1, question_state::$gradedright, $dataToCache);
+             return array(1, question_state::$gradedright, $dataToCache);
+        }
+        elseif ($this->all_or_nothing) {
+            return array(0, question_state::$gradedwrong, $dataToCache);
         }
         else {
-            return array(0, question_state::$gradedwrong, $dataToCache);
+            return array($testOutcome->markAsFraction(), question_state::$gradedpartial, $dataToCache);
         }
     }
 

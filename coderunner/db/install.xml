@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="question/type/coderunner/db" VERSION="20121205" COMMENT="XMLDB file for Moodle question/type/coderunner"
+<XMLDB PATH="question/type/coderunner/db" VERSION="2013010202" COMMENT="XMLDB file for Moodle question/type/coderunner"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../../lib/xmldb/xmldb.xsd"
 >
@@ -9,7 +9,8 @@
       <FIELDS>
          <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="questionid" COMMENT="Every home should have one" />
          <FIELD NAME="questionid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" PREVIOUS="id" NEXT="coderunner_type" COMMENT="The question this option applies to" />
-         <FIELD NAME="coderunner_type" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" PREVIOUS="questionid" COMMENT="The (subtype) of this particular coderunner question" />
+         <FIELD NAME="coderunner_type" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" PREVIOUS="questionid" NEXT="all_or_nothing" COMMENT="The (subtype) of this particular coderunner question" />
+         <FIELD NAME="all_or_nothing" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" PREVIOUS="coderunner_type" SEQUENCE="false" COMMENT="True if answer must pass all test cases to earn any marks" />
        </FIELDS>
        <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="questionid"/>
@@ -50,7 +51,8 @@
         <FIELD NAME="output"     TYPE="text" LENGTH="medium" NOTNULL="false" SEQUENCE="false" COMMENT="The expected output after running the student's code and executing the shell input" PREVIOUS="stdin" NEXT="useasexample"/>
         <FIELD NAME="useasexample" TYPE="int" LENGTH="1" NOTNULL="false" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="True if this testcase is to be displayed in the spec as an example of how the function works." PREVIOUS="output" NEXT="display"/>
         <FIELD NAME="display"    TYPE="char" LENGTH="30" NOTNULL="true" DEFAULT="SHOW" SEQUENCE="false" COMMENT="Controls display of this testcase to the students. One of SHOW, HIDE, HIDE_IF_FAIL, HIDE_IF_SUCCEED" PREVIOUS="useasexample" NEXT="hiderestiffail"/>
-        <FIELD NAME="hiderestiffail" TYPE="int" LENGTH="1" NOTNULL="false" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="If this test fails, hide all subsequent tests regardless of their display settings" PREVIOUS="display"/>
+        <FIELD NAME="hiderestiffail" TYPE="int" LENGTH="1" NOTNULL="false" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="If this test fails, hide all subsequent tests regardless of their display settings" PREVIOUS="display" NEXT="mark" />
+        <FIELD NAME="mark"      TYPE="number" LENGTH="12" NOTNULL="true" DEFAULT="1.0" SEQUENCE="false" DECIMALS="7" COMMENT="Mark for this testcase (only if not an all_or_nothing question)" PREVIOUS="hiderestiffail" />
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="questionid"/>

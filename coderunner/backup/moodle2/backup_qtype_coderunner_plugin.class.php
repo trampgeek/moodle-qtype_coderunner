@@ -36,7 +36,7 @@ class backup_qtype_coderunner_plugin extends backup_qtype_plugin {
         return 'coderunner';
     }
 
-  
+
    // Add the options to a coderunner question type structure
     function add_quest_coderunner_options($element) {
         // Check $element is one nested_backup_element
@@ -46,11 +46,13 @@ class backup_qtype_coderunner_plugin extends backup_qtype_plugin {
 
         // Define the elements
         $options = new backup_nested_element('coderunner_options');
-        $option = new backup_nested_element('coderunner_option', array('id'), array('coderunner_type'));
+        $option1 = new backup_nested_element('coderunner_option1', array('id'), array('coderunner_type'));
+        $option2 = new backup_nested_element('coderunner_option2', array('id'), array('all_or_nothing'));
 
         // Build the tree
         $element->add_child($options);
-        $options->add_child($option);
+        $options->add_child($option1);
+        $options->add_child($option2);
 
         // Set the source
         $option->set_source_table("quest_coderunner_options", array('questionid' => backup::VAR_PARENTID));
@@ -67,7 +69,7 @@ class backup_qtype_coderunner_plugin extends backup_qtype_plugin {
         // Define the elements
         $testcases = new backup_nested_element('coderunner_testcases');
         $testcase = new backup_nested_element('coderunner_testcase', array('id'), array(
-            'testcode', 'output', 'useasexample', 'display', 'hiderestiffail', 'stdin'));
+            'testcode', 'output', 'useasexample', 'display', 'hiderestiffail', 'mark', 'stdin'));
 
         // Build the tree
         $element->add_child($testcases);

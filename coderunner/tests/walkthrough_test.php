@@ -45,7 +45,6 @@ require_once($CFG->dirroot . '/question/engine/tests/helpers.php');
 class qtype_coderunner_walkthrough_test extends qbehaviour_walkthrough_test_base {
     public function test_adaptive() {
 
-        // Create a gapselect question.
         $q = test_question_maker::make_question('coderunner', 'sqr');
         $q->hints = array(
             new question_hint(1, 'This is the first hint.', FORMAT_HTML),
@@ -95,6 +94,45 @@ class qtype_coderunner_walkthrough_test extends qbehaviour_walkthrough_test_base
         // Verify.
         $this->check_current_state(question_state::$complete);
         $this->check_current_mark(0.6666666667);
+        $this->check_current_output(
+                $this->get_contains_correct_expectation(),
+                $this->get_does_not_contain_validation_error_expectation(),
+                $this->get_no_hint_visible_expectation());
+
+    }
+
+    public function test_partial_marks() {
+
+        $q = test_question_maker::make_question('coderunner', 'sqrPartMarks');
+
+        $this->start_attempt_at_question($q, 'adaptive', 1, 1);
+
+         // Submit a totally wrong answer
+        $this->process_submission(array('-submit' => 1, 'answer' => 'def sqr(n): return -19'));
+
+        // Verify.
+        $this->check_current_state(question_state::$todo);
+        $this->check_current_mark(0);
+        $this->check_current_output(
+                new question_pattern_expectation('/' .
+                        preg_quote(get_string('incorrect', 'question') . '/'))
+              );
+
+        // Submit a partially right answer
+        $this->process_submission(array('-submit' => 1, 'answer' => 'def sqr(n): return n * n if n < 0 else -19'));
+        //debugging(print_r($this, true));
+        $this->check_current_mark(0.2666666667);
+        $this->check_current_output(
+                new question_pattern_expectation('/' .
+                        preg_quote(get_string('partiallycorrect', 'question') . '/'))
+              );
+
+        // Now get it right.
+        $this->process_submission(array('-submit' => 1, 'answer' => 'def sqr(n): return n * n'));
+
+        // Verify.
+        $this->check_current_state(question_state::$complete);
+        $this->check_current_mark(0.3333333333333);
         $this->check_current_output(
                 $this->get_contains_correct_expectation(),
                 $this->get_does_not_contain_validation_error_expectation(),

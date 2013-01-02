@@ -27,6 +27,7 @@ class BasicValidator extends Validator {
         $cleanedOutput = $this->clean($output);
         $cleanedExpected = $this->clean($testCase->output);
         return new TestResult(
+                $testCase->mark,
                 $cleanedOutput == $cleanedExpected,  // isCorrect
                 $this->snip($cleanedExpected),
                 $this->snip($cleanedOutput)

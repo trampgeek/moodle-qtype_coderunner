@@ -35,6 +35,8 @@ define('SHOW_STATISTICS', FALSE);  // If TRUE, shows stats on all coderunner-typ
 // knees when there are large numbers of question submissions to compute stats
 // from.
 
+define('SHOW_MARKS', FALSE);  // Whether or not to add a marks column to the results table
+//
 // require_once($CFG->dirroot . '/question/type/coderunner/testingoutcome.php');
 
 /**
@@ -173,6 +175,8 @@ class qtype_coderunner_renderer extends qtype_renderer {
             $testResults = $testOutcome->testResults;
             if ($testOutcome->allCorrect()) {
                 $resultsclass = "coderunner-test-results-good";
+            } elseif (!$q->all_or_nothing && $testOutcome->markAsFraction() > 0) {
+                $resultsclass = 'coderunner-test-results-partial';
             } else {
                 $resultsclass = "coderunner-test-results-bad";
             }
@@ -184,12 +188,12 @@ class qtype_coderunner_renderer extends qtype_renderer {
                 $fb .= html_writer::tag('p', str_replace("\n", "<br />", s($testOutcome->errorMessage)));
             }
             else {
-                $fb .= $this->buildResultsTable($testCases, $testResults);
+                $fb .= $this->buildResultsTable($q, $testCases, $testResults);
             }
 
             // Summarise the status of the response in a paragraph at the end.
 
-            $fb .= $this->buildFeedback($testCases, $testOutcome);
+            $fb .= $this->buildFeedback($q, $testCases, $testOutcome);
             $fb .= html_writer::end_tag('div');
         } else { // No testresults?! Probably due to a wrong behaviour selected
             $text = get_string('qWrongBehaviour', 'qtype_coderunner');
@@ -200,7 +204,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
         return $fb;
     }
 
-    private function buildResultsTable($testCases, $testResults) {
+    private function buildResultsTable($question, $testCases, $testResults) {
         // First determine which columns are required in the result table
         // by looking for occurrences of testcode and stdin data in the tests.
 
@@ -215,7 +219,12 @@ class qtype_coderunner_renderer extends qtype_renderer {
         if ($numStdins) {
             $table->head[] = 'Stdin';
         }
-        $table->head = array_merge($table->head, array('Expected', 'Got', ''));
+        $table->head = array_merge($table->head, array('Expected', 'Got'));
+
+        if (SHOW_MARKS && !$question->all_or_nothing) {
+            $table->head[] = 'Mark';
+        }
+        $table->head[] = '';  // Tick or cross column
 
         $tableData = array();
         $testCaseKeys = array_keys($testCases);  // Arbitrary numeric indices. Aarghhh.
@@ -236,11 +245,17 @@ class qtype_coderunner_renderer extends qtype_renderer {
                     s($testResult->got)  // ... restrictions as already restricted
                 ));
 
+                $mark = $testResult->isCorrect ? $testResult->mark : 0.0;
+
+                if (SHOW_MARKS && !$question->all_or_nothing) {
+                    $tableRow[] = sprintf('%.1f/%.1f', $mark, $testResult->mark);
+                }
+
                 $rowWithLineBreaks = array();
                 foreach ($tableRow as $col) {
                     $rowWithLineBreaks[] = $this->addLineBreaks($col);
                 }
-                $mark = $testResult->isCorrect ? 1.0 : 0.0;
+
                 $rowWithLineBreaks[] = $this->feedback_image($mark);
                 $tableData[] = $rowWithLineBreaks;
             }
@@ -255,12 +270,11 @@ class qtype_coderunner_renderer extends qtype_renderer {
     }
 
     // Compute the HTML feedback to give for a given set of testresults
-    private function buildFeedback($testCases, $testOutcome) {
+    private function buildFeedback($question, $testCases, $testOutcome) {
         $lines = array();  // Build a list of lines of output
         $testResults = $testOutcome->testResults;
         if (count($testResults) != count($testCases)) {
             $lines[] = get_string('aborted', 'qtype_coderunner');
-            $lines[] = get_string('noerrorsallowed', 'qtype_coderunner');
         } else {
             $numErrors = $testOutcome->errorCount;
             $hiddenErrors = $this->count_hidden_errors($testResults, $testCases);
@@ -272,14 +286,16 @@ class qtype_coderunner_renderer extends qtype_renderer {
                 else if ($hiddenErrors > 0) {
                     $lines[] = get_string('morehidden', 'qtype_coderunner');
                 }
-                $lines[] = get_string('noerrorsallowed', 'qtype_coderunner');
-            } else {
-                $lines[] =
-                $isDisplayed = FALSE;get_string('allok', 'qtype_coderunner') .
-                        "&nbsp;" . $this->feedback_image(1.0);
-                ;
             }
         }
+
+        if (count($lines) == 0) {
+            $lines[] = get_string('allok', 'qtype_coderunner') .
+                        "&nbsp;" . $this->feedback_image(1.0);
+        } else if ($question->all_or_nothing) {
+            $lines[] = get_string('noerrorsallowed', 'qtype_coderunner');
+        }
+
 
         // Convert list of lines to HTML paragraph
 

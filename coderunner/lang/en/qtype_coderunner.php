@@ -30,6 +30,9 @@ $string['addingcoderunner'] = 'Adding a new CodeRunner Question';
 $string['allok'] = 'Passed all tests! ';
 $string['allornothing'] = 'Test code must be provided either for all '
     . 'testcases or for none.';
+$string['all_or_nothing'] = 'All-or-nothing question';
+$string['all_or_nothing_help'] = 'If checked, all test cases must be satisfied ' .
+        'for the submission to earn any marks';
 $string['answerrequired'] = 'Please provide a non-empty answer';
 $string['atleastonetest'] = 'You must provide at least one test case '
     . 'for this question.';
@@ -45,11 +48,14 @@ $string['HIDE'] = 'Hide';
 $string['HIDE_IF_FAIL'] = 'Hide if fail';
 $string['HIDE_IF_SUCCEED'] = 'Hide if succeed';
 $string['hiderestiffail'] = 'Hide rest if fail';
+$string['mark'] = 'Mark';
 $string['missingoutput'] = 'You must supply the expected output from '
     . 'this test case.';
 $string['morehidden'] = 'Some other hidden test cases failed, too.';
 $string['noerrorsallowed'] = 'Your code must pass all tests to earn any '
     . 'marks. Try again.';
+$string['nonnumericmark'] = 'Non-numeric mark';
+$string['negativeorzeromark'] = 'Mark must be greater than zero';
 $string['qWrongBehaviour'] = 'Detailed test results unavailable. '
     . 'Perhaps question not using Adaptive Mode?';
 $string['output'] = 'Output';

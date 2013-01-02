@@ -27,14 +27,14 @@
  *  Need a special behaviour for coderunner questions (which are assumed to be
  *  run in some sort of adaptive mode), in order to avoid repeating
  *  the expensive test run whenever question::grade_response is called.
- *  
+ *
  *  The solution adopted here is to override the process_submit method of
  *  the adaptive behaviour so that it calls the coderunner::grade_response_raw
  *  method, rather than coderunner::grade_response. The raw method takes the
  *  question_attempt_pending_step as a parameter rather than the response
  *  copied from that step. This allows the question to cache the test results
  *  within the step, which is stored in the database.
- * 
+ *
  * TODO: keep in touch with developers regarding the fact that this interface
  * is broken (admitted by Tim Hunt in earlier communications). This file
  * (or the functionality it provides, anyway) belongs somewhere in
@@ -45,13 +45,13 @@ defined('MOODLE_INTERNAL') || die();
 
 class qbehaviour_adaptive_adapted_for_coderunner extends qbehaviour_adaptive {
     const IS_ARCHETYPAL = false;
-    
+
     public function required_question_definition_type() {
         // Restrict behaviour to programming questions
         return 'qtype_coderunner_question';
     }
-    
-    
+
+
     public function process_submit(question_attempt_pending_step $pendingstep) {
         $status = $this->process_save($pendingstep);
 
@@ -79,7 +79,6 @@ class qbehaviour_adaptive_adapted_for_coderunner extends qbehaviour_adaptive {
         // *** changed bit #1 begins ***
         $gradeData = $this->question->grade_response($response);
         list($fraction, $state) = $gradeData;
-        // debugging("grade_response result: ($fraction, $state)");
         if (count($gradeData) > 2) {
             foreach($gradeData[2] as $name => $value) {
                 $pendingstep->set_qt_var($name, $value);
@@ -101,8 +100,8 @@ class qbehaviour_adaptive_adapted_for_coderunner extends qbehaviour_adaptive {
 
         return question_attempt::KEEP;
     }
-    
-    
+
+
     public function process_finish(question_attempt_pending_step $pendingstep) {
         if ($this->qa->get_state()->is_finished()) {
             return question_attempt::DISCARD;
@@ -142,7 +141,7 @@ class qbehaviour_adaptive_adapted_for_coderunner extends qbehaviour_adaptive {
             $pendingstep->set_behaviour_var('_rawfraction', $fraction);
             $pendingstep->set_new_response_summary($this->question->summarise_response($response));
         }
-        
+
         $pendingstep->set_state($state);
         $pendingstep->set_fraction(max($prevbest, $this->adjusted_fraction($fraction, $prevtries)));
         return question_attempt::KEEP;

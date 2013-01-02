@@ -3,6 +3,35 @@
 function xmldb_qtype_coderunner_upgrade($oldversion) {
     global $CFG, $DB;
 
+    debugging("Upgrading from version $oldversion");
+    $dbman = $DB->get_manager();
+    if ($oldversion != 0 && $oldversion < 2013010201) {
+        $table = new xmldb_table('quest_coderunner_options');
+        $allOrNothingField = new xmldb_field('all_or_nothing', XMLDB_TYPE_INTEGER, '1', XMLDB_UNSIGNED, TRUE, null, '1');
+        $dbman->add_field($table, $allOrNothingField);
+
+        $DB->set_field('quest_coderunner_options', 'coderunner_type', 'python3', array('coderunner_type' => 'python3_basic'));
+        $DB->set_field('quest_coderunner_options', 'coderunner_type', 'python2', array('coderunner_type' => 'python2_basic'));
+        $DB->delete_records('quest_coderunner_types', array('coderunner_type' => 'python3_basic'));
+        $DB->delete_records('quest_coderunner_types', array('coderunner_type' => 'python2_basic'));
+        upgrade_plugin_savepoint(true, 2013010201, 'qtype', 'coderunner');
+
+    }
+
+    if ($oldversion != 0 && $oldversion < 2013010202) {
+        $table = new xmldb_table('quest_coderunner_testcases');
+        $mark = new xmldb_field('mark', XMLDB_TYPE_NUMBER, '12', XMLDB_UNSIGNED, TRUE, null, '1.0');
+        $dbman->add_field($table, $mark);
+        upgrade_plugin_savepoint(true, 2013010202, 'qtype', 'coderunner');
+    }
+
+
+    return updateQuestionTypes();
+
+}
+
+function updateQuestionTypes() {
+
     // Add/replace standard question types
 
     // Add the most simple Python type.
@@ -10,8 +39,8 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
     // code.
 
     // ===============================================================
-    $python3Basic =  array(
-        'coderunner_type' => 'python3_basic',
+    $python3 =  array(
+        'coderunner_type' => 'python3',
         'is_custom' => 0,
         'comment' => 'Used for most Python3 questions. For each test case, ' .
                      'runs the student code followed by the test code',
@@ -45,8 +74,8 @@ EOT
     );
 
     // ===============================================================
-    $python2Basic =  array(
-        'coderunner_type' => 'python2_basic',
+    $python2 =  array(
+        'coderunner_type' => 'python2',
         'is_custom' => 0,
         'comment' => 'Used for most Python2 questions. For each test case, ' .
                      'runs the student code followed by the test code',
@@ -114,19 +143,6 @@ EOT
     );
 
 
-    // ===============================================================
-    $python2pypy =  array(
-        'coderunner_type' => 'python2_pypy',
-        'is_custom' => 0,
-        'comment' => 'Used for Python 2.7 questions, using the pypy sandbox',
-        'combinator_template' => NULL,
-        'per_test_template' => "{{STUDENT_ANSWER}}\n\n{{TEST.testcode}}",
-        'language' => 'python2',
-        'sandbox'  => 'PypySandbox',
-        'validator' => 'BasicValidator'
-    );
-
-    // ===============================================================
     $cFunction = array(
         'coderunner_type' => 'c_function',
         'is_custom' => 0,
@@ -421,14 +437,14 @@ EOT
     // List of currently supported question types
     // ==========================================
     $types = array(
-        $python3Basic,
-        $python2Basic,
+        $python3,
+        $python2,
         $cFunction,
         $cFunctionSideEffects,
         $cProgram,
         $cFullMainTests,
         $matlabFunction,
-        $python2NullSandbox,
+        //$python2NullSandbox,
         $javaMethod,
         $javaMethodSideEffects,
         $javaClass,

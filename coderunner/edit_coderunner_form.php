@@ -55,6 +55,8 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->addElement('header', 'generalheader', get_string('type_header','qtype_coderunner'));
         $mform->addElement('select', 'coderunner_type', get_string('coderunner_type', 'qtype_coderunner'), $options);
         $mform->addHelpButton('coderunner_type', 'coderunner_type', 'qtype_coderunner');
+        $mform->addElement('checkbox', 'all_or_nothing', get_string('all_or_nothing', 'qtype_coderunner'));
+        $mform->addHelpButton('all_or_nothing', 'all_or_nothing', 'qtype_coderunner');
         parent::definition($mform);
     }
 
@@ -73,6 +75,10 @@ class qtype_coderunner_edit_form extends question_edit_form {
             $numTestcases = NUM_TESTCASES_START;
         }
 
+        for ($i = 0; $i < $numTestcases; $i++) {
+            $mform->setDefault("mark[$i]", '1.0');
+            $mform->disabledIf("mark[$i]", 'all_or_nothing', 'checked');
+        }
 
         $this->add_per_answer_fields($mform, get_string('testcase', 'qtype_coderunner'), $gradeoptions, $numTestcases);
         $this->add_interactive_settings();
@@ -97,6 +103,8 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 get_string('output', 'qtype_coderunner'),
                 array('cols' => 80, 'rows' => 4, 'class' => 'testcaseresult'));
         $repeated[] = & $mform->createElement('checkbox', 'useasexample', get_string('useasexample', 'qtype_coderunner'), false);
+        $repeated[] = & $mform->createElement('text', 'mark', get_string('mark', 'qtype_coderunner'),
+                array('size' => 5));
         $options = array();
         foreach ($this->displayOptions() as $opt) {
             $options[$opt] = get_string($opt, 'qtype_coderunner');
@@ -140,6 +148,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 $question->useasexample[] = $tc->useasexample;
                 $question->display[] = $tc->display;
                 $question->hiderestiffail[] = $tc->hiderestiffail;
+                $question->mark[] = sprintf("%.3f", $tc->mark);
             }
         }
         return $question;
@@ -155,6 +164,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $testcodes = $data['testcode'];
         $stdins = $data['stdin'];
         $outputs = $data['output'];
+        $marks = $data['mark'];
         $count = 0;
         $cntNonemptyTests = 0;
         $num = max(count($testcodes), count($stdins), count($outputs));
@@ -167,6 +177,15 @@ class qtype_coderunner_edit_form extends question_edit_form {
             $output = trim($outputs[$i]);
             if ($testcode !== '' || $stdin != '' || $output !== '') {
                 $count++;
+            }
+            $mark = trim($marks[$i]);
+            if ($mark != '') {
+                if (!is_numeric($mark)) {
+                    $errors["mark[$i]"] = get_string('nonnumericmark', 'qtype_coderunner');
+                }
+                else if (floatval($mark) <= 0) {
+                    $errors["mark[$i]"] = get_string('negativeorzeromark', 'qtype_coderunner');
+                }
             }
         }
 

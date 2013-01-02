@@ -257,6 +257,31 @@ EOCODE;
         $this->assertEquals($testOutcome->testResults[1]->got, "Yes\nYes\nNo\nNo\nYes\nNo\n");
      }
 
+     public function test_partial_mark_question() {
+         // Test a question that isn't of the usual all_or_nothing variety
+        $q = test_question_maker::make_question('coderunner', 'sqrPartMarks');
+        $code = "def sqr(n):\n  return -17.995";
+        $response = array('answer' => $code);
+        $result = $q->grade_response($response);
+        list($mark, $grade, $cache) = $result;
+        $this->assertEquals($grade, question_state::$gradedpartial);
+        $this->assertEquals($mark, 0);
+
+        $code = "def sqr(n):\n  return 0";  // Passes first test only
+        $response = array('answer' => $code);
+        $result = $q->grade_response($response);
+        list($mark, $grade, $cache) = $result;
+        $this->assertEquals($grade, question_state::$gradedpartial);
+        $this->assertTrue(abs($mark - 0.5/7.5) < 0.00001);
+
+        $code = "def sqr(n):\n  return n * n if n <= 0 else -17.995";  // Passes first test and last two only
+        $response = array('answer' => $code);
+        $result = $q->grade_response($response);
+        list($mark, $grade, $cache) = $result;
+        $this->assertEquals($grade, question_state::$gradedpartial);
+        $this->assertTrue(abs($mark - 5.0/7.5) < 0.00001);
+     }
+
 
      public function test_template_engine() {
          // Check if the template engine is installed and working OK

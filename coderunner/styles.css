@@ -39,6 +39,10 @@ div.coderunner-test-results-bad {
     background-color: #FFAAAA;
 }
 
+div.coderunner-test-results-partial {
+    background-color: #FFF3BF;
+}
+
 div.coderunner-feedback {
 	border:none;
 	padding-bottom: 15px;
