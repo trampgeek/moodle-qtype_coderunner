@@ -42,12 +42,6 @@ require_once($CFG->dirroot . '/question/behaviour/adaptive_adapted_for_coderunne
 require_once($CFG->dirroot . '/local/Twig/Autoloader.php');
 require_once('testingoutcome.php');
 
-$SANDBOX = "/usr/local/pypy-sandbox-4-pycode/pypy/translator/sandbox/pycodeTest.py";
-// $SANDBOX = "/usr/local/sandbox/python3/pycodeTest.py";
-
-$GLOBALS['SANDBOX'] = $SANDBOX; // So it works in any context
-
-
 /**
  * Represents a Python 'coderunner' question.
  */

@@ -43,6 +43,9 @@
  */
 
 define('COMPUTE_STATS', false);
+define('DEFAULT_VALIDATOR', 'BasicValidator');
+
+require_once($CFG->dirroot . '/question/type/coderunner/Sandbox/sandbox_config.php');
 
 /**
  * qtype_coderunner extends the base question_type to coderunner-specific functionality.
@@ -221,8 +224,17 @@ class qtype_coderunner extends question_type {
         $question->combinator_template = $row->combinator_template;
         $question->test_splitter_re = $row->test_splitter_re;
         $question->template = $row->per_test_template;
-        $question->sandbox = $row->sandbox;
-        $question->validator = $row->validator;
+        if (isset($row->sandbox) && $row->sandbox != NULL) {
+            $question->sandbox = $row->sandbox;
+        } else {
+            $question->sandbox = $this->getBestSandbox($question->language);
+        }
+        if (isset($row->validator) && $row->validator != NULL) {
+            $question->validator = $row->validator;
+        } else {
+            $question->validator = DEFAULT_VALIDATOR;
+        }
+
         $question->all_or_nothing = $question->options->all_or_nothing;
 
         if (!$question->testcases = $DB->get_records('quest_coderunner_testcases',
@@ -256,6 +268,7 @@ class qtype_coderunner extends question_type {
         $question->combinator_template = $questiondata->combinator_template;
         $question->test_splitter_re = $questiondata->test_splitter_re;
         $question->template = $questiondata->template;
+        //debugging(print_r($questiondata, true));
         $question->sandbox = $questiondata->sandbox;
         $question->validator = $questiondata->validator;
         $question->all_or_nothing = $questiondata->all_or_nothing;
@@ -458,6 +471,28 @@ class qtype_coderunner extends question_type {
             $s = substr($s, 0, strlen($s) - 1);
         }
         return $s;
+    }
+
+
+    /** Find the 'best' sandbox for a given language, defined to be the
+     *  first one in the ordered list of active sandboxes in sandbox_config.php
+     *  that supports the given language.
+     *  It's public so the tester can call it (yuck, hacky).
+     *  @param type $language to run. Must match a language supported by at least one
+     *  sandbox or an exception is thrown.
+     * @return the preferred sandbox
+     */
+    public function getBestSandbox($language) {
+        global $ACTIVE_SANDBOXES;
+        foreach($ACTIVE_SANDBOXES as $sandbox) {
+            require_once("Sandbox/$sandbox.php");
+            $sb = new $sandbox();
+            $langsSupported = $sb->getLanguages()->languages;
+            if (in_array($language, $langsSupported)) {
+                return $sandbox;
+            }
+        }
+        throw new coding_exception("Config error: no sandbox found for language '$language'");
     }
 }
 

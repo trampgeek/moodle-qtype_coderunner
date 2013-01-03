@@ -3,7 +3,6 @@
 function xmldb_qtype_coderunner_upgrade($oldversion) {
     global $CFG, $DB;
 
-    debugging("Upgrading from version $oldversion");
     $dbman = $DB->get_manager();
     if ($oldversion != 0 && $oldversion < 2013010201) {
         $table = new xmldb_table('quest_coderunner_options');
@@ -25,6 +24,14 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2013010202, 'qtype', 'coderunner');
     }
 
+    if ($oldversion != 0 && $oldversion < 2013010301) {
+        // Allow NULL sandbox and validator fields
+        $table = new xmldb_table('quest_coderunner_types');
+        $sandbox = new xmldb_field('sandbox', XMLDB_TYPE_CHAR, '255', XMLDB_UNSIGNED, FALSE, null);
+        $validator = new xmldb_field('validator', XMLDB_TYPE_CHAR, '255', XMLDB_UNSIGNED, FALSE, null);
+        $dbman->change_field_type($table, $sandbox);
+        $dbman->change_field_type($table, $validator);
+    }
 
     return updateQuestionTypes();
 
@@ -69,8 +76,6 @@ __student_answer__ = """{{ ESCAPED_STUDENT_ANSWER }}"""
 EOT
 ,
         'language' => 'python3',
-        'sandbox'  => 'LiuSandbox',
-        'validator' => 'BasicValidator'
     );
 
     // ===============================================================
@@ -104,8 +109,6 @@ __student_answer__ = """{{ ESCAPED_STUDENT_ANSWER }}"""
 EOT
 ,
         'language' => 'python2',
-        'sandbox'  => 'LiuSandbox',
-        'validator' => 'BasicValidator'
     );
 
     // ===============================================================
@@ -139,7 +142,6 @@ EOT
 ,
         'language' => 'python2',
         'sandbox'  => 'NullSandbox',
-        'validator' => 'BasicValidator'
     );
 
 
@@ -183,8 +185,6 @@ int main() {
 EOT
 ,
         'language' => 'C',
-        'sandbox'  => 'LiuSandbox',
-        'validator' => 'BasicValidator'
     );
 
     // ===============================================================
@@ -212,8 +212,6 @@ int main() {
 EOT
 ,
         'language' => 'C',
-        'sandbox'  => 'LiuSandbox',
-        'validator' => 'BasicValidator'
     );
 
     // ===============================================================
@@ -227,8 +225,6 @@ EOT
         'test_splitter_re' => '',
         'per_test_template' => '{{ STUDENT_ANSWER }}',
         'language' => 'C',
-        'sandbox'  => 'LiuSandbox',
-        'validator' => 'BasicValidator'
     );
 
     // ===============================================================
@@ -242,8 +238,6 @@ EOT
         'test_splitter_re' => '',
         'per_test_template' => "#include <stdio.h>\n#include <stdlib.h>\n#include <ctype.h>\n{{STUDENT_ANSWER}}\n\n{{TEST.testcode}}",
         'language' => 'C',
-        'sandbox'  => 'LiuSandbox',
-        'validator' => 'BasicValidator'
     );
 
     // ===============================================================
@@ -269,8 +263,6 @@ EOT
         'test_splitter_re' => "|#<ab@17943918#@>#\n|ms",
         'per_test_template' => "function tester()\n  {{TEST.testcode}};quit();\nend\n\n{{STUDENT_ANSWER}}",
         'language' => 'matlab',
-        'sandbox'  => 'NullSandbox',
-        'validator' => 'BasicValidator'
     );
     // ===============================================================
     $javaProgram = array(
@@ -283,8 +275,6 @@ EOT
         'test_splitter_re' => '',
         'per_test_template' => '{{ STUDENT_ANSWER }}',
         'language' => 'Java',
-        'sandbox'  => 'LiuSandbox',
-        'validator' => 'BasicValidator'
     );
 
     // ===============================================================
@@ -370,8 +360,6 @@ public class Main {
 EOT
 ,
         'language' => 'Java',
-        'sandbox'  => 'LiuSandbox',
-        'validator' => 'BasicValidator'
     );
 
 
@@ -409,8 +397,6 @@ public class __Tester__ {
 EOT
 ,
         'language' => 'Java',
-        'sandbox'  => 'NullSandbox',
-        'validator' => 'BasicValidator'
     );
 
 
@@ -430,15 +416,13 @@ EOT
 EOT
 ,
         'language' => 'Java',
-        'sandbox'  => 'NullSandbox',
-        'validator' => 'BasicValidator'
     );
 
     // List of currently supported question types
     // ==========================================
     $types = array(
-        $python3,
         $python2,
+        $python3,
         $cFunction,
         $cFunctionSideEffects,
         $cProgram,
@@ -446,7 +430,7 @@ EOT
         $matlabFunction,
         //$python2NullSandbox,
         $javaMethod,
-        $javaMethodSideEffects,
+        //$javaMethodSideEffects,
         $javaClass,
         $javaProgram);
 

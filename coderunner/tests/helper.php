@@ -318,7 +318,9 @@ except ValueError:
      * by reading it from the database.
      */
     private function getOptions(&$question) {
-        global $DB;
+        global $CFG, $DB;
+        require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
+        $qtype = new qtype_coderunner();
 
         $type = $question->options['coderunner_type'];
 
@@ -331,6 +333,13 @@ except ValueError:
                 $field = 'template';
             }
             $question->$field = $value;
+        }
+
+        if (!isset($question->sandbox)) {
+            $question->sandbox = $qtype->getBestSandbox($question->language);
+        }
+        if (!isset($question->validator)) {
+            $question->validator = 'BasicValidator';
         }
     }
 

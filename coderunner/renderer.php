@@ -289,7 +289,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
             }
         }
 
-        if (count($lines) == 0) {
+        if ($testOutcome->errorCount == 0) {
             $lines[] = get_string('allok', 'qtype_coderunner') .
                         "&nbsp;" . $this->feedback_image(1.0);
         } else if ($question->all_or_nothing) {
@@ -299,12 +299,16 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
         // Convert list of lines to HTML paragraph
 
-        $para = html_writer::start_tag('p');
-        $para .= $lines[0];
-        for ($i = 1; $i < count($lines); $i++) {
-            $para .= html_writer::empty_tag('br') . $lines[$i];;
+        if (count($lines) > 0) {
+            $para = html_writer::start_tag('p');
+            $para .= $lines[0];
+            for ($i = 1; $i < count($lines); $i++) {
+                $para .= html_writer::empty_tag('br') . $lines[$i];;
+            }
+            $para .= html_writer::end_tag('p');
+        } else {
+            $para = '';
         }
-        $para .= html_writer::end_tag('p');
         return $para;
     }
 
