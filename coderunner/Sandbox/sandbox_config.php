@@ -8,4 +8,5 @@
  */
 global $ACTIVE_SANDBOXES;
 $ACTIVE_SANDBOXES = array('liusandbox', 'nullsandbox');
+//$ACTIVE_SANDBOXES = array('nullsandbox');  // For testing all languages in nullsandbox
 ?>

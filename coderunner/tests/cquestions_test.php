@@ -212,6 +212,11 @@ class qtype_coderunner_c_question_test extends basic_testcase {
 
 
     public function test_illegal_function_call() {
+        // NOTE: The null sandbox doesn't pass this test.
+        // I'm not sure why the nproc=1 setting in runguard doesn't prevent
+        // the forking. Even if it did it wouldn't detect the illegal
+        // function call, but it should at least abort the program, shouldn't it?
+        // TODO: find out what's happening here.
         $q = test_question_maker::make_question('coderunner', 'sqrC');
         $response = array('answer' =>
 "#include <linux/unistd.h>
@@ -220,7 +225,7 @@ int sqr(int n) {
     if (n == 0) return 0;
     else {
         int i = 0;
-        for (i = 0; i < 20; i++)
+        for (i = 0; i < 2000; i++)
             fork();
         return 0;
     }

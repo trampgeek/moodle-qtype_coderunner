@@ -111,6 +111,43 @@ class Python2_ns_Task extends LanguageTask {
              "--no-core",
              "--streamsize=10000",   // Max stdout/stderr sizes (10MB)
              '/usr/bin/python2',
+             '-BESs',
+             $this->sourceFileName
+         );
+     }
+};
+
+class Python3_ns_Task extends LanguageTask {
+    public function __construct($source) {
+        LanguageTask::__construct($source);
+    }
+
+    public function getVersion() {
+        return 'Python 3.2';
+    }
+
+    public function compile() {
+        $this->executableFileName = $this->sourceFileName;
+    }
+
+    public function readableDirs() {
+        return array();  // Irrelevant for this sandbox
+     }
+
+     // Return the command to pass to localrunner as a list of arguments,
+     // starting with the program to run followed by a list of its arguments.
+     public function getRunCommand() {
+        return array(
+             dirname(__FILE__)  . "/runguard",
+             "--user=coderunner",
+             "--time=3",             // Seconds of execution time allowed
+             "--memsize=100000",     // Max kb mem allowed (100MB)
+             "--filesize=10000",     // Max file sizes (10MB)
+             "--nproc=2",            // At most 2 processes/threads
+             "--no-core",
+             "--streamsize=10000",   // Max stdout/stderr sizes (10MB)
+             '/usr/bin/python3',
+             '-BESs',
              $this->sourceFileName
          );
      }
@@ -190,6 +227,52 @@ class Java_ns_Task extends LanguageTask {
      }
 };
 
+
+class C_ns_Task extends LanguageTask {
+
+    public function __construct($source) {
+        LanguageTask::__construct($source);
+    }
+
+    public function getVersion() {
+        return 'gcc-4.6.3';
+    }
+
+    public function compile() {
+        $src = basename($this->sourceFileName);
+        $errorFileName = "$src.err";
+        $execFileName = "$src.exe";
+        $cmd = "gcc -Wall -ansi -static -lm -x c -o $execFileName $src 2>$errorFileName";
+        exec($cmd, $output, $returnVar);
+        if ($returnVar == 0) {
+            $this->cmpinfo = '';
+            $this->executableFileName = $execFileName;
+        }
+        else {
+            $this->cmpinfo = file_get_contents($errorFileName);
+        }
+    }
+
+
+    public function getRunCommand() {
+         return array(
+             dirname(__FILE__)  . "/runguard",
+             "--user=coderunner",
+             "--time=5",              // Seconds of execution time allowed
+             "--memsize=100000",      // Max kb mem allowed (100MB)
+             "--filesize=10000",      // Max file sizes (10MB)
+             "--nproc=1",             // Single process only
+             "--no-core",
+             "--streamsize=10000",    // Max stdout/stderr sizes (10MB)
+             "./" . $this->executableFileName
+         );
+    }
+
+    public function readableDirs() {
+        return array();
+    }
+};
+
 // ==============================================================
 //
 // Now the actual null sandbox.
@@ -205,7 +288,7 @@ class NullSandbox extends LocalSandbox {
     public function getLanguages() {
         return (object) array(
             'error' => Sandbox::OK,
-            'languages' => array('matlab', 'python2', 'Java')
+            'languages' => array('matlab', 'python2', 'python3', 'Java', 'C')
         );
     }
 
@@ -237,6 +320,9 @@ class NullSandbox extends LocalSandbox {
                 fclose($f);
                 $cmd .= " <prog.in";
             }
+            else {
+                $cmd .= " </dev/null";
+            }
 
             $handle = popen($cmd, 'r');
             $result = fread($handle, MAX_READ);
@@ -253,7 +339,12 @@ class NullSandbox extends LocalSandbox {
                     $this->task->result = Sandbox::RESULT_TIME_LIMIT;
                     $this->task->signal = 9;
                     $this->task->stderr = '';
-                } else {
+                } else if(strpos($this->task->stderr, "warning: command terminated with signal 11")) {
+                    $this->task->result = Sandbox::RESULT_RUNTIME_ERROR;
+                    $this->task->signal = 11;
+                    $this->task->stderr = '';
+                }
+                else {
                     $this->task->result = Sandbox::RESULT_ABNORMAL_TERMINATION;
                 }
             }
