@@ -58,7 +58,14 @@ class qtype_coderunner_renderer extends qtype_renderer {
      * @return string HTML fragment.
      */
     public function formulation_and_controls(question_attempt $qa, question_display_options $options) {
-        global $CFG;
+        global $CFG, $PAGE;
+        $jsmodule = array(
+            'name'      => 'qtype_coderunner',
+            'fullpath'  => '/question/type/coderunner/module.js',
+            'requires'  => array('base', 'widget', 'io', 'node-menunav')
+        );
+
+        $PAGE->requires->js_init_call('M.qtype_coderunner.initQuestionRender', array(), false, $jsmodule);
         $question = $qa->get_question();
         $qtext = $question->format_questiontext($qa);
         $testcases = $question->testcases;
@@ -108,17 +115,6 @@ class qtype_coderunner_renderer extends qtype_renderer {
         $lang = ucwords($question->language);
         if ($lang === 'Python2') $lang = 'Pythontwo';  // Work around limitations of ...
         if ($lang === 'Python3') $lang = 'Pythonthree'; // ... editarea.
-
-        $qtext .= html_writer::tag('script',
-                    "editAreaLoader.init({ " .
-                    "id : \"$responsefieldname\"" .
-                    ",syntax: \"$lang\"" .
-                    ",replace_tab_by_spaces: \"4\"" .
-                    // ",display: \"later\"" .  // TODO: decide whether on or off is best default
-                    ",font_size: \"12\"" .
-                    ",toolbar: \"search, go_to_line, |, undo, redo, |, select_font,|, highlight, reset_highlight, |, help\"" .
-                    ",start_highlight: true})"
-        , array('type' => "text/javascript", 'charset' => 'utf8'));
 
         if ($qa->get_state() == question_state::$invalid) {
             $qtext .= html_writer::nonempty_tag('div',
