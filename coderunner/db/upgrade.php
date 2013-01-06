@@ -31,6 +31,19 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         $validator = new xmldb_field('validator', XMLDB_TYPE_CHAR, '255', XMLDB_UNSIGNED, FALSE, null);
         $dbman->change_field_type($table, $sandbox);
         $dbman->change_field_type($table, $validator);
+        upgrade_plugin_savepoint(true, 2013010301, 'qtype', 'coderunner');
+    }
+
+    if ($oldversion != 0 && $oldversion < 2013010501) {
+        // Add custom template option to question
+        $table = new xmldb_table('quest_coderunner_options');
+        $customTemplate = new xmldb_field('custom_template', XMLDB_TYPE_TEXT, 'medium', XMLDB_UNSIGNED, FALSE, null);
+        $dbman->add_field($table, $customTemplate);
+        // Remove is_custom field from quest_coderunner_types
+        $table = new xmldb_table('quest_coderunner_types');
+        $fieldToDrop = new xmldb_field('is_custom', XMLDB_TYPE_INTEGER, '1', XMLDB_UNSIGNED, TRUE, null, '0');
+        $dbman->drop_field($table, $fieldToDrop);
+        upgrade_plugin_savepoint(true, 2013010502, 'qtype', 'coderunner');
     }
 
     return updateQuestionTypes();

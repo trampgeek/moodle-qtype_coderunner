@@ -48,14 +48,46 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
 
     protected function definition() {
-        // Override to add my coderunner_type selector at the top
-        $mform = $this->_form;
-        $options = array_merge(array('undefined' => 'Set type...'), $this->get_types());
+        // Override to add my coderunner_type selector at the top.
+        // Need to support both JavaScript enabled and JavaScript disabled
+        // sites, so there's a normal select item, containing all languages
+        // and question types, for a default and a YUI3 hierarchical menu
+        // that the JavaScript switches on if it's enabled.
+        global $PAGE;
+        $jsmodule = array(
+            'name'      => 'qtype_coderunner',
+            'fullpath'  => '/question/type/coderunner/module.js',
+            'requires'  => array('base', 'widget', 'io', 'node-menunav')
+        );
+        $PAGE->requires->js_init_call('M.qtype_coderunner.init', array(), false, $jsmodule);
 
-        $mform->addElement('header', 'generalheader', get_string('type_header','qtype_coderunner'));
-        $mform->addElement('select', 'coderunner_type', get_string('coderunner_type', 'qtype_coderunner'), $options);
+        $mform = $this->_form;
+        $question = $this->question;
+
+        list($languages, $types) = $this->get_languages_and_types();
+
+        $mform->addElement('header', 'questiontypeheader', get_string('type_header','qtype_coderunner'));
+
+        $expandedTypes = array_merge(array('Undefined' => 'Undefined'), $types);
+        $mform->addElement('select', 'coderunner_type', get_string('coderunner_type', 'qtype_coderunner'), $expandedTypes);
+
+        // Fancy YUI type menu disabled for now as it looked ugly. To re-enable
+        // uncomment the following statement and add the line 'this.useYuiTypesMenu(Y);'
+        // to the init() function in module.js.
+        // $mform->addElement('html', $this->makeYuiMenu(array_keys($languages), array_keys($types)));
+
+        $mform->addRule('coderunner_type', 'You must select the question type', 'required');
         $mform->addHelpButton('coderunner_type', 'coderunner_type', 'qtype_coderunner');
-        $mform->addElement('checkbox', 'all_or_nothing', get_string('all_or_nothing', 'qtype_coderunner'));
+
+        $mform->addElement('advcheckbox', 'customise', get_string('customise', 'qtype_coderunner'));
+        $mform->addHelpButton('customise', 'customise', 'qtype_coderunner');
+
+        // Template is hidden by default in css but displayed by JavaScript if 'customise' checked
+        $mform->addElement('textarea', 'custom_template', get_string("template", "qtype_coderunner"),
+                '" rows="8" cols="80"');
+
+        $mform->addElement('advcheckbox', 'all_or_nothing', get_string('all_or_nothing', 'qtype_coderunner'));
+        $mform->setDefault('all_or_nothing', True);
         $mform->addHelpButton('all_or_nothing', 'all_or_nothing', 'qtype_coderunner');
         parent::definition($mform);
     }
@@ -157,9 +189,8 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
-
-        if ($data['coderunner_type'] == 'undefined') {
-            $errors['coderunner_type'] = get_string('typerequired', 'qtype_coderunner');
+        if ($data['coderunner_type'] == '') {
+            $errors['coderunner_type'] = get_string('questiontype_required', 'qtype_coderunner');
         }
         $testcodes = $data['testcode'];
         $stdins = $data['stdin'];
@@ -200,16 +231,65 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
 
 
-    private function get_types() {
-        // Return a table (name => name) of all the non-custom coderunner types in the DB
+    private function get_languages_and_types() {
+        // Return two arrays (language => language) and (type => subtype) of
+        // all the non-custom coderunner question types in the DB,
+        // where the subtype is the suffix of the type in the database,
+        // e.g. for java_method it is 'method'. For question types without a
+        // subtype the word 'Default' is used.
         global $DB;
-        $records = $DB->get_records('quest_coderunner_types', array('is_custom' => 0),
+        $records = $DB->get_records('quest_coderunner_types', array(),
                 'coderunner_type', 'coderunner_type');
         $types = array();
         foreach ($records as $row) {
+            if (($pos = strpos($row->coderunner_type, '_')) !== FALSE) {
+                $subtype = substr($row->coderunner_type, $pos + 1);
+                $language = substr($row->coderunner_type, 0, $pos);
+            }
+            else {
+                $subtype = 'Default';
+                $language = $row->coderunner_type;
+            }
             $types[$row->coderunner_type] = $row->coderunner_type;
+            $languages[$language] = ucwords($language);
         }
-        return $types;
+        asort($types);
+        asort($languages);
+        return array($languages, $types);
+    }
+
+    // Construct the HTML for a YUI3 hierarchical menu of languages/types.
+    // Initially hidden and turned on by JavaScript. See module.js.
+    private function makeYuiMenu($languages, $types) {
+        $s = '<div id="question_types" class="yui3-menu" style="display:none"><div class="yui3-menu-content"><ul>';
+        $s .= '<li class="yui3-menuitem"><a class="yui3-menu-label" href="#question-types">Choose type...</a>';
+        $s .= '<div id="languages" class="yui3-menu"><div class="yui3-menu-content"><ul>';
+        foreach ($languages as $lang) {
+            $subtypes = array();
+            foreach ($types as $type) {
+                if (strpos($type, $lang) === 0) {
+                    if ($type != $lang) {
+                        $subtypes[$type] = substr($type, strlen($lang) + 1);
+                    }
+                }
+            }
+
+            $s .= '<li class="yui3-menuitem">';
+            if (count($subtypes) == 0) {
+                $s .= "<a class=\"yui3-menuitem-content\" href=\"#$lang\">$lang</a>";
+            } else {
+                $s .= '<a class="yui3-menu-label" href="#' . $lang . '">' . $lang . '</a>';
+                $s .= "<div id=\"$lang\" class=\"yui3-menu\"><div class=\"yui3-menu-content\"><ul>";
+                foreach ($subtypes as $type=>$subtype) {
+                    $s .= "<li class=\"yui3-menuitem\"><a class=\"yui3-menuitem-content\" href=\"#$type\">$subtype</a></li>";
+                }
+                $s .= '</ul></div></div>';
+            }
+            $s .= '</li>';
+        }
+        $s .= '</ul></div></div>';
+        $s .= '</ul></div></div>';
+        return $s;
 
     }
 

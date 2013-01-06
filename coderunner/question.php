@@ -165,7 +165,6 @@ class qtype_coderunner_question extends question_graded_automatically {
     protected function run_tests($code, $testCases) {
         global $CFG;
 
-        assert($this->template != '');
         Twig_Autoloader::register();
         $loader = new Twig_Loader_String();
         $twig = new Twig_Environment($loader, array(
@@ -185,9 +184,9 @@ class qtype_coderunner_question extends question_graded_automatically {
         $sandbox = new $sandboxClass();
         $validator = new $validatorClass();
 
-        if ($this->combinator_template && $this->noStdins($testCases)) {
+        if (!$this->customise && $this->combinator_template && $this->noStdins($testCases)) {
             // We have the option of running all tests at once.
-            // Only do this if there are no stdins.
+            // Only do this if there are no stdins and it's not a customised question.
             assert($this->test_splitter_re != '');
             $templateParams = array(
                 'STUDENT_ANSWER' => $code,
@@ -238,13 +237,14 @@ class qtype_coderunner_question extends question_graded_automatically {
         // with a TestingOutcome object containing a test result for each test
         // case.
         if (!isset($outcome)) {
+            $template = $this->customise ? $this->custom_template : $this->per_test_template;
             $outcome = new TestingOutcome();
             foreach ($testCases as $testCase) {
                 $templateParams = array(
                     'STUDENT_ANSWER' => $code,
                     'ESCAPED_STUDENT_ANSWER' => str_replace('"', '\"', $code),
                     'TEST' => $testCase);
-                $testProg = $twig->render($this->template, $templateParams);
+                $testProg = $twig->render($template, $templateParams);
                 $input = isset($testCase->stdin) ? $testCase->stdin : '';
                 $run = $sandbox->execute($testProg, $this->language, $input);
                 if ($run->result === SANDBOX::RESULT_COMPILATION_ERROR) {

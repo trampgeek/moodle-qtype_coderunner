@@ -1,5 +1,5 @@
 .coderunner-answer, table.coderunner-test-results td,
-table.coderunnerexamples td,
+table.coderunnerexamples td, #id_template,
 .testcaseexpression, .testcaseresult, .testcasestdin {
     font-family:courier,monospace;
 }
@@ -54,6 +54,10 @@ input[id~="grading"] {
 
 p.coderunner-spacer {
     font-size: 5px;
+}
+
+body.jsenabled #fitem_id_custom_template {
+    display: none;
 }
 
 

@@ -36,7 +36,8 @@ class qtype_coderunner_test_helper extends question_test_helper {
         return array('sqr', 'helloFunc', 'copyStdin', 'timeout', 'exceptions',
             'sqrPartMarks',
             'studentanswervar',
-            'sqrC', 'sqrNoSemicolons', 'helloProgC',
+            'sqrC', 'sqrNoSemicolons', 'sqrCustomised',
+            'helloProgC',
             'copyStdinC', 'timeoutC', 'exceptionsC', 'strToUpper',
             'strToUpperFullMain', 'stringDelete',
             'sqrmatlab', 'sqrjava', 'nameclass', 'printsquares');
@@ -92,6 +93,13 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $coderunner->unitpenalty = 0.2;
         $this->getOptions($coderunner);
         return $coderunner;
+    }
+
+    public function make_coderunner_question_sqrCustomised() {
+        $q = $this->make_coderunner_question_sqr();
+        $q->customise = true;
+        $q->custom_template = "def times(a, b): return a * b\n\n{{STUDENT_ANSWER}}\n\n{{TEST.testcode}}\n";
+        return $q;
     }
 
     public function make_coderunner_question_sqrPartMarks() {
@@ -321,6 +329,7 @@ except ValueError:
         global $CFG, $DB;
         require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
         $qtype = new qtype_coderunner();
+        $question->customise = isset($question->custom_template) && trim($question->custom_template) != '';
 
         $type = $question->options['coderunner_type'];
 
@@ -329,9 +338,6 @@ except ValueError:
             throw new coding_exception("TestHelper: bad call to getOptions with type $type");
         }
         foreach ($record as $field=>$value) {
-            if ($field === 'per_test_template') {
-                $field = 'template';
-            }
             $question->$field = $value;
         }
 

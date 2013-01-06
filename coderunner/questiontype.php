@@ -84,7 +84,7 @@ class qtype_coderunner extends question_type {
      * @return mixed array as above, or null to tell the base class to do nothing.
      */
     public function extra_question_fields() {
-        return array('quest_coderunner_options', 'coderunner_type', 'all_or_nothing');
+        return array('quest_coderunner_options', 'coderunner_type', 'custom_template', 'all_or_nothing');
     }
 
     /**
@@ -149,30 +149,13 @@ class qtype_coderunner extends question_type {
         global $DB;
 
         assert(isset($question->coderunner_type));
-        if (!isset($question->all_or_nothing)) { // Unchecked checkboxes aren't posted
-            $question->all_or_nothing = false;
+        if (!isset($question->customise) || !$question->customise || trim($question->custom_template) == '') {
+            // Following line fails, due to bug in save_question_options
+            //$question->custom_template = null; // Discard customised template
+            $question->custom_template = '';   // Grrr. Have to do this instead.
         }
 
         parent::save_question_options($question);
-
-        // TODO: Add code to handle CUSTOM types. Following is broken.
-        /*
-        $customType = 'CUSTOM_' . $question->id;
-        if ($question->options->coderunner_type === $customType) {
-            // Custom type: create or replace an existing type for this
-            // question. Note that only the per-test-template is used on
-            // custom types; for simplicity they aren't allowed to make use
-            // of the combinator template.
-
-            $DB->delete_records('quest_coderunner_types',
-                    array('coderunner_type' => $customType));
-            $DB->insert_record('quest_coderunner_types',
-                    array('coderunner_type' => $customType,
-                          'per_test_template' => $question->template,
-                          'language' => $question->language,
-                          'sandbox'  => $question->sandbox));
-        }
-        */
 
         $testcaseTable = "quest_coderunner_testcases";
 
@@ -185,7 +168,6 @@ class qtype_coderunner extends question_type {
             $oldtestcases = array();
         }
 
-
         foreach ($question->testcases as $tc) {
             if (($oldtestcase = array_shift($oldtestcases))) { // Existing testcase, so reuse it
                 $tc->id = $oldtestcase->id;
@@ -197,12 +179,10 @@ class qtype_coderunner extends question_type {
             }
         }
 
-
         // delete old testcase records
         foreach ($oldtestcases as $otc) {
             $DB->delete_records($testcaseTable, array('id' => $otc->id));
         }
-
 
         return true;
     }
@@ -210,39 +190,52 @@ class qtype_coderunner extends question_type {
     // Load the question options (all the question extension fields and
     // testcases) from the database into the 'question' (which is actually a
     // coderunner question edit form).
+    // If the question has a custom template, it is set as the per-test-case
+    // template and the combinator template is ignored. Otherwise both are
+    // copied from the database into the question object.
 
     public function get_question_options($question) {
         global $CFG, $DB, $OUTPUT;
 
         parent::get_question_options($question);
 
+        // Flatten the options into the question object itself.
+        // [Base class is inconsistent here: save_question_options assumes
+        // the extra fields belong to the question object itself, but
+        // get_question_options puts them into an 'options' field.]
+
+        foreach($question->options as $field=>$value) {
+            $question->$field = $value;
+        }
+
+        $question->customise = isset($question->custom_template) && trim($question->custom_template) != '';
+
+        // Now add to the question all the fields from the question's type record.
+
         if (!$row = $DB->get_record('quest_coderunner_types',
-                array('coderunner_type' => $question->options->coderunner_type))) {
+                array('coderunner_type' => $question->coderunner_type))) {
             throw new coding_exception("Failed to load type info for question id {$question->id}");
         }
-        $question->language = $row->language;
-        $question->combinator_template = $row->combinator_template;
-        $question->test_splitter_re = $row->test_splitter_re;
-        $question->template = $row->per_test_template;
-        if (isset($row->sandbox) && $row->sandbox != NULL) {
-            $question->sandbox = $row->sandbox;
-        } else {
+
+        foreach ($row as $field => $value) {
+            if ($field != 'id' && $field != 'coderunner_type') {
+                $question->$field = $row->$field;
+            }
+        }
+        if (!isset($question->sandbox))  {
             $question->sandbox = $this->getBestSandbox($question->language);
         }
-        if (isset($row->validator) && $row->validator != NULL) {
-            $question->validator = $row->validator;
-        } else {
+        if (!isset($question->validator)) {
             $question->validator = DEFAULT_VALIDATOR;
         }
 
-        $question->all_or_nothing = $question->options->all_or_nothing;
-
+        // Add in the testcases
         if (!$question->testcases = $DB->get_records('quest_coderunner_testcases',
                 array('questionid' => $question->id), 'id ASC')) {
-
             throw new coding_exception("Failed to load testcases for question id {$question->id}");
         }
 
+        // Lastly the stats (if enabled)
         if (COMPUTE_STATS) {
             $question->stats = $this->get_question_stats($question->id);
         } else {
@@ -258,20 +251,11 @@ class qtype_coderunner extends question_type {
     // testcases and stats across to the under-creation question definition.
     protected function initialise_question_instance(question_definition $question, $questiondata) {
         parent::initialise_question_instance($question, $questiondata);
-        $question->testcases = $questiondata->testcases;
-        $question->stats = $questiondata->stats;
-        foreach ($questiondata->options as $option => $value) {
-            $question->$option = $value;
+        foreach (array('testcases', 'stats', 'language', 'combinator_template',
+            'test_splitter_re', 'per_test_template', 'customise',
+            'sandbox', 'validator', 'all_or_nothing') as $field) {
+            $question->$field = $questiondata->$field;
         }
-
-        $question->language = $questiondata->language;
-        $question->combinator_template = $questiondata->combinator_template;
-        $question->test_splitter_re = $questiondata->test_splitter_re;
-        $question->template = $questiondata->template;
-        //debugging(print_r($questiondata, true));
-        $question->sandbox = $questiondata->sandbox;
-        $question->validator = $questiondata->validator;
-        $question->all_or_nothing = $questiondata->all_or_nothing;
     }
 
 
@@ -406,7 +390,6 @@ class qtype_coderunner extends question_type {
             $tc->testcode = $testcase['#']['testcode'][0]['#']['text'][0]['#'];
             $tc->stdin = $testcase['#']['stdin'][0]['#']['text'][0]['#'];
             $tc->output = $testcase['#']['output'][0]['#']['text'][0]['#'];
-            $tc->mark = $testcase['#']['mark'][0]['#']['text'][0]['#'];
             $tc->display = 'SHOW';
             $tc->mark = 1.0;
             if (isset($testcase['@']['mark'])) {
@@ -428,6 +411,7 @@ class qtype_coderunner extends question_type {
             $qo->testcases[] = $tc;
         }
 
+        $qo->customise = trim($qo->custom_template) != '';
         return $qo;
     }
 

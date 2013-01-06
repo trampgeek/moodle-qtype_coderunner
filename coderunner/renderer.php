@@ -188,7 +188,10 @@ class qtype_coderunner_renderer extends qtype_renderer {
                 $fb .= html_writer::tag('p', str_replace("\n", "<br />", s($testOutcome->errorMessage)));
             }
             else {
-                $fb .= $this->buildResultsTable($q, $testCases, $testResults);
+                $results = $this->buildResultsTable($q, $testCases, $testResults);
+                if ($results != NULL) {
+                    $fb .= $results;
+                }
             }
 
             // Summarise the status of the response in a paragraph at the end.
@@ -204,6 +207,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
         return $fb;
     }
 
+    // Return a table of results or NULL if there are no results to show.
     private function buildResultsTable($question, $testCases, $testResults) {
         // First determine which columns are required in the result table
         // by looking for occurrences of testcode and stdin data in the tests.
@@ -265,8 +269,11 @@ class qtype_coderunner_renderer extends qtype_renderer {
             }
         }
         $table->data = $tableData;
-        $resultTableHtml = html_writer::table($table);
-        return $resultTableHtml;
+        if (count($tableData) > 0) {
+            return html_writer::table($table);
+        } else {
+            return null;
+        }
     }
 
     // Compute the HTML feedback to give for a given set of testresults
@@ -289,7 +296,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
             }
         }
 
-        if ($testOutcome->errorCount == 0) {
+        if ($testOutcome->status == $testOutcome::STATUS_VALID && $testOutcome->errorCount == 0) {
             $lines[] = get_string('allok', 'qtype_coderunner') .
                         "&nbsp;" . $this->feedback_image(1.0);
         } else if ($question->all_or_nothing) {

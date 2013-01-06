@@ -1,33 +1,37 @@
-CODE RUNNER
-========
+# CODE RUNNER
 
 @version 0 December 2012
 @author Richard Lobb, University of Canterbury, New Zealand.
 
-Introduction
-------------
+## Introduction
+
 
 CodeRunner is a Moodle question type that requests students to submit program code
 to some given specification, e.g. a Python function sqr(x) that returns its
 parameter squared. The submission is graded by running a series of testcases
 of the code in a sandbox, comparing the output with the expected output.
-If all testcases pass, the question is deemed correct, otherwise it is
-incorrect. CodeRunner is expected to be run in a special adaptive mode, so the
-student submits each question one by one repeatedly, until a correct result
-is obtained. Their mark for the question is then determined by the number of
-submissions and the per-submission penalty set within Moodle in the usual way.
+CodeRunner is intended to be run in an adaptive mode, so that students know
+immediately if their code is passing the tests. In the typical
+'all-or-nothing' mode, all test cases must pass
+if the submission is to be awarded any marks. The mark for a set of questions
+in a quiz is then determined primarily by which questions the student is able
+to  solve successfully and then secondarily by how many submissions the student
+makes on each question. However, it is also possible to run CodeRunner questions
+in a traditional quiz mode where the mark is determined by how many of the test
+cases the code successfully passes.
 
 CodeRunner is a derivative of a Python-specific plug-in called *pycode*, which
-has been used in 4 stage 1 classes of several hundred students for two years,
-and *ccode*, a C version of pycode, which was used in a stage 2 C programming
+has been used in four first-year university classes of several hundred students for two years,
+and *ccode*, a C version of pycode, which was used in a second-year C programming
 course of 200 students. The new version is designed to support multiple
-languages and question types within a single plug-in. Python, C and MatLab
-will be supported in the first version but it is sufficiently general to
-accommodate additional languages with very little custom code.
+languages and question types within a single plug-in. Currently Python (versions
+2 and 3), C, Java and Matlab are all supported, but the architecture is
+sufficiently general to accommodate additional languages with very little
+extra code.
 
 
-Installation
-------------
+## Installation
+
 
 CodeRunner requires Moodle version 2.1 or later. Furthermore, to run the testsuite,
 a Moodle version >= 2.3 is required, since the tests have been changed from
@@ -35,83 +39,217 @@ using SimpleTest to PHPUnit, as required by version 2.3.
 
 There are three stages to installation:
 
-1. installing a sandbox, in which
-student code can be run in (hopefully) a safe way
-2. installing the CodeRunner
-module itself.
-3. Configuring the sandbox for your own environment and languages
+1. Installing the CodeRunner module itself.
 
-1. Installing the Liu sandbox
+1. Installing a least one additional sandbox (not strictly essential but strongly
+recommended) to provide more security .
 
-   The main sandbox for normal use (Python, C, C++) is the
-Liu sandbox. It should be installed first. It can be obtained from
-http://sourceforge.net/projects/libsandbox/.  Both the binary and the
-Python2 interface need to be installed. Note that CodeRunner does *not*
-currently work with the Python3 interface to the sandbox, though it is
-quite possible to run Python3 within the sandbox (and indeed that's the most
-common mode of operation).  The easiest way to install the Liu sandbox is by
-downloaded appropriate .debs or .rpms of both libsandbox and pysandbox (for
-Python version 2). Note that the pysandbox download must be the one appropriate
-to the installed  version of Python2 (currently typically 2.6 on RHEL systems
-on 2.7 on most other flavours of Linux).
+1. Configuring the system for the particular sandbox(es) and languages
+your installation supports.
 
-2. Installing CodeRunner
 
-   CodeRunner should be installed in the <moodlehome>/local directory as follows
+### Installing CodeRunner
+
+CodeRunner should be installed in the `<moodlehome>/local` directory as follows.
 
     cd <moodlehome>/local
     git clone https://github.com/trampgeek/CodeRunner.git
     cd CodeRunner
-    ./install
+    sudo ./install
 
-    All going well, you should then have symbolic links from <moodlehome>/question/type
-and <moodlehome>/question/behaviour to the <moodlehome>/local/CodeRunner/CodeRunner
-and <moodlehome>/local/CodeRunner/adaptive_adapted_for_coderunner directories
-respectively. There should also be a symbolic link from local/Twig to
-local/CodeRunner/Twig.
+The install script sets up symbolic links from the `question/type` and
+`question/behaviour` directories to corresponding CodeRunner directories; you
+must have configured the webserver to follow symbolic links for this to work.
+It also creates a new user called *coderunner* on the system; when using
+the so-called *NullSandbox* (see below), tests are run with the user ID set
+to the coderunner user to minimise the exposure of sensitive web-server
+information. The install script may prompt for details like the office and phone
+number of the coderunner user -- just hit enter to accept the defaults.
+The switch to the coderunner user and the controlled execution of the
+submitted program in *NullSandbox* is done by a program `runguard`, taken
+from the programming contest server [DOMJudge](http://domjudge.sourceforge.net/). This
+program needs to be 'setuid root', and hence the install script requires
+root permissions to set this up.
 
-3. Configuring the Liu Sandbox
+All going well, you should finish up with a user 'coderunner'
+, albeit one without
+a home directory, and symbolic links from within the `<moodlehome>/question/type`
+and `<moodlehome>/question/behaviour` directories to the `<moodlehome>/local/CodeRunner/CodeRunner`
+and `<moodlehome>/local/CodeRunner/adaptive_adapted_for_coderunner` directories
+respectively. There should also be a symbolic link from `local/Twig` to
+`local/CodeRunner/Twig`. These can all be set up by hand if desired but read the
+install script to see exactly what was expected.
 
-   The last step in installation involves configuring the sandbox appropriately
-for your particular environment. This involves deciding what subset of the
-file system a student programming, executing within the sandbox, is allowed
-to see. The simple answer of "nothing" is possible for statically-linked
-C programs but most other environments (normally dynamically-linked C,
-Python, Matlab, Java etc) will require
-dynamic loading of modules at run time from various parts of the file system.
-The default downloaded configuration supports standard Linux Python2
-and C questions, and Python3 questions if Python3 is installed in the /opt
-directory tree (which is where it landed up on the development server for
-some reason or other). Other languages will require some tweaking. [TODO:
-provide more documentation on this.]
-vbsandbox
-Assuming you're on a Moodle version >=2.3, you should now be able to test the
+### Installing the Liu sandbox
+
+The recommended main sandbox for running Python and C is the
+Liu sandbox. It can be obtained from
+[here](http://sourceforge.net/projects/libsandbox/).  Both the binary and the
+Python2 interface need to be installed. Note that CodeRunner does *not*
+currently work with the Python3 interface to the sandbox, though it is
+quite possible to run Python3 within the sandbox.
+
+The easiest way to install the Liu sandbox is by
+downloading appropriate `.deb`s or `.rpm`s of both `libsandbox` and `pysandbox` (for
+Python version 2). Note that the `pysandbox` download must be the one appropriate
+to the installed  version of Python2 (currently typically 2.6 on RHEL systems
+or 2.7 on most other flavours of Linux) *regardless of whether or not you
+intend to support Python3 as a programming language for submissions*.
+
+### Configuration
+
+The last step in installation involves configuring the sandboxes appropriately
+for your particular environment.
+
+  1. If you haven't succeeded in installing the LiuSandbox correctly, you
+can try running all your code via *runguard* in the so-called *NullSandbox*.
+Assuming the install script successfully created the user *coderunner* and
+set the *runguard* program to run as root, the nullsandbox is reasonably safe,
+in that it limits execution time resource usage and limits file access to
+those parts of the file system visible to all users. However, it does not
+prevent use of system calls like *socket* that might open connections to
+other servers behind your firewall and of course it depends on the Unix
+server being securely set up in the first place.
+
+    To use only the NullSandbox, change the file `CodeRunner/coderunner/Sandbox/sandbox_config.php`
+to list only `nullsandbox` as an option.
+
+  2. If you are using the LiuSandbox for Python and C, the supplied
+`sandbox_config.php` should be correct. However, some configuration of the
+file `liusandbox.php` may be required. Try it first 'out of the box', but
+if, when running a submitted quiz question, you get 'Illegal function call'
+due to opening an inaccessible file, you will have to configure
+the various `LanguageTask` subclasses so that each one returns a suitable
+list of accessible subtrees when its `readableDirs()` method is called.
+Some experimentation may be needed and/or use of the Linux `strace` command
+to determine what bits of the file system your installed Python (say) requires
+access to. This should not be necessary with C, as the C programs are compiled
+outside the sandbox and statically linking so shouldn't need to access
+*any* bits of the file system at runtime (unless you wish to allow this,
+of course).
+
+If you're running a Moodle version >=2.3, and have installed the
+*phpunit* system for testing, you might wish to test the
 CodeRunner installation with phpunit. However, unless you are planning on running
-the VirtualBox sandbox and/or Matlab you should first move or remove the two files
+Matlab you should first move or remove the file
 
-    <moodlehome>/local/coderunner/Coderunner/tests/vbsandbox_test.php
-    <moodlehome>/local/coderunner/Coderunner/tests/matlabquestions_test.php
+        <moodlehome>/local/coderunner/Coderunner/tests/matlabquestions_test.php
 
 You should then be able to run the tests with
 
-    cd <moodlehome>
-    php admin/tool/phpunit/cli/init.php
-    phpunit --testsuite="qtype_coderunner test suite"
+        cd <moodlehome>
+        php admin/tool/phpunit/cli/init.php
+        phpunit --testsuite="qtype_coderunner test suite"
 
-If all that goes well, you should be in business.
+Please [email me](mailto:richard.lobb@canterbury.ac.nz) if you have problems
+with the installation.
 
-Please email me if you have problems with the installation.
 
-More on Sandboxing
-------------------
+##Some notes on question types and customisation
 
-The system is designed with a pluggable sandbox architecture. Two other
-sandboxes are currently provided: VbSandbox, which runs code in a VirtualBox
-within the host and NullSandbox which isn't a true sandbox at all but runs
-code natively on the host, albeit with resource constraints on time,
-number of processes, max filesize etc.
 
-The VirtualBox sandbox was intended for use with MatLab, which won't run in
+CodeRunner support a wide variety of question types and can easily be
+extended to support lots more. The file `db/upgrade.php` installs a set of
+standard language and question types into the data base. Each question type
+defines a programming language, a couple of templates (to be discussed shortly),
+a preferred sandbox (normally left blank so that the best one available can
+be used) and a preferred validator. The latter is also normally blank as the
+default so-called
+*BasicValidator* is the only one currently available - it just compares the actual
+program output with the expected output and requires an exact match for a
+pass, after trailing blank lines and trailing white space on lines has been
+removed. An alternative regular expression match could easily be added but I
+haven't felt the need for it yet - I prefer students to get answers exactly
+right, not roughly right.
+
+Templates are the key to understanding how a submission is tested. There are in
+general two templates per question type - a *combinator_template* and a
+*per_test_template* but we'll ignore the former for now and focus on the latter.
+
+The *per_test_template* for each question type defines how a program is built from the
+student's code and one particular testcase. That program is compiled (if necessary)
+and run with the standard input defined in that testcase, and the output must
+then match the expected output for the testcase (where 'match' is defined
+by the chosen validator, but only the basic equality-match validator is
+currently supplied).
+
+The question type template is processed by a template engine called
+[Twig](http://twig.sensiolabs.org/), which is passed a variable called
+STUDENT\_ANSWER and another called TEST.testcode that the question author enters
+for the particular test. As an example,
+the question type *c_function*, which asks students to write a C function,
+looks like:
+
+        #include <stdio.h>
+        #include <stdlib.h>
+        #include <ctype.h>
+
+        {{ STUDENT_ANSWER }}
+
+        int main() {
+            {{ TEST.testcode }};
+            return 0;
+        }
+
+A typical test (i.e. `TEST.testcode`) for a question asking students to write a function that
+returns the square of its parameter might be:
+
+        printf("%d\n", sqr(-9))
+
+with the expected output of 81.
+
+When authoring a question you can inspect the template for your chosen
+question type by temporarily checking the 'Customise' checkbox.
+
+As mentioned earlier, there are actually two templates for each question
+type. For efficiency, CodeRunner first tries
+to combine all testcases into a single compile-and-execute run using the second
+template, called the `combinator_template`. There is a combinator
+template for most
+question type, except for questions that require students
+to write a whole program and/or require write code that reads standard input.
+
+Because combinator templates are complicated, they are not exposed via
+the authorship GUI. If you wish to use them (and the only reason would be
+to gain efficiency in questions of a type not currently supported) you will
+need to edit `upgrade.php`, set a new plug-in version number, and run the
+administator plug-in update procedure.
+
+As mentioned above, the `per_test_template` can be edited by the question
+author for special needs, e.g. if you wish to provide skeleton code to the
+students. As a simple example, if you wanted students to fill in the missing
+line in a C function that returns the square of its parameter, you could use
+a template like:
+
+        #include <stdio.h>
+        #include <stdlib.h>
+        #include <ctype.h>
+
+        int sqr(int n) {
+           {{ STUDENT_ANSWER }}
+        }
+
+        int main() {
+            {{ TEST.testcode }};
+            return 0;
+        }
+
+Obviously the question text for such a question would need to make it clear
+to students what context their code appears in.
+
+Note that if you customise a question type in this way you lose the
+efficiency gain that the combinator template offers, although this is probably
+not much of a problem unless you have a large number of testcases.
+
+##A note on `VBSandbox`
+
+[This section can be skipped by anyone who's not a developer.]
+
+The system is designed with a pluggable sandbox architecture. The two sandboxes
+currently provided are those mentioned above: LiuSandbox and NullSandbox.
+If you inspect the code you'll see another sandbox is available: VbSandbox,
+which runs code in a VirtualBox
+within the host. This was originally intended for use with MatLab, which won't run in
 the LiuSandbox as it is multithreaded and very heavy on system calls, leading
 to performance issues. The code has been developed and debugged up to the point
 where it was ready for production testing, but when it was moved onto the
@@ -121,30 +259,7 @@ only on real host, not on a virtualised host. This isn't very useful in our
 environment, so further development of the VirtualBox sandbox has been
 discontinued. However, the code has been left in the system in case it is
 needed by other users or even by ourselves in the future. Some notes on
-installing the VirtualBox sandbox are given in the section "Notes on the
-VirtualBox Sandbox" below.
-
-The so-called NullSandbox limits the resource usage of a task, which is
-sufficient for some low-risk environments where only responsible users with
-logins are using the system.  However, it does not provide *any* protection against
-malicious programs. In particular, since the submitted code is run by the
-web-server user, it can read all the temporary files created while other users
-are submitting their CodeRunner code and, worse, it can read the Moodle
-and various apache configuration files that contain  such as information
-the Moodle database password. In our own University environment we intend
-to use the NullSandbox only to support a smallish class of Matlab students,
-simply because Matlab doesn't play well in other (real) sandboxes. We will
-set aside a dedicated VM for running just the Moodle quizzes for this class.
-
-Use the NullSandbox at your own risk!
-
-
-Notes on the VirtualBox Sandbox
-----------------------
-
-As explained above, the VirtualBox sandbox is not in production use, but the
-following brief documentation remains for the benefit of anyone who wishes
-to resurrect it.
+installing the VirtualBox sandbox follow.
 
 Installing the VirtualBox sandbox is somewhat complicated. The following gives
 just the general idea:
@@ -168,8 +283,7 @@ you must be logged in as the web-server user, i.e. www-data (Ubuntu) or apache
 (Red Hat, Fedora etc).
 
 
-How programming quizzes should work
------------------------------------
+##How programming quizzes should work
 
 Historical notes and a diatribe on the use of Adaptive Mode questions ...
 
@@ -227,8 +341,8 @@ programming-style quiz is thus determined by how many of the problems the
 student can solve in the given time, and how many submissions the student
 needs to make on each question.
 
-Types of programming questions to support
------------------------------------------
+##Types of programming questions to support
+
 It is instructive to look at the development of the predecessor *pycode* and
 *ccode* plug-ins for an understanding of the rationale behind CodeRunner.
 
