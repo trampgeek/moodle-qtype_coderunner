@@ -65,7 +65,6 @@ class qtype_coderunner_renderer extends qtype_renderer {
             'requires'  => array('base', 'widget', 'io', 'node-menunav')
         );
 
-        $PAGE->requires->js_init_call('M.qtype_coderunner.initQuestionRender', array(), false, $jsmodule);
         $question = $qa->get_question();
         $qtext = $question->format_questiontext($qa);
         $testcases = $question->testcases;
@@ -90,12 +89,8 @@ class qtype_coderunner_renderer extends qtype_renderer {
             'class' => 'coderunner-answer',
             'name' => $responsefieldname,
             'id' => $responsefieldname,
-            //'style' => 'position: relative; height:400px; width: 100%; background-color: white; font-size:100%',
             'cols'      => '80',
-            'rows'      => 18,
-            'onkeydown' => 'keydown(event, this)',
-            'onkeyup' => 'ignoreNL(event)',
-            'onkeypress' => 'ignoreNL(event)'
+            'rows'      => 18
         );
 
         if ($options->readonly) {
@@ -112,9 +107,6 @@ class qtype_coderunner_renderer extends qtype_renderer {
             'src'     => $CFG->wwwroot . "/local/CodeRunner/coderunner/editarea_0_8_2/edit_area/edit_area_full.js",
             'type'    => "text/javascript",
             'charset' => 'utf8'));
-        $lang = ucwords($question->language);
-        if ($lang === 'Python2') $lang = 'Pythontwo';  // Work around limitations of ...
-        if ($lang === 'Python3') $lang = 'Pythonthree'; // ... editarea.
 
         if ($qa->get_state() == question_state::$invalid) {
             $qtext .= html_writer::nonempty_tag('div',
@@ -147,6 +139,12 @@ class qtype_coderunner_renderer extends qtype_renderer {
                     $currentrating);
             $qtext .= html_writer::tag('p', 'My rating of this question (optional): ' . $ratingSelector);
         }
+
+        $lang = ucwords($question->language);
+        if ($lang === 'Python2') $lang = 'Pythontwo';  // Work around limitations of ...
+        if ($lang === 'Python3') $lang = 'Pythonthree'; // ... editarea.
+        $PAGE->requires->js_init_call('M.qtype_coderunner.initQuestionRender',
+                array($responsefieldname, $lang), false, $jsmodule);
         return $qtext;
 
         // TODO: consider how to prevent multiple submits while one submit in progress

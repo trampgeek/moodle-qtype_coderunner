@@ -3,23 +3,16 @@
 M.qtype_coderunner = {};
 
 // Script for the usual student-view question render
-M.qtype_coderunner.initQuestionRender = function(Y) {
-    var tas = Y.all('textarea');
-
-    
-    /* Disabled until I can get it working properly with multiple TAs
-    tas.each(function(ta) {
-        editAreaLoader.init({
-            id :    ta.get('name'),
-            syntax: 'C',
-            replace_tab_by_spaces: '4',
-            display: 'later',
-            font_size: '12',
-            toolbar: 'search, go_to_line, |, undo, redo, |, select_font, |, highlight, reset_highlight, |, help',
-            start_highlight: true}
-        );
-    });
-    */
+M.qtype_coderunner.initQuestionRender = function(Y, responseTA, lang) {
+    editAreaLoader.init({
+        id :    responseTA,
+        syntax: lang,
+        replace_tab_by_spaces: '4',
+        display: 'onload',
+        font_size: '12',
+        toolbar: 'search, go_to_line, |, undo, redo, |, select_font, |, highlight, reset_highlight, |, help',
+        start_highlight: true}
+    );
 };
 
 // Script for the edit_coderunner_form page.

@@ -48,16 +48,15 @@ class Matlab_ns_Task extends LanguageTask {
          return array(
              dirname(__FILE__)  . "/runguard",
              "--user=coderunner",
-             "--time=5",             // Seconds of execution time allowed
-             "--memsize=2000000",    // Max kb mem allowed (2GB!)
-             "--filesize=10000",     // Max file sizes (10MB)
-             "--nproc=10",           // At most 10 processes/threads
+             "--time=15",             // Seconds of execution time allowed
+             //"--memsize=8000000",   // Why won't MATLAB run with a memsize set?!!
+             "--filesize=1000000",    // Max file sizes (10MB)
+             "--nproc=20",            // At most 20 processes/threads
              "--no-core",
-             "--streamsize=10000",   // Max stdout/stderr sizes (10MB)
+             "--streamsize=1000000",   // Max stdout/stderr sizes (10MB)
              '/usr/local/Matlab2012a/bin/glnxa64/MATLAB',
              '-nojvm',
              '-nodesktop',
-             '-singleCompThread',
              '-r',
              basename($this->sourceFileName)
          );

@@ -59,7 +59,6 @@ class qtype_coderunner_edit_form extends question_edit_form {
             'fullpath'  => '/question/type/coderunner/module.js',
             'requires'  => array('base', 'widget', 'io', 'node-menunav')
         );
-        $PAGE->requires->js_init_call('M.qtype_coderunner.initEditForm', array(), false, $jsmodule);
 
         $mform = $this->_form;
         $question = $this->question;
@@ -90,6 +89,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->setDefault('all_or_nothing', True);
         $mform->addHelpButton('all_or_nothing', 'all_or_nothing', 'qtype_coderunner');
         parent::definition($mform);
+        $PAGE->requires->js_init_call('M.qtype_coderunner.initEditForm', array(), false, $jsmodule);
     }
 
 
