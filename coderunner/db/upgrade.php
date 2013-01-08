@@ -176,7 +176,9 @@ EOT
 
 int main() {
 {% for TEST in TESTCASES %}
+   {
     {{ TEST.testcode }};
+   }
     {% if not loop.last %}printf("%s\\n", SEPARATOR);{% endif %}
 {% endfor %}
     return 0;
