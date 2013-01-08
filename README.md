@@ -138,8 +138,8 @@ Matlab you should first move or remove the file
 You should then be able to run the tests with
 
         cd <moodlehome>
-        php admin/tool/phpunit/cli/init.php
-        phpunit --testsuite="qtype_coderunner test suite"
+        sudo php admin/tool/phpunit/cli/init.php
+        sudo phpunit --testsuite="qtype_coderunner test suite"
 
 Please [email me](mailto:richard.lobb@canterbury.ac.nz) if you have problems
 with the installation.
@@ -358,7 +358,7 @@ in the "too hard" basket, and remains there still. The other two problem
 areas, files and OOP, are much more tractable. The second incarnation of
 pycode allowed teachers to specify text to be used as standard input that could
 be read by student code and also provided a file-like object that could be used
-to simulate a file system that student code to read from and write to. In this
+to simulate a file system that student code could read from and write to. In this
 new system, the student code was run first, followed by the
 test code; the output from the entire run was then expected to match the
 expected output.

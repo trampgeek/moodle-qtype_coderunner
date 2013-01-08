@@ -46,16 +46,16 @@ class backup_qtype_coderunner_plugin extends backup_qtype_plugin {
 
         // Define the elements
         $options = new backup_nested_element('coderunner_options');
-        $option1 = new backup_nested_element('coderunner_option1', array('id'), array('coderunner_type'));
-        $option2 = new backup_nested_element('coderunner_option2', array('id'), array('all_or_nothing'));
+        $option = new backup_nested_element('coderunner_option', array('id'),
+                array('coderunner_type', 'all_or_nothing', 'custom_template'));
 
-        // Build the tree
+        //Build the tree
         $element->add_child($options);
-        $options->add_child($option1);
-        $options->add_child($option2);
+        $options->add_child($option);
 
         // Set the source
-        $option->set_source_table("quest_coderunner_options", array('questionid' => backup::VAR_PARENTID));
+        $option->set_source_table('quest_coderunner_options', array('questionid' => backup::VAR_PARENTID));
+
     }
 
 

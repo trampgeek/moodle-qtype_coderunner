@@ -49,9 +49,7 @@ class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
         }
 
         $elename = 'coderunner_options';
-        $elepath = $this->get_pathfor('/coderunner_options/coderunner_option1');
-        $paths[] = new restore_path_element($elename, $elepath);
-        $elepath = $this->get_pathfor('/coderunner_options/coderunner_option2');
+        $elepath = $this->get_pathfor('/coderunner_options/coderunner_option');  // we used get_recommended_name() so this works
         $paths[] = new restore_path_element($elename, $elepath);
     }
 
