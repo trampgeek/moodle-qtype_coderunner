@@ -8,7 +8,7 @@ M.qtype_coderunner.initQuestionRender = function(Y, responseTA, lang) {
         id :    responseTA,
         syntax: lang,
         replace_tab_by_spaces: '4',
-        display: 'onload',
+        display: 'later',
         font_size: '12',
         toolbar: 'search, go_to_line, |, undo, redo, |, select_font, |, highlight, reset_highlight, |, help',
         start_highlight: true}
