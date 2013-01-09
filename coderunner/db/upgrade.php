@@ -170,6 +170,7 @@ EOT
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <string.h>
 #define SEPARATOR "#<ab@17943918#@>#"
 
 {{ STUDENT_ANSWER }}
@@ -217,6 +218,7 @@ EOT
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <string.h>
 
 {{ STUDENT_ANSWER }}
 
