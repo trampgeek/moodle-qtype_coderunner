@@ -59,11 +59,6 @@ class qtype_coderunner_renderer extends qtype_renderer {
      */
     public function formulation_and_controls(question_attempt $qa, question_display_options $options) {
         global $CFG, $PAGE;
-        $jsmodule = array(
-            'name'      => 'qtype_coderunner',
-            'fullpath'  => '/question/type/coderunner/module.js',
-            'requires'  => array('base', 'widget', 'io', 'node-menunav')
-        );
 
         $question = $qa->get_question();
         $qtext = $question->format_questiontext($qa);
@@ -85,10 +80,11 @@ class qtype_coderunner_renderer extends qtype_renderer {
         $qtext .= html_writer::end_tag('div');
 
         $responsefieldname = $qa->get_qt_field_name('answer');
+        $responsefieldid = 'id_' . $responsefieldname;
         $ta_attributes = array(
             'class' => 'coderunner-answer',
             'name' => $responsefieldname,
-            'id' => $responsefieldname,
+            'id' => $responsefieldid,
             'cols'      => '80',
             'rows'      => 18
         );
@@ -100,13 +96,6 @@ class qtype_coderunner_renderer extends qtype_renderer {
         $currentanswer = $qa->get_last_qt_var('answer');
         $currentrating = $qa->get_last_qt_var('rating', 0);
         $qtext .= html_writer::tag('textarea', s($currentanswer), $ta_attributes);
-
-        // Load editarea script to do syntax highlighting.
-        // TODO: figure out the moodle-approved way of doing this
-        $qtext .= html_writer::tag('script', '', array(
-            'src'     => $CFG->wwwroot . "/local/CodeRunner/coderunner/editarea_0_8_2/edit_area/edit_area_full.js",
-            'type'    => "text/javascript",
-            'charset' => 'utf8'));
 
         if ($qa->get_state() == question_state::$invalid) {
             $qtext .= html_writer::nonempty_tag('div',
@@ -140,11 +129,17 @@ class qtype_coderunner_renderer extends qtype_renderer {
             $qtext .= html_writer::tag('p', 'My rating of this question (optional): ' . $ratingSelector);
         }
 
+        // Initialise any program-editing JavaScript.
+        // [I've attempted to support various plugins like EditArea, CodeMirror
+        // and Ace but I've either failed to get them playing nicely with
+        // YUI (CodeMirror, Ace) or was plagued by browser dependencies
+        // (EditArea). So for now just doing simple autoindent operations.]
+        // Language parameter currently unused but remains as a potentially
+        // useful hook.
         $lang = ucwords($question->language);
-        if ($lang === 'Python2') $lang = 'Pythontwo';  // Work around limitations of ...
-        if ($lang === 'Python3') $lang = 'Pythonthree'; // ... editarea.
+
         $PAGE->requires->js_init_call('M.qtype_coderunner.initQuestionRender',
-                array($responsefieldname, $lang), false, $jsmodule);
+                array($responsefieldid, $lang));
         return $qtext;
 
         // TODO: consider how to prevent multiple submits while one submit in progress

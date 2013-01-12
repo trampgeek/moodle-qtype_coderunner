@@ -3,16 +3,74 @@
 M.qtype_coderunner = {};
 
 // Script for the usual student-view question render
-M.qtype_coderunner.initQuestionRender = function(Y, responseTA, lang) {
-    editAreaLoader.init({
-        id :    responseTA,
-        syntax: lang,
-        replace_tab_by_spaces: '4',
-        display: 'later',
-        font_size: '12',
-        toolbar: 'search, go_to_line, |, undo, redo, |, select_font, |, highlight, reset_highlight, |, help',
-        start_highlight: true}
-    );
+// Having given up on syntax colouring editors in the YUI context, I
+// now just do rudimentary autoindent on return and replace tab with
+// 4 spaces always.
+// For info on key handling browser inconsistencies see http://unixpapa.com/js/key.html
+M.qtype_coderunner.initQuestionRender = function(Y, textareaId, lang) {
+    var yta = Y.one(Y.DOM.byId(textareaId)), // Work around problem of colons in Moodle IDs
+        ta = yta.getDOMNode(),
+        i = 0,
+        ENTER = 13,
+        TAB = 9,
+        SPACE = 32;
+    yta.on('keydown', function(e) {
+        if(e.which == undefined || e.which != 0) { // 'Normal' keypress?
+            if (e.keyCode == TAB) {
+                // Ignore SHIFT/TAB. Insert 4 spaces on TAB.
+                if (e.shiftKey || M.qtype_coderunner.insertString(Y, ta, "    ")) {
+                    e.preventDefault();
+                }
+            }
+            else if (e.keyCode == ENTER && ta.selectionStart != undefined) {
+                // Handle autoindent only on non-IE
+                var before = ta.value.substring(0, ta.selectionStart);
+                var eol = before.lastIndexOf("\n");
+                var line = before.substring(eol + 1);  // take from eol to end
+                var indent = "";
+                for (i=0; i < line.length && line.charAt(i) == ' '; i++) {
+                    indent = indent + " ";
+                }
+                if (M.qtype_coderunner.insertString(Y, ta, "\n" + indent)) {
+                    e.preventDefault();
+                }
+            }
+
+        }
+  });
+
+};
+
+M.qtype_coderunner.insertString = function(Y, ta, sToInsert) {
+    if (ta.selectionStart != undefined) {  // firefox etc.
+        var before = ta.value.substring(0, ta.selectionStart);
+        var selSave = ta.selectionEnd;
+        var after = ta.value.substring(ta.selectionEnd, ta.value.length);
+
+        // update the text field
+        var tmp = ta.scrollTop;  // inhibit annoying auto-scroll
+        ta.value = before + sToInsert + after;
+        var pos = selSave + sToInsert.length;
+        ta.selectionStart = pos;
+        ta.selectionEnd = pos;
+        ta.scrollTop = tmp;
+        return true;
+
+    }
+    else if (document.selection && document.selection.createRange) { // IE
+        var r = document.selection.createRange();
+        var dr = r.duplicate();
+        dr.moveToElementText(ta);
+        dr.setEndPoint("EndToEnd", r)
+        var c = dr.text.length - r.text.length;
+        var b = ta.value.substring(0, c);
+        r.text = sToInsert;
+        return true;
+    }
+    // Other browsers we can't handle
+    else {
+        return false;
+    }
 };
 
 // Script for the edit_coderunner_form page.
