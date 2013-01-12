@@ -177,7 +177,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
             $fb = html_writer::start_tag('div', array('class' => $resultsclass));
             $fb .= html_writer::tag('p', '&nbsp;', array('class' => 'coderunner-spacer'));
-            if ($testOutcome->status != $testOutcome::STATUS_VALID) {
+            if ($testOutcome->hasSyntaxError()) {
                 $fb .= html_writer::tag('h3', 'Syntax Error(s)');
                 $fb .= html_writer::tag('p', str_replace("\n", "<br />", s($testOutcome->errorMessage)));
             }
@@ -190,7 +190,9 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
             // Summarise the status of the response in a paragraph at the end.
 
-            $fb .= $this->buildFeedback($q, $testCases, $testOutcome);
+            if (!$testOutcome->hasSyntaxError()) {
+                $fb .= $this->buildFeedbackSummary($q, $testCases, $testOutcome);
+            }
             $fb .= html_writer::end_tag('div');
         } else { // No testresults?! Probably due to a wrong behaviour selected
             $text = get_string('qWrongBehaviour', 'qtype_coderunner');
@@ -270,9 +272,11 @@ class qtype_coderunner_renderer extends qtype_renderer {
         }
     }
 
-    // Compute the HTML feedback to give for a given set of testresults
-    private function buildFeedback($question, $testCases, $testOutcome) {
-        $lines = array();  // Build a list of lines of output
+    // Compute the HTML feedback summary for a given test outcome.
+    // Should not be called if there were any syntax errors.
+    private function buildFeedbackSummary($question, $testCases, $testOutcome) {
+        assert(!$testOutcome->hasSyntaxError());
+        $lines = array();  // List of lines of output
         $testResults = $testOutcome->testResults;
         if (count($testResults) != count($testCases)) {
             $lines[] = get_string('aborted', 'qtype_coderunner');
@@ -290,7 +294,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
             }
         }
 
-        if ($testOutcome->status == $testOutcome::STATUS_VALID && $testOutcome->errorCount == 0) {
+        if ($testOutcome->allCorrect()) {
             $lines[] = get_string('allok', 'qtype_coderunner') .
                         "&nbsp;" . $this->feedback_image(1.0);
         } else if ($question->all_or_nothing) {

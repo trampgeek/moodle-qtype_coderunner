@@ -7,14 +7,18 @@ class TestingOutcome {
     const STATUS_VALID = 1;         // A full set of test results is returned
     const STATUS_SYNTAX_ERROR = 2;  // The code (on any one test) didn't compile
 
-    public $status;                    // One of the STATUS_ constants above
-                                       // If this is not 1, subsequent fields may not be meaningful
+    private $status;                    // One of the STATUS_ constants above
+                                        // If this is not 1, subsequent fields may not be meaningful
     public $errorCount;                // The number of failing test cases
     public $maxPossMark;               // The maximum possible mark
     public $actualMark;                // Actual mark (meaningful only if this is not an all_or_nothing question)
-    public $testResults;               // An array of TestResult objects
+    public $testResults;                // An array of TestResult objects
 
     public function __construct($status=TestingOutcome::STATUS_VALID, $errorMessage = '') {
+        if ($status != TestingOutcome::STATUS_VALID &&
+            $status != TestingOutcome::STATUS_SYNTAX_ERROR) {
+            throw new CodingException('Bad parameter to TestingOutcome constructor');
+        }
         $this->status = $status;
         $this->errorMessage = $errorMessage;
         $this->errorCount = 0;
@@ -23,13 +27,23 @@ class TestingOutcome {
         $this->testResults = array();
     }
 
+    public function hasSyntaxError()  {
+        return $this->status === TestingOutcome::STATUS_SYNTAX_ERROR;
+    }
+
+
     public function allCorrect() {
         return $this->status === TestingOutcome::STATUS_VALID && $this->errorCount == 0;
     }
 
     public function markAsFraction() {
         // Need to ensure return exactly 1.0 for a right answer
-        return $this->errorCount == 0 ? 1.0 : $this->actualMark / $this->maxPossMark;
+        if ($this->hasSyntaxError()) {
+            return 0.0;
+        }
+        else {
+            return $this->errorCount == 0 ? 1.0 : $this->actualMark / $this->maxPossMark;
+        }
     }
 
     public function addTestResult($tr) {

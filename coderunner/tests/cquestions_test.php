@@ -67,7 +67,7 @@ class qtype_coderunner_c_question_test extends basic_testcase {
         $this->assertEquals($grade, question_state::$gradedwrong);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testOutcome = unserialize($cache['_testoutcome']);
-        $this->assertEquals($testOutcome->status, TestingOutcome::STATUS_SYNTAX_ERROR);
+        $this->assertTrue($testOutcome->hasSyntaxError());
         $this->assertEquals(count($testOutcome->testResults), 0);
     }
 
@@ -81,7 +81,7 @@ class qtype_coderunner_c_question_test extends basic_testcase {
         $this->assertEquals($grade, question_state::$gradedright);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testOutcome = unserialize($cache['_testoutcome']);
-        $this->assertEquals($testOutcome->status, TestingOutcome::STATUS_VALID);
+        $this->assertFalse($testOutcome->hasSyntaxError());
         $this->assertEquals(count($testOutcome->testResults), 1);
         $this->assertTrue($testOutcome->allCorrect());
     }
@@ -95,7 +95,7 @@ class qtype_coderunner_c_question_test extends basic_testcase {
         $this->assertEquals($grade, question_state::$gradedwrong);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testOutcome = unserialize($cache['_testoutcome']);
-        $this->assertEquals($testOutcome->status, TestingOutcome::STATUS_VALID);
+        $this->assertFalse($testOutcome->hasSyntaxError());
         $this->assertEquals(count($testOutcome->testResults), 1);
         $this->assertFalse($testOutcome->allCorrect());
     }
@@ -109,7 +109,7 @@ class qtype_coderunner_c_question_test extends basic_testcase {
         $testOutcome = unserialize($cache['_testoutcome']);
         $this->assertEquals($mark, 1);
         $this->assertEquals($grade, question_state::$gradedright);
-        $this->assertEquals($testOutcome->status, TestingOutcome::STATUS_VALID);
+        $this->assertFalse($testOutcome->hasSyntaxError());
         $this->assertEquals(count($testOutcome->testResults), 3);
         $this->assertTrue($testOutcome->allCorrect());
     }
@@ -131,7 +131,7 @@ class qtype_coderunner_c_question_test extends basic_testcase {
         $this->assertEquals($grade, question_state::$gradedright);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testOutcome = unserialize($cache['_testoutcome']);
-        $this->assertEquals($testOutcome->status, TestingOutcome::STATUS_VALID);
+        $this->assertFalse($testOutcome->hasSyntaxError());
         $this->assertEquals(count($testOutcome->testResults), 2);
         $this->assertTrue($testOutcome->allCorrect());
     }
@@ -155,7 +155,7 @@ class qtype_coderunner_c_question_test extends basic_testcase {
         $this->assertEquals($grade, question_state::$gradedright);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testOutcome = unserialize($cache['_testoutcome']);
-        $this->assertEquals($testOutcome->status, TestingOutcome::STATUS_VALID);
+        $this->assertFalse($testOutcome->hasSyntaxError());
         $this->assertEquals(count($testOutcome->testResults), 2);
         $this->assertTrue($testOutcome->allCorrect());
     }
@@ -170,7 +170,7 @@ class qtype_coderunner_c_question_test extends basic_testcase {
         $this->assertEquals($grade, question_state::$gradedwrong);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testOutcome = unserialize($cache['_testoutcome']);
-        $this->assertEquals($testOutcome->status, TestingOutcome::STATUS_VALID);
+        $this->assertFalse($testOutcome->hasSyntaxError());
         $this->assertEquals(count($testOutcome->testResults), 1);
         $this->assertFalse($testOutcome->allCorrect());
         $this->assertEquals($testOutcome->testResults[0]->got, "***Runtime error*** (signal 11)\n");
@@ -185,7 +185,7 @@ class qtype_coderunner_c_question_test extends basic_testcase {
         $this->assertEquals($grade, question_state::$gradedwrong);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testOutcome = unserialize($cache['_testoutcome']);
-        $this->assertEquals($testOutcome->status, TestingOutcome::STATUS_VALID);
+        $this->assertFalse($testOutcome->hasSyntaxError());
         $this->assertEquals(count($testOutcome->testResults), 1);
         $this->assertFalse($testOutcome->allCorrect());
         $this->assertEquals($testOutcome->testResults[0]->got, "***Time limit exceeded***\n");

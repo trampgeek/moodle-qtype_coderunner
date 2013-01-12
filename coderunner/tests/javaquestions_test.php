@@ -80,7 +80,7 @@ class qtype_coderunner_java_question_test extends basic_testcase {
         $this->assertEquals($grade, question_state::$gradedwrong);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testOutcome = unserialize($cache['_testoutcome']);
-        $this->assertEquals($testOutcome->status, TestingOutcome::STATUS_SYNTAX_ERROR);
+        $this->assertTrue($testOutcome->hasSyntaxError());
         $this->assertEquals(count($testOutcome->testResults), 0);
     }
 
