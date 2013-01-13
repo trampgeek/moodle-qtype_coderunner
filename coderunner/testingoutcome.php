@@ -1,18 +1,27 @@
 <?php
 /** Defines classes involved in reporting on the result of testing a student's answer
  *  code with a given set of testCases.
+ *
+ * @package    qtype
+ * @subpackage coderunner
+ * @copyright  Richard Lobb, 2013, The University of Canterbury
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+// The outcome from testing a question against all test cases.
+// All fields currently public as changing them to private breaks the
+// deserialisation of all current question attempt records in the database
+// and I don't feel strongly enough about it to try to fix that. Think Python!
 class TestingOutcome {
     const STATUS_VALID = 1;         // A full set of test results is returned
     const STATUS_SYNTAX_ERROR = 2;  // The code (on any one test) didn't compile
 
-    private $status;                    // One of the STATUS_ constants above
-                                        // If this is not 1, subsequent fields may not be meaningful
+    public $status;                    // One of the STATUS_ constants above
+                                       // If this is not 1, subsequent fields may not be meaningful
     public $errorCount;                // The number of failing test cases
     public $maxPossMark;               // The maximum possible mark
     public $actualMark;                // Actual mark (meaningful only if this is not an all_or_nothing question)
-    public $testResults;                // An array of TestResult objects
+    public $testResults;               // An array of TestResult objects
 
     public function __construct($status=TestingOutcome::STATUS_VALID, $errorMessage = '') {
         if ($status != TestingOutcome::STATUS_VALID &&
