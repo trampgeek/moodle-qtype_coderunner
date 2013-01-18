@@ -1,13 +1,14 @@
 <?php
 
 /*
- * Provides a NullSandbox class, which is a sandbox in name only -- it
- * doesn't provide any security features, but just implements the generic
- * Sandbox interface by running the code unsecured in a temporary subdirectory.
- * Intended for testing or for providing (unsafe) support for languages that
- * won't run in any of the standard sandboxes.
+ * Provides a NullSandbox class, which is a sandbox in name only.
+ * Runs jobs without true sandboxing in a manner specified by each
+ * individual language but currently all use DOMJudge's 'runguard' program.
+ * This runs the job as user 'coderunner' with resource limits set by
+ * the language, so is at least safe against major resource depletion issues
+ * (memory, CPU). Does not protect against system calls like socket and
+ * program can read any world-readable file on the server.
  *
- * VERY LITTLE TESTING -- for emergency use only.
  *
  * @package    qtype
  * @subpackage coderunner
@@ -51,7 +52,7 @@ class Matlab_ns_Task extends LanguageTask {
              "--time=15",             // Seconds of execution time allowed
              //"--memsize=8000000",   // Why won't MATLAB run with a memsize set?!!
              "--filesize=1000000",    // Max file sizes (10MB)
-             "--nproc=20",            // At most 20 processes/threads
+             "--nproc=50",            // At most 20 processes/threads (for this *user*)
              "--no-core",
              "--streamsize=1000000",   // Max stdout/stderr sizes (10MB)
              '/usr/local/Matlab2012a/bin/glnxa64/MATLAB',
@@ -106,7 +107,7 @@ class Python2_ns_Task extends LanguageTask {
              "--time=3",             // Seconds of execution time allowed
              "--memsize=100000",     // Max kb mem allowed (100MB)
              "--filesize=10000",     // Max file sizes (10MB)
-             "--nproc=2",            // At most 2 processes/threads
+             "--nproc=10",           // At most 10 processes/threads for this *user*
              "--no-core",
              "--streamsize=10000",   // Max stdout/stderr sizes (10MB)
              '/usr/bin/python2',
@@ -142,7 +143,7 @@ class Python3_ns_Task extends LanguageTask {
              "--time=3",             // Seconds of execution time allowed
              "--memsize=100000",     // Max kb mem allowed (100MB)
              "--filesize=10000",     // Max file sizes (10MB)
-             "--nproc=2",            // At most 2 processes/threads
+             "--nproc=10",           // At most 10 processes/threads for this *user*
              "--no-core",
              "--streamsize=10000",   // Max stdout/stderr sizes (10MB)
              '/usr/bin/python3',
@@ -197,7 +198,7 @@ class Java_ns_Task extends LanguageTask {
              "--time=5",              // Seconds of execution time allowed
              "--memsize=2000000",     // Max kb mem allowed (2GB Why does it need so much?)
              "--filesize=10000",      // Max file sizes (10MB)
-             "--nproc=20",            // At most 20 processes/threads (why so many needed??)
+             "--nproc=50",            // At most 50 processes/threads for this *user*
              "--no-core",
              "--streamsize=10000",    // Max stdout/stderr sizes (10MB)
              '/usr/bin/java',
@@ -260,7 +261,7 @@ class C_ns_Task extends LanguageTask {
              "--time=5",              // Seconds of execution time allowed
              "--memsize=100000",      // Max kb mem allowed (100MB)
              "--filesize=10000",      // Max file sizes (10MB)
-             "--nproc=1",             // Single process only
+             "--nproc=5",             // Only allow this *user* 5 tasks in parallel
              "--no-core",
              "--streamsize=10000",    // Max stdout/stderr sizes (10MB)
              "./" . $this->executableFileName

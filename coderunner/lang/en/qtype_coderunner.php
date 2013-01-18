@@ -110,7 +110,7 @@ $string['pluginname_help'] = 'Use the "Question type" combo box to select the ' 
         'Specify the problem that the student must write code for, then define '.
         'a set of tests to be run on the student\'s submission';
 $string['pluginnameediting'] = 'Editing a CodeRunner question';
-
+$string['questiontype_required'] = 'You must select the type of question';
 $string['SHOW'] = 'Show';
 $string['stdin'] = 'Standard Input (only for programs that explicitly '
     . 'read stdin)';

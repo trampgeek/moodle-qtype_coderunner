@@ -40,7 +40,8 @@ class qtype_coderunner_test_helper extends question_test_helper {
             'helloProgC',
             'copyStdinC', 'timeoutC', 'exceptionsC', 'strToUpper',
             'strToUpperFullMain', 'stringDelete',
-            'sqrmatlab', 'sqrjava', 'nameclass', 'printsquares');
+            'sqrmatlab', 'testStudentAnswerMacro',
+            'sqrjava', 'nameclass', 'printsquares');
     }
 
     /**
@@ -712,6 +713,63 @@ int main() {
         $coderunner->unitgradingtype = 0;
         $coderunner->unitpenalty = 0.2;
         $this->getOptions($coderunner);
+        return $coderunner;
+    }
+
+   /**
+     * Makes a coderunner question designed to check if the MATLAB_ESCAPED_STUDENT_ANSWER
+    *  variable is working and usable within Matlab
+     * @return qtype_coderunner_question
+     */
+    public function make_coderunner_question_testStudentAnswerMacro() {
+        question_bank::load_question_definition_classes('coderunner');
+        $coderunner = new qtype_coderunner_question();
+        test_question_maker::initialise_a_question($coderunner);
+        $coderunner->name = 'Matlab escaped student answer tester';
+        $coderunner->questiontext = <<<EOT
+ Enter the following program:
+
+ function mytest()
+     s1 = '"Hi!" he said';
+     s2 = '''Hi!'' he said';
+     disp(s1);
+     disp(s2);
+end
+EOT;
+        $coderunner->generalfeedback = 'No feedback available for coderunner questions.';
+        $coderunner->options = array('coderunner_type' => 'matlab_function');
+        $coderunner->all_or_nothing = true;
+        $coderunner->testcases = array(
+            (object) array('testcode'       => 'mytest();',
+                           'stdin'          => '',
+                           'output'         => "\"Hi!\" he said\n'Hi!' he said",
+                           'display'        => 'SHOW',
+                           'mark'           => 1.0,
+                           'hiderestiffail' => 0,
+                           'useasexample'   => 1),
+            (object) array('testcode'       => 'disp(ESCAPED_STUDENT_ANSWER);',
+                           'output'         => <<<EOT
+function mytest()\\n    s1 = '"Hi!" he said';\\n    s2 = '''Hi!'' he said';\\n    disp(s1);\\n    disp(s2);\\nend
+EOT
+,                          'stdin'         => '',
+                           'display'        => 'SHOW',
+                           'mark'           => 1.0,
+                           'hiderestiffail' => 0,
+                           'useasexample'   => 0)
+        );
+        $coderunner->qtype = question_bank::get_qtype('coderunner');
+        $coderunner->unitgradingtype = 0;
+        $coderunner->unitpenalty = 0.2;
+        $this->getOptions($coderunner);
+        $coderunner->customise = 1;
+        $coderunner->custom_template = <<<EOT
+function tester()
+  ESCAPED_STUDENT_ANSWER =  '{{MATLAB_ESCAPED_STUDENT_ANSWER}}';
+  {{TEST.testcode}};quit();
+end
+
+{{STUDENT_ANSWER}}
+EOT;
         return $coderunner;
     }
 

@@ -83,5 +83,21 @@ class qtype_coderunner_matlab_question_test extends basic_testcase {
         $this->assertEquals(count($testOutcome->testResults), 1);
         $this->assertTrue(strpos($testOutcome->testResults[0]->got, "Abnormal termination") !== FALSE);
     }
+
+    public function test_student_answer_macro() {
+        $q = test_question_maker::make_question('coderunner', 'testStudentAnswerMacro');
+        $response = array('answer' => <<<EOT
+function mytest()
+    s1 = '"Hi!" he said';
+    s2 = '''Hi!'' he said';
+    disp(s1);
+    disp(s2);
+end
+EOT
+);
+        list($mark, $grade, $cache) = $q->grade_response($response);
+        $this->assertEquals($mark, 1);
+        $this->assertEquals($grade, question_state::$gradedright);
+    }
 }
 

@@ -189,7 +189,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
-        if ($data['coderunner_type'] == '') {
+        if ($data['coderunner_type'] == 'Undefined') {
             $errors['coderunner_type'] = get_string('questiontype_required', 'qtype_coderunner');
         }
         $testcodes = $data['testcode'];

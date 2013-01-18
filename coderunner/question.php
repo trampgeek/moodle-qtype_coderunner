@@ -191,6 +191,7 @@ class qtype_coderunner_question extends question_graded_automatically {
             $templateParams = array(
                 'STUDENT_ANSWER' => $code,
                 'ESCAPED_STUDENT_ANSWER' => str_replace('"', '\"', $code),
+                'MATLAB_ESCAPED_STUDENT_ANSWER' => str_replace("'", "''", $code),  // Grr, matlab
                 'TESTCASES' => $testCases);
             $testProg = $twig->render($this->combinator_template, $templateParams);
 
@@ -243,6 +244,8 @@ class qtype_coderunner_question extends question_graded_automatically {
                 $templateParams = array(
                     'STUDENT_ANSWER' => $code,
                     'ESCAPED_STUDENT_ANSWER' => str_replace('"', '\"', $code),
+                    'MATLAB_ESCAPED_STUDENT_ANSWER' => str_replace(
+                            array("'", "\n", "\r"), array("''", '\n', ''), $code),  // Grr, matlab
                     'TEST' => $testCase);
                 $testProg = $twig->render($template, $templateParams);
                 $input = isset($testCase->stdin) ? $testCase->stdin : '';
