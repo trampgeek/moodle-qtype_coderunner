@@ -69,7 +69,7 @@ class Matlab_ns_Task extends LanguageTask {
          $outlines = array();
          $headerEnded = FALSE;
          foreach ($lines as $line) {
-             $line = trim($line);
+             $line = rtrim($line);
              if ($headerEnded && $line != '') {
                  $outlines[] = $line;
              }
