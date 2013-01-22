@@ -77,7 +77,7 @@ class Matlab_ns_Task extends LanguageTask {
                  $headerEnded = TRUE;
              }
          }
-         return implode("\n", $outlines);
+         return implode("\n", $outlines) . "\n";
      }
 };
 
