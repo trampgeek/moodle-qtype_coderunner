@@ -212,7 +212,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
             $table->head[] = 'Test';
         }
         if ($numStdins) {
-            $table->head[] = 'Stdin';
+            $table->head[] = 'Input';
         }
         $table->head = array_merge($table->head, array('Expected', 'Got'));
 
@@ -359,22 +359,22 @@ class qtype_coderunner_renderer extends qtype_renderer {
         $table->attributes['class'] = 'coderunnerexamples';
         list($numStd, $numShell) = $this->countBits($examples);
         $table->head = array();
-        if ($numStd) {
-            $table->head[] = 'Input';
-        }
         if ($numShell) {
             $table->head[] = 'Test';
+        }
+        if ($numStd) {
+            $table->head[] = 'Input';
         }
         $table->head[] = 'Output';
 
         $tableRows = array();
         foreach ($examples as $example) {
             $row = array();
-            if ($numStd) {
-                $row[] = $this->addLineBreaks(s($example->stdin));
-            }
             if ($numShell) {
                 $row[] = $this->addLineBreaks(s($example->testcode));
+            }
+            if ($numStd) {
+                $row[] = $this->addLineBreaks(s($example->stdin));
             }
             $row[] = $this->addLineBreaks(s($example->output));
             $tableRows[] = $row;
