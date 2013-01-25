@@ -187,9 +187,9 @@ class qtype_coderunner_question extends question_graded_automatically {
             'STUDENT_ANSWER' => $code,
             'ESCAPED_STUDENT_ANSWER' => str_replace('"', '\"', $code),
             'MATLAB_ESCAPED_STUDENT_ANSWER' => str_replace(
-                array("'",  "\n", '\n', "\r", '%'),
-                array("''", '\n', '\\n', '',  '%%'),
-                $code));
+                array("'",  "\n", "\r", '%'),
+                array("''", '\\n',  '',  '%%'),
+                str_replace('\\n', '\\\\n', $code)));
 
         if (!$this->customise && $this->combinator_template && $this->noStdins($testCases)) {
             // We have the option of running all tests at once.
