@@ -88,7 +88,7 @@ class qtype_coderunner_matlab_question_test extends basic_testcase {
         $q = test_question_maker::make_question('coderunner', 'testStudentAnswerMacro');
         $response = array('answer' => <<<EOT
 function mytest()
-    s1 = '"Hi!" he said';
+    s1 = '"Hi!" he said'; % a comment
     s2 = '''Hi!'' he said';
     disp(s1);
     disp(s2);

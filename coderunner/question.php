@@ -183,16 +183,24 @@ class qtype_coderunner_question extends question_graded_automatically {
 
         $sandbox = new $sandboxClass();
         $validator = new $validatorClass();
+        $templateParams = array(
+            'STUDENT_ANSWER' => $code,
+            'ESCAPED_STUDENT_ANSWER' => str_replace('"', '\"', $code),
+            'MATLAB_ESCAPED_STUDENT_ANSWER' => str_replace(
+                array("'",  "\n", '\n', "\r", '%'),
+                array("''", '\n', '\\n', '',  '%%'),
+                $code));
 
         if (!$this->customise && $this->combinator_template && $this->noStdins($testCases)) {
             // We have the option of running all tests at once.
             // Only do this if there are no stdins and it's not a customised question.
+            // Special template parameters are STUDENT_ANSWER, the raw submitted code,
+            // ESCAPED_STUDENT_ANSWER, the submitted code with all double quote chars escaped
+            // (for use in a Python statement like s = """{{ESCAPED_STUDENT_ANSWER}}""" and
+            // MATLAB_EXCAPED_STUDENT_ANSWER, a string for use in Matlab intended
+            // to be used as s = sprintf('{{MATLAB_ESCAPED_STUDENT_ANSWER}}')
             assert($this->test_splitter_re != '');
-            $templateParams = array(
-                'STUDENT_ANSWER' => $code,
-                'ESCAPED_STUDENT_ANSWER' => str_replace('"', '\"', $code),
-                'MATLAB_ESCAPED_STUDENT_ANSWER' => str_replace("'", "''", $code),  // Grr, matlab
-                'TESTCASES' => $testCases);
+            $templateParams['TESTCASES'] = $testCases;
             $testProg = $twig->render($this->combinator_template, $templateParams);
 
             $run = $sandbox->execute($testProg, $this->language, NULL);
@@ -241,12 +249,7 @@ class qtype_coderunner_question extends question_graded_automatically {
             $template = $this->customise ? $this->custom_template : $this->per_test_template;
             $outcome = new TestingOutcome();
             foreach ($testCases as $testCase) {
-                $templateParams = array(
-                    'STUDENT_ANSWER' => $code,
-                    'ESCAPED_STUDENT_ANSWER' => str_replace('"', '\"', $code),
-                    'MATLAB_ESCAPED_STUDENT_ANSWER' => str_replace(
-                            array("'", "\n", "\r"), array("''", '\n', ''), $code),  // Grr, matlab
-                    'TEST' => $testCase);
+                $templateParams['TEST'] = $testCase;
                 $testProg = $twig->render($template, $templateParams);
                 $input = isset($testCase->stdin) ? $testCase->stdin : '';
                 $run = $sandbox->execute($testProg, $this->language, $input);

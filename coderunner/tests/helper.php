@@ -749,7 +749,12 @@ EOT;
                            'useasexample'   => 1),
             (object) array('testcode'       => 'disp(ESCAPED_STUDENT_ANSWER);',
                            'output'         => <<<EOT
-function mytest()\\n    s1 = '"Hi!" he said';\\n    s2 = '''Hi!'' he said';\\n    disp(s1);\\n    disp(s2);\\nend
+function mytest()
+    s1 = '"Hi!" he said'; % a comment
+    s2 = '''Hi!'' he said';
+    disp(s1);
+    disp(s2);
+end
 EOT
 ,                          'stdin'         => '',
                            'display'        => 'SHOW',
@@ -764,7 +769,7 @@ EOT
         $coderunner->customise = 1;
         $coderunner->custom_template = <<<EOT
 function tester()
-  ESCAPED_STUDENT_ANSWER =  '{{MATLAB_ESCAPED_STUDENT_ANSWER}}';
+  ESCAPED_STUDENT_ANSWER =  sprintf('{{MATLAB_ESCAPED_STUDENT_ANSWER}}');
   {{TEST.testcode}};quit();
 end
 
