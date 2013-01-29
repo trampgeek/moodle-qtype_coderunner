@@ -68,15 +68,25 @@ class Matlab_ns_Task extends LanguageTask {
          $lines = explode("\n", $out);
          $outlines = array();
          $headerEnded = FALSE;
+
          foreach ($lines as $line) {
              $line = rtrim($line);
-             if ($headerEnded && $line != '') {
+             if ($headerEnded) {
                  $outlines[] = $line;
              }
              if (strpos($line, 'For product information, visit www.mathworks.com.') !== FALSE) {
                  $headerEnded = TRUE;
              }
          }
+
+         // Remove blank lines at the start and end
+         while (count($outlines) > 0 && strlen($outlines[0]) == 0) {
+             array_shift($outlines);
+         }
+         while(count($outlines) > 0 && strlen(end($outlines)) == 0) {
+             array_pop($outlines);
+         }
+
          return implode("\n", $outlines) . "\n";
      }
 };
