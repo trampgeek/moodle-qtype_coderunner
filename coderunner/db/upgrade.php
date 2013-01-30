@@ -46,6 +46,13 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2013010502, 'qtype', 'coderunner');
     }
 
+    if ($oldversion != 0 && $oldversion < 2013013001) {
+        $table = new xmldb_table('quest_coderunner_testcases');
+        $mark = new xmldb_field('mark', XMLDB_TYPE_NUMBER, '8,3', XMLDB_UNSIGNED, TRUE, null, '1.0');
+        $dbman->change_field_type($table, $mark);
+        upgrade_plugin_savepoint(true, 2013013001, 'qtype', 'coderunner');
+    }
+
     return updateQuestionTypes();
 
 }
@@ -203,33 +210,6 @@ EOT
         'language' => 'C',
     );
 
-    // ===============================================================
-    $cFunctionSideEffects = array(
-        'coderunner_type' => 'c_function_side_effects',
-        'is_custom' => 0,
-        'comment' => 'Used for C write-a-function questions where ' .
-                'the function might have side effects (e.g. generate output). ' .
-                'Differs from type c_function in that it does not attempt to ' .
-                'wrap all tests into a single run, but tests each case ' .
-                'with a separate program.',
-        'combinator_template' => NULL,
-        'test_splitter_re' => '',
-        'per_test_template' => <<<EOT
-#include <stdio.h>
-#include <stdlib.h>
-#include <ctype.h>
-#include <string.h>
-
-{{ STUDENT_ANSWER }}
-
-int main() {
-    {{ TEST.testcode }};
-    return 0;
-}
-EOT
-,
-        'language' => 'C',
-    );
 
     // ===============================================================
     $cProgram = array(
@@ -348,37 +328,6 @@ EOT
         'validator' => 'BasicValidator'
     );
 
-    // ===============================================================
-    $javaMethodSideEffects = array(
-        'coderunner_type' => 'java_method_side_effects',
-        'is_custom' => 0,
-        'comment' => 'Used for Java write-a-method questions where ' .
-                'the method is essentially a stand-alone function ' .
-                'but might have side effects (e.g. consume input). ' .
-                'Differs from type java_method in that it does not attempt to ' .
-                'wrap all tests into a single run, but tests each case ' .
-                'with a separate program.',
-        'combinator_template' => NULL,
-        'test_splitter_re' => '',
-        'per_test_template' => <<<EOT
-public class Main {
-
-    {{ STUDENT_ANSWER }}
-
-    public static void main(String[] args) {
-        Main main = new Main();
-        main.runTests();
-    }
-
-    public void runTests() {
-        {{ TEST.testcode }};
-    }
-}
-EOT
-,
-        'language' => 'Java',
-    );
-
 
    // ===============================================================
     $javaClass = array(
@@ -441,13 +390,10 @@ EOT
         $python2,
         $python3,
         $cFunction,
-        $cFunctionSideEffects,
         $cProgram,
         $cFullMainTests,
         $matlabFunction,
-        //$python2NullSandbox,
         $javaMethod,
-        //$javaMethodSideEffects,
         $javaClass,
         $javaProgram);
 
@@ -455,17 +401,33 @@ EOT
     foreach ($types as $type) {
         $success = $success && update_question_type($type);
     }
+
+    // Delete defunct types.
+    // NB: NO CHECKS ON EXISTING QUESTIONS USING THESE TYPES.
+    // They must really be defunct, in the sense of no questions using them.
+    $defunctTypes = array(
+        'c_function_side_effects', 'java_method_side_effects');
+    foreach ($defunctTypes as $type) {
+        $success = $success && delete_question_type($type);
+    }
+
     return $success;
 }
 
 
 function update_question_type($newRecord) {
-    global $CFG, $DB;
+    global $DB;
     $DB->delete_records('quest_coderunner_types', array('coderunner_type' => $newRecord['coderunner_type']));
     if (!$DB->insert_record('quest_coderunner_types', $newRecord)) {
         throw new coding_exception("Upgrade failed: couldn't insert coderunner_type record");
         return FALSE;
     }
     return TRUE;
+}
+
+
+function delete_question_type($type) {
+    global $DB;
+    return $DB->delete_records('quest_coderunner_types', array('coderunner_type' => $type));
 }
 ?>

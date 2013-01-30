@@ -537,7 +537,7 @@ except ValueError:
         $coderunner->name = 'Function to convert string to uppercase';
         $coderunner->questiontext = 'Write a function void strToUpper(char s[]) that converts s to uppercase';
         $coderunner->generalfeedback = 'No feedback available for coderunner questions.';
-        $coderunner->options = array('coderunner_type' => 'c_function_side_effects');
+        $coderunner->options = array('coderunner_type' => 'c_function');
         $coderunner->all_or_nothing = true;
         $coderunner->testcases = array(
             (object) array('testcode' => "

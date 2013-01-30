@@ -116,6 +116,10 @@ class qtype_coderunner_c_question_test extends basic_testcase {
 
 
     public function test_C_func_with_side_effects() {
+        // This used to test the c_function_side_effects question type, but
+        // that's now defunct. The test is still vaguely useful, though, as
+        // it tests that what looks like a global array in each test case
+        // is actually local to each test within the same combined function.
         $q = test_question_maker::make_question('coderunner', 'strToUpper');
         $response = array('answer' =>
 "void strToUpper(char s[]) {

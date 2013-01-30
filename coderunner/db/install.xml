@@ -52,7 +52,7 @@
         <FIELD NAME="useasexample" TYPE="int" LENGTH="1" NOTNULL="false" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="True if this testcase is to be displayed in the spec as an example of how the function works." PREVIOUS="output" NEXT="display"/>
         <FIELD NAME="display"    TYPE="char" LENGTH="30" NOTNULL="true" DEFAULT="SHOW" SEQUENCE="false" COMMENT="Controls display of this testcase to the students. One of SHOW, HIDE, HIDE_IF_FAIL, HIDE_IF_SUCCEED" PREVIOUS="useasexample" NEXT="hiderestiffail"/>
         <FIELD NAME="hiderestiffail" TYPE="int" LENGTH="1" NOTNULL="false" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="If this test fails, hide all subsequent tests regardless of their display settings" PREVIOUS="display" NEXT="mark" />
-        <FIELD NAME="mark"      TYPE="number" LENGTH="12" NOTNULL="true" DEFAULT="1.0" SEQUENCE="false" DECIMALS="7" COMMENT="Mark for this testcase (only if not an all_or_nothing question)" PREVIOUS="hiderestiffail" />
+        <FIELD NAME="mark"      TYPE="number" LENGTH="8" NOTNULL="true" DEFAULT="1.0" SEQUENCE="false" DECIMALS="3" COMMENT="Mark for this testcase (only if not an all_or_nothing question)" PREVIOUS="hiderestiffail" />
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="questionid"/>

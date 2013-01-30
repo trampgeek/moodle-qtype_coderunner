@@ -107,12 +107,20 @@ class qtype_coderunner_edit_form extends question_edit_form {
             $numTestcases = NUM_TESTCASES_START;
         }
 
+        $markDefaults = array();
         for ($i = 0; $i < $numTestcases; $i++) {
-            $mform->setDefault("mark[$i]", '1.0');
+            $markDefaults[] = '1.0';
             $mform->disabledIf("mark[$i]", 'all_or_nothing', 'checked');
         }
 
-        $this->add_per_answer_fields($mform, get_string('testcase', 'qtype_coderunner'), $gradeoptions, $numTestcases);
+        // Confusion alert! A call to $mform->setDefault("mark[$i]", '1.0') looks
+        // plausible and works to set the empty-form default, but it then
+        // overrides (rather than is overridden by) the actual value.
+        // I don't understand this (but see 'Evil hack alert' in the baseclass).
+        $mform->setDefault('mark', $markDefaults);
+
+        $this->add_per_answer_fields($mform, get_string('testcase', 'qtype_coderunner'),
+                $gradeoptions, $numTestcases);
         $this->add_interactive_settings();
     }
 
