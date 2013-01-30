@@ -77,11 +77,12 @@ class qtype_coderunner_nullsandbox_test extends basic_testcase {
     // Test the nullsandbox with a memory limit error
     public function test_nullsandbox_memlimit() {
         $sandbox = new nullsandbox();
-        $code = "data = list(range(1,10000000000))";
+        $code = "data = list(range(1,100000000000))";
         $result = $sandbox->execute($code, 'python2', NULL);
         $this->assertEquals($result->result, Sandbox::RESULT_ABNORMAL_TERMINATION);
         $this->assertEquals($result->output, '');
-        $this->assertTrue(strpos($result->stderr, 'MemoryError') !== FALSE);
+        $this->assertTrue(strpos($result->stderr, 'MemoryError') !== FALSE ||
+                strpos($result->stderr, 'OverflowError') !== FALSE);
         $this->assertEquals($result->cmpinfo, '');
         $sandbox->close();
     }
