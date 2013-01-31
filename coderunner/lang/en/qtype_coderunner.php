@@ -101,6 +101,7 @@ $string['nonnumericmark'] = 'Non-numeric mark';
 $string['negativeorzeromark'] = 'Mark must be greater than zero';
 $string['qWrongBehaviour'] = 'Detailed test results unavailable. '
     . 'Perhaps question not using Adaptive Mode?';
+$string['options'] = 'Options';
 $string['output'] = 'Output';
 $string['pluginname'] = 'CodeRunner';
 $string['pluginnameadding'] = 'Adding a CodeRunning question';
@@ -112,6 +113,9 @@ $string['pluginname_help'] = 'Use the "Question type" combo box to select the ' 
 $string['pluginnameediting'] = 'Editing a CodeRunner question';
 $string['questiontype_required'] = 'You must select the type of question';
 $string['SHOW'] = 'Show';
+$string['show_source'] = 'Template debugging';
+$string['show_source_help'] = 'If checked, the full source code of the program ' .
+        'that\'s run is displayed in the result page, for template debugging.';
 $string['stdin'] = 'Standard Input (only for programs that explicitly '
     . 'read stdin)';
 $string['testcase'] = 'Test case.';

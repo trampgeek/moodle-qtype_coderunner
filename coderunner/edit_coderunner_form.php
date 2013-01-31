@@ -86,8 +86,12 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 '" rows="8" cols="80"');
 
         $mform->addElement('advcheckbox', 'all_or_nothing', get_string('all_or_nothing', 'qtype_coderunner'));
+        $mform->addElement('advcheckbox', 'show_source', get_string('show_source', 'qtype_coderunner'));
+
         $mform->setDefault('all_or_nothing', True);
+        $mform->setDefault('show_source', False);
         $mform->addHelpButton('all_or_nothing', 'all_or_nothing', 'qtype_coderunner');
+        $mform->addHelpButton('show_source', 'show_source', 'qtype_coderunner');
         parent::definition($mform);
         $PAGE->requires->js_init_call('M.qtype_coderunner.initEditForm', array(), false, $jsmodule);
     }

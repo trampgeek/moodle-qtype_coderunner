@@ -182,6 +182,7 @@ class qtype_coderunner_question extends question_graded_automatically {
         require_once($CFG->dirroot . "/question/type/coderunner/Validator/$validatorClassLC.php");
 
         $sandbox = new $sandboxClass();
+        $allRuns = array(); // Array of the source code for all runs
         $validator = new $validatorClass();
         $templateParams = array(
             'STUDENT_ANSWER' => $code,
@@ -203,6 +204,7 @@ class qtype_coderunner_question extends question_graded_automatically {
             $templateParams['TESTCASES'] = $testCases;
             $testProg = $twig->render($this->combinator_template, $templateParams);
 
+            $allRuns[] = $testProg;
             $run = $sandbox->execute($testProg, $this->language, NULL);
 
             if ($run->result === SANDBOX::RESULT_COMPILATION_ERROR) {
@@ -252,6 +254,7 @@ class qtype_coderunner_question extends question_graded_automatically {
                 $templateParams['TEST'] = $testCase;
                 $testProg = $twig->render($template, $templateParams);
                 $input = isset($testCase->stdin) ? $testCase->stdin : '';
+                $allRuns[] = $testProg;
                 $run = $sandbox->execute($testProg, $this->language, $input);
                 if ($run->result === SANDBOX::RESULT_COMPILATION_ERROR) {
                     $outcome = new TestingOutcome(TestingOutcome::STATUS_SYNTAX_ERROR, $run->cmpinfo);
@@ -267,7 +270,9 @@ class qtype_coderunner_question extends question_graded_automatically {
         }
 
         $sandbox->close();
-
+        if ($this->show_source) {
+            $outcome->sourceCodeList = $allRuns;
+        }
     	return $outcome;
     }
 

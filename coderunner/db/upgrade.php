@@ -53,6 +53,14 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2013013001, 'qtype', 'coderunner');
     }
 
+    if ($oldversion != 0 && $oldversion < 2013013101) {
+        // Add show source option to question
+        $table = new xmldb_table('quest_coderunner_options');
+        $showSource = new xmldb_field('show_source', XMLDB_TYPE_INTEGER, '1', XMLDB_UNSIGNED, TRUE, null, '0');
+        $dbman->add_field($table, $showSource);
+        upgrade_plugin_savepoint(true, 2013013101, 'qtype', 'coderunner');
+    }
+
     return updateQuestionTypes();
 
 }

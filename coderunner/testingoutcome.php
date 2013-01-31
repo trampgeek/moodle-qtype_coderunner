@@ -34,6 +34,7 @@ class TestingOutcome {
         $this->actualMark = 0;
         $this->maxPossMark = 0;
         $this->testResults = array();
+        $this->sourceCodeList = null;
     }
 
     public function hasSyntaxError()  {

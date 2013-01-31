@@ -170,7 +170,23 @@ class qtype_coderunner_renderer extends qtype_renderer {
                 $resultsclass = "coderunner-test-results-bad";
             }
 
-            $fb = html_writer::start_tag('div', array('class' => $resultsclass));
+            $fb = '';
+
+            if ($q->show_source) {
+                $fb .= html_writer::start_tag('div', array('class' => 'debugging'));
+                $fb .= html_writer::tag('h3', 'Debug: source code from all runs');
+                $runs = $testOutcome->sourceCodeList;
+                $i = 1;
+                foreach ($runs as $run) {
+                    $fb .= html_writer::tag('h4', "Run $i");
+                    $i++;
+                    $fb .=html_writer::tag('pre', s($run));
+                    $fb .= html_writer::tag('hr', '');
+                }
+                $fb .= html_writer::end_tag('div');
+            }
+
+            $fb .= html_writer::start_tag('div', array('class' => $resultsclass));
             $fb .= html_writer::tag('p', '&nbsp;', array('class' => 'coderunner-spacer'));
             if ($testOutcome->hasSyntaxError()) {
                 $fb .= html_writer::tag('h3', 'Syntax Error(s)');

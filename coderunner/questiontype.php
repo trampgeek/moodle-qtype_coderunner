@@ -84,7 +84,8 @@ class qtype_coderunner extends question_type {
      * @return mixed array as above, or null to tell the base class to do nothing.
      */
     public function extra_question_fields() {
-        return array('quest_coderunner_options', 'coderunner_type', 'custom_template', 'all_or_nothing');
+        return array('quest_coderunner_options', 'coderunner_type',
+            'custom_template', 'all_or_nothing', 'show_source');
     }
 
     /**
@@ -253,7 +254,7 @@ class qtype_coderunner extends question_type {
         parent::initialise_question_instance($question, $questiondata);
         foreach (array('testcases', 'stats', 'language', 'combinator_template',
             'test_splitter_re', 'per_test_template', 'customise',
-            'sandbox', 'validator', 'all_or_nothing') as $field) {
+            'sandbox', 'validator', 'all_or_nothing', 'show_source') as $field) {
             $question->$field = $questiondata->$field;
         }
     }

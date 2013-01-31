@@ -57,6 +57,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $coderunner->generalfeedback = 'No feedback available for coderunner questions.';
         $coderunner->options = array('coderunner_type' => 'python3');
         $coderunner->all_or_nothing = true;
+        $coderunner->show_source = false;
         $coderunner->testcases = array(
             (object) array('testcode' => 'print(sqr(0))',
                           'output'     => '0',
@@ -128,6 +129,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $coderunner->questiontext = 'Write a function sayHello(name) that prints "Hello <name>"';
         $coderunner->generalfeedback = 'No feedback available for coderunner questions.';
         $coderunner->all_or_nothing = true;
+        $coderunner->show_source = false;
         $coderunner->testcases = array(
             (object) array('testcode' => 'sayHello("")',
                           'output'      => 'Hello ',
@@ -177,6 +179,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $coderunner->options = array('coderunner_type' => 'python3');
         $coderunner->name = 'Function to copy n lines of stdin to stdout';
         $coderunner->all_or_nothing = true;
+        $coderunner->show_source = false;
         $coderunner->questiontext = 'Write a function copyLines(n) that reads n lines from stdin and writes them to stdout. ';
         $coderunner->generalfeedback = 'No feedback available for coderunner questions.';
         $coderunner->testcases = array(
@@ -228,6 +231,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $coderunner->name = 'Function to generate a timeout';
         $coderunner->options = array('coderunner_type' => 'python3');
         $coderunner->all_or_nothing = true;
+        $coderunner->show_source = false;
         $coderunner->questiontext = 'Write a function that loops forever';
         $coderunner->generalfeedback = 'No feedback available for coderunner questions.';
         $coderunner->testcases = array(
@@ -258,6 +262,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $coderunner->name = 'Function to generate a timeout';
         $coderunner->options = array('coderunner_type' => 'python3');
         $coderunner->all_or_nothing = true;
+        $coderunner->show_source = false;
         $coderunner->questiontext = 'Write a bit of code';
         $coderunner->generalfeedback = 'No feedback available for coderunner questions.';
         $coderunner->testcases = array(
@@ -289,6 +294,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $coderunner->name = 'Function to conditionally throw an exception';
         $coderunner->options = array('coderunner_type' => 'python3');
         $coderunner->all_or_nothing = true;
+        $coderunner->show_source = false;
         $coderunner->questiontext = 'Write a function isOdd(n) that throws and ValueError exception iff n is odd';
         $coderunner->generalfeedback = 'No feedback available for coderunner questions.';
         $coderunner->testcases = array(
@@ -367,6 +373,7 @@ except ValueError:
         $coderunner->generalfeedback = 'No feedback available for coderunner questions.';
         $coderunner->options = array('coderunner_type' => 'c_function');
         $coderunner->all_or_nothing = true;
+        $coderunner->show_source = false;
         $coderunner->testcases = array(
             (object) array('testcode'       => 'printf("%d", sqr(0));',
                            'stdin'          => '',
@@ -418,6 +425,7 @@ except ValueError:
         $coderunner->generalfeedback = 'No feedback available for coderunner questions.';
         $coderunner->options = array('coderunner_type' => 'c_function');
         $coderunner->all_or_nothing = true;
+        $coderunner->show_source = false;
         $coderunner->testcases = array(
             (object) array('testcode'       => 'printf("%d", sqr(0))',
                            'output'         => '0',
@@ -469,6 +477,7 @@ except ValueError:
         $coderunner->generalfeedback = 'No feedback available for coderunner questions.';
         $coderunner->options = array('coderunner_type' => 'c_program');
         $coderunner->all_or_nothing = true;
+        $coderunner->show_source = false;
         $coderunner->testcases = array(
             (object) array('testcode' => '',
                           'output'    => 'Hello ENCE260',
@@ -499,6 +508,7 @@ except ValueError:
         $coderunner->generalfeedback = 'No feedback available for coderunner questions.';
         $coderunner->options = array('coderunner_type' => 'c_program');
         $coderunner->all_or_nothing = true;
+        $coderunner->show_source = false;
         $coderunner->testcases = array(
             (object) array('testcode' => '',
                           'stdin'     => '',
@@ -539,6 +549,7 @@ except ValueError:
         $coderunner->generalfeedback = 'No feedback available for coderunner questions.';
         $coderunner->options = array('coderunner_type' => 'c_function');
         $coderunner->all_or_nothing = true;
+        $coderunner->show_source = false;
         $coderunner->testcases = array(
             (object) array('testcode' => "
 char s[] = {'1','@','a','B','c','d','E',';', 0};
@@ -581,6 +592,7 @@ printf(\"%s\\n\", s);
         $coderunner->generalfeedback = 'No feedback available for coderunner questions.';
         $coderunner->options = array('coderunner_type' => 'c_full_main_tests');
         $coderunner->all_or_nothing = true;
+        $coderunner->show_source = false;
         $coderunner->testcases = array(
             (object) array('testcode' => "
 int main() {
@@ -633,6 +645,7 @@ int main() {
         $coderunner->generalfeedback = 'No feedback available for coderunner questions.';
         $coderunner->options = array('coderunner_type' => 'c_function');
         $coderunner->all_or_nothing = true;
+        $coderunner->show_source = false;
         $coderunner->testcases = array(
             (object) array('testcode'       => "char s[] = \"abcdefg\";\nstringDelete(s, \"xcaye\");\nprintf(\"%s\\n\", s);",
                            'output'         => 'bdfg',
@@ -679,6 +692,7 @@ int main() {
         $coderunner->generalfeedback = 'No feedback available for coderunner questions.';
         $coderunner->options = array('coderunner_type' => 'matlab_function');
         $coderunner->all_or_nothing = true;
+        $coderunner->show_source = false;
         $coderunner->testcases = array(
             (object) array('testcode'       => 'disp(sqr(0));',
                            'stdin'          => '',
@@ -739,6 +753,7 @@ EOT;
         $coderunner->generalfeedback = 'No feedback available for coderunner questions.';
         $coderunner->options = array('coderunner_type' => 'matlab_function');
         $coderunner->all_or_nothing = true;
+        $coderunner->show_source = false;
         $coderunner->testcases = array(
             (object) array('testcode'       => 'mytest();',
                            'stdin'          => '',
@@ -795,6 +810,7 @@ EOT;
         $coderunner->generalfeedback = 'No feedback available for coderunner questions.';
         $coderunner->options = array('coderunner_type' => 'java_method');
         $coderunner->all_or_nothing = true;
+        $coderunner->show_source = false;
         $coderunner->testcases = array(
             (object) array('testcode'       => 'System.out.println(sqr(0))',
                            'stdin'          => '',
@@ -847,6 +863,7 @@ EOT;
         $coderunner->generalfeedback = 'No feedback available for coderunner questions.';
         $coderunner->options = array('coderunner_type' => 'java_class');
         $coderunner->all_or_nothing = true;
+        $coderunner->show_source = false;
         $coderunner->testcases = array(
             (object) array('testcode'       => 'System.out.println(new Name("Joe", "Brown"))',
                            'stdin'          => '',
@@ -885,6 +902,7 @@ EOT;
         $coderunner->generalfeedback = 'No feedback available for coderunner questions.';
         $coderunner->options = array('coderunner_type' => 'java_program');
         $coderunner->all_or_nothing = true;
+        $coderunner->show_source = false;
         $coderunner->testcases = array(
             (object) array('testcode'       => '',
                            'stdin'          => "5\n",
