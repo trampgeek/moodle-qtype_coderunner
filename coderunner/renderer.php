@@ -82,7 +82,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
         $responsefieldname = $qa->get_qt_field_name('answer');
         $responsefieldid = 'id_' . $responsefieldname;
         $ta_attributes = array(
-            'class' => 'coderunner-answer',
+            'class' => 'coderunner-answer edit_code',
             'name' => $responsefieldname,
             'id' => $responsefieldid,
             'cols'      => '80',
@@ -134,12 +134,10 @@ class qtype_coderunner_renderer extends qtype_renderer {
         // and Ace but I've either failed to get them playing nicely with
         // YUI (CodeMirror, Ace) or was plagued by browser dependencies
         // (EditArea). So for now just doing simple autoindent operations.]
-        // Language parameter currently unused but remains as a potentially
-        // useful hook.
+
         $lang = ucwords($question->language);
 
-        $PAGE->requires->js_init_call('M.qtype_coderunner.initQuestionRender',
-                array($responsefieldid, $lang));
+        $PAGE->requires->js_init_call('M.qtype_coderunner.initRender', array());
         return $qtext;
 
         // TODO: consider how to prevent multiple submits while one submit in progress

@@ -2,19 +2,20 @@
 
 M.qtype_coderunner = {};
 
-// Script for the usual student-view question render
+// Script to manage all code-input text-areas.
 // Having given up on syntax colouring editors in the YUI context, I
 // now just do rudimentary autoindent on return and replace tab with
 // 4 spaces always.
 // For info on key handling browser inconsistencies see http://unixpapa.com/js/key.html
-M.qtype_coderunner.initQuestionRender = function(Y, textareaId, lang) {
-    var yta = Y.one(Y.DOM.byId(textareaId)), // Work around problem of colons in Moodle IDs
-        ta = yta.getDOMNode(),
+M.qtype_coderunner.initRender = function(Y) {
+    var ytas = Y.all('.edit_code'),
         i = 0,
         ENTER = 13,
         TAB = 9,
         SPACE = 32;
-    yta.on('keydown', function(e) {
+    ytas.each(function (yta) {
+      yta.on('keydown', function(e) {
+        var ta = yta.getDOMNode()
         if(e.which == undefined || e.which != 0) { // 'Normal' keypress?
             if (e.keyCode == TAB) {
                 // Ignore SHIFT/TAB. Insert 4 spaces on TAB.
@@ -37,6 +38,7 @@ M.qtype_coderunner.initQuestionRender = function(Y, textareaId, lang) {
             }
 
         }
+    })
   });
 
 };

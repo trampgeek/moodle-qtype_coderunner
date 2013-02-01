@@ -1,6 +1,6 @@
-.coderunner-answer, table.coderunner-test-results td,
-table.coderunnerexamples td, #id_template,
-.testcaseexpression, .testcaseresult, .testcasestdin {
+table.coderunner-test-results td,
+table.coderunnerexamples td,
+.edit_code {
     font-family:courier,monospace;
 }
 

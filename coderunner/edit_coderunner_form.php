@@ -83,7 +83,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
         // Template is hidden by default in css but displayed by JavaScript if 'customise' checked
         $mform->addElement('textarea', 'custom_template', get_string("template", "qtype_coderunner"),
-                '" rows="8" cols="80"');
+                '" rows="8" cols="80" class="template edit_code"');
 
         $mform->addElement('advcheckbox', 'all_or_nothing', get_string('all_or_nothing', 'qtype_coderunner'));
         $mform->addElement('advcheckbox', 'show_source', get_string('show_source', 'qtype_coderunner'));
@@ -92,8 +92,10 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->setDefault('show_source', False);
         $mform->addHelpButton('all_or_nothing', 'all_or_nothing', 'qtype_coderunner');
         $mform->addHelpButton('show_source', 'show_source', 'qtype_coderunner');
-        parent::definition($mform);
+
+        $PAGE->requires->js_init_call('M.qtype_coderunner.initRender',   array(), false, $jsmodule);
         $PAGE->requires->js_init_call('M.qtype_coderunner.initEditForm', array(), false, $jsmodule);
+        parent::definition($mform);
     }
 
 
@@ -139,13 +141,13 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $repeated[] = & $mform->createElement('header', 'answerhdr', $label);
         $repeated[] = & $mform->createElement('textarea', 'testcode',
                 get_string('testcode', 'qtype_coderunner'),
-                array('cols' => 80, 'rows' => 4, 'class' => 'testcaseexpression'));
+                array('cols' => 80, 'rows' => 4, 'class' => 'testcaseexpression edit_code'));
         $repeated[] = & $mform->createElement('textarea', 'stdin',
                 get_string('stdin', 'qtype_coderunner'),
-                array('cols' => 80, 'rows' => 4, 'class' => 'testcasestdin'));
+                array('cols' => 80, 'rows' => 4, 'class' => 'testcasestdin edit_code'));
         $repeated[] = & $mform->createElement('textarea', 'output',
                 get_string('output', 'qtype_coderunner'),
-                array('cols' => 80, 'rows' => 4, 'class' => 'testcaseresult'));
+                array('cols' => 80, 'rows' => 4, 'class' => 'testcaseresult edit_code'));
         $repeated[] = & $mform->createElement('checkbox', 'useasexample', get_string('useasexample', 'qtype_coderunner'), false);
         $repeated[] = & $mform->createElement('text', 'mark', get_string('mark', 'qtype_coderunner'),
                 array('size' => 5));
