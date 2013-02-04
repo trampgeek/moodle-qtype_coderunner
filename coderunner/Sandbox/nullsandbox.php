@@ -157,7 +157,7 @@ class Python3_ns_Task extends LanguageTask {
              "--no-core",
              "--streamsize=10000",   // Max stdout/stderr sizes (10MB)
              '/usr/bin/python3',
-             '-BESs',
+             '-BE',
              $this->sourceFileName
          );
      }

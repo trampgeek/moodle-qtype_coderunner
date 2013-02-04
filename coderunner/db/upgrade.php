@@ -65,6 +65,7 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
 
 }
 
+
 function updateQuestionTypes() {
 
     // Add/replace standard question types
@@ -78,6 +79,192 @@ function updateQuestionTypes() {
         'coderunner_type' => 'python3',
         'is_custom' => 0,
         'comment' => 'Used for most Python3 questions. For each test case, ' .
+                     'runs the student code followed by the test code',
+        'combinator_template' => <<<EOT
+{{ STUDENT_ANSWER }}
+
+__student_answer__ = """{{ ESCAPED_STUDENT_ANSWER }}"""
+
+SEPARATOR = "#<ab@17943918#@>#"
+
+{% for TEST in TESTCASES %}
+{{ TEST.testcode }};
+{% if not loop.last %}
+print(SEPARATOR)
+{% endif %}
+{% endfor %}
+EOT
+,
+        'test_splitter_re' => "|#<ab@17943918#@>#\n|ms",
+        'per_test_template' => <<<EOT
+{{STUDENT_ANSWER}}
+
+__student_answer__ = """{{ ESCAPED_STUDENT_ANSWER }}"""
+
+{{TEST.testcode}}
+EOT
+,
+        'language' => 'python3',
+    );
+
+
+    // ===============================================================
+    //
+    // Python3 Pylint Func
+    //
+    // ===============================================================
+    $combinator = <<<'EOT'
+__student_answer__ = """{{ ESCAPED_STUDENT_ANSWER }}"""
+
+import subprocess
+
+def check_code(s):
+    try:
+        source = open('source.py', 'w')
+        source.write(s)
+        source.close()
+        result = subprocess.check_output(['pylint', 'source.py'], stderr=subprocess.STDOUT)
+    except Exception as e:
+        result = e.output.decode('utf-8')
+
+    if result.strip():
+        print("pylint doesn't approve of your program")
+        print(result)
+        raise Exception("Submission rejected")
+
+check_code(__student_answer__)
+
+{{ STUDENT_ANSWER }}
+
+SEPARATOR = "#<ab@17943918#@>#"
+
+{% for TEST in TESTCASES %}
+{{ TEST.testcode }}
+{% if not loop.last %}
+print(SEPARATOR)
+{% endif %}
+{% endfor %}
+EOT;
+
+    $perTestTemplate = <<<'EOT'
+__student_answer__ = """{{ ESCAPED_STUDENT_ANSWER }}"""
+
+import subprocess
+
+def check_code(s):
+    try:
+        source = open('source.py', 'w')
+        source.write('"""Dummy module comment to keep pylint quiet"""\n' + s)
+        source.close()
+        result = subprocess.check_output(['pylint', 'source.py'], stderr=subprocess.STDOUT)
+    except Exception as e:
+        result = e.output.decode('utf-8')
+
+    if result.strip():
+        print("pylint doesn't approve of your program")
+        print(result)
+        raise Exception("Submission rejected")
+
+check_code(__student_answer__)
+
+{{ STUDENT_ANSWER }}
+{{ TEST.testcode }}
+EOT;
+
+    $python3PylintFunc =  array(
+        'coderunner_type' => 'python3_pylint_func',
+        'is_custom' => 0,
+        'comment' => 'Python3 functions with a pre-check by pylint',
+        'combinator_template' => $combinator,
+        'test_splitter_re' => "|#<ab@17943918#@>#\n|ms",
+        'per_test_template' => $perTestTemplate,
+        'language' => 'python3',
+        'sandbox'  => 'NullSandbox'
+    );
+
+    // ===============================================================
+    //
+    // Python3 Pylint Prog
+    //
+    // ===============================================================
+    $combinator = <<<'EOT'
+__student_answer__ = """{{ ESCAPED_STUDENT_ANSWER }}"""
+
+import subprocess
+
+def check_code(s):
+    try:
+        source = open('source.py', 'w')
+        source.write(s)
+        source.close()
+        result = subprocess.check_output(['pylint', 'source.py'], stderr=subprocess.STDOUT)
+    except Exception as e:
+        result = e.output.decode('utf-8')
+
+    if result.strip():
+        print("pylint doesn't approve of your program")
+        print(result)
+        raise Exception("Submission rejected")
+
+check_code(__student_answer__)
+
+{{ STUDENT_ANSWER }}
+
+SEPARATOR = "#<ab@17943918#@>#"
+
+{% for TEST in TESTCASES %}
+{{ TEST.testcode }}
+{% if not loop.last %}
+print(SEPARATOR)
+{% endif %}
+{% endfor %}
+EOT;
+
+    $perTestTemplate = <<<'EOT'
+__student_answer__ = """{{ ESCAPED_STUDENT_ANSWER }}"""
+
+import subprocess
+
+def check_code(s):
+    try:
+        source = open('source.py', 'w')
+        source.write(s)
+        source.close()
+        result = subprocess.check_output(['pylint', 'source.py'], stderr=subprocess.STDOUT)
+    except Exception as e:
+        result = e.output.decode('utf-8')
+
+    if result.strip():
+        print("pylint doesn't approve of your program")
+        print(result)
+        raise Exception("Submission rejected")
+
+check_code(__student_answer__)
+
+{{ STUDENT_ANSWER }}
+{{ TEST.testcode }}
+EOT;
+
+    $python3PylintProg =  array(
+        'coderunner_type' => 'python3_pylint_prog',
+        'is_custom' => 0,
+        'comment' => 'Python3 programs with a pre-check by pylint',
+        'combinator_template' => $combinator,
+        'test_splitter_re' => "|#<ab@17943918#@>#\n|ms",
+        'per_test_template' => $perTestTemplate,
+        'language' => 'python3',
+        'sandbox'  => 'NullSandbox'
+    );
+
+   // ===============================================================
+    //
+    // Python2
+    //
+    // ===============================================================
+    $python2 =  array(
+        'coderunner_type' => 'python2',
+        'is_custom' => 0,
+        'comment' => 'Used for most Python2 questions. For each test case, ' .
                      'runs the student code followed by the test code',
         'combinator_template' => <<<EOT
 {{ STUDENT_ANSWER }}
@@ -103,43 +290,11 @@ __student_answer__ = """{{ ESCAPED_STUDENT_ANSWER }}"""
 {{TEST.testcode}}
 EOT
 ,
-        'language' => 'python3',
-    );
-
-    // ===============================================================
-    $python2 =  array(
-        'coderunner_type' => 'python2',
-        'is_custom' => 0,
-        'comment' => 'Used for most Python2 questions. For each test case, ' .
-                     'runs the student code followed by the test code',
-        'combinator_template' => <<<EOT
-{{ STUDENT_ANSWER }}
-
-__student_answer__ = """{{ ESCAPED_STUDENT_ANSWER }}"""
-
-SEPARATOR = "#<ab@17943918#@>#"
-
-{% for TEST in TESTCASES %}
-{{ TEST.testcode }};
-{% if not loop.last %}
-print(SEPARATOR)
-{% endif %}
-{% endfor %}
-EOT
-,
-        'test_splitter_re' => "|#<ab@17943918#@>#\n|ms",
-        'per_test_template' => <<<EOT
-{{STUDENT_ANSWER}}
-
-__student_answer__ = """{{ ESCAPED_STUDENT_ANSWER }}"""
-
-{{TEST.testcode}}
-EOT
-,
         'language' => 'python2',
     );
 
-    // ===============================================================
+
+// ===============================================================
     $python2NullSandbox =  array(
         'coderunner_type' => 'python2_nullsandbox',
         'is_custom' => 0,
@@ -165,7 +320,7 @@ EOT
 
 __student_answer__ = """{{ ESCAPED_STUDENT_ANSWER }}"""
 
-{{TEST.testcode}}
+{{ TEST.testcode }}
 EOT
 ,
         'language' => 'python2',
@@ -241,7 +396,7 @@ EOT
              'contains a complete main function that follows the student code.',
         'combinator_template' => NULL,
         'test_splitter_re' => '',
-        'per_test_template' => "#include <stdio.h>\n#include <stdlib.h>\n#include <ctype.h>\n{{STUDENT_ANSWER}}\n\n{{TEST.testcode}}",
+        'per_test_template' => "#include <stdio.h>\n#include <stdlib.h>\n#include <ctype.h>\n{{STUDENT_ANSWER}}\n\n{{ TEST.testcode }}",
         'language' => 'C',
     );
 
@@ -266,7 +421,7 @@ end
 EOT
 ,
         'test_splitter_re' => "|#<ab@17943918#@>#\n|ms",
-        'per_test_template' => "function tester()\n  {{TEST.testcode}};quit();\nend\n\n{{STUDENT_ANSWER}}",
+        'per_test_template' => "function tester()\n  {{ TEST.testcode }};quit();\nend\n\n{{ STUDENT_ANSWER }}",
         'language' => 'matlab',
     );
     // ===============================================================
@@ -397,6 +552,8 @@ EOT
     $types = array(
         $python2,
         $python3,
+        $python3PylintFunc,
+        $python3PylintProg,
         $cFunction,
         $cProgram,
         $cFullMainTests,

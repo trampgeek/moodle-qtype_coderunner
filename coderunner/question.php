@@ -186,7 +186,7 @@ class qtype_coderunner_question extends question_graded_automatically {
         $validator = new $validatorClass();
         $templateParams = array(
             'STUDENT_ANSWER' => $code,
-            'ESCAPED_STUDENT_ANSWER' => str_replace('"', '\"', $code),
+            'ESCAPED_STUDENT_ANSWER' => str_replace('"', '\"', str_replace('\\', '\\\\', $code)),
             'MATLAB_ESCAPED_STUDENT_ANSWER' => str_replace(
                 array("'",  "\n", "\r", '%'),
                 array("''", '\\n',  '',  '%%'),
