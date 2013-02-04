@@ -61,7 +61,7 @@ else:
     try:
         print("Making a user coderunner and setting up runguard")
         print("If prompted for coderunner user details, just accept the defaults")
-        cmd = "adduser --quiet --no-create-home --disabled-password coderunner; cd {0}/coderunner/Sandbox; make runguard; chown root runguard; chgrp root runguard; chmod 4755 runguard".format(installdir)
+        cmd = "adduser --no-create-home coderunner; cd {0}/coderunner/Sandbox; make runguard; chown root runguard; chgrp root runguard; chmod 4755 runguard".format(installdir)
         if subprocess.call(cmd, shell=True) != 0:
             raise OSError("Failed to build runguard")
     except Exception as e:

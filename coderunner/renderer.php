@@ -137,7 +137,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
         $lang = ucwords($question->language);
 
-        $PAGE->requires->js_init_call('M.qtype_coderunner.initRender', array());
+        $PAGE->requires->js_init_call('M.qtype_coderunner.initQuestionTA', array($responsefieldid));
         return $qtext;
 
         // TODO: consider how to prevent multiple submits while one submit in progress

@@ -2,19 +2,36 @@
 
 M.qtype_coderunner = {};
 
-// Script to manage all code-input text-areas.
+// Function to initialise all code-input text-areas in a page.
+// Used by the form editor but can't be used for question text areas as
+// renderer.php is called once for each question in a quiz, and there is
+// no communication between the questions.
+M.qtype_coderunner.setupAllTAs = function (Y) {
+    Y.all('.edit_code').each(function (yta) {
+        M.qtype_coderunner.initTextArea(Y, yta);
+    });
+};
+
+
+// Initialise a particular text area (TA), given its ID.
+// Can't use IDs with underscores in Y.one -- use DOM method instead. Grrrr.
+M.qtype_coderunner.initQuestionTA = function (Y, taId) {
+    var ta = Y.one('[id="' + taId + '"]');
+    M.qtype_coderunner.initTextArea(Y, ta);
+};
+
+
+// Set up the JavaScript to handle a given text area (as a YUI node)
 // Having given up on syntax colouring editors in the YUI context, I
 // now just do rudimentary autoindent on return and replace tab with
 // 4 spaces always.
 // For info on key handling browser inconsistencies see http://unixpapa.com/js/key.html
-M.qtype_coderunner.initRender = function(Y) {
-    var ytas = Y.all('.edit_code'),
-        i = 0,
+M.qtype_coderunner.initTextArea = function (Y, yta) {
+    var i = 0,
         ENTER = 13,
         TAB = 9,
         SPACE = 32;
-    ytas.each(function (yta) {
-      yta.on('keydown', function(e) {
+    yta.on('keydown', function(e) {
         var ta = yta.getDOMNode()
         if(e.which == undefined || e.which != 0) { // 'Normal' keypress?
             if (e.keyCode == TAB) {
@@ -36,11 +53,8 @@ M.qtype_coderunner.initRender = function(Y) {
                     e.preventDefault();
                 }
             }
-
         }
-    })
-  });
-
+    });
 };
 
 M.qtype_coderunner.insertString = function(Y, ta, sToInsert) {
