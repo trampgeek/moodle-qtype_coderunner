@@ -93,7 +93,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->addHelpButton('all_or_nothing', 'all_or_nothing', 'qtype_coderunner');
         $mform->addHelpButton('show_source', 'show_source', 'qtype_coderunner');
 
-        $PAGE->requires->js_init_call('M.qtype_coderunner.initRender',   array(), false, $jsmodule);
+        $PAGE->requires->js_init_call('M.qtype_coderunner.setupAllTAs',  array(), false, $jsmodule);
         $PAGE->requires->js_init_call('M.qtype_coderunner.initEditForm', array(), false, $jsmodule);
         parent::definition($mform);
     }
