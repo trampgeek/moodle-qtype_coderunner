@@ -1,3 +1,8 @@
+div.coderunner-examples {
+    width: 100%;
+    overflow:auto;
+}
+
 table.coderunner-test-results td,
 table.coderunnerexamples td,
 .edit_code {
@@ -12,7 +17,7 @@ p.for-example-para {
     font-weight: bold;
 }
 
-div.coderunner-examples {
+div.coderunnerexamples {
     padding-bottom: 10px;
 }
 
