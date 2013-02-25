@@ -40,6 +40,8 @@ abstract class Sandbox {
     const RESULT_INTERNAL_ERR = 20;
 
     // Additions to ideone API for Liu Sandbox compatibility
+    const RESULT_SANDBOX_PENDING = 21; // Sandbox PD error
+    const RESULT_SANDBOX_POLICY = 22; // Sandbox BP error
     const RESULT_OUTPUT_LIMIT = 30;
     const RESULT_ABNORMAL_TERMINATION = 31;
 
@@ -63,7 +65,9 @@ abstract class Sandbox {
             15 => "OK",
             17 => "Memory limit exceeded",
             19 => "Illegal function call",
-            20 => "CodeRunner error: please tell a tutor",
+            20 => "CodeRunner error (IE): please tell a tutor",
+            21 => "CodeRunner error (PD): please tell a tutor",
+            22 => "CodeRunner error (BP): please tell a tutor",
             30 => "Excessive output",
             31 => "Abnormal termination"
         );
