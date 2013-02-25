@@ -129,7 +129,7 @@ class SelectiveOpenPolicy(SandboxPolicy):
                                 mode == O_RDONLY|self.O_CLOEXEC):
                         return SandboxAction(S_ACTION_CONT)
             self.error = "ILLEGAL FILE ACCESS ({0},{1})".format(path, mode)
-            return SandboxAction(S_ACTION_KILL, S_RESULT_RF)
+            return self._KILL_RF(e, a)
 
     def SYS_unlink(self, e, a):
         pathBytes = self.sbox.dump(T_STRING, e.ext1)
@@ -138,7 +138,7 @@ class SelectiveOpenPolicy(SandboxPolicy):
             return self._CONT(e, a)
         else:
             self.error = "Attempt to unlink {0}".format(path)
-            return SandboxAction(S_ACTION_KILL, S_RESULT_RF)
+            return self._KILL_RF(e, a)
 
 
 # Attempt to collapse '..' elements in a path. If not possible,
