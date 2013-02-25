@@ -147,7 +147,7 @@ class LiuSandbox extends LocalSandbox {
     private $LANGUAGES = array('C', 'python2', 'python3');
 
     private $RESULT_CODES = array(
-            'PD' => Sandbox::RESULT_INTERNAL_ERR,  // Pending???
+            'PD' => Sandbox::RESULT_SANDBOX_PENDING,  // Shouldn't occur
             'OK' => Sandbox::RESULT_SUCCESS,
             'RF' => Sandbox::RESULT_ILLEGAL_SYSCALL,
             'RT' => Sandbox::RESULT_RUNTIME_ERROR,
@@ -156,8 +156,8 @@ class LiuSandbox extends LocalSandbox {
             'OL' => Sandbox::RESULT_OUTPUT_LIMIT,
             'AT' => Sandbox::RESULT_ABNORMAL_TERMINATION,
             'IE' => Sandbox::RESULT_INTERNAL_ERR,
-            'BP' => Sandbox::RESULT_INTERNAL_ERR // Bad policy
-    );  // ** TODO: find out what the IE error means
+            'BP' => Sandbox::RESULT_SANDBOX_POLICY // Shouldn't occur
+    );
 
     public function __construct($user=NULL, $pass=NULL) {
         LocalSandbox::__construct($user, $pass);
