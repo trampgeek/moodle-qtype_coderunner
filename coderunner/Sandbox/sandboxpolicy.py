@@ -1,5 +1,19 @@
-# Define the policy for this sandbox
-# ==================================
+'''Define the policy for the Liu sandbox
+
+   This policy is set up to support Python2 and Python3 programs that
+   execute from within a working directory in the /tmp file system under the
+   Liu sandbox (see http://openjudge.net/~liuyu/Project/LibSandbox).
+   It assumes a 64-bit execution environment.
+   It allows file I/O only to that directory and to a set of directories
+   passed into the constructor call. The latter set is specific to the
+   language being supported.
+   The allowed set of system calls has been determined experimentally
+   by observing Python2 and Python3 execution. It is entirely possible
+   that some other more-rare syscalls will be executed from within parts
+   of the Python library that have not yet been exercised.
+   An abortive attempt was made to support Matlab; the system calls that it
+   seems to need have been left in as comments for documentation purposes.
+'''
 
 from sandbox import *
 from posix import O_RDONLY
@@ -33,20 +47,20 @@ class SelectiveOpenPolicy(SandboxPolicy):
         14,     # rt_sigprocmask
         15,     # rt_sigreturn
         21,     # access
-        #22,     # pipe MATLAB
+        #22,    # pipe MATLAB
         32,     # dup
         33,     # dup3
         39,     # getpid MATLAB
-        #41,     # sendfile MATLAB **CONSIDER**
-        #42,     # socket MATLAB **CONSIDER**
-        #43,     # connect MATLAB **CONSIDER**
-        #56,     # clone MATLAB THIS IS A NO-NO. Breaks sandbox.
-        #59,     # execve MATLAB ** CONSIDER **
-        #61,     # wait4 MATLAB
+        #41,    # sendfile MATLAB
+        #42,    # socket MATLAB
+        #43,    # connect MATLAB
+        #56,    # clone MATLAB. THIS IS A NO-NO. Breaks sandbox.
+        #59,    # execve MATLAB
+        #61,    # wait4 MATLAB
         72,     # fcntl
         78,     # getdents
         79,     # getcwd
-        #80,     # chdir MATLAB **CONSIDER**
+        #80,    # chdir MATLAB
         89,     # readlink
         97,     # getrlimit
         100,    # times
@@ -54,14 +68,14 @@ class SelectiveOpenPolicy(SandboxPolicy):
         104,    # getgid
         107,    # geteuid
         108,    # getegid
-        #110,    # getppid MATLAB
-        #111,    # getpgrp MATLAB
+        #110,   # getppid MATLAB
+        #111,   # getpgrp MATLAB
         202,    # futex
-        #203,    # sched_setaffinity MATLAB
-        #204,    # sched_getaffinity MATLAB
+        #203,   # sched_setaffinity MATLAB
+        #204,   # sched_getaffinity MATLAB
         218,    # set_tid_address
-        #257,    # openat MATLAB ***CONSIDER***
-        #269,    # faccessat MATLAB
+        #257,   # openat MATLAB
+        #269,   # faccessat MATLAB
         273,    # set_robust_list
     ])
 
@@ -117,17 +131,17 @@ class SelectiveOpenPolicy(SandboxPolicy):
         if '..' in path:
             # Kill any attempt to work up the file tree
             self.error = "ILLEGAL FILE ACCESS ({0},{1})".format(path, mode)
-            return SandboxAction(S_ACTION_KILL, S_RESULT_RF)
+            return self._KILL_RF(e, a)
         elif not path.startswith('/'):
             # Allow all access to the current directory (which is a special directory in /tmp)
-            return SandboxAction(S_ACTION_CONT)
+            return self._CONT(e, a)
         else:
             for prefix in self.READABLE_FILE_PATHS + self.WRITEABLE_FILE_PATHS:
                 if path.startswith(prefix):
                     if (prefix in self.WRITEABLE_FILE_PATHS or
                                 mode == O_RDONLY or
                                 mode == O_RDONLY|self.O_CLOEXEC):
-                        return SandboxAction(S_ACTION_CONT)
+                        return self._CONT(e, a)
             self.error = "ILLEGAL FILE ACCESS ({0},{1})".format(path, mode)
             return self._KILL_RF(e, a)
 
