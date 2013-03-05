@@ -83,9 +83,10 @@ class qtype_coderunner_renderer extends qtype_renderer {
         $responsefieldid = 'id_' . $responsefieldname;
         $ta_attributes = array(
             'class' => 'coderunner-answer edit_code',
-            'name' => $responsefieldname,
-            'id' => $responsefieldid,
+            'name'  => $responsefieldname,
+            'id'    => $responsefieldid,
             'cols'      => '80',
+            'spellcheck' => 'false',
             'rows'      => 18
         );
 
