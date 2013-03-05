@@ -104,7 +104,7 @@ $string['qWrongBehaviour'] = 'Detailed test results unavailable. '
 $string['options'] = 'Options';
 $string['output'] = 'Output';
 $string['pluginname'] = 'CodeRunner';
-$string['pluginnameadding'] = 'Adding a CodeRunning question';
+$string['pluginnameadding'] = 'Adding a CodeRunner question';
 $string['pluginnamesummary'] = 'CodeRunner: runs student-submitted code in a sandbox';
 $string['pluginname_help'] = 'Use the "Question type" combo box to select the ' .
         'computer language that will be used to run the student\'s submission. ' .

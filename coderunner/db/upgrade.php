@@ -113,7 +113,7 @@ EOT
     // Python3 Pylint Func
     //
     // ===============================================================
-    $combinator = <<<'EOT'
+    $combinator_pylint_func = <<<'EOT'
 __student_answer__ = """{{ ESCAPED_STUDENT_ANSWER }}"""
 
 import subprocess
@@ -146,7 +146,7 @@ print(SEPARATOR)
 {% endfor %}
 EOT;
 
-    $perTestTemplate = <<<'EOT'
+    $perTestTemplate_pylint_func = <<<'EOT'
 __student_answer__ = """{{ ESCAPED_STUDENT_ANSWER }}"""
 
 import subprocess
@@ -175,9 +175,9 @@ EOT;
         'coderunner_type' => 'python3_pylint_func',
         'is_custom' => 0,
         'comment' => 'Python3 functions with a pre-check by pylint',
-        'combinator_template' => $combinator,
+        'combinator_template' => $combinator_pylint_func,
         'test_splitter_re' => "|#<ab@17943918#@>#\n|ms",
-        'per_test_template' => $perTestTemplate,
+        'per_test_template' => $perTestTemplate_pylint_func,
         'language' => 'python3',
         'sandbox'  => 'NullSandbox'
     );
@@ -187,7 +187,7 @@ EOT;
     // Python3 Pylint Prog
     //
     // ===============================================================
-    $combinator = <<<'EOT'
+    $combinator_pylint_prog = <<<'EOT'
 __student_answer__ = """{{ ESCAPED_STUDENT_ANSWER }}"""
 
 import subprocess
@@ -220,7 +220,7 @@ print(SEPARATOR)
 {% endfor %}
 EOT;
 
-    $perTestTemplate = <<<'EOT'
+    $perTestTemplate_pylint_prog = <<<'EOT'
 __student_answer__ = """{{ ESCAPED_STUDENT_ANSWER }}"""
 
 import subprocess
@@ -249,9 +249,9 @@ EOT;
         'coderunner_type' => 'python3_pylint_prog',
         'is_custom' => 0,
         'comment' => 'Python3 programs with a pre-check by pylint',
-        'combinator_template' => $combinator,
+        'combinator_template' => $combinator_pylint_prog,
         'test_splitter_re' => "|#<ab@17943918#@>#\n|ms",
-        'per_test_template' => $perTestTemplate,
+        'per_test_template' => $perTestTemplate_pylint_prog,
         'language' => 'python3',
         'sandbox'  => 'NullSandbox'
     );
@@ -421,21 +421,10 @@ end
 EOT
 ,
         'test_splitter_re' => "|#<ab@17943918#@>#\n|ms",
-        'per_test_template' => "function tester()\n  {{ TEST.testcode }};quit();\nend\n\n{{ STUDENT_ANSWER }}",
+        'per_test_template' => "function tester()\n  {{ TEST.testcode }};\n  quit();\nend\n\n{{ STUDENT_ANSWER }}",
         'language' => 'matlab',
     );
-    // ===============================================================
-    $javaProgram = array(
-        'coderunner_type' => 'java_program',
-        'is_custom' => 0,
-        'comment' => 'Used for Java write-a-program questions, where there is ' .
-                'no per-test-case code, and the different tests just use ' .
-                'different stdin data.',
-        'combinator_template' => NULL,
-        'test_splitter_re' => '',
-        'per_test_template' => '{{ STUDENT_ANSWER }}',
-        'language' => 'Java',
-    );
+
 
     // ===============================================================
     $javaMethod = array(
