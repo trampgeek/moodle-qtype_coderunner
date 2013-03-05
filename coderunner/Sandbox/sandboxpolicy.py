@@ -163,7 +163,7 @@ class SelectiveOpenPolicy(SandboxPolicy):
         # may avoid the chaos after the sandboxed program have actually gone
         self.details['exitcode'] = e.ext1
         a.type = S_ACTION_FINI
-        a.data = S_REUSLT_OK if e.ext1 == 0 else S_RESULT_AT
+        a.data = S_RESULT_OK if e.ext1 == 0 else S_RESULT_AT
         return a
 
 
