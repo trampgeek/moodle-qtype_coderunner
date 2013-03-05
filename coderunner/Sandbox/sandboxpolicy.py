@@ -3,16 +3,16 @@
 
 from sandbox import *
 from posix import O_RDONLY
-from platform import machine as arch
+from platform import system, machine as arch
 import os
 
-system, machine = os.uname()[0], os.uname()[4]
-if system not in ('Linux', ) or machine not in ('i686', 'x86_64', ):
+if system() not in ('Linux', ) or arch() not in ('i686', 'x86_64', ):
     raise AssertionError("Unsupported platform type.\n")
 
 class SelectiveOpenPolicy(SandboxPolicy):
     SC_open   = (2, 0)  if arch() == 'x86_64' else (5, 0)
     SC_unlink = (87, 0) if arch() == 'x86_64' else (10, 0)
+    SC_exit_group = (231, 0) if arch() == 'x86_64' else (252, 0)
     O_CLOEXEC = 0O2000000
     READABLE_FILE_PATHS = []  # Default readable file paths
 
@@ -20,9 +20,9 @@ class SelectiveOpenPolicy(SandboxPolicy):
 
     sc_table = None
     sc_safe = dict( # white list of essential linux syscalls
-        i686 = set([3, 4, 19, 45, 54, 90, 91, 122, 125, 140, 163, \
+        i686 = set([0, 3, 4, 19, 45, 54, 90, 91, 122, 125, 140, 163, \
                     192, 197, 224, 243, 252, ]),
-        x86_64 = set([0, 1, 2, 5, 8, 9, 10, 11, 12, 16, 25, 63, 158, 231, ])
+        x86_64 = set([0, 1, 2, 5, 8, 9, 10, 11, 12, 16, 25, 63, 158, 219, 231, ])
     )
     sc_safe['x86_64'] = sc_safe['x86_64'] | set([
         # User-defined safe calls added here
@@ -72,15 +72,19 @@ class SelectiveOpenPolicy(SandboxPolicy):
 
         # initialize table of system call rules
         self.sc_table = [self._KILL_RF, ] * 1024
-        for scno in self.sc_safe[machine]:
+        for scno in self.sc_safe[arch()]:
             self.sc_table[scno] = self._CONT
         self.sbox = sbox
         self.error = 'UNKNOWN ERROR. PLEASE REPORT'
+        self.details = {}
 
     def __call__(self, e, a):
         ext = e.ext0 if arch() == 'x86_64' else 0
         if e.type == S_EVENT_SYSCALL and (e.data, ext) == self.SC_open:
             return self.SYS_open(e, a)
+
+        elif e.type == S_EVENT_SYSCALL and (e.data, ext) == self.SC_exit_group:
+            return self.SYS_exit_group(e, a)  # exit_group() does not return
 
         elif e.type == S_EVENT_SYSCALL and (e.data, ext) == self.SC_unlink:
             return self.SYS_unlink(e, a)
@@ -89,7 +93,7 @@ class SelectiveOpenPolicy(SandboxPolicy):
             return self._CONT(e, a)  # allow return from unlink
 
         elif e.type in (S_EVENT_SYSCALL, S_EVENT_SYSRET):
-            if machine == 'x86_64' and e.ext0 != 0:
+            if arch() == 'x86_64' and e.ext0 != 0:
                 return self._KILL_RF(e, a)
             elif (e.data, ext) == self.SC_unlink and e.type == S_EVENT_SYSCALL:
                 return self.SYS_unlink(e, a)
@@ -117,17 +121,17 @@ class SelectiveOpenPolicy(SandboxPolicy):
         if '..' in path:
             # Kill any attempt to work up the file tree
             self.error = "ILLEGAL FILE ACCESS ({0},{1})".format(path, mode)
-            return SandboxAction(S_ACTION_KILL, S_RESULT_RF)
+            return self._KILL_RF(e, a)
         elif not path.startswith('/'):
             # Allow all access to the current directory (which is a special directory in /tmp)
-            return SandboxAction(S_ACTION_CONT)
+            return self._CONT(e, a)
         else:
             for prefix in self.READABLE_FILE_PATHS + self.WRITEABLE_FILE_PATHS:
                 if path.startswith(prefix):
                     if (prefix in self.WRITEABLE_FILE_PATHS or
                                 mode == O_RDONLY or
                                 mode == O_RDONLY|self.O_CLOEXEC):
-                        return SandboxAction(S_ACTION_CONT)
+                        return self._CONT(e, a)
             self.error = "ILLEGAL FILE ACCESS ({0},{1})".format(path, mode)
             return self._KILL_RF(e, a)
 
@@ -139,6 +143,14 @@ class SelectiveOpenPolicy(SandboxPolicy):
         else:
             self.error = "Attempt to unlink {0}".format(path)
             return self._KILL_RF(e, a)
+
+    def SYS_exit_group(self, e, a):
+        # finish sandboxing at the final system call, aka exit_group(), this
+        # may avoid the chaos after the sandboxed program have actually gone
+        self.details['exitcode'] = e.ext1
+        a.type = S_ACTION_FINI
+        a.data = S_REUSLT_OK if e.ext1 == 0 else S_RESULT_AT
+        return a
 
 
 # Attempt to collapse '..' elements in a path. If not possible,
