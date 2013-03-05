@@ -54,6 +54,10 @@ if __name__ == '__main__':
         s.run()
         retCode = symbol.get(s.result, 'NA')
         details = s.probe(False)
+        
+        # monkey-patch probe details from policy status
+        if hasattr(s.policy, 'details'):
+            details.update(s.policy.details)
 
         outputFile.seek(0)
         stderrFile.seek(0)
