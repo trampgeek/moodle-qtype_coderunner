@@ -150,8 +150,8 @@ class Python3_ns_Task extends LanguageTask {
         return array(
              dirname(__FILE__)  . "/runguard",
              "--user=coderunner",
-             "--time=3",             // Seconds of execution time allowed
-             "--memsize=100000",     // Max kb mem allowed (100MB)
+             "--time=6",             // Seconds of execution time allowed
+             "--memsize=1000000",    // Max kb mem allowed (1GB)
              "--filesize=10000",     // Max file sizes (10MB)
              "--nproc=10",           // At most 10 processes/threads for this *user*
              "--no-core",
