@@ -440,7 +440,7 @@ class qtype_coderunner extends question_type {
             foreach (array('testcode', 'stdin', 'output', 'display') as $field) {
                 //$exportedValue = $format->xml_escape($testcase->$field);
                 $exportedValue = $format->writetext($testcase->$field, 4);
-                $expout .= "      <{$field}>{$exportedValue}</{$field}>\n";
+                $expout .= "      <{$field}>\n        {$exportedValue}      </{$field}>\n";
             }
             $expout .= "    </testcase>\n";
         }
