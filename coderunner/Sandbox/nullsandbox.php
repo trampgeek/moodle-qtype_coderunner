@@ -153,7 +153,7 @@ class Python3_ns_Task extends LanguageTask {
              "--time=10",             // Seconds of execution time allowed
              "--memsize=2000000",    // Max kb mem allowed (1GB)
              "--filesize=10000",     // Max file sizes (10MB)
-             "--nproc=20",           // At most 10 processes/threads for this *user*
+             "--nproc=20",           // At most 20 processes/threads for this *user*
              "--no-core",
              "--streamsize=10000",   // Max stdout/stderr sizes (10MB)
              '/usr/bin/python3',
