@@ -20,6 +20,7 @@ class TestingOutcome {
                                        // If this is not 1, subsequent fields may not be meaningful
     public $errorCount;                // The number of failing test cases
     public $maxPossMark;               // The maximum possible mark
+    public $runHost;                   // Host name of the front-end on which the run was done
     public $actualMark;                // Actual mark (meaningful only if this is not an all_or_nothing question)
     public $testResults;               // An array of TestResult objects
 
@@ -33,6 +34,7 @@ class TestingOutcome {
         $this->errorCount = 0;
         $this->actualMark = 0;
         $this->maxPossMark = 0;
+        $this->runHost = php_uname('n');  // Useful for debugging with multiple front-ends
         $this->testResults = array();
         $this->sourceCodeList = null;
     }

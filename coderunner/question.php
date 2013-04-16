@@ -34,7 +34,7 @@ defined('MOODLE_INTERNAL') || die();
  */
 defined('MAX_OUTPUT_LENGTH') || define('MAX_OUTPUT_LENGTH', 60000);
 
-defined('FUNC_MIN_LENGTH') ||  define('FUNC_MIN_LENGTH', 10);  /* Minimum no. of bytes for a valid bit of code */
+defined('FUNC_MIN_LENGTH') ||  define('FUNC_MIN_LENGTH', 1);  /* Minimum no. of bytes for a valid bit of code */
 
 require_once($CFG->dirroot . '/question/behaviour/adaptive/behaviour.php');
 require_once($CFG->dirroot . '/question/engine/questionattemptstep.php');
