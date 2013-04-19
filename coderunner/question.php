@@ -214,11 +214,11 @@ class qtype_coderunner_question extends question_graded_automatically {
                 // Could be a syntax error but might be a runtime error on just one test case so abandon combinator approach
                 //$outcome = new TestingOutcome(TestingOutcome::STATUS_ABNORMAL_TERMINATION, $run->stderr);
             }
-            else if ($run->result === Sandbox::RESULT_SUCCESS) {
-                if ($run->stderr) {
-                    throw new coding_exception('Unexpected non-empty stderr from sandbox');
-                }
-
+            // Edited 19/4/13 to cater for very rare situation that a successful
+            // run is recorded but stderr output is generated as well. [e.g.
+            // SyntaxWarning from misuse of a global declaration.] Can't split
+            // stdout in this case so give up on the combinator template.
+            else if ($run->result === Sandbox::RESULT_SUCCESS && !$run->stderr) {
                 $outputs = preg_split($this->test_splitter_re, $run->output);
                 if (count($outputs) == count($testCases)) {
                     //debugging("Good split");
@@ -264,7 +264,10 @@ class qtype_coderunner_question extends question_graded_automatically {
                     $outcome->addTestResult($validator->validate($errorMessage, $testCase));
                     break;
                 } else {
-                    $outcome->addTestResult($validator->validate($run->output, $testCase));
+                    // Very rarely Python will generate stderr output AND
+                    // valid stdout output, so must merge them.
+                    $output = $run->stderr ? $run->stderr + '\n' + $run->output : $run->output;
+                    $outcome->addTestResult($validator->validate($output, $testCase));
                 }
             }
         }
