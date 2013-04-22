@@ -100,7 +100,7 @@ $string['noerrorsallowed'] = 'Your code must pass all tests to earn any '
 $string['nonnumericmark'] = 'Non-numeric mark';
 $string['negativeorzeromark'] = 'Mark must be greater than zero';
 $string['qWrongBehaviour'] = 'Detailed test results unavailable. '
-    . 'Perhaps question not using Adaptive Mode?';
+    . 'Perhaps an empty answer, or question not using Adaptive Mode?';
 $string['options'] = 'Options';
 $string['output'] = 'Output';
 $string['pluginname'] = 'CodeRunner';
