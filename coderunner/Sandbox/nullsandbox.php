@@ -6,8 +6,25 @@
  * individual language but currently all use DOMJudge's 'runguard' program.
  * This runs the job as user 'coderunner' with resource limits set by
  * the language, so is at least safe against major resource depletion issues
- * (memory, CPU). Does not protect against system calls like socket and
+ * (memory, CPU). Does not protect against system calls like socket, and the
  * program can read any world-readable file on the server.
+ *
+ * One major concern with the use of NullSandbox is concurrency. runguard
+ * limits processes using the standard Linux set_resource _imits mechanism,
+ * but this limits the processes/threads on a per-user basis not on a per
+ * process-tree basis like other resources. In a web-server environment,
+ * each user request results in a new server thread and each thread can
+ * proceed to do coderunner tests. These all run as user 'coderunner'.
+ * Languages like Matlab and Java make extensive use of threads (a typical
+ * JVM execution uses at least 10 threads and Matlab uses even more).
+ * If too many coderunner instances are active at once, a new submission might
+ * fail for no fault of its own. This is not currently handled correctly.
+ *
+ * In practice, we've seen only one situation that triggered the problem: a Python
+ * task that ran the Java VM required close to the 20 threads allocated a
+ * Python task at the time, and a second concurrent test would fail. For now
+ * this problem has been resolved by increasing the allocation of processes
+ * to 200, but a better solution is needed.
  *
  *
  * @package    qtype
@@ -52,7 +69,10 @@ class Matlab_ns_Task extends LanguageTask {
              "--time=15",             // Seconds of execution time allowed
              //"--memsize=8000000",   // Why won't MATLAB run with a memsize set?!!
              "--filesize=1000000",    // Max file sizes (10MB)
-             "--nproc=50",            // At most 20 processes/threads (for this *user*)
+             "--nproc=200",            // At most 20 processes/threads (for this *user*)
+             // Number increased to 200 to allow multiple web threads to be
+             // running Matlab at once. This is ugly.
+             // TODO:  is there a better way to prevent fork bombs? cgroups?
              "--no-core",
              "--streamsize=1000000",   // Max stdout/stderr sizes (10MB)
              '/usr/local/Matlab2012a/bin/glnxa64/MATLAB',
@@ -117,7 +137,11 @@ class Python2_ns_Task extends LanguageTask {
              "--time=3",             // Seconds of execution time allowed
              "--memsize=100000",     // Max kb mem allowed (100MB)
              "--filesize=10000",     // Max file sizes (10MB)
-             "--nproc=10",           // At most 10 processes/threads for this *user*
+             "--nproc=200",          // At most 200 processes/threads for this *user*
+             // ... made stupidly large to allow several webserver threads
+             // ... to be running Python at once.
+             // TODO: find a better way of dealing with the large-scale
+             // concurrency issue.
              "--no-core",
              "--streamsize=10000",   // Max stdout/stderr sizes (10MB)
              '/usr/bin/python2',
@@ -150,10 +174,14 @@ class Python3_ns_Task extends LanguageTask {
         return array(
              dirname(__FILE__)  . "/runguard",
              "--user=coderunner",
-             "--time=10",             // Seconds of execution time allowed
+             "--time=10",            // Seconds of execution time allowed
              "--memsize=2000000",    // Max kb mem allowed (1GB)
              "--filesize=10000",     // Max file sizes (10MB)
-             "--nproc=20",           // At most 20 processes/threads for this *user*
+             "--nproc=200",          // At most 200 processes/threads for this *user*
+             // ... made stupidly large to allow several webserver threads
+             // ... to be running Python at once.
+             // TODO: find a better way of dealing with the large-scale
+             // concurrency issue.
              "--no-core",
              "--streamsize=10000",   // Max stdout/stderr sizes (10MB)
              '/usr/bin/python3',
@@ -205,10 +233,12 @@ class Java_ns_Task extends LanguageTask {
          return array(
              dirname(__FILE__)  . "/runguard",
              "--user=coderunner",
-             "--time=5",              // Seconds of execution time allowed
+             "--time=10",             // Seconds of execution time allowed
              "--memsize=2000000",     // Max kb mem allowed (2GB Why does it need so much?)
              "--filesize=10000",      // Max file sizes (10MB)
-             "--nproc=50",            // At most 50 processes/threads for this *user*
+             "--nproc=200",           // At most 200 processes/threads for this *user*  ...
+             // ... made stupidly large to allow several webserver threads
+             // ... to be running the JVM at once.
              "--no-core",
              "--streamsize=10000",    // Max stdout/stderr sizes (10MB)
              '/usr/bin/java',
@@ -252,7 +282,9 @@ class C_ns_Task extends LanguageTask {
         $src = basename($this->sourceFileName);
         $errorFileName = "$src.err";
         $execFileName = "$src.exe";
-        $cmd = "gcc -Wall -ansi -static -x c -o $execFileName $src -lm 2>$errorFileName";
+        $cmd = "gcc -Wall -Werror -std=c99 -x c -o $execFileName $src -lm 2>$errorFileName";
+        // To support C++ instead use something like ...
+        // $cmd = "g++ -Wall -Werror -x ++ -o $execFileName $src -lm 2>$errorFileName";
         exec($cmd, $output, $returnVar);
         if ($returnVar == 0) {
             $this->cmpinfo = '';
@@ -271,7 +303,11 @@ class C_ns_Task extends LanguageTask {
              "--time=5",              // Seconds of execution time allowed
              "--memsize=100000",      // Max kb mem allowed (100MB)
              "--filesize=10000",      // Max file sizes (10MB)
-             "--nproc=5",             // Only allow this *user* 5 tasks in parallel
+             "--nproc=200",           // Only allow this *user* 200 tasks in parallel
+             // ... made stupidly large to allow several webserver threads
+             // ... to be running Python at once.
+             // TODO: find a better way of dealing with the large-scale
+             // concurrency issue.
              "--no-core",
              "--streamsize=10000",    // Max stdout/stderr sizes (10MB)
              "./" . $this->executableFileName

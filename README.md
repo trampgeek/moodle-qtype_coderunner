@@ -41,7 +41,7 @@ There are three stages to installation:
 
 1. Installing the CodeRunner module itself.
 
-1. Installing a least one additional sandbox (not strictly essential but strongly
+1. Installing an additional sandbox (not strictly necessary but strongly
 recommended) to provide more security .
 
 1. Configuring the system for the particular sandbox(es) and languages
@@ -109,13 +109,23 @@ in that it limits execution time resource usage and limits file access to
 those parts of the file system visible to all users. However, it does not
 prevent use of system calls like *socket* that might open connections to
 other servers behind your firewall and of course it depends on the Unix
-server being securely set up in the first place.
+server being securely set up in the first place. There are also potential
+problems with controlling fork bombs and/or testing of heavily multithreaded
+languages or student submissions. That being said, our own quiz server has
+been making extensive use of the NullSandbox for a full semester and the only
+problem that occurred was when multiple Python submissions attempted to run
+the Java Virtual Machine (heavily multithreaded), for which the process limit
+previously set for Python was inadequate. That limit has since been multiplied
+by 10, but this is not a satisfactory long-term solution.
 
     To use only the NullSandbox, change the file `CodeRunner/coderunner/Sandbox/sandbox_config.php`
 to list only `nullsandbox` as an option.
 
   2. If you are using the LiuSandbox for Python and C, the supplied
-`sandbox_config.php` should be correct. However, some configuration of the
+`sandbox_config.php` should be correct. Obviously the appropriate languages
+must be installed including, in the case of C, the capability to compile and
+link statically (no longer part of the default RedHat installation).
+However, some configuration of the
 file `liusandbox.php` may be required. Try it first 'out of the box', but
 if, when running a submitted quiz question, you get 'Illegal function call'
 due to opening an inaccessible file, you will have to configure
@@ -145,13 +155,13 @@ Please [email me](mailto:richard.lobb@canterbury.ac.nz) if you have problems
 with the installation.
 
 
-##Some notes on question types and customisation
+## Question types
 
 
 CodeRunner support a wide variety of question types and can easily be
 extended to support lots more. The file `db/upgrade.php` installs a set of
 standard language and question types into the data base. Each question type
-defines a programming language, a couple of templates (to be discussed shortly),
+defines a programming language, a couple of templates (see the next section),
 a preferred sandbox (normally left blank so that the best one available can
 be used) and a preferred validator. The latter is also normally blank as the
 default so-called
@@ -161,6 +171,86 @@ pass, after trailing blank lines and trailing white space on lines has been
 removed. An alternative regular expression match could easily be added but I
 haven't felt the need for it yet - I prefer students to get answers exactly
 right, not roughly right.
+
+The current set of question types (each of which can be customised by
+editing its template, as explained in the next section) is:
+
+ 1. **python3**. Used for most Python3 questions. For each test case, the student
+code is run first, e followed by the sequence of tests.
+
+ 1. **python2**. Used for most Python2 questions. For each test case, the student
+code is run first, e followed by the sequence of tests.
+
+ 1. **python3\_pylint\_func**. This is a special type developed for use in the
+University of Canterbury. The student submission is prefixed by a dummy module
+docstring and the code is passed through the [pylint](http://www.logilab.org/857)
+source code analyser. The submission is rejected if pylint gives any errors,
+otherwise testing proceeds as normal. Obviously, pylint needs to be installed
+and appropriately configured for this question type to be usable. Note, too,
+that this type of question runs in the so-called NullSandbox, rather than in the
+Liu sandbox, in order to allow execution of an external program during testing.
+
+ 1. **python3\_pylint\_prog**. This is identical to the previous type except that no
+dummy docstring is added at the top as the submission is expected to be a
+stand-alone program.
+
+ 1. **c\_function**. Used for C write-a-function questions where the student supplies
+ just a function (plus possible support functions) and each test is (typically) of the form
+
+        printf(format_string, func(arg1, arg2, ..))
+
+ The template for this question type generates some standard includes, followed
+ by the student code followed by a main function that executes the tests one by
+ one.
+
+ All C question types use the gcc compiler with the language set to
+ accept C99 and with both *-Wall* and *-Werror* options set on the command line
+ to issue all warnings and reject the code if there are any warnings.
+ C++ isn't build in as present, as we don't teach it, but changing C question
+ to support C++ is mainly just a matter of changing the
+ compile command line, viz., the line "$cmd = ..." in the *compile* methods of
+ *C\_ns\_Task* in nullsandbox.php and *C_Task* in liusandbox.php. You will probably
+ also wish to change the C question type templates a bit, e.g. to include
+ *iostream* instead of, or as well as, *stdio.h* by default. The line
+
+        using namespace std;
+
+ may also be desirable.
+
+ 1. **c\_program**. Used for C write-a-program questions where the student supplies
+ a complete program and the tests simply run this program with supplied standard
+ input.
+
+ 1. **c\_full\_main_tests**. This is a rarely used special question type where
+students write global declarations (types, functions etc) and each test is a
+complete C main function that uses the student-supplied declarations.
+
+ 1. **matlab_function**. This is the only supported matlab question type and isn't
+really intended for general use outside the University of Canterbury. It assumes
+matlab is installed on the server at the path "/usr/local/Matlab2012a/bin/glnxa64/MATLAB".
+A ".m" test file is built that contains a main test function, which executes
+all the supplied test cases, followed by the student code which must be in the
+form of one or more function declarations. That .m file is executed by Matlab,
+various Matlab-generated noise is filtered, and the output must match that
+specified for the test cases.
+
+ 1. **java_method**. This is intended for early Java teaching where students are
+still learning to write individual methods. The student code is a single method,
+plus possible support methods, that is wrapped in a class together with a
+static main method containing the supplied tests (which will generally call the
+student's method and print the results).
+
+ 1. **java_class**. Here the student writes an entire class (or possibly
+multiple classes), which must *not* be
+public. The test cases are then wrapped in the main method for a separate
+public test class which is added to the students class and the whole is then
+executed.
+
+ 1. **java_program**. Here the students writes a complete program which is compiled
+then executed once for each test case to see if it generates the expected output
+for that test.
+
+## Templates
 
 Templates are the key to understanding how a submission is tested. There are in
 general two templates per question type - a *combinator_template* and a
@@ -207,7 +297,13 @@ to combine all testcases into a single compile-and-execute run using the second
 template, called the `combinator_template`. There is a combinator
 template for most
 question type, except for questions that require students
-to write a whole program and/or require write code that reads standard input.
+to write a whole program. However, the combinator template is not used during
+testing if standard input is supplied for any of the tests; each test
+is then assumed to be independent of the others, with its own input. Also,
+if an exception occurs at runtime when a combinator template is being used,
+the tester retries all test cases individually using the per-test-case
+template so that the student gets presented with all results up to the point
+at which the exception occurred.
 
 Because combinator templates are complicated, they are not exposed via
 the authorship GUI. If you wish to use them (and the only reason would be
@@ -241,46 +337,66 @@ Note that if you customise a question type in this way you lose the
 efficiency gain that the combinator template offers, although this is probably
 not much of a problem unless you have a large number of testcases.
 
-##A note on `VBSandbox`
+## Advanced template use
 
-[This section can be skipped by anyone who's not a developer.]
+It may not be obvious from the above that the template mechanism allows
+for almost any sort of question where the answer can be evaluated by a computer.
+In all the examples given so far, the student's code is executed as part of
+the test process but in fact there's no need for this to happen. The student's
+answer can be treated as data by the template code, which can then execute
+various tests on that data to determine its correctness. The Python *pylint*
+question types given earlier are a simple example: the template code first
+writes the student's code to a file and runs *pylint* over that file before
+proceeding with any tests. The per-test template for this question type (which must
+run in the NullSandbox) is:
 
-The system is designed with a pluggable sandbox architecture. The two sandboxes
-currently provided are those mentioned above: LiuSandbox and NullSandbox.
-If you inspect the code you'll see another sandbox is available: VbSandbox,
-which runs code in a VirtualBox
-within the host. This was originally intended for use with MatLab, which won't run in
-the LiuSandbox as it is multithreaded and very heavy on system calls, leading
-to performance issues. The code has been developed and debugged up to the point
-where it was ready for production testing, but when it was moved onto the
-production server -- a vmware Virtual Machine -- it was discovered that
-VirtualBox will not run on another VM. Thus, the VirtualBox sandbox is usable
-only on real host, not on a virtualised host. This isn't very useful in our
-environment, so further development of the VirtualBox sandbox has been
-discontinued. However, the code has been left in the system in case it is
-needed by other users or even by ourselves in the future. Some notes on
-installing the VirtualBox sandbox follow.
+    __student_answer__ = """{{ ESCAPED_STUDENT_ANSWER }}"""
 
-Installing the VirtualBox sandbox is somewhat complicated. The following gives
-just the general idea:
+    import subprocess
 
-1. Install VirtualBox on the server, including the GuestAdditions.
-1. Add the web server user (www-data on Ubuntu) to the group vboxusers.
-1. Login as the user www-data (or whoever), e.g. using 'ssh -Y www-data@localhost'
-1. Create an Ubuntu server virtual machine (no GUI) called LinuxSandbox
-1. Set up a user 'sandbox' with password 'LinuxSandbox' on that VM
-1. Copy the file <moodlehome>/local/CodeRunner/coderunner/Sandbox/vbrunner into
-that user's home directory. Make it executable.
-1. Install and configure any languages you wish to use in the sandbox. Python2
-is the only one that will run "out of the box".
-1. Add to the file vbsandbox.php a class Lang_VbTask for each Language 'Lang'
-you need to support. Use the existing Python2_VbTask and Matlab_VbTask classes
-as templates.
-1. If necessary, add appropriate question-type entries to db/update.php.
+    def check_code(s):
+        try:
+            source = open('source.py', 'w')
+            source.write(s)
+            source.close()
+            result = subprocess.check_output(['pylint', 'source.py'], stderr=subprocess.STDOUT)
+        except Exception as e:
+            result = e.output.decode('utf-8')
 
-Note that when testing the virtualbox sandbox, with code vbsandbox_test.php,
-you must be logged in as the web-server user, i.e. www-data (Ubuntu) or apache
-(Red Hat, Fedora etc).
+        if result.strip():
+            print("pylint doesn't approve of your program")
+            print(result)
+            raise Exception("Submission rejected")
+
+    check_code(__student_answer__)
+
+    {{ STUDENT_ANSWER }}
+    {{ TEST.testcode }}
+
+The template variable ESCAPED\_STUDENT\_ANSWER is the student's submission with
+all double quote and backslash characters escaped with an added backslash.
+Note that in the event of a failure an exception is raised; this ensures that
+further testing is aborted so that the student doesn't receive the same error
+for every test case. [As noted above, the tester aborts the testing sequence
+when using the per-test-case template if an exception occurs.]
+
+Some other more complex examples that we've
+used in practice include:
+
+ 1. A matlab question in which the template code (also matlab) breaks down
+    the student's code into functions, checking the length of each to make
+    sure it's not too long, before proceeding with marking.
+
+ 1. A python question where the student's code is actually a compiler for
+    a simple language. The template code runs the student's compiler,
+    passes its output through an assembler that generates a JVM class file,
+    then runs that class with the JVM to check its correctness.
+
+ 1. A python question where the students submission isn't code at all, but
+    is a textual description of a Finite State Automaton for a given transition
+    diagram; the template code evaluates the correctness of the supplied
+    automaton.
+
 
 
 ##How programming quizzes should work
@@ -341,74 +457,61 @@ programming-style quiz is thus determined by how many of the problems the
 student can solve in the given time, and how many submissions the student
 needs to make on each question.
 
-##Types of programming questions to support
+##A note on `VBSandbox`
 
-It is instructive to look at the development of the predecessor *pycode* and
-*ccode* plug-ins for an understanding of the rationale behind CodeRunner.
+This section can be ignored by almost everyone. It's of relevance only
+to a developer who may be looking to run CodeRunner on a non-virtualised
+server and who wants a sandbox that's more secure than DomJudge's *runguard*
+environment (which is used by the somewhat unfairly-named *NullSandbox*)
+but is for some reason, such as the need to support a language that requires
+multithreading, is unable to use the Liu sandbox. It is "work in progress",
+not production code.
 
-The first version of pycode supported just the "write a function" form of
-question that CodingBat offered. While excellent for introductory programming
-drills, this style of question wasn't sufficient for some areas of our
-first year programming course, most notably file i/o, object-oriented-programming
-and GUI programming. The last of those is fundamentally difficult, as evidenced
-by the paucity of good testing environments for GUI programming. Since GUI
-programming is a small part of our first year programming course and occurs
-right at the end, the problem of automatically testing such code was put
-in the "too hard" basket, and remains there still. The other two problem
-areas, files and OOP, are much more tractable. The second incarnation of
-pycode allowed teachers to specify text to be used as standard input that could
-be read by student code and also provided a file-like object that could be used
-to simulate a file system that student code could read from and write to. In this
-new system, the student code was run first, followed by the
-test code; the output from the entire run was then expected to match the
-expected output.
-The test code might print the results of calling a function that the student
-should have defined, or print the contents of a file the student should have
-written, or try to use a class the student should have defined, etc. The test
-code might even be completely empty if the students were asked to write an
-entire program that processed standard input in some way.
+CodeRunner is designed with a pluggable sandbox architecture. The two sandboxes
+currently provided are those mentioned above: LiuSandbox and NullSandbox. A
+sandbox that uses the [ideone.com](http://ideone.com) server, which supports
+a huge range of programming languages, is also planned.
 
-Running the student's Python code followed by the test code is very flexible.
-Of course, it still
-has limitations - one can't for example ask a student to provide the missing
-line in a given program -- but it allows teachers to test a student's ability
-in most aspects of basic Python programming.
+If you inspect the code you'll see code for another sandbox, VbSandbox,
+which runs code in am Oracle VirtualBox virtual machine
+within the host. To test a student's submission, a virtual box VM is started
+if it's not already running. Then VBoxManage commands are used to add the
+file(s) for testing to the VM's file system and then to execute the code. This
+is very secure as the VM is a self-contained sandbox with no access to the host
+resources.
 
-Adapting pycode for testing C skills - the *ccode* plug-in - introduced
-some new complications. A test to see if a student has correctly implemented
-a specified function now requires a main program that calls the function and
-prints the result. To keep most tests to simple one-liners, while also allowing
-for more general and complex tests, ccode allows simple tests like
+This sandbox was originally intended for use with MatLab, which won't run in
+the LiuSandbox as it is multithreaded and very heavy on system calls, leading
+to performance issues. The code has been developed and debugged up to the point
+where it was ready for production testing, but when it was moved onto the
+production server -- a vmware Virtual Machine -- it was discovered that
+VirtualBox will not run on another VM. Thus, the VirtualBox sandbox is usable
+only on real host, not on a virtualised host. This isn't very useful in our
+environment, so further development of the VirtualBox sandbox has been
+discontinued. However, the code has been left in the system in case it is
+needed by other users or even by ourselves in the future. Some notes on
+installing the VirtualBox sandbox follow.
 
-     printf("%s\n", studentFunc("Input string"))
+Installing the VirtualBox sandbox is somewhat complicated. The following gives
+just the general idea:
 
-Such one-line tests are wrapped in a main function, which is placed after
-the student's code, which in turn is placed after a set of standard `#include`
-lines, to give a single program module to be compiled and executed. The
-teacher can still write a multi-line test with a main function and perhaps
-additional support functions, but the simple tabular presentation of results
-is somewhat disrupted. Alternatively, the student can be asked to write an
-entire C program as in Python, in which case the test code is empty and the
-output from the student's program must simply match the expected output for
-the given standard input.
+1. Install VirtualBox on the server, including the GuestAdditions.
+1. Add the web server user (www-data on Ubuntu) to the group vboxusers so that
+   the web server is able to manage the VirtualBox VM(s).
+1. Log in to the Moodle server as the user www-data (or whoever),
+   e.g. using 'ssh -Y www-data@localhost'
+1. Use VirtualBox to create an Ubuntu server virtual machine (no GUI) called
+   LinuxSandbox.
+1. Set up a user 'sandbox' with password 'LinuxSandbox' on that new VM
+1. Copy the file <moodlehome>/local/CodeRunner/coderunner/Sandbox/vbrunner into
+   that user's home directory. Make it executable.
+1. Install and configure any languages you wish to use in the sandbox. Python2
+   is the only one that will run "out of the box".
+1. Add to the file vbsandbox.php a class Lang_VbTask for each Language 'Lang'
+   you need to support. Use the existing Python2_VbTask and Matlab_VbTask classes
+   as templates.
+1. If necessary, add appropriate question-type entries to db/update.php.
 
-An obvious efficiency issue arises with wrapping each test case one-liner in
-a main function: in C each test case will involve a full compile-and-execute
-cycle. Although this may require only around  0.5 seconds, 10 such tests
-might still take around 5 seconds, significantly impacting on the desired "instant
-feedback" and also increasing the load on the Moodle server. The latter
-could certainly be
-significant when running quizzes in large labs or for invigilated class tests.
-Accordingly, the ccode plug-in attempts to
-combine all one-liner tests into a single test program that outputs a
-separator line after each test. The output is then split into a set of
-test results to yield the desired table of rows with ticks and crosses. If
-such a program throws an exception or otherwise fails to produce a full set
-of results, ccode falls back to running each test separately.
-
-The optimisation described in the previous paragraph may rightfully be
-regarded as a hack. It is obviously possible for individual tests to
-interfere with each other by changing the global state in some way and it is
-at least theoretically possible for the chosen separator string to be output
-by the student's code, breaking the logic of the tester. In practice, we have
-not had any such problems, but a more elegant approach would be desirable.
+Note that when testing the virtualbox sandbox, with code vbsandbox_test.php,
+you must be logged in as the web-server user, i.e. www-data (Ubuntu) or apache
+(Red Hat, Fedora etc).

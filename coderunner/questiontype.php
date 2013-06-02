@@ -382,6 +382,10 @@ class qtype_coderunner extends question_type {
             $qo->coderunner_type = 'python3';
         }
 
+        if (!isset($qo->all_or_nothing)) {
+            $qo->all_or_nothing = 1; // Force all-or-nothing on old exports
+        }
+
         $testcases = $data['#']['testcases'][0]['#']['testcase'];
 
         $qo->testcases = array();

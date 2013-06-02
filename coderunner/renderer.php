@@ -268,7 +268,8 @@ class qtype_coderunner_renderer extends qtype_renderer {
                     $rowWithLineBreaks[] = $this->addLineBreaks($col);
                 }
 
-                $rowWithLineBreaks[] = $this->feedback_image($mark);
+                $right_or_wrong = $testResult->isCorrect ? 1 : 0;
+                $rowWithLineBreaks[] = $this->feedback_image($right_or_wrong);
                 $tableData[] = $rowWithLineBreaks;
             }
             $i++;

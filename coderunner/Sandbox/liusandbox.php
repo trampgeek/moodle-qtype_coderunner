@@ -113,7 +113,9 @@ class C_Task extends LanguageTask {
         $src = basename($this->sourceFileName);
         $errorFileName = "$src.err";
         $execFileName = "$src.exe";
-        $cmd = "gcc -Wall -Werror -ansi -static -x c -o $execFileName $src -lm 2>$errorFileName";
+        $cmd = "gcc -Wall -Werror -std=c99 -static -x c -o $execFileName $src -lm 2>$errorFileName";
+        // To support C++ instead use something like ...
+        // $cmd = "g++ -Wall -Werror -static -x c++ -o $execFileName $src -lm 2>$errorFileName";
         exec($cmd, $output, $returnVar);
         if ($returnVar == 0) {
             $this->cmpinfo = '';

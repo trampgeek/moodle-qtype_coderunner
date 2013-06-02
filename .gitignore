@@ -3,3 +3,6 @@ coderunner/Sandbox/sandboxpolicy.pyc
 coderunner/runguard
 
 /coderunner/codemirror/
+/coderunner/Sandbox/runguard
+/coderunner/ccode_loadtesting_results
+/coderunner/loadTestingResults.ods
