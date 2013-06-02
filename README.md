@@ -1,8 +1,8 @@
 # CODE RUNNER
 
-Version 1.0Beta June 2013
+Version: 1.0Beta June 2013
 
-Author Richard Lobb, University of Canterbury, New Zealand.
+Author: Richard Lobb, University of Canterbury, New Zealand.
 
 ## Introduction
 
@@ -29,6 +29,21 @@ languages and question types within a single plug-in. Currently Python (versions
 2 and 3), C, Java and Matlab are all supported, but the architecture is
 sufficiently general to accommodate additional languages with very little
 extra code.
+
+This current version, Coderunner V1.0 beta, has been used extensively 
+over one semester at the University of Canterbury, New Zealand. The various
+Python quiz questions have been used with a class of over 400 students who
+have made many tens of thousands of submissions in quizzes, assignments and
+in their mid-semester test. Matlab questions were used in a similar manner
+in another course of around 180 students with many thousands of submissions.
+C questions have not yet received much use -- the C course starts in a few
+weeks -- but there is very little code that hasn't been extensively exercised
+either by the Python and Matlab tests or by the *ccode* plug-in last year.
+Of the currently built-in question types, only the Java questions have not
+been heavily exercised: they should be regarded as alpha-level (though again
+most of the code is common to the other question types).
+
+Administrator privileges and some Unix skills are needed to install Coderunner.
 
 
 ## Installation
