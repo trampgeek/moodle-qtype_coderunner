@@ -1,7 +1,8 @@
 # CODE RUNNER
 
-@version 0 December 2012
-@author Richard Lobb, University of Canterbury, New Zealand.
+Version 1.0Beta June 2013
+
+Author Richard Lobb, University of Canterbury, New Zealand.
 
 ## Introduction
 
