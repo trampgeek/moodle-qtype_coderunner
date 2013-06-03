@@ -30,7 +30,7 @@ languages and question types within a single plug-in. Currently Python (versions
 sufficiently general to accommodate additional languages with very little
 extra code.
 
-This current version, Coderunner V1.0 beta, has been used extensively 
+This current version, Coderunner V1.0 beta, has been used extensively
 over one semester at the University of Canterbury, New Zealand. The various
 Python quiz questions have been used with a class of over 400 students who
 have made many tens of thousands of submissions in quizzes, assignments and
@@ -42,6 +42,15 @@ either by the Python and Matlab tests or by the *ccode* plug-in last year.
 Of the currently built-in question types, only the Java questions have not
 been heavily exercised: they should be regarded as alpha-level (though again
 most of the code is common to the other question types).
+
+For security and load reasons, CodeRunner in its present form is not suitable
+for installing on an institution-wide Moodle server. Instead, it is recommended
+that a special quiz server be set up: essentially just a standard Linux install
+plus Moodle, CodeRunner and any extra languages required (e.g. Python3, Java).
+A single 4-core server can handle an average quiz question submission rate of
+about 30 quiz questions per minute while maintaining a response time of less
+than about 3 - 4 seconds, assuming the student code itself runs in a
+fraction of a second.
 
 Administrator privileges and some Unix skills are needed to install Coderunner.
 
