@@ -91,8 +91,9 @@ to the coderunner user to minimise the exposure of sensitive web-server
 information. The install script may prompt for details like the office and phone
 number of the coderunner user -- just hit enter to accept the defaults.
 The switch to the coderunner user and the controlled execution of the
-submitted program in *NullSandbox* is done by a program `runguard`, taken
-from the programming contest server [DOMJudge](http://domjudge.sourceforge.net/). This
+submitted program in *NullSandbox* is done by a program `runguard`, written
+by Jaap Eldering as part of
+the programming contest server [DOMJudge](http://domjudge.sourceforge.net/). This
 program needs to be 'setuid root', and hence the install script requires
 root permissions to set this up.
 
