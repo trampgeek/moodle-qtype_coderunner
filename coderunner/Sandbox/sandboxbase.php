@@ -24,6 +24,7 @@ abstract class Sandbox {
     const WRONG_LANG_ID   = 3;  // No such language
     const ACCESS_DENIED   = 4;  // Only if using ideone
     const CANNOT_SUBMIT_THIS_MONTH_ANYMORE = 5; // Ideone only
+    const CREATE_SUBMISSION_FAILED = 6; // Failed on call to CREATE_SUBMISSION
 
     const STATUS_WAITING     = -1;
     const STATUS_DONE        = 0;
@@ -77,21 +78,36 @@ abstract class Sandbox {
         return $RESULT_STRINGS[$resultCode];
     }
 
+    // Returns an object containing an error field and a languages field,
+    // where the latter is a list of strings of languages handled by this sandbox.
+    // This latter consists of all the languages returned by a query to Ideone plus
+    // the local simplified aliases, like python2, python3, C.
     abstract public function getLanguages();
 
+    // Create a submission object, which has an error and a link field, the
+    // latter being the 'handle' by which the submission is subsequently
+    // referred. Error codes are as defined by the first block of symbolic
+    // constants above (the values 0 through 6). These are
+    // exactly the values defined by the ideone api, with a couple of additions.
     abstract public function createSubmission($sourceCode, $language, $input,
             $run=TRUE, $private=TRUE);
 
+    // Enquire about the status of the submission with the given 'link' (aka
+    // handle. The return value is an object containing an error and a result
+    // field, the values of which are given by the symbolic constants above.
     abstract public function getSubmissionStatus($link);
 
+    // Should only be called if the status is STATUS_DONE. Returns an ideone
+    // style object with fields error, langId, langName, langVersion, time,
+    // date, status, result, memory, signal, cmpinfo, output.
     abstract public function getSubmissionDetails($link, $withSource=FALSE,
             $withInput=FALSE, $withOutput=TRUE, $withStderr=TRUE,
             $withCmpinfo=TRUE);
 
     /** Main interface function for use by coderunner but not part of ideone API.
      *  Executes the given source code in the given language with the given
-     *  input and returns an associative array with fields result,
-     *  output, stderr, cmpinfo.
+     *  input and returns an object with fields error, result, time,
+     *  memory, signal, cmpinfo, stderr, output.
      * @param type $sourceCode
      * @param type $language
      * @param type $input
@@ -101,9 +117,14 @@ abstract class Sandbox {
             throw new coding_exception('Executing an unsupported language in sandbox');
         }
         $result = $this->createSubmission($sourceCode, $language, $input);
-        $state = $this->getSubmissionStatus($result->link);
-        if ($state->error != Sandbox::OK) {
-            return (object) array('error' => $this->error);
+        $error = $result->error;
+        if ($error === Sandbox::OK) {
+            $state = $this->getSubmissionStatus($result->link);
+            $error = $state->error;
+        }
+
+        if ($error != Sandbox::OK) {
+            return (object) array('error' => $error);
         } else {
             $count = 0;
             while ($state->error === Sandbox::OK &&
@@ -111,12 +132,16 @@ abstract class Sandbox {
                    $count < Sandbox::MAX_NUM_POLLS) {
                 $count += 1;
                 sleep(Sandbox::POLL_INTERVAL);
-                $state = $this->getSubmissionStatus($link);
+                $state = $this->getSubmissionStatus($result->link);
+            }
+
+            if ($count >= Sandbox::MAX_NUM_POLLS) {
+                throw new coding_exception("Timed out waiting for ideone");
             }
 
             if ($state->error !== Sandbox::OK ||
                     $state->status !== Sandbox::STATUS_DONE) {
-                throw new coding_exception('Error response from sandbox');
+                throw new coding_exception("Error response or bad status from ideone");
             }
 
             $details = $this->getSubmissionDetails($result->link);

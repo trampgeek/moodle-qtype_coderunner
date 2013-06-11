@@ -256,6 +256,39 @@ EOT;
         'sandbox'  => 'NullSandbox'
     );
 
+// ===============================================================
+    $python3Ideone =  array(
+        'coderunner_type' => 'python3_ideone',
+        'is_custom' => 0,
+        'comment' => 'Used for testing the Ideone sandbox.',
+        'combinator_template' => <<<EOT
+{{ STUDENT_ANSWER }}
+
+__student_answer__ = """{{ ESCAPED_STUDENT_ANSWER }}"""
+
+SEPARATOR = "#<ab@17943918#@>#"
+
+{% for TEST in TESTCASES %}
+{{ TEST.testcode }}
+{% if not loop.last %}
+print(SEPARATOR)
+{% endif %}
+{% endfor %}
+EOT
+,
+        'test_splitter_re' => "|#<ab@17943918#@>#\n|ms",
+        'per_test_template' => <<<EOT
+{{STUDENT_ANSWER}}
+
+__student_answer__ = """{{ ESCAPED_STUDENT_ANSWER }}"""
+
+{{ TEST.testcode }}
+EOT
+,
+        'language' => 'python3',
+        'sandbox'  => 'IdeoneSandbox',
+    );
+
    // ===============================================================
     //
     // Python2
@@ -327,7 +360,7 @@ EOT
         'sandbox'  => 'NullSandbox',
     );
 
-
+    // ===============================================================
     $cFunction = array(
         'coderunner_type' => 'c_function',
         'is_custom' => 0,
@@ -536,6 +569,25 @@ EOT
         'language' => 'Java',
     );
 
+
+    // ==============================================================
+    $clojure = array(
+        'coderunner_type' => 'clojure',
+        'is_custom' => 0,
+        'comment' => 'Test of Clojure questions where the student\' code is' .
+                'run then the test code. There is currently no combinator, ' .
+                'so the program is executed for each test case. Written mainly ' .
+                'as a test of the Ideone sandbox.',
+        'combinator_template' => NULL,
+        'test_splitter_re' => '',
+        'per_test_template' => <<<EOT
+{{ STUDENT_ANSWER }}
+{{TEST.testcode}}
+EOT
+,
+        'language' => 'Clojure (clojure 1.5.0-RC2)',
+    );
+
     // List of currently supported question types
     // ==========================================
     $types = array(
@@ -543,13 +595,15 @@ EOT
         $python3,
         $python3PylintFunc,
         $python3PylintProg,
+        $python3Ideone,
         $cFunction,
         $cProgram,
         $cFullMainTests,
         $matlabFunction,
         $javaMethod,
         $javaClass,
-        $javaProgram);
+        $javaProgram,
+        $clojure);
 
     $success = TRUE;
     foreach ($types as $type) {
