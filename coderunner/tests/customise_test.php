@@ -2,6 +2,7 @@
 
 /**
  * Unit tests for the coderunner question customistation capability
+ * @group qtype_coderunner
  *
  * @package    qtype
  * @subpackage coderunner

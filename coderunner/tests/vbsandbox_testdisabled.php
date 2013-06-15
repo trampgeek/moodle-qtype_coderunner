@@ -3,6 +3,7 @@
  * Unit tests for coderunner's VirtualBox sandbox class.
  * This is just a copy of the LiuSandbox test class, with as few
  * changes as possible. [Yeah, Horrible, Horrible]
+ * @group qtype_coderunner
  *
  * @package    qtype
  * @subpackage coderunner

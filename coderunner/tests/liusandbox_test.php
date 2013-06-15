@@ -1,6 +1,7 @@
 <?php
 /**
  * Unit tests for coderunner's liusandbox class.
+ * @group qtype_coderunner
  *
  * @package    qtype
  * @subpackage coderunner

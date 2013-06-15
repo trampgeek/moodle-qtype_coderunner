@@ -15,7 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This file contains overall tests of calculated questions.
+ * This is a walkthrough test for the CodeRunner plugin
+ * @group qtype_coderunner
  *
  * @package    qtype
  * @subpackage coderunner
