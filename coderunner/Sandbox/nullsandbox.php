@@ -58,11 +58,7 @@ class Matlab_ns_Task extends LanguageTask {
         }
     }
 
-    public function readableDirs() {
-        return array('/');  // Not meaningful in this sandbox
-     }
-
-     public function getRunCommand() {
+    public function getRunCommand() {
          return array(
              dirname(__FILE__)  . "/runguard",
              "--user=coderunner",
@@ -124,13 +120,10 @@ class Python2_ns_Task extends LanguageTask {
         $this->executableFileName = $this->sourceFileName;
     }
 
-    public function readableDirs() {
-        return array();  // Irrelevant for this sandbox
-     }
 
-     // Return the command to pass to localrunner as a list of arguments,
-     // starting with the program to run followed by a list of its arguments.
-     public function getRunCommand() {
+    // Return the command to pass to localrunner as a list of arguments,
+    // starting with the program to run followed by a list of its arguments.
+    public function getRunCommand() {
         return array(
              dirname(__FILE__)  . "/runguard",
              "--user=coderunner",
@@ -164,13 +157,10 @@ class Python3_ns_Task extends LanguageTask {
         $this->executableFileName = $this->sourceFileName;
     }
 
-    public function readableDirs() {
-        return array();  // Irrelevant for this sandbox
-     }
 
-     // Return the command to pass to localrunner as a list of arguments,
-     // starting with the program to run followed by a list of its arguments.
-     public function getRunCommand() {
+    // Return the command to pass to localrunner as a list of arguments,
+    // starting with the program to run followed by a list of its arguments.
+    public function getRunCommand() {
         return array(
              dirname(__FILE__)  . "/runguard",
              "--user=coderunner",
@@ -223,13 +213,7 @@ class Java_ns_Task extends LanguageTask {
     }
 
 
-    public function readableDirs() {
-        return array(
-            '/'  // Irrelevant in the null sandbox
-        );
-     }
-
-     public function getRunCommand() {
+    public function getRunCommand() {
          return array(
              dirname(__FILE__)  . "/runguard",
              "--user=coderunner",
@@ -248,7 +232,7 @@ class Java_ns_Task extends LanguageTask {
              "-Xmx200m",
              $this->mainClassName
          );
-     }
+    }
 
 
      // Return the name of the main class in the given prog, or FALSE if no
@@ -312,10 +296,6 @@ class C_ns_Task extends LanguageTask {
              "--streamsize=10000",    // Max stdout/stderr sizes (10MB)
              "./" . $this->executableFileName
          );
-    }
-
-    public function readableDirs() {
-        return array();
     }
 };
 

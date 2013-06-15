@@ -18,7 +18,7 @@ class Python3_Task extends LanguageTask {
     }
 
     public function getVersion() {
-        return 'Python 3.2';
+        return 'Python 3.3';
     }
 
     public function compile() {
@@ -32,7 +32,7 @@ class Python3_Task extends LanguageTask {
         }
     }
 
-    public function readableDirs() {
+    public static function readableDirs() {
         return array(
             '/lib/',
             '/lib64/',
@@ -42,7 +42,8 @@ class Python3_Task extends LanguageTask {
             '/usr/bin',
             '/proc/meminfo',
             '/usr/include',
-            '/opt/python3'
+            '/dev/urandom',
+            '/usr/local'
         );
      }
 
@@ -76,7 +77,7 @@ class Python2_Task extends LanguageTask {
         }
     }
 
-    public function readableDirs() {
+    public static function readableDirs() {
         return array(
             '/lib/',
             '/lib64/',
@@ -131,10 +132,6 @@ class C_Task extends LanguageTask {
         return array($this->executableFileName);
     }
 
-
-    public function readableDirs() {
-        return array();
-    }
 };
 
 

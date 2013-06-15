@@ -16,7 +16,7 @@
 '''
 
 from sandbox import *
-from posix import O_RDONLY
+from posix import O_RDONLY, O_RDWR, O_WRONLY
 from platform import system, machine as arch
 import os
 
@@ -27,7 +27,6 @@ class SelectiveOpenPolicy(SandboxPolicy):
     SC_open   = (2, 0)  if arch() == 'x86_64' else (5, 0)
     SC_unlink = (87, 0) if arch() == 'x86_64' else (10, 0)
     SC_exit_group = (231, 0) if arch() == 'x86_64' else (252, 0)
-    O_CLOEXEC = 0O2000000
     READABLE_FILE_PATHS = []  # Default readable file paths
 
     WRITEABLE_FILE_PATHS = []
@@ -70,11 +69,12 @@ class SelectiveOpenPolicy(SandboxPolicy):
         108,    # getegid
         #110,   # getppid MATLAB
         #111,   # getpgrp MATLAB
+        131,    # sigaltstack (Python3)
         202,    # futex
         #203,   # sched_setaffinity MATLAB
         #204,   # sched_getaffinity MATLAB
         218,    # set_tid_address
-        #257,   # openat MATLAB
+        257,    # openat Python3  ****SECURITY HOLE*****
         #269,   # faccessat MATLAB
         273,    # set_robust_list
     ])
@@ -127,6 +127,10 @@ class SelectiveOpenPolicy(SandboxPolicy):
         a.type, a.data = S_ACTION_KILL, S_RESULT_RF
         return a
 
+    def _KILL_RF2(self, e, a): # Variant to be called if self.error already set
+        a.type, a.data = S_ACTION_KILL, S_RESULT_RF
+        return a
+
     def SYS_open(self, e, a):
         pathBytes, mode = self.sbox.dump(T_STRING, e.ext1), e.ext2
         path = pathBytes.decode('utf8').strip()
@@ -135,7 +139,7 @@ class SelectiveOpenPolicy(SandboxPolicy):
         if '..' in path:
             # Kill any attempt to work up the file tree
             self.error = "ILLEGAL FILE ACCESS ({0},{1})".format(path, mode)
-            return self._KILL_RF(e, a)
+            return self._KILL_RF2(e, a)
         elif not path.startswith('/'):
             # Allow all access to the current directory (which is a special directory in /tmp)
             return self._CONT(e, a)
@@ -143,11 +147,10 @@ class SelectiveOpenPolicy(SandboxPolicy):
             for prefix in self.READABLE_FILE_PATHS + self.WRITEABLE_FILE_PATHS:
                 if path.startswith(prefix):
                     if (prefix in self.WRITEABLE_FILE_PATHS or
-                                mode == O_RDONLY or
-                                mode == O_RDONLY|self.O_CLOEXEC):
+                            not (mode & O_RDWR or mode & O_WRONLY)):
                         return self._CONT(e, a)
             self.error = "ILLEGAL FILE ACCESS ({0},{1})".format(path, mode)
-            return self._KILL_RF(e, a)
+            return self._KILL_RF2(e, a)
 
     def SYS_unlink(self, e, a):
         pathBytes = self.sbox.dump(T_STRING, e.ext1)
@@ -156,7 +159,7 @@ class SelectiveOpenPolicy(SandboxPolicy):
             return self._CONT(e, a)
         else:
             self.error = "Attempt to unlink {0}".format(path)
-            return self._KILL_RF(e, a)
+            return self._KILL_RF2(e, a)
 
     def SYS_exit_group(self, e, a):
         # finish sandboxing at the final system call, aka exit_group(), this

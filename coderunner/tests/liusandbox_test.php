@@ -54,17 +54,7 @@ class qtype_coderunner_liusandbox_test extends basic_testcase {
                 'disk'      => 1048576   // 1 MB
             ),
             'workdir'      => $dirname,
-            'readableDirs' => array(
-                '/lib/',
-                '/lib64/',
-                '/opt/python3/',
-                '/etc/',
-                '/usr/local/lib',
-                '/usr/lib',
-                '/usr/bin',
-                '/proc/meminfo',
-                '/usr/include'
-            )
+            'readableDirs' => Python3_Task::readableDirs()
         );
 
         $handle = fopen('runspec.json', "w");

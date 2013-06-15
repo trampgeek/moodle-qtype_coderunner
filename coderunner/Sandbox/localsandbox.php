@@ -62,8 +62,10 @@ abstract class LanguageTask {
 
 
     // Return the list of readable directories allowed when running this
-    // task in the sandbox.
-    public abstract function readableDirs();
+    // task in the sandbox. Relevant only to LiuSandbox
+    public static function readableDirs() {
+        return array();
+    }
 
 
     // Override the following function if the output from executing a program
