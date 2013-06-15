@@ -201,9 +201,12 @@ class qtype_coderunner extends question_type {
         parent::get_question_options($question);
 
         // Flatten the options into the question object itself.
-        // [Base class is inconsistent here: save_question_options assumes
-        // the extra fields belong to the question object itself, but
-        // get_question_options puts them into an 'options' field.]
+        // [Base class's save_question_options allows this; it unflattens
+        // all fields whose names match the extraOptions fields back into
+        // $question->options before saving. However, Moodle version 2.5
+        // explicitly checks number of answers in $question->options->$answersoption
+        // so I have added $question->options->testcases as a reference to
+        // $question->testcases.]
 
         foreach($question->options as $field=>$value) {
             $question->$field = $value;
@@ -234,6 +237,12 @@ class qtype_coderunner extends question_type {
         if (!$question->testcases = $DB->get_records('quest_coderunner_testcases',
                 array('questionid' => $question->id), 'id ASC')) {
             throw new coding_exception("Failed to load testcases for question id {$question->id}");
+        }
+
+        // Hack to solve problem with moodle 2.5 (see comment at start of method)
+        // TODO: is there a better fix?
+        if (isset($question->options)) {  // Is this test reqd? Better be safe.
+            $question->options->testcases = &$question->testcases;
         }
 
         // Lastly the stats (if enabled)
