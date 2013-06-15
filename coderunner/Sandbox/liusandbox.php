@@ -79,8 +79,7 @@ class Python2_Task extends LanguageTask {
 
     public static function readableDirs() {
         return array(
-            '/lib/',
-            '/lib64/',
+            '/lib',
             '/etc/',
             '/usr/local/lib',
             '/usr/lib',
