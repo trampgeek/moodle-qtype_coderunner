@@ -43,7 +43,8 @@ class Python3_Task extends LanguageTask {
             '/proc/meminfo',
             '/usr/include',
             '/dev/urandom',
-            '/usr/local'
+            '/usr/local',
+            '/usr/pyvenv.cfg'
         );
      }
 
