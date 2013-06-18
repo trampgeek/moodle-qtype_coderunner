@@ -71,7 +71,7 @@ class Matlab_ns_Task extends LanguageTask {
              // TODO:  is there a better way to prevent fork bombs? cgroups?
              "--no-core",
              "--streamsize=1000000",   // Max stdout/stderr sizes (10MB)
-             '/usr/local/Matlab2012a/bin/glnxa64/MATLAB',
+             '/usr/local/bin/matlab_exec_cli', //Was Matlab2012a/bin/glnxa64/MATLAB',
              '-nojvm',
              '-nodesktop',
              '-r',
