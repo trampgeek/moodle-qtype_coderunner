@@ -73,7 +73,7 @@ class Matlab_ns_Task extends LanguageTask {
              "--streamsize=1000000",   // Max stdout/stderr sizes (10MB)
              '/usr/local/bin/matlab_exec_cli', //Was Matlab2012a/bin/glnxa64/MATLAB',
              '-nojvm',
-             '-nodesktop',
+             //'-nodesktop',  # Removed for 2013 Matlab version
              '-r',
              basename($this->sourceFileName)
          );
