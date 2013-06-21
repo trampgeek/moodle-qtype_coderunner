@@ -18,7 +18,7 @@
 ///////////////////
 /// coderunner ///
 ///////////////////
-/// PROGCODE QUESTION TYPE CLASS //////////////////
+/// CODERUNNER QUESTION TYPE CLASS //////////////////
 // The class for programming code questions.
 // A coderunner question consists of a specification for piece of program
 // code, which might be a function or a complete program or (possibly in the
@@ -28,12 +28,13 @@
 // a set of test cases, all of which must pass for the question
 // to be marked correct. The code execution takes place in an external
 // sandbox.
-// There are no part marks -- the question is marked 100% or
-// zero. It is expected that each coderunner question will have its
+// In a typical use case each coderunner question will have its
 // own submit button and students will keep submitting until
 // they pass all tests, so that their mark will be based on
 // the number of submissions and the penalty per wrong
-// submissions.
+// submissions.  However, there is the capability to allow per-test-case
+// part marks by turning off the "all-or-nothing" checkbox when authoring the
+// question.
 
 /**
  * @package 	qtype
@@ -386,10 +387,6 @@ class qtype_coderunner extends question_type {
             $qo->$field = $format->getpath($data, array('#', $field, 0, '#'), '');
         }
 
-        // Temporary hack for porting from pycode. TODO: remove!
-        if (!isset($qo->coderunner_type) || $qo->coderunner_type == '') {
-            $qo->coderunner_type = 'python3';
-        }
 
         if (!isset($qo->all_or_nothing)) {
             $qo->all_or_nothing = 1; // Force all-or-nothing on old exports

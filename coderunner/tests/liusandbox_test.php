@@ -29,23 +29,22 @@ class qtype_coderunner_liusandbox_test extends basic_testcase {
         $langs = $sandbox->getLanguages();
         $langs = $langs->languages;
         $this->assertTrue(in_array('python2', $langs, TRUE));
-        $this->assertTrue(in_array('python3', $langs, TRUE));
         $this->assertTrue(in_array('C', $langs, TRUE));
     }
 
     public function test_liu_sandbox_raw() {
-        // Test the Python3 interface to the Liu sandbox directly.
+        // Test the Python2 interface to the Liu sandbox directly.
         global $CFG;
         $dirname = tempnam("/tmp", "coderunnertest_");
         unlink($dirname);
         mkdir($dirname);
         chdir($dirname);
         $handle = fopen('sourceFile', "w");
-        fwrite($handle, "print('Hello Sandbox')\nprint('Python rulz')");
+        fwrite($handle, "print 'Hello Sandbox'\nprint 'Python rulz'");
         fclose($handle);
 
         $run = array(
-            'cmd' => array('/usr/bin/python3', '-BESsu', 'sourceFile'),
+            'cmd' => array('/usr/bin/python2', '-BESsu', 'sourceFile'),
             'input'  => '',
             'quota'  => array(
                 'wallclock' => 30000,    // 30 secs
@@ -72,6 +71,8 @@ class qtype_coderunner_liusandbox_test extends basic_testcase {
         $this->delTree($dirname);
     }
 
+/* Python3 tests removed as it's no longer in this sandbox.
+ * **TODO** Delete if not reinstated.
 
     // Test the liu sandbox class at the PHP level with a good Python3 program
     public function test_liu_sandbox_ok_python3() {
@@ -94,7 +95,7 @@ class qtype_coderunner_liusandbox_test extends basic_testcase {
         $this->assertEquals($result->signal, 0);
         $sandbox->close();
     }
-
+*/
     // Test the liu sandbox class at the PHP level with a good Python2 program
     public function test_liu_sandbox_ok_python2() {
         $sandbox = new LiuSandbox();
@@ -174,10 +175,10 @@ f = open('junk', 'w')
 f.write('stuff')
 f.close()
 f = open('junk')
-print(f.read())
+print f.read()
 f.close()
 ";
-        $result = $sandbox->execute($code, 'python3', NULL);
+        $result = $sandbox->execute($code, 'python2', NULL);
         $this->assertEquals($result->result, Sandbox::RESULT_SUCCESS);
         $this->assertEquals($result->output, "stuff\n");
         $this->assertEquals($result->signal, 0);
@@ -195,10 +196,10 @@ f = open('/tmp/junk', 'w')
 f.write('stuff')
 f.close()
 f = open('/tmp/junk')
-print(f.read())
+print f.read()
 f.close()
 ";
-        $result = $sandbox->execute($code, 'python3', NULL);
+        $result = $sandbox->execute($code, 'python2', NULL);
         $this->assertEquals($result->result, Sandbox::RESULT_ILLEGAL_SYSCALL);
         $sandbox->close();
     }

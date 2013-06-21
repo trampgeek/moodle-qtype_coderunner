@@ -154,7 +154,14 @@ class Python3_ns_Task extends LanguageTask {
     }
 
     public function compile() {
-        $this->executableFileName = $this->sourceFileName;
+        exec("python3 -m py_compile {$this->sourceFileName} 2>compile.out", $output, $returnVar);
+        if ($returnVar == 0) {
+            $this->cmpinfo = '';
+            $this->executableFileName = $this->sourceFileName;
+        }
+        else {
+            $this->cmpinfo = file_get_contents('compile.out');
+        }
     }
 
 

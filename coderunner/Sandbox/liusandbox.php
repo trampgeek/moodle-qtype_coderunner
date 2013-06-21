@@ -3,8 +3,8 @@
  *  See http://openjudge.net/~liuyu/Project/LibSandbox and
  *  http://sourceforge.net/projects/libsandbox/
  *
- * 21 June: Removed Python3 from this sandbox because it uses openat, which
- * is too hard to validity-test. 
+ * 21 June: Removed Python3 from this sandbox because it uses the
+ * openat system call, which is too hard to validity-check.
  */
 
 require_once('localsandbox.php');
@@ -14,6 +14,11 @@ require_once('localsandbox.php');
 // Language definitions.
 //
 // ==============================================================
+
+// Python3 has been removed from the sandbox for now because of the security
+// hole introduced by requiring openat to be an acceptable system call.
+// I'm leaving the code in place for now, in case I change my mind.
+// **TODO** remove this is due course if not needed.
 class Python3_Task extends LanguageTask {
     public function __construct($source) {
         LanguageTask::__construct($source);
