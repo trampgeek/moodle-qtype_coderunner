@@ -48,7 +48,7 @@ abstract class Sandbox {
 
 
     const POLL_INTERVAL = 3;     // secs to wait for sandbox done
-    const MAX_NUM_POLLS = 20;    // No more than 60 seconds waiting
+    const MAX_NUM_POLLS = 40;    // No more than 120 seconds waiting
 
 
     public function __construct($user=NULL, $pass=NULL) {

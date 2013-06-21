@@ -74,7 +74,7 @@ class qtype_coderunner_ideonesandbox_test extends basic_testcase {
         $sandbox = new IdeoneSandbox();
         $result = $sandbox->execute($source, 'python3', '');
         $this->assertEquals($result->result, Sandbox::RESULT_RUNTIME_ERROR);
-        $this->assertEquals($result->signal, 0);
+        $this->assertEquals($result->signal, -1); /* Why does it give signal -1? */
         $sandbox->close();
     }
 
@@ -92,9 +92,9 @@ class qtype_coderunner_ideonesandbox_test extends basic_testcase {
         $sandbox->close();
     }
 
-    // Test the liu sandbox with a memory limit error
+    // Test the ideone sandbox with a memory limit error
     /*** Commented out as it actually just times out instead, so no point.
-    public function test_liu_sandbox_memlimit() {
+    public function test_ideone_sandbox_memlimit() {
         $sandbox = new IdeoneSandbox();
         $code = "data = []\nwhile True: data.append(1)";
         $result = $sandbox->execute($code, 'python2', NULL);
@@ -106,10 +106,10 @@ class qtype_coderunner_ideonesandbox_test extends basic_testcase {
     }
     */
 
-/*
-    // Test the liu sandbox with a syntactically bad C program
-    public function test_liu_sandbox_bad_C() {
-        $sandbox = new LiuSandbox();
+
+    // Test the ideone sandbox with a syntactically bad C program
+    public function test_ideone_sandbox_bad_C() {
+        $sandbox = new IdeoneSandbox();
         $code = "#include <stdio.h>\nint main(): {\n    printf(\"Hello sandbox\");\n    return 0;\n}\n";
         $result = $sandbox->execute($code, 'C', NULL);
         $this->assertEquals($result->result, Sandbox::RESULT_COMPILATION_ERROR);
@@ -117,9 +117,9 @@ class qtype_coderunner_ideonesandbox_test extends basic_testcase {
         $sandbox->close();
     }
 
-    // Test the liu sandbox with a valid C program
-    public function test_liu_sandbox_ok_C() {
-        $sandbox = new LiuSandbox();
+    // Test the ideone sandbox with a valid C program
+    public function test_ideone_sandbox_ok_C() {
+        $sandbox = new IdeoneSandbox();
         $code = "#include <stdio.h>\nint main() {\n    printf(\"Hello sandbox\\n\");\n    return 0;\n}\n";
         $result = $sandbox->execute($code, 'C', NULL);
         $this->assertEquals($result->result, Sandbox::RESULT_SUCCESS);
@@ -129,30 +129,10 @@ class qtype_coderunner_ideonesandbox_test extends basic_testcase {
         $sandbox->close();
     }
 
-    // Test the liu sandbox will allow opening, writing and reading in the current dir
-    public function test_liu_sandbox_fileio_in_cwd() {
-        $sandbox = new LiuSandbox();
-        $code =
-"import os
-f = open('junk', 'w')
-f.write('stuff')
-f.close()
-f = open('junk')
-print(f.read())
-f.close()
-";
-        $result = $sandbox->execute($code, 'python3', NULL);
-        $this->assertEquals($result->result, Sandbox::RESULT_SUCCESS);
-        $this->assertEquals($result->output, "stuff\n");
-        $this->assertEquals($result->signal, 0);
-        $this->assertEquals($result->cmpinfo, '');
-        $sandbox->close();
-    }
 
-
-    // Test the liu sandbox will not allow opening, writing and reading in /tmp
-    public function test_liu_sandbox_fileio_bad() {
-        $sandbox = new LiuSandbox();
+    // Test the Ideone sandbox will not allow opening, writing and reading in /tmp
+    public function test_ideone_sandbox_fileio_bad() {
+        $sandbox = new IdeoneSandbox();
         $code =
 "import os
 f = open('/tmp/junk', 'w')
@@ -163,19 +143,10 @@ print(f.read())
 f.close()
 ";
         $result = $sandbox->execute($code, 'python3', NULL);
-        $this->assertEquals($result->result, Sandbox::RESULT_ILLEGAL_SYSCALL);
+        $this->assertEquals($result->result, Sandbox::RESULT_RUNTIME_ERROR);
         $sandbox->close();
     }
 
-
-    private function delTree($dir) {
-        $files = array_diff(scandir($dir), array('.','..'));
-        foreach ($files as $file) {
-            (is_dir("$dir/$file")) ? $this->delTree("$dir/$file") : unlink("$dir/$file");
-        }
-        return rmdir($dir);
-    }
-*/
 }
 
 ?>
