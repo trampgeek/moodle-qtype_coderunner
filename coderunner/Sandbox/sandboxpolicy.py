@@ -74,7 +74,7 @@ class SelectiveOpenPolicy(SandboxPolicy):
         #203,   # sched_setaffinity MATLAB
         #204,   # sched_getaffinity MATLAB
         218,    # set_tid_address
-        257,    # openat Python3  ****SECURITY HOLE*****
+        #257,    # openat Python3  ****SECURITY HOLE. Disallowed *****
         #269,   # faccessat MATLAB
         273,    # set_robust_list
     ])

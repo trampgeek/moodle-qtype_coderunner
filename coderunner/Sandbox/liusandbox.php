@@ -3,6 +3,8 @@
  *  See http://openjudge.net/~liuyu/Project/LibSandbox and
  *  http://sourceforge.net/projects/libsandbox/
  *
+ * 21 June: Removed Python3 from this sandbox because it uses openat, which
+ * is too hard to validity-test. 
  */
 
 require_once('localsandbox.php');
@@ -143,7 +145,7 @@ class C_Task extends LanguageTask {
 // ==============================================================
 
 class LiuSandbox extends LocalSandbox {
-    private $LANGUAGES = array('C', 'python2', 'python3');
+    private $LANGUAGES = array('C', 'python2');  // Remove Python3 from this box
 
     private $RESULT_CODES = array(
             'PD' => Sandbox::RESULT_SANDBOX_PENDING,  // Shouldn't occur
