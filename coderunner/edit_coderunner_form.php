@@ -158,12 +158,9 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $repeated[] = & $mform->createElement('select', 'display', get_string('display', 'qtype_coderunner'), $options);
         $repeated[] = & $mform->createElement('checkbox', 'hiderestiffail', get_string('hiderestiffail', 'qtype_coderunner'), false);
         $repeatedoptions['output']['type'] = PARAM_RAW;
+        $repeatedoptions['mark']['type'] = PARAM_FLOAT;
 
-        // Lastly, a bit of hacking to keep add_per_answer_fields function happy
-        if (isset($this->question->options)) {
-            $this->question->options->answers = array();
-        }
-        $answersoption = 'answers';
+        $answersoption = 'testcases';  // Our 'answers' are actually testcases
 
         return $repeated;
     }

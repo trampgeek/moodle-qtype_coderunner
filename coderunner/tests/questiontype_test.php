@@ -16,6 +16,7 @@
 
 /**
  * Unit tests for the coderunner question type class.
+ * @group qtype_coderunner
  *
  * @package    qtype
  * @subpackage coderunner

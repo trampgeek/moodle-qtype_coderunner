@@ -3,6 +3,8 @@
  *  See http://openjudge.net/~liuyu/Project/LibSandbox and
  *  http://sourceforge.net/projects/libsandbox/
  *
+ * 21 June: Removed Python3 from this sandbox because it uses the
+ * openat system call, which is too hard to validity-check.
  */
 
 require_once('localsandbox.php');
@@ -12,13 +14,18 @@ require_once('localsandbox.php');
 // Language definitions.
 //
 // ==============================================================
+
+// Python3 has been removed from the sandbox for now because of the security
+// hole introduced by requiring openat to be an acceptable system call.
+// I'm leaving the code in place for now, in case I change my mind.
+// **TODO** remove this is due course if not needed.
 class Python3_Task extends LanguageTask {
     public function __construct($source) {
         LanguageTask::__construct($source);
     }
 
     public function getVersion() {
-        return 'Python 3.2';
+        return 'Python 3.3';
     }
 
     public function compile() {
@@ -32,7 +39,7 @@ class Python3_Task extends LanguageTask {
         }
     }
 
-    public function readableDirs() {
+    public static function readableDirs() {
         return array(
             '/lib/',
             '/lib64/',
@@ -42,7 +49,9 @@ class Python3_Task extends LanguageTask {
             '/usr/bin',
             '/proc/meminfo',
             '/usr/include',
-            '/opt/python3'
+            '/dev/urandom',
+            '/usr/local',
+            '/usr/pyvenv.cfg'
         );
      }
 
@@ -76,10 +85,9 @@ class Python2_Task extends LanguageTask {
         }
     }
 
-    public function readableDirs() {
+    public static function readableDirs() {
         return array(
-            '/lib/',
-            '/lib64/',
+            '/lib',
             '/etc/',
             '/usr/local/lib',
             '/usr/lib',
@@ -131,10 +139,6 @@ class C_Task extends LanguageTask {
         return array($this->executableFileName);
     }
 
-
-    public function readableDirs() {
-        return array();
-    }
 };
 
 
@@ -146,7 +150,7 @@ class C_Task extends LanguageTask {
 // ==============================================================
 
 class LiuSandbox extends LocalSandbox {
-    private $LANGUAGES = array('C', 'python2', 'python3');
+    private $LANGUAGES = array('C', 'python2');  // Remove Python3 from this box
 
     private $RESULT_CODES = array(
             'PD' => Sandbox::RESULT_SANDBOX_PENDING,  // Shouldn't occur

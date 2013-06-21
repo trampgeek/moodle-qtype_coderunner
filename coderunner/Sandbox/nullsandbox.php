@@ -58,11 +58,7 @@ class Matlab_ns_Task extends LanguageTask {
         }
     }
 
-    public function readableDirs() {
-        return array('/');  // Not meaningful in this sandbox
-     }
-
-     public function getRunCommand() {
+    public function getRunCommand() {
          return array(
              dirname(__FILE__)  . "/runguard",
              "--user=coderunner",
@@ -75,9 +71,9 @@ class Matlab_ns_Task extends LanguageTask {
              // TODO:  is there a better way to prevent fork bombs? cgroups?
              "--no-core",
              "--streamsize=1000000",   // Max stdout/stderr sizes (10MB)
-             '/usr/local/Matlab2012a/bin/glnxa64/MATLAB',
+             '/usr/local/bin/matlab_exec_cli', //Was Matlab2012a/bin/glnxa64/MATLAB',
              '-nojvm',
-             '-nodesktop',
+             //'-nodesktop',  # Removed for 2013 Matlab version
              '-r',
              basename($this->sourceFileName)
          );
@@ -124,13 +120,10 @@ class Python2_ns_Task extends LanguageTask {
         $this->executableFileName = $this->sourceFileName;
     }
 
-    public function readableDirs() {
-        return array();  // Irrelevant for this sandbox
-     }
 
-     // Return the command to pass to localrunner as a list of arguments,
-     // starting with the program to run followed by a list of its arguments.
-     public function getRunCommand() {
+    // Return the command to pass to localrunner as a list of arguments,
+    // starting with the program to run followed by a list of its arguments.
+    public function getRunCommand() {
         return array(
              dirname(__FILE__)  . "/runguard",
              "--user=coderunner",
@@ -161,16 +154,20 @@ class Python3_ns_Task extends LanguageTask {
     }
 
     public function compile() {
-        $this->executableFileName = $this->sourceFileName;
+        exec("python3 -m py_compile {$this->sourceFileName} 2>compile.out", $output, $returnVar);
+        if ($returnVar == 0) {
+            $this->cmpinfo = '';
+            $this->executableFileName = $this->sourceFileName;
+        }
+        else {
+            $this->cmpinfo = file_get_contents('compile.out');
+        }
     }
 
-    public function readableDirs() {
-        return array();  // Irrelevant for this sandbox
-     }
 
-     // Return the command to pass to localrunner as a list of arguments,
-     // starting with the program to run followed by a list of its arguments.
-     public function getRunCommand() {
+    // Return the command to pass to localrunner as a list of arguments,
+    // starting with the program to run followed by a list of its arguments.
+    public function getRunCommand() {
         return array(
              dirname(__FILE__)  . "/runguard",
              "--user=coderunner",
@@ -225,13 +222,7 @@ class Java_ns_Task extends LanguageTask {
     }
 
 
-    public function readableDirs() {
-        return array(
-            '/'  // Irrelevant in the null sandbox
-        );
-     }
-
-     public function getRunCommand() {
+    public function getRunCommand() {
          return array(
              dirname(__FILE__)  . "/runguard",
              "--user=coderunner",
@@ -250,7 +241,7 @@ class Java_ns_Task extends LanguageTask {
              "-Xmx200m",
              $this->mainClassName
          );
-     }
+    }
 
 
      // Return the name of the main class in the given prog, or FALSE if no
@@ -314,10 +305,6 @@ class C_ns_Task extends LanguageTask {
              "--streamsize=10000",    // Max stdout/stderr sizes (10MB)
              "./" . $this->executableFileName
          );
-    }
-
-    public function readableDirs() {
-        return array();
     }
 };
 

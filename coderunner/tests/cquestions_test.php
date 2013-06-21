@@ -16,6 +16,7 @@
 
 /**
  * Unit tests for coderunner C questions.
+ * @group qtype_coderunner
  * Assumed to be run after python questions have been tested, so focuses
  * only on C-specific aspects.
  *

@@ -1,6 +1,7 @@
 <?php
 /**
  * Unit tests for coderunner's NullSandbox sandbox class.
+ * @group qtype_coderunner
  * This is just a copy of the LiuSandbox test class, with as few
  * changes as possible. [Yeah, Horrible, Horrible]
  *
