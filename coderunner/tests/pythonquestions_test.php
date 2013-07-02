@@ -306,11 +306,11 @@ EOCODE;
         $code = <<<EOCODE
 import posix  # Checks if pylint bug patched
 def sqr(n):
-  '''This is a comment'''
-  if posix.F_OK == 0:
-      return n * n
-  else:
-      return 0
+    '''This is a comment'''
+    if posix.F_OK == 0:
+        return n * n
+    else:
+        return 0
 EOCODE;
         $response = array('answer' => $code);
         $result = $q->grade_response($response);
