@@ -301,7 +301,7 @@ EOCODE;
      public function test_pylint_func_good() {
         // Test that a pylint-func question with a good pylint-compatible
         // submission passes.
-        $q = test_question_maker::make_question('coderunner', 'sqr');
+        $q = test_question_maker::make_question('coderunner', 'sqr_pylint');
         $q->options['coderunner_type'] = 'python3_pylint_func';
         $code = <<<EOCODE
 import posix  # Checks if pylint bug patched
