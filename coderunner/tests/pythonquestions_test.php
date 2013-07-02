@@ -304,6 +304,7 @@ EOCODE;
         $q = test_question_maker::make_question('coderunner', 'sqr');
         $q->options['coderunner_type'] = 'python3_pylint_func';
         $code = <<<EOCODE
+import posix  # Checks if pylint bug patched
 def sqr(n):
   '''This is a comment'''
   return n * n
