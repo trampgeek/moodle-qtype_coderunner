@@ -33,7 +33,8 @@ defined('MOODLE_INTERNAL') || die();
  */
 class qtype_coderunner_test_helper extends question_test_helper {
     public function get_test_questions() {
-        return array('sqr', 'helloFunc', 'copyStdin', 'timeout', 'exceptions',
+        return array('sqr', 'sqr_pylint',
+            'helloFunc', 'copyStdin', 'timeout', 'exceptions',
             'sqrPartMarks',
             'studentanswervar',
             'sqrC', 'sqrNoSemicolons', 'sqrCustomised',
@@ -45,17 +46,37 @@ class qtype_coderunner_test_helper extends question_test_helper {
     }
 
     /**
-     * Makes a coderunner question asking for a sqr() function
+     * Makes a coderunner python3 question asking for a sqr() function
      * @return qtype_coderunner_question
      */
     public function make_coderunner_question_sqr() {
+        return $this->make_coderunner_question_sqr_subtype('python3');
+    }
+
+    /**
+     * Makes a coderunner python3-pylint-func question asking for a sqr() function
+     * @return qtype_coderunner_question
+     */
+    public function make_coderunner_question_sqr_pylint() {
+        return $this->make_coderunner_question_sqr_subtype('python3_pylint_func');
+    }
+
+
+
+    /**
+     * Makes a coderunner question asking for a sqr() function.
+     * @param $coderunner_type  The type of coderunner function to generate,
+     * e.g. 'python3-pylint-func'.
+     * @return qtype_coderunner_question
+     */
+    private function make_coderunner_question_sqr_subtype($coderunner_type) {
         question_bank::load_question_definition_classes('coderunner');
         $coderunner = new qtype_coderunner_question();
         test_question_maker::initialise_a_question($coderunner);
         $coderunner->name = 'Function to square a number n';
         $coderunner->questiontext = 'Write a function sqr(n) that returns n squared';
         $coderunner->generalfeedback = 'No feedback available for coderunner questions.';
-        $coderunner->options = array('coderunner_type' => 'python3');
+        $coderunner->options = array('coderunner_type' => $coderunner_type);
         $coderunner->all_or_nothing = true;
         $coderunner->show_source = false;
         $coderunner->testcases = array(
