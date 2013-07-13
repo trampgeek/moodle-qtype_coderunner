@@ -341,6 +341,7 @@ EOT
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+#include <stdbool.h>
 #define SEPARATOR "#<ab@17943918#@>#"
 
 {{ STUDENT_ANSWER }}
@@ -361,6 +362,8 @@ EOT
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <string.h>
+#include <stdbool.h>
 
 {{ STUDENT_ANSWER }}
 
@@ -396,7 +399,16 @@ EOT
              'contains a complete main function that follows the student code.',
         'combinator_template' => NULL,
         'test_splitter_re' => '',
-        'per_test_template' => "#include <stdio.h>\n#include <stdlib.h>\n#include <ctype.h>\n{{STUDENT_ANSWER}}\n\n{{ TEST.testcode }}",
+        'per_test_template' => <<<EOT
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <stdbool.h>
+{{STUDENT_ANSWER}}
+
+{{ TEST.testcode }}
+EOT
+,
         'language' => 'C',
     );
 
