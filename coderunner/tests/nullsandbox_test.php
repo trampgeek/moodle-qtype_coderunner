@@ -87,6 +87,20 @@ class qtype_coderunner_nullsandbox_test extends basic_testcase {
         $this->assertEquals($result->cmpinfo, '');
         $sandbox->close();
     }
+
+
+    // Test the nullsandbox with excessive output, using Python3
+    // Actually generates a time limit error, because of the limitations
+    // of runguard.
+    public function test_nullsandbox_excessiveoutput() {
+        $sandbox = new nullsandbox();
+        $code = "while 1: print('blah blah blah blah blah blah blah')";
+        $result = $sandbox->execute($code, 'python3', NULL);
+        $this->assertEquals($result->result, Sandbox::RESULT_TIME_LIMIT);
+        $this->assertTrue($result->signal == 9);
+        $this->assertEquals($result->cmpinfo, '');
+        $sandbox->close();
+    }
 }
 
 ?>

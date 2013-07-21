@@ -70,7 +70,7 @@ class Matlab_ns_Task extends LanguageTask {
              // running Matlab at once. This is ugly.
              // TODO:  is there a better way to prevent fork bombs? cgroups?
              "--no-core",
-             "--streamsize=1000000",   // Max stdout/stderr sizes (10MB)
+             "--streamsize=1000",   // Max stdout/stderr sizes (1MB)
              '/usr/local/bin/matlab_exec_cli', //Was Matlab2012a/bin/glnxa64/MATLAB',
              '-nojvm',
              //'-nodesktop',  # Removed for 2013 Matlab version
@@ -136,7 +136,7 @@ class Python2_ns_Task extends LanguageTask {
              // TODO: find a better way of dealing with the large-scale
              // concurrency issue.
              "--no-core",
-             "--streamsize=10000",   // Max stdout/stderr sizes (10MB)
+             "--streamsize=1000",   // Max stdout/stderr sizes (1MB)
              '/usr/bin/python2',
              '-BESs',
              $this->sourceFileName
@@ -180,7 +180,7 @@ class Python3_ns_Task extends LanguageTask {
              // TODO: find a better way of dealing with the large-scale
              // concurrency issue.
              "--no-core",
-             "--streamsize=10000",   // Max stdout/stderr sizes (10MB)
+             "--streamsize=1000",   // Max stdout/stderr sizes (1MB)
              '/usr/bin/python3',
              '-BE',
              $this->sourceFileName
@@ -231,7 +231,7 @@ class Java_ns_Task extends LanguageTask {
              // ... made stupidly large to allow several webserver threads
              // ... to be running the JVM at once.
              "--no-core",
-             "--streamsize=10000",    // Max stdout/stderr sizes (10MB)
+             "--streamsize=1000",    // Max stdout/stderr sizes (1MB)
              '/usr/bin/java',
              "-Xrs",   //  reduces usage signals by java, because that generates debug
                        //  output when program is terminated on timelimit exceeded.
@@ -300,7 +300,7 @@ class C_ns_Task extends LanguageTask {
              // TODO: find a better way of dealing with the large-scale
              // concurrency issue.
              "--no-core",
-             "--streamsize=10000",    // Max stdout/stderr sizes (10MB)
+             "--streamsize=1000",    // Max stdout/stderr sizes (1MB)
              "./" . $this->executableFileName
          );
     }

@@ -23,7 +23,7 @@ class BasicValidator extends Validator {
      *  Should not be called if the execution failed (syntax error, exception
      *  etc).
      */
-    function validate($output, $testCase) {
+    function validate(&$output, &$testCase) {
         $cleanedOutput = $this->clean($output);
         $cleanedExpected = $this->clean($testCase->output);
         return new TestResult(

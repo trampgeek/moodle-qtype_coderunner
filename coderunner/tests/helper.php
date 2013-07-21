@@ -225,6 +225,16 @@ class qtype_coderunner_test_helper extends question_test_helper {
                           'display' => 'SHOW',
                           'mark' => 1.0,
                           'hiderestiffail' =>  0),
+            (object) array('testcode' => 'copyStdin(4)',
+                // This example is also designed to test the clean function in
+                // the validator (which should trim white space of the end of
+                // output lines and trim trailing blank lines).
+                          'stdin'       => " Line  1  \n   Line   2   \n  \n  \n   ",
+                          'output'      => " Line  1\n   Line   2\n",
+                          'useasexample' => 0,
+                          'display' => 'SHOW',
+                          'mark' => 1.0,
+                          'hiderestiffail' =>  0),
             (object) array('testcode' => 'copyStdin(3)',
                           'stdin'       => "Line1\nLine2\n",
                           'output'      => "Line1\nLine2\n", # Irrelevant - runtime error

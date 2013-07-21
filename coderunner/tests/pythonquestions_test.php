@@ -216,12 +216,13 @@ EOCODE;
         $this->assertEquals($grade, question_state::$gradedwrong);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testOutcome = unserialize($cache['_testoutcome']);
-        $this->assertEquals(count($testOutcome->testResults), 4);
+        $this->assertEquals(count($testOutcome->testResults), 5);
         $this->assertTrue($testOutcome->testResults[0]->isCorrect);
         $this->assertTrue($testOutcome->testResults[1]->isCorrect);
         $this->assertTrue($testOutcome->testResults[2]->isCorrect);
-        $this->assertFalse($testOutcome->testResults[3]->isCorrect);
-        $this->assertTrue(strpos($testOutcome->testResults[3]->got, 'EOFError') !== FALSE);
+        $this->assertTrue($testOutcome->testResults[3]->isCorrect);
+        $this->assertFalse($testOutcome->testResults[4]->isCorrect);
+        $this->assertTrue(strpos($testOutcome->testResults[4]->got, 'EOFError') !== FALSE);
      }
 
 
