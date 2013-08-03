@@ -34,7 +34,9 @@ abstract class Validator {
 
     protected function clean(&$s) {
         // A copy of $s with trailing blank lines removed and trailing white
-        // space from each line removed. Used e.g. by BasicValidator subclass.
+        // space from each line removed. Also sanitised by replacing all control
+        // chars with hex equivalents.
+        // Used e.g. by BasicValidator subclass.
         // This implementation is a bit algorithmically complex because the
         // original implemention, breaking the string into lines using explode,
         // was a hideous memory hog.
@@ -50,6 +52,9 @@ abstract class Validator {
                 $spaces = ''; // Discard spaces before a newline
                 $nls .= $c;
             } else {
+                if ($c < " " || $c > "\x7E") {
+                    $c = '\\x' . sprintf("%02x", ord($c));
+                }
                 $new_s .= $nls . $spaces . $c;
                 $spaces = '';
                 $nls = '';
@@ -57,23 +62,6 @@ abstract class Validator {
         }
         $new_s .= "\n";
         return $new_s;
-    }
-
-
-
-    protected function sanitise(&$progOutput) {
-        // Return given $progOutput (e.g. from a C program), sanitised by replacing
-        // all non-printable standard ascii chars except newline with hex
-        // equivalents.
-        $s = '';
-        for ($i = 0, $len = strlen($progOutput); $i < $len; $i++) {
-            $c = $progOutput[$i];
-            if (($c < " " && $c != "\n") || $c > "\x7E") {
-                $c = '\\x' . sprintf("%02x", ord($c));
-            }
-            $s .= $c;
-        }
-        return $s;
     }
 
 
