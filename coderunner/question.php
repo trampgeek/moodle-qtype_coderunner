@@ -135,7 +135,7 @@ class qtype_coderunner_question extends question_graded_automatically {
     // inefficient as multiple regradings will occur.
 
     public function grade_response(array $response) {
-        if (empty($response['_testresults'])) {
+        if (empty($response['_testoutcome'])) {
             $code = $response['answer'];
             $testOutcome = $this->run_tests($code, $this->testcases);
             $testOutcomeSerial = serialize($testOutcome);
