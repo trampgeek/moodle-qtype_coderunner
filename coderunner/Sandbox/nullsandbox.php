@@ -172,7 +172,9 @@ class Python3_ns_Task extends LanguageTask {
              dirname(__FILE__)  . "/runguard",
              "--user=coderunner",
              "--time=10",            // Seconds of execution time allowed
-             "--memsize=2000000",    // Max kb mem allowed (1GB)
+             "--memsize=4000000",    // Max kb mem allowed (4 GB)
+                                     // Made stupidly large so Python can
+                                     // run Java which can then run Clojure :-(
              "--filesize=10000",     // Max file sizes (10MB)
              "--nproc=200",          // At most 200 processes/threads for this *user*
              // ... made stupidly large to allow several webserver threads

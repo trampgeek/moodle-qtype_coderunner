@@ -335,5 +335,43 @@ EOCODE;
         list($mark, $grade, $cache) = $result;
         $this->assertEquals($grade, question_state::$gradedwrong);
      }
+
+
+     public function test_pylint_func_good() {
+        // Test that a pylint-func question with a good pylint-compatible
+        // submission passes.
+        $q = test_question_maker::make_question('coderunner', 'sqr');
+        $q->options['coderunner_type'] = 'python3_pylint_func';
+        $code = <<<EOCODE
+import posix  # Checks if pylint bug patched
+def sqr(n):
+  '''This is a comment'''
+  if posix.F_OK == 0:
+      return n * n
+  else:
+      return 0
+EOCODE;
+        $response = array('answer' => $code);
+        $result = $q->grade_response($response);
+        list($mark, $grade, $cache) = $result;
+        $this->assertEquals($grade, question_state::$gradedright);
+     }
+
+
+     public function test_pylint_func_bad() {
+        // Test that a pylint-func question with a bad (pylint-incompatible)
+        // submission fails.
+        $q = test_question_maker::make_question('coderunner', 'sqr_pylint');
+        $q->options['coderunner_type'] = 'python3_pylint_func';
+        // Code lacks a docstring
+        $code = <<<EOCODE
+def sqr(n):
+  return n * n
+EOCODE;
+        $response = array('answer' => $code);
+        $result = $q->grade_response($response);
+        list($mark, $grade, $cache) = $result;
+        $this->assertEquals($grade, question_state::$gradedwrong);
+     }
 }
 
