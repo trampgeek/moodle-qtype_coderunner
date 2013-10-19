@@ -123,11 +123,17 @@ class qbehaviour_adaptive_adapted_for_coderunner extends qbehaviour_adaptive {
             if ($laststep->has_behaviour_var('_try')) {
                 // Last answer was graded, we want to regrade it. Otherwise the answer
                 // has changed, and we are grading a new try.
-                // TODO: (RJL) why do we want to regrade it??
-                $prevtries -= 1;
+
+                // Changed bit #3. Fix bug resulting in regrading of
+                // already-graded questions.
+                // See https://tracker.moodle.org/browse/MDL-42399
+                // $prevtries -= 1;  // I never did understand this line
+                return question_attempt::DISCARD;  // This should do the trick ???
+                // End changed bit #3.
             }
 
             // *** changed bit #2 begins ***
+            // Cache extra data from grade response.
             $gradeData = $this->question->grade_response($response);
             list($fraction, $state) = $gradeData;
             if (count($gradeData) > 2) {
