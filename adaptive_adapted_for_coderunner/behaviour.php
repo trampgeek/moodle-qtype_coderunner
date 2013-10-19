@@ -72,9 +72,24 @@ class qbehaviour_adaptive_adapted_for_coderunner extends qbehaviour_adaptive {
             $prevbest = 0;
         }
 
-        if ($this->question->is_same_response($response, $prevresponse)) {
-            return question_attempt::DISCARD;
-        }
+        // *** changed bit #4 begins. TENTATIVE
+        // The effect of this change is
+        // to regrade ANY submission when CHECK is clicked, regardless of
+        // whether it has been changed since the last regrading.
+        // Although this seems counterintuitive, the regrading cost on individual
+        // user's CHECK clicks turns out to be insignificant. Allowing regrading
+        // helps with two problems: (a) confusion of authors when
+        // testing a changed set of test data and (b) questions in
+        // which the answer is a link to external data which may have changed.
+        // OTOH, will it lead to students getting penalised multiple times due
+        // to re-checks when frustrated?
+        // Let's see how it goes.
+
+        // if ($this->question->is_same_response($response, $prevresponse)) {
+        //    return question_attempt::DISCARD;
+        //}
+        // *** End of changed bit #4 ***
+
 
         // *** changed bit #1 begins ***
         $gradeData = $this->question->grade_response($response);
@@ -127,7 +142,7 @@ class qbehaviour_adaptive_adapted_for_coderunner extends qbehaviour_adaptive {
                 // Changed bit #3. Fix bug resulting in regrading of
                 // already-graded questions.
                 // See https://tracker.moodle.org/browse/MDL-42399
-                // $prevtries -= 1;  // I never did understand this line
+                // $prevtries -= 1;  // Unnec now, since we're not regrading
                 return question_attempt::DISCARD;  // This should do the trick ???
                 // End changed bit #3.
             }
