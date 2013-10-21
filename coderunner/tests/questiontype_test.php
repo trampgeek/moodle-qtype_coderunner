@@ -58,7 +58,7 @@ class qtype_coderunner_test extends basic_testcase {
     }
 
     public function test_name() {
-        $this->assertEquals($this->qtype->name(), 'coderunner');
+        $this->assertEquals('coderunner', $this->qtype->name());
     }
 
 

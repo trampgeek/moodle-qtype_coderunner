@@ -32,8 +32,8 @@ class qtype_coderunner_customise_test extends basic_testcase {
         $q = test_question_maker::make_question('coderunner', 'sqrCustomised');
         $response = array('answer' => 'def sqr(n): return times(n, n)');
         list($mark, $grade, $cache) = $q->grade_response($response);
-        $this->assertEquals($mark, 1);
-        $this->assertEquals($grade, question_state::$gradedright);
+        $this->assertEquals(1, $mark);
+        $this->assertEquals(question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testOutcome = unserialize($cache['_testoutcome']);
         $this->assertFalse($testOutcome->hasSyntaxError());

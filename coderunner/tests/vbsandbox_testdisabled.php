@@ -31,9 +31,9 @@ class qtype_coderunner_vbsandbox_test extends basic_testcase {
     public function test_testfunction() {
         $sandbox = new VbSandbox();
         $tr = $sandbox->testFunction();
-        $this->assertEquals($tr->error, Sandbox::OK);
-        $this->assertEquals($tr->pi, 3.14);
-        $this->assertEquals($tr->answerToLifeAndEverything, 42);
+        $this->assertEquals(Sandbox::OK, $tr->error);
+        $this->assertEquals(3.14, $tr->pi);
+        $this->assertEquals(42, $tr->answerToLifeAndEverything);
         $this->assertTrue($tr->oOok);
         $langs = $sandbox->getLanguages();
         $langs = $langs->languages;
@@ -47,10 +47,10 @@ class qtype_coderunner_vbsandbox_test extends basic_testcase {
         $sandbox = new VbSandbox();
         $code = "print 'Hello Sandbox'\nprint 'Python rulz'";
         $result = $sandbox->execute($code, 'python2', NULL);
-        $this->assertEquals($result->result, Sandbox::RESULT_SUCCESS);
-        $this->assertEquals($result->output, "Hello Sandbox\nPython rulz\n");
-        $this->assertEquals($result->signal, 0);
-        $this->assertEquals($result->cmpinfo, '');
+        $this->assertEquals(Sandbox::RESULT_SUCCESS, $result->result);
+        $this->assertEquals("Hello Sandbox\nPython rulz\n", $result->output);
+        $this->assertEquals(0, $result->signal);
+        $this->assertEquals('', $result->cmpinfo);
         $sandbox->close();
     }
 
@@ -61,8 +61,8 @@ class qtype_coderunner_vbsandbox_test extends basic_testcase {
         $sandbox = new VbSandbox();
         $code = "print 'Hello Sandbox'\nprint 'Python rulz' + ";
         $result = $sandbox->execute($code, 'python2', NULL);
-        $this->assertEquals($result->result, Sandbox::RESULT_ABNORMAL_TERMINATION);
-        $this->assertEquals($result->signal, 0);
+        $this->assertEquals(Sandbox::RESULT_ABNORMAL_TERMINATION, $result->result);
+        $this->assertEquals(0, $result->signal);
         $this->assertTrue(strpos($result->stderr, 'SyntaxError') !== FALSE);
         $sandbox->close();
     }
@@ -74,10 +74,10 @@ class qtype_coderunner_vbsandbox_test extends basic_testcase {
         $sandbox = new VbSandbox();
         $code = "while True: pass";
         $result = $sandbox->execute($code, 'python2', NULL);
-        $this->assertEquals($result->result, Sandbox::RESULT_TIME_LIMIT);
-        $this->assertEquals($result->output, '');
+        $this->assertEquals(Sandbox::RESULT_TIME_LIMIT, $result->result);
+        $this->assertEquals('', $result->output);
         $this->assertTrue($result->signal == 9);
-        $this->assertEquals($result->cmpinfo, '');
+        $this->assertEquals('', $result->cmpinfo);
         $sandbox->close();
     }
 
@@ -86,10 +86,10 @@ class qtype_coderunner_vbsandbox_test extends basic_testcase {
         $sandbox = new VbSandbox();
         $code = "data = list(range(1,10000000000))";
         $result = $sandbox->execute($code, 'python2', NULL);
-        $this->assertEquals($result->result, Sandbox::RESULT_ABNORMAL_TERMINATION);
-        $this->assertEquals($result->output, '');
+        $this->assertEquals(Sandbox::RESULT_ABNORMAL_TERMINATION, $result->result);
+        $this->assertEquals('', $result->output);
         $this->assertTrue(strpos($result->stderr, 'MemoryError') !== FALSE);
-        $this->assertEquals($result->cmpinfo, '');
+        $this->assertEquals('', $result->cmpinfo);
         $sandbox->close();
     }
 }

@@ -24,9 +24,9 @@ class qtype_coderunner_ideonesandbox_test extends basic_testcase {
         $sandbox = new IdeoneSandbox();  // Lots happens here!
 
         $tr = $sandbox->testFunction();  // Make sure the generic test runs
-        $this->assertEquals($tr->error, Sandbox::OK);
-        $this->assertEquals($tr->pi, 3.14);
-        $this->assertEquals($tr->answerToLifeAndEverything, 42);
+        $this->assertEquals(Sandbox::OK, $tr->error);
+        $this->assertEquals(3.14, $tr->pi);
+        $this->assertEquals(42, $tr->answerToLifeAndEverything);
         $this->assertTrue($tr->oOok);
 
         // Now check if we have at least a few of the expected languages.
@@ -36,8 +36,8 @@ class qtype_coderunner_ideonesandbox_test extends basic_testcase {
         $this->assertTrue(in_array('python2', $langs, TRUE));
         $this->assertTrue(in_array('python3', $langs, TRUE));
         $this->assertTrue(in_array('C', $langs, TRUE));
-        $this->assertTrue(in_array('C99 strict (gcc-4.7.2)', $langs, TRUE));
     }
+
 
     public function test_ideonesandbox_python2_good() {
         // Test ideone using the execute method of the base class
@@ -45,10 +45,10 @@ class qtype_coderunner_ideonesandbox_test extends basic_testcase {
         $source = 'print "Hello sandbox!"';
         $sandbox = new IdeoneSandbox();
         $result = $sandbox->execute($source, 'python2', '');
-        $this->assertEquals($result->result, Sandbox::RESULT_SUCCESS);
-        $this->assertEquals($result->stderr, '');
-        $this->assertEquals($result->cmpinfo, '');
-        $this->assertEquals($result->output, "Hello sandbox!\n");
+        $this->assertEquals(Sandbox::RESULT_SUCCESS, $result->result);
+        $this->assertEquals('', $result->stderr);
+        $this->assertEquals('', $result->cmpinfo);
+        $this->assertEquals("Hello sandbox!\n", $result->output);
         $sandbox->close();
     }
 
@@ -59,10 +59,10 @@ class qtype_coderunner_ideonesandbox_test extends basic_testcase {
         $source = 'print("Hello sandbox!")';
         $sandbox = new IdeoneSandbox();
         $result = $sandbox->execute($source, 'python3', '');
-        $this->assertEquals($result->result, Sandbox::RESULT_SUCCESS);
-        $this->assertEquals($result->stderr, '');
-        $this->assertEquals($result->cmpinfo, '');
-        $this->assertEquals($result->output, "Hello sandbox!\n");
+        $this->assertEquals(Sandbox::RESULT_SUCCESS, $result->result);
+        $this->assertEquals('', $result->stderr);
+        $this->assertEquals('', $result->cmpinfo);
+        $this->assertEquals("Hello sandbox!\n", $result->output);
         $sandbox->close();
     }
 
@@ -73,8 +73,7 @@ class qtype_coderunner_ideonesandbox_test extends basic_testcase {
         $source = "print('Hello sandbox!'):\n";
         $sandbox = new IdeoneSandbox();
         $result = $sandbox->execute($source, 'python3', '');
-        $this->assertEquals($result->result, Sandbox::RESULT_RUNTIME_ERROR);
-        $this->assertEquals($result->signal, -1); /* Why does it give signal -1? */
+        $this->assertEquals(Sandbox::RESULT_COMPILATION_ERROR, $result->result);
         $sandbox->close();
     }
 
@@ -85,10 +84,10 @@ class qtype_coderunner_ideonesandbox_test extends basic_testcase {
         $source = "while 1: pass\n";
         $sandbox = new IdeoneSandbox();
         $result = $sandbox->execute($source, 'python3', '');
-        $this->assertEquals($result->result, Sandbox::RESULT_TIME_LIMIT);
-        $this->assertEquals($result->output, '');
-        $this->assertEquals($result->stderr, '');
-        $this->assertEquals($result->cmpinfo, '');
+        $this->assertEquals(Sandbox::RESULT_TIME_LIMIT, $result->result);
+        $this->assertEquals('', $result->output);
+        $this->assertEquals('', $result->stderr);
+        $this->assertEquals('', $result->cmpinfo);
         $sandbox->close();
     }
 
@@ -98,10 +97,10 @@ class qtype_coderunner_ideonesandbox_test extends basic_testcase {
         $sandbox = new IdeoneSandbox();
         $code = "data = []\nwhile True: data.append(1)";
         $result = $sandbox->execute($code, 'python2', NULL);
-        $this->assertEquals($result->result, Sandbox::RESULT_MEMORY_LIMIT);
-        $this->assertEquals($result->output, '');
-        $this->assertEquals($result->stderr, '');
-        $this->assertEquals($result->cmpinfo, '');
+        $this->assertEquals(Sandbox::RESULT_MEMORY_LIMIT, $result->result);
+        $this->assertEquals('', $result->output);
+        $this->assertEquals('', $result->stderr);
+        $this->assertEquals('', $result->cmpinfo);
         $sandbox->close();
     }
     */
@@ -112,7 +111,7 @@ class qtype_coderunner_ideonesandbox_test extends basic_testcase {
         $sandbox = new IdeoneSandbox();
         $code = "#include <stdio.h>\nint main(): {\n    printf(\"Hello sandbox\");\n    return 0;\n}\n";
         $result = $sandbox->execute($code, 'C', NULL);
-        $this->assertEquals($result->result, Sandbox::RESULT_COMPILATION_ERROR);
+        $this->assertEquals(Sandbox::RESULT_COMPILATION_ERROR, $result->result);
         $this->assertTrue(strpos($result->cmpinfo, 'error:') !== FALSE);
         $sandbox->close();
     }
@@ -122,10 +121,10 @@ class qtype_coderunner_ideonesandbox_test extends basic_testcase {
         $sandbox = new IdeoneSandbox();
         $code = "#include <stdio.h>\nint main() {\n    printf(\"Hello sandbox\\n\");\n    return 0;\n}\n";
         $result = $sandbox->execute($code, 'C', NULL);
-        $this->assertEquals($result->result, Sandbox::RESULT_SUCCESS);
-        $this->assertEquals($result->output, "Hello sandbox\n");
-        $this->assertEquals($result->signal, 0);
-        $this->assertEquals($result->cmpinfo, '');
+        $this->assertEquals(Sandbox::RESULT_SUCCESS, $result->result);
+        $this->assertEquals("Hello sandbox\n", $result->output);
+        $this->assertEquals(0, $result->signal);
+        $this->assertEquals('', $result->cmpinfo);
         $sandbox->close();
     }
 
@@ -143,7 +142,7 @@ print(f.read())
 f.close()
 ";
         $result = $sandbox->execute($code, 'python3', NULL);
-        $this->assertEquals($result->result, Sandbox::RESULT_RUNTIME_ERROR);
+        $this->assertEquals(Sandbox::RESULT_RUNTIME_ERROR, $result->result);
         $sandbox->close();
     }
 

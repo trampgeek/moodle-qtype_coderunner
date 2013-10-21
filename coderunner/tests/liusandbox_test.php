@@ -22,9 +22,9 @@ class qtype_coderunner_liusandbox_test extends basic_testcase {
     public function test_testfunction() {
         $sandbox = new LiuSandbox();
         $tr = $sandbox->testFunction();
-        $this->assertEquals($tr->error, Sandbox::OK);
-        $this->assertEquals($tr->pi, 3.14);
-        $this->assertEquals($tr->answerToLifeAndEverything, 42);
+        $this->assertEquals(Sandbox::OK, $tr->error);
+        $this->assertEquals(3.14, $tr->pi);
+        $this->assertEquals(42, $tr->answerToLifeAndEverything);
         $this->assertTrue($tr->oOok);
         $langs = $sandbox->getLanguages();
         $langs = $langs->languages;
@@ -64,9 +64,9 @@ class qtype_coderunner_liusandbox_test extends basic_testcase {
         exec($cmd, $output, $returnVar);
         $outputJson = $output[0];
         $result = json_decode($outputJson);
-        $this->assertEquals($result->returnCode, 'OK');
-        $this->assertEquals($result->output, "Hello Sandbox\nPython rulz\n");
-        $this->assertEquals($result->stderr, '');
+        $this->assertEquals('OK', $result->returnCode);
+        $this->assertEquals("Hello Sandbox\nPython rulz\n", $result->output);
+        $this->assertEquals('', $result->stderr);
         chdir('..');
         $this->delTree($dirname);
     }
@@ -79,10 +79,10 @@ class qtype_coderunner_liusandbox_test extends basic_testcase {
         $sandbox = new LiuSandbox();
         $code = "print('Hello Sandbox')\nprint('Python rulz')";
         $result = $sandbox->execute($code, 'python3', NULL);
-        $this->assertEquals($result->result, Sandbox::RESULT_SUCCESS);
-        $this->assertEquals($result->output, "Hello Sandbox\nPython rulz\n");
-        $this->assertEquals($result->signal, 0);
-        $this->assertEquals($result->cmpinfo, '');
+        $this->assertEquals(Sandbox::RESULT_SUCCESS, $result->result);
+        $this->assertEquals("Hello Sandbox\nPython rulz\n", $result->output);
+        $this->assertEquals(0, $result->signal);
+        $this->assertEquals('', $result->cmpinfo);
         $sandbox->close();
     }
 
@@ -91,8 +91,8 @@ class qtype_coderunner_liusandbox_test extends basic_testcase {
         $sandbox = new LiuSandbox();
         $code = "print 'Hello Sandbox'\nprint 'Python rulz' ";
         $result = $sandbox->execute($code, 'python3', NULL);
-        $this->assertEquals($result->result, Sandbox::RESULT_COMPILATION_ERROR);
-        $this->assertEquals($result->signal, 0);
+        $this->assertEquals(Sandbox::RESULT_COMPILATION_ERROR, $result->result);
+        $this->assertEquals(0, $result->signal);
         $sandbox->close();
     }
 */
@@ -101,10 +101,10 @@ class qtype_coderunner_liusandbox_test extends basic_testcase {
         $sandbox = new LiuSandbox();
         $code = "print 'Hello Sandbox'\nprint 'Python rulz'";
         $result = $sandbox->execute($code, 'python2', NULL);
-        $this->assertEquals($result->result, Sandbox::RESULT_SUCCESS);
-        $this->assertEquals($result->output, "Hello Sandbox\nPython rulz\n");
-        $this->assertEquals($result->signal, 0);
-        $this->assertEquals($result->cmpinfo, '');
+        $this->assertEquals(Sandbox::RESULT_SUCCESS, $result->result);
+        $this->assertEquals("Hello Sandbox\nPython rulz\n", $result->output);
+        $this->assertEquals(0, $result->signal);
+        $this->assertEquals('', $result->cmpinfo);
         $sandbox->close();
     }
 
@@ -113,9 +113,9 @@ class qtype_coderunner_liusandbox_test extends basic_testcase {
         $sandbox = new LiuSandbox();
         $code = "print 'Hello Sandbox'\nprint: 'Python rulz' ";
         $result = $sandbox->execute($code, 'python2', NULL);
-        $this->assertEquals($result->result, Sandbox::RESULT_COMPILATION_ERROR);
+        $this->assertEquals(Sandbox::RESULT_COMPILATION_ERROR, $result->result);
         $this->assertTrue(strpos($result->cmpinfo, 'SyntaxError') !== FALSE);
-        $this->assertEquals($result->signal, 0);
+        $this->assertEquals(0, $result->signal);
         $sandbox->close();
     }
 
@@ -124,11 +124,11 @@ class qtype_coderunner_liusandbox_test extends basic_testcase {
         $sandbox = new LiuSandbox();
         $code = "while True: pass";
         $result = $sandbox->execute($code, 'python2', NULL);
-        $this->assertEquals($result->result, Sandbox::RESULT_TIME_LIMIT);
-        $this->assertEquals($result->output, '');
-        $this->assertEquals($result->stderr, '');
+        $this->assertEquals(Sandbox::RESULT_TIME_LIMIT, $result->result);
+        $this->assertEquals('', $result->output);
+        $this->assertEquals('', $result->stderr);
         $this->assertTrue($result->signal == 18 || $result->signal == 10);  // Varies?
-        $this->assertEquals($result->cmpinfo, '');
+        $this->assertEquals('', $result->cmpinfo);
         $sandbox->close();
     }
 
@@ -137,10 +137,10 @@ class qtype_coderunner_liusandbox_test extends basic_testcase {
         $sandbox = new LiuSandbox();
         $code = "data = []\nwhile True: data.append(1)";
         $result = $sandbox->execute($code, 'python2', NULL);
-        $this->assertEquals($result->result, Sandbox::RESULT_MEMORY_LIMIT);
-        $this->assertEquals($result->output, '');
-        $this->assertEquals($result->stderr, '');
-        $this->assertEquals($result->cmpinfo, '');
+        $this->assertEquals(Sandbox::RESULT_MEMORY_LIMIT, $result->result);
+        $this->assertEquals('', $result->output);
+        $this->assertEquals('', $result->stderr);
+        $this->assertEquals('', $result->cmpinfo);
         $sandbox->close();
     }
 
@@ -149,7 +149,7 @@ class qtype_coderunner_liusandbox_test extends basic_testcase {
         $sandbox = new LiuSandbox();
         $code = "#include <stdio.h>\nint main(): {\n    printf(\"Hello sandbox\");\n    return 0;\n}\n";
         $result = $sandbox->execute($code, 'C', NULL);
-        $this->assertEquals($result->result, Sandbox::RESULT_COMPILATION_ERROR);
+        $this->assertEquals(Sandbox::RESULT_COMPILATION_ERROR, $result->result);
         $this->assertTrue(strpos($result->cmpinfo, 'error:') !== FALSE);
         $sandbox->close();
     }
@@ -159,10 +159,10 @@ class qtype_coderunner_liusandbox_test extends basic_testcase {
         $sandbox = new LiuSandbox();
         $code = "#include <stdio.h>\nint main() {\n    printf(\"Hello sandbox\\n\");\n    return 0;\n}\n";
         $result = $sandbox->execute($code, 'C', NULL);
-        $this->assertEquals($result->result, Sandbox::RESULT_SUCCESS);
-        $this->assertEquals($result->output, "Hello sandbox\n");
-        $this->assertEquals($result->signal, 0);
-        $this->assertEquals($result->cmpinfo, '');
+        $this->assertEquals(Sandbox::RESULT_SUCCESS, $result->result);
+        $this->assertEquals("Hello sandbox\n", $result->output);
+        $this->assertEquals(0, $result->signal);
+        $this->assertEquals('', $result->cmpinfo);
         $sandbox->close();
     }
 
@@ -179,10 +179,10 @@ print f.read()
 f.close()
 ";
         $result = $sandbox->execute($code, 'python2', NULL);
-        $this->assertEquals($result->result, Sandbox::RESULT_SUCCESS);
-        $this->assertEquals($result->output, "stuff\n");
-        $this->assertEquals($result->signal, 0);
-        $this->assertEquals($result->cmpinfo, '');
+        $this->assertEquals(Sandbox::RESULT_SUCCESS, $result->result);
+        $this->assertEquals("stuff\n", $result->output);
+        $this->assertEquals(0, $result->signal);
+        $this->assertEquals('', $result->cmpinfo);
         $sandbox->close();
     }
 
@@ -200,7 +200,7 @@ print f.read()
 f.close()
 ";
         $result = $sandbox->execute($code, 'python2', NULL);
-        $this->assertEquals($result->result, Sandbox::RESULT_ILLEGAL_SYSCALL);
+        $this->assertEquals(Sandbox::RESULT_ILLEGAL_SYSCALL, $result->result);
         $sandbox->close();
     }
 

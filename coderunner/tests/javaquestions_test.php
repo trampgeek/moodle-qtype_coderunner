@@ -51,11 +51,11 @@ class qtype_coderunner_java_question_test extends basic_testcase {
         $q = test_question_maker::make_question('coderunner', 'sqrjava');
         $response = array('answer' => "int sqr(int n) { return n * n; }\n");
         list($mark, $grade, $cache) = $q->grade_response($response);
-        $this->assertEquals($mark, 1);
-        $this->assertEquals($grade, question_state::$gradedright);
+        $this->assertEquals(1, $mark);
+        $this->assertEquals(question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testOutcome = unserialize($cache['_testoutcome']);
-        $this->assertEquals(count($testOutcome->testResults), 4);
+        $this->assertEquals(4, count($testOutcome->testResults));
         $this->assertTrue($testOutcome->allCorrect());
     }
 
@@ -64,11 +64,11 @@ class qtype_coderunner_java_question_test extends basic_testcase {
         $q = test_question_maker::make_question('coderunner', 'sqrjava');
         $response = array('answer' => "int sqr(int n) { return n; }\n");
         list($mark, $grade, $cache) = $q->grade_response($response);
-        $this->assertEquals($mark, 0);
-        $this->assertEquals($grade, question_state::$gradedwrong);
+        $this->assertEquals(0, $mark);
+        $this->assertEquals(question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testOutcome = unserialize($cache['_testoutcome']);
-        $this->assertEquals(count($testOutcome->testResults), 4);
+        $this->assertEquals(4, count($testOutcome->testResults));
         $this->assertFalse($testOutcome->allCorrect());
     }
 
@@ -77,12 +77,12 @@ class qtype_coderunner_java_question_test extends basic_testcase {
         $q = test_question_maker::make_question('coderunner', 'sqrjava');
         $response = array('answer' => "int sqr(n) { return n * n; }\n");
         list($mark, $grade, $cache) = $q->grade_response($response);
-        $this->assertEquals($mark, 0);
-        $this->assertEquals($grade, question_state::$gradedwrong);
+        $this->assertEquals(0, $mark);
+        $this->assertEquals(question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testOutcome = unserialize($cache['_testoutcome']);
         $this->assertTrue($testOutcome->hasSyntaxError());
-        $this->assertEquals(count($testOutcome->testResults), 0);
+        $this->assertEquals(0, count($testOutcome->testResults));
     }
 
 
@@ -102,11 +102,11 @@ class qtype_coderunner_java_question_test extends basic_testcase {
 }
 ");
         list($mark, $grade, $cache) = $q->grade_response($response);
-        $this->assertEquals($mark, 1);
-        $this->assertEquals($grade, question_state::$gradedright);
+        $this->assertEquals(1, $mark);
+        $this->assertEquals(question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testOutcome = unserialize($cache['_testoutcome']);
-        $this->assertEquals(count($testOutcome->testResults), 2);
+        $this->assertEquals(2, count($testOutcome->testResults));
         $this->assertTrue($testOutcome->allCorrect());
     }
 
@@ -127,11 +127,11 @@ class qtype_coderunner_java_question_test extends basic_testcase {
 }
 ");
         list($mark, $grade, $cache) = $q->grade_response($response);
-        $this->assertEquals($mark, 1);
-        $this->assertEquals($grade, question_state::$gradedright);
+        $this->assertEquals(1, $mark);
+        $this->assertEquals(question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testOutcome = unserialize($cache['_testoutcome']);
-        $this->assertEquals(count($testOutcome->testResults), 2);
+        $this->assertEquals(2, count($testOutcome->testResults));
         $this->assertTrue($testOutcome->allCorrect());
     }
 }

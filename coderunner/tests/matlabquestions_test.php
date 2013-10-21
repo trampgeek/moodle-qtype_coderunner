@@ -51,11 +51,11 @@ class qtype_coderunner_matlab_question_test extends basic_testcase {
         $q = test_question_maker::make_question('coderunner', 'sqrmatlab');
         $response = array('answer' => "function sq = sqr(n)\n  sq = n * n;\nend\n");
         list($mark, $grade, $cache) = $q->grade_response($response);
-        $this->assertEquals($mark, 1);
-        $this->assertEquals($grade, question_state::$gradedright);
+        $this->assertEquals(1, $mark);
+        $this->assertEquals(question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testOutcome = unserialize($cache['_testoutcome']);
-        $this->assertEquals(count($testOutcome->testResults), 4);
+        $this->assertEquals(4, count($testOutcome->testResults));
         $this->assertTrue($testOutcome->allCorrect());
     }
 
@@ -64,11 +64,11 @@ class qtype_coderunner_matlab_question_test extends basic_testcase {
         $q = test_question_maker::make_question('coderunner', 'sqrmatlab');
         $response = array('answer' => "function sq = sqr(n)\n  sq = n;\nend\n");
         list($mark, $grade, $cache) = $q->grade_response($response);
-        $this->assertEquals($mark, 0);
-        $this->assertEquals($grade, question_state::$gradedwrong);
+        $this->assertEquals(0, $mark);
+        $this->assertEquals(question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testOutcome = unserialize($cache['_testoutcome']);
-        $this->assertEquals(count($testOutcome->testResults), 4);
+        $this->assertEquals(4, count($testOutcome->testResults));
         $this->assertFalse($testOutcome->allCorrect());
     }
 
@@ -77,11 +77,11 @@ class qtype_coderunner_matlab_question_test extends basic_testcase {
         $q = test_question_maker::make_question('coderunner', 'sqrmatlab');
         $response = array('answer' => "function sq = sqr(n)\n  sq = n;\nendd\n");
         list($mark, $grade, $cache) = $q->grade_response($response);
-        $this->assertEquals($mark, 0);
-        $this->assertEquals($grade, question_state::$gradedwrong);
+        $this->assertEquals(0, $mark);
+        $this->assertEquals(question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testOutcome = unserialize($cache['_testoutcome']);
-        $this->assertEquals(count($testOutcome->testResults), 1);
+        $this->assertEquals(1, count($testOutcome->testResults));
         $this->assertTrue(strpos($testOutcome->testResults[0]->got, "Abnormal termination") !== FALSE);
     }
 
@@ -97,8 +97,8 @@ end
 EOT
 );
         list($mark, $grade, $cache) = $q->grade_response($response);
-        $this->assertEquals($mark, 1);
-        $this->assertEquals($grade, question_state::$gradedright);
+        $this->assertEquals(1, $mark);
+        $this->assertEquals(question_state::$gradedright, $grade);
     }
 }
 

@@ -51,11 +51,11 @@ class qtype_coderunner_c_question_test extends basic_testcase {
         $q = test_question_maker::make_question('coderunner', 'sqrC');
         $response = array('answer' => "int sqr(int n) { return n * n;}\n");
         list($mark, $grade, $cache) = $q->grade_response($response);
-        $this->assertEquals($mark, 1);
-        $this->assertEquals($grade, question_state::$gradedright);
+        $this->assertEquals(1, $mark);
+        $this->assertEquals(question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testOutcome = unserialize($cache['_testoutcome']);
-        $this->assertEquals(count($testOutcome->testResults), 4);
+        $this->assertEquals(4, count($testOutcome->testResults));
         $this->assertTrue($testOutcome->allCorrect());
     }
 
@@ -64,12 +64,12 @@ class qtype_coderunner_c_question_test extends basic_testcase {
         $q = test_question_maker::make_question('coderunner', 'sqrC');
         $response = array('answer' => "int sqr(int n) { return n * n; /* No closing brace */");
         list($mark, $grade, $cache) = $q->grade_response($response);
-        $this->assertEquals($mark, 0);
-        $this->assertEquals($grade, question_state::$gradedwrong);
+        $this->assertEquals(0, $mark);
+        $this->assertEquals(question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testOutcome = unserialize($cache['_testoutcome']);
         $this->assertTrue($testOutcome->hasSyntaxError());
-        $this->assertEquals(count($testOutcome->testResults), 0);
+        $this->assertEquals(0, count($testOutcome->testResults));
     }
 
 
@@ -78,12 +78,12 @@ class qtype_coderunner_c_question_test extends basic_testcase {
         $q = test_question_maker::make_question('coderunner', 'helloProgC');
         $response = array('answer' => "#include <stdio.h>\nint main() { printf(\"Hello ENCE260\\n\");return 0;}\n");
         list($mark, $grade, $cache) = $q->grade_response($response);
-        $this->assertEquals($mark, 1);
-        $this->assertEquals($grade, question_state::$gradedright);
+        $this->assertEquals(1, $mark);
+        $this->assertEquals(question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testOutcome = unserialize($cache['_testoutcome']);
         $this->assertFalse($testOutcome->hasSyntaxError());
-        $this->assertEquals(count($testOutcome->testResults), 1);
+        $this->assertEquals(1, count($testOutcome->testResults));
         $this->assertTrue($testOutcome->allCorrect());
     }
 
@@ -92,12 +92,12 @@ class qtype_coderunner_c_question_test extends basic_testcase {
         $q = test_question_maker::make_question('coderunner', 'helloProgC');
         $response = array('answer' => "#include <stdio.h>\nint main() { printf(\"Hello ENCE260!\\n\");return 0;}\n");
         list($mark, $grade, $cache) = $q->grade_response($response);
-        $this->assertEquals($mark, 0);
-        $this->assertEquals($grade, question_state::$gradedwrong);
+        $this->assertEquals(0, $mark);
+        $this->assertEquals(question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testOutcome = unserialize($cache['_testoutcome']);
         $this->assertFalse($testOutcome->hasSyntaxError());
-        $this->assertEquals(count($testOutcome->testResults), 1);
+        $this->assertEquals(1, count($testOutcome->testResults));
         $this->assertFalse($testOutcome->allCorrect());
     }
 
@@ -108,10 +108,10 @@ class qtype_coderunner_c_question_test extends basic_testcase {
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testOutcome = unserialize($cache['_testoutcome']);
-        $this->assertEquals($mark, 1);
-        $this->assertEquals($grade, question_state::$gradedright);
+        $this->assertEquals(1, $mark);
+        $this->assertEquals(question_state::$gradedright, $grade);
         $this->assertFalse($testOutcome->hasSyntaxError());
-        $this->assertEquals(count($testOutcome->testResults), 3);
+        $this->assertEquals(3, count($testOutcome->testResults));
         $this->assertTrue($testOutcome->allCorrect());
     }
 
@@ -132,12 +132,12 @@ class qtype_coderunner_c_question_test extends basic_testcase {
 }
 ");
         list($mark, $grade, $cache) = $q->grade_response($response);
-        $this->assertEquals($mark, 1);
-        $this->assertEquals($grade, question_state::$gradedright);
+        $this->assertEquals(1, $mark);
+        $this->assertEquals(question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testOutcome = unserialize($cache['_testoutcome']);
         $this->assertFalse($testOutcome->hasSyntaxError());
-        $this->assertEquals(count($testOutcome->testResults), 2);
+        $this->assertEquals(2, count($testOutcome->testResults));
         $this->assertTrue($testOutcome->allCorrect());
     }
 
@@ -156,12 +156,12 @@ class qtype_coderunner_c_question_test extends basic_testcase {
 }
 ");
         list($mark, $grade, $cache) = $q->grade_response($response);
-        $this->assertEquals($mark, 1);
-        $this->assertEquals($grade, question_state::$gradedright);
+        $this->assertEquals(1, $mark);
+        $this->assertEquals(question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testOutcome = unserialize($cache['_testoutcome']);
         $this->assertFalse($testOutcome->hasSyntaxError());
-        $this->assertEquals(count($testOutcome->testResults), 2);
+        $this->assertEquals(2, count($testOutcome->testResults));
         $this->assertTrue($testOutcome->allCorrect());
     }
 
@@ -171,14 +171,14 @@ class qtype_coderunner_c_question_test extends basic_testcase {
         $q = test_question_maker::make_question('coderunner', 'helloProgC');
         $response = array('answer' => "#include <stdio.h>\n#include <stdlib.h>\nint main() { char* p = NULL; *p = 10; return 0; }\n");
         list($mark, $grade, $cache) = $q->grade_response($response);
-        $this->assertEquals($mark, 0);
-        $this->assertEquals($grade, question_state::$gradedwrong);
+        $this->assertEquals(0, $mark);
+        $this->assertEquals(question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testOutcome = unserialize($cache['_testoutcome']);
         $this->assertFalse($testOutcome->hasSyntaxError());
-        $this->assertEquals(count($testOutcome->testResults), 1);
+        $this->assertEquals(1, count($testOutcome->testResults));
         $this->assertFalse($testOutcome->allCorrect());
-        $this->assertEquals($testOutcome->testResults[0]->got, "***Runtime error*** (signal 11)\n");
+        $this->assertEquals("***Runtime error*** (signal 11)\n", $testOutcome->testResults[0]->got);
     }
 
 
@@ -186,14 +186,14 @@ class qtype_coderunner_c_question_test extends basic_testcase {
         $q = test_question_maker::make_question('coderunner', 'helloProgC');
         $response = array('answer' => "#include <stdio.h>\nint main() { while(1) {};return 0;}\n");
         list($mark, $grade, $cache) = $q->grade_response($response);
-        $this->assertEquals($mark, 0);
-        $this->assertEquals($grade, question_state::$gradedwrong);
+        $this->assertEquals(0, $mark);
+        $this->assertEquals(question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testOutcome = unserialize($cache['_testoutcome']);
         $this->assertFalse($testOutcome->hasSyntaxError());
-        $this->assertEquals(count($testOutcome->testResults), 1);
+        $this->assertEquals(1, count($testOutcome->testResults));
         $this->assertFalse($testOutcome->allCorrect());
-        $this->assertEquals($testOutcome->testResults[0]->got, "***Time limit exceeded***\n");
+        $this->assertEquals("***Time limit exceeded***\n", $testOutcome->testResults[0]->got);
     }
 
 
@@ -206,11 +206,11 @@ class qtype_coderunner_c_question_test extends basic_testcase {
         $q = test_question_maker::make_question('coderunner', 'sqrNoSemicolons');
         $response = array('answer' => "int sqr(int n) { return n * n;}\n");
         list($mark, $grade, $cache) = $q->grade_response($response);
-        $this->assertEquals($mark, 1);
-        $this->assertEquals($grade, question_state::$gradedright);
+        $this->assertEquals(1, $mark);
+        $this->assertEquals(question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testOutcome = unserialize($cache['_testoutcome']);
-        $this->assertEquals(count($testOutcome->testResults), 4);
+        $this->assertEquals(4, count($testOutcome->testResults));
         $this->assertTrue($testOutcome->allCorrect());
     }
 
@@ -236,11 +236,11 @@ int sqr(int n) {
     }
 }");
         list($mark, $grade, $cache) = $q->grade_response($response);
-        $this->assertEquals($mark, 0);
-        $this->assertEquals($grade, question_state::$gradedwrong);
+        $this->assertEquals(0, $mark);
+        $this->assertEquals(question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testOutcome = unserialize($cache['_testoutcome']);
-        $this->assertEquals(count($testOutcome->testResults), 2);
+        $this->assertEquals(2, count($testOutcome->testResults));
         $this->assertTrue(strpos($testOutcome->testResults[1]->got, "***Illegal function call***") !== FALSE);
     }
 }
