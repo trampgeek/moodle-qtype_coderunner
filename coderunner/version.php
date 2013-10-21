@@ -27,3 +27,5 @@ $plugin->maturity = MATURITY_BETA;
 $plugin->release = '1.0 beta';
 
 $plugin->dependencies = array();
+
+?>

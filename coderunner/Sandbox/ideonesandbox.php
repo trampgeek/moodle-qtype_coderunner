@@ -22,12 +22,13 @@ class IdeoneSandbox extends Sandbox {
     public function __construct($user=NULL, $pass=NULL) {
         Sandbox::__construct($user, $pass);
 
-        // A map from Ideone language names to their local short name, where
-        // appropriate
-        $aliases = array('C99 strict (gcc-4.7.2)'=>'C',
-                     'Python (python 2.7.3)'=>'python2',
-                     'Python 3 (python-3.2.3)'=>'python3',
-                     'Java (sun-jdk-1.7.0_10)'=>'Java');
+        // A map from Ideone language names (regular expressions) to their
+        // local short name, where appropriate
+
+        $aliases = array('C99 strict.*'=>'C',
+                     '.*python *2\.[789]\.[0-9].*' => 'python2',
+                     'Python 3.*python-3\.*'       => 'python3',
+                     'Java.*sun-jdk.*'             => 'Java');
 
         $this->client = $client = new SoapClient("http://ideone.com/api/1/service.wsdl");
         $response = $this->client->getLanguages(USER, PASS);
@@ -44,8 +45,10 @@ class IdeoneSandbox extends Sandbox {
 
         foreach ($response['languages'] as $id=>$lang) {
             $this->langMap[$lang] = $id;
-            if (array_key_exists($lang, $aliases)) {
-                $this->langMap[$aliases[$lang]] = $id;
+            foreach ($aliases as $pattern=>$alias) {
+                if (preg_match('/' . $pattern . '/', $lang)) {
+                    $this->langMap[$alias] = $id;
+                }
             }
         }
 

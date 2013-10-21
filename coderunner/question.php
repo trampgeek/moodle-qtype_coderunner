@@ -104,6 +104,13 @@ class qtype_coderunner_question extends question_graded_automatically {
     }
 
 
+    /** This function is used by the question engine to prevent regrading of
+     *  unchanged submissions.
+     *
+     * @param array $prevresponse
+     * @param array $newresponse
+     * @return boolean
+     */
     public function is_same_response(array $prevresponse, array $newresponse) {
         if (!question_utils::arrays_same_at_key_missing_is_blank(
                 $prevresponse, $newresponse, 'answer')
