@@ -249,24 +249,17 @@ class qtype_coderunner extends question_type {
             $question->options->testcases = &$question->testcases;
         }
 
-        // Lastly the stats (if enabled)
-        if (COMPUTE_STATS) {
-            $question->stats = $this->get_question_stats($question->id);
-        } else {
-            $question->stats = null;
-        }
-
         return true;
     }
 
 
     // The 'questiondata' here is actually (something like) a coderunner question
     // edit form, and we need to extend the baseclass method to copy the
-    // testcases and stats across to the under-creation question definition.
-    
+    // testcases across to the under-creation question definition.
+
     protected function initialise_question_instance(question_definition $question, $questiondata) {
         parent::initialise_question_instance($question, $questiondata);
-        foreach (array('testcases', 'stats', 'language', 'combinator_template',
+        foreach (array('testcases', 'language', 'combinator_template',
             'test_splitter_re', 'per_test_template', 'customise',
             'sandbox', 'validator', 'all_or_nothing', 'show_source') as $field) {
             $question->$field = $questiondata->$field;
@@ -285,65 +278,6 @@ class qtype_coderunner extends question_type {
         $success = $success && $DB->delete_records('quest_coderunner_types',
                 array('coderunner_type' => 'CUSTOM_' . $questionid));
         return $success && parent::delete_question($questionid, $contextid);
-    }
-
-
-
-    // Query the database to get the statistics of attempts and ratings for
-    // a given question.
-    private function get_question_stats($question_id) {
-        // TODO: this query kills the DB server! If stats gathering is to
-        // be turned on again it must be restructured, e.g. have the subquery
-        // filter by attemptstepid rather than name, then select subset with
-        // right name.
-        global $DB;
-        $attempts = $DB->get_records_sql("
-            SELECT questionattemptid, fraction, rating, sequencenumber
-            FROM mdl_question_attempts as qa,
-                        mdl_question_attempt_steps as qas
-            LEFT JOIN
-                ( SELECT value as rating, attemptstepid
-                  FROM  mdl_question_attempt_step_data
-                  WHERE name = 'rating'
-                ) as qasd
-            ON qasd.attemptstepid = qas.id
-            WHERE questionattemptid = qa.id
-
-            AND questionid = ?
-            AND qas.sequencenumber =
-                ( SELECT max(mdl_question_attempt_steps.sequencenumber)
-                  FROM mdl_question_attempt_steps
-                  WHERE mdl_question_attempt_steps.questionattemptid = qa.id
-                )",
-            array($question_id));
-
-        $num_attempts = 0;
-        $num_successes = 0;
-        $counts = array(0, 0, 0, 0);
-        $num_steps = 0;
-        foreach ($attempts as $attempt) {
-            $rating = isset($attempt->rating) ? $attempt->rating : 0;
-            $counts[$rating]++;
-            if ($attempt->fraction > 0.0) {
-                $num_successes++;
-            }
-            if ($attempt->sequencenumber > 0) {
-                $num_attempts++;
-                $num_steps += $attempt->sequencenumber;
-            }
-        }
-
-        $success_percent = $num_attempts == 0 ? 0 : intval(100.0 * $num_successes / $num_attempts);
-        $average_retries = $num_attempts == 0 ? 0 : $num_steps / $num_attempts;
-        $stats = (object) array(
-            'question_id' => $question_id,
-            'attempts'    => $num_attempts,
-            'success_percent' => $success_percent,
-            'average_retries' => $average_retries,
-            'likes'    => $counts[1],
-            'neutrals' => $counts[2],
-            'dislikes' => $counts[3]);
-        return $stats;
     }
 
 

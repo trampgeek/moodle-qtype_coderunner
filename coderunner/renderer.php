@@ -29,12 +29,6 @@ define('FORCE_TABULAR_EXAMPLES', TRUE);
 define('MAX_LINE_LENGTH', 120);
 define('MAX_NUM_LINES', 200);
 
-define('SHOW_STATISTICS', FALSE);  // If TRUE, shows stats on all coderunner-type questions
-// Warning! For this to be workable, COMPUTE_STATS in questiontype.php must be
-// true. The feature has been disabled as it brings the database server to its
-// knees when there are large numbers of question submissions to compute stats
-// from.
-
 define('SHOW_MARKS', FALSE);  // Whether or not to add a marks column to the results table
 //
 // require_once($CFG->dirroot . '/question/type/coderunner/testingoutcome.php');
@@ -102,32 +96,6 @@ class qtype_coderunner_renderer extends qtype_renderer {
             $qtext .= html_writer::nonempty_tag('div',
                     $question->get_validation_error(array('answer' => $currentanswer)),
                     array('class' => 'validationerror'));
-        }
-
-        if (SHOW_STATISTICS && isset($question->stats) && $question->stats) {
-            $stats = $question->stats;
-            $retries = sprintf("%.1f", $stats->average_retries);
-            $stats_text = "Statistics: {$stats->attempts} attempts";
-            if ($stats->attempts) {
-                $stats_text .=
-                    " ({$stats->success_percent}% successful)." .
-                    " Average submissions per attempt: {$retries}.";
-                if ($stats->likes + $stats->neutrals + $stats->dislikes > 0) {
-                    $stats_text .= "<br />" .
-                    " Likes: {$stats->likes}. Neutrals: {$stats->neutrals}. Dislikes: {$stats->dislikes}.";
-                }
-            }
-            else {
-                $stats_text .= '.';
-            }
-
-            $qtext .= html_writer::tag('p', $stats_text);
-
-            $ratingSelector = html_writer::select(
-                    array(1=>'Like', 2=>'Neutral', 3=>'Dislike'),
-                    $qa->get_qt_field_name('rating'),
-                    $currentrating);
-            $qtext .= html_writer::tag('p', 'My rating of this question (optional): ' . $ratingSelector);
         }
 
         // Initialise any program-editing JavaScript.
