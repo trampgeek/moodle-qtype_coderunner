@@ -205,12 +205,12 @@ class qtype_coderunner extends question_type {
         parent::get_question_options($question);
 
         // Flatten the options into the question object itself.
-        // [Base class's save_question_options allows this; it unflattens
+        // The base class's save_question_options allows this; it unflattens
         // all fields whose names match the extraOptions fields back into
         // $question->options before saving. However, Moodle version 2.5
-        // explicitly checks number of answers in $question->options->$answersoption
-        // so I have added $question->options->testcases as a reference to
-        // $question->testcases.]
+        // explicitly checks the number of answers in
+        // $question->options->$answersoption so I have added
+        // $question->options->testcases as a reference to $question->testcases.]
 
         foreach($question->options as $field=>$value) {
             $question->$field = $value;
@@ -256,15 +256,18 @@ class qtype_coderunner extends question_type {
     // The 'questiondata' here is actually (something like) a coderunner question
     // edit form, and we need to extend the baseclass method to copy the
     // testcases across to the under-creation question definition.
+    // Only fields not explicitly listed in extra_question_fields (i.e. those
+    // fields not from quest_coderunner_options table) need handling here.
 
     protected function initialise_question_instance(question_definition $question, $questiondata) {
         parent::initialise_question_instance($question, $questiondata);
         foreach (array('testcases', 'language', 'combinator_template',
             'test_splitter_re', 'per_test_template', 'customise',
-            'sandbox', 'validator', 'all_or_nothing', 'show_source') as $field) {
+            'sandbox', 'validator') as $field) {
             $question->$field = $questiondata->$field;
         }
     }
+
 
 
     // Delete the testcases when this question is deleted.
@@ -279,16 +282,6 @@ class qtype_coderunner extends question_type {
                 array('coderunner_type' => 'CUSTOM_' . $questionid));
         return $success && parent::delete_question($questionid, $contextid);
     }
-
-
-    // TODO Override the default submit button so can hook in javascript to prevent
-    // multiple clicking while a submission is being marked.
-//    function print_question_submit_buttons(&$question, &$state, $cmoptions, $options) {
-//        if (($cmoptions->optionflags & QUESTION_ADAPTIVE) and !$options->readonly) {
-//            echo '<input type="submit" name="', $question->name_prefix, 'submit" value="',
-//            get_string('mark', 'quiz'), '" class="submit btn" onclick="submitClicked(event)" />';
-//        }
-//    }
 
 
 /// IMPORT/EXPORT FUNCTIONS /////////////////
