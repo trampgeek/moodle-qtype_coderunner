@@ -59,7 +59,7 @@ class qtype_coderunner_question extends question_graded_automatically {
      */
     public function make_behaviour(question_attempt $qa, $preferredbehaviour) {
         // TODO: see if there's some way or issuing a warning message when
-        // prgcode questions aren't being used in an adaptive mode.
+        // coderunner questions aren't being used in an adaptive mode.
 
         if ($preferredbehaviour == 'adaptive') {
             return  new qbehaviour_adaptive_adapted_for_coderunner($qa, $preferredbehaviour);
@@ -68,6 +68,7 @@ class qtype_coderunner_question extends question_graded_automatically {
             return parent::make_behaviour($qa, $preferredbehaviour);
         }
     }
+
 
 
     public function get_expected_data() {
@@ -138,8 +139,7 @@ class qtype_coderunner_question extends question_graded_automatically {
     // This implementation assumes a modified behaviour that will accept a
     // third array element in its response, containing data to be cached and
     // served up again in the response on subsequent calls.
-    // It will still work with an unmodified behaviour but will be very
-    // inefficient as multiple regradings will occur.
+
 
     public function grade_response(array $response) {
         if (empty($response['_testoutcome'])) {
@@ -286,6 +286,17 @@ class qtype_coderunner_question extends question_graded_automatically {
     	return $outcome;
     }
 
+
+    /** Set the test cases for this question. Called by questiontype.
+     *
+     * @param type $testcases The set of testcases, each consisting of
+     * all the fields contained in the quest_coderunner_testcases database table
+     * (q.v.) and including the testcode to run for the test, the stdin to
+     * use and the expected output.
+     */
+    public function setTestcases($testcases) {
+        $this->testcases = $testcases;
+    }
 
     // Return a $sep-separated string of the non-empty elements
     // of the array $strings. Similar to implode except empty strings

@@ -53,6 +53,8 @@ class qtype_coderunner_edit_form extends question_edit_form {
         // sites, so there's a normal select item, containing all languages
         // and question types, for a default and a YUI3 hierarchical menu
         // that the JavaScript switches on if it's enabled.
+        // [But it's currently not being used as it looks horrible. Needs
+        // better CSS or a rethink.]
         global $PAGE;
         $jsmodule = array(
             'name'      => 'qtype_coderunner',
@@ -68,30 +70,58 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->addElement('header', 'questiontypeheader', get_string('type_header','qtype_coderunner'));
 
         $expandedTypes = array_merge(array('Undefined' => 'Undefined'), $types);
-        $mform->addElement('select', 'coderunner_type', get_string('coderunner_type', 'qtype_coderunner'), $expandedTypes);
+        $typeControls[] =& $mform->createElement('select', 'coderunner_type', NULL,
+                $expandedTypes);
+
 
         // Fancy YUI type menu disabled for now as it looked ugly. To re-enable
         // uncomment the following statement and add the line 'this.useYuiTypesMenu(Y);'
         // to the init() function in module.js.
-        // $mform->addElement('html', $this->makeYuiMenu(array_keys($languages), array_keys($types)));
+        // $typeControls =& $mform->createElement('html', $this->makeYuiMenu(array_keys($languages), array_keys($types)));
 
-        $mform->addRule('coderunner_type', 'You must select the question type', 'required');
-        $mform->addHelpButton('coderunner_type', 'coderunner_type', 'qtype_coderunner');
+        //$mform->addRule('coderunner_type', 'You must select the question type', 'required');
+        //$mform->addHelpButton('coderunner_type', 'coderunner_type', 'qtype_coderunner');
 
-        $mform->addElement('advcheckbox', 'customise', get_string('customise', 'qtype_coderunner'));
-        $mform->addHelpButton('customise', 'customise', 'qtype_coderunner');
+        $typeControls[] =& $mform->createElement('advcheckbox', 'customise', NULL,
+                get_string('customise', 'qtype_coderunner'));
+
+        $typeControls[] =& $mform->createElement('advcheckbox', 'show_source', NULL,
+                get_string('show_source', 'qtype_coderunner'));
+        $mform->addElement('group', 'type_controls',
+                get_string('questiontype', 'qtype_coderunner'),
+                $typeControls, NULL, false);
 
         // Template is hidden by default in css but displayed by JavaScript if 'customise' checked
         $mform->addElement('textarea', 'custom_template', get_string("template", "qtype_coderunner"),
                 '" rows="8" cols="80" class="template edit_code"');
 
-        $mform->addElement('advcheckbox', 'all_or_nothing', get_string('all_or_nothing', 'qtype_coderunner'));
-        $mform->addElement('advcheckbox', 'show_source', get_string('show_source', 'qtype_coderunner'));
+        $mform->addElement('advcheckbox', 'all_or_nothing',
+                get_string('all_or_nothing', 'qtype_coderunner'));
 
-        $mform->setDefault('all_or_nothing', True);
-        $mform->setDefault('show_source', False);
+
+        foreach (array('all_or_nothing', 'showtest', 'showstdin', 'showexpected', 'showoutput') as $control) {
+            $mform->setDefault($control, True);
+        }
+        $mform->setDafault('show_source', False);
+        $mform->setDefault('showmark', False);
+
+        $mform->addHelpButton('type_controls', 'questiontype', 'qtype_coderunner');
         $mform->addHelpButton('all_or_nothing', 'all_or_nothing', 'qtype_coderunner');
-        $mform->addHelpButton('show_source', 'show_source', 'qtype_coderunner');
+
+        $columnDisplays[] =& $mform->createElement('checkbox', 'showtest', NULL,
+                        get_string('show_test', 'qtype_coderunner'));
+        $columnDisplays[] =& $mform->createElement('checkbox', 'showstdin', NULL,
+                        get_string('show_stdin', 'qtype_coderunner'));
+        $columnDisplays[] =& $mform->createElement('checkbox', 'showexpected', NULL,
+                        get_string('show_expected', 'qtype_coderunner'));
+        $columnDisplays[] =& $mform->createElement('checkbox', 'showoutput', NULL,
+                        get_string('show_output', 'qtype_coderunner'));
+        $columnDisplays[] =& $mform->createElement('checkbox', 'showmark', NULL,
+                        get_string('show_mark', 'qtype_coderunner'));
+        $mform->addElement('group', 'show_columns',
+                        get_string('show_columns', 'qtype_coderunner'),
+                        $columnDisplays, NULL, false);
+        $mform->addHelpButton('show_columns', 'show_columns', 'qtype_coderunner');
 
         $PAGE->requires->js_init_call('M.qtype_coderunner.setupAllTAs',  array(), false, $jsmodule);
         $PAGE->requires->js_init_call('M.qtype_coderunner.initEditForm', array(), false, $jsmodule);
@@ -105,7 +135,6 @@ class qtype_coderunner_edit_form extends question_edit_form {
         //$mform->addElement('static', 'answersinstruct');
         //$mform->closeHeaderBefore('answersinstruct');
 
-        $gradeoptions = array(); // Unused
         if (isset($this->question->testcases)) {
             $numTestcases = count($this->question->testcases) + NUM_TESTCASES_ADD;
         }
@@ -125,42 +154,74 @@ class qtype_coderunner_edit_form extends question_edit_form {
         // I don't understand this (but see 'Evil hack alert' in the baseclass).
         $mform->setDefault('mark', $markDefaults);
 
-        $this->add_per_answer_fields($mform, get_string('testcase', 'qtype_coderunner'),
-                $gradeoptions, $numTestcases);
+        $this->add_per_testcase_fields($mform, get_string('testcase', 'qtype_coderunner', "{no}"),
+                $numTestcases);
         $this->add_interactive_settings();
     }
 
 
-    /*
-     *  Overridden so each 'answer' is a test case containing a ProgramCode testcode to be evaluated
-     *  and a ProgramCode expected output value.
+ /**
+     * Add a set of form fields, obtained from get_per_test_fields, to the form,
+     * one for each existing testcase, with some blanks for some new ones
+     * This overrides the base-case version because we're dealing with test
+     * cases, not answers.
+     * @param object $mform the form being built.
+     * @param $label the label to use for each option.
+     * @param $gradeoptions the possible grades for each answer.
+     * @param $minoptions the minimum number of testcase blanks to display.
+     *      Default QUESTION_NUMANS_START.
+     * @param $addoptions the number of testcase blanks to add. Default QUESTION_NUMANS_ADD.
      */
-    public function get_per_answer_fields($mform, $label, $gradeoptions,
-            &$repeatedoptions, &$answersoption) {
+    protected function add_per_testcase_fields(&$mform, $label, $numTestcases) {
+        $mform->addElement('header', 'answerhdr',
+                    get_string('testcases', 'qtype_coderunner'), '');
+        $mform->setExpanded('answerhdr', 1);
+        $repeatedoptions = array();
+        $repeated = $this->get_per_testcase_fields($mform, $label, $repeatedoptions);
+        $this->repeat_elements($repeated, $numTestcases, $repeatedoptions,
+                'numtestcases', 'addanswers', QUESTION_NUMANS_ADD,
+                $this->get_more_choices_string(), true);
+    }
+
+
+    /*
+     *  A rewritten version of get_per_answer_fields specific to test cases.
+     */
+    public function get_per_testcase_fields($mform, $label, &$repeatedoptions) {
         $repeated = array();
-        $repeated[] = & $mform->createElement('header', 'answerhdr', $label);
         $repeated[] = & $mform->createElement('textarea', 'testcode',
-                get_string('testcode', 'qtype_coderunner'),
-                array('cols' => 80, 'rows' => 4, 'class' => 'testcaseexpression edit_code'));
+                $label,
+                array('cols' => 80, 'rows' => 3, 'class' => 'testcaseexpression edit_code'));
         $repeated[] = & $mform->createElement('textarea', 'stdin',
                 get_string('stdin', 'qtype_coderunner'),
-                array('cols' => 80, 'rows' => 4, 'class' => 'testcasestdin edit_code'));
+                array('cols' => 80, 'rows' => 3, 'class' => 'testcasestdin edit_code'));
         $repeated[] = & $mform->createElement('textarea', 'output',
                 get_string('output', 'qtype_coderunner'),
-                array('cols' => 80, 'rows' => 4, 'class' => 'testcaseresult edit_code'));
-        $repeated[] = & $mform->createElement('checkbox', 'useasexample', get_string('useasexample', 'qtype_coderunner'), false);
-        $repeated[] = & $mform->createElement('text', 'mark', get_string('mark', 'qtype_coderunner'),
-                array('size' => 5));
+                array('cols' => 80, 'rows' => 3, 'class' => 'testcaseresult edit_code'));
+
+        $group[] =& $mform->createElement('checkbox', 'useasexample', NULL,
+                get_string('useasexample', 'qtype_coderunner'));
+
         $options = array();
         foreach ($this->displayOptions() as $opt) {
             $options[$opt] = get_string($opt, 'qtype_coderunner');
         }
-        $repeated[] = & $mform->createElement('select', 'display', get_string('display', 'qtype_coderunner'), $options);
-        $repeated[] = & $mform->createElement('checkbox', 'hiderestiffail', get_string('hiderestiffail', 'qtype_coderunner'), false);
-        $repeatedoptions['output']['type'] = PARAM_RAW;
-        $repeatedoptions['mark']['type'] = PARAM_FLOAT;
 
-        $answersoption = 'testcases';  // Our 'answers' are actually testcases
+        $group[] =& $mform->createElement('select', 'display',
+                        get_string('display', 'qtype_coderunner'), $options);
+        $group[] =& $mform->createElement('checkbox', 'hiderestiffail', NULL,
+                        get_string('hiderestiffail', 'qtype_coderunner'));
+        $group[] =& $mform->createElement('text', 'mark',
+                get_string('mark', 'qtype_coderunner'), array('size' => 5));
+
+        $repeated[] =& $mform->createElement('group', 'testcasecontrols',
+                        get_string('row_properties', 'qtype_coderunner'),
+                        $group, NULL, false);
+
+        $repeatedoptions['output']['type'] = PARAM_RAW;
+        $repeatedoptions['testcode']['type'] = PARAM_RAW;
+        $repeatedoptions['stdin']['type'] = PARAM_RAW;
+        $repeatedoptions['mark']['type'] = PARAM_FLOAT;
 
         return $repeated;
     }

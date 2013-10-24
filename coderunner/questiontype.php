@@ -86,7 +86,9 @@ class qtype_coderunner extends question_type {
      */
     public function extra_question_fields() {
         return array('quest_coderunner_options', 'coderunner_type',
-            'custom_template', 'all_or_nothing', 'show_source');
+            'custom_template', 'all_or_nothing', 'show_source',
+            'showtest', 'showstdin', 'showexpected', 'showoutput',
+            'showmark');
     }
 
     /**
@@ -98,6 +100,7 @@ class qtype_coderunner extends question_type {
     public function questionid_column_name() {
         return 'questionid';
     }
+
 
     /**
      * Abstract function implemented by each question type. It runs all the code
@@ -138,7 +141,7 @@ class qtype_coderunner extends question_type {
             $testcases[] = $testcase;
         }
 
-        $question->testcases = $testcases;
+        $question->setTestcases($testcases);
     }
 
     // This override saves all the extra question data, including
@@ -260,6 +263,7 @@ class qtype_coderunner extends question_type {
     // The 'questiondata' here is actually (something like) a coderunner question
     // edit form, and we need to extend the baseclass method to copy the
     // testcases and stats across to the under-creation question definition.
+    
     protected function initialise_question_instance(question_definition $question, $questiondata) {
         parent::initialise_question_instance($question, $questiondata);
         foreach (array('testcases', 'stats', 'language', 'combinator_template',

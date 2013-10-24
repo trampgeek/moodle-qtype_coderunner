@@ -1,3 +1,56 @@
-1. Fix CSS for syntax errors (at least with Python) -- no clear border for error message.
-2. Figure out a solution for the EditArea widget broken in Chrome
-3. Syntax error in python showing as a correct solution?!
+Bug fixes
+
+1. Find a way to force a re-grade on Check, always. Avoids problems with
+   cached results being used after author changes tests and also allows
+   questions in which the student answer is a link to some other test,
+   separately maintained, such as a website. [DONE]
+
+2. Switch order of 'expected' and 'got' parameters to all phpunit tests. It's
+   currently back to front.  [DONE]
+
+
+Version 2 plans
+
+1. Allow attaching files to a question, to be loaded into the temp question
+   work area when the question is run.
+
+2. Add a Sandbox providing remote execution as for Ideone but on a locally
+   maintained server. [Customised domjudge? Or maybe use an open-source server
+   from one of the CodingBat like systems?]
+
+3. Set up coderunner.org.nz site.
+
+4. Package up CodeRunner to moodle plug-in standards. Requires 2.
+
+5. Allow per-question configuration of sandbox parameters (timelimit, memory
+   etc)
+
+6. Generalise the validator to a grader. Default validator is exact match
+   (more or less) with all-or-nothing marking. Allow custom validators.
+   Significant design issues and/or incompatibilities with moodle framework
+   here.
+
+7. Support user-defined question types. Propose they be stored per-course (?).
+   Significant design issue. What is a user-defined "question type"? Presumably
+   it's based on an existing "built-in" type, and includes at least the
+   per-test-case template. Does it also specify sandbox? Validator? What
+   editing capabilities are provided? [My current thoughts: No. Yes. None, resp.
+   For editing, allow instead a discontinuation option on an existing user type.
+   A new one can be saved instead.]
+
+8. Add administrator control panel to configure global settings (sandbox
+   parameters, available base question types, available sandboxes).
+
+9. Add adaptive load tester to control panel -- user selects question type,
+   tester submits questions until load-factor stabilises on 1; reports
+   question-handling rate.
+
+10. Security: validator should control what gets seen, as well as do grading
+
+11. Built-in test case/model answer.
+
+12. Export format enhancements.
+
+13. Inline edit as text.
+
+14. Version control.

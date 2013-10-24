@@ -76,3 +76,76 @@ tr.r1 td {
     background-color:#E5E5E5
 }
 
+/* Editing form. */
+
+body#page-question-type-coderunner div[id^=fitem_id_][id*=testcode_] .fitemtitle {
+    font-weight: bold;
+}
+
+body#page-question-type-coderunner div[id^=fitem_id_] {
+    background: #EEE;
+    margin-bottom: 0;
+    margin-top: 0;
+    padding-bottom: 5px;
+    padding-top: 5px;
+    border: 1px solid #BBB;
+    border-top: 0;
+    border-bottom: 0;
+}
+
+body#page-question-type-coderunner div[id^=fitem_id_][id*=testcode_],
+    div[id^=fgroup_id_][id*=type_controls] {
+    background: #EEE;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-bottom: 5px;
+    padding-top: 10px;
+    border: 1px solid #BBB;
+    border-bottom: 0;
+}
+
+body#page-question-type-coderunner div[id^=fgroup_id_][id*=testcasecontrols],
+        div[id^=fgroup_id_][id*=show_columns], div[id^=fitem_id_][id*=input_]{
+    background: #EEE;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-bottom: 5px;
+    padding-top: 5px;
+    border: 1px solid #BBB;
+    border-top: 0;
+    border-bottom: 0;
+}
+
+body#page-question-type-coderunner div[id^=fgroup_id_][id*=testcasecontrols] {
+    margin-bottom: 2em;
+    border: 1px solid #BBB;
+    border-top: 0;
+}
+
+body#page-question-type-coderunner div[id^=fgroup_id_][id*=show_columns]
+        .felement span {
+    margin-right: 2em;
+}
+
+body#page-question-type-coderunner div[id^=fgroup_id_][id*=show_columns] {
+    padding-top: 16px;
+    padding-bottom: 16px;
+}
+
+body#page-question-type-coderunner div[id^=fgroup_id_][id*=testcasecontrols] {
+    padding-bottom: 8px;
+}
+
+body#page-question-type-coderunner input[type="checkbox"] {
+    margin-right: 1px;
+}
+
+body#page-question-type-coderunner input[type="checkbox"]+label {
+    margin-right: 2em;
+}
+
+body#page-question-type-coderunner select#id_coderunner_type {
+    margin-right:2em;
+}
+
+

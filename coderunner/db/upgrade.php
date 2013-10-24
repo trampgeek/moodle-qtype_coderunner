@@ -61,6 +61,19 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2013013101, 'qtype', 'coderunner');
     }
 
+    if ($oldversion != 0 && $oldversion < 2013102401) {
+        // Add booleans to control display of result table columns
+        $table = new xmldb_table('quest_coderunner_options');
+        foreach (array('showtest', 'showstdin', 'showexpected', 'showoutput', 'showmark') as $newBool) {
+            $default = $newBool === 'showmark' ? 0 : 1;
+            $field = new xmldb_field($newBool, XMLDB_TYPE_INTEGER, '1', XMLDB_UNSIGNED, TRUE, null, $default);
+            $dbman->add_field($table, $field);
+        }
+        upgrade_plugin_savepoint(true, 2013102401, 'qtype', 'coderunner');
+    }
+
+
+
     return updateQuestionTypes();
 
 }
