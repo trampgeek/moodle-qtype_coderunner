@@ -29,7 +29,6 @@ define('FORCE_TABULAR_EXAMPLES', TRUE);
 define('MAX_LINE_LENGTH', 120);
 define('MAX_NUM_LINES', 200);
 
-define('SHOW_MARKS', FALSE);  // Whether or not to add a marks column to the results table
 //
 // require_once($CFG->dirroot . '/question/type/coderunner/testingoutcome.php');
 
@@ -185,26 +184,35 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
     // Return a table of results or NULL if there are no results to show.
     private function buildResultsTable($question, $testCases, $testResults) {
-        // First determine which columns are required in the result table
-        // by looking for occurrences of testcode and stdin data in the tests.
+        // The set of columns to be displayed is specified by the boolean
+        // flags showtest, showstdin, showexpected, showoutput and showmark
+        // with the proviso that neither of the first two will be displayed
+        // if they are empty strings for all testcases.
 
         list($numStdins, $numTests) = $this->countBits($testCases);
+        $showTests = $question->showtest && $numTests > 0;
+        $showStdins = $question->showstdin && $numStdins > 0;
 
         $table = new html_table();
         $table->attributes['class'] = 'coderunner-test-results';
         $table->head = array();
-        if ($numTests) {
+        if ($showTests) {
             $table->head[] = 'Test';
         }
-        if ($numStdins) {
+        if ($showStdins) {
             $table->head[] = 'Input';
         }
-        $table->head = array_merge($table->head, array('Expected', 'Got'));
-
-        if (SHOW_MARKS && !$question->all_or_nothing) {
+        if ($question->showexpected) {
+            $table->head[] = 'Expected';
+        }
+        if ($question->showoutput) {
+            $table->head[] = 'Got';
+        }
+        if ($question->showmark && !$question->all_or_nothing) {
             $table->head[] = 'Mark';
         }
-        $table->head[] = '';  // Tick or cross column
+
+        $table->head[] = '';  // Tick or cross column is always shown
 
         $tableData = array();
         $testCaseKeys = array_keys($testCases);  // Arbitrary numeric indices. Aarghhh.
@@ -214,20 +222,22 @@ class qtype_coderunner_renderer extends qtype_renderer {
             $testCase = $testCases[$testCaseKeys[$i]];
             if ($this->shouldDisplayResult($testCase, $testResult)) {
                 $tableRow = array();
-                if ($numTests) {
+                if ($showTests) {
                     $tableRow[] = s(restrict_qty($testCase->testcode));
                 }
-                if ($numStdins) {
+                if ($showStdins) {
                     $tableRow[] = s(restrict_qty($testCase->stdin));
                 }
-                $tableRow = array_merge($tableRow, array(
-                    s($testResult->expected),  // Shouldn't need additional size ...
-                    s($testResult->got)  // ... restrictions as already restricted
-                ));
+                if ($question->showexpected) {
+                    $tableRow[] = s($testResult->expected);
+                }
+                if ($question->showoutput) {
+                    $tableRow[] = s($testResult->got);
+                }
 
                 $mark = $testResult->isCorrect ? $testResult->mark : 0.0;
 
-                if (SHOW_MARKS && !$question->all_or_nothing) {
+                if ($question->showmark && !$question->all_or_nothing) {
                     $tableRow[] = sprintf('%.1f/%.1f', $mark, $testResult->mark);
                 }
 

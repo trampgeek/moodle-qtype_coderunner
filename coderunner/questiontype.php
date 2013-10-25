@@ -141,7 +141,7 @@ class qtype_coderunner extends question_type {
             $testcases[] = $testcase;
         }
 
-        $question->setTestcases($testcases);
+        $question->testcases = $testcases;  // Can't call setTestcases as question is a stdClass :-(
     }
 
     // This override saves all the extra question data, including

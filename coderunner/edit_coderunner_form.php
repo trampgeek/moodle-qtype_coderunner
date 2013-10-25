@@ -102,21 +102,21 @@ class qtype_coderunner_edit_form extends question_edit_form {
         foreach (array('all_or_nothing', 'showtest', 'showstdin', 'showexpected', 'showoutput') as $control) {
             $mform->setDefault($control, True);
         }
-        $mform->setDafault('show_source', False);
+        $mform->setDefault('show_source', False);
         $mform->setDefault('showmark', False);
 
         $mform->addHelpButton('type_controls', 'questiontype', 'qtype_coderunner');
         $mform->addHelpButton('all_or_nothing', 'all_or_nothing', 'qtype_coderunner');
 
-        $columnDisplays[] =& $mform->createElement('checkbox', 'showtest', NULL,
+        $columnDisplays[] =& $mform->createElement('advcheckbox', 'showtest', NULL,
                         get_string('show_test', 'qtype_coderunner'));
-        $columnDisplays[] =& $mform->createElement('checkbox', 'showstdin', NULL,
+        $columnDisplays[] =& $mform->createElement('advcheckbox', 'showstdin', NULL,
                         get_string('show_stdin', 'qtype_coderunner'));
-        $columnDisplays[] =& $mform->createElement('checkbox', 'showexpected', NULL,
+        $columnDisplays[] =& $mform->createElement('advcheckbox', 'showexpected', NULL,
                         get_string('show_expected', 'qtype_coderunner'));
-        $columnDisplays[] =& $mform->createElement('checkbox', 'showoutput', NULL,
+        $columnDisplays[] =& $mform->createElement('advcheckbox', 'showoutput', NULL,
                         get_string('show_output', 'qtype_coderunner'));
-        $columnDisplays[] =& $mform->createElement('checkbox', 'showmark', NULL,
+        $columnDisplays[] =& $mform->createElement('advcheckbox', 'showmark', NULL,
                         get_string('show_mark', 'qtype_coderunner'));
         $mform->addElement('group', 'show_columns',
                         get_string('show_columns', 'qtype_coderunner'),

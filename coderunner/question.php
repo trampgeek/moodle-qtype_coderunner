@@ -288,6 +288,10 @@ class qtype_coderunner_question extends question_graded_automatically {
 
 
     /** Set the test cases for this question. Called by questiontype.
+     *  Ummm. Well actually no. It isn't used as at the time the questiontype
+     *  is trying to set testcases it doesn't have a real question object
+     *  so it sets the testcases field by direct assignment :-(
+     *  I'm leaving this code in place for documentation purposes, however.
      *
      * @param type $testcases The set of testcases, each consisting of
      * all the fields contained in the quest_coderunner_testcases database table
