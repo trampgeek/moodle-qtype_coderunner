@@ -40,6 +40,7 @@ require_once($CFG->dirroot . '/question/behaviour/adaptive/behaviour.php');
 require_once($CFG->dirroot . '/question/engine/questionattemptstep.php');
 require_once($CFG->dirroot . '/question/behaviour/adaptive_adapted_for_coderunner/behaviour.php');
 require_once($CFG->dirroot . '/local/Twig/Autoloader.php');
+require_once('Grader/graderbase.php');
 require_once('testingoutcome.php');
 
 /**
@@ -47,7 +48,14 @@ require_once('testingoutcome.php');
  */
 class qtype_coderunner_question extends question_graded_automatically {
 
-    public $testcases;    // Array of testcases
+    public  $testcases;    // Array of testcases
+    private $has_custom_grader = FALSE;  // True IFF we have a custom grader
+    private $graderInstance = NULL;      // The grader instance, if it's NOT a custom one
+    private $twig = NULL;                // The template processor environment
+    private $sandboxInstance = NULL;     // The sandbox we're using
+    private $allRuns = NULL;             // Array of the source code for all runs
+    private $allGradings = NULL;         // Array of the source code of all grading runs
+
 
     /**
      * Override default behaviour so that we can use a specialised behaviour
@@ -174,23 +182,16 @@ class qtype_coderunner_question extends question_graded_automatically {
 
         Twig_Autoloader::register();
         $loader = new Twig_Loader_String();
-        $twig = new Twig_Environment($loader, array(
+        $this->twig = new Twig_Environment($loader, array(
             'debug' => true,
             'autoescape' => false,
             'strict_variables' => true,
             'optimizations' => 0
         ));
-        $sandboxClass = $this->sandbox;
-        $sandboxClassLC = strtolower($sandboxClass);
-        $validatorClass = $this->validator;
-        $validatorClassLC = strtolower($validatorClass);
 
-        require_once($CFG->dirroot . "/question/type/coderunner/Sandbox/$sandboxClassLC.php");
-        require_once($CFG->dirroot . "/question/type/coderunner/Validator/$validatorClassLC.php");
+        $this->setUpSandbox();
+        $this->setUpGrader();
 
-        $sandbox = new $sandboxClass();
-        $allRuns = array(); // Array of the source code for all runs
-        $validator = new $validatorClass();
         $templateParams = array(
             'STUDENT_ANSWER' => $code,
             'ESCAPED_STUDENT_ANSWER' => str_replace('"', '\"', str_replace('\\', '\\\\', $code)),
@@ -198,90 +199,24 @@ class qtype_coderunner_question extends question_graded_automatically {
                 array("'",  "\n", "\r", '%'),
                 array("''", '\\n',  '',  '%%'),
                 str_replace('\\n', '\\\\n', $code)));
+         $this->allRuns = array();
+         $this->allGradings = array();
+         $outcome = $this->runWithCombinator($testCases, $templateParams);
 
-        if (!$this->customise && $this->combinator_template && $this->noStdins($testCases)) {
-            // We have the option of running all tests at once.
-            // Only do this if there are no stdins and it's not a customised question.
-            // Special template parameters are STUDENT_ANSWER, the raw submitted code,
-            // ESCAPED_STUDENT_ANSWER, the submitted code with all double quote chars escaped
-            // (for use in a Python statement like s = """{{ESCAPED_STUDENT_ANSWER}}""" and
-            // MATLAB_EXCAPED_STUDENT_ANSWER, a string for use in Matlab intended
-            // to be used as s = sprintf('{{MATLAB_ESCAPED_STUDENT_ANSWER}}')
-            assert($this->test_splitter_re != '');
-            $templateParams['TESTCASES'] = $testCases;
-            $testProg = $twig->render($this->combinator_template, $templateParams);
-
-            $allRuns[] = $testProg;
-            $run = $sandbox->execute($testProg, $this->language, NULL);
-
-            if ($run->result === SANDBOX::RESULT_COMPILATION_ERROR) {
-                $outcome = new TestingOutcome(TestingOutcome::STATUS_SYNTAX_ERROR, $run->cmpinfo);
-            }
-            else if ($run->result === SANDBOX::RESULT_ABNORMAL_TERMINATION) {
-                // Could be a syntax error but might be a runtime error on just one test case so abandon combinator approach
-                //$outcome = new TestingOutcome(TestingOutcome::STATUS_ABNORMAL_TERMINATION, $run->stderr);
-            }
-            // Edited 19/4/13 to cater for very rare situation that a successful
-            // run is recorded but stderr output is generated as well. [e.g.
-            // SyntaxWarning from misuse of a global declaration.] Can't split
-            // stdout in this case so give up on the combinator template.
-            else if ($run->result === Sandbox::RESULT_SUCCESS && !$run->stderr) {
-                $outputs = preg_split($this->test_splitter_re, $run->output);
-                if (count($outputs) == count($testCases)) {
-                    //debugging("Good split");
-                    $outcome = new TestingOutcome();
-                    $i = 0;
-                    foreach ($testCases as $testCase) {
-                        $outcome->addTestResult($validator->validate($outputs[$i], $testCase));
-                        $i++;
-                    }
-                }
-                else {
-                    // debugging("Bad split");
-                }
-            }
-            else {
-                // Could be any of the other failure modes, e.g. runtime error.
-                // Abandon combinator approach
-                // debugging('Unsuccessful run: ' . print_r($run->result, TRUE));
-            }
-        }
-
-        // If we didn't have a combinator-template or if the combinator run
-        // didn't yield the required number of test results (e.g. because of
-        // a signal, timeout, etc), run the tests individually. Any compilation
+        // If that failed for any reason (e.g. no combinator template or timeout
+        // of signal) run the tests individually. Any compilation
         // errors or abnormal terminations (not including signals) in individual
         // tests bomb the whole test process, but otherwise we should finish
         // with a TestingOutcome object containing a test result for each test
         // case.
-        if (!isset($outcome)) {
-            $template = $this->customise ? $this->custom_template : $this->per_test_template;
-            $outcome = new TestingOutcome();
-            foreach ($testCases as $testCase) {
-                $templateParams['TEST'] = $testCase;
-                $testProg = $twig->render($template, $templateParams);
-                $input = isset($testCase->stdin) ? $testCase->stdin : '';
-                $allRuns[] = $testProg;
-                $run = $sandbox->execute($testProg, $this->language, $input);
-                if ($run->result === SANDBOX::RESULT_COMPILATION_ERROR) {
-                    $outcome = new TestingOutcome(TestingOutcome::STATUS_SYNTAX_ERROR, $run->cmpinfo);
-                    break;
-                } else if ($run->result != Sandbox::RESULT_SUCCESS) {
-                    $errorMessage = $this->makeErrorMessage($run);
-                    $outcome->addTestResult($validator->validate($errorMessage, $testCase));
-                    break;
-                } else {
-                    // Very rarely Python will generate stderr output AND
-                    // valid stdout output, so must merge them.
-                    $output = $run->stderr ? $run->stderr + '\n' + $run->output : $run->output;
-                    $outcome->addTestResult($validator->validate($output, $testCase));
-                }
-            }
+        if ($outcome == NULL) {
+            $outcome = $this->runTestsSingly($testCases, $templateParams);
         }
 
-        $sandbox->close();
+        $this->sandboxInstance->close();
         if ($this->show_source) {
-            $outcome->sourceCodeList = $allRuns;
+            $outcome->sourceCodeList = $this->allRuns;
+            $outcome->graderCodeList = $this->allGradings;
         }
     	return $outcome;
     }
@@ -301,6 +236,165 @@ class qtype_coderunner_question extends question_graded_automatically {
     public function setTestcases($testcases) {
         $this->testcases = $testcases;
     }
+
+
+    // Try running with the combinator template, which combines all tests into
+    // a single sandbox run.
+    // Only do this if there are no stdins and it's not a customised question.
+    // Special template parameters are STUDENT_ANSWER, the raw submitted code,
+    // ESCAPED_STUDENT_ANSWER, the submitted code with all double quote chars escaped
+    // (for use in a Python statement like s = """{{ESCAPED_STUDENT_ANSWER}}""" and
+    // MATLAB_ESCAPED_STUDENT_ANSWER, a string for use in Matlab intended
+    // to be used as s = sprintf('{{MATLAB_ESCAPED_STUDENT_ANSWER}}')
+    // Return true if successful.
+    private function runWithCombinator($testCases, $templateParams) {
+        $outcome = NULL;
+        if (!$this->customise && $this->combinator_template && $this->noStdins($testCases)) {
+
+            assert($this->test_splitter_re != '');
+            $templateParams['TESTCASES'] = $testCases;
+            $testProg = $this->twig->render($this->combinator_template, $templateParams);
+
+            $this->allRuns[] = $testProg;
+            $run = $this->sandboxInstance->execute($testProg, $this->language, NULL);
+
+            if ($run->result === SANDBOX::RESULT_COMPILATION_ERROR) {
+                $outcome = new TestingOutcome(TestingOutcome::STATUS_SYNTAX_ERROR, $run->cmpinfo);
+            }
+            else if ($run->result === SANDBOX::RESULT_ABNORMAL_TERMINATION) {
+                // Could be a syntax error but might be a runtime error on just one test case so abandon combinator approach
+            }
+            // Cater for very rare situation that a successful run is recorded
+            // but stderr output is generated as well. [e.g.
+            // SyntaxWarning from misuse of a global declaration.] Can't split
+            // stdout in this case so give up on the combinator template.
+            else if ($run->result === Sandbox::RESULT_SUCCESS && !$run->stderr) {
+                $outputs = preg_split($this->test_splitter_re, $run->output);
+                if (count($outputs) == count($testCases)) {
+                    //debugging("Good split");
+                    $outcome = new TestingOutcome();
+                    $i = 0;
+                    foreach ($testCases as $testCase) {
+                        $outcome->addTestResult($this->grade($outputs[$i], $testCase));
+                        $i++;
+                    }
+                }
+                else {
+                    // debugging("Bad split");
+                }
+            }
+            else {
+                // Could be any of the other failure modes, e.g. runtime error.
+                // Abandon combinator approach
+                // debugging('Unsuccessful run: ' . print_r($run->result, TRUE));
+            }
+        }
+        return $outcome;
+    }
+
+
+    // Run all tests one-by-one on the sandbox
+    private function runTestsSingly($testCases, $templateParams) {
+        $template = $this->customise ? $this->custom_template : $this->per_test_template;
+        $outcome = new TestingOutcome();
+        foreach ($testCases as $testCase) {
+            $templateParams['TEST'] = $testCase;
+            $testProg = $this->twig->render($template, $templateParams);
+            $input = isset($testCase->stdin) ? $testCase->stdin : '';
+            $this->allRuns[] = $testProg;
+            $run = $this->sandboxInstance->execute($testProg, $this->language, $input);
+            if ($run->result === SANDBOX::RESULT_COMPILATION_ERROR) {
+                $outcome = new TestingOutcome(TestingOutcome::STATUS_SYNTAX_ERROR, $run->cmpinfo);
+                break;
+            } else if ($run->result != Sandbox::RESULT_SUCCESS) {
+                $errorMessage = $this->makeErrorMessage($run);
+                $isError = TRUE;
+                $outcome->addTestResult($this->grade($errorMessage, $testCase, $isError));
+                break;
+            } else {
+                // Very rarely Python will generate stderr output AND
+                // valid stdout output, so must merge them.
+                $output = $run->stderr ? $run->stderr + '\n' + $run->output : $run->output;
+                $outcome->addTestResult($this->grade($output, $testCase));
+            }
+        }
+        return $outcome;
+    }
+
+
+    // Set up the $this->has_custom_grader field and, if that's false, the
+    // $this->grader field.
+    private function setUpGrader() {
+        global $CFG;
+        if (!isset($this->custom_grader) || trim($this->custom_grader) === '') {
+            $graderClass = $this->grader;
+            $graderClassLC = strtolower($graderClass);
+            require_once($CFG->dirroot . "/question/type/coderunner/Grader/$graderClassLC.php");
+            $this->graderInstance = new $graderClass();
+            $this->has_custom_grader = False;
+        } else {
+            $this->has_custom_grader = True;
+        }
+    }
+
+
+    // Set $this->sandboxInstance
+    private function setUpSandbox() {
+        global $CFG;
+        $sandboxClass = $this->sandbox;
+        $sandboxClassLC = strtolower($sandboxClass);
+        require_once($CFG->dirroot . "/question/type/coderunner/Sandbox/$sandboxClassLC.php");
+        $this->sandboxInstance = new $sandboxClass();
+    }
+
+
+    // Grade a given test result using either the custom grader for this
+    // question, if it's defined, or the default grader for the question type
+    // otherwise.
+    private function grade($output, $testcase, $isBad = FALSE) {
+        if (!$this->has_custom_grader) {
+            return $this->graderInstance->grade($output, $testcase);
+        }
+        else {
+            $testcase->got = $output;
+            $templateParams = array('TEST' => $testcase);
+            $cleanedStudentOutput = Grader::clean($output);
+            $cleanedExpected = Grader::clean($testcase->output);
+            $testProg = $this->twig->render($this->custom_grader, $templateParams);
+            $this->allGradings[] = $testProg;
+            $graderRun = $this->sandboxInstance->execute($testProg, $this->language, '');
+            if ($graderRun->result != Sandbox::RESULT_SUCCESS) {
+                $errorMessage = $this->makeErrorMessage($graderRun);
+
+            } else if (!preg_match('#[0-9]+(\.[0-9]+)?#', $graderRun->output)) {
+                $errorMessage = "Bad grader response:'" . $graderRun->output . "'";
+            }
+
+            if (isset($errorMessage)) {
+                $outcome = new TestResult(
+                        $testcase->mark,
+                        FALSE,
+                        0.0,
+                        $cleanedExpected,
+                        $errorMessage
+                );
+            } else {
+                $fractionalGrade = floatval($graderRun->output);
+                $isCorrect = abs($fractionalGrade - 1.0) < 0.000001;
+                $awardedMark = $fractionalGrade * $testcase->mark;
+                $outcome = new TestResult(
+                    $testcase->mark,
+                    $isCorrect,
+                    $awardedMark,
+                    Grader::snip($cleanedExpected),
+                    Grader::snip($cleanedStudentOutput)
+                );
+
+            }
+            return $outcome;
+        }
+    }
+
 
     // Return a $sep-separated string of the non-empty elements
     // of the array $strings. Similar to implode except empty strings

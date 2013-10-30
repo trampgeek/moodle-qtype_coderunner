@@ -72,7 +72,18 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2013102401, 'qtype', 'coderunner');
     }
 
+    if ($oldversion != 0 && $oldversion < 2013102601) {
+        $table = new xmldb_table('quest_coderunner_types');
+        $validatorField = new xmldb_field('validator', XMLDB_TYPE_CHAR, '255', XMLDB_UNSIGNED, FALSE, null);
+        $dbman->rename_field($table, $validatorField, 'grader');
+    }
 
+    if ($oldversion != 0 && $oldversion < 2013103001) {
+        $table = new xmldb_table('quest_coderunner_options');
+        $customGraderField = new xmldb_field('custom_grader', XMLDB_TYPE_TEXT,
+                'medium', XMLDB_UNSIGNED, FALSE, null, null, 'custom_template');
+        $dbman->add_field($table, $customGraderField);
+    }
 
     return updateQuestionTypes();
 
@@ -534,8 +545,7 @@ public class Main {
 EOT
 ,
         'language' => 'Java',
-        'sandbox'  => 'NullSandbox',
-        'validator' => 'BasicValidator'
+        'sandbox'  => 'NullSandbox'
     );
 
 

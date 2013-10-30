@@ -73,11 +73,13 @@ $string['customise'] = 'Customise';
 $string['display'] = 'Display';
 
 $string['editingcoderunner'] = 'Editing a CodeRunner Question';
+$string['expected'] = 'Expected output';
 $string['failedhidden'] = 'Your code failed one or more hidden tests.';
 $string['filloutoneanswer'] = 'You must enter source code that '
     . 'satisfies the specification. The code you enter will be '
     . 'executed to determine its correctness and a grade awarded '
     . 'accordingly.';
+$string['grader'] = 'Grader';
 $string['hidden'] = 'Hidden';
 $string['HIDE'] = 'Hide';
 $string['HIDE_IF_FAIL'] = 'Hide if fail';
@@ -96,7 +98,6 @@ $string['negativeorzeromark'] = 'Mark must be greater than zero';
 $string['qWrongBehaviour'] = 'Detailed test results unavailable. '
     . 'Perhaps an empty answer, or question not using Adaptive Mode?';
 $string['options'] = 'Options';
-$string['output'] = 'Expected output';
 $string['pluginname'] = 'CodeRunner';
 $string['pluginnameadding'] = 'Adding a CodeRunner question';
 $string['pluginnamesummary'] = 'CodeRunner: runs student-submitted code in a sandbox';

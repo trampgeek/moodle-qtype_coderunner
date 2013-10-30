@@ -138,19 +138,20 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
             $fb = '';
 
-            if ($q->show_source) {
-                $fb .= html_writer::start_tag('div', array('class' => 'debugging'));
-                $fb .= html_writer::tag('h3', 'Debug: source code from all runs');
-                $runs = $testOutcome->sourceCodeList;
-                $i = 1;
-                foreach ($runs as $run) {
-                    $fb .= html_writer::tag('h4', "Run $i");
-                    $i++;
-                    $fb .=html_writer::tag('pre', s($run));
-                    $fb .= html_writer::tag('hr', '');
-                }
-                $fb .= html_writer::end_tag('div');
+            if ($q->show_source && count($testOutcome->sourceCodeList) > 0) {
+                $fb .= $this->makeSourceCodeDiv(
+                        'Debug: source code from all test runs',
+                        $testOutcome->sourceCodeList
+                );
             }
+
+            if ($q->show_source && count($testOutcome->graderCodeList) > 0) {
+                $fb .= $this->makeSourceCodeDiv(
+                        'Debug: source code from all grader runs',
+                        $testOutcome->graderCodeList
+                );
+            }
+
 
             $fb .= html_writer::start_tag('div', array('class' => $resultsclass));
             // Hack to insert run host as hidden comment in html
@@ -181,6 +182,23 @@ class qtype_coderunner_renderer extends qtype_renderer {
         }
         return $fb;
     }
+
+
+    // Build and return an HTML div section containing a list of
+    private function makeSourceCodeDiv($heading, $runs) {
+        $html = html_writer::start_tag('div', array('class' => 'debugging'));
+        $html .= html_writer::tag('h3', $heading);
+        $i = 1;
+        foreach ($runs as $run) {
+            $html .= html_writer::tag('h4', "Run $i");
+            $i++;
+            $html .=html_writer::tag('pre', s($run));
+            $html .= html_writer::tag('hr', '');
+        }
+        $html .= html_writer::end_tag('div');
+        return $html;
+    }
+
 
     // Return a table of results or NULL if there are no results to show.
     private function buildResultsTable($question, $testCases, $testResults) {

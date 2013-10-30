@@ -21,7 +21,10 @@ $qtype  = required_param('qtype', PARAM_ALPHANUMEXT);
 
 header('Content-type: application/json; charset=utf-8');
 try {
-    $questionType = $DB->get_record('quest_coderunner_types', array('coderunner_type'=>$qtype), 'per_test_template', MUST_EXIST);
+    $questionType = $DB->get_record('quest_coderunner_types',
+            array('coderunner_type'=>$qtype),
+            'per_test_template',
+            MUST_EXIST);
     $outcome->per_test_template = $questionType->per_test_template;
 } catch (moodle_exception $e) {
     $outcome->success = false;

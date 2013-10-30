@@ -95,9 +95,12 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->addElement('textarea', 'custom_template', get_string("template", "qtype_coderunner"),
                 '" rows="8" cols="80" class="template edit_code"');
 
+        // Same applies to grader template, too
+        $mform->addElement('textarea', 'custom_grader', get_string("grader", "qtype_coderunner"),
+                '" rows="4" cols="80" class="template edit_code"');
+
         $mform->addElement('advcheckbox', 'all_or_nothing',
                 get_string('all_or_nothing', 'qtype_coderunner'));
-
 
         foreach (array('all_or_nothing', 'showtest', 'showstdin', 'showexpected', 'showoutput') as $control) {
             $mform->setDefault($control, True);
@@ -196,7 +199,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 get_string('stdin', 'qtype_coderunner'),
                 array('cols' => 80, 'rows' => 3, 'class' => 'testcasestdin edit_code'));
         $repeated[] = & $mform->createElement('textarea', 'output',
-                get_string('output', 'qtype_coderunner'),
+                get_string('expected', 'qtype_coderunner'),
                 array('cols' => 80, 'rows' => 3, 'class' => 'testcaseresult edit_code'));
 
         $group[] =& $mform->createElement('checkbox', 'useasexample', NULL,

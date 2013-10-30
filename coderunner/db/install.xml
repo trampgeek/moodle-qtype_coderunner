@@ -10,8 +10,9 @@
          <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="questionid" COMMENT="Every home should have one" />
          <FIELD NAME="questionid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" PREVIOUS="id" NEXT="coderunner_type" COMMENT="The question this option applies to" />
          <FIELD NAME="coderunner_type" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" PREVIOUS="questionid" NEXT="custom_template" COMMENT="The (subtype) of this particular coderunner question" />
-         <FIELD NAME="custom_template" TYPE="text" LENGTH="medium" NOTNULL="false" SEQUENCE="false" NEXT="all_or_nothing" PREVIOUS="coderunner_type" COMMENT="A customised per-test-case template, which overrides the one defined in the referenced type, if supplied" />
-         <FIELD NAME="all_or_nothing" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" NEXT='show_source' PREVIOUS="custom_template" SEQUENCE="false" COMMENT="True if answer must pass all test cases to earn any marks" />
+         <FIELD NAME="custom_template" TYPE="text" LENGTH="medium" NOTNULL="false" SEQUENCE="false" NEXT="custom_grader" PREVIOUS="coderunner_type" COMMENT="A customised per-test-case template, which overrides the one defined in the referenced type, if supplied" />
+         <FIELD NAME="custom_grader" TYPE="text" LENGTH="medium" NOTNULL="false" SEQUENCE="false" NEXT="all_or_nothing" PREVIOUS="custom_template" COMMENT="A customised grader, which overrides the one defined in the referenced type, if supplied" />
+         <FIELD NAME="all_or_nothing" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" NEXT='show_source' PREVIOUS="custom_grader" SEQUENCE="false" COMMENT="True if answer must pass all test cases to earn any marks" />
          <FIELD NAME="show_source"  TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" PREVIOUS="all_or_nothing" NEXT="showtest" SEQUENCE="false" COMMENT="True to display full source code after template expansion, for debugging template." />
          <FIELD NAME="showtest" TYPE="int" LENGTH="1" NOTNULL="false" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="True if the test column of the results table is to be displayed to students" PREVIOUS="show_source" NEXT="showstdin"/>
          <FIELD NAME="showstdin" TYPE="int" LENGTH="1" NOTNULL="false" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="True if the stdin column of the results table is to be displayed to students" PREVIOUS="showtest" NEXT="showexpected"/>
@@ -36,8 +37,8 @@
         <FIELD NAME="test_splitter_re" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" NEXT="per_test_template" PREVIOUS="combinator_template" COMMENT="The regular expression argument to preg_split to split output from the combinator run into the basic tests again. Meaningful only if combinator template provided" />
         <FIELD NAME="per_test_template" TYPE="text" LENGTH="medium" NOTNULL="true" SEQUENCE="false" NEXT="language" PREVIOUS="test_splitter_re" COMMENT="A template to build a test run for each test case. Required." />
         <FIELD NAME="language" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" NEXT="sandbox" PREVIOUS="per_test_template" COMMENT="The programming language, to be passed to the sandbox" />
-        <FIELD NAME="sandbox" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" NEXT="validator" PREVIOUS="language" COMMENT="The PHP class name of a specific sandbox to use. If null, a default one for the language is used." />
-        <FIELD NAME="validator" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" PREVIOUS="sandbox" COMMENT="The PHP class name of the validator to use to check results from the sandbox. If null, the BasicValidator class is used." />
+        <FIELD NAME="sandbox" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" NEXT="grader" PREVIOUS="language" COMMENT="The PHP class name of a specific sandbox to use. If null, a default one for the language is used." />
+        <FIELD NAME="grader" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" PREVIOUS="sandbox" COMMENT="The PHP class name of the grader to use to grade results from the sandbox. If null, the BasicGrader class is used." />
       </FIELDS>
       <KEYS>
           <KEY NAME="primary" TYPE="primary" FIELDS="id" />

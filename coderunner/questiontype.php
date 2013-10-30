@@ -44,7 +44,7 @@
  */
 
 define('COMPUTE_STATS', false);
-define('DEFAULT_VALIDATOR', 'BasicValidator');
+define('DEFAULT_GRADER', 'BasicGrader');
 
 require_once($CFG->dirroot . '/question/type/coderunner/Sandbox/sandbox_config.php');
 
@@ -86,7 +86,7 @@ class qtype_coderunner extends question_type {
      */
     public function extra_question_fields() {
         return array('quest_coderunner_options', 'coderunner_type',
-            'custom_template', 'all_or_nothing', 'show_source',
+            'custom_template', 'custom_grader', 'all_or_nothing', 'show_source',
             'showtest', 'showstdin', 'showexpected', 'showoutput',
             'showmark');
     }
@@ -133,7 +133,7 @@ class qtype_coderunner extends question_type {
             $testcase->questionid = isset($question->id) ? $question->id : 0;
             $testcase->testcode = $input;
             $testcase->stdin = $stdin;
-            $testcase->output = $output;
+            $testcase->$output = $output;
             $testcase->useasexample = isset($question->useasexample[$i]);
             $testcase->display = $question->display[$i];
             $testcase->hiderestiffail = isset($question->hiderestiffail[$i]);
@@ -155,9 +155,12 @@ class qtype_coderunner extends question_type {
 
         assert(isset($question->coderunner_type));
         if (!isset($question->customise) || !$question->customise || trim($question->custom_template) == '') {
-            // Following line fails, due to bug in save_question_options
-            //$question->custom_template = null; // Discard customised template
-            $question->custom_template = '';   // Grrr. Have to do this instead.
+            $question->custom_template = null; // Discard customised template
+            // $question->custom_template = '';   // The bug in save_question_options should have been fixed now
+        }
+
+        if (!isset($question->customise) || !$question->customise || trim($question->custom_grader) == '') {
+            $question->custom_grader = null; // Discard customised grader
         }
 
         parent::save_question_options($question);
@@ -233,8 +236,8 @@ class qtype_coderunner extends question_type {
         if (!isset($question->sandbox))  {
             $question->sandbox = $this->getBestSandbox($question->language);
         }
-        if (!isset($question->validator)) {
-            $question->validator = DEFAULT_VALIDATOR;
+        if (!isset($question->grader)) {
+            $question->grader = DEFAULT_GRADER;
         }
 
         // Add in the testcases
@@ -263,7 +266,7 @@ class qtype_coderunner extends question_type {
         parent::initialise_question_instance($question, $questiondata);
         foreach (array('testcases', 'language', 'combinator_template',
             'test_splitter_re', 'per_test_template', 'customise',
-            'sandbox', 'validator') as $field) {
+            'sandbox', 'grader') as $field) {
             $question->$field = $questiondata->$field;
         }
     }
@@ -353,7 +356,7 @@ class qtype_coderunner extends question_type {
             $qo->testcases[] = $tc;
         }
 
-        $qo->customise = trim($qo->custom_template) != '';
+        $qo->customise = trim($qo->custom_template) != '' || trim($qo->custom_grader) != '';
         return $qo;
     }
 

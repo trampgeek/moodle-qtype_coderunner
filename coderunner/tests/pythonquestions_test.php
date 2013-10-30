@@ -336,5 +336,33 @@ EOCODE;
         $this->assertEquals(question_state::$gradedwrong, $grade);
      }
 
+
+     public function test_custom_grader() {
+         // Check that a custom grader can be used.
+         // This grader gives full marks if the input value is negative and
+         // the output value is correct or zero marks otherwise.
+         // The testcases are for n = {0, 1, 11, -7, -6} with marks of
+         // 1, 2, 4, 8, 16 respectively. So the expected mark is 24 / 31
+         // i.e 0.7742
+         $q = test_question_maker::make_question('coderunner', 'sqr');
+         $q->custom_grader = <<<EOGRADER
+expected = "{{TEST.expected|e('js')}}"
+got = "{{TEST.got|e('js')}}"
+if expected == '49' or expected == '36':
+    if expected == got:
+        print("1")
+    else:
+        print("0")
+else:
+    print("0")
+EOGRADER;
+         $q->all_or_nothing = FALSE;
+         $code = "def sqr(n): return n * n\n";
+         $response = array('answer' => $code);
+         $result = $q->grade_response($response);
+         list($mark, $grade, $cache) = $result;
+         $this->assertTrue(abs($mark - 24.0/31.0) < 0.000001);
+     }
+
 }
 

@@ -70,15 +70,12 @@ class qtype_coderunner_test_helper extends question_test_helper {
      * @return qtype_coderunner_question
      */
     private function make_coderunner_question_sqr_subtype($coderunner_type) {
-        question_bank::load_question_definition_classes('coderunner');
-        $coderunner = new qtype_coderunner_question();
-        test_question_maker::initialise_a_question($coderunner);
-        $coderunner->name = 'Function to square a number n';
-        $coderunner->questiontext = 'Write a function sqr(n) that returns n squared';
-        $coderunner->generalfeedback = 'No feedback available for coderunner questions.';
-        $coderunner->options = array('coderunner_type' => $coderunner_type);
-        $coderunner->all_or_nothing = true;
-        $coderunner->show_source = false;
+        $coderunner = $this->makeCodeRunnerQuestion(
+                $coderunner_type,
+                'Function to square a number n',
+                'Write a function sqr(n) that returns n squared'
+        );
+
         $coderunner->testcases = array(
             (object) array('testcode' => 'print(sqr(0))',
                           'output'     => '0',
@@ -91,29 +88,26 @@ class qtype_coderunner_test_helper extends question_test_helper {
                           'stdin'      => '',
                           'useasexample' => 0,
                           'display' => 'SHOW',
-                          'mark' => 1.0, 'hiderestiffail' =>  0),
+                          'mark' => 2.0, 'hiderestiffail' =>  0),
             (object) array('testcode' => 'print(sqr(11))',
                           'output'     => '121',
                           'stdin'      => '',
                           'useasexample' => 0,
                           'display' => 'SHOW',
-                          'mark' => 1.0, 'hiderestiffail' =>  0),
+                          'mark' => 4.0, 'hiderestiffail' =>  0),
             (object) array('testcode' => 'print(sqr(-7))',
                           'output'     => '49',
                           'stdin'      => '',
                           'useasexample' => 0,
                           'display' => 'SHOW',
-                          'mark' => 1.0, 'hiderestiffail' =>  0),
+                          'mark' => 8.0, 'hiderestiffail' =>  0),
             (object) array('testcode' => 'print(sqr(-6))',  // The last testcase must be hidden
                            'output'     => '36',
                            'stdin'      => '',
                            'useasexample' => 0,
                            'display' => 'HIDE',
-                           'mark' => 1.0, 'hiderestiffail' =>  0)
+                           'mark' => 16.0, 'hiderestiffail' =>  0)
         );
-        $coderunner->qtype = question_bank::get_qtype('coderunner');
-        $coderunner->unitgradingtype = 0;
-        $coderunner->unitpenalty = 0.2;
         $this->getOptions($coderunner);
         return $coderunner;
     }
@@ -142,15 +136,11 @@ class qtype_coderunner_test_helper extends question_test_helper {
      * @return qtype_coderunner_question
      */
     public function make_coderunner_question_helloFunc() {
-        question_bank::load_question_definition_classes('coderunner');
-        $coderunner = new qtype_coderunner_question();
-        test_question_maker::initialise_a_question($coderunner);
-        $coderunner->name = 'Function to print hello to someone';
-        $coderunner->options = array('coderunner_type' => 'python3');
-        $coderunner->questiontext = 'Write a function sayHello(name) that prints "Hello <name>"';
-        $coderunner->generalfeedback = 'No feedback available for coderunner questions.';
-        $coderunner->all_or_nothing = true;
-        $coderunner->show_source = false;
+        $coderunner = $this->makeCodeRunnerQuestion(
+                'python3',
+                'Function to print hello to someone',
+                'Write a function sayHello(name) that prints "Hello <name>"'
+        );
         $coderunner->testcases = array(
             (object) array('testcode' => 'sayHello("")',
                           'output'      => 'Hello ',
@@ -181,10 +171,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
                           'mark' => 1.0,
                           'hiderestiffail' =>  0)
         );
-        $coderunner->qtype = question_bank::get_qtype('coderunner');
-        $coderunner->unitgradingtype = 0;
-        $coderunner->unitpenalty = 0.2;
-        $this->getOptions($coderunner);
+
         return $coderunner;
     }
 
@@ -194,15 +181,11 @@ class qtype_coderunner_test_helper extends question_test_helper {
      * @return qtype_coderunner_question
      */
     public function make_coderunner_question_copyStdin() {
-        question_bank::load_question_definition_classes('coderunner');
-        $coderunner = new qtype_coderunner_question();
-        test_question_maker::initialise_a_question($coderunner);
-        $coderunner->options = array('coderunner_type' => 'python3');
-        $coderunner->name = 'Function to copy n lines of stdin to stdout';
-        $coderunner->all_or_nothing = true;
-        $coderunner->show_source = false;
-        $coderunner->questiontext = 'Write a function copyLines(n) that reads n lines from stdin and writes them to stdout. ';
-        $coderunner->generalfeedback = 'No feedback available for coderunner questions.';
+        $coderunner = $this->makeCodeRunnerQuestion(
+                'python3',
+                'Function to copy n lines of stdin to stdout',
+                'Write a function copyLines(n) that reads n lines from stdin and writes them to stdout. '
+        );
         $coderunner->testcases = array(
             (object) array('testcode' => 'copyStdin(0)',
                           'stdin'       => '',
@@ -227,7 +210,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
                           'hiderestiffail' =>  0),
             (object) array('testcode' => 'copyStdin(4)',
                 // This example is also designed to test the clean function in
-                // the validator (which should trim white space of the end of
+                // the grader (which should trim white space of the end of
                 // output lines and trim trailing blank lines).
                           'stdin'       => " Line  1  \n   Line   2   \n  \n  \n   ",
                           'output'      => " Line  1\n   Line   2\n",
@@ -243,10 +226,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
                           'mark' => 1.0,
                           'hiderestiffail' =>  0)
         );
-        $coderunner->qtype = question_bank::get_qtype('coderunner');
-        $coderunner->unitgradingtype = 0;
-        $coderunner->unitpenalty = 0.2;
-        $this->getOptions($coderunner);
+
         return $coderunner;
     }
 
@@ -256,15 +236,11 @@ class qtype_coderunner_test_helper extends question_test_helper {
      * @return qtype_coderunner_question
      */
     public function make_coderunner_question_timeout() {
-        question_bank::load_question_definition_classes('coderunner');
-        $coderunner = new qtype_coderunner_question();
-        test_question_maker::initialise_a_question($coderunner);
-        $coderunner->name = 'Function to generate a timeout';
-        $coderunner->options = array('coderunner_type' => 'python3');
-        $coderunner->all_or_nothing = true;
-        $coderunner->show_source = false;
-        $coderunner->questiontext = 'Write a function that loops forever';
-        $coderunner->generalfeedback = 'No feedback available for coderunner questions.';
+        $coderunner = $this->makeCodeRunnerQuestion(
+                'python3',
+                'Function to generate a timeout',
+                'Write a function that loops forever'
+        );
         $coderunner->testcases = array(
             (object) array('testcode' => 'timeout()',
                           'stdin'       => '',
@@ -274,10 +250,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
                           'mark' => 1.0,
                           'hiderestiffail' =>  0)
         );
-        $coderunner->qtype = question_bank::get_qtype('coderunner');
-        $coderunner->unitgradingtype = 0;
-        $coderunner->unitpenalty = 0.2;
-        $this->getOptions($coderunner);
+
         return $coderunner;
     }
 
@@ -287,15 +260,11 @@ class qtype_coderunner_test_helper extends question_test_helper {
      * __student_answer__ variable is correctly set within each test case.
      */
     public function make_coderunner_question_studentanswervar() {
-        question_bank::load_question_definition_classes('coderunner');
-        $coderunner = new qtype_coderunner_question();
-        test_question_maker::initialise_a_question($coderunner);
-        $coderunner->name = 'Function to generate a timeout';
-        $coderunner->options = array('coderunner_type' => 'python3');
-        $coderunner->all_or_nothing = true;
-        $coderunner->show_source = false;
-        $coderunner->questiontext = 'Write a bit of code';
-        $coderunner->generalfeedback = 'No feedback available for coderunner questions.';
+        $coderunner = $this->makeCodeRunnerQuestion(
+                'python3',
+                'Function to generate a timeout',
+                'Write a bit of code'
+        );
         $coderunner->testcases = array(
             (object) array('testcode' => 'print(__student_answer__)',
                           'stdin'       => '',
@@ -305,10 +274,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
                           'mark' => 1.0,
                           'hiderestiffail' =>  0)
         );
-        $coderunner->qtype = question_bank::get_qtype('coderunner');
-        $coderunner->unitgradingtype = 0;
-        $coderunner->unitpenalty = 0.2;
-        $this->getOptions($coderunner);
+
         return $coderunner;
     }
 
@@ -319,15 +285,11 @@ class qtype_coderunner_test_helper extends question_test_helper {
      * @return qtype_coderunner_question
      */
     public function make_coderunner_question_exceptions() {
-        question_bank::load_question_definition_classes('coderunner');
-        $coderunner = new qtype_coderunner_question();
-        test_question_maker::initialise_a_question($coderunner);
-        $coderunner->name = 'Function to conditionally throw an exception';
-        $coderunner->options = array('coderunner_type' => 'python3');
-        $coderunner->all_or_nothing = true;
-        $coderunner->show_source = false;
-        $coderunner->questiontext = 'Write a function isOdd(n) that throws and ValueError exception iff n is odd';
-        $coderunner->generalfeedback = 'No feedback available for coderunner questions.';
+        $coderunner = $this->makeCodeRunnerQuestion(
+                'python3',
+                'Function to conditionally throw an exception',
+                'Write a function isOdd(n) that throws and ValueError exception iff n is odd'
+        );
         $coderunner->testcases = array(
             (object) array('testcode' => 'try:
   checkOdd(91)
@@ -353,39 +315,11 @@ except ValueError:
                           'mark' => 1.0,
                           'hiderestiffail' =>  0)
         );
-        $coderunner->qtype = question_bank::get_qtype('coderunner');
-        $coderunner->unitgradingtype = 0;
-        $coderunner->unitpenalty = 0.2;
-        $this->getOptions($coderunner);
+
         return $coderunner;
     }
 
-    /* Fill in the option information for a specific question type,
-     * by reading it from the database.
-     */
-    private function getOptions(&$question) {
-        global $CFG, $DB;
-        require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
-        $qtype = new qtype_coderunner();
-        $question->customise = isset($question->custom_template) && trim($question->custom_template) != '';
 
-        $type = $question->options['coderunner_type'];
-
-        if (!$record = $DB->get_record('quest_coderunner_types',
-                array('coderunner_type' => $type))) {
-            throw new coding_exception("TestHelper: bad call to getOptions with type $type");
-        }
-        foreach ($record as $field=>$value) {
-            $question->$field = $value;
-        }
-
-        if (!isset($question->sandbox)) {
-            $question->sandbox = $qtype->getBestSandbox($question->language);
-        }
-        if (!isset($question->validator)) {
-            $question->validator = 'BasicValidator';
-        }
-    }
 
 
     // Now the C-question helper stuff
@@ -396,15 +330,11 @@ except ValueError:
      * @return qtype_coderunner_question
      */
     public function make_coderunner_question_sqrC() {
-        question_bank::load_question_definition_classes('coderunner');
-        $coderunner = new qtype_coderunner_question();
-        test_question_maker::initialise_a_question($coderunner);
-        $coderunner->name = 'Function to square a number n';
-        $coderunner->questiontext = 'Write a function int sqr(int n) that returns n squared.';
-        $coderunner->generalfeedback = 'No feedback available for coderunner questions.';
-        $coderunner->options = array('coderunner_type' => 'c_function');
-        $coderunner->all_or_nothing = true;
-        $coderunner->show_source = false;
+        $coderunner = $this->makeCodeRunnerQuestion(
+                'c_function',
+                'Function to square a number n',
+                'Write a function int sqr(int n) that returns n squared.'
+        );
         $coderunner->testcases = array(
             (object) array('testcode'       => 'printf("%d", sqr(0));',
                            'stdin'          => '',
@@ -435,10 +365,7 @@ except ValueError:
                            'hiderestiffail' => 0,
                            'useasexample'   => 0)
         );
-        $coderunner->qtype = question_bank::get_qtype('coderunner');
-        $coderunner->unitgradingtype = 0;
-        $coderunner->unitpenalty = 0.2;
-        $this->getOptions($coderunner);
+
         return $coderunner;
     }
 
@@ -448,15 +375,12 @@ except ValueError:
      * @return qtype_coderunner_question
      */
     public function make_coderunner_question_sqrNoSemicolons() {
-        question_bank::load_question_definition_classes('coderunner');
-        $coderunner = new qtype_coderunner_question();
-        test_question_maker::initialise_a_question($coderunner);
-        $coderunner->name = 'Function to square a number n';
-        $coderunner->questiontext = 'Write a function int sqr(int n) that returns n squared.';
-        $coderunner->generalfeedback = 'No feedback available for coderunner questions.';
-        $coderunner->options = array('coderunner_type' => 'c_function');
-        $coderunner->all_or_nothing = true;
-        $coderunner->show_source = false;
+        $coderunner = $this->makeCodeRunnerQuestion(
+                'c_function',
+                'Function to square a number n',
+                'Write a function int sqr(int n) that returns n squared.'
+        );
+
         $coderunner->testcases = array(
             (object) array('testcode'       => 'printf("%d", sqr(0))',
                            'output'         => '0',
@@ -487,10 +411,7 @@ except ValueError:
                            'hiderestiffail' => 0,
                            'useasexample'   => 0)
         );
-        $coderunner->qtype = question_bank::get_qtype('coderunner');
-        $coderunner->unitgradingtype = 0;
-        $coderunner->unitpenalty = 0.2;
-        $this->getOptions($coderunner);
+
         return $coderunner;
     }
 
@@ -500,15 +421,11 @@ except ValueError:
      * @return qtype_coderunner_question
      */
     public function make_coderunner_question_helloProgC() {
-        question_bank::load_question_definition_classes('coderunner');
-        $coderunner = new qtype_coderunner_question();
-        test_question_maker::initialise_a_question($coderunner);
-        $coderunner->name = 'Program to print "Hello ENCE260"';
-        $coderunner->questiontext = 'Write a program that prints "Hello ENCE260"';
-        $coderunner->generalfeedback = 'No feedback available for coderunner questions.';
-        $coderunner->options = array('coderunner_type' => 'c_program');
-        $coderunner->all_or_nothing = true;
-        $coderunner->show_source = false;
+        $coderunner = $this->makeCodeRunnerQuestion(
+                'c_program',
+                'Program to print "Hello ENCE260"',
+                'Write a program that prints "Hello ENCE260"'
+        );
         $coderunner->testcases = array(
             (object) array('testcode' => '',
                           'output'    => 'Hello ENCE260',
@@ -518,10 +435,7 @@ except ValueError:
                           'hiderestiffail' => 0,
                           'useasexample'   => 0)
         );
-        $coderunner->qtype = question_bank::get_qtype('coderunner');
-        $coderunner->unitgradingtype = 0;
-        $coderunner->unitpenalty = 0.2;
-        $this->getOptions($coderunner);
+
         return $coderunner;
     }
 
@@ -531,15 +445,11 @@ except ValueError:
      * @return qtype_coderunner_question
      */
     public function make_coderunner_question_copyStdinC() {
-        question_bank::load_question_definition_classes('coderunner');
-        $coderunner = new qtype_coderunner_question();
-        test_question_maker::initialise_a_question($coderunner);
-        $coderunner->name = 'Function to copy n lines of stdin to stdout';
-        $coderunner->questiontext = 'Write a function copyLines(n) that reads stdin to stdout';
-        $coderunner->generalfeedback = 'No feedback available for coderunner questions.';
-        $coderunner->options = array('coderunner_type' => 'c_program');
-        $coderunner->all_or_nothing = true;
-        $coderunner->show_source = false;
+        $coderunner = $this->makeCodeRunnerQuestion(
+                'c_program',
+                'Function to copy n lines of stdin to stdout',
+                'Write a function copyLines(n) that reads stdin to stdout'
+        );
         $coderunner->testcases = array(
             (object) array('testcode' => '',
                           'stdin'     => '',
@@ -563,24 +473,17 @@ except ValueError:
                           'mark'      => 1.0,
                           'hiderestiffail' => 0)
         );
-        $coderunner->qtype = question_bank::get_qtype('coderunner');
-        $coderunner->unitgradingtype = 0;
-        $coderunner->unitpenalty = 0.2;
-        $this->getOptions($coderunner);
+
         return $coderunner;
     }
 
 
     public function make_coderunner_question_strToUpper() {
-        question_bank::load_question_definition_classes('coderunner');
-        $coderunner = new qtype_coderunner_question();
-        test_question_maker::initialise_a_question($coderunner);
-        $coderunner->name = 'Function to convert string to uppercase';
-        $coderunner->questiontext = 'Write a function void strToUpper(char s[]) that converts s to uppercase';
-        $coderunner->generalfeedback = 'No feedback available for coderunner questions.';
-        $coderunner->options = array('coderunner_type' => 'c_function');
-        $coderunner->all_or_nothing = true;
-        $coderunner->show_source = false;
+        $coderunner = $this->makeCodeRunnerQuestion(
+                'c_function',
+                'Function to convert string to uppercase',
+                'Write a function void strToUpper(char s[]) that converts s to uppercase'
+        );
         $coderunner->testcases = array(
             (object) array('testcode' => "
 char s[] = {'1','@','a','B','c','d','E',';', 0};
@@ -605,25 +508,18 @@ printf(\"%s\\n\", s);
                           'mark'      => 1.0,
                           'hiderestiffail' => 0)
         );
-        $coderunner->qtype = question_bank::get_qtype('coderunner');
-        $coderunner->unitgradingtype = 0;
-        $coderunner->unitpenalty = 0.2;
-        $this->getOptions($coderunner);
+
         return $coderunner;
     }
 
 
     public function make_coderunner_question_strToUpperFullMain() {
         // A variant of strToUpper where test cases include an actual main func
-        question_bank::load_question_definition_classes('coderunner');
-        $coderunner = new qtype_coderunner_question();
-        test_question_maker::initialise_a_question($coderunner);
-        $coderunner->name = 'Function to convert string to uppercase';
-        $coderunner->questiontext = 'Write a function void strToUpper(char s[]) that converts s to uppercase';
-        $coderunner->generalfeedback = 'No feedback available for coderunner questions.';
-        $coderunner->options = array('coderunner_type' => 'c_full_main_tests');
-        $coderunner->all_or_nothing = true;
-        $coderunner->show_source = false;
+        $coderunner = $this->makeCodeRunnerQuestion(
+                'c_full_main_tests',
+                'Function to convert string to uppercase',
+                'Write a function void strToUpper(char s[]) that converts s to uppercase'
+        );
         $coderunner->testcases = array(
             (object) array('testcode' => "
 int main() {
@@ -654,10 +550,7 @@ int main() {
                           'mark'      => 1.0,
                           'hiderestiffail' => 0)
         );
-        $coderunner->qtype = question_bank::get_qtype('coderunner');
-        $coderunner->unitgradingtype = 0;
-        $coderunner->unitpenalty = 0.2;
-        $this->getOptions($coderunner);
+
         return $coderunner;
     }
 
@@ -668,15 +561,13 @@ int main() {
      * @return qtype_coderunner_question
      */
     public function make_coderunner_question_stringDelete() {
-        question_bank::load_question_definition_classes('coderunner');
-        $coderunner = new qtype_coderunner_question();
-        test_question_maker::initialise_a_question($coderunner);
-        $coderunner->name = 'Function to delete from a source string all chars present in another string';
-        $coderunner->questiontext = 'Write a function void stringDelete(char *s, const char *charsToDelete) that takes any two C strings as parameters and modifies the string s by deleting from it all characters that are present in charsToDelete.';
-        $coderunner->generalfeedback = 'No feedback available for coderunner questions.';
-        $coderunner->options = array('coderunner_type' => 'c_function');
-        $coderunner->all_or_nothing = true;
-        $coderunner->show_source = false;
+        $coderunner = $this->makeCodeRunnerQuestion(
+                'c_function',
+                'Function to delete from a source string all chars present in another string',
+                'Write a function void stringDelete(char *s, const char *charsToDelete) '.
+                'that takes any two C strings as parameters and modifies the ' .
+                'string s by deleting from it all characters that are present in charsToDelete.'
+        );
         $coderunner->testcases = array(
             (object) array('testcode'       => "char s[] = \"abcdefg\";\nstringDelete(s, \"xcaye\");\nprintf(\"%s\\n\", s);",
                            'output'         => 'bdfg',
@@ -700,10 +591,7 @@ int main() {
                            'hiderestiffail' => 0,
                            'useasexample'   => 0)
         );
-        $coderunner->qtype = question_bank::get_qtype('coderunner');
-        $coderunner->unitgradingtype = 0;
-        $coderunner->unitpenalty = 0.2;
-        $this->getOptions($coderunner);
+
         return $coderunner;
     }
 
@@ -715,15 +603,12 @@ int main() {
      * @return qtype_coderunner_question
      */
     public function make_coderunner_question_sqrmatlab() {
-        question_bank::load_question_definition_classes('coderunner');
-        $coderunner = new qtype_coderunner_question();
-        test_question_maker::initialise_a_question($coderunner);
-        $coderunner->name = 'Function to square a number n';
-        $coderunner->questiontext = 'Write a function sqr(n) that returns n squared.';
-        $coderunner->generalfeedback = 'No feedback available for coderunner questions.';
-        $coderunner->options = array('coderunner_type' => 'matlab_function');
-        $coderunner->all_or_nothing = true;
-        $coderunner->show_source = false;
+        $coderunner = $this->makeCodeRunnerQuestion(
+            'matlab_function',
+            'Function to square a number n',
+            'Write a function sqr(n) that returns n squared.'
+        );
+
         $coderunner->testcases = array(
             (object) array('testcode'       => 'disp(sqr(0));',
                            'stdin'          => '',
@@ -754,10 +639,7 @@ int main() {
                            'hiderestiffail' => 0,
                            'useasexample'   => 0)
         );
-        $coderunner->qtype = question_bank::get_qtype('coderunner');
-        $coderunner->unitgradingtype = 0;
-        $coderunner->unitpenalty = 0.2;
-        $this->getOptions($coderunner);
+
         return $coderunner;
     }
 
@@ -767,10 +649,10 @@ int main() {
      * @return qtype_coderunner_question
      */
     public function make_coderunner_question_testStudentAnswerMacro() {
-        question_bank::load_question_definition_classes('coderunner');
-        $coderunner = new qtype_coderunner_question();
-        test_question_maker::initialise_a_question($coderunner);
-        $coderunner->name = 'Matlab escaped student answer tester';
+        $coderunner = $this->makeCodeRunnerQuestion(
+                'matlab_function',
+                'Matlab escaped student answer tester'
+        );
         $coderunner->questiontext = <<<EOT
  Enter the following program:
 
@@ -781,10 +663,6 @@ int main() {
      disp(s2);
 end
 EOT;
-        $coderunner->generalfeedback = 'No feedback available for coderunner questions.';
-        $coderunner->options = array('coderunner_type' => 'matlab_function');
-        $coderunner->all_or_nothing = true;
-        $coderunner->show_source = false;
         $coderunner->testcases = array(
             (object) array('testcode'       => 'mytest();',
                            'stdin'          => '',
@@ -808,10 +686,7 @@ EOT
                            'hiderestiffail' => 0,
                            'useasexample'   => 0)
         );
-        $coderunner->qtype = question_bank::get_qtype('coderunner');
-        $coderunner->unitgradingtype = 0;
-        $coderunner->unitpenalty = 0.2;
-        $this->getOptions($coderunner);
+
         $coderunner->customise = 1;
         $coderunner->custom_template = <<<EOT
 function tester()
@@ -833,15 +708,11 @@ EOT;
      * @return qtype_coderunner_question
      */
     public function make_coderunner_question_sqrjava() {
-        question_bank::load_question_definition_classes('coderunner');
-        $coderunner = new qtype_coderunner_question();
-        test_question_maker::initialise_a_question($coderunner);
-        $coderunner->name = 'Method to square a number n';
-        $coderunner->questiontext = 'Write a method int sqr(int n) that returns n squared.';
-        $coderunner->generalfeedback = 'No feedback available for coderunner questions.';
-        $coderunner->options = array('coderunner_type' => 'java_method');
-        $coderunner->all_or_nothing = true;
-        $coderunner->show_source = false;
+        $coderunner = $this->makeCodeRunnerQuestion(
+                'java_method',
+                'Method to square a number n',
+                'Write a method int sqr(int n) that returns n squared.'
+        );
         $coderunner->testcases = array(
             (object) array('testcode'       => 'System.out.println(sqr(0))',
                            'stdin'          => '',
@@ -872,10 +743,8 @@ EOT;
                            'hiderestiffail' => 0,
                            'useasexample'   => 0)
         );
-        $coderunner->qtype = question_bank::get_qtype('coderunner');
-        $coderunner->unitgradingtype = 0;
-        $coderunner->unitpenalty = 0.2;
-        $this->getOptions($coderunner);
+
+
         return $coderunner;
     }
 
@@ -884,17 +753,14 @@ EOT;
      * @return qtype_coderunner_question
      */
     public function make_coderunner_question_nameclass() {
-        question_bank::load_question_definition_classes('coderunner');
-        $coderunner = new qtype_coderunner_question();
-        test_question_maker::initialise_a_question($coderunner);
-        $coderunner->name = 'Name class';
-        $coderunner->questiontext = 'Write a class Name with a constructor ' .
+        $coderunner = $this->makeCodeRunnerQuestion(
+                'java_class',
+                'Name class',
+                'Write a class Name with a constructor ' .
                 'that has firstName and lastName parameters with a toString ' .
-                'method that returns firstName space lastName';
-        $coderunner->generalfeedback = 'No feedback available for coderunner questions.';
-        $coderunner->options = array('coderunner_type' => 'java_class');
-        $coderunner->all_or_nothing = true;
-        $coderunner->show_source = false;
+                'method that returns firstName space lastName'
+        );
+
         $coderunner->testcases = array(
             (object) array('testcode'       => 'System.out.println(new Name("Joe", "Brown"))',
                            'stdin'          => '',
@@ -911,10 +777,7 @@ EOT;
                            'hiderestiffail' => 0,
                            'useasexample'   => 1)
         );
-        $coderunner->qtype = question_bank::get_qtype('coderunner');
-        $coderunner->unitgradingtype = 0;
-        $coderunner->unitpenalty = 0.2;
-        $this->getOptions($coderunner);
+
         return $coderunner;
     }
 
@@ -924,16 +787,12 @@ EOT;
      * @return qtype_coderunner_question
      */
     public function make_coderunner_question_printsquares() {
-        question_bank::load_question_definition_classes('coderunner');
-        $coderunner = new qtype_coderunner_question();
-        test_question_maker::initialise_a_question($coderunner);
-        $coderunner->name = 'Name class';
-        $coderunner->questiontext = 'Write a program squares that reads an integer from stdin and prints ' .
-                'the squares of all integers from 1 up to that number, all on one line, space separated.';
-        $coderunner->generalfeedback = 'No feedback available for coderunner questions.';
-        $coderunner->options = array('coderunner_type' => 'java_program');
-        $coderunner->all_or_nothing = true;
-        $coderunner->show_source = false;
+        $coderunner = $this->makeCodeRunnerQuestion(
+                'java_program',
+                'Name class',
+                'Write a program squares that reads an integer from stdin and prints ' .
+                'the squares of all integers from 1 up to that number, all on one line, space separated.');
+
         $coderunner->testcases = array(
             (object) array('testcode'       => '',
                            'stdin'          => "5\n",
@@ -949,10 +808,64 @@ EOT;
                            'mark'           => 1.0, 'hiderestiffail' => 0,
                            'useasexample'   => 1)
         );
+
+        return $coderunner;
+    }
+
+
+    // ============== SUPPORT METHODS ====================
+
+    /* Fill in the option information for a specific question type,
+     * by reading it from the database.
+     */
+    private function getOptions(&$question) {
+        global $CFG, $DB;
+        require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
+        $qtype = new qtype_coderunner();
+        $question->customise = isset($question->custom_template) && trim($question->custom_template) != '';
+
+        $type = $question->options['coderunner_type'];
+
+        if (!$record = $DB->get_record('quest_coderunner_types',
+                array('coderunner_type' => $type))) {
+            throw new coding_exception("TestHelper: bad call to getOptions with type $type");
+        }
+        foreach ($record as $field=>$value) {
+            $question->$field = $value;
+        }
+
+        if (!isset($question->sandbox)) {
+            $question->sandbox = $qtype->getBestSandbox($question->language);
+        }
+        if (!isset($question->grader)) {
+            $question->grader = 'BasicGrader';
+        }
+    }
+
+
+    // Return an empty CodeRunner question
+    private function makeCodeRunnerQuestion($type, $name='', $questionText='') {
+        question_bank::load_question_definition_classes('coderunner');
+        $coderunner = new qtype_coderunner_question();
+        test_question_maker::initialise_a_question($coderunner);
         $coderunner->qtype = question_bank::get_qtype('coderunner');
+        $coderunner->options = array('coderunner_type' => $type);
+        $coderunner->name = $name;
+        $coderunner->questiontext = $questionText;
+        $coderunner->all_or_nothing = true;
+        $coderunner->show_source = false;
+        $coderunner->generalfeedback = 'No feedback available for coderunner questions.';
+        $coderunner->showtest = TRUE;
+        $coderunner->showstdin = TRUE;
+        $coderunner->showexpected = TRUE;
+        $coderunner->showoutput = TRUE;
+        $coderunner->showmark = FALSE;
         $coderunner->unitgradingtype = 0;
         $coderunner->unitpenalty = 0.2;
+        $coderunner->customise = FALSE;
         $this->getOptions($coderunner);
         return $coderunner;
     }
+
 }
+

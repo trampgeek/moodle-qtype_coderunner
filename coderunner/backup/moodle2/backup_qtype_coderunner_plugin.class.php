@@ -48,8 +48,8 @@ class backup_qtype_coderunner_plugin extends backup_qtype_plugin {
         $options = new backup_nested_element('coderunner_options');
         $option = new backup_nested_element('coderunner_option', array('id'),
                 array('coderunner_type', 'all_or_nothing', 'custom_template',
-                      'showtest', 'showstdin', 'showexpected', 'showoutput',
-                      'showmark'));
+                      'custom_grader','showtest', 'showstdin', 'showexpected',
+                      'showoutput', 'showmark'));
 
         //Build the tree
         $element->add_child($options);
