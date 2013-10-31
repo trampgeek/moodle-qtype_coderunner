@@ -860,7 +860,6 @@ EOT;
         $coderunner->showexpected = TRUE;
         $coderunner->showoutput = TRUE;
         $coderunner->showmark = FALSE;
-        $coderunner->unitgradingtype = 0;
         $coderunner->unitpenalty = 0.2;
         $coderunner->customise = FALSE;
         $this->getOptions($coderunner);

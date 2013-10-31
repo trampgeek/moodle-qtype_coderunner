@@ -346,15 +346,14 @@ EOCODE;
          // i.e 0.7742
          $q = test_question_maker::make_question('coderunner', 'sqr');
          $q->custom_grader = <<<EOGRADER
-expected = "{{TEST.expected|e('js')}}"
-got = "{{TEST.got|e('js')}}"
-if expected == '49' or expected == '36':
-    if expected == got:
-        print("1")
-    else:
-        print("0")
+expected = "{{TEST.output|e('js')}}".strip()
+got = "{{TEST.got|e('js')}}".strip()
+if expected == '36' and expected == got:
+    print('{"fraction":1.0}')
+elif expected == '49' and expected == got:
+    print('{"fraction":1}')
 else:
-    print("0")
+    print('{"fraction":0}')
 EOGRADER;
          $q->all_or_nothing = FALSE;
          $code = "def sqr(n): return n * n\n";

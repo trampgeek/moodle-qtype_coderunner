@@ -140,5 +140,42 @@ class qtype_coderunner_walkthrough_test extends qbehaviour_walkthrough_test_base
                 $this->get_no_hint_visible_expectation());
 
     }
+
+    public function test_custom_grader_output() {
+        $q = test_question_maker::make_question('coderunner', 'sqr');
+        $q->custom_grader = <<<EOGRADER
+expected = "{{TEST.output|e('js')}}".strip()
+got = "{{TEST.got|e('js')}}".strip()
+if expected == '49' and expected == got:
+    print('{"fraction":1.0,"got":"Tiddlypom"}')
+elif expected == '36' and expected == got:
+    print('1.0')
+else:
+    print('{"fraction":0,"expected":"Twiddlydee"}')
+EOGRADER;
+        $q->all_or_nothing = FALSE;
+        $q->unitpenalty = 0;
+        $this->start_attempt_at_question($q, 'adaptive', 1, 1);
+
+         // Submit a totally wrong answer
+        $this->process_submission(array('-submit' => 1, 'answer' => 'def sqr(n): return -19'));
+
+        // Verify.
+        $this->check_current_state(question_state::$todo);
+        $this->check_current_mark(0);
+        $this->check_current_output(
+                new question_pattern_expectation('/' .
+                        preg_quote(get_string('incorrect', 'question') . '/'))
+              );
+
+        // Submit a right answer - because of the broken grader it should only get 0.77
+        // Have to restart as the behaviour of the test system with regard to
+        // per-submission penalties doesn't seem to work.
+        $this->start_attempt_at_question($q, 'adaptive', 1, 1);
+        $this->process_submission(array('-submit' => 1, 'answer' => "def sqr(n): return n * n\n"));
+        $this->check_current_mark(24.0/31.0);
+        $this->check_current_output( new question_pattern_expectation('/Tiddlypom/') );
+        $this->check_current_output( new question_pattern_expectation('/Twiddlydee/') );
+    }
 }
 

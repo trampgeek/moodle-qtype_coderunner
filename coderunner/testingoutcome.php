@@ -73,11 +73,11 @@ class TestingOutcome {
 
 
 class TestResult {
-    var $isCorrect;                 // True iff test passed
-    var $expected;                  // Expected output (trimmed, snipped)
-    var $mark;                      // The max mark awardable for this test
-    var $awarded;                   // The mark actually awarded.
-    var $got;                       // What the student's code gave
+    var $isCorrect;         // True iff test passed fully (100%)
+    var $expected;          // Expected output (trimmed, snipped)
+    var $mark;              // The max mark awardable for this test
+    var $awarded;           // The mark actually awarded.
+    var $got;               // What the student's code gave (trimmed, snipped)
 
     public function __construct($mark, $isCorrect, $awardedMark, $expected, $got) {
         $this->mark = $mark;

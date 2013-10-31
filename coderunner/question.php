@@ -363,11 +363,20 @@ class qtype_coderunner_question extends question_graded_automatically {
             $testProg = $this->twig->render($this->custom_grader, $templateParams);
             $this->allGradings[] = $testProg;
             $graderRun = $this->sandboxInstance->execute($testProg, $this->language, '');
+
             if ($graderRun->result != Sandbox::RESULT_SUCCESS) {
                 $errorMessage = $this->makeErrorMessage($graderRun);
-
-            } else if (!preg_match('#[0-9]+(\.[0-9]+)?#', $graderRun->output)) {
-                $errorMessage = "Bad grader response:'" . $graderRun->output . "'";
+            } else {
+                $graderOutput = trim($graderRun->output);
+                if (preg_match('/^[0-9]+(\.[0-9]+)?$/', $graderOutput)) {
+                    $result = new stdClass();
+                    $result->fraction = floatval($graderOutput);
+                } else {
+                    $result = json_decode($graderOutput);
+                    if ($result === NULL || !isset($result->fraction)) {
+                        $errorMessage = "Bad grader response:'" . $graderRun->output . "'";
+                    }
+                }
             }
 
             if (isset($errorMessage)) {
@@ -375,19 +384,21 @@ class qtype_coderunner_question extends question_graded_automatically {
                         $testcase->mark,
                         FALSE,
                         0.0,
-                        $cleanedExpected,
+                        Grader::snip($cleanedExpected),
                         $errorMessage
                 );
             } else {
-                $fractionalGrade = floatval($graderRun->output);
+                $fractionalGrade = floatval($result->fraction);
                 $isCorrect = abs($fractionalGrade - 1.0) < 0.000001;
                 $awardedMark = $fractionalGrade * $testcase->mark;
+                $displayExpected = isset($result->expected) ? Grader::clean($result->expected) : $cleanedExpected;
+                $displayGot = isset($result->got) ? Grader::clean($result->got) : $cleanedStudentOutput;
                 $outcome = new TestResult(
                     $testcase->mark,
                     $isCorrect,
                     $awardedMark,
-                    Grader::snip($cleanedExpected),
-                    Grader::snip($cleanedStudentOutput)
+                    Grader::snip($displayExpected),
+                    Grader::snip($displayGot)
                 );
 
             }
