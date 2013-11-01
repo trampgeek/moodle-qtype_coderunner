@@ -1,6 +1,6 @@
 <?php
 /**
- * Unit tests for coderunner's NullSandbox sandbox class.
+ * Unit tests for coderunner's RunguardSandbox sandbox class.
  * @group qtype_coderunner
  * This is just a copy of the LiuSandbox test class, with as few
  * changes as possible. [Yeah, Horrible, Horrible]
@@ -12,9 +12,9 @@
  */
 
 global $CFG;
-require_once($CFG->dirroot . '/question/type/coderunner/Sandbox/nullsandbox.php');
+require_once($CFG->dirroot . '/question/type/coderunner/Sandbox/runguardsandbox.php');
 
-class qtype_coderunner_nullsandbox_test extends basic_testcase {
+class qtype_coderunner_runguardsandbox_test extends basic_testcase {
     public function setUp() {
     }
 
@@ -22,7 +22,7 @@ class qtype_coderunner_nullsandbox_test extends basic_testcase {
     }
 
     public function test_testfunction() {
-        $sandbox = new nullsandbox();
+        $sandbox = new runguardsandbox();
         $tr = $sandbox->testFunction();
         $this->assertEquals(Sandbox::OK, $tr->error);
         $this->assertEquals(3.14, $tr->pi);
@@ -36,9 +36,9 @@ class qtype_coderunner_nullsandbox_test extends basic_testcase {
     }
 
 
-    // Test the nullsandbox class at the PHP level with a good Python2 program
-    public function test_nullsandbox_ok_python2() {
-        $sandbox = new nullsandbox();
+    // Test the runguardsandbox class at the PHP level with a good Python2 program
+    public function test_runguardsandbox_ok_python2() {
+        $sandbox = new runguardsandbox();
         $code = "print 'Hello Sandbox'\nprint 'Python rulz'";
         $result = $sandbox->execute($code, 'python2', NULL);
         $this->assertEquals(Sandbox::RESULT_SUCCESS, $result->result);
@@ -48,11 +48,11 @@ class qtype_coderunner_nullsandbox_test extends basic_testcase {
         $sandbox->close();
     }
 
-    // Test the nullsandbox class at the PHP level with a bad-syntax python2 prog
-    // Syntax checking is not currently implemented by the nullsandbox, so the
+    // Test the runguardsandbox class at the PHP level with a bad-syntax python2 prog
+    // Syntax checking is not currently implemented by the runguardsandbox, so the
     // program 'runs' but terminates abnormally with a syntax error.
-    public function test_nullsandbox_syntax_error_python2() {
-        $sandbox = new nullsandbox();
+    public function test_runguardsandbox_syntax_error_python2() {
+        $sandbox = new runguardsandbox();
         $code = "print 'Hello Sandbox'\nprint 'Python rulz' + ";
         $result = $sandbox->execute($code, 'python2', NULL);
         $this->assertEquals(Sandbox::RESULT_ABNORMAL_TERMINATION, $result->result);
@@ -62,10 +62,10 @@ class qtype_coderunner_nullsandbox_test extends basic_testcase {
     }
 
 
-    // Test the nullsandbox with a timeout error. On nullsandbox this gives
+    // Test the runguardsandbox with a timeout error. On runguardsandbox this gives
     // signal 9.
-    public function test_nullsandbox_timeout() {
-        $sandbox = new nullsandbox();
+    public function test_runguardsandbox_timeout() {
+        $sandbox = new runguardsandbox();
         $code = "while True: pass";
         $result = $sandbox->execute($code, 'python2', NULL);
         $this->assertEquals(Sandbox::RESULT_TIME_LIMIT, $result->result);
@@ -75,9 +75,9 @@ class qtype_coderunner_nullsandbox_test extends basic_testcase {
         $sandbox->close();
     }
 
-    // Test the nullsandbox with a memory limit error
-    public function test_nullsandbox_memlimit() {
-        $sandbox = new nullsandbox();
+    // Test the runguardsandbox with a memory limit error
+    public function test_runguardsandbox_memlimit() {
+        $sandbox = new runguardsandbox();
         $code = "data = list(range(1,100000000000))";
         $result = $sandbox->execute($code, 'python2', NULL);
         $this->assertEquals(Sandbox::RESULT_ABNORMAL_TERMINATION, $result->result);
@@ -89,11 +89,11 @@ class qtype_coderunner_nullsandbox_test extends basic_testcase {
     }
 
 
-    // Test the nullsandbox with excessive output, using Python3
+    // Test the runguardsandbox with excessive output, using Python3
     // Actually generates a time limit error, because of the limitations
     // of runguard.
-    public function test_nullsandbox_excessiveoutput() {
-        $sandbox = new nullsandbox();
+    public function test_runguardsandbox_excessiveoutput() {
+        $sandbox = new runguardsandbox();
         $code = "while 1: print('blah blah blah blah blah blah blah')";
         $result = $sandbox->execute($code, 'python3', NULL);
         $this->assertEquals(Sandbox::RESULT_TIME_LIMIT, $result->result);

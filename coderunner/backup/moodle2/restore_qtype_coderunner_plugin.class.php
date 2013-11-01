@@ -99,6 +99,10 @@ class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
         // If the question has been created by restore, we need to create its question_testcases and options too
         if ($questioncreated) {
             $data->questionid = $newquestionid;
+            if (isset($data->output)) {  // Handle old saved files
+                $data->expected = $data->output;
+                unset($data->output);
+            }
             // Insert record
             $newitemid = $DB->insert_record("quest_coderunner_testcases", $data);
         } else {

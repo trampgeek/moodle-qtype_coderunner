@@ -55,7 +55,6 @@ class IdeoneSandbox extends Sandbox {
     }
 
 
-
     // Returns an object containing an error field and a languages field,
     // where the latter is a list of strings of languages handled by this sandbox.
     // This latter consists of all the languages returned by a query to Ideone plus

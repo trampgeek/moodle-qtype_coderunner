@@ -198,7 +198,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $repeated[] = & $mform->createElement('textarea', 'stdin',
                 get_string('stdin', 'qtype_coderunner'),
                 array('cols' => 80, 'rows' => 3, 'class' => 'testcasestdin edit_code'));
-        $repeated[] = & $mform->createElement('textarea', 'output',
+        $repeated[] = & $mform->createElement('textarea', 'expected',
                 get_string('expected', 'qtype_coderunner'),
                 array('cols' => 80, 'rows' => 3, 'class' => 'testcaseresult edit_code'));
 
@@ -221,7 +221,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
                         get_string('row_properties', 'qtype_coderunner'),
                         $group, NULL, false);
 
-        $repeatedoptions['output']['type'] = PARAM_RAW;
+        $repeatedoptions['expected']['type'] = PARAM_RAW;
         $repeatedoptions['testcode']['type'] = PARAM_RAW;
         $repeatedoptions['stdin']['type'] = PARAM_RAW;
         $repeatedoptions['mark']['type'] = PARAM_FLOAT;
@@ -244,14 +244,14 @@ class qtype_coderunner_edit_form extends question_edit_form {
         // data into the form.
         if (isset($question->testcases)) { // Reloading a saved question?
             $question->testcode = array();
-            $question->output = array();
+            $question->expected = array();
             $question->useasexample = array();
             $question->display = array();
             $question->hiderestifail = array();
             foreach ($question->testcases as $tc) {
                 $question->testcode[] = $tc->testcode;
                 $question->stdin[] = $tc->stdin;
-                $question->output[] = $tc->output;
+                $question->expected[] = $tc->expected;
                 $question->useasexample[] = $tc->useasexample;
                 $question->display[] = $tc->display;
                 $question->hiderestiffail[] = $tc->hiderestiffail;
@@ -269,19 +269,19 @@ class qtype_coderunner_edit_form extends question_edit_form {
         }
         $testcodes = $data['testcode'];
         $stdins = $data['stdin'];
-        $outputs = $data['output'];
+        $expecteds = $data['expected'];
         $marks = $data['mark'];
         $count = 0;
         $cntNonemptyTests = 0;
-        $num = max(count($testcodes), count($stdins), count($outputs));
+        $num = max(count($testcodes), count($stdins), count($expecteds));
         for ($i = 0; $i < $num; $i++) {
             $testcode = trim($testcodes[$i]);
             if ($testcode != '') {
                 $cntNonemptyTests++;
             }
             $stdin = trim($stdins[$i]);
-            $output = trim($outputs[$i]);
-            if ($testcode !== '' || $stdin != '' || $output !== '') {
+            $expected = trim($expecteds[$i]);
+            if ($testcode !== '' || $stdin != '' || $expected !== '') {
                 $count++;
             }
             $mark = trim($marks[$i]);

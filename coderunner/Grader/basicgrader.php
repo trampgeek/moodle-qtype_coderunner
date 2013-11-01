@@ -25,16 +25,26 @@ class BasicGrader extends Grader {
      *  etc).
      */
     function grade(&$output, &$testCase) {
+        $cleanedTest = $this->clean($testcase->testcode);
         $cleanedOutput = $this->clean($output);
-        $cleanedExpected = $this->clean($testCase->output);
+        $cleanedExpected = $this->clean($testCase->expected);
+        if ($testCase->stdin) {
+            $cleaned = $this->clean($testCase->stdin);
+            $resultStdin = $this->snip($cleaned);
+        } else {
+            $resultStdin = NULL;
+        }
+
         $isCorrect = $cleanedOutput == $cleanedExpected;
         $awardedMark = $isCorrect ? $testCase->mark : 0.0;
         return new TestResult(
+                $this->snip($cleanedTest),
                 $testCase->mark,
                 $isCorrect,
                 $awardedMark,
                 $this->snip($cleanedExpected),
-                $this->snip($cleanedOutput)
+                $this->snip($cleanedOutput),
+                $resultStdin
         );
     }
 }

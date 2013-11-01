@@ -144,7 +144,7 @@ class qtype_coderunner_walkthrough_test extends qbehaviour_walkthrough_test_base
     public function test_custom_grader_output() {
         $q = test_question_maker::make_question('coderunner', 'sqr');
         $q->custom_grader = <<<EOGRADER
-expected = "{{TEST.output|e('js')}}".strip()
+expected = "{{TEST.expected|e('js')}}".strip()
 got = "{{TEST.got|e('js')}}".strip()
 if expected == '49' and expected == got:
     print('{"fraction":1.0,"got":"Tiddlypom"}')

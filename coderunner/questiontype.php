@@ -121,19 +121,19 @@ class qtype_coderunner extends question_type {
     private function copy_testcases_from_form(&$question) {
         $testcases = array();
         $numTests = count($question->testcode);
-        assert(count($question->output) == $numTests);
+        assert(count($question->expected) == $numTests);
         for($i = 0; $i < $numTests; $i++) {
             $input = $this->filterCrs($question->testcode[$i]);
             $stdin = $this->filterCrs($question->stdin[$i]);
-            $output = $this->filterCrs($question->output[$i]);
-            if ($input == '' && $stdin == '' && $output == '') {
+            $expected = $this->filterCrs($question->expected[$i]);
+            if ($input == '' && $stdin == '' && $expected == '') {
                 continue;
             }
             $testcase = new stdClass;
             $testcase->questionid = isset($question->id) ? $question->id : 0;
             $testcase->testcode = $input;
             $testcase->stdin = $stdin;
-            $testcase->$output = $output;
+            $testcase->expected = $expected;
             $testcase->useasexample = isset($question->useasexample[$i]);
             $testcase->display = $question->display[$i];
             $testcase->hiderestiffail = isset($question->hiderestiffail[$i]);
@@ -334,7 +334,12 @@ class qtype_coderunner extends question_type {
             $tc = new stdClass;
             $tc->testcode = $testcase['#']['testcode'][0]['#']['text'][0]['#'];
             $tc->stdin = $testcase['#']['stdin'][0]['#']['text'][0]['#'];
-            $tc->output = $testcase['#']['output'][0]['#']['text'][0]['#'];
+            if (isset($testcase['#']['output'])) { // Handle old exports
+                $tc->expected = $testcase['#']['output'][0]['#']['text'][0]['#'];
+            }
+            else {
+                $tc->expected = $testcase['#']['expected'][0]['#']['text'][0]['#'];
+            }
             $tc->display = 'SHOW';
             $tc->mark = 1.0;
             if (isset($testcase['@']['mark'])) {
@@ -381,7 +386,7 @@ class qtype_coderunner extends question_type {
             $hiderestiffail = $testcase->hiderestiffail ? 1 : 0;
             $mark = sprintf("%.7f", $testcase->mark);
             $expout .= "      <testcase useasexample=\"$useasexample\" hiderestiffail=\"$hiderestiffail\" mark=\"$mark\" >\n";
-            foreach (array('testcode', 'stdin', 'output', 'display') as $field) {
+            foreach (array('testcode', 'stdin', 'expected', 'display') as $field) {
                 //$exportedValue = $format->xml_escape($testcase->$field);
                 $exportedValue = $format->writetext($testcase->$field, 4);
                 $expout .= "      <{$field}>\n        {$exportedValue}      </{$field}>\n";

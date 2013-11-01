@@ -346,7 +346,7 @@ EOCODE;
          // i.e 0.7742
          $q = test_question_maker::make_question('coderunner', 'sqr');
          $q->custom_grader = <<<EOGRADER
-expected = "{{TEST.output|e('js')}}".strip()
+expected = "{{TEST.expected|e('js')}}".strip()
 got = "{{TEST.got|e('js')}}".strip()
 if expected == '36' and expected == got:
     print('{"fraction":1.0}')

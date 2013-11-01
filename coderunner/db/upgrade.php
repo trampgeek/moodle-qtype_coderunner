@@ -85,6 +85,11 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         $dbman->add_field($table, $customGraderField);
     }
 
+    if ($oldversion != 0 && $oldversion < 2013103102) {
+        $table = new xmldb_table('quest_coderunner_testcases');
+        $outputField = new xmldb_field('output', XMLDB_TYPE_TEXT, 'medium', XMLDB_UNSIGNED, FALSE, null);
+        $dbman->rename_field($table, $outputField, 'expected');
+    }
     return updateQuestionTypes();
 
 }
@@ -203,7 +208,7 @@ EOT;
         'test_splitter_re' => "|#<ab@17943918#@>#\n|ms",
         'per_test_template' => $perTestTemplate_pylint_func,
         'language' => 'python3',
-        'sandbox'  => 'NullSandbox'
+        'sandbox'  => 'RunguardSandbox'
     );
 
     // ===============================================================
@@ -277,7 +282,7 @@ EOT;
         'test_splitter_re' => "|#<ab@17943918#@>#\n|ms",
         'per_test_template' => $perTestTemplate_pylint_prog,
         'language' => 'python3',
-        'sandbox'  => 'NullSandbox'
+        'sandbox'  => 'RunguardSandbox'
     );
 
 // ===============================================================
@@ -352,8 +357,8 @@ EOT
 
 
 // ===============================================================
-    $python2NullSandbox =  array(
-        'coderunner_type' => 'python2_nullsandbox',
+    $python2RunguardSandbox =  array(
+        'coderunner_type' => 'python2_runguardsandbox',
         'is_custom' => 0,
         'comment' => 'Used for testing the null sandbox.',
         'combinator_template' => <<<EOT
@@ -381,7 +386,7 @@ __student_answer__ = """{{ ESCAPED_STUDENT_ANSWER }}"""
 EOT
 ,
         'language' => 'python2',
-        'sandbox'  => 'NullSandbox',
+        'sandbox'  => 'RunguardSandbox',
     );
 
     // ===============================================================
@@ -545,7 +550,7 @@ public class Main {
 EOT
 ,
         'language' => 'Java',
-        'sandbox'  => 'NullSandbox'
+        'sandbox'  => 'RunguardSandbox'
     );
 
 

@@ -241,10 +241,10 @@ class qtype_coderunner_renderer extends qtype_renderer {
             if ($this->shouldDisplayResult($testCase, $testResult)) {
                 $tableRow = array();
                 if ($showTests) {
-                    $tableRow[] = s(restrict_qty($testCase->testcode));
+                    $tableRow[] = s(restrict_qty($testResult->testcode));
                 }
                 if ($showStdins) {
-                    $tableRow[] = s(restrict_qty($testCase->stdin));
+                    $tableRow[] = s(restrict_qty($testResult->stdin));
                 }
                 if ($question->showexpected) {
                     $tableRow[] = s($testResult->expected);
@@ -338,13 +338,13 @@ class qtype_coderunner_renderer extends qtype_renderer {
     }
 
 
-    // Return true iff there is no standard input and all output and shell
+    // Return true iff there is no standard input and all expectedoutput and shell
     // input cases are single line only
     private function allSingleLine($examples) {
         foreach ($examples as $example) {
             if (!empty($example->stdin) ||
                 strpos($example->testcode, "\n") !== FALSE ||
-                strpos($example->output, "\n") !== FALSE) {
+                strpos($example->expected, "\n") !== FALSE) {
                return FALSE;
             }
          }
@@ -358,7 +358,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
     private function formatExamplesOnePerLine($examples) {
        $text = '';
        foreach ($examples as $example) {
-            $text .=  $example->testcode . ' &rarr; ' . $example->output;
+            $text .=  $example->testcode . ' &rarr; ' . $example->expected;
             $text .= html_writer::empty_tag('br');
        }
        return $text;
@@ -366,9 +366,6 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
 
     private function formatExamplesAsTable($examples) {
-        // TODO: consider if ccode version should use column headers of
-        // "Standard input" and "Standard output" rather than just Input
-        // and output.
         $table = new html_table();
         $table->attributes['class'] = 'coderunnerexamples';
         list($numStd, $numShell) = $this->countBits($examples);
@@ -390,7 +387,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
             if ($numStd) {
                 $row[] = $this->addLineBreaks(s($example->stdin));
             }
-            $row[] = $this->addLineBreaks(s($example->output));
+            $row[] = $this->addLineBreaks(s($example->expected));
             $tableRows[] = $row;
         }
         $table->data = $tableRows;

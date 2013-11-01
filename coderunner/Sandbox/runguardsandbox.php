@@ -1,16 +1,17 @@
 <?php
 
 /*
- * Provides a NullSandbox class, which is a sandbox in name only.
- * Runs jobs without true sandboxing in a manner specified by each
- * individual language but currently all use DOMJudge's 'runguard' program.
- * This runs the job as user 'coderunner' with resource limits set by
+ * Provides the RunguardSandbox class, which is a lightweight sandbox that
+ * runs jobs without using the 'runguard' program that provides the controlled
+ * execution environment in the DomJudge programming contest system
+ * (see http://www.domjudge.org/).
+ * Jobs are run as user 'coderunner' with resource limits set by
  * the language, so is at least safe against major resource depletion issues
- * (memory, CPU). Does not protect against system calls like socket, and the
- * program can read any world-readable file on the server.
+ * (memory, CPU). However, it does not protect against system calls like socket,
+ * and the program can read any world-readable file on the server.
  *
- * One major concern with the use of NullSandbox is concurrency. runguard
- * limits processes using the standard Linux set_resource _imits mechanism,
+ * One major concern with the use of RunguardSandbox is concurrency. runguard
+ * limits processes using the standard Linux set_resource_limits mechanism,
  * but this limits the processes/threads on a per-user basis not on a per
  * process-tree basis like other resources. In a web-server environment,
  * each user request results in a new server thread and each thread can
@@ -24,7 +25,7 @@
  * task that ran the Java VM required close to the 20 threads allocated a
  * Python task at the time, and a second concurrent test would fail. For now
  * this problem has been resolved by increasing the allocation of processes
- * to 200, but a better solution is needed.
+ * to 200, but a better solution is needed in the longer term.
  *
  *
  * @package    qtype
@@ -42,7 +43,7 @@ define('MAX_READ', 4096);  // Max bytes to read in popen
 // Language definitions.
 //
 // ==============================================================
-class Matlab_ns_Task extends LanguageTask {
+class Matlab_rs_Task extends LanguageTask {
     public function __construct($source) {
         LanguageTask::__construct($source);
     }
@@ -107,7 +108,7 @@ class Matlab_ns_Task extends LanguageTask {
      }
 };
 
-class Python2_ns_Task extends LanguageTask {
+class Python2_rs_Task extends LanguageTask {
     public function __construct($source) {
         LanguageTask::__construct($source);
     }
@@ -144,7 +145,7 @@ class Python2_ns_Task extends LanguageTask {
      }
 };
 
-class Python3_ns_Task extends LanguageTask {
+class Python3_rs_Task extends LanguageTask {
     public function __construct($source) {
         LanguageTask::__construct($source);
     }
@@ -190,7 +191,7 @@ class Python3_ns_Task extends LanguageTask {
      }
 };
 
-class Java_ns_Task extends LanguageTask {
+class Java_rs_Task extends LanguageTask {
     public function __construct($source) {
         LanguageTask::__construct($source);
     }
@@ -261,7 +262,7 @@ class Java_ns_Task extends LanguageTask {
 };
 
 
-class C_ns_Task extends LanguageTask {
+class C_rs_Task extends LanguageTask {
 
     public function __construct($source) {
         LanguageTask::__construct($source);
@@ -310,11 +311,11 @@ class C_ns_Task extends LanguageTask {
 
 // ==============================================================
 //
-// Now the actual null sandbox.
+// Now the actual sandbox.
 //
 // ==============================================================
 
-class NullSandbox extends LocalSandbox {
+class RunguardSandbox extends LocalSandbox {
 
     public function __construct($user=NULL, $pass=NULL) {
         LocalSandbox::__construct($user, $pass);
@@ -329,7 +330,7 @@ class NullSandbox extends LocalSandbox {
 
 
     protected function createTask($language, $source) {
-        $reqdClass = ucwords($language) . "_ns_Task";
+        $reqdClass = ucwords($language) . "_rs_Task";
         return new $reqdClass($source);
     }
 

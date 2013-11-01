@@ -342,6 +342,9 @@ class qtype_coderunner_question extends question_graded_automatically {
     private function setUpSandbox() {
         global $CFG;
         $sandboxClass = $this->sandbox;
+        if ($sandboxClass == 'NullSandbox') {
+            $sandboxClass = 'RunguardSandbox';  // Renamed sandbox; stay compatible with old questions
+        }
         $sandboxClassLC = strtolower($sandboxClass);
         require_once($CFG->dirroot . "/question/type/coderunner/Sandbox/$sandboxClassLC.php");
         $this->sandboxInstance = new $sandboxClass();
@@ -358,8 +361,10 @@ class qtype_coderunner_question extends question_graded_automatically {
         else {
             $testcase->got = $output;
             $templateParams = array('TEST' => $testcase);
-            $cleanedStudentOutput = Grader::clean($output);
-            $cleanedExpected = Grader::clean($testcase->output);
+            $cleanedStudentOutput = $this->tidy($output);
+            $cleanedExpected = $this->tidy($testcase->expected);
+            $cleanedTestcode = $this->tidy($testcase->testcode);
+            $cleanedStdin = $this->tidy($testcase->stdin);
             $testProg = $this->twig->render($this->custom_grader, $templateParams);
             $this->allGradings[] = $testProg;
             $graderRun = $this->sandboxInstance->execute($testProg, $this->language, '');
@@ -381,24 +386,30 @@ class qtype_coderunner_question extends question_graded_automatically {
 
             if (isset($errorMessage)) {
                 $outcome = new TestResult(
+                        $cleanedTestcode,
                         $testcase->mark,
                         FALSE,
                         0.0,
-                        Grader::snip($cleanedExpected),
-                        $errorMessage
+                        $cleanedExpected,
+                        $errorMessage,
+                        $cleanedStdin
                 );
             } else {
                 $fractionalGrade = floatval($result->fraction);
                 $isCorrect = abs($fractionalGrade - 1.0) < 0.000001;
                 $awardedMark = $fractionalGrade * $testcase->mark;
-                $displayExpected = isset($result->expected) ? Grader::clean($result->expected) : $cleanedExpected;
-                $displayGot = isset($result->got) ? Grader::clean($result->got) : $cleanedStudentOutput;
+                $displayExpected = isset($result->expected) ? $this->tidy($result->expected) : $cleanedExpected;
+                $displayGot = isset($result->got) ? $this->tidy($result->got) : $cleanedStudentOutput;
+                $displayTest = isset($result->testcode) ? $this->tidy($result->testcode) : $cleanedTestcode;
+                $displayStdin = isset($result->stdin) ? $this->tidy($result->stdin) : $cleanedStdin;
                 $outcome = new TestResult(
+                    $displayTest,
                     $testcase->mark,
                     $isCorrect,
                     $awardedMark,
-                    Grader::snip($displayExpected),
-                    Grader::snip($displayGot)
+                    $displayExpected,
+                    $displayGot,
+                    $displayStdin
                 );
 
             }
@@ -407,6 +418,17 @@ class qtype_coderunner_question extends question_graded_automatically {
     }
 
 
+    // Return a cleaned and snipped version of the string s (or NULL if s is null).
+    private function tidy($s) {
+        if ($s === NULL) {
+            return NULL;
+        } else {
+            $cleanS = Grader::clean($s);
+            return Grader::snip($cleanS);
+        }
+    }
+
+    
     // Return a $sep-separated string of the non-empty elements
     // of the array $strings. Similar to implode except empty strings
     // are ignored
