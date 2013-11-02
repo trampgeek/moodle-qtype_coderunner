@@ -13,8 +13,7 @@
 /**
  * Represents a Token.
  *
- * @package twig
- * @author  Fabien Potencier <fabien@symfony.com>
+ * @author Fabien Potencier <fabien@symfony.com>
  */
 class Twig_Token
 {
@@ -122,11 +121,10 @@ class Twig_Token
      *
      * @param integer $type  The type as an integer
      * @param Boolean $short Whether to return a short representation or not
-     * @param integer $line  The code line
      *
      * @return string The string representation
      */
-    public static function typeToString($type, $short = false, $line = -1)
+    public static function typeToString($type, $short = false)
     {
         switch ($type) {
             case self::EOF_TYPE:
@@ -179,11 +177,10 @@ class Twig_Token
      * Returns the english representation of a given type.
      *
      * @param integer $type The type as an integer
-     * @param integer $line The code line
      *
      * @return string The string representation
      */
-    public static function typeToEnglish($type, $line = -1)
+    public static function typeToEnglish($type)
     {
         switch ($type) {
             case self::EOF_TYPE:

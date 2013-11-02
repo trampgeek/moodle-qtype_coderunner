@@ -42,7 +42,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
             'copyStdinC', 'timeoutC', 'exceptionsC', 'strToUpper',
             'strToUpperFullMain', 'stringDelete',
             'sqrmatlab', 'testStudentAnswerMacro',
-            'sqrjava', 'nameclass', 'printsquares');
+            'sqrjava', 'nameclass', 'printsquares', 'printstr');
     }
 
     /**
@@ -781,7 +781,7 @@ EOT;
         return $coderunner;
     }
 
-/**
+   /**
      * Makes a coderunner question asking for a program that prints squares
      * of numbers from 1 up to and including a value read from stdin.
      * @return qtype_coderunner_question
@@ -813,6 +813,46 @@ EOT;
     }
 
 
+    /**
+     * Makes a coderunner question in which the testcode is just a Java literal
+     * string and the template makes a program to use that value and print it.
+     * The output should then be identical to the input string.
+     * @return qtype_coderunner_question
+     */
+    public function make_coderunner_question_printstr() {
+        $q = $this->makeCodeRunnerQuestion(
+                'java_program',
+                'Print string',
+                'No question answer required');
+
+        $q->testcases = array(
+            (object) array('testcode'       => <<<EOTEST
+a0
+b\t
+c\f
+d'This is a string'
+"So is this"
+EOTEST
+,                          'stdin'          => "5\n",
+                           'expected'       => "a0\nb\t\nc\f\nd'This is a string'\n\"So is this\"",
+                           'display'        => 'SHOW',
+                           'mark'           => 1.0,
+                           'hiderestiffail' => 0,
+                           'useasexample'   => 1)
+        );
+        $q->customise = true;
+        $q->custom_template = <<<EOPROG
+public class Test
+{
+    public static void main(String[] args) {
+        System.out.println("{{TEST.testcode|e('java')}}");
+    }
+}
+EOPROG;
+        return $q;
+    }
+
+
     // ============== SUPPORT METHODS ====================
 
     /* Fill in the option information for a specific question type,
@@ -822,7 +862,6 @@ EOT;
         global $CFG, $DB;
         require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
         $qtype = new qtype_coderunner();
-        $question->customise = isset($question->custom_template) && trim($question->custom_template) != '';
 
         $type = $question->options['coderunner_type'];
 
@@ -833,6 +872,15 @@ EOT;
         foreach ($record as $field=>$value) {
             $question->$field = $value;
         }
+
+        if (!isset($question->custom_template)) {
+            $question->custom_template = '';
+        }
+
+        if (!isset($question->custom_grader)) {
+            $question->custom_grader = '';
+        }
+        $question->customise = trim($question->custom_template) != '' || trim($question->custom_grader) != '';
 
         if (!isset($question->sandbox)) {
             $question->sandbox = $qtype->getBestSandbox($question->language);

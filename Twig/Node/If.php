@@ -13,8 +13,7 @@
 /**
  * Represents an if node.
  *
- * @package    twig
- * @author     Fabien Potencier <fabien@symfony.com>
+ * @author Fabien Potencier <fabien@symfony.com>
  */
 class Twig_Node_If extends Twig_Node
 {
@@ -31,7 +30,7 @@ class Twig_Node_If extends Twig_Node
     public function compile(Twig_Compiler $compiler)
     {
         $compiler->addDebugInfo($this);
-        for ($i = 0; $i < count($this->getNode('tests')); $i += 2) {
+        for ($i = 0, $count = count($this->getNode('tests')); $i < $count; $i += 2) {
             if ($i > 0) {
                 $compiler
                     ->outdent()

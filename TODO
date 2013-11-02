@@ -8,6 +8,8 @@ Bug fixes
 2. Switch order of 'expected' and 'got' parameters to all phpunit tests. It's
    currently back to front.  [DONE]
 
+3. Catch twig exceptions and generate suitable HTML output
+
 
 Version 2 plans
 
@@ -28,7 +30,7 @@ Version 2 plans
 6. Generalise the validator to a grader. Default validator is exact match
    (more or less) with all-or-nothing marking. Allow custom validators.
    Significant design issues and/or incompatibilities with moodle framework
-   here.
+   here. [DONE]
 
 7. Support user-defined question types. Propose they be stored per-course (?).
    Significant design issue. What is a user-defined "question type"? Presumably
@@ -46,6 +48,7 @@ Version 2 plans
    question-handling rate.
 
 10. Security: validator should control what gets seen, as well as do grading
+    [DONE]
 
 11. Built-in test case/model answer.
 
@@ -53,4 +56,9 @@ Version 2 plans
 
 13. Inline edit as text.
 
-14. Version control.
+14. Version control of quiz questions.
+
+15. Control the maximum number of simultaneous runs provided by the
+    RunguardSandbox.
+
+16. Set up twig autoescaper with js mode and raw filter.

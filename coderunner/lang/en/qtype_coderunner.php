@@ -140,7 +140,7 @@ $string['show_mark'] = 'mark';
 $string['show_source'] = 'Template debugging';
 $string['show_stdin'] = 'stdin';
 $string['show_test'] = 'test';
-$string['show_output'] = 'output';
+$string['show_output'] = 'got';
 
 $string['stdin'] = 'Standard Input';
 $string['testcase'] = 'Test case {$a}';

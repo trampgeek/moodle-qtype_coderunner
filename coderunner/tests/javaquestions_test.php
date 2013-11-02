@@ -134,5 +134,14 @@ class qtype_coderunner_java_question_test extends basic_testcase {
         $this->assertEquals(2, count($testOutcome->testResults));
         $this->assertTrue($testOutcome->allCorrect());
     }
+
+
+    // Checks if the Java Twig escape filter works
+    public function test_java_escape() {
+        $q = test_question_maker::make_question('coderunner', 'printstr');
+        $response = array('answer' => '');
+        list($mark, $grade, $cache) = $q->grade_response($response);
+        $this->assertEquals(1, $mark);
+    }
 }
 

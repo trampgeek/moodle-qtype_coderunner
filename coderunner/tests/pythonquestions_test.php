@@ -338,7 +338,8 @@ EOCODE;
 
 
      public function test_custom_grader() {
-         // Check that a custom grader can be used.
+         // Check that a custom grader can be used. Also checks python-escaping
+         // in Twig templates.
          // This grader gives full marks if the input value is negative and
          // the output value is correct or zero marks otherwise.
          // The testcases are for n = {0, 1, 11, -7, -6} with marks of
@@ -346,8 +347,8 @@ EOCODE;
          // i.e 0.7742
          $q = test_question_maker::make_question('coderunner', 'sqr');
          $q->custom_grader = <<<EOGRADER
-expected = "{{TEST.expected|e('js')}}".strip()
-got = "{{TEST.got|e('js')}}".strip()
+expected = """{{TEST.expected|e('py')}}""".strip()
+got = """{{TEST.got|e('py')}}""".strip()
 if expected == '36' and expected == got:
     print('{"fraction":1.0}')
 elif expected == '49' and expected == got:

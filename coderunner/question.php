@@ -40,7 +40,9 @@ require_once($CFG->dirroot . '/question/behaviour/adaptive/behaviour.php');
 require_once($CFG->dirroot . '/question/engine/questionattemptstep.php');
 require_once($CFG->dirroot . '/question/behaviour/adaptive_adapted_for_coderunner/behaviour.php');
 require_once($CFG->dirroot . '/local/Twig/Autoloader.php');
+
 require_once('Grader/graderbase.php');
+require_once('escapers.php');
 require_once('testingoutcome.php');
 
 /**
@@ -189,19 +191,20 @@ class qtype_coderunner_question extends question_graded_automatically {
             'optimizations' => 0
         ));
 
+        $twigCore = $this->twig->getExtension('core');
+        $twigCore->setEscaper('py', 'pythonEscaper');
+        $twigCore->setEscaper('python', 'pythonEscaper');
+        $twigCore->setEscaper('c',  'javaEscaper');
+        $twigCore->setEscaper('java', 'javaEscaper');
+        $twigCore->setEscaper('ml', 'matlabEscaper');
+        $twigCore->setEscaper('matlab', 'matlabEscaper');
+
         $this->setUpSandbox();
         $this->setUpGrader();
 
-        $templateParams = array(
-            'STUDENT_ANSWER' => $code,
-            'ESCAPED_STUDENT_ANSWER' => str_replace('"', '\"', str_replace('\\', '\\\\', $code)),
-            'MATLAB_ESCAPED_STUDENT_ANSWER' => str_replace(
-                array("'",  "\n", "\r", '%'),
-                array("''", '\\n',  '',  '%%'),
-                str_replace('\\n', '\\\\n', $code)));
-         $this->allRuns = array();
-         $this->allGradings = array();
-         $outcome = $this->runWithCombinator($testCases, $templateParams);
+        $this->allRuns = array();
+        $this->allGradings = array();
+        $outcome = $this->runWithCombinator($code, $testCases);
 
         // If that failed for any reason (e.g. no combinator template or timeout
         // of signal) run the tests individually. Any compilation
@@ -210,7 +213,7 @@ class qtype_coderunner_question extends question_graded_automatically {
         // with a TestingOutcome object containing a test result for each test
         // case.
         if ($outcome == NULL) {
-            $outcome = $this->runTestsSingly($testCases, $templateParams);
+            $outcome = $this->runTestsSingly($code, $testCases);
         }
 
         $this->sandboxInstance->close();
@@ -247,12 +250,17 @@ class qtype_coderunner_question extends question_graded_automatically {
     // MATLAB_ESCAPED_STUDENT_ANSWER, a string for use in Matlab intended
     // to be used as s = sprintf('{{MATLAB_ESCAPED_STUDENT_ANSWER}}')
     // Return true if successful.
-    private function runWithCombinator($testCases, $templateParams) {
+    private function runWithCombinator($code, $testCases) {
         $outcome = NULL;
         if (!$this->customise && $this->combinator_template && $this->noStdins($testCases)) {
 
             assert($this->test_splitter_re != '');
-            $templateParams['TESTCASES'] = $testCases;
+
+            $templateParams = array(
+                'STUDENT_ANSWER' => $code,
+                'ESCAPED_STUDENT_ANSWER' => pythonEscaper(NULL, $code, NULL),
+                'MATLAB_ESCAPED_STUDENT_ANSWER' => matlabEscaper(NULL, $code, NULL),
+                'TESTCASES' => $testCases);
             $testProg = $this->twig->render($this->combinator_template, $templateParams);
 
             $this->allRuns[] = $testProg;
@@ -275,7 +283,7 @@ class qtype_coderunner_question extends question_graded_automatically {
                     $outcome = new TestingOutcome();
                     $i = 0;
                     foreach ($testCases as $testCase) {
-                        $outcome->addTestResult($this->grade($outputs[$i], $testCase));
+                        $outcome->addTestResult($this->grade($code, $outputs[$i], $testCase));
                         $i++;
                     }
                 }
@@ -294,28 +302,51 @@ class qtype_coderunner_question extends question_graded_automatically {
 
 
     // Run all tests one-by-one on the sandbox
-    private function runTestsSingly($testCases, $templateParams) {
+    private function runTestsSingly($code, $testCases) {
+        assert(!($this->customise && $this->custom_template == '' && $this->custom_grader == ''));
+        $templateParams = array(
+            'STUDENT_ANSWER' => $code,
+            'ESCAPED_STUDENT_ANSWER' => pythonEscaper(NULL, $code, NULL),
+            'MATLAB_ESCAPED_STUDENT_ANSWER' => matlabEscaper(NULL, $code, NULL)
+         );
         $template = $this->customise ? $this->custom_template : $this->per_test_template;
         $outcome = new TestingOutcome();
         foreach ($testCases as $testCase) {
-            $templateParams['TEST'] = $testCase;
-            $testProg = $this->twig->render($template, $templateParams);
-            $input = isset($testCase->stdin) ? $testCase->stdin : '';
-            $this->allRuns[] = $testProg;
-            $run = $this->sandboxInstance->execute($testProg, $this->language, $input);
-            if ($run->result === SANDBOX::RESULT_COMPILATION_ERROR) {
-                $outcome = new TestingOutcome(TestingOutcome::STATUS_SYNTAX_ERROR, $run->cmpinfo);
-                break;
-            } else if ($run->result != Sandbox::RESULT_SUCCESS) {
-                $errorMessage = $this->makeErrorMessage($run);
-                $isError = TRUE;
-                $outcome->addTestResult($this->grade($errorMessage, $testCase, $isError));
-                break;
-            } else {
-                // Very rarely Python will generate stderr output AND
-                // valid stdout output, so must merge them.
-                $output = $run->stderr ? $run->stderr + '\n' + $run->output : $run->output;
-                $outcome->addTestResult($this->grade($output, $testCase));
+            if ($template) {
+                $templateParams['TEST'] = $testCase;
+                try {
+                    $testProg = $this->twig->render($template, $templateParams);
+                } catch (Exception $e) {
+                    $outcome = new TestingOutcome(TestingOutcome::STATUS_SYNTAX_ERROR,
+                            'TEMPLATE ERROR: ' . $e->getMessage());
+                    break;
+                }
+
+                $input = isset($testCase->stdin) ? $testCase->stdin : '';
+                $this->allRuns[] = $testProg;
+                $run = $this->sandboxInstance->execute($testProg, $this->language, $input);
+                if ($run->result === SANDBOX::RESULT_COMPILATION_ERROR) {
+                    $outcome = new TestingOutcome(TestingOutcome::STATUS_SYNTAX_ERROR, $run->cmpinfo);
+                    break;
+                } else if ($run->result != Sandbox::RESULT_SUCCESS) {
+                    $errorMessage = $this->makeErrorMessage($run);
+                    $isError = TRUE;
+                    $outcome->addTestResult($this->grade($code, $errorMessage, $testCase, $isError));
+                    break;
+                } else {
+                    // Very rarely Python will generate stderr output AND
+                    // valid stdout output, so must merge them.
+                    $output = $run->stderr ? $run->stderr + '\n' + $run->output : $run->output;
+                    $outcome->addTestResult($this->grade($code, $output, $testCase));
+                }
+            } else { # No template: the grader must be doing the whole job
+                try {
+                    $outcome->addTestResult($this->grade($code, '', $testCase));
+                } catch (Exception $e) {
+                    $outcome = new TestingOutcome(TestingOutcome::STATUS_SYNTAX_ERROR,
+                            'GRADER TEMPLATE ERROR: ' . $e->getMessage());
+                    break;
+                }
             }
         }
         return $outcome;
@@ -354,13 +385,15 @@ class qtype_coderunner_question extends question_graded_automatically {
     // Grade a given test result using either the custom grader for this
     // question, if it's defined, or the default grader for the question type
     // otherwise.
-    private function grade($output, $testcase, $isBad = FALSE) {
+    // Twig might throw an exception if given a bad template: must be caught
+    // higher up.
+    private function grade($code, $output, $testcase, $isBad = FALSE) {
         if (!$this->has_custom_grader) {
             return $this->graderInstance->grade($output, $testcase);
         }
         else {
             $testcase->got = $output;
-            $templateParams = array('TEST' => $testcase);
+            $templateParams = array('STUDENT_ANSWER' => $code, 'TEST' => $testcase);
             $cleanedStudentOutput = $this->tidy($output);
             $cleanedExpected = $this->tidy($testcase->expected);
             $cleanedTestcode = $this->tidy($testcase->testcode);
@@ -428,7 +461,7 @@ class qtype_coderunner_question extends question_graded_automatically {
         }
     }
 
-    
+
     // Return a $sep-separated string of the non-empty elements
     // of the array $strings. Similar to implode except empty strings
     // are ignored
@@ -480,4 +513,5 @@ class qtype_coderunner_question extends question_graded_automatically {
         return $errors;
     }
 }
+
 

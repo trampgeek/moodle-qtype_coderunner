@@ -33,7 +33,7 @@ class Twig_TokenParser_Macro extends Twig_TokenParser
         $stream = $this->parser->getStream();
         $name = $stream->expect(Twig_Token::NAME_TYPE)->getValue();
 
-        $arguments = $this->parser->getExpressionParser()->parseArguments();
+        $arguments = $this->parser->getExpressionParser()->parseArguments(true, true);
 
         $stream->expect(Twig_Token::BLOCK_END_TYPE);
         $this->parser->pushLocalScope();
@@ -49,8 +49,6 @@ class Twig_TokenParser_Macro extends Twig_TokenParser
         $stream->expect(Twig_Token::BLOCK_END_TYPE);
 
         $this->parser->setMacro($name, new Twig_Node_Macro($name, new Twig_Node_Body(array($body)), $arguments, $lineno, $this->getTag()));
-
-        return null;
     }
 
     public function decideBlockEnd(Twig_Token $token)

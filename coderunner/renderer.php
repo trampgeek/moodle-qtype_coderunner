@@ -253,10 +253,10 @@ class qtype_coderunner_renderer extends qtype_renderer {
                     $tableRow[] = s($testResult->got);
                 }
 
-                $mark = $testResult->isCorrect ? $testResult->mark : 0.0;
+                $mark = $testResult->awarded;
 
                 if ($question->showmark && !$question->all_or_nothing) {
-                    $tableRow[] = sprintf('%.1f/%.1f', $mark, $testResult->mark);
+                    $tableRow[] = sprintf('%.2f/%.2f', $mark, $testResult->mark);
                 }
 
                 $rowWithLineBreaks = array();

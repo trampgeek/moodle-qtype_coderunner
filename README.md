@@ -1,6 +1,6 @@
 # CODE RUNNER
 
-Version: 1.0Beta June 2013
+Version: 1.5Beta November 2013
 
 Author: Richard Lobb, University of Canterbury, New Zealand.
 
@@ -21,27 +21,21 @@ makes on each question. However, it is also possible to run CodeRunner questions
 in a traditional quiz mode where the mark is determined by how many of the test
 cases the code successfully passes.
 
-CodeRunner is a derivative of a Python-specific plug-in called *pycode*, which
-has been used in four first-year university classes of several hundred students for two years,
-and *ccode*, a C version of pycode, which was used in a second-year C programming
-course of 200 students. The new version is designed to support multiple
-languages and question types within a single plug-in. Currently Python (versions
-2 and 3), C, Java and Matlab are all supported, but the architecture is
-sufficiently general to accommodate additional languages with very little
-extra code.
+CodeRunner and its predecessors *pycode* and *ccode* has been in use at the
+University of Canterbury for about three years, running tens of thousands of
+student quiz submissions in Python, C and Matlab. All laboratory work in the
+introductory first year Python programming course, which has around 400 students
+in the first semester and 200 in the second, is assessed using CodeRunner
+questions. The mid-semester test also uses Moodle/CodeRunner and it is intended to
+run the final examination on Moodle/Coderunner in the near future.
+The second year C course of around 200 students makes similar use of Coderunner
+using C questions and a third year Civil Engineering course, taught in Matlab,
+also uses Coderunner extensively.
 
-This current version, Coderunner V1.0 beta, has been used extensively
-over one semester at the University of Canterbury, New Zealand. The various
-Python quiz questions have been used with a class of over 400 students who
-have made many tens of thousands of submissions in quizzes, assignments and
-in their mid-semester test. Matlab questions were used in a similar manner
-in another course of around 180 students with many thousands of submissions.
-C questions have not yet received much use -- the C course starts in a few
-weeks -- but there is very little code that hasn't been extensively exercised
-either by the Python and Matlab tests or by the *ccode* plug-in last year.
-Of the currently built-in question types, only the Java questions have not
-been heavily exercised: they should be regarded as alpha-level (though again
-most of the code is common to the other question types).
+The system currently supports Python2, Python3, C and Matlab. Java support
+is also present but has not yet been used in courses. The architecture allows
+easy extension to other languages and one lecturer has made
+intermittent use of *clojure* questions.
 
 For security and load reasons, CodeRunner in its present form is not suitable
 for installing on an institution-wide Moodle server. Instead, it is recommended
@@ -58,16 +52,16 @@ Administrator privileges and some Unix skills are needed to install Coderunner.
 ## Installation
 
 
-CodeRunner requires Moodle version 2.1 or later. Furthermore, to run the testsuite,
-a Moodle version >= 2.3 is required, since the tests have been changed from
-using SimpleTest to PHPUnit, as required by version 2.3.
+CodeRunner requires Moodle version 2.5 or later.
 
 There are three stages to installation:
 
 1. Installing the CodeRunner module itself.
 
-1. Installing an additional sandbox (not strictly necessary but strongly
-recommended) to provide more security .
+1. Installing an additional sandbox above and beyond the supplied
+RunguardSandbox and IdeoneSandboxes (not strictly necessary but strongly
+recommended) to provide more security than Runguard or much better
+performance than Ideone.
 
 1. Configuring the system for the particular sandbox(es) and languages
 your installation supports.
@@ -86,19 +80,18 @@ The install script sets up symbolic links from the `question/type` and
 `question/behaviour` directories to corresponding CodeRunner directories; you
 must have configured the webserver to follow symbolic links for this to work.
 It also creates a new user called *coderunner* on the system; when using
-the so-called *NullSandbox* (see below), tests are run with the user ID set
+the *RunguardSandbox* (see below), tests are run with the user ID set
 to the coderunner user to minimise the exposure of sensitive web-server
 information. The install script may prompt for details like the office and phone
 number of the coderunner user -- just hit enter to accept the defaults.
 The switch to the coderunner user and the controlled execution of the
-submitted program in *NullSandbox* is done by a program `runguard`, written
+submitted program in *RunguardSandbox* is done by a program `runguard`, written
 by Jaap Eldering as part of
 the programming contest server [DOMJudge](http://domjudge.sourceforge.net/). This
 program needs to be 'setuid root', and hence the install script requires
 root permissions to set this up.
 
-All going well, you should finish up with a user 'coderunner'
-, albeit one without
+All going well, you should finish up with a user 'coderunner', albeit one without
 a home directory, and symbolic links from within the `<moodlehome>/question/type`
 and `<moodlehome>/question/behaviour` directories to the `<moodlehome>/local/CodeRunner/CodeRunner`
 and `<moodlehome>/local/CodeRunner/adaptive_adapted_for_coderunner` directories
@@ -108,12 +101,10 @@ install script to see exactly what was expected.
 
 ### Installing the Liu sandbox
 
-The recommended main sandbox for running Python and C is the
-Liu sandbox. It can be obtained from
-[here](http://sourceforge.net/projects/libsandbox/).  Both the binary and the
+The recommended main sandbox for running C is the Liu sandbox. It can be obtained
+from [here](http://sourceforge.net/projects/libsandbox/).  Both the binary and the
 Python2 interface need to be installed. Note that CodeRunner does *not*
-currently work with the Python3 interface to the sandbox, though it is
-quite possible to run Python3 within the sandbox.
+currently work with the Python3 interface to the sandbox.
 
 The easiest way to install the Liu sandbox is by
 downloading appropriate `.deb`s or `.rpm`s of both `libsandbox` and `pysandbox` (for
@@ -128,24 +119,37 @@ The last step in installation involves configuring the sandboxes appropriately
 for your particular environment.
 
   1. If you haven't succeeded in installing the LiuSandbox correctly, you
-can try running all your code via *runguard* in the so-called *NullSandbox*.
-Assuming the install script successfully created the user *coderunner* and
-set the *runguard* program to run as root, the nullsandbox is reasonably safe,
-in that it limits execution time resource usage and limits file access to
+can run programs in any of the supported languages via *runguard*
+in the *RunguardSandbox*, or can also run Python3 and Ideone
+programs  remotely on the Ideone system (ideone.com) using the
+*IdeoneSandbox*.
+     * The RunguardSandbox. Assuming the install script successfully created the
+user *coderunner* and set the *runguard* program to run as root,
+the RunguardSandbox is reasonably safe,
+in that it controls memory usage and execution time and limits file access to
 those parts of the file system visible to all users. However, it does not
 prevent use of system calls like *socket* that might open connections to
 other servers behind your firewall and of course it depends on the Unix
 server being securely set up in the first place. There are also potential
 problems with controlling fork bombs and/or testing of heavily multithreaded
 languages or student submissions. That being said, our own quiz server has
-been making extensive use of the NullSandbox for a full semester and the only
-problem that occurred was when multiple Python submissions attempted to run
+been making extensive use of the RunguardSandbox for two years and only
+once had a problem when multiple Python submissions attempted to run
 the Java Virtual Machine (heavily multithreaded), for which the process limit
 previously set for Python was inadequate. That limit has since been multiplied
-by 10, but this is not a satisfactory long-term solution.
+by 10. To use only the RunguardSandbox, change the file
+`CodeRunner/coderunner/Sandbox/sandbox_config.php`
+to list only `runguardsandbox` as an option.
+     * The IdeoneSandbox. ideone.com is a compute server that runs
+programs submitted either through a browser or through a web-services API in
+a huge number of different languages. This is not recommended for production
+use, as execution turn-around time is frequently too large (from 10 seconds
+to a minute or more) to give a tolerable user experience. A key to access
+the Ideone web-services is required; runs are free up to a certain number
+but you then have to pay for usage. *** TBS *** Details on key entry etc ***.
+The IdeoneSandbox is there mainly as a proof of concept of the idea of off-line
+execution and to support occasional use of unusual languages.
 
-    To use only the NullSandbox, change the file `CodeRunner/coderunner/Sandbox/sandbox_config.php`
-to list only `nullsandbox` as an option.
 
   2. If you are using the LiuSandbox for Python and C, the supplied
 `sandbox_config.php` should be correct. Obviously the appropriate languages
@@ -164,9 +168,9 @@ outside the sandbox and statically linking so shouldn't need to access
 *any* bits of the file system at runtime (unless you wish to allow this,
 of course).
 
-If you're running a Moodle version >=2.3, and have installed the
-*phpunit* system for testing, you might wish to test the
-CodeRunner installation with phpunit. However, unless you are planning on running
+If you have have installed the
+*phpunit* system for testing Moodle modules, you might wish to test the
+CodeRunner installation. However, unless you are planning on running
 Matlab you should first move or remove the file
 
         <moodlehome>/local/coderunner/Coderunner/tests/matlabquestions_test.php
@@ -189,9 +193,9 @@ extended to support lots more. The file `db/upgrade.php` installs a set of
 standard language and question types into the data base. Each question type
 defines a programming language, a couple of templates (see the next section),
 a preferred sandbox (normally left blank so that the best one available can
-be used) and a preferred validator. The latter is also normally blank as the
+be used) and a preferred grader. The latter is also normally blank as the
 default so-called
-*BasicValidator* is the only one currently available - it just compares the actual
+*BasicGrader* is the only one currently available - it just compares the actual
 program output with the expected output and requires an exact match for a
 pass, after trailing blank lines and trailing white space on lines has been
 removed. An alternative regular expression match could easily be added but I
@@ -213,7 +217,7 @@ docstring and the code is passed through the [pylint](http://www.logilab.org/857
 source code analyser. The submission is rejected if pylint gives any errors,
 otherwise testing proceeds as normal. Obviously, pylint needs to be installed
 and appropriately configured for this question type to be usable. Note, too,
-that this type of question runs in the so-called NullSandbox, rather than in the
+that this type of question runs in the so-called RunguardSandbox, rather than in the
 Liu sandbox, in order to allow execution of an external program during testing.
 
  1. **python3\_pylint\_prog**. This is identical to the previous type except that no
@@ -232,10 +236,10 @@ stand-alone program.
  All C question types use the gcc compiler with the language set to
  accept C99 and with both *-Wall* and *-Werror* options set on the command line
  to issue all warnings and reject the code if there are any warnings.
- C++ isn't build in as present, as we don't teach it, but changing C question
+ C++ isn't built in as present, as we don't teach it, but changing C question
  to support C++ is mainly just a matter of changing the
  compile command line, viz., the line "$cmd = ..." in the *compile* methods of
- *C\_ns\_Task* in nullsandbox.php and *C_Task* in liusandbox.php. You will probably
+ *C\_ns\_Task* in runguardsandbox.php and *C_Task* in liusandbox.php. You will probably
  also wish to change the C question type templates a bit, e.g. to include
  *iostream* instead of, or as well as, *stdio.h* by default. The line
 
@@ -253,7 +257,8 @@ complete C main function that uses the student-supplied declarations.
 
  1. **matlab_function**. This is the only supported matlab question type and isn't
 really intended for general use outside the University of Canterbury. It assumes
-matlab is installed on the server at the path "/usr/local/Matlab2012a/bin/glnxa64/MATLAB".
+matlab is installed on the server and can be run with the shell command
+"/usr/local/bin/matlab_exec_cli".
 A ".m" test file is built that contains a main test function, which executes
 all the supplied test cases, followed by the student code which must be in the
 form of one or more function declarations. That .m file is executed by Matlab,
@@ -374,7 +379,7 @@ various tests on that data to determine its correctness. The Python *pylint*
 question types given earlier are a simple example: the template code first
 writes the student's code to a file and runs *pylint* over that file before
 proceeding with any tests. The per-test template for this question type (which must
-run in the NullSandbox) is:
+run in the RunguardSandbox) is:
 
     __student_answer__ = """{{ ESCAPED_STUDENT_ANSWER }}"""
 
@@ -424,6 +429,47 @@ used in practice include:
     automaton.
 
 
+## Graders
+
+Using just the template mechanism described above it is possible to write
+almost arbitrarily complex questions. Grading of student submissions can,
+however, be problematic in some situations. If there is a smallish set of
+testcases then it is straightforward to have the template program generate
+outputs like "Pass" and "Fail" depending on whether the student submission
+passes the test case. The default exact match grader will then award full
+marks for the pass cases and zero marks for the fail cases. If the usual
+"all-or-nothing" checkbox is turned off, part marks can then be awarded
+according to which tests pass.
+
+However, sometimes it is desirable to have more complex grading criteria.
+For example, you may wish to subject a student's code to a very large
+number of tests and award a mark according to how many of the test cases
+it can handle. These tests need to be generated by a program and, in a single
+execution run, applied to the student's submission. The usual exact-match
+grader cannot handle this situation. For such cases the customisable
+grader is required.
+
+When you click the *customise* checkbox to customise a question, you're
+actually given two text areas to edit: the template discussed in the previous
+two sections and an initially-empty text area marked *grader*. The latter
+allows for arbitrarily complex grading of submissions. It too takes a
+template, for processing by the Twig template engine. The input to the
+template engine is again a TEST object containing *testcode*, *stdin* and
+*expected* field. In addition, the standard output from the execution of the
+test program is added to the TEST object as a field *got*. The template
+is evaluated by Twig to yield a second program (in the same language as the
+initial test program) which is run in the sandbox. The output from *that*
+program is then used as a grade; it should either be a single floating point
+number less than or equal to 1.0, being the fractional correctness, or a
+JSON-encoded grader-result object with the mandatory field "fraction" (the fractional
+correctness) and three optional extra fields: *testcode*, *expected* and *got*.
+If the
+latter are present they will be used instead of the default values of the
+original *TEST.testcode*, *TEST.expected* and the output from the first run, respectively.
+This allows the grader the selectively display feedback information to the
+student or, say, to show a list of failing cases.
+
+As a simple example, suppose
 
 ##How programming quizzes should work
 
@@ -488,13 +534,13 @@ needs to make on each question.
 This section can be ignored by almost everyone. It's of relevance only
 to a developer who may be looking to run CodeRunner on a non-virtualised
 server and who wants a sandbox that's more secure than DomJudge's *runguard*
-environment (which is used by the somewhat unfairly-named *NullSandbox*)
+environment (which is used by the somewhat unfairly-named *RunguardSandbox*)
 but is for some reason, such as the need to support a language that requires
 multithreading, is unable to use the Liu sandbox. It is "work in progress",
 not production code.
 
 CodeRunner is designed with a pluggable sandbox architecture. The two sandboxes
-currently provided are those mentioned above: LiuSandbox and NullSandbox. A
+currently provided are those mentioned above: LiuSandbox and RunguardSandbox. A
 sandbox that uses the [ideone.com](http://ideone.com) server, which supports
 a huge range of programming languages, is also planned.
 

@@ -1,0 +1,534 @@
+<h1>CODE RUNNER</h1>
+
+<p>Version: 1.5Beta November 2013</p>
+
+<p>Author: Richard Lobb, University of Canterbury, New Zealand.</p>
+
+<h2>Introduction</h2>
+
+<p>CodeRunner is a Moodle question type that requests students to submit program code
+to some given specification, e.g. a Python function sqr(x) that returns its
+parameter squared. The submission is graded by running a series of testcases
+of the code in a sandbox, comparing the output with the expected output.
+CodeRunner is intended to be run in an adaptive mode, so that students know
+immediately if their code is passing the tests. In the typical
+'all-or-nothing' mode, all test cases must pass
+if the submission is to be awarded any marks. The mark for a set of questions
+in a quiz is then determined primarily by which questions the student is able
+to  solve successfully and then secondarily by how many submissions the student
+makes on each question. However, it is also possible to run CodeRunner questions
+in a traditional quiz mode where the mark is determined by how many of the test
+cases the code successfully passes.</p>
+
+<p>CodeRunner and its predecessors <em>pycode</em> and <em>ccode</em> has been in use at the
+University of Canterbury for about three years, running tens of thousands of
+student quiz submissions in Python, C and Matlab. All laboratory work in the
+introductory first year Python programming course, which has around 400 students
+in the first semester and 200 in the second, is assessed using CodeRunner
+questions. The mid-semester test also uses Moodle/CodeRunner and it is intended to
+run the final examination on Moodle/Coderunner in the near future.
+The second year C course of around 200 students makes similar use of Coderunner
+using C questions and a third year Civil Engineering course, taught in Matlab,
+also uses Coderunner extensively.</p>
+
+<p>The system currently supports Python2, Python3, C and Matlab. Java support
+is also present but has not yet been used in courses. The architecture allows
+easy extension to other languages and one lecturer has made
+intermittent use of <em>clojure</em> questions.</p>
+
+<p>For security and load reasons, CodeRunner in its present form is not suitable
+for installing on an institution-wide Moodle server. Instead, it is recommended
+that a special quiz server be set up: essentially just a standard Linux install
+plus Moodle, CodeRunner and any extra languages required (e.g. Python3, Java).
+A single 4-core server can handle an average quiz question submission rate of
+about 30 quiz questions per minute while maintaining a response time of less
+than about 3 - 4 seconds, assuming the student code itself runs in a
+fraction of a second.</p>
+
+<p>Administrator privileges and some Unix skills are needed to install Coderunner.</p>
+
+<h2>Installation</h2>
+
+<p>CodeRunner requires Moodle version 2.5 or later.</p>
+
+<p>There are three stages to installation:</p>
+
+<ol>
+<li><p>Installing the CodeRunner module itself.</p></li>
+<li><p>Installing an additional sandbox above and beyond the supplied
+RunguardSandbox and IdeoneSandboxes (not strictly necessary but strongly
+recommended) to provide more security than Runguard or much better
+performance than Ideone.</p></li>
+<li><p>Configuring the system for the particular sandbox(es) and languages
+your installation supports.</p></li>
+</ol>
+
+<h3>Installing CodeRunner</h3>
+
+<p>CodeRunner should be installed in the <code>&lt;moodlehome&gt;/local</code> directory as follows.</p>
+
+<pre><code>cd &lt;moodlehome&gt;/local
+git clone https://github.com/trampgeek/CodeRunner.git
+cd CodeRunner
+sudo ./install
+</code></pre>
+
+<p>The install script sets up symbolic links from the <code>question/type</code> and
+<code>question/behaviour</code> directories to corresponding CodeRunner directories; you
+must have configured the webserver to follow symbolic links for this to work.
+It also creates a new user called <em>coderunner</em> on the system; when using
+the <em>RunguardSandbox</em> (see below), tests are run with the user ID set
+to the coderunner user to minimise the exposure of sensitive web-server
+information. The install script may prompt for details like the office and phone
+number of the coderunner user -- just hit enter to accept the defaults.
+The switch to the coderunner user and the controlled execution of the
+submitted program in <em>RunguardSandbox</em> is done by a program <code>runguard</code>, written
+by Jaap Eldering as part of
+the programming contest server <a href="http://domjudge.sourceforge.net/">DOMJudge</a>. This
+program needs to be 'setuid root', and hence the install script requires
+root permissions to set this up.</p>
+
+<p>All going well, you should finish up with a user 'coderunner', albeit one without
+a home directory, and symbolic links from within the <code>&lt;moodlehome&gt;/question/type</code>
+and <code>&lt;moodlehome&gt;/question/behaviour</code> directories to the <code>&lt;moodlehome&gt;/local/CodeRunner/CodeRunner</code>
+and <code>&lt;moodlehome&gt;/local/CodeRunner/adaptive_adapted_for_coderunner</code> directories
+respectively. There should also be a symbolic link from <code>local/Twig</code> to
+<code>local/CodeRunner/Twig</code>. These can all be set up by hand if desired but read the
+install script to see exactly what was expected.</p>
+
+<h3>Installing the Liu sandbox</h3>
+
+<p>The recommended main sandbox for running C is the Liu sandbox. It can be obtained
+from <a href="http://sourceforge.net/projects/libsandbox/">here</a>.  Both the binary and the
+Python2 interface need to be installed. Note that CodeRunner does <em>not</em>
+currently work with the Python3 interface to the sandbox.</p>
+
+<p>The easiest way to install the Liu sandbox is by
+downloading appropriate <code>.deb</code>s or <code>.rpm</code>s of both <code>libsandbox</code> and <code>pysandbox</code> (for
+Python version 2). Note that the <code>pysandbox</code> download must be the one appropriate
+to the installed  version of Python2 (currently typically 2.6 on RHEL systems
+or 2.7 on most other flavours of Linux) <em>regardless of whether or not you
+intend to support Python3 as a programming language for submissions</em>.</p>
+
+<h3>Configuration</h3>
+
+<p>The last step in installation involves configuring the sandboxes appropriately
+for your particular environment.</p>
+
+<ol>
+<li><p>If you haven't succeeded in installing the LiuSandbox correctly, you
+can try running all your code via <em>runguard</em> in the <em>RunguardSandbox</em> or by remote
+execution on the Ideone system (ideone.com) using the <em>IdeoneSandbox</em>, as follows.</p>
+
+<ul>
+<li>The RunguardSandbox. Assuming the install script successfully created the user <em>coderunner</em> and
+set the <em>runguard</em> program to run as root, the RunguardSandbox is reasonably safe,
+in that it controls memory usage and execution time and limits file access to
+those parts of the file system visible to all users. However, it does not
+prevent use of system calls like <em>socket</em> that might open connections to
+other servers behind your firewall and of course it depends on the Unix
+server being securely set up in the first place. There are also potential
+problems with controlling fork bombs and/or testing of heavily multithreaded
+languages or student submissions. That being said, our own quiz server has
+been making extensive use of the RunguardSandbox for two years and the only
+problem that occurred was when multiple Python submissions attempted to run
+the Java Virtual Machine (heavily multithreaded), for which the process limit
+previously set for Python was inadequate. That limit has since been multiplied
+by 10, but this is not a satisfactory long-term solution.</li>
+<li>The IdeoneSandbox.</li>
+</ul>
+
+<p>To use only the RunguardSandbox, change the file <code>CodeRunner/coderunner/Sandbox/sandbox_config.php</code>
+to list only <code>runguardsandbox</code> as an option.</p></li>
+<li><p>If you are using the LiuSandbox for Python and C, the supplied
+<code>sandbox_config.php</code> should be correct. Obviously the appropriate languages
+must be installed including, in the case of C, the capability to compile and
+link statically (no longer part of the default RedHat installation).
+However, some configuration of the
+file <code>liusandbox.php</code> may be required. Try it first 'out of the box', but
+if, when running a submitted quiz question, you get 'Illegal function call'
+due to opening an inaccessible file, you will have to configure
+the various <code>LanguageTask</code> subclasses so that each one returns a suitable
+list of accessible subtrees when its <code>readableDirs()</code> method is called.
+Some experimentation may be needed and/or use of the Linux <code>strace</code> command
+to determine what bits of the file system your installed Python (say) requires
+access to. This should not be necessary with C, as the C programs are compiled
+outside the sandbox and statically linking so shouldn't need to access
+<em>any</em> bits of the file system at runtime (unless you wish to allow this,
+of course).</p></li>
+</ol>
+
+<p>If you're running a Moodle version >=2.3, and have installed the
+<em>phpunit</em> system for testing, you might wish to test the
+CodeRunner installation with phpunit. However, unless you are planning on running
+Matlab you should first move or remove the file</p>
+
+<pre><code>    &lt;moodlehome&gt;/local/coderunner/Coderunner/tests/matlabquestions_test.php
+</code></pre>
+
+<p>You should then be able to run the tests with</p>
+
+<pre><code>    cd &lt;moodlehome&gt;
+    sudo php admin/tool/phpunit/cli/init.php
+    sudo phpunit --testsuite="qtype_coderunner test suite"
+</code></pre>
+
+<p>Please <a href="mailto:richard.lobb@canterbury.ac.nz">email me</a> if you have problems
+with the installation.</p>
+
+<h2>Question types</h2>
+
+<p>CodeRunner support a wide variety of question types and can easily be
+extended to support lots more. The file <code>db/upgrade.php</code> installs a set of
+standard language and question types into the data base. Each question type
+defines a programming language, a couple of templates (see the next section),
+a preferred sandbox (normally left blank so that the best one available can
+be used) and a preferred validator. The latter is also normally blank as the
+default so-called
+<em>BasicValidator</em> is the only one currently available - it just compares the actual
+program output with the expected output and requires an exact match for a
+pass, after trailing blank lines and trailing white space on lines has been
+removed. An alternative regular expression match could easily be added but I
+haven't felt the need for it yet - I prefer students to get answers exactly
+right, not roughly right.</p>
+
+<p>The current set of question types (each of which can be customised by
+editing its template, as explained in the next section) is:</p>
+
+<ol>
+<li><p><strong>python3</strong>. Used for most Python3 questions. For each test case, the student
+code is run first, e followed by the sequence of tests.</p></li>
+<li><p><strong>python2</strong>. Used for most Python2 questions. For each test case, the student
+code is run first, e followed by the sequence of tests.</p></li>
+<li><p><strong>python3_pylint_func</strong>. This is a special type developed for use in the
+University of Canterbury. The student submission is prefixed by a dummy module
+docstring and the code is passed through the <a href="http://www.logilab.org/857">pylint</a>
+source code analyser. The submission is rejected if pylint gives any errors,
+otherwise testing proceeds as normal. Obviously, pylint needs to be installed
+and appropriately configured for this question type to be usable. Note, too,
+that this type of question runs in the so-called RunguardSandbox, rather than in the
+Liu sandbox, in order to allow execution of an external program during testing.</p></li>
+<li><p><strong>python3_pylint_prog</strong>. This is identical to the previous type except that no
+dummy docstring is added at the top as the submission is expected to be a
+stand-alone program.</p></li>
+<li><p><strong>c_function</strong>. Used for C write-a-function questions where the student supplies
+just a function (plus possible support functions) and each test is (typically) of the form</p>
+
+<pre><code>printf(format_string, func(arg1, arg2, ..))
+</code></pre>
+
+<p>The template for this question type generates some standard includes, followed
+by the student code followed by a main function that executes the tests one by
+one.</p>
+
+<p>All C question types use the gcc compiler with the language set to
+accept C99 and with both <em>-Wall</em> and <em>-Werror</em> options set on the command line
+to issue all warnings and reject the code if there are any warnings.
+C++ isn't build in as present, as we don't teach it, but changing C question
+to support C++ is mainly just a matter of changing the
+compile command line, viz., the line "$cmd = ..." in the <em>compile</em> methods of
+<em>C_ns_Task</em> in runguardsandbox.php and <em>C_Task</em> in liusandbox.php. You will probably
+also wish to change the C question type templates a bit, e.g. to include
+<em>iostream</em> instead of, or as well as, <em>stdio.h</em> by default. The line</p>
+
+<pre><code>using namespace std;
+</code></pre>
+
+<p>may also be desirable.</p></li>
+<li><p><strong>c_program</strong>. Used for C write-a-program questions where the student supplies
+a complete program and the tests simply run this program with supplied standard
+input.</p></li>
+<li><p><strong>c_full_main_tests</strong>. This is a rarely used special question type where
+students write global declarations (types, functions etc) and each test is a
+complete C main function that uses the student-supplied declarations.</p></li>
+<li><p><strong>matlab_function</strong>. This is the only supported matlab question type and isn't
+really intended for general use outside the University of Canterbury. It assumes
+matlab is installed on the server at the path "/usr/local/Matlab2012a/bin/glnxa64/MATLAB".
+A ".m" test file is built that contains a main test function, which executes
+all the supplied test cases, followed by the student code which must be in the
+form of one or more function declarations. That .m file is executed by Matlab,
+various Matlab-generated noise is filtered, and the output must match that
+specified for the test cases.</p></li>
+<li><p><strong>java_method</strong>. This is intended for early Java teaching where students are
+still learning to write individual methods. The student code is a single method,
+plus possible support methods, that is wrapped in a class together with a
+static main method containing the supplied tests (which will generally call the
+student's method and print the results).</p></li>
+<li><p><strong>java_class</strong>. Here the student writes an entire class (or possibly
+multiple classes), which must <em>not</em> be
+public. The test cases are then wrapped in the main method for a separate
+public test class which is added to the students class and the whole is then
+executed.</p></li>
+<li><p><strong>java_program</strong>. Here the students writes a complete program which is compiled
+then executed once for each test case to see if it generates the expected output
+for that test.</p></li>
+</ol>
+
+<h2>Templates</h2>
+
+<p>Templates are the key to understanding how a submission is tested. There are in
+general two templates per question type - a <em>combinator_template</em> and a
+<em>per_test_template</em> but we'll ignore the former for now and focus on the latter.</p>
+
+<p>The <em>per_test_template</em> for each question type defines how a program is built from the
+student's code and one particular testcase. That program is compiled (if necessary)
+and run with the standard input defined in that testcase, and the output must
+then match the expected output for the testcase (where 'match' is defined
+by the chosen validator, but only the basic equality-match validator is
+currently supplied).</p>
+
+<p>The question type template is processed by a template engine called
+<a href="http://twig.sensiolabs.org/">Twig</a>, which is passed a variable called
+STUDENT_ANSWER and another called TEST.testcode that the question author enters
+for the particular test. As an example,
+the question type <em>c_function</em>, which asks students to write a C function,
+looks like:</p>
+
+<pre><code>    #include &lt;stdio.h&gt;
+    #include &lt;stdlib.h&gt;
+    #include &lt;ctype.h&gt;
+
+    {{ STUDENT_ANSWER }}
+
+    int main() {
+        {{ TEST.testcode }};
+        return 0;
+    }
+</code></pre>
+
+<p>A typical test (i.e. <code>TEST.testcode</code>) for a question asking students to write a function that
+returns the square of its parameter might be:</p>
+
+<pre><code>    printf("%d\n", sqr(-9))
+</code></pre>
+
+<p>with the expected output of 81.</p>
+
+<p>When authoring a question you can inspect the template for your chosen
+question type by temporarily checking the 'Customise' checkbox.</p>
+
+<p>As mentioned earlier, there are actually two templates for each question
+type. For efficiency, CodeRunner first tries
+to combine all testcases into a single compile-and-execute run using the second
+template, called the <code>combinator_template</code>. There is a combinator
+template for most
+question type, except for questions that require students
+to write a whole program. However, the combinator template is not used during
+testing if standard input is supplied for any of the tests; each test
+is then assumed to be independent of the others, with its own input. Also,
+if an exception occurs at runtime when a combinator template is being used,
+the tester retries all test cases individually using the per-test-case
+template so that the student gets presented with all results up to the point
+at which the exception occurred.</p>
+
+<p>Because combinator templates are complicated, they are not exposed via
+the authorship GUI. If you wish to use them (and the only reason would be
+to gain efficiency in questions of a type not currently supported) you will
+need to edit <code>upgrade.php</code>, set a new plug-in version number, and run the
+administator plug-in update procedure.</p>
+
+<p>As mentioned above, the <code>per_test_template</code> can be edited by the question
+author for special needs, e.g. if you wish to provide skeleton code to the
+students. As a simple example, if you wanted students to fill in the missing
+line in a C function that returns the square of its parameter, you could use
+a template like:</p>
+
+<pre><code>    #include &lt;stdio.h&gt;
+    #include &lt;stdlib.h&gt;
+    #include &lt;ctype.h&gt;
+
+    int sqr(int n) {
+       {{ STUDENT_ANSWER }}
+    }
+
+    int main() {
+        {{ TEST.testcode }};
+        return 0;
+    }
+</code></pre>
+
+<p>Obviously the question text for such a question would need to make it clear
+to students what context their code appears in.</p>
+
+<p>Note that if you customise a question type in this way you lose the
+efficiency gain that the combinator template offers, although this is probably
+not much of a problem unless you have a large number of testcases.</p>
+
+<h2>Advanced template use</h2>
+
+<p>It may not be obvious from the above that the template mechanism allows
+for almost any sort of question where the answer can be evaluated by a computer.
+In all the examples given so far, the student's code is executed as part of
+the test process but in fact there's no need for this to happen. The student's
+answer can be treated as data by the template code, which can then execute
+various tests on that data to determine its correctness. The Python <em>pylint</em>
+question types given earlier are a simple example: the template code first
+writes the student's code to a file and runs <em>pylint</em> over that file before
+proceeding with any tests. The per-test template for this question type (which must
+run in the RunguardSandbox) is:</p>
+
+<pre><code>__student_answer__ = """{{ ESCAPED_STUDENT_ANSWER }}"""
+
+import subprocess
+
+def check_code(s):
+    try:
+        source = open('source.py', 'w')
+        source.write(s)
+        source.close()
+        result = subprocess.check_output(['pylint', 'source.py'], stderr=subprocess.STDOUT)
+    except Exception as e:
+        result = e.output.decode('utf-8')
+
+    if result.strip():
+        print("pylint doesn't approve of your program")
+        print(result)
+        raise Exception("Submission rejected")
+
+check_code(__student_answer__)
+
+{{ STUDENT_ANSWER }}
+{{ TEST.testcode }}
+</code></pre>
+
+<p>The template variable ESCAPED_STUDENT_ANSWER is the student's submission with
+all double quote and backslash characters escaped with an added backslash.
+Note that in the event of a failure an exception is raised; this ensures that
+further testing is aborted so that the student doesn't receive the same error
+for every test case. [As noted above, the tester aborts the testing sequence
+when using the per-test-case template if an exception occurs.]</p>
+
+<p>Some other more complex examples that we've
+used in practice include:</p>
+
+<ol>
+<li><p>A matlab question in which the template code (also matlab) breaks down
+the student's code into functions, checking the length of each to make
+sure it's not too long, before proceeding with marking.</p></li>
+<li><p>A python question where the student's code is actually a compiler for
+a simple language. The template code runs the student's compiler,
+passes its output through an assembler that generates a JVM class file,
+then runs that class with the JVM to check its correctness.</p></li>
+<li><p>A python question where the students submission isn't code at all, but
+is a textual description of a Finite State Automaton for a given transition
+diagram; the template code evaluates the correctness of the supplied
+automaton.</p></li>
+</ol>
+
+<h2>How programming quizzes should work</h2>
+
+<p>Historical notes and a diatribe on the use of Adaptive Mode questions ...</p>
+
+<p>The original pycode was inspired by <a href="http://codingbat.com">CodingBat</a>, a site where
+students submit Python or Java code that implements a simple function or
+method, e.g. a function that returns twice the square of its parameter plus 1.
+The student code is executed with a series of tests cases and results are
+displayed immediately after submission in a simple tabular form showing each
+test case, expected answer
+and actual answer. Rows where the answer computed by the student's code
+is correct receive a large green tick; incorrect rows
+receive a large red cross. The code is deemed correct only if all tests
+are ticked. If code is incorrect, students can simply correct it and resubmit.</p>
+
+<p><em>CodingBat</em> proves extraordinarily effective as a student training site. Even
+experienced programmers receive pleasure from the column of green ticks and
+all students are highly motivated to fix their code and retry if it fails one or more
+tests. Some key attributes of this success, to be incorporated into <em>pycode</em>,
+were:</p>
+
+<ol>
+<li><p>Instant feedback. The student pastes their code into the site, clicks
+<em>submit</em>, and almost immediately receives back their results.</p></li>
+<li><p>All-or-nothing correctness. If the student's code fails any test, it is
+wrong. Essentially (thinking in a quiz context) it earns zero marks. Code
+has to pass <em>all</em> tests to be deemed mark-worthy.</p></li>
+<li><p>Simplicity. The question statement should be simple. The solution should
+also be reasonably simple. The display of results is simple and the student
+knows immediately what test cases failed. There are no complex regular-expression
+failures for the students to puzzle over nor uncertainties over what the
+test data was.</p></li>
+<li><p>Rewarding green ticks. As noted above, the colour and display of a correct
+results table is highly satisfying and a strong motivation to succeed.</p></li>
+</ol>
+
+<p>The first two of these requirements are particularly critical. While they can
+be accommodated within Moodle by using an <em>adaptive</em> quiz behaviour
+in conjunction with an all-or-nothing marking scheme, they are not
+how many people view a Moodle quiz. Quizzes are
+commonly marked only after submission of all questions, and there is usually
+a perception that part marks will be awarded for "partially correct" answers.
+However, awarding marks to a piece of code according to how many test cases
+it passes can give almost meaningless results. For example, a function that
+always just returns 0, or the empty list or equivalent, will usually pass several
+of the tests, but surely it shouldn't be given <em>any</em> marks? Seriously flawed
+code, for example a string tokenizing function that works only with alphabetic
+data, may get well over half marks if the question-setter was not expecting
+such flaws.</p>
+
+<p>Accordingly, a key assumption underlying CodeRunner is that quizzes will always
+run in Moodle's adaptive mode, which displays results after each question
+is submitted, and allows resubmission for a penalty. The mark obtained in a
+programming-style quiz is thus determined by how many of the problems the
+student can solve in the given time, and how many submissions the student
+needs to make on each question.</p>
+
+<h2>A note on <code>VBSandbox</code></h2>
+
+<p>This section can be ignored by almost everyone. It's of relevance only
+to a developer who may be looking to run CodeRunner on a non-virtualised
+server and who wants a sandbox that's more secure than DomJudge's <em>runguard</em>
+environment (which is used by the somewhat unfairly-named <em>RunguardSandbox</em>)
+but is for some reason, such as the need to support a language that requires
+multithreading, is unable to use the Liu sandbox. It is "work in progress",
+not production code.</p>
+
+<p>CodeRunner is designed with a pluggable sandbox architecture. The two sandboxes
+currently provided are those mentioned above: LiuSandbox and RunguardSandbox. A
+sandbox that uses the <a href="http://ideone.com">ideone.com</a> server, which supports
+a huge range of programming languages, is also planned.</p>
+
+<p>If you inspect the code you'll see code for another sandbox, VbSandbox,
+which runs code in am Oracle VirtualBox virtual machine
+within the host. To test a student's submission, a virtual box VM is started
+if it's not already running. Then VBoxManage commands are used to add the
+file(s) for testing to the VM's file system and then to execute the code. This
+is very secure as the VM is a self-contained sandbox with no access to the host
+resources.</p>
+
+<p>This sandbox was originally intended for use with MatLab, which won't run in
+the LiuSandbox as it is multithreaded and very heavy on system calls, leading
+to performance issues. The code has been developed and debugged up to the point
+where it was ready for production testing, but when it was moved onto the
+production server -- a vmware Virtual Machine -- it was discovered that
+VirtualBox will not run on another VM. Thus, the VirtualBox sandbox is usable
+only on real host, not on a virtualised host. This isn't very useful in our
+environment, so further development of the VirtualBox sandbox has been
+discontinued. However, the code has been left in the system in case it is
+needed by other users or even by ourselves in the future. Some notes on
+installing the VirtualBox sandbox follow.</p>
+
+<p>Installing the VirtualBox sandbox is somewhat complicated. The following gives
+just the general idea:</p>
+
+<ol>
+<li>Install VirtualBox on the server, including the GuestAdditions.</li>
+<li>Add the web server user (www-data on Ubuntu) to the group vboxusers so that
+the web server is able to manage the VirtualBox VM(s).</li>
+<li>Log in to the Moodle server as the user www-data (or whoever),
+e.g. using 'ssh -Y www-data@localhost'</li>
+<li>Use VirtualBox to create an Ubuntu server virtual machine (no GUI) called
+LinuxSandbox.</li>
+<li>Set up a user 'sandbox' with password 'LinuxSandbox' on that new VM</li>
+<li>Copy the file <moodlehome>/local/CodeRunner/coderunner/Sandbox/vbrunner into
+that user's home directory. Make it executable.</li>
+<li>Install and configure any languages you wish to use in the sandbox. Python2
+is the only one that will run "out of the box".</li>
+<li>Add to the file vbsandbox.php a class Lang<em>VbTask for each Language 'Lang'
+you need to support. Use the existing Python2</em>VbTask and Matlab_VbTask classes
+as templates.</li>
+<li>If necessary, add appropriate question-type entries to db/update.php.</li>
+</ol>
+
+<p>Note that when testing the virtualbox sandbox, with code vbsandbox_test.php,
+you must be logged in as the web-server user, i.e. www-data (Ubuntu) or apache
+(Red Hat, Fedora etc).</p>

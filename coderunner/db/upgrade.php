@@ -78,17 +78,17 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         $dbman->rename_field($table, $validatorField, 'grader');
     }
 
-    if ($oldversion != 0 && $oldversion < 2013103001) {
-        $table = new xmldb_table('quest_coderunner_options');
-        $customGraderField = new xmldb_field('custom_grader', XMLDB_TYPE_TEXT,
-                'medium', XMLDB_UNSIGNED, FALSE, null, null, 'custom_template');
-        $dbman->add_field($table, $customGraderField);
-    }
-
     if ($oldversion != 0 && $oldversion < 2013103102) {
         $table = new xmldb_table('quest_coderunner_testcases');
         $outputField = new xmldb_field('output', XMLDB_TYPE_TEXT, 'medium', XMLDB_UNSIGNED, FALSE, null);
         $dbman->rename_field($table, $outputField, 'expected');
+    }
+
+    if ($oldversion != 0 && $oldversion < 2013110201) {
+        $table = new xmldb_table('quest_coderunner_options');
+        $templateIsGrader = new xmldb_field('template_does_grading',
+                XMLDB_TYPE_INTEGER, '1', XMLDB_UNSIGNED, TRUE, null, 0);
+        $dbman->add_field($table, $templateIsGrader);
     }
     return updateQuestionTypes();
 
@@ -112,7 +112,7 @@ function updateQuestionTypes() {
         'combinator_template' => <<<EOT
 {{ STUDENT_ANSWER }}
 
-__student_answer__ = """{{ ESCAPED_STUDENT_ANSWER }}"""
+__student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
 
 SEPARATOR = "#<ab@17943918#@>#"
 
@@ -128,7 +128,7 @@ EOT
         'per_test_template' => <<<EOT
 {{STUDENT_ANSWER}}
 
-__student_answer__ = """{{ ESCAPED_STUDENT_ANSWER }}"""
+__student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
 
 {{TEST.testcode}}
 EOT
@@ -143,7 +143,7 @@ EOT
     //
     // ===============================================================
     $combinator_pylint_func = <<<'EOT'
-__student_answer__ = """{{ ESCAPED_STUDENT_ANSWER }}"""
+__student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
 
 import subprocess
 
@@ -176,7 +176,7 @@ print(SEPARATOR)
 EOT;
 
     $perTestTemplate_pylint_func = <<<'EOT'
-__student_answer__ = """{{ ESCAPED_STUDENT_ANSWER }}"""
+__student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
 
 import subprocess
 
@@ -217,7 +217,7 @@ EOT;
     //
     // ===============================================================
     $combinator_pylint_prog = <<<'EOT'
-__student_answer__ = """{{ ESCAPED_STUDENT_ANSWER }}"""
+__student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
 
 import subprocess
 
@@ -250,7 +250,7 @@ print(SEPARATOR)
 EOT;
 
     $perTestTemplate_pylint_prog = <<<'EOT'
-__student_answer__ = """{{ ESCAPED_STUDENT_ANSWER }}"""
+__student_answer__ = """{{ STUDENT_ANSWER | e('py') }}""""
 
 import subprocess
 
@@ -293,7 +293,7 @@ EOT;
         'combinator_template' => <<<EOT
 {{ STUDENT_ANSWER }}
 
-__student_answer__ = """{{ ESCAPED_STUDENT_ANSWER }}"""
+__student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
 
 SEPARATOR = "#<ab@17943918#@>#"
 
@@ -309,7 +309,7 @@ EOT
         'per_test_template' => <<<EOT
 {{STUDENT_ANSWER}}
 
-__student_answer__ = """{{ ESCAPED_STUDENT_ANSWER }}"""
+__student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
 
 {{ TEST.testcode }}
 EOT
@@ -331,7 +331,7 @@ EOT
         'combinator_template' => <<<EOT
 {{ STUDENT_ANSWER }}
 
-__student_answer__ = """{{ ESCAPED_STUDENT_ANSWER }}"""
+__student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
 
 SEPARATOR = "#<ab@17943918#@>#"
 
@@ -347,7 +347,7 @@ EOT
         'per_test_template' => <<<EOT
 {{STUDENT_ANSWER}}
 
-__student_answer__ = """{{ ESCAPED_STUDENT_ANSWER }}"""
+__student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
 
 {{TEST.testcode}}
 EOT
@@ -364,7 +364,7 @@ EOT
         'combinator_template' => <<<EOT
 {{ STUDENT_ANSWER }}
 
-__student_answer__ = """{{ ESCAPED_STUDENT_ANSWER }}"""
+__student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
 
 SEPARATOR = "#<ab@17943918#@>#"
 
@@ -380,7 +380,7 @@ EOT
         'per_test_template' => <<<EOT
 {{STUDENT_ANSWER}}
 
-__student_answer__ = """{{ ESCAPED_STUDENT_ANSWER }}"""
+__student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
 
 {{ TEST.testcode }}
 EOT

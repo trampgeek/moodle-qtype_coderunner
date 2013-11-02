@@ -156,7 +156,6 @@ class qtype_coderunner extends question_type {
         assert(isset($question->coderunner_type));
         if (!isset($question->customise) || !$question->customise || trim($question->custom_template) == '') {
             $question->custom_template = null; // Discard customised template
-            // $question->custom_template = '';   // The bug in save_question_options should have been fixed now
         }
 
         if (!isset($question->customise) || !$question->customise || trim($question->custom_grader) == '') {
@@ -219,7 +218,15 @@ class qtype_coderunner extends question_type {
             $question->$field = $value;
         }
 
-        $question->customise = isset($question->custom_template) && trim($question->custom_template) != '';
+        if (!isset($question->custom_template)) {
+            $question->custom_template = '';
+        }
+        if (!isset($question->custom_grader)) {
+            $question->custom_grader = '';
+        }
+
+        $question->customise = trim($question->custom_template) != '' ||
+                trim($question->custom_grader) != '';
 
         // Now add to the question all the fields from the question's type record.
 
