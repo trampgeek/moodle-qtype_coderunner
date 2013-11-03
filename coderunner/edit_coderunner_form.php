@@ -96,8 +96,8 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 '" rows="8" cols="80" class="template edit_code"');
 
         // Same applies to grader template, too
-        $mform->addElement('textarea', 'custom_grader', get_string("grader", "qtype_coderunner"),
-                '" rows="4" cols="80" class="template edit_code"');
+        $mform->addElement('advcheckbox', 'template_does_grading', NULL,
+                get_string("template_does_grading", "qtype_coderunner"));
 
         $mform->addElement('advcheckbox', 'all_or_nothing',
                 get_string('all_or_nothing', 'qtype_coderunner'));

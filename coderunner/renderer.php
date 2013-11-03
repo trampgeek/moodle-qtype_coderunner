@@ -145,13 +145,6 @@ class qtype_coderunner_renderer extends qtype_renderer {
                 );
             }
 
-            if ($q->show_source && count($testOutcome->graderCodeList) > 0) {
-                $fb .= $this->makeSourceCodeDiv(
-                        'Debug: source code from all grader runs',
-                        $testOutcome->graderCodeList
-                );
-            }
-
 
             $fb .= html_writer::start_tag('div', array('class' => $resultsclass));
             // Hack to insert run host as hidden comment in html
@@ -184,7 +177,8 @@ class qtype_coderunner_renderer extends qtype_renderer {
     }
 
 
-    // Build and return an HTML div section containing a list of
+    // Build and return an HTML div section containing a list of template
+    // outputs used as source code.
     private function makeSourceCodeDiv($heading, $runs) {
         $html = html_writer::start_tag('div', array('class' => 'debugging'));
         $html .= html_writer::tag('h3', $heading);

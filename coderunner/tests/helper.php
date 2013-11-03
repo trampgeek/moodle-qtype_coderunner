@@ -35,7 +35,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
     public function get_test_questions() {
         return array('sqr', 'sqr_pylint',
             'helloFunc', 'copyStdin', 'timeout', 'exceptions',
-            'sqrPartMarks',
+            'sqrPartMarks', 'sqrnoprint',
             'studentanswervar',
             'sqrC', 'sqrNoSemicolons', 'sqrCustomised',
             'helloProgC',
@@ -102,6 +102,56 @@ class qtype_coderunner_test_helper extends question_test_helper {
                           'display' => 'SHOW',
                           'mark' => 8.0, 'hiderestiffail' =>  0),
             (object) array('testcode' => 'print(sqr(-6))',  // The last testcase must be hidden
+                           'expected'     => '36',
+                           'stdin'      => '',
+                           'useasexample' => 0,
+                           'display' => 'HIDE',
+                           'mark' => 16.0, 'hiderestiffail' =>  0)
+        );
+        $this->getOptions($coderunner);
+        return $coderunner;
+    }
+
+
+   /**
+     * Makes a coderunner question asking for a sqr() function.
+     * This version uses testcases that don't print the result, for use in
+     * testing custom grader templates.
+
+     */
+    public function make_coderunner_question_sqrnoprint() {
+        $coderunner = $this->makeCodeRunnerQuestion(
+                'python3',
+                'Function to square a number n',
+                'Write a function sqr(n) that returns n squared'
+        );
+
+        $coderunner->testcases = array(
+            (object) array('testcode' => 'sqr(0)',
+                          'expected'     => '0',
+                          'stdin'      => '',
+                          'useasexample' => 0,
+                          'display' => 'SHOW',
+                          'mark' => 1.0, 'hiderestiffail'  => 0),
+            (object) array('testcode' => 'sqr(1)',
+                          'expected'     => '1',
+                          'stdin'      => '',
+                          'useasexample' => 0,
+                          'display' => 'SHOW',
+                          'mark' => 2.0, 'hiderestiffail' =>  0),
+            (object) array('testcode' => 'sqr(11)',
+                          'expected'     => '121',
+                          'stdin'      => '',
+                          'useasexample' => 0,
+                          'display' => 'SHOW',
+                          'mark' => 4.0, 'hiderestiffail' =>  0),
+            (object) array('testcode' => 'sqr(-7)',
+                          'expected'     => '49',
+                          'stdin'      => '',
+                          'useasexample' => 0,
+                          'display' => 'SHOW',
+                          'mark' => 8.0, 'hiderestiffail' =>  0),
+            (object) array('testcode' => 'sqr(-6)',  // The last testcase must be hidden
                            'expected'     => '36',
                            'stdin'      => '',
                            'useasexample' => 0,
@@ -877,10 +927,11 @@ EOPROG;
             $question->custom_template = '';
         }
 
-        if (!isset($question->custom_grader)) {
-            $question->custom_grader = '';
+        if (!isset($question->template_does_grading)) {
+            $question->template_does_grading = FALSE;
         }
-        $question->customise = trim($question->custom_template) != '' || trim($question->custom_grader) != '';
+
+        $question->customise = trim($question->custom_template) != '';
 
         if (!isset($question->sandbox)) {
             $question->sandbox = $qtype->getBestSandbox($question->language);

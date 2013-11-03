@@ -61,10 +61,9 @@ p.coderunner-spacer {
     font-size: 5px;
 }
 
-body.jsenabled #fitem_id_custom_template, #fitem_id_custom_grader {
+body.jsenabled #fitem_id_custom_template, #fitem_id_template_does_grading {
     display: none;
 }
-
 
 /* Add lines I seem to have somehow overridden in styles.php */
 

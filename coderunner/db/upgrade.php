@@ -86,9 +86,9 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
 
     if ($oldversion != 0 && $oldversion < 2013110201) {
         $table = new xmldb_table('quest_coderunner_options');
-        $templateIsGrader = new xmldb_field('template_does_grading',
-                XMLDB_TYPE_INTEGER, '1', XMLDB_UNSIGNED, TRUE, null, 0);
-        $dbman->add_field($table, $templateIsGrader);
+        $template_does_grading = new xmldb_field('template_does_grading',
+                XMLDB_TYPE_INTEGER, '1', XMLDB_UNSIGNED, TRUE, null, 0, 'custom_template');
+        $dbman->add_field($table, $template_does_grading);
     }
     return updateQuestionTypes();
 

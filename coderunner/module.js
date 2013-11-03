@@ -94,7 +94,7 @@ M.qtype_coderunner.initEditForm = function(Y) {
     var typeCombo = Y.one('#id_coderunner_type'),
         template = Y.one('#id_custom_template'),
         templateBlock = Y.one('#fitem_id_custom_template'),
-        graderBlock = Y.one('#fitem_id_custom_grader'),
+        templateDoesGrading = Y.one('#fitem_id_template_does_grading'),
         customise = Y.one('#id_customise');
 
     function loadTemplate(Y) {
@@ -128,14 +128,14 @@ M.qtype_coderunner.initEditForm = function(Y) {
 
     if (customise.get('checked')) {
         templateBlock.setStyle('display', 'block');
-        graderBlock.setStyle('display', 'block');
+        templateDoesGrading.setStyle('display', 'inline-block');
     } else {
         loadTemplate(Y);
     }
 
     customise.on('change', function(e) {
         templateBlock.setStyle('display', customise.get('checked') ? 'block' : 'none');
-        graderBlock.setStyle('display', customise.get('checked') ? 'block' : 'none');
+        templateDoesGrading.setStyle('display', customise.get('checked') ? 'inline-block' : 'none');
     });
 
 

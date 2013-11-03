@@ -86,8 +86,8 @@ class qtype_coderunner extends question_type {
      */
     public function extra_question_fields() {
         return array('quest_coderunner_options', 'coderunner_type',
-            'custom_template', 'custom_grader', 'all_or_nothing', 'show_source',
-            'showtest', 'showstdin', 'showexpected', 'showoutput',
+            'custom_template', 'template_does_grading', 'all_or_nothing',
+            'show_source', 'showtest', 'showstdin', 'showexpected', 'showoutput',
             'showmark');
     }
 
@@ -158,9 +158,6 @@ class qtype_coderunner extends question_type {
             $question->custom_template = null; // Discard customised template
         }
 
-        if (!isset($question->customise) || !$question->customise || trim($question->custom_grader) == '') {
-            $question->custom_grader = null; // Discard customised grader
-        }
 
         parent::save_question_options($question);
 
@@ -221,12 +218,8 @@ class qtype_coderunner extends question_type {
         if (!isset($question->custom_template)) {
             $question->custom_template = '';
         }
-        if (!isset($question->custom_grader)) {
-            $question->custom_grader = '';
-        }
 
-        $question->customise = trim($question->custom_template) != '' ||
-                trim($question->custom_grader) != '';
+        $question->customise = trim($question->custom_template) != '';
 
         // Now add to the question all the fields from the question's type record.
 
@@ -368,7 +361,7 @@ class qtype_coderunner extends question_type {
             $qo->testcases[] = $tc;
         }
 
-        $qo->customise = trim($qo->custom_template) != '' || trim($qo->custom_grader) != '';
+        $qo->customise = trim($qo->custom_template) != '';
         return $qo;
     }
 

@@ -337,25 +337,28 @@ EOCODE;
      }
 
 
-     public function test_custom_grader() {
-         // Check that a custom grader can be used. Also checks python-escaping
+     public function test_grading_template() {
+         // Test a template that is also custom grader, plus python-escaping
          // in Twig templates.
          // This grader gives full marks if the input value is negative and
          // the output value is correct or zero marks otherwise.
          // The testcases are for n = {0, 1, 11, -7, -6} with marks of
          // 1, 2, 4, 8, 16 respectively. So the expected mark is 24 / 31
          // i.e 0.7742
-         $q = test_question_maker::make_question('coderunner', 'sqr');
-         $q->custom_grader = <<<EOGRADER
+         $q = test_question_maker::make_question('coderunner', 'sqrnoprint');
+         $q->custom_template = <<<EOTEMPLATE
+{{ STUDENT_ANSWER }}
+got = str({{TEST.testcode}})
 expected = """{{TEST.expected|e('py')}}""".strip()
-got = """{{TEST.got|e('py')}}""".strip()
 if expected == '36' and expected == got:
     print('{"fraction":1.0}')
 elif expected == '49' and expected == got:
     print('{"fraction":1}')
 else:
     print('{"fraction":0}')
-EOGRADER;
+EOTEMPLATE;
+         $q->template_does_grading = TRUE;
+         $q->customise = TRUE;
          $q->all_or_nothing = FALSE;
          $code = "def sqr(n): return n * n\n";
          $response = array('answer' => $code);

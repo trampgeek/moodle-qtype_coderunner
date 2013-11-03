@@ -147,6 +147,7 @@ $string['testcase'] = 'Test case {$a}';
 $string['testcases'] = 'Test cases';
 $string['testcode'] = 'Test code';
 $string['template'] = 'Template';
+$string['template_does_grading'] = "Template is also a grader";
 $string['type_header'] = 'Select language etc';
 $string['typerequired'] = 'Please select the type of question (language, format, etc)';
 $string['useasexample'] = 'Use as example';

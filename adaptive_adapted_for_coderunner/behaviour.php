@@ -54,7 +54,6 @@ class qbehaviour_adaptive_adapted_for_coderunner extends qbehaviour_adaptive {
 
     public function process_submit(question_attempt_pending_step $pendingstep) {
         $status = $this->process_save($pendingstep);
-
         $response = $pendingstep->get_qt_data();
         if (!$this->question->is_complete_response($response)) {
             $pendingstep->set_state(question_state::$invalid);

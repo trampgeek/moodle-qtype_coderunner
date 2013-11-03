@@ -141,19 +141,22 @@ class qtype_coderunner_walkthrough_test extends qbehaviour_walkthrough_test_base
 
     }
 
-    public function test_custom_grader_output() {
-        $q = test_question_maker::make_question('coderunner', 'sqr');
-        $q->custom_grader = <<<EOGRADER
-expected = "{{TEST.expected|e('js')}}".strip()
-got = "{{TEST.got|e('js')}}".strip()
+    public function test_grading_template_output() {
+        $q = test_question_maker::make_question('coderunner', 'sqrnoprint');
+        $q->custom_template = <<<EOTEMPLATE
+{{ STUDENT_ANSWER }}
+got = str({{TEST.testcode}})
+expected = """{{TEST.expected|e('py')}}""".strip()
 if expected == '49' and expected == got:
     print('{"fraction":1.0,"got":"Tiddlypom"}')
 elif expected == '36' and expected == got:
-    print('1.0')
+    print('{"fraction":1.0}')
 else:
     print('{"fraction":0,"expected":"Twiddlydee"}')
-EOGRADER;
+EOTEMPLATE;
         $q->all_or_nothing = FALSE;
+        $q->template_does_grading = TRUE;
+        $q->customise = TRUE;
         $q->unitpenalty = 0;
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
 

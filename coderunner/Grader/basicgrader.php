@@ -25,7 +25,7 @@ class BasicGrader extends Grader {
      *  etc).
      */
     function grade(&$output, &$testCase) {
-        $cleanedTest = $this->clean($testcase->testcode);
+        $cleanedTest = $this->clean($testCase->testcode);
         $cleanedOutput = $this->clean($output);
         $cleanedExpected = $this->clean($testCase->expected);
         if ($testCase->stdin) {

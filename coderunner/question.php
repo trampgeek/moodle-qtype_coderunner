@@ -51,13 +51,10 @@ require_once('testingoutcome.php');
 class qtype_coderunner_question extends question_graded_automatically {
 
     public  $testcases;    // Array of testcases
-    private $has_custom_grader = FALSE;  // True IFF we have a custom grader
     private $graderInstance = NULL;      // The grader instance, if it's NOT a custom one
     private $twig = NULL;                // The template processor environment
     private $sandboxInstance = NULL;     // The sandbox we're using
     private $allRuns = NULL;             // Array of the source code for all runs
-    private $allGradings = NULL;         // Array of the source code of all grading runs
-
 
     /**
      * Override default behaviour so that we can use a specialised behaviour
@@ -212,6 +209,7 @@ class qtype_coderunner_question extends question_graded_automatically {
         // tests bomb the whole test process, but otherwise we should finish
         // with a TestingOutcome object containing a test result for each test
         // case.
+
         if ($outcome == NULL) {
             $outcome = $this->runTestsSingly($code, $testCases);
         }
@@ -252,6 +250,7 @@ class qtype_coderunner_question extends question_graded_automatically {
     // Return true if successful.
     private function runWithCombinator($code, $testCases) {
         $outcome = NULL;
+
         if (!$this->customise && $this->combinator_template && $this->noStdins($testCases)) {
 
             assert($this->test_splitter_re != '');
@@ -283,9 +282,10 @@ class qtype_coderunner_question extends question_graded_automatically {
                     $outcome = new TestingOutcome();
                     $i = 0;
                     foreach ($testCases as $testCase) {
-                        $outcome->addTestResult($this->grade($code, $outputs[$i], $testCase));
+                        $outcome->addTestResult($this->grade($outputs[$i], $testCase));
                         $i++;
                     }
+
                 }
                 else {
                     // debugging("Bad split");
@@ -303,68 +303,56 @@ class qtype_coderunner_question extends question_graded_automatically {
 
     // Run all tests one-by-one on the sandbox
     private function runTestsSingly($code, $testCases) {
-        assert(!($this->customise && $this->custom_template == '' && $this->custom_grader == ''));
+        assert(!($this->customise && $this->custom_template == ''));
         $templateParams = array(
             'STUDENT_ANSWER' => $code,
             'ESCAPED_STUDENT_ANSWER' => pythonEscaper(NULL, $code, NULL),
             'MATLAB_ESCAPED_STUDENT_ANSWER' => matlabEscaper(NULL, $code, NULL)
          );
+
         $template = $this->customise ? $this->custom_template : $this->per_test_template;
         $outcome = new TestingOutcome();
         foreach ($testCases as $testCase) {
-            if ($template) {
-                $templateParams['TEST'] = $testCase;
-                try {
-                    $testProg = $this->twig->render($template, $templateParams);
-                } catch (Exception $e) {
-                    $outcome = new TestingOutcome(TestingOutcome::STATUS_SYNTAX_ERROR,
-                            'TEMPLATE ERROR: ' . $e->getMessage());
-                    break;
-                }
+            $templateParams['TEST'] = $testCase;
+            try {
+                $testProg = $this->twig->render($template, $templateParams);
+            } catch (Exception $e) {
+                $outcome = new TestingOutcome(TestingOutcome::STATUS_SYNTAX_ERROR,
+                        'TEMPLATE ERROR: ' . $e->getMessage());
+                break;
+            }
 
-                $input = isset($testCase->stdin) ? $testCase->stdin : '';
-                $this->allRuns[] = $testProg;
-                $run = $this->sandboxInstance->execute($testProg, $this->language, $input);
-                if ($run->result === SANDBOX::RESULT_COMPILATION_ERROR) {
-                    $outcome = new TestingOutcome(TestingOutcome::STATUS_SYNTAX_ERROR, $run->cmpinfo);
-                    break;
-                } else if ($run->result != Sandbox::RESULT_SUCCESS) {
-                    $errorMessage = $this->makeErrorMessage($run);
-                    $isError = TRUE;
-                    $outcome->addTestResult($this->grade($code, $errorMessage, $testCase, $isError));
-                    break;
-                } else {
-                    // Very rarely Python will generate stderr output AND
-                    // valid stdout output, so must merge them.
-                    $output = $run->stderr ? $run->stderr + '\n' + $run->output : $run->output;
-                    $outcome->addTestResult($this->grade($code, $output, $testCase));
-                }
-            } else { # No template: the grader must be doing the whole job
-                try {
-                    $outcome->addTestResult($this->grade($code, '', $testCase));
-                } catch (Exception $e) {
-                    $outcome = new TestingOutcome(TestingOutcome::STATUS_SYNTAX_ERROR,
-                            'GRADER TEMPLATE ERROR: ' . $e->getMessage());
-                    break;
-                }
+            $input = isset($testCase->stdin) ? $testCase->stdin : '';
+            $this->allRuns[] = $testProg;
+            $run = $this->sandboxInstance->execute($testProg, $this->language, $input);
+            if ($run->result === SANDBOX::RESULT_COMPILATION_ERROR) {
+                $outcome = new TestingOutcome(TestingOutcome::STATUS_SYNTAX_ERROR, $run->cmpinfo);
+                break;
+            } else if ($run->result != Sandbox::RESULT_SUCCESS) {
+                $errorMessage = $this->makeErrorMessage($run);
+                $isError = TRUE;
+                $outcome->addTestResult($this->grade($errorMessage, $testCase, $isError));
+                break;
+            } else {
+                // Very rarely Python will generate stderr output AND
+                // valid stdout output, so must merge them.
+                $output = $run->stderr ? $run->stderr + '\n' + $run->output : $run->output;
+                $outcome->addTestResult($this->grade($output, $testCase));
             }
         }
         return $outcome;
     }
 
 
-    // Set up the $this->has_custom_grader field and, if that's false, the
-    // $this->grader field.
+    // Set up a grader instance unless it's a customised question with a template
+    // that also does the grading.
     private function setUpGrader() {
         global $CFG;
-        if (!isset($this->custom_grader) || trim($this->custom_grader) === '') {
+        if (!$this->customise || !$this->template_does_grading) {
             $graderClass = $this->grader;
             $graderClassLC = strtolower($graderClass);
             require_once($CFG->dirroot . "/question/type/coderunner/Grader/$graderClassLC.php");
             $this->graderInstance = new $graderClass();
-            $this->has_custom_grader = False;
-        } else {
-            $this->has_custom_grader = True;
         }
     }
 
@@ -382,72 +370,66 @@ class qtype_coderunner_question extends question_graded_automatically {
     }
 
 
-    // Grade a given test result using either the custom grader for this
-    // question, if it's defined, or the default grader for the question type
-    // otherwise.
-    // Twig might throw an exception if given a bad template: must be caught
-    // higher up.
-    private function grade($code, $output, $testcase, $isBad = FALSE) {
-        if (!$this->has_custom_grader) {
-            return $this->graderInstance->grade($output, $testcase);
+    // Grade a given test result either by simply taking the grader results
+    // from the template if it's also a grader or by applying the
+    // default grader for the question type otherwise.
+
+    private function grade($output, $testcase, $isBad = FALSE) {
+        if (!$this->template_does_grading) {
+            $outcome = $this->graderInstance->grade($output, $testcase);
         }
-        else {
-            $testcase->got = $output;
-            $templateParams = array('STUDENT_ANSWER' => $code, 'TEST' => $testcase);
-            $cleanedStudentOutput = $this->tidy($output);
-            $cleanedExpected = $this->tidy($testcase->expected);
-            $cleanedTestcode = $this->tidy($testcase->testcode);
-            $cleanedStdin = $this->tidy($testcase->stdin);
-            $testProg = $this->twig->render($this->custom_grader, $templateParams);
-            $this->allGradings[] = $testProg;
-            $graderRun = $this->sandboxInstance->execute($testProg, $this->language, '');
-
-            if ($graderRun->result != Sandbox::RESULT_SUCCESS) {
-                $errorMessage = $this->makeErrorMessage($graderRun);
-            } else {
-                $graderOutput = trim($graderRun->output);
-                if (preg_match('/^[0-9]+(\.[0-9]+)?$/', $graderOutput)) {
-                    $result = new stdClass();
-                    $result->fraction = floatval($graderOutput);
-                } else {
-                    $result = json_decode($graderOutput);
-                    if ($result === NULL || !isset($result->fraction)) {
-                        $errorMessage = "Bad grader response:'" . $graderRun->output . "'";
-                    }
-                }
-            }
-
-            if (isset($errorMessage)) {
-                $outcome = new TestResult(
-                        $cleanedTestcode,
+        else if ($isBad) {
+            $outcome = new TestResult(
+                        $this->tidy($testcase->testcode),
                         $testcase->mark,
                         FALSE,
                         0.0,
-                        $cleanedExpected,
+                        $this->tidy($testcase->expected),
+                        $output,
+                        $this->tidy($testcase->stdin)
+            );
+        } else {  // We have a custom template, that also does grading.
+            $result = json_decode($output);
+            if ($result === NULL || !isset($result->fraction) || !is_numeric($result->fraction)) {
+                $errorMessage = "Bad grading result from template:'" . $output . "'";
+                $outcome = new TestResult(
+                        $this->tidy($testcase->testcode),
+                        $testcase->mark,
+                        FALSE,
+                        0.0,
+                        $this->tidy($testcase->expected),
                         $errorMessage,
-                        $cleanedStdin
+                        $this->tidy($testcase->stdin)
                 );
             } else {
-                $fractionalGrade = floatval($result->fraction);
-                $isCorrect = abs($fractionalGrade - 1.0) < 0.000001;
-                $awardedMark = $fractionalGrade * $testcase->mark;
-                $displayExpected = isset($result->expected) ? $this->tidy($result->expected) : $cleanedExpected;
-                $displayGot = isset($result->got) ? $this->tidy($result->got) : $cleanedStudentOutput;
-                $displayTest = isset($result->testcode) ? $this->tidy($result->testcode) : $cleanedTestcode;
-                $displayStdin = isset($result->stdin) ? $this->tidy($result->stdin) : $cleanedStdin;
+                // First copy any missing fields from test case into result
+                foreach (get_object_vars($testcase) as $key=>$value) {
+                    if (!isset($result->$key)) {
+                        $result->$key = $value;
+                    }
+                }
+                if (!isset($result->awarded)) {
+                    $result->awarded = $result->mark * $result->fraction;
+                }
+                if (!isset($result->got)) {
+                    $result->got = '';
+                }
+                $result->isCorrect =  abs($result->fraction - 1.0) < 0.000001;
+
                 $outcome = new TestResult(
-                    $displayTest,
-                    $testcase->mark,
-                    $isCorrect,
-                    $awardedMark,
-                    $displayExpected,
-                    $displayGot,
-                    $displayStdin
+                    $this->tidy($result->testcode),
+                    $result->mark,
+                    $result->isCorrect,
+                    $result->awarded,
+                    $this->tidy($result->expected),
+                    $this->tidy($result->got),
+                    $this->tidy($result->stdin)
                 );
 
+
             }
-            return $outcome;
         }
+        return $outcome;
     }
 
 

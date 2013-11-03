@@ -72,9 +72,8 @@ class Matlab_rs_Task extends LanguageTask {
              // TODO:  is there a better way to prevent fork bombs? cgroups?
              "--no-core",
              "--streamsize=1000",   // Max stdout/stderr sizes (1MB)
-             '/usr/local/bin/matlab_exec_cli', //Was Matlab2012a/bin/glnxa64/MATLAB',
+             '/usr/local/bin/matlab_exec_cli',
              '-nojvm',
-             //'-nodesktop',  # Removed for 2013 Matlab version
              '-r',
              basename($this->sourceFileName)
          );
@@ -128,7 +127,7 @@ class Python2_rs_Task extends LanguageTask {
         return array(
              dirname(__FILE__)  . "/runguard",
              "--user=coderunner",
-             "--time=3",             // Seconds of execution time allowed
+             "--time=5",             // Seconds of execution time allowed
              "--memsize=100000",     // Max kb mem allowed (100MB)
              "--filesize=10000",     // Max file sizes (10MB)
              "--nproc=200",          // At most 200 processes/threads for this *user*
@@ -172,7 +171,7 @@ class Python3_rs_Task extends LanguageTask {
         return array(
              dirname(__FILE__)  . "/runguard",
              "--user=coderunner",
-             "--time=10",            // Seconds of execution time allowed
+             "--time=5",            // Seconds of execution time allowed
              "--memsize=4000000",    // Max kb mem allowed (4 GB)
                                      // Made stupidly large so Python can
                                      // run Java which can then run Clojure :-(
@@ -227,7 +226,7 @@ class Java_rs_Task extends LanguageTask {
          return array(
              dirname(__FILE__)  . "/runguard",
              "--user=coderunner",
-             "--time=10",             // Seconds of execution time allowed
+             "--time=5",             // Seconds of execution time allowed
              "--memsize=2000000",     // Max kb mem allowed (2GB Why does it need so much?)
              "--filesize=10000",      // Max file sizes (10MB)
              "--nproc=200",           // At most 200 processes/threads for this *user*  ...
