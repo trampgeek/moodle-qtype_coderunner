@@ -61,9 +61,6 @@ p.coderunner-spacer {
     font-size: 5px;
 }
 
-body.jsenabled #fitem_id_custom_template, #fitem_id_template_does_grading {
-    display: none;
-}
 
 /* Add lines I seem to have somehow overridden in styles.php */
 
@@ -77,11 +74,18 @@ tr.r1 td {
 
 /* Editing form. */
 
-body#page-question-type-coderunner div[id^=fitem_id_][id*=testcode_] .fitemtitle {
-    font-weight: bold;
+
+body.jsenabled #fitem_id_custom_template, #fitem_id_template_does_grading {
+    display: none;
 }
 
-body#page-question-type-coderunner div[id^=fitem_id_] {
+
+
+#id_custom_template {
+    width: 100%;
+}
+
+body#page-question-type-coderunner div[id^=fitem_id_], div[id^=fgroup_id_] {
     background: #EEE;
     margin-bottom: 0;
     margin-top: 0;
@@ -92,8 +96,8 @@ body#page-question-type-coderunner div[id^=fitem_id_] {
     border-bottom: 0;
 }
 
-body#page-question-type-coderunner div[id^=fitem_id_][id*=testcode_],
-    div[id^=fgroup_id_][id*=type_controls] {
+
+ div[id^=fitem_id_][id*=testcode_] {
     background: #EEE;
     margin-top: 0;
     margin-bottom: 0;
@@ -103,8 +107,9 @@ body#page-question-type-coderunner div[id^=fitem_id_][id*=testcode_],
     border-bottom: 0;
 }
 
+
 body#page-question-type-coderunner div[id^=fgroup_id_][id*=testcasecontrols],
-        div[id^=fgroup_id_][id*=show_columns], div[id^=fitem_id_][id*=input_]{
+        div[id^=fgroup_id_][id*=columncontrols], div[id^=fitem_id_][id*=input_] {
     background: #EEE;
     margin-top: 0;
     margin-bottom: 0;
@@ -113,12 +118,6 @@ body#page-question-type-coderunner div[id^=fgroup_id_][id*=testcasecontrols],
     border: 1px solid #BBB;
     border-top: 0;
     border-bottom: 0;
-}
-
-body#page-question-type-coderunner div[id^=fgroup_id_][id*=testcasecontrols] {
-    margin-bottom: 2em;
-    border: 1px solid #BBB;
-    border-top: 0;
 }
 
 body#page-question-type-coderunner div[id^=fgroup_id_][id*=show_columns]
@@ -130,6 +129,17 @@ body#page-question-type-coderunner div[id^=fgroup_id_][id*=show_columns] {
     padding-top: 16px;
     padding-bottom: 16px;
 }
+
+body#page-question-type-coderunner select#id_coderunner_type {
+    margin-right:2em;
+}
+
+body#page-question-type-coderunner div[id^=fgroup_id_][id*=testcasecontrols] {
+    margin-bottom: 2em;
+    border: 1px solid #BBB;
+    border-top: 0;
+}
+
 
 body#page-question-type-coderunner div[id^=fgroup_id_][id*=testcasecontrols] {
     padding-bottom: 8px;
@@ -143,8 +153,6 @@ body#page-question-type-coderunner input[type="checkbox"]+label {
     margin-right: 2em;
 }
 
-body#page-question-type-coderunner select#id_coderunner_type {
-    margin-right:2em;
-}
+
 
 

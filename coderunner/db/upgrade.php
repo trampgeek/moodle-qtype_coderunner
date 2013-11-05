@@ -76,12 +76,14 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         $table = new xmldb_table('quest_coderunner_types');
         $validatorField = new xmldb_field('validator', XMLDB_TYPE_CHAR, '255', XMLDB_UNSIGNED, FALSE, null);
         $dbman->rename_field($table, $validatorField, 'grader');
+        upgrade_plugin_savepoint(true, 2013102601, 'qtype', 'coderunner');
     }
 
     if ($oldversion != 0 && $oldversion < 2013103102) {
         $table = new xmldb_table('quest_coderunner_testcases');
         $outputField = new xmldb_field('output', XMLDB_TYPE_TEXT, 'medium', XMLDB_UNSIGNED, FALSE, null);
         $dbman->rename_field($table, $outputField, 'expected');
+        upgrade_plugin_savepoint(true, 2013103102, 'qtype', 'coderunner');
     }
 
     if ($oldversion != 0 && $oldversion < 2013110201) {
@@ -89,6 +91,17 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         $template_does_grading = new xmldb_field('template_does_grading',
                 XMLDB_TYPE_INTEGER, '1', XMLDB_UNSIGNED, TRUE, null, 0, 'custom_template');
         $dbman->add_field($table, $template_does_grading);
+        upgrade_plugin_savepoint(true, 2013110201, 'qtype', 'coderunner');
+    }
+
+    if ($oldversion != 0 && $oldversion < 2013110401) {
+        // Add booleans to control display of result table columns
+        $table = new xmldb_table('quest_coderunner_options');
+        $timelimit = new xmldb_field('timelimitsecs', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, FALSE, null, null);
+        $dbman->add_field($table, $timelimit);
+        $memlimit = new xmldb_field('memlimitmb', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, FALSE, null, null);
+        $dbman->add_field($table, $memlimit);
+        upgrade_plugin_savepoint(true, 2013110401, 'qtype', 'coderunner');
     }
     return updateQuestionTypes();
 

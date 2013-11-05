@@ -88,7 +88,7 @@ class qtype_coderunner extends question_type {
         return array('quest_coderunner_options', 'coderunner_type',
             'custom_template', 'template_does_grading', 'all_or_nothing',
             'show_source', 'showtest', 'showstdin', 'showexpected', 'showoutput',
-            'showmark');
+            'showmark', 'timelimitsecs', 'memlimitmb');
     }
 
     /**

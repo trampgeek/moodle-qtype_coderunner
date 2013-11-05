@@ -91,11 +91,20 @@ M.qtype_coderunner.insertString = function(Y, ta, sToInsert) {
 
 // Script for the edit_coderunner_form page.
 M.qtype_coderunner.initEditForm = function(Y) {
-    var typeCombo = Y.one('#id_coderunner_type'),
+    var typeCombo = Y.one('#id_coderunner_type_coderunner_basetype'),
         template = Y.one('#id_custom_template'),
         templateBlock = Y.one('#fitem_id_custom_template'),
-        templateDoesGrading = Y.one('#fitem_id_template_does_grading'),
-        customise = Y.one('#id_customise');
+        gradingBlock = Y.one('#fgroup_id_gradingcontrols'),
+        columnDisplayBlock = Y.one('#fgroup_id_columncontrols'),
+        customise = Y.one('#id_coderunner_type_customise'),
+        isCustomised = customise.get('checked');
+
+    function setCustomisationVisibility(isVisible) {
+        var display = isVisible ? 'inline-block' : 'none';
+        templateBlock.setStyle('display', display);
+        gradingBlock.setStyle('display', display);
+        columnDisplayBlock.setStyle('display', display);
+    }
 
     function loadTemplate(Y) {
         // Local function to load the template field by AJAX from the
@@ -126,17 +135,16 @@ M.qtype_coderunner.initEditForm = function(Y) {
         };
     };
 
-    if (customise.get('checked')) {
-        templateBlock.setStyle('display', 'block');
-        templateDoesGrading.setStyle('display', 'inline-block');
-    } else {
-        loadTemplate(Y);
-    }
+
+
+    setCustomisationVisibility(isCustomised);
+    loadTemplate(Y);
 
     customise.on('change', function(e) {
-        templateBlock.setStyle('display', customise.get('checked') ? 'block' : 'none');
-        templateDoesGrading.setStyle('display', customise.get('checked') ? 'inline-block' : 'none');
+       isCustomised = customise.get('checked');
+       setCustomisationVisibility(isCustomised);
     });
+
 
 
     typeCombo.on('change', function(e) {

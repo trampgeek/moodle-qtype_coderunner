@@ -69,62 +69,70 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
         $mform->addElement('header', 'questiontypeheader', get_string('type_header','qtype_coderunner'));
 
+        $typeSelectorElements = array();
         $expandedTypes = array_merge(array('Undefined' => 'Undefined'), $types);
-        $typeControls[] =& $mform->createElement('select', 'coderunner_type', NULL,
-                $expandedTypes);
-
+        $typeSelectorElements[] = $mform->createElement('select', 'coderunner_type',
+                NULL, $expandedTypes);
 
         // Fancy YUI type menu disabled for now as it looked ugly. To re-enable
         // uncomment the following statement and add the line 'this.useYuiTypesMenu(Y);'
         // to the init() function in module.js.
         // $typeControls =& $mform->createElement('html', $this->makeYuiMenu(array_keys($languages), array_keys($types)));
 
-        //$mform->addRule('coderunner_type', 'You must select the question type', 'required');
-        //$mform->addHelpButton('coderunner_type', 'coderunner_type', 'qtype_coderunner');
-
-        $typeControls[] =& $mform->createElement('advcheckbox', 'customise', NULL,
+        $typeSelectorElements[] = $mform->createElement('advcheckbox', 'customise', NULL,
                 get_string('customise', 'qtype_coderunner'));
-
-        $typeControls[] =& $mform->createElement('advcheckbox', 'show_source', NULL,
+        $typeSelectorElements[] = $mform->createElement('advcheckbox', 'show_source', NULL,
                 get_string('show_source', 'qtype_coderunner'));
-        $mform->addElement('group', 'type_controls',
-                get_string('questiontype', 'qtype_coderunner'),
-                $typeControls, NULL, false);
 
-        // Template is hidden by default in css but displayed by JavaScript if 'customise' checked
-        $mform->addElement('textarea', 'custom_template', get_string("template", "qtype_coderunner"),
-                '" rows="8" cols="80" class="template edit_code"');
+        $mform->addElement('group', 'coderunner_type_group',
+                get_string('questiontype', 'qtype_coderunner'), $typeSelectorElements);
+        $mform->setDefault('show_source', False);
+        //$mform->addRule('coderunner_type', 'You must select the question type', 'required');
+        $mform->addHelpButton('coderunner_type_group', 'coderunner_type', 'qtype_coderunner');
 
-        // Same applies to grader template, too
-        $mform->addElement('advcheckbox', 'template_does_grading', NULL,
-                get_string("template_does_grading", "qtype_coderunner"));
+        // The following fields are used to customise a question by overriding
+        // values from the base question type. All are hidden unless the
+        // 'customise' checkbox is checked.
 
-        $mform->addElement('advcheckbox', 'all_or_nothing',
-                get_string('all_or_nothing', 'qtype_coderunner'));
+        $mform->addElement('textarea', 'custom_template',
+                get_string('template', 'qtype_coderunner'), '" rows="8" cols="80" class="template edit_code"');
 
-        foreach (array('all_or_nothing', 'showtest', 'showstdin', 'showexpected', 'showoutput') as $control) {
+
+        $gradingControls = array();
+        $gradingControls[] = $mform->createElement('advcheckbox', 'all_or_nothing', NULL,
+            get_string('all_or_nothing', 'qtype_coderunner'));
+
+        //$mform->addHelpButton('all_or_nothing', 'all_or_nothing', 'qtype_coderunner');
+
+        $gradingControls[] = $mform->createElement('advcheckbox', 'template_does_grading', NULL,
+            get_string("template_does_grading", "qtype_coderunner"));
+        $mform->addElement('group', 'gradingcontrols',
+                get_string('grading', 'qtype_coderunner'), $gradingControls);
+
+        $mform->setDefault('all_or_nothing', True);
+        $mform->setDefault('template_does_grading', False);
+
+
+        $columnControls = array();
+        $columnControls[] =& $mform->createElement('advcheckbox', 'showtest', NULL,
+                get_string('show_test', 'qtype_coderunner'));
+        $columnControls[] =& $mform->createElement('advcheckbox', 'showstdin', NULL,
+                get_string('show_stdin', 'qtype_coderunner'));
+        $columnControls[] =& $mform->createElement('advcheckbox', 'showexpected', NULL,
+                get_string('show_expected', 'qtype_coderunner'));
+        $columnControls[] =& $mform->createElement('advcheckbox', 'showoutput', NULL,
+                get_string('show_output', 'qtype_coderunner'));
+        $columnControls[] =& $mform->createElement('advcheckbox', 'showmark', NULL,
+                get_string('show_mark', 'qtype_coderunner'));
+        foreach (array('all_or_nothing', 'showtest', 'showstdin', 'showexpected',
+            'showoutput') as $control) {
             $mform->setDefault($control, True);
         }
-        $mform->setDefault('show_source', False);
         $mform->setDefault('showmark', False);
 
-        $mform->addHelpButton('type_controls', 'questiontype', 'qtype_coderunner');
-        $mform->addHelpButton('all_or_nothing', 'all_or_nothing', 'qtype_coderunner');
-
-        $columnDisplays[] =& $mform->createElement('advcheckbox', 'showtest', NULL,
-                        get_string('show_test', 'qtype_coderunner'));
-        $columnDisplays[] =& $mform->createElement('advcheckbox', 'showstdin', NULL,
-                        get_string('show_stdin', 'qtype_coderunner'));
-        $columnDisplays[] =& $mform->createElement('advcheckbox', 'showexpected', NULL,
-                        get_string('show_expected', 'qtype_coderunner'));
-        $columnDisplays[] =& $mform->createElement('advcheckbox', 'showoutput', NULL,
-                        get_string('show_output', 'qtype_coderunner'));
-        $columnDisplays[] =& $mform->createElement('advcheckbox', 'showmark', NULL,
-                        get_string('show_mark', 'qtype_coderunner'));
-        $mform->addElement('group', 'show_columns',
-                        get_string('show_columns', 'qtype_coderunner'),
-                        $columnDisplays, NULL, false);
-        $mform->addHelpButton('show_columns', 'show_columns', 'qtype_coderunner');
+        $mform->addElement('group', 'columncontrols',
+                get_string('columncontrols', 'qtype_coderunner'),
+                $columnControls, NULL, false);
 
         $PAGE->requires->js_init_call('M.qtype_coderunner.setupAllTAs',  array(), false, $jsmodule);
         $PAGE->requires->js_init_call('M.qtype_coderunner.initEditForm', array(), false, $jsmodule);

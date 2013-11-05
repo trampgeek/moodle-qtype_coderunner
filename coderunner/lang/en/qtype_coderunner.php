@@ -36,6 +36,7 @@ $string['all_or_nothing_help'] = 'If checked, all test cases must be satisfied '
 $string['answerrequired'] = 'Please provide a non-empty answer';
 $string['atleastonetest'] = 'You must provide at least one test case '
     . 'for this question.';
+$string['columncontrols'] = 'Displayed result columns';
 $string['coderunner'] = 'Program Code';
 $string['coderunner_type_required'] = 'You must select a language and question type';
 $string['coderunner_type'] = "Question type:";
@@ -68,6 +69,7 @@ $string['coderunner_help'] = 'In response to a question, which is a '
     . 'the respondent enters source code in a specified computer '
     . 'language that satisfies the specification.';
 $string['coderunner_link'] = 'question/type/coderunner';
+$string['customisationcontrols'] = 'Customisation';
 $string['customise'] = 'Customise';
 
 $string['display'] = 'Display';
@@ -80,6 +82,7 @@ $string['filloutoneanswer'] = 'You must enter source code that '
     . 'executed to determine its correctness and a grade awarded '
     . 'accordingly.';
 $string['grader'] = 'Grader';
+$string['grading'] = 'Grading';
 $string['hidden'] = 'Hidden';
 $string['HIDE'] = 'Hide';
 $string['HIDE_IF_FAIL'] = 'Hide if fail';
@@ -148,7 +151,7 @@ $string['testcases'] = 'Test cases';
 $string['testcode'] = 'Test code';
 $string['template'] = 'Template';
 $string['template_does_grading'] = "Template is also a grader";
-$string['type_header'] = 'Select language etc';
+$string['type_header'] = 'Coderunner question type';
 $string['typerequired'] = 'Please select the type of question (language, format, etc)';
 $string['useasexample'] = 'Use as example';
 $string['xmlcoderunnerformaterror'] = 'XML format error in coderunner question';
