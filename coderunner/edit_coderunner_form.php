@@ -85,7 +85,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 get_string('show_source', 'qtype_coderunner'));
 
         $mform->addElement('group', 'coderunner_type_group',
-                get_string('questiontype', 'qtype_coderunner'), $typeSelectorElements);
+                get_string('questiontype', 'qtype_coderunner'), $typeSelectorElements, NULL, false);
         $mform->setDefault('show_source', False);
         //$mform->addRule('coderunner_type', 'You must select the question type', 'required');
         $mform->addHelpButton('coderunner_type_group', 'coderunner_type', 'qtype_coderunner');
@@ -97,17 +97,18 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->addElement('textarea', 'custom_template',
                 get_string('template', 'qtype_coderunner'), '" rows="8" cols="80" class="template edit_code"');
 
-
+        $mform->addHelpButton('custom_template', 'template', 'qtype_coderunner');
         $gradingControls = array();
         $gradingControls[] = $mform->createElement('advcheckbox', 'all_or_nothing', NULL,
             get_string('all_or_nothing', 'qtype_coderunner'));
 
-        //$mform->addHelpButton('all_or_nothing', 'all_or_nothing', 'qtype_coderunner');
-
         $gradingControls[] = $mform->createElement('advcheckbox', 'template_does_grading', NULL,
             get_string("template_does_grading", "qtype_coderunner"));
         $mform->addElement('group', 'gradingcontrols',
-                get_string('grading', 'qtype_coderunner'), $gradingControls);
+                get_string('grading', 'qtype_coderunner'), $gradingControls,
+                NULL, false);
+        $mform->addHelpButton('gradingcontrols', 'gradingcontrols', 'qtype_coderunner');
+
 
         $mform->setDefault('all_or_nothing', True);
         $mform->setDefault('template_does_grading', False);
@@ -133,6 +134,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->addElement('group', 'columncontrols',
                 get_string('columncontrols', 'qtype_coderunner'),
                 $columnControls, NULL, false);
+        $mform->addHelpButton('columncontrols', 'columncontrols', 'qtype_coderunner');
 
         $PAGE->requires->js_init_call('M.qtype_coderunner.setupAllTAs',  array(), false, $jsmodule);
         $PAGE->requires->js_init_call('M.qtype_coderunner.initEditForm', array(), false, $jsmodule);

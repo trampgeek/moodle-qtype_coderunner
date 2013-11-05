@@ -91,12 +91,12 @@ M.qtype_coderunner.insertString = function(Y, ta, sToInsert) {
 
 // Script for the edit_coderunner_form page.
 M.qtype_coderunner.initEditForm = function(Y) {
-    var typeCombo = Y.one('#id_coderunner_type_coderunner_basetype'),
+    var typeCombo = Y.one('#id_coderunner_type'),
         template = Y.one('#id_custom_template'),
         templateBlock = Y.one('#fitem_id_custom_template'),
         gradingBlock = Y.one('#fgroup_id_gradingcontrols'),
         columnDisplayBlock = Y.one('#fgroup_id_columncontrols'),
-        customise = Y.one('#id_coderunner_type_customise'),
+        customise = Y.one('#id_customise'),
         isCustomised = customise.get('checked');
 
     function setCustomisationVisibility(isVisible) {

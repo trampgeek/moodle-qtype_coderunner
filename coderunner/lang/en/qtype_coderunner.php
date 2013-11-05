@@ -56,11 +56,12 @@ with the standard input provided in each testcase.
 * full_main_tests (C): where the student writes various declarations and
 each test case is a full main function.
 
-These various types are not applicable to Python, where the student's code is always run first,
-followed by the test code.
+These various types are not applicable to Python, where the student's code is
+always run first, followed by the test code.
 
-It is also possible to customise the question type: click the help for the
-'customise' button for more information.
+It is also possible to customise the question type; click the 'Customise'
+checkbox and read the help available on the newly-visible form elements for
+more information.
 ";
 $string['coderunnersummary'] = 'Answer is program code that is executed '
     . 'in the context of a set of test cases to determine its correctness.';
@@ -69,6 +70,8 @@ $string['coderunner_help'] = 'In response to a question, which is a '
     . 'the respondent enters source code in a specified computer '
     . 'language that satisfies the specification.';
 $string['coderunner_link'] = 'question/type/coderunner';
+$string['columncontrols_help'] = 'The checkboxes select which columns of the ' .
+        'results table should be displayed to the student after submission';
 $string['customisationcontrols'] = 'Customisation';
 $string['customise'] = 'Customise';
 
@@ -83,6 +86,27 @@ $string['filloutoneanswer'] = 'You must enter source code that '
     . 'accordingly.';
 $string['grader'] = 'Grader';
 $string['grading'] = 'Grading';
+$string['gradingcontrols'] = 'Grading controls';
+$string['gradingcontrols_help'] = <<<EO_GC_HELP
+The 'all-or-nothing' checkbox determines whether or not a student submission
+has to pass all tests in order to earn any marks (the default coderunner
+situation) or whether marks can be awarded for each successful test. In the
+latter case, the per-test-case marks are definable via the 'mark' input field
+(but only when the all-or-nothing checkbox is not checked). The normal grader
+awards marks only if the output from the run matches the expected value defined
+by the testcase. However, if the 'Template is also a grader' checkbox is set,
+the output from the run is not passed to the grader but is taken as the
+grading result. In that case it MUST be a JSON-encoded record containing
+at least a 'fraction' field, which is multiplied by TEST.mark to decide how
+many marks the test case is awarded. It should usually also contain a 'got'
+field, which is the value displayed in the 'Got' column of the results table.
+The other columns of the results table (testcode, stdin, expected) can also
+be defined by the custom grader and will be used instead of the values from
+the testcase. As an example, if the output of the program is the string
+'{"fraction":0.5, "got": "Half the answers were right!"}', half marks would be
+given for that particular test case and the 'Got' column would display the
+text "Half the answers were right!".
+EO_GC_HELP;
 $string['hidden'] = 'Hidden';
 $string['HIDE'] = 'Hide';
 $string['HIDE_IF_FAIL'] = 'Hide if fail';
@@ -115,20 +139,10 @@ $string['questiontype_help'] = 'Select the particular type of question. ' .
         'specifies a particular language and, sometimes, a sandbox in which ' .
         'the program will be executed. Each question type has a ' .
         'template that defines how the executable program is built from the ' .
-        'testcase data and the student answer. The template can be customised ' .
-        'by clicking the "Customise" checkbox. ' .
-        'The template is processed by the Twig ' .
-        'template engine in a context in which STUDENT_ANSWER is the student\'s ' .
-        'response and TEST.testcode is the code for the current testcase. The ' .
-        'output from the template processing is then compiled and executed ' .
-        'with the language of the selected built-in type and with stdin set ' .
-        'to the input data for the ' .
-        'current testcase. Note that if a customised template is used there will ' .
-        'be a compile-and-execute cycle for every test case, whereas most ' .
-        'built-in question types attempt to combine test cases into a single run. ' .
-        'Hence custom types may be a significantly slower. ' .
-        'If the template-debugging checkbox is clicked, the program generated ' .
-        'for each testcase will be displayed in the output.';
+        'testcase data and the student answer. The template, and other
+            parameters of the question type, can be customised ' .
+        'by clicking the "Customise" checkbox.';
+
 $string['questiontype_required'] = 'You must select the type of question';
 $string['row_properties'] = 'Row properties:';
 $string['SHOW'] = 'Show';
@@ -151,6 +165,30 @@ $string['testcases'] = 'Test cases';
 $string['testcode'] = 'Test code';
 $string['template'] = 'Template';
 $string['template_does_grading'] = "Template is also a grader";
+$string['template_help'] = <<<EO_TEMPLATE_HELP
+The template defines the program that is to be run for each test case, depending
+on the student answer and the particular test case. The template is processed
+by the Twig template engine (see twig.sensiolabs.org)
+in a context in which STUDENT_ANSWER is the student's
+response and TEST.testcode is the code for the current testcase. These values
+(and other testcase values like TEST.expected, TEST.stdin, TEST.mark)
+can be inserted into the template by enclosing them in double braces, e.g.
+{{TEST.testcode}}. For use within literal strings, an appropriate escape
+function should be applied, e.g. {{STUDENT_ANSWER | e('py')}} is the student
+answer escaped in a manner suitable for use within Python triple-double-quoted
+strings. Other escape functions are e('c'), e('java'), e('matlab'). The
+program that is output by Twig is then compiled and executed
+with the language of the selected built-in type and with stdin set
+to TEST.stdin. Output from that program is then passed to the grader,
+unless the 'Template is also a grader' option is set. See the help under
+'Grading controls' for more on that. Note that if a customised template is used
+there will be a compile-and-execute cycle for every test case, whereas most
+built-in question types attempt to combine test cases into a single run.
+Hence custom types may be a significantly slower, particularly if the question
+has many test cases.
+If the template-debugging checkbox is clicked, the program generated
+for each testcase will be displayed in the output.
+EO_TEMPLATE_HELP;
 $string['type_header'] = 'Coderunner question type';
 $string['typerequired'] = 'Please select the type of question (language, format, etc)';
 $string['useasexample'] = 'Use as example';
