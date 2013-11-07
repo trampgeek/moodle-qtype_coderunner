@@ -53,7 +53,7 @@ class qtype_coderunner_liusandbox_test extends basic_testcase {
                 'disk'      => 1048576   // 1 MB
             ),
             'workdir'      => $dirname,
-            'readableDirs' => Python3_Task::readableDirs()
+            'readableDirs' => LiuSandbox\Python3_Task::readableDirs()
         );
 
         $handle = fopen('runspec.json', "w");

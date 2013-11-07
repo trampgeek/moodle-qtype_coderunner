@@ -76,7 +76,24 @@ class RunguardSandbox extends LocalSandbox {
     // Results are all left in $this->task for later access by
     // getSubmissionDetails
     protected function runInSandbox($input) {
-        $cmd = implode(' ', $this->task->getRunCommand()) . ">prog.out 2>prog.err";
+        $filesize = 1000000 * $this->getParam('disklimit');
+        $memsize = 1000 * $this->getParam('memorylimit');
+        $cputime = $this->getParam('cputime');
+        $numProcs = $this->getParam('numprocs');
+        $sandboxCmdBits = array(
+             dirname(__FILE__)  . "/runguard",
+             "--user=coderunner",
+             "--time=$cputime",         // Seconds of execution time allowed
+             "--filesize=$filesize",    // Max file sizes (10MB)
+             "--nproc=$numProcs",       // Max num processes/threads for this *user*
+             "--no-core",
+             "--streamsize=$filesize");  // Max stdout/stderr sizes
+        if ($memsize != 0) {  // Special case: Matlab won't run with a memsize set. TODO: WHY NOT!
+            $sandboxCmdBits[] = "--memsize=$memsize";
+        }
+        $allCmdBits = array_merge($sandboxCmdBits, $this->task->getRunCommand());
+        $cmd = implode(' ', $allCmdBits) . " >prog.out 2>prog.err";
+
         $workdir = $this->task->workdir;
         chdir($workdir);
         try {

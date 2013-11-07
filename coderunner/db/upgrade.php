@@ -110,6 +110,15 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         $dbman->rename_field($table, $timelimit, 'cputimelimitsecs');
         upgrade_plugin_savepoint(true, 2013110701, 'qtype', 'coderunner');
     }
+
+    if ($oldversion != 0 && $oldversion < 2013110702) {
+        $table = new xmldb_table('quest_coderunner_types');
+        $timelimit = new xmldb_field('cputimelimitsecs', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, FALSE, null, null);
+        $dbman->add_field($table, $timelimit);
+        $memlimit = new xmldb_field('memlimitmb', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, FALSE, null, null);
+        $dbman->add_field($table, $memlimit);
+        upgrade_plugin_savepoint(true, 2013110702, 'qtype', 'coderunner');
+    }
     return updateQuestionTypes();
 
 }
@@ -228,7 +237,8 @@ EOT;
         'test_splitter_re' => "|#<ab@17943918#@>#\n|ms",
         'per_test_template' => $perTestTemplate_pylint_func,
         'language' => 'python3',
-        'sandbox'  => 'RunguardSandbox'
+        'sandbox'  => 'RunguardSandbox',
+        'memlimitmb' => 500
     );
 
     // ===============================================================
@@ -302,7 +312,8 @@ EOT;
         'test_splitter_re' => "|#<ab@17943918#@>#\n|ms",
         'per_test_template' => $perTestTemplate_pylint_prog,
         'language' => 'python3',
-        'sandbox'  => 'RunguardSandbox'
+        'sandbox'  => 'RunguardSandbox',
+        'memlimitmb' => 500
     );
 
 // ===============================================================
@@ -517,6 +528,8 @@ EOT
         'test_splitter_re' => "|#<ab@17943918#@>#\n|ms",
         'per_test_template' => "function tester()\n  {{ TEST.testcode }};\n  quit();\nend\n\n{{ STUDENT_ANSWER }}",
         'language' => 'matlab',
+        'cputimelimitsecs' => 10,  // Slow matlab :-(
+        'memlimitmb' => 0          // TODO: why won't matlab run with a memory limit??
     );
 
 
@@ -570,7 +583,8 @@ public class Main {
 EOT
 ,
         'language' => 'Java',
-        'sandbox'  => 'RunguardSandbox'
+        'sandbox'  => 'RunguardSandbox',
+        'memlimitmb' => 2000  // 2GB!! Silly Java!
     );
 
 
@@ -608,6 +622,7 @@ public class __Tester__ {
 EOT
 ,
         'language' => 'Java',
+        'memlimitmb' => 2000  // 2GB!! Silly Java!
     );
 
 
@@ -627,6 +642,7 @@ EOT
 EOT
 ,
         'language' => 'Java',
+        'memlimitmb' => 2000  // 2GB!! Silly Java!
     );
 
 

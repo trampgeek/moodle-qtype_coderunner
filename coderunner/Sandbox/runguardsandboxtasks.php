@@ -13,9 +13,9 @@ namespace RunguardSandbox;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-class Matlab_Task extends LanguageTask {
+class Matlab_Task extends \LanguageTask {
     public function __construct($sandbox, $source) {
-        LanguageTask::__construct($sandbox, $source);
+        \LanguageTask::__construct($sandbox, $source);
     }
 
     public function getVersion() {
@@ -30,22 +30,7 @@ class Matlab_Task extends LanguageTask {
     }
 
     public function getRunCommand() {
-         $filesize = 1000000 * $this->sandbox->getParam('disklimit');
-         $memsize = 1000 * $this->sandbox->getParam('memorylimit');
-         $cputime = $this->sandbox->getParam('cputime');
-         $numProcs = $this->sandbox->getParam('numprocs');
          return array(
-             dirname(__FILE__)  . "/runguard",
-             "--user=coderunner",
-             "--time=$cputime",       // Seconds of execution time allowed
-             "--memsize=0",           // TODO: why won't MATLAB run with a memsize set?!!
-             "--filesize=$filesize",  // Max file sizes
-             "--nproc=200",            // At most 20 processes/threads (for this *user*)
-             // Number increased to 200 to allow multiple web threads to be
-             // running Matlab at once. This is ugly.
-             // TODO:  is there a better way to prevent fork bombs? cgroups?
-             "--no-core",
-             "--streamsize=$filesize",   // Max stdout/stderr sizes
              '/usr/local/bin/matlab_exec_cli',
              '-nojvm',
              '-r',
@@ -81,9 +66,9 @@ class Matlab_Task extends LanguageTask {
      }
 };
 
-class Python2_Task extends LanguageTask {
+class Python2_Task extends \LanguageTask {
     public function __construct($sandbox, $source) {
-        LanguageTask::__construct($sandbox, $source);
+        \LanguageTask::__construct($sandbox, $source);
     }
 
     public function getVersion() {
@@ -98,19 +83,7 @@ class Python2_Task extends LanguageTask {
     // Return the command to pass to localrunner as a list of arguments,
     // starting with the program to run followed by a list of its arguments.
     public function getRunCommand() {
-        $filesize = 1000000 * $this->sandbox->getParam('disklimit');
-        $memsize = 1000 * $this->sandbox->getParam('memorylimit');
-        $cputime = $this->sandbox->getParam('cputime');
-        $numProcs = $this->sandbox->getParam('numprocs');
         return array(
-             dirname(__FILE__)  . "/runguard",
-             "--user=coderunner",
-             "--time=$cputime",         // Seconds of execution time allowed
-             "--memsize=$memsize",      // Max kb mem allowed (100MB)
-             "--filesize=$filesize",    // Max file sizes (10MB)
-             "--nproc=$numProcs",       // Max num processes/threads for this *user*
-             "--no-core",
-             "--streamsize=$filesize",  // Max stdout/stderr sizes
              '/usr/bin/python2',
              '-BESs',
              $this->sourceFileName
@@ -118,9 +91,9 @@ class Python2_Task extends LanguageTask {
      }
 };
 
-class Python3_Task extends LanguageTask {
+class Python3_Task extends \LanguageTask {
     public function __construct($sandbox, $source) {
-        LanguageTask::__construct($sandbox, $source);
+        \LanguageTask::__construct($sandbox, $source);
     }
 
     public function getVersion() {
@@ -142,19 +115,7 @@ class Python3_Task extends LanguageTask {
     // Return the command to pass to localrunner as a list of arguments,
     // starting with the program to run followed by a list of its arguments.
     public function getRunCommand() {
-        $filesize = 1000000 * $this->sandbox->getParam('disklimit');
-        $memsize = 1000 * $this->sandbox->getParam('memorylimit');
-        $cputime = $this->sandbox->getParam('cputime');
-        $numProcs = $this->sandbox->getParam('numprocs');
         return array(
-             dirname(__FILE__)  . "/runguard",
-             "--user=coderunner",
-             "--time=$cputime",         // Seconds of execution time allowed
-             "--memsize=$memsize",      // Max kb mem allowed (100MB)
-             "--filesize=$filesize",    // Max file sizes (10MB)
-             "--nproc=$numProcs",       // Max num processes/threads for this *user*
-             "--no-core",
-             "--streamsize=$filesize",  // Max stdout/stderr sizes
              '/usr/bin/python3',
              '-BE',
              $this->sourceFileName
@@ -162,9 +123,9 @@ class Python3_Task extends LanguageTask {
      }
 };
 
-class Java_Task extends LanguageTask {
+class Java_Task extends \LanguageTask {
     public function __construct($sandbox, $source) {
-        LanguageTask::__construct($sandbox, $source);
+        \LanguageTask::__construct($sandbox, $source);
     }
 
     public function getVersion() {
@@ -195,19 +156,7 @@ class Java_Task extends LanguageTask {
 
 
     public function getRunCommand() {
-        $filesize = 1000000 * $this->sandbox->getParam('disklimit');
-        $memsize = 1000 * $this->sandbox->getParam('memorylimit');
-        $cputime = $this->sandbox->getParam('cputime');
-        $numProcs = $this->sandbox->getParam('numprocs');
         return array(
-             dirname(__FILE__)  . "/runguard",
-             "--user=coderunner",
-             "--time=$cputime",         // Seconds of execution time allowed
-             "--memsize=$memsize",      // Max kb mem allowed (100MB)
-             "--filesize=$filesize",    // Max file sizes (10MB)
-             "--nproc=$numProcs",       // Max num processes/threads for this *user*
-             "--no-core",
-             "--streamsize=$filesize",  // Max stdout/stderr sizes
              '/usr/bin/java',
              "-Xrs",   //  reduces usage signals by java, because that generates debug
                        //  output when program is terminated on timelimit exceeded.
@@ -235,10 +184,10 @@ class Java_Task extends LanguageTask {
 };
 
 
-class C_Task extends LanguageTask {
+class C_Task extends \LanguageTask {
 
     public function __construct($sandbox, $source) {
-        LanguageTask::__construct($sandbox, $source);
+        \LanguageTask::__construct($sandbox, $source);
     }
 
     public function getVersion() {
@@ -264,19 +213,7 @@ class C_Task extends LanguageTask {
 
 
     public function getRunCommand() {
-        $filesize = 1000000 * $this->sandbox->getParam('disklimit');
-        $memsize = 1000 * $this->sandbox->getParam('memorylimit');
-        $cputime = $this->sandbox->getParam('cputime');
-        $numProcs = $this->sandbox->getParam('numprocs');
         return array(
-             dirname(__FILE__)  . "/runguard",
-             "--user=coderunner",
-             "--time=$cputime",         // Seconds of execution time allowed
-             "--memsize=$memsize",      // Max kb mem allowed (100MB)
-             "--filesize=$filesize",    // Max file sizes (10MB)
-             "--nproc=$numProcs",       // Max num processes/threads for this *user*
-             "--no-core",
-             "--streamsize=$filesize",  // Max stdout/stderr sizes
              "./" . $this->executableFileName
          );
     }

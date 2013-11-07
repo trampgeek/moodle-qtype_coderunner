@@ -19,9 +19,9 @@ namespace LiuSandbox;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-class Python3_Task extends LanguageTask {
+class Python3_Task extends \LanguageTask {
     public function __construct($sandbox, $source) {
-        LanguageTask::__construct($sandbox, $source);
+        \LanguageTask::__construct($sandbox, $source);
     }
 
     public function getVersion() {
@@ -65,9 +65,9 @@ class Python3_Task extends LanguageTask {
 
 // =============================================================
 
-class Python2_Task extends LanguageTask {
+class Python2_Task extends \LanguageTask {
     public function __construct($sandbox, $source) {
-        LanguageTask::__construct($sandbox, $source);
+        \LanguageTask::__construct($sandbox, $source);
     }
 
     public function getVersion() {
@@ -107,10 +107,10 @@ class Python2_Task extends LanguageTask {
 
 // =============================================================
 
-class C_Task extends LanguageTask {
+class C_Task extends \LanguageTask {
 
     public function __construct($sandbox, $source) {
-        LanguageTask::__construct($sandbox, $source);
+        \LanguageTask::__construct($sandbox, $source);
     }
 
     public function getVersion() {

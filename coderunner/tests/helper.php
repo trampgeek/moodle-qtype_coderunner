@@ -961,6 +961,7 @@ EOPROG;
         $coderunner->showmark = FALSE;
         $coderunner->unitpenalty = 0.2;
         $coderunner->customise = FALSE;
+        
         $this->getOptions($coderunner);
         return $coderunner;
     }

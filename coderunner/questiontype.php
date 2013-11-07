@@ -88,7 +88,7 @@ class qtype_coderunner extends question_type {
         return array('quest_coderunner_options', 'coderunner_type',
             'custom_template', 'template_does_grading', 'all_or_nothing',
             'show_source', 'showtest', 'showstdin', 'showexpected', 'showoutput',
-            'showmark', 'timelimitsecs', 'memlimitmb');
+            'showmark', 'cputimelimitsecs', 'memlimitmb');
     }
 
     /**
@@ -233,6 +233,7 @@ class qtype_coderunner extends question_type {
                 $question->$field = $row->$field;
             }
         }
+
         if (!isset($question->sandbox))  {
             $question->sandbox = $this->getBestSandbox($question->language);
         }
@@ -266,7 +267,7 @@ class qtype_coderunner extends question_type {
         parent::initialise_question_instance($question, $questiondata);
         foreach (array('testcases', 'language', 'combinator_template',
             'test_splitter_re', 'per_test_template', 'customise',
-            'sandbox', 'grader') as $field) {
+            'sandbox', 'grader', 'cputimelimitsecs', 'memlimitmb') as $field) {
             $question->$field = $questiondata->$field;
         }
     }

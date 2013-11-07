@@ -167,7 +167,8 @@ class qtype_coderunner_question extends question_graded_automatically {
             return array(0, question_state::$gradedwrong, $dataToCache);
         }
         else {
-            return array($testOutcome->markAsFraction(), question_state::$gradedpartial, $dataToCache);
+            return array($testOutcome->markAsFraction(),
+                    question_state::$gradedpartial, $dataToCache);
         }
     }
 
@@ -201,7 +202,16 @@ class qtype_coderunner_question extends question_graded_automatically {
 
         $this->allRuns = array();
         $this->allGradings = array();
-        $outcome = $this->runWithCombinator($code, $testCases);
+
+
+        $sandboxParams = array();
+        if (isset($this->cputimelimitsecs)) {
+            $sandboxParams['cputime'] = intval($this->cputimelimitsecs);
+        }
+        if (isset($this->memlimitmb)) {
+            $sandboxParams['memorylimit'] = intval($this->memlimitmb);
+        }
+        $outcome = $this->runWithCombinator($code, $testCases, $sandboxParams);
 
         // If that failed for any reason (e.g. no combinator template or timeout
         // of signal) run the tests individually. Any compilation
@@ -211,7 +221,7 @@ class qtype_coderunner_question extends question_graded_automatically {
         // case.
 
         if ($outcome == NULL) {
-            $outcome = $this->runTestsSingly($code, $testCases);
+            $outcome = $this->runTestsSingly($code, $testCases, $sandboxParams);
         }
 
         $this->sandboxInstance->close();
@@ -248,10 +258,11 @@ class qtype_coderunner_question extends question_graded_automatically {
     // MATLAB_ESCAPED_STUDENT_ANSWER, a string for use in Matlab intended
     // to be used as s = sprintf('{{MATLAB_ESCAPED_STUDENT_ANSWER}}')
     // Return true if successful.
-    private function runWithCombinator($code, $testCases) {
+    private function runWithCombinator($code, $testCases, $sandboxParams) {
         $outcome = NULL;
 
-        if (!$this->customise && $this->combinator_template && $this->noStdins($testCases)) {
+        if (!$this->customise && $this->combinator_template &&
+                $this->noStdins($testCases)) {
 
             assert($this->test_splitter_re != '');
 
@@ -263,13 +274,16 @@ class qtype_coderunner_question extends question_graded_automatically {
             $testProg = $this->twig->render($this->combinator_template, $templateParams);
 
             $this->allRuns[] = $testProg;
-            $run = $this->sandboxInstance->execute($testProg, $this->language, NULL);
+            $run = $this->sandboxInstance->execute($testProg, $this->language,
+                    NULL, $sandboxParams);
 
             if ($run->result === SANDBOX::RESULT_COMPILATION_ERROR) {
-                $outcome = new TestingOutcome(TestingOutcome::STATUS_SYNTAX_ERROR, $run->cmpinfo);
+                $outcome = new TestingOutcome(TestingOutcome::STATUS_SYNTAX_ERROR,
+                        $run->cmpinfo);
             }
             else if ($run->result === SANDBOX::RESULT_ABNORMAL_TERMINATION) {
-                // Could be a syntax error but might be a runtime error on just one test case so abandon combinator approach
+                // Could be a syntax error but might be a runtime error on just
+                // one test case so abandon combinator approach
             }
             // Cater for very rare situation that a successful run is recorded
             // but stderr output is generated as well. [e.g.
@@ -302,7 +316,7 @@ class qtype_coderunner_question extends question_graded_automatically {
 
 
     // Run all tests one-by-one on the sandbox
-    private function runTestsSingly($code, $testCases) {
+    private function runTestsSingly($code, $testCases, $sandboxParams) {
         assert(!($this->customise && $this->custom_template == ''));
         $templateParams = array(
             'STUDENT_ANSWER' => $code,
@@ -324,7 +338,7 @@ class qtype_coderunner_question extends question_graded_automatically {
 
             $input = isset($testCase->stdin) ? $testCase->stdin : '';
             $this->allRuns[] = $testProg;
-            $run = $this->sandboxInstance->execute($testProg, $this->language, $input);
+            $run = $this->sandboxInstance->execute($testProg, $this->language, $input, $sandboxParams);
             if ($run->result === SANDBOX::RESULT_COMPILATION_ERROR) {
                 $outcome = new TestingOutcome(TestingOutcome::STATUS_SYNTAX_ERROR, $run->cmpinfo);
                 break;

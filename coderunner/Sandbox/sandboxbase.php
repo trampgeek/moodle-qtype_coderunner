@@ -125,7 +125,8 @@ abstract class Sandbox {
         if (!in_array($language, $this->getLanguages()->languages)) {
             throw new coding_exception('Executing an unsupported language in sandbox');
         }
-        $result = $this->createSubmission($sourceCode, $language, $input, $params);
+        $result = $this->createSubmission($sourceCode, $language, $input,
+                TRUE, TRUE, $params);
         $error = $result->error;
         if ($error === Sandbox::OK) {
             $state = $this->getSubmissionStatus($result->link);
