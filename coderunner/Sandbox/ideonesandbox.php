@@ -70,9 +70,12 @@ class IdeoneSandbox extends Sandbox {
     // Return an object with an error and a link field, the latter being
     // the handle for the submission, for use in the following two calls.
     public function createSubmission($sourceCode, $language, $input,
-            $run=TRUE, $private=TRUE)
+            $run=TRUE, $private=TRUE, $params = NULL)
     {
+        // Check language is valid and the user isn't attempting to set
+        // execution parameters (since Ideone does not have such options).
         assert(in_array($language, $this->getLanguages()->languages));
+        assert($params == NULL);
         $langId = $this->langMap[$language];
         $response = $this->client->createSubmission(USER, PASS,
                 $sourceCode, $langId, $input, $run, $private);

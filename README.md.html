@@ -117,12 +117,15 @@ for your particular environment.</p>
 
 <ol>
 <li><p>If you haven't succeeded in installing the LiuSandbox correctly, you
-can try running all your code via <em>runguard</em> in the <em>RunguardSandbox</em> or by remote
-execution on the Ideone system (ideone.com) using the <em>IdeoneSandbox</em>, as follows.</p>
+can run programs in any of the supported languages via <em>runguard</em>
+in the <em>RunguardSandbox</em>, or can also run Python3 and Ideone
+programs  remotely on the Ideone system (ideone.com) using the
+<em>IdeoneSandbox</em>.</p>
 
 <ul>
-<li>The RunguardSandbox. Assuming the install script successfully created the user <em>coderunner</em> and
-set the <em>runguard</em> program to run as root, the RunguardSandbox is reasonably safe,
+<li>The RunguardSandbox. Assuming the install script successfully created the
+user <em>coderunner</em> and set the <em>runguard</em> program to run as root,
+the RunguardSandbox is reasonably safe,
 in that it controls memory usage and execution time and limits file access to
 those parts of the file system visible to all users. However, it does not
 prevent use of system calls like <em>socket</em> that might open connections to
@@ -130,16 +133,23 @@ other servers behind your firewall and of course it depends on the Unix
 server being securely set up in the first place. There are also potential
 problems with controlling fork bombs and/or testing of heavily multithreaded
 languages or student submissions. That being said, our own quiz server has
-been making extensive use of the RunguardSandbox for two years and the only
-problem that occurred was when multiple Python submissions attempted to run
+been making extensive use of the RunguardSandbox for two years and only
+once had a problem when multiple Python submissions attempted to run
 the Java Virtual Machine (heavily multithreaded), for which the process limit
 previously set for Python was inadequate. That limit has since been multiplied
-by 10, but this is not a satisfactory long-term solution.</li>
-<li>The IdeoneSandbox.</li>
-</ul>
-
-<p>To use only the RunguardSandbox, change the file <code>CodeRunner/coderunner/Sandbox/sandbox_config.php</code>
-to list only <code>runguardsandbox</code> as an option.</p></li>
+by 10. To use only the RunguardSandbox, change the file
+<code>CodeRunner/coderunner/Sandbox/sandbox_config.php</code>
+to list only <code>runguardsandbox</code> as an option.</li>
+<li>The IdeoneSandbox. ideone.com is a compute server that runs
+programs submitted either through a browser or through a web-services API in
+a huge number of different languages. This is not recommended for production
+use, as execution turn-around time is frequently too large (from 10 seconds
+to a minute or more) to give a tolerable user experience. A key to access
+the Ideone web-services is required; runs are free up to a certain number
+but you then have to pay for usage. <strong>* TBS <em></strong> Details on key entry etc *</em>*.
+The IdeoneSandbox is there mainly as a proof of concept of the idea of off-line
+execution and to support occasional use of unusual languages.</li>
+</ul></li>
 <li><p>If you are using the LiuSandbox for Python and C, the supplied
 <code>sandbox_config.php</code> should be correct. Obviously the appropriate languages
 must be installed including, in the case of C, the capability to compile and
@@ -158,9 +168,9 @@ outside the sandbox and statically linking so shouldn't need to access
 of course).</p></li>
 </ol>
 
-<p>If you're running a Moodle version >=2.3, and have installed the
-<em>phpunit</em> system for testing, you might wish to test the
-CodeRunner installation with phpunit. However, unless you are planning on running
+<p>If you have have installed the
+<em>phpunit</em> system for testing Moodle modules, you might wish to test the
+CodeRunner installation. However, unless you are planning on running
 Matlab you should first move or remove the file</p>
 
 <pre><code>    &lt;moodlehome&gt;/local/coderunner/Coderunner/tests/matlabquestions_test.php
@@ -183,9 +193,9 @@ extended to support lots more. The file <code>db/upgrade.php</code> installs a s
 standard language and question types into the data base. Each question type
 defines a programming language, a couple of templates (see the next section),
 a preferred sandbox (normally left blank so that the best one available can
-be used) and a preferred validator. The latter is also normally blank as the
+be used) and a preferred grader. The latter is also normally blank as the
 default so-called
-<em>BasicValidator</em> is the only one currently available - it just compares the actual
+<em>BasicGrader</em> is the only one currently available - it just compares the actual
 program output with the expected output and requires an exact match for a
 pass, after trailing blank lines and trailing white space on lines has been
 removed. An alternative regular expression match could easily be added but I
@@ -224,7 +234,7 @@ one.</p>
 <p>All C question types use the gcc compiler with the language set to
 accept C99 and with both <em>-Wall</em> and <em>-Werror</em> options set on the command line
 to issue all warnings and reject the code if there are any warnings.
-C++ isn't build in as present, as we don't teach it, but changing C question
+C++ isn't built in as present, as we don't teach it, but changing C question
 to support C++ is mainly just a matter of changing the
 compile command line, viz., the line "$cmd = ..." in the <em>compile</em> methods of
 <em>C_ns_Task</em> in runguardsandbox.php and <em>C_Task</em> in liusandbox.php. You will probably
@@ -241,9 +251,10 @@ input.</p></li>
 <li><p><strong>c_full_main_tests</strong>. This is a rarely used special question type where
 students write global declarations (types, functions etc) and each test is a
 complete C main function that uses the student-supplied declarations.</p></li>
-<li><p><strong>matlab_function</strong>. This is the only supported matlab question type and isn't
+<li><p><strong>matlab<em>function</strong>. This is the only supported matlab question type and isn't
 really intended for general use outside the University of Canterbury. It assumes
-matlab is installed on the server at the path "/usr/local/Matlab2012a/bin/glnxa64/MATLAB".
+matlab is installed on the server and can be run with the shell command
+"/usr/local/bin/matlab</em>exec_cli".
 A ".m" test file is built that contains a main test function, which executes
 all the supplied test cases, followed by the student code which must be in the
 form of one or more function declarations. That .m file is executed by Matlab,
@@ -414,6 +425,145 @@ is a textual description of a Finite State Automaton for a given transition
 diagram; the template code evaluates the correctness of the supplied
 automaton.</p></li>
 </ol>
+
+<h2>Grading with templates</h2>
+
+<p>Using just the template mechanism described above it is possible to write
+almost arbitrarily complex questions. Grading of student submissions can,
+however, be problematic in some situations. For example, you may need to
+ask a question where many different answers are possible, and the
+correctness can only be assessed by a special testing program. Or
+you may wish to subject
+a student's code to a very large
+number of tests and award a mark according to how many of the test cases
+it can handle. The usual exact-match
+grader cannot handle these situations. For such cases the "template does
+grading" checkbox can be used.</p>
+
+<p>When the 'template does grading' checkbox is checked
+the output from the run is not passed to the grader but is taken as the
+grading result. The output from the template-generated program must now
+be a JSON-encoded object (such as a dictionary, in Python) containing
+at least a 'fraction' field, which is multiplied by TEST.mark to decide how
+many marks the test case is awarded. It should usually also contain a 'got'
+field, which is the value displayed in the 'Got' column of the results table.
+The other columns of the results table (testcode, stdin, expected) can also
+be defined by the custom grader and will be used instead of the values from
+the testcase. As an example, if the output of the program is the string</p>
+
+<pre><code>{"fraction":0.5, "got": "Half the answers were right!"}
+</code></pre>
+
+<p>half marks would be
+given for that particular test case and the 'Got' column would display the
+text "Half the answers were right!".</p>
+
+<h2>An advanced grading-template example</h2>
+
+<p>As an example of the use of a custom grader, consider the following question:</p>
+
+<p>"Write a function <em>best_pair(nums)</em> that takes a list of 2 or more integers and
+returns any two elements from the list such that the absolute value of the
+difference between the two elements is less than or equal to the difference
+between all other pairs of elements. An element from the input list can appear
+only once in the output pair unless the element is repeated in the input too.</p>
+
+<p>"For example <em>best_pair([-100, 20, 95, 11, -8, 1])</em> should return one of the pairs
+(11, 20), (20,11), (-8, 1) or (1, -8)."</p>
+
+<p>The following template, with the "template does grading" checkbox checked,
+could be used as a grader for this question.</p>
+
+<pre><code>import json
+
+{{STUDENT_ANSWER}}
+
+nums = {{TEST.testcode}}
+
+def sample_solution(nums):
+    best = (nums[0], nums[1])
+    for i in range(len(nums) - 1):
+        for j in range(i + 1, len(nums)):
+            if abs(nums[i] - nums[j]) &lt; abs(best[0] - best[1]):
+                best = (nums[i], nums[j])
+    return best
+
+def is_valid(response, nums):
+    if not isinstance(response, tuple) or len(response) != 2:
+        return False
+    if response[0] not in nums or response[1] not in nums:
+        return False
+    if response[0] == response[1] and nums.count(response[0]) &lt; 2:
+        return False
+    return True
+
+my_soln = sample_solution(nums)
+my_diff = abs(my_soln[0] - my_soln[1])
+expected = 'Pair with difference of ' + str(my_diff) + '\ne.g. ' + str(my_soln)
+try:
+    candidate = best_pair(nums[:])
+
+    if not is_valid(candidate, nums):
+        grading = {'fraction':0.0, 'got': 'Invalid response: ' + str(candidate)}
+    else:
+        got = str(candidate)
+        got_diff = abs(candidate[0] - candidate[1])
+        if got_diff == my_diff:
+            mark = 1.0
+        else:
+            mark = 0.0
+            got += '\n(difference of {})'.format(got_diff)
+        grading = {'fraction': mark, 'got': got}
+except Exception as e:
+    grading = {'fraction':0, 'got': '*** Exception occurred ***\n' + str(e)}
+
+grading['expected'] = expected
+print(json.dumps(grading))
+</code></pre>
+
+<p>It is assumed that the "testcases" for this question are just Python lists of
+ints, e.g. with 'testcode' like '[10, 6, -11, 21, 3, 4]'. The other testcase
+fields (stdin and expected) are unused, as the grading program computes the
+expected result.</p>
+
+<p>If the student responds with the plausible but wrong response:</p>
+
+<pre><code>def best_pair(nums):
+    best = (nums[0], nums[1])
+    for n1 in nums:
+        nums.remove(n1)
+        for n2 in nums:
+            if abs(n1 - n2) &lt; abs(best[0] - best[1]):
+                best = (n1, n2)
+    return best
+</code></pre>
+
+<p>Their result table looks like:</p>
+
+<p><img src="wrongAnswerToGraderExample.png" alt="wrong answer image" title="" /></p>
+
+<p>(assuming 'all-or-nothing' grading). If instead, their answer is correct,
+such as,</p>
+
+<pre><code>def best_pair(nums):
+    best = (nums[0], nums[1])
+    for i in range(len(nums) - 1):
+        for j in range(i + 1, len(nums)):
+            if abs(nums[i] - nums[j]) &lt;= abs(best[0] - best[1]):
+                best = (nums[i], nums[j])
+    return best
+</code></pre>
+
+<p>then they get the following:</p>
+
+<p><img src="rightAnswerToGraderExample.png" alt="right answer image" title="" /></p>
+
+<p>It may be noted that writing questions using custom graders is much harder than
+using the normal built-in equality based grader. The above question could much
+more easily have been posed in a way that allowed no ambiguity in the output, e.g.
+by requiring that the items in the response pair be in sorted order and that,
+were multiple pairs are possible, the pair appearing first in some defined
+ordering should be chosen.</p>
 
 <h2>How programming quizzes should work</h2>
 

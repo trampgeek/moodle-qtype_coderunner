@@ -95,7 +95,9 @@ class qtype_coderunner_edit_form extends question_edit_form {
         // 'customise' checkbox is checked.
 
         $mform->addElement('textarea', 'custom_template',
-                get_string('template', 'qtype_coderunner'), '" rows="8" cols="80" class="template edit_code"');
+                get_string('template', 'qtype_coderunner'),
+                array('rows'=>8, 'cols'=>80, 'class'=>'template edit_code',
+                      'name'=>'per_test_template'));
 
         $mform->addHelpButton('custom_template', 'template', 'qtype_coderunner');
         $gradingControls = array();
@@ -155,20 +157,22 @@ class qtype_coderunner_edit_form extends question_edit_form {
             $numTestcases = NUM_TESTCASES_START;
         }
 
-        $markDefaults = array();
-        for ($i = 0; $i < $numTestcases; $i++) {
-            $markDefaults[] = '1.0';
-            $mform->disabledIf("mark[$i]", 'all_or_nothing', 'checked');
-        }
-
         // Confusion alert! A call to $mform->setDefault("mark[$i]", '1.0') looks
         // plausible and works to set the empty-form default, but it then
-        // overrides (rather than is overridden by) the actual value.
+        // overrides (rather than is overridden by) the actual value. The same
+        // thing happens with $repeatedoptions['mark']['default'] = 1.000 in
+        // get_per_testcase_fields (q.v.).
         // I don't understand this (but see 'Evil hack alert' in the baseclass).
-        $mform->setDefault('mark', $markDefaults);
+        // MY EVIL HACK ALERT -- setting just $numTestcases default values
+        // fails when more test cases are added on the fly. So I've set up
+        // enough defaults to handle 5 successive adding of more test cases.
+        // I believe this is a bug in the underlying Moodle question type, not
+        // mine, but ... how to be sure?
+        $mform->setDefault('mark', array_fill(0, $numTestcases + 5 * NUM_TESTCASES_ADD, 1.0));
 
         $this->add_per_testcase_fields($mform, get_string('testcase', 'qtype_coderunner', "{no}"),
                 $numTestcases);
+
         $this->add_interactive_settings();
     }
 
@@ -194,6 +198,10 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $this->repeat_elements($repeated, $numTestcases, $repeatedoptions,
                 'numtestcases', 'addanswers', QUESTION_NUMANS_ADD,
                 $this->get_more_choices_string(), true);
+        $n = $numTestcases + QUESTION_NUMANS_ADD;
+        for ($i = 0; $i < $n; $i++) {
+            $mform->disabledIf("mark[$i]", 'all_or_nothing', 'checked');
+        }
     }
 
 
@@ -235,6 +243,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $repeatedoptions['testcode']['type'] = PARAM_RAW;
         $repeatedoptions['stdin']['type'] = PARAM_RAW;
         $repeatedoptions['mark']['type'] = PARAM_FLOAT;
+        // $repeatedoptions['mark']['default'] = 1.000;  TODO: Why does this break? Moodle bug??
 
         return $repeated;
     }
@@ -293,14 +302,14 @@ class qtype_coderunner_edit_form extends question_edit_form {
             $expected = trim($expecteds[$i]);
             if ($testcode !== '' || $stdin != '' || $expected !== '') {
                 $count++;
-            }
-            $mark = trim($marks[$i]);
-            if ($mark != '') {
-                if (!is_numeric($mark)) {
-                    $errors["mark[$i]"] = get_string('nonnumericmark', 'qtype_coderunner');
-                }
-                else if (floatval($mark) <= 0) {
-                    $errors["mark[$i]"] = get_string('negativeorzeromark', 'qtype_coderunner');
+                $mark = trim($marks[$i]);
+                if ($mark != '') {
+                    if (!is_numeric($mark)) {
+                        $errors["testcode[$i]"] = get_string('nonnumericmark', 'qtype_coderunner');
+                    }
+                    else if (floatval($mark) <= 0) {
+                        $errors["testcode[$i]"] = get_string('negativeorzeromark', 'qtype_coderunner');
+                    }
                 }
             }
         }

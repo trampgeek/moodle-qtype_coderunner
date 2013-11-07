@@ -89,8 +89,13 @@ abstract class Sandbox {
     // referred. Error codes are as defined by the first block of symbolic
     // constants above (the values 0 through 6). These are
     // exactly the values defined by the ideone api, with a couple of additions.
+    // The $params parameter is an addition to the Ideone-based interface to
+    // allow for setting sandbox parameters. It's an associative array, with
+    // a sandbox-dependent set of keys, although all except the Ideone sandbox
+    // should recognise at least the keys 'cputime' (CPU time limit, in seconds)
+    // and 'memorylimit' (in megabytes).
     abstract public function createSubmission($sourceCode, $language, $input,
-            $run=TRUE, $private=TRUE);
+            $run=TRUE, $private=TRUE, $params = NULL);
 
     // Enquire about the status of the submission with the given 'link' (aka
     // handle. The return value is an object containing an error and a result
@@ -108,15 +113,19 @@ abstract class Sandbox {
      *  Executes the given source code in the given language with the given
      *  input and returns an object with fields error, result, time,
      *  memory, signal, cmpinfo, stderr, output.
-     * @param type $sourceCode
-     * @param type $language
-     * @param type $input
+     * @param string $sourceCode The source file to compile and run
+     * @param string $language  One of the languages regognised by the sandbox
+     * @param string $input A string to use as standard input during execution
+     * @param associative array $params Sandbox parameters, depends on
+     *         particular sandbox but most sandboxes should recognise
+     *         at least cputime (secs) and memorylimit (Megabytes).
+     *         If the $params array is NULL, sandbox defaults are used.
      */
-    public function execute($sourceCode, $language, $input) {
+    public function execute($sourceCode, $language, $input, $params = NULL) {
         if (!in_array($language, $this->getLanguages()->languages)) {
             throw new coding_exception('Executing an unsupported language in sandbox');
         }
-        $result = $this->createSubmission($sourceCode, $language, $input);
+        $result = $this->createSubmission($sourceCode, $language, $input, $params);
         $error = $result->error;
         if ($error === Sandbox::OK) {
             $state = $this->getSubmissionStatus($result->link);
@@ -168,6 +177,7 @@ abstract class Sandbox {
             );
         }
     }
+
 
 
     // SHould be called when the sandbox is no longer needed.

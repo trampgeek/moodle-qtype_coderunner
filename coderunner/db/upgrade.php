@@ -103,6 +103,13 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         $dbman->add_field($table, $memlimit);
         upgrade_plugin_savepoint(true, 2013110401, 'qtype', 'coderunner');
     }
+
+    if ($oldversion != 0 && $oldversion < 2013110701) {
+        $table = new xmldb_table('quest_coderunner_options');
+        $timelimit = new xmldb_field('timelimitsecs', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, FALSE, null, null);
+        $dbman->rename_field($table, $timelimit, 'cputimelimitsecs');
+        upgrade_plugin_savepoint(true, 2013110701, 'qtype', 'coderunner');
+    }
     return updateQuestionTypes();
 
 }

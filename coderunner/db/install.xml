@@ -19,7 +19,7 @@
          <FIELD NAME="showexpected" TYPE="int" LENGTH="1" NOTNULL="false" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="True if the expected column of the results table is to be displayed to students" PREVIOUS="showstdin" NEXT="showoutput"/>
          <FIELD NAME="showoutput" TYPE="int" LENGTH="1" NOTNULL="false" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="True if the output column of the results table is to be displayed to students" PREVIOUS="showexpected" NEXT="showmark"/>
          <FIELD NAME="showmark" TYPE="int" LENGTH="1" NOTNULL="false" UNSIGNED="false" DEFAULT="0" SEQUENCE="false" COMMENT="True if the mark column of the results table is to be displayed to students" PREVIOUS="showoutput" NEXT="timeoutsecs"/>
-         <FIELD NAME="timeoutsecs" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="5"  SEQUENCE="false" PREVIOUS="showmark" NEXT="memlimitmb" COMMENT="The maximum CPU time allowed for execution (secs)" />
+         <FIELD NAME="cputimelimitsecs" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="5"  SEQUENCE="false" PREVIOUS="showmark" NEXT="memlimitmb" COMMENT="The maximum CPU time allowed for execution (secs)" />
          <FIELD NAME="memlimitmb" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="100" SEQUENCE="false" PREVIOUS="timeoutsecs" COMMENT="The maximum memory allowed for this task execution (MB)" />
 
       </FIELDS>

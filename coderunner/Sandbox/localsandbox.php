@@ -2,8 +2,14 @@
 /** A LocalSandbox is a subclass of the base Sandbox class, representing
  *  a sandbox that runs on the local server, performing compilation locally,
  *  caching compiled files, and processing the entire submission in a single
- *  call, rather than queueing the task for asynchronous procesing of
+ *  call, rather than queueing the task for asynchronous procesing or
  *  sending it to a remove web service.
+ *  It is assumed that an instance of the local sandbox will be created for
+ *  each question run, though possibly not for each testcase, and that each
+ *  call to createSubmission will run to completion before returning. Those
+ *  conditions ensure that only one submission is running at a time on a particular
+ *  sandbox, which allows caching of question-related information in the sandbox
+ *  itself during submission.
  */
 
 /**
@@ -20,19 +26,23 @@ require_once('sandboxbase.php');
 // with compiling and running a particular bit of source code. It is subclassed
 // for each provided language.
 abstract class LanguageTask {
-    public $cmpinfo = '';  // Output from compilation
-    public $time = 0;      // Execution time (secs)
-    public $memory = 0;    // Memory used (MB)
+    public $sandbox = NULL; // The sandbox on which this task is running
+    public $cmpinfo = '';   // Output from compilation
+    public $time = 0;       // Execution time (secs)
+    public $memory = 0;     // Memory used (MB)
     public $signal = 0;
-    public $output = '';   // Output from execution
+    public $output = '';    // Output from execution
     public $stderr = '';
     public $result = Sandbox::RESULT_NO_RUN;
-    public $workdir = '';  // The temporary working directory created in constructor
+    public $workdir = '';   // The temporary working directory created in constructor
 
     // For all languages it is necessary to store the source code in a
     // temporary file when constructing the task. A temporary directory
-    // is made to hold the source code.
-    public function __construct($sourceCode) {
+    // is made to hold the source code. The sandbox on which the task
+    // is running is also stored, for access to sandbox parameters like
+    // cputime etc.
+    public function __construct($sandbox, $sourceCode) {
+        $this->sandbox = $sandbox;
         $this->workdir = tempnam("/tmp", "coderunner_");
         if (!unlink($this->workdir) || !mkdir($this->workdir)) {
             throw new coding_exception("LanguageTask: error making temp directory (race error?)");
@@ -104,10 +114,40 @@ abstract class LocalSandbox extends Sandbox {
 
     private static $currentRunId = '99';  // The only one we ever use
 
+    // The following run constants can be overridden in subclasses.
+    // See function getParam for their usage.
+    public static $default_cputime = 3;   // Max seconds CPU time per run
+    public static $default_walltime = 30; // Max seconds wall clock time per run
+    public static $default_memorylimit = 64; // Max MB memory per run
+    public static $default_disklimit = 10;   // Max MB disk usage
+    public static $default_numprocs = 20;    // Number of processes/threads
+
+    protected $date = NULL;         // Current date/time
+    protected $input = NULL;        // Standard input for the current task
+    protected $language = NULL;     // The language of the current task
+    protected $params = NULL;       // Associative array of run params
+
     public function __construct($user=NULL, $pass=NULL) {
         Sandbox::__construct($user, $pass);
     }
 
+
+    /**
+     * Return the value of the given parameter from the $params parameter
+     * of the currently executing submission (see createSubmission) if defined
+     * or the static variable of name "default_$param" otherwise.
+     * @param type $param
+     * @return type
+     */
+    protected function getParam($param) {
+        if ($this->params !== NULL && isset($this->params[$param])) {
+            return $this->params[$param];
+        } else {
+            $staticName = "default_$param";
+            assert(isset(static::$$staticName));
+            return static::$$staticName;
+        }
+    }
 
 
     /** Implement the abstract createSubmission method, which mimics the
@@ -128,12 +168,13 @@ abstract class LocalSandbox extends Sandbox {
      * @param string $input -- stdin for use when running the program
      * @param boolean $run -- hook for ideone com
      * @param boolean $private -- hook for ideone compatibility (not used)
+     * @param associative array $params -- sandbox parameters. See base class.
      * @return object with 'error' field (always '') and 'link' field (always $currentRunId above)
      * @throws coding_exception if I've goofed
      *
      */
     public function createSubmission($sourceCode, $language, $input,
-                                        $run=TRUE, $private=TRUE) {
+                            $run=TRUE, $private=TRUE, $params = NULL) {
         if (!in_array($language, $this->getLanguages()->languages)) {
             throw new coding_exception('LocalSandbox::createSubmission: Bad language');
         }
@@ -142,10 +183,13 @@ abstract class LocalSandbox extends Sandbox {
             throw new coding_exception('LocalSandbox::createSubmission: unexpected param value');
         }
 
-        // Record input data in $this in case requested in call to getSubmissionDetails
+        // Record input data in $this in case requested in call to getSubmissionDetails,
+        // and also for use by LanguageTask if desired, via it's reference
+        // back to $this.
         $this->date = date("Y-m-d H-i-s");
         $this->input = $input;
         $this->language = $language;
+        $this->params = $params;
         if (!isset($this->currentSource) || $this->currentSource !== $sourceCode) {
             // Only need to save source code and consider recompiling etc
             // if sourcecode changes between tests

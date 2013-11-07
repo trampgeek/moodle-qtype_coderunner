@@ -138,7 +138,9 @@ M.qtype_coderunner.initEditForm = function(Y) {
 
 
     setCustomisationVisibility(isCustomised);
-    loadTemplate(Y);
+    if (!isCustomised) {
+        loadTemplate(Y);
+    }
 
     customise.on('change', function(e) {
        isCustomised = customise.get('checked');
