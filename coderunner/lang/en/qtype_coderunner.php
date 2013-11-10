@@ -36,6 +36,8 @@ $string['all_or_nothing_help'] = 'If checked, all test cases must be satisfied '
 $string['answerrequired'] = 'Please provide a non-empty answer';
 $string['atleastonetest'] = 'You must provide at least one test case '
     . 'for this question.';
+$string['badcputime'] = 'CPU time limit must be left blank or must be an integer greater than zero';
+$string['badmemlimit'] = 'Memory limit but be left blank or must be a non-negative integer';
 $string['columncontrols'] = 'Displayed result columns';
 $string['coderunner'] = 'Program Code';
 $string['coderunner_type_required'] = 'You must select a language and question type';
@@ -72,6 +74,7 @@ $string['coderunner_help'] = 'In response to a question, which is a '
 $string['coderunner_link'] = 'question/type/coderunner';
 $string['columncontrols_help'] = 'The checkboxes select which columns of the ' .
         'results table should be displayed to the student after submission';
+$string['cputime'] = 'CPU time limit (secs)';
 $string['customisationcontrols'] = 'Customisation';
 $string['customise'] = 'Customise';
 
@@ -115,6 +118,7 @@ $string['hiderestiffail'] = 'Hide rest if fail';
 $string['language'] = 'Language';
 
 $string['mark'] = 'Mark';
+$string['memorylimit'] = 'Memory limit (MB)';
 $string['missingoutput'] = 'You must supply the expected output from '
     . 'this test case.';
 $string['morehidden'] = 'Some other hidden test cases failed, too.';
@@ -145,6 +149,13 @@ $string['questiontype_help'] = 'Select the particular type of question. ' .
 
 $string['questiontype_required'] = 'You must select the type of question';
 $string['row_properties'] = 'Row properties:';
+$string['sandboxcontrols'] = 'Sandbox params';
+$string['sandboxcontrols_help'] = 'You can set the maximum CPU time in seconds ' .
+        'allowed for each testcase run and the maximum memory a single testcase ' .
+        'run can consume (MB) here. A blank entry uses the sandbox\'s ' .
+        'default value, but this may not be suitable for resource-demanding ' .
+        'languages like Java and Matlab). A value of zero for the maximum memory ' .
+        'results in no limit being imposed.';
 $string['SHOW'] = 'Show';
 
 

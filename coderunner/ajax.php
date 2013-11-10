@@ -1,7 +1,9 @@
 <?php
 
 /*
- * AJAX script to return a JSON-encoded question type per_test_template.
+ * AJAX script to return a JSON-encoded row from the coderunner question type
+ * table. Fields 'success' and 'error' are added for validation checking by
+ * the caller.
  */
 
 define('AJAX_SCRIPT', true);
@@ -12,24 +14,20 @@ require_once($CFG->dirroot . '/question/engine/lib.php');
 require_login();
 require_sesskey();
 
-$outcome = new stdClass();
-$outcome->success = true;
-$outcome->per_per_test_template = '';
-$outcome->error='';
-
 $qtype  = required_param('qtype', PARAM_ALPHANUMEXT);
 
 header('Content-type: application/json; charset=utf-8');
 try {
     $questionType = $DB->get_record('quest_coderunner_types',
             array('coderunner_type'=>$qtype),
-            'per_test_template',
+            '*',
             MUST_EXIST);
-    $outcome->per_test_template = $questionType->per_test_template;
+    $questionType->success = true;
+    $questionType->error = '';
 } catch (moodle_exception $e) {
-    $outcome->success = false;
-    $outcome->error = "Oops, we are dead, Fred"; // print_r($e);
+    $questionType->success = false;
+    $questionType->error = "Database error or question type not found";
 }
-echo json_encode($outcome);
+echo json_encode($questionType);
 die();
 ?>

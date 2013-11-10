@@ -96,7 +96,10 @@ M.qtype_coderunner.initEditForm = function(Y) {
         templateBlock = Y.one('#fitem_id_custom_template'),
         gradingBlock = Y.one('#fgroup_id_gradingcontrols'),
         columnDisplayBlock = Y.one('#fgroup_id_columncontrols'),
+        sandboxBlock = Y.one('#fgroup_id_sandboxcontrols'),
         customise = Y.one('#id_customise'),
+        cputime = Y.one('#id_cputimelimitsecs'),
+        memlimit = Y.one('#id_memlimitmb'),
         isCustomised = customise.get('checked');
 
     function setCustomisationVisibility(isVisible) {
@@ -104,13 +107,16 @@ M.qtype_coderunner.initEditForm = function(Y) {
         templateBlock.setStyle('display', display);
         gradingBlock.setStyle('display', display);
         columnDisplayBlock.setStyle('display', display);
+        sandboxBlock.setStyle('display', display);
     }
 
-    function loadTemplate(Y) {
-        // Local function to load the template field by AJAX from the
-        // current coderunner type.
+    function loadDefaultCustomisationFields(Y) {
+        // Local function to load the various customisation fields on the
+        // form with their default values for the current Coderunner question
+        // type.
         var newType = typeCombo.get('value'),
-            newTemplate = '';
+            secs = '',
+            mb = '';
 
         if (newType != '' && newType != 'Undefined') {
             Y.io(M.cfg.wwwroot + '/question/type/coderunner/ajax.php', {
@@ -120,12 +126,17 @@ M.qtype_coderunner.initEditForm = function(Y) {
                     success: function (id, result) {
                         outcome = JSON.parse(result.responseText);
                         if (outcome.success) {
-                            newTemplate = outcome.per_test_template;
+                            template.set('text', outcome.per_test_template);
+                            secs = outcome.cputimelimitsecs ? outcome.cputimelimitsec : '';
+                            cputime.set('value', secs);
+                            mb = outcome.memlimitmb ? outcome.memlimitmb : '';
+                            memlimit.set('value', mb);
+
                         }
                         else {
-                            newTemplate = "*** AJAX ERROR. DON'T SAVE THIS! ***\n" + outcome.error;
+                            template.set('text', "*** AJAX ERROR. DON'T SAVE THIS! ***\n" + outcome.error);
                         }
-                        template.set('text', newTemplate);
+
                     },
                     failure: function (id, result) {
                         template.set('text', "*** AJAX ERROR. DON'T SAVE THIS! ***");
@@ -135,11 +146,9 @@ M.qtype_coderunner.initEditForm = function(Y) {
         };
     };
 
-
-
     setCustomisationVisibility(isCustomised);
     if (!isCustomised) {
-        loadTemplate(Y);
+        loadDefaultCustomisationFields(Y);
     }
 
     customise.on('change', function(e) {
@@ -148,11 +157,11 @@ M.qtype_coderunner.initEditForm = function(Y) {
     });
 
 
-
+    // TODO: disallow changing it back to Undefined
     typeCombo.on('change', function(e) {
         if (!customise.get('checked') ||
                confirm("Changing question type. Click OK to load new template, Cancel to retain your customised one.")) {
-            loadTemplate(Y);
+            loadDefaultCustomisationFields(Y);
         }
     });
 };
@@ -197,10 +206,4 @@ M.qtype_coderunner.useYuiTypesMenu = function(Y) {
            return false;
     }, 'a');
 };
-
-
-
-
-
-
 

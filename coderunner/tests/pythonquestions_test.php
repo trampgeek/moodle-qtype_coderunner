@@ -367,5 +367,24 @@ EOTEMPLATE;
          $this->assertTrue(abs($mark - 24.0/31.0) < 0.000001);
      }
 
+
+     public function test_customised_timeout() {
+        $q = test_question_maker::make_question('coderunner', 'helloPython');
+        $slowSquare = <<<EOT
+from time import clock
+t = clock()
+while clock() < t + 10: pass  # Wait 10 seconds
+print("Hello Python")
+EOT;
+        $response = array('answer' => $slowSquare);  // Should time out
+        list($mark, $grade, $cache) = $q->grade_response($response);
+        $this->assertEquals(0, $mark);
+        $this->assertEquals(question_state::$gradedwrong, $grade);
+        $q->cputimelimitsecs = 20;  // This should fix it
+        list($mark, $grade, $cache) = $q->grade_response($response);
+        $this->assertEquals(1, $mark);
+        $this->assertEquals(question_state::$gradedright, $grade);
+    }
+
 }
 

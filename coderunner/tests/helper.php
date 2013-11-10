@@ -36,7 +36,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
         return array('sqr', 'sqr_pylint',
             'helloFunc', 'copyStdin', 'timeout', 'exceptions',
             'sqrPartMarks', 'sqrnoprint',
-            'studentanswervar',
+            'studentanswervar', 'helloPython',
             'sqrC', 'sqrNoSemicolons', 'sqrCustomised',
             'helloProgC',
             'copyStdinC', 'timeoutC', 'exceptionsC', 'strToUpper',
@@ -371,6 +371,29 @@ except ValueError:
 
 
 
+    /**
+     * Makes a coderunner question to write a Python3 program that just print 'Hello Python'
+     * @return qtype_coderunner_question
+     */
+    public function make_coderunner_question_helloPython() {
+        $coderunner = $this->makeCodeRunnerQuestion(
+                'python3',
+                'Program to print "Hello Python"',
+                'Write a program that prints "Hello Python"'
+        );
+        $coderunner->testcases = array(
+            (object) array('testcode' => '',
+                          'expected'    => 'Hello Python',
+                          'stdin'     => '',
+                          'display'   => 'SHOW',
+                          'mark'      => 1.0,
+                          'hiderestiffail' => 0,
+                          'useasexample'   => 0)
+        );
+
+        return $coderunner;
+    }
+
 
     // Now the C-question helper stuff
     // ===============================
@@ -464,7 +487,6 @@ except ValueError:
 
         return $coderunner;
     }
-
 
     /**
      * Makes a coderunner question to write a function that just print 'Hello ENCE260'
@@ -961,7 +983,7 @@ EOPROG;
         $coderunner->showmark = FALSE;
         $coderunner->unitpenalty = 0.2;
         $coderunner->customise = FALSE;
-        
+
         $this->getOptions($coderunner);
         return $coderunner;
     }

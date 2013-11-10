@@ -138,6 +138,20 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 $columnControls, NULL, false);
         $mform->addHelpButton('columncontrols', 'columncontrols', 'qtype_coderunner');
 
+        $sandboxControls = array();
+        $sandboxControls[] =& $mform->createElement('text', 'cputimelimitsecs',
+                get_string('cputime', 'qtype_coderunner'), array('size' => 5));
+        $sandboxControls[] =& $mform->createElement('text', 'memlimitmb',
+                get_string('memorylimit', 'qtype_coderunner'), array('size' => 5));
+        $mform->addElement('group', 'sandboxcontrols',
+                get_string('sandboxcontrols', 'qtype_coderunner'),
+                $sandboxControls, NULL, false);
+        $mform->setType('cputimelimitsecs', PARAM_RAW);
+        $mform->setType('memlimitmb', PARAM_RAW);
+        //$mform->addRule('cputimelimitsecs', 'Must be an integral number of seconds', 'numeric');
+        //$mform->addRule('memlimitmb', 'Must be an integral number of MB', 'numeric');
+        $mform->addHelpButton('sandboxcontrols', 'sandboxcontrols', 'qtype_coderunner');
+
         $PAGE->requires->js_init_call('M.qtype_coderunner.setupAllTAs',  array(), false, $jsmodule);
         $PAGE->requires->js_init_call('M.qtype_coderunner.initEditForm', array(), false, $jsmodule);
         parent::definition($mform);
@@ -284,7 +298,15 @@ class qtype_coderunner_edit_form extends question_edit_form {
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
         if ($data['coderunner_type'] == 'Undefined') {
-            $errors['coderunner_type'] = get_string('questiontype_required', 'qtype_coderunner');
+            $errors['coderunner_type_group'] = get_string('questiontype_required', 'qtype_coderunner');
+        }
+        if ($data['cputimelimitsecs'] != '' &&
+             (!ctype_digit($data['cputimelimitsecs']) || intval($data['cputimelimitsecs']) <= 0)) {
+            $errors['sandboxcontrols'] = get_string('badcputime', 'qtype_coderunner');
+        }
+        if ($data['memlimitmb'] != '' &&
+             (!ctype_digit($data['memlimitmb']) || intval($data['memlimitmb']) < 0)) {
+            $errors['sandboxcontrols'] = get_string('badmemlimit', 'qtype_coderunner');
         }
         $testcodes = $data['testcode'];
         $stdins = $data['stdin'];

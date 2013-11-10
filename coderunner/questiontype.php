@@ -156,8 +156,16 @@ class qtype_coderunner extends question_type {
         assert(isset($question->coderunner_type));
         if (!isset($question->customise) || !$question->customise || trim($question->custom_template) == '') {
             $question->custom_template = null; // Discard customised template
+            $question->cpulimitsecs = null;
+            $question->memlimitmb = null;
+        } else {
+            if (trim($question->cputimelimitsecs) == '') {
+                unset($question->cputimelimitsecs);
+            }
+            if (trim($question->memlimitmb) == '') {
+                unset($question->memlimitmb);
+            }
         }
-
 
         parent::save_question_options($question);
 
@@ -267,7 +275,7 @@ class qtype_coderunner extends question_type {
         parent::initialise_question_instance($question, $questiondata);
         foreach (array('testcases', 'language', 'combinator_template',
             'test_splitter_re', 'per_test_template', 'customise',
-            'sandbox', 'grader', 'cputimelimitsecs', 'memlimitmb') as $field) {
+            'sandbox', 'grader') as $field) {
             $question->$field = $questiondata->$field;
         }
     }
