@@ -358,16 +358,13 @@ class qtype_coderunner_question extends question_graded_automatically {
     }
 
 
-    // Set up a grader instance unless it's a customised question with a template
-    // that also does the grading.
+    // Set up a grader instance.
     private function setUpGrader() {
         global $CFG;
-        if (!$this->customise || !$this->template_does_grading) {
-            $graderClass = $this->grader;
-            $graderClassLC = strtolower($graderClass);
-            require_once($CFG->dirroot . "/question/type/coderunner/Grader/$graderClassLC.php");
-            $this->graderInstance = new $graderClass();
-        }
+        $graderClass = $this->grader;
+        $graderClassLC = strtolower($graderClass);
+        require_once($CFG->dirroot . "/question/type/coderunner/Grader/$graderClassLC.php");
+        $this->graderInstance = new $graderClass();
     }
 
 
@@ -384,77 +381,10 @@ class qtype_coderunner_question extends question_graded_automatically {
     }
 
 
-    // Grade a given test result either by simply taking the grader results
-    // from the template if it's also a grader or by applying the
-    // default grader for the question type otherwise.
+    // Grade a given test result by calling the grader.
 
     private function grade($output, $testcase, $isBad = FALSE) {
-        if (!$this->template_does_grading) {
-            $outcome = $this->graderInstance->grade($output, $testcase);
-        }
-        else if ($isBad) {
-            $outcome = new TestResult(
-                        $this->tidy($testcase->testcode),
-                        $testcase->mark,
-                        FALSE,
-                        0.0,
-                        $this->tidy($testcase->expected),
-                        $output,
-                        $this->tidy($testcase->stdin)
-            );
-        } else {  // We have a custom template, that also does grading.
-            $result = json_decode($output);
-            if ($result === NULL || !isset($result->fraction) || !is_numeric($result->fraction)) {
-                $errorMessage = "Bad grading result from template:'" . $output . "'";
-                $outcome = new TestResult(
-                        $this->tidy($testcase->testcode),
-                        $testcase->mark,
-                        FALSE,
-                        0.0,
-                        $this->tidy($testcase->expected),
-                        $errorMessage,
-                        $this->tidy($testcase->stdin)
-                );
-            } else {
-                // First copy any missing fields from test case into result
-                foreach (get_object_vars($testcase) as $key=>$value) {
-                    if (!isset($result->$key)) {
-                        $result->$key = $value;
-                    }
-                }
-                if (!isset($result->awarded)) {
-                    $result->awarded = $result->mark * $result->fraction;
-                }
-                if (!isset($result->got)) {
-                    $result->got = '';
-                }
-                $result->isCorrect =  abs($result->fraction - 1.0) < 0.000001;
-
-                $outcome = new TestResult(
-                    $this->tidy($result->testcode),
-                    $result->mark,
-                    $result->isCorrect,
-                    $result->awarded,
-                    $this->tidy($result->expected),
-                    $this->tidy($result->got),
-                    $this->tidy($result->stdin)
-                );
-
-
-            }
-        }
-        return $outcome;
-    }
-
-
-    // Return a cleaned and snipped version of the string s (or NULL if s is null).
-    private function tidy($s) {
-        if ($s === NULL) {
-            return NULL;
-        } else {
-            $cleanS = Grader::clean($s);
-            return Grader::snip($cleanS);
-        }
+        return $this->graderInstance->grade($output, $testcase, $isBad);
     }
 
 

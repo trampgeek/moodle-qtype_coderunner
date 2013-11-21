@@ -155,7 +155,7 @@ else:
     print('{"fraction":0,"expected":"Twiddlydee"}')
 EOTEMPLATE;
         $q->all_or_nothing = FALSE;
-        $q->template_does_grading = TRUE;
+        $q->grader = 'TemplateGrader';
         $q->customise = TRUE;
         $q->unitpenalty = 0;
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);

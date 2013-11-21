@@ -357,7 +357,7 @@ elif expected == '49' and expected == got:
 else:
     print('{"fraction":0}')
 EOTEMPLATE;
-         $q->template_does_grading = TRUE;
+         $q->grader = 'TemplateGrader';
          $q->customise = TRUE;
          $q->all_or_nothing = FALSE;
          $code = "def sqr(n): return n * n\n";

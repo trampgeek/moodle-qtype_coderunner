@@ -949,17 +949,13 @@ EOPROG;
             $question->custom_template = '';
         }
 
-        if (!isset($question->template_does_grading)) {
-            $question->template_does_grading = FALSE;
-        }
-
         $question->customise = trim($question->custom_template) != '';
 
         if (!isset($question->sandbox)) {
             $question->sandbox = $qtype->getBestSandbox($question->language);
         }
         if (!isset($question->grader)) {
-            $question->grader = 'BasicGrader';
+            $question->grader = 'EqualityGrader';
         }
     }
 

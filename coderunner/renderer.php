@@ -194,6 +194,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
     }
 
 
+    // TODO: find out why test values from the template grader don't show up.
     // Return a table of results or NULL if there are no results to show.
     private function buildResultsTable($question, $testCases, $testResults) {
         // The set of columns to be displayed is specified by the boolean
@@ -201,7 +202,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
         // with the proviso that neither of the first two will be displayed
         // if they are empty strings for all testcases.
 
-        list($numStdins, $numTests) = $this->countBits($testCases);
+        list($numStdins, $numTests) = $this->countBits($testResults);
         $showTests = $question->showtest && $numTests > 0;
         $showStdins = $question->showstdin && $numStdins > 0;
 
@@ -390,15 +391,15 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
 
     // Return a count of the number of non-empty stdins and non-empty shell
-    // inputs in the given list of test objects or examples
+    // inputs in the given list of test result objects.
     private function countBits($tests) {
         $numStds = 0;
         $numShell = 0;
         foreach ($tests as $test) {
-            if (!empty($test->stdin)) {
+            if (trim($test->stdin) !== '') {
                 $numStds++;
             }
-            if (!empty($test->testcode)) {
+            if (trim($test->testcode) !== '') {
                 $numShell++;
             }
         }

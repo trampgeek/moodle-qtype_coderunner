@@ -119,6 +119,23 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         $dbman->add_field($table, $memlimit);
         upgrade_plugin_savepoint(true, 2013110702, 'qtype', 'coderunner');
     }
+
+    if ($oldversion != 0 && $oldversion < 2013112101) {
+        $table = new xmldb_table('quest_coderunner_options');
+        $grader = new xmldb_field('grader', XMLDB_TYPE_CHAR, '255', XMLDB_UNSIGNED, FALSE, null, null);
+        $dbman->add_field($table, $grader);
+        upgrade_plugin_savepoint(true, 2013112101, 'qtype', 'coderunner');
+    }
+
+
+    if ($oldversion != 0 && $oldversion < 2013112102) {
+        $DB->set_field('quest_coderunner_options', 'grader', 'TemplateGrader', array('template_does_grading' => 1));
+        $table = new xmldb_table('quest_coderunner_options');
+        $template_does_grading = new xmldb_field('template_does_grading');
+        $dbman->drop_field($table, $template_does_grading);
+        upgrade_plugin_savepoint(true, 2013112102, 'qtype', 'coderunner');
+    }
+
     return updateQuestionTypes();
 
 }

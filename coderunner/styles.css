@@ -90,6 +90,7 @@ body#page-question-type-coderunner div[id^=fgroup_id_] {
     border: 1px solid #BBB;
     border-top: 0;
     border-bottom: 0;
+    overflow: visible;
 }
 
 

@@ -187,7 +187,6 @@ with the installation.
 
 ## Question types
 
-
 CodeRunner support a wide variety of question types and can easily be
 extended to support lots more. The file `db/upgrade.php` installs a set of
 standard language and question types into the data base. Each question type
@@ -203,22 +202,27 @@ haven't felt the need for it yet - I prefer students to get answers exactly
 right, not roughly right.
 
 The current set of question types (each of which can be customised by
-editing its template, as explained in the next section) is:
+editing its template, as explained in the next section) is as follows. All
+question types currently use the RunguardSandbox except for Python2 and all C
+questions, which use the LiuSandbox, if that's installed, or the RunguardSandbox
+otherwise.
 
  1. **python3**. Used for most Python3 questions. For each test case, the student
-code is run first, e followed by the sequence of tests.
+code is run first, followed by the sequence of tests. This type of question
+currently uses the RunguardSandbox.
 
  1. **python2**. Used for most Python2 questions. For each test case, the student
-code is run first, e followed by the sequence of tests.
+code is run first, e followed by the sequence of tests. This question type
+should be considered to be
+obsolescent due to the widespread move to Python3 through the education
+community.
 
  1. **python3\_pylint\_func**. This is a special type developed for use in the
 University of Canterbury. The student submission is prefixed by a dummy module
 docstring and the code is passed through the [pylint](http://www.logilab.org/857)
 source code analyser. The submission is rejected if pylint gives any errors,
 otherwise testing proceeds as normal. Obviously, pylint needs to be installed
-and appropriately configured for this question type to be usable. Note, too,
-that this type of question runs in the so-called RunguardSandbox, rather than in the
-Liu sandbox, in order to allow execution of an external program during testing.
+and appropriately configured for this question type to be usable.
 
  1. **python3\_pylint\_prog**. This is identical to the previous type except that no
 dummy docstring is added at the top as the submission is expected to be a
@@ -239,7 +243,8 @@ stand-alone program.
  C++ isn't built in as present, as we don't teach it, but changing C question
  to support C++ is mainly just a matter of changing the
  compile command line, viz., the line "$cmd = ..." in the *compile* methods of
- *C\_ns\_Task* in runguardsandbox.php and *C_Task* in liusandbox.php. You will probably
+ the  *C\_Task* classes in runguardsandboxtasks.php and liusandboxtasks.php.
+ You will probably
  also wish to change the C question type templates a bit, e.g. to include
  *iostream* instead of, or as well as, *stdio.h* by default. The line
 
@@ -280,6 +285,9 @@ executed.
  1. **java_program**. Here the students writes a complete program which is compiled
 then executed once for each test case to see if it generates the expected output
 for that test.
+
+As discussed in the following sections, this base set of question types can
+be customised in various ways. The
 
 ## Templates
 
@@ -572,6 +580,9 @@ output. For example, it could have asked simply for the absolute difference
 between the elements of the pair or specified unambiguously which pair to
 return and the order of the elements of the pair. In that case, no custom grader
 would have been required, nor even a custom template.
+
+##Customised Question Types
+The
 
 ##How programming quizzes should work
 

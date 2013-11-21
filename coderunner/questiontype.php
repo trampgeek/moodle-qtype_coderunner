@@ -44,7 +44,7 @@
  */
 
 define('COMPUTE_STATS', false);
-define('DEFAULT_GRADER', 'BasicGrader');
+define('DEFAULT_GRADER', 'EqualityGrader');
 
 require_once($CFG->dirroot . '/question/type/coderunner/Sandbox/sandbox_config.php');
 
@@ -79,16 +79,16 @@ class qtype_coderunner extends question_type {
     /**
      * If your question type has a table that extends the question table, and
      * you want the base class to automatically save, backup and restore the extra fields,
-     * override this method to return an array wherer the first element is the table name,
+     * override this method to return an array where the first element is the table name,
      * and the subsequent entries are the column names (apart from id and questionid).
      *
      * @return mixed array as above, or null to tell the base class to do nothing.
      */
     public function extra_question_fields() {
         return array('quest_coderunner_options', 'coderunner_type',
-            'custom_template', 'template_does_grading', 'all_or_nothing',
+            'custom_template', 'all_or_nothing',
             'show_source', 'showtest', 'showstdin', 'showexpected', 'showoutput',
-            'showmark', 'cputimelimitsecs', 'memlimitmb');
+            'showmark', 'grader', 'cputimelimitsecs', 'memlimitmb');
     }
 
     /**
@@ -154,16 +154,30 @@ class qtype_coderunner extends question_type {
         global $DB;
 
         assert(isset($question->coderunner_type));
-        if (!isset($question->customise) || !$question->customise || trim($question->custom_template) == '') {
-            $question->custom_template = null; // Discard customised template
-            $question->cpulimitsecs = null;
-            $question->memlimitmb = null;
+        if (!isset($question->customise) || !$question->customise) {
+            // If customisation has been turned off, set all customisable
+            // fields to their defaults
+            $question->custom_template = NULL;
+            $question->cputimelimitsecs = NULL;
+            $question->memlimitmb = NULL;
+            $question->showtest = True;
+            $question->showstdin = True;
+            $question->showexpected = True;
+            $question->showoutput = True;
+            $question->showmark = False;
+            $question->grader = NULL;
         } else {
+            if (trim($question->custom_template) == '') {
+                $question->custom_template = NULL;
+            }
             if (trim($question->cputimelimitsecs) == '') {
-                unset($question->cputimelimitsecs);
+                $question->cputimelimitsecs = NULL;
             }
             if (trim($question->memlimitmb) == '') {
-                unset($question->memlimitmb);
+                $question->memlimitmb = NULL;
+            }
+            if (trim($question->grader) == '') {
+                $question->grader = NULL;
             }
         }
 
@@ -208,7 +222,6 @@ class qtype_coderunner extends question_type {
 
     public function get_question_options($question) {
         global $CFG, $DB, $OUTPUT;
-
         parent::get_question_options($question);
 
         // Flatten the options into the question object itself.
@@ -237,7 +250,7 @@ class qtype_coderunner extends question_type {
         }
 
         foreach ($row as $field => $value) {
-            if ($field != 'id' && $field != 'coderunner_type') {
+            if ($field != 'id' && $field != 'coderunner_type' && !isset($question->$field)) {
                 $question->$field = $row->$field;
             }
         }
@@ -245,6 +258,7 @@ class qtype_coderunner extends question_type {
         if (!isset($question->sandbox))  {
             $question->sandbox = $this->getBestSandbox($question->language);
         }
+
         if (!isset($question->grader)) {
             $question->grader = DEFAULT_GRADER;
         }

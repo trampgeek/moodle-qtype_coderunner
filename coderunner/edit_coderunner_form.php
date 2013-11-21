@@ -87,13 +87,17 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->addElement('group', 'coderunner_type_group',
                 get_string('questiontype', 'qtype_coderunner'), $typeSelectorElements, NULL, false);
         $mform->setDefault('show_source', False);
-        //$mform->addRule('coderunner_type', 'You must select the question type', 'required');
         $mform->addHelpButton('coderunner_type_group', 'coderunner_type', 'qtype_coderunner');
+        $mform->addElement('advcheckbox', 'all_or_nothing', get_string('marking', 'qtype_coderunner'),
+                get_string('all_or_nothing', 'qtype_coderunner'));
+        $mform->setDefault('all_or_nothing', True);
+        $mform->addHelpButton('all_or_nothing', 'all_or_nothing', 'qtype_coderunner');
 
         // The following fields are used to customise a question by overriding
         // values from the base question type. All are hidden unless the
         // 'customise' checkbox is checked.
 
+        $mform->addElement('header', 'customisationheader', get_string('customisation','qtype_coderunner'));
         $mform->addElement('textarea', 'custom_template',
                 get_string('template', 'qtype_coderunner'),
                 array('rows'=>8, 'cols'=>80, 'class'=>'template edit_code',
@@ -101,19 +105,15 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
         $mform->addHelpButton('custom_template', 'template', 'qtype_coderunner');
         $gradingControls = array();
-        $gradingControls[] = $mform->createElement('advcheckbox', 'all_or_nothing', NULL,
-            get_string('all_or_nothing', 'qtype_coderunner'));
-
-        $gradingControls[] = $mform->createElement('advcheckbox', 'template_does_grading', NULL,
-            get_string("template_does_grading", "qtype_coderunner"));
+        $graderTypes = array('EqualityGrader' => 'Exact match',
+                'RegexGrader' => 'Regular expression',
+                'TemplateGrader' => 'Template does grading');
+        $gradingControls[] = $mform->createElement('select', 'grader',
+                NULL, $graderTypes);
         $mform->addElement('group', 'gradingcontrols',
                 get_string('grading', 'qtype_coderunner'), $gradingControls,
                 NULL, false);
         $mform->addHelpButton('gradingcontrols', 'gradingcontrols', 'qtype_coderunner');
-
-
-        $mform->setDefault('all_or_nothing', True);
-        $mform->setDefault('template_does_grading', False);
 
 
         $columnControls = array();
@@ -127,15 +127,14 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 get_string('show_output', 'qtype_coderunner'));
         $columnControls[] =& $mform->createElement('advcheckbox', 'showmark', NULL,
                 get_string('show_mark', 'qtype_coderunner'));
-        foreach (array('all_or_nothing', 'showtest', 'showstdin', 'showexpected',
-            'showoutput') as $control) {
+        foreach (array('showtest', 'showstdin', 'showexpected', 'showoutput') as $control) {
             $mform->setDefault($control, True);
         }
         $mform->setDefault('showmark', False);
 
         $mform->addElement('group', 'columncontrols',
                 get_string('columncontrols', 'qtype_coderunner'),
-                $columnControls, NULL, false);
+                $columnControls,NULL, false);
         $mform->addHelpButton('columncontrols', 'columncontrols', 'qtype_coderunner');
 
         $sandboxControls = array();
@@ -148,9 +147,8 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 $sandboxControls, NULL, false);
         $mform->setType('cputimelimitsecs', PARAM_RAW);
         $mform->setType('memlimitmb', PARAM_RAW);
-        //$mform->addRule('cputimelimitsecs', 'Must be an integral number of seconds', 'numeric');
-        //$mform->addRule('memlimitmb', 'Must be an integral number of MB', 'numeric');
         $mform->addHelpButton('sandboxcontrols', 'sandboxcontrols', 'qtype_coderunner');
+        $mform->setExpanded('customisationheader');  // Although expanded it's hidden until JavaScript unhides it
 
         $PAGE->requires->js_init_call('M.qtype_coderunner.setupAllTAs',  array(), false, $jsmodule);
         $PAGE->requires->js_init_call('M.qtype_coderunner.initEditForm', array(), false, $jsmodule);
@@ -295,6 +293,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
     }
 
 
+    // TODO: find out why memlimit and cpulimit can't be set back to blank
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
         if ($data['coderunner_type'] == 'Undefined') {

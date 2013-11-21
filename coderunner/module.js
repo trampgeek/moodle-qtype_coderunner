@@ -100,14 +100,18 @@ M.qtype_coderunner.initEditForm = function(Y) {
         customise = Y.one('#id_customise'),
         cputime = Y.one('#id_cputimelimitsecs'),
         memlimit = Y.one('#id_memlimitmb'),
+        customisationFieldSet = Y.one('#id_customisationheader');
         isCustomised = customise.get('checked');
 
     function setCustomisationVisibility(isVisible) {
-        var display = isVisible ? 'inline-block' : 'none';
+        var display = isVisible ? 'block' : 'none';
+        customisationFieldSet.setStyle('display', display);
+        /*
         templateBlock.setStyle('display', display);
         gradingBlock.setStyle('display', display);
         columnDisplayBlock.setStyle('display', display);
         sandboxBlock.setStyle('display', display);
+        */
     }
 
     function loadDefaultCustomisationFields(Y) {

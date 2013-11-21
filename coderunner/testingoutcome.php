@@ -73,7 +73,7 @@ class TestingOutcome {
 
 
 class TestResult {
-    var $testCode;          // The test that was run (trimmed, snipped)
+    var $testcode;          // The test that was run (trimmed, snipped)
     var $isCorrect;         // True iff test passed fully (100%)
     var $expected;          // Expected output (trimmed, snipped)
     var $mark;              // The max mark awardable for this test
