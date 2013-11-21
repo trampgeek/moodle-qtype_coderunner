@@ -94,8 +94,8 @@ class qtype_coderunner extends question_type {
     /**
      * If you use extra_question_fields, overload this function to return question id field name
      * in case you table use another name for this column.
-     * [Don't really need this as we're returning the default value, but I pref
-     * to be explicit.]
+     * [Don't really need this as we're returning the default value, but I
+     * prefer to be explicit.]
      */
     public function questionid_column_name() {
         return 'questionid';
@@ -214,8 +214,7 @@ class qtype_coderunner extends question_type {
     }
 
     // Load the question options (all the question extension fields and
-    // testcases) from the database into the 'question' (which is actually a
-    // coderunner question edit form).
+    // testcases) from the database into the question.
     // If the question has a custom template, it is set as the per-test-case
     // template and the combinator template is ignored. Otherwise both are
     // copied from the database into the question object.
@@ -251,7 +250,7 @@ class qtype_coderunner extends question_type {
 
         foreach ($row as $field => $value) {
             if ($field != 'id' && $field != 'coderunner_type' && !isset($question->$field)) {
-                $question->$field = $row->$field;
+                $question->$field = $value;
             }
         }
 
