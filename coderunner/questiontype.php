@@ -86,7 +86,7 @@ class qtype_coderunner extends question_type {
      */
     public function extra_question_fields() {
         return array('quest_coderunner_options', 'coderunner_type',
-            'custom_template', 'all_or_nothing',
+            'per_test_template', 'all_or_nothing',
             'show_source', 'showtest', 'showstdin', 'showexpected', 'showoutput',
             'showmark', 'grader', 'cputimelimitsecs', 'memlimitmb');
     }
@@ -146,9 +146,8 @@ class qtype_coderunner extends question_type {
 
     // This override saves all the extra question data, including
     // the set of testcases to the database.
-    // Note that the parameter isn't a question object, but the question form
-    // (or a mock-up of it). See questiontypebase.php.
-    // The parent implementation saves the data in the coderunner_options table.
+    // The parent implementation saves the data in the coderunner_options table,
+    // so this
 
     public function save_question_options($question) {
         global $DB;
@@ -157,7 +156,7 @@ class qtype_coderunner extends question_type {
         if (!isset($question->customise) || !$question->customise) {
             // If customisation has been turned off, set all customisable
             // fields to their defaults
-            $question->custom_template = NULL;
+            $question->per_test_template = NULL;
             $question->cputimelimitsecs = NULL;
             $question->memlimitmb = NULL;
             $question->showtest = True;
@@ -167,8 +166,8 @@ class qtype_coderunner extends question_type {
             $question->showmark = False;
             $question->grader = NULL;
         } else {
-            if (trim($question->custom_template) == '') {
-                $question->custom_template = NULL;
+            if (trim($question->per_test_template) == '') {
+                $question->per_test_template = NULL;
             }
             if (trim($question->cputimelimitsecs) == '') {
                 $question->cputimelimitsecs = NULL;
@@ -176,7 +175,7 @@ class qtype_coderunner extends question_type {
             if (trim($question->memlimitmb) == '') {
                 $question->memlimitmb = NULL;
             }
-            if (trim($question->grader) == '') {
+            if (trim($question->grader) === DEFAULT_GRADER) {
                 $question->grader = NULL;
             }
         }
@@ -223,88 +222,70 @@ class qtype_coderunner extends question_type {
         global $CFG, $DB, $OUTPUT;
         parent::get_question_options($question);
 
-        // Flatten the options into the question object itself.
-        // The base class's save_question_options allows this; it unflattens
-        // all fields whose names match the extraOptions fields back into
-        // $question->options before saving. However, Moodle version 2.5
-        // explicitly checks the number of answers in
-        // $question->options->$answersoption so I have added
-        // $question->options->testcases as a reference to $question->testcases.]
-
-        foreach($question->options as $field=>$value) {
-            $question->$field = $value;
-        }
-
-        if (!isset($question->custom_template)) {
-            $question->custom_template = '';
-        }
-
-        $question->customise = trim($question->custom_template) != '';
-
         // Now add to the question all the fields from the question's type record.
+        // Where two fields have the same name in both the options and type tables,
+        // the former overrides the latter and the question is then deemed to
+        // be customed.
 
         if (!$row = $DB->get_record('quest_coderunner_types',
-                array('coderunner_type' => $question->coderunner_type))) {
+                array('coderunner_type' => $question->options->coderunner_type))) {
             throw new coding_exception("Failed to load type info for question id {$question->id}");
         }
 
+        $question->options->customise = False; // Starting assumption
         foreach ($row as $field => $value) {
-            if ($field != 'id' && $field != 'coderunner_type' && !isset($question->$field)) {
-                $question->$field = $value;
+            if ($field != 'id' && $field != 'coderunner_type') {
+                if (isset($question->options->$field) && $question->options->$field !== '') {
+                    $question->options->customise = True;
+                } else {
+                    $question->options->$field = $value;
+                }
             }
         }
 
-        if (!isset($question->sandbox))  {
-            $question->sandbox = $this->getBestSandbox($question->language);
+        if (!isset($question->options->sandbox))  {
+            $question->options->sandbox = $this->getBestSandbox($question->options->language);
         }
 
-        if (!isset($question->grader)) {
-            $question->grader = DEFAULT_GRADER;
+        if (!isset($question->options->grader)) {
+            $question->options->grader = DEFAULT_GRADER;
         }
 
         // Add in the testcases
-        if (!$question->testcases = $DB->get_records('quest_coderunner_testcases',
+        if (!$question->options->testcases = $DB->get_records('quest_coderunner_testcases',
                 array('questionid' => $question->id), 'id ASC')) {
             throw new coding_exception("Failed to load testcases for question id {$question->id}");
-        }
-
-        // Hack to solve problem with moodle 2.5 (see comment at start of method)
-        // TODO: is there a better fix?
-        if (isset($question->options)) {  // Is this test reqd? Better be safe.
-            $question->options->testcases = &$question->testcases;
         }
 
         return true;
     }
 
 
-    // The 'questiondata' here is actually (something like) a coderunner question
-    // edit form, and we need to extend the baseclass method to copy the
-    // testcases across to the under-creation question definition.
+    // Initialise the question_definition object from the questiondata
+    // read from the database (probably a cached version of the question
+    // object from the database enhanced by a call to get_question_options).
     // Only fields not explicitly listed in extra_question_fields (i.e. those
-    // fields not from quest_coderunner_options table) need handling here.
+    // fields not from the quest_coderunner_options table) need handling here.
+    // All we do is flatten the question->options fields down into the
+    // question itself, which will be all those fields of question->options
+    // not already flattened down by the parent implementation.
 
     protected function initialise_question_instance(question_definition $question, $questiondata) {
         parent::initialise_question_instance($question, $questiondata);
-        foreach (array('testcases', 'language', 'combinator_template',
-            'test_splitter_re', 'per_test_template', 'customise',
-            'sandbox', 'grader') as $field) {
-            $question->$field = $questiondata->$field;
+        foreach ($questiondata->options as $field=>$value) {
+            if (!isset($question->$field)) {
+                $question->$field = $value;
+            }
         }
     }
 
 
-
     // Delete the testcases when this question is deleted.
-    // Also tries deleting a corresponding custom type, which may or may not
-    // exist.
     public function delete_question($questionid, $contextid) {
         global $DB;
 
         $success = $DB->delete_records("quest_coderunner_testcases",
                 array('questionid' => $questionid));
-        $success = $success && $DB->delete_records('quest_coderunner_types',
-                array('coderunner_type' => 'CUSTOM_' . $questionid));
         return $success && parent::delete_question($questionid, $contextid);
     }
 
@@ -340,7 +321,13 @@ class qtype_coderunner extends question_type {
         $qo->qtype = $question_type;
 
         foreach ($extraquestionfields as $field) {
-            $qo->$field = $format->getpath($data, array('#', $field, 0, '#'), '');
+            if ($field === 'per_test_template'  && isset($data['#']['custom_template'])) {
+                // Legacy import
+                $qo->per_test_template = $format->getpath($data, array('#', 'custom_template', 0, '#'), '');
+            }
+            else {
+                $qo->$field = $format->getpath($data, array('#', $field, 0, '#'), '');
+            }
         }
 
 
@@ -383,7 +370,6 @@ class qtype_coderunner extends question_type {
             $qo->testcases[] = $tc;
         }
 
-        $qo->customise = trim($qo->custom_template) != '';
         return $qo;
     }
 
@@ -403,7 +389,7 @@ class qtype_coderunner extends question_type {
         $expout = parent::export_to_xml($question, $format, $extra);;
 
         $expout .= "    <testcases>\n";
-        foreach ($question->testcases as $testcase) {
+        foreach ($question->options->testcases as $testcase) {
             $useasexample = $testcase->useasexample ? 1 : 0;
             $hiderestiffail = $testcase->hiderestiffail ? 1 : 0;
             $mark = sprintf("%.7f", $testcase->mark);

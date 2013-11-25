@@ -143,7 +143,7 @@ class qtype_coderunner_walkthrough_test extends qbehaviour_walkthrough_test_base
 
     public function test_grading_template_output() {
         $q = test_question_maker::make_question('coderunner', 'sqrnoprint');
-        $q->custom_template = <<<EOTEMPLATE
+        $q->per_test_template = <<<EOTEMPLATE
 {{ STUDENT_ANSWER }}
 got = str({{TEST.testcode}})
 expected = """{{TEST.expected|e('py')}}""".strip()

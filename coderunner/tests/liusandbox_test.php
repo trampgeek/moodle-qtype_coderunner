@@ -5,7 +5,7 @@
  *
  * @package    qtype
  * @subpackage coderunner
- * @copyright  2012 Richard Lobb, University of Canterbury
+ * @copyright  2012, 2013 Richard Lobb, University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -28,23 +28,26 @@ class qtype_coderunner_liusandbox_test extends basic_testcase {
         $this->assertTrue($tr->oOok);
         $langs = $sandbox->getLanguages();
         $langs = $langs->languages;
-        $this->assertTrue(in_array('python2', $langs, TRUE));
         $this->assertTrue(in_array('C', $langs, TRUE));
     }
 
     public function test_liu_sandbox_raw() {
-        // Test the Python2 interface to the Liu sandbox directly.
+        // Test the Python2 interface to the Liu sandbox directly, running
+        // a C hello world program.
         global $CFG;
         $dirname = tempnam("/tmp", "coderunnertest_");
         unlink($dirname);
         mkdir($dirname);
         chdir($dirname);
         $handle = fopen('sourceFile', "w");
-        fwrite($handle, "print 'Hello Sandbox'\nprint 'Python rulz'");
+        fwrite($handle, "#include <stdio.h>\nint main() {\n    printf(\"Hello world\\nBlah\\n\");\n}\n");
         fclose($handle);
+        $compile = "gcc -Wall -Werror -std=c99 -static -x c -o liusandboxtest sourceFile -lm 2>liuerrors";
+        $output = array();
+        exec($compile, $output, $returnVar);
 
         $run = array(
-            'cmd' => array('/usr/bin/python2', '-BESsu', 'sourceFile'),
+            'cmd' => array('liusandboxtest'),
             'input'  => '',
             'quota'  => array(
                 'wallclock' => 30000,    // 30 secs
@@ -53,7 +56,7 @@ class qtype_coderunner_liusandbox_test extends basic_testcase {
                 'disk'      => 1048576   // 1 MB
             ),
             'workdir'      => $dirname,
-            'readableDirs' => LiuSandbox\Python3_Task::readableDirs()
+            'readableDirs' => array()
         );
 
         $handle = fopen('runspec.json', "w");
@@ -65,83 +68,10 @@ class qtype_coderunner_liusandbox_test extends basic_testcase {
         $outputJson = $output[0];
         $result = json_decode($outputJson);
         $this->assertEquals('OK', $result->returnCode);
-        $this->assertEquals("Hello Sandbox\nPython rulz\n", $result->output);
+        $this->assertEquals("Hello world\nBlah\n", $result->output);
         $this->assertEquals('', $result->stderr);
         chdir('..');
         $this->delTree($dirname);
-    }
-
-/* Python3 tests removed as it's no longer in this sandbox.
- * **TODO** Delete if not reinstated.
-
-    // Test the liu sandbox class at the PHP level with a good Python3 program
-    public function test_liu_sandbox_ok_python3() {
-        $sandbox = new LiuSandbox();
-        $code = "print('Hello Sandbox')\nprint('Python rulz')";
-        $result = $sandbox->execute($code, 'python3', NULL);
-        $this->assertEquals(Sandbox::RESULT_SUCCESS, $result->result);
-        $this->assertEquals("Hello Sandbox\nPython rulz\n", $result->output);
-        $this->assertEquals(0, $result->signal);
-        $this->assertEquals('', $result->cmpinfo);
-        $sandbox->close();
-    }
-
-    // Test the liu sandbox class at the PHP level with a bad-syntax python3 prog
-    public function test_liu_sandbox_syntax_error_python3() {
-        $sandbox = new LiuSandbox();
-        $code = "print 'Hello Sandbox'\nprint 'Python rulz' ";
-        $result = $sandbox->execute($code, 'python3', NULL);
-        $this->assertEquals(Sandbox::RESULT_COMPILATION_ERROR, $result->result);
-        $this->assertEquals(0, $result->signal);
-        $sandbox->close();
-    }
-*/
-    // Test the liu sandbox class at the PHP level with a good Python2 program
-    public function test_liu_sandbox_ok_python2() {
-        $sandbox = new LiuSandbox();
-        $code = "print 'Hello Sandbox'\nprint 'Python rulz'";
-        $result = $sandbox->execute($code, 'python2', NULL);
-        $this->assertEquals(Sandbox::RESULT_SUCCESS, $result->result);
-        $this->assertEquals("Hello Sandbox\nPython rulz\n", $result->output);
-        $this->assertEquals(0, $result->signal);
-        $this->assertEquals('', $result->cmpinfo);
-        $sandbox->close();
-    }
-
-    // Test the liu sandbox class at the PHP level with a bad-syntax python2 prog
-    public function test_liu_sandbox_syntax_error_python2() {
-        $sandbox = new LiuSandbox();
-        $code = "print 'Hello Sandbox'\nprint: 'Python rulz' ";
-        $result = $sandbox->execute($code, 'python2', NULL);
-        $this->assertEquals(Sandbox::RESULT_COMPILATION_ERROR, $result->result);
-        $this->assertTrue(strpos($result->cmpinfo, 'SyntaxError') !== FALSE);
-        $this->assertEquals(0, $result->signal);
-        $sandbox->close();
-    }
-
-    // Test the liu sandbox with a timeout error
-    public function test_liu_sandbox_timeout() {
-        $sandbox = new LiuSandbox();
-        $code = "while True: pass";
-        $result = $sandbox->execute($code, 'python2', NULL);
-        $this->assertEquals(Sandbox::RESULT_TIME_LIMIT, $result->result);
-        $this->assertEquals('', $result->output);
-        $this->assertEquals('', $result->stderr);
-        $this->assertTrue($result->signal == 18 || $result->signal == 10);  // Varies?
-        $this->assertEquals('', $result->cmpinfo);
-        $sandbox->close();
-    }
-
-    // Test the liu sandbox with a memory limit error
-    public function test_liu_sandbox_memlimit() {
-        $sandbox = new LiuSandbox();
-        $code = "data = []\nwhile True: data.append(1)";
-        $result = $sandbox->execute($code, 'python2', NULL);
-        $this->assertEquals(Sandbox::RESULT_MEMORY_LIMIT, $result->result);
-        $this->assertEquals('', $result->output);
-        $this->assertEquals('', $result->stderr);
-        $this->assertEquals('', $result->cmpinfo);
-        $sandbox->close();
     }
 
     // Test the liu sandbox with a syntactically bad C program
@@ -170,15 +100,19 @@ class qtype_coderunner_liusandbox_test extends basic_testcase {
     public function test_liu_sandbox_fileio_in_cwd() {
         $sandbox = new LiuSandbox();
         $code =
-"import os
-f = open('junk', 'w')
-f.write('stuff')
-f.close()
-f = open('junk')
-print f.read()
-f.close()
+"#include <stdio.h>
+ int main() {
+     FILE* f = fopen(\"junk\", \"w\");
+     char buff[20];
+     fputs(\"stuff\\n\", f);
+     fclose(f);
+     f = fopen(\"junk\", \"r\");
+     fgets(buff, 20, f);
+     fclose(f);
+     printf(\"%s\", buff);
+}
 ";
-        $result = $sandbox->execute($code, 'python2', NULL);
+        $result = $sandbox->execute($code, 'C', NULL);
         $this->assertEquals(Sandbox::RESULT_SUCCESS, $result->result);
         $this->assertEquals("stuff\n", $result->output);
         $this->assertEquals(0, $result->signal);
@@ -191,19 +125,57 @@ f.close()
     public function test_liu_sandbox_fileio_bad() {
         $sandbox = new LiuSandbox();
         $code =
-"import os
-f = open('/tmp/junk', 'w')
-f.write('stuff')
-f.close()
-f = open('/tmp/junk')
-print f.read()
-f.close()
+"#include <stdio.h>
+ int main() {
+     FILE* f = fopen(\"/tmp/junk\", \"w\");
+     char buff[20];
+     fputs(\"stuff\\n\", f);
+     fclose(f);
+     f = fopen(\"/tmp/junk\", \"r\");
+     fgets(buff, 20, f);
+     fclose(f);
+     printf(\"%s\\n\", buff);
+}
 ";
-        $result = $sandbox->execute($code, 'python2', NULL);
+        $result = $sandbox->execute($code, 'C', NULL);
         $this->assertEquals(Sandbox::RESULT_ILLEGAL_SYSCALL, $result->result);
         $sandbox->close();
     }
 
+
+    // Test the liu sandbox with a timeout error
+    public function test_liu_sandbox_timeout() {
+        $sandbox = new LiuSandbox();
+        $code = "#include <stdio.h>
+int main() {
+  while(1) {}
+}
+";
+        $result = $sandbox->execute($code, 'C', NULL);
+        $this->assertEquals(Sandbox::RESULT_TIME_LIMIT, $result->result);
+        $this->assertEquals('', $result->output);
+        $this->assertEquals('', $result->stderr);
+        $this->assertTrue($result->signal == 18 || $result->signal == 10);
+        $this->assertEquals('', $result->cmpinfo);
+        $sandbox->close();
+    }
+
+    // Test the liu sandbox with a memory limit error
+    public function test_liu_sandbox_memlimit() {
+        $sandbox = new LiuSandbox();
+        $code = "#include <stdlib.h>
+int main() {
+  char* p;
+  while(1) { p = malloc(1000); p[0] = 0;}
+}
+";
+        $result = $sandbox->execute($code, 'C', NULL);
+        $this->assertEquals(Sandbox::RESULT_MEMORY_LIMIT, $result->result);
+        $this->assertEquals('', $result->output);
+        $this->assertEquals('', $result->stderr);
+        $this->assertEquals('', $result->cmpinfo);
+        $sandbox->close();
+    }
 
     private function delTree($dir) {
         $files = array_diff(scandir($dir), array('.','..'));

@@ -165,7 +165,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
     public function make_coderunner_question_sqrCustomised() {
         $q = $this->make_coderunner_question_sqr();
         $q->customise = true;
-        $q->custom_template = "def times(a, b): return a * b\n\n{{STUDENT_ANSWER}}\n\n{{TEST.testcode}}\n";
+        $q->per_test_template = "def times(a, b): return a * b\n\n{{STUDENT_ANSWER}}\n\n{{TEST.testcode}}\n";
         return $q;
     }
 
@@ -760,7 +760,7 @@ EOT
         );
 
         $coderunner->customise = 1;
-        $coderunner->custom_template = <<<EOT
+        $coderunner->per_test_template = <<<EOT
 function tester()
   ESCAPED_STUDENT_ANSWER =  sprintf('{{MATLAB_ESCAPED_STUDENT_ANSWER}}');
   {{TEST.testcode}};quit();
@@ -913,7 +913,7 @@ EOTEST
                            'useasexample'   => 1)
         );
         $q->customise = true;
-        $q->custom_template = <<<EOPROG
+        $q->per_test_template = <<<EOPROG
 public class Test
 {
     public static void main(String[] args) {
@@ -945,11 +945,11 @@ EOPROG;
             $question->$field = $value;
         }
 
-        if (!isset($question->custom_template)) {
-            $question->custom_template = '';
+        if (!isset($question->per_test_template)) {
+            $question->per_test_template = '';
         }
 
-        $question->customise = trim($question->custom_template) != '';
+        $question->customise = trim($question->per_test_template) != '';
 
         if (!isset($question->sandbox)) {
             $question->sandbox = $qtype->getBestSandbox($question->language);

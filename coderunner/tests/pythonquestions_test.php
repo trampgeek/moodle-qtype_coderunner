@@ -346,7 +346,7 @@ EOCODE;
          // 1, 2, 4, 8, 16 respectively. So the expected mark is 24 / 31
          // i.e 0.7742
          $q = test_question_maker::make_question('coderunner', 'sqrnoprint');
-         $q->custom_template = <<<EOTEMPLATE
+         $q->per_test_template = <<<EOTEMPLATE
 {{ STUDENT_ANSWER }}
 got = str({{TEST.testcode}})
 expected = """{{TEST.expected|e('py')}}""".strip()

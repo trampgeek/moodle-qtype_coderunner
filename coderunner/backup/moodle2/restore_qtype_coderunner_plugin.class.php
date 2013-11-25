@@ -129,11 +129,16 @@ class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
         // If the question has been created by restore, we need to create its question_testcases and options too
         if ($questioncreated) {
             $data->questionid = $newquestionid;
-            // Insert record
+            // Insert record, after remapping legacy name 'custom_template' to
+            // 'per-test-template' (in case we're restoring an earlier-version
+            // backup).
+            if (isset($data->custom_template)) {
+                $data->per_test_template = $data->custom_template;
+                unset($data->custom_template);
+            }
             $newitemid = $DB->insert_record("quest_coderunner_options", $data);
         } else {
             // Nothing to remap if the question already existed
-            // TODO: determine if the above statement is true!!
         }
     }
 }

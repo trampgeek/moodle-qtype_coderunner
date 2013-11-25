@@ -136,6 +136,18 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2013112102, 'qtype', 'coderunner');
     }
 
+
+    if ($oldversion != 0 && $oldversion < 2013112202) {
+        $table = new xmldb_table('quest_coderunner_options');
+        $customTemplate = new xmldb_field('custom_template', XMLDB_TYPE_TEXT, 'medium', XMLDB_UNSIGNED, FALSE, null);
+        $dbman->rename_field($table, $customTemplate, 'per_test_template');
+        upgrade_plugin_savepoint(true, 2013112203, 'qtype', 'coderunner');
+    }
+
+    if ($oldversion != 0 && $oldversion < 2013112203) {
+        upgrade_plugin_savepoint(true, 2013112203, 'qtype', 'coderunner');
+    }
+
     return updateQuestionTypes();
 
 }
@@ -297,7 +309,7 @@ print(SEPARATOR)
 EOT;
 
     $perTestTemplate_pylint_prog = <<<'EOT'
-__student_answer__ = """{{ STUDENT_ANSWER | e('py') }}""""
+__student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
 
 import subprocess
 
@@ -366,7 +378,7 @@ EOT
         'sandbox'  => 'IdeoneSandbox',
     );
 
-   // ===============================================================
+    // ===============================================================
     //
     // Python2
     //
@@ -403,39 +415,6 @@ EOT
         'language' => 'python2',
     );
 
-
-// ===============================================================
-    $python2RunguardSandbox =  array(
-        'coderunner_type' => 'python2_runguardsandbox',
-        'is_custom' => 0,
-        'comment' => 'Used for testing the null sandbox.',
-        'combinator_template' => <<<EOT
-{{ STUDENT_ANSWER }}
-
-__student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
-
-SEPARATOR = "#<ab@17943918#@>#"
-
-{% for TEST in TESTCASES %}
-{{ TEST.testcode }}
-{% if not loop.last %}
-print(SEPARATOR)
-{% endif %}
-{% endfor %}
-EOT
-,
-        'test_splitter_re' => "|#<ab@17943918#@>#\n|ms",
-        'per_test_template' => <<<EOT
-{{STUDENT_ANSWER}}
-
-__student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
-
-{{ TEST.testcode }}
-EOT
-,
-        'language' => 'python2',
-        'sandbox'  => 'RunguardSandbox',
-    );
 
     // ===============================================================
     $cFunction = array(
@@ -706,8 +685,7 @@ EOT
     // Delete defunct types.
     // NB: NO CHECKS ON EXISTING QUESTIONS USING THESE TYPES.
     // They must really be defunct, in the sense of no questions using them.
-    $defunctTypes = array(
-        'c_function_side_effects', 'java_method_side_effects');
+    $defunctTypes = array();
     foreach ($defunctTypes as $type) {
         $success = $success && delete_question_type($type);
     }

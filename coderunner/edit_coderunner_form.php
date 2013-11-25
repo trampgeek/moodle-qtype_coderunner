@@ -93,29 +93,6 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->setDefault('all_or_nothing', True);
         $mform->addHelpButton('all_or_nothing', 'all_or_nothing', 'qtype_coderunner');
 
-        // The following fields are used to customise a question by overriding
-        // values from the base question type. All are hidden unless the
-        // 'customise' checkbox is checked.
-
-        $mform->addElement('header', 'customisationheader', get_string('customisation','qtype_coderunner'));
-        $mform->addElement('textarea', 'custom_template',
-                get_string('template', 'qtype_coderunner'),
-                array('rows'=>8, 'cols'=>80, 'class'=>'template edit_code',
-                      'name'=>'per_test_template'));
-
-        $mform->addHelpButton('custom_template', 'template', 'qtype_coderunner');
-        $gradingControls = array();
-        $graderTypes = array('EqualityGrader' => 'Exact match',
-                'RegexGrader' => 'Regular expression',
-                'TemplateGrader' => 'Template does grading');
-        $gradingControls[] = $mform->createElement('select', 'grader',
-                NULL, $graderTypes);
-        $mform->addElement('group', 'gradingcontrols',
-                get_string('grading', 'qtype_coderunner'), $gradingControls,
-                NULL, false);
-        $mform->addHelpButton('gradingcontrols', 'gradingcontrols', 'qtype_coderunner');
-
-
         $columnControls = array();
         $columnControls[] =& $mform->createElement('advcheckbox', 'showtest', NULL,
                 get_string('show_test', 'qtype_coderunner'));
@@ -136,6 +113,28 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 get_string('columncontrols', 'qtype_coderunner'),
                 $columnControls,NULL, false);
         $mform->addHelpButton('columncontrols', 'columncontrols', 'qtype_coderunner');
+
+        // The following fields are used to customise a question by overriding
+        // values from the base question type. All are hidden unless the
+        // 'customise' checkbox is checked.
+
+        $mform->addElement('header', 'customisationheader', get_string('customisation','qtype_coderunner'));
+        $mform->addElement('textarea', 'per_test_template',
+                get_string('template', 'qtype_coderunner'),
+                array('rows'=>8, 'cols'=>80, 'class'=>'template edit_code',
+                      'name'=>'per_test_template'));
+
+        $mform->addHelpButton('per_test_template', 'template', 'qtype_coderunner');
+        $gradingControls = array();
+        $graderTypes = array('EqualityGrader' => 'Exact match',
+                'RegexGrader' => 'Regular expression',
+                'TemplateGrader' => 'Template does grading');
+        $gradingControls[] = $mform->createElement('select', 'grader',
+                NULL, $graderTypes);
+        $mform->addElement('group', 'gradingcontrols',
+                get_string('grading', 'qtype_coderunner'), $gradingControls,
+                NULL, false);
+        $mform->addHelpButton('gradingcontrols', 'gradingcontrols', 'qtype_coderunner');
 
         $sandboxControls = array();
         $sandboxControls[] =& $mform->createElement('text', 'cputimelimitsecs',
@@ -162,8 +161,8 @@ class qtype_coderunner_edit_form extends question_edit_form {
         //$mform->addElement('static', 'answersinstruct');
         //$mform->closeHeaderBefore('answersinstruct');
 
-        if (isset($this->question->testcases)) {
-            $numTestcases = count($this->question->testcases) + NUM_TESTCASES_ADD;
+        if (isset($this->question->options->testcases)) {
+            $numTestcases = count($this->question->options->testcases) + NUM_TESTCASES_ADD;
         }
         else {
             $numTestcases = NUM_TESTCASES_START;
@@ -273,13 +272,13 @@ class qtype_coderunner_edit_form extends question_edit_form {
         // needs to set up fields of the current question whose names match those
         // specified in get_per_answer_fields. These are used to load the
         // data into the form.
-        if (isset($question->testcases)) { // Reloading a saved question?
+        if (isset($question->options->testcases)) { // Reloading a saved question?
             $question->testcode = array();
             $question->expected = array();
             $question->useasexample = array();
             $question->display = array();
             $question->hiderestifail = array();
-            foreach ($question->testcases as $tc) {
+            foreach ($question->options->testcases as $tc) {
                 $question->testcode[] = $tc->testcode;
                 $question->stdin[] = $tc->stdin;
                 $question->expected[] = $tc->expected;
@@ -288,7 +287,12 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 $question->hiderestiffail[] = $tc->hiderestiffail;
                 $question->mark[] = sprintf("%.3f", $tc->mark);
             }
+
+            // The customise field isn't listed as an extra-question-field so also
+            // needs to be copied down from the options here.
+            $question->customise = $question->options->customise;
         }
+
         return $question;
     }
 

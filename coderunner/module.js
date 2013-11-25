@@ -92,8 +92,8 @@ M.qtype_coderunner.insertString = function(Y, ta, sToInsert) {
 // Script for the edit_coderunner_form page.
 M.qtype_coderunner.initEditForm = function(Y) {
     var typeCombo = Y.one('#id_coderunner_type'),
-        template = Y.one('#id_custom_template'),
-        templateBlock = Y.one('#fitem_id_custom_template'),
+        template = Y.one('#id_per_test_template'),
+        templateBlock = Y.one('#fitem_id_per_test_template'),
         gradingBlock = Y.one('#fgroup_id_gradingcontrols'),
         columnDisplayBlock = Y.one('#fgroup_id_columncontrols'),
         sandboxBlock = Y.one('#fgroup_id_sandboxcontrols'),
@@ -131,7 +131,7 @@ M.qtype_coderunner.initEditForm = function(Y) {
                         outcome = JSON.parse(result.responseText);
                         if (outcome.success) {
                             template.set('text', outcome.per_test_template);
-                            secs = outcome.cputimelimitsecs ? outcome.cputimelimitsec : '';
+                            secs = outcome.cputimelimitsecs ? outcome.cputimelimitsecs : '';
                             cputime.set('value', secs);
                             mb = outcome.memlimitmb ? outcome.memlimitmb : '';
                             memlimit.set('value', mb);
@@ -158,13 +158,20 @@ M.qtype_coderunner.initEditForm = function(Y) {
     customise.on('change', function(e) {
        isCustomised = customise.get('checked');
        setCustomisationVisibility(isCustomised);
+       if (!isCustomised) {
+           alert("If you save this question with 'Customise' " +
+               "unchecked, any customisation you've done will be lost");
+       }
     });
 
 
     // TODO: disallow changing it back to Undefined
     typeCombo.on('change', function(e) {
-        if (!customise.get('checked') ||
-               confirm("Changing question type. Click OK to load new template, Cancel to retain your customised one.")) {
+        if (customise.get('checked')) {
+            if (confirm("Changing question type. Click OK to reload customisation fields , Cancel to retain your customised ones.")) {
+                loadDefaultCustomisationFields(Y);
+            }
+        } else {
             loadDefaultCustomisationFields(Y);
         }
     });

@@ -3,12 +3,10 @@
  *  See http://openjudge.net/~liuyu/Project/LibSandbox and
  *  http://sourceforge.net/projects/libsandbox/
  *
- * 21 June: Removed Python3 from this sandbox because it uses the
- * openat system call, which is too hard to validity-check.
  *
  * @package    qtype
  * @subpackage coderunner
- * @copyright  2012 Richard Lobb, University of Canterbury
+ * @copyright  2012, 2013 Richard Lobb, University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -25,7 +23,7 @@ require_once('liusandboxtasks.php');
 
 
 class LiuSandbox extends LocalSandbox {
-    private $LANGUAGES = array('C', 'python2');  // Remove Python3 from this box
+    private $LANGUAGES = array('C');
 
     private $RESULT_CODES = array(
             'PD' => Sandbox::RESULT_SANDBOX_PENDING,  // Shouldn't occur

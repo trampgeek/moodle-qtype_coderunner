@@ -216,7 +216,8 @@ class qtype_coderunner_renderer extends qtype_renderer {
             $table->head[] = 'Input';
         }
         if ($question->showexpected) {
-            $table->head[] = 'Expected';
+            $table->head[] = ($question->grader === 'RegexGrader' ?
+                    'Expected RE' : 'Expected');
         }
         if ($question->showoutput) {
             $table->head[] = 'Got';

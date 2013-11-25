@@ -317,15 +317,14 @@ class qtype_coderunner_question extends question_graded_automatically {
 
     // Run all tests one-by-one on the sandbox
     private function runTestsSingly($code, $testCases, $sandboxParams) {
-        assert(!($this->customise && $this->custom_template == ''));
         $templateParams = array(
             'STUDENT_ANSWER' => $code,
             'ESCAPED_STUDENT_ANSWER' => pythonEscaper(NULL, $code, NULL),
             'MATLAB_ESCAPED_STUDENT_ANSWER' => matlabEscaper(NULL, $code, NULL)
          );
 
-        $template = $this->customise ? $this->custom_template : $this->per_test_template;
         $outcome = new TestingOutcome();
+        $template = $this->per_test_template;
         foreach ($testCases as $testCase) {
             $templateParams['TEST'] = $testCase;
             try {

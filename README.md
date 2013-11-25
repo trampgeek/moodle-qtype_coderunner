@@ -22,7 +22,7 @@ in a traditional quiz mode where the mark is determined by how many of the test
 cases the code successfully passes.
 
 CodeRunner and its predecessors *pycode* and *ccode* has been in use at the
-University of Canterbury for about three years, running tens of thousands of
+University of Canterbury for about four years, running tens of thousands of
 student quiz submissions in Python, C and Matlab. All laboratory work in the
 introductory first year Python programming course, which has around 400 students
 in the first semester and 200 in the second, is assessed using CodeRunner
@@ -101,6 +101,9 @@ install script to see exactly what was expected.
 
 ### Installing the Liu sandbox
 
+This step can be skipped if you're not planning on running C, or if you're
+happy to use the default Runguard Sandbox for C programs.
+
 The recommended main sandbox for running C is the Liu sandbox. It can be obtained
 from [here](http://sourceforge.net/projects/libsandbox/).  Both the binary and the
 Python2 interface need to be installed. Note that CodeRunner does *not*
@@ -118,7 +121,7 @@ intend to support Python3 as a programming language for submissions*.
 The last step in installation involves configuring the sandboxes appropriately
 for your particular environment.
 
-  1. If you haven't succeeded in installing the LiuSandbox correctly, you
+  1. If you haven't installed the LiuSandbox, you
 can run programs in any of the supported languages via *runguard*
 in the *RunguardSandbox*, or can also run Python3 and Ideone
 programs  remotely on the Ideone system (ideone.com) using the
@@ -150,25 +153,12 @@ but you then have to pay for usage. *** TBS *** Details on key entry etc ***.
 The IdeoneSandbox is there mainly as a proof of concept of the idea of off-line
 execution and to support occasional use of unusual languages.
 
-
-  2. If you are using the LiuSandbox for Python and C, the supplied
-`sandbox_config.php` should be correct. Obviously the appropriate languages
-must be installed including, in the case of C, the capability to compile and
+  2. If you are using the LiuSandbox for running C questions, the supplied
+`sandbox_config.php` should be correct. Obviously the C compiler must
+must be installed including the capability to compile and
 link statically (no longer part of the default RedHat installation).
-However, some configuration of the
-file `liusandbox.php` may be required. Try it first 'out of the box', but
-if, when running a submitted quiz question, you get 'Illegal function call'
-due to opening an inaccessible file, you will have to configure
-the various `LanguageTask` subclasses so that each one returns a suitable
-list of accessible subtrees when its `readableDirs()` method is called.
-Some experimentation may be needed and/or use of the Linux `strace` command
-to determine what bits of the file system your installed Python (say) requires
-access to. This should not be necessary with C, as the C programs are compiled
-outside the sandbox and statically linking so shouldn't need to access
-*any* bits of the file system at runtime (unless you wish to allow this,
-of course).
 
-If you have have installed the
+If your Moodle installation includes the
 *phpunit* system for testing Moodle modules, you might wish to test the
 CodeRunner installation. However, unless you are planning on running
 Matlab you should first move or remove the file
@@ -193,23 +183,24 @@ standard language and question types into the data base. Each question type
 defines a programming language, a couple of templates (see the next section),
 a preferred sandbox (normally left blank so that the best one available can
 be used) and a preferred grader. The latter is also normally blank as the
-default so-called
-*BasicGrader* is the only one currently available - it just compares the actual
+default
+*EqualityGrader* is usually sufficient - it just compares the actual
 program output with the expected output and requires an exact match for a
 pass, after trailing blank lines and trailing white space on lines has been
-removed. An alternative regular expression match could easily be added but I
-haven't felt the need for it yet - I prefer students to get answers exactly
-right, not roughly right.
+removed. An alternative regular expression grader, *RegexGrader*, is available
+as an alternative; it isn't used by any of the base question types but can
+easily be selected on a per-question basic using the customisation capabilities.
+See the next section.
 
 The current set of question types (each of which can be customised by
-editing its template, as explained in the next section) is as follows. All
-question types currently use the RunguardSandbox except for Python2 and all C
+editing its template and other parameters, as explained in the next section) is
+as follows. All
+question types currently use the RunguardSandbox except for C
 questions, which use the LiuSandbox, if that's installed, or the RunguardSandbox
 otherwise.
 
  1. **python3**. Used for most Python3 questions. For each test case, the student
-code is run first, followed by the sequence of tests. This type of question
-currently uses the RunguardSandbox.
+code is run first, followed by the sequence of tests.
 
  1. **python2**. Used for most Python2 questions. For each test case, the student
 code is run first, e followed by the sequence of tests. This question type
@@ -304,8 +295,12 @@ currently supplied).
 
 The question type template is processed by a template engine called
 [Twig](http://twig.sensiolabs.org/), which is passed a variable called
-STUDENT\_ANSWER and another called TEST.testcode that the question author enters
-for the particular test. As an example,
+STUDENT\_ANSWER, which is the text that the student entered into the answer box
+and another called TEST, which is a record containing the information
+that the question author enters
+for the particular test. The template will typically use just the TEST.testcode
+field, which is the "test" field of the testcase, and usually (but not always)
+is a bit of code to be run to test the student's answer. As an example,
 the question type *c_function*, which asks students to write a C function,
 looks like:
 
@@ -320,7 +315,8 @@ looks like:
             return 0;
         }
 
-A typical test (i.e. `TEST.testcode`) for a question asking students to write a function that
+A typical test (i.e. `TEST.testcode`) for a question asking students to write a
+function that
 returns the square of its parameter might be:
 
         printf("%d\n", sqr(-9))
@@ -348,7 +344,7 @@ Because combinator templates are complicated, they are not exposed via
 the authorship GUI. If you wish to use them (and the only reason would be
 to gain efficiency in questions of a type not currently supported) you will
 need to edit `upgrade.php`, set a new plug-in version number, and run the
-administator plug-in update procedure.
+administrator plug-in update procedure.
 
 As mentioned above, the `per_test_template` can be edited by the question
 author for special needs, e.g. if you wish to provide skeleton code to the
@@ -469,6 +465,10 @@ half marks would be
 given for that particular test case and the 'Got' column would display the
 text "Half the answers were right!".
 
+Writing a grading template that executes the student's code is, however,
+rather difficult as the generated program needs to be robust against errors
+in the submitted code.
+
 ##An advanced grading-template example
 As an example of the use of a custom grader, consider the following question:
 
@@ -485,13 +485,9 @@ The following template, with the "template does grading" checkbox checked,
 could be used as a grader for this question.
 
     import json
-
-    {{STUDENT_ANSWER}}
-
-    nums = {{TEST.testcode}}
+    import sys
 
     def sample_solution(nums):
-        '''A known good solution to the problem'''
         best = (nums[0], nums[1])
         for i in range(len(nums) - 1):
             for j in range(i + 1, len(nums)):
@@ -500,8 +496,6 @@ could be used as a grader for this question.
         return best
 
     def is_valid(response, nums):
-        '''Return true if the first parameter is at least a valid pair
-           of items from the given list of ints, nums'''
         if not isinstance(response, tuple) or len(response) != 2:
             return False
         if response[0] not in nums or response[1] not in nums:
@@ -510,13 +504,26 @@ could be used as a grader for this question.
             return False
         return True
 
+    nums = {{TEST.testcode}}
     my_soln = sample_solution(nums)
     my_diff = abs(my_soln[0] - my_soln[1])
     expected = 'Pair with difference of ' + str(my_diff) + '\ne.g. ' + str(my_soln)
-    try:
-        candidate = best_pair(nums[:])
+    saved_stdout = sys.stdout
+    saved_stderr = sys.stderr
+    sys.stdout = sys.stderr = open('__prog_out__', 'w')
 
-        if not is_valid(candidate, nums):
+    try:
+        exec("""{{STUDENT_ANSWER | e('py')}}""")
+        candidate = best_pair(nums[:])
+        sys.stdout.close()
+        prog_output = open('__prog_out__').read()
+
+        if prog_output != '':
+            grading = {
+                'fraction':0.0,
+                'got': 'Unexpected output from your code : ' + prog_output
+            }
+        elif not is_valid(candidate, nums):
             grading = {'fraction':0.0, 'got': 'Invalid response: ' + str(candidate)}
         else:
             got = str(candidate)
@@ -530,6 +537,8 @@ could be used as a grader for this question.
     except Exception as e:
         grading = {'fraction':0, 'got': '*** Exception occurred ***\n' + str(e)}
 
+    sys.stdout = saved_stdout
+    sys.stderr = saved_stderr
     grading['expected'] = expected
     print(json.dumps(grading))
 
@@ -581,8 +590,6 @@ between the elements of the pair or specified unambiguously which pair to
 return and the order of the elements of the pair. In that case, no custom grader
 would have been required, nor even a custom template.
 
-##Customised Question Types
-The
 
 ##How programming quizzes should work
 
