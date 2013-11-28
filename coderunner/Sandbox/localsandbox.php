@@ -41,6 +41,8 @@ abstract class LanguageTask {
     // is made to hold the source code. The sandbox on which the task
     // is running is also stored, for access to sandbox parameters like
     // cputime etc.
+    // Any files defined in the sandbox params associative array are created
+    // in the working directory.
     public function __construct($sandbox, $sourceCode) {
         $this->sandbox = $sandbox;
         $this->workdir = tempnam("/tmp", "coderunner_");
@@ -52,6 +54,7 @@ abstract class LanguageTask {
         $handle = fopen($this->sourceFileName, "w");
         fwrite($handle, $sourceCode);
         fclose($handle);
+
     }
 
 
@@ -121,6 +124,7 @@ abstract class LocalSandbox extends Sandbox {
     public static $default_memorylimit = 64; // Max MB memory per run
     public static $default_disklimit = 10;   // Max MB disk usage
     public static $default_numprocs = 20;    // Number of processes/threads
+    public static $default_files = NULL;     // Associative array of data files
 
     protected $date = NULL;         // Current date/time
     protected $input = NULL;        // Standard input for the current task
@@ -174,7 +178,7 @@ abstract class LocalSandbox extends Sandbox {
      *
      */
     public function createSubmission($sourceCode, $language, $input,
-                            $run=TRUE, $private=TRUE, $params = NULL) {
+                            $run=TRUE, $private=TRUE, $files=NULL, $params = NULL) {
         if (!in_array($language, $this->getLanguages()->languages)) {
             throw new coding_exception('LocalSandbox::createSubmission: Bad language');
         }
@@ -184,7 +188,7 @@ abstract class LocalSandbox extends Sandbox {
         }
 
         // Record input data in $this in case requested in call to getSubmissionDetails,
-        // and also for use by LanguageTask if desired, via it's reference
+        // and also for use by LanguageTask if desired, via its reference
         // back to $this.
         $this->date = date("Y-m-d H-i-s");
         $this->input = $input;
@@ -202,7 +206,7 @@ abstract class LocalSandbox extends Sandbox {
         }
 
         if ($this->task->cmpinfo === '') {
-            $this->runInSandbox($input);
+            $this->runInSandbox($input, $files);
         }
         else {
             $this->task->result = Sandbox::RESULT_COMPILATION_ERROR;
@@ -272,13 +276,31 @@ abstract class LocalSandbox extends Sandbox {
     }
 
 
+    /**
+     * Generate a set of files in the current directory as defined by the
+     * $files parameter.
+     * @param type $files an associative map from filename to file contents.
+     */
+    protected function loadFiles($files) {
+        if ($files !== NULL) {
+            foreach ($files as $filename=>$contents) {
+                file_put_contents($filename, $contents);
+            }
+        }
+    }
+
+
     // Create and return a LanguageTask object for the given language and
-    // the given source code.
+    // the given source code. If the $files parameter is non-NULL it must be
+    // an associative array mapping filename to filecontents; a set of such
+    // files is built in the local execution environment.
     protected abstract function createTask($language, $source);
 
 
-    // Run the given command in the sandbox.
-    protected abstract function runInSandbox($input);
+    // Run the given command in the sandbox with the given set of files
+    // in the local working directory.
+    protected abstract function runInSandbox($input, $files);
+
 
 }
 ?>

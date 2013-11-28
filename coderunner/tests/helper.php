@@ -37,6 +37,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
             'helloFunc', 'copyStdin', 'timeout', 'exceptions',
             'sqrPartMarks', 'sqrnoprint',
             'studentanswervar', 'helloPython',
+            'generic_python3', 'generic_c',
             'sqrC', 'sqrNoSemicolons', 'sqrCustomised',
             'helloProgC',
             'copyStdinC', 'timeoutC', 'exceptionsC', 'strToUpper',
@@ -62,6 +63,16 @@ class qtype_coderunner_test_helper extends question_test_helper {
     }
 
 
+    /**
+     *  Make a generic Python3 question
+     */
+    public function make_coderunner_question_generic_python3() {
+        return $this->makeCodeRunnerQuestion(
+                'python3',
+                'GenericName',
+                'Generic question'
+        );
+    }
 
     /**
      * Makes a coderunner question asking for a sqr() function.
@@ -397,6 +408,18 @@ except ValueError:
 
     // Now the C-question helper stuff
     // ===============================
+
+
+    /**
+     *  Make a generic C question
+     */
+    public function make_coderunner_question_generic_c() {
+        return $this->makeCodeRunnerQuestion(
+                'C_program',
+                'GenericName',
+                'Generic question'
+        );
+    }
 
    /**
      * Makes a coderunner question asking for a sqr() function
@@ -979,7 +1002,7 @@ EOPROG;
         $coderunner->showmark = FALSE;
         $coderunner->unitpenalty = 0.2;
         $coderunner->customise = FALSE;
-
+        $coderunner->contextid = 1;   // HACK. Needed when requesting data files.
         $this->getOptions($coderunner);
         return $coderunner;
     }

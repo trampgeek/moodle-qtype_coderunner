@@ -52,7 +52,7 @@ class backup_qtype_coderunner_plugin extends backup_qtype_plugin {
                       'showoutput', 'showmark', 'grader', 'cputimelimitsecs',
                       'memlimitmb'));
 
-        //Build the tree
+        // Build the tree
         $element->add_child($options);
         $options->add_child($option);
 
@@ -65,6 +65,7 @@ class backup_qtype_coderunner_plugin extends backup_qtype_plugin {
     // Add the testcases table to the coderunner question structure
     function add_quest_coderunner_testcases($element) {
         // Check $element is one nested_backup_element
+        global $DB;
         if (! $element instanceof backup_nested_element) {
             throw new backup_step_exception("quest_testcases_bad_parent_element", $element);
         }
@@ -81,8 +82,8 @@ class backup_qtype_coderunner_plugin extends backup_qtype_plugin {
         // Set the source
         $testcase->set_source_table("quest_coderunner_testcases", array('questionid' => backup::VAR_PARENTID));
 
-        // TODO Find out what the next line means
-        // don't need to annotate ids nor files
+        // TODO: sort out how to associate the files with the question.
+
     }
 
 
@@ -105,9 +106,20 @@ class backup_qtype_coderunner_plugin extends backup_qtype_plugin {
         $this->add_quest_coderunner_options($pluginwrapper);
         $this->add_quest_coderunner_testcases($pluginwrapper);
 
-        // don't need to annotate ids nor files
-        // TODO Check what the above line means
-
+        // AFAIK I don't need to annotate files as backup_stepslib.php annotates
+        // all files in its define_execution method.
+        // Am I meant to annotate IDs? Not sure.
         return $plugin;
+    }
+
+
+    /**
+     * Returns one array with filearea => mappingname elements for the qtype
+     *
+     * Used by {@link get_components_and_fileareas} to know about all the qtype
+     * files to be processed both in backup and restore.
+     */
+    public static function get_qtype_fileareas() {
+        return array('datafile' => 'question_created');
     }
 }

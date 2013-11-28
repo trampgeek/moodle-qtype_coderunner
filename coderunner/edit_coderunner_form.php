@@ -95,7 +95,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
         $columnControls = array();
         $columnControls[] =& $mform->createElement('advcheckbox', 'showtest', NULL,
-                get_string('show_test', 'qtype_coderunner'));
+                get_string('show_test', 'qtype_coderunner'));        global $PAGE;
         $columnControls[] =& $mform->createElement('advcheckbox', 'showstdin', NULL,
                 get_string('show_stdin', 'qtype_coderunner'));
         $columnControls[] =& $mform->createElement('advcheckbox', 'showexpected', NULL,
@@ -184,6 +184,19 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $this->add_per_testcase_fields($mform, get_string('testcase', 'qtype_coderunner', "{no}"),
                 $numTestcases);
 
+        // Add the option to attach runtime support files, all of which are
+        // copied into the working directory when the expanded template is
+        // executed.The file context is that of the current course.
+        $options = $this->fileoptions;
+        $options['subdirs'] = false;
+        $mform->addElement('header', 'fileheader',
+                get_string('fileheader', 'qtype_coderunner'));
+        $mform->addElement('filemanager', 'datafiles',
+                get_string('datafiles', 'qtype_coderunner'), null,
+                $options);
+        $mform->addHelpButton('datafiles', 'datafiles', 'qtype_coderunner');
+
+        // Lastly add the standard moodle question stuff
         $this->add_interactive_settings();
     }
 
@@ -260,7 +273,6 @@ class qtype_coderunner_edit_form extends question_edit_form {
     }
 
 
-
     // A list of the allowed values of the DB 'display' field for each testcase.
     protected function displayOptions() {
         return array('SHOW', 'HIDE', 'HIDE_IF_FAIL', 'HIDE_IF_SUCCEED');
@@ -268,10 +280,8 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
 
     public function data_preprocessing($question) {
-        // Although it's not wildly obvious from the documentation, this method
-        // needs to set up fields of the current question whose names match those
-        // specified in get_per_answer_fields. These are used to load the
-        // data into the form.
+        // Load question data into form ($this). Called by set_data after
+        // standard stuff all loaded.
         if (isset($question->options->testcases)) { // Reloading a saved question?
             $question->testcode = array();
             $question->expected = array();
@@ -293,11 +303,21 @@ class qtype_coderunner_edit_form extends question_edit_form {
             $question->customise = $question->options->customise;
         }
 
+        $draftid = file_get_submitted_draft_itemid('datafiles');
+        $options = $this->fileoptions;
+        $options['subdirs'] = false;
+        //debugging('Question id: ' . $question->id);
+        //debugging('Question context id: ' . $this->context->id);
+        file_prepare_draft_area($draftid, $this->context->id,
+                'qtype_coderunner', 'datafile',
+                empty($question->id) ? null : (int) $question->id,
+                $options);
+        $question->datafiles = $draftid; // File manager needs this (and we need it when saving)
         return $question;
     }
 
 
-    // TODO: find out why memlimit and cpulimit can't be set back to blank
+
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
         if ($data['coderunner_type'] == 'Undefined') {

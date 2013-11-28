@@ -205,13 +205,15 @@ class qtype_coderunner_question extends question_graded_automatically {
 
 
         $sandboxParams = array();
+        $files = $this->getDataFiles();
         if (isset($this->cputimelimitsecs)) {
             $sandboxParams['cputime'] = intval($this->cputimelimitsecs);
         }
         if (isset($this->memlimitmb)) {
             $sandboxParams['memorylimit'] = intval($this->memlimitmb);
         }
-        $outcome = $this->runWithCombinator($code, $testCases, $sandboxParams);
+
+        $outcome = $this->runWithCombinator($code, $testCases, $files, $sandboxParams);
 
         // If that failed for any reason (e.g. no combinator template or timeout
         // of signal) run the tests individually. Any compilation
@@ -221,7 +223,7 @@ class qtype_coderunner_question extends question_graded_automatically {
         // case.
 
         if ($outcome == NULL) {
-            $outcome = $this->runTestsSingly($code, $testCases, $sandboxParams);
+            $outcome = $this->runTestsSingly($code, $testCases, $files, $sandboxParams);
         }
 
         $this->sandboxInstance->close();
@@ -258,7 +260,7 @@ class qtype_coderunner_question extends question_graded_automatically {
     // MATLAB_ESCAPED_STUDENT_ANSWER, a string for use in Matlab intended
     // to be used as s = sprintf('{{MATLAB_ESCAPED_STUDENT_ANSWER}}')
     // Return true if successful.
-    private function runWithCombinator($code, $testCases, $sandboxParams) {
+    private function runWithCombinator($code, $testCases, $files, $sandboxParams) {
         $outcome = NULL;
 
         if (!$this->customise && $this->combinator_template &&
@@ -275,7 +277,7 @@ class qtype_coderunner_question extends question_graded_automatically {
 
             $this->allRuns[] = $testProg;
             $run = $this->sandboxInstance->execute($testProg, $this->language,
-                    NULL, $sandboxParams);
+                    NULL, $files, $sandboxParams);
 
             if ($run->result === SANDBOX::RESULT_COMPILATION_ERROR) {
                 $outcome = new TestingOutcome(TestingOutcome::STATUS_SYNTAX_ERROR,
@@ -316,7 +318,7 @@ class qtype_coderunner_question extends question_graded_automatically {
 
 
     // Run all tests one-by-one on the sandbox
-    private function runTestsSingly($code, $testCases, $sandboxParams) {
+    private function runTestsSingly($code, $testCases, $files, $sandboxParams) {
         $templateParams = array(
             'STUDENT_ANSWER' => $code,
             'ESCAPED_STUDENT_ANSWER' => pythonEscaper(NULL, $code, NULL),
@@ -337,7 +339,8 @@ class qtype_coderunner_question extends question_graded_automatically {
 
             $input = isset($testCase->stdin) ? $testCase->stdin : '';
             $this->allRuns[] = $testProg;
-            $run = $this->sandboxInstance->execute($testProg, $this->language, $input, $sandboxParams);
+            $run = $this->sandboxInstance->execute($testProg, $this->language,
+                    $input, $files, $sandboxParams);
             if ($run->result === SANDBOX::RESULT_COMPILATION_ERROR) {
                 $outcome = new TestingOutcome(TestingOutcome::STATUS_SYNTAX_ERROR, $run->cmpinfo);
                 break;
@@ -378,6 +381,36 @@ class qtype_coderunner_question extends question_graded_automatically {
         require_once($CFG->dirroot . "/question/type/coderunner/Sandbox/$sandboxClassLC.php");
         $this->sandboxInstance = new $sandboxClass();
     }
+
+
+
+    /**
+     *  Return an associative array mapping filename to datafile contents
+     *  for all the datafiles associated with this question
+     */
+    private function getDataFiles() {
+        global $DB;
+        if (isset($this->contextid)) {  // Is this possible? No harm in trying
+            $contextid = $this->contextid;
+        } else if (isset($this->context)) {
+            $contextid = $this->context->id;
+        } else {
+            $record = $DB->get_record('question_categories',
+                array('id' => $this->category), 'contextid');
+            $contextid = $record->contextid;
+        }
+        $fs = get_file_storage();
+        $fileMap = array();
+        $files = $fs->get_area_files($contextid, 'qtype_coderunner', 'datafile', $this->id);
+        foreach ($files as $f) {
+            $name = $f->get_filename();
+            if ($name !== '.') {
+                $fileMap[$f->get_filename()] = $f->get_content();
+            }
+        }
+        return $fileMap;
+    }
+
 
 
     // Grade a given test result by calling the grader.

@@ -12,6 +12,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+// TODO: provide a mechanism to check that a sandbox recognises all the
+// non-null parameters it has been given (in particular the 'files' param).
+
 abstract class Sandbox {
     protected $user;     // Username supplied when constructing
     protected $password; // Password supplied when constructing
@@ -89,13 +92,17 @@ abstract class Sandbox {
     // referred. Error codes are as defined by the first block of symbolic
     // constants above (the values 0 through 6). These are
     // exactly the values defined by the ideone api, with a couple of additions.
-    // The $params parameter is an addition to the Ideone-based interface to
+    // The $files parameter is an addition to the Ideone-based interface to
+    // allow for providing a set of files for use at runtime. It is an
+    // associate array mapping filename to filecontents (or NULL for no files).
+    // The $params parameter is also an addition to the Ideone-based interface to
     // allow for setting sandbox parameters. It's an associative array, with
     // a sandbox-dependent set of keys, although all except the Ideone sandbox
     // should recognise at least the keys 'cputime' (CPU time limit, in seconds)
-    // and 'memorylimit' (in megabytes).
+    // 'memorylimit' (in megabytes) and 'files' (an associative array mapping
+    // filenames to string filecontents).
     abstract public function createSubmission($sourceCode, $language, $input,
-            $run=TRUE, $private=TRUE, $params = NULL);
+            $run=TRUE, $private=TRUE, $files=NULL, $params=NULL);
 
     // Enquire about the status of the submission with the given 'link' (aka
     // handle. The return value is an object containing an error and a result
@@ -116,17 +123,21 @@ abstract class Sandbox {
      * @param string $sourceCode The source file to compile and run
      * @param string $language  One of the languages regognised by the sandbox
      * @param string $input A string to use as standard input during execution
+     * @param associative array $files either NULL or a map from filename to
+     *         file contents, defining a file context at execution time
      * @param associative array $params Sandbox parameters, depends on
      *         particular sandbox but most sandboxes should recognise
-     *         at least cputime (secs) and memorylimit (Megabytes).
+     *         at least cputime (secs), memorylimit (Megabytes) and
+     *         files (an associative array mapping filenames to string
+     *         filecontents.
      *         If the $params array is NULL, sandbox defaults are used.
      */
-    public function execute($sourceCode, $language, $input, $params = NULL) {
+    public function execute($sourceCode, $language, $input, $files=NULL, $params = NULL) {
         if (!in_array($language, $this->getLanguages()->languages)) {
             throw new coding_exception('Executing an unsupported language in sandbox');
         }
         $result = $this->createSubmission($sourceCode, $language, $input,
-                TRUE, TRUE, $params);
+                TRUE, TRUE, $files, $params);
         $error = $result->error;
         if ($error === Sandbox::OK) {
             $state = $this->getSubmissionStatus($result->link);

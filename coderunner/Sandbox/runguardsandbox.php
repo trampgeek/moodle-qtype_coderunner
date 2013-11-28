@@ -70,12 +70,14 @@ class RunguardSandbox extends LocalSandbox {
     }
 
 
-    // Run the current $this->task in the (nonexistent) sandbox,
-    // i.e. it runs it on the current machine, albeit with resource
+    // Run the current $this->task on the current machine with resource
     // limits like maxmemory, maxnumprocesses and maxtime set.
+    // If $files is non-null it defines a map from filename to filecontents;
+    // these files are created in the current directory before the run begins.
+    // [And they're recreated for each run in case the program corrupts them.]
     // Results are all left in $this->task for later access by
     // getSubmissionDetails
-    protected function runInSandbox($input) {
+    protected function runInSandbox($input, $files) {
         $filesize = 1000000 * $this->getParam('disklimit');
         $memsize = 1000 * $this->getParam('memorylimit');
         $cputime = $this->getParam('cputime');
@@ -96,6 +98,7 @@ class RunguardSandbox extends LocalSandbox {
 
         $workdir = $this->task->workdir;
         chdir($workdir);
+        $this->loadFiles($files);
         try {
             $this->task->cmpinfo = ''; // Set defaults first
             $this->task->signal = 0;

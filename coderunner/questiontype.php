@@ -145,9 +145,7 @@ class qtype_coderunner extends question_type {
     }
 
     // This override saves all the extra question data, including
-    // the set of testcases to the database.
-    // The parent implementation saves the data in the coderunner_options table,
-    // so this
+    // the set of testcases and any datafiles to the database.
 
     public function save_question_options($question) {
         global $DB;
@@ -208,6 +206,12 @@ class qtype_coderunner extends question_type {
         foreach ($oldtestcases as $otc) {
             $DB->delete_records($testcaseTable, array('id' => $otc->id));
         }
+
+
+        // Lastly, save any datafiles
+
+        file_save_draft_area_files($question->datafiles, $question->context->id,
+                'qtype_coderunner', 'datafile', (int) $question->id, $this->fileoptions);
 
         return true;
     }
@@ -370,6 +374,10 @@ class qtype_coderunner extends question_type {
             $qo->testcases[] = $tc;
         }
 
+        $datafiles = $format->getpath($data,
+                array('#', 'testcases', 0, '#', 'file'), array());
+        $qo->datafiles = $format->import_files_as_draft($datafiles);
+
         return $qo;
     }
 
@@ -401,6 +409,14 @@ class qtype_coderunner extends question_type {
             }
             $expout .= "    </testcase>\n";
         }
+
+        // Add datafiles within the scope of the <testcases> element
+        $fs = get_file_storage();
+        $contextid = $question->contextid;
+        $datafiles = $fs->get_area_files(
+                $contextid, 'qtype_coderunner', 'datafile', $question->id);
+        $expout .= $format->write_files($datafiles);
+
         $expout .= "    </testcases>\n";
         return $expout;
     }

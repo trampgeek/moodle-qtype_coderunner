@@ -56,10 +56,9 @@ class LiuSandbox extends LocalSandbox {
     // Run the current $this->task in the sandbox.
     // Results are all left in $this->task for later access by
     // getSubmissionDetails
-    protected function runInSandbox($input) {
+    protected function runInSandbox($input, $files) {
        global $CFG;
        // Set up the control params for the sandbox
-        //debugging($executeCommand);
 
         $run = array(
             'cmd'       => $this->task->getRunCommand(),
@@ -78,6 +77,7 @@ class LiuSandbox extends LocalSandbox {
         // for use by the sandbox.
 
         chdir($this->task->workdir);
+        $this->loadFiles($files);
         $taskname = "taskDetails.json";
         $handle = fopen($taskname, "w");
         $encodedRun = json_encode($run);

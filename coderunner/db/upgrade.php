@@ -141,7 +141,7 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         $table = new xmldb_table('quest_coderunner_options');
         $customTemplate = new xmldb_field('custom_template', XMLDB_TYPE_TEXT, 'medium', XMLDB_UNSIGNED, FALSE, null);
         $dbman->rename_field($table, $customTemplate, 'per_test_template');
-        upgrade_plugin_savepoint(true, 2013112203, 'qtype', 'coderunner');
+        upgrade_plugin_savepoint(true, 2013112202, 'qtype', 'coderunner');
     }
 
     if ($oldversion != 0 && $oldversion < 2013112203) {

@@ -69,19 +69,27 @@ class IdeoneSandbox extends Sandbox {
     // Create a submission (a 'paste' in ideone terminology).
     // Return an object with an error and a link field, the latter being
     // the handle for the submission, for use in the following two calls.
+    // TODO: come up with a better way of handling non-null $files and
+    // $params.
     public function createSubmission($sourceCode, $language, $input,
-            $run=TRUE, $private=TRUE, $params = NULL)
+            $run=TRUE, $private=TRUE, $files=NULL, $params = NULL)
     {
         // Check language is valid and the user isn't attempting to set
-        // execution parameters (since Ideone does not have such options).
+        // files or execution parameters (since Ideone does not have such options).
         assert(in_array($language, $this->getLanguages()->languages));
-        assert($params == NULL);
+        if ($files !== NULL && count($files) !== 0) {
+            throw new moodle_exception("ideone sandbox doesn't accept files");
+        }
+        if($params !== NULL) {
+            throw new moodle_exception(
+   "ideone sandbox doesn't accept parameters like cpu time or memory limit");
+        }
         $langId = $this->langMap[$language];
         $response = $this->client->createSubmission(USER, PASS,
                 $sourceCode, $langId, $input, $run, $private);
         $error = $response['error'];
         if ($error !== 'OK') {
-            throw new coding_exception("IdeoneSandbox::getSubmissionStatus: error ($error)");
+            throw new moodle_exception("IdeoneSandbox::getSubmissionStatus: error ($error)");
         }
         else {
             return (object) array('error'=>Sandbox::OK, 'link'=> $response['link']);
