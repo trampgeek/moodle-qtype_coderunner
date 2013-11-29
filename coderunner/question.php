@@ -153,10 +153,12 @@ class qtype_coderunner_question extends question_graded_automatically {
             $code = $response['answer'];
             $testOutcome = $this->run_tests($code, $this->testcases);
             $testOutcomeSerial = serialize($testOutcome);
+            debugging("Grading with full test run ($code)");
         }
         else {
             $testOutcomeSerial = $response['_testoutcome'];
             $testOutcome = unserialize($testOutcomeSerial);
+            debugging("Grading using cached results ({$response['answer']})");
         }
 
         $dataToCache = array('_testoutcome' => $testOutcomeSerial);

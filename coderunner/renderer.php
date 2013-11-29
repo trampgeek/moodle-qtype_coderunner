@@ -194,7 +194,6 @@ class qtype_coderunner_renderer extends qtype_renderer {
     }
 
 
-    // TODO: find out why test values from the template grader don't show up.
     // Return a table of results or NULL if there are no results to show.
     private function buildResultsTable($question, $testCases, $testResults) {
         // The set of columns to be displayed is specified by the boolean

@@ -138,12 +138,10 @@ class qbehaviour_adaptive_adapted_for_coderunner extends qbehaviour_adaptive {
                 // Last answer was graded, we want to regrade it. Otherwise the answer
                 // has changed, and we are grading a new try.
 
-                // Changed bit #3. Fix bug resulting in regrading of
+                // There is a Moodle bug here, resulting in regrading of
                 // already-graded questions.
                 // See https://tracker.moodle.org/browse/MDL-42399
-                // $prevtries -= 1;  // Unnec now, since we're not regrading
-                return question_attempt::DISCARD;  // This should do the trick ???
-                // End changed bit #3.
+                $prevtries -= 1;
             }
 
             // *** changed bit #2 begins ***
