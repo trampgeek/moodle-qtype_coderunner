@@ -294,7 +294,6 @@ class qtype_coderunner_question extends question_graded_automatically {
             else if ($run->result === Sandbox::RESULT_SUCCESS && !$run->stderr) {
                 $outputs = preg_split($this->test_splitter_re, $run->output);
                 if (count($outputs) == count($testCases)) {
-                    //debugging("Good split");
                     $outcome = new TestingOutcome();
                     $i = 0;
                     foreach ($testCases as $testCase) {
@@ -304,13 +303,11 @@ class qtype_coderunner_question extends question_graded_automatically {
 
                 }
                 else {
-                    // debugging("Bad split");
                 }
             }
             else {
                 // Could be any of the other failure modes, e.g. runtime error.
                 // Abandon combinator approach
-                // debugging('Unsuccessful run: ' . print_r($run->result, TRUE));
             }
         }
         return $outcome;
