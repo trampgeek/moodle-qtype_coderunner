@@ -34,11 +34,6 @@
  *  question_attempt_pending_step as a parameter rather than the response
  *  copied from that step. This allows the question to cache the test results
  *  within the step, which is stored in the database.
- *
- * TODO: keep in touch with developers regarding the fact that this interface
- * is broken (admitted by Tim Hunt in earlier communications). This file
- * (or the functionality it provides, anyway) belongs somewhere in
- * the question/type subtree.
  */
 
 defined('MOODLE_INTERNAL') || die();
