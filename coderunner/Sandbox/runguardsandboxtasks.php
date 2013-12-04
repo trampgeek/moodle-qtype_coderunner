@@ -39,6 +39,25 @@ class Matlab_Task extends \LanguageTask {
      }
 
 
+     // Matlab throws in backspaces (grrr). There's also an extra BEL char
+     // at the end of any abort error message (presumably introduced at some
+     // point due to the EOF on stdin, which shuts down matlab).
+     public function filterStderr($stderr) {
+         $out = '';
+         for ($i = 0; $i < strlen($stderr); $i++) {
+             $c = $stderr[$i];
+             if ($c === "\x07") {
+                 // pass
+             } elseif ($c === "\x08" && strlen($out) > 0) {
+                 $out = substr($out, 0, -1);
+             } else {
+                 $out .= $c;
+             }
+         }
+         return $out;
+     }
+
+     
      public function filterOutput($out) {
          $lines = explode("\n", $out);
          $outlines = array();

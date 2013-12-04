@@ -97,7 +97,7 @@ class LiuSandbox extends LocalSandbox {
 
         $this->task->result = $this->RESULT_CODES[$result->returnCode];
         $this->task->output = $this->task->filterOutput($result->output);
-        $this->task->stderr = $result->stderr;
+        $this->task->stderr = $this->task->filterStderr($result->stderr);
         $this->task->cmpinfo = '';
         if (isset($result->details->signal_info)) {
             $this->task->signal = $result->details->signal_info[0];

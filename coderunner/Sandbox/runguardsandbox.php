@@ -120,7 +120,8 @@ class RunguardSandbox extends LocalSandbox {
             pclose($handle);
 
             if (file_exists("$workdir/prog.err")) {
-                $this->task->stderr = file_get_contents("$workdir/prog.err");
+                $stderr = file_get_contents("$workdir/prog.err");
+                $this->task->stderr = $this->task->filterStderr($stderr);
             }
             else {
                 $this->task->stderr = '';

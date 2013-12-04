@@ -89,6 +89,14 @@ abstract class LanguageTask {
     }
 
 
+    // Override the following function if the stderr from executing a program
+    // in this language needs post-filtering to remove stuff like
+    // backspaces and bells.
+    public function filterStderr($stderr) {
+        return $stderr;
+    }
+
+
     public function close() {
         if (!isset($this->sourceFileName)) {
             throw new coding_exception('LanguageTask::close(): no source file');
