@@ -405,13 +405,17 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
 
     private function get_languages_and_types() {
-        // Return two arrays (language => language) and (type => subtype) of
-        // all the non-custom coderunner question types in the DB,
-        // where the subtype is the suffix of the type in the database,
-        // e.g. for java_method it is 'method'. For question types without a
+        // Return two arrays (language => language_upper_case) and (type => subtype) of
+        // all the coderunner question types available in the current context,
+        // i.e., *** TBS ***
+        // The subtype is the suffix of the type in the database,
+        // e.g. for java_method it is 'method'. The language is the bit before
+        // the underscore, and language_upper_case is a capitalised version,
+        // e.g. Java for java. For question types without a
         // subtype the word 'Default' is used.
         global $DB;
-        $records = $DB->get_records('quest_coderunner_types', array(),
+        $records = $DB->get_records('quest_coderunner_options',
+                array('prototype_type' => 1),
                 'coderunner_type', 'coderunner_type');
         $types = array();
         foreach ($records as $row) {

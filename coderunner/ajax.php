@@ -18,8 +18,8 @@ $qtype  = required_param('qtype', PARAM_ALPHANUMEXT);
 
 header('Content-type: application/json; charset=utf-8');
 try {
-    $questionType = $DB->get_record('quest_coderunner_types',
-            array('coderunner_type'=>$qtype),
+    $questionType = $DB->get_record('quest_coderunner_options',
+            array('coderunner_type'=>$qtype, 'prototype_type' => 1),
             '*',
             MUST_EXIST);
     $questionType->success = true;

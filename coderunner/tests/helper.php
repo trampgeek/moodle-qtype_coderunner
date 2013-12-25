@@ -960,8 +960,8 @@ EOPROG;
 
         $type = $question->options['coderunner_type'];
 
-        if (!$record = $DB->get_record('quest_coderunner_types',
-                array('coderunner_type' => $type))) {
+        if (!$record = $DB->get_record('quest_coderunner_options',
+                array('coderunner_type' => $type, 'prototype_type' => 1))) {
             throw new coding_exception("TestHelper: bad call to getOptions with type $type");
         }
         foreach ($record as $field=>$value) {

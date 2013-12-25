@@ -85,10 +85,43 @@ class qtype_coderunner extends question_type {
      * @return mixed array as above, or null to tell the base class to do nothing.
      */
     public function extra_question_fields() {
-        return array('quest_coderunner_options', 'coderunner_type',
-            'per_test_template', 'all_or_nothing', 'penalty_regime',
-            'show_source', 'showtest', 'showstdin', 'showexpected', 'showoutput',
-            'showmark', 'grader', 'cputimelimitsecs', 'memlimitmb');
+        return array('quest_coderunner_options',
+            'coderunner_type',
+            'prototype_type',
+            'all_or_nothing',
+            'penalty_regime',
+            'show_source',
+            'showtest',
+            'showstdin',
+            'showexpected',
+            'showoutput',
+            'showmark',
+            'combinator_template',
+            'test_splitter_re',
+            'per_test_template',
+            'language',
+            'sandbox',
+            'grader',
+            'cputimelimitsecs',
+            'memlimitmb'
+        );
+    }
+
+    /** A list of the extra question fields that are deemed 'advanced', and
+     *  so are hidden behind as 'customise' fields.
+     * @return array of strings
+     */
+    public function advanced_fields() {
+        return array(
+            'combinator_template',
+            'test_splitter_re',
+            'per_test_template',
+            'language',
+            'sandbox',
+            'grader',
+            'cputimelimitsecs',
+            'memlimitmb'
+            );
     }
 
     /**
@@ -218,32 +251,33 @@ class qtype_coderunner extends question_type {
 
     // Load the question options (all the question extension fields and
     // testcases) from the database into the question.
-    // If the question has a custom template, it is set as the per-test-case
-    // template and the combinator template is ignored. Otherwise both are
-    // copied from the database into the question object.
+    // The various fields are initialised from the prototype, then overridden
+    // by any non-null values in the specific question.
 
     public function get_question_options($question) {
         global $CFG, $DB, $OUTPUT;
         parent::get_question_options($question);
 
-        // Now add to the question all the fields from the question's type record.
-        // Where two fields have the same name in both the options and type tables,
-        // the former overrides the latter and the question is then deemed to
-        // be customed.
+        // Now add to the question all the fields from the question's prototype
+        // record that have not been overridden (i.e. that are null) by this
+        // instance. If any of the so-called 'advanced' fields are modified
+        // (see the 'advanced_fields' method), the 'customise' field is set.
 
-        if (!$row = $DB->get_record('quest_coderunner_types',
-                array('coderunner_type' => $question->options->coderunner_type))) {
+        if (!$row = $DB->get_record('quest_coderunner_options',
+                array('coderunner_type' => $question->options->coderunner_type,
+                      'prototype_type' => 1))) {
             throw new coding_exception("Failed to load type info for question id {$question->id}");
         }
 
         $question->options->customise = False; // Starting assumption
+        $advancedFields = $this->advanced_fields();
         foreach ($row as $field => $value) {
-            if ($field != 'id' && $field != 'coderunner_type') {
-                if (isset($question->options->$field) && $question->options->$field !== '') {
-                    $question->options->customise = True;
-                } else {
-                    $question->options->$field = $value;
+            if (isset($question->options->$field) && $question->options->$field !== '') {
+                if (in_array($field, $advancedFields) && $question->options->$field != $value) {
+                    $question->options->customise = True; // An advanced fields has been changed
                 }
+            } else {
+                $question->options->$field = $value;
             }
         }
 

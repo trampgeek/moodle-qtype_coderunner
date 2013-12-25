@@ -1,78 +1,57 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="question/type/coderunner/db" VERSION="2013010301" COMMENT="XMLDB file for Moodle question/type/coderunner"
+<XMLDB PATH="question/type/coderunner/db" VERSION="20140215" COMMENT="XMLDB file for Moodle question/type/coderunner"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../../lib/xmldb/xmldb.xsd"
 >
   <TABLES>
-
-    <TABLE NAME="quest_coderunner_options" NEXT="quest_coderunner_types" COMMENT="Extension of the coderunner question table">
+    <TABLE NAME="quest_coderunner_options" COMMENT="Extension of the coderunner question table">
       <FIELDS>
-         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="questionid" COMMENT="Every home should have one" />
-         <FIELD NAME="questionid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" PREVIOUS="id" NEXT="coderunner_type" COMMENT="The question this option applies to" />
-         <FIELD NAME="coderunner_type" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" PREVIOUS="questionid" NEXT="per_test_template" COMMENT="The (subtype) of this particular coderunner question" />
-         <FIELD NAME="per_test_template" TYPE="text" LENGTH="medium" NOTNULL="false" SEQUENCE="false" NEXT="all_or_nothing" PREVIOUS="coderunner_type" COMMENT="A customised per-test-case template, which overrides the one defined in the referenced type, if supplied" />
-         <FIELD NAME="all_or_nothing" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" NEXT='show_source' PREVIOUS="per_test_template" SEQUENCE="false" COMMENT="True if answer must pass all test cases to earn any marks" />
-         <FIELD NAME="show_source"  TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" PREVIOUS="all_or_nothing" NEXT="showtest" SEQUENCE="false" COMMENT="True to display full source code after template expansion, for debugging template." />
-         <FIELD NAME="showtest" TYPE="int" LENGTH="1" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" COMMENT="True if the test column of the results table is to be displayed to students" PREVIOUS="show_source" NEXT="showstdin"/>
-         <FIELD NAME="showstdin" TYPE="int" LENGTH="1" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" COMMENT="True if the stdin column of the results table is to be displayed to students" PREVIOUS="showtest" NEXT="showexpected"/>
-         <FIELD NAME="showexpected" TYPE="int" LENGTH="1" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" COMMENT="True if the expected column of the results table is to be displayed to students" PREVIOUS="showstdin" NEXT="showoutput"/>
-         <FIELD NAME="showoutput" TYPE="int" LENGTH="1" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" COMMENT="True if the output column of the results table is to be displayed to students" PREVIOUS="showexpected" NEXT="showmark"/>
-         <FIELD NAME="showmark" TYPE="int" LENGTH="1" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" COMMENT="True if the mark column of the results table is to be displayed to students" PREVIOUS="showoutput" NEXT="timeoutsecs"/>
-         <FIELD NAME="grader" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" NEXT="penalty_regime" PREVIOUS="showmark" COMMENT="The PHP class name of the grader to use to grade results from the sandbox. If null, the BasicGrader class is used." />
-         <FIELD NAME="penalty_regime" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" NEXT="cputimelimitsecs" PREVIOUS="grader" COMMENT="A comma-separated list of percentage penalties to apply to each submission. If empty use default question penalty" />
-         <FIELD NAME="cputimelimitsecs" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" PREVIOUS="penalty_regime" NEXT="memlimitmb" COMMENT="The maximum CPU time allowed for execution (secs)" />
-         <FIELD NAME="memlimitmb" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" PREVIOUS="timeoutsecs" COMMENT="The maximum memory allowed for this task execution (MB)" />
-
-      </FIELDS>
-       <KEYS>
-        <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="questionid"/>
-        <KEY NAME="questionid" TYPE="foreign" FIELDS="questionid" REFTABLE="questions" REFFIELDS="id" PREVIOUS="primary" NEXT="coderunner_type" />
-        <KEY NAME="coderunner_type" TYPE="foreign" FIELDS="coderunner_type" REFTABLE="quest_coderunner_types" REFFIELDS="name" PREVIOUS="questionid" />
-      </KEYS>
-    </TABLE>30
-
-
-    <TABLE NAME="quest_coderunner_types" NEXT="quest_coderunner_testcases" PREVIOUS="quest_coderunner_options" COMMENT="A named type for a coderunner question, such as 'C_function'. Is essentially just a list of templates to be applied until a valid validator response is returned." >
-      <FIELDS>
-        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="coderunner_type" />
-        <FIELD NAME="coderunner_type" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" NEXT="comment" PREVIOUS="id" COMMENT="Unique name for this question type" />
-        <FIELD NAME="comment" TYPE="text" LENGTH="medium" NOTNULL="true" SEQUENCE="false" NEXT="combinator_template" PREVIOUS="coderunner_type" COMMENT="Brief explanation of this type, for use as an HTML title or help popup" />
-        <FIELD NAME="combinator_template" TYPE="text" LENGTH="medium" NOTNULL="false" SEQUENCE="false" NEXT="test_splitter_re" PREVIOUS="comment" COMMENT="An optional template to be used to combine all tests into a single run" />
-        <FIELD NAME="test_splitter_re" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" NEXT="per_test_template" PREVIOUS="combinator_template" COMMENT="The regular expression argument to preg_split to split output from the combinator run into the basic tests again. Meaningful only if combinator template provided" />
-        <FIELD NAME="per_test_template" TYPE="text" LENGTH="medium" NOTNULL="true" SEQUENCE="false" NEXT="language" PREVIOUS="test_splitter_re" COMMENT="A template to build a test run for each test case. Required." />
-        <FIELD NAME="language" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" NEXT="sandbox" PREVIOUS="per_test_template" COMMENT="The programming language, to be passed to the sandbox" />
-        <FIELD NAME="sandbox" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" NEXT="grader" PREVIOUS="language" COMMENT="The PHP class name of a specific sandbox to use. If null, a default one for the language is used." />
-        <FIELD NAME="grader" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" NEXT="cputimelimitsecs" PREVIOUS="sandbox" COMMENT="The PHP class name of the grader to use to grade results from the sandbox. If null, the BasicGrader class is used." />
-        <FIELD NAME="cputimelimitsecs" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" PREVIOUS="grader" NEXT="memlimitmb" COMMENT="The maximum CPU time allowed for execution (secs)" />
-        <FIELD NAME="memlimitmb" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" PREVIOUS="timeoutsecs" COMMENT="The maximum memory allowed for this task execution (MB)" />
-
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" COMMENT="Every home should have one"/>
+        <FIELD NAME="questionid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The question this option applies to"/>
+        <FIELD NAME="coderunner_type" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="The name of the prototype question from which this question inherits. It should be a valid question name within the current question category or one of its ancestors."/>
+        <FIELD NAME="prototype_type" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="0 =&amp;gt; not a prototype, 1 =&amp;gt; built-in prototype, 2 =&amp;gt; user_defined prototype"/>
+        <FIELD NAME="all_or_nothing" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="True if answer must pass all test cases to earn any marks"/>
+        <FIELD NAME="show_source" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="True to display full source code after template expansion, for debugging template."/>
+        <FIELD NAME="showtest" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="True if the test column of the results table is to be displayed to students"/>
+        <FIELD NAME="showstdin" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="True if the stdin column of the results table is to be displayed to students"/>
+        <FIELD NAME="showexpected" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="True if the expected column of the results table is to be displayed to students"/>
+        <FIELD NAME="showoutput" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="True if the output column of the results table is to be displayed to students"/>
+        <FIELD NAME="showmark" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="True if the mark column of the results table is to be displayed to students"/>
+        <FIELD NAME="combinator_template" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="An optional template to be used to combine all tests into a single run"/>
+        <FIELD NAME="test_splitter_re" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="The regular expression argument to preg_split to split output from the combinator run into the basic tests again. Meaningful only if combinator template provided"/>
+        <FIELD NAME="per_test_template" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="A template to build a test run for each test case. Required."/>
+        <FIELD NAME="language" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="The programming language, to be passed to the sandbox"/>
+        <FIELD NAME="sandbox" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="The PHP class name of a specific sandbox to use. If null, a default one for the language is used."/>
+        <FIELD NAME="grader" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" NEXT="penalty_regime" PREVIOUS="showmark" COMMENT="The PHP class name of the grader to use to grade results from the sandbox. If null, the BasicGrader class is used." />
+        <FIELD NAME="penalty_regime" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" NEXT="cputimelimitsecs" PREVIOUS="grader" COMMENT="A comma-separated list of percentage penalties to apply to each submission. If empty use default question penalty" />
+        <FIELD NAME="cputimelimitsecs" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" PREVIOUS="penalty_regime" NEXT="memlimitmb" COMMENT="The maximum CPU time allowed for execution (secs)" />
+        <FIELD NAME="memlimitmb" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="The maximum memory allowed for this task execution (MB)"/>
       </FIELDS>
       <KEYS>
-          <KEY NAME="primary" TYPE="primary" FIELDS="id" />
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="questionid" TYPE="foreign" FIELDS="questionid" REFTABLE="questions" REFFIELDS="id"/>
       </KEYS>
       <INDEXES>
-          <INDEX NAME="coderunner_type" UNIQUE="true" FIELDS="coderunner_type"/>
+        <INDEX NAME="coderunner_type" UNIQUE="false" FIELDS="coderunner_type"/>
+        <INDEX NAME="prototype_type" UNIQUE="false" FIELDS="prototype_type"/>
       </INDEXES>
     </TABLE>
-
-
-    <TABLE NAME="quest_coderunner_testcases" PREVIOUS="quest_coderunner_types" COMMENT="A test case is a test to perform on a student's code answer; should output the given output. A test case is regarded as an extension of an 'answer' in Moodle parlance.">
+    <TABLE NAME="quest_coderunner_testcases" COMMENT="A test case is a test to perform on a student's code answer; should output the given output. A test case is regarded as an extension of an 'answer' in Moodle parlance.">
       <FIELDS>
-        <FIELD NAME="id"         TYPE="int"  LENGTH="10" NOTNULL="true" UNSIGNED="false" SEQUENCE="true" NEXT="questionid"/>
-        <FIELD NAME="questionid" TYPE="int"  LENGTH="10" NOTNULL="true" UNSIGNED="false" SEQUENCE="false" COMMENT="Foreign key referencing question to which this test case relates" PREVIOUS="id" NEXT="testcode"/>
-        <FIELD NAME="testcode"   TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="The code for this test, to be combined with the student's code to construct a test program" PREVIOUS="questionid" NEXT="stdin"/>
-        <FIELD NAME="stdin"      TYPE="text" LENGTH="medium" NOTNULL="false" SEQUENCE="false" COMMENT="The standard input to the program during the test. Empty for most questions" PREVIOUS="testcode" NEXT="expected" />
-        <FIELD NAME="expected"   TYPE="text" LENGTH="medium" NOTNULL="false" SEQUENCE="false" COMMENT="The expected output after running the student's code and executing the shell input" PREVIOUS="stdin" NEXT="useasexample"/>
-        <FIELD NAME="useasexample" TYPE="int" LENGTH="1" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="True if this testcase is to be displayed in the spec as an example of how the function works." PREVIOUS="expected" NEXT="display"/>
-        <FIELD NAME="display"    TYPE="char" LENGTH="30" NOTNULL="true" DEFAULT="SHOW" SEQUENCE="false" COMMENT="Controls display of this testcase to the students. One of SHOW, HIDE, HIDE_IF_FAIL, HIDE_IF_SUCCEED" PREVIOUS="useasexample" NEXT="hiderestiffail"/>
-        <FIELD NAME="hiderestiffail" TYPE="int" LENGTH="1" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="If this test fails, hide all subsequent tests regardless of their display settings" PREVIOUS="display" NEXT="mark" />
-        <FIELD NAME="mark"      TYPE="number" LENGTH="8" NOTNULL="true" DEFAULT="1.0" SEQUENCE="false" DECIMALS="3" COMMENT="Mark for this testcase (only if not an all_or_nothing question)" PREVIOUS="hiderestiffail" />
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="questionid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Foreign key referencing question to which this test case relates"/>
+        <FIELD NAME="testcode" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="The code for this test, to be combined with the student's code to construct a test program"/>
+        <FIELD NAME="stdin" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="The standard input to the program during the test. Empty for most questions"/>
+        <FIELD NAME="expected" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="The expected output after running the student's code and executing the shell input"/>
+        <FIELD NAME="useasexample" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="True if this testcase is to be displayed in the spec as an example of how the function works."/>
+        <FIELD NAME="display" TYPE="char" LENGTH="30" NOTNULL="true" DEFAULT="SHOW" SEQUENCE="false" COMMENT="Controls display of this testcase to the students. One of SHOW, HIDE, HIDE_IF_FAIL, HIDE_IF_SUCCEED"/>
+        <FIELD NAME="hiderestiffail" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="If this test fails, hide all subsequent tests regardless of their display settings"/>
+        <FIELD NAME="mark" TYPE="number" LENGTH="8" NOTNULL="true" DEFAULT="1.0" SEQUENCE="false" DECIMALS="3" COMMENT="Mark for this testcase (only if not an all_or_nothing question)"/>
       </FIELDS>
       <KEYS>
-        <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="questionid"/>
-        <KEY NAME="questionid" TYPE="foreign" FIELDS="questionid" REFTABLE="questions" REFFIELDS="id" PREVIOUS="primary"/>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="questionid" TYPE="foreign" FIELDS="questionid" REFTABLE="questions" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
-
   </TABLES>
 </XMLDB>

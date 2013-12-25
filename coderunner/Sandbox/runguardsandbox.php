@@ -41,9 +41,8 @@ define('MAX_READ', 4096);  // Max bytes to read in popen
 
 // ==============================================================
 //
-// Now the actual sandbox.
-// This has a very high default number of processes because the resource
-// limit mechanism used in this sandbox is per user ('coderunner') not be
+// This sandbox has a very high default number of processes because the resource
+// limit mechanism used is per user ('coderunner') not per
 // process tree.
 //
 // ==============================================================
