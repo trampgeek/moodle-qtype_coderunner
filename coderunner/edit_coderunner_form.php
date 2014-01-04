@@ -128,7 +128,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
         $columnControls = array();
         $columnControls[] =& $mform->createElement('advcheckbox', 'showtest', NULL,
-                get_string('show_test', 'qtype_coderunner'));        global $PAGE;
+                get_string('show_test', 'qtype_coderunner'));
         $columnControls[] =& $mform->createElement('advcheckbox', 'showstdin', NULL,
                 get_string('show_stdin', 'qtype_coderunner'));
         $columnControls[] =& $mform->createElement('advcheckbox', 'showexpected', NULL,
@@ -340,8 +340,6 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $draftid = file_get_submitted_draft_itemid('datafiles');
         $options = $this->fileoptions;
         $options['subdirs'] = false;
-        //debugging('Question id: ' . $question->id);
-        //debugging('Question context id: ' . $this->context->id);
         file_prepare_draft_area($draftid, $this->context->id,
                 'qtype_coderunner', 'datafile',
                 empty($question->id) ? null : (int) $question->id,

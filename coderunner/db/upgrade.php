@@ -212,6 +212,33 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2013122508, 'qtype', 'coderunner');
     }
 
+    if ($oldversion != 0 && $oldversion < 2013123103) {
+
+        // Define field enable_combinator to be added to quest_coderunner_options.
+        $table = new xmldb_table('quest_coderunner_options');
+        $field = new xmldb_field('enable_combinator', XMLDB_TYPE_INTEGER, '1', null, FALSE, null, null, 'test_splitter_re');
+
+        // Conditionally launch add field enable_combinator.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Inherit combinator use on all except builtins and existing custom template questions
+        $DB->execute("UPDATE {quest_coderunner_options}
+            SET enable_combinator = IF(per_test_template IS NOT NULL AND per_test_template != '', 0, NULL)
+            WHERE prototype_type = 0");
+
+        foreach (array('showtest', 'showstdin', 'showexpected', 'showoutput', 'showmark') as $fieldname) {
+            $default = $fieldname === 'showmark' ? 0 : 1;
+            $field = new xmldb_field($fieldname, XMLDB_TYPE_INTEGER, '1', XMLDB_UNSIGNED, FALSE, null, $default);
+            $dbman->change_field_notnull($table, $field);  // Make it inheritable by making notnull false
+        }
+
+        // Coderunner savepoint reached.
+        upgrade_plugin_savepoint(true, 2013123103, 'qtype', 'coderunner');
+
+    }
+
     if ($oldversion != 0 && $oldversion < 2014021501) {
         $table = new xmldb_table('quest_coderunner_options');
         $penaltyRegime = new xmldb_field('penalty_regime', XMLDB_TYPE_CHAR, '255', XMLDB_UNSIGNED, FALSE, null, null);
@@ -772,6 +799,7 @@ function update_question_type($newRecord) {
     if ($ok) {
         $newRecord['questionid'] = $questionid;
         $newRecord['prototype_type'] = 1;
+        $newRecord['enable_combinator'] = ($newRecord['combinator_template'] !== NULL);
         $ok = $DB->insert_record('quest_coderunner_options', $newRecord);
     }
     if (!$ok) {

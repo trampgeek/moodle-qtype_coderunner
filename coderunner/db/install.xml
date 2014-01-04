@@ -12,13 +12,14 @@
         <FIELD NAME="prototype_type" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="0 =&amp;gt; not a prototype, 1 =&amp;gt; built-in prototype, 2 =&amp;gt; user_defined prototype"/>
         <FIELD NAME="all_or_nothing" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="True if answer must pass all test cases to earn any marks"/>
         <FIELD NAME="show_source" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="True to display full source code after template expansion, for debugging template."/>
-        <FIELD NAME="showtest" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="True if the test column of the results table is to be displayed to students"/>
-        <FIELD NAME="showstdin" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="True if the stdin column of the results table is to be displayed to students"/>
-        <FIELD NAME="showexpected" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="True if the expected column of the results table is to be displayed to students"/>
-        <FIELD NAME="showoutput" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="True if the output column of the results table is to be displayed to students"/>
-        <FIELD NAME="showmark" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="True if the mark column of the results table is to be displayed to students"/>
+        <FIELD NAME="showtest" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="1" SEQUENCE="false" COMMENT="True if the test column of the results table is to be displayed to students"/>
+        <FIELD NAME="showstdin" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="1" SEQUENCE="false" COMMENT="True if the stdin column of the results table is to be displayed to students"/>
+        <FIELD NAME="showexpected" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="1" SEQUENCE="false" COMMENT="True if the expected column of the results table is to be displayed to students"/>
+        <FIELD NAME="showoutput" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="1" SEQUENCE="false" COMMENT="True if the output column of the results table is to be displayed to students"/>
+        <FIELD NAME="showmark" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="True if the mark column of the results table is to be displayed to students"/>
         <FIELD NAME="combinator_template" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="An optional template to be used to combine all tests into a single run"/>
         <FIELD NAME="test_splitter_re" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="The regular expression argument to preg_split to split output from the combinator run into the basic tests again. Meaningful only if combinator template provided"/>
+        <FIELD NAME="enable_combinator" TYPE="int" LENGTH="1" NOTNULL="false" SEQUENCE="false" COMMENT="True if the combinator template may be used. True for most built-in questions (i.e. the prototypes) and false for most other customised questions."/>
         <FIELD NAME="per_test_template" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="A template to build a test run for each test case. Required."/>
         <FIELD NAME="language" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="The programming language, to be passed to the sandbox"/>
         <FIELD NAME="sandbox" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="The PHP class name of a specific sandbox to use. If null, a default one for the language is used."/>

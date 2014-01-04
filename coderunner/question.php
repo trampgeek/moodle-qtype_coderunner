@@ -263,9 +263,7 @@ class qtype_coderunner_question extends question_graded_automatically {
     private function runWithCombinator($code, $testCases, $files, $sandboxParams) {
         $outcome = NULL;
 
-        if (!$this->customise && $this->combinator_template &&
-                $this->noStdins($testCases)) {
-
+        if ($this->enable_combinator && $this->noStdins($testCases)) {
             assert($this->test_splitter_re != '');
 
             $templateParams = array(

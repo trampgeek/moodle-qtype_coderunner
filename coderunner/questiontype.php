@@ -98,6 +98,7 @@ class qtype_coderunner extends question_type {
             'showmark',
             'combinator_template',
             'test_splitter_re',
+            'enable_combinator',
             'per_test_template',
             'language',
             'sandbox',
@@ -107,20 +108,17 @@ class qtype_coderunner extends question_type {
         );
     }
 
-    /** A list of the extra question fields that are deemed 'advanced', and
-     *  so are hidden behind as 'customise' fields.
+    /** A list of the extra question fields that are NOT inheritable from
+     *  the prototype and so are NOT hidden in the usual authoring interface
+     *  as 'customise' fields.
      * @return array of strings
      */
-    public function advanced_fields() {
+    public function noninherited_fields() {
         return array(
-            'combinator_template',
-            'test_splitter_re',
-            'per_test_template',
-            'language',
-            'sandbox',
-            'grader',
-            'cputimelimitsecs',
-            'memlimitmb'
+            'coderunner_type',
+            'prototype_type',
+            'all_or_nothing',
+            'show_source'
             );
     }
 
@@ -184,31 +182,30 @@ class qtype_coderunner extends question_type {
         global $DB;
 
         assert(isset($question->coderunner_type));
-        if (!isset($question->customise) || !$question->customise) {
-            // If customisation has been turned off, set all customisable
-            // fields to their defaults
-            $question->per_test_template = NULL;
-            $question->cputimelimitsecs = NULL;
-            $question->memlimitmb = NULL;
-            $question->showtest = True;
-            $question->showstdin = True;
-            $question->showexpected = True;
-            $question->showoutput = True;
-            $question->showmark = False;
-            $question->grader = NULL;
-        } else {
-            if (trim($question->per_test_template) == '') {
-                $question->per_test_template = NULL;
+        $fields = $this->extra_question_fields();
+        array_shift($fields); // Discard table name
+        $customised = isset($question->customise) && $question->customise;
+
+        // Set all inherited fields to NULL if customisation is off or (if
+        // customisation is on) if the corresponding form field is blank.
+
+        foreach ($fields as $field) {
+            $isInherited = !in_array($field, $this->noninherited_fields());
+            $isBlankString = !isset($question->$field) ||
+               (is_string($question->$field) && trim($question->$field) === '');
+            if ($isInherited && (!$customised || $isBlankString)) {
+                $question->$field = NULL;
             }
-            if (trim($question->cputimelimitsecs) == '') {
-                $question->cputimelimitsecs = NULL;
-            }
-            if (trim($question->memlimitmb) == '') {
-                $question->memlimitmb = NULL;
-            }
+
             if (trim($question->grader) === DEFAULT_GRADER) {
-                $question->grader = NULL;
+                $question->grader = NULL; // TODO: still necessary?
             }
+        }
+
+        // Use of a per_test_template should disable the combinator.
+        // TODO: delete this when combinator_template editing is provided.
+        if ($question->per_test_template) {
+            $question->enable_combinator = 0;
         }
 
         parent::save_question_options($question);
@@ -260,8 +257,9 @@ class qtype_coderunner extends question_type {
 
         // Now add to the question all the fields from the question's prototype
         // record that have not been overridden (i.e. that are null) by this
-        // instance. If any of the so-called 'advanced' fields are modified
-        // (see the 'advanced_fields' method), the 'customise' field is set.
+        // instance. If any of the inherited fields are modified (i.e. any
+        // (extra field not in the noninheritedFields list), the 'customise'
+        // field is set. This is used only to display the customisation panel.
 
         if (!$row = $DB->get_record('quest_coderunner_options',
                 array('coderunner_type' => $question->options->coderunner_type,
@@ -270,11 +268,11 @@ class qtype_coderunner extends question_type {
         }
 
         $question->options->customise = False; // Starting assumption
-        $advancedFields = $this->advanced_fields();
+        $noninheritedFields = $this->noninherited_fields();
         foreach ($row as $field => $value) {
             if (isset($question->options->$field) && $question->options->$field !== '') {
-                if (in_array($field, $advancedFields) && $question->options->$field != $value) {
-                    $question->options->customise = True; // An advanced fields has been changed
+                if (!in_array($field, $noninheritedFields) && $question->options->$field != $value) {
+                    $question->options->customise = True; // An inherited field has been changed
                 }
             } else {
                 $question->options->$field = $value;

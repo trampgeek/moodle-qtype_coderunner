@@ -360,6 +360,7 @@ EOTEMPLATE;
          $q->grader = 'TemplateGrader';
          $q->customise = TRUE;
          $q->all_or_nothing = FALSE;
+         $q->enable_combinator = FALSE;
          $code = "def sqr(n): return n * n\n";
          $response = array('answer' => $code);
          $result = $q->grade_response($response);
