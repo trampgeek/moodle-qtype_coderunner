@@ -2,6 +2,83 @@
 
 M.qtype_coderunner = {};
 
+
+// Function to load ace and insert an editor into the current page
+M.qtype_coderunner.init_ace = function (Y, field, lang) {
+
+    // Load the required ace modules
+    if (! M.qtype_coderunner.modelist) {
+        M.qtype_coderunner.modelist = ace.require('ace/ext/modelist');
+        ace.require("ace/ext/language_tools");
+    }
+
+    ace_setup();
+
+    // helper function to insert an editor after the specidic selector
+    function ace_setup() {
+        var yta = Y.one('[id="' + field + '"]');
+        if (yta)
+            create_editor_element(yta);
+    }
+
+    // try to find the correct ace language mode
+    function find_mode(language) {
+        var modelist = M.qtype_coderunner.modelist;
+
+        // possible candiates for the editor
+        var canditates = [language, language.replace(/\d*$/, "")];
+
+        for (var i=0; i<canditates.length; i++) {
+            var v = canditates[i];
+            var filename = "input." + v;
+
+            var result = modelist.modesByName[v] ||
+                modelist.modesByName[v.toLowerCase()] ||
+                modelist.getModeForPath(filename) ||
+                modelist.getModeForPath(filename.toLowerCase());
+
+            if (result && result.name != 'text')
+                return result;
+        }
+    }
+
+    // create ace editor for a specifc text area
+    function create_editor_element(textarea) {
+        var id = textarea.get("id")
+        var edit_node = Y.Node.create("<div></div>");
+        textarea.insert(edit_node, "after");
+
+        // Mimic the existing textarea
+        edit_node.set("offsetHeight", parseInt(textarea.getComputedStyle("height")));
+        edit_node.set("offsetWidth", parseInt(textarea.getComputedStyle("width")));
+
+
+        var editor = ace.edit(edit_node.getDOMNode());
+        editor.getSession().setValue(textarea.get('value'));
+        editor.getSession().on('change', function(){
+            textarea.set('value', editor.getSession().getValue());
+        });
+
+        textarea.hide();
+
+        var mode = find_mode(lang);
+        if (mode)
+            editor.getSession().setMode(mode.mode);
+
+        editor.setOptions({
+            enableBasicAutocompletion: true,
+            newLineMode: "unix"
+        });
+
+
+	if (! document.activeElement.parentNode.className.match("ace"))
+            editor.focus();
+    }
+
+
+}
+
+
 // Function to initialise all code-input text-areas in a page.
 // Used by the form editor but can't be used for question text areas as
 // renderer.php is called once for each question in a quiz, and there is
@@ -217,4 +294,3 @@ M.qtype_coderunner.useYuiTypesMenu = function(Y) {
            return false;
     }, 'a');
 };
-
