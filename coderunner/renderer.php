@@ -106,11 +106,33 @@ class qtype_coderunner_renderer extends qtype_renderer {
         $lang = ucwords($question->language);
 
         $PAGE->requires->js_init_call('M.qtype_coderunner.initQuestionTA', array($responsefieldid));
+        $PAGE->requires->js_init_call('M.qtype_coderunner.init_ace', array($responsefieldid, $lang));
         return $qtext;
 
         // TODO: consider how to prevent multiple submits while one submit in progress
         // (if it's actually a problem ... check first).
     }
+
+    /**
+     * Return any HTML that needs to be included in the page's <head> when this
+     * question is used.
+     * @param $qa the question attempt that will be displayed on the page.
+     * @return string HTML fragment.
+     */
+    public function head_code(question_attempt $qa) {
+      parent::head_code($qa);
+
+      global $PAGE;
+
+      // Load the ace editor and required modules
+      // language-tools -> autocompletion
+      // modelist -> language mapping
+      $plugindirrel = '/question/type/coderunner';
+      $PAGE->requires->js('/' . $plugindirrel . '/ace/ace.js');
+      $PAGE->requires->js('/' . $plugindirrel . '/ace/ext-language_tools.js');
+      $PAGE->requires->js('/' . $plugindirrel . '/ace/ext-modelist.js');
+    }
+
 
     /**
      * Gereate the specific feedback. This is feedback that varies according to
