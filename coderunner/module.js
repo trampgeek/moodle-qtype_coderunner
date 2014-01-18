@@ -59,6 +59,9 @@ M.qtype_coderunner.init_ace = function (Y, field, lang) {
             textarea.set('value', editor.getSession().getValue());
         });
 
+        if (textarea.getAttribute('readonly'))
+            editor.setReadOnly(true);
+
         textarea.hide();
 
         var mode = find_mode(lang);
