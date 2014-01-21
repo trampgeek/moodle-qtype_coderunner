@@ -10,7 +10,11 @@ table.coderunnerexamples td,
 }
 
 .coderunner-answer {
-    width:100%;
+    /* width:100% ; */
+}
+
+div.coderunner .formulation {
+    background: #d1e1e5;
 }
 
 p.for-example-para {
