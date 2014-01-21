@@ -98,10 +98,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
         }
 
         // Initialise any program-editing JavaScript.
-        // [I've attempted to support various plugins like EditArea, CodeMirror
-        // and Ace but I've either failed to get them playing nicely with
-        // YUI (CodeMirror, Ace) or was plagued by browser dependencies
-        // (EditArea). So for now just doing simple autoindent operations.]
+        // Thanks to Ulrich Dangel for incorporating the Ace code editor.
 
         $lang = ucwords($question->language);
 

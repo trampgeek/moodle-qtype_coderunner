@@ -43,7 +43,7 @@ M.qtype_coderunner.init_ace = function (Y, field, lang) {
         }
     }
 
-    // create ace editor for a specifc text area
+    // create ace editor for a specific text area
     function create_editor_element(textarea) {
         var id = textarea.get("id")
         var edit_node = Y.Node.create("<div></div>");
