@@ -62,18 +62,18 @@ abstract class Sandbox {
 
     public static function resultString($resultCode) {
         $RESULT_STRINGS = array(
-            0 => "No run",
-            11 => "Compilation error",
-            12 => "Runtime error",
-            13 => "Time limit exceeded",
-            15 => "OK",
-            17 => "Memory limit exceeded",
-            19 => "Illegal function call",
-            20 => "CodeRunner error (IE): please tell a tutor",
-            21 => "CodeRunner error (PD): please tell a tutor",
-            22 => "CodeRunner error (BP): please tell a tutor",
-            30 => "Excessive output",
-            31 => "Abnormal termination"
+            RESULT_NO_RUN               => "No run",
+            RESULT_COMPILATION_ERROR    => "Compilation error",
+            RESULT_RUNTIME_ERROR        => "Runtime error",
+            RESULT_TIME_LIMIT           => "Time limit exceeded",
+            RESULT_SUCCESS              => "OK",
+            RESULT_MEMORY_LIMIT         => "Memory limit exceeded",
+            RESULT_ILLEGAL_SYSCALL      => "Illegal function call",
+            RESULT_INTERNAL_ERR         => "CodeRunner error (IE): please tell a tutor",
+            RESULT_SANDBOX_PENDING      => "CodeRunner error (PD): please tell a tutor",
+            RESULT_SANDBOX_POLICY       => "CodeRunner error (BP): please tell a tutor",
+            RESULT_OUTPUT_LIMIT         => "Excessive output",
+            RESULT_ABNORMAL_TERMINATION => "Abnormal termination"
         );
         if (!isset($RESULT_STRINGS[$resultCode])) {
             throw new coding_exception("Bad call to sandbox.resultString");
@@ -89,12 +89,12 @@ abstract class Sandbox {
 
     // Create a submission object, which has an error and a link field, the
     // latter being the 'handle' by which the submission is subsequently
-    // referred. Error codes are as defined by the first block of symbolic
+    // referred to. Error codes are as defined by the first block of symbolic
     // constants above (the values 0 through 6). These are
     // exactly the values defined by the ideone api, with a couple of additions.
     // The $files parameter is an addition to the Ideone-based interface to
     // allow for providing a set of files for use at runtime. It is an
-    // associate array mapping filename to filecontents (or NULL for no files).
+    // associative array mapping filename to filecontents (or NULL for no files).
     // The $params parameter is also an addition to the Ideone-based interface to
     // allow for setting sandbox parameters. It's an associative array, with
     // a sandbox-dependent set of keys, although all except the Ideone sandbox
@@ -157,12 +157,12 @@ abstract class Sandbox {
             }
 
             if ($count >= Sandbox::MAX_NUM_POLLS) {
-                throw new coding_exception("Timed out waiting for ideone");
+                throw new coding_exception("Timed out waiting for sandbox");
             }
 
             if ($state->error !== Sandbox::OK ||
                     $state->status !== Sandbox::STATUS_DONE) {
-                throw new coding_exception("Error response or bad status from ideone");
+                throw new coding_exception("Error response or bad status from sandbox");
             }
 
             $details = $this->getSubmissionDetails($result->link);
