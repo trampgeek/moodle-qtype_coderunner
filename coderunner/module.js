@@ -1,4 +1,5 @@
 // JavaScript functions for CodeRunner
+// Thanks for Ulrich Dangel for the code that loads and configures ace.
 
 M.qtype_coderunner = {};
 
@@ -14,7 +15,7 @@ M.qtype_coderunner.init_ace = function (Y, field, lang) {
 
     ace_setup();
 
-    // helper function to insert an editor after the specidic selector
+    // helper function to insert an editor after the specific selector
     function ace_setup() {
         var yta = Y.one('[id="' + field + '"]');
         if (yta)
@@ -26,10 +27,10 @@ M.qtype_coderunner.init_ace = function (Y, field, lang) {
         var modelist = M.qtype_coderunner.modelist;
 
         // possible candiates for the editor
-        var canditates = [language, language.replace(/\d*$/, "")];
+        var candidates = [language, language.replace(/\d*$/, "")];
 
-        for (var i=0; i<canditates.length; i++) {
-            var v = canditates[i];
+        for (var i=0; i<candidates.length; i++) {
+            var v = candidates[i];
             var filename = "input." + v;
 
             var result = modelist.modesByName[v] ||
