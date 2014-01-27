@@ -1,5 +1,5 @@
 <?php
-/* A sandbox that uses the remote ideone.com computer server to run
+/* A sandbox that uses the remote ideone.com compute server to run
  * student submissions. This is completely safe but gives a poor turn-around,
  * which can be up to a minute.
  *
@@ -25,17 +25,12 @@ class IdeoneSandbox extends Sandbox {
         // A map from Ideone language names (regular expressions) to their
         // local short name, where appropriate
 
-        $aliases = array('C99 strict.*'=>'C',
-                     '.*python *2\.[789]\.[0-9].*' => 'python2',
-                     'Python 3.*python-3\.*'       => 'python3',
-                     'Java.*sun-jdk.*'             => 'Java');
+        $aliases = array('C99 strict.*'             =>'C',
+                     '.*python *2\.[789]\.[0-9].*'  => 'python2',
+                     'Python 3.*python-3\.*'        => 'python3',
+                     'Java.*sun-jdk.*'              => 'Java');
 
         $this->client = $client = new SoapClient("http://ideone.com/api/1/service.wsdl");
-        $response = $this->client->getLanguages(USER, PASS);
-        $error = $response['error'];
-        if ($error !== 'OK') {
-            throw new coding_exception("IdeoneSandbox::getSubmissionStatus: error ($error)");
-        }
         $this->langMap = array();  // Construct a map from language name to id
         $response = $this->client->getLanguages(USER, PASS);
         $error = $response['error'];
@@ -78,7 +73,7 @@ class IdeoneSandbox extends Sandbox {
         // files or execution parameters (since Ideone does not have such options).
         assert(in_array($language, $this->getLanguages()->languages));
         if ($files !== NULL && count($files) !== 0) {
-            throw new moodle_exception("ideone sandbox doesn't accept files");
+            throw new moodle_exception("Ideone sandbox doesn't accept files");
         }
         if($params !== NULL) {
             throw new moodle_exception(
