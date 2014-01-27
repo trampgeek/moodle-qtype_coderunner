@@ -62,18 +62,18 @@ abstract class Sandbox {
 
     public static function resultString($resultCode) {
         $RESULT_STRINGS = array(
-            RESULT_NO_RUN               => "No run",
-            RESULT_COMPILATION_ERROR    => "Compilation error",
-            RESULT_RUNTIME_ERROR        => "Runtime error",
-            RESULT_TIME_LIMIT           => "Time limit exceeded",
-            RESULT_SUCCESS              => "OK",
-            RESULT_MEMORY_LIMIT         => "Memory limit exceeded",
-            RESULT_ILLEGAL_SYSCALL      => "Illegal function call",
-            RESULT_INTERNAL_ERR         => "CodeRunner error (IE): please tell a tutor",
-            RESULT_SANDBOX_PENDING      => "CodeRunner error (PD): please tell a tutor",
-            RESULT_SANDBOX_POLICY       => "CodeRunner error (BP): please tell a tutor",
-            RESULT_OUTPUT_LIMIT         => "Excessive output",
-            RESULT_ABNORMAL_TERMINATION => "Abnormal termination"
+            Sandbox::RESULT_NO_RUN               => "No run",
+            Sandbox::RESULT_COMPILATION_ERROR    => "Compilation error",
+            Sandbox::RESULT_RUNTIME_ERROR        => "Runtime error",
+            Sandbox::RESULT_TIME_LIMIT           => "Time limit exceeded",
+            Sandbox::RESULT_SUCCESS              => "OK",
+            Sandbox::RESULT_MEMORY_LIMIT         => "Memory limit exceeded",
+            Sandbox::RESULT_ILLEGAL_SYSCALL      => "Illegal function call",
+            Sandbox::RESULT_INTERNAL_ERR         => "CodeRunner error (IE): please tell a tutor",
+            Sandbox::RESULT_SANDBOX_PENDING      => "CodeRunner error (PD): please tell a tutor",
+            Sandbox::RESULT_SANDBOX_POLICY       => "CodeRunner error (BP): please tell a tutor",
+            Sandbox::RESULT_OUTPUT_LIMIT         => "Excessive output",
+            Sandbox::RESULT_ABNORMAL_TERMINATION => "Abnormal termination"
         );
         if (!isset($RESULT_STRINGS[$resultCode])) {
             throw new coding_exception("Bad call to sandbox.resultString");
