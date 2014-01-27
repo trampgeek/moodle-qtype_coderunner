@@ -148,15 +148,18 @@ class qtype_coderunner_walkthrough_test extends qbehaviour_walkthrough_test_base
 got = str({{TEST.testcode}})
 expected = """{{TEST.expected|e('py')}}""".strip()
 if expected == '49' and expected == got:
-    print('{"fraction":1.0,"got":"Tiddlypom"}')
+    print('{"fraction":"1.0","got":"Tiddlypom"}')
 elif expected == '36' and expected == got:
-    print('{"fraction":1.0}')
+    print('{"fraction":"0.5"}')  # Broken grader here
+elif expected == got:
+    print('{"fraction":"1","expected":"Twiddlydee"}')
 else:
-    print('{"fraction":0,"expected":"Twiddlydee"}')
+    print('{"fraction":"0","expected":"Twiddlydee"}')
 EOTEMPLATE;
         $q->all_or_nothing = FALSE;
         $q->grader = 'TemplateGrader';
         $q->customise = TRUE;
+        $q->enable_combinator = FALSE;
         $q->unitpenalty = 0;
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
 
@@ -176,7 +179,7 @@ EOTEMPLATE;
         // per-submission penalties doesn't seem to work.
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
         $this->process_submission(array('-submit' => 1, 'answer' => "def sqr(n): return n * n\n"));
-        $this->check_current_mark(24.0/31.0);
+        $this->check_current_mark(23.0/31.0);
         $this->check_current_output( new question_pattern_expectation('/Tiddlypom/') );
         $this->check_current_output( new question_pattern_expectation('/Twiddlydee/') );
     }
