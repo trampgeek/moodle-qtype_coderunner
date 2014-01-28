@@ -28,24 +28,13 @@
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
-require_once($CFG->dirroot . '/question/engine/tests/helpers.php');
-require_once($CFG->dirroot . '/question/type/coderunner/question.php');
+require_once($CFG->dirroot . '/question/type/coderunner/tests/coderunnertestcase.php');
 require_once($CFG->dirroot . '/local/Twig/Autoloader.php');
 
 
-
-class qtype_coderunner_datafile_test extends advanced_testcase {
-    protected function setUp() {
-        $this->qtype = new qtype_coderunner_question();
-    }
-
-
-    protected function tearDown() {
-        $this->qtype = null;
-    }
+class qtype_coderunner_datafile_test extends qtype_coderunner_testcase {
 
     public function test_datafile_runguardsandbox() {
-        $this->resetAfterTest(true);
         $q = test_question_maker::make_question('coderunner', 'generic_python3');
         $q->testcases = array(
             (object) array(
@@ -102,7 +91,6 @@ EOCODE;
 
 
     public function test_datafile_liusandbox() {
-        $this->resetAfterTest(true);
         $q = test_question_maker::make_question('coderunner', 'generic_c');
         $q->testcases = array(
             (object) array(

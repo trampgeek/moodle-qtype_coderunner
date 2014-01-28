@@ -21,7 +21,7 @@ in a traditional quiz mode where the mark is determined by how many of the test
 cases the code successfully passes.</p>
 
 <p>CodeRunner and its predecessors <em>pycode</em> and <em>ccode</em> has been in use at the
-University of Canterbury for about three years, running tens of thousands of
+University of Canterbury for about four years, running tens of thousands of
 student quiz submissions in Python, C and Matlab. All laboratory work in the
 introductory first year Python programming course, which has around 400 students
 in the first semester and 200 in the second, is assessed using CodeRunner
@@ -55,8 +55,8 @@ fraction of a second.</p>
 
 <ol>
 <li><p>Installing the CodeRunner module itself.</p></li>
-<li><p>Installing an additional sandbox above and beyond the supplied
-RunguardSandbox and IdeoneSandboxes (not strictly necessary but strongly
+<li><p>Installing the Liu sandbox if you're planning on running C on the Moodle
+server (not strictly necessary but strongly
 recommended) to provide more security than Runguard or much better
 performance than Ideone.</p></li>
 <li><p>Configuring the system for the particular sandbox(es) and languages
@@ -98,6 +98,9 @@ install script to see exactly what was expected.</p>
 
 <h3>Installing the Liu sandbox</h3>
 
+<p>This step can be skipped if you're not planning on running C, or if you're
+happy to use the default Runguard Sandbox for C programs.</p>
+
 <p>The recommended main sandbox for running C is the Liu sandbox. It can be obtained
 from <a href="http://sourceforge.net/projects/libsandbox/">here</a>.  Both the binary and the
 Python2 interface need to be installed. Note that CodeRunner does <em>not</em>
@@ -110,20 +113,24 @@ to the installed  version of Python2 (currently typically 2.6 on RHEL systems
 or 2.7 on most other flavours of Linux) <em>regardless of whether or not you
 intend to support Python3 as a programming language for submissions</em>.</p>
 
-<h3>Configuration</h3>
+<h3>Sandbox Configuration</h3>
 
 <p>The last step in installation involves configuring the sandboxes appropriately
-for your particular environment.</p>
+for your particular environment. You can set which sandboxes you wish to use,
+and other sandbox parameters, via the Moodle administrator settings for the
+CodeRunner plugin, accessed via <em>Site administration > Plugins > Plugins overview</em>.</p>
+
+<p>By default, only the <em>RunguardSandbox</em> is  enabled. If you have installed
+the LiuSandbox as described above, you will need to enable it and configure
+the username and password via the
+administrator settings. You can also enable the use of the
+<a href="http://ideone.com">Ideone compute server</a> and configure the username and password for it, via the
+administrator settings. Some notes on the different sandbox options follow.</p>
 
 <ol>
-<li><p>If you haven't succeeded in installing the LiuSandbox correctly, you
-can run programs in any of the supported languages via <em>runguard</em>
-in the <em>RunguardSandbox</em>, or can also run Python3 and Ideone
-programs  remotely on the Ideone system (ideone.com) using the
-<em>IdeoneSandbox</em>.</p>
-
-<ul>
-<li>The RunguardSandbox. Assuming the install script successfully created the
+<li><p>The RunguardSandbox. This can be used to run all the supported languages
+locally on the Moodle server itself.
+Assuming the install script successfully created the
 user <em>coderunner</em> and set the <em>runguard</em> program to run as root,
 the RunguardSandbox is reasonably safe,
 in that it controls memory usage and execution time and limits file access to
@@ -139,36 +146,26 @@ the Java Virtual Machine (heavily multithreaded), for which the process limit
 previously set for Python was inadequate. That limit has since been multiplied
 by 10. To use only the RunguardSandbox, change the file
 <code>CodeRunner/coderunner/Sandbox/sandbox_config.php</code>
-to list only <code>runguardsandbox</code> as an option.</li>
-<li>The IdeoneSandbox. ideone.com is a compute server that runs
+to list only <code>runguardsandbox</code> as an option.</p></li>
+<li><p>The IdeoneSandbox. ideone.com is a compute server that runs
 programs submitted either through a browser or through a web-services API in
 a huge number of different languages. This is not recommended for production
 use, as execution turn-around time is frequently too large (from 10 seconds
-to a minute or more) to give a tolerable user experience. A key to access
-the Ideone web-services is required; runs are free up to a certain number
-but you then have to pay for usage. <strong>* TBS <em></strong> Details on key entry etc *</em>*.
+to a minute or more) to give a tolerable user experience. An
+<a href="http://ideone.com/account/register">Ideone account</a>
+(username and password) is required to access
+the Ideone web-services. Runs are free up to a certain number
+but you then have to pay for usage.
 The IdeoneSandbox is there mainly as a proof of concept of the idea of off-line
-execution and to support occasional use of unusual languages.</li>
-</ul></li>
-<li><p>If you are using the LiuSandbox for Python and C, the supplied
-<code>sandbox_config.php</code> should be correct. Obviously the appropriate languages
-must be installed including, in the case of C, the capability to compile and
-link statically (no longer part of the default RedHat installation).
-However, some configuration of the
-file <code>liusandbox.php</code> may be required. Try it first 'out of the box', but
-if, when running a submitted quiz question, you get 'Illegal function call'
-due to opening an inaccessible file, you will have to configure
-the various <code>LanguageTask</code> subclasses so that each one returns a suitable
-list of accessible subtrees when its <code>readableDirs()</code> method is called.
-Some experimentation may be needed and/or use of the Linux <code>strace</code> command
-to determine what bits of the file system your installed Python (say) requires
-access to. This should not be necessary with C, as the C programs are compiled
-outside the sandbox and statically linking so shouldn't need to access
-<em>any</em> bits of the file system at runtime (unless you wish to allow this,
-of course).</p></li>
+execution and to support occasional use of unusual languages.</p></li>
+<li><p>If you are using the LiuSandbox for running C questions, the C compiler must
+must be installed, with the capability to compile and
+link statically (no longer part of the default RedHat installation).</p></li>
 </ol>
 
-<p>If you have have installed the
+<h3>Running the unit tests</h3>
+
+<p>If your Moodle installation includes the
 <em>phpunit</em> system for testing Moodle modules, you might wish to test the
 CodeRunner installation. However, unless you are planning on running
 Matlab you should first move or remove the file</p>
@@ -194,30 +191,36 @@ standard language and question types into the data base. Each question type
 defines a programming language, a couple of templates (see the next section),
 a preferred sandbox (normally left blank so that the best one available can
 be used) and a preferred grader. The latter is also normally blank as the
-default so-called
-<em>BasicGrader</em> is the only one currently available - it just compares the actual
+default
+<em>EqualityGrader</em> is usually sufficient - it just compares the actual
 program output with the expected output and requires an exact match for a
 pass, after trailing blank lines and trailing white space on lines has been
-removed. An alternative regular expression match could easily be added but I
-haven't felt the need for it yet - I prefer students to get answers exactly
-right, not roughly right.</p>
+removed. An alternative regular expression grader, <em>RegexGrader</em>, is available
+as an alternative; it isn't used by any of the base question types but can
+easily be selected on a per-question basic using the customisation capabilities.
+See the next section.</p>
 
 <p>The current set of question types (each of which can be customised by
-editing its template, as explained in the next section) is:</p>
+editing its template and other parameters, as explained in the next section) is
+as follows. All
+question types currently use the RunguardSandbox except for C
+questions, which use the LiuSandbox, if that's installed, or the RunguardSandbox
+otherwise.</p>
 
 <ol>
 <li><p><strong>python3</strong>. Used for most Python3 questions. For each test case, the student
-code is run first, e followed by the sequence of tests.</p></li>
+code is run first, followed by the sequence of tests.</p></li>
 <li><p><strong>python2</strong>. Used for most Python2 questions. For each test case, the student
-code is run first, e followed by the sequence of tests.</p></li>
+code is run first, e followed by the sequence of tests. This question type
+should be considered to be
+obsolescent due to the widespread move to Python3 through the education
+community.</p></li>
 <li><p><strong>python3_pylint_func</strong>. This is a special type developed for use in the
 University of Canterbury. The student submission is prefixed by a dummy module
 docstring and the code is passed through the <a href="http://www.logilab.org/857">pylint</a>
 source code analyser. The submission is rejected if pylint gives any errors,
 otherwise testing proceeds as normal. Obviously, pylint needs to be installed
-and appropriately configured for this question type to be usable. Note, too,
-that this type of question runs in the so-called RunguardSandbox, rather than in the
-Liu sandbox, in order to allow execution of an external program during testing.</p></li>
+and appropriately configured for this question type to be usable.</p></li>
 <li><p><strong>python3_pylint_prog</strong>. This is identical to the previous type except that no
 dummy docstring is added at the top as the submission is expected to be a
 stand-alone program.</p></li>
@@ -237,7 +240,8 @@ to issue all warnings and reject the code if there are any warnings.
 C++ isn't built in as present, as we don't teach it, but changing C question
 to support C++ is mainly just a matter of changing the
 compile command line, viz., the line "$cmd = ..." in the <em>compile</em> methods of
-<em>C_ns_Task</em> in runguardsandbox.php and <em>C_Task</em> in liusandbox.php. You will probably
+the  <em>C_Task</em> classes in runguardsandboxtasks.php and liusandboxtasks.php.
+You will probably
 also wish to change the C question type templates a bit, e.g. to include
 <em>iostream</em> instead of, or as well as, <em>stdio.h</em> by default. The line</p>
 
@@ -275,6 +279,9 @@ then executed once for each test case to see if it generates the expected output
 for that test.</p></li>
 </ol>
 
+<p>As discussed in the following sections, this base set of question types can
+be customised in various ways. The</p>
+
 <h2>Templates</h2>
 
 <p>Templates are the key to understanding how a submission is tested. There are in
@@ -290,8 +297,12 @@ currently supplied).</p>
 
 <p>The question type template is processed by a template engine called
 <a href="http://twig.sensiolabs.org/">Twig</a>, which is passed a variable called
-STUDENT_ANSWER and another called TEST.testcode that the question author enters
-for the particular test. As an example,
+STUDENT_ANSWER, which is the text that the student entered into the answer box
+and another called TEST, which is a record containing the information
+that the question author enters
+for the particular test. The template will typically use just the TEST.testcode
+field, which is the "test" field of the testcase, and usually (but not always)
+is a bit of code to be run to test the student's answer. As an example,
 the question type <em>c_function</em>, which asks students to write a C function,
 looks like:</p>
 
@@ -307,7 +318,8 @@ looks like:</p>
     }
 </code></pre>
 
-<p>A typical test (i.e. <code>TEST.testcode</code>) for a question asking students to write a function that
+<p>A typical test (i.e. <code>TEST.testcode</code>) for a question asking students to write a
+function that
 returns the square of its parameter might be:</p>
 
 <pre><code>    printf("%d\n", sqr(-9))
@@ -336,11 +348,11 @@ at which the exception occurred.</p>
 the authorship GUI. If you wish to use them (and the only reason would be
 to gain efficiency in questions of a type not currently supported) you will
 need to edit <code>upgrade.php</code>, set a new plug-in version number, and run the
-administator plug-in update procedure.</p>
+administrator plug-in update procedure.</p>
 
 <p>As mentioned above, the <code>per_test_template</code> can be edited by the question
 author for special needs, e.g. if you wish to provide skeleton code to the
-students. As a simple example, if you wanted students to fill in the missing
+students. As a simple example, if you wanted students to provide the missing
 line in a C function that returns the square of its parameter, you could use
 a template like:</p>
 
@@ -378,7 +390,7 @@ writes the student's code to a file and runs <em>pylint</em> over that file befo
 proceeding with any tests. The per-test template for this question type (which must
 run in the RunguardSandbox) is:</p>
 
-<pre><code>__student_answer__ = """{{ ESCAPED_STUDENT_ANSWER }}"""
+<pre><code>__student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
 
 import subprocess
 
@@ -402,8 +414,9 @@ check_code(__student_answer__)
 {{ TEST.testcode }}
 </code></pre>
 
-<p>The template variable ESCAPED_STUDENT_ANSWER is the student's submission with
-all double quote and backslash characters escaped with an added backslash.
+<p>The Twig syntax {{ STUDENT_ANSWER | e('py') }} results in the student's submission
+being filtered by a Python escape function that escapes all
+all double quote and backslash characters with an added backslash.
 Note that in the event of a failure an exception is raised; this ensures that
 further testing is aborted so that the student doesn't receive the same error
 for every test case. [As noted above, the tester aborts the testing sequence
@@ -458,6 +471,10 @@ the testcase. As an example, if the output of the program is the string</p>
 given for that particular test case and the 'Got' column would display the
 text "Half the answers were right!".</p>
 
+<p>Writing a grading template that executes the student's code is, however,
+rather difficult as the generated program needs to be robust against errors
+in the submitted code.</p>
+
 <h2>An advanced grading-template example</h2>
 
 <p>As an example of the use of a custom grader, consider the following question:</p>
@@ -475,10 +492,7 @@ only once in the output pair unless the element is repeated in the input too.</p
 could be used as a grader for this question.</p>
 
 <pre><code>import json
-
-{{STUDENT_ANSWER}}
-
-nums = {{TEST.testcode}}
+import sys
 
 def sample_solution(nums):
     best = (nums[0], nums[1])
@@ -497,13 +511,26 @@ def is_valid(response, nums):
         return False
     return True
 
+nums = {{TEST.testcode}}
 my_soln = sample_solution(nums)
 my_diff = abs(my_soln[0] - my_soln[1])
 expected = 'Pair with difference of ' + str(my_diff) + '\ne.g. ' + str(my_soln)
-try:
-    candidate = best_pair(nums[:])
+saved_stdout = sys.stdout
+saved_stderr = sys.stderr
+sys.stdout = sys.stderr = open('__prog_out__', 'w')
 
-    if not is_valid(candidate, nums):
+try:
+    exec("""{{STUDENT_ANSWER | e('py')}}""")
+    candidate = best_pair(nums[:])
+    sys.stdout.close()
+    prog_output = open('__prog_out__').read()
+
+    if prog_output != '':
+        grading = {
+            'fraction':0.0,
+            'got': 'Unexpected output from your code : ' + prog_output
+        }
+    elif not is_valid(candidate, nums):
         grading = {'fraction':0.0, 'got': 'Invalid response: ' + str(candidate)}
     else:
         got = str(candidate)
@@ -517,6 +544,8 @@ try:
 except Exception as e:
     grading = {'fraction':0, 'got': '*** Exception occurred ***\n' + str(e)}
 
+sys.stdout = saved_stdout
+sys.stderr = saved_stderr
 grading['expected'] = expected
 print(json.dumps(grading))
 </code></pre>
@@ -538,11 +567,15 @@ expected result.</p>
     return best
 </code></pre>
 
-<p>Their result table looks like:</p>
+<p>then, assuming all-or-nothing grading, their result table looks like:</p>
 
 <p><img src="wrongAnswerToGraderExample.png" alt="wrong answer image" title="" /></p>
 
-<p>(assuming 'all-or-nothing' grading). If instead, their answer is correct,
+<p>Note that the "Expected" column contains a customised message, not just a field
+from the testcase, and that alternative answers are accepted in the 'Got'
+column if they have the required absolute difference.</p>
+
+<p>If instead, the student submits a correct answer,
 such as,</p>
 
 <pre><code>def best_pair(nums):
@@ -559,11 +592,12 @@ such as,</p>
 <p><img src="rightAnswerToGraderExample.png" alt="right answer image" title="" /></p>
 
 <p>It may be noted that writing questions using custom graders is much harder than
-using the normal built-in equality based grader. The above question could much
-more easily have been posed in a way that allowed no ambiguity in the output, e.g.
-by requiring that the items in the response pair be in sorted order and that,
-were multiple pairs are possible, the pair appearing first in some defined
-ordering should be chosen.</p>
+using the normal built-in equality based grader. The above question would have
+been much simpler if it had been posed in a way that allowed no ambiguity in the
+output. For example, it could have asked simply for the absolute difference
+between the elements of the pair or specified unambiguously which pair to
+return and the order of the elements of the pair. In that case, no custom grader
+would have been required, nor even a custom template.</p>
 
 <h2>How programming quizzes should work</h2>
 
@@ -621,64 +655,3 @@ is submitted, and allows resubmission for a penalty. The mark obtained in a
 programming-style quiz is thus determined by how many of the problems the
 student can solve in the given time, and how many submissions the student
 needs to make on each question.</p>
-
-<h2>A note on <code>VBSandbox</code></h2>
-
-<p>This section can be ignored by almost everyone. It's of relevance only
-to a developer who may be looking to run CodeRunner on a non-virtualised
-server and who wants a sandbox that's more secure than DomJudge's <em>runguard</em>
-environment (which is used by the somewhat unfairly-named <em>RunguardSandbox</em>)
-but is for some reason, such as the need to support a language that requires
-multithreading, is unable to use the Liu sandbox. It is "work in progress",
-not production code.</p>
-
-<p>CodeRunner is designed with a pluggable sandbox architecture. The two sandboxes
-currently provided are those mentioned above: LiuSandbox and RunguardSandbox. A
-sandbox that uses the <a href="http://ideone.com">ideone.com</a> server, which supports
-a huge range of programming languages, is also planned.</p>
-
-<p>If you inspect the code you'll see code for another sandbox, VbSandbox,
-which runs code in am Oracle VirtualBox virtual machine
-within the host. To test a student's submission, a virtual box VM is started
-if it's not already running. Then VBoxManage commands are used to add the
-file(s) for testing to the VM's file system and then to execute the code. This
-is very secure as the VM is a self-contained sandbox with no access to the host
-resources.</p>
-
-<p>This sandbox was originally intended for use with MatLab, which won't run in
-the LiuSandbox as it is multithreaded and very heavy on system calls, leading
-to performance issues. The code has been developed and debugged up to the point
-where it was ready for production testing, but when it was moved onto the
-production server -- a vmware Virtual Machine -- it was discovered that
-VirtualBox will not run on another VM. Thus, the VirtualBox sandbox is usable
-only on real host, not on a virtualised host. This isn't very useful in our
-environment, so further development of the VirtualBox sandbox has been
-discontinued. However, the code has been left in the system in case it is
-needed by other users or even by ourselves in the future. Some notes on
-installing the VirtualBox sandbox follow.</p>
-
-<p>Installing the VirtualBox sandbox is somewhat complicated. The following gives
-just the general idea:</p>
-
-<ol>
-<li>Install VirtualBox on the server, including the GuestAdditions.</li>
-<li>Add the web server user (www-data on Ubuntu) to the group vboxusers so that
-the web server is able to manage the VirtualBox VM(s).</li>
-<li>Log in to the Moodle server as the user www-data (or whoever),
-e.g. using 'ssh -Y www-data@localhost'</li>
-<li>Use VirtualBox to create an Ubuntu server virtual machine (no GUI) called
-LinuxSandbox.</li>
-<li>Set up a user 'sandbox' with password 'LinuxSandbox' on that new VM</li>
-<li>Copy the file <moodlehome>/local/CodeRunner/coderunner/Sandbox/vbrunner into
-that user's home directory. Make it executable.</li>
-<li>Install and configure any languages you wish to use in the sandbox. Python2
-is the only one that will run "out of the box".</li>
-<li>Add to the file vbsandbox.php a class Lang<em>VbTask for each Language 'Lang'
-you need to support. Use the existing Python2</em>VbTask and Matlab_VbTask classes
-as templates.</li>
-<li>If necessary, add appropriate question-type entries to db/update.php.</li>
-</ol>
-
-<p>Note that when testing the virtualbox sandbox, with code vbsandbox_test.php,
-you must be logged in as the web-server user, i.e. www-data (Ubuntu) or apache
-(Red Hat, Fedora etc).</p>

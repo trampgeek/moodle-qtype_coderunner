@@ -465,21 +465,24 @@ class qtype_coderunner extends question_type {
 
 
     /** Find the 'best' sandbox for a given language, defined to be the
-     *  first one in the ordered list of active sandboxes in sandbox_config.php
-     *  that supports the given language.
+     *  first one in the ordered list of sandboxes in sandbox_config.php
+     *  that has been enabled by the administrator (through the usual
+     *  plug-in setting controls) and that supports the given language.
      *  It's public so the tester can call it (yuck, hacky).
      *  @param type $language to run. Must match a language supported by at least one
      *  sandbox or an exception is thrown.
      * @return the preferred sandbox
      */
     public function getBestSandbox($language) {
-        global $ACTIVE_SANDBOXES;
-        foreach($ACTIVE_SANDBOXES as $sandbox) {
-            require_once("Sandbox/$sandbox.php");
-            $sb = new $sandbox();
-            $langsSupported = $sb->getLanguages()->languages;
-            if (in_array($language, $langsSupported)) {
-                return $sandbox;
+        global $SANDBOXES;
+        foreach($SANDBOXES as $sandbox) {
+            if (get_config('qtype_coderunner', $sandbox . '_enabled')) {
+                require_once("Sandbox/$sandbox.php");
+                $sb = new $sandbox();
+                $langsSupported = $sb->getLanguages()->languages;
+                if (in_array($language, $langsSupported)) {
+                    return $sandbox;
+                }
             }
         }
         throw new coding_exception("Config error: no sandbox found for language '$language'");

@@ -92,6 +92,9 @@ $string['datafiles_help'] = 'Any files uploaded here will be added to the ' .
 $string['display'] = 'Display';
 
 $string['editingcoderunner'] = 'Editing a CodeRunner Question';
+$string['enable'] = 'Enable';
+$string['enable_sandbox_desc'] = 'Permit use of the specified sandbox for ' .
+         'running student submissions';
 $string['expected'] = 'Expected output';
 $string['failedhidden'] = 'Your code failed one or more hidden tests.';
 $string['fileheader'] = 'Support files';
@@ -129,6 +132,12 @@ $string['HIDE'] = 'Hide';
 $string['HIDE_IF_FAIL'] = 'Hide if fail';
 $string['HIDE_IF_SUCCEED'] = 'Hide if succeed';
 $string['hiderestiffail'] = 'Hide rest if fail';
+$string['ideone_user'] = 'Ideone server user';
+$string['ideone_user_desc'] = 'The login name to use when connecting to the ' .
+        'Ideone server (if the ideone sandbox is enabled)';
+$string['ideone_pass'] = 'Ideone server password';
+$string['ideone_pass_desc'] = 'The password to use when connecting to the ' .
+        'Ideone server (if the ideone sandbox is enabled)';
 $string['language'] = 'Language';
 
 $string['mark'] = 'Mark';

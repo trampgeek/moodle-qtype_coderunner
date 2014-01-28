@@ -58,8 +58,8 @@ There are three stages to installation:
 
 1. Installing the CodeRunner module itself.
 
-1. Installing an additional sandbox above and beyond the supplied
-RunguardSandbox and IdeoneSandboxes (not strictly necessary but strongly
+1. Installing the Liu sandbox if you're planning on running C on the Moodle
+server (not strictly necessary but strongly
 recommended) to provide more security than Runguard or much better
 performance than Ideone.
 
@@ -116,17 +116,24 @@ to the installed  version of Python2 (currently typically 2.6 on RHEL systems
 or 2.7 on most other flavours of Linux) *regardless of whether or not you
 intend to support Python3 as a programming language for submissions*.
 
-### Configuration
+
+### Sandbox Configuration
 
 The last step in installation involves configuring the sandboxes appropriately
-for your particular environment.
+for your particular environment. You can set which sandboxes you wish to use,
+and other sandbox parameters, via the Moodle administrator settings for the
+CodeRunner plugin, accessed via *Site administration > Plugins > Plugins overview*.
 
-  1. If you haven't installed the LiuSandbox, you
-can run programs in any of the supported languages via *runguard*
-in the *RunguardSandbox*, or can also run Python3 and Ideone
-programs  remotely on the Ideone system (ideone.com) using the
-*IdeoneSandbox*.
-     * The RunguardSandbox. Assuming the install script successfully created the
+By default, only the *RunguardSandbox* is  enabled. If you have installed
+the LiuSandbox as described above, you will need to enable it and configure
+the username and password via the
+administrator settings. You can also enable the use of the
+[Ideone compute server](http://ideone.com) and configure the username and password for it, via the
+administrator settings. Some notes on the different sandbox options follow.
+
+ 1. The RunguardSandbox. This can be used to run all the supported languages
+locally on the Moodle server itself.
+Assuming the install script successfully created the
 user *coderunner* and set the *runguard* program to run as root,
 the RunguardSandbox is reasonably safe,
 in that it controls memory usage and execution time and limits file access to
@@ -143,20 +150,24 @@ previously set for Python was inadequate. That limit has since been multiplied
 by 10. To use only the RunguardSandbox, change the file
 `CodeRunner/coderunner/Sandbox/sandbox_config.php`
 to list only `runguardsandbox` as an option.
-     * The IdeoneSandbox. ideone.com is a compute server that runs
+
+ 1. The IdeoneSandbox. ideone.com is a compute server that runs
 programs submitted either through a browser or through a web-services API in
 a huge number of different languages. This is not recommended for production
 use, as execution turn-around time is frequently too large (from 10 seconds
-to a minute or more) to give a tolerable user experience. A key to access
-the Ideone web-services is required; runs are free up to a certain number
-but you then have to pay for usage. *** TBS *** Details on key entry etc ***.
+to a minute or more) to give a tolerable user experience. An
+[Ideone account](http://ideone.com/account/register)
+(username and password) is required to access
+the Ideone web-services. Runs are free up to a certain number
+but you then have to pay for usage.
 The IdeoneSandbox is there mainly as a proof of concept of the idea of off-line
 execution and to support occasional use of unusual languages.
 
-  2. If you are using the LiuSandbox for running C questions, the supplied
-`sandbox_config.php` should be correct. Obviously the C compiler must
-must be installed including the capability to compile and
+ 1. If you are using the LiuSandbox for running C questions, the C compiler must
+must be installed, with the capability to compile and
 link statically (no longer part of the default RedHat installation).
+
+### Running the unit tests
 
 If your Moodle installation includes the
 *phpunit* system for testing Moodle modules, you might wish to test the

@@ -12,14 +12,10 @@
  */
 
 global $CFG;
+require_once($CFG->dirroot . '/question/type/coderunner/tests/coderunnertestcase.php');
 require_once($CFG->dirroot . '/question/type/coderunner/Sandbox/runguardsandbox.php');
 
-class qtype_coderunner_runguardsandbox_test extends basic_testcase {
-    public function setUp() {
-    }
-
-    public function tearDown() {
-    }
+class qtype_coderunner_runguardsandbox_test extends qtype_coderunner_testcase {
 
     public function test_testfunction() {
         $sandbox = new runguardsandbox();

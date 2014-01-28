@@ -1,13 +1,15 @@
 <?php
 
 /*
- * This file exists solely to define which sandboxes are active in this
- * installation. The list is ordered "most preferred first", meaning that
+ * This file exists solely to define the list of possible sandboxes.
+ * The list is ordered "most preferred first", meaning that
  * the call to the private getBestSandbox method in questiontype.php will
  * return the first one found to support the required language.
+ * Sandboxes in this list are enabled via the administrator settings
+ * for the plugin. By default only the runguardsandbox is enabled.
  */
-global $ACTIVE_SANDBOXES;
-$ACTIVE_SANDBOXES = array('liusandbox', 'runguardsandbox', 'ideonesandbox');
-//$ACTIVE_SANDBOXES = array('runguardsandbox');  // For running all languages in runguardsandbox
-//$ACTIVE_SANDBOXES = array('ideonesandbox');  // For running all languages at ideone.com
+
+global $SANDBOXES;
+$SANDBOXES = array('liusandbox', 'runguardsandbox', 'ideonesandbox');
+
 ?>
