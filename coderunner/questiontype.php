@@ -44,9 +44,7 @@
  */
 
 define('COMPUTE_STATS', false);
-define('DEFAULT_GRADER', 'EqualityGrader');
 
-require_once($CFG->dirroot . '/question/type/coderunner/Sandbox/sandbox_config.php');
 
 /**
  * qtype_coderunner extends the base question_type to coderunner-specific functionality.
@@ -197,8 +195,9 @@ class qtype_coderunner extends question_type {
                 $question->$field = NULL;
             }
 
-            if (trim($question->grader) === DEFAULT_GRADER) {
-                $question->grader = NULL; // TODO: still necessary?
+
+            if (trim($question->sandbox) === 'DEFAULT') {
+                $question->sandbox = NULL;
             }
         }
 
@@ -255,44 +254,51 @@ class qtype_coderunner extends question_type {
         global $CFG, $DB, $OUTPUT;
         parent::get_question_options($question);
 
-        // Now add to the question all the fields from the question's prototype
-        // record that have not been overridden (i.e. that are null) by this
-        // instance. If any of the inherited fields are modified (i.e. any
-        // (extra field not in the noninheritedFields list), the 'customise'
-        // field is set. This is used only to display the customisation panel.
+        if ($question->options->prototype_type == 1) { // Built-in prototype?
+            // Yes. No testcases and it's 100% customised with nothing to inherit.
+            $question->options->testcases = array();   // Yes: no testcases
+            $question->options->customise = True;
 
-        if (!$row = $DB->get_record('quest_coderunner_options',
-                array('coderunner_type' => $question->options->coderunner_type,
-                      'prototype_type' => 1))) {
-            throw new coding_exception("Failed to load type info for question id {$question->id}");
-        }
+        } else {
 
-        $question->options->customise = False; // Starting assumption
-        $noninheritedFields = $this->noninherited_fields();
-        foreach ($row as $field => $value) {
-            if (isset($question->options->$field) && $question->options->$field !== '') {
-                if (!in_array($field, $noninheritedFields) && $question->options->$field != $value) {
-                    $question->options->customise = True; // An inherited field has been changed
+            // Add to the question all the fields from the question's prototype
+            // record that have not been overridden (i.e. that are null) by this
+            // instance. If any of the inherited fields are modified (i.e. any
+            // (extra field not in the noninheritedFields list), the 'customise'
+            // field is set. This is used only to display the customisation panel.
+
+            if (!$row = $DB->get_record('quest_coderunner_options',
+                    array('coderunner_type' => $question->options->coderunner_type,
+                          'prototype_type' => 1))) {
+                throw new coding_exception("Failed to load type info for question id {$question->id}");
+            }
+
+            $question->options->customise = False; // Starting assumption
+            $noninheritedFields = $this->noninherited_fields();
+            foreach ($row as $field => $value) {
+                if (isset($question->options->$field) && $question->options->$field !== '') {
+                    if (!in_array($field, $noninheritedFields) && $question->options->$field != $value) {
+                        $question->options->customise = True; // An inherited field has been changed
+                    }
+                } else {
+                    $question->options->$field = $value;
                 }
-            } else {
-                $question->options->$field = $value;
+            }
+
+            if (!isset($question->options->sandbox))  {
+                $question->options->sandbox = NULL;
+            }
+
+            if (!isset($question->options->grader)) {
+                $question->options->grader = NULL;
+            }
+
+            // Add in the testcases
+            if (!$question->options->testcases = $DB->get_records('quest_coderunner_testcases',
+                    array('questionid' => $question->id), 'id ASC')) {
+                    throw new coding_exception("Failed to load testcases for question id {$question->id}");
             }
         }
-
-        if (!isset($question->options->sandbox))  {
-            $question->options->sandbox = $this->getBestSandbox($question->options->language);
-        }
-
-        if (!isset($question->options->grader)) {
-            $question->options->grader = DEFAULT_GRADER;
-        }
-
-        // Add in the testcases
-        if (!$question->options->testcases = $DB->get_records('quest_coderunner_testcases',
-                array('questionid' => $question->id), 'id ASC')) {
-            throw new coding_exception("Failed to load testcases for question id {$question->id}");
-        }
-
         return true;
     }
 
@@ -429,6 +435,7 @@ class qtype_coderunner extends question_type {
         $expout = parent::export_to_xml($question, $format, $extra);;
 
         $expout .= "    <testcases>\n";
+
         foreach ($question->options->testcases as $testcase) {
             $useasexample = $testcase->useasexample ? 1 : 0;
             $hiderestiffail = $testcase->hiderestiffail ? 1 : 0;
@@ -463,29 +470,5 @@ class qtype_coderunner extends question_type {
         return $s;
     }
 
-
-    /** Find the 'best' sandbox for a given language, defined to be the
-     *  first one in the ordered list of sandboxes in sandbox_config.php
-     *  that has been enabled by the administrator (through the usual
-     *  plug-in setting controls) and that supports the given language.
-     *  It's public so the tester can call it (yuck, hacky).
-     *  @param type $language to run. Must match a language supported by at least one
-     *  sandbox or an exception is thrown.
-     * @return the preferred sandbox
-     */
-    public function getBestSandbox($language) {
-        global $SANDBOXES;
-        foreach($SANDBOXES as $sandbox) {
-            if (get_config('qtype_coderunner', $sandbox . '_enabled')) {
-                require_once("Sandbox/$sandbox.php");
-                $sb = new $sandbox();
-                $langsSupported = $sb->getLanguages()->languages;
-                if (in_array($language, $langsSupported)) {
-                    return $sandbox;
-                }
-            }
-        }
-        throw new coding_exception("Config error: no sandbox found for language '$language'");
-    }
 }
 

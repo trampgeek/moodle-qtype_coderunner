@@ -794,6 +794,7 @@ function update_question_type($newRecord) {
     $question->modifiedby = $USER->id;
     $question->timemodified = time();
     $question->generalfeedback = '';
+    $question->qtype = 'coderunner';
     $questionid = $DB->insert_record('question', $question);
     $ok = $questionid;
     if ($ok) {

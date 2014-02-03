@@ -29,6 +29,8 @@ defined('MOODLE_INTERNAL') || die();
 define("NUM_TESTCASES_START", 5); // Num empty test cases with new questions
 define("NUM_TESTCASES_ADD", 3);   // Extra empty test cases to add
 
+require_once($CFG->dirroot . '/question/type/coderunner/Sandbox/sandbox_config.php');
+
 /**
  * coderunner editing form definition.
  */
@@ -56,6 +58,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         // [But it's currently not being used as it looks horrible. Needs
         // better CSS or a rethink.]
         global $PAGE;
+        global $SANDBOXES;
         $jsmodule = array(
             'name'      => 'qtype_coderunner',
             'fullpath'  => '/question/type/coderunner/module.js',
@@ -125,7 +128,6 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 NULL, false);
         $mform->addHelpButton('gradingcontrols', 'gradingcontrols', 'qtype_coderunner');
 
-
         $columnControls = array();
         $columnControls[] =& $mform->createElement('advcheckbox', 'showtest', NULL,
                 get_string('show_test', 'qtype_coderunner'));
@@ -148,29 +150,36 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->addHelpButton('columncontrols', 'columncontrols', 'qtype_coderunner');
 
 
-        // The following fields are used to customise a question by overriding
-        // values from the base question type. All are hidden unless the
-        // 'customise' checkbox is checked.
+        // The next set of fields are also used to customise a question by overriding
+        // values from the base question type, but these ones are much more
+        // advanced and not recommended for most users. They too are hidden
+        // unless the 'customise' checkbox is checked.
 
-        $mform->addElement('header', 'customisationheader', get_string('customisation','qtype_coderunner'));
-        $mform->addElement('textarea', 'per_test_template',
-                get_string('template', 'qtype_coderunner'),
-                array('rows'=>8, 'cols'=>80, 'class'=>'template edit_code',
-                      'name'=>'per_test_template'));
+        $mform->addElement('header', 'advancedcustomisationheader',
+                get_string('advanced_customisation','qtype_coderunner'));
 
-        $mform->addHelpButton('per_test_template', 'template', 'qtype_coderunner');
-        $gradingControls = array();
-        $graderTypes = array('EqualityGrader' => 'Exact match',
-                'RegexGrader' => 'Regular expression',
-                'TemplateGrader' => 'Template does grading');
-        $gradingControls[] = $mform->createElement('select', 'grader',
-                NULL, $graderTypes);
-        $mform->addElement('group', 'gradingcontrols',
-                get_string('grading', 'qtype_coderunner'), $gradingControls,
-                NULL, false);
-        $mform->addHelpButton('gradingcontrols', 'gradingcontrols', 'qtype_coderunner');
+        $prototypeControls = array();
+        $prototypeControls[] =& $mform->createElement('advcheckbox', 'is_prototype',
+                NULL, get_string('is_prototype', 'qtype_coderunner'));
+        $prototypeControls[] =& $mform->createElement('text', 'type_name',
+                get_string('question_type_name', 'qtype_coderunner'), array('size' => 10));
+        $mform->addElement('group', 'prototypecontrols',
+                get_string('prototypecontrols', 'qtype_coderunner'),
+                $prototypeControls, NULL, false);
+        $mform->setDefault('is_prototype', False);
+        $mform->setType('type_name', PARAM_RAW);
+        $mform->addHelpButton('prototypecontrols', 'prototypecontrols', 'qtype_coderunner');
+
 
         $sandboxControls = array();
+
+        $sandboxes = array('DEFAULT' => 'DEFAULT');
+        foreach ($SANDBOXES as $box) {
+            $sandboxes[$box] = $box;
+        }
+
+        $sandboxControls[] =  $mform->createElement('select', 'sandbox', NULL, $sandboxes);
+
         $sandboxControls[] =& $mform->createElement('text', 'cputimelimitsecs',
                 get_string('cputime', 'qtype_coderunner'), array('size' => 5));
         $sandboxControls[] =& $mform->createElement('text', 'memlimitmb',
@@ -181,6 +190,33 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->setType('cputimelimitsecs', PARAM_RAW);
         $mform->setType('memlimitmb', PARAM_RAW);
         $mform->addHelpButton('sandboxcontrols', 'sandboxcontrols', 'qtype_coderunner');
+
+
+        $mform->addElement('text', 'language', get_string('language', 'qtype_coderunner'),
+                array('size' => 10));
+        $mform->setType('language', PARAM_RAW);
+        $mform->addHelpButton('language', 'language', 'qtype_coderunner');
+
+        $combinatorControls = array();
+
+        $combinatorControls[] =& $mform->createElement('advcheckbox', 'enable_combinator', NULL,
+                get_string('enablecombinator', 'qtype_coderunner'));
+        $combinatorControls[] =& $mform->createElement('text', 'test_splitter_re',
+                get_string('test_splitter_re', 'qtype_coderunner'),
+                array('size' => 45));
+        $mform->setType('test_splitter_re', PARAM_RAW);
+
+        $combinatorControls[] =& $mform->createElement('textarea', 'combinator_template',
+                NULL,
+                array('rows'=>8, 'cols'=>80, 'class'=>'template edit_code',
+                       'name'=>'combinator_template'));
+
+        $mform->addElement('group', 'combinator_controls',
+                get_string('combinator_controls', 'qtype_coderunner'),
+                $combinatorControls, NULL, false);
+
+        $mform->addHelpButton('combinator_controls', 'combinator_controls', 'qtype_coderunner');
+
         $mform->setExpanded('customisationheader');  // Although expanded it's hidden until JavaScript unhides it
 
         $PAGE->requires->js_init_call('M.qtype_coderunner.setupAllTAs',  array(), false, $jsmodule);

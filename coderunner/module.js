@@ -174,6 +174,10 @@ M.qtype_coderunner.insertString = function(Y, ta, sToInsert) {
 M.qtype_coderunner.initEditForm = function(Y) {
     var typeCombo = Y.one('#id_coderunner_type'),
         template = Y.one('#id_per_test_template'),
+        enable_combinator = Y.one('#id_enable_combinator'),
+        combinator_template = Y.one('#id_combinator_template'),
+        test_splitter = Y.one('#id_test_splitter_re'),
+        language = Y.one('#id_language'),
         templateBlock = Y.one('#fitem_id_per_test_template'),
         gradingBlock = Y.one('#fgroup_id_gradingcontrols'),
         columnDisplayBlock = Y.one('#fgroup_id_columncontrols'),
@@ -182,17 +186,13 @@ M.qtype_coderunner.initEditForm = function(Y) {
         cputime = Y.one('#id_cputimelimitsecs'),
         memlimit = Y.one('#id_memlimitmb'),
         customisationFieldSet = Y.one('#id_customisationheader');
+        advancedCustomisation = Y.one('#id_advancedcustomisationheader');
         isCustomised = customise.get('checked');
 
     function setCustomisationVisibility(isVisible) {
         var display = isVisible ? 'block' : 'none';
         customisationFieldSet.setStyle('display', display);
-        /*
-        templateBlock.setStyle('display', display);
-        gradingBlock.setStyle('display', display);
-        columnDisplayBlock.setStyle('display', display);
-        sandboxBlock.setStyle('display', display);
-        */
+        advancedCustomisation.setStyle('display', display);
     }
 
     function loadDefaultCustomisationFields(Y) {
@@ -209,14 +209,17 @@ M.qtype_coderunner.initEditForm = function(Y) {
                 data: 'qtype=' + newType + '&sesskey=' + M.cfg.sesskey,
                 on: {
                     success: function (id, result) {
-                        outcome = JSON.parse(result.responseText);
+                        var outcome = JSON.parse(result.responseText);
                         if (outcome.success) {
                             template.set('text', outcome.per_test_template);
                             secs = outcome.cputimelimitsecs ? outcome.cputimelimitsecs : '';
                             cputime.set('value', secs);
                             mb = outcome.memlimitmb ? outcome.memlimitmb : '';
                             memlimit.set('value', mb);
-
+                            combinator_template.set('text', outcome.combinator_template);
+                            enable_combinator.set('checked', outcome.enable_combinator);
+                            test_splitter.set('value', outcome.test_splitter_re);
+                            language.set('value', outcome.language);
                         }
                         else {
                             template.set('text', "*** AJAX ERROR. DON'T SAVE THIS! ***\n" + outcome.error);

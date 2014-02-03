@@ -975,7 +975,7 @@ EOPROG;
         $question->customise = trim($question->per_test_template) != '';
 
         if (!isset($question->sandbox)) {
-            $question->sandbox = $qtype->getBestSandbox($question->language);
+            $question->sandbox = $question->getBestSandbox($question->language);
         }
         if (!isset($question->grader)) {
             $question->grader = 'EqualityGrader';

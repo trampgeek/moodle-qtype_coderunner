@@ -24,6 +24,7 @@
  */
 
 
+define('DEFAULT_GRADER', 'EqualityGrader');
 defined('MOODLE_INTERNAL') || die();
 
 // TODO -- fix up the horrible hack defining MAX_OUTPUT_LENGTH and FUNC_MIN_LENGTH
@@ -33,13 +34,13 @@ defined('MOODLE_INTERNAL') || die();
  *  (which is of type text so limited to 64k).
  */
 defined('MAX_OUTPUT_LENGTH') || define('MAX_OUTPUT_LENGTH', 60000);
-
 defined('FUNC_MIN_LENGTH') ||  define('FUNC_MIN_LENGTH', 1);  /* Minimum no. of bytes for a valid bit of code */
 
 require_once($CFG->dirroot . '/question/behaviour/adaptive/behaviour.php');
 require_once($CFG->dirroot . '/question/engine/questionattemptstep.php');
 require_once($CFG->dirroot . '/question/behaviour/adaptive_adapted_for_coderunner/behaviour.php');
 require_once($CFG->dirroot . '/local/Twig/Autoloader.php');
+require_once($CFG->dirroot . '/question/type/coderunner/Sandbox/sandbox_config.php');
 
 require_once('Grader/graderbase.php');
 require_once('escapers.php');
@@ -251,9 +252,39 @@ class qtype_coderunner_question extends question_graded_automatically {
     }
 
 
+    /** Find the 'best' sandbox for a given language, defined to be the
+     *  first one in the ordered list of sandboxes in sandbox_config.php
+     *  that has been enabled by the administrator (through the usual
+     *  plug-in setting controls) and that supports the given language.
+     *  It's public so the tester can call it (yuck, hacky).
+     *  @param type $language to run. Must match a language supported by at least one
+     *  sandbox or an exception is thrown.
+     * @return the preferred sandbox
+     */
+    public function getBestSandbox($language) {
+        global $SANDBOXES;
+        foreach($SANDBOXES as $sandbox) {
+            if (get_config('qtype_coderunner', $sandbox . '_enabled')) {
+                require_once("Sandbox/$sandbox.php");
+                $sb = new $sandbox();
+                $langsSupported = $sb->getLanguages()->languages;
+                if (in_array($language, $langsSupported)) {
+                    return $sandbox;
+                }
+            }
+        }
+        throw new coding_exception("Config error: no sandbox found for language '$language'");
+    }
+
+
+
+
+
     // Try running with the combinator template, which combines all tests into
     // a single sandbox run.
-    // Only do this if there are no stdins and it's not a customised question.
+    // Only do this if the cominator is enabled, there are no stdins and the
+    // question isn't set to let the template (i.e., the per-test-case template)
+    // do the grading.
     // Special template parameters are STUDENT_ANSWER, the raw submitted code,
     // ESCAPED_STUDENT_ANSWER, the submitted code with all double quote chars escaped
     // (for use in a Python statement like s = """{{ESCAPED_STUDENT_ANSWER}}""" and
@@ -263,7 +294,8 @@ class qtype_coderunner_question extends question_graded_automatically {
     private function runWithCombinator($code, $testCases, $files, $sandboxParams) {
         $outcome = NULL;
 
-        if ($this->enable_combinator && $this->noStdins($testCases)) {
+        if ($this->enable_combinator && $this->noStdins($testCases) &&
+                strtolower($this->grader) !== 'templategrader') {
             assert($this->test_splitter_re != '');
 
             $templateParams = array(
@@ -359,6 +391,9 @@ class qtype_coderunner_question extends question_graded_automatically {
     private function setUpGrader() {
         global $CFG;
         $graderClass = $this->grader;
+        if ($graderClass === NULL) {
+            $this->grader = $graderClass = DEFAULT_GRADER;
+        }
         $graderClassLC = strtolower($graderClass);
         require_once($CFG->dirroot . "/question/type/coderunner/Grader/$graderClassLC.php");
         $this->graderInstance = new $graderClass();
@@ -369,9 +404,10 @@ class qtype_coderunner_question extends question_graded_automatically {
     private function setUpSandbox() {
         global $CFG;
         $sandboxClass = $this->sandbox;
-        if ($sandboxClass == 'NullSandbox') {
-            $sandboxClass = 'RunguardSandbox';  // Renamed sandbox; stay compatible with old questions
+        if ($sandboxClass === NULL)  {
+            $this->sandbox = $sandboxClass = $this->getBestSandbox($this->language);
         }
+
         $sandboxClassLC = strtolower($sandboxClass);
         require_once($CFG->dirroot . "/question/type/coderunner/Sandbox/$sandboxClassLC.php");
         $this->sandboxInstance = new $sandboxClass();

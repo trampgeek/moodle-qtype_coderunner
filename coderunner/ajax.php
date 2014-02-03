@@ -1,7 +1,8 @@
 <?php
 
 /*
- * AJAX script to return a JSON-encoded row from the coderunner question type
+ * AJAX script to return a JSON-encoded row of the options for the specified
+ * question type by looking up the prototype in the quest_coderunner_options
  * table. Fields 'success' and 'error' are added for validation checking by
  * the caller.
  */
