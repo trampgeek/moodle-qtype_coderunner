@@ -393,7 +393,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
         if ($numStd) {
             $table->head[] = 'Input';
         }
-        $table->head[] = 'Output';
+        $table->head[] = 'Result';
 
         $tableRows = array();
         foreach ($examples as $example) {
