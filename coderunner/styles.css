@@ -17,6 +17,10 @@ div.coderunner .formulation {
     background: #d1e1e5;
 }
 
+div.coderunner .ace_editor {
+    font-size: 14px;
+}
+
 p.for-example-para {
     font-weight: bold;
 }

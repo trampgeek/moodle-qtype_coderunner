@@ -78,7 +78,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
             'class' => 'coderunner-answer edit_code',
             'name'  => $responsefieldname,
             'id'    => $responsefieldid,
-            'cols'      => '80',
+            'cols'      => '100',
             'spellcheck' => 'false',
             'rows'      => 18
         );

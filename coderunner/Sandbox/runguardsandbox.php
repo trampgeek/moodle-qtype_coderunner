@@ -78,7 +78,7 @@ class RunguardSandbox extends LocalSandbox {
     // Results are all left in $this->task for later access by
     // getSubmissionDetails
     protected function runInSandbox($input, $files) {
-        $filesize = 1000000 * $this->getParam('disklimit');
+        $filesize = 1000 * $this->getParam('disklimit');  // MB -> kB
         $memsize = 1000 * $this->getParam('memorylimit');
         $cputime = $this->getParam('cputime');
         $numProcs = $this->getParam('numprocs');
