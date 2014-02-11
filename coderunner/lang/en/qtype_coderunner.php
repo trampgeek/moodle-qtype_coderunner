@@ -215,6 +215,7 @@ $string['prototypecontrols_help'] = 'If \'Use as prototype\' is ' .
         'it is strongly recommended that you rename the question to something ' .
         'like \'PROTOTYPE_for_my_new_question_type\' to make subsequent ' .
         'maintenance easier.';
+$string['prototypeQ'] = 'Is prototype?';
 $string['questiontype'] = 'Question type';
 $string['questiontype_help'] = 'Select the particular type of question. ' .
         'The combo-box selects one of the built-in types, each of which ' .

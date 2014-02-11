@@ -201,11 +201,6 @@ class qtype_coderunner extends question_type {
             }
         }
 
-        // Use of a per_test_template should disable the combinator.
-        // TODO: delete this when combinator_template editing is provided.
-        if ($question->per_test_template) {
-            $question->enable_combinator = 0;
-        }
 
         parent::save_question_options($question);
 

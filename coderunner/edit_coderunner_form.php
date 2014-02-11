@@ -159,10 +159,15 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 get_string('advanced_customisation','qtype_coderunner'));
 
         $prototypeControls = array();
-        $prototypeControls[] =& $mform->createElement('advcheckbox', 'is_prototype',
-                NULL, get_string('is_prototype', 'qtype_coderunner'));
+
+        $prototypeSelect =& $mform->createElement('select', 'prototype_type',
+                get_string('prototypeQ', 'qtype_coderunner'));
+        $prototypeSelect->addOption('No', '0');
+        $prototypeSelect->addOption('Yes (built-in)', '1', array('disabled'=>'disabled'));
+        $prototypeSelect->addOption('Yes (user defined)', '2');
+        $prototypeControls[] =& $prototypeSelect;
         $prototypeControls[] =& $mform->createElement('text', 'type_name',
-                get_string('question_type_name', 'qtype_coderunner'), array('size' => 10));
+                get_string('question_type_name', 'qtype_coderunner'), array('size' => 30));
         $mform->addElement('group', 'prototypecontrols',
                 get_string('prototypecontrols', 'qtype_coderunner'),
                 $prototypeControls, NULL, false);
@@ -191,7 +196,6 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->setType('memlimitmb', PARAM_RAW);
         $mform->addHelpButton('sandboxcontrols', 'sandboxcontrols', 'qtype_coderunner');
 
-
         $mform->addElement('text', 'language', get_string('language', 'qtype_coderunner'),
                 array('size' => 10));
         $mform->setType('language', PARAM_RAW);
@@ -205,9 +209,10 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 get_string('test_splitter_re', 'qtype_coderunner'),
                 array('size' => 45));
         $mform->setType('test_splitter_re', PARAM_RAW);
+        $mform->disabledIf('type_name', 'prototype_type', 'neq', '2');
 
         $combinatorControls[] =& $mform->createElement('textarea', 'combinator_template',
-                NULL,
+                '',
                 array('rows'=>8, 'cols'=>80, 'class'=>'template edit_code',
                        'name'=>'combinator_template'));
 
@@ -371,6 +376,11 @@ class qtype_coderunner_edit_form extends question_edit_form {
             // The customise field isn't listed as an extra-question-field so also
             // needs to be copied down from the options here.
             $question->customise = $question->options->customise;
+
+            // Define the prototype fields
+            if ($question->prototype_type != 0) {
+                $question->type_name = $question->coderunner_type;
+            }
         }
 
         $draftid = file_get_submitted_draft_itemid('datafiles');

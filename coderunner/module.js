@@ -185,9 +185,13 @@ M.qtype_coderunner.initEditForm = function(Y) {
         customise = Y.one('#id_customise'),
         cputime = Y.one('#id_cputimelimitsecs'),
         memlimit = Y.one('#id_memlimitmb'),
-        customisationFieldSet = Y.one('#id_customisationheader');
-        advancedCustomisation = Y.one('#id_advancedcustomisationheader');
-        isCustomised = customise.get('checked');
+        customisationFieldSet = Y.one('#id_customisationheader'),
+        advancedCustomisation = Y.one('#id_advancedcustomisationheader'),
+        isCustomised = customise.get('checked'),
+        combinator_non_blank = true,
+        prototypeType = Y.one("#id_prototype_type"),
+        typeName = Y.one('#id_type_name'),
+        message = '';
 
     function setCustomisationVisibility(isVisible) {
         var display = isVisible ? 'block' : 'none';
@@ -220,6 +224,9 @@ M.qtype_coderunner.initEditForm = function(Y) {
                             enable_combinator.set('checked', outcome.enable_combinator);
                             test_splitter.set('value', outcome.test_splitter_re);
                             language.set('value', outcome.language);
+                            if (outcome.prototype_type != 0) {
+                                typeName.set('value', newType);
+                            }
                         }
                         else {
                             template.set('text', "*** AJAX ERROR. DON'T SAVE THIS! ***\n" + outcome.error);
@@ -234,6 +241,12 @@ M.qtype_coderunner.initEditForm = function(Y) {
         };
     };
 
+    if (prototypeType.get('value') == 1) {
+        alert('Editing a built-in question prototype?! Proceed at your own risk!');
+        prototypeType.set('disabled', true);
+        typeCombo.set('disabled', true);
+        customise.set('disabled', true);
+    }
     setCustomisationVisibility(isCustomised);
     if (!isCustomised) {
         loadDefaultCustomisationFields(Y);
@@ -241,10 +254,31 @@ M.qtype_coderunner.initEditForm = function(Y) {
 
     customise.on('change', function(e) {
        isCustomised = customise.get('checked');
-       setCustomisationVisibility(isCustomised);
-       if (!isCustomised) {
-           alert("If you save this question with 'Customise' " +
-               "unchecked, any customisation you've done will be lost");
+       if (isCustomised) {
+           // Customisation is being turned on. Disable combinator.
+           // [User must explicitly re-enable it if they wish to use it.]
+           if (confirm("Enable customisation (disables use of the combinator template)?")) {
+               enable_combinator.set('checked', false);
+               setCustomisationVisibility(true);
+           } else {
+               customise.set('checked', false);
+           }
+
+       } else { // Customisation being turned off
+           combinator_non_blank = combinator_template.get('text').trim() !== '';
+           message = "If you save this question with 'Customise' " +
+               "unchecked, any customisation you've done will be lost.";
+           if (combinator_non_blank) {
+               message += " Also, use of the combinator template will be re-enabled.";
+           }
+           if (confirm(message + " Proceed?")) {
+                 setCustomisationVisibility(false);
+                 if (combinator_non_blank) {
+                    enable_combinator.set('checked', true);
+                 }
+           } else {
+               customise.set('checked',true);
+           }
        }
     });
 
