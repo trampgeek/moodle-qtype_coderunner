@@ -19,7 +19,7 @@
  * @copyright Richard Lobb, The University of Canterbury, New Zealand.
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-$plugin->version  = 2013112203;
+$plugin->version  = 2014011101;
 $plugin->requires = 2013051400;
 $plugin->cron = 0;
 $plugin->component = 'qtype_coderunner';
