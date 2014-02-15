@@ -86,7 +86,7 @@ class qtype_coderunner extends question_type {
      */
     public function extra_question_fields() {
         return array('quest_coderunner_options', 'coderunner_type',
-            'per_test_template', 'all_or_nothing',
+            'per_test_template', 'all_or_nothing', 'penalty_regime',
             'show_source', 'showtest', 'showstdin', 'showexpected', 'showoutput',
             'showmark', 'grader', 'cputimelimitsecs', 'memlimitmb');
     }

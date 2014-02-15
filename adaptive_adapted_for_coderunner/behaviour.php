@@ -111,6 +111,22 @@ class qbehaviour_adaptive_adapted_for_coderunner extends qbehaviour_adaptive {
     }
 
 
+    // Override of adjusted_fraction to allow use of penalty_regime if defined
+    // for this question. The penalty regime is a list of floating point
+    // penalties, each a percent, to be applied in order on each submission.
+    protected function adjusted_fraction($fraction, $prevtries)
+    {
+        if (!isset($this->question->penalty_regime) || $this->question->penalty_regime === '') {
+            return parent::adjusted_fraction($fraction, $prevtries);
+        } else {
+            $penalties = explode($this->question->penalty_regime, ",");
+            $i = max(count($penalties) - 1, $prevtries);
+            $penalty = floatval($penalties[$i]) / 100.0;
+            return $fraction - $penalty;
+        }
+    }
+
+
     public function process_finish(question_attempt_pending_step $pendingstep) {
         if ($this->qa->get_state()->is_finished()) {
             return question_attempt::DISCARD;

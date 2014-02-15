@@ -18,8 +18,9 @@
          <FIELD NAME="showexpected" TYPE="int" LENGTH="1" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" COMMENT="True if the expected column of the results table is to be displayed to students" PREVIOUS="showstdin" NEXT="showoutput"/>
          <FIELD NAME="showoutput" TYPE="int" LENGTH="1" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" COMMENT="True if the output column of the results table is to be displayed to students" PREVIOUS="showexpected" NEXT="showmark"/>
          <FIELD NAME="showmark" TYPE="int" LENGTH="1" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" COMMENT="True if the mark column of the results table is to be displayed to students" PREVIOUS="showoutput" NEXT="timeoutsecs"/>
-         <FIELD NAME="grader" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" NEXT="cputimelimitsecs" PREVIOUS="showmark" COMMENT="The PHP class name of the grader to use to grade results from the sandbox. If null, the BasicGrader class is used." />
-         <FIELD NAME="cputimelimitsecs" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" PREVIOUS="grader" NEXT="memlimitmb" COMMENT="The maximum CPU time allowed for execution (secs)" />
+         <FIELD NAME="grader" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" NEXT="penalty_regime" PREVIOUS="showmark" COMMENT="The PHP class name of the grader to use to grade results from the sandbox. If null, the BasicGrader class is used." />
+         <FIELD NAME="penalty_regime" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" NEXT="cputimelimitsecs" PREVIOUS="grader" COMMENT="A comma-separated list of percentage penalties to apply to each submission. If empty use default question penalty" />
+         <FIELD NAME="cputimelimitsecs" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" PREVIOUS="penalty_regime" NEXT="memlimitmb" COMMENT="The maximum CPU time allowed for execution (secs)" />
          <FIELD NAME="memlimitmb" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" PREVIOUS="timeoutsecs" COMMENT="The maximum memory allowed for this task execution (MB)" />
 
       </FIELDS>

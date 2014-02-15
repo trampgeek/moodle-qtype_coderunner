@@ -148,6 +148,13 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2013112203, 'qtype', 'coderunner');
     }
 
+    if ($oldversion != 0 && $oldversion < 2014021501) {
+        $table = new xmldb_table('quest_coderunner_options');
+        $penaltyRegime = new xmldb_field('penalty_regime', XMLDB_TYPE_CHAR, '255', XMLDB_UNSIGNED, FALSE, null, null);
+        upgrade_plugin_savepoint(true, 2014021501, 'qtype', 'coderunner');
+    }
+
+
     return updateQuestionTypes();
 
 }

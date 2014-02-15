@@ -114,6 +114,12 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 $columnControls,NULL, false);
         $mform->addHelpButton('columncontrols', 'columncontrols', 'qtype_coderunner');
 
+
+        $mform->addElement('text', 'penalty_regime',
+                get_string('penalty_regime', 'qtype_coderunner'),
+                array('size' => 10
+        $mform->addHelpButton('penalty_regime', 'penalty_regime', 'qtype_coderunner');
+
         // The following fields are used to customise a question by overriding
         // values from the base question type. All are hidden unless the
         // 'customise' checkbox is checked.

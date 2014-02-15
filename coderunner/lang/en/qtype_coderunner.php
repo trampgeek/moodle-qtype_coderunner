@@ -144,6 +144,10 @@ $string['negativeorzeromark'] = 'Mark must be greater than zero';
 $string['qWrongBehaviour'] = 'Detailed test results unavailable. '
     . 'Perhaps an empty answer, or question not using Adaptive Mode?';
 $string['options'] = 'Options';
+$string['penalty_regime'] = 'Penalty regime';
+$string['penalty_regime_help'] = 'A comma-separated list of penalties (each a percent)
+    to apply to successive submissions. Leave blank for standard Moodle behaviour.
+    If there are more submissions than defined penalties, the last value is used';
 $string['pluginname'] = 'CodeRunner';
 $string['pluginnameadding'] = 'Adding a CodeRunner question';
 $string['pluginnamesummary'] = 'CodeRunner: runs student-submitted code in a sandbox';
