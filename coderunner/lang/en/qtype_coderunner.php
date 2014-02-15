@@ -23,8 +23,6 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
-
 $string['aborted'] = 'Testing was aborted due to error.';
 $string['addingcoderunner'] = 'Adding a new CodeRunner Question';
 $string['allok'] = 'Passed all tests! ';
@@ -173,7 +171,7 @@ $string['questiontype_required'] = 'You must select the type of question';
 $string['row_properties'] = 'Row properties:';
 $string['sandboxcontrols'] = 'Sandbox params';
 $string['sandboxcontrols_help'] = 'You can set the maximum CPU time in seconds ' .
-        'allowed for each testcasemodify run and the maximum memory a single testcase ' .
+        'allowed for each testcase run and the maximum memory a single testcase ' .
         'run can consume (MB) here. A blank entry uses the sandbox\'s ' .
         'default value, but this may not be suitable for resource-demanding ' .
         'languages like Java and Matlab). A value of zero for the maximum memory ' .
@@ -197,7 +195,7 @@ $string['testcase'] = 'Test case {$a}';
 $string['testcases'] = 'Test cases';
 $string['testcode'] = 'Test code';
 $string['template'] = 'Template';
-$string['template_help'] = <<<EO_TEMPLATE_HmodifyELP
+$string['template_help'] = <<<EO_TEMPLATE_HELP
 The template defines the program that is to be run for each test case, depending
 on the student answer and the particular test case. The template is processed
 by the Twig template engine (see twig.sensiolabs.org)

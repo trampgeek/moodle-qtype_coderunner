@@ -150,7 +150,7 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
 
     if ($oldversion != 0 && $oldversion < 2014021501) {
         $table = new xmldb_table('quest_coderunner_options');
-        $penaltyRegime = new xmldb_field('penalty_regime', XMLDB_TYPE_CHAR, '255', XMLDB_UNSIGNED, FALSE, null, null);
+        $field = new xmldb_field('penalty_regime', XMLDB_TYPE_CHAR, '255', XMLDB_UNSIGNED, FALSE, null, null);
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
