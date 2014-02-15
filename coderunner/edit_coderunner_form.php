@@ -377,10 +377,8 @@ class qtype_coderunner_edit_form extends question_edit_form {
             // needs to be copied down from the options here.
             $question->customise = $question->options->customise;
 
-            // Define the prototype fields
-            if ($question->prototype_type != 0) {
-                $question->type_name = $question->coderunner_type;
-            }
+            // Set the type name to the coderunner type by default
+            $question->type_name = $question->coderunner_type;
         }
 
         $draftid = file_get_submitted_draft_itemid('datafiles');
@@ -409,6 +407,73 @@ class qtype_coderunner_edit_form extends question_edit_form {
              (!ctype_digit($data['memlimitmb']) || intval($data['memlimitmb']) < 0)) {
             $errors['sandboxcontrols'] = get_string('badmemlimit', 'qtype_coderunner');
         }
+
+        if ($data['prototype_type'] == 0) {
+            // Unless it's a prototype it needs at least one testcase
+            $testCaseErrors = $this->validate_test_cases($data);
+            $errors = array_merge($errors, $testCaseErrors);
+        }
+
+        if ($data['prototype_type'] == 2) {
+            // User-defined prototype
+            $typeName = $data['type_name'];
+            if ($typeName != $data['coderunner_type']) {
+                // Creating a new prototype
+                if (!$this->is_valid_new_type($typeName)) {
+                    $errors['prototypecontrols'] = "New prototype would overwrite an existing type name";
+                }
+            }
+        }
+
+        return $errors;
+    }
+
+    // True iff the given name is valid for a new type, i.e., it's not in use
+    // in the current context (Currently only a single global context is
+    // implemented).
+    private function is_valid_new_type($typeName) {
+        list($langs, $types) = $this->get_languages_and_types();
+        return !array_key_exists($typeName, $types);
+    }
+
+
+    private function get_languages_and_types() {
+        // Return two arrays (language => language_upper_case) and (type => subtype) of
+        // all the coderunner question types available in the current context,
+        // i.e., *** TBS ***
+        // The subtype is the suffix of the type in the database,
+        // e.g. for java_method it is 'method'. The language is the bit before
+        // the underscore, and language_upper_case is a capitalised version,
+        // e.g. Java for java. For question types without a
+        // subtype the word 'Default' is used.
+        global $DB;
+        $records = $DB->get_records_select('quest_coderunner_options',
+                "prototype_type != 0",
+                NULL,
+                'coderunner_type');
+        $types = array();
+        foreach ($records as $row) {
+            if (($pos = strpos($row->coderunner_type, '_')) !== FALSE) {
+                $subtype = substr($row->coderunner_type, $pos + 1);
+                $language = substr($row->coderunner_type, 0, $pos);
+            }
+            else {
+                $subtype = 'Default';
+                $language = $row->coderunner_type;
+            }
+            $types[$row->coderunner_type] = $row->coderunner_type;
+            $languages[$language] = ucwords($language);
+        }
+        asort($types);
+        asort($languages);
+        return array($languages, $types);
+    }
+
+
+
+    // Validate the test cases
+    private function validate_test_cases($data) {
+        $errors = array(); // Return value
         $testcodes = $data['testcode'];
         $stdins = $data['stdin'];
         $expecteds = $data['expected'];
@@ -446,38 +511,6 @@ class qtype_coderunner_edit_form extends question_edit_form {
         return $errors;
     }
 
-
-
-    private function get_languages_and_types() {
-        // Return two arrays (language => language_upper_case) and (type => subtype) of
-        // all the coderunner question types available in the current context,
-        // i.e., *** TBS ***
-        // The subtype is the suffix of the type in the database,
-        // e.g. for java_method it is 'method'. The language is the bit before
-        // the underscore, and language_upper_case is a capitalised version,
-        // e.g. Java for java. For question types without a
-        // subtype the word 'Default' is used.
-        global $DB;
-        $records = $DB->get_records('quest_coderunner_options',
-                array('prototype_type' => 1),
-                'coderunner_type', 'coderunner_type');
-        $types = array();
-        foreach ($records as $row) {
-            if (($pos = strpos($row->coderunner_type, '_')) !== FALSE) {
-                $subtype = substr($row->coderunner_type, $pos + 1);
-                $language = substr($row->coderunner_type, 0, $pos);
-            }
-            else {
-                $subtype = 'Default';
-                $language = $row->coderunner_type;
-            }
-            $types[$row->coderunner_type] = $row->coderunner_type;
-            $languages[$language] = ucwords($language);
-        }
-        asort($types);
-        asort($languages);
-        return array($languages, $types);
-    }
 
     // Construct the HTML for a YUI3 hierarchical menu of languages/types.
     // Initially hidden and turned on by JavaScript. See module.js.

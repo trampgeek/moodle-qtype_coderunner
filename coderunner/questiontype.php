@@ -183,6 +183,11 @@ class qtype_coderunner extends question_type {
         $fields = $this->extra_question_fields();
         array_shift($fields); // Discard table name
         $customised = isset($question->customise) && $question->customise;
+        if ($customised && $question->prototype_type == 2 &&
+                $question->coderunner_type != $question->type_name) {
+            // Saving a new prototype. Copy new type name into coderunner_type
+            $question->coderunner_type = $question->type_name;
+        }
 
         // Set all inherited fields to NULL if customisation is off or (if
         // customisation is on) if the corresponding form field is blank.
@@ -249,11 +254,9 @@ class qtype_coderunner extends question_type {
         global $CFG, $DB, $OUTPUT;
         parent::get_question_options($question);
 
-        if ($question->options->prototype_type == 1) { // Built-in prototype?
-            // Yes. No testcases and it's 100% customised with nothing to inherit.
-            $question->options->testcases = array();   // Yes: no testcases
+        if ($question->options->prototype_type != 0) { // Question prototype?
+            // Yes. It's 100% customised with nothing to inherit.
             $question->options->customise = True;
-
         } else {
 
             // Add to the question all the fields from the question's prototype
@@ -262,9 +265,10 @@ class qtype_coderunner extends question_type {
             // (extra field not in the noninheritedFields list), the 'customise'
             // field is set. This is used only to display the customisation panel.
 
-            if (!$row = $DB->get_record('quest_coderunner_options',
-                    array('coderunner_type' => $question->options->coderunner_type,
-                          'prototype_type' => 1))) {
+            $qtype = $question->options->coderunner_type;
+            if (!$row = $DB->get_record_select(
+                    'quest_coderunner_options',
+                    "coderunner_type = '$qtype' and prototype_type != 0")) {
                 throw new coding_exception("Failed to load type info for question id {$question->id}");
             }
 
@@ -287,13 +291,19 @@ class qtype_coderunner extends question_type {
             if (!isset($question->options->grader)) {
                 $question->options->grader = NULL;
             }
+        }
 
-            // Add in the testcases
-            if (!$question->options->testcases = $DB->get_records('quest_coderunner_testcases',
-                    array('questionid' => $question->id), 'id ASC')) {
-                    throw new coding_exception("Failed to load testcases for question id {$question->id}");
+        // Add in any testcases (expect none for built-in prototypes)
+        if (!$question->options->testcases = $DB->get_records('quest_coderunner_testcases',
+                array('questionid' => $question->id), 'id ASC')) {
+            if ($question->options->prototype_type == 0) {
+                throw new coding_exception("Failed to load testcases for question id {$question->id}");
+            } else {
+                // Question prototypes may not have testcases
+                $question->options->testcases = array();
             }
         }
+
         return true;
     }
 

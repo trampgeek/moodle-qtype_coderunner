@@ -19,13 +19,16 @@ $qtype  = required_param('qtype', PARAM_ALPHANUMEXT);
 
 header('Content-type: application/json; charset=utf-8');
 try {
-    $questionType = $DB->get_record('quest_coderunner_options',
-            array('coderunner_type'=>$qtype, 'prototype_type' => 1),
+    $questionType = $DB->get_record_select(
+            'quest_coderunner_options',
+            "prototype_type != 0 and coderunner_type = '$qtype'",
+            NULL,
             '*',
             MUST_EXIST);
     $questionType->success = true;
     $questionType->error = '';
 } catch (moodle_exception $e) {
+    $questionType = new stdClass();
     $questionType->success = false;
     $questionType->error = "Database error or question type not found";
 }

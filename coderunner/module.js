@@ -222,11 +222,9 @@ M.qtype_coderunner.initEditForm = function(Y) {
                             memlimit.set('value', mb);
                             combinator_template.set('text', outcome.combinator_template);
                             enable_combinator.set('checked', outcome.enable_combinator);
-                            test_splitter.set('value', outcome.test_splitter_re);
-                            language.set('value', outcome.language);
-                            if (outcome.prototype_type != 0) {
-                                typeName.set('value', newType);
-                            }
+                            test_splitter.set('value', outcome.test_splitter_re.replace('\n','\\n'));
+                           language.set('value', outcome.language);
+                            typeName.set('value', newType);
                         }
                         else {
                             template.set('text', "*** AJAX ERROR. DON'T SAVE THIS! ***\n" + outcome.error);
