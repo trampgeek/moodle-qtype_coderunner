@@ -93,6 +93,39 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->setDefault('all_or_nothing', True);
         $mform->addHelpButton('all_or_nothing', 'all_or_nothing', 'qtype_coderunner');
 
+        $mform->addElement('text', 'penalty_regime',
+            get_string('penalty_regime', 'qtype_coderunner'),
+            array('size' => 20));
+        $mform->addHelpButton('penalty_regime', 'penalty_regime', 'qtype_coderunner');
+        $mform->setType('penalty_regime', PARAM_RAW);
+
+
+        // The following fields are used to customise a question by overriding
+        // values from the base question type. All are hidden
+        // unless the 'customise' checkbox is checked.
+
+        $mform->addElement('header', 'customisationheader',
+                get_string('customisation','qtype_coderunner'));
+
+        $mform->addElement('textarea', 'per_test_template',
+                get_string('template', 'qtype_coderunner'),
+                array('rows'=>8, 'cols'=>80, 'class'=>'template edit_code',
+                      'name'=>'per_test_template'));
+
+
+        $mform->addHelpButton('per_test_template', 'template', 'qtype_coderunner');
+        $gradingControls = array();
+        $graderTypes = array('EqualityGrader' => 'Exact match',
+                'RegexGrader' => 'Regular expression',
+                'TemplateGrader' => 'Template does grading');
+        $gradingControls[] = $mform->createElement('select', 'grader',
+                NULL, $graderTypes);
+        $mform->addElement('group', 'gradingcontrols',
+                get_string('grading', 'qtype_coderunner'), $gradingControls,
+                NULL, false);
+        $mform->addHelpButton('gradingcontrols', 'gradingcontrols', 'qtype_coderunner');
+
+
         $columnControls = array();
         $columnControls[] =& $mform->createElement('advcheckbox', 'showtest', NULL,
                 get_string('show_test', 'qtype_coderunner'));        global $PAGE;
@@ -114,11 +147,6 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 $columnControls,NULL, false);
         $mform->addHelpButton('columncontrols', 'columncontrols', 'qtype_coderunner');
 
-
-        $mform->addElement('text', 'penalty_regime',
-                get_string('penalty_regime', 'qtype_coderunner'),
-                array('size' => 10
-        $mform->addHelpButton('penalty_regime', 'penalty_regime', 'qtype_coderunner');
 
         // The following fields are used to customise a question by overriding
         // values from the base question type. All are hidden unless the
