@@ -95,6 +95,11 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 get_string('all_or_nothing', 'qtype_coderunner'));
         $mform->setDefault('all_or_nothing', True);
         $mform->addHelpButton('all_or_nothing', 'all_or_nothing', 'qtype_coderunner');
+        $mform->addElement('text', 'penalty_regime',
+        get_string('penalty_regime', 'qtype_coderunner'),
+        array('size' => 20));
+        $mform->addHelpButton('penalty_regime', 'penalty_regime', 'qtype_coderunner');
+        $mform->setType('penalty_regime', PARAM_RAW);
 
         $mform->addElement('text', 'penalty_regime',
             get_string('penalty_regime', 'qtype_coderunner'),
@@ -421,6 +426,16 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 // Creating a new prototype
                 if (!$this->is_valid_new_type($typeName)) {
                     $errors['prototypecontrols'] = "New prototype would overwrite an existing type name";
+                }
+            }
+        }
+
+        if (trim($data['penalty_regime']) != '') {
+            $bits = explode(',', $data['penalty_regime']);
+            foreach ($bits as $bit) {
+                if (!is_numeric($bit) || floatval($bit) < 0 || floatval($bit) > 100) {
+                    $errors['penalty_regime'] = get_string('badpenalties', 'qtype_coderunner');
+                    break;
                 }
             }
         }

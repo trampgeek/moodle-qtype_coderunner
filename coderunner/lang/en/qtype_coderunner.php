@@ -70,6 +70,7 @@ checkbox and read the help available on the newly-visible form elements for
 more information.
 ";
 $string['advanced_customisation'] = "Advanced customisation";
+$string['badpenalties'] = 'Penalty regime must be a comma separated list of numbers in the range [0, 100]';
 $string['coderunnersummary'] = 'Answer is program code that is executed '
     . 'in the context of a set of test cases to determine its correctness.';
 $string['coderunner_help'] = 'In response to a question, which is a '
@@ -185,9 +186,11 @@ $string['qWrongBehaviour'] = 'Detailed test results unavailable. '
     . 'Perhaps an empty answer, or question not using Adaptive Mode?';
 $string['options'] = 'Options';
 $string['penalty_regime'] = 'Penalty regime';
-$string['penalty_regime_help'] = 'A comma-separated list of penalties (each a percent)
-    to apply to successive submissions. Leave blank for standard Moodle behaviour.
-    If there are more submissions than defined penalties, the last value is used';
+$string['penalty_regime_help'] = 'A comma-separated list of penalties (each a percent) ' .
+     'to apply to successive submissions. These are absolute, not cumulative. ' .
+     'Leave blank for standard Moodle behaviour. ' .
+     'If there are more submissions than defined penalties, the last value is used; ' .
+     'make it 100 to limit the number of submissions. ';
 $string['pluginname'] = 'CodeRunner';
 $string['pluginnameadding'] = 'Adding a CodeRunner question';
 $string['pluginnamesummary'] = 'CodeRunner: runs student-submitted code in a sandbox';

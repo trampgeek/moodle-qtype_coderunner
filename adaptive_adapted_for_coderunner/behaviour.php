@@ -38,6 +38,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+require_once($CFG->dirroot . '/question/behaviour/adaptive/behaviour.php');
+
 class qbehaviour_adaptive_adapted_for_coderunner extends qbehaviour_adaptive {
     const IS_ARCHETYPAL = false;
 
@@ -118,12 +120,36 @@ class qbehaviour_adaptive_adapted_for_coderunner extends qbehaviour_adaptive {
     {
         if (!isset($this->question->penalty_regime) || $this->question->penalty_regime === '') {
             return parent::adjusted_fraction($fraction, $prevtries);
+        } else if ($prevtries == 0) {
+            return $fraction;
         } else {
-            $penalties = explode($this->question->penalty_regime, ",");
-            $i = max(count($penalties) - 1, $prevtries);
+            $penalties = explode(",", $this->question->penalty_regime);
+            $i = min(count($penalties) - 1, $prevtries - 1);
             $penalty = floatval($penalties[$i]) / 100.0;
             return $fraction - $penalty;
         }
+    }
+
+
+    // Override usual adaptive mark details to handle penalty regime..
+    // This is messy. TODO: is there a better way?
+    protected function adaptive_mark_details_from_step(question_attempt_step $gradedstep,
+            question_state $state, $maxmark, $penalty) {
+        if (!isset($this->question->penalty_regime) || $this->question->penalty_regime === '') {
+            return parent::adaptive_mark_details_from_step($gradedstep, $state, $maxmark, $penalty);
+        } else {
+            $prevtries = $this->qa->get_last_behaviour_var('_try', 0);
+            $fract = $this->adjusted_fraction(1.0, $prevtries);
+            $details = new qbehaviour_adaptive_mark_details($state);
+            $details->maxmark    = $maxmark;
+            $details->actualmark = $gradedstep->get_fraction() * $details->maxmark;
+            $details->rawmark    = $gradedstep->get_behaviour_var('_rawfraction') * $details->maxmark;
+            $details->totalpenalty   = 1.0 - $fract;
+            $details->currentpenalty = $details->totalpenalty * $details->maxmark;
+            $details->improvable = $this->is_state_improvable($gradedstep->get_state());
+        }
+
+        return $details;
     }
 
 

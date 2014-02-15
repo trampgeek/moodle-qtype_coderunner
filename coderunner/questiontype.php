@@ -116,6 +116,7 @@ class qtype_coderunner extends question_type {
             'coderunner_type',
             'prototype_type',
             'all_or_nothing',
+            'penalty_regime',
             'show_source'
             );
     }
