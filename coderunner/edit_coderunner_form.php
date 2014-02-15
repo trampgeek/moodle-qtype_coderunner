@@ -148,28 +148,6 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->addHelpButton('columncontrols', 'columncontrols', 'qtype_coderunner');
 
 
-        // The following fields are used to customise a question by overriding
-        // values from the base question type. All are hidden unless the
-        // 'customise' checkbox is checked.
-
-        $mform->addElement('header', 'customisationheader', get_string('customisation','qtype_coderunner'));
-        $mform->addElement('textarea', 'per_test_template',
-                get_string('template', 'qtype_coderunner'),
-                array('rows'=>8, 'cols'=>80, 'class'=>'template edit_code',
-                      'name'=>'per_test_template'));
-
-        $mform->addHelpButton('per_test_template', 'template', 'qtype_coderunner');
-        $gradingControls = array();
-        $graderTypes = array('EqualityGrader' => 'Exact match',
-                'RegexGrader' => 'Regular expression',
-                'TemplateGrader' => 'Template does grading');
-        $gradingControls[] = $mform->createElement('select', 'grader',
-                NULL, $graderTypes);
-        $mform->addElement('group', 'gradingcontrols',
-                get_string('grading', 'qtype_coderunner'), $gradingControls,
-                NULL, false);
-        $mform->addHelpButton('gradingcontrols', 'gradingcontrols', 'qtype_coderunner');
-
         $sandboxControls = array();
         $sandboxControls[] =& $mform->createElement('text', 'cputimelimitsecs',
                 get_string('cputime', 'qtype_coderunner'), array('size' => 5));
@@ -376,7 +354,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 }
             }
         }
-        
+
         $testcodes = $data['testcode'];
         $stdins = $data['stdin'];
         $expecteds = $data['expected'];
