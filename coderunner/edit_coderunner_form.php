@@ -365,6 +365,18 @@ class qtype_coderunner_edit_form extends question_edit_form {
              (!ctype_digit($data['memlimitmb']) || intval($data['memlimitmb']) < 0)) {
             $errors['sandboxcontrols'] = get_string('badmemlimit', 'qtype_coderunner');
         }
+
+
+        if (trim($data['penalty_regime']) != '') {
+            $bits = explode(',', $data['penalty_regime']);
+            foreach ($bits as $bit) {
+                if (!is_numeric($bit) || floatval($bit) < 0 || floatval($bit) > 100) {
+                    $errors['penalty_regime'] = get_string('badpenalties', 'qtype_coderunner');
+                    break;
+                }
+            }
+        }
+        
         $testcodes = $data['testcode'];
         $stdins = $data['stdin'];
         $expecteds = $data['expected'];

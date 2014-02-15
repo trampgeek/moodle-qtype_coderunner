@@ -42,6 +42,7 @@ $string['atleastonetest'] = 'You must provide at least one test case '
     . 'for this question.';
 $string['badcputime'] = 'CPU time limit must be left blank or must be an integer greater than zero';
 $string['badmemlimit'] = 'Memory limit must either be left blank or must be a non-negative integer';
+$string['badpenalties'] = 'Penalty regime must be a comma separated list of numbers in the range [0, 100]';
 $string['columncontrols'] = 'Result table';
 $string['coderunner'] = 'Program Code';
 $string['coderunner_type_required'] = 'You must select a language and question type';
@@ -145,9 +146,11 @@ $string['qWrongBehaviour'] = 'Detailed test results unavailable. '
     . 'Perhaps an empty answer, or question not using Adaptive Mode?';
 $string['options'] = 'Options';
 $string['penalty_regime'] = 'Penalty regime';
-$string['penalty_regime_help'] = 'A comma-separated list of penalties (each a percent)
-    to apply to successive submissions. Leave blank for standard Moodle behaviour.
-    If there are more submissions than defined penalties, the last value is used';
+$string['penalty_regime_help'] = 'A comma-separated list of penalties (each a percent) ' .
+     'to apply to successive submissions. These are absolute, not cumulative. ' .
+     'Leave blank for standard Moodle behaviour. ' .
+     'If there are more submissions than defined penalties, the last value is used; ' .
+     'make it 100 to limit the number of submissions. ';
 $string['pluginname'] = 'CodeRunner';
 $string['pluginnameadding'] = 'Adding a CodeRunner question';
 $string['pluginnamesummary'] = 'CodeRunner: runs student-submitted code in a sandbox';
@@ -170,7 +173,7 @@ $string['questiontype_required'] = 'You must select the type of question';
 $string['row_properties'] = 'Row properties:';
 $string['sandboxcontrols'] = 'Sandbox params';
 $string['sandboxcontrols_help'] = 'You can set the maximum CPU time in seconds ' .
-        'allowed for each testcase run and the maximum memory a single testcase ' .
+        'allowed for each testcasemodify run and the maximum memory a single testcase ' .
         'run can consume (MB) here. A blank entry uses the sandbox\'s ' .
         'default value, but this may not be suitable for resource-demanding ' .
         'languages like Java and Matlab). A value of zero for the maximum memory ' .
@@ -194,7 +197,7 @@ $string['testcase'] = 'Test case {$a}';
 $string['testcases'] = 'Test cases';
 $string['testcode'] = 'Test code';
 $string['template'] = 'Template';
-$string['template_help'] = <<<EO_TEMPLATE_HELP
+$string['template_help'] = <<<EO_TEMPLATE_HmodifyELP
 The template defines the program that is to be run for each test case, depending
 on the student answer and the particular test case. The template is processed
 by the Twig template engine (see twig.sensiolabs.org)
