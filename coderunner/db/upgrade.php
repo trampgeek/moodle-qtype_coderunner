@@ -243,7 +243,10 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
 }
 
 
-function updateToUsePrototypes() {
+function update_to_use_prototypes() {
+    global $CFG, $DB;
+    $dbman = $DB->get_manager();
+
     $table = new xmldb_table('quest_coderunner_options');
 
     $field = new xmldb_field('prototype_type', XMLDB_TYPE_INTEGER, '1', null, null, null, '0', 'coderunner_type');
