@@ -74,13 +74,15 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
         $responsefieldname = $qa->get_qt_field_name('answer');
         $responsefieldid = 'id_' . $responsefieldname;
+        $rows =  isset($question->answerbox_lines) ? $question->answerbox_lines : 18;
+        $cols = isset($question->answerbox_columns) ? $question->answerbox_columns : 100;
         $ta_attributes = array(
             'class' => 'coderunner-answer edit_code',
             'name'  => $responsefieldname,
             'id'    => $responsefieldid,
-            'cols'      => '100',
+            'cols'      => $cols,
             'spellcheck' => 'false',
-            'rows'      => 18
+            'rows'      => $rows
         );
 
         if ($options->readonly) {
@@ -121,13 +123,17 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
       global $PAGE;
 
-      // Load the ace editor and required modules
-      // language-tools -> autocompletion
-      // modelist -> language mapping
-      $plugindirrel = '/question/type/coderunner';
-      $PAGE->requires->js('/' . $plugindirrel . '/ace/ace.js');
-      $PAGE->requires->js('/' . $plugindirrel . '/ace/ext-language_tools.js');
-      $PAGE->requires->js('/' . $plugindirrel . '/ace/ext-modelist.js');
+      $question = $qa->get_question();
+      if ($question->use_ace) {
+
+        // Load the ace editor and required modules
+        // language-tools -> autocompletion
+        // modelist -> language mapping
+        $plugindirrel = '/question/type/coderunner';
+        $PAGE->requires->js('/' . $plugindirrel . '/ace/ace.js');
+        $PAGE->requires->js('/' . $plugindirrel . '/ace/ext-language_tools.js');
+        $PAGE->requires->js('/' . $plugindirrel . '/ace/ext-modelist.js');
+      }
     }
 
 

@@ -129,10 +129,11 @@ body#page-question-type-coderunner div[id^=fgroup_id_][id*=testcasecontrols] {
 
 body#page-question-type-coderunner input[type="checkbox"] {
     margin-right: 1px;
+    margin-left: 2em;
 }
 
 body#page-question-type-coderunner input[type="checkbox"]+label {
-    margin-right: 2em;
+    margin-right: 1em;
 }
 
 

@@ -21,8 +21,8 @@
 /// CODERUNNER QUESTION TYPE CLASS //////////////////
 // The class for programming code questions.
 // A coderunner question consists of a specification for piece of program
-// code, which might be a function or a complete program or (possibly in the
-// future) a fragment of code.
+// code, which might be a function or a complete program or
+// just a fragment of code.
 // The student's response must be source code that defines
 // the specified function. The student's code is executed by
 // a set of test cases, all of which must pass for the question
@@ -39,9 +39,11 @@
 /**
  * @package 	qtype
  * @subpackage 	coderunner
- * @copyright 	&copy; 2012 Richard Lobb
+ * @copyright 	&copy; 2012, 2013, 2014 Richard Lobb
  * @author 	Richard Lobb richard.lobb@canterbury.ac.nz
  */
+
+require_once($CFG->dirroot . '/question/engine/bank.php');
 
 define('COMPUTE_STATS', false);
 
@@ -89,6 +91,9 @@ class qtype_coderunner extends question_type {
             'all_or_nothing',
             'penalty_regime',
             'show_source',
+            'answerbox_lines',
+            'answerbox_columns',
+            'use_ace',
             'showtest',
             'showstdin',
             'showexpected',
@@ -117,7 +122,10 @@ class qtype_coderunner extends question_type {
             'prototype_type',
             'all_or_nothing',
             'penalty_regime',
-            'show_source'
+            'show_source',
+            'answerbox_lines',
+            'answerbox_columns',
+            'use_ace'
             );
     }
 
@@ -141,7 +149,7 @@ class qtype_coderunner extends question_type {
         // Closer inspection shows that this method isn't actually implemented
         // by even the standard question types and wouldn't be called for any
         // non-standard ones even if implemented. I'm leaving the stub in, in
-        // case it's ever needed, but have set it to throw and exception, and
+        // case it's ever needed, but have set it to throw an exception, and
         // I've removed the actual test code.
         throw new coding_exception('Unexpected call to generate_test. Read code for details.');
     }
@@ -237,6 +245,18 @@ class qtype_coderunner extends question_type {
             $DB->delete_records($testcaseTable, array('id' => $otc->id));
         }
 
+        // If this is a prototype, clear the caching of any child questions
+        if ($question->prototype_type != 0) {
+            $typeName = $question->coderunner_type;
+            $children = $DB->get_records('quest_coderunner_options',
+                    array('prototype_type' => 0,
+                          'coderunner_type' => $typeName)
+            );
+            foreach($children as $child) {
+                question_bank::notify_question_edited($child->questionid);
+            }
+        }
+
 
         // Lastly, save any datafiles
 
@@ -328,9 +348,31 @@ class qtype_coderunner extends question_type {
     }
 
 
-    // Delete the testcases when this question is deleted.
+    // Override required here so we can check if this is a prototype
+    // with children (in which case deletion is disallowed). If not,
+    // deletion is allowed but must delete the testcases too.
     public function delete_question($questionid, $contextid) {
         global $DB;
+
+        $question = $DB->get_record(
+                'quest_coderunner_options',
+                array('questionid' => $questionid));
+
+        if ($question->prototype_type != 0) {
+            $typeName = $question->coderunner_type;
+            $nUses = $DB->count_records('quest_coderunner_options',
+                    array('prototype_type' => 0,
+                          'coderunner_type' => $typeName));
+            if ($nUses != 0) {
+                // TODO: see if a better solution to this problem can be found.
+                // Throwing an exception is very heavy-handed but the return
+                // value from this function is ignored by the question bank,
+                // and other deletion (e.g. of the question itself) proceeds
+                // regardless, leaving things in an even worse state than if
+                // I didn't even check for an in-use prototype!
+                throw new moodle_exception('Attempting to delete in-use prototype');
+            }
+        }
 
         $success = $DB->delete_records("quest_coderunner_testcases",
                 array('questionid' => $questionid));

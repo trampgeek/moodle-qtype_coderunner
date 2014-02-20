@@ -293,6 +293,7 @@ class qtype_coderunner_question extends question_graded_automatically {
     // Return true if successful.
     private function runWithCombinator($code, $testCases, $files, $sandboxParams) {
         $outcome = NULL;
+        $maxMark = $this->maximumPossibleMark($testCases);
 
         if ($this->enable_combinator && $this->noStdins($testCases) &&
                 strtolower($this->grader) !== 'templategrader') {
@@ -310,7 +311,8 @@ class qtype_coderunner_question extends question_graded_automatically {
                     NULL, $files, $sandboxParams);
 
             if ($run->result === SANDBOX::RESULT_COMPILATION_ERROR) {
-                $outcome = new TestingOutcome(TestingOutcome::STATUS_SYNTAX_ERROR,
+                $outcome = new TestingOutcome($maxMark,
+                        TestingOutcome::STATUS_SYNTAX_ERROR,
                         $run->cmpinfo);
             }
             else if ($run->result === SANDBOX::RESULT_ABNORMAL_TERMINATION) {
@@ -324,7 +326,7 @@ class qtype_coderunner_question extends question_graded_automatically {
             else if ($run->result === Sandbox::RESULT_SUCCESS && !$run->stderr) {
                 $outputs = preg_split($this->test_splitter_re, $run->output);
                 if (count($outputs) == count($testCases)) {
-                    $outcome = new TestingOutcome();
+                    $outcome = new TestingOutcome($maxMark);
                     $i = 0;
                     foreach ($testCases as $testCase) {
                         $outcome->addTestResult($this->grade($outputs[$i], $testCase));
@@ -346,20 +348,23 @@ class qtype_coderunner_question extends question_graded_automatically {
 
     // Run all tests one-by-one on the sandbox
     private function runTestsSingly($code, $testCases, $files, $sandboxParams) {
+        $maxMark = $this->maximumPossibleMark($testCases);
         $templateParams = array(
             'STUDENT_ANSWER' => $code,
             'ESCAPED_STUDENT_ANSWER' => pythonEscaper(NULL, $code, NULL),
             'MATLAB_ESCAPED_STUDENT_ANSWER' => matlabEscaper(NULL, $code, NULL)
          );
 
-        $outcome = new TestingOutcome();
+        $outcome = new TestingOutcome($maxMark);
         $template = $this->per_test_template;
         foreach ($testCases as $testCase) {
             $templateParams['TEST'] = $testCase;
             try {
                 $testProg = $this->twig->render($template, $templateParams);
             } catch (Exception $e) {
-                $outcome = new TestingOutcome(TestingOutcome::STATUS_SYNTAX_ERROR,
+                $outcome = new TestingOutcome(
+                        $maxMark,
+                        TestingOutcome::STATUS_SYNTAX_ERROR,
                         'TEMPLATE ERROR: ' . $e->getMessage());
                 break;
             }
@@ -369,7 +374,10 @@ class qtype_coderunner_question extends question_graded_automatically {
             $run = $this->sandboxInstance->execute($testProg, $this->language,
                     $input, $files, $sandboxParams);
             if ($run->result === SANDBOX::RESULT_COMPILATION_ERROR) {
-                $outcome = new TestingOutcome(TestingOutcome::STATUS_SYNTAX_ERROR, $run->cmpinfo);
+                $outcome = new TestingOutcome(
+                        $maxMark,
+                        TestingOutcome::STATUS_SYNTAX_ERROR,
+                        $run->cmpinfo);
                 break;
             } else if ($run->result != Sandbox::RESULT_SUCCESS) {
                 $errorMessage = $this->makeErrorMessage($run);
@@ -411,6 +419,16 @@ class qtype_coderunner_question extends question_graded_automatically {
         $sandboxClassLC = strtolower($sandboxClass);
         require_once($CFG->dirroot . "/question/type/coderunner/Sandbox/$sandboxClassLC.php");
         $this->sandboxInstance = new $sandboxClass();
+    }
+
+
+    // Return the maximum possible mark from the given set of testcases.
+    private function maximumPossibleMark($testcases) {
+        $total = 0;
+        foreach ($testcases as $testcase) {
+            $total += $testcase->mark;
+        }
+        return $total;
     }
 
 

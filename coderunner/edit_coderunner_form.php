@@ -91,19 +91,29 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 get_string('questiontype', 'qtype_coderunner'), $typeSelectorElements, NULL, false);
         $mform->setDefault('show_source', False);
         $mform->addHelpButton('coderunner_type_group', 'coderunner_type', 'qtype_coderunner');
+
+        $answerboxElements = array();
+        $answerboxElements[] = $mform->createElement('text', 'answerbox_lines',
+                get_string('answerbox_lines', 'qtype_coderunner'),
+                array('size'=>3));
+        $mform->setType('answerbox_lines', PARAM_INT);
+        $answerboxElements[] = $mform->createElement('text', 'answerbox_columns',
+                get_string('answerbox_columns', 'qtype_coderunner'),
+                array('size'=>3));
+        $mform->setType('answerbox_columns', PARAM_INT);
+        $answerboxElements[] = $mform->createElement('advcheckbox', 'use_ace', NULL,
+                get_string('use_ace', 'qtype_coderunner'));
+        $mform->addElement('group', 'answerbox_group', get_string('answerbox_group', 'qtype_coderunner'),
+                $answerboxElements, NULL, false);
+        $mform->addHelpButton('answerbox_group', 'answerbox_group', 'qtype_coderunner');
+
         $mform->addElement('advcheckbox', 'all_or_nothing', get_string('marking', 'qtype_coderunner'),
                 get_string('all_or_nothing', 'qtype_coderunner'));
         $mform->setDefault('all_or_nothing', True);
         $mform->addHelpButton('all_or_nothing', 'all_or_nothing', 'qtype_coderunner');
         $mform->addElement('text', 'penalty_regime',
         get_string('penalty_regime', 'qtype_coderunner'),
-        array('size' => 20));
-        $mform->addHelpButton('penalty_regime', 'penalty_regime', 'qtype_coderunner');
-        $mform->setType('penalty_regime', PARAM_RAW);
-
-        $mform->addElement('text', 'penalty_regime',
-            get_string('penalty_regime', 'qtype_coderunner'),
-            array('size' => 20));
+                array('size' => 20));
         $mform->addHelpButton('penalty_regime', 'penalty_regime', 'qtype_coderunner');
         $mform->setType('penalty_regime', PARAM_RAW);
 
@@ -178,6 +188,8 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 $prototypeControls, NULL, false);
         $mform->setDefault('is_prototype', False);
         $mform->setType('type_name', PARAM_RAW);
+        $mform->addElement('hidden', 'saved_prototype_type');
+        $mform->setType('saved_prototype_type', PARAM_RAW);
         $mform->addHelpButton('prototypecontrols', 'prototypecontrols', 'qtype_coderunner');
 
 
@@ -382,8 +394,15 @@ class qtype_coderunner_edit_form extends question_edit_form {
             // needs to be copied down from the options here.
             $question->customise = $question->options->customise;
 
-            // Set the type name to the coderunner type by default
-            $question->type_name = $question->coderunner_type;
+            // Save the prototype_type so can see if it changed on post-back
+            $question->saved_prototype_type = $question->prototype_type;
+
+            // Load the type-name if this is a prototype, else make it blank
+            if ($question->prototype_type != 0) {
+                $question->type_name = $question->coderunner_type;
+            } else {
+                $question->type_name = '';
+            }
         }
 
         $draftid = file_get_submitted_draft_itemid('datafiles');
@@ -419,23 +438,27 @@ class qtype_coderunner_edit_form extends question_edit_form {
             $errors = array_merge($errors, $testCaseErrors);
         }
 
-        if ($data['prototype_type'] == 2) {
-            // User-defined prototype
-            $typeName = $data['type_name'];
-            if ($typeName != $data['coderunner_type']) {
-                // Creating a new prototype
-                if (!$this->is_valid_new_type($typeName)) {
-                    $errors['prototypecontrols'] = "New prototype would overwrite an existing type name";
-                }
+
+        if ($data['prototype_type'] == 2 && ($data['saved_prototype_type'] != 2 ||
+                   $data['type_name'] != $data['coderunner_type'])){
+            // User-defined prototype, either newly created or undergoing a name change
+            $typeName = trim($data['type_name']);
+            if ($typeName === '') {
+                $errors['prototypecontrols'] = get_string('empty_new_prototype_name', 'qtype_coderunner');
+            } else if (!$this->is_valid_new_type($typeName)) {
+                $errors['prototypecontrols'] = get_string('bad_new_prototype_name', 'qtype_coderunner');
             }
         }
 
         if (trim($data['penalty_regime']) != '') {
             $bits = explode(',', $data['penalty_regime']);
-            foreach ($bits as $bit) {
-                if (!is_numeric($bit) || floatval($bit) < 0 || floatval($bit) > 100) {
-                    $errors['penalty_regime'] = get_string('badpenalties', 'qtype_coderunner');
-                    break;
+            $n = count($bits);
+            for ($i = 0; $i < $n; $i++) {
+                $bit = trim($bits[$i]);
+                if ($bit === '...') {
+                    if ($i != $n - 1 || $n < 3 || floatval($bits[$i - 1]) <= floatval($bits[$i - 2])) {
+                        $errors['penalty_regime'] = get_string('bad_dotdotdot', 'qtype_coderunner');
+                    }
                 }
             }
         }

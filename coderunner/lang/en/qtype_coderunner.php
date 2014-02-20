@@ -41,6 +41,7 @@ $string['answerrequired'] = 'Please provide a non-empty answer';
 $string['atleastonetest'] = 'You must provide at least one test case '
     . 'for this question.';
 $string['badcputime'] = 'CPU time limit must be left blank or must be an integer greater than zero';
+$string['bad_new_prototype_name'] = 'Illegal name for new prototype: already in use';
 $string['badmemlimit'] = 'Memory limit must either be left blank or must be a non-negative integer';
 $string['columncontrols'] = 'Result table';
 $string['coderunner'] = 'Program Code';
@@ -70,6 +71,13 @@ checkbox and read the help available on the newly-visible form elements for
 more information.
 ";
 $string['advanced_customisation'] = "Advanced customisation";
+$string['answerbox_group'] = "Answer box";
+$string['answerbox_columns'] = "Columns";
+$string['answerbox_lines'] = 'Rows';
+$string['answerbox_group_help'] = 'Set the number of rows and columns to allocate for the answer box. ' .
+        'If the answer overflows the box vertically or horizontally, scrollbars will appear.' .
+        'If \'Use ace\' is checked, the ACE JavaScript code editor will manage the answer box.';
+$string['bad_dotdotdot'] = "Misuse of '...'. Must be at end, after two increasing numeric penalties";
 $string['badpenalties'] = 'Penalty regime must be a comma separated list of numbers in the range [0, 100]';
 $string['coderunnersummary'] = 'Answer is program code that is executed '
     . 'in the context of a set of test cases to determine its correctness.';
@@ -117,6 +125,7 @@ $string['datafiles_help'] = 'Any files uploaded here will be added to the ' .
 $string['display'] = 'Display';
 
 $string['editingcoderunner'] = 'Editing a CodeRunner Question';
+$string['empty_new_prototype_name'] = 'New question type name cannot be empty';
 $string['enable'] = 'Enable';
 $string['enablecombinator'] = 'Enable combinator';
 $string['enable_sandbox_desc'] = 'Permit use of the specified sandbox for ' .
@@ -187,10 +196,12 @@ $string['qWrongBehaviour'] = 'Detailed test results unavailable. '
 $string['options'] = 'Options';
 $string['penalty_regime'] = 'Penalty regime';
 $string['penalty_regime_help'] = 'A comma-separated list of penalties (each a percent) ' .
-     'to apply to successive submissions. These are absolute, not cumulative. ' .
+     'to apply to successive submissions. These are absolute, not cumulative. As a ' .
+     'special case the last penalty can be "..." to mean "extend the previous ' .
+     'two penalties as an arithmetic progression up to 100". For example, ' .
+     '"0,5,10,30,..." is equivalent to "0,5,10,30,50,70,90,100".' .
      'Leave blank for standard Moodle behaviour. ' .
-     'If there are more submissions than defined penalties, the last value is used; ' .
-     'make it 100 to limit the number of submissions. ';
+     'If there are more submissions than defined penalties, the last value is used.';
 $string['pluginname'] = 'CodeRunner';
 $string['pluginnameadding'] = 'Adding a CodeRunner question';
 $string['pluginnamesummary'] = 'CodeRunner: runs student-submitted code in a sandbox';
@@ -200,14 +211,14 @@ $string['pluginname_help'] = 'Use the "Question type" combo box to select the ' 
         'a set of tests to be run on the student\'s submission';
 $string['pluginnameediting'] = 'Editing a CodeRunner question';
 $string['prototypecontrols'] = 'Prototyping';
-$string['prototypecontrols_help'] = 'If \'Use as prototype\' is ' .
-        'checked, this question becomes a prototype for other questions. ' .
+$string['prototypecontrols_help'] = 'If \'Is prototype\' is ' .
+        'true, this question becomes a prototype for other questions. ' .
         'After saving, the specified question type name will appear in the ' .
         'dropdown list of question types. New questions based on this type ' .
         'will then by default inherit all the customisation ' .
         'attributes specified for this question. Subsequent ' .
         'changes to this question will then affect all derived questions ' .
-        'unless they have themselves overridden the customisable fields. ' .
+        'unless they are themselves customised, which breaks the connection. ' .
         'Prototypal inheritance is single-level only, so this question, when ' .
         'saved as a prototype, loses its connection to its original base type, ' .
         'becoming a new base type in its own right. Be warned that when ' .
@@ -290,4 +301,5 @@ EO_TEMPLATE_HELP;
 $string['type_header'] = 'Coderunner question type';
 $string['typerequired'] = 'Please select the type of question (language, format, etc)';
 $string['useasexample'] = 'Use as example';
+$string['use_ace'] = 'Use ace';
 $string['xmlcoderunnerformaterror'] = 'XML format error in coderunner question';

@@ -276,6 +276,13 @@ EOCODE;
         list($mark, $grade, $cache) = $result;
         $this->assertEquals(question_state::$gradedpartial, $grade);
         $this->assertTrue(abs($mark - 5.0/7.5) < 0.00001);
+
+        $code = "def sqr(n):\n    return n * n if n <= 0 else 1 / 0";  // Passes first test then aborts
+        $response = array('answer' => $code);
+        $result = $q->grade_response($response);
+        list($mark, $grade, $cache) = $result;
+        $this->assertEquals(question_state::$gradedpartial, $grade);
+        $this->assertTrue(abs($mark - 0.5/7.5) < 0.00001);
      }
 
 

@@ -249,6 +249,48 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2014021502, 'qtype', 'coderunner');
     }
 
+    if ($oldversion < 2014022001) {
+
+        // Add fields answerbox_lines and use_ace to coderunner_options
+
+        $table = new xmldb_table('quest_coderunner_options');
+        $field = new xmldb_field('answerbox_lines', XMLDB_TYPE_INTEGER, '5', null, XMLDB_NOTNULL, null, '18', 'show_source');
+
+        // Conditionally launch add field answerbox_lines.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $field = new xmldb_field('use_ace', XMLDB_TYPE_INTEGER, '1', null, null, null, '1', 'answerbox_lines');
+
+        // Conditionally launch add field use_ace.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Coderunner savepoint reached.
+        upgrade_plugin_savepoint(true, 2014022001, 'qtype', 'coderunner');
+    }
+
+    if ($oldversion < 2014022004) {
+
+        // Define field answerbox_columns to be added to quest_coderunner_options.
+        $table = new xmldb_table('quest_coderunner_options');
+        $field = new xmldb_field('answerbox_columns', XMLDB_TYPE_INTEGER, '5', null, null, null, '100', 'answerbox_lines');
+
+        // Conditionally launch add field answerbox_columns.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Coderunner savepoint reached.
+        upgrade_plugin_savepoint(true, 2014022004, 'qtype', 'coderunner');
+    }
+
+
+
+
+
     return updateQuestionTypes();
 
 }

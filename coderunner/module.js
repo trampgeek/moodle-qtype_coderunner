@@ -221,9 +221,9 @@ M.qtype_coderunner.initEditForm = function(Y) {
                             mb = outcome.memlimitmb ? outcome.memlimitmb : '';
                             memlimit.set('value', mb);
                             combinator_template.set('text', outcome.combinator_template);
-                            enable_combinator.set('checked', outcome.enable_combinator);
+                            enable_combinator.set('checked', outcome.enable_combinator == "1");
                             test_splitter.set('value', outcome.test_splitter_re.replace('\n','\\n'));
-                           language.set('value', outcome.language);
+                            language.set('value', outcome.language);
                             typeName.set('value', newType);
                         }
                         else {
@@ -248,36 +248,36 @@ M.qtype_coderunner.initEditForm = function(Y) {
     setCustomisationVisibility(isCustomised);
     if (!isCustomised) {
         loadDefaultCustomisationFields(Y);
-    }
+    };
 
     customise.on('change', function(e) {
        isCustomised = customise.get('checked');
        if (isCustomised) {
-           // Customisation is being turned on. Disable combinator.
-           // [User must explicitly re-enable it if they wish to use it.]
-           if (confirm("Enable customisation (disables use of the combinator template)?")) {
-               enable_combinator.set('checked', false);
-               setCustomisationVisibility(true);
-           } else {
-               customise.set('checked', false);
-           }
-
+           // Customisation is being turned on.
+           setCustomisationVisibility(true);
        } else { // Customisation being turned off
            combinator_non_blank = combinator_template.get('text').trim() !== '';
            message = "If you save this question with 'Customise' " +
                "unchecked, any customisation you've done will be lost.";
-           if (combinator_non_blank) {
-               message += " Also, use of the combinator template will be re-enabled.";
-           }
            if (confirm(message + " Proceed?")) {
                  setCustomisationVisibility(false);
-                 if (combinator_non_blank) {
-                    enable_combinator.set('checked', true);
-                 }
            } else {
                customise.set('checked',true);
            }
        }
+    });
+
+    template.on('focus', function(e) {
+           // Per-test template is being changed. Disable combinator.
+           // [User must explicitly re-enable it if they wish to use it.]
+           combinator_non_blank = combinator_template.get('text').trim() !== '';
+           if (combinator_non_blank &&
+                !('alertIssued' in template) &&
+                enable_combinator.get('checked') &&
+                confirm("Editing per-test template - disable combinator? ['Cancel' leaves it enabled.]")) {
+               enable_combinator.set('checked', false);
+           }
+           template.alertIssued = true;
     });
 
 
