@@ -232,10 +232,29 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
     }
 
 
-    if ($oldversion < 2014022005) {
+    if ($oldversion < 2014022009) {
         // Fix screw up in version numbers resulting in broken DB upgrade
         update_to_use_prototypes();
-        upgrade_plugin_savepoint(true, 2014022005, 'qtype', 'coderunner');
+        $table = new xmldb_table('quest_coderunner_options');
+        $field = new xmldb_field('enable_combinator', XMLDB_TYPE_INTEGER, '1', null, FALSE, null, null, 'test_splitter_re');
+
+        // Conditionally launch add field enable_combinator.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Inherit combinator use on all except builtins and existing custom template questions
+        $DB->execute("UPDATE {quest_coderunner_options}
+            SET enable_combinator = IF(per_test_template IS NOT NULL AND per_test_template != '', 0, NULL)
+            WHERE prototype_type = 0");
+
+        foreach (array('showtest', 'showstdin', 'showexpected', 'showoutput', 'showmark') as $fieldname) {
+            $default = $fieldname === 'showmark' ? 0 : 1;
+            $field = new xmldb_field($fieldname, XMLDB_TYPE_INTEGER, '1', XMLDB_UNSIGNED, FALSE, null, $default);
+            $dbman->change_field_notnull($table, $field);  // Make it inheritable by making notnull false
+        }
+
+        upgrade_plugin_savepoint(true, 2014022009, 'qtype', 'coderunner');
     }
 
     return updateQuestionTypes();

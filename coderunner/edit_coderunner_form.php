@@ -28,6 +28,8 @@ defined('MOODLE_INTERNAL') || die();
  */
 define("NUM_TESTCASES_START", 5); // Num empty test cases with new questions
 define("NUM_TESTCASES_ADD", 3);   // Extra empty test cases to add
+define("DEFAULT_NUM_ROWS", 18);   // Answer box rows
+define("DEFAULT_NUM_COLS", 100);   // Answer box rows
 
 require_once($CFG->dirroot . '/question/type/coderunner/Sandbox/sandbox_config.php');
 
@@ -97,12 +99,15 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 get_string('answerbox_lines', 'qtype_coderunner'),
                 array('size'=>3));
         $mform->setType('answerbox_lines', PARAM_INT);
+        $mform->setDefault('answerbox_lines', DEFAULT_NUM_ROWS);
         $answerboxElements[] = $mform->createElement('text', 'answerbox_columns',
                 get_string('answerbox_columns', 'qtype_coderunner'),
                 array('size'=>3));
         $mform->setType('answerbox_columns', PARAM_INT);
+        $mform->setDefault('answerbox_columns', DEFAULT_NUM_COLS);
         $answerboxElements[] = $mform->createElement('advcheckbox', 'use_ace', NULL,
                 get_string('use_ace', 'qtype_coderunner'));
+        $mform->setDefault('use_ace', True);
         $mform->addElement('group', 'answerbox_group', get_string('answerbox_group', 'qtype_coderunner'),
                 $answerboxElements, NULL, false);
         $mform->addHelpButton('answerbox_group', 'answerbox_group', 'qtype_coderunner');
