@@ -152,63 +152,7 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         // Major change. Dispense with question_type table, using prototypal
         // inheritance within (extended) question table instead.
 
-        $table = new xmldb_table('quest_coderunner_options');
-
-        $field = new xmldb_field('prototype_type', XMLDB_TYPE_INTEGER, '1', null, null, null, '0', 'coderunner_type');
-
-        // Conditionally launch add field prototype_type.
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        $field = new xmldb_field('combinator_template', XMLDB_TYPE_TEXT, null, null, null, null, null, 'showmark');
-
-        // Conditionally launch add field combinator_template.
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        $field = new xmldb_field('test_splitter_re', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'combinator_template');
-
-        // Conditionally launch add field test_splitter_re.
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        $field = new xmldb_field('language', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'per_test_template');
-
-        // Conditionally launch add field language.
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        $field = new xmldb_field('sandbox', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'language');
-
-        // Conditionally launch add field sandbox.
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        $index = new xmldb_index('prototype_type', XMLDB_INDEX_NOTUNIQUE, array('prototype_type'));
-
-        // Conditionally launch add index prototype_type.
-        if (!$dbman->index_exists($table, $index)) {
-            $dbman->add_index($table, $index);
-        }
-
-
-        $index = new xmldb_index('coderunner_type', XMLDB_INDEX_NOTUNIQUE, array('coderunner_type'));
-
-        // Conditionally launch add index coderunner_type.
-        if (!$dbman->index_exists($table, $index)) {
-            $dbman->add_index($table, $index);
-        }
-
-        $table = new xmldb_table('quest_coderunner_types');
-        // Conditionally launch drop table coderunner_types
-        if ($dbman->table_exists($table)) {
-            $dbman->drop_table($table);
-        }
+        update_to_use_prototypes();
         upgrade_plugin_savepoint(true, 2013122508, 'qtype', 'coderunner');
     }
 
@@ -288,11 +232,75 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
     }
 
 
-
-
+    if ($oldversion < 2014022005) {
+        // Fix screw up in version numbers resulting in broken DB upgrade
+        update_to_use_prototypes();
+        upgrade_plugin_savepoint(true, 2014022005, 'qtype', 'coderunner');
+    }
 
     return updateQuestionTypes();
 
+}
+
+
+function updateToUsePrototypes() {
+    $table = new xmldb_table('quest_coderunner_options');
+
+    $field = new xmldb_field('prototype_type', XMLDB_TYPE_INTEGER, '1', null, null, null, '0', 'coderunner_type');
+
+    // Conditionally launch add field prototype_type.
+    if (!$dbman->field_exists($table, $field)) {
+        $dbman->add_field($table, $field);
+    }
+
+    $field = new xmldb_field('combinator_template', XMLDB_TYPE_TEXT, null, null, null, null, null, 'showmark');
+
+    // Conditionally launch add field combinator_template.
+    if (!$dbman->field_exists($table, $field)) {
+        $dbman->add_field($table, $field);
+    }
+
+    $field = new xmldb_field('test_splitter_re', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'combinator_template');
+
+    // Conditionally launch add field test_splitter_re.
+    if (!$dbman->field_exists($table, $field)) {
+        $dbman->add_field($table, $field);
+    }
+
+    $field = new xmldb_field('language', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'per_test_template');
+
+    // Conditionally launch add field language.
+    if (!$dbman->field_exists($table, $field)) {
+        $dbman->add_field($table, $field);
+    }
+
+    $field = new xmldb_field('sandbox', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'language');
+
+    // Conditionally launch add field sandbox.
+    if (!$dbman->field_exists($table, $field)) {
+        $dbman->add_field($table, $field);
+    }
+
+    $index = new xmldb_index('prototype_type', XMLDB_INDEX_NOTUNIQUE, array('prototype_type'));
+
+    // Conditionally launch add index prototype_type.
+    if (!$dbman->index_exists($table, $index)) {
+        $dbman->add_index($table, $index);
+    }
+
+
+    $index = new xmldb_index('coderunner_type', XMLDB_INDEX_NOTUNIQUE, array('coderunner_type'));
+
+    // Conditionally launch add index coderunner_type.
+    if (!$dbman->index_exists($table, $index)) {
+        $dbman->add_index($table, $index);
+    }
+
+    $table = new xmldb_table('quest_coderunner_types');
+    // Conditionally launch drop table coderunner_types
+    if ($dbman->table_exists($table)) {
+        $dbman->drop_table($table);
+    }
 }
 
 
