@@ -23,7 +23,7 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         $dbman->add_field($table, $mark);
         upgrade_plugin_savepoint(true, 2013010202, 'qtype', 'coderunner');
     }
-
+$oldversion != 0 &&
     if ($oldversion != 0 && $oldversion < 2013010301) {
         // Allow NULL sandbox and validator fields
         $table = new xmldb_table('quest_coderunner_types');
@@ -193,7 +193,7 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2014021502, 'qtype', 'coderunner');
     }
 
-    if ($oldversion < 2014022001) {
+    if ($oldversion != 0 && $oldversion < 2014022001) {
 
         // Add fields answerbox_lines and use_ace to coderunner_options
 
@@ -216,7 +216,7 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2014022001, 'qtype', 'coderunner');
     }
 
-    if ($oldversion < 2014022004) {
+    if ($oldversion != 0 && $oldversion < 2014022004) {
 
         // Define field answerbox_columns to be added to quest_coderunner_options.
         $table = new xmldb_table('quest_coderunner_options');
@@ -232,7 +232,7 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
     }
 
 
-    if ($oldversion < 2014022009) {
+    if ($oldversion != 0 && $oldversion < 2014022009) {
         // Fix screw up in version numbers resulting in broken DB upgrade
         update_to_use_prototypes();
         $table = new xmldb_table('quest_coderunner_options');
