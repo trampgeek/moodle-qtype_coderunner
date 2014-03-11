@@ -270,11 +270,14 @@ M.qtype_coderunner.initEditForm = function(Y) {
     template.on('focus', function(e) {
            // Per-test template is being changed. Disable combinator.
            // [User must explicitly re-enable it if they wish to use it.]
+           // The combinator-disabled alert has been disabled for now.
+           // Let's see if it really matters. It's annoying!
            combinator_non_blank = combinator_template.get('text').trim() !== '';
            if (combinator_non_blank &&
                 !('alertIssued' in template) &&
-                enable_combinator.get('checked') &&
-                confirm("Editing per-test template - disable combinator? ['Cancel' leaves it enabled.]")) {
+                enable_combinator.get('checked')
+                // && confirm("Editing per-test template - disable combinator? ['Cancel' leaves it enabled.]")
+              ) {
                enable_combinator.set('checked', false);
            }
            template.alertIssued = true;

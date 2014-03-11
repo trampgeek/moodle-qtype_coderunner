@@ -276,7 +276,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
                 }
 
                 $mark = $testResult->awarded;
-
+                $fraction = $mark / $testResult->mark;
                 if ($question->showmark && !$question->all_or_nothing) {
                     $tableRow[] = sprintf('%.2f/%.2f', $mark, $testResult->mark);
                 }
@@ -286,8 +286,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
                     $rowWithLineBreaks[] = $this->addLineBreaks($col);
                 }
 
-                $right_or_wrong = $testResult->isCorrect ? 1 : 0;
-                $rowWithLineBreaks[] = $this->feedback_image($right_or_wrong);
+                $rowWithLineBreaks[] = $this->feedback_image($fraction);
                 $tableData[] = $rowWithLineBreaks;
             }
             $i++;

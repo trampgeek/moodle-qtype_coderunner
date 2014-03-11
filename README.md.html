@@ -1,6 +1,6 @@
 <h1>CODE RUNNER</h1>
 
-<p>Version: 1.5Beta November 2013</p>
+<p>Version: 2.0alpha February 2014</p>
 
 <p>Author: Richard Lobb, University of Canterbury, New Zealand.</p>
 
@@ -22,7 +22,8 @@ cases the code successfully passes.</p>
 
 <p>CodeRunner and its predecessors <em>pycode</em> and <em>ccode</em> has been in use at the
 University of Canterbury for about four years, running tens of thousands of
-student quiz submissions in Python, C and Matlab. All laboratory work in the
+student quiz submissions in Python, C and Matlab. All laboratory
+and assignment work in the
 introductory first year Python programming course, which has around 400 students
 in the first semester and 200 in the second, is assessed using CodeRunner
 questions. The mid-semester test also uses Moodle/CodeRunner and it is intended to
@@ -101,7 +102,7 @@ install script to see exactly what was expected.</p>
 <p>This step can be skipped if you're not planning on running C, or if you're
 happy to use the default Runguard Sandbox for C programs.</p>
 
-<p>The recommended main sandbox for running C is the Liu sandbox. It can be obtained
+<p>The recommended sandbox for running C is the Liu sandbox. It can be obtained
 from <a href="http://sourceforge.net/projects/libsandbox/">here</a>.  Both the binary and the
 Python2 interface need to be installed. Note that CodeRunner does <em>not</em>
 currently work with the Python3 interface to the sandbox.</p>
@@ -144,12 +145,10 @@ been making extensive use of the RunguardSandbox for two years and only
 once had a problem when multiple Python submissions attempted to run
 the Java Virtual Machine (heavily multithreaded), for which the process limit
 previously set for Python was inadequate. That limit has since been multiplied
-by 10. To use only the RunguardSandbox, change the file
-<code>CodeRunner/coderunner/Sandbox/sandbox_config.php</code>
-to list only <code>runguardsandbox</code> as an option.</p></li>
+by 10.</p></li>
 <li><p>The IdeoneSandbox. ideone.com is a compute server that runs
 programs submitted either through a browser or through a web-services API in
-a huge number of different languages. This is not recommended for production
+a huge number of different languages. It is not recommended for production
 use, as execution turn-around time is frequently too large (from 10 seconds
 to a minute or more) to give a tolerable user experience. An
 <a href="http://ideone.com/account/register">Ideone account</a>
@@ -177,7 +176,7 @@ Matlab you should first move or remove the file</p>
 
 <pre><code>    cd &lt;moodlehome&gt;
     sudo php admin/tool/phpunit/cli/init.php
-    sudo phpunit --testsuite="qtype_coderunner test suite"
+    sudo ./phpunit --testsuite="qtype_coderunner test suite"
 </code></pre>
 
 <p>Please <a href="mailto:richard.lobb@canterbury.ac.nz">email me</a> if you have problems
@@ -185,46 +184,90 @@ with the installation.</p>
 
 <h2>Question types</h2>
 
-<p>CodeRunner support a wide variety of question types and can easily be
-extended to support lots more. The file <code>db/upgrade.php</code> installs a set of
-standard language and question types into the data base. Each question type
-defines a programming language, a couple of templates (see the next section),
-a preferred sandbox (normally left blank so that the best one available can
-be used) and a preferred grader. The latter is also normally blank as the
-default
-<em>EqualityGrader</em> is usually sufficient - it just compares the actual
-program output with the expected output and requires an exact match for a
-pass, after trailing blank lines and trailing white space on lines has been
-removed. An alternative regular expression grader, <em>RegexGrader</em>, is available
-as an alternative; it isn't used by any of the base question types but can
-easily be selected on a per-question basic using the customisation capabilities.
-See the next section.</p>
+<h3>Introduction</h3>
 
-<p>The current set of question types (each of which can be customised by
-editing its template and other parameters, as explained in the next section) is
-as follows. All
-question types currently use the RunguardSandbox except for C
-questions, which use the LiuSandbox, if that's installed, or the RunguardSandbox
-otherwise.</p>
+<p>CodeRunner support a wide variety of question types and can easily be
+extended to support others. A CodeRunner question type is defined by a
+<em>question prototype</em>, which specifies run time parameters like the execution
+language and sandbox and defines how a test program is built from the
+question's test-cases plus the student's submission. The prototype also
+defines whether the correctness of the student's submission is assessed by use
+of an <em>EqualityGrader</em> or a <em>RegexGrader</em>. The former expects
+the output from the test execution to exactly match the expected output
+for the testcase, while the latter expects a regular expression match
+instead. The EqualityGrader is recommended for all normal use as it
+encourages students to get their output exactly correct; they should be able to
+resubmit almost-right answers for a small penalty, which is generally a
+better approach than trying to award part marks based on regular expression
+matches.</p>
+
+<p>Test cases are defined by the question author to check the student's code.
+Each test case defines a fragment of test code, the standard input to be used
+when the test program is run and the expected output from that run. The
+author can also add additional files to the execution environment.</p>
+
+<p>The test program is constructed from the test case information plus the
+student's submission using one of two <em>templates</em> defined by the prototype.
+The <em>per-test template</em> defines a different program for each test case.
+To achieve higher efficiency with some
+question types there is also a <em>combinator template</em> that defines a single
+program containing all the different tests. If this template is defined,
+and there is no standard input supplied,
+CodeRunner
+tries to use it first, but falls back to running the separate per-test-case
+programs if any runtime exceptions occur. Templates are discussed in more
+detail below.</p>
+
+<h3>An example question type</h3>
+
+<p>The C-function question type expects students to submit a C function, plus possible
+additional support functions, to some specification. For example, the question
+might ask "Write a C function with signature <em>int sqr(int n)</em> that returns
+the square of its parameter <em>n</em>". The author will then provide some test
+cases of the form</p>
+
+<pre><code>    printf("%d\n", sqr(-11));
+</code></pre>
+
+<p>and give the expected output from this test. There is no standard input for
+this question type. The per-test template would then wrap the student's
+submission and
+the test code into a single program like:</p>
+
+<pre><code>    #include &lt;stdio.h&gt;
+
+    // --- Student's answer is inserted here ----
+
+    int main()
+    {
+        printf("%d\n", sqr(-11));
+        return 0;
+    }
+</code></pre>
+
+<p>which would be compiled and run. The output from the run would be compared with
+the specified expected output (121) and the student would be marked right
+or wrong accordingly.</p>
+
+<p>This example ignores the use of the combinator template, which in
+the case of the built-in C function question type
+would build a program with multiple <em>printf</em> calls interleaved with
+printing of a special separator. The resulting output would then be split
+back into individual test case results using the separator string as a splitter.</p>
+
+<h3>Built-in question types</h3>
+
+<p>The file <code>db/upgrade.php</code> installs the following set of prototype
+question types into the data base. However, question authors should not feel
+constrained by this built-in set. Specific instances of each question type
+can be customised in various ways, typically to use a different template and
+in fact authors can define their own question types.
+The issues of question customisation and user-defined question types
+are discussed in later sections.</p>
 
 <ol>
-<li><p><strong>python3</strong>. Used for most Python3 questions. For each test case, the student
-code is run first, followed by the sequence of tests.</p></li>
-<li><p><strong>python2</strong>. Used for most Python2 questions. For each test case, the student
-code is run first, e followed by the sequence of tests. This question type
-should be considered to be
-obsolescent due to the widespread move to Python3 through the education
-community.</p></li>
-<li><p><strong>python3_pylint_func</strong>. This is a special type developed for use in the
-University of Canterbury. The student submission is prefixed by a dummy module
-docstring and the code is passed through the <a href="http://www.logilab.org/857">pylint</a>
-source code analyser. The submission is rejected if pylint gives any errors,
-otherwise testing proceeds as normal. Obviously, pylint needs to be installed
-and appropriately configured for this question type to be usable.</p></li>
-<li><p><strong>python3_pylint_prog</strong>. This is identical to the previous type except that no
-dummy docstring is added at the top as the submission is expected to be a
-stand-alone program.</p></li>
-<li><p><strong>c_function</strong>. Used for C write-a-function questions where the student supplies
+<li><p><strong>c_function</strong>. This is the question type discussed in the above
+example. The student supplies
 just a function (plus possible support functions) and each test is (typically) of the form</p>
 
 <pre><code>printf(format_string, func(arg1, arg2, ..))
@@ -234,15 +277,18 @@ just a function (plus possible support functions) and each test is (typically) o
 by the student code followed by a main function that executes the tests one by
 one.</p>
 
-<p>All C question types use the gcc compiler with the language set to
+<p>The manner in which a C program is executed is not part of the question
+type definition: it is defined by the particular sandbox to which the
+execution is passed. The Liu Sandbox and the CodeRunner sandbox both use the gcc
+compiler with the language set to
 accept C99 and with both <em>-Wall</em> and <em>-Werror</em> options set on the command line
 to issue all warnings and reject the code if there are any warnings.
-C++ isn't built in as present, as we don't teach it, but changing C question
+C++ isn't built in at present, as we don't teach it, but changing the sandboxes
 to support C++ is mainly just a matter of changing the
 compile command line, viz., the line "$cmd = ..." in the <em>compile</em> methods of
 the  <em>C_Task</em> classes in runguardsandboxtasks.php and liusandboxtasks.php.
-You will probably
-also wish to change the C question type templates a bit, e.g. to include
+You would then probably
+wish to change the C question type templates a bit, e.g. to include
 <em>iostream</em> instead of, or as well as, <em>stdio.h</em> by default. The line</p>
 
 <pre><code>using namespace std;
@@ -250,37 +296,73 @@ also wish to change the C question type templates a bit, e.g. to include
 
 <p>may also be desirable.</p></li>
 <li><p><strong>c_program</strong>. Used for C write-a-program questions where the student supplies
-a complete program and the tests simply run this program with supplied standard
+a complete program and the tests simply run this program with
+the supplied standard
 input.</p></li>
-<li><p><strong>c_full_main_tests</strong>. This is a rarely used special question type where
-students write global declarations (types, functions etc) and each test is a
-complete C main function that uses the student-supplied declarations.</p></li>
-<li><p><strong>matlab<em>function</strong>. This is the only supported matlab question type and isn't
-really intended for general use outside the University of Canterbury. It assumes
-matlab is installed on the server and can be run with the shell command
-"/usr/local/bin/matlab</em>exec_cli".
-A ".m" test file is built that contains a main test function, which executes
-all the supplied test cases, followed by the student code which must be in the
-form of one or more function declarations. That .m file is executed by Matlab,
-various Matlab-generated noise is filtered, and the output must match that
-specified for the test cases.</p></li>
+<li><p><strong>python3</strong>. Used for most Python3 questions. For each test case, the student
+code is run first, followed by the test code.</p></li>
+<li><p><strong>python2</strong>. Used for most Python2 questions. As for python3, the student
+code is run first, e followed by the sequence of tests. This question type
+should be considered to be
+obsolescent due to the widespread move to Python3 through the education
+community.</p></li>
 <li><p><strong>java_method</strong>. This is intended for early Java teaching where students are
 still learning to write individual methods. The student code is a single method,
 plus possible support methods, that is wrapped in a class together with a
 static main method containing the supplied tests (which will generally call the
 student's method and print the results).</p></li>
 <li><p><strong>java_class</strong>. Here the student writes an entire class (or possibly
-multiple classes), which must <em>not</em> be
+multiple classes), which (currently) must <em>not</em> be
 public. The test cases are then wrapped in the main method for a separate
 public test class which is added to the students class and the whole is then
-executed.</p></li>
-<li><p><strong>java_program</strong>. Here the students writes a complete program which is compiled
+executed. If you wish students to instead submit <em>public</em> classes, you must
+change the template to strip the word public from the start of their class
+definition using the text-substitution capabilities of the template processor
+<a href="http://twig.sensiolabs.org/">Twig</a>. [Students can construct programs
+that will not be correctly processed by simplistic substitutions of this
+sort, but then they just fail the tests. They soon learn to write their
+classes in the expected manner!]</p></li>
+<li><p><strong>java_program</strong>. Here the student writes a complete program which is compiled
 then executed once for each test case to see if it generates the expected output
 for that test.</p></li>
 </ol>
 
-<p>As discussed in the following sections, this base set of question types can
-be customised in various ways. The</p>
+<p>As discussed below, this base set of question types can
+be customised in various ways.</p>
+
+<h3>Some more-specialised question types</h3>
+
+<p>The current version of CodeRunner installs some other more specialised
+question types, but these are likely to be dropped from the main install
+in the near future, since it is now straightforward for authors to define
+their own question types.</p>
+
+<p>Local question types include:</p>
+
+<ol>
+<li><p><strong>python3_pylint_func</strong>. This is a special type developed for use in the
+University of Canterbury. The student submission is prefixed by a dummy module
+docstring and the code is passed through the <a href="http://www.logilab.org/857">pylint</a>
+source code analyser. The submission is rejected if pylint gives any errors,
+otherwise testing proceeds as normal. Obviously, pylint needs to be installed
+and appropriately configured for this question type to be usable. It
+uses the RunguardSandbox.</p></li>
+<li><p><strong>python3_pylint_prog</strong>. This is identical to the previous type except that no
+dummy docstring is added at the top as the submission is expected to be a
+stand-alone program.python</p></li>
+<li><p><strong>c_full_main_tests</strong>. This is a rarely used special question type where
+students write global declarations (types, functions etc) and each test is a
+complete C main function that uses the student-supplied declarations.</p></li>
+<li><p><strong>matlab_function</strong>. This is the only supported matlab question type and isn't
+really intended for general use outside the University of Canterbury. It assumes
+matlab is installed on the server and can be run with the shell command
+"/usr/local/bin/matlab_exec_cli".
+A ".m" test file is built that contains a main test function, which executes
+all the supplied test cases, followed by the student code which must be in the
+form of one or more function declarations. That .m file is executed by Matlab,
+various Matlab-generated noise is filtered, and the output must match that
+specified for the test cases.</p></li>
+</ol>
 
 <h2>Templates</h2>
 
@@ -344,16 +426,11 @@ the tester retries all test cases individually using the per-test-case
 template so that the student gets presented with all results up to the point
 at which the exception occurred.</p>
 
-<p>Because combinator templates are complicated, they are not exposed via
-the authorship GUI. If you wish to use them (and the only reason would be
-to gain efficiency in questions of a type not currently supported) you will
-need to edit <code>upgrade.php</code>, set a new plug-in version number, and run the
-administrator plug-in update procedure.</p>
-
 <p>As mentioned above, the <code>per_test_template</code> can be edited by the question
 author for special needs, e.g. if you wish to provide skeleton code to the
 students. As a simple example, if you wanted students to provide the missing
-line in a C function that returns the square of its parameter, you could use
+line in a C function that returns the square of its parameter, and you
+also wished to hide the <em>printf</em> from the students, you could use
 a template like:</p>
 
 <pre><code>    #include &lt;stdio.h&gt;
@@ -365,17 +442,23 @@ a template like:</p>
     }
 
     int main() {
-        {{ TEST.testcode }};
+        printf({{ TEST.testcode }});
         return 0;
     }
 </code></pre>
 
-<p>Obviously the question text for such a question would need to make it clear
+<p>The testcode would then just be of the form <em>sqr(-11)</em>, and the question text
+would need to make it clear
 to students what context their code appears in.</p>
 
-<p>Note that if you customise a question type in this way you lose the
-efficiency gain that the combinator template offers, although this is probably
-not much of a problem unless you have a large number of testcases.</p>
+<p>When you edit the per-test template, the combinator template is immediately
+disabled. You can re-enable and edit it, if you wish, by opening
+the <em>Advanced
+Customisation</em> block. You will need to understand loops and selection in
+the Twig template engine if you wish to write your own combinator templates.
+The combinator template doesn't normally offer much benefit unless you have a
+large number of testcases or are using
+a slow-to-launch language like Matlab.</p>
 
 <h2>Advanced template use</h2>
 
@@ -426,14 +509,14 @@ when using the per-test-case template if an exception occurs.]</p>
 used in practice include:</p>
 
 <ol>
-<li><p>A matlab question in which the template code (also matlab) breaks down
+<li><p>A Matlab question in which the template code (also Matlab) breaks down
 the student's code into functions, checking the length of each to make
 sure it's not too long, before proceeding with marking.</p></li>
-<li><p>A python question where the student's code is actually a compiler for
+<li><p>A Python question where the student's code is actually a compiler for
 a simple language. The template code runs the student's compiler,
 passes its output through an assembler that generates a JVM class file,
 then runs that class with the JVM to check its correctness.</p></li>
-<li><p>A python question where the students submission isn't code at all, but
+<li><p>A Python question where the students submission isn't code at all, but
 is a textual description of a Finite State Automaton for a given transition
 diagram; the template code evaluates the correctness of the supplied
 automaton.</p></li>
@@ -479,125 +562,143 @@ in the submitted code.</p>
 
 <p>As an example of the use of a custom grader, consider the following question:</p>
 
-<p>"Write a function <em>best_pair(nums)</em> that takes a list of 2 or more integers and
-returns any two elements from the list such that the absolute value of the
-difference between the two elements is less than or equal to the difference
-between all other pairs of elements. An element from the input list can appear
-only once in the output pair unless the element is repeated in the input too.</p>
+<p>"What single line of code can be inserted into the underlined blank space
+in the code below to make the function behave as specified? Your answer
+should be just the missing line of code, not the whole function.
+It doesn't matter if you indent your code or not in the answer box.
+For full marks your answer must be a single line of code. However,
+half marks will be awarded if you provide more than one line of code but it
+works correctly.</p>
 
-<p>"For example <em>best_pair([-100, 20, 95, 11, -8, 1])</em> should return one of the pairs
-(11, 20), (20,11), (-8, 1) or (1, -8)."</p>
+<pre><code>    def nums_in_range(nums, lo, hi):
+        '''Given a non-empty list of numbers nums and two numbers
+           lo and hi return True if and only if the minimum of the
+           numbers in nums is greater than lo and the maximum of
+           the numbers in nums is less than hi.'''
+        ____________________________
+</code></pre>
 
-<p>The following template, with the "template does grading" checkbox checked,
-could be used as a grader for this question.</p>
+<p>The grader for this question, which needs to check both the number of
+lines of code submitted and the correctness, awarding marks and appropriate
+feedback accordingly, might be the following:</p>
 
-<pre><code>import json
-import sys
-
-def sample_solution(nums):
-    best = (nums[0], nums[1])
-    for i in range(len(nums) - 1):
-        for j in range(i + 1, len(nums)):
-            if abs(nums[i] - nums[j]) &lt; abs(best[0] - best[1]):
-                best = (nums[i], nums[j])
-    return best
-
-def is_valid(response, nums):
-    if not isinstance(response, tuple) or len(response) != 2:
-        return False
-    if response[0] not in nums or response[1] not in nums:
-        return False
-    if response[0] == response[1] and nums.count(response[0]) &lt; 2:
-        return False
-    return True
-
-nums = {{TEST.testcode}}
-my_soln = sample_solution(nums)
-my_diff = abs(my_soln[0] - my_soln[1])
-expected = 'Pair with difference of ' + str(my_diff) + '\ne.g. ' + str(my_soln)
-saved_stdout = sys.stdout
-saved_stderr = sys.stderr
-sys.stdout = sys.stderr = open('__prog_out__', 'w')
-
-try:
-    exec("""{{STUDENT_ANSWER | e('py')}}""")
-    candidate = best_pair(nums[:])
-    sys.stdout.close()
-    prog_output = open('__prog_out__').read()
-
-    if prog_output != '':
-        grading = {
-            'fraction':0.0,
-            'got': 'Unexpected output from your code : ' + prog_output
-        }
-    elif not is_valid(candidate, nums):
-        grading = {'fraction':0.0, 'got': 'Invalid response: ' + str(candidate)}
+<pre><code>    import re
+    __student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
+    if __student_answer__.strip().startswith('def'):
+        raise Exception("You seem to have pasted the whole function " +
+                        "definition. READ THE INSTRUCTIONS!")
+    if re.search(r'print *\(.*\)', __student_answer__):
+        mark = 0
+        got = "BAD CODE: your function should not print anything"
     else:
-        got = str(candidate)
-        got_diff = abs(candidate[0] - candidate[1])
-        if got_diff == my_diff:
-            mark = 1.0
+        # Split the code into lines. Indent if necessary.
+        __lines__ = __student_answer__.split('\n')
+        __lines__ = ['    ' + line +
+                '\n' for line in __lines__ if line.strip() != '']
+        code = 'def nums_in_range(nums, lo, hi):\n' + ''.join(__lines__)
+        exec(code)
+        num_lines = len(__lines__)
+
+        result = {{TEST.testcode}}
+        if result == {{TEST.expected}}:
+            if num_lines &gt; 1:
+                mark = 0.5
+                got = repr(result) + r"\n(but more than 1 line of code)"
+            else:
+                mark = 1
+                got = repr(result)
         else:
-            mark = 0.0
-            got += '\n(difference of {})'.format(got_diff)
-        grading = {'fraction': mark, 'got': got}
-except Exception as e:
-    grading = {'fraction':0, 'got': '*** Exception occurred ***\n' + str(e)}
+            mark = 0
+            if num_lines &gt; 1:
+                got = repr(result) + r"\n(and more than one line of code)"
+            else:
+                got = repr(result)
 
-sys.stdout = saved_stdout
-sys.stderr = saved_stderr
-grading['expected'] = expected
-print(json.dumps(grading))
+    print('{"fraction":' + str(mark) + ',"got":"' + got + '"}')
 </code></pre>
 
-<p>It is assumed that the "testcases" for this question are just Python lists of
-ints, e.g. with 'testcode' like '[10, 6, -11, 21, 3, 4]'. The other testcase
-fields (stdin and expected) are unused, as the grading program computes the
-expected result.</p>
+<p>If the student submits one line of code that behaves correctly
+their grading table looks normal, e.g.
+<img src="rightAnswerToGraderExample.png" alt="right answer image" title="" /></p>
 
-<p>If the student responds with the plausible but wrong response:</p>
+<p>If they submit multiple lines of code that behave correctly, their result
+table might instead be:
+<img src="wrongAnswerToGraderExample.png" alt="wrong answer image" title="" /></p>
 
-<pre><code>def best_pair(nums):
-    best = (nums[0], nums[1])
-    for n1 in nums:
-        nums.remove(n1)
-        for n2 in nums:
-            if abs(n1 - n2) &lt; abs(best[0] - best[1]):
-                best = (n1, n2)
-    return best
-</code></pre>
-
-<p>then, assuming all-or-nothing grading, their result table looks like:</p>
-
-<p><img src="wrongAnswerToGraderExample.png" alt="wrong answer image" title="" /></p>
-
-<p>Note that the "Expected" column contains a customised message, not just a field
-from the testcase, and that alternative answers are accepted in the 'Got'
-column if they have the required absolute difference.</p>
-
-<p>If instead, the student submits a correct answer,
-such as,</p>
-
-<pre><code>def best_pair(nums):
-    best = (nums[0], nums[1])
-    for i in range(len(nums) - 1):
-        for j in range(i + 1, len(nums)):
-            if abs(nums[i] - nums[j]) &lt;= abs(best[0] - best[1]):
-                best = (nums[i], nums[j])
-    return best
-</code></pre>
-
-<p>then they get the following:</p>
-
-<p><img src="rightAnswerToGraderExample.png" alt="right answer image" title="" /></p>
+<p>Note that the "Got" column contains a customised message in addition to
+their output and the customised message varies according to whether their
+answer was right or wrong. Note too that the template performs various other
+checks on their code, such as whether it contains any print statements or
+whether they have pasted an entire function definition.</p>
 
 <p>It may be noted that writing questions using custom graders is much harder than
-using the normal built-in equality based grader. The above question would have
-been much simpler if it had been posed in a way that allowed no ambiguity in the
-output. For example, it could have asked simply for the absolute difference
-between the elements of the pair or specified unambiguously which pair to
-return and the order of the elements of the pair. In that case, no custom grader
-would have been required, nor even a custom template.</p>
+using the normal built-in equality based grader. It is often possible to
+ask the question in a different way that avoids the need for a custom grader.
+In the above example, the
+student could have been asked to submit their entire function twice,
+once to a question that evaluated its
+correctness and a second time to one that evaluated its correctness <em>and</em>
+its length. No custom grader is then required. That is
+somewhat clumsy from the student perspective
+but is much easier for the author.</p>
+
+<h2>User-defined question types</h2>
+
+<p>NOTE: User-defined question types should be regarded as experimental. If
+you wish to use them, please read the following very carefully as their are
+a few known pitfalls.</p>
+
+<p>As explained earlier, each question type is defined by a prototype question,
+which is just
+another question in the database from which new questions can inherit. When
+customising a question, if you open the <em>Advanced customisation</em> panel you'll
+find the option to save your current question as a prototype. You will have
+to enter a name for the new question type you're creating. It is strongly
+recommended that you also change the name of your question to reflect the
+fact that it's a prototype, in order to make it easier to find. The convention
+used by all the built-in prototypes is to start the question name with
+the string PROTOTYPE_, followed by the type name. For example,
+PROTOTYPE_\python3. Having a
+separate category for prototype questions is also a good idea. Obviously the
+type name you use should be unique.</p>
+
+<p>Currently, user-defined question types are global, i.e. when selecting the
+CodeRunner question type with the combo-box, all question authors in
+all courses get to see <em>all</em> the built-in and user-defined prototypes.
+This is temporary; the scope of a prototype question will
+hopefully be restricted in the next version of CodeRunner.
+Many of the more-specialised existing base types, such as clojure,
+python3_pylint etc will likely be removed from the built-ins then, too, so that they
+don't clutter the menu globally; they
+can be easily implemented as user-defined types.</p>
+
+<p>When you create a question of a particular type, including user-defined
+types, all the so-called "customisable" fields are inherited from the
+prototype. This means changes to the prototype will affect all the "children"
+questions. However, as soon as you customise a child question you copy all the
+prototype fields and lose that inheritance.</p>
+
+<p>To reduce the UI confusion, customisable fields are subdivided into the
+basic ones (per-test-template, grader, result-table column sectors etc) and
+"advanced"
+ones. The latter include the language, sandbox, timeout, memory limit and
+the "make this question a prototype" feature. Also in there is the combinator
+template, which is now editable. By default, when you edit
+the per-test-template the combinator is disabled; you must explicitly re-enable
+it (and edit it) if you need it. The JavaScript alerts that tell you this are a
+tad annoying but I'm leaving them in so no one can accuse me of not warning them.</p>
+
+<p>Managing prototype questions is a little problematic - there's no way
+to find all the children of a prototype. If you try to delete a prototype that
+as children an exception will be thrown; this maintains the data integrity but
+may or may not generate an even vaguely useful error message. It certainly won't
+tell you which questions are inheriting from it. I can't find a cleaner way to
+manage this; just don't do it.</p>
+
+<p>One major warning: if you define your own question type, then use it with lots
+of other questions, you'd better make sure when you export your question bank
+that you include the prototype, or all its children will die on being imported
+anywhere else!</p>
 
 <h2>How programming quizzes should work</h2>
 

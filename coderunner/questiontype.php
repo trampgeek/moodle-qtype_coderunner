@@ -409,6 +409,12 @@ class qtype_coderunner extends question_type {
         array_shift($extraquestionfields);
         $qo = $format->import_headers($data);
         $qo->qtype = $question_type;
+        $newDefaults = array(
+            'all_or_nothing' => 1,
+            'answerbox_lines' => 15,
+            'answerbox_columns' => 90,
+            'use_ace' => 1
+        );
 
         foreach ($extraquestionfields as $field) {
             if ($field === 'per_test_template'  && isset($data['#']['custom_template'])) {
@@ -416,13 +422,13 @@ class qtype_coderunner extends question_type {
                 $qo->per_test_template = $format->getpath($data, array('#', 'custom_template', 0, '#'), '');
             }
             else {
-                $qo->$field = $format->getpath($data, array('#', $field, 0, '#'), '');
+                if (array_key_exists($field, $newDefaults)) {
+                    $default = $newDefaults[$field];
+                } else {
+                    $default = '';
+                }
+                $qo->$field = $format->getpath($data, array('#', $field, 0, '#'), $default);
             }
-        }
-
-
-        if (!isset($qo->all_or_nothing)) {
-            $qo->all_or_nothing = 1; // Force all-or-nothing on old exports
         }
 
         $testcases = $data['#']['testcases'][0]['#']['testcase'];
