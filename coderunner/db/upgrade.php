@@ -23,7 +23,7 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         $dbman->add_field($table, $mark);
         upgrade_plugin_savepoint(true, 2013010202, 'qtype', 'coderunner');
     }
-$oldversion != 0 &&
+
     if ($oldversion != 0 && $oldversion < 2013010301) {
         // Allow NULL sandbox and validator fields
         $table = new xmldb_table('quest_coderunner_types');
