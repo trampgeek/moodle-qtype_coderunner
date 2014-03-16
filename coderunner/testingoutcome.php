@@ -26,7 +26,10 @@ class TestingOutcome {
     public $sourceCodeList;          // Array of all test runs
     public $graderCodeList;          // Array of source code of all grader runs
 
-    public function __construct($status=TestingOutcome::STATUS_VALID, $errorMessage = '') {
+    public function __construct(
+            $maxPossMark,
+            $status=TestingOutcome::STATUS_VALID,
+            $errorMessage = '') {
         if ($status != TestingOutcome::STATUS_VALID &&
             $status != TestingOutcome::STATUS_SYNTAX_ERROR) {
             throw new CodingException('Bad parameter to TestingOutcome constructor');
@@ -35,7 +38,7 @@ class TestingOutcome {
         $this->errorMessage = $errorMessage;
         $this->errorCount = 0;
         $this->actualMark = 0;
-        $this->maxPossMark = 0;
+        $this->maxPossMark = $maxPossMark;
         $this->runHost = php_uname('n');  // Useful for debugging with multiple front-ends
         $this->testResults = array();
         $this->sourceCodeList = null;     // Array of all test runs on the sandbox
@@ -63,7 +66,6 @@ class TestingOutcome {
 
     public function addTestResult($tr) {
         $this->testResults[] = $tr;
-        $this->maxPossMark += $tr->mark;
         $this->actualMark += $tr->awarded;
         if (!$tr->isCorrect) {
             $this->errorCount++;

@@ -3,11 +3,11 @@
 '''CodeRunner load tester.
 
     Tests the load handling capability of a server by submitting
-    quiz attempts by a set of n users to a set of m quizzes in a 
+    quiz attempts by a set of n users to a set of m quizzes in a
     pseudo-random manner, recording response time and correctness
     of response. It requires that a suitable set of quizzes be
-    set up on the server. 
-    
+    set up on the server.
+
     Mostly code written by Carl Cerecke, modified by Richard Lobb.
 
     Further modified to change from ccode to coderunner, Jan 2013.
@@ -15,11 +15,11 @@
     Assumed the existence of 4 1-question quizzes, called LoadTesting1 ..
     LoadTesting4, together with logins for 10 students, student0 ..
     student9.
-    
+
     This program is very specific to the University of Canterbury
     but is included here on the off-chance it's useful to anyone else
     (with lots of twiddling of parameters).
-    
+
     Richard Lobb, 17 April 2013.
 '''
 
@@ -33,11 +33,12 @@ import shelve
 import random
 import traceback
 
-LANGUAGE = 'MATLAB'
+LANGUAGE = 'PYTHON3'
 
-shelf = shelve.open('ccode_loadtesting_results')
+shelf = shelve.open('coderunner_loadtesting_results')
 
-# Correct answers to the four one-question quizzes.
+# Correct answers to the four one-question quizzes for each language.
+
 quiz_answers = {'C': ['''
 float addMul(float a, float b, float c) {
     return (a + b) * c;
@@ -90,7 +91,7 @@ def c_to_f(c):
 '''
 n = int(input())
 for i in range(1, n+1):
-   print(i, end='')
+   print(str(i) + ' ', end='')
 print()
 '''],
 
@@ -121,10 +122,10 @@ end
 FIRST_STUDENT = 5
 LAST_STUDENT = 9
 
-course = 'ENCE260 Quizzes'
-quizzes = ['LoadTesting' + str(x) for x in range(1,5)]
+course = 'LoadTesting'
+quizzes = [LANGUAGE + '_LoadTesting' + str(x) for x in range(1,5)]
 
-students = ['student%i'%x for x in range(FIRST_STUDENT, LAST_STUDENT + 1)]
+students = ['student' + str(i) for i in range(FIRST_STUDENT, LAST_STUDENT + 1)]
 
 all_args = list(itertools.product(quizzes,students))
 
@@ -180,6 +181,8 @@ def quiz_runner(arg_tup): #quiz_name, student, [Queue]
         elif LANGUAGE == 'MATLAB':
             qa = quiz_answer + '% {:.4}'.format(random.random())
         # Add a random comment at the end to prevent use of cached result
+        # [Probably no longer necessary as "Check" now forces a recomputation,
+        # but left in anyway. RJL 24/1/14.]
 
         print 'Entering code into textarea:'
         textarea._value = qa
@@ -288,8 +291,8 @@ def sim(avg_gap, sim_length):
 
 
 if __name__ == '__main__':
-    SIMULATION_GAP_SECS = 5
-    SIMULATION_DURATION_SECS = 90
+    SIMULATION_GAP_SECS = 3
+    SIMULATION_DURATION_SECS = 600
 
     before = time.time()
     (results, errs) = sim(SIMULATION_GAP_SECS, SIMULATION_DURATION_SECS)

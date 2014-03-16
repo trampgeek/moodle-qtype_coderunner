@@ -41,9 +41,8 @@ define('MAX_READ', 4096);  // Max bytes to read in popen
 
 // ==============================================================
 //
-// Now the actual sandbox.
-// This has a very high default number of processes because the resource
-// limit mechanism used in this sandbox is per user ('coderunner') not be
+// This sandbox has a very high default number of processes because the resource
+// limit mechanism used is per user ('coderunner') not per
 // process tree.
 //
 // ==============================================================
@@ -78,7 +77,7 @@ class RunguardSandbox extends LocalSandbox {
     // Results are all left in $this->task for later access by
     // getSubmissionDetails
     protected function runInSandbox($input, $files) {
-        $filesize = 1000 * $this->getParam('disklimit');  // MB -> kB
+        $filesize = 1000 * $this->getParam('disklimit'); // MB -> kB
         $memsize = 1000 * $this->getParam('memorylimit');
         $cputime = $this->getParam('cputime');
         $numProcs = $this->getParam('numprocs');
@@ -86,7 +85,7 @@ class RunguardSandbox extends LocalSandbox {
              dirname(__FILE__)  . "/runguard",
              "--user=coderunner",
              "--time=$cputime",         // Seconds of execution time allowed
-             "--filesize=$filesize",    // Max file sizes (10MB)
+             "--filesize=$filesize",    // Max file sizes
              "--nproc=$numProcs",       // Max num processes/threads for this *user*
              "--no-core",
              "--streamsize=$filesize");  // Max stdout/stderr sizes

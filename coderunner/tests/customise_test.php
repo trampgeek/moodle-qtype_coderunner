@@ -14,19 +14,10 @@
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
-require_once($CFG->dirroot . '/question/engine/tests/helpers.php');
-require_once($CFG->dirroot . '/question/type/coderunner/question.php');
+require_once($CFG->dirroot . '/question/type/coderunner/tests/coderunnertestcase.php');
 require_once($CFG->dirroot . '/local/Twig/Autoloader.php');
-class qtype_coderunner_customise_test extends basic_testcase {
 
-    protected function setUp() {
-        $this->qtype = new qtype_coderunner_question();
-    }
-
-
-    protected function tearDown() {
-        $this->qtype = null;
-    }
+class qtype_coderunner_customise_test extends qtype_coderunner_testcase {
 
     public function test_grade_response_right() {
         $q = test_question_maker::make_question('coderunner', 'sqrCustomised');

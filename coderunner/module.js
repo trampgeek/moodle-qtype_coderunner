@@ -43,7 +43,7 @@ M.qtype_coderunner.init_ace = function (Y, field, lang) {
         }
     }
 
-    // create ace editor for a specifc text area
+    // create ace editor for a specific text area
     function create_editor_element(textarea) {
         var id = textarea.get("id")
         var edit_node = Y.Node.create("<div></div>");
@@ -174,6 +174,10 @@ M.qtype_coderunner.insertString = function(Y, ta, sToInsert) {
 M.qtype_coderunner.initEditForm = function(Y) {
     var typeCombo = Y.one('#id_coderunner_type'),
         template = Y.one('#id_per_test_template'),
+        enable_combinator = Y.one('#id_enable_combinator'),
+        combinator_template = Y.one('#id_combinator_template'),
+        test_splitter = Y.one('#id_test_splitter_re'),
+        language = Y.one('#id_language'),
         templateBlock = Y.one('#fitem_id_per_test_template'),
         gradingBlock = Y.one('#fgroup_id_gradingcontrols'),
         columnDisplayBlock = Y.one('#fgroup_id_columncontrols'),
@@ -181,18 +185,18 @@ M.qtype_coderunner.initEditForm = function(Y) {
         customise = Y.one('#id_customise'),
         cputime = Y.one('#id_cputimelimitsecs'),
         memlimit = Y.one('#id_memlimitmb'),
-        customisationFieldSet = Y.one('#id_customisationheader');
-        isCustomised = customise.get('checked');
+        customisationFieldSet = Y.one('#id_customisationheader'),
+        advancedCustomisation = Y.one('#id_advancedcustomisationheader'),
+        isCustomised = customise.get('checked'),
+        combinator_non_blank = true,
+        prototypeType = Y.one("#id_prototype_type"),
+        typeName = Y.one('#id_type_name'),
+        message = '';
 
     function setCustomisationVisibility(isVisible) {
         var display = isVisible ? 'block' : 'none';
         customisationFieldSet.setStyle('display', display);
-        /*
-        templateBlock.setStyle('display', display);
-        gradingBlock.setStyle('display', display);
-        columnDisplayBlock.setStyle('display', display);
-        sandboxBlock.setStyle('display', display);
-        */
+        advancedCustomisation.setStyle('display', display);
     }
 
     function loadDefaultCustomisationFields(Y) {
@@ -209,14 +213,18 @@ M.qtype_coderunner.initEditForm = function(Y) {
                 data: 'qtype=' + newType + '&sesskey=' + M.cfg.sesskey,
                 on: {
                     success: function (id, result) {
-                        outcome = JSON.parse(result.responseText);
+                        var outcome = JSON.parse(result.responseText);
                         if (outcome.success) {
                             template.set('text', outcome.per_test_template);
                             secs = outcome.cputimelimitsecs ? outcome.cputimelimitsecs : '';
                             cputime.set('value', secs);
                             mb = outcome.memlimitmb ? outcome.memlimitmb : '';
                             memlimit.set('value', mb);
-
+                            combinator_template.set('text', outcome.combinator_template);
+                            enable_combinator.set('checked', outcome.enable_combinator == "1");
+                            test_splitter.set('value', outcome.test_splitter_re.replace('\n','\\n'));
+                            language.set('value', outcome.language);
+                            typeName.set('value', newType);
                         }
                         else {
                             template.set('text', "*** AJAX ERROR. DON'T SAVE THIS! ***\n" + outcome.error);
@@ -231,18 +239,48 @@ M.qtype_coderunner.initEditForm = function(Y) {
         };
     };
 
+    if (prototypeType.get('value') == 1) {
+        alert('Editing a built-in question prototype?! Proceed at your own risk!');
+        prototypeType.set('disabled', true);
+        typeCombo.set('disabled', true);
+        customise.set('disabled', true);
+    }
     setCustomisationVisibility(isCustomised);
     if (!isCustomised) {
         loadDefaultCustomisationFields(Y);
-    }
+    };
 
     customise.on('change', function(e) {
        isCustomised = customise.get('checked');
-       setCustomisationVisibility(isCustomised);
-       if (!isCustomised) {
-           alert("If you save this question with 'Customise' " +
-               "unchecked, any customisation you've done will be lost");
+       if (isCustomised) {
+           // Customisation is being turned on.
+           setCustomisationVisibility(true);
+       } else { // Customisation being turned off
+           combinator_non_blank = combinator_template.get('text').trim() !== '';
+           message = "If you save this question with 'Customise' " +
+               "unchecked, any customisation you've done will be lost.";
+           if (confirm(message + " Proceed?")) {
+                 setCustomisationVisibility(false);
+           } else {
+               customise.set('checked',true);
+           }
        }
+    });
+
+    template.on('focus', function(e) {
+           // Per-test template is being changed. Disable combinator.
+           // [User must explicitly re-enable it if they wish to use it.]
+           // The combinator-disabled alert has been disabled for now.
+           // Let's see if it really matters. It's annoying!
+           combinator_non_blank = combinator_template.get('text').trim() !== '';
+           if (combinator_non_blank &&
+                !('alertIssued' in template) &&
+                enable_combinator.get('checked')
+                // && confirm("Editing per-test template - disable combinator? ['Cancel' leaves it enabled.]")
+              ) {
+               enable_combinator.set('checked', false);
+           }
+           template.alertIssued = true;
     });
 
 

@@ -19,7 +19,7 @@ class Matlab_Task extends \LanguageTask {
     }
 
     public function getVersion() {
-        return 'Matlab R2012';
+        return 'Matlab R2013b';
     }
 
     public function compile() {

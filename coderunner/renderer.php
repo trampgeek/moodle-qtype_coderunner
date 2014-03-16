@@ -74,13 +74,15 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
         $responsefieldname = $qa->get_qt_field_name('answer');
         $responsefieldid = 'id_' . $responsefieldname;
+        $rows =  isset($question->answerbox_lines) ? $question->answerbox_lines : 18;
+        $cols = isset($question->answerbox_columns) ? $question->answerbox_columns : 100;
         $ta_attributes = array(
             'class' => 'coderunner-answer edit_code',
             'name'  => $responsefieldname,
             'id'    => $responsefieldid,
-            'cols'      => '100',
+            'cols'      => $cols,
             'spellcheck' => 'false',
-            'rows'      => 18
+            'rows'      => $rows
         );
 
         if ($options->readonly) {
@@ -98,15 +100,14 @@ class qtype_coderunner_renderer extends qtype_renderer {
         }
 
         // Initialise any program-editing JavaScript.
-        // [I've attempted to support various plugins like EditArea, CodeMirror
-        // and Ace but I've either failed to get them playing nicely with
-        // YUI (CodeMirror, Ace) or was plagued by browser dependencies
-        // (EditArea). So for now just doing simple autoindent operations.]
+        // Thanks to Ulrich Dangel for incorporating the Ace code editor.
 
         $lang = ucwords($question->language);
 
         $PAGE->requires->js_init_call('M.qtype_coderunner.initQuestionTA', array($responsefieldid));
-        $PAGE->requires->js_init_call('M.qtype_coderunner.init_ace', array($responsefieldid, $lang));
+        if ($question->use_ace) {
+            $PAGE->requires->js_init_call('M.qtype_coderunner.init_ace', array($responsefieldid, $lang));
+        }
         return $qtext;
 
         // TODO: consider how to prevent multiple submits while one submit in progress
@@ -124,13 +125,17 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
       global $PAGE;
 
-      // Load the ace editor and required modules
-      // language-tools -> autocompletion
-      // modelist -> language mapping
-      $plugindirrel = '/question/type/coderunner';
-      $PAGE->requires->js('/' . $plugindirrel . '/ace/ace.js');
-      $PAGE->requires->js('/' . $plugindirrel . '/ace/ext-language_tools.js');
-      $PAGE->requires->js('/' . $plugindirrel . '/ace/ext-modelist.js');
+      $question = $qa->get_question();
+      if ($question->use_ace) {
+
+        // Load the ace editor and required modules
+        // language-tools -> autocompletion
+        // modelist -> language mapping
+        $plugindirrel = '/question/type/coderunner';
+        $PAGE->requires->js('/' . $plugindirrel . '/ace/ace.js');
+        $PAGE->requires->js('/' . $plugindirrel . '/ace/ext-language_tools.js');
+        $PAGE->requires->js('/' . $plugindirrel . '/ace/ext-modelist.js');
+      }
     }
 
 
@@ -271,7 +276,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
                 }
 
                 $mark = $testResult->awarded;
-
+                $fraction = $mark / $testResult->mark;
                 if ($question->showmark && !$question->all_or_nothing) {
                     $tableRow[] = sprintf('%.2f/%.2f', $mark, $testResult->mark);
                 }
@@ -281,8 +286,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
                     $rowWithLineBreaks[] = $this->addLineBreaks($col);
                 }
 
-                $right_or_wrong = $testResult->isCorrect ? 1 : 0;
-                $rowWithLineBreaks[] = $this->feedback_image($right_or_wrong);
+                $rowWithLineBreaks[] = $this->feedback_image($fraction);
                 $tableData[] = $rowWithLineBreaks;
             }
             $i++;

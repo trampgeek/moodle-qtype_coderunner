@@ -30,22 +30,12 @@
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
-require_once($CFG->dirroot . '/question/engine/tests/helpers.php');
-require_once($CFG->dirroot . '/question/type/coderunner/question.php');
+require_once($CFG->dirroot . '/question/type/coderunner/tests/coderunnertestcase.php');
 
 /**
  * Unit tests for coderunner C questions
  */
-class qtype_coderunner_c_question_test extends basic_testcase {
-    protected function setUp() {
-        $this->qtype = new qtype_coderunner_question();
-    }
-
-
-    protected function tearDown() {
-        $this->qtype = null;
-    }
-
+class qtype_coderunner_c_question_test extends qtype_coderunner_testcase {
 
     public function test_good_sqr_function() {
         $q = test_question_maker::make_question('coderunner', 'sqrC');

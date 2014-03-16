@@ -28,23 +28,17 @@
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
-require_once($CFG->dirroot . '/question/engine/tests/helpers.php');
-require_once($CFG->dirroot . '/question/type/coderunner/question.php');
+require_once($CFG->dirroot . '/question/type/coderunner/tests/coderunnertestcase.php');
 require_once($CFG->dirroot . '/local/Twig/Autoloader.php');
 
 
 /**
  * Unit tests for the coderunner question definition class.
  */
-class qtype_coderunner_python_question_test extends basic_testcase {
+class qtype_coderunner_python_question_test extends qtype_coderunner_testcase {
     protected function setUp() {
-        $this->qtype = new qtype_coderunner_question();
+        parent::setUp();
         $this->goodcode = "def sqr(n): return n * n";
-    }
-
-
-    protected function tearDown() {
-        $this->qtype = null;
     }
 
 
@@ -282,6 +276,13 @@ EOCODE;
         list($mark, $grade, $cache) = $result;
         $this->assertEquals(question_state::$gradedpartial, $grade);
         $this->assertTrue(abs($mark - 5.0/7.5) < 0.00001);
+
+        $code = "def sqr(n):\n    return n * n if n <= 0 else 1 / 0";  // Passes first test then aborts
+        $response = array('answer' => $code);
+        $result = $q->grade_response($response);
+        list($mark, $grade, $cache) = $result;
+        $this->assertEquals(question_state::$gradedpartial, $grade);
+        $this->assertTrue(abs($mark - 0.5/7.5) < 0.00001);
      }
 
 
@@ -360,6 +361,7 @@ EOTEMPLATE;
          $q->grader = 'TemplateGrader';
          $q->customise = TRUE;
          $q->all_or_nothing = FALSE;
+         $q->enable_combinator = FALSE;
          $code = "def sqr(n): return n * n\n";
          $response = array('answer' => $code);
          $result = $q->grade_response($response);

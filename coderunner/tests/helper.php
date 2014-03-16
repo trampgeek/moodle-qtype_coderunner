@@ -960,8 +960,8 @@ EOPROG;
 
         $type = $question->options['coderunner_type'];
 
-        if (!$record = $DB->get_record('quest_coderunner_types',
-                array('coderunner_type' => $type))) {
+        if (!$record = $DB->get_record('quest_coderunner_options',
+                array('coderunner_type' => $type, 'prototype_type' => 1))) {
             throw new coding_exception("TestHelper: bad call to getOptions with type $type");
         }
         foreach ($record as $field=>$value) {
@@ -975,7 +975,7 @@ EOPROG;
         $question->customise = trim($question->per_test_template) != '';
 
         if (!isset($question->sandbox)) {
-            $question->sandbox = $qtype->getBestSandbox($question->language);
+            $question->sandbox = $question->getBestSandbox($question->language);
         }
         if (!isset($question->grader)) {
             $question->grader = 'EqualityGrader';
@@ -1005,6 +1005,15 @@ EOPROG;
         $coderunner->contextid = 1;   // HACK. Needed when requesting data files.
         $this->getOptions($coderunner);
         return $coderunner;
+    }
+
+
+    private function set_config_environment() {
+        set_config('runguardsandbox_enabled', 1, 'qtype_coderunner');
+        set_config('liusandbox_enabled', 1, 'qtype_coderunner');
+        set_config('ideonesandbox_enabled', 1, 'qtype_coderunner');
+        set_config('ideone_user', 'coderunner', 'qtype_coderunner');
+        set_config('ideone_password', 'moodlequizzes', 'qtype_coderunner');
     }
 
 }

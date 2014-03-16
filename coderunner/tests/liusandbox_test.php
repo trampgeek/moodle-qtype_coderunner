@@ -10,14 +10,10 @@
  */
 
 global $CFG;
+require_once($CFG->dirroot . '/question/type/coderunner/tests/coderunnertestcase.php');
 require_once($CFG->dirroot . '/question/type/coderunner/Sandbox/liusandbox.php');
 
-class qtype_coderunner_liusandbox_test extends basic_testcase {
-    public function setUp() {
-    }
-
-    public function tearDown() {
-    }
+class qtype_coderunner_liusandbox_test extends qtype_coderunner_testcase {
 
     public function test_testfunction() {
         $sandbox = new LiuSandbox();

@@ -28,6 +28,10 @@ defined('MOODLE_INTERNAL') || die();
  */
 define("NUM_TESTCASES_START", 5); // Num empty test cases with new questions
 define("NUM_TESTCASES_ADD", 3);   // Extra empty test cases to add
+define("DEFAULT_NUM_ROWS", 18);   // Answer box rows
+define("DEFAULT_NUM_COLS", 100);   // Answer box rows
+
+require_once($CFG->dirroot . '/question/type/coderunner/Sandbox/sandbox_config.php');
 
 /**
  * coderunner editing form definition.
@@ -56,6 +60,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         // [But it's currently not being used as it looks horrible. Needs
         // better CSS or a rethink.]
         global $PAGE;
+        global $SANDBOXES;
         $jsmodule = array(
             'name'      => 'qtype_coderunner',
             'fullpath'  => '/question/type/coderunner/module.js',
@@ -88,6 +93,25 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 get_string('questiontype', 'qtype_coderunner'), $typeSelectorElements, NULL, false);
         $mform->setDefault('show_source', False);
         $mform->addHelpButton('coderunner_type_group', 'coderunner_type', 'qtype_coderunner');
+
+        $answerboxElements = array();
+        $answerboxElements[] = $mform->createElement('text', 'answerbox_lines',
+                get_string('answerbox_lines', 'qtype_coderunner'),
+                array('size'=>3));
+        $mform->setType('answerbox_lines', PARAM_INT);
+        $mform->setDefault('answerbox_lines', DEFAULT_NUM_ROWS);
+        $answerboxElements[] = $mform->createElement('text', 'answerbox_columns',
+                get_string('answerbox_columns', 'qtype_coderunner'),
+                array('size'=>3));
+        $mform->setType('answerbox_columns', PARAM_INT);
+        $mform->setDefault('answerbox_columns', DEFAULT_NUM_COLS);
+        $answerboxElements[] = $mform->createElement('advcheckbox', 'use_ace', NULL,
+                get_string('use_ace', 'qtype_coderunner'));
+        $mform->setDefault('use_ace', True);
+        $mform->addElement('group', 'answerbox_group', get_string('answerbox_group', 'qtype_coderunner'),
+                $answerboxElements, NULL, false);
+        $mform->addHelpButton('answerbox_group', 'answerbox_group', 'qtype_coderunner');
+
         $mform->addElement('advcheckbox', 'all_or_nothing', get_string('marking', 'qtype_coderunner'),
                 get_string('all_or_nothing', 'qtype_coderunner'));
         $mform->setDefault('all_or_nothing', True);
@@ -125,10 +149,9 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 NULL, false);
         $mform->addHelpButton('gradingcontrols', 'gradingcontrols', 'qtype_coderunner');
 
-
         $columnControls = array();
         $columnControls[] =& $mform->createElement('advcheckbox', 'showtest', NULL,
-                get_string('show_test', 'qtype_coderunner'));        global $PAGE;
+                get_string('show_test', 'qtype_coderunner'));
         $columnControls[] =& $mform->createElement('advcheckbox', 'showstdin', NULL,
                 get_string('show_stdin', 'qtype_coderunner'));
         $columnControls[] =& $mform->createElement('advcheckbox', 'showexpected', NULL,
@@ -148,7 +171,43 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->addHelpButton('columncontrols', 'columncontrols', 'qtype_coderunner');
 
 
+        // The next set of fields are also used to customise a question by overriding
+        // values from the base question type, but these ones are much more
+        // advanced and not recommended for most users. They too are hidden
+        // unless the 'customise' checkbox is checked.
+
+        $mform->addElement('header', 'advancedcustomisationheader',
+                get_string('advanced_customisation','qtype_coderunner'));
+
+        $prototypeControls = array();
+
+        $prototypeSelect =& $mform->createElement('select', 'prototype_type',
+                get_string('prototypeQ', 'qtype_coderunner'));
+        $prototypeSelect->addOption('No', '0');
+        $prototypeSelect->addOption('Yes (built-in)', '1', array('disabled'=>'disabled'));
+        $prototypeSelect->addOption('Yes (user defined)', '2');
+        $prototypeControls[] =& $prototypeSelect;
+        $prototypeControls[] =& $mform->createElement('text', 'type_name',
+                get_string('question_type_name', 'qtype_coderunner'), array('size' => 30));
+        $mform->addElement('group', 'prototypecontrols',
+                get_string('prototypecontrols', 'qtype_coderunner'),
+                $prototypeControls, NULL, false);
+        $mform->setDefault('is_prototype', False);
+        $mform->setType('type_name', PARAM_RAW);
+        $mform->addElement('hidden', 'saved_prototype_type');
+        $mform->setType('saved_prototype_type', PARAM_RAW);
+        $mform->addHelpButton('prototypecontrols', 'prototypecontrols', 'qtype_coderunner');
+
+
         $sandboxControls = array();
+
+        $sandboxes = array('DEFAULT' => 'DEFAULT');
+        foreach ($SANDBOXES as $box) {
+            $sandboxes[$box] = $box;
+        }
+
+        $sandboxControls[] =  $mform->createElement('select', 'sandbox', NULL, $sandboxes);
+
         $sandboxControls[] =& $mform->createElement('text', 'cputimelimitsecs',
                 get_string('cputime', 'qtype_coderunner'), array('size' => 5));
         $sandboxControls[] =& $mform->createElement('text', 'memlimitmb',
@@ -159,6 +218,33 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->setType('cputimelimitsecs', PARAM_RAW);
         $mform->setType('memlimitmb', PARAM_RAW);
         $mform->addHelpButton('sandboxcontrols', 'sandboxcontrols', 'qtype_coderunner');
+
+        $mform->addElement('text', 'language', get_string('language', 'qtype_coderunner'),
+                array('size' => 10));
+        $mform->setType('language', PARAM_RAW);
+        $mform->addHelpButton('language', 'language', 'qtype_coderunner');
+
+        $combinatorControls = array();
+
+        $combinatorControls[] =& $mform->createElement('advcheckbox', 'enable_combinator', NULL,
+                get_string('enablecombinator', 'qtype_coderunner'));
+        $combinatorControls[] =& $mform->createElement('text', 'test_splitter_re',
+                get_string('test_splitter_re', 'qtype_coderunner'),
+                array('size' => 45));
+        $mform->setType('test_splitter_re', PARAM_RAW);
+        $mform->disabledIf('type_name', 'prototype_type', 'neq', '2');
+
+        $combinatorControls[] =& $mform->createElement('textarea', 'combinator_template',
+                '',
+                array('rows'=>8, 'cols'=>80, 'class'=>'template edit_code',
+                       'name'=>'combinator_template'));
+
+        $mform->addElement('group', 'combinator_controls',
+                get_string('combinator_controls', 'qtype_coderunner'),
+                $combinatorControls, NULL, false);
+
+        $mform->addHelpButton('combinator_controls', 'combinator_controls', 'qtype_coderunner');
+
         $mform->setExpanded('customisationheader');  // Although expanded it's hidden until JavaScript unhides it
 
         $PAGE->requires->js_init_call('M.qtype_coderunner.setupAllTAs',  array(), false, $jsmodule);
@@ -313,13 +399,22 @@ class qtype_coderunner_edit_form extends question_edit_form {
             // The customise field isn't listed as an extra-question-field so also
             // needs to be copied down from the options here.
             $question->customise = $question->options->customise;
+
+            // Save the prototype_type so can see if it changed on post-back
+            $question->saved_prototype_type = $question->prototype_type;
+
+            // Load the type-name if this is a prototype, else make it blank
+            if ($question->prototype_type != 0) {
+                $question->type_name = $question->coderunner_type;
+            } else {
+                $question->type_name = '';
+            }
         }
 
         $draftid = file_get_submitted_draft_itemid('datafiles');
         $options = $this->fileoptions;
         $options['subdirs'] = false;
-        //debugging('Question id: ' . $question->id);
-        //debugging('Question context id: ' . $this->context->id);
+
         file_prepare_draft_area($draftid, $this->context->id,
                 'qtype_coderunner', 'datafile',
                 empty($question->id) ? null : (int) $question->id,
@@ -344,17 +439,86 @@ class qtype_coderunner_edit_form extends question_edit_form {
             $errors['sandboxcontrols'] = get_string('badmemlimit', 'qtype_coderunner');
         }
 
+        if ($data['prototype_type'] == 0) {
+            // Unless it's a prototype it needs at least one testcase
+            $testCaseErrors = $this->validate_test_cases($data);
+            $errors = array_merge($errors, $testCaseErrors);
+        }
+
+
+        if ($data['prototype_type'] == 2 && ($data['saved_prototype_type'] != 2 ||
+                   $data['type_name'] != $data['coderunner_type'])){
+            // User-defined prototype, either newly created or undergoing a name change
+            $typeName = trim($data['type_name']);
+            if ($typeName === '') {
+                $errors['prototypecontrols'] = get_string('empty_new_prototype_name', 'qtype_coderunner');
+            } else if (!$this->is_valid_new_type($typeName)) {
+                $errors['prototypecontrols'] = get_string('bad_new_prototype_name', 'qtype_coderunner');
+            }
+        }
 
         if (trim($data['penalty_regime']) != '') {
             $bits = explode(',', $data['penalty_regime']);
-            foreach ($bits as $bit) {
-                if (!is_numeric($bit) || floatval($bit) < 0 || floatval($bit) > 100) {
-                    $errors['penalty_regime'] = get_string('badpenalties', 'qtype_coderunner');
-                    break;
+            $n = count($bits);
+            for ($i = 0; $i < $n; $i++) {
+                $bit = trim($bits[$i]);
+                if ($bit === '...') {
+                    if ($i != $n - 1 || $n < 3 || floatval($bits[$i - 1]) <= floatval($bits[$i - 2])) {
+                        $errors['penalty_regime'] = get_string('bad_dotdotdot', 'qtype_coderunner');
+                    }
                 }
             }
         }
 
+        return $errors;
+    }
+
+    // True iff the given name is valid for a new type, i.e., it's not in use
+    // in the current context (Currently only a single global context is
+    // implemented).
+    private function is_valid_new_type($typeName) {
+        list($langs, $types) = $this->get_languages_and_types();
+        return !array_key_exists($typeName, $types);
+    }
+
+
+    private function get_languages_and_types() {
+        // Return two arrays (language => language_upper_case) and (type => subtype) of
+        // all the coderunner question types available in the current context,
+        // i.e., *** TBS ***
+        // The subtype is the suffix of the type in the database,
+        // e.g. for java_method it is 'method'. The language is the bit before
+        // the underscore, and language_upper_case is a capitalised version,
+        // e.g. Java for java. For question types without a
+        // subtype the word 'Default' is used.
+        global $DB;
+        $records = $DB->get_records_select('quest_coderunner_options',
+                "prototype_type != 0",
+                NULL,
+                'coderunner_type');
+        $types = array();
+        foreach ($records as $row) {
+            if (($pos = strpos($row->coderunner_type, '_')) !== FALSE) {
+                $subtype = substr($row->coderunner_type, $pos + 1);
+                $language = substr($row->coderunner_type, 0, $pos);
+            }
+            else {
+                $subtype = 'Default';
+                $language = $row->coderunner_type;
+            }
+            $types[$row->coderunner_type] = $row->coderunner_type;
+            $languages[$language] = ucwords($language);
+        }
+        asort($types);
+        asort($languages);
+        return array($languages, $types);
+    }
+
+
+
+    // Validate the test cases
+    private function validate_test_cases($data) {
+        $errors = array(); // Return value
         $testcodes = $data['testcode'];
         $stdins = $data['stdin'];
         $expecteds = $data['expected'];
@@ -392,34 +556,6 @@ class qtype_coderunner_edit_form extends question_edit_form {
         return $errors;
     }
 
-
-
-    private function get_languages_and_types() {
-        // Return two arrays (language => language) and (type => subtype) of
-        // all the non-custom coderunner question types in the DB,
-        // where the subtype is the suffix of the type in the database,
-        // e.g. for java_method it is 'method'. For question types without a
-        // subtype the word 'Default' is used.
-        global $DB;
-        $records = $DB->get_records('quest_coderunner_types', array(),
-                'coderunner_type', 'coderunner_type');
-        $types = array();
-        foreach ($records as $row) {
-            if (($pos = strpos($row->coderunner_type, '_')) !== FALSE) {
-                $subtype = substr($row->coderunner_type, $pos + 1);
-                $language = substr($row->coderunner_type, 0, $pos);
-            }
-            else {
-                $subtype = 'Default';
-                $language = $row->coderunner_type;
-            }
-            $types[$row->coderunner_type] = $row->coderunner_type;
-            $languages[$language] = ucwords($language);
-        }
-        asort($types);
-        asort($languages);
-        return array($languages, $types);
-    }
 
     // Construct the HTML for a YUI3 hierarchical menu of languages/types.
     // Initially hidden and turned on by JavaScript. See module.js.

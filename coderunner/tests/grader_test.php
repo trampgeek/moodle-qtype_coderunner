@@ -16,22 +16,13 @@
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
-require_once($CFG->dirroot . '/question/engine/tests/helpers.php');
-require_once($CFG->dirroot . '/question/type/coderunner/question.php');
+require_once($CFG->dirroot . '/question/type/coderunner/tests/coderunnertestcase.php');
 require_once($CFG->dirroot . '/local/Twig/Autoloader.php');
 
 /**
  * Unit tests for the RegexGrader class.
  */
-class qtype_coderunner_grader_test extends basic_testcase {
-    protected function setUp() {
-        $this->qtype = new qtype_coderunner_question();
-    }
-
-
-    protected function tearDown() {
-        $this->qtype = null;
-    }
+class qtype_coderunner_grader_test extends qtype_coderunner_testcase {
 
     public function test_copyStdin() {
         // Check a question that reads stdin and writes to stdout

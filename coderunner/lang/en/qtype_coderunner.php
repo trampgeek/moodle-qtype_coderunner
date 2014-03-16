@@ -39,6 +39,7 @@ $string['answerrequired'] = 'Please provide a non-empty answer';
 $string['atleastonetest'] = 'You must provide at least one test case '
     . 'for this question.';
 $string['badcputime'] = 'CPU time limit must be left blank or must be an integer greater than zero';
+$string['bad_new_prototype_name'] = 'Illegal name for new prototype: already in use';
 $string['badmemlimit'] = 'Memory limit must either be left blank or must be a non-negative integer';
 $string['badpenalties'] = 'Penalty regime must be a comma separated list of numbers in the range [0, 100]';
 $string['columncontrols'] = 'Result table';
@@ -68,6 +69,15 @@ It is also possible to customise the question type; click the 'Customise'
 checkbox and read the help available on the newly-visible form elements for
 more information.
 ";
+$string['advanced_customisation'] = "Advanced customisation";
+$string['answerbox_group'] = "Answer box";
+$string['answerbox_columns'] = "Columns";
+$string['answerbox_lines'] = 'Rows';
+$string['answerbox_group_help'] = 'Set the number of rows and columns to allocate for the answer box. ' .
+        'If the answer overflows the box vertically or horizontally, scrollbars will appear.' .
+        'If \'Use ace\' is checked, the ACE JavaScript code editor will manage the answer box.';
+$string['bad_dotdotdot'] = "Misuse of '...'. Must be at end, after two increasing numeric penalties";
+$string['badpenalties'] = 'Penalty regime must be a comma separated list of numbers in the range [0, 100]';
 $string['coderunnersummary'] = 'Answer is program code that is executed '
     . 'in the context of a set of test cases to determine its correctness.';
 $string['coderunner_help'] = 'In response to a question, which is a '
@@ -77,6 +87,29 @@ $string['coderunner_help'] = 'In response to a question, which is a '
 $string['coderunner_link'] = 'question/type/coderunner';
 $string['columncontrols_help'] = 'The checkboxes select which columns of the ' .
         'results table should be displayed to the student after submission';
+
+$string['combinator_controls'] = "Combinator";
+        //
+$string['combinator_template'] = "Template";
+$string['combinator_controls_help'] = <<<EO_TEMPLATE_HELP
+Like the per-test-case template above, the combinator template defines a
+program to be run given the student submission and the test data. Unlike the
+per-test-case version this one attempts to build a single program using all
+the test data, so that a single compile-and-run sequence is possible. However,
+combinator templates are much more complex and not recommended for the faint
+of heart. The combinator template is not used if there is any standard
+input specified or if "template does grading" is checked.
+Also, if a combinator run results in a runtime exception, the
+system falls back to using a per-test-case template run with each test case,
+in which case the gain from using the combinator is actually negative. The
+output resulting from a combinator template run is split using the associated
+test-splitter regular expression into a set of per-test outputs. If you alter
+the per-test-case template you are strongly advised to disable the use of the
+combinator altogether, rather than try to adjust it to match, until you have
+shown that you really have a performance problem.
+If the template-debugging checkbox is clicked, the program generated
+for each testcase will be displayed in the output.
+EO_TEMPLATE_HELP;
 $string['cputime'] = 'CPU time limit (secs)';
 $string['customisationcontrols'] = 'Customisation';
 $string['customise'] = 'Customise';
@@ -91,6 +124,11 @@ $string['datafiles_help'] = 'Any files uploaded here will be added to the ' .
 $string['display'] = 'Display';
 
 $string['editingcoderunner'] = 'Editing a CodeRunner Question';
+$string['empty_new_prototype_name'] = 'New question type name cannot be empty';
+$string['enable'] = 'Enable';
+$string['enablecombinator'] = 'Enable combinator';
+$string['enable_sandbox_desc'] = 'Permit use of the specified sandbox for ' .
+         'running student submissions';
 $string['expected'] = 'Expected output';
 $string['failedhidden'] = 'Your code failed one or more hidden tests.';
 $string['fileheader'] = 'Support files';
@@ -128,7 +166,19 @@ $string['HIDE'] = 'Hide';
 $string['HIDE_IF_FAIL'] = 'Hide if fail';
 $string['HIDE_IF_SUCCEED'] = 'Hide if succeed';
 $string['hiderestiffail'] = 'Hide rest if fail';
+$string['ideone_user'] = 'Ideone server user';
+$string['ideone_user_desc'] = 'The login name to use when connecting to the ' .
+        'Ideone server (if the ideone sandbox is enabled)';
+$string['ideone_pass'] = 'Ideone server password';
+$string['ideone_pass_desc'] = 'The password to use when connecting to the ' .
+        'Ideone server (if the ideone sandbox is enabled)';
+$string['is_prototype'] = 'Use as prototype';
+
 $string['language'] = 'Language';
+$string['language_help'] = 'The computer language used to run the submission. '.
+        'Must be known to the chosen sandbox (if a specific one has been '.
+        'selected) or to at least one of the enabled sandboxes (otherwise). ' .
+        'This should usually not be altered; tweak it at your peril.';
 
 $string['mark'] = 'Mark';
 $string['marking'] = 'Mark allocation';
@@ -145,10 +195,12 @@ $string['qWrongBehaviour'] = 'Detailed test results unavailable. '
 $string['options'] = 'Options';
 $string['penalty_regime'] = 'Penalty regime';
 $string['penalty_regime_help'] = 'A comma-separated list of penalties (each a percent) ' .
-     'to apply to successive submissions. These are absolute, not cumulative. ' .
+     'to apply to successive submissions. These are absolute, not cumulative. As a ' .
+     'special case the last penalty can be "..." to mean "extend the previous ' .
+     'two penalties as an arithmetic progression up to 100". For example, ' .
+     '"0,5,10,30,..." is equivalent to "0,5,10,30,50,70,90,100".' .
      'Leave blank for standard Moodle behaviour. ' .
-     'If there are more submissions than defined penalties, the last value is used; ' .
-     'make it 100 to limit the number of submissions. ';
+     'If there are more submissions than defined penalties, the last value is used.';
 $string['pluginname'] = 'CodeRunner';
 $string['pluginnameadding'] = 'Adding a CodeRunner question';
 $string['pluginnamesummary'] = 'CodeRunner: runs student-submitted code in a sandbox';
@@ -157,6 +209,26 @@ $string['pluginname_help'] = 'Use the "Question type" combo box to select the ' 
         'Specify the problem that the student must write code for, then define '.
         'a set of tests to be run on the student\'s submission';
 $string['pluginnameediting'] = 'Editing a CodeRunner question';
+$string['prototypecontrols'] = 'Prototyping';
+$string['prototypecontrols_help'] = 'If \'Is prototype\' is ' .
+        'true, this question becomes a prototype for other questions. ' .
+        'After saving, the specified question type name will appear in the ' .
+        'dropdown list of question types. New questions based on this type ' .
+        'will then by default inherit all the customisation ' .
+        'attributes specified for this question. Subsequent ' .
+        'changes to this question will then affect all derived questions ' .
+        'unless they are themselves customised, which breaks the connection. ' .
+        'Prototypal inheritance is single-level only, so this question, when ' .
+        'saved as a prototype, loses its connection to its original base type, ' .
+        'becoming a new base type in its own right. Be warned that when ' .
+        'exporting derived questions you must ensure that this question is ' .
+        'included in the export, too, or the derived question will be an ' .
+        'orphan when imported into another system. Also, you are responsible ' .
+        'for keeping track of which questions you are using as prototypes; ' .
+        'it is strongly recommended that you rename the question to something ' .
+        'like \'PROTOTYPE_for_my_new_question_type\' to make subsequent ' .
+        'maintenance easier.';
+$string['prototypeQ'] = 'Is prototype?';
 $string['questiontype'] = 'Question type';
 $string['questiontype_help'] = 'Select the particular type of question. ' .
         'The combo-box selects one of the built-in types, each of which ' .
@@ -166,16 +238,21 @@ $string['questiontype_help'] = 'Select the particular type of question. ' .
         'testcase data and the student answer. The template, and other
             parameters of the question type, can be customised ' .
         'by clicking the "Customise" checkbox.';
-
+$string['question_type_name'] = 'Question type';
 $string['questiontype_required'] = 'You must select the type of question';
 $string['row_properties'] = 'Row properties:';
-$string['sandboxcontrols'] = 'Sandbox params';
-$string['sandboxcontrols_help'] = 'You can set the maximum CPU time in seconds ' .
+$string['sandboxcontrols'] = 'Sandbox';
+$string['sandboxcontrols_help'] = 'Select what sandbox you wish the student ' .
+        'submissions to run in; choosing DEFAULT will use the highest ' .
+        'priority sandbox available for the chosen language (recommended unless ' .
+        'the question has special needs). ' .
+        'You can also set the maximum CPU time in seconds ' .
         'allowed for each testcase run and the maximum memory a single testcase ' .
-        'run can consume (MB) here. A blank entry uses the sandbox\'s ' .
+        'run can consume (MB). A blank entry uses the sandbox\'s ' .
         'default value, but this may not be suitable for resource-demanding ' .
         'languages like Java and Matlab). A value of zero for the maximum memory ' .
-        'results in no limit being imposed.';
+        'results in no limit being imposed. Some sandboxes (e.g. Ideone) may ' .
+        'silently ignore these settings.';
 $string['SHOW'] = 'Show';
 
 
@@ -194,6 +271,7 @@ $string['stdin'] = 'Standard Input';
 $string['testcase'] = 'Test case {$a}';
 $string['testcases'] = 'Test cases';
 $string['testcode'] = 'Test code';
+$string['test_splitter_re'] = 'Test splitter (regex)';
 $string['template'] = 'Template';
 $string['template_help'] = <<<EO_TEMPLATE_HELP
 The template defines the program that is to be run for each test case, depending
@@ -222,4 +300,5 @@ EO_TEMPLATE_HELP;
 $string['type_header'] = 'Coderunner question type';
 $string['typerequired'] = 'Please select the type of question (language, format, etc)';
 $string['useasexample'] = 'Use as example';
+$string['use_ace'] = 'Use ace';
 $string['xmlcoderunnerformaterror'] = 'XML format error in coderunner question';

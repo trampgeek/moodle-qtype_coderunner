@@ -21,8 +21,8 @@
 /// CODERUNNER QUESTION TYPE CLASS //////////////////
 // The class for programming code questions.
 // A coderunner question consists of a specification for piece of program
-// code, which might be a function or a complete program or (possibly in the
-// future) a fragment of code.
+// code, which might be a function or a complete program or
+// just a fragment of code.
 // The student's response must be source code that defines
 // the specified function. The student's code is executed by
 // a set of test cases, all of which must pass for the question
@@ -39,14 +39,14 @@
 /**
  * @package 	qtype
  * @subpackage 	coderunner
- * @copyright 	&copy; 2012 Richard Lobb
+ * @copyright 	&copy; 2012, 2013, 2014 Richard Lobb
  * @author 	Richard Lobb richard.lobb@canterbury.ac.nz
  */
 
-define('COMPUTE_STATS', false);
-define('DEFAULT_GRADER', 'EqualityGrader');
+require_once($CFG->dirroot . '/question/engine/bank.php');
 
-require_once($CFG->dirroot . '/question/type/coderunner/Sandbox/sandbox_config.php');
+define('COMPUTE_STATS', false);
+
 
 /**
  * qtype_coderunner extends the base question_type to coderunner-specific functionality.
@@ -85,10 +85,48 @@ class qtype_coderunner extends question_type {
      * @return mixed array as above, or null to tell the base class to do nothing.
      */
     public function extra_question_fields() {
-        return array('quest_coderunner_options', 'coderunner_type',
-            'per_test_template', 'all_or_nothing', 'penalty_regime',
-            'show_source', 'showtest', 'showstdin', 'showexpected', 'showoutput',
-            'showmark', 'grader', 'cputimelimitsecs', 'memlimitmb');
+        return array('quest_coderunner_options',
+            'coderunner_type',
+            'prototype_type',
+            'all_or_nothing',
+            'penalty_regime',
+            'show_source',
+            'answerbox_lines',
+            'answerbox_columns',
+            'use_ace',
+            'showtest',
+            'showstdin',
+            'showexpected',
+            'showoutput',
+            'showmark',
+            'combinator_template',
+            'test_splitter_re',
+            'enable_combinator',
+            'per_test_template',
+            'language',
+            'sandbox',
+            'grader',
+            'cputimelimitsecs',
+            'memlimitmb'
+        );
+    }
+
+    /** A list of the extra question fields that are NOT inheritable from
+     *  the prototype and so are NOT hidden in the usual authoring interface
+     *  as 'customise' fields.
+     * @return array of strings
+     */
+    public function noninherited_fields() {
+        return array(
+            'coderunner_type',
+            'prototype_type',
+            'all_or_nothing',
+            'penalty_regime',
+            'show_source',
+            'answerbox_lines',
+            'answerbox_columns',
+            'use_ace'
+            );
     }
 
     /**
@@ -111,7 +149,7 @@ class qtype_coderunner extends question_type {
         // Closer inspection shows that this method isn't actually implemented
         // by even the standard question types and wouldn't be called for any
         // non-standard ones even if implemented. I'm leaving the stub in, in
-        // case it's ever needed, but have set it to throw and exception, and
+        // case it's ever needed, but have set it to throw an exception, and
         // I've removed the actual test code.
         throw new coding_exception('Unexpected call to generate_test. Read code for details.');
     }
@@ -151,32 +189,32 @@ class qtype_coderunner extends question_type {
         global $DB;
 
         assert(isset($question->coderunner_type));
-        if (!isset($question->customise) || !$question->customise) {
-            // If customisation has been turned off, set all customisable
-            // fields to their defaults
-            $question->per_test_template = NULL;
-            $question->cputimelimitsecs = NULL;
-            $question->memlimitmb = NULL;
-            $question->showtest = True;
-            $question->showstdin = True;
-            $question->showexpected = True;
-            $question->showoutput = True;
-            $question->showmark = False;
-            $question->grader = NULL;
-        } else {
-            if (trim($question->per_test_template) == '') {
-                $question->per_test_template = NULL;
+        $fields = $this->extra_question_fields();
+        array_shift($fields); // Discard table name
+        $customised = isset($question->customise) && $question->customise;
+        if ($customised && $question->prototype_type == 2 &&
+                $question->coderunner_type != $question->type_name) {
+            // Saving a new prototype. Copy new type name into coderunner_type
+            $question->coderunner_type = $question->type_name;
+        }
+
+        // Set all inherited fields to NULL if customisation is off or (if
+        // customisation is on) if the corresponding form field is blank.
+
+        foreach ($fields as $field) {
+            $isInherited = !in_array($field, $this->noninherited_fields());
+            $isBlankString = !isset($question->$field) ||
+               (is_string($question->$field) && trim($question->$field) === '');
+            if ($isInherited && (!$customised || $isBlankString)) {
+                $question->$field = NULL;
             }
-            if (trim($question->cputimelimitsecs) == '') {
-                $question->cputimelimitsecs = NULL;
-            }
-            if (trim($question->memlimitmb) == '') {
-                $question->memlimitmb = NULL;
-            }
-            if (trim($question->grader) === DEFAULT_GRADER) {
-                $question->grader = NULL;
+
+
+            if (trim($question->sandbox) === 'DEFAULT') {
+                $question->sandbox = NULL;
             }
         }
+
 
         parent::save_question_options($question);
 
@@ -207,6 +245,18 @@ class qtype_coderunner extends question_type {
             $DB->delete_records($testcaseTable, array('id' => $otc->id));
         }
 
+        // If this is a prototype, clear the caching of any child questions
+        if ($question->prototype_type != 0) {
+            $typeName = $question->coderunner_type;
+            $children = $DB->get_records('quest_coderunner_options',
+                    array('prototype_type' => 0,
+                          'coderunner_type' => $typeName)
+            );
+            foreach($children as $child) {
+                question_bank::notify_question_edited($child->questionid);
+            }
+        }
+
 
         // Lastly, save any datafiles
 
@@ -218,47 +268,61 @@ class qtype_coderunner extends question_type {
 
     // Load the question options (all the question extension fields and
     // testcases) from the database into the question.
-    // If the question has a custom template, it is set as the per-test-case
-    // template and the combinator template is ignored. Otherwise both are
-    // copied from the database into the question object.
+    // The various fields are initialised from the prototype, then overridden
+    // by any non-null values in the specific question.
 
     public function get_question_options($question) {
         global $CFG, $DB, $OUTPUT;
         parent::get_question_options($question);
 
-        // Now add to the question all the fields from the question's type record.
-        // Where two fields have the same name in both the options and type tables,
-        // the former overrides the latter and the question is then deemed to
-        // be customed.
+        if ($question->options->prototype_type != 0) { // Question prototype?
+            // Yes. It's 100% customised with nothing to inherit.
+            $question->options->customise = True;
+        } else {
 
-        if (!$row = $DB->get_record('quest_coderunner_types',
-                array('coderunner_type' => $question->options->coderunner_type))) {
-            throw new coding_exception("Failed to load type info for question id {$question->id}");
-        }
+            // Add to the question all the fields from the question's prototype
+            // record that have not been overridden (i.e. that are null) by this
+            // instance. If any of the inherited fields are modified (i.e. any
+            // (extra field not in the noninheritedFields list), the 'customise'
+            // field is set. This is used only to display the customisation panel.
 
-        $question->options->customise = False; // Starting assumption
-        foreach ($row as $field => $value) {
-            if ($field != 'id' && $field != 'coderunner_type') {
+            $qtype = $question->options->coderunner_type;
+            if (!$row = $DB->get_record_select(
+                    'quest_coderunner_options',
+                    "coderunner_type = '$qtype' and prototype_type != 0")) {
+                throw new coding_exception("Failed to load type info for question id {$question->id}");
+            }
+
+            $question->options->customise = False; // Starting assumption
+            $noninheritedFields = $this->noninherited_fields();
+            foreach ($row as $field => $value) {
                 if (isset($question->options->$field) && $question->options->$field !== '') {
-                    $question->options->customise = True;
+                    if (!in_array($field, $noninheritedFields) && $question->options->$field != $value) {
+                        $question->options->customise = True; // An inherited field has been changed
+                    }
                 } else {
                     $question->options->$field = $value;
                 }
             }
+
+            if (!isset($question->options->sandbox))  {
+                $question->options->sandbox = NULL;
+            }
+
+            if (!isset($question->options->grader)) {
+                $question->options->grader = NULL;
+            }
         }
 
-        if (!isset($question->options->sandbox))  {
-            $question->options->sandbox = $this->getBestSandbox($question->options->language);
-        }
-
-        if (!isset($question->options->grader)) {
-            $question->options->grader = DEFAULT_GRADER;
-        }
-
-        // Add in the testcases
+        // Add in any testcases (expect none for built-in prototypes)
         if (!$question->options->testcases = $DB->get_records('quest_coderunner_testcases',
                 array('questionid' => $question->id), 'id ASC')) {
-            throw new coding_exception("Failed to load testcases for question id {$question->id}");
+            if ($question->options->prototype_type == 0) {
+                throw new coding_exception("Failed to load testcases for question id {$question->id}");
+            } else {
+                // Question prototypes may not have testcases
+                $question->options->testcases = array();
+            }
         }
 
         return true;
@@ -284,9 +348,31 @@ class qtype_coderunner extends question_type {
     }
 
 
-    // Delete the testcases when this question is deleted.
+    // Override required here so we can check if this is a prototype
+    // with children (in which case deletion is disallowed). If not,
+    // deletion is allowed but must delete the testcases too.
     public function delete_question($questionid, $contextid) {
         global $DB;
+
+        $question = $DB->get_record(
+                'quest_coderunner_options',
+                array('questionid' => $questionid));
+
+        if ($question->prototype_type != 0) {
+            $typeName = $question->coderunner_type;
+            $nUses = $DB->count_records('quest_coderunner_options',
+                    array('prototype_type' => 0,
+                          'coderunner_type' => $typeName));
+            if ($nUses != 0) {
+                // TODO: see if a better solution to this problem can be found.
+                // Throwing an exception is very heavy-handed but the return
+                // value from this function is ignored by the question bank,
+                // and other deletion (e.g. of the question itself) proceeds
+                // regardless, leaving things in an even worse state than if
+                // I didn't even check for an in-use prototype!
+                throw new moodle_exception('Attempting to delete in-use prototype');
+            }
+        }
 
         $success = $DB->delete_records("quest_coderunner_testcases",
                 array('questionid' => $questionid));
@@ -323,6 +409,12 @@ class qtype_coderunner extends question_type {
         array_shift($extraquestionfields);
         $qo = $format->import_headers($data);
         $qo->qtype = $question_type;
+        $newDefaults = array(
+            'all_or_nothing' => 1,
+            'answerbox_lines' => 15,
+            'answerbox_columns' => 90,
+            'use_ace' => 1
+        );
 
         foreach ($extraquestionfields as $field) {
             if ($field === 'per_test_template'  && isset($data['#']['custom_template'])) {
@@ -330,13 +422,13 @@ class qtype_coderunner extends question_type {
                 $qo->per_test_template = $format->getpath($data, array('#', 'custom_template', 0, '#'), '');
             }
             else {
-                $qo->$field = $format->getpath($data, array('#', $field, 0, '#'), '');
+                if (array_key_exists($field, $newDefaults)) {
+                    $default = $newDefaults[$field];
+                } else {
+                    $default = '';
+                }
+                $qo->$field = $format->getpath($data, array('#', $field, 0, '#'), $default);
             }
-        }
-
-
-        if (!isset($qo->all_or_nothing)) {
-            $qo->all_or_nothing = 1; // Force all-or-nothing on old exports
         }
 
         $testcases = $data['#']['testcases'][0]['#']['testcase'];
@@ -397,6 +489,7 @@ class qtype_coderunner extends question_type {
         $expout = parent::export_to_xml($question, $format, $extra);;
 
         $expout .= "    <testcases>\n";
+
         foreach ($question->options->testcases as $testcase) {
             $useasexample = $testcase->useasexample ? 1 : 0;
             $hiderestiffail = $testcase->hiderestiffail ? 1 : 0;
@@ -431,26 +524,5 @@ class qtype_coderunner extends question_type {
         return $s;
     }
 
-
-    /** Find the 'best' sandbox for a given language, defined to be the
-     *  first one in the ordered list of active sandboxes in sandbox_config.php
-     *  that supports the given language.
-     *  It's public so the tester can call it (yuck, hacky).
-     *  @param type $language to run. Must match a language supported by at least one
-     *  sandbox or an exception is thrown.
-     * @return the preferred sandbox
-     */
-    public function getBestSandbox($language) {
-        global $ACTIVE_SANDBOXES;
-        foreach($ACTIVE_SANDBOXES as $sandbox) {
-            require_once("Sandbox/$sandbox.php");
-            $sb = new $sandbox();
-            $langsSupported = $sb->getLanguages()->languages;
-            if (in_array($language, $langsSupported)) {
-                return $sandbox;
-            }
-        }
-        throw new coding_exception("Config error: no sandbox found for language '$language'");
-    }
 }
 

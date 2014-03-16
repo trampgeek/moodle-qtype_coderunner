@@ -11,8 +11,6 @@
 
 require_once('sandboxbase.php');
 
-define('USER', 'coderunner');
-define('PASS', 'moodlequizzes');
 
 class IdeoneSandbox extends Sandbox {
 
@@ -20,6 +18,14 @@ class IdeoneSandbox extends Sandbox {
     var $langMap = NULL;   // Languages supported by this sandbox: map from name to id
 
     public function __construct($user=NULL, $pass=NULL) {
+        if ($user == NULL) {
+            $user = get_config('qtype_coderunner', 'ideone_user');
+        }
+
+        if ($pass == NULL) {
+            $pass = get_config('qtype_coderunner', 'ideone_password');
+        }
+
         Sandbox::__construct($user, $pass);
 
         // A map from Ideone language names (regular expressions) to their
@@ -32,7 +38,8 @@ class IdeoneSandbox extends Sandbox {
 
         $this->client = $client = new SoapClient("http://ideone.com/api/1/service.wsdl");
         $this->langMap = array();  // Construct a map from language name to id
-        $response = $this->client->getLanguages(USER, PASS);
+
+        $response = $this->client->getLanguages($user, $pass);
         $error = $response['error'];
         if ($error !== 'OK') {
             throw new coding_exception("IdeoneSandbox::getLanguages: error ($error)");
@@ -80,7 +87,7 @@ class IdeoneSandbox extends Sandbox {
    "ideone sandbox doesn't accept parameters like cpu time or memory limit");
         }
         $langId = $this->langMap[$language];
-        $response = $this->client->createSubmission(USER, PASS,
+        $response = $this->client->createSubmission($this->user, $this->pass,
                 $sourceCode, $langId, $input, $run, $private);
         $error = $response['error'];
         if ($error !== 'OK') {
@@ -92,7 +99,7 @@ class IdeoneSandbox extends Sandbox {
     }
 
     public function getSubmissionStatus($link) {
-        $response = $this->client->getSubmissionStatus(USER, PASS, $link);
+        $response = $this->client->getSubmissionStatus($this->user, $this->pass, $link);
         $error = $response['error'];
         if ($error !== "OK") {
                 throw new coding_exception("IdeoneSandbox::getSubmissionStatus: error ($error)");
@@ -113,7 +120,7 @@ class IdeoneSandbox extends Sandbox {
             $withInput=FALSE, $withOutput=TRUE, $withStderr=TRUE,
             $withCmpinfo=TRUE)
     {
-        $response = $this->client->getSubmissionDetails(USER, PASS,
+        $response = $this->client->getSubmissionDetails($this->user, $this->pass,
                 $link, $withSource, $withInput, $withOutput,
                 $withStderr, $withCmpinfo);
 
