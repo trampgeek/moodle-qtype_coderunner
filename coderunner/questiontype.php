@@ -480,13 +480,39 @@ class qtype_coderunner extends question_type {
      * testcases.
      *
      */
+    
+    // Exporting is complicated by inheritance from the prototype.
+    // To deal with this we re-read the prototype and include in the
+    // export only the coderunner extra fields that are not inherited or that
+    // are not equal in value to the field from the prototype.
 
     function export_to_xml($question, qformat_xml $format, $extra=null) {
+        global $DB;
         if ($extra !== null) {
             throw new coding_exception("coderunner:export_to_xml: Unexpected parameter");
         }
+        
+        // Copy the question so we can modify it for export
+        // (Just in case the original gets used elsewhere).
+        $questionToExport = clone $question; 
+       
+        $qtype = $question->options->coderunner_type;
+        if (!$row = $DB->get_record_select(
+                'quest_coderunner_options',
+                "coderunner_type = '$qtype' and prototype_type != 0")) {
+            throw new coding_exception("Failed to load type info for question id {$question->id}");
+        }
 
-        $expout = parent::export_to_xml($question, $format, $extra);;
+        // Clear all inherited fields equal in value to the corresponding Prototype field
+        $noninheritedFields = $this->noninherited_fields();
+        foreach ($row as $field => $value) {
+            if (!in_array($field, $noninheritedFields) && 
+                    $question->options->$field === $value) {
+                $questionToExport->options->$field = NULL;
+            }
+        }
+
+        $expout = parent::export_to_xml($questionToExport, $format, $extra);;
 
         $expout .= "    <testcases>\n";
 
