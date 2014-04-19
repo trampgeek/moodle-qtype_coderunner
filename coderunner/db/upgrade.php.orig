@@ -160,6 +160,13 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
 
         // Define field enable_combinator to be added to quest_coderunner_options.
         $table = new xmldb_table('quest_coderunner_options');
+<<<<<<< HEAD
+        $field = new xmldb_field('penalty_regime', XMLDB_TYPE_CHAR, '255', XMLDB_UNSIGNED, FALSE, null, null);
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        upgrade_plugin_savepoint(true, 2014021501, 'qtype', 'coderunner');
+=======
         $field = new xmldb_field('enable_combinator', XMLDB_TYPE_INTEGER, '1', null, FALSE, null, null, 'test_splitter_re');
 
         // Conditionally launch add field enable_combinator.
@@ -191,6 +198,7 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
         upgrade_plugin_savepoint(true, 2014021502, 'qtype', 'coderunner');
+>>>>>>> development
     }
 
     if ($oldversion != 0 && $oldversion < 2014022001) {
@@ -483,7 +491,7 @@ EOT;
 
     $perTestTemplate_pylint_prog = <<<'EOT'
 __student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
-
+2
 import subprocess
 
 def check_code(s):
@@ -694,30 +702,6 @@ EOT
         'memlimitmb' => 0          // TODO: why won't matlab run with a memory limit??
     );
 
-    // ===============================================================
-    $octaveFunction =  array(
-        'coderunner_type' => 'octave_function',
-        'comment' => 'Used for Octave function questions. Student code must be ' .
-                     'a function declaration, which is tested with each testcase.',
-        'combinator_template' => <<<EOT
-{{ STUDENT_ANSWER }}
-
-
-{% for TEST in TESTCASES %}
-{{ TEST.testcode }};
-{% if not loop.last %}
-disp('#<ab@17943918#@>#');
-{% endif %}
-{% endfor %}
-
-EOT
-,
-        'test_splitter_re' => "|#<ab@17943918#@>#\n|ms",
-        'per_test_template' => "{{ STUDENT_ANSWER }}\n\n{{ TEST.testcode }};",
-        'language' => 'octave',
-        'cputimelimitsecs' => 3, 
-        'memlimitmb' => 1000  
-    );
 
     // ===============================================================
     $javaMethod = array(
@@ -858,7 +842,6 @@ EOT
         $cProgram,
         $cFullMainTests,
         $matlabFunction,
-        $octaveFunction,
         $javaMethod,
         $javaClass,
         $javaProgram,

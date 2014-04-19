@@ -58,7 +58,7 @@ class RunguardSandbox extends LocalSandbox {
     public function getLanguages() {
         return (object) array(
             'error' => Sandbox::OK,
-            'languages' => array('matlab', 'python2', 'python3', 'Java', 'C')
+            'languages' => array('matlab', 'octave', 'python2', 'python3', 'Java', 'C')
         );
     }
 

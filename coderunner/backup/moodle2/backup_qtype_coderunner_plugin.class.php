@@ -24,7 +24,7 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-// TODO: Test me!
+require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
 
 /**
  * Provides the information to backup coderunner questions.
@@ -39,6 +39,8 @@ class backup_qtype_coderunner_plugin extends backup_qtype_plugin {
 
    // Add the options to a coderunner question type structure
     function add_quest_coderunner_options($element) {
+        $dummy_coderunner_q = new qtype_coderunner();
+        
         // Check $element is one nested_backup_element
         if (! $element instanceof backup_nested_element) {
             throw new backup_step_exception("quest_coderunner_options_bad_parent_element", $element);
@@ -46,11 +48,10 @@ class backup_qtype_coderunner_plugin extends backup_qtype_plugin {
 
         // Define the elements
         $options = new backup_nested_element('coderunner_options');
+        $optionFields = $dummy_coderunner_q->extra_question_fields(); // It's not static :-(
+        array_shift($optionFields);
         $option = new backup_nested_element('coderunner_option', array('id'),
-                array('coderunner_type', 'all_or_nothing', 'per_test_template',
-                      'showtest', 'showstdin', 'showexpected',
-                      'showoutput', 'showmark', 'grader', 'cputimelimitsecs',
-                      'memlimitmb'));
+                $optionFields);
 
         // Build the tree
         $element->add_child($options);
@@ -58,7 +59,6 @@ class backup_qtype_coderunner_plugin extends backup_qtype_plugin {
 
         // Set the source
         $option->set_source_table('quest_coderunner_options', array('questionid' => backup::VAR_PARENTID));
-
     }
 
 

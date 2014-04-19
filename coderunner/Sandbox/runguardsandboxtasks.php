@@ -85,6 +85,44 @@ class Matlab_Task extends \LanguageTask {
      }
 };
 
+
+class Octave_Task extends \LanguageTask {
+    public function __construct($sandbox, $source) {
+        \LanguageTask::__construct($sandbox, $source);
+    }
+
+    public function getVersion() {
+        return 'Octave 3.6.4';
+    }
+
+    public function compile() {
+        $this->executableFileName = $this->sourceFileName . '.m';
+        if (!copy($this->sourceFileName, $this->executableFileName)) {
+            throw new coding_exception("Octave_Task: couldn't copy source file");
+        }
+    }
+
+    public function getRunCommand() {
+         return array(
+             '/usr/bin/octave',
+             '--norc',
+             '--no-window-system',
+             '--silent',
+             basename($this->sourceFileName)
+         );
+     }
+     
+     
+     // Remove return chars and delete the extraneous error: lines
+     public function filterStderr($stderr) {
+         $out1 = str_replace("\r", '', $stderr);
+         $out2 = preg_replace("/\nerror:.*\n/s", "\n", $out1);
+         $out3 = preg_replace("|file /tmp/coderunner_.*|", 'source file', $out2);
+         return $out3;
+     }
+}
+
+
 class Python2_Task extends \LanguageTask {
     public function __construct($sandbox, $source) {
         \LanguageTask::__construct($sandbox, $source);

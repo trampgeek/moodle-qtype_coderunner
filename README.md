@@ -1,6 +1,6 @@
 # CODE RUNNER
 
-Version: 2.0alpha February 2014
+Version: 2.0 beta April 2014
 
 Author: Richard Lobb, University of Canterbury, New Zealand.
 
@@ -31,9 +31,10 @@ questions. The mid-semester test also uses Moodle/CodeRunner and it is intended 
 run the final examination on Moodle/Coderunner in the near future.
 The second year C course of around 200 students makes similar use of Coderunner
 using C questions and a third year Civil Engineering course, taught in Matlab,
-also uses Coderunner extensively.
+also uses Coderunner for all labs and for the mid-semester programming exam.
 
-The system currently supports Python2, Python3, C and Matlab. Java support
+The system currently supports Python2 (considered obsolescent), Python3,
+C, Octave and Matlab. Java support
 is also present but has not yet been used in courses. The architecture allows
 easy extension to other languages and one lecturer has made
 intermittent use of *clojure* questions.
@@ -49,8 +50,37 @@ fraction of a second.
 
 Administrator privileges and some Unix skills are needed to install Coderunner.
 
+## Upgrading from an earlier version
 
-## Installation
+CodeRunner version 2 is a major upgrade from version 1, with many new features
+and significant restructuring of the database tables. Although the new
+version attempts to update all the database tables to the new format the
+process has been tested on only one system. Some problems occurred and the
+upgrade code was edited to deal with those problems but the edits have received
+minimal testing because of the absence of any "pure" version 1 system on which to 
+test them. If you are currently
+running version 1 and wish to upgrade to version 2, it is strongly recommended
+that:
+
+1. You do not attempt such an upgrade during term time.
+
+1. You make a complete backup of your existing server's database before attempting the
+   upgrade. 
+
+1. You export all your coderunner questions from the question
+   database in Moodle XML format.
+
+Also, please feel free to contact the developer (richard.lobb@canterbury.ac.nz)
+either to discuss your upgrade beforehand or afterwards if any problems occur.
+
+With all those caveats, upgrading from an earlier version should be as simple
+as a raw installation; the upgrade.php script should modify all the database
+tables and preserve all existing questions and student submissions. Move the
+existing <moodleHome>/local/CodeRunner folder to a backup location, then just
+follow the instructions in the next section.
+
+
+## Installation from scratch
 
 
 CodeRunner requires Moodle version 2.5 or later.
@@ -60,8 +90,8 @@ There are three stages to installation:
 1. Installing the CodeRunner module itself.
 
 1. Installing the Liu sandbox if you're planning on running C on the Moodle
-server (not strictly necessary but strongly
-recommended) to provide more security than Runguard or much better
+server (not strictly necessary but recommended) to provide more security than
+Runguard or much better
 performance than Ideone.
 
 1. Configuring the system for the particular sandbox(es) and languages
@@ -166,20 +196,38 @@ execution and to support occasional use of unusual languages.
 must be installed, with the capability to compile and
 link statically (no longer part of the default RedHat installation).
 
+### Checking security
+
+The default Moodle install has all files in the <moodlehome> tree world-readable.
+This is BAD, especially if you're running code in the Runguard sandbox,
+because the all-important config.php, which contains the database password,
+can be read by student code. So it's most important that you at very least
+ensure that that particular file is not world-readable.
+
+A better fix is to set the group of the entire Moodle subtree to apache
+(or www-data depending on what user the web server runs as) and then make it
+all not world readable. However, if you do that after installing CodeRunner
+you'll break the set-uid-root program that's used to start the Runguard sandbox.
+So you then need to re-run the CodeRunner installer to fix it.
+
 ### Running the unit tests
 
 If your Moodle installation includes the
 *phpunit* system for testing Moodle modules, you might wish to test the
-CodeRunner installation. However, unless you are planning on running
-Matlab you should first move or remove the file
-
-        <moodlehome>/local/coderunner/Coderunner/tests/matlabquestions_test.php
+CodeRunner installation. Most tests require that at least python2 and python3
+are installed. 
 
 You should then be able to run the tests with
 
         cd <moodlehome>
         sudo php admin/tool/phpunit/cli/init.php
         sudo ./phpunit --testsuite="qtype_coderunner test suite"
+
+You will almost certainly get a number of errors relating to the various
+sandboxes and languages that you have not installed, e.g. the LiuSandbox,
+Matlab, Octave and Java. These can all be ignored unless you plan to use
+those capabilities. The name of the failing tests should be sufficient to
+tell you if you need be at all worried.
 
 Please [email me](mailto:richard.lobb@canterbury.ac.nz) if you have problems
 with the installation.
@@ -212,9 +260,9 @@ author can also add additional files to the execution environment.
 The test program is constructed from the test case information plus the
 student's submission using one of two *templates* defined by the prototype.
 The *per-test template* defines a different program for each test case.
-To achieve higher efficiency with some
+To achieve higher efficiency with most
 question types there is also a *combinator template* that defines a single
-program containing all the different tests. If this template is defined,
+program containing *all* the different tests. If this template is defined,
 and there is no standard input supplied,
 CodeRunner
 tries to use it first, but falls back to running the separate per-test-case
@@ -285,7 +333,7 @@ example. The student supplies
  C++ isn't built in at present, as we don't teach it, but changing the sandboxes
  to support C++ is mainly just a matter of changing the
  compile command line, viz., the line "$cmd = ..." in the *compile* methods of
- the  *C\_Task* classes in runguardsandboxtasks.php and liusandboxtasks.php.
+ the  *C\_Task* classes in *runguardsandboxtasks.php* and *liusandboxtasks.php*.
  You would then probably
   wish to change the C question type templates a bit, e.g. to include
  *iostream* instead of, or as well as, *stdio.h* by default. The line
@@ -368,6 +416,10 @@ form of one or more function declarations. That .m file is executed by Matlab,
 various Matlab-generated noise is filtered, and the output must match that
 specified for the test cases.
 
+ 1. **octave\_function**. This uses the open-source Octave system to process
+matlab-like student submissions. It has not yet been used for teaching so
+should be regarded as experimental. 
+
 ## Templates
 
 Templates are the key to understanding how a submission is tested. There are in
@@ -378,19 +430,19 @@ The *per_test_template* for each question type defines how a program is built fr
 student's code and one particular testcase. That program is compiled (if necessary)
 and run with the standard input defined in that testcase, and the output must
 then match the expected output for the testcase (where 'match' is defined
-by the chosen validator, but only the basic equality-match validator is
-currently supplied).
+by the chosen validator: either an exact match or a regular-expression match.
 
-The question type template is processed by a template engine called
-[Twig](http://twig.sensiolabs.org/), which is passed a variable called
-STUDENT\_ANSWER, which is the text that the student entered into the answer box
-and another called TEST, which is a record containing the information
-that the question author enters
+The question type template is processed by the
+[Twig](http://twig.sensiolabs.org/) template engine. The engine is given both
+the template and a variable called
+STUDENT\_ANSWER, which is the text that the student entered into the answer box,
+plus another called TEST, which is a record containing the test-case
+that the question author has specified
 for the particular test. The template will typically use just the TEST.testcode
 field, which is the "test" field of the testcase, and usually (but not always)
 is a bit of code to be run to test the student's answer. As an example,
 the question type *c_function*, which asks students to write a C function,
-looks like:
+has the following template:
 
         #include <stdio.h>
         #include <stdlib.h>
@@ -409,17 +461,34 @@ returns the square of its parameter might be:
 
         printf("%d\n", sqr(-9))
 
-with the expected output of 81.
+with the expected output of 81. The result of substituting both the student
+code and the test code into the template would then be a program like:
+
+        #include <stdio.h>
+        #include <stdlib.h>
+        #include <ctype.h>
+
+        int sqr(int n) {
+            return n * n;
+        }
+
+        int main() {
+            printf("%d\n", sqr(-9));
+            return 0;
+        }
 
 When authoring a question you can inspect the template for your chosen
-question type by temporarily checking the 'Customise' checkbox.
+question type by temporarily checking the 'Customise' checkbox. Additionally,
+if you check the *Template debugging* checkbox you will get to see 
+in the output web page each of the
+complete programs that gets run during a question submission.
 
 As mentioned earlier, there are actually two templates for each question
 type. For efficiency, CodeRunner first tries
 to combine all testcases into a single compile-and-execute run using the second
 template, called the `combinator_template`. There is a combinator
 template for most
-question type, except for questions that require students
+question types, except for questions that require students
 to write a whole program. However, the combinator template is not used during
 testing if standard input is supplied for any of the tests; each test
 is then assumed to be independent of the others, with its own input. Also,
@@ -428,7 +497,8 @@ the tester retries all test cases individually using the per-test-case
 template so that the student gets presented with all results up to the point
 at which the exception occurred.
 
-As mentioned above, the `per_test_template` can be edited by the question
+As mentioned above, both the `per_test_template` and the `combinator_template`
+can be edited by the question
 author for special needs, e.g. if you wish to provide skeleton code to the
 students. As a simple example, if you wanted students to provide the missing
 line in a C function that returns the square of its parameter, and you
@@ -450,16 +520,24 @@ a template like:
 
 The testcode would then just be of the form *sqr(-11)*, and the question text
 would need to make it clear
-to students what context their code appears in.
+to students what context their code appears in. The authoring interface
+allows the author to set the size of the student's answer box, and in a
+case like the above you'd typically set it to just one or two lines in height
+and perhaps 30 columns in width.
 
 When you edit the per-test template, the combinator template is immediately
 disabled. You can re-enable and edit it, if you wish, by opening
 the *Advanced
-Customisation* block. You will need to understand loops and selection in
+Customisation* block.
+
+You will need to understand loops and selection in
 the Twig template engine if you wish to write your own combinator templates.
-The combinator template doesn't normally offer much benefit unless you have a
+For one-off question use, the combinator template doesn't normally offer
+sufficient additional benefit to warrant the complexity increase
+unless you have a
 large number of testcases or are using
-a slow-to-launch language like Matlab.
+a slow-to-launch language like Matlab. However, if you are writing your
+own question types you might wish to make use of it.
 
 ## Advanced template use
 
@@ -528,7 +606,7 @@ used in practice include:
 Using just the template mechanism described above it is possible to write
 almost arbitrarily complex questions. Grading of student submissions can,
 however, be problematic in some situations. For example, you may need to
-ask a question where many different answers are possible, and the
+ask a question where many different valid outputs are possible, and the
 correctness can only be assessed by a special testing program. Or
 you may wish to subject
 a student's code to a very large
@@ -663,8 +741,8 @@ type name you use should be unique.
 Currently, user-defined question types are global, i.e. when selecting the
 CodeRunner question type with the combo-box, all question authors in
 all courses get to see *all* the built-in and user-defined prototypes.
-This is temporary; the scope of a prototype question will
-hopefully be restricted in the next version of CodeRunner.
+This is temporary; it is intended that the scope of a prototype question will
+be restricted in later versions of CodeRunner.
 Many of the more-specialised existing base types, such as clojure,
 python3_pylint etc will likely be removed from the built-ins then, too, so that they
 don't clutter the menu globally; they
@@ -680,22 +758,24 @@ To reduce the UI confusion, customisable fields are subdivided into the
 basic ones (per-test-template, grader, result-table column sectors etc) and
 "advanced"
 ones. The latter include the language, sandbox, timeout, memory limit and
-the "make this question a prototype" feature. Also in there is the combinator
-template, which is now editable. By default, when you edit
+the "make this question a prototype" feature. The combinator
+template is also considered to be an advanced feature. By default, when you edit
 the per-test-template the combinator is disabled; you must explicitly re-enable
 it (and edit it) if you need it. The JavaScript alerts that tell you this are a
 tad annoying but I'm leaving them in so no one can accuse me of not warning them.
 
 Managing prototype questions is a little problematic - there's no way
 to find all the children of a prototype. If you try to delete a prototype that
-as children an exception will be thrown; this maintains the data integrity but
-may or may not generate an even vaguely useful error message. It certainly won't
-tell you which questions are inheriting from it. I can't find a cleaner way to
-manage this; just don't do it.
+has children an exception will be thrown; this maintains the data integrity but
+it doesn't
+tell you which questions are inheriting from it. You have to hunt them down and
+kill them manually before you can delete the prototype. [Or, you can use
+a suitable SQL query on the database tables, but that's outside the scope
+of this document.]
 
-One major warning: if you define your own question type, then use it with lots
-of other questions, you'd better make sure when you export your question bank
-that you include the prototype, or all its children will die on being imported
+One major warning: if you define your own question type you'd better make sure
+when you export your question bank
+that you include the prototype, or all of its children will die on being imported
 anywhere else!
 
 ##How programming quizzes should work

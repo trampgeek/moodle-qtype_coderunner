@@ -33,13 +33,16 @@ import shelve
 import random
 import traceback
 
-LANGUAGE = 'PYTHON3'
+LANGUAGE = 'MATLAB'
 
 shelf = shelve.open('coderunner_loadtesting_results')
 
 # Correct answers to the four one-question quizzes for each language.
 
-quiz_answers = {'C': ['''
+quiz_answers = {
+
+# ==== C ====
+'C': ['''
 float addMul(float a, float b, float c) {
     return (a + b) * c;
 }
@@ -73,6 +76,8 @@ int main() {
 }
 '''],
 
+# ==== PYTHON3 ====
+
 'PYTHON3': [
 '''def addMul(a, b, c): return (a + b) * c
 ''',
@@ -95,6 +100,8 @@ for i in range(1, n+1):
 print()
 '''],
 
+# ====== MATLAB ======
+
 'MATLAB': [
 '''function result = addMul(a, b, c)
     result = (a + b) * c;
@@ -111,7 +118,7 @@ end
 '''function crazy(n)
    s = '';
    for i = 1 : n
-      s = [s  sprintf('%d', i)];
+      s = [s  sprintf('%d ', i)];
    end
    disp(s);
 end
@@ -292,7 +299,7 @@ def sim(avg_gap, sim_length):
 
 if __name__ == '__main__':
     SIMULATION_GAP_SECS = 3
-    SIMULATION_DURATION_SECS = 600
+    SIMULATION_DURATION_SECS = 300
 
     before = time.time()
     (results, errs) = sim(SIMULATION_GAP_SECS, SIMULATION_DURATION_SECS)

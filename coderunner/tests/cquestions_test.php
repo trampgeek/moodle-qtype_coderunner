@@ -207,11 +207,10 @@ class qtype_coderunner_c_question_test extends qtype_coderunner_testcase {
 
 
     public function test_illegal_function_call() {
-        // NOTE: The null sandbox doesn't pass this test.
-        // I'm not sure why the nproc=1 setting in runguard doesn't prevent
-        // the forking. Even if it did it wouldn't detect the illegal
-        // function call, but it should at least abort the program, shouldn't it?
-        // TODO: find out what's happening here.
+        // Check that sandbox aborts a fork-bomb.
+        // Liu sandbox issues issues illegal function call while
+        // RunguardSandbox gives a cryptic message about "Resource unavailable"
+        // followed by abnormal termination.
         $q = test_question_maker::make_question('coderunner', 'sqrC');
         $response = array('answer' =>
 "#include <linux/unistd.h>
@@ -231,7 +230,12 @@ int sqr(int n) {
         $this->assertTrue(isset($cache['_testoutcome']));
         $testOutcome = unserialize($cache['_testoutcome']);
         $this->assertEquals(2, count($testOutcome->testResults));
-        $this->assertTrue(strpos($testOutcome->testResults[1]->got, "***Illegal function call***") !== FALSE);
+        $this->assertTrue(
+                strpos($testOutcome->testResults[1]->got, 
+                    "***Illegal function call***") !== FALSE ||
+                strpos($testOutcome->testResults[1]->got, 
+                    "***Abnormal termination***") !== FALSE
+                );
     }
 }
 

@@ -42,7 +42,8 @@ class qtype_coderunner_test_helper extends question_test_helper {
             'helloProgC',
             'copyStdinC', 'timeoutC', 'exceptionsC', 'strToUpper',
             'strToUpperFullMain', 'stringDelete',
-            'sqrmatlab', 'testStudentAnswerMacro',
+            'sqrmatlab', 'testStudentAnswerMacro', 'sqroctave',
+            'testStudentAnswerMacroOctave',
             'sqrjava', 'nameclass', 'printsquares', 'printstr');
     }
 
@@ -175,8 +176,8 @@ class qtype_coderunner_test_helper extends question_test_helper {
 
     public function make_coderunner_question_sqrCustomised() {
         $q = $this->make_coderunner_question_sqr();
-        $q->customise = true;
         $q->per_test_template = "def times(a, b): return a * b\n\n{{STUDENT_ANSWER}}\n\n{{TEST.testcode}}\n";
+        $q->enable_combinator = False;
         return $q;
     }
 
@@ -694,7 +695,7 @@ int main() {
     // ===============================
 
    /**
-     * Makes a coderunner question asking for a sqr() function
+     * Makes a matlab question asking for a sqr() function
      * @return qtype_coderunner_question
      */
     public function make_coderunner_question_sqrmatlab() {
@@ -740,13 +741,18 @@ int main() {
 
    /**
      * Makes a coderunner question designed to check if the MATLAB_ESCAPED_STUDENT_ANSWER
-    *  variable is working and usable within Matlab
+    *  variable is working and usable within Matlab/Octave
      * @return qtype_coderunner_question
      */
     public function make_coderunner_question_testStudentAnswerMacro() {
+        return $this->makeMacroQuestion('matlab_function');
+    }
+    
+    
+    private function makeMacroQuestion($qtype) {
         $coderunner = $this->makeCodeRunnerQuestion(
-                'matlab_function',
-                'Matlab escaped student answer tester'
+                $qtype,
+                'Matlab/Octave escaped student answer tester'
         );
         $coderunner->questiontext = <<<EOT
  Enter the following program:
@@ -761,7 +767,7 @@ EOT;
         $coderunner->testcases = array(
             (object) array('testcode'       => 'mytest();',
                            'stdin'          => '',
-                           'expected'         => "\"Hi!\" he said\n'Hi!' he said",
+                           'expected'       => "\"Hi!\" he said\n'Hi!' he said",
                            'display'        => 'SHOW',
                            'mark'           => 1.0,
                            'hiderestiffail' => 0,
@@ -782,7 +788,6 @@ EOT
                            'useasexample'   => 0)
         );
 
-        $coderunner->customise = 1;
         $coderunner->per_test_template = <<<EOT
 function tester()
   ESCAPED_STUDENT_ANSWER =  sprintf('{{MATLAB_ESCAPED_STUDENT_ANSWER}}');
@@ -791,9 +796,70 @@ end
 
 {{STUDENT_ANSWER}}
 EOT;
+        if ($qtype === 'octave_function') {
+            $coderunner->per_test_template .= "\n\ntester()\n";
+        }
+        $coderunner->enable_combinator = False;
         return $coderunner;
     }
 
+    
+    // Now the octave-question helper stuff
+    // ===================================
+    // An edited version of Matlab helper stuff.
+    // Has to handle the difference in the behaviour of disp.
+
+   /**
+     * Makes an octave question asking for a sqr() function
+     * @return qtype_coderunner_question
+     */
+    public function make_coderunner_question_sqroctave() {
+        $coderunner = $this->makeCodeRunnerQuestion(
+            'octave_function',
+            'Function to square a number n',
+            'Write a function sqr(n) that returns n squared.'
+        );
+
+        $coderunner->testcases = array(
+            (object) array('testcode'       => 'disp(sqr(0));',
+                           'stdin'          => '',
+                           'expected'       => '0',
+                           'display'        => 'SHOW',
+                           'mark'           => 1.0,
+                           'hiderestiffail' => 0,
+                           'useasexample'   => 1),
+            (object) array('testcode'       => 'disp(sqr(7));',
+                           'expected'         => ' 49',
+                            'stdin'         => '',
+                           'display'        => 'SHOW',
+                           'mark'           => 1.0,
+                           'hiderestiffail' => 0,
+                           'useasexample'   => 1),
+            (object) array('testcode'       => 'disp(sqr(-11));',
+                           'expected'         => ' 121',
+                           'stdin'          => '',
+                           'display'        => 'SHOW',
+                           'mark'           => 1.0,
+                           'hiderestiffail' => 0,
+                           'useasexample'   => 0),
+           (object) array('testcode'        => 'disp(sqr(-16));',
+                           'expected'         => ' 256',
+                           'stdin'          => '',
+                           'display'        => 'HIDE',
+                           'mark'           => 1.0,
+                           'hiderestiffail' => 0,
+                           'useasexample'   => 0)
+        );
+
+        return $coderunner;
+    }
+    
+    public function make_coderunner_question_testStudentAnswerMacroOctave()
+    {
+        return $this->makeMacroQuestion('octave_function');
+    }
+
+   
 
 /* Now Java questions
  * ==================
@@ -960,11 +1026,13 @@ EOPROG;
 
         $type = $question->options['coderunner_type'];
 
-        if (!$record = $DB->get_record('quest_coderunner_options',
-                array('coderunner_type' => $type, 'prototype_type' => 1))) {
-            throw new coding_exception("TestHelper: bad call to getOptions with type $type");
+        if (!$row = $DB->get_record_select(
+                   'quest_coderunner_options',
+                   "coderunner_type = '$type' and prototype_type != 0")) {
+               throw new exception("TestHelper: failed to load type info for question with type $type");
         }
-        foreach ($record as $field=>$value) {
+        
+        foreach ($row as $field=>$value) {
             $question->$field = $value;
         }
 
