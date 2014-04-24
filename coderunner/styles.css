@@ -42,6 +42,10 @@ table.coderunner-test-results .header, table.coderunnerexamples .header {
     text-align: left;
 }
 
+table.coderunner-test-results tr.hidden {
+    opacity: 0.5;
+}
+
 
 div.coderunner-test-results-good {
     background-color: #AAFFAA;

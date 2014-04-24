@@ -143,7 +143,10 @@ $string['gradingcontrols_help'] = <<<EO_GC_HELP
 The default 'exact match' grader
 awards marks only if the output from the run matches the expected value defined
 by the testcase. Trailing white space is stripped from all lines before the
-equality test is made. The 'regular expression' grader uses the 'expected'
+equality test is made. The near-equality grader is similar except that it
+also collapses multiple spaces and tabs to a single space, deleted all blank
+lines and converts both strings to lower case.
+The 'regular expression' grader uses the 'expected'
 field of the test case as a regular expression and tests the output to see
 if a match to the expected result can be found anywhere within the output.
 To force matching of the entire output, start and end the regular expression

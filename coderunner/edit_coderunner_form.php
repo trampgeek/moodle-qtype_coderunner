@@ -140,6 +140,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->addHelpButton('per_test_template', 'template', 'qtype_coderunner');
         $gradingControls = array();
         $graderTypes = array('EqualityGrader' => 'Exact match',
+                'NearEqualityGrader' => 'Nearly exact match',
                 'RegexGrader' => 'Regular expression',
                 'TemplateGrader' => 'Template does grading');
         $gradingControls[] = $mform->createElement('select', 'grader',

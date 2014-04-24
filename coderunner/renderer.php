@@ -210,6 +210,13 @@ class qtype_coderunner_renderer extends qtype_renderer {
         // with the proviso that neither of the first two will be displayed
         // if they are empty strings for all testcases.
 
+        global $COURSE;
+        if ($COURSE && $coursecontext = context_course::instance($COURSE->id)) {
+            $canViewHidden = has_capability('moodle/grade:viewhidden', $coursecontext);
+        } else {
+            $canViewHidden = FALSE;
+        }
+
         list($numStdins, $numTests) = $this->countBits($testResults);
         $showTests = $question->showtest && $numTests > 0;
         $showStdins = $question->showstdin && $numStdins > 0;
@@ -242,7 +249,8 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
         foreach ($testResults as $testResult) {
             $testCase = $testCases[$testCaseKeys[$i]];
-            if ($this->shouldDisplayResult($testCase, $testResult)) {
+            $testIsVisible = $this->shouldDisplayResult($testCase, $testResult);
+            if ($canViewHidden || $testIsVisible) {
                 $tableRow = array();
                 if ($showTests) {
                     $tableRow[] = s(restrict_qty($testResult->testcode));
@@ -270,6 +278,9 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
                 $rowWithLineBreaks[] = $this->feedback_image($fraction);
                 $tableData[] = $rowWithLineBreaks;
+                if (!$testIsVisible) {
+                    $rowclasses[$i] = 'hidden';
+                }
             }
             $i++;
             if ($testCase->hiderestiffail && !$testResult->isCorrect) {
@@ -277,6 +288,9 @@ class qtype_coderunner_renderer extends qtype_renderer {
             }
         }
         $table->data = $tableData;
+        if (isset($rowclasses)) {
+            $table->rowclasses = $rowclasses;
+        }
         if (count($tableData) > 0) {
             return html_writer::table($table);
         } else {
@@ -454,7 +468,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
     // True iff the given test result should be displayed
     private function shouldDisplayResult($testCase, $testResult) {
-        return ($testCase->display == 'SHOW') ||
+        return $testCase->display == 'SHOW' ||
             ($testCase->display == 'HIDE_IF_FAIL' && $testResult->isCorrect) ||
             ($testCase->display == 'HIDE_IF_SUCCEED' && !$testResult->isCorrect);
     }
