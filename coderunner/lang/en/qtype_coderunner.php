@@ -188,7 +188,7 @@ $string['marking'] = 'Mark allocation';
 $string['memorylimit'] = 'Memory limit (MB)';
 $string['missingoutput'] = 'You must supply the expected output from '
     . 'this test case.';
-$string['morehidden'] = 'Some other hidden test cases failed, too.';
+$string['morehidden'] = 'Some hidden test cases failed, too.';
 $string['noerrorsallowed'] = 'Your code must pass all tests to earn any '
     . 'marks. Try again.';
 $string['nonnumericmark'] = 'Non-numeric mark';
