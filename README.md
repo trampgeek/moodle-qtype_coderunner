@@ -147,6 +147,15 @@ to the installed  version of Python2 (currently typically 2.6 on RHEL systems
 or 2.7 on most other flavours of Linux) *regardless of whether or not you
 intend to support Python3 as a programming language for submissions*.
 
+The Liu sandbox requires that C programs be compiled and built using static
+version of the libraries rather than the usual dynamically-loaded libraries.
+Many versions of the C development packages no longer include static libraries
+by default, so you may need to download these separately. Before trying to
+use the Liu sandbox, check you can
+build a statically linked executable with a command like
+
+        gcc -Wall -Werror -std=c99 -static src.c -lm
+
 
 ### Sandbox Configuration
 
@@ -341,12 +350,15 @@ example. The student supplies
  compiler with the language set to
  accept C99 and with both *-Wall* and *-Werror* options set on the command line
  to issue all warnings and reject the code if there are any warnings.
+ The Liu sandbox also requires that the executable be statically linked; you 
+ may need to download the static libraries separately from the default C
+ development install to enable this.
 
  1. **python3**. Used for most Python3 questions. For each test case, the student
 code is run first, followed by the test code.
 
  1. **python2**. Used for most Python2 questions. As for python3, the student
-code is run first, e followed by the sequence of tests. This question type
+code is run first, followed by the sequence of tests. This question type
 should be considered to be
 obsolescent due to the widespread move to Python3 through the education
 community.
@@ -373,8 +385,8 @@ classes in the expected manner!]
 then executed once for each test case to see if it generates the expected output
 for that test.
 
-As discussed below, this base set of question types can
-be customised in various ways.
+As discussed later, this base set of question types can
+be customised or extended in various ways.
 
 C++ isn't built in at present, as we don't teach it, but changing the sandboxes
 to support C++ is mainly just a matter of changing the

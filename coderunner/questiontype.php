@@ -465,7 +465,7 @@ class qtype_coderunner extends question_type {
                 // and other deletion (e.g. of the question itself) proceeds
                 // regardless, leaving things in an even worse state than if
                 // I didn't even check for an in-use prototype!
-                // throw new moodle_exception('Attempting to delete in-use prototype');
+                throw new moodle_exception('Attempting to delete in-use prototype');
             }
         }
 

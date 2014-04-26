@@ -17,14 +17,14 @@ def printFailMessage():
 
 def printFailMessage2():
     print("Unable to build the runguard program, which is used to control ")
-    print("the execution of student-submitted programs in the null sandbox. ")
+    print("the execution of student-submitted programs in the Runguard sandbox. ")
     print("Perhaps you weren't running the installer as root? You have to be ")
     print("root to make runguard a 'setuid root' program, so that it can ")
     print("run the student program as the coderunner user, thereby stopping it ")
     print("from reading the various private files that the webserver user can ")
     print("access.")
     print()
-    print("If you intend to use the null sandbox, you should 'cd' to the ")
+    print("If you intend to use the Runguard sandbox, you should 'cd' to the ")
     print("<moodlehome>/local/CodeRunner/coderunner directory and type the commands: ")
     print("make runguard")
     print("sudo chown root runguard")
