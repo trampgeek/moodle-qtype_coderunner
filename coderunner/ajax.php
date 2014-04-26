@@ -11,26 +11,23 @@ define('AJAX_SCRIPT', true);
 
 require_once('../../../config.php');
 require_once($CFG->dirroot . '/question/engine/lib.php');
+require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');;
 
 require_login();
 require_sesskey();
 
 $qtype  = required_param('qtype', PARAM_ALPHANUMEXT);
+$courseId = required_param('courseid', PARAM_INT);
 
 header('Content-type: application/json; charset=utf-8');
 try {
-    $questionType = $DB->get_record_select(
-            'quest_coderunner_options',
-            "prototype_type != 0 and coderunner_type = '$qtype'",
-            NULL,
-            '*',
-            MUST_EXIST);
+    $questionType = qtype_coderunner::getPrototype($qtype, $courseId);
     $questionType->success = true;
     $questionType->error = '';
 } catch (moodle_exception $e) {
     $questionType = new stdClass();
     $questionType->success = false;
-    $questionType->error = "Database error or question type not found";
+    $questionType->error = "Prototype not found. " . $e->getMessage();
 }
 echo json_encode($questionType);
 die();

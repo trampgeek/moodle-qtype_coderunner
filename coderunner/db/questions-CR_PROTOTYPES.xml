@@ -1,0 +1,829 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This file defines all the built-in CodeRunner question types -->
+<quiz>
+<!-- question: 0  -->
+  <question type="category">
+    <category>
+        <text>$system$/CR_PROTOTYPES</text>
+
+    </category>
+  </question>
+
+<!-- question: 1332  -->
+  <question type="coderunner">
+    <name>
+      <text>BUILT_IN_PROTOTYPE_c_full_main_tests</text>
+    </name>
+    <questiontext format="moodle_auto_format">
+      <text>Used for C questions where the student writes global declarations (types, functions etc) and each test case contains a complete main function that follows the student code.</text>
+    </questiontext>
+    <generalfeedback format="moodle_auto_format">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.3333333</penalty>
+    <hidden>0</hidden>
+    <coderunner_type>c_full_main_tests</coderunner_type>
+    <prototype_type>1</prototype_type>
+    <all_or_nothing>1</all_or_nothing>
+    <penalty_regime></penalty_regime>
+    <show_source>0</show_source>
+    <answerbox_lines>18</answerbox_lines>
+    <answerbox_columns>100</answerbox_columns>
+    <use_ace>1</use_ace>
+    <showtest>1</showtest>
+    <showstdin>1</showstdin>
+    <showexpected>1</showexpected>
+    <showoutput>1</showoutput>
+    <showmark>0</showmark>
+    <combinator_template></combinator_template>
+    <test_splitter_re></test_splitter_re>
+    <enable_combinator>0</enable_combinator>
+    <per_test_template><![CDATA[#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <stdbool.h>
+{{STUDENT_ANSWER}}
+
+{{ TEST.testcode }}]]></per_test_template>
+    <language>C</language>
+    <sandbox></sandbox>
+    <grader></grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <testcases>
+    </testcases>
+  </question>
+
+<!-- question: 1330  -->
+  <question type="coderunner">
+    <name>
+      <text>BUILT_IN_PROTOTYPE_c_function</text>
+    </name>
+    <questiontext format="moodle_auto_format">
+      <text>Used for C write-a-function questions but ONLY IF the function should have no side-effects. Must not be used for C functions that generate or consume output or alter global state in any way, as it attempts to wrap all tests into a single compile-and-run step</text>
+    </questiontext>
+    <generalfeedback format="moodle_auto_format">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.3333333</penalty>
+    <hidden>0</hidden>
+    <coderunner_type>c_function</coderunner_type>
+    <prototype_type>1</prototype_type>
+    <all_or_nothing>1</all_or_nothing>
+    <penalty_regime></penalty_regime>
+    <show_source>0</show_source>
+    <answerbox_lines>18</answerbox_lines>
+    <answerbox_columns>100</answerbox_columns>
+    <use_ace>1</use_ace>
+    <showtest>1</showtest>
+    <showstdin>1</showstdin>
+    <showexpected>1</showexpected>
+    <showoutput>1</showoutput>
+    <showmark>0</showmark>
+    <combinator_template><![CDATA[#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <string.h>
+#include <stdbool.h>
+#define SEPARATOR "#<ab@17943918#@>#"
+
+{{ STUDENT_ANSWER }}
+
+int main() {
+{% for TEST in TESTCASES %}
+   {
+    {{ TEST.testcode }};
+   }
+    {% if not loop.last %}printf("%s\n", SEPARATOR);{% endif %}
+{% endfor %}
+    return 0;
+}]]></combinator_template>
+    <test_splitter_re><![CDATA[|#<ab@17943918#@>#
+|ms]]></test_splitter_re>
+    <enable_combinator>1</enable_combinator>
+    <per_test_template><![CDATA[#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <string.h>
+#include <stdbool.h>
+
+{{ STUDENT_ANSWER }}
+
+int main() {
+    {{ TEST.testcode }};
+    return 0;
+}]]></per_test_template>
+    <language>C</language>
+    <sandbox></sandbox>
+    <grader></grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <testcases>
+    </testcases>
+  </question>
+
+<!-- question: 1331  -->
+  <question type="coderunner">
+    <name>
+      <text>BUILT_IN_PROTOTYPE_c_program</text>
+    </name>
+    <questiontext format="moodle_auto_format">
+      <text>Used for C write-a-program questions, where there is no per-test-case code, and the different tests just use different stdin data.</text>
+    </questiontext>
+    <generalfeedback format="moodle_auto_format">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.3333333</penalty>
+    <hidden>0</hidden>
+    <coderunner_type>c_program</coderunner_type>
+    <prototype_type>1</prototype_type>
+    <all_or_nothing>1</all_or_nothing>
+    <penalty_regime></penalty_regime>
+    <show_source>0</show_source>
+    <answerbox_lines>18</answerbox_lines>
+    <answerbox_columns>100</answerbox_columns>
+    <use_ace>1</use_ace>
+    <showtest>1</showtest>
+    <showstdin>1</showstdin>
+    <showexpected>1</showexpected>
+    <showoutput>1</showoutput>
+    <showmark>0</showmark>
+    <combinator_template></combinator_template>
+    <test_splitter_re></test_splitter_re>
+    <enable_combinator>0</enable_combinator>
+    <per_test_template>{{ STUDENT_ANSWER }}</per_test_template>
+    <language>C</language>
+    <sandbox></sandbox>
+    <grader></grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <testcases>
+    </testcases>
+  </question>
+
+<!-- question: 1338  -->
+  <question type="coderunner">
+    <name>
+      <text>BUILT_IN_PROTOTYPE_clojure</text>
+    </name>
+    <questiontext format="moodle_auto_format">
+      <text>Test of Clojure questions where the student' code isrun then the test code. There is currently no combinator, so the program is executed for each test case. Written mainly as a test of the Ideone sandbox.</text>
+    </questiontext>
+    <generalfeedback format="moodle_auto_format">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.3333333</penalty>
+    <hidden>0</hidden>
+    <coderunner_type>clojure</coderunner_type>
+    <prototype_type>1</prototype_type>
+    <all_or_nothing>1</all_or_nothing>
+    <penalty_regime></penalty_regime>
+    <show_source>0</show_source>
+    <answerbox_lines>18</answerbox_lines>
+    <answerbox_columns>100</answerbox_columns>
+    <use_ace>1</use_ace>
+    <showtest>1</showtest>
+    <showstdin>1</showstdin>
+    <showexpected>1</showexpected>
+    <showoutput>1</showoutput>
+    <showmark>0</showmark>
+    <combinator_template></combinator_template>
+    <test_splitter_re></test_splitter_re>
+    <enable_combinator>0</enable_combinator>
+    <per_test_template>{{ STUDENT_ANSWER }}
+{{TEST.testcode}}</per_test_template>
+    <language>Clojure (clojure 1.5.0-RC2)</language>
+    <sandbox></sandbox>
+    <grader></grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <testcases>
+    </testcases>
+  </question>
+
+<!-- question: 1336  -->
+  <question type="coderunner">
+    <name>
+      <text>BUILT_IN_PROTOTYPE_java_class</text>
+    </name>
+    <questiontext format="moodle_auto_format">
+      <text>Used for Java write-a-class questions where the student submits a complete class as their answer. Since the test cases for such questions will typically instantiate an object of the class and perform some testson it, no attempt is made to combine the different test cases into a single executable. Hence, this type of question is likely to be relatively slow to mark, requiring multiple compilations and runs. Each test case code is assumed to be a set of statements to be wrapped into the static void main method of a separate Main class.</text>
+    </questiontext>
+    <generalfeedback format="moodle_auto_format">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.3333333</penalty>
+    <hidden>0</hidden>
+    <coderunner_type>java_class</coderunner_type>
+    <prototype_type>1</prototype_type>
+    <all_or_nothing>1</all_or_nothing>
+    <penalty_regime></penalty_regime>
+    <show_source>0</show_source>
+    <answerbox_lines>18</answerbox_lines>
+    <answerbox_columns>100</answerbox_columns>
+    <use_ace>1</use_ace>
+    <showtest>1</showtest>
+    <showstdin>1</showstdin>
+    <showexpected>1</showexpected>
+    <showoutput>1</showoutput>
+    <showmark>0</showmark>
+    <combinator_template></combinator_template>
+    <test_splitter_re></test_splitter_re>
+    <enable_combinator>0</enable_combinator>
+    <per_test_template>{{ STUDENT_ANSWER }}
+
+public class __Tester__ {
+
+    public static void main(String[] args) {
+        __Tester__ main = new __Tester__();
+        main.runTests();
+    }
+
+    public void runTests() {
+        {{ TEST.testcode }};
+    }
+}
+</per_test_template>
+    <language>Java</language>
+    <sandbox></sandbox>
+    <grader></grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb>2000</memlimitmb>
+    <testcases>
+    </testcases>
+  </question>
+
+<!-- question: 1335  -->
+  <question type="coderunner">
+    <name>
+      <text>BUILT_IN_PROTOTYPE_java_method</text>
+    </name>
+    <questiontext format="moodle_auto_format">
+      <text>Used for Java write-a-method questions where the method is essentially a stand-alone function, but ONLY IF the function should have no side-effects. Must not be used for methods that generate or consume output or alter global state in any way, as it attempts to wrap all tests into a single compile-and-run step</text>
+    </questiontext>
+    <generalfeedback format="moodle_auto_format">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.3333333</penalty>
+    <hidden>0</hidden>
+    <coderunner_type>java_method</coderunner_type>
+    <prototype_type>1</prototype_type>
+    <all_or_nothing>1</all_or_nothing>
+    <penalty_regime></penalty_regime>
+    <show_source>0</show_source>
+    <answerbox_lines>18</answerbox_lines>
+    <answerbox_columns>100</answerbox_columns>
+    <use_ace>1</use_ace>
+    <showtest>1</showtest>
+    <showstdin>1</showstdin>
+    <showexpected>1</showexpected>
+    <showoutput>1</showoutput>
+    <showmark>0</showmark>
+    <combinator_template><![CDATA[public class Main {
+    static String SEPARATOR = "#<ab@17943918#@>#";
+    {{ STUDENT_ANSWER }}
+
+    public static void main(String[] args) {
+        Main main = new Main();
+        main.runTests();
+    }
+
+    public void runTests() {
+{% for testCase in TESTCASES %}
+    {{ testCase.testcode }};
+    {% if not loop.last %}
+    System.out.println(SEPARATOR);
+    {% endif %}
+{% endfor %}
+    }
+}]]></combinator_template>
+    <test_splitter_re><![CDATA[|#<ab@17943918#@>#
+|ms]]></test_splitter_re>
+    <enable_combinator>1</enable_combinator>
+    <per_test_template>public class Main {
+
+    {{ STUDENT_ANSWER }}
+
+    public static void main(String[] args) {
+        Main main = new Main();
+        main.runTests();
+    }
+
+    public void runTests() {
+        {{ TEST.testcode }};
+    }
+}</per_test_template>
+    <language>Java</language>
+    <sandbox>RunguardSandbox</sandbox>
+    <grader></grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb>2000</memlimitmb>
+    <testcases>
+    </testcases>
+  </question>
+
+<!-- question: 1337  -->
+  <question type="coderunner">
+    <name>
+      <text>BUILT_IN_PROTOTYPE_java_program</text>
+    </name>
+    <questiontext format="moodle_auto_format">
+      <text>Used for Java write-a-program questions where the student submits a complete program as their answer. The program is executed for each test case. There is no test code, just stdin test data (though this isn't actually checked: caveat emptor). </text>
+    </questiontext>
+    <generalfeedback format="moodle_auto_format">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.3333333</penalty>
+    <hidden>0</hidden>
+    <coderunner_type>java_program</coderunner_type>
+    <prototype_type>1</prototype_type>
+    <all_or_nothing>1</all_or_nothing>
+    <penalty_regime></penalty_regime>
+    <show_source>0</show_source>
+    <answerbox_lines>18</answerbox_lines>
+    <answerbox_columns>100</answerbox_columns>
+    <use_ace>1</use_ace>
+    <showtest>1</showtest>
+    <showstdin>1</showstdin>
+    <showexpected>1</showexpected>
+    <showoutput>1</showoutput>
+    <showmark>0</showmark>
+    <combinator_template></combinator_template>
+    <test_splitter_re></test_splitter_re>
+    <enable_combinator>0</enable_combinator>
+    <per_test_template>{{ STUDENT_ANSWER }}</per_test_template>
+    <language>Java</language>
+    <sandbox></sandbox>
+    <grader></grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb>2000</memlimitmb>
+    <testcases>
+    </testcases>
+  </question>
+
+<!-- question: 1333  -->
+  <question type="coderunner">
+    <name>
+      <text>BUILT_IN_PROTOTYPE_matlab_function</text>
+    </name>
+    <questiontext format="moodle_auto_format">
+      <text>Used for Matlab function questions. Student code must be a function declaration, which is tested with each testcase.</text>
+    </questiontext>
+    <generalfeedback format="moodle_auto_format">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.3333333</penalty>
+    <hidden>0</hidden>
+    <coderunner_type>matlab_function</coderunner_type>
+    <prototype_type>1</prototype_type>
+    <all_or_nothing>1</all_or_nothing>
+    <penalty_regime></penalty_regime>
+    <show_source>0</show_source>
+    <answerbox_lines>18</answerbox_lines>
+    <answerbox_columns>100</answerbox_columns>
+    <use_ace>1</use_ace>
+    <showtest>1</showtest>
+    <showstdin>1</showstdin>
+    <showexpected>1</showexpected>
+    <showoutput>1</showoutput>
+    <showmark>0</showmark>
+    <combinator_template><![CDATA[function tester()
+   {% for TEST in TESTCASES %}
+   {{ TEST.testcode }};
+   {% if not loop.last %}
+   disp('#<ab@17943918#@>#');
+{% endif %}
+{% endfor %}
+   quit();
+end
+
+{{ STUDENT_ANSWER }}]]></combinator_template>
+    <test_splitter_re><![CDATA[|#<ab@17943918#@>#
+|ms]]></test_splitter_re>
+    <enable_combinator>1</enable_combinator>
+    <per_test_template>function tester()
+  {{ TEST.testcode }};
+  quit();
+end
+
+{{ STUDENT_ANSWER }}</per_test_template>
+    <language>matlab</language>
+    <sandbox></sandbox>
+    <grader></grader>
+    <cputimelimitsecs>10</cputimelimitsecs>
+    <memlimitmb>0</memlimitmb>
+    <testcases>
+    </testcases>
+  </question>
+
+<!-- question: 1334  -->
+  <question type="coderunner">
+    <name>
+      <text>BUILT_IN_PROTOTYPE_octave_function</text>
+    </name>
+    <questiontext format="moodle_auto_format">
+      <text>Used for Octave function questions. Student code must be a function declaration, which is tested with each testcase.</text>
+    </questiontext>
+    <generalfeedback format="moodle_auto_format">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.3333333</penalty>
+    <hidden>0</hidden>
+    <coderunner_type>octave_function</coderunner_type>
+    <prototype_type>1</prototype_type>
+    <all_or_nothing>1</all_or_nothing>
+    <penalty_regime></penalty_regime>
+    <show_source>0</show_source>
+    <answerbox_lines>18</answerbox_lines>
+    <answerbox_columns>100</answerbox_columns>
+    <use_ace>1</use_ace>
+    <showtest>1</showtest>
+    <showstdin>1</showstdin>
+    <showexpected>1</showexpected>
+    <showoutput>1</showoutput>
+    <showmark>0</showmark>
+    <combinator_template><![CDATA[{{ STUDENT_ANSWER }}
+
+
+{% for TEST in TESTCASES %}
+{{ TEST.testcode }};
+{% if not loop.last %}
+disp('#<ab@17943918#@>#');
+{% endif %}
+{% endfor %}
+]]></combinator_template>
+    <test_splitter_re><![CDATA[|#<ab@17943918#@>#
+|ms]]></test_splitter_re>
+    <enable_combinator>1</enable_combinator>
+    <per_test_template>{{ STUDENT_ANSWER }}
+
+{{ TEST.testcode }};</per_test_template>
+    <language>octave</language>
+    <sandbox></sandbox>
+    <grader></grader>
+    <cputimelimitsecs>3</cputimelimitsecs>
+    <memlimitmb>1000</memlimitmb>
+    <testcases>
+    </testcases>
+  </question>
+
+<!-- question: 1325  -->
+  <question type="coderunner">
+    <name>
+      <text>BUILT_IN_PROTOTYPE_python2</text>
+    </name>
+    <questiontext format="moodle_auto_format">
+      <text>Used for most Python2 questions. For each test case, runs the student code followed by the test code</text>
+    </questiontext>
+    <generalfeedback format="moodle_auto_format">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.3333333</penalty>
+    <hidden>0</hidden>
+    <coderunner_type>python2</coderunner_type>
+    <prototype_type>1</prototype_type>
+    <all_or_nothing>1</all_or_nothing>
+    <penalty_regime></penalty_regime>
+    <show_source>0</show_source>
+    <answerbox_lines>18</answerbox_lines>
+    <answerbox_columns>100</answerbox_columns>
+    <use_ace>1</use_ace>
+    <showtest>1</showtest>
+    <showstdin>1</showstdin>
+    <showexpected>1</showexpected>
+    <showoutput>1</showoutput>
+    <showmark>0</showmark>
+    <combinator_template><![CDATA[{{ STUDENT_ANSWER }}
+
+__student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
+
+SEPARATOR = "#<ab@17943918#@>#"
+
+{% for TEST in TESTCASES %}
+{{ TEST.testcode }}
+{% if not loop.last %}
+print(SEPARATOR)
+{% endif %}
+{% endfor %}]]></combinator_template>
+    <test_splitter_re><![CDATA[|#<ab@17943918#@>#
+|ms]]></test_splitter_re>
+    <enable_combinator>1</enable_combinator>
+    <per_test_template><![CDATA[{{STUDENT_ANSWER}}
+
+__student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
+
+{{TEST.testcode}}]]></per_test_template>
+    <language>python2</language>
+    <sandbox></sandbox>
+    <grader></grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <testcases>
+    </testcases>
+  </question>
+
+<!-- question: 1326  -->
+  <question type="coderunner">
+    <name>
+      <text>BUILT_IN_PROTOTYPE_python3</text>
+    </name>
+    <questiontext format="moodle_auto_format">
+      <text>Used for most Python3 questions. For each test case, runs the student code followed by the test code</text>
+    </questiontext>
+    <generalfeedback format="moodle_auto_format">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.3333333</penalty>
+    <hidden>0</hidden>
+    <coderunner_type>python3</coderunner_type>
+    <prototype_type>1</prototype_type>
+    <all_or_nothing>1</all_or_nothing>
+    <penalty_regime></penalty_regime>
+    <show_source>0</show_source>
+    <answerbox_lines>18</answerbox_lines>
+    <answerbox_columns>100</answerbox_columns>
+    <use_ace>1</use_ace>
+    <showtest>1</showtest>
+    <showstdin>1</showstdin>
+    <showexpected>1</showexpected>
+    <showoutput>1</showoutput>
+    <showmark>0</showmark>
+    <combinator_template><![CDATA[{{ STUDENT_ANSWER }}
+
+__student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
+
+SEPARATOR = "#<ab@17943918#@>#"
+
+{% for TEST in TESTCASES %}
+{{ TEST.testcode }}
+{% if not loop.last %}
+print(SEPARATOR)
+{% endif %}
+{% endfor %}]]></combinator_template>
+    <test_splitter_re><![CDATA[|#<ab@17943918#@>#
+|ms]]></test_splitter_re>
+    <enable_combinator>1</enable_combinator>
+    <per_test_template><![CDATA[{{STUDENT_ANSWER}}
+
+__student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
+
+{{TEST.testcode}}]]></per_test_template>
+    <language>python3</language>
+    <sandbox></sandbox>
+    <grader></grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <testcases>
+    </testcases>
+  </question>
+
+<!-- question: 1329  -->
+  <question type="coderunner">
+    <name>
+      <text>BUILT_IN_PROTOTYPE_python3_ideone</text>
+    </name>
+    <questiontext format="moodle_auto_format">
+      <text>Used for testing the Ideone sandbox.</text>
+    </questiontext>
+    <generalfeedback format="moodle_auto_format">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.3333333</penalty>
+    <hidden>0</hidden>
+    <coderunner_type>python3_ideone</coderunner_type>
+    <prototype_type>1</prototype_type>
+    <all_or_nothing>1</all_or_nothing>
+    <penalty_regime></penalty_regime>
+    <show_source>0</show_source>
+    <answerbox_lines>18</answerbox_lines>
+    <answerbox_columns>100</answerbox_columns>
+    <use_ace>1</use_ace>
+    <showtest>1</showtest>
+    <showstdin>1</showstdin>
+    <showexpected>1</showexpected>
+    <showoutput>1</showoutput>
+    <showmark>0</showmark>
+    <combinator_template><![CDATA[{{ STUDENT_ANSWER }}
+
+__student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
+
+SEPARATOR = "#<ab@17943918#@>#"
+
+{% for TEST in TESTCASES %}
+{{ TEST.testcode }}
+{% if not loop.last %}
+print(SEPARATOR)
+{% endif %}
+{% endfor %}]]></combinator_template>
+    <test_splitter_re><![CDATA[|#<ab@17943918#@>#
+|ms]]></test_splitter_re>
+    <enable_combinator>1</enable_combinator>
+    <per_test_template><![CDATA[{{STUDENT_ANSWER}}
+
+__student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
+
+{{ TEST.testcode }}]]></per_test_template>
+    <language>python3</language>
+    <sandbox>IdeoneSandbox</sandbox>
+    <grader></grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <testcases>
+    </testcases>
+  </question>
+
+<!-- question: 1327  -->
+  <question type="coderunner">
+    <name>
+      <text>BUILT_IN_PROTOTYPE_python3_pylint_func</text>
+    </name>
+    <questiontext format="moodle_auto_format">
+      <text>Python3 functions with a pre-check by pylint</text>
+    </questiontext>
+    <generalfeedback format="moodle_auto_format">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.3333333</penalty>
+    <hidden>0</hidden>
+    <coderunner_type>python3_pylint_func</coderunner_type>
+    <prototype_type>1</prototype_type>
+    <all_or_nothing>1</all_or_nothing>
+    <penalty_regime></penalty_regime>
+    <show_source>0</show_source>
+    <answerbox_lines>18</answerbox_lines>
+    <answerbox_columns>100</answerbox_columns>
+    <use_ace>1</use_ace>
+    <showtest>1</showtest>
+    <showstdin>1</showstdin>
+    <showexpected>1</showexpected>
+    <showoutput>1</showoutput>
+    <showmark>0</showmark>
+    <combinator_template><![CDATA[__student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
+
+import subprocess
+
+def check_code(s):
+    try:
+        source = open('source.py', 'w')
+        source.write(s)
+        source.close()
+        result = subprocess.check_output(['pylint', 'source.py'], stderr=subprocess.STDOUT)
+    except Exception as e:
+        result = e.output.decode('utf-8')
+
+    if result.strip():
+        print("pylint doesn't approve of your program")
+        print(result)
+        raise Exception("Submission rejected")
+
+check_code(__student_answer__)
+
+{{ STUDENT_ANSWER }}
+
+SEPARATOR = "#<ab@17943918#@>#"
+
+{% for TEST in TESTCASES %}
+{{ TEST.testcode }}
+{% if not loop.last %}
+print(SEPARATOR)
+{% endif %}
+{% endfor %}]]></combinator_template>
+    <test_splitter_re><![CDATA[|#<ab@17943918#@>#
+|ms]]></test_splitter_re>
+    <enable_combinator>1</enable_combinator>
+    <per_test_template><![CDATA[__student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
+
+import subprocess
+
+def check_code(s):
+    try:
+        source = open('source.py', 'w')
+        source.write('"""Dummy module comment to keep pylint quiet"""\n' + s)
+        source.close()
+        result = subprocess.check_output(['pylint', 'source.py'], stderr=subprocess.STDOUT)
+    except Exception as e:
+        result = e.output.decode('utf-8')
+
+    if result.strip():
+        print("pylint doesn't approve of your program")
+        print(result)
+        raise Exception("Submission rejected")
+
+check_code(__student_answer__)
+
+{{ STUDENT_ANSWER }}
+{{ TEST.testcode }}]]></per_test_template>
+    <language>python3</language>
+    <sandbox>RunguardSandbox</sandbox>
+    <grader></grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb>500</memlimitmb>
+    <testcases>
+    </testcases>
+  </question>
+
+<!-- question: 1328  -->
+  <question type="coderunner">
+    <name>
+      <text>BUILT_IN_PROTOTYPE_python3_pylint_prog</text>
+    </name>
+    <questiontext format="moodle_auto_format">
+      <text>Python3 programs with a pre-check by pylint</text>
+    </questiontext>
+    <generalfeedback format="moodle_auto_format">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.3333333</penalty>
+    <hidden>0</hidden>
+    <coderunner_type>python3_pylint_prog</coderunner_type>
+    <prototype_type>1</prototype_type>
+    <all_or_nothing>1</all_or_nothing>
+    <penalty_regime></penalty_regime>
+    <show_source>0</show_source>
+    <answerbox_lines>18</answerbox_lines>
+    <answerbox_columns>100</answerbox_columns>
+    <use_ace>1</use_ace>
+    <showtest>1</showtest>
+    <showstdin>1</showstdin>
+    <showexpected>1</showexpected>
+    <showoutput>1</showoutput>
+    <showmark>0</showmark>
+    <combinator_template><![CDATA[__student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
+
+import subprocess
+
+def check_code(s):
+    try:
+        source = open('source.py', 'w')
+        source.write(s)
+        source.close()
+        result = subprocess.check_output(['pylint', 'source.py'], stderr=subprocess.STDOUT)
+    except Exception as e:
+        result = e.output.decode('utf-8')
+
+    if result.strip():
+        print("pylint doesn't approve of your program")
+        print(result)
+        raise Exception("Submission rejected")
+
+check_code(__student_answer__)
+
+{{ STUDENT_ANSWER }}
+
+SEPARATOR = "#<ab@17943918#@>#"
+
+{% for TEST in TESTCASES %}
+{{ TEST.testcode }}
+{% if not loop.last %}
+print(SEPARATOR)
+{% endif %}
+{% endfor %}]]></combinator_template>
+    <test_splitter_re><![CDATA[|#<ab@17943918#@>#
+|ms]]></test_splitter_re>
+    <enable_combinator>1</enable_combinator>
+    <per_test_template><![CDATA[__student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
+
+import subprocess
+
+def check_code(s):
+    try:
+        source = open('source.py', 'w')
+        source.write(s)
+        source.close()
+        result = subprocess.check_output(['pylint', 'source.py'], stderr=subprocess.STDOUT)
+    except Exception as e:
+        result = e.output.decode('utf-8')
+
+    if result.strip():
+        print("pylint doesn't approve of your program")
+        print(result)
+        raise Exception("Submission rejected")
+
+check_code(__student_answer__)
+
+{{ STUDENT_ANSWER }}
+{{ TEST.testcode }}]]></per_test_template>
+    <language>python3</language>
+    <sandbox>RunguardSandbox</sandbox>
+    <grader></grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb>500</memlimitmb>
+    <testcases>
+    </testcases>
+  </question>
+
+</quiz>

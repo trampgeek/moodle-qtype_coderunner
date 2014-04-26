@@ -1,5 +1,10 @@
 <?php
 
+require_once($CFG->dirroot . '/question/format/xml/format.php');
+require_once($CFG->dirroot . '/lib/questionlib.php');
+require_once($CFG->dirroot . '/lib/accesslib.php');
+
+
 function xmldb_qtype_coderunner_upgrade($oldversion) {
     global $CFG, $DB;
 
@@ -256,8 +261,24 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
 
         upgrade_plugin_savepoint(true, 2014022009, 'qtype', 'coderunner');
     }
-
-    return updateQuestionTypes();
+    
+    if ($oldversion != 0 && $oldversion < 2014042602) {
+        // Delete all questions with prototype_type == 1
+        // [Necessary because previous version didn't put prototypes into
+        // a specific category, as required by the updateQuestionTypes method.]
+        $prototypes = $DB->get_records('quest_coderunner_options',
+                    array('prototype_type' => 1));
+        foreach ($prototypes as $prototype) {
+            $questionId = $prototype->questionid;
+            $DB->delete_records('quest_coderunner_options',
+                array('questionid' => $questionId));
+            $DB->delete_records('question', array('id' => $questionId));
+        }
+    }
+    
+    updateQuestionTypes();
+            
+    return TRUE;
 
 }
 
@@ -328,600 +349,86 @@ function update_to_use_prototypes() {
 
 function updateQuestionTypes() {
 
-    // Add/replace standard question types.
-    // In the new model, a question type is just a question with its
-    // is_prototype field true.
-
-    // Add the most simple Python type.
-    // This type executes the student code followed by all the testcase
-    // code.
-
-    // ===============================================================
-    $python3 =  array(
-        'coderunner_type' => 'python3',
-        'comment' => 'Used for most Python3 questions. For each test case, ' .
-                     'runs the student code followed by the test code',
-        'combinator_template' => <<<EOT
-{{ STUDENT_ANSWER }}
-
-__student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
-
-SEPARATOR = "#<ab@17943918#@>#"
-
-{% for TEST in TESTCASES %}
-{{ TEST.testcode }}
-{% if not loop.last %}
-print(SEPARATOR)
-{% endif %}
-{% endfor %}
-EOT
-,
-        'test_splitter_re' => "|#<ab@17943918#@>#\n|ms",
-        'per_test_template' => <<<EOT
-{{STUDENT_ANSWER}}
-
-__student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
-
-{{TEST.testcode}}
-EOT
-,
-        'language' => 'python3',
-    );
-
-
-    // ===============================================================
-    //
-    // Python3 Pylint Func
-    //
-    // ===============================================================
-    $combinator_pylint_func = <<<'EOT'
-__student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
-
-import subprocess
-
-def check_code(s):
-    try:
-        source = open('source.py', 'w')
-        source.write(s)
-        source.close()
-        result = subprocess.check_output(['pylint', 'source.py'], stderr=subprocess.STDOUT)
-    except Exception as e:
-        result = e.output.decode('utf-8')
-
-    if result.strip():
-        print("pylint doesn't approve of your program")
-        print(result)
-        raise Exception("Submission rejected")
-
-check_code(__student_answer__)
-
-{{ STUDENT_ANSWER }}
-
-SEPARATOR = "#<ab@17943918#@>#"
-
-{% for TEST in TESTCASES %}
-{{ TEST.testcode }}
-{% if not loop.last %}
-print(SEPARATOR)
-{% endif %}
-{% endfor %}
-EOT;
-
-    $perTestTemplate_pylint_func = <<<'EOT'
-__student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
-
-import subprocess
-
-def check_code(s):
-    try:
-        source = open('source.py', 'w')
-        source.write('"""Dummy module comment to keep pylint quiet"""\n' + s)
-        source.close()
-        result = subprocess.check_output(['pylint', 'source.py'], stderr=subprocess.STDOUT)
-    except Exception as e:
-        result = e.output.decode('utf-8')
-
-    if result.strip():
-        print("pylint doesn't approve of your program")
-        print(result)
-        raise Exception("Submission rejected")
-
-check_code(__student_answer__)
-
-{{ STUDENT_ANSWER }}
-{{ TEST.testcode }}
-EOT;
-
-    $python3PylintFunc =  array(
-        'coderunner_type' => 'python3_pylint_func',
-        'comment' => 'Python3 functions with a pre-check by pylint',
-        'combinator_template' => $combinator_pylint_func,
-        'test_splitter_re' => "|#<ab@17943918#@>#\n|ms",
-        'per_test_template' => $perTestTemplate_pylint_func,
-        'language' => 'python3',
-        'sandbox'  => 'RunguardSandbox',
-        'memlimitmb' => 500
-    );
-
-    // ===============================================================
-    //
-    // Python3 Pylint Prog
-    //
-    // ===============================================================
-    $combinator_pylint_prog = <<<'EOT'
-__student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
-
-import subprocess
-
-def check_code(s):
-    try:
-        source = open('source.py', 'w')
-        source.write(s)
-        source.close()
-        result = subprocess.check_output(['pylint', 'source.py'], stderr=subprocess.STDOUT)
-    except Exception as e:
-        result = e.output.decode('utf-8')
-
-    if result.strip():
-        print("pylint doesn't approve of your program")
-        print(result)
-        raise Exception("Submission rejected")
-
-check_code(__student_answer__)
-
-{{ STUDENT_ANSWER }}
-
-SEPARATOR = "#<ab@17943918#@>#"
-
-{% for TEST in TESTCASES %}
-{{ TEST.testcode }}
-{% if not loop.last %}
-print(SEPARATOR)
-{% endif %}
-{% endfor %}
-EOT;
-
-    $perTestTemplate_pylint_prog = <<<'EOT'
-__student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
-
-import subprocess
-
-def check_code(s):
-    try:
-        source = open('source.py', 'w')
-        source.write(s)
-        source.close()
-        result = subprocess.check_output(['pylint', 'source.py'], stderr=subprocess.STDOUT)
-    except Exception as e:
-        result = e.output.decode('utf-8')
-
-    if result.strip():
-        print("pylint doesn't approve of your program")
-        print(result)
-        raise Exception("Submission rejected")
-
-check_code(__student_answer__)
-
-{{ STUDENT_ANSWER }}
-{{ TEST.testcode }}
-EOT;
-
-    $python3PylintProg =  array(
-        'coderunner_type' => 'python3_pylint_prog',
-        'comment' => 'Python3 programs with a pre-check by pylint',
-        'combinator_template' => $combinator_pylint_prog,
-        'test_splitter_re' => "|#<ab@17943918#@>#\n|ms",
-        'per_test_template' => $perTestTemplate_pylint_prog,
-        'language' => 'python3',
-        'sandbox'  => 'RunguardSandbox',
-        'memlimitmb' => 500
-    );
-
-// ===============================================================
-    $python3Ideone =  array(
-        'coderunner_type' => 'python3_ideone',
-        'comment' => 'Used for testing the Ideone sandbox.',
-        'combinator_template' => <<<EOT
-{{ STUDENT_ANSWER }}
-
-__student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
-
-SEPARATOR = "#<ab@17943918#@>#"
-
-{% for TEST in TESTCASES %}
-{{ TEST.testcode }}
-{% if not loop.last %}
-print(SEPARATOR)
-{% endif %}
-{% endfor %}
-EOT
-,
-        'test_splitter_re' => "|#<ab@17943918#@>#\n|ms",
-        'per_test_template' => <<<EOT
-{{STUDENT_ANSWER}}
-
-__student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
-
-{{ TEST.testcode }}
-EOT
-,
-        'language' => 'python3',
-        'sandbox'  => 'IdeoneSandbox',
-    );
-
-    // ===============================================================
-    //
-    // Python2
-    //
-    // ===============================================================
-    $python2 =  array(
-        'coderunner_type' => 'python2',
-        'comment' => 'Used for most Python2 questions. For each test case, ' .
-                     'runs the student code followed by the test code',
-        'combinator_template' => <<<EOT
-{{ STUDENT_ANSWER }}
-
-__student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
-
-SEPARATOR = "#<ab@17943918#@>#"
-
-{% for TEST in TESTCASES %}
-{{ TEST.testcode }}
-{% if not loop.last %}
-print(SEPARATOR)
-{% endif %}
-{% endfor %}
-EOT
-,
-        'test_splitter_re' => "|#<ab@17943918#@>#\n|ms",
-        'per_test_template' => <<<EOT
-{{STUDENT_ANSWER}}
-
-__student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
-
-{{TEST.testcode}}
-EOT
-,
-        'language' => 'python2',
-    );
-
-
-    // ===============================================================
-    $cFunction = array(
-        'coderunner_type' => 'c_function',
-        'comment' => 'Used for C write-a-function questions but ' .
-                'ONLY IF the function should have no side-effects. ' .
-                'Must not be used for C functions that generate or consume ' .
-                'output or alter global state in any way, as it attempts to ' .
-                'wrap all tests into a single compile-and-run step',
-        'combinator_template' => <<<EOT
-#include <stdio.h>
-#include <stdlib.h>
-#include <ctype.h>
-#include <string.h>
-#include <stdbool.h>
-#define SEPARATOR "#<ab@17943918#@>#"
-
-{{ STUDENT_ANSWER }}
-
-int main() {
-{% for TEST in TESTCASES %}
-   {
-    {{ TEST.testcode }};
-   }
-    {% if not loop.last %}printf("%s\\n", SEPARATOR);{% endif %}
-{% endfor %}
-    return 0;
-}
-EOT
-,
-        'test_splitter_re' => "|#<ab@17943918#@>#\n|ms",
-        'per_test_template' => <<<EOT
-#include <stdio.h>
-#include <stdlib.h>
-#include <ctype.h>
-#include <string.h>
-#include <stdbool.h>
-
-{{ STUDENT_ANSWER }}
-
-int main() {
-    {{ TEST.testcode }};
-    return 0;
-}
-EOT
-,
-        'language' => 'C',
-    );
-
-
-    // ===============================================================
-    $cProgram = array(
-        'coderunner_type' => 'c_program',
-        'comment' => 'Used for C write-a-program questions, where there is ' .
-                'no per-test-case code, and the different tests just use ' .
-                'different stdin data.',
-        'combinator_template' => NULL,
-        'test_splitter_re' => '',
-        'per_test_template' => '{{ STUDENT_ANSWER }}',
-        'language' => 'C',
-    );
-
-    // ===============================================================
-    $cFullMainTests = array(
-        'coderunner_type' => 'c_full_main_tests',
-        'comment' => 'Used for C questions where the student writes global ' .
-             'declarations (types, functions etc) and each test case ' .
-             'contains a complete main function that follows the student code.',
-        'combinator_template' => NULL,
-        'test_splitter_re' => '',
-        'per_test_template' => <<<EOT
-#include <stdio.h>
-#include <stdlib.h>
-#include <ctype.h>
-#include <stdbool.h>
-{{STUDENT_ANSWER}}
-
-{{ TEST.testcode }}
-EOT
-,
-        'language' => 'C',
-    );
-
-    // ===============================================================
-    $matlabFunction =  array(
-        'coderunner_type' => 'matlab_function',
-        'comment' => 'Used for Matlab function questions. Student code must be ' .
-                     'a function declaration, which is tested with each testcase.',
-        'combinator_template' => <<<EOT
-function tester()
-   {% for TEST in TESTCASES %}
-   {{ TEST.testcode }};
-   {% if not loop.last %}
-   disp('#<ab@17943918#@>#');
-{% endif %}
-{% endfor %}
-   quit();
-end
-
-{{ STUDENT_ANSWER }}
-EOT
-,
-        'test_splitter_re' => "|#<ab@17943918#@>#\n|ms",
-        'per_test_template' => "function tester()\n  {{ TEST.testcode }};\n  quit();\nend\n\n{{ STUDENT_ANSWER }}",
-        'language' => 'matlab',
-        'cputimelimitsecs' => 10,  // Slow matlab :-(
-        'memlimitmb' => 0          // TODO: why won't matlab run with a memory limit??
-    );
-
-    // ===============================================================
-    $octaveFunction =  array(
-        'coderunner_type' => 'octave_function',
-        'comment' => 'Used for Octave function questions. Student code must be ' .
-                     'a function declaration, which is tested with each testcase.',
-        'combinator_template' => <<<EOT
-{{ STUDENT_ANSWER }}
-
-
-{% for TEST in TESTCASES %}
-{{ TEST.testcode }};
-{% if not loop.last %}
-disp('#<ab@17943918#@>#');
-{% endif %}
-{% endfor %}
-
-EOT
-,
-        'test_splitter_re' => "|#<ab@17943918#@>#\n|ms",
-        'per_test_template' => "{{ STUDENT_ANSWER }}\n\n{{ TEST.testcode }};",
-        'language' => 'octave',
-        'cputimelimitsecs' => 3, 
-        'memlimitmb' => 1000  
-    );
-
-    // ===============================================================
-    $javaMethod = array(
-        'coderunner_type' => 'java_method',
-        'comment' => 'Used for Java write-a-method questions where ' .
-                'the method is essentially a stand-alone function, but ' .
-                'ONLY IF the function should have no side-effects. ' .
-                'Must not be used for methods that generate or consume ' .
-                'output or alter global state in any way, as it attempts to ' .
-                'wrap all tests into a single compile-and-run step',
-        'combinator_template' => <<<EOT
-public class Main {
-    static String SEPARATOR = "#<ab@17943918#@>#";
-    {{ STUDENT_ANSWER }}
-
-    public static void main(String[] args) {
-        Main main = new Main();
-        main.runTests();
-    }
-
-    public void runTests() {
-{% for testCase in TESTCASES %}
-    {{ testCase.testcode }};
-    {% if not loop.last %}
-    System.out.println(SEPARATOR);
-    {% endif %}
-{% endfor %}
-    }
-}
-EOT
-,
-        // Now the test-per-program template
-        'test_splitter_re' => "|#<ab@17943918#@>#\n|ms",
-        'per_test_template' => <<<EOT
-public class Main {
-
-    {{ STUDENT_ANSWER }}
-
-    public static void main(String[] args) {
-        Main main = new Main();
-        main.runTests();
-    }
-
-    public void runTests() {
-        {{ TEST.testcode }};
-    }
-}
-EOT
-,
-        'language' => 'Java',
-        'sandbox'  => 'RunguardSandbox',
-        'memlimitmb' => 2000  // 2GB!! Silly Java!
-    );
-
-
-   // ===============================================================
-    $javaClass = array(
-        'coderunner_type' => 'java_class',
-        'comment' => 'Used for Java write-a-class questions where ' .
-                'the student submits a complete class as their answer. ' .
-                'Since the test cases for such questions will typically ' .
-                'instantiate an object of the class and perform some tests' .
-                'on it, no attempt is made to combine the different test cases ' .
-                'into a single executable. Hence, this type of question is ' .
-                'likely to be relatively slow to mark, requiring multiple ' .
-                'compilations and runs. Each test case code is assumed to be ' .
-                'a set of statements to be wrapped into the static void main ' .
-                'method of a separate Main class.',
-        'combinator_template' => NULL,
-        'test_splitter_re' => '',
-        'per_test_template' => <<<EOT
-{{ STUDENT_ANSWER }}
-
-public class __Tester__ {
-
-    public static void main(String[] args) {
-        __Tester__ main = new __Tester__();
-        main.runTests();
-    }
-
-    public void runTests() {
-        {{ TEST.testcode }};
-    }
-}
-
-EOT
-,
-        'language' => 'Java',
-        'memlimitmb' => 2000  // 2GB!! Silly Java!
-    );
-
-
-  // ===============================================================
-    $javaProgram = array(
-        'coderunner_type' => 'java_program',
-        'comment' => 'Used for Java write-a-program questions where ' .
-                'the student submits a complete program as their answer. ' .
-                'The program is executed for each test case. There is no ' .
-                'test code, just stdin test data (though this isn\'t actually ' .
-                'checked: caveat emptor). ' ,
-        'combinator_template' => NULL,
-        'test_splitter_re' => '',
-        'per_test_template' => <<<EOT
-{{ STUDENT_ANSWER }}
-EOT
-,
-        'language' => 'Java',
-        'memlimitmb' => 2000  // 2GB!! Silly Java!
-    );
-
-
-    // ==============================================================
-    $clojure = array(
-        'coderunner_type' => 'clojure',
-        'comment' => 'Test of Clojure questions where the student\' code is' .
-                'run then the test code. There is currently no combinator, ' .
-                'so the program is executed for each test case. Written mainly ' .
-                'as a test of the Ideone sandbox.',
-        'combinator_template' => NULL,
-        'test_splitter_re' => '',
-        'per_test_template' => <<<EOT
-{{ STUDENT_ANSWER }}
-{{TEST.testcode}}
-EOT
-,
-        'language' => 'Clojure (clojure 1.5.0-RC2)',
-    );
-
-    // List of currently supported question types
-    // ==========================================
-    $types = array(
-        $python2,
-        $python3,
-        $python3PylintFunc,
-        $python3PylintProg,
-        $python3Ideone,
-        $cFunction,
-        $cProgram,
-        $cFullMainTests,
-        $matlabFunction,
-        $octaveFunction,
-        $javaMethod,
-        $javaClass,
-        $javaProgram,
-        $clojure);
-
+    // Add/replace standard question types by deleting all questions in the
+    // category CR_PROTOTYPES and reloading them from the file 
+    // questions-CR_PROTOTYPES.xml.
+    
+    // Find id of CR_PROTOTYPES category
+    global $DB, $CFG;
+    
     $success = TRUE;
-    foreach ($types as $type) {
-        $success = $success && update_question_type($type);
+    $systemcontext = context_system::instance();
+    $systemcontextid = $systemcontext->id;
+    if (!$systemcontextid) {
+        $systemcontextid = 1; // HACK ALERT: occurs when phpunit initialising itself
     }
-
-    // Delete defunct types.
-    // NB: NO CHECKS ON EXISTING QUESTIONS USING THESE TYPES.
-    // They must really be defunct, in the sense of no questions using them.
-    $defunctTypes = array();
-    foreach ($defunctTypes as $type) {
-        $success = $success && delete_question_type($type);
+    $category = $DB->get_record('question_categories',
+                array('contextid' => $systemcontextid, 'name' => 'CR_PROTOTYPES'));
+    if ($category) { 
+        $prototypeCategoryId = $category->id;
+    } else { // CR_PROTOTYPES category not defined yet. Add it
+        $category = array(
+            'name'      => 'CR_PROTOTYPES',
+            'contextid' => $systemcontextid,
+            'info'      => 'Category for CodeRunner question built-in prototypes. FOR SYSTEM USE ONLY.',
+            'infoformat'=> 0,
+            'parent'    => 0,
+        );
+        $prototypeCategoryId = $DB->insert_record('question_categories', $category);
+        if (!$prototypeCategoryId) {
+            throw new coding_exception("Upgrade failed: couldn't create CR_PROTOTYPES category");
+        }
+        $category = $DB->get_record('question_categories',
+                array('id' => $prototypeCategoryId));
     }
+    
+    // Delete all existing prototypes
+    $prototypes = $DB->get_records_select('question',
+            "category = $prototypeCategoryId and name like 'BUILT_IN_PROTOTYPE_%'");
+    foreach ($prototypes as $question) {
+       $DB->delete_records('quest_coderunner_options',
+            array('questionid' => $question->id));
+       $DB->delete_records('question', array('id' => $question->id));
+    }
+    
+    $prototypesFilename = dirname(__FILE__) . '/questions-CR_PROTOTYPES.xml';
+    load_questions($category, $prototypesFilename, $systemcontextid);
 
     return $success;
 }
 
 
-function update_question_type($newRecord) {
-    global $DB, $USER;
-    $type = $newRecord['coderunner_type'];
-    delete_question_type($type);
-    $question = new stdClass();
-    $question->questiontext = $newRecord['comment'];
-    $question->name = "BUILT_IN_PROTOTYPE_" . $type;
-    //$question->hidden = 1;
-    $question->stamp = make_unique_id_code();
-    $question->createdby = $USER->id;
-    $question->timecreated = time();
-    $question->modifiedby = $USER->id;
-    $question->timemodified = time();
-    $question->generalfeedback = '';
-    $question->qtype = 'coderunner';
-    $questionid = $DB->insert_record('question', $question);
-    $ok = $questionid;
-    if ($ok) {
-        $newRecord['questionid'] = $questionid;
-        $newRecord['prototype_type'] = 1;
-        $newRecord['enable_combinator'] = ($newRecord['combinator_template'] !== NULL);
-        $ok = $DB->insert_record('quest_coderunner_options', $newRecord);
+function load_questions($category, $importfilename, $contextId) {
+    // Load all the questions from the given import file into the given category
+    // (except that the category from the import file will be used if given).
+    global $COURSE;
+    $qformat = new qformat_xml();
+    $qformat->setCategory($category);
+    $systemcontext = context::instance_by_id($contextId);
+    $contexts = new question_edit_contexts($systemcontext);
+    $qformat->setContexts($contexts->having_one_edit_tab_cap('import'));
+    $qformat->setCourse($COURSE);
+    $qformat->setFilename($importfilename);
+    $qformat->setRealfilename($importfilename);
+    $qformat->setMatchgrades('error');
+    $qformat->setCatfromfile(TRUE);
+    $qformat->setContextfromfile(TRUE);
+    $qformat->setStoponerror(TRUE);
+
+    // Do anything before that we need to
+    if (!$qformat->importpreprocess()) {
+        throw new coding_exception('Upgrade failed: error preprocessing prototype upload');
     }
-    if (!$ok) {
-        throw new coding_exception("Upgrade failed: couldn't insert new coderunner prototype");
+
+    // Process the given file
+    if (!$qformat->importprocess($category)) {
+        throw new coding_exception('Upgrade failed: error uploading prototype questions');
     }
-    return TRUE;
+
+    // In case anything needs to be done after
+    if (!$qformat->importpostprocess()) {
+        throw new coding_exception('Upgrade failed: error postprocessing prototype upload');
+    }
 }
 
-
-// Delete built-in prototype question (sb at most 1) of given type.
-function delete_question_type($type) {
-    global $DB;
-    $optionRec = $DB->get_record('quest_coderunner_options',
-            array('coderunner_type' => $type,
-                  'prototype_type' => 1));
-    if ($optionRec !== false) {
-       $DB->delete_records('quest_coderunner_options',
-            array('coderunner_type' => $type,
-                  'prototype_type' => 1));
-       $DB->delete_records('question', array('id' => $optionRec->questionid));
-    }
-}
 ?>

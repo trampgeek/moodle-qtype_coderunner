@@ -32,6 +32,7 @@ define("DEFAULT_NUM_ROWS", 18);   // Answer box rows
 define("DEFAULT_NUM_COLS", 100);   // Answer box rows
 
 require_once($CFG->dirroot . '/question/type/coderunner/Sandbox/sandbox_config.php');
+require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
 
 /**
  * coderunner editing form definition.
@@ -381,6 +382,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
     public function data_preprocessing($question) {
         // Load question data into form ($this). Called by set_data after
         // standard stuff all loaded.
+        global $COURSE;
         if (isset($question->options->testcases)) { // Reloading a saved question?
             $question->testcode = array();
             $question->expected = array();
@@ -403,6 +405,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
             // Save the prototype_type so can see if it changed on post-back
             $question->saved_prototype_type = $question->prototype_type;
+            $question->courseid = $COURSE->id;
 
             // Load the type-name if this is a prototype, else make it blank
             if ($question->prototype_type != 0) {
@@ -485,18 +488,15 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
     private function get_languages_and_types() {
         // Return two arrays (language => language_upper_case) and (type => subtype) of
-        // all the coderunner question types available in the current context,
-        // i.e., *** TBS ***
+        // all the coderunner question types available in the current course
+        // context.
         // The subtype is the suffix of the type in the database,
         // e.g. for java_method it is 'method'. The language is the bit before
         // the underscore, and language_upper_case is a capitalised version,
         // e.g. Java for java. For question types without a
         // subtype the word 'Default' is used.
-        global $DB;
-        $records = $DB->get_records_select('quest_coderunner_options',
-                "prototype_type != 0",
-                NULL,
-                'coderunner_type');
+
+        $records = qtype_coderunner::getAllPrototypes();
         $types = array();
         foreach ($records as $row) {
             if (($pos = strpos($row->coderunner_type, '_')) !== FALSE) {

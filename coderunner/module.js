@@ -191,6 +191,7 @@ M.qtype_coderunner.initEditForm = function(Y) {
         combinator_non_blank = true,
         prototypeType = Y.one("#id_prototype_type"),
         typeName = Y.one('#id_type_name'),
+        courseId = Y.one('input[name="courseid"]').get('value'),
         message = '';
 
     function setCustomisationVisibility(isVisible) {
@@ -202,7 +203,7 @@ M.qtype_coderunner.initEditForm = function(Y) {
     function loadDefaultCustomisationFields(Y) {
         // Local function to load the various customisation fields on the
         // form with their default values for the current Coderunner question
-        // type.
+        // type and course.
         var newType = typeCombo.get('value'),
             secs = '',
             mb = '';
@@ -210,7 +211,7 @@ M.qtype_coderunner.initEditForm = function(Y) {
         if (newType != '' && newType != 'Undefined') {
             Y.io(M.cfg.wwwroot + '/question/type/coderunner/ajax.php', {
                 method: 'GET',
-                data: 'qtype=' + newType + '&sesskey=' + M.cfg.sesskey,
+                data: 'qtype=' + newType + '&courseid=' + courseId + '&sesskey=' + M.cfg.sesskey,
                 on: {
                     success: function (id, result) {
                         var outcome = JSON.parse(result.responseText);

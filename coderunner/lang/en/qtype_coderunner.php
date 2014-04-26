@@ -34,7 +34,8 @@ $string['all_or_nothing_help'] = 'If \'All-or-nothing\' is checked, all test cas
         'by summing the marks for all the test cases that pass ' .
         'and expressing this as a fraction of the maximum possible mark. ' .
         'The per-test-case marks can be specified only if the all-or-nothing ' .
-        'checkbox is unchecked.';
+        'checkbox is unchecked. If using a template grader that awards ' .
+        'part marks to test cases, \'All-or-nothing\' should generally be unchecked.';
 $string['answerrequired'] = 'Please provide a non-empty answer';
 $string['atleastonetest'] = 'You must provide at least one test case '
     . 'for this question.';

@@ -55,7 +55,7 @@ Administrator privileges and some Unix skills are needed to install Coderunner.
 CodeRunner version 2 is a major upgrade from version 1, with many new features
 and significant restructuring of the database tables. Although the new
 version attempts to update all the database tables to the new format the
-process has been tested on only one system. Some problems occurred and the
+update process has been tested on only one system. Some problems occurred and the
 upgrade code was edited to deal with those problems but the edits have received
 minimal testing because of the absence of any "pure" version 1 system on which to 
 test them. If you are currently
@@ -127,7 +127,7 @@ a home directory, and symbolic links from within the `<moodlehome>/question/type
 and `<moodlehome>/question/behaviour` directories to the `<moodlehome>/local/CodeRunner/CodeRunner`
 and `<moodlehome>/local/CodeRunner/adaptive_adapted_for_coderunner` directories
 respectively. There should also be a symbolic link from `local/Twig` to
-`local/CodeRunner/Twig`. These can all be set up by hand if desired but read the
+`local/CodeRunner/Twig`. These can all be set up by hand if desired; read the
 install script to see exactly what was expected.
 
 ### Installing the Liu sandbox
@@ -243,9 +243,12 @@ extended to support others. A CodeRunner question type is defined by a
 language and sandbox and defines how a test program is built from the
 question's test-cases plus the student's submission. The prototype also
 defines whether the correctness of the student's submission is assessed by use
-of an *EqualityGrader* or a *RegexGrader*. The former expects
+of an *EqualityGrader*, a *NearEqualityGrader* or *RegexGrader*. The EqualityGrader expects
 the output from the test execution to exactly match the expected output
-for the testcase, while the latter expects a regular expression match
+for the testcase. The NearEqualityGrader is similar but is case insensitive
+and tolerates variations in the amount of white space (e.g. missing or extra
+blank lines, or multiple spaces where only one was expected).
+The RegexGrader expects a regular expression match
 instead. The EqualityGrader is recommended for all normal use as it
 encourages students to get their output exactly correct; they should be able to
 resubmit almost-right answers for a small penalty, which is generally a
@@ -280,7 +283,7 @@ cases of the form
         printf("%d\n", sqr(-11));
 
 and give the expected output from this test. There is no standard input for
-this question type. The per-test template would then wrap the student's
+this question type. The per-test template wraps the student's
 submission and
 the test code into a single program like:
 
@@ -294,25 +297,33 @@ the test code into a single program like:
             return 0;
         }
 
-which would be compiled and run. The output from the run would be compared with
-the specified expected output (121) and the student would be marked right
+which is compiled and run for each test case. The output from the run is
+then compared with
+the specified expected output (121) and the test case is marked right
 or wrong accordingly.
 
-This example ignores the use of the combinator template, which in
+That example ignores the use of the combinator template, which in
 the case of the built-in C function question type
-would build a program with multiple *printf* calls interleaved with
-printing of a special separator. The resulting output would then be split
+builds a program with multiple *printf* calls interleaved with
+printing of a special separator. The resulting output is then split
 back into individual test case results using the separator string as a splitter.
 
 ### Built-in question types
 
-The file `db/upgrade.php` installs the following set of prototype
-question types into the data base. However, question authors should not feel
-constrained by this built-in set. Specific instances of each question type
-can be customised in various ways, typically to use a different template and
-in fact authors can define their own question types.
-The issues of question customisation and user-defined question types
-are discussed in later sections.
+The file <moodlehome>/question/type/coderunner/db/questions-CR_PROTOTYPES.xml
+is an moodle-xml export format file containing the definitions of all the
+built-in question types. During install, and at the end of any version upgrade,
+the prototype questions from that file are all loaded into a category
+CR_PROTOTYPES in the system context. A system administrator can edit the
+those prototypes but this is not generally recommended as the modified versions
+will be lost on each upgrade. Instead, a category LOCAL_PROTOTYPES
+(or other such name of your choice) should be created and copies of any prototype
+questions that need editing should be stored there, with the question-type
+name modified accordingly. New prototype question types can also be created
+in that category. Editing of prototypes is discussed later in this
+document.
+
+Built-in question types including the following:
 
  1. **c\_function**. This is the question type discussed in the above
 example. The student supplies
@@ -330,22 +341,6 @@ example. The student supplies
  compiler with the language set to
  accept C99 and with both *-Wall* and *-Werror* options set on the command line
  to issue all warnings and reject the code if there are any warnings.
- C++ isn't built in at present, as we don't teach it, but changing the sandboxes
- to support C++ is mainly just a matter of changing the
- compile command line, viz., the line "$cmd = ..." in the *compile* methods of
- the  *C\_Task* classes in *runguardsandboxtasks.php* and *liusandboxtasks.php*.
- You would then probably
-  wish to change the C question type templates a bit, e.g. to include
- *iostream* instead of, or as well as, *stdio.h* by default. The line
-
-        using namespace std;
-
- may also be desirable.
-
- 1. **c\_program**. Used for C write-a-program questions where the student supplies
- a complete program and the tests simply run this program with
- the supplied standard
- input.
 
  1. **python3**. Used for most Python3 questions. For each test case, the student
 code is run first, followed by the test code.
@@ -380,6 +375,19 @@ for that test.
 
 As discussed below, this base set of question types can
 be customised in various ways.
+
+C++ isn't built in at present, as we don't teach it, but changing the sandboxes
+to support C++ is mainly just a matter of changing the
+compile command line, viz., the line "$cmd = ..." in the *compile* methods of
+the  *C\_Task* classes in *runguardsandboxtasks.php* and *liusandboxtasks.php*.
+You would then probably
+wish to change the C question type templates a bit (or create modified copies),
+e.g. to include
+*iostream* instead of, or as well as, *stdio.h* by default. The line
+
+        using namespace std;
+
+ may also be desirable.
 
 ### Some more-specialised question types
 
@@ -423,14 +431,15 @@ should be regarded as experimental.
 ## Templates
 
 Templates are the key to understanding how a submission is tested. There are in
-general two templates per question type - a *combinator_template* and a
-*per_test_template* but we'll ignore the former for now and focus on the latter.
+general two templates per question type (i.e. per prototype) - a *combinator_template* and a
+*per_test_template*. We'll discuss the latter for a start.
 
 The *per_test_template* for each question type defines how a program is built from the
 student's code and one particular testcase. That program is compiled (if necessary)
 and run with the standard input defined in that testcase, and the output must
 then match the expected output for the testcase (where 'match' is defined
-by the chosen validator: either an exact match or a regular-expression match.
+by the chosen validator: an exact match, a nearly exact match or a
+regular-expression match.
 
 The question type template is processed by the
 [Twig](http://twig.sensiolabs.org/) template engine. The engine is given both
@@ -606,7 +615,7 @@ used in practice include:
 Using just the template mechanism described above it is possible to write
 almost arbitrarily complex questions. Grading of student submissions can,
 however, be problematic in some situations. For example, you may need to
-ask a question where many different valid outputs are possible, and the
+ask a question where many different valid program outputs are possible, and the
 correctness can only be assessed by a special testing program. Or
 you may wish to subject
 a student's code to a very large
@@ -707,7 +716,7 @@ answer was right or wrong. Note too that the template performs various other
 checks on their code, such as whether it contains any print statements or
 whether they have pasted an entire function definition.
 
-It may be noted that writing questions using custom graders is much harder than
+Obviously, writing questions using custom graders is much harder than
 using the normal built-in equality based grader. It is often possible to
 ask the question in a different way that avoids the need for a custom grader.
 In the above example, the
@@ -732,21 +741,24 @@ find the option to save your current question as a prototype. You will have
 to enter a name for the new question type you're creating. It is strongly
 recommended that you also change the name of your question to reflect the
 fact that it's a prototype, in order to make it easier to find. The convention
-used by all the built-in prototypes is to start the question name with
+is to start the question name with
 the string PROTOTYPE\_, followed by the type name. For example,
-PROTOTYPE_\python3. Having a
-separate category for prototype questions is also a good idea. Obviously the
-type name you use should be unique.
+PROTOTYPE_\python3_OOP. Having a
+separate category for prototype questions is also recommended. Obviously the
+type name you use should be unique, at least within the context of the course
+in which the prototype question is being used.
 
-Currently, user-defined question types are global, i.e. when selecting the
-CodeRunner question type with the combo-box, all question authors in
-all courses get to see *all* the built-in and user-defined prototypes.
-This is temporary; it is intended that the scope of a prototype question will
-be restricted in later versions of CodeRunner.
-Many of the more-specialised existing base types, such as clojure,
-python3_pylint etc will likely be removed from the built-ins then, too, so that they
-don't clutter the menu globally; they
-can be easily implemented as user-defined types.
+In the current implementation, CodeRunner searches for prototype questions
+just in the current course. The search includes parent
+contexts, typically visible only to an administrator, such as the system
+context; the built-in prototypes all reside in that system context. Thus if
+a teacher in one course creates a new question type, it will immediately
+appear in the question type list for all authors editing questions within
+that course but it will not be visible to authors in other courses. If you wish
+to make a new question type available globally you should ask a
+Moodle administrator
+to move the question to the system context, such as a LOCAL_PROTOTYPES
+category, mentioned above.
 
 When you create a question of a particular type, including user-defined
 types, all the so-called "customisable" fields are inherited from the
@@ -761,7 +773,7 @@ ones. The latter include the language, sandbox, timeout, memory limit and
 the "make this question a prototype" feature. The combinator
 template is also considered to be an advanced feature. By default, when you edit
 the per-test-template the combinator is disabled; you must explicitly re-enable
-it (and edit it) if you need it. The JavaScript alerts that tell you this are a
+it (and edit it) if you need it. The JavaScriplocallyt alerts that tell you this are a
 tad annoying but I'm leaving them in so no one can accuse me of not warning them.
 
 Managing prototype questions is a little problematic - there's no way

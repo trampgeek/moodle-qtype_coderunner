@@ -44,6 +44,7 @@
  */
 
 require_once($CFG->dirroot . '/question/engine/bank.php');
+require_once($CFG->dirroot . '/lib/questionlib.php');
 
 define('COMPUTE_STATS', false);
 
@@ -186,35 +187,36 @@ class qtype_coderunner extends question_type {
     // the set of testcases and any datafiles to the database.
 
     public function save_question_options($question) {
-        global $DB;
+        global $DB, $USER;
 
         assert(isset($question->coderunner_type));
         $fields = $this->extra_question_fields();
         array_shift($fields); // Discard table name
         $customised = isset($question->customise) && $question->customise;
+        $isPrototype = $question->prototype_type != 0;
         if ($customised && $question->prototype_type == 2 &&
                 $question->coderunner_type != $question->type_name) {
-            // Saving a new prototype. Copy new type name into coderunner_type
+            // Saving a new user-defined prototype.
+            // Copy new type name into coderunner_type
             $question->coderunner_type = $question->type_name;
         }
 
-        // Set all inherited fields to NULL if customisation is off or (if
-        // customisation is on) if the corresponding form field is blank.
+        // Set all inherited fields to NULL if the corresponding form
+        // field is blank or if it's neither a prototype nor customised question.
 
+        $questionInherits = !$customised && !$isPrototype;
         foreach ($fields as $field) {
             $isInherited = !in_array($field, $this->noninherited_fields());
             $isBlankString = !isset($question->$field) ||
                (is_string($question->$field) && trim($question->$field) === '');
-            if ($isInherited && (!$customised || $isBlankString)) {
+            if ($isInherited && ($isBlankString || $questionInherits)) {
                 $question->$field = NULL;
-            }
-
-
-            if (trim($question->sandbox) === 'DEFAULT') {
-                $question->sandbox = NULL;
             }
         }
 
+        if (trim($question->sandbox) === 'DEFAULT') {
+            $question->sandbox = NULL;
+        }
 
         parent::save_question_options($question);
 
@@ -260,8 +262,10 @@ class qtype_coderunner extends question_type {
 
         // Lastly, save any datafiles
 
-        file_save_draft_area_files($question->datafiles, $question->context->id,
+        if ($USER->id)  {  // HACK to deal with phpunit initialisation, when no user exists
+            file_save_draft_area_files($question->datafiles, $question->context->id,
                 'qtype_coderunner', 'datafile', (int) $question->id, $this->fileoptions);
+        }
 
         return true;
     }
@@ -280,28 +284,27 @@ class qtype_coderunner extends question_type {
             $question->options->customise = True;
         } else {
 
-            // Add to the question all the fields from the question's prototype
+            // Add to the question all the inherited fields from the question's prototype
             // record that have not been overridden (i.e. that are null) by this
             // instance. If any of the inherited fields are modified (i.e. any
             // (extra field not in the noninheritedFields list), the 'customise'
             // field is set. This is used only to display the customisation panel.
 
             $qtype = $question->options->coderunner_type;
-            if (!$row = $DB->get_record_select(
-                    'quest_coderunner_options',
-                    "coderunner_type = '$qtype' and prototype_type != 0")) {
-                throw new coding_exception("Failed to load type info for question id {$question->id}");
-            }
-
+            $row = $this->getPrototype($qtype);
             $question->options->customise = False; // Starting assumption
             $noninheritedFields = $this->noninherited_fields();
             foreach ($row as $field => $value) {
-                if (isset($question->options->$field) && $question->options->$field !== '') {
-                    if (!in_array($field, $noninheritedFields) && $question->options->$field != $value) {
+                $isInheritedField = !in_array($field, $noninheritedFields);
+                if ($isInheritedField) {
+                    if (isset($question->options->$field) &&
+                              $question->options->$field !== NULL &&
+                              $question->options->$field !== '' &&
+                              $question->options->$field != $value) {
                         $question->options->customise = True; // An inherited field has been changed
+                    } else {
+                        $question->options->$field = $value;
                     }
-                } else {
-                    $question->options->$field = $value;
                 }
             }
 
@@ -327,7 +330,99 @@ class qtype_coderunner extends question_type {
 
         return true;
     }
+    
+    
+    // Get a list of all valid prototypes in the current
+    // course context.
+    public static function getAllPrototypes() {
+        global $DB, $COURSE;
+        $rows = $DB->get_records_select(
+               'quest_coderunner_options',
+               'prototype_type != 0');
+        $valid = array();
+        foreach ($rows as $row) {
+            if (SELF::isAvailablePrototype($row, $COURSE->id)) {
+                $valid[] = $row;
+            }
+        }
+        return $valid;
+        
+    }
+    
+    
+    // Get the specified prototype question from the database.
+    // To be valid, the named prototype (a question of the specified type
+    // and with prototype_type non zero) must be in a question category that's 
+    // available in the current course context. A problem here is in determining
+    // the current course, as the global $COURSE variable doesn't appear to be
+    // appropriately set in some situations, e.g. during preview of a question.
+    public static function getPrototype($coderunnerType, $courseId = NULL) {
+        global $DB, $COURSE;
+        
+        if ($courseId === NULL) {
+            $courseId = optional_param('courseid', 0, PARAM_INT);
+            if (!$courseId) {
+                $cmid = optional_param('cmid', 0, PARAM_INT);
+                if ($cmid != 0) {
+                    $row = $DB->get_record('course_modules', array('id'=>$cmid));
+                    $courseId = $row->course;
+                } else {
+                    $courseId = $COURSE->id;  // Last ditch attempt
+                }
+            }
+        }
+        $rows = $DB->get_records_select(
+               'quest_coderunner_options',
+               "coderunner_type = '$coderunnerType' and prototype_type != 0");
+        
+        if (count($rows) == 0) {
+            throw new coding_exception("Failed to find prototype $coderunnerType");
+        }
+        
+        $validProtos = array();
+        foreach ($rows as $row) {
+            if (SELF::isAvailablePrototype($row, $courseId)) {
+                $validProtos[] = $row;
+            }   
+        }
+        
+        if (count($validProtos) == 0) {
+            throw new coding_exception("Prototype $coderunnerType is unavailable ".
+                    "in this context (course id = $courseId)");
+        } else if (count($validProtos) != 1) {
+            throw new coding_exception("Multiple prototypes found for $coderunnerType");
+        }
+        return $validProtos[0];
+    }
 
+    
+    // True iff the given row from the quest_coderunner_options table
+    // is a valid prototype in the context of the given course.
+    public static function isAvailablePrototype($questionOptionsRow, $courseId) {
+        global $DB;
+        static $activeCats = NULL;
+
+        if (!$question = $DB->get_record('question', array('id' => $questionOptionsRow->questionid))) {
+            throw new coding_exception('Missing record in question table');
+        }
+        
+        if (!$candidateCat = $DB->get_record('question_categories', array('id' => $question->category))) {
+            throw new coding_exception('Missing question category');
+        }
+        
+        if ($activeCats === NULL) {
+            $coursecontext = context_course::instance($courseId);
+            $allContexts = $coursecontext->get_parent_context_ids(TRUE);
+            $activeCats = get_categories_for_contexts(implode(',', $allContexts));
+        }
+        
+        foreach ($activeCats as $cat) {
+            if ($cat->id == $candidateCat->id) {
+                return TRUE;
+            }
+        }
+        return FALSE;
+    }
 
     // Initialise the question_definition object from the questiondata
     // read from the database (probably a cached version of the question
@@ -348,7 +443,7 @@ class qtype_coderunner extends question_type {
     }
 
 
-    // Override required here so we can check if this is a prototype
+    // Override required here so we can check ifhttps://picasaweb.google.com/trampgeek/TheThreePasses this is a prototype
     // with children (in which case deletion is disallowed). If not,
     // deletion is allowed but must delete the testcases too.
     public function delete_question($questionid, $contextid) {
@@ -370,7 +465,7 @@ class qtype_coderunner extends question_type {
                 // and other deletion (e.g. of the question itself) proceeds
                 // regardless, leaving things in an even worse state than if
                 // I didn't even check for an in-use prototype!
-                throw new moodle_exception('Attempting to delete in-use prototype');
+                // throw new moodle_exception('Attempting to delete in-use prototype');
             }
         }
 
@@ -431,39 +526,41 @@ class qtype_coderunner extends question_type {
             }
         }
 
-        $testcases = $data['#']['testcases'][0]['#']['testcase'];
-
         $qo->testcases = array();
+        
+        if (isset($data['#']['testcases'][0]['#']['testcase'])) {
+            $testcases = $data['#']['testcases'][0]['#']['testcase'];
 
-        foreach ($testcases as $testcase) {
-            $tc = new stdClass;
-            $tc->testcode = $testcase['#']['testcode'][0]['#']['text'][0]['#'];
-            $tc->stdin = $testcase['#']['stdin'][0]['#']['text'][0]['#'];
-            if (isset($testcase['#']['output'])) { // Handle old exports
-                $tc->expected = $testcase['#']['output'][0]['#']['text'][0]['#'];
+            foreach ($testcases as $testcase) {
+                $tc = new stdClass;
+                $tc->testcode = $testcase['#']['testcode'][0]['#']['text'][0]['#'];
+                $tc->stdin = $testcase['#']['stdin'][0]['#']['text'][0]['#'];
+                if (isset($testcase['#']['output'])) { // Handle old exports
+                    $tc->expected = $testcase['#']['output'][0]['#']['text'][0]['#'];
+                }
+                else {
+                    $tc->expected = $testcase['#']['expected'][0]['#']['text'][0]['#'];
+                }
+                $tc->display = 'SHOW';
+                $tc->mark = 1.0;
+                if (isset($testcase['@']['mark'])) {
+                    $tc->mark = floatval($testcase['@']['mark']);
+                }
+                if (isset($testcase['@']['hidden']) && $testcase['@']['hidden'] == "1") {
+                    $tc->display = 'HIDE';  // Handle old-style export too
+                }
+                if (isset($testcase['#']['display'])) {
+                    $tc->display = $testcase['#']['display'][0]['#']['text'][0]['#'];
+                }
+                if (isset($testcase['@']['hiderestiffail'] )) {
+                    $tc->hiderestiffail = $testcase['@']['hiderestiffail'] == "1" ? 1 : 0;
+                }
+                else {
+                    $tc->hiderestiffail = 0;
+                }
+                $tc->useasexample = $testcase['@']['useasexample'] == "1" ? 1 : 0;
+                $qo->testcases[] = $tc;
             }
-            else {
-                $tc->expected = $testcase['#']['expected'][0]['#']['text'][0]['#'];
-            }
-            $tc->display = 'SHOW';
-            $tc->mark = 1.0;
-            if (isset($testcase['@']['mark'])) {
-                $tc->mark = floatval($testcase['@']['mark']);
-            }
-            if (isset($testcase['@']['hidden']) && $testcase['@']['hidden'] == "1") {
-                $tc->display = 'HIDE';  // Handle old-style export too
-            }
-            if (isset($testcase['#']['display'])) {
-                $tc->display = $testcase['#']['display'][0]['#']['text'][0]['#'];
-            }
-            if (isset($testcase['@']['hiderestiffail'] )) {
-                $tc->hiderestiffail = $testcase['@']['hiderestiffail'] == "1" ? 1 : 0;
-            }
-            else {
-                $tc->hiderestiffail = 0;
-            }
-            $tc->useasexample = $testcase['@']['useasexample'] == "1" ? 1 : 0;
-            $qo->testcases[] = $tc;
         }
 
         $datafiles = $format->getpath($data,
