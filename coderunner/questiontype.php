@@ -341,7 +341,7 @@ class qtype_coderunner extends question_type {
                'prototype_type != 0');
         $valid = array();
         foreach ($rows as $row) {
-            if (SELF::isAvailablePrototype($row, $COURSE->id)) {
+            if (self::isAvailablePrototype($row, $COURSE->id)) {
                 $valid[] = $row;
             }
         }
@@ -381,7 +381,7 @@ class qtype_coderunner extends question_type {
         
         $validProtos = array();
         foreach ($rows as $row) {
-            if (SELF::isAvailablePrototype($row, $courseId)) {
+            if (self::isAvailablePrototype($row, $courseId)) {
                 $validProtos[] = $row;
             }   
         }
@@ -530,7 +530,6 @@ class qtype_coderunner extends question_type {
         
         if (isset($data['#']['testcases'][0]['#']['testcase'])) {
             $testcases = $data['#']['testcases'][0]['#']['testcase'];
-
             foreach ($testcases as $testcase) {
                 $tc = new stdClass;
                 $tc->testcode = $testcase['#']['testcode'][0]['#']['text'][0]['#'];
