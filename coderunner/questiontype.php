@@ -528,7 +528,8 @@ class qtype_coderunner extends question_type {
 
         $qo->testcases = array();
         
-        if (isset($data['#']['testcases'][0]['#']['testcase'])) {
+        if (isset($data['#']['testcases'][0]['#']['testcase']) && 
+                is_array($data['#']['testcases'][0]['#']['testcase'])) {
             $testcases = $data['#']['testcases'][0]['#']['testcase'];
             foreach ($testcases as $testcase) {
                 $tc = new stdClass;
@@ -564,7 +565,9 @@ class qtype_coderunner extends question_type {
 
         $datafiles = $format->getpath($data,
                 array('#', 'testcases', 0, '#', 'file'), array());
-        $qo->datafiles = $format->import_files_as_draft($datafiles);
+        if (is_array($datafiles)) { // Seems like a non-array does occur in some versions of PHP :-/
+            $qo->datafiles = $format->import_files_as_draft($datafiles);
+        }
 
         return $qo;
     }
