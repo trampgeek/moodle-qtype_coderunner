@@ -276,6 +276,13 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         }
     }
     
+    if ($oldversion != 0 && $oldversion < 2014042702) {
+        // Version 2.0 alpha allowed penalty regime to be null. Fix this.
+        $table = new xmldb_table('quest_coderunner_options');
+        $field = new xmldb_field('penalty_regime', XMLDB_TYPE_CHAR, '255', XMLDB_UNSIGNED, XMLDB_NOTNULL);
+        $dbman->change_field_type($table, $field);
+    }
+    
     updateQuestionTypes();
             
     return TRUE;
