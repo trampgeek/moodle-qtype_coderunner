@@ -276,11 +276,18 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         }
     }
     
-    if ($oldversion != 0 && $oldversion < 2014042702) {
-        // Version 2.0 alpha allowed penalty regime to be null. Fix this.
+    if ($oldversion != 0 && $oldversion < 2014042703) {
+        // Fix all non-inherited fields to be non null (except 
+        // can't fix prototype_type as it's an index. No matter.)
         $table = new xmldb_table('quest_coderunner_options');
-        $field = new xmldb_field('penalty_regime', XMLDB_TYPE_CHAR, '255', XMLDB_UNSIGNED, XMLDB_NOTNULL);
-        $dbman->change_field_type($table, $field);
+        $fields = array(
+            new xmldb_field('penalty_regime', XMLDB_TYPE_CHAR, '255', XMLDB_UNSIGNED, XMLDB_NOTNULL),
+            // new xmldb_field('prototype_type', XMLDB_TYPE_INTEGER, '1', XMLDB_UNSIGNED, XMLDB_NOTNULL),
+            new xmldb_field('answerbox_columns', XMLDB_TYPE_INTEGER, '5', XMLDB_UNSIGNED, XMLDB_NOTNULL),
+            new xmldb_field('use_ace', XMLDB_TYPE_INTEGER, '1', XMLDB_UNSIGNED, XMLDB_NOTNULL));
+        foreach ($fields as $field) {
+            $dbman->change_field_type($table, $field);
+        }
     }
     
     updateQuestionTypes();
