@@ -23,6 +23,7 @@ class Matlab_Task extends \LanguageTask {
     }
 
     public function compile() {
+        $this->setPath();
         $this->executableFileName = $this->sourceFileName . '.m';
         if (!copy($this->sourceFileName, $this->executableFileName)) {
             throw new coding_exception("Matlab_Task: couldn't copy source file");

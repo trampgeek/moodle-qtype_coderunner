@@ -103,6 +103,24 @@ abstract class LanguageTask {
         }
         $this->delTree($this->workdir);
     }
+    
+    // Check if PHP exec environment includes a PATH. If not, set up a
+    // default, or gcc misbehaves. [Thanks to Binoj D for this bug fix,
+    // needed on his CentOS system.]
+    protected function setPath() {          
+        $envVars = array();
+        exec('printenv', $envVars);
+        $hasPath = FALSE;
+        foreach ($envVars as $var) {
+            if (strpos($var, 'PATH=') === 0) {
+                $hasPath = TRUE;
+                break;
+            }
+        }
+        if (!$hasPath) {
+            putenv("PATH=/sbin:/bin:/usr/sbin:/usr/bin");
+        }
+    }
 
 
     // Delete a given directory tree
