@@ -431,7 +431,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
     // A horrible horrible hack for a horrible horrible browser "feature".
     // Inserts a newline at the start of a text string that's going to be
     // displayed at the start of a <textarea> element, because all browsers
-    // string a leading newline. If there's one there, we need to keep it, so
+    // strip a leading newline. If there's one there, we need to keep it, so
     // the extra one ensures we do. If there isn't one there, this one gets
     // ignored anyway.
     private function newlineHack($s) {
