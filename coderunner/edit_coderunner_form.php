@@ -390,9 +390,9 @@ class qtype_coderunner_edit_form extends question_edit_form {
             $question->display = array();
             $question->hiderestifail = array();
             foreach ($question->options->testcases as $tc) {
-                $question->testcode[] = $tc->testcode;
-                $question->stdin[] = $tc->stdin;
-                $question->expected[] = $tc->expected;
+                $question->testcode[] = $this->newlineHack($tc->testcode);
+                $question->stdin[] = $this->newlineHack($tc->stdin);
+                $question->expected[] = $this->newlineHack($tc->expected);
                 $question->useasexample[] = $tc->useasexample;
                 $question->display[] = $tc->display;
                 $question->hiderestiffail[] = $tc->hiderestiffail;
@@ -426,7 +426,17 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $question->datafiles = $draftid; // File manager needs this (and we need it when saving)
         return $question;
     }
-
+    
+    
+    // A horrible horrible hack for a horrible horrible browser "feature".
+    // Inserts a newline at the start of a text string that's going to be
+    // displayed at the start of a <textarea> element, because all browsers
+    // string a leading newline. If there's one there, we need to keep it, so
+    // the extra one ensures we do. If there isn't one there, this one gets
+    // ignored anyway.
+    private function newlineHack($s) {
+        return "\n" . $s;
+    }
 
 
     public function validation($data, $files) {
