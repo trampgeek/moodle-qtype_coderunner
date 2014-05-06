@@ -33,7 +33,7 @@ import shelve
 import random
 import traceback
 
-LANGUAGE = 'MATLAB'
+LANGUAGE = 'PYTHON3'
 
 shelf = shelve.open('coderunner_loadtesting_results')
 
@@ -298,8 +298,8 @@ def sim(avg_gap, sim_length):
 
 
 if __name__ == '__main__':
-    SIMULATION_GAP_SECS = 3
-    SIMULATION_DURATION_SECS = 300
+    SIMULATION_GAP_SECS = 0.5
+    SIMULATION_DURATION_SECS = 600
 
     before = time.time()
     (results, errs) = sim(SIMULATION_GAP_SECS, SIMULATION_DURATION_SECS)

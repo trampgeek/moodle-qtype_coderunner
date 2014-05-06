@@ -794,7 +794,7 @@ questions. However, as soon as you customise a child question you copy all the
 prototype fields and lose that inheritance.
 
 To reduce the UI confusion, customisable fields are subdivided into the
-basic ones (per-test-template, grader, result-table column sectors etc) and
+basic ones (per-test-template, grader, result-table column selectors etc) and
 "advanced"
 ones. The latter include the language, sandbox, timeout, memory limit and
 the "make this question a prototype" feature. The combinator
@@ -803,19 +803,12 @@ the per-test-template the combinator is disabled; you must explicitly re-enable
 it (and edit it) if you need it. The JavaScript alerts that tell you this are a
 tad annoying but I'm leaving them in so no one can accuse me of not warning them.
 
-Managing prototype questions is a little problematic - there's no way
-to find all the children of a prototype. If you try to delete a prototype that
-has children an exception will be thrown; this maintains the data integrity but
-it doesn't
-tell you which questions are inheriting from it. You have to hunt them down and
-kill them manually before you can delete the prototype. [Or, you can use
-a suitable SQL query on the database tables, but that's outside the scope
-of this document.]
-
 One major warning: if you define your own question type you'd better make sure
 when you export your question bank
 that you include the prototype, or all of its children will die on being imported
-anywhere else!
+anywhere else! Similarly, if you delete a prototype question that's actually
+in use, all the children will break, giving runtime errors. To repeat:
+user-defined question types are experimental. Caveat emptor.
 
 ##How programming quizzes should work
 

@@ -291,7 +291,8 @@ class qtype_coderunner extends question_type {
             // field is set. This is used only to display the customisation panel.
 
             $qtype = $question->options->coderunner_type;
-            $row = $this->getPrototype($qtype);
+            $context = $this->questionContext($question);
+            $row = $this->getPrototype($qtype, $context);
             $question->options->customise = False; // Starting assumption
             $noninheritedFields = $this->noninherited_fields();
             foreach ($row as $field => $value) {
@@ -340,8 +341,9 @@ class qtype_coderunner extends question_type {
                'quest_coderunner_options',
                'prototype_type != 0');
         $valid = array();
+        $coursecontext = context_course::instance($COURSE->id);
         foreach ($rows as $row) {
-            if (self::isAvailablePrototype($row, $COURSE->id)) {
+            if (self::isAvailablePrototype($row, $coursecontext)) {
                 $valid[] = $row;
             }
         }
@@ -353,24 +355,10 @@ class qtype_coderunner extends question_type {
     // Get the specified prototype question from the database.
     // To be valid, the named prototype (a question of the specified type
     // and with prototype_type non zero) must be in a question category that's 
-    // available in the current course context. A problem here is in determining
-    // the current course, as the global $COURSE variable doesn't appear to be
-    // appropriately set in some situations, e.g. during preview of a question.
-    public static function getPrototype($coderunnerType, $courseId = NULL) {
-        global $DB, $COURSE;
+    // available in the given current context. 
+    public static function getPrototype($coderunnerType, $context) {
+        global $DB;
         
-        if ($courseId === NULL) {
-            $courseId = optional_param('courseid', 0, PARAM_INT);
-            if (!$courseId) {
-                $cmid = optional_param('cmid', 0, PARAM_INT);
-                if ($cmid != 0) {
-                    $row = $DB->get_record('course_modules', array('id'=>$cmid));
-                    $courseId = $row->course;
-                } else {
-                    $courseId = $COURSE->id;  // Last ditch attempt
-                }
-            }
-        }
         $rows = $DB->get_records_select(
                'quest_coderunner_options',
                "coderunner_type = '$coderunnerType' and prototype_type != 0");
@@ -381,14 +369,14 @@ class qtype_coderunner extends question_type {
         
         $validProtos = array();
         foreach ($rows as $row) {
-            if (self::isAvailablePrototype($row, $courseId)) {
+            if (self::isAvailablePrototype($row, $context)) {
                 $validProtos[] = $row;
             }   
         }
         
         if (count($validProtos) == 0) {
             throw new coding_exception("Prototype $coderunnerType is unavailable ".
-                    "in this context (course id = $courseId)");
+                    "in this context");
         } else if (count($validProtos) != 1) {
             throw new coding_exception("Multiple prototypes found for $coderunnerType");
         }
@@ -397,8 +385,8 @@ class qtype_coderunner extends question_type {
 
     
     // True iff the given row from the quest_coderunner_options table
-    // is a valid prototype in the context of the given course.
-    public static function isAvailablePrototype($questionOptionsRow, $courseId) {
+    // is a valid prototype in the given context.
+    public static function isAvailablePrototype($questionOptionsRow, $context) {
         global $DB;
         static $activeCats = NULL;
 
@@ -411,8 +399,7 @@ class qtype_coderunner extends question_type {
         }
         
         if ($activeCats === NULL) {
-            $coursecontext = context_course::instance($courseId);
-            $allContexts = $coursecontext->get_parent_context_ids(TRUE);
+            $allContexts = $context->get_parent_context_ids(TRUE);
             $activeCats = get_categories_for_contexts(implode(',', $allContexts));
         }
         
@@ -422,6 +409,18 @@ class qtype_coderunner extends question_type {
             }
         }
         return FALSE;
+    }
+    
+    
+    // Returns the context of this question's category.
+    public static function questionContext($question) {
+        global $DB;
+        
+        $sql = "SELECT contextid FROM mdl_question_categories, mdl_question " .
+               "WHERE mdl_question.id = {$question->id} " .
+               "AND mdl_question.category = mdl_question_categories.id";
+        $contextid = $DB->get_field_sql($sql, NULL, MUST_EXIST);
+        return context::instance_by_id($contextid);
     }
 
     // Initialise the question_definition object from the questiondata
@@ -443,7 +442,7 @@ class qtype_coderunner extends question_type {
     }
 
 
-    // Override required here so we can check ifhttps://picasaweb.google.com/trampgeek/TheThreePasses this is a prototype
+    // Override required here so we can check if this is a prototype
     // with children (in which case deletion is disallowed). If not,
     // deletion is allowed but must delete the testcases too.
     public function delete_question($questionid, $contextid) {
@@ -465,7 +464,10 @@ class qtype_coderunner extends question_type {
                 // and other deletion (e.g. of the question itself) proceeds
                 // regardless, leaving things in an even worse state than if
                 // I didn't even check for an in-use prototype!
-                throw new moodle_exception('Attempting to delete in-use prototype');
+                
+                // TODO. BUGFIX. This is a global check. Need a course specific check.
+                // Check is removed for now. Caveat emptor.
+                // throw new moodle_exception('Attempting to delete in-use prototype');
             }
         }
 

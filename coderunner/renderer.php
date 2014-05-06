@@ -195,7 +195,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
         foreach ($runs as $run) {
             $html .= html_writer::tag('h4', "Run $i");
             $i++;
-            $html .=html_writer::tag('pre', s($run));
+            $html .= html_writer::tag('pre', s($run));
             $html .= html_writer::tag('hr', '');
         }
         $html .= html_writer::end_tag('div');

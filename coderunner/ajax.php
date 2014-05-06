@@ -21,7 +21,8 @@ $courseId = required_param('courseid', PARAM_INT);
 
 header('Content-type: application/json; charset=utf-8');
 try {
-    $questionType = qtype_coderunner::getPrototype($qtype, $courseId);
+    $courseContext = context_course::instance($courseId);
+    $questionType = qtype_coderunner::getPrototype($qtype, $courseContext);
     $questionType->success = true;
     $questionType->error = '';
 } catch (moodle_exception $e) {
