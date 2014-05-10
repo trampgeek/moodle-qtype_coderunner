@@ -25,9 +25,11 @@ abstract class Sandbox {
     const AUTH_ERROR   = 1;
     const PASTE_NOT_FOUND = 2;  // Link to a non-existent submission
     const WRONG_LANG_ID   = 3;  // No such language
-    const ACCESS_DENIED   = 4;  // Only if using ideone
+    const ACCESS_DENIED   = 4;  // Only if using ideone or jobe
     const CANNOT_SUBMIT_THIS_MONTH_ANYMORE = 5; // Ideone only
     const CREATE_SUBMISSION_FAILED = 6; // Failed on call to CREATE_SUBMISSION
+    const UNKNOWN_SERVER_ERROR = 7;
+    const HTTP_ERROR = 8; 
 
     const STATUS_WAITING     = -1;
     const STATUS_DONE        = 0;
@@ -35,6 +37,7 @@ abstract class Sandbox {
     const STATUS_RUNNING     = 3;
 
     const RESULT_NO_RUN      = 0;
+    const RESULT_SUCCESS2    = 0; // Used by Jobe
     const RESULT_COMPILATION_ERROR = 11;
     const RESULT_RUNTIME_ERROR = 12;
     const RESULT_TIME_LIMIT   = 13;
@@ -168,6 +171,7 @@ abstract class Sandbox {
             $details = $this->getSubmissionDetails($result->link);
 
             return (object) array(
+                'error'   => Sandbox::OK,
                 'result'  => $state->result,
                 'output'  => $details->output,
                 'stderr'  => $details->stderr,

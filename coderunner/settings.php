@@ -37,6 +37,12 @@ foreach ($SANDBOXES as $sandbox) {
 }
 
 $settings->add(new admin_setting_configtext(
+        "qtype_coderunner/jobe_host",
+        get_string('jobe_host', 'qtype_coderunner'),
+        get_string('jobe_host_desc', 'qtype_coderunner'),
+        ''));
+
+$settings->add(new admin_setting_configtext(
         "qtype_coderunner/ideone_user",
         get_string('ideone_user', 'qtype_coderunner'),
         get_string('ideone_user_desc', 'qtype_coderunner'),

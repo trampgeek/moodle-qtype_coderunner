@@ -10,6 +10,6 @@
  */
 
 global $SANDBOXES;
-$SANDBOXES = array('liusandbox', 'runguardsandbox', 'ideonesandbox');
+$SANDBOXES = array('jobesandbox', 'liusandbox', 'runguardsandbox', 'ideonesandbox');
 
 ?>
