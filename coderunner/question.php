@@ -415,8 +415,8 @@ class qtype_coderunner_question extends question_graded_automatically {
         if ($sandboxClass === NULL)  {
             $this->sandbox = $sandboxClass = $this->getBestSandbox($this->language);
         } else {
-            if (!get_config('qtype_coderunner', $sandboxClass . '_enabled')) {
-                throw new coding_exception('Question is configured to use a disabled sandbox');
+            if (!get_config('qtype_coderunner', strtolower($sandboxClass) . '_enabled')) {
+                throw new coding_exception("Question is configured to use a disabled sandbox ($sandboxClass)");
             }
         }
 

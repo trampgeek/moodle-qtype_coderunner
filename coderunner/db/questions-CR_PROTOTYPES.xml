@@ -320,7 +320,7 @@ public class __Tester__ {
     }
 }</per_test_template>
     <language>Java</language>
-    <sandbox>RunguardSandbox</sandbox>
+    <sandbox></sandbox>
     <grader></grader>
     <cputimelimitsecs></cputimelimitsecs>
     <memlimitmb>2000</memlimitmb>
@@ -727,7 +727,7 @@ check_code(__student_answer__)
 {{ STUDENT_ANSWER }}
 {{ TEST.testcode }}]]></per_test_template>
     <language>python3</language>
-    <sandbox>RunguardSandbox</sandbox>
+    <sandbox></sandbox>
     <grader></grader>
     <cputimelimitsecs></cputimelimitsecs>
     <memlimitmb>500</memlimitmb>
@@ -818,7 +818,7 @@ check_code(__student_answer__)
 {{ STUDENT_ANSWER }}
 {{ TEST.testcode }}]]></per_test_template>
     <language>python3</language>
-    <sandbox>RunguardSandbox</sandbox>
+    <sandbox></sandbox>
     <grader></grader>
     <cputimelimitsecs></cputimelimitsecs>
     <memlimitmb>500</memlimitmb>

@@ -1078,6 +1078,7 @@ EOPROG;
 
     private function set_config_environment() {
         set_config('runguardsandbox_enabled', 1, 'qtype_coderunner');
+        set_config('jobesandbox_enabled', 1, 'qtype_coderunner');
         set_config('liusandbox_enabled', 1, 'qtype_coderunner');
         set_config('ideonesandbox_enabled', 1, 'qtype_coderunner');
         set_config('ideone_user', 'coderunner', 'qtype_coderunner');

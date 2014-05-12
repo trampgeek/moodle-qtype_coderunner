@@ -53,6 +53,22 @@ class qtype_coderunner_jobesandbox_test extends qtype_coderunner_testcase {
         $this->assertEquals(Sandbox::RESULT_COMPILATION_ERROR, $result->result);
         $sandbox->close();
     }
+    
+ 
+    public function test_jobesandbox_python3_with_files() {
+        $source = "print(open('first.a').read())
+print(open('second.bb').read())
+";
+        $sandbox = new JobeSandbox();
+        $result = $sandbox->execute($source, 'python3', '',
+                array('first.a' => "Line1\nLine2",
+                      'second.bb' => 'Otherfile'));
+        $this->assertEquals(Sandbox::OK, $result->error);
+        $this->assertEquals(Sandbox::RESULT_SUCCESS2, $result->result);
+        $this->assertEquals('', $result->stderr);
+        $this->assertEquals('', $result->cmpinfo);
+        $this->assertEquals("Line1\nLine2\nOtherfile\n", $result->output);
+    }
 
 
     public function test_jobesandbox_python3_timeout() {
@@ -90,26 +106,25 @@ class qtype_coderunner_jobesandbox_test extends qtype_coderunner_testcase {
         $this->assertEquals('', $result->cmpinfo);
         $sandbox->close();
     }
+    
 
-
-/*
-    // Test the Ideone sandbox will not allow opening, writing and reading in /tmp
-    public function test_jobe_sandbox_fileio_bad() {
+    // Test the jobe sandbox with a valid java program
+    public function test_jobe_sandbox_ok_java() {
         $sandbox = new JobeSandbox();
-        $code =
-"import os
-f = open('/tmp/junk', 'w')
-f.write('stuff')
-f.close()
-f = open('/tmp/junk')
-print(f.read())
-f.close()
-";
-        $result = $sandbox->execute($code, 'python3', NULL);
-        $this->assertEquals(Sandbox::RESULT_RUNTIME_ERROR, $result->result);
+        $code = 'public class HelloWorld { 
+   public static void main(String[] args) { 
+      System.out.println("Hello sandbox");
+   }
+}';
+        $result = $sandbox->execute($code, 'java', NULL);
+        $this->assertEquals(Sandbox::RESULT_SUCCESS2, $result->result);
+        $this->assertEquals("Hello sandbox\n", $result->output);
+        $this->assertEquals(0, $result->signal);
+        $this->assertEquals('', $result->cmpinfo);
         $sandbox->close();
     }
-*/
+
+
 }
 
 ?>

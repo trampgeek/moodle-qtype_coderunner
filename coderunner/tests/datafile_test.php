@@ -105,7 +105,7 @@ EOCODE;
             );
         $q->contextid = 1;
         $q->id = 1101;                            // Random question id
-        $q->sandbox = 'LiuSandbox';
+        $q->sandbox = 'liusandbox';
         $code = <<<EOCODE
 #include <stdio.h>
 #include <string.h>
