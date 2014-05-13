@@ -41,8 +41,8 @@ class EqualityGrader extends Grader {
                 $testCase->mark,
                 $isCorrect,
                 $awardedMark,
-                $cleanedExpected,
-                $cleanedOutput,
+                Grader::tidy($cleanedExpected),
+                Grader::tidy($cleanedOutput),
                 $resultStdin
         );
     }
