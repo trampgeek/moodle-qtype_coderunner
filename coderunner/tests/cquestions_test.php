@@ -168,7 +168,7 @@ class qtype_coderunner_c_question_test extends qtype_coderunner_testcase {
         $this->assertFalse($testOutcome->hasSyntaxError());
         $this->assertEquals(1, count($testOutcome->testResults));
         $this->assertFalse($testOutcome->allCorrect());
-        $this->assertEquals("***Runtime error*** (signal 11)\n", $testOutcome->testResults[0]->got);
+        $this->assertTrue(strpos($testOutcome->testResults[0]->got, '***Runtime error***') === 0);
     }
 
 
@@ -206,11 +206,12 @@ class qtype_coderunner_c_question_test extends qtype_coderunner_testcase {
 
 
 
-    public function test_illegal_function_call() {
-        // Check that sandbox aborts a fork-bomb.
+    public function test_simple_fork_bomb() {
+        // Check that sandbox can handle a fork-bomb.
         // Liu sandbox issues issues illegal function call while
-        // RunguardSandbox gives a cryptic message about "Resource unavailable"
-        // followed by abnormal termination.
+        // Runguard simply aborts all forks and output is valid,
+        // because numprocs is set to 1 (which also tests setting of
+        // sandbox parameters).
         $q = test_question_maker::make_question('coderunner', 'sqrC');
         $response = array('answer' =>
 "#include <linux/unistd.h>
@@ -221,20 +222,17 @@ int sqr(int n) {
         int i = 0;
         for (i = 0; i < 2000; i++)
             fork();
-        return 0;
+        return n * n;
     }
 }");
+        $q->sandboxParams = "{'numprocs': 1}";
         list($mark, $grade, $cache) = $q->grade_response($response);
-        $this->assertEquals(0, $mark);
-        $this->assertEquals(question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testOutcome = unserialize($cache['_testoutcome']);
-        $this->assertEquals(2, count($testOutcome->testResults));
         $this->assertTrue(
                 strpos($testOutcome->testResults[1]->got, 
                     "***Illegal function call***") !== FALSE ||
-                strpos($testOutcome->testResults[1]->got, 
-                    "***Abnormal termination***") !== FALSE
+                $grade == question_state::$gradedright
                 );
     }
 }

@@ -171,7 +171,8 @@ $string['HIDE_IF_FAIL'] = 'Hide if fail';
 $string['HIDE_IF_SUCCEED'] = 'Hide if succeed';
 $string['hiderestiffail'] = 'Hide rest if fail';
 $string['jobe_host'] = 'Jobe server';
-$string['jobe_host_desc'] = 'The host name of the Jobe server';
+$string['jobe_host_desc'] = 'The host name of the Jobe server plus the port ' .
+       'number if other than port 80, e.g. jobe.somewhere.edu:4010';
 $string['ideone_user'] = 'Ideone server user';
 $string['ideone_user_desc'] = 'The login name to use when connecting to the ' .
         'Ideone server (if the ideone sandbox is enabled)';

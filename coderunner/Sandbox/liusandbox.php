@@ -23,7 +23,7 @@ require_once('liusandboxtasks.php');
 
 
 class LiuSandbox extends LocalSandbox {
-    private $LANGUAGES = array('C');
+    private $LANGUAGES = array('c');
 
     private $RESULT_CODES = array(
             'PD' => Sandbox::RESULT_SANDBOX_PENDING,  // Shouldn't occur

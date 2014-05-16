@@ -204,8 +204,12 @@ class qtype_coderunner_question extends question_graded_automatically {
         $this->allRuns = array();
         $this->allGradings = array();
 
-
-        $sandboxParams = array();
+        // TODO: clean up the whole sandbox parameter business
+        if (isset($this->sandboxParams)) {
+            $sandboxParams = json_decode($this->sandboxParams);
+        } else {
+            $sandboxParams = array();
+        }
         $files = $this->getDataFiles();
         if (isset($this->cputimelimitsecs)) {
             $sandboxParams['cputime'] = intval($this->cputimelimitsecs);
@@ -217,7 +221,7 @@ class qtype_coderunner_question extends question_graded_automatically {
         $outcome = $this->runWithCombinator($code, $testCases, $files, $sandboxParams);
 
         // If that failed for any reason (e.g. no combinator template or timeout
-        // of signal) run the tests individually. Any compilation
+        // or signal) run the tests individually. Any compilation
         // errors or abnormal terminations (not including signals) in individual
         // tests bomb the whole test process, but otherwise we should finish
         // with a TestingOutcome object containing a test result for each test
@@ -268,8 +272,10 @@ class qtype_coderunner_question extends question_graded_automatically {
                 require_once("Sandbox/$sandbox.php");
                 $sb = new $sandbox();
                 $langsSupported = $sb->getLanguages()->languages;
-                if (in_array($language, $langsSupported)) {
-                    return $sandbox;
+                foreach ($langsSupported as $lang) {
+                    if (strtolower($lang) == strtolower($language)) {
+                        return $sandbox;
+                    }
                 }
             }
         }
@@ -494,7 +500,9 @@ class qtype_coderunner_question extends question_graded_automatically {
         $err = "***" . Sandbox::resultString($run->result) . "***";
         if ($run->result === Sandbox::RESULT_RUNTIME_ERROR) {
             $sig = $run->signal;
-            $err .= " (signal $sig)";
+            if ($sig) {
+                $err .= " (signal $sig)";
+            }
         }
         return $this->merge("\n", array($run->cmpinfo, $run->stderr, $run->output, $err));
     }

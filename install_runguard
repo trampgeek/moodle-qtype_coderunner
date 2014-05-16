@@ -1,0 +1,73 @@
+#!/usr/bin/env python2
+# This phase of the installer attempts to build the RunGuard program that
+# allows use of the RunguardSandbox to execute student jobs on this Moodle
+# server. Do not run this until you have read the documentation on use
+# and limitations of the Runguard sandbox.
+
+from __future__ import print_function
+import os
+import subprocess
+
+
+def printFailMessage():
+    print("Unable to build the runguard program, which is used to control ")
+    print("the execution of student-submitted programs in the Runguard sandbox. ")
+    print("Perhaps you weren't running the installer as root? You have to be ")
+    print("root to make runguard a 'setuid root' program, so that it can ")
+    print("run the student program as the coderunner user, thereby stopping it ")
+    print("from reading the various private files that the webserver user can ")
+    print("access.")
+    print()
+    print("If you intend to use the Runguard sandbox, you should 'cd' to the ")
+    print("<moodlehome>/local/CodeRunner/coderunner directory and type the commands:\n")
+    print("    make runguard")
+    print("    sudo chown root runguard")
+    print("    sudo chgrp <webserverUser> runguard")
+    print("    sudo chmod 4750 runguard\n")
+    print("where <webserverUser> is the user ID under which Apache runs")
+    print("(usually either www-data or apache)")
+
+
+
+cwd = os.getcwd()
+if "moodle/local/CodeRunner" not in cwd:
+    print("***** module appears not to have been installed in moodle/local")
+    print ("as recommended****")
+    printFailMessage()
+elif subprocess.check_output('whoami', shell=True) != b'root\n':
+    print("****This script must be run by root*****")
+    printFailMessage()
+else:
+    searchString = "/moodle/local/CodeRunner"
+    pos = cwd.index(searchString)
+    basedir = cwd[0:pos]
+    installdir = cwd[0:pos + len(searchString)]
+    try:
+        print("Trying to find Apache user id")
+        ps_cmd = "ps aux | grep apache2 | head -n 1"
+        ps_line = subprocess.check_output(ps_cmd, shell=True).decode('utf8')
+
+        webserver_user = ps_line.split(' ')[0]
+        if webserver_user not in ['apache', 'www-data']:
+            raise Exception("Couldn't determine web-server user id. Is the web server running?")
+        print("Web server is", webserver_user)
+        print()
+        print("Making a user coderunner and setting up runguard")
+        print("If prompted for coderunner user details, just accept the defaults")
+        commands = [
+            "adduser coderunner",
+            "cd {0}/coderunner/Sandbox".format(installdir),
+            "make -B runguard",
+            "chown root runguard",
+            "chgrp {0} runguard".format(webserver_user),
+            "chmod 4750 runguard"
+        ]
+        cmd = ';'.join(commands)
+        if subprocess.call(cmd, shell=True) != 0:
+            raise OSError("Command ({}) failed".format(cmd))
+        print("Runguard installation complete")
+    except Exception as e:
+        print("Exception when building runguard: " + str(e))
+        printFailMessage()
+
+

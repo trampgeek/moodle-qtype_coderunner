@@ -31,7 +31,7 @@ class qtype_coderunner_ideonesandbox_test extends qtype_coderunner_testcase {
         $langs = $langObj->languages;
         $this->assertTrue(in_array('python2', $langs, TRUE));
         $this->assertTrue(in_array('python3', $langs, TRUE));
-        $this->assertTrue(in_array('C', $langs, TRUE));
+        $this->assertTrue(in_array('c', $langs, TRUE));
     }
 
 

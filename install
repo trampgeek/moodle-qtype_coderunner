@@ -1,71 +1,45 @@
 #!/usr/bin/env python
-# This so-called "installer" builds the runguard program (from DOMJudge)
-# that's used with the runguardsandbox and sets up symbolic links
-# to the 3 subdirectories. Only needed on initial cloning.
+# This "installer" simply sets up symbolic links
+# to the 3 subdirectories. It needs to be run only on the initial
+# cloning of the repository.
 
 from __future__ import print_function
 import os
 import subprocess
 
 def printFailMessage():
-    print("Symbolic links can not be built by this script.")
+    print("This script failed to set up the necessary symbolic links.")
     print("You will need to manually make the following symbolic links to ")
     print("directories in this module:")
     print("<moodlehome>/question/type/coderunner -> coderunner")
     print("<moodlehome>/question/behaviour/adaptive_adapted_for_coderunner -> adaptive_adapted_for_coderunner")
     print("<moodlehome>/local/Twig -> Twig")
 
-def printFailMessage2():
-    print("Unable to build the runguard program, which is used to control ")
-    print("the execution of student-submitted programs in the Runguard sandbox. ")
-    print("Perhaps you weren't running the installer as root? You have to be ")
-    print("root to make runguard a 'setuid root' program, so that it can ")
-    print("run the student program as the coderunner user, thereby stopping it ")
-    print("from reading the various private files that the webserver user can ")
-    print("access.")
-    print()
-    print("If you intend to use the Runguard sandbox, you should 'cd' to the ")
-    print("<moodlehome>/local/CodeRunner/coderunner directory and type the commands: ")
-    print("make runguard")
-    print("sudo chown root runguard")
-    print("sudo chgrp root runguard")
-    print("sudo chmod 4755 runguard")
 
-cwd = os.getcwd()
-if "moodle/local/CodeRunner" not in cwd:
-    print("WARNING: module appears not to have been installed in moodle/local")
-    print ("as recommended.")
-    printFailMessage()
-    print()
-    printFailMessage2()
-else:
-    try:
-        searchString = "/moodle/local/CodeRunner"
-        pos = cwd.index(searchString)
-        basedir = cwd[0:pos]
-        installdir = cwd[0:pos + len(searchString)]
-        dirs = [("Twig", "moodle/local/Twig"),
-        ("coderunner", "moodle/question/type/coderunner"),
-        ("adaptive_adapted_for_coderunner", "moodle/question/behaviour/adaptive_adapted_for_coderunner")]
+def main():
+    cwd = os.getcwd()
+    if "moodle/local/CodeRunner" not in cwd:
+        print("WARNING: CodeRunner appears not to have been installed in moodle/local")
+        print ("as recommended.")
+        printFailMessage()
+    else:
+        try:
+            searchString = "/moodle/local/CodeRunner"
+            pos = cwd.index(searchString)
+            basedir = cwd[0:pos]
+            installdir = cwd[0:pos + len(searchString)]
+            dirs = [("Twig", "moodle/local/Twig"),
+            ("coderunner", "moodle/question/type/coderunner"),
+            ("adaptive_adapted_for_coderunner", "moodle/question/behaviour/adaptive_adapted_for_coderunner")]
 
-        for (src,dest) in dirs:
-            if os.path.isdir("{0}/{1}".format(basedir, dest)):
-                continue  # Directory already exists
-            if subprocess.call("ln -s {0}/{1} {2}/{3}".format(installdir, src, basedir, dest), shell=True) != 0:
-                raise OSError("Failed to create symbolic link")
+            for (src,dest) in dirs:
+                if os.path.isdir("{0}/{1}".format(basedir, dest)):
+                    continue  # Directory already exists
+                if subprocess.call("ln -s {0}/{1} {2}/{3}".format(installdir, src, basedir, dest), shell=True) != 0:
+                    raise OSError("Failed to create symbolic link")
 
-    except Exception as e:
-        print("Exception when making symbolic links: " + str(e))
+        except Exception as e:
+            print("Exception when making symbolic links: " + str(e))
+            printFailMessage()
 
-
-    try:
-        print("Making a user coderunner and setting up runguard")
-        print("If prompted for coderunner user details, just accept the defaults")
-        cmd = "adduser coderunner; cd {0}/coderunner/Sandbox; make -B runguard; chown root runguard; chgrp root runguard; chmod 4755 runguard".format(installdir)
-        if subprocess.call(cmd, shell=True) != 0:
-            raise OSError("Failed to build runguard")
-    except Exception as e:
-        print("Exception when building runguard: " + str(e))
-        printFailMessage2()
-
-
+main()

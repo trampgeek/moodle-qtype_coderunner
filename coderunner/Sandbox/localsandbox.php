@@ -142,42 +142,15 @@ abstract class LanguageTask {
 abstract class LocalSandbox extends Sandbox {
 
     private static $currentRunId = '99';  // The only one we ever use
-
-    // The following run constants can be overridden in subclasses.
-    // See function getParam for their usage.
-    public static $default_cputime = 3;   // Max seconds CPU time per run
-    public static $default_walltime = 30; // Max seconds wall clock time per run
-    public static $default_memorylimit = 64; // Max MB memory per run
-    public static $default_disklimit = 10;   // Max MB disk usage
-    public static $default_numprocs = 20;    // Number of processes/threads
-    public static $default_files = NULL;     // Associative array of data files
-
     protected $date = NULL;         // Current date/time
     protected $input = NULL;        // Standard input for the current task
     protected $language = NULL;     // The language of the current task
-    protected $params = NULL;       // Associative array of run params
 
     public function __construct($user=NULL, $pass=NULL) {
         Sandbox::__construct($user, $pass);
     }
 
 
-    /**
-     * Return the value of the given parameter from the $params parameter
-     * of the currently executing submission (see createSubmission) if defined
-     * or the static variable of name "default_$param" otherwise.
-     * @param type $param
-     * @return type
-     */
-    protected function getParam($param) {
-        if ($this->params !== NULL && isset($this->params[$param])) {
-            return $this->params[$param];
-        } else {
-            $staticName = "default_$param";
-            assert(isset(static::$$staticName));
-            return static::$$staticName;
-        }
-    }
 
 
     /** Implement the abstract createSubmission method, which mimics the

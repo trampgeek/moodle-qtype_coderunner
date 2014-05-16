@@ -32,6 +32,8 @@ defined('MOODLE_INTERNAL') || die();
  *
  */
 class qtype_coderunner_test_helper extends question_test_helper {
+   
+    
     public function get_test_questions() {
         return array('sqr', 'sqr_pylint',
             'helloFunc', 'copyStdin', 'timeout', 'exceptions',
@@ -1022,6 +1024,7 @@ EOPROG;
     private function getOptions(&$question) {
         global $CFG, $DB;
         require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
+        
         $qtype = new qtype_coderunner();
 
         $type = $question->options['coderunner_type'];
@@ -1053,6 +1056,7 @@ EOPROG;
 
     // Return an empty CodeRunner question
     private function makeCodeRunnerQuestion($type, $name='', $questionText='') {
+        $this->set_config_environment();
         question_bank::load_question_definition_classes('coderunner');
         $coderunner = new qtype_coderunner_question();
         test_question_maker::initialise_a_question($coderunner);
@@ -1076,8 +1080,9 @@ EOPROG;
     }
 
 
-    private function set_config_environment() {
+    public static function set_config_environment() {
         set_config('runguardsandbox_enabled', 1, 'qtype_coderunner');
+        set_config('jobe_host', 'localhost', 'qtype_coderunner');
         set_config('jobesandbox_enabled', 1, 'qtype_coderunner');
         set_config('liusandbox_enabled', 1, 'qtype_coderunner');
         set_config('ideonesandbox_enabled', 1, 'qtype_coderunner');

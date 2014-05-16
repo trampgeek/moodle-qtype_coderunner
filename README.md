@@ -39,10 +39,14 @@ is also present but has not yet been used in courses. The architecture allows
 easy extension to other languages and one lecturer has made
 intermittent use of *clojure* questions.
 
-For security and load reasons, CodeRunner in its present form is not suitable
-for installing on an institution-wide Moodle server. Instead, it is recommended
-that a special quiz server be set up: essentially just a standard Linux install
-plus Moodle, CodeRunner and any extra languages required (e.g. Python3, Java).
+For security and load reasons, it is recommended that CodeRunner be set up
+on a special quiz-server rather than on an institution-wide Moodle server.
+However, this latest version of CodeRunner does allow use of a remote
+sandbox machine for running all student-submitted code so provided only
+that sandbox is enabled, as discussed below, this version should actually
+be safe to install
+on an institutional server.
+
 A single 4-core server can handle an average quiz question submission rate of
 about 30 quiz questions per minute while maintaining a response time of less
 than about 3 - 4 seconds, assuming the student code itself runs in a
@@ -80,27 +84,24 @@ existing <moodleHome>/local/CodeRunner folder to a backup location, then just
 follow the instructions in the next section.
 
 
-## Installation from scratch
+### Installing CodeRunner from scratch
 
+If you are intending to use the Jobe sandbox, which runs student code on a
+remote server, you should first install the PEAR HTTP_Request2 library with
+the command
 
-CodeRunner requires Moodle version 2.5 or later.
+    pear install HTTP_Request2
 
-There are three stages to installation:
+This assumes pear is already installed. If not, install it first with a
+command like (depending on your system)
 
-1. Installing the CodeRunner module itself.
+    sudo apt-get install pear
 
-1. Installing the Liu sandbox if you're planning on running C on the Moodle
-server (not strictly necessary but recommended) to provide more security than
-Runguard or much better
-performance than Ideone.
+or
 
-1. Configuring the system for the particular sandbox(es) and languages
-your installation supports.
+    yum install pear
 
-
-### Installing CodeRunner
-
-CodeRunner should be installed in the `<moodlehome>/local` directory as follows.
+CodeRunner should then be installed in the `<moodlehome>/local` directory as follows.
 
     cd <moodlehome>/local
     git clone https://github.com/trampgeek/CodeRunner.git
@@ -110,10 +111,17 @@ CodeRunner should be installed in the `<moodlehome>/local` directory as follows.
 The install script sets up symbolic links from the `question/type` and
 `question/behaviour` directories to corresponding CodeRunner directories; you
 must have configured the webserver to follow symbolic links for this to work.
-It also creates a new user called *coderunner* on the system; when using
-the *RunguardSandbox* (see below), tests are run with the user ID set
-to the coderunner user to minimise the exposure of sensitive web-server
-information. The install script may prompt for details like the office and phone
+
+If you wish to use the RunguardSandbox (see below), you will also need to
+compile the *runguard* program and add a new user called *coderunner* to the 
+system. Do not proceed until you have read the various security warnings
+in the section *The Runguard Sandbox* below. If you still wish to install
+RunGuard, type the command
+
+    sudo ./install_runguard
+
+This will build *runguard* and add the user *coderunner*.  The install script
+may prompt for details like the office and phone
 number of the coderunner user -- just hit enter to accept the defaults.
 The switch to the coderunner user and the controlled execution of the
 submitted program in *RunguardSandbox* is done by a program `runguard`, written
@@ -122,30 +130,57 @@ the programming contest server [DOMJudge](http://domjudge.sourceforge.net/). Thi
 program needs to be 'setuid root', and hence the install script requires
 root permissions to set this up.
 
-All going well, you should finish up with a user 'coderunner', albeit one without
-a home directory, and symbolic links from within the `<moodlehome>/question/type`
-and `<moodlehome>/question/behaviour` directories to the `<moodlehome>/local/CodeRunner/CodeRunner`
-and `<moodlehome>/local/CodeRunner/adaptive_adapted_for_coderunner` directories
-respectively. There should also be a symbolic link from `local/Twig` to
-`local/CodeRunner/Twig`. These can all be set up by hand if desired; read the
-install script to see exactly what was expected.
+All going well, you should finish up with a user 'coderunner'
+and a program *runguard* in CodeRunner/coderunner/Sandbox/ with
+setuid-root capabilities. *runguard* should owned by root with the webserver
+user as its group.
+This program should not be accessible to users other than root and the web
+server.
 
-### Installing the Liu sandbox
+### Sandbox Configuration
 
-This step can be skipped if you're not planning on running C, or if you're
-happy to use the default Runguard Sandbox for C programs.
+You next need to decide what particular sandbox or sandboxes you wish to use
+for running the student-submitted jobs. You can configure which sandboxes you wish to use
+together with the various sandbox parameters via the Moodle administrator settings for the
+CodeRunner plugin, accessed via
 
-The recommended sandbox for running C is the Liu sandbox. It can be obtained
+    *Site administration > Plugins > Question types > CodeRunner*.
+
+Available sandboxes are as follows;
+
+#### The JobeSandbox.
+
+This is the only sandbox enabled by default. It fully
+isolates student code from the Moodle server, but does require
+the installation of a separate server. Follow the instructions at 
+https://github.com/trampgeek/jobe to build a Jobe server, then use the
+Moodle administrator interface to define the Jobe
+host name and perhaps port number. If your Jobe
+server requires an authentication key (not yet implemented in the current
+version of the Jobe server) you will need to specify that, too.
+
+
+#### The Liu sandbox
+
+If you wish to run only C or C++ jobs and wish to avoid the complication of setting
+up and maintaining a separate Jobe server, you might wish to consider the
+Liu sandbox, which can be installed on the Moodle server itself. It runs all
+code with *ptrace*, and disallows any system call that might allow escape
+from the sandbox, including most file i/o. The job to be run is compiled and
+built as a static load module before being passed to the sandbox. While the
+possibility of an exploit can never be absolutely disregarded, the Liu
+sandbox does offer a high level of protection. 
+
+The Liu sandbox can be obtained
 from [here](http://sourceforge.net/projects/libsandbox/).  Both the binary and the
-Python2 interface need to be installed. Note that CodeRunner does *not*
+Python2 interface need to be installed. Note that CodeRunner does not
 currently work with the Python3 interface to the sandbox.
 
 The easiest way to install the Liu sandbox is by
 downloading appropriate `.deb`s or `.rpm`s of both `libsandbox` and `pysandbox` (for
 Python version 2). Note that the `pysandbox` download must be the one appropriate
 to the installed  version of Python2 (currently typically 2.6 on RHEL systems
-or 2.7 on most other flavours of Linux) *regardless of whether or not you
-intend to support Python3 as a programming language for submissions*.
+or 2.7 on most other flavours of Linux).
 
 The Liu sandbox requires that C programs be compiled and built using static
 version of the libraries rather than the usual dynamically-loaded libraries.
@@ -156,40 +191,42 @@ build a statically linked executable with a command like
 
         gcc -Wall -Werror -std=c99 -static src.c -lm
 
+It is also possible to configure the Liu sandbox to run other languages,
+but it must be configured to allow any extra system calls required by those
+languages and also to access those parts of the file system that the language
+expects to access. These are many and varied so this approach is not 
+recommended.
 
-### Sandbox Configuration
-
-The last step in installation involves configuring the sandboxes appropriately
-for your particular environment. You can set which sandboxes you wish to use,
-and other sandbox parameters, via the Moodle administrator settings for the
-CodeRunner plugin, accessed via *Site administration > Plugins > Plugins overview*.
-
-By default, only the *RunguardSandbox* is  enabled. If you have installed
-the LiuSandbox as described above, you will need to enable it and configure
-the username and password via the
-administrator settings. You can also enable the use of the
-[Ideone compute server](http://ideone.com) and configure the username and password for it, via the
-administrator settings. Some notes on the different sandbox options follow.
-
- 1. The RunguardSandbox. This can be used to run all the supported languages
-locally on the Moodle server itself.
-Assuming the install script successfully created the
-user *coderunner* and set the *runguard* program to run as root,
-the RunguardSandbox is reasonably safe,
-in that it controls memory usage and execution time and limits file access to
-those parts of the file system visible to all users. However, it does not
+#### The RunguardSandbox.
+The RunguardSandbox is by far the easiest one to use, as it requires no
+extra resources apart from whatever languages (Python3, Java etc) you wish
+to use in CodeRunner questions. However, the RunguardSandbox also the least
+secure. It runs student submitted jobs on the Moodle server itself, so most
+certainly should not be used on an institutional Moodle server, but it
+is reasonably
+safe if a special-purpose quiz server is being used, assuming that server requires
+student login. Our own quiz server at the
+University of Canterbury 
+made extensive use of the RunguardSandbox for two years with no known security
+failures and only one minor resource-depletion problem that has now been
+prevented in the code. You should be aware that it does not
 prevent use of system calls like *socket* that might open connections to
 other servers behind your firewall and of course it depends on the Unix
-server being securely set up in the first place. There are also potential
-problems with controlling fork bombs and/or testing of heavily multithreaded
-languages or student submissions. That being said, our own quiz server has
-been making extensive use of the RunguardSandbox for two years and only
-once had a problem when multiple Python submissions attempted to run
-the Java Virtual Machine (heavily multithreaded), for which the process limit
-previously set for Python was inadequate. That limit has since been multiplied
-by 10.
+server being securely set up in the first place.
 
- 1. The IdeoneSandbox. ideone.com is a compute server that runs
+
+The RunguardSandbox uses a program `runguard`, written
+by Jaap Eldering as part of
+the programming contest server [DOMJudge](http://domjudge.sourceforge.net/).
+This program enforces various resource limitations, such as on CPU time and
+memory use, on the student program. It runs the code as the non-privileged
+user *coderunner* so student-submitted code can do even less than a student
+with a Linux account can do (as they can't create files outside the /tmp
+directory and have severe restrictions on cpu time, threads and memory use).
+
+
+#### The IdeoneSandbox.
+ideone.com is a compute server that runs
 programs submitted either through a browser or through a web-services API in
 a huge number of different languages. It is not recommended for production
 use, as execution turn-around time is frequently too large (from 10 seconds
@@ -199,11 +236,10 @@ to a minute or more) to give a tolerable user experience. An
 the Ideone web-services. Runs are free up to a certain number
 but you then have to pay for usage.
 The IdeoneSandbox is there mainly as a proof of concept of the idea of off-line
-execution and to support occasional use of unusual languages.
-
- 1. If you are using the LiuSandbox for running C questions, the C compiler must
-must be installed, with the capability to compile and
-link statically (no longer part of the default RedHat installation).
+execution and to support occasional use of unusual languages. As with
+the other sandboxes, you can configure
+the username and password for use of the IdeoneSandbox via the administrator
+settings panel for CodeRunner.
 
 ### Checking security
 

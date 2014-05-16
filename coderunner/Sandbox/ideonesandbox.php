@@ -31,10 +31,10 @@ class IdeoneSandbox extends Sandbox {
         // A map from Ideone language names (regular expressions) to their
         // local short name, where appropriate
 
-        $aliases = array('C99 strict.*'             =>'C',
+        $aliases = array('C99 strict.*'             =>'c',
                      '.*python *2\.[789]\.[0-9].*'  => 'python2',
                      'Python 3.*python-3\.*'        => 'python3',
-                     'Java.*sun-jdk.*'              => 'Java');
+                     'Java.*sun-jdk.*'              => 'java');
 
         $this->client = $client = new SoapClient("http://ideone.com/api/1/service.wsdl");
         $this->langMap = array();  // Construct a map from language name to id

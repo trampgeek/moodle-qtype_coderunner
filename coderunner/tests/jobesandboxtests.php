@@ -36,7 +36,7 @@ class qtype_coderunner_jobesandbox_test extends qtype_coderunner_testcase {
         $sandbox = new JobeSandbox();
         $result = $sandbox->execute($source, 'python3', '');
         $this->assertEquals(Sandbox::OK, $result->error);
-        $this->assertEquals(Sandbox::RESULT_SUCCESS2, $result->result);
+        $this->assertEquals(Sandbox::RESULT_SUCCESS, $result->result);
         $this->assertEquals('', $result->stderr);
         $this->assertEquals('', $result->cmpinfo);
         $this->assertEquals("Hello sandbox!\n", $result->output);
@@ -64,7 +64,7 @@ print(open('second.bb').read())
                 array('first.a' => "Line1\nLine2",
                       'second.bb' => 'Otherfile'));
         $this->assertEquals(Sandbox::OK, $result->error);
-        $this->assertEquals(Sandbox::RESULT_SUCCESS2, $result->result);
+        $this->assertEquals(Sandbox::RESULT_SUCCESS, $result->result);
         $this->assertEquals('', $result->stderr);
         $this->assertEquals('', $result->cmpinfo);
         $this->assertEquals("Line1\nLine2\nOtherfile\n", $result->output);
@@ -100,7 +100,7 @@ print(open('second.bb').read())
         $sandbox = new JobeSandbox();
         $code = "#include <stdio.h>\nint main() {\n    printf(\"Hello sandbox\\n\");\n    return 0;\n}\n";
         $result = $sandbox->execute($code, 'c', NULL);
-        $this->assertEquals(Sandbox::RESULT_SUCCESS2, $result->result);
+        $this->assertEquals(Sandbox::RESULT_SUCCESS, $result->result);
         $this->assertEquals("Hello sandbox\n", $result->output);
         $this->assertEquals(0, $result->signal);
         $this->assertEquals('', $result->cmpinfo);
@@ -117,14 +117,12 @@ print(open('second.bb').read())
    }
 }';
         $result = $sandbox->execute($code, 'java', NULL);
-        $this->assertEquals(Sandbox::RESULT_SUCCESS2, $result->result);
+        $this->assertEquals(Sandbox::RESULT_SUCCESS, $result->result);
         $this->assertEquals("Hello sandbox\n", $result->output);
         $this->assertEquals(0, $result->signal);
         $this->assertEquals('', $result->cmpinfo);
         $sandbox->close();
     }
-
-
 }
 
 ?>

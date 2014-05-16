@@ -57,6 +57,17 @@ abstract class Sandbox {
     const MAX_NUM_POLLS = 40;    // No more than 120 seconds waiting
 
 
+    // The following run constants can be overridden in subclasses.
+    // See function getParam for their usage.
+    public static $default_cputime = 3;   // Max seconds CPU time per run
+    public static $default_walltime = 30; // Max seconds wall clock time per run
+    public static $default_memorylimit = 64; // Max MB memory per run
+    public static $default_disklimit = 10;   // Max MB disk usage
+    public static $default_numprocs = 20;    // Number of processes/threads
+    public static $default_files = NULL;     // Associative array of data files
+    
+    protected $params = NULL;       // Associative array of run params
+        
     public function __construct($user=NULL, $pass=NULL) {
         $this->user = $user;
         $this->pass = $pass;
@@ -82,6 +93,25 @@ abstract class Sandbox {
             throw new coding_exception("Bad call to sandbox.resultString");
         }
         return $RESULT_STRINGS[$resultCode];
+    }
+    
+    
+
+    /**
+     * Return the value of the given parameter from the $params parameter
+     * of the currently executing submission (see createSubmission) if defined
+     * or the static variable of name "default_$param" otherwise.
+     * @param type $param
+     * @return type
+     */
+    protected function getParam($param) {
+        if ($this->params !== NULL && isset($this->params[$param])) {
+            return $this->params[$param];
+        } else {
+            $staticName = "default_$param";
+            assert(isset(static::$$staticName));
+            return static::$$staticName;
+        }
     }
 
     // Returns an object containing an error field and a languages field,
@@ -136,6 +166,7 @@ abstract class Sandbox {
      *         If the $params array is NULL, sandbox defaults are used.
      */
     public function execute($sourceCode, $language, $input, $files=NULL, $params = NULL) {
+        $language = strtolower($language);
         if (!in_array($language, $this->getLanguages()->languages)) {
             throw new coding_exception('Executing an unsupported language in sandbox');
         }

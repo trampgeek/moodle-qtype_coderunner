@@ -14,6 +14,7 @@
 require_once('sandboxbase.php');
 require_once 'HTTP/Request2.php';
 
+define('DEBUGGING', '1');
 
 class JobeSandbox extends Sandbox {
 
@@ -67,19 +68,24 @@ class JobeSandbox extends Sandbox {
         }
 
         $progname = "prog.$language";
-        $postBody = array('run_spec' =>
-            array(
+        
+        $run_spec = array(
                 'language_id'       => $language,
                 'sourcecode'        => $sourceCode,
                 'sourcefilename'    => $progname,
                 'input'             => $input,
                 'file_list'         => $fileList
-            )
-        );
+            );
         
         if($params !== NULL) {
-            $postBody['parameters'] = $params;
+            $run_spec['parameters'] = $params;
         }
+        
+        if (DEBUGGING) {
+            $run_spec['debug'] = 1;
+        }
+        
+        $postBody = array('run_spec' => $run_spec);
         
         // Try submitting the job. If we get a 404, try again after
         // putting all the files on the server. Anything else is an error.
@@ -111,10 +117,6 @@ class JobeSandbox extends Sandbox {
             throw new coding_exception("link mismatch in jobesandbox");
         }
         
-        // Map Jobe success result to match Ideone success result
-        if ($this->resultObj->outcome == Sandbox::RESULT_SUCCESS2) {
-            $this->resultObj->outcome = Sandbox::RESULT_SUCCESS;
-        }
         return (object) array(
                 'error' => Sandbox::OK,
                 'status'=> Sandbox::STATUS_DONE,
