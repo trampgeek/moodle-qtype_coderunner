@@ -14,7 +14,7 @@
 require_once('sandboxbase.php');
 require_once 'HTTP/Request2.php';
 
-define('DEBUGGING', '0');
+define('DEBUGGING', '1');
 
 class JobeSandbox extends Sandbox {
 

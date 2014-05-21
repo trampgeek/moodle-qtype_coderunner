@@ -318,7 +318,6 @@ EOCODE;
         $response = array('answer' => $code);
         $result = $q->grade_response($response);
         list($mark, $grade, $cache) = $result;
-        debugging(print_r($cache, TRUE));
         $this->assertEquals(question_state::$gradedright, $grade);
      }
 

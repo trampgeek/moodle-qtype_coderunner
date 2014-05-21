@@ -707,13 +707,17 @@ print(SEPARATOR)
     <per_test_template><![CDATA[__student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
 
 import subprocess
+import os
 
 def check_code(s):
     try:
         source = open('source.py', 'w')
         source.write('"""Dummy module comment to keep pylint quiet"""\n' + s)
         source.close()
-        result = subprocess.check_output(['pylint', 'source.py'], stderr=subprocess.STDOUT)
+        env = os.environ.copy()
+        os.mkdir('Home')
+        env['HOME'] = os.getcwd() + '/Home'
+        result = subprocess.check_output(['pylint', 'source.py'], stderr=subprocess.STDOUT, env=env)
     except Exception as e:
         result = e.output.decode('utf-8')
 
@@ -798,13 +802,17 @@ print(SEPARATOR)
     <per_test_template><![CDATA[__student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
 
 import subprocess
+import os
 
 def check_code(s):
     try:
         source = open('source.py', 'w')
         source.write(s)
         source.close()
-        result = subprocess.check_output(['pylint', 'source.py'], stderr=subprocess.STDOUT)
+        env = os.environ.copy()
+        os.mkdir('Home')
+        env['HOME'] = os.getcwd() + '/Home'
+        result = subprocess.check_output(['pylint', 'source.py'], stderr=subprocess.STDOUT, env=env)
     except Exception as e:
         result = e.output.decode('utf-8')
 
