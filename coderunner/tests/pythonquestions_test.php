@@ -313,10 +313,12 @@ def sqr(n):
         return n * n
     else:
         return 0
+                
 EOCODE;
         $response = array('answer' => $code);
         $result = $q->grade_response($response);
         list($mark, $grade, $cache) = $result;
+        debugging(print_r($cache, TRUE));
         $this->assertEquals(question_state::$gradedright, $grade);
      }
 
@@ -330,6 +332,7 @@ EOCODE;
         $code = <<<EOCODE
 def sqr(n):
   return n * n
+                
 EOCODE;
         $response = array('answer' => $code);
         $result = $q->grade_response($response);

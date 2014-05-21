@@ -28,7 +28,7 @@ class qtype_coderunner_runguardsandbox_test extends qtype_coderunner_testcase {
         $langs = $langs->languages;
         $this->assertTrue(in_array('python2', $langs, TRUE));
         $this->assertTrue(in_array('matlab', $langs, TRUE));
-        $this->assertTrue(in_array('Java', $langs, TRUE));
+        $this->assertTrue(in_array('java', $langs, TRUE));
     }
 
 

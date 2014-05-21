@@ -234,17 +234,17 @@ abstract class LocalSandbox extends Sandbox {
             return (object) array('error' => Sandbox::PASTE_NOT_FOUND);
         } else {
             $retVal = (object) array(
-                            'error'     => Sandbox::OK,
-                            'status'    => Sandbox::STATUS_DONE,
-                            'result'    => $this->task->result,
-                            'langId'    => array_search($this->language, $this->getLanguages()->languages),
-                            'langName'  => $this->language,
-                            'langVersion' => $this->task->getVersion(),
-                            'time'      => $this->task->time,
-                            'date'      => $this->date,
-                            'memory'    => $this->task->memory,
-                            'signal'    => $this->task->signal,
-                            'public'    => FALSE);
+                'error'     => Sandbox::OK,
+                'status'    => Sandbox::STATUS_DONE,
+                'result'    => $this->task->result,
+                'langId'    => array_search($this->language, $this->getLanguages()->languages),
+                'langName'  => $this->language,
+                'langVersion' => $this->task->getVersion(),
+                'time'      => $this->task->time,
+                'date'      => $this->date,
+                'memory'    => $this->task->memory,
+                'signal'    => $this->task->signal,
+                'public'    => FALSE);
 
             if ($withSource) {
                 $retVal->source = $this->currentSource;

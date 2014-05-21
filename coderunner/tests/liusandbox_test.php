@@ -24,7 +24,7 @@ class qtype_coderunner_liusandbox_test extends qtype_coderunner_testcase {
         $this->assertTrue($tr->oOok);
         $langs = $sandbox->getLanguages();
         $langs = $langs->languages;
-        $this->assertTrue(in_array('C', $langs, TRUE));
+        $this->assertTrue(in_array('c', $langs, TRUE));
     }
 
     public function test_liu_sandbox_raw() {

@@ -29,6 +29,25 @@ def printFailMessage():
 
 
 
+def get_webserver():
+    '''Find the user name used to run the Apache web server'''
+    ps_cmd = "ps aux | grep /usr/sbin/apache2"
+    ps_lines = subprocess.check_output(ps_cmd, shell=True).decode('utf8').split('\n')
+    names = {ps_line.split(' ')[0] for ps_line in ps_lines}
+    candidates = names.intersection(set(['apache', 'www-data']))
+    if len(candidates) != 1:
+        raise Exception("Couldn't determine web-server user id. Is the web server running?")
+    return list(candidates)[0]
+
+
+def do_command(cmd):
+    '''Execute the given OS command user subprocess.call.
+       Raise an exception on failure.
+    '''
+    if subprocess.call(cmd, shell=True) != 0:
+        raise OSError("Command ({}) failed".format(cmd))
+
+
 cwd = os.getcwd()
 if "moodle/local/CodeRunner" not in cwd:
     print("***** module appears not to have been installed in moodle/local")
@@ -43,21 +62,18 @@ else:
     basedir = cwd[0:pos]
     installdir = cwd[0:pos + len(searchString)]
     try:
-        print("Trying to find Apache user id")
-        ps_cmd = "ps aux | grep apache2 | head -n 1"
-        ps_line = subprocess.check_output(ps_cmd, shell=True).decode('utf8')
-
-        webserver_user = ps_line.split(' ')[0]
-        if webserver_user not in ['apache', 'www-data']:
-            raise Exception("Couldn't determine web-server user id. Is the web server running?")
+        webserver_user = get_webserver()
         print("Web server is", webserver_user)
-        print()
-        print("Making a user coderunner and setting up runguard")
-        print("If prompted for coderunner user details, just accept the defaults")
+        username = 'coderunner'
+        try:
+            do_command('id ' + username + '> /dev/null 2>&1')
+            print('User ' + username + ' already exists')
+        except:
+            do_command('useradd -M -s "/bin/false" ' + username)
+
         commands = [
-            "adduser coderunner",
             "cd {0}/coderunner/Sandbox".format(installdir),
-            "make -B runguard",
+            "gcc -o runguard runguard.c", # Add -lcgroups  if using cgroups
             "chown root runguard",
             "chgrp {0} runguard".format(webserver_user),
             "chmod 4750 runguard"
@@ -67,7 +83,7 @@ else:
             raise OSError("Command ({}) failed".format(cmd))
         print("Runguard installation complete")
     except Exception as e:
-        print("Exception when building runguard: " + str(e))
+        print("Exception when setting up runguard: " + str(e))
         printFailMessage()
 
 
