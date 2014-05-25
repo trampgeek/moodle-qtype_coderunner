@@ -626,7 +626,6 @@ class qtype_coderunner extends question_type {
             $mark = sprintf("%.7f", $testcase->mark);
             $expout .= "      <testcase useasexample=\"$useasexample\" hiderestiffail=\"$hiderestiffail\" mark=\"$mark\" >\n";
             foreach (array('testcode', 'stdin', 'expected', 'display') as $field) {
-                //$exportedValue = $format->xml_escape($testcase->$field);
                 $exportedValue = $format->writetext($testcase->$field, 4);
                 $expout .= "      <{$field}>\n        {$exportedValue}      </{$field}>\n";
             }

@@ -413,6 +413,12 @@ class qtype_coderunner_edit_form extends question_edit_form {
             } else {
                 $question->type_name = '';
             }
+            
+            // Convert raw newline chars in test_splitter_re into 2-char form
+            // so they can be edited in a one-line entry field.
+            if (isset($question->test_splitter_re)) {
+                $question->test_splitter_re = str_replace("\n", '\n', $question->test_splitter_re);
+            }
         }
 
         $draftid = file_get_submitted_draft_itemid('datafiles');

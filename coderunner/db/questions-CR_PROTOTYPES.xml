@@ -538,7 +538,8 @@ __student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
       <text>BUILT_IN_PROTOTYPE_python3</text>
     </name>
     <questiontext format="moodle_auto_format">
-      <text>Used for most Python3 questions. For each test case, runs the student code followed by the test code</text>
+      <text>Used for most Python3 questions. For each test case, runs the
+          student code followed by the test code. </text>
     </questiontext>
     <generalfeedback format="moodle_auto_format">
       <text></text>
@@ -674,13 +675,17 @@ __student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
     <combinator_template><![CDATA[__student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
 
 import subprocess
+import os
 
 def check_code(s):
     try:
         source = open('source.py', 'w')
         source.write(s)
         source.close()
-        result = subprocess.check_output(['pylint', 'source.py'], stderr=subprocess.STDOUT)
+        env = os.environ.copy()
+        env['HOME'] = os.getcwd()
+        result = subprocess.check_output(['pylint', 'source.py'], 
+            stderr=subprocess.STDOUT, env=env)
     except Exception as e:
         result = e.output.decode('utf-8')
 
@@ -715,9 +720,9 @@ def check_code(s):
         source.write('"""Dummy module comment to keep pylint quiet"""\n' + s)
         source.close()
         env = os.environ.copy()
-        os.mkdir('Home')
-        env['HOME'] = os.getcwd() + '/Home'
-        result = subprocess.check_output(['pylint', 'source.py'], stderr=subprocess.STDOUT, env=env)
+        env['HOME'] = os.getcwd()
+        result = subprocess.check_output(['pylint', 'source.py'],
+                stderr=subprocess.STDOUT, env=env)
     except Exception as e:
         result = e.output.decode('utf-8')
 
@@ -769,13 +774,17 @@ check_code(__student_answer__)
     <combinator_template><![CDATA[__student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
 
 import subprocess
+import os
 
 def check_code(s):
     try:
         source = open('source.py', 'w')
         source.write(s)
         source.close()
-        result = subprocess.check_output(['pylint', 'source.py'], stderr=subprocess.STDOUT)
+        env = os.environ.copy()
+        env['HOME'] = os.getcwd()
+        result = subprocess.check_output(['pylint', 'source.py'],
+                stderr=subprocess.STDOUT, env=env)
     except Exception as e:
         result = e.output.decode('utf-8')
 
@@ -810,9 +819,9 @@ def check_code(s):
         source.write(s)
         source.close()
         env = os.environ.copy()
-        os.mkdir('Home')
-        env['HOME'] = os.getcwd() + '/Home'
-        result = subprocess.check_output(['pylint', 'source.py'], stderr=subprocess.STDOUT, env=env)
+        env['HOME'] = os.getcwd()
+        result = subprocess.check_output(['pylint', 'source.py'],
+                stderr=subprocess.STDOUT, env=env)
     except Exception as e:
         result = e.output.decode('utf-8')
 
