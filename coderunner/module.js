@@ -185,6 +185,8 @@ M.qtype_coderunner.initEditForm = function(Y) {
         customise = Y.one('#id_customise'),
         cputime = Y.one('#id_cputimelimitsecs'),
         memlimit = Y.one('#id_memlimitmb'),
+        sandbox = Y.one('#id_sandbox'),
+        sandboxparams = Y.one('#id_sandbox_params'),
         customisationFieldSet = Y.one('#id_customisationheader'),
         advancedCustomisation = Y.one('#id_advancedcustomisationheader'),
         isCustomised = customise.get('checked'),
@@ -206,7 +208,8 @@ M.qtype_coderunner.initEditForm = function(Y) {
         // type and course.
         var newType = typeCombo.get('value'),
             secs = '',
-            mb = '';
+            mb = '',
+            sb_param_val = '';
 
         if (newType != '' && newType != 'Undefined') {
             Y.io(M.cfg.wwwroot + '/question/type/coderunner/ajax.php', {
@@ -221,11 +224,16 @@ M.qtype_coderunner.initEditForm = function(Y) {
                             cputime.set('value', secs);
                             mb = outcome.memlimitmb ? outcome.memlimitmb : '';
                             memlimit.set('value', mb);
+                            sb_param_val = outcome.sandbox_params ? outcome.sandbox_params : '';
+                            sandboxparams.set('value', sb_param_val);
                             combinator_template.set('text', outcome.combinator_template);
                             enable_combinator.set('checked', outcome.enable_combinator == "1");
                             test_splitter.set('value', outcome.test_splitter_re.replace('\n','\\n'));
                             language.set('value', outcome.language);
                             typeName.set('value', newType);
+                            if (outcome.sandbox) {
+                                sandbox.set('value', outcome.sandbox);
+                            }
                         }
                         else {
                             template.set('text', "*** AJAX ERROR. DON'T SAVE THIS! ***\n" + outcome.error);
