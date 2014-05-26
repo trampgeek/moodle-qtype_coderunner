@@ -286,20 +286,6 @@ EOCODE;
      }
 
 
-     public function test_template_engine() {
-         // Check if the template engine is installed and working OK
-         Twig_Autoloader::register();
-         $loader = new Twig_Loader_String();
-         $twig = new Twig_Environment($loader, array(
-             'debug' => true,
-             'autoescape' => false,
-             'strict_variables' => true,
-             'optimizations' => 0
-         ));
-         $this->assertEquals('Hello Fabien!', $twig->render('Hello {{ name }}!', array('name' => 'Fabien')));
-     }
-
-
      public function test_pylint_func_good() {
         // Test that a pylint-func question with a good pylint-compatible
         // submission passes.
@@ -340,36 +326,6 @@ EOCODE;
      }
 
 
-     public function test_grading_template() {
-         // Test a template that is also custom grader, plus python-escaping
-         // in Twig templates.
-         // This grader gives full marks if the input value is negative and
-         // the output value is correct or zero marks otherwise.
-         // The testcases are for n = {0, 1, 11, -7, -6} with marks of
-         // 1, 2, 4, 8, 16 respectively. So the expected mark is 24 / 31
-         // i.e 0.7742
-         $q = test_question_maker::make_question('coderunner', 'sqrnoprint');
-         $q->per_test_template = <<<EOTEMPLATE
-{{ STUDENT_ANSWER }}
-got = str({{TEST.testcode}})
-expected = """{{TEST.expected|e('py')}}""".strip()
-if expected == '36' and expected == got:
-    print('{"fraction":1.0}')
-elif expected == '49' and expected == got:
-    print('{"fraction":1}')
-else:
-    print('{"fraction":0}')
-EOTEMPLATE;
-         $q->grader = 'TemplateGrader';
-         $q->customise = TRUE;
-         $q->all_or_nothing = FALSE;
-         $q->enable_combinator = FALSE;
-         $code = "def sqr(n): return n * n\n";
-         $response = array('answer' => $code);
-         $result = $q->grade_response($response);
-         list($mark, $grade, $cache) = $result;
-         $this->assertTrue(abs($mark - 24.0/31.0) < 0.000001);
-     }
 
 
      public function test_customised_timeout() {

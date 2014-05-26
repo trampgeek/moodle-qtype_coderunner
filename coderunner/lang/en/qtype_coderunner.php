@@ -79,6 +79,7 @@ $string['answerbox_group_help'] = 'Set the number of rows and columns to allocat
         'If \'Use ace\' is checked, the ACE JavaScript code editor will manage the answer box.';
 $string['bad_dotdotdot'] = "Misuse of '...'. Must be at end, after two increasing numeric penalties";
 $string['badpenalties'] = 'Penalty regime must be a comma separated list of numbers in the range [0, 100]';
+$string['badsandboxparams'] = '"Other" field (sandbox params) must be either blank or a valid JSON record';
 $string['coderunnersummary'] = 'Answer is program code that is executed '
     . 'in the context of a set of test cases to determine its correctness.';
 $string['coderunner_help'] = 'In response to a question, which is a '
@@ -189,7 +190,7 @@ $string['language_help'] = 'The computer language used to run the submission. '.
 
 $string['mark'] = 'Mark';
 $string['marking'] = 'Mark allocation';
-$string['memorylimit'] = 'Memory limit (MB)';
+$string['memorylimit'] = 'MemLimit (MB)';
 $string['missingoutput'] = 'You must supply the expected output from '
     . 'this test case.';
 $string['morehidden'] = 'Some hidden test cases failed, too.';
@@ -258,8 +259,14 @@ $string['sandboxcontrols_help'] = 'Select what sandbox you wish the student ' .
         'run can consume (MB). A blank entry uses the sandbox\'s ' .
         'default value, but this may not be suitable for resource-demanding ' .
         'languages like Java and Matlab). A value of zero for the maximum memory ' .
-        'results in no limit being imposed. Some sandboxes (e.g. Ideone) may ' .
-        'silently ignore these settings.';
+        'results in no limit being imposed. The amount of memory specified here ' .
+        'is the total amount needed for the run including all libraries, interpreters, ' .
+        'VMs etc. The "Other" entry is used to pass' .
+        'further sandbox-specific data, such as API-keys. It should generally be left ' .
+        'blank but if non-blank it must be a valid JSON record. ' .
+        'Some sandboxes (e.g. Ideone) may ' .
+        'silently ignore any or all of these settings.';
+$string['sandbox_params'] = 'Other';
 $string['SHOW'] = 'Show';
 
 

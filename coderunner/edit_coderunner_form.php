@@ -211,14 +211,17 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $sandboxControls[] =  $mform->createElement('select', 'sandbox', NULL, $sandboxes);
 
         $sandboxControls[] =& $mform->createElement('text', 'cputimelimitsecs',
-                get_string('cputime', 'qtype_coderunner'), array('size' => 5));
+                get_string('cputime', 'qtype_coderunner'), array('size' => 3));
         $sandboxControls[] =& $mform->createElement('text', 'memlimitmb',
                 get_string('memorylimit', 'qtype_coderunner'), array('size' => 5));
+        $sandboxControls[] =& $mform->createElement('text', 'sandbox_params',
+                get_string('sandbox_params', 'qtype_coderunner'), array('size' => 15));
         $mform->addElement('group', 'sandboxcontrols',
                 get_string('sandboxcontrols', 'qtype_coderunner'),
                 $sandboxControls, NULL, false);
         $mform->setType('cputimelimitsecs', PARAM_RAW);
         $mform->setType('memlimitmb', PARAM_RAW);
+        $mform->setType('sandbox_params', PARAM_RAW);
         $mform->addHelpButton('sandboxcontrols', 'sandboxcontrols', 'qtype_coderunner');
 
         $mform->addElement('text', 'language', get_string('language', 'qtype_coderunner'),
@@ -459,6 +462,11 @@ class qtype_coderunner_edit_form extends question_edit_form {
              (!ctype_digit($data['memlimitmb']) || intval($data['memlimitmb']) < 0)) {
             $errors['sandboxcontrols'] = get_string('badmemlimit', 'qtype_coderunner');
         }
+        
+        if ($data['sandbox_params'] != '' &&
+                json_decode($data['sandbox_params']) === NULL) {
+            $errors['sandboxcontrols'] = get_string('badsandboxparams', 'qtype_coderunner');
+        }
 
         if ($data['prototype_type'] == 0) {
             // Unless it's a prototype it needs at least one testcase
@@ -490,6 +498,8 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 }
             }
         }
+        
+
 
         return $errors;
     }

@@ -148,7 +148,6 @@ class qtype_coderunner_question extends question_graded_automatically {
     // third array element in its response, containing data to be cached and
     // served up again in the response on subsequent calls.
 
-
     public function grade_response(array $response) {
         if (empty($response['_testoutcome'])) {
             $code = $response['answer'];
@@ -205,8 +204,8 @@ class qtype_coderunner_question extends question_graded_automatically {
         $this->allGradings = array();
 
         // TODO: clean up the whole sandbox parameter business
-        if (isset($this->sandboxParams)) {
-            $sandboxParams = json_decode($this->sandboxParams);
+        if (isset($this->sandbox_params)) {
+            $sandboxParams = json_decode($this->sandbox_params);
         } else {
             $sandboxParams = array();
         }
@@ -297,6 +296,7 @@ class qtype_coderunner_question extends question_graded_automatically {
     // MATLAB_ESCAPED_STUDENT_ANSWER, a string for use in Matlab intended
     // to be used as s = sprintf('{{MATLAB_ESCAPED_STUDENT_ANSWER}}')
     // Return true if successful.
+    // 26/5/14 - add entire QUESTION to template environment.
     private function runWithCombinator($code, $testCases, $files, $sandboxParams) {
         $outcome = NULL;
         $maxMark = $this->maximumPossibleMark($testCases);
@@ -309,6 +309,7 @@ class qtype_coderunner_question extends question_graded_automatically {
                 'STUDENT_ANSWER' => $code,
                 'ESCAPED_STUDENT_ANSWER' => pythonEscaper(NULL, $code, NULL),
                 'MATLAB_ESCAPED_STUDENT_ANSWER' => matlabEscaper(NULL, $code, NULL),
+                'QUESTION' => $this,
                 'TESTCASES' => $testCases);
             $testProg = $this->twig->render($this->combinator_template, $templateParams);
 
@@ -358,7 +359,8 @@ class qtype_coderunner_question extends question_graded_automatically {
         $templateParams = array(
             'STUDENT_ANSWER' => $code,
             'ESCAPED_STUDENT_ANSWER' => pythonEscaper(NULL, $code, NULL),
-            'MATLAB_ESCAPED_STUDENT_ANSWER' => matlabEscaper(NULL, $code, NULL)
+            'MATLAB_ESCAPED_STUDENT_ANSWER' => matlabEscaper(NULL, $code, NULL),
+            'QUESTION' => $this
          );
 
         $outcome = new TestingOutcome($maxMark);

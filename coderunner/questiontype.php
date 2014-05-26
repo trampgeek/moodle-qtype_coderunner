@@ -108,7 +108,8 @@ class qtype_coderunner extends question_type {
             'sandbox',
             'grader',
             'cputimelimitsecs',
-            'memlimitmb'
+            'memlimitmb',
+            'sandbox_params'
         );
     }
 
@@ -291,8 +292,7 @@ class qtype_coderunner extends question_type {
             // field is set. This is used only to display the customisation panel.
 
             $qtype = $question->options->coderunner_type;
-            $context = $this->questionContext($question);
-            $row = $this->getPrototype($qtype, $context);
+            $row = $this->getPrototype($qtype);
             $question->options->customise = False; // Starting assumption
             $noninheritedFields = $this->noninherited_fields();
             foreach ($row as $field => $value) {
@@ -315,6 +315,10 @@ class qtype_coderunner extends question_type {
 
             if (!isset($question->options->grader)) {
                 $question->options->grader = NULL;
+            }
+            
+            if (!isset($question->options->sandbox_params) || trim($question->options->sandbox_params) === '') {
+                $question->options->sandbox_params = NULL;
             }
         }
 
@@ -359,6 +363,18 @@ class qtype_coderunner extends question_type {
     public static function getPrototype($coderunnerType, $context) {
         global $DB;
         
+        if ($courseId === NULL) {
+            $courseId = optional_param('courseid', 0, PARAM_INT);
+            if (!$courseId) {
+                $cmid = optional_param('cmid', 0, PARAM_INT);
+                if ($cmid != 0) {
+                    $row = $DB->get_record('course_modules', array('id'=>$cmid));
+                    $courseId = $row->course;
+                } else {
+                    $courseId = $COURSE->id;  // Last ditch attempt
+                }
+            }
+        }
         $rows = $DB->get_records_select(
                'quest_coderunner_options',
                "coderunner_type = '$coderunnerType' and prototype_type != 0");
@@ -448,9 +464,16 @@ class qtype_coderunner extends question_type {
     public function delete_question($questionid, $contextid) {
         global $DB;
 
-        $question = $DB->get_record(
+        
+        // TODO: find a solution to the problem of deleting in-use
+        // prototypes. The code below isn't isn't correct (it doesn't
+        // check the context of the question) so the entire block has
+        // been commented out. Currently it's over to
+        // to user to make sure they don't delete in-use prototypes.
+        /*$question = $DB->get_record(
                 'quest_coderunner_options',
                 array('questionid' => $questionid));
+
 
         if ($question->prototype_type != 0) {
             $typeName = $question->coderunner_type;
@@ -464,12 +487,11 @@ class qtype_coderunner extends question_type {
                 // and other deletion (e.g. of the question itself) proceeds
                 // regardless, leaving things in an even worse state than if
                 // I didn't even check for an in-use prototype!
-                
-                // TODO. BUGFIX. This is a global check. Need a course specific check.
-                // Check is removed for now. Caveat emptor.
-                // throw new moodle_exception('Attempting to delete in-use prototype');
+                throw new moodle_exception('Attempting to delete in-use prototype');
             }
         }
+
+        */
 
         $success = $DB->delete_records("quest_coderunner_testcases",
                 array('questionid' => $questionid));

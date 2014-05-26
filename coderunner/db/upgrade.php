@@ -290,6 +290,23 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         }
     }
     
+    
+    if ($oldversion != 0 && $oldversion < 2014052502) {
+
+        // Define field sandbox_params to be added to quest_coderunner_options.
+        $table = new xmldb_table('quest_coderunner_options');
+        $field = new xmldb_field('sandbox_params', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'memlimitmb');
+
+        // Conditionally launch add field sandbox_params.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Coderunner savepoint reached.
+        upgrade_plugin_savepoint(true, 2014052502, 'qtype', 'coderunner');
+    }
+
+    
     updateQuestionTypes();
             
     return TRUE;
