@@ -364,18 +364,6 @@ class qtype_coderunner extends question_type {
     public static function getPrototype($coderunnerType, $context) {
         global $DB;
         
-        if ($courseId === NULL) {
-            $courseId = optional_param('courseid', 0, PARAM_INT);
-            if (!$courseId) {
-                $cmid = optional_param('cmid', 0, PARAM_INT);
-                if ($cmid != 0) {
-                    $row = $DB->get_record('course_modules', array('id'=>$cmid));
-                    $courseId = $row->course;
-                } else {
-                    $courseId = $COURSE->id;  // Last ditch attempt
-                }
-            }
-        }
         $rows = $DB->get_records_select(
                'quest_coderunner_options',
                "coderunner_type = '$coderunnerType' and prototype_type != 0");
