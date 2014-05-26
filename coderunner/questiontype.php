@@ -292,7 +292,8 @@ class qtype_coderunner extends question_type {
             // field is set. This is used only to display the customisation panel.
 
             $qtype = $question->options->coderunner_type;
-            $row = $this->getPrototype($qtype);
+            $context = $this->questionContext($question);
+            $row = $this->getPrototype($qtype, $context);
             $question->options->customise = False; // Starting assumption
             $noninheritedFields = $this->noninherited_fields();
             foreach ($row as $field => $value) {
