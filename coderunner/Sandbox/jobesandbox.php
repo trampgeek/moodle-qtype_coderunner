@@ -18,11 +18,24 @@ define('DEBUGGING', '0');
 
 class JobeSandbox extends Sandbox {
 
-    var $langMap = NULL;   // Languages supported by this sandbox: map from name to id
+    var $languages = NULL;   // Languages supported by this sandbox
+    var $status = NULL;      // Status as set by constructor
 
     public function __construct() {
-
+        // Constructor gets languages from Jobe and stores them.
         Sandbox::__construct();
+        list($returnCode, $language_pairs) = $this->httpRequest(
+                'languages', HTTP_Request2::METHOD_GET, NULL);
+
+        if ($returnCode == 200 && is_array($language_pairs)) {
+            $this->languages = array();
+            foreach ($language_pairs as $lang) {
+                $this->languages[] = $lang[0];
+            };
+            $this->status = Sandbox::OK; 
+        } else {
+            $this->status = Sandbox::UNKNOWN_SERVER_ERROR;
+        }        
     }
 
 
@@ -30,19 +43,9 @@ class JobeSandbox extends Sandbox {
     // where the latter is a list of strings of languages handled by this sandbox.
     // This latter consists of all the languages returned by a query to Jobe.
     public function getLanguages() {
-        list($returnCode, $languages) = $this->httpRequest(
-                'languages', HTTP_Request2::METHOD_GET, NULL);
-
-        $langKeys = array();
-        if ($returnCode == 200 && is_array($languages)) {
-            foreach ($languages as $lang) {
-                $langKeys[] = $lang[0];
-            };
-            $status = Sandbox::OK; 
-        } else {
-            $status = Sandbox::UNKNOWN_SERVER_ERROR;
-        }
-        $resultObj = (object) array('error'=>$status, 'languages'=>$langKeys);
+        
+        $resultObj = (object) array('error'    => $this->status,
+                                    'languages'=> $this->languages);
         return $resultObj;
     }
 
