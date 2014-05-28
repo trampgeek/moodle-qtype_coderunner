@@ -79,6 +79,7 @@ $string['answerbox_group_help'] = 'Set the number of rows and columns to allocat
         'If \'Use ace\' is checked, the ACE JavaScript code editor will manage the answer box.';
 $string['bad_dotdotdot'] = "Misuse of '...'. Must be at end, after two increasing numeric penalties";
 $string['badpenalties'] = 'Penalty regime must be a comma separated list of numbers in the range [0, 100]';
+$string['badtemplateparams'] = 'Template parameters must be either blank or a valid JSON record';
 $string['badsandboxparams'] = '"Other" field (sandbox params) must be either blank or a valid JSON record';
 $string['coderunnersummary'] = 'Answer is program code that is executed '
     . 'in the context of a set of test cases to determine its correctness.';
@@ -202,13 +203,22 @@ $string['qWrongBehaviour'] = 'Detailed test results unavailable. '
     . 'Perhaps an empty answer, or question not using Adaptive Mode?';
 $string['options'] = 'Options';
 $string['penalty_regime'] = 'Penalty regime';
-$string['penalty_regime_help'] = 'A comma-separated list of penalties (each a percent) ' .
-     'to apply to successive submissions. These are absolute, not cumulative. As a ' .
-     'special case the last penalty can be "..." to mean "extend the previous ' .
-     'two penalties as an arithmetic progression up to 100". For example, ' .
-     '"0,5,10,30,..." is equivalent to "0,5,10,30,50,70,90,100".' .
-     'Leave blank for standard Moodle behaviour. ' .
-     'If there are more submissions than defined penalties, the last value is used.';
+$string['marking_group'] = 'Marking';
+$string['marking_group_help'] = 'If \'All-or-nothing\' is checked, all test cases must be satisfied ' .
+        'for the submission to earn any marks. Otherwise, the mark is obtained ' .
+        'by summing the marks for all the test cases that pass ' .
+        'and expressing this as a fraction of the maximum possible mark. ' .
+        'The per-test-case marks can be specified only if the all-or-nothing ' .
+        'checkbox is unchecked. If using a template grader that awards ' .
+        'part marks to test cases, \'All-or-nothing\' should generally be unchecked.' .
+        '<p>The penalty regime is a comma-separated list of penalties (each a percent) ' .
+        'to apply to successive submissions. These are absolute, not cumulative. As a ' .
+        'special case the last penalty can be "..." to mean "extend the previous ' .
+        'two penalties as an arithmetic progression up to 100". For example, ' .
+        '"0,5,10,30,..." is equivalent to "0,5,10,30,50,70,90,100".' .
+        'Leave blank for standard Moodle behaviour. ' .
+        'If there are more submissions than defined penalties, the last value is used</p>';
+$string['parameterise_template'] = 'Set template params';
 $string['pluginname'] = 'CodeRunner';
 $string['pluginnameadding'] = 'Adding a CodeRunner question';
 $string['pluginnamesummary'] = 'CodeRunner: runs student-submitted code in a sandbox';
@@ -287,6 +297,26 @@ $string['testcases'] = 'Test cases';
 $string['testcode'] = 'Test code';
 $string['test_splitter_re'] = 'Test splitter (regex)';
 $string['template'] = 'Template';
+$string['template_group'] = 'Template controls';
+$string['template_group_help'] = <<<EO_TEMPLATE_GROUP_HELP
+These controls are mostly relevant only if you are customising a question and
+writing your own template(s).
+        
+Template debugging results in the full source of the code that's run on the
+sandbox being displayed in the result window when the question is checked. This
+lets you see how your template has been expanded.
+        
+The template parameters field lets you pass string parameters to a question's
+template(s). If non-blank, this must be a JSON-format record. The fields of
+the record can then be used within the template, where they appear as
+QUESTION.parameters.&lt;&lt;param&gt;&gt;. For example, if template params
+is
+        
+        {"age": 23}
+        
+the value 23 would be substituted into the template in place of the
+template variable {{ QUESTION.parameters.age }}.
+EO_TEMPLATE_GROUP_HELP;
 $string['template_help'] = <<<EO_TEMPLATE_HELP
 The template defines the program that is to be run for each test case, depending
 on the student answer and the particular test case. The template is processed
@@ -311,6 +341,7 @@ has many test cases.
 If the template-debugging checkbox is clicked, the program generated
 for each testcase will be displayed in the output.
 EO_TEMPLATE_HELP;
+$string['template_params'] = 'Template parameters';
 $string['type_header'] = 'Coderunner question type';
 $string['typerequired'] = 'Please select the type of question (language, format, etc)';
 $string['useasexample'] = 'Use as example';

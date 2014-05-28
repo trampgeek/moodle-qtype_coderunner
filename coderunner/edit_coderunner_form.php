@@ -30,6 +30,7 @@ define("NUM_TESTCASES_START", 5); // Num empty test cases with new questions
 define("NUM_TESTCASES_ADD", 3);   // Extra empty test cases to add
 define("DEFAULT_NUM_ROWS", 18);   // Answer box rows
 define("DEFAULT_NUM_COLS", 100);   // Answer box rows
+define("TEMPLATE_PARAM_SIZE", 40); // The size of the template parameter field
 
 require_once($CFG->dirroot . '/question/type/coderunner/Sandbox/sandbox_config.php');
 require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
@@ -87,12 +88,9 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
         $typeSelectorElements[] = $mform->createElement('advcheckbox', 'customise', NULL,
                 get_string('customise', 'qtype_coderunner'));
-        $typeSelectorElements[] = $mform->createElement('advcheckbox', 'show_source', NULL,
-                get_string('show_source', 'qtype_coderunner'));
 
         $mform->addElement('group', 'coderunner_type_group',
                 get_string('questiontype', 'qtype_coderunner'), $typeSelectorElements, NULL, false);
-        $mform->setDefault('show_source', False);
         $mform->addHelpButton('coderunner_type_group', 'coderunner_type', 'qtype_coderunner');
 
         $answerboxElements = array();
@@ -113,18 +111,33 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 $answerboxElements, NULL, false);
         $mform->addHelpButton('answerbox_group', 'answerbox_group', 'qtype_coderunner');
 
-        $mform->addElement('advcheckbox', 'all_or_nothing', get_string('marking', 'qtype_coderunner'),
+        $markingElements = array();
+        $markingElements[] = $mform->createElement('advcheckbox', 'all_or_nothing',
+                get_string('marking', 'qtype_coderunner'),
                 get_string('all_or_nothing', 'qtype_coderunner'));
-        $mform->setDefault('all_or_nothing', True);
-        $mform->addHelpButton('all_or_nothing', 'all_or_nothing', 'qtype_coderunner');
-
-        $mform->addElement('text', 'penalty_regime',
+        $markingElements[] = $mform->CreateElement('text', 'penalty_regime',
             get_string('penalty_regime', 'qtype_coderunner'),
             array('size' => 20));
-        $mform->addHelpButton('penalty_regime', 'penalty_regime', 'qtype_coderunner');
+        $mform->addElement('group', 'marking_group', get_string('marking_group', 'qtype_coderunner'),
+                $markingElements, NULL, false);
+        $mform->setDefault('all_or_nothing', True);
         $mform->setType('penalty_regime', PARAM_RAW);
+        $mform->addHelpButton('marking_group', 'marking_group', 'qtype_coderunner');
 
+        $templateElements = array();
+        $templateElements[] =  $mform->createElement('advcheckbox', 'show_source', NULL,
+                get_string('show_source', 'qtype_coderunner'));
+        $mform->setDefault('show_source', False);
 
+        $templateElements[] = $mform->createElement('text', 'template_params',
+            get_string('template_params', 'qtype_coderunner'),
+            array('size' => TEMPLATE_PARAM_SIZE));
+        $mform->addElement('group', 'template_group', get_string('template_group', 'qtype_coderunner'),
+                $templateElements, NULL, false);
+        $mform->setType('template_params', PARAM_RAW);
+        $mform->addHelpButton('template_group', 'template_group', 'qtype_coderunner');
+        $mform->setAdvanced('template_group');
+        
         // The following fields are used to customise a question by overriding
         // values from the base question type. All are hidden
         // unless the 'customise' checkbox is checked.
@@ -467,6 +480,11 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 json_decode($data['sandbox_params']) === NULL) {
             $errors['sandboxcontrols'] = get_string('badsandboxparams', 'qtype_coderunner');
         }
+        
+        if ($data['template_params'] != '' &&
+                json_decode($data['template_params']) === NULL) {
+            $errors['template_group'] = get_string('badtemplateparams', 'qtype_coderunner');
+        }
 
         if ($data['prototype_type'] == 0) {
             // Unless it's a prototype it needs at least one testcase
@@ -498,8 +516,6 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 }
             }
         }
-        
-
 
         return $errors;
     }

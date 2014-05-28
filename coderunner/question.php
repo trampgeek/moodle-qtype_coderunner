@@ -185,7 +185,6 @@ class qtype_coderunner_question extends question_graded_automatically {
         $this->twig = new Twig_Environment($loader, array(
             'debug' => true,
             'autoescape' => false,
-            'strict_variables' => true,
             'optimizations' => 0
         ));
 
@@ -215,6 +214,10 @@ class qtype_coderunner_question extends question_graded_automatically {
         }
         if (isset($this->memlimitmb)) {
             $sandboxParams['memorylimit'] = intval($this->memlimitmb);
+        }
+        
+        if (isset($this->template_params) && $this->template_params != '') {
+            $this->parameters = json_decode($this->template_params);
         }
 
         $outcome = $this->runWithCombinator($code, $testCases, $files, $sandboxParams);

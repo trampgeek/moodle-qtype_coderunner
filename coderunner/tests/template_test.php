@@ -68,8 +68,6 @@ EOTEMPLATE;
          $q->customise = TRUE;
          $q->all_or_nothing = FALSE;
          $q->enable_combinator = FALSE;
-         $code = "def sqr(n): return n * n\n";
-         $response = array('answer' => $code);
          $q->testcases = array(
             (object) array('testcode' => 'print(sqr(-3))',
                           'expected'     => "9\ntwiddle-twaddle",
@@ -118,6 +116,39 @@ EOTEMPLATE;
          $result = $q->grade_response($response);
          list($mark, $grade, $cache) = $result;
          $this->assertTrue(abs($mark - 24.0/31.0) < 0.000001);
+     }
+     
+     public function test_template_params() {
+         // Test that a template_params field in the question is expanded
+         // from a JSON string and available to the template engine.
+         $q = test_question_maker::make_question('coderunner', 'sqr');
+         $q->template_params = '{"age":23, "string":"blah"}';
+         $q->per_test_template = <<<EOTEMPLATE
+{{ STUDENT_ANSWER }}
+{{ TEST.testcode }}
+print( {{QUESTION.parameters.age}}, '{{QUESTION.parameters.string}}')
+    
+
+EOTEMPLATE;
+         $q->customise = TRUE;
+         $q->all_or_nothing = FALSE;
+         $q->enable_combinator = FALSE;
+         $q->testcases = array(
+            (object) array('testcode' => '',
+                          'expected'     => "23 blah",
+                          'stdin'      => '',
+                          'useasexample' => 0,
+                          'display' => 'SHOW',
+                          'mark' => 1.0, 'hiderestiffail'  => 0),
+         );
+         $q->customise = TRUE;
+         $q->all_or_nothing = FALSE;
+         $q->enable_combinator = FALSE;
+         $code = "";
+         $response = array('answer' => $code);
+         $result = $q->grade_response($response);
+         list($mark, $grade, $cache) = $result;
+         $this->assertEquals(question_state::$gradedright, $grade);        
      }
     
      

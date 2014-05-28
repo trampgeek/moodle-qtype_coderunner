@@ -109,7 +109,8 @@ class qtype_coderunner extends question_type {
             'grader',
             'cputimelimitsecs',
             'memlimitmb',
-            'sandbox_params'
+            'sandbox_params',
+            'template_params'
         );
     }
 
@@ -127,7 +128,8 @@ class qtype_coderunner extends question_type {
             'show_source',
             'answerbox_lines',
             'answerbox_columns',
-            'use_ace'
+            'use_ace',
+            'template_params'
             );
     }
 

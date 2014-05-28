@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This file defines some University of Canterbury specific question types -->
+<quiz>
+<!-- question: 0  -->
+  <question type="category">
+    <category>
+        <text>$system$/UOC_CR_PROTOTYPES</text>
+
+    </category>
+  </question>
+  
+<!-- question: 3307  -->
+  <question type="coderunner">
+    <name>
+      <text>UOC_PROTOTYPE_python3_pylint</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<p>Prototype for a Python3 question that is checked by pylint before being executed. It can take two template parameters:</p>
+<ul>
+<li>isfunction: if set and true a dummy module docstring will be inserted at the start of the program. This is useful in "write a function" questions.</li>
+<li>pylintoptions: this should be a JSON list of strings.</li>
+</ul>
+<p>For example, the Template parameters string in the question authoring form might be set to</p>
+<p>{"makemoduledocstring": true, "pylintoptions":["--max-statements=20","--max-args=3"]}</p>
+<p>to generate a module docstring at the start and to set the maximum number of statements and arguments for each function to 20 and 3 respectively.</p>]]></text>
+<file name="wordplay.py" path="/" encoding="base64">aW1wb3J0IG9zCgojIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KIyAtLS0gSU5TRVJUIFlPVVIgYW5zd2VyIHRvIHF1ZXN0aW9uIDEgaGVyZSAtLS0tCiMgLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQoKCmYgPSBpbnB1dCAoIlBsZWFzZSBlbnRlciBmaWxlbmFtZTogIikKd2hpbGUgbm90IG9zLnBhdGguaXNmaWxlKGYpOgogICAgcHJpbnQoZiwgIm5vdCBmb3VuZC4uLiIpCiAgICBmID0gaW5wdXQoIlBsZWFzZSBlbnRlciBmaWxlbmFtZTogIikKICAgIAp3b3JkcyA9IGdldF93b3Jkc19mcm9tX2ZpbGUoZikKcHJpbnQoZiwgImxvYWRlZCBvay4iKQpwcmludCgie30gdmFsaWQgd29yZHMgZm91bmQuIi5mb3JtYXQobGVuKHdvcmRzKSkpCnByaW50KCkKcHJpbnQoIkZpcnN0IHdvcmQ6IHt9Ii5mb3JtYXQod29yZHNbMF0pKQpwcmludCgiTGFzdCB3b3JkOiB7fSIuZm9ybWF0KHdvcmRzWy0xXSkpCnMgPSAwCmZvciB3IGluIHdvcmRzOgogICAgcyArPSBsZW4odykKYT1zL2xlbih3b3JkcykKcHJpbnQoIkF2ZyB3b3JkIGxlbmd0aCA9IHs6LjJmfSIuZm9ybWF0KGEpKQppZiBsZW4od29yZHMpID4gMDoKICAgIGx3ID0gJycKICAgIG1sID0gbGVuKHdvcmRzWzBdKQogICAgbiA9IDAKICAgIGZvciB3IGluIHdvcmRzOgogICAgICAgICAgICBsID0gbGVuKHcpCiAgICAgICAgICAgIGlmIGwgPiBtbDoKICAgICAgICAgICAgICAgIG1sID0gbAogICAgICAgICAgICAgICAgbHcgPSB3CnByaW50KCdNYXggd29yZCBsZW5ndGggPScsIG1sKQp1dyA9IFtdCmZvciB3IGluIHdvcmRzOgogICAgaWYgdyBub3QgaW4gdXc6CiAgICAgICAgdXcuYXBwZW5kKHcpCnByaW50KCkKcHJpbnQoInt9IHVuaXF1ZSB3b3JkcyBmb3VuZC4iLmZvcm1hdChsZW4odXcpKSkKcyA9IDAKZm9yIHcgaW4gdXc6CiAgICBzICs9IGxlbih3KQphID0gcyAvIGxlbih1dykKcHJpbnQoIkF2ZyB1bmlxdWUgd29yZCBsZW5ndGggPSB7Oi4yZn0iLmZvcm1hdChhKSkKCg==</file>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.1000000</penalty>
+    <hidden>0</hidden>
+    <coderunner_type>python3_pylint</coderunner_type>
+    <prototype_type>2</prototype_type>
+    <all_or_nothing>1</all_or_nothing>
+    <penalty_regime>0,0,0,0,0,0,10,20,...</penalty_regime>
+    <show_source>0</show_source>
+    <answerbox_lines>60</answerbox_lines>
+    <answerbox_columns>100</answerbox_columns>
+    <use_ace>1</use_ace>
+    <showtest>1</showtest>
+    <showstdin>1</showstdin>
+    <showexpected>1</showexpected>
+    <showoutput>1</showoutput>
+    <showmark>0</showmark>
+    <combinator_template></combinator_template>
+    <test_splitter_re><![CDATA[|#<ab@17943918#@>#|ms]]></test_splitter_re>
+    <enable_combinator>0</enable_combinator>
+    <per_test_template><![CDATA[__student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
+
+import subprocess
+import os
+
+def check_code(s):
+{% if QUESTION.parameters.isfunction %}
+    s = "'''Dummy module docstring'''\n" + s
+{% endif %}
+    try:
+        source = open('source.py', 'w')
+        source.write(s)
+        source.close()
+        env = os.environ.copy()
+        env['HOME'] = os.getcwd()
+        pylint_opts = []
+{% for option in QUESTION.parameters.pylintoptions %}
+        pylint_opts.append('{{option}}')
+{% endfor %}
+        cmd = ['pylint', 'source.py'] + pylint_opts
+        result = subprocess.check_output(cmd, stderr=subprocess.STDOUT, env=env)
+    except Exception as e:
+        result = e.output.decode('utf-8')
+
+    if result.strip():
+        print("pylint doesn't approve of your program")
+        print(result)
+        raise Exception("Submission rejected")
+
+check_code(__student_answer__)
+
+{{ STUDENT_ANSWER }}
+{{ TEST.testcode }}]]></per_test_template>
+    <language>python3</language>
+    <sandbox></sandbox>
+    <grader></grader>
+    <cputimelimitsecs>30</cputimelimitsecs>
+    <memlimitmb>1024</memlimitmb>
+    <sandbox_params></sandbox_params>
+    <template_params></template_params>
+    <testcases>
+    </testcases>
+  </question>
+
+<!-- question: 1332  -->
+  <question type="coderunner">
+    <name>
+      <text>UOC_PROTOTYPE_c_full_main_tests</text>
+    </name>
+    <questiontext format="moodle_auto_format">
+      <text>Used for C questions where the student writes global declarations (types, functions etc) and each test case contains a complete main function that follows the student code.</text>
+    </questiontext>
+    <generalfeedback format="moodle_auto_format">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.3333333</penalty>
+    <hidden>0</hidden>
+    <coderunner_type>c_full_main_tests</coderunner_type>
+    <prototype_type>1</prototype_type>
+    <all_or_nothing>1</all_or_nothing>
+    <penalty_regime></penalty_regime>
+    <show_source>0</show_source>
+    <answerbox_lines>18</answerbox_lines>
+    <answerbox_columns>100</answerbox_columns>
+    <use_ace>1</use_ace>
+    <showtest>1</showtest>
+    <showstdin>1</showstdin>
+    <showexpected>1</showexpected>
+    <showoutput>1</showoutput>
+    <showmark>0</showmark>
+    <combinator_template></combinator_template>
+    <test_splitter_re></test_splitter_re>
+    <enable_combinator>0</enable_combinator>
+    <per_test_template><![CDATA[#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <stdbool.h>
+{{STUDENT_ANSWER}}
+
+{{ TEST.testcode }}]]></per_test_template>
+    <language>C</language>
+    <sandbox></sandbox>
+    <grader></grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <testcases>
+    </testcases>
+  </question>
+
+
+<!-- question: 1338  -->
+  <question type="coderunner">
+    <name>
+      <text>UOC_PROTOTYPE_clojure</text>
+    </name>
+    <questiontext format="moodle_auto_format">
+      <text>Test of Clojure questions where the student' code isrun then the test code. There is currently no combinator, so the program is executed for each test case. Written mainly as a test of the Ideone sandbox.</text>
+    </questiontext>
+    <generalfeedback format="moodle_auto_format">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.3333333</penalty>
+    <hidden>0</hidden>
+    <coderunner_type>clojure</coderunner_type>
+    <prototype_type>1</prototype_type>
+    <all_or_nothing>1</all_or_nothing>
+    <penalty_regime></penalty_regime>
+    <show_source>0</show_source>
+    <answerbox_lines>18</answerbox_lines>
+    <answerbox_columns>100</answerbox_columns>
+    <use_ace>1</use_ace>
+    <showtest>1</showtest>
+    <showstdin>1</showstdin>
+    <showexpected>1</showexpected>
+    <showoutput>1</showoutput>
+    <showmark>0</showmark>
+    <combinator_template></combinator_template>
+    <test_splitter_re></test_splitter_re>
+    <enable_combinator>0</enable_combinator>
+    <per_test_template>{{ STUDENT_ANSWER }}
+{{TEST.testcode}}</per_test_template>
+    <language>Clojure (clojure 1.5.0-RC2)</language>
+    <sandbox></sandbox>
+    <grader></grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <testcases>
+    </testcases>
+  </question>
+
+
+<!-- question: 1333  -->
+  <question type="coderunner">
+    <name>
+      <text>UOC_PROTOTYPE_matlab_function</text>
+    </name>
+    <questiontext format="moodle_auto_format">
+      <text>Used for Matlab function questions. Student code must be a function declaration, which is tested with each testcase.</text>
+    </questiontext>
+    <generalfeedback format="moodle_auto_format">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.3333333</penalty>
+    <hidden>0</hidden>
+    <coderunner_type>matlab_function</coderunner_type>
+    <prototype_type>1</prototype_type>
+    <all_or_nothing>1</all_or_nothing>
+    <penalty_regime></penalty_regime>
+    <show_source>0</show_source>
+    <answerbox_lines>18</answerbox_lines>
+    <answerbox_columns>100</answerbox_columns>
+    <use_ace>1</use_ace>
+    <showtest>1</showtest>
+    <showstdin>1</showstdin>
+    <showexpected>1</showexpected>
+    <showoutput>1</showoutput>
+    <showmark>0</showmark>
+    <combinator_template><![CDATA[function tester()
+   {% for TEST in TESTCASES %}
+   {{ TEST.testcode }};
+   {% if not loop.last %}
+   disp('#<ab@17943918#@>#');
+{% endif %}
+{% endfor %}
+   quit();
+end
+
+{{ STUDENT_ANSWER }}]]></combinator_template>
+    <test_splitter_re><![CDATA[|#<ab@17943918#@>#
+|ms]]></test_splitter_re>
+    <enable_combinator>1</enable_combinator>
+    <per_test_template>function tester()
+  {{ TEST.testcode }};
+  quit();
+end
+
+{{ STUDENT_ANSWER }}</per_test_template>
+    <language>matlab</language>
+    <sandbox></sandbox>
+    <grader></grader>
+    <cputimelimitsecs>10</cputimelimitsecs>
+    <memlimitmb>0</memlimitmb>
+    <testcases>
+    </testcases>
+  </question>
+
+
+<!-- question: 1329  -->
+  <question type="coderunner">
+    <name>
+      <text>UOC_PROTOTYPE_python3_ideone</text>
+    </name>
+    <questiontext format="moodle_auto_format">
+      <text>Used for testing the Ideone sandbox.</text>
+    </questiontext>
+    <generalfeedback format="moodle_auto_format">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.3333333</penalty>
+    <hidden>0</hidden>
+    <coderunner_type>python3_ideone</coderunner_type>
+    <prototype_type>1</prototype_type>
+    <all_or_nothing>1</all_or_nothing>
+    <penalty_regime></penalty_regime>
+    <show_source>0</show_source>
+    <answerbox_lines>18</answerbox_lines>
+    <answerbox_columns>100</answerbox_columns>
+    <use_ace>1</use_ace>
+    <showtest>1</showtest>
+    <showstdin>1</showstdin>
+    <showexpected>1</showexpected>
+    <showoutput>1</showoutput>
+    <showmark>0</showmark>
+    <combinator_template><![CDATA[{{ STUDENT_ANSWER }}
+
+__student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
+
+SEPARATOR = "#<ab@17943918#@>#"
+
+{% for TEST in TESTCASES %}
+{{ TEST.testcode }}
+{% if not loop.last %}
+print(SEPARATOR)
+{% endif %}
+{% endfor %}]]></combinator_template>
+    <test_splitter_re><![CDATA[|#<ab@17943918#@>#
+|ms]]></test_splitter_re>
+    <enable_combinator>1</enable_combinator>
+    <per_test_template><![CDATA[{{STUDENT_ANSWER}}
+
+__student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
+
+{{ TEST.testcode }}]]></per_test_template>
+    <language>python3</language>
+    <sandbox>IdeoneSandbox</sandbox>
+    <grader></grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <testcases>
+    </testcases>
+  </question>
+
+</quiz>

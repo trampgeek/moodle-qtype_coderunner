@@ -6,7 +6,6 @@ Author: Richard Lobb, University of Canterbury, New Zealand.
 
 ## Introduction
 
-
 CodeRunner is a Moodle question type that requests students to submit program code
 to some given specification, e.g. a Python function sqr(x) that returns its
 parameter squared. The submission is graded by running a series of testcases
@@ -393,6 +392,15 @@ example. The student supplies
  1. **python3**. Used for most Python3 questions. For each test case, the student
 code is run first, followed by the test code.
 
+ 1. **python3_w_output**. A variant of the *python3* question in which the
+*input* function is redefined at the start of the program so that the standard
+input characters that it consumes are echoed to standard output as they are
+when typed on the keyboard during interactive testing. A slight downside of
+this question type compared to the *python3* type is that the student code
+is displaced downwards in the file so that line numbers present in any
+syntax or runtime error messages do not match those in the student's original
+code.
+
  1. **python2**. Used for most Python2 questions. As for python3, the student
 code is run first, followed by the sequence of tests. This question type
 should be considered to be
@@ -421,17 +429,19 @@ classes in the expected manner!]
 then executed once for each test case to see if it generates the expected output
 for that test.
 
+ 1. **octave\_function**. This uses the open-source Octave system to process
+matlab-like student submissions. It has not yet been used for teaching so
+should be regarded as experimental. 
+
 As discussed later, this base set of question types can
 be customised or extended in various ways.
 
-C++ isn't built in at present, as we don't teach it, but changing the sandboxes
-to support C++ is mainly just a matter of changing the
-compile command line, viz., the line "$cmd = ..." in the *compile* methods of
-the  *C\_Task* classes in *runguardsandboxtasks.php* and *liusandboxtasks.php*.
-You would then probably
-wish to change the C question type templates a bit (or create modified copies),
-e.g. to include
-*iostream* instead of, or as well as, *stdio.h* by default. The line
+C++ isn't available as a built-in type at present, as we don't teach it. 
+However, if the Jobe server is configured to run C++ jobs (probably using
+the language ID 'cpp') you should be able to make a custom C++ question
+type by starting with the C question type, setting the language to *cpp*
+and changing the template to include
+*iostream* instead of, or as well as, *stdio.h*. The line
 
         using namespace std;
 
@@ -439,20 +449,21 @@ e.g. to include
 
 ### Some more-specialised question types
 
-The current version of CodeRunner installs some other more specialised
-question types, but these are likely to be dropped from the main install
-in the near future, since it is now straightforward for authors to define
-their own question types.
+The following question types used to exist as built-ins but have now been
+dropped from the main install as they are intended primarily for University
+of Canterbury (UOC) use only. They can be imported, if desired, from the file
+**uoclocalprototypes.xml**, located in the CodeRunner/coderunner/db folder.
 
-Local question types include:
+The UOC question types include:
 
- 1. **python3\_pylint\_func**. This is a special type developed for use in the
-University of Canterbury. The student submission is prefixed by a dummy module
-docstring and the code is passed through the [pylint](http://www.logilab.org/857)
+ 1. **python3\_pylint\_func**. The student submission is prefixed by a dummy module
+docstring and the code is pas 1. **octave\_function**. This uses the open-source Octave system to process
+matlab-like student submissions. It has not yet been used for teaching so
+should be regarded as experimental. sed through the [pylint](http://www.logilab.org/857)
 source code analyser. The submission is rejected if pylint gives any errors,
 otherwise testing proceeds as normal. Obviously, pylint needs to be installed
-and appropriately configured for this question type to be usable. It
-uses the RunguardSandbox.
+on the Jobe server or the Moodle server itself if the RunguardSandbox is
+being used.
 
  1. **python3\_pylint\_prog**. This is identical to the previous type except that no
 dummy docstring is added at the top as the submission is expected to be a
@@ -462,9 +473,9 @@ stand-alone program.python
 students write global declarations (types, functions etc) and each test is a
 complete C main function that uses the student-supplied declarations.
 
- 1. **matlab\_function**. This is the only supported matlab question type and isn't
-really intended for general use outside the University of Canterbury. It assumes
-matlab is installed on the server and can be run with the shell command
+ 1. **matlab\_function**. This is the only supported matlab question type.
+It assumes
+matlab is installed on the Jobe or Moodle server and can be run with the shell command
 "/usr/local/bin/matlab\_exec\_cli".
 A ".m" test file is built that contains a main test function, which executes
 all the supplied test cases, followed by the student code which must be in the
@@ -472,9 +483,7 @@ form of one or more function declarations. That .m file is executed by Matlab,
 various Matlab-generated noise is filtered, and the output must match that
 specified for the test cases.
 
- 1. **octave\_function**. This uses the open-source Octave system to process
-matlab-like student submissions. It has not yet been used for teaching so
-should be regarded as experimental. 
+
 
 ## Templates
 
@@ -536,7 +545,8 @@ code and the test code into the template would then be a program like:
 
 When authoring a question you can inspect the template for your chosen
 question type by temporarily checking the 'Customise' checkbox. Additionally,
-if you check the *Template debugging* checkbox you will get to see 
+if you check the *Template debugging* checkbox (hidden until you click the
+*Show more* link) you will get to see 
 in the output web page each of the
 complete programs that gets run during a question submission.
 
@@ -607,7 +617,8 @@ various tests on that data to determine its correctness. The Python *pylint*
 question types given earlier are a simple example: the template code first
 writes the student's code to a file and runs *pylint* over that file before
 proceeding with any tests. The per-test template for this question type (which must
-run in the RunguardSandbox) is:
+run in the JobeSandbox or the RunguardSandbox, with pylint installed in
+the appropriate server) is:
 
     __student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
 
@@ -657,9 +668,44 @@ used in practice include:
     diagram; the template code evaluates the correctness of the supplied
     automaton.
 
+## Template parameters
+
+NOTE: this functionality is still experimental and might change.
+
+It is sometimes necessary to make quite small changes to a template over many
+different questions. For example, you might want to use the *pylint* question
+type above but change the maximum allowable length of a function in different
+questions. Customising the template for each such question has the disadvantage
+that your derived questions no longer inherit from the original prototype, so
+that if you wish to alter the prototype you will also need to find 
+and modify all the
+derived questions, too.
+
+In such cases a better approach may be to use template parameters.
+
+If the *+Show more* link on the Coderunner question type panel in the question
+authoring form is clicked, some extra controls appear. One of these is
+*Template parameters*. This can be set to a JSON-encoded record containing
+definitions of variables that can be used by the template engine to perform
+local per-question customisation of the template.
+
+For example, the *pylint* template might cater for passing extra parameters
+to pylint via a parameter 'pylintoptions', using template code like:
+
+    pylint_opts = []
+    {% for option in QUESTION.parameters.pylintoptions %}
+    pylint_opts.append('{{option}}')
+    {% endfor %}
+    cmd = ['pylint', 'source.py'] + pylint_opts
+    result = subprocess.check_output(cmd, stderr=subprocess.STDOUT, env=env)
+
+If a particular pylint question then wishes to set limits on the number of
+statements and the number of arguments per function it could set the
+template parameters for the question to
+
+    {"pylintoptions":['--max-statement=20', '--max-args=3']}
 
 ## Grading with templates
-
 Using just the template mechanism described above it is possible to write
 almost arbitrarily complex questions. Grading of student submissions can,
 however, be problematic in some situations. For example, you may need to
