@@ -305,6 +305,23 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         // Coderunner savepoint reached.
         upgrade_plugin_savepoint(true, 2014052502, 'qtype', 'coderunner');
     }
+    
+    
+    if ($oldversion != 0 && $oldversion < 2014052801) {
+
+        // Define field template_params to be added to quest_coderunner_options.
+        $table = new xmldb_table('quest_coderunner_options');
+        $field = new xmldb_field('template_params', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'per_test_template');
+
+        // Conditionally launch add field template_params.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Coderunner savepoint reached.
+        upgrade_plugin_savepoint(true, 2014052801, 'qtype', 'coderunner');
+    }
+
 
     
     updateQuestionTypes();
