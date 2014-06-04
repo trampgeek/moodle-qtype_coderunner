@@ -38,7 +38,7 @@ function pythonEscaper($environ, $s, $charset) {
 }
 
 /**
- * An escaper for user with Matlab. Since Matlab has quirky string syntax,
+ * An escaper for use with Matlab. Since Matlab has quirky string syntax,
  * this escaper should only be used to produce a string to pass as a parameter
  * to sprintf.
  * @param type $environ   The Twig environment (currently ignored)

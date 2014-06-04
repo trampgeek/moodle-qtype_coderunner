@@ -668,6 +668,28 @@ used in practice include:
     diagram; the template code evaluates the correctness of the supplied
     automaton.
 
+### Twig Escapers
+
+As explained above, the Twig syntax {{ STUDENT_ANSWER | e('py') }} results
+in the student's submission
+being filtered by a Python escape function that escapes all
+all double quote and backslash characters with an added backslash. The
+python escaper e('py') is just one of the available escapers. Others are:
+
+ 1. e('java'). This prefixes single and double quote characters with a backslash
+    and replaces newlines, returns, formfeeds, backspaces and tabs with their
+    usual escaped form (\n, \r etc).
+
+ 1. e('c').  This is an alias for e('java').
+
+ 1. e('matlab'). This escapes single quotes, percents and newline characters.
+    It must be used in the context of sprintf, e.g.
+
+        student_answer = sprintf('{{ STUDENT_ANSWER | e('matlab')}}');
+
+ 1. e('js'), e('html') for use in JavaScript and html respectively. These 
+    are Twig built-ins. See the Twig documentation for details.
+
 ## Template parameters
 
 NOTE: this functionality is still experimental and might change.

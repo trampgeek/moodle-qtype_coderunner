@@ -30,7 +30,7 @@ define("NUM_TESTCASES_START", 5); // Num empty test cases with new questions
 define("NUM_TESTCASES_ADD", 3);   // Extra empty test cases to add
 define("DEFAULT_NUM_ROWS", 18);   // Answer box rows
 define("DEFAULT_NUM_COLS", 100);   // Answer box rows
-define("TEMPLATE_PARAM_SIZE", 40); // The size of the template parameter field
+define("TEMPLATE_PARAM_SIZE", 80); // The size of the template parameter field
 
 require_once($CFG->dirroot . '/question/type/coderunner/Sandbox/sandbox_config.php');
 require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
@@ -88,6 +88,10 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
         $typeSelectorElements[] = $mform->createElement('advcheckbox', 'customise', NULL,
                 get_string('customise', 'qtype_coderunner'));
+        
+        $typeSelectorElements[] =  $mform->createElement('advcheckbox', 'show_source', NULL,
+                get_string('show_source', 'qtype_coderunner'));
+        $mform->setDefault('show_source', False);
 
         $mform->addElement('group', 'coderunner_type_group',
                 get_string('questiontype', 'qtype_coderunner'), $typeSelectorElements, NULL, false);
@@ -129,14 +133,12 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 get_string('show_source', 'qtype_coderunner'));
         $mform->setDefault('show_source', False);
 
-        $templateElements[] = $mform->createElement('text', 'template_params',
+        $mform->addElement('text', 'template_params',
             get_string('template_params', 'qtype_coderunner'),
             array('size' => TEMPLATE_PARAM_SIZE));
-        $mform->addElement('group', 'template_group', get_string('template_group', 'qtype_coderunner'),
-                $templateElements, NULL, false);
         $mform->setType('template_params', PARAM_RAW);
-        $mform->addHelpButton('template_group', 'template_group', 'qtype_coderunner');
-        $mform->setAdvanced('template_group');
+        $mform->addHelpButton('template_params', 'template_params', 'qtype_coderunner');
+        $mform->setAdvanced('template_params');
         
         // The following fields are used to customise a question by overriding
         // values from the base question type. All are hidden

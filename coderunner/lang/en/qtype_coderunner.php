@@ -69,6 +69,9 @@ always run first, followed by the test code.
 It is also possible to customise the question type; click the 'Customise'
 checkbox and read the help available on the newly-visible form elements for
 more information.
+
+If the template-debugging checkbox is clicked, the program generated
+for each testcase will be displayed in the output.
 ";
 $string['advanced_customisation'] = "Advanced customisation";
 $string['answerbox_group'] = "Answer box";
@@ -188,7 +191,6 @@ $string['language_help'] = 'The computer language used to run the submission. '.
         'Must be known to the chosen sandbox (if a specific one has been '.
         'selected) or to at least one of the enabled sandboxes (otherwise). ' .
         'This should usually not be altered; tweak it at your peril.';
-
 $string['mark'] = 'Mark';
 $string['marking'] = 'Mark allocation';
 $string['memorylimit'] = 'MemLimit (MB)';
@@ -248,14 +250,21 @@ $string['prototypecontrols_help'] = 'If \'Is prototype\' is ' .
         'maintenance easier.';
 $string['prototypeQ'] = 'Is prototype?';
 $string['questiontype'] = 'Question type';
-$string['questiontype_help'] = 'Select the particular type of question. ' .
-        'The combo-box selects one of the built-in types, each of which ' .
-        'specifies a particular language and, sometimes, a sandbox in which ' .
-        'the program will be executed. Each question type has a ' .
-        'template that defines how the executable program is built from the ' .
-        'testcase data and the student answer. The template, and other
-            parameters of the question type, can be customised ' .
-        'by clicking the "Customise" checkbox.';
+$string['questiontype_help'] = <<<QUESTION_TYPE_HELP
+        Select the particular type of question.
+        
+        The combo-box selects one of the built-in types, each of which 
+        specifies a particular language and, sometimes, a sandbox in which
+        the program will be executed. Each question type has a
+        template that defines how the executable program is built from the
+        testcase data and the student answer.
+            
+        The template can be viewed and optionally customised by clicking
+        the "Customise" checkbox.
+        
+        If the template-debugging checkbox is clicked, the program generated
+        for each testcase will be displayed in the output.
+QUESTION_TYPE_HELP;
 $string['question_type_name'] = 'Question type';
 $string['questiontype_required'] = 'You must select the type of question';
 $string['row_properties'] = 'Row properties:';
@@ -278,8 +287,6 @@ $string['sandboxcontrols_help'] = 'Select what sandbox you wish the student ' .
         'silently ignore any or all of these settings.';
 $string['sandbox_params'] = 'Other';
 $string['SHOW'] = 'Show';
-
-
 $string['show_columns'] = 'Show columns:';
 $string['show_columns_help'] = 'Select which columns of the results table should ' .
         'be displayed to students. Empty columns will be hidden regardless. ' .
@@ -297,26 +304,6 @@ $string['testcases'] = 'Test cases';
 $string['testcode'] = 'Test code';
 $string['test_splitter_re'] = 'Test splitter (regex)';
 $string['template'] = 'Template';
-$string['template_group'] = 'Template controls';
-$string['template_group_help'] = <<<EO_TEMPLATE_GROUP_HELP
-These controls are mostly relevant only if you are customising a question and
-writing your own template(s).
-        
-Template debugging results in the full source of the code that's run on the
-sandbox being displayed in the result window when the question is checked. This
-lets you see how your template has been expanded.
-        
-The template parameters field lets you pass string parameters to a question's
-template(s). If non-blank, this must be a JSON-format record. The fields of
-the record can then be used within the template, where they appear as
-QUESTION.parameters.&lt;&lt;param&gt;&gt;. For example, if template params
-is
-        
-        {"age": 23}
-        
-the value 23 would be substituted into the template in place of the
-template variable {{ QUESTION.parameters.age }}.
-EO_TEMPLATE_GROUP_HELP;
 $string['template_help'] = <<<EO_TEMPLATE_HELP
 The template defines the program that is to be run for each test case, depending
 on the student answer and the particular test case. The template is processed
@@ -341,7 +328,19 @@ has many test cases.
 If the template-debugging checkbox is clicked, the program generated
 for each testcase will be displayed in the output.
 EO_TEMPLATE_HELP;
-$string['template_params'] = 'Template parameters';
+$string['template_params'] = 'Template params';
+$string['template_params_help'] = <<<EO_TEMPLATE_PARAMS_HELP
+The template parameters field lets you pass string parameters to a question's
+template(s). If non-blank, this must be a JSON-format record. The fields of
+the record can then be used within the template, where they appear as
+QUESTION.parameters.&lt;&lt;param&gt;&gt;. For example, if template params
+is
+        
+        {"age": 23}
+        
+the value 23 would be substituted into the template in place of the
+template variable {{ QUESTION.parameters.age }}.
+EO_TEMPLATE_PARAMS_HELP;
 $string['type_header'] = 'Coderunner question type';
 $string['typerequired'] = 'Please select the type of question (language, format, etc)';
 $string['useasexample'] = 'Use as example';

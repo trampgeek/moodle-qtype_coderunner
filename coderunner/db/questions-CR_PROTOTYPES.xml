@@ -125,7 +125,13 @@ int main() {
       <text>BUILT_IN_PROTOTYPE_java_class</text>
     </name>
     <questiontext format="moodle_auto_format">
-      <text>Used for Java write-a-class questions where the student submits a complete class as their answer. Since the test cases for such questions will typically instantiate an object of the class and perform some testson it, no attempt is made to combine the different test cases into a single executable. Hence, this type of question is likely to be relatively slow to mark, requiring multiple compilations and runs. Each test case code is assumed to be a set of statements to be wrapped into the static void main method of a separate Main class.</text>
+      <text>Used for Java write-a-class questions where the student submits a
+          complete class as their answer. Since the test cases for such questions
+          will typically instantiate an object of the class and perform
+          some tests on it, no attempt is made to combine the different test
+          cases into a single executable. Each test case code is assumed to be
+          a set of statements to be wrapped into the static void main 
+          method of a separate Main class.</text>
     </questiontext>
     <generalfeedback format="moodle_auto_format">
       <text></text>
@@ -178,7 +184,11 @@ public class __Tester__ {
       <text>BUILT_IN_PROTOTYPE_java_method</text>
     </name>
     <questiontext format="moodle_auto_format">
-      <text>Used for Java write-a-method questions where the method is essentially a stand-alone function, but ONLY IF the function should have no side-effects. Must not be used for methods that generate or consume output or alter global state in any way, as it attempts to wrap all tests into a single compile-and-run step</text>
+      <text>Used for Java write-a-method questions where the method is essentially
+          a stand-alone function, but ONLY IF the function should have no side-effects.
+          Must not be used for methods that generate or consume output or alter
+          global state in any way, as it attempts to wrap all tests into a single
+          compile-and-run step</text>
     </questiontext>
     <generalfeedback format="moodle_auto_format">
       <text></text>
@@ -248,7 +258,10 @@ public class __Tester__ {
       <text>BUILT_IN_PROTOTYPE_java_program</text>
     </name>
     <questiontext format="moodle_auto_format">
-      <text>Used for Java write-a-program questions where the student submits a complete program as their answer. The program is executed for each test case. There is no test code, just stdin test data (though this isn't actually checked: caveat emptor). </text>
+      <text>Used for Java write-a-program questions where the student submits
+          a complete program as their answer. The program is executed for each
+          test case. There is no test code, just stdin test data
+          (though this isn't actually checked: caveat emptor). </text>
     </questiontext>
     <generalfeedback format="moodle_auto_format">
       <text></text>
@@ -289,7 +302,9 @@ public class __Tester__ {
       <text>BUILT_IN_PROTOTYPE_octave_function</text>
     </name>
     <questiontext format="moodle_auto_format">
-      <text>Used for Octave function questions. Student code must be a function declaration, which is tested with each testcase.</text>
+      <text>Used for Octave function questions. Student code must be a function
+          declaration, which is tested with each testcase. This question
+          type is experimental and has had little use.</text>
     </questiontext>
     <generalfeedback format="moodle_auto_format">
       <text></text>
@@ -341,7 +356,8 @@ disp('#<ab@17943918#@>#');
       <text>BUILT_IN_PROTOTYPE_python2</text>
     </name>
     <questiontext format="moodle_auto_format">
-      <text>Used for most Python2 questions. For each test case, runs the student code followed by the test code</text>
+      <text>Used for most Python2 questions. For each test case, runs the
+          student code followed by the test code</text>
     </questiontext>
     <generalfeedback format="moodle_auto_format">
       <text></text>

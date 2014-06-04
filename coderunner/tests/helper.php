@@ -45,7 +45,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
             'copyStdinC', 'timeoutC', 'exceptionsC', 'strToUpper',
             'strToUpperFullMain', 'stringDelete',
             'sqrmatlab', 'testStudentAnswerMacro', 'sqroctave',
-            'testStudentAnswerMacroOctave',
+            'testStudentAnswerMacroOctave', 'sqrnodejs',
             'sqrjava', 'nameclass', 'printsquares', 'printstr');
     }
 
@@ -853,6 +853,59 @@ EOT;
                            'useasexample'   => 0)
         );
 
+        return $coderunner;
+    }
+    
+    
+   /**
+     * Makes an nodejs question asking for a sqr() function.
+     * Nodejs is not a built-in type, so we pretend it's a python3 question
+     * but then change the language on it.
+     * @return qtype_coderunner_question
+     */
+    public function make_coderunner_question_sqrnodejs() {
+        $coderunner = $this->makeCodeRunnerQuestion(
+            'python3',
+            'Function to square a number n',
+            'Write a js function sqr(n) that returns n squared.'
+        );
+
+        $coderunner->testcases = array(
+            (object) array('testcode'       => 'console.log(sqr(0));',
+                           'stdin'          => '',
+                           'expected'       => '0',
+                           'display'        => 'SHOW',
+                           'mark'           => 1.0,
+                           'hiderestiffail' => 0,
+                           'useasexample'   => 1),
+            (object) array('testcode'       => 'console.log(sqr(7));',
+                           'expected'         => '49',
+                            'stdin'         => '',
+                           'display'        => 'SHOW',
+                           'mark'           => 1.0,
+                           'hiderestiffail' => 0,
+                           'useasexample'   => 1),
+            (object) array('testcode'       => 'console.log(sqr(-11));',
+                           'expected'         => '121',
+                           'stdin'          => '',
+                           'display'        => 'SHOW',
+                           'mark'           => 1.0,
+                           'hiderestiffail' => 0,
+                           'useasexample'   => 0),
+           (object) array('testcode'        => 'console.log(sqr(-16));',
+                           'expected'       => '256',
+                           'stdin'          => '',
+                           'display'        => 'HIDE',
+                           'mark'           => 1.0,
+                           'hiderestiffail' => 0,
+                           'useasexample'   => 0)
+        );
+        
+        $coderunner->language = 'nodejs';
+        $coderunner->sandbox_params = "{'memorylimit': 1000000}";
+        $coderunner->per_test_template = "{{STUDENT_ANSWER}}\n"
+                . "{{TEST.testcode}}\n";
+        $coderunner->use_combinator = False;
         return $coderunner;
     }
     

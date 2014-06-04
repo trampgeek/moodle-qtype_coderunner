@@ -455,10 +455,10 @@ and changing the template to include
 
 <p>The following question types used to exist as built-ins but have now been
 dropped from the main install as they are intended primarily for University
-of Canterbury use only. They can be imported, if desired, from the file
-<strong>uoc<em>local</em>prototypes.xml</strong>.</p>
+of Canterbury (UOC) use only. They can be imported, if desired, from the file
+<strong>uoclocalprototypes.xml</strong>, located in the CodeRunner/coderunner/db folder.</p>
 
-<p>The question types include:</p>
+<p>The UOC question types include:</p>
 
 <ol>
 <li><p><strong>python3_pylint_func</strong>. The student submission is prefixed by a dummy module
@@ -549,7 +549,8 @@ code and the test code into the template would then be a program like:</p>
 
 <p>When authoring a question you can inspect the template for your chosen
 question type by temporarily checking the 'Customise' checkbox. Additionally,
-if you check the <em>Template debugging</em> checkbox you will get to see 
+if you check the <em>Template debugging</em> checkbox (hidden until you click the
+<em>Show more</em> link) you will get to see 
 in the output web page each of the
 complete programs that gets run during a question submission.</p>
 
@@ -629,7 +630,7 @@ the appropriate server) is:</p>
 import subprocess
 
 def check_code(s):
-    try:
+    try:javaEscaper
         source = open('source.py', 'w')
         source.write(s)
         source.close()
@@ -671,6 +672,28 @@ then runs that class with the JVM to check its correctness.</p></li>
 is a textual description of a Finite State Automaton for a given transition
 diagram; the template code evaluates the correctness of the supplied
 automaton.</p></li>
+</ol>
+
+<h3>Twig Escapers</h3>
+
+<p>As explained above, the Twig syntax {{ STUDENT_ANSWER | e('py') }} results
+in the student's submission
+being filtered by a Python escape function that escapes all
+all double quote and backslash characters with an added backslash. The
+python escaper e('py') is just one of the available escapers. Others are:</p>
+
+<ol>
+<li><p>e('java'). This prefixes single and double quote characters with a backslash
+and replaces newlines, returns, formfeeds, backspaces and tabs with their
+usual escaped form (\n, \r etc).</p></li>
+<li><p>e('c').  This is an alias for e('java').</p></li>
+<li><p>e('matlab'). This escapes single quotes, percents and newline characters.
+It must be used in the context of sprintf, e.g.</p>
+
+<pre><code>student_answer = sprintf('{{ STUDENT_ANSWER | e('matlab')}}');
+</code></pre></li>
+<li><p>e('js'), e('html') for use with JavaScript and html respectively. These 
+are Twig built-ins. See the Twig documentation for details.</p></li>
 </ol>
 
 <h2>Template parameters</h2>
