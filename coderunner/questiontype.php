@@ -205,9 +205,10 @@ class qtype_coderunner extends question_type {
         }
 
         // Set all inherited fields to NULL if the corresponding form
-        // field is blank or if it's neither a prototype nor customised question.
+        // field is blank or if it's being saved with customise explicitly
+        // turned off and it's not a prototype.
 
-        $questionInherits = !$customised && !$isPrototype;
+        $questionInherits = isset($question->customise) && !$question->customise && !$isPrototype;
         foreach ($fields as $field) {
             $isInherited = !in_array($field, $this->noninherited_fields());
             $isBlankString = !isset($question->$field) ||
