@@ -133,30 +133,6 @@ class qtype_coderunner_c_question_test extends qtype_coderunner_testcase {
 
 
 
-    public function test_str_to_upper_full_main() {
-        // This version has a full main function in the test
-        $q = test_question_maker::make_question('coderunner', 'strToUpperFullMain');
-        $response = array('answer' =>
-"void strToUpper(char s[]) {
-    int i = 0;
-    while (s[i]) {
-       s[i] = toupper(s[i]);
-       i++;
-    }
-}
-");
-        list($mark, $grade, $cache) = $q->grade_response($response);
-        $this->assertEquals(1, $mark);
-        $this->assertEquals(question_state::$gradedright, $grade);
-        $this->assertTrue(isset($cache['_testoutcome']));
-        $testOutcome = unserialize($cache['_testoutcome']);
-        $this->assertFalse($testOutcome->hasSyntaxError());
-        $this->assertEquals(2, count($testOutcome->testResults));
-        $this->assertTrue($testOutcome->allCorrect());
-    }
-
-
-
     public function test_runtime_error() {
         $q = test_question_maker::make_question('coderunner', 'helloProgC');
         $response = array('answer' => "#include <stdio.h>\n#include <stdlib.h>\nint main() { char* p = NULL; *p = 10; return 0; }\n");

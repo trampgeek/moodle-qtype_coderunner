@@ -38,6 +38,7 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/coderunnertestcase
 class qtype_coderunner_nodejs_question_test extends qtype_coderunner_testcase {
 
     public function test_good_sqr_function() {
+        $this->check_language_available('nodejs');
         $q = test_question_maker::make_question('coderunner', 'sqrnodejs');
         $response = array('answer' => "function sqr(n) {\n  return n * n;\n}\n");
         list($mark, $grade, $cache) = $q->grade_response($response);
@@ -52,6 +53,7 @@ class qtype_coderunner_nodejs_question_test extends qtype_coderunner_testcase {
 
     public function test_bad_sqr_function() {
         // Omit the declaration; should give a runtime error as strict mode enforced.
+        $this->check_language_available('nodejs');
         $q = test_question_maker::make_question('coderunner', 'sqrnodejs');
         $response = array('answer' => "function sqr(n) {\n  result = n * n;    return result\n}\n");
         list($mark, $grade, $cache) = $q->grade_response($response);

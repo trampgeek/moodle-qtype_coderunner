@@ -43,7 +43,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
             'sqrC', 'sqrNoSemicolons', 'sqrCustomised',
             'helloProgC',
             'copyStdinC', 'timeoutC', 'exceptionsC', 'strToUpper',
-            'strToUpperFullMain', 'stringDelete',
+            'stringDelete',
             'sqrmatlab', 'testStudentAnswerMacro', 'sqroctave',
             'testStudentAnswerMacroOctave', 'sqrnodejs',
             'sqrjava', 'nameclass', 'printsquares', 'printstr');
@@ -611,46 +611,6 @@ printf(\"%s\\n\", s);
     }
 
 
-    public function make_coderunner_question_strToUpperFullMain() {
-        // A variant of strToUpper where test cases include an actual main func
-        $coderunner = $this->makeCodeRunnerQuestion(
-                'c_full_main_tests',
-                'Function to convert string to uppercase',
-                'Write a function void strToUpper(char s[]) that converts s to uppercase'
-        );
-        $coderunner->testcases = array(
-            (object) array('testcode' => "
-int main() {
-  char s[] = {'1','@','a','B','c','d','E',';', 0};
-  strToUpper(s);
-  printf(\"%s\\n\", s);
-  return 0;
-}
-",
-                          'stdin'     => '',
-                          'expected'    => '1@ABCDE;',
-                          'display'   => 'SHOW',
-                          'useasexample'   => 0,
-                          'mark'      => 1.0,
-                          'hiderestiffail' => 0),
-            (object) array('testcode' => "
-int main() {
-  char s[] = {'1','@','A','b','C','D','e',';', 0};
-  strToUpper(s);
-  printf(\"%s\\n\", s);
-  return 0;
-}
-",
-                          'stdin'     => '',
-                          'expected'    => '1@ABCDE;',
-                          'display'   => 'SHOW',
-                          'useasexample'   => 0,
-                          'mark'      => 1.0,
-                          'hiderestiffail' => 0)
-        );
-
-        return $coderunner;
-    }
 
     /**
      * Makes a coderunner question asking for a stringDelete() function that
@@ -1100,6 +1060,9 @@ EOPROG;
 
         if (!isset($question->sandbox)) {
             $question->sandbox = $question->getBestSandbox($question->language);
+            if ($question->sandbox === NULL) {
+                throw new exception("TestHelper: no sandbox available for language {$question->language}");
+            }
         }
         if (!isset($question->grader)) {
             $question->grader = 'EqualityGrader';
@@ -1134,7 +1097,7 @@ EOPROG;
 
 
     public static function set_config_environment() {
-        set_config('runguardsandbox_enabled', 1, 'qtype_coderunner');
+        set_config('runguardsandbox_enabled', 0, 'qtype_coderunner');
         set_config('jobe_host', 'localhost', 'qtype_coderunner');
         set_config('jobesandbox_enabled', 1, 'qtype_coderunner');
         set_config('liusandbox_enabled', 1, 'qtype_coderunner');
