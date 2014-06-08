@@ -263,11 +263,11 @@ class qtype_coderunner_question extends question_graded_automatically {
      *  that has been enabled by the administrator (through the usual
      *  plug-in setting controls) and that supports the given language.
      *  It's public so the tester can call it (yuck, hacky).
-     *  @param type $language to run. Must match a language supported by at least one
-     *  sandbox or an exception is thrown.
-     * @return the preferred sandbox
+     *  @param type $language to run. 
+     *  @return the preferred sandbox for the given language or NULL if no
+     *  enabled sandboxes support this language.
      */
-    public function getBestSandbox($language) {
+    public static function getBestSandbox($language) {
         global $SANDBOXES;
         foreach($SANDBOXES as $sandbox) {
             if (get_config('qtype_coderunner', $sandbox . '_enabled')) {
@@ -281,7 +281,7 @@ class qtype_coderunner_question extends question_graded_automatically {
                 }
             }
         }
-        throw new coding_exception("Config error: no sandbox found for language '$language'");
+        return NULL;
     }
 
 
@@ -423,6 +423,9 @@ class qtype_coderunner_question extends question_graded_automatically {
         $sandboxClass = $this->sandbox;
         if ($sandboxClass === NULL)  {
             $this->sandbox = $sandboxClass = $this->getBestSandbox($this->language);
+            if ($sandboxClass === NULL) {
+                throw new coding_exception("Language {$this->language} is not available on this system");
+            }
         } else {
             if (!get_config('qtype_coderunner', strtolower($sandboxClass) . '_enabled')) {
                 throw new coding_exception("Question is configured to use a disabled sandbox ($sandboxClass)");
