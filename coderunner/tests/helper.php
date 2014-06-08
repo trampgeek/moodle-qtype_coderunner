@@ -27,6 +27,18 @@
 defined('MOODLE_INTERNAL') || die();
 
 
+// Special class of exception thrown when the helper is asked to construct
+// a CodeRunner question of a type for which no prototype exists.
+// This may occur if, say Matlab has been installed in a sandbox but the
+// corresponding matlab question types have not been loaded prior to
+// phpunit being initialised.
+class MissingCoderunnerQuestionType extends Exception {
+    public function __construct($message, $code = 0, Exception $previous = null) {
+        parent::__construct($message, $code, $previous);
+    }
+}
+
+
 /**
  * Test helper class for the coderunner question type.
  *
@@ -1045,7 +1057,7 @@ EOPROG;
         if (!$row = $DB->get_record_select(
                    'quest_coderunner_options',
                    "coderunner_type = '$type' and prototype_type != 0")) {
-               throw new exception("TestHelper: failed to load type info for question with type $type");
+               throw new MissingCoderunnerQuestionType("TestHelper: failed to load type info for question with type $type");
         }
         
         foreach ($row as $field=>$value) {
