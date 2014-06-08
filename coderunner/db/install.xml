@@ -28,6 +28,7 @@
         <FIELD NAME="template_params" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="A json-encoded record of extra parameters to pass to the template engine when building the source code to be executed."/>
         <FIELD NAME="language" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="The programming language, to be passed to the sandbox"/>
         <FIELD NAME="sandbox" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="The PHP class name of a specific sandbox to use. If null, a default one for the language is used."/>
+        <FIELD NAME="sandbox_params" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="JSON-encoded extra parameters to sandbox." />
         <FIELD NAME="grader" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="The PHP class name of the grader to use to grade results from the sandbox. If null, the BasicGrader class is used."/>
         <FIELD NAME="cputimelimitsecs" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="The maximum CPU time allowed for execution (secs)"/>
         <FIELD NAME="memlimitmb" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="The maximum memory allowed for this task execution (MB)"/>
