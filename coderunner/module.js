@@ -190,7 +190,6 @@ M.qtype_coderunner.initEditForm = function(Y) {
         customisationFieldSet = Y.one('#id_customisationheader'),
         advancedCustomisation = Y.one('#id_advancedcustomisationheader'),
         isCustomised = customise.get('checked'),
-        combinator_non_blank = true,
         prototypeType = Y.one("#id_prototype_type"),
         typeName = Y.one('#id_type_name'),
         courseId = Y.one('input[name="courseid"]').get('value'),
@@ -231,6 +230,8 @@ M.qtype_coderunner.initEditForm = function(Y) {
                             test_splitter.set('value', outcome.test_splitter_re.replace('\n','\\n'));
                             language.set('value', outcome.language);
                             typeName.set('value', newType);
+                            customise.set('checked', false);
+                            setCustomisationVisibility(false);
                             if (outcome.sandbox) {
                                 sandbox.set('value', outcome.sandbox);
                             }
@@ -265,7 +266,6 @@ M.qtype_coderunner.initEditForm = function(Y) {
            // Customisation is being turned on.
            setCustomisationVisibility(true);
        } else { // Customisation being turned off
-           combinator_non_blank = combinator_template.get('text').trim() !== '';
            message = "If you save this question with 'Customise' " +
                "unchecked, any customisation you've done will be lost.";
            if (confirm(message + " Proceed?")) {
@@ -281,7 +281,7 @@ M.qtype_coderunner.initEditForm = function(Y) {
            // [User must explicitly re-enable it if they wish to use it.]
            // The combinator-disabled alert has been disabled for now.
            // Let's see if it really matters. It's annoying!
-           combinator_non_blank = combinator_template.get('text').trim() !== '';
+           var combinator_non_blank = combinator_template.get('text').trim() !== '';
            if (combinator_non_blank &&
                 !('alertIssued' in template) &&
                 enable_combinator.get('checked')
