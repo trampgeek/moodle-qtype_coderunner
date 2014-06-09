@@ -1084,7 +1084,6 @@ EOPROG;
 
     // Return an empty CodeRunner question
     private function makeCodeRunnerQuestion($type, $name='', $questionText='') {
-        $this->set_config_environment();
         question_bank::load_question_definition_classes('coderunner');
         $coderunner = new qtype_coderunner_question();
         test_question_maker::initialise_a_question($coderunner);
@@ -1106,17 +1105,5 @@ EOPROG;
         $this->getOptions($coderunner);
         return $coderunner;
     }
-
-
-    public static function set_config_environment() {
-        set_config('runguardsandbox_enabled', 0, 'qtype_coderunner');
-        set_config('jobe_host', 'localhost', 'qtype_coderunner');
-        set_config('jobesandbox_enabled', 1, 'qtype_coderunner');
-        set_config('liusandbox_enabled', 1, 'qtype_coderunner');
-        set_config('ideonesandbox_enabled', 1, 'qtype_coderunner');
-        set_config('ideone_user', 'coderunner', 'qtype_coderunner');
-        set_config('ideone_password', 'moodlequizzes', 'qtype_coderunner');
-    }
-
 }
 

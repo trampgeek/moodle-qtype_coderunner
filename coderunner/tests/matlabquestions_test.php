@@ -40,6 +40,7 @@ class qtype_coderunner_matlab_question_test extends qtype_coderunner_testcase {
 
     public function test_good_sqr_function() {
         $this->check_language_available('matlab');
+        $this->check_question_available('sqrmatlab');
         $q = test_question_maker::make_question('coderunner', 'sqrmatlab');
         $response = array('answer' => "function sq = sqr(n)\n  sq = n * n;\nend\n");
         list($mark, $grade, $cache) = $q->grade_response($response);
@@ -54,6 +55,7 @@ class qtype_coderunner_matlab_question_test extends qtype_coderunner_testcase {
 
     public function test_bad_sqr_function() {
         $this->check_language_available('matlab');
+        $this->check_question_available('sqrmatlab');
         $q = test_question_maker::make_question('coderunner', 'sqrmatlab');
         $response = array('answer' => "function sq = sqr(n)\n  sq = n;\nend\n");
         list($mark, $grade, $cache) = $q->grade_response($response);
@@ -68,6 +70,7 @@ class qtype_coderunner_matlab_question_test extends qtype_coderunner_testcase {
 
     public function test_bad_syntax() {
         $this->check_language_available('matlab');
+        $this->check_question_available('sqrmatlab');
         $q = test_question_maker::make_question('coderunner', 'sqrmatlab');
         $response = array('answer' => "function sq = sqr(n)\n  sq = n;\nendd\n");
         list($mark, $grade, $cache) = $q->grade_response($response);
@@ -81,6 +84,7 @@ class qtype_coderunner_matlab_question_test extends qtype_coderunner_testcase {
 
     public function test_student_answer_macro() {
         $this->check_language_available('matlab');
+        $this->check_question_available('testStudentAnswerMacro');
         $q = test_question_maker::make_question('coderunner', 'testStudentAnswerMacro');
         $response = array('answer' => <<<EOT
 function mytest()
@@ -95,5 +99,7 @@ EOT
         $this->assertEquals(1, $mark);
         $this->assertEquals(question_state::$gradedright, $grade);
     }
+    
+
 }
 

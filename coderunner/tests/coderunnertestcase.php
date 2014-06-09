@@ -20,9 +20,9 @@ class qtype_coderunner_testcase extends advanced_testcase {
     protected function setUp() {
         parent::setUp();
         set_config('runguardsandbox_enabled', 1, 'qtype_coderunner');
-        set_config('liusandbox_enabled', 1, 'qtype_coderunner');
-        set_config('ideonesandbox_enabled', 1, 'qtype_coderunner');
-        set_config('jobesandbox_enabled', 0, 'qtype_coderunner');
+        set_config('liusandbox_enabled', 0, 'qtype_coderunner');
+        set_config('ideonesandbox_enabled', 0, 'qtype_coderunner');
+        set_config('jobesandbox_enabled', 1, 'qtype_coderunner');
         set_config('jobe_host', 'localhost', 'qtype_coderunner');
         set_config('ideone_user', 'coderunner', 'qtype_coderunner');
         set_config('ideone_password', 'moodlequizzes', 'qtype_coderunner');
@@ -41,6 +41,25 @@ class qtype_coderunner_testcase extends advanced_testcase {
         if (qtype_coderunner_question::getBestSandbox($language) === NULL) {
             $this->markTestSkipped(
                     "$language is not installed on your server. Test skipped.");
+        }
+    }
+    
+    
+    // Check if the particular help question can be loaded correctly,
+    // which is essentially a test in the underlying question prototype exists.
+    public function check_question_available($question) {
+        try {
+            test_question_maker::make_question('coderunner', $question);
+        } catch (MissingCoderunnerQuestionType $ex) {
+            $this->markTestSkipped("$question question unavailable: test skipped");
+        }
+    }
+    
+    
+    // Check if a particular sandbox is enabled. Skip test if not.
+    protected function check_sandbox_enabled($sandbox) {
+        if (!get_config('qtype_coderunner', $sandbox . '_enabled')) {
+            $this->markTestSkipped("Sandbox $sandbox unavailable: test skipped");
         }
     }
 

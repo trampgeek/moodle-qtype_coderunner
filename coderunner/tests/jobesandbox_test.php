@@ -4,6 +4,7 @@
  * Need full internet connectivity to run this as it needs to
  * send jobs to jobe.com.
  *
+ * @group qtype_coderunner
  * @package    qtype
  * @subpackage coderunner
  * @copyright  2013 Richard Lobb, University of Canterbury
@@ -20,6 +21,7 @@ require_once($CFG->dirroot . '/question/type/coderunner/Sandbox/jobesandbox.php'
 class qtype_coderunner_jobesandbox_test extends qtype_coderunner_testcase {
 
     public function test_languages() {
+        $this->check_sandbox_enabled('jobesandbox');
         $sandbox = new JobeSandbox(); 
         $langObj = $sandbox->getLanguages();
         $this->assertEquals(0, $langObj->error);
@@ -32,6 +34,7 @@ class qtype_coderunner_jobesandbox_test extends qtype_coderunner_testcase {
     public function test_jobesandbox_python3_good() {
         // Test the jobe sandbox using the execute method of the base class
         // with a valid python3 program.
+        $this->check_sandbox_enabled('jobesandbox');
         $source = 'print("Hello sandbox!")';
         $sandbox = new JobeSandbox();
         $result = $sandbox->execute($source, 'python3', '');
@@ -47,6 +50,7 @@ class qtype_coderunner_jobesandbox_test extends qtype_coderunner_testcase {
     // Test the jobe sandbox using the execute method of the base class
     // with a syntactically invalid python3 program.
     public function test_jobesandbox_python3_bad() {
+        $this->check_sandbox_enabled('jobesandbox');
         $source = "print('Hello sandbox!'):\n";
         $sandbox = new JobeSandbox();
         $result = $sandbox->execute($source, 'python3', '');
@@ -56,6 +60,7 @@ class qtype_coderunner_jobesandbox_test extends qtype_coderunner_testcase {
     
  
     public function test_jobesandbox_python3_with_files() {
+        $this->check_sandbox_enabled('jobesandbox');
         $source = "print(open('first.a').read())
 print(open('second.bb').read())
 ";
@@ -74,6 +79,7 @@ print(open('second.bb').read())
     public function test_jobesandbox_python3_timeout() {
         // Test the jobe sandbox using the execute method of the base class
         // with a python3 program that loops.
+        $this->check_sandbox_enabled('jobesandbox');
         $source = "while 1: pass\n";
         $sandbox = new JobeSandbox();
         $result = $sandbox->execute($source, 'python3', '');
@@ -87,6 +93,7 @@ print(open('second.bb').read())
 
     // Test the jobe sandbox with a syntactically bad C program
     public function test_jobe_sandbox_bad_C() {
+        $this->check_sandbox_enabled('jobesandbox');
         $sandbox = new JobeSandbox();
         $code = "#include <stdio.h>\nint main(): {\n    printf(\"Hello sandbox\");\n    return 0;\n}\n";
         $result = $sandbox->execute($code, 'c', NULL);
@@ -97,6 +104,7 @@ print(open('second.bb').read())
 
     // Test the jobe sandbox with a valid C program
     public function test_jobe_sandbox_ok_C() {
+        $this->check_sandbox_enabled('jobesandbox');
         $sandbox = new JobeSandbox();
         $code = "#include <stdio.h>\nint main() {\n    printf(\"Hello sandbox\\n\");\n    return 0;\n}\n";
         $result = $sandbox->execute($code, 'c', NULL);
@@ -110,6 +118,7 @@ print(open('second.bb').read())
 
     // Test the jobe sandbox with a valid java program
     public function test_jobe_sandbox_ok_java() {
+        $this->check_sandbox_enabled('jobesandbox');
         $sandbox = new JobeSandbox();
         $langs = $sandbox->getLanguages()->languages;
         if (!in_array('java', $langs)) {

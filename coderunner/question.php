@@ -204,7 +204,7 @@ class qtype_coderunner_question extends question_graded_automatically {
 
         // TODO: clean up the whole sandbox parameter business
         if (isset($this->sandbox_params)) {
-            $sandboxParams = json_decode($this->sandbox_params);
+            $sandboxParams = json_decode($this->sandbox_params, true);
         } else {
             $sandboxParams = array();
         }
