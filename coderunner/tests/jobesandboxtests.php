@@ -113,7 +113,7 @@ print(open('second.bb').read())
         $sandbox = new JobeSandbox();
         $langs = $sandbox->getLanguages()->languages;
         if (!in_array('java', $langs)) {
-            $this->markTestSkipped('Java no available on the Jobe server. ' .
+            $this->markTestSkipped('Java not available on the Jobe server. ' .
                     'Test skipped');
         }
         $code = 'public class HelloWorld { 
