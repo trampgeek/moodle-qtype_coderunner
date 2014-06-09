@@ -259,20 +259,48 @@ So you then need to re-run the CodeRunner installer to fix it.
 If your Moodle installation includes the
 *phpunit* system for testing Moodle modules, you might wish to test the
 CodeRunner installation. Most tests require that at least python2 and python3
-are installed. 
+are installed.
 
-You should then be able to run the tests with
+Before running any tests you first need to edit the config settings at the
+start of local/CodeRunner/coderunner/tests/coderunnertestcase.php to match
+whatever configuration of sandboxes you wish to test. You should then initialise
+the phpunit environment with the commands
 
         cd <moodlehome>
         sudo php admin/tool/phpunit/cli/init.php
-        sudo ./phpunit --testsuite="qtype_coderunner test suite"
 
-You will almost certainly get a number of errors relating to the various
-sandboxes and languages that you have not installed, e.g. the LiuSandbox,
+You could then run the full test suite with
+
+        sudo vendor/bin/phpunit --testsuite="qtype_coderunner test suite"
+
+However, this approach will almost certainly generate lots of errors relating
+to the various sandboxes and languages that you have not installed, e.g.
+the LiuSandbox,
 Matlab, Octave and Java. These can all be ignored unless you plan to use
 those capabilities. The name of the failing tests should be sufficient to
 tell you if you need be at all worried.
 
+An alternative approach is to run just the subset of the tests that relate
+to the particular set of sandboxes and languages that you have installed. You
+can run a single test class from within the moodle home directory with the syntax
+
+        sudo vendor/bin/phpunit <testclass> <testfilepath>
+e.g.
+        sudo vendor/bin/phpunit qtype_coderunner_test local/CodeRunner/coderunner/questiontype_test.php
+       
+A basic set for classes and associated files for testing python3 and C on the
+jobe sandbox might be:
+
+        qtype_coderunner_test in questiontype_test.php
+        qtype_coderunner_jobesandbox_test in jobesandbox_test.php
+        qtype_coderunner_pythonquestions_test in pythonquestions_test.php
+        qtype_coderunner_c_question_test in cquestions_test.php
+        qtype_coderunner_customise_test in customise_test.php
+        qtype_coderunner_datafile_test in datafile_test.php
+        qtype_coderunner_grader_test in grader_test.php
+        qtype_coderunner_template_test in template_test.php
+        qtype_coderunner_walkthrough_test in walkthroughtest.php
+        
 Please [email me](mailto:richard.lobb@canterbury.ac.nz) if you have problems
 with the installation.
 
