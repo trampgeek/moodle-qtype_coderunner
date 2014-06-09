@@ -141,7 +141,6 @@ f.close()
         $this->assertEquals(Sandbox::RESULT_RUNTIME_ERROR, $result->result);
         $sandbox->close();
     }
-
 }
 
 ?>
