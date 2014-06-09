@@ -111,6 +111,11 @@ print(open('second.bb').read())
     // Test the jobe sandbox with a valid java program
     public function test_jobe_sandbox_ok_java() {
         $sandbox = new JobeSandbox();
+        $langs = $sandbox->getLanguages()->languages;
+        if (!in_array('java', $langs)) {
+            $this->markTestSkipped('Java no available on the Jobe server. ' .
+                    'Test skipped');
+        }
         $code = 'public class HelloWorld { 
    public static void main(String[] args) { 
       System.out.println("Hello sandbox");
