@@ -1,10 +1,9 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # This phase of the installer attempts to build the RunGuard program that
 # allows use of the RunguardSandbox to execute student jobs on this Moodle
 # server. Do not run this until you have read the documentation on use
 # and limitations of the Runguard sandbox.
 
-from __future__ import print_function
 import os
 import subprocess
 
@@ -31,9 +30,9 @@ def printFailMessage():
 
 def get_webserver():
     '''Find the user name used to run the Apache web server'''
-    ps_cmd = "ps aux | grep /usr/sbin/apache2"
+    ps_cmd = 'ps aux | egrep "(/usr/sbin/apache2)|(/usr/sbin/httpd)"'
     ps_lines = subprocess.check_output(ps_cmd, shell=True).decode('utf8').split('\n')
-    names = {ps_line.split(' ')[0] for ps_line in ps_lines}
+    names = set([ps_line.split(' ')[0] for ps_line in ps_lines])
     candidates = names.intersection(set(['apache', 'www-data']))
     if len(candidates) != 1:
         raise Exception("Couldn't determine web-server user id. Is the web server running?")
