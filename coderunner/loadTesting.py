@@ -156,6 +156,7 @@ def quiz_runner(arg_tup): #quiz_name, student, [Queue]
 
         print 'opening quiz page'
         br = mech.Browser()
+        br.set_handle_robots(False)
         br.open(login)
 
         print 'Logging in as ' + student
