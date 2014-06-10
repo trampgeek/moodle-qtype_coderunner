@@ -33,7 +33,7 @@ foreach ($SANDBOXES as $sandbox) {
         "qtype_coderunner/{$sandbox}_enabled",
         get_string('enable', 'qtype_coderunner') . ' ' .$sandbox,
         get_string('enable_sandbox_desc', 'qtype_coderunner'),
-        $sandbox === 'runguardsandbox'));
+        $sandbox === 'jobesandbox'));
 }
 
 $settings->add(new admin_setting_configtext(
