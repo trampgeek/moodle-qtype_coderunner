@@ -56,7 +56,7 @@ class qtype_coderunner_template_test extends qtype_coderunner_testcase {
          // Check that a Python question gets suitably expanded with parameters
          // from the question itself. Also tests the JSON handling of sandbox
          // params.
-         $q = test_question_maker::make_question('coderunner', 'sqr');
+         $q = $this->make_question('sqr');
          $q->sandbox_params = "twiddle-twaddle";
          $q->per_test_template = <<<EOTEMPLATE
 {{ STUDENT_ANSWER }}
@@ -95,7 +95,7 @@ EOTEMPLATE;
          // The testcases are for n = {0, 1, 11, -7, -6} with marks of
          // 1, 2, 4, 8, 16 respectively. So the expected mark is 24 / 31
          // i.e 0.7742
-         $q = test_question_maker::make_question('coderunner', 'sqrnoprint');
+         $q = $this->make_question('sqrnoprint');
          $q->per_test_template = <<<EOTEMPLATE
 {{ STUDENT_ANSWER }}
 got = str({{TEST.testcode}})
@@ -121,7 +121,7 @@ EOTEMPLATE;
      public function test_template_params() {
          // Test that a template_params field in the question is expanded
          // from a JSON string and available to the template engine.
-         $q = test_question_maker::make_question('coderunner', 'sqr');
+         $q = $this->make_question('sqr');
          $q->template_params = '{"age":23, "string":"blah"}';
          $q->per_test_template = <<<EOTEMPLATE
 {{ STUDENT_ANSWER }}

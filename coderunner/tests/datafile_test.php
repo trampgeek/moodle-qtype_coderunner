@@ -35,7 +35,7 @@ require_once($CFG->dirroot . '/local/Twig/Autoloader.php');
 class qtype_coderunner_datafile_test extends qtype_coderunner_testcase {
 
     public function test_datafile_runguardsandbox() {
-        $q = test_question_maker::make_question('coderunner', 'generic_python3');
+        $q = $this->make_question('generic_python3');
         $q->testcases = array(
             (object) array(
                 'testcode'  => '',
@@ -91,7 +91,8 @@ EOCODE;
 
 
     public function test_datafile_liusandbox() {
-        $q = test_question_maker::make_question('coderunner', 'generic_c');
+        $this->check_sandbox_enabled('liusandbox');
+        $q = $this->make_question('generic_c');
         $q->testcases = array(
             (object) array(
                 'testcode'  => '',

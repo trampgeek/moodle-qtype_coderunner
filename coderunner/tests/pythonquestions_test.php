@@ -43,7 +43,7 @@ class qtype_coderunner_pythonquestions_test extends qtype_coderunner_testcase {
 
 
     public function test_get_question_summary() {
-        $q = test_question_maker::make_question('coderunner', 'sqr');
+        $q = $this->make_question('sqr');
         $this->assertEquals('Write a function sqr(n) that returns n squared',
                 $q->get_question_summary());
     }
@@ -51,13 +51,13 @@ class qtype_coderunner_pythonquestions_test extends qtype_coderunner_testcase {
 
     public function test_summarise_response() {
         $s = $this->goodcode;
-        $q = test_question_maker::make_question('coderunner', 'sqr');
+        $q = $this->make_question('sqr');
         $this->assertEquals($s, $q->summarise_response(array('answer' => $s)));
     }
 
 
     public function test_grade_response_right() {
-        $q = test_question_maker::make_question('coderunner', 'sqr');
+        $q = $this->make_question('sqr');
         $response = array('answer' => $this->goodcode);
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(1, $mark);
@@ -72,7 +72,7 @@ class qtype_coderunner_pythonquestions_test extends qtype_coderunner_testcase {
 
 
     public function test_grade_response_wrong_ans() {
-        $q = test_question_maker::make_question('coderunner', 'sqr');
+        $q = $this->make_question('sqr');
         $code = "def sqr(x): return x * x * x / abs(x)";
         $response = array('answer' => $code);
         list($mark, $grade, $cache) = $q->grade_response($response);
@@ -83,7 +83,7 @@ class qtype_coderunner_pythonquestions_test extends qtype_coderunner_testcase {
 
 
     public function test_grade_syntax_error() {
-        $q = test_question_maker::make_question('coderunner', 'sqr');
+        $q = $this->make_question('sqr');
         $code = "def sqr(x): return x  x";
         $response = array('answer' => $code);
         list($mark, $grade, $cache) =  $q->grade_response($response);
@@ -97,7 +97,7 @@ class qtype_coderunner_pythonquestions_test extends qtype_coderunner_testcase {
 
 
     public function test_grade_runtime_error() {
-        $q = test_question_maker::make_question('coderunner', 'sqr');
+        $q = $this->make_question('sqr');
         $code = "def sqr(x): return x * y";
         $response = array('answer' => $code);
         $result = $q->grade_response($response);
@@ -112,7 +112,7 @@ class qtype_coderunner_pythonquestions_test extends qtype_coderunner_testcase {
 
 
     public function test_student_answer_variable() {
-        $q = test_question_maker::make_question('coderunner', 'studentanswervar');
+        $q = $this->make_question('studentanswervar');
         $code = "\"\"\"Line1\n\"Line2\"\n'Line3'\nLine4\n\"\"\"";
         $response = array('answer' => $code);
         $result = $q->grade_response($response);
@@ -123,7 +123,7 @@ class qtype_coderunner_pythonquestions_test extends qtype_coderunner_testcase {
 
 
     public function test_illegal_open_error() {
-        $q = test_question_maker::make_question('coderunner', 'sqr');
+        $q = $this->make_question('sqr');
         $code = "def sqr(x):\n    f = open('/tmp/xxx');\n    return x * x";
         $response = array('answer' => $code);
         $result = $q->grade_response($response);
@@ -138,7 +138,7 @@ class qtype_coderunner_pythonquestions_test extends qtype_coderunner_testcase {
 
 
     public function test_grade_delayed_runtime_error() {
-        $q = test_question_maker::make_question('coderunner', 'sqr');
+        $q = $this->make_question('sqr');
         $code = "def sqr(x):\n  if x != 11:\n    return x * x\n  else:\n    return y";
         $response = array('answer' => $code);
         $result = $q->grade_response($response);
@@ -154,7 +154,7 @@ class qtype_coderunner_pythonquestions_test extends qtype_coderunner_testcase {
 
 
     public function test_triple_quotes() {
-        $q = test_question_maker::make_question('coderunner', 'sqr');
+        $q = $this->make_question('sqr');
         $code = <<<EOCODE
 def sqr(x):
     """This is a function
@@ -177,7 +177,7 @@ EOCODE;
 
     public function test_helloFunc() {
         // Check a question type with a function that prints output
-        $q = test_question_maker::make_question('coderunner', 'helloFunc');
+        $q = $this->make_question('helloFunc');
         $code = "def sayHello(name):\n  print('Hello ' + name)";
         $response = array('answer' => $code);
         $result = $q->grade_response($response);
@@ -195,7 +195,7 @@ EOCODE;
 
     public function test_copyStdin() {
         // Check a question that reads stdin and writes to stdout
-        $q = test_question_maker::make_question('coderunner', 'copyStdin');
+        $q = $this->make_question('copyStdin');
         $code = <<<EOCODE
 def copyStdin(n):
   for i in range(n):
@@ -221,7 +221,7 @@ EOCODE;
 
      public function test_timeout() {
          // Check a question that loops forever. Should cause sandbox timeout
-        $q = test_question_maker::make_question('coderunner', 'timeout');
+        $q = $this->make_question('timeout');
         $code = "def timeout():\n  while (1):\n    pass";
         $response = array('answer' => $code);
         $result = $q->grade_response($response);
@@ -238,7 +238,7 @@ EOCODE;
 
      public function test_exceptions() {
          // Check a function that conditionally throws exceptions
-        $q = test_question_maker::make_question('coderunner', 'exceptions');
+        $q = $this->make_question('exceptions');
         $code = "def checkOdd(n):\n  if n & 1:\n    raise ValueError()";
         $response = array('answer' => $code);
         $result = $q->grade_response($response);
@@ -255,7 +255,7 @@ EOCODE;
 
      public function test_partial_mark_question() {
          // Test a question that isn't of the usual all_or_nothing variety
-        $q = test_question_maker::make_question('coderunner', 'sqrPartMarks');
+        $q = $this->make_question('sqrPartMarks');
         $code = "def sqr(n):\n  return -17.995";
         $response = array('answer' => $code);
         $result = $q->grade_response($response);
@@ -287,7 +287,7 @@ EOCODE;
 
 
      public function test_customised_timeout() {
-        $q = test_question_maker::make_question('coderunner', 'helloPython');
+        $q = $this->make_question('helloPython');
         $slowSquare = <<<EOT
 from time import clock
 t = clock()

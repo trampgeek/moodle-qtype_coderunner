@@ -26,7 +26,7 @@ class qtype_coderunner_grader_test extends qtype_coderunner_testcase {
 
     public function test_copyStdin() {
         // Check a question that reads stdin and writes to stdout
-        $q = test_question_maker::make_question('coderunner', 'copyStdin');
+        $q = $this->make_question('copyStdin');
         $q->grader = 'RegexGrader';
         $q->testcases = array(
             (object) array('testcode' => 'copyStdin()',

@@ -36,9 +36,9 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/coderunnertestcase
  * Unit tests for coderunner Java questions
  */
 class qtype_coderunner_java_question_test extends qtype_coderunner_testcase {
-
+    
     public function test_good_sqr_function() {
-        $q = test_question_maker::make_question('coderunner', 'sqrjava');
+        $q = $this->make_question('sqrjava');
         $response = array('answer' => "int sqr(int n) { return n * n; }\n");
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(1, $mark);
@@ -51,7 +51,7 @@ class qtype_coderunner_java_question_test extends qtype_coderunner_testcase {
 
 
     public function test_bad_sqr_function() {
-        $q = test_question_maker::make_question('coderunner', 'sqrjava');
+        $q = $this->make_question('sqrjava');
         $response = array('answer' => "int sqr(int n) { return n; }\n");
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(0, $mark);
@@ -64,7 +64,7 @@ class qtype_coderunner_java_question_test extends qtype_coderunner_testcase {
 
 
     public function test_bad_syntax() {
-        $q = test_question_maker::make_question('coderunner', 'sqrjava');
+        $q = $this->make_question('sqrjava');
         $response = array('answer' => "int sqr(n) { return n * n; }\n");
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(0, $mark);
@@ -77,7 +77,7 @@ class qtype_coderunner_java_question_test extends qtype_coderunner_testcase {
 
 
     public function test_class_type() {
-        $q = test_question_maker::make_question('coderunner', 'nameclass');
+        $q = $this->make_question('nameclass');
         $response = array('answer' =>
 "class Name {
   String first;
@@ -101,7 +101,7 @@ class qtype_coderunner_java_question_test extends qtype_coderunner_testcase {
     }
 
     public function test_program_type() {
-        $q = test_question_maker::make_question('coderunner', 'printsquares');
+        $q = $this->make_question('printsquares');
         $response = array('answer' =>
 "import java.util.Scanner;
  public class PrintNames {
@@ -128,7 +128,7 @@ class qtype_coderunner_java_question_test extends qtype_coderunner_testcase {
 
     // Checks if the Java Twig escape filter works
     public function test_java_escape() {
-        $q = test_question_maker::make_question('coderunner', 'printstr');
+        $q = $this->make_question('printstr');
         $response = array('answer' => '');
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(1, $mark);

@@ -19,7 +19,7 @@ require_once($CFG->dirroot . '/question/type/coderunner/question.php');
 class qtype_coderunner_testcase extends advanced_testcase {
     protected function setUp() {
         parent::setUp();
-        set_config('runguardsandbox_enabled', 1, 'qtype_coderunner');
+        set_config('runguardsandbox_enabled', 0, 'qtype_coderunner');
         set_config('liusandbox_enabled', 0, 'qtype_coderunner');
         set_config('ideonesandbox_enabled', 0, 'qtype_coderunner');
         set_config('jobesandbox_enabled', 1, 'qtype_coderunner');
@@ -45,14 +45,14 @@ class qtype_coderunner_testcase extends advanced_testcase {
     }
     
     
-    // Check if the particular help question can be loaded correctly,
-    // which is essentially a test in the underlying question prototype exists.
-    public function check_question_available($question) {
+    // Make and return a question, skipping the test if it can't be made.
+    public function make_question($question) {
         try {
-            test_question_maker::make_question('coderunner', $question);
+            $q = test_question_maker::make_question('coderunner', $question);
         } catch (MissingCoderunnerQuestionType $ex) {
             $this->markTestSkipped("$question question unavailable: test skipped");
         }
+        return $q;
     }
     
     

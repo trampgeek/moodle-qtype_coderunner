@@ -40,12 +40,7 @@ class qtype_coderunner_pythonpylint_test extends qtype_coderunner_testcase {
      public function test_pylint_func_good() {
         // Test that a pylint-func question with a good pylint-compatible
         // submission passes.
-        try {
-            $q = test_question_maker::make_question('coderunner', 'sqr_pylint');
-        } catch (MissingCoderunnerQuestionType $e) {
-            $this->markTestSkipped(
-                    "pylint question type(s) are not installed on your server. Test skipped.");
-        }
+        $q = $this->make_question('sqr_pylint');
         $code = <<<EOCODE
 import posix  # Checks if pylint bug patched
 def sqr(n):
@@ -66,12 +61,7 @@ EOCODE;
      public function test_pylint_func_bad() {
         // Test that a pylint-func question with a bad (pylint-incompatible)
         // submission fails.
-        try {
-            $q = test_question_maker::make_question('coderunner', 'sqr_pylint');
-        } catch (MissingCoderunnerQuestionType $e) {
-            $this->markTestSkipped(
-                    "pylint question type(s) are not installed on your server. Test skipped.");
-        }
+        $q = $this->make_question('sqr_pylint');
         // Code lacks a docstring
         $code = <<<EOCODE
 def sqr(n):

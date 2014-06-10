@@ -20,7 +20,7 @@
  *
  * @package    qtype
  * @subpackage coderunner
- * @copyright  2012 Richard Lobb, The University of Canterbury
+ * @copyright  2012, 2014 Richard Lobb, The University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
