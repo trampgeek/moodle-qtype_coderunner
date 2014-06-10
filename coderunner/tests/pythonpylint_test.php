@@ -38,9 +38,10 @@ require_once($CFG->dirroot . '/local/Twig/Autoloader.php');
 class qtype_coderunner_pythonpylint_test extends qtype_coderunner_testcase {
 
      public function test_pylint_func_good() {
-        // Test that a pylint-func question with a good pylint-compatible
+        // Test that a python3_pylint question with a good pylint-compatible
         // submission passes.
         $q = $this->make_question('sqr_pylint');
+        $q->template_params = '{"isfunction":true}';
         $code = <<<EOCODE
 import posix  # Checks if pylint bug patched
 def sqr(n):
@@ -59,7 +60,7 @@ EOCODE;
 
 
      public function test_pylint_func_bad() {
-        // Test that a pylint-func question with a bad (pylint-incompatible)
+        // Test that a python3_pylint question with a bad (pylint-incompatible)
         // submission fails.
         $q = $this->make_question('sqr_pylint');
         // Code lacks a docstring
