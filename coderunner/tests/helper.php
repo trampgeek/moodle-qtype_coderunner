@@ -74,7 +74,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
      * @return qtype_coderunner_question
      */
     public function make_coderunner_question_sqr_pylint() {
-        return $this->make_coderunner_question_sqr_subtype('python3_pylint_func');
+        return $this->make_coderunner_question_sqr_subtype('python3_pylint');
     }
 
 
@@ -92,7 +92,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
     /**
      * Makes a coderunner question asking for a sqr() function.
      * @param $coderunner_type  The type of coderunner function to generate,
-     * e.g. 'python3-pylint-func'.
+     * e.g. 'python3_pylint'.
      * @return qtype_coderunner_question
      */
     private function make_coderunner_question_sqr_subtype($coderunner_type) {
@@ -874,7 +874,7 @@ EOT;
         );
         
         $coderunner->language = 'nodejs';
-        $coderunner->sandbox_params = "{'memorylimit': 1000000}";
+        $coderunner->sandbox_params = '{"memorylimit": 1000000}';
         $coderunner->per_test_template = "{{STUDENT_ANSWER}}\n"
                 . "{{TEST.testcode}}\n";
         $coderunner->use_combinator = False;
