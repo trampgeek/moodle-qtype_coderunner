@@ -105,7 +105,7 @@ check_code(__student_answer__)
     <penalty>0.3333333</penalty>
     <hidden>0</hidden>
     <coderunner_type>c_full_main_tests</coderunner_type>
-    <prototype_type>1</prototype_type>
+    <prototype_type>2</prototype_type>
     <all_or_nothing>1</all_or_nothing>
     <penalty_regime></penalty_regime>
     <show_source>0</show_source>
@@ -152,7 +152,7 @@ check_code(__student_answer__)
     <penalty>0.3333333</penalty>
     <hidden>0</hidden>
     <coderunner_type>clojure</coderunner_type>
-    <prototype_type>1</prototype_type>
+    <prototype_type>2</prototype_type>
     <all_or_nothing>1</all_or_nothing>
     <penalty_regime></penalty_regime>
     <show_source>0</show_source>
@@ -194,7 +194,7 @@ check_code(__student_answer__)
     <penalty>0.3333333</penalty>
     <hidden>0</hidden>
     <coderunner_type>matlab_function</coderunner_type>
-    <prototype_type>1</prototype_type>
+    <prototype_type>2</prototype_type>
     <all_or_nothing>1</all_or_nothing>
     <penalty_regime></penalty_regime>
     <show_source>0</show_source>
@@ -251,7 +251,7 @@ end
     <penalty>0.3333333</penalty>
     <hidden>0</hidden>
     <coderunner_type>python3_ideone</coderunner_type>
-    <prototype_type>1</prototype_type>
+    <prototype_type>2</prototype_type>
     <all_or_nothing>1</all_or_nothing>
     <penalty_regime></penalty_regime>
     <show_source>0</show_source>

@@ -4,6 +4,7 @@ require_once($CFG->dirroot . '/question/format/xml/format.php');
 require_once($CFG->dirroot . '/lib/questionlib.php');
 require_once($CFG->dirroot . '/lib/accesslib.php');
 
+define('PROTOTYPE_ENDING', '_PROTOTYPES.xml');  // prototype file ending
 
 function xmldb_qtype_coderunner_upgrade($oldversion) {
     global $CFG, $DB;
@@ -448,15 +449,22 @@ function updateQuestionTypes() {
     
     // Delete all existing prototypes
     $prototypes = $DB->get_records_select('question',
-            "category = $prototypeCategoryId and name like 'BUILT_IN_PROTOTYPE_%'");
+            "category = $prototypeCategoryId and name like '%PROTOTYPE_%'");
     foreach ($prototypes as $question) {
        $DB->delete_records('quest_coderunner_options',
             array('questionid' => $question->id));
        $DB->delete_records('question', array('id' => $question->id));
     }
     
-    $prototypesFilename = dirname(__FILE__) . '/questions-CR_PROTOTYPES.xml';
-    load_questions($category, $prototypesFilename, $systemcontextid);
+    $dbDir = dirname(__FILE__);
+    $dbFiles = scandir($dbDir);
+    foreach ($dbFiles as $file) {
+        // Load any files in the db directory ending with PROTOTYPE_ENDING
+        if (strpos(strrev($file), strrev(PROTOTYPE_ENDING)) === 0) {
+            $filename = $dbDir . '/' . $file;
+            load_questions($category, $filename, $systemcontextid);
+        }
+    }
 
     return $success;
 }
@@ -464,7 +472,7 @@ function updateQuestionTypes() {
 
 function load_questions($category, $importfilename, $contextId) {
     // Load all the questions from the given import file into the given category
-    // (except that the category from the import file will be used if given).
+    // The category from the import file will be ignored if present.
     global $COURSE;
     $qformat = new qformat_xml();
     $qformat->setCategory($category);
@@ -475,8 +483,8 @@ function load_questions($category, $importfilename, $contextId) {
     $qformat->setFilename($importfilename);
     $qformat->setRealfilename($importfilename);
     $qformat->setMatchgrades('error');
-    $qformat->setCatfromfile(TRUE);
-    $qformat->setContextfromfile(TRUE);
+    $qformat->setCatfromfile(FALSE);
+    $qformat->setContextfromfile(FALSE);
     $qformat->setStoponerror(TRUE);
 
     // Do anything before that we need to
