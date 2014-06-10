@@ -266,7 +266,8 @@ class qtype_coderunner extends question_type {
 
         // Lastly, save any datafiles
 
-        if ($USER->id)  {  // HACK to deal with phpunit initialisation, when no user exists
+        if ($USER->id && isset($question->datafiles))  { 
+            //  The id check is a hack to deal with phpunit initialisation, when no user exists
             file_save_draft_area_files($question->datafiles, $question->context->id,
                 'qtype_coderunner', 'datafile', (int) $question->id, $this->fileoptions);
         }
