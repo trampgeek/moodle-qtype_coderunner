@@ -82,6 +82,16 @@ tables and preserve all existing questions and student submissions. Move the
 existing <moodleHome>/local/CodeRunner folder to a backup location, then just
 follow the instructions in the next section.
 
+All existing questions in the system CR_PROTOTYPES category with names containing the
+string 'PROTOTYPE_' are deleted by the installer, which then re-loads them
+from the file local/CodeRunner/coderunner/db/questions-CR_PROTOTYPES.xml.
+Hence if you have developed your own question prototypes and placed them in
+the system CR_PROTOTYPES category you must export them in Moodle XML format before
+upgrading. You can if you wish place that exported file in the 'db' directory
+with a name ending in '_PROTOTYPES.xml'; they will then be automatically
+loaded by the installer. Alternatively you can reload them at your leisure
+later on.
+
 
 ### Installing CodeRunner from scratch
 
@@ -99,6 +109,12 @@ command like (depending on your system)
 or
 
     yum install pear
+
+If you have local question prototypes to add to the built-in prototype set,
+copy them into the local/CodeRunner/coderunner/db folder; they should be
+Moodle XML file(s) with names ending in '_PROTOTYPES.xml' (case-sensitive).
+[If you don't understand what this paragraph means, then it doesn't concern 
+you ... move on.]
 
 CodeRunner should then be installed in the `<moodlehome>/local` directory as follows.
 
@@ -269,11 +285,11 @@ the phpunit environment with the commands
         cd <moodlehome>
         sudo php admin/tool/phpunit/cli/init.php
 
-You could then run the full test suite with
+You can then run the full test suite with
 
-        sudo vendor/bin/phpunit --testsuite="qtype_coderunner test suite"
+        sudo vendor/bin/phpunit --verbose --testsuite="qtype_coderunner test suite"
 
-However, this approach will almost certainly generate lots of errors relating
+This will almost certainly show lots of skipped or failed tests relating
 to the various sandboxes and languages that you have not installed, e.g.
 the LiuSandbox,
 Matlab, Octave and Java. These can all be ignored unless you plan to use
