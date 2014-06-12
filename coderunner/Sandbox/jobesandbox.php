@@ -144,8 +144,8 @@ class JobeSandbox extends Sandbox {
                 'memory' => 0,  // TODO - consider if this needs fixing
                 'signal' => 0,  // TODO - consider if this needs fixing
                 'cmpinfo'=> $this->resultObj->cmpinfo,
-                'output' => $this->resultObj->stdout,
-                'stderr' => $this->resultObj->stderr
+                'output' => $this->filter_file_path($this->resultObj->stdout),
+                'stderr' => $this->filter_file_path($this->resultObj->stderr)
         );
     }
     
@@ -205,6 +205,13 @@ class JobeSandbox extends Sandbox {
             $returnCode = -1;
         }   
         return array($returnCode, $body);
+    }
+    
+    
+    // Replace jobe filepaths of the form /home/jobe/runs/<directory>/filename
+    // with filename.
+    private function filter_file_path($s) {
+        return preg_replace('|(/home/jobe/runs/jobe_[a-zA-Z0-9_]+/)([a-zA-Z0-9_]+)|', '$2', $s);
     }
 }
 ?>
