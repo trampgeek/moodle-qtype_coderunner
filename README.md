@@ -277,9 +277,10 @@ If your Moodle installation includes the
 CodeRunner installation. Most tests require that at least python2 and python3
 are installed.
 
-Before running any tests you first need to edit the config settings at the
-start of local/CodeRunner/coderunner/tests/coderunnertestcase.php to match
-whatever configuration of sandboxes you wish to test. You should then initialise
+Before running any tests you first need to edit the file
+local/CodeRunner/coderunner/tests/config.php to match
+whatever configuration of sandboxes you wish to test and to set the jobe
+server URL, if appropriate. You should then initialise
 the phpunit environment with the commands
 
         cd <moodlehome>
