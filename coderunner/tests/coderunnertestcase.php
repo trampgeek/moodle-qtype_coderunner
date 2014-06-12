@@ -18,15 +18,9 @@ require_once($CFG->dirroot . '/question/type/coderunner/question.php');
 
 class qtype_coderunner_testcase extends advanced_testcase {
     protected function setUp() {
+        global $CFG;
         parent::setUp();
-        set_config('runguardsandbox_enabled', 0, 'qtype_coderunner');
-        set_config('liusandbox_enabled', 0, 'qtype_coderunner');
-        set_config('ideonesandbox_enabled', 0, 'qtype_coderunner');
-        set_config('jobesandbox_enabled', 1, 'qtype_coderunner');
-        set_config('jobe_host', 'localhost', 'qtype_coderunner');
-        set_config('ideone_user', 'coderunner', 'qtype_coderunner');
-        set_config('ideone_password', 'moodlequizzes', 'qtype_coderunner');
-        set_config('ideone_password', 'moodlequizzes', 'qtype_coderunner');
+        require($CFG->dirroot . '/question/type/coderunner/tests/config.php');
         $this->resetAfterTest();
     }
 
