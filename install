@@ -37,6 +37,7 @@ def main():
                     continue  # Directory already exists
                 if subprocess.call("ln -s {0}/{1} {2}/{3}".format(installdir, src, basedir, dest), shell=True) != 0:
                     raise OSError("Failed to create symbolic link")
+            print("Install complete.")
 
         except Exception as e:
             print("Exception when making symbolic links: " + str(e))
