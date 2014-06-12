@@ -9,16 +9,13 @@ table.coderunnerexamples td,
     font-family:courier,monospace;
 }
 
-.coderunner-answer {
-    /* width:100% ; */
-}
-
 div.coderunner .formulation {
     background: #d1e1e5;
 }
 
 div.coderunner .ace_editor {
-    font-size: 14px;
+    font-size: 100%;
+    line-height: 18px;
 }
 
 p.for-example-para {
@@ -36,27 +33,43 @@ div.outcome {
 table.coderunner-test-results td, table.coderunner-test-results th,
 table.coderunnerexamples td, table.coderunnerexamples th {
     border: 1px solid #B0B0B0;
+    padding: 0.4em;
 }
 
 table.coderunner-test-results .header, table.coderunnerexamples .header {
     text-align: left;
+    background-color: #F8F8FF;
 }
 
-table.coderunner-test-results tr.hidden {
+table.coderunner-test-results tr.hidden-test {
     opacity: 0.5;
 }
 
+table.coderunner-test-results, table.coderunnerexamples {
+    margin-bottom: 1em;
+}
 
-div.coderunner-test-results-good {
+textarea.coderunner-answer[cols] {
+    max-width: 100%;
+    width: auto;
+    line-height: 18px;
+}
+
+
+div.coderunner-test-results {
+    color: black;
+}
+
+div.coderunner-test-results.good {
     background-color: #AAFFAA;
 }
 
 
-div.coderunner-test-results-bad {
+div.coderunner-test-results.bad {
     background-color: #FFAAAA;
 }
 
-div.coderunner-test-results-partial {
+div.coderunner-test-results.partial {
     background-color: #FFF3BF;
 }
 
