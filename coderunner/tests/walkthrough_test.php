@@ -44,6 +44,13 @@ require_once($CFG->dirroot . '/question/engine/tests/helpers.php');
 
 
 class qtype_coderunner_walkthrough_test extends qbehaviour_walkthrough_test_base {
+    
+    protected function setUp() {
+        global $CFG;
+        parent::setUp();
+        require($CFG->dirroot . '/question/type/coderunner/tests/config.php');
+    }
+
     public function test_adaptive() {
 
         $q = test_question_maker::make_question('coderunner', 'sqr');
@@ -103,9 +110,7 @@ class qtype_coderunner_walkthrough_test extends qbehaviour_walkthrough_test_base
     }
 
     public function test_partial_marks() {
-
         $q = test_question_maker::make_question('coderunner', 'sqrPartMarks');
-
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
 
          // Submit a totally wrong answer
