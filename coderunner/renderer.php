@@ -138,11 +138,11 @@ class qtype_coderunner_renderer extends qtype_renderer {
             $testOutcome = unserialize($toSerialised);
             $testResults = $testOutcome->testResults;
             if ($testOutcome->allCorrect()) {
-                $resultsclass = "coderunner-test-results-good";
+                $resultsclass = "coderunner-test-results good";
             } elseif (!$q->all_or_nothing && $testOutcome->markAsFraction() > 0) {
-                $resultsclass = 'coderunner-test-results-partial';
+                $resultsclass = 'coderunner-test-results partial';
             } else {
-                $resultsclass = "coderunner-test-results-bad";
+                $resultsclass = "coderunner-test-results bad";
             }
 
             $fb = '';
@@ -279,7 +279,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
                 $rowWithLineBreaks[] = $this->feedback_image($fraction);
                 $tableData[] = $rowWithLineBreaks;
                 if (!$testIsVisible) {
-                    $rowclasses[$i] = 'hidden';
+                    $rowclasses[$i] = 'hidden-test';
                 }
             }
             $i++;
