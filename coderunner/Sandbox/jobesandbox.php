@@ -202,7 +202,6 @@ class JobeSandbox extends Sandbox {
             }
    
         } catch (HTTP_Request2_Exception $e) {
-            debugging("Http error" . $e);
             $returnCode = -1;
         }   
         return array($returnCode, $body);
