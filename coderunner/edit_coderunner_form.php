@@ -100,12 +100,12 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $answerboxElements = array();
         $answerboxElements[] = $mform->createElement('text', 'answerbox_lines',
                 get_string('answerbox_lines', 'qtype_coderunner'),
-                array('size'=>3));
+                array('size'=>3, 'class'=>'coderunner_answerbox_size'));
         $mform->setType('answerbox_lines', PARAM_INT);
         $mform->setDefault('answerbox_lines', DEFAULT_NUM_ROWS);
         $answerboxElements[] = $mform->createElement('text', 'answerbox_columns',
                 get_string('answerbox_columns', 'qtype_coderunner'),
-                array('size'=>3));
+                array('size'=>3, 'class'=>'coderunner_answerbox_size'));
         $mform->setType('answerbox_columns', PARAM_INT);
         $mform->setDefault('answerbox_columns', DEFAULT_NUM_COLS);
         $answerboxElements[] = $mform->createElement('advcheckbox', 'use_ace', NULL,
@@ -375,7 +375,8 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $group[] =& $mform->createElement('checkbox', 'hiderestiffail', NULL,
                         get_string('hiderestiffail', 'qtype_coderunner'));
         $group[] =& $mform->createElement('text', 'mark',
-                get_string('mark', 'qtype_coderunner'), array('size' => 5));
+                get_string('mark', 'qtype_coderunner'),
+                array('size' => 5, 'class' => 'testcasemark'));
 
         $repeated[] =& $mform->createElement('group', 'testcasecontrols',
                         get_string('row_properties', 'qtype_coderunner'),

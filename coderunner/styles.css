@@ -1,3 +1,5 @@
+/* Question and results page */
+
 div.coderunner-examples {
     width: 100%;
     overflow:auto;
@@ -48,6 +50,11 @@ table.coderunner-test-results tr.hidden-test {
 table.coderunner-test-results, table.coderunnerexamples {
     margin-bottom: 1em;
 }
+
+div.coderunner-test-results td.lastcol {
+    min-width: 16px;
+}
+
 
 textarea.coderunner-answer[cols] {
     max-width: 100%;
@@ -154,5 +161,14 @@ body#page-question-type-coderunner input[type="checkbox"]+label {
 }
 
 
+/* Question edit form */
 
+textarea.edit_code {
+    width: 50em;
+    max-width: 100%;
+}
+
+input.testcasemark, input.coderunner_answerbox_size {
+    width: auto;
+}
 
