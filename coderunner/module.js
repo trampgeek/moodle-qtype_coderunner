@@ -237,7 +237,7 @@ M.qtype_coderunner.initEditForm = function(Y) {
                         }
                         else {
                             template.set('text', "*** AJAX ERROR. DON'T SAVE THIS! ***\n" + outcome.error);
-                        }    print("ID $pr->studentid, response $pr->response\n");
+                        }
 
                     },
                     failure: function (id, result) {
