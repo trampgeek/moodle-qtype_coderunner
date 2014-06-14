@@ -9,6 +9,7 @@ table.coderunner-test-results td,
 table.coderunnerexamples td,
 .edit_code {
     font-family:courier,monospace;
+    vertical-align: top;
 }
 
 div.coderunner .formulation {
