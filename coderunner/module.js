@@ -224,7 +224,7 @@ M.qtype_coderunner.initEditForm = function(Y) {
                             mb = outcome.memlimitmb ? outcome.memlimitmb : '';
                             memlimit.set('value', mb);
                             sb = outcome.sandbox ? outcome.sandbox : 'DEFAULT';
-                            sandbox.set(value, sb);
+                            sandbox.set('value', sb);
                             sb_param_val = outcome.sandbox_params ? outcome.sandbox_params : '';
                             sandboxparams.set('value', sb_param_val);
                             combinator_template.set('text', outcome.combinator_template);
