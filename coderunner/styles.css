@@ -168,7 +168,8 @@ textarea.edit_code {
     max-width: 100%;
 }
 
-input.testcasemark, input.coderunner_answerbox_size {
+input.testcasemark, input.coderunner_answerbox_size,
+input#id_cputimelimitsecs, input#id_memlimitmb {
     width: auto;
 }
 
