@@ -223,6 +223,8 @@ M.qtype_coderunner.initEditForm = function(Y) {
                             cputime.set('value', secs);
                             mb = outcome.memlimitmb ? outcome.memlimitmb : '';
                             memlimit.set('value', mb);
+                            sb = outcome.sandbox ? outcome.sandbox : 'DEFAULT';
+                            sandbox.set(sb);
                             sb_param_val = outcome.sandbox_params ? outcome.sandbox_params : '';
                             sandboxparams.set('value', sb_param_val);
                             combinator_template.set('text', outcome.combinator_template);
@@ -238,7 +240,7 @@ M.qtype_coderunner.initEditForm = function(Y) {
                         }
                         else {
                             template.set('text', "*** AJAX ERROR. DON'T SAVE THIS! ***\n" + outcome.error);
-                        }
+                        }    print("ID $pr->studentid, response $pr->response\n");
 
                     },
                     failure: function (id, result) {
