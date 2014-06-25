@@ -79,13 +79,16 @@ class JobeSandbox extends Sandbox {
                 'input'             => $input,
                 'file_list'         => $fileList
             );
+             
+        if (DEBUGGING) {
+            $run_spec['debug'] = 1;
+        }
         
         if($params !== NULL) {
             $run_spec['parameters'] = $params;
-        }
-        
-        if (DEBUGGING) {
-            $run_spec['debug'] = 1;
+            if (isset($params['debug']) && $params['debug']) {
+                $run_spec['debug'] = 1;
+            }
         }
         
         $postBody = array('run_spec' => $run_spec);
