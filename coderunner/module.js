@@ -208,6 +208,8 @@ M.qtype_coderunner.initEditForm = function(Y) {
         var newType = typeCombo.get('value'),
             secs = '',
             mb = '',
+            sb = '',
+            splitter = '',
             sb_param_val = '';
 
         if (newType != '' && newType != 'Undefined') {
@@ -229,7 +231,8 @@ M.qtype_coderunner.initEditForm = function(Y) {
                             sandboxparams.set('value', sb_param_val);
                             combinator_template.set('text', outcome.combinator_template);
                             enable_combinator.set('checked', outcome.enable_combinator == "1");
-                            test_splitter.set('value', outcome.test_splitter_re.replace('\n','\\n'));
+                            splitter = outcome.test_splitter_re ? outcome.test_splitter_re.replace('\n','\\n'): '';
+                            test_splitter.set('value', splitter);
                             language.set('value', outcome.language);
                             typeName.set('value', newType);
                             customise.set('checked', false);
