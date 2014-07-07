@@ -89,6 +89,9 @@ class JobeSandbox extends Sandbox {
             if (isset($params['debug']) && $params['debug']) {
                 $run_spec['debug'] = 1;
             }
+            if (isset($params['sourcefilename'])) {
+                $run_spec['sourcefilename'] = $params['sourcefilename'];
+            }
         }
         
         $postBody = array('run_spec' => $run_spec);
