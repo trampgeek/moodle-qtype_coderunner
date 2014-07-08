@@ -1,6 +1,6 @@
 # CODE RUNNER
 
-Version: 2.0 beta April 2014
+Version: 2.1 June 2014
 
 Author: Richard Lobb, University of Canterbury, New Zealand.
 
@@ -51,16 +51,24 @@ about 30 quiz questions per minute while maintaining a response time of less
 than about 3 - 4 seconds, assuming the student code itself runs in a
 fraction of a second.
 
-Administrator privileges and some Unix skills are needed to install Coderunner.
+Administrator privileges and some Linux skills are needed to install Coderunner.
 
-## Upgrading from an earlier version
+## Installation
+
+This chapter describes how to install CodeRunner. It assumes the
+existance of a working Moodle system and a reasonable level of Linux
+adminstration skills.
+
+If you are installing for the first time, jump straight to section 2.2.
+
+### Upgrading to version 2
 
 CodeRunner version 2 is a major upgrade from version 1, with many new features
 and significant restructuring of the database tables. Although the new
 version attempts to update all the database tables to the new format the
 update process has been tested on only one system. Some problems occurred and the
 upgrade code was edited to deal with those problems but the edits have received
-minimal testing because of the absence of any "pure" version 1 system on which to 
+minimal testing because of the absence of any "pure" version 1 system on which to
 test them. If you are currently
 running version 1 and wish to upgrade to version 2, it is strongly recommended
 that:
@@ -68,7 +76,7 @@ that:
 1. You do not attempt such an upgrade during term time.
 
 1. You make a complete backup of your existing server's database before attempting the
-   upgrade. 
+   upgrade.
 
 1. You export all your coderunner questions from the question
    database in Moodle XML format.
@@ -82,16 +90,15 @@ tables and preserve all existing questions and student submissions. Move the
 existing <moodleHome>/local/CodeRunner folder to a backup location, then just
 follow the instructions in the next section.
 
-All existing questions in the system CR_PROTOTYPES category with names containing the
-string 'PROTOTYPE_' are deleted by the installer, which then re-loads them
+All existing questions in the system CR\_PROTOTYPES category with names containing the
+string 'PROTOTYPE\_' are deleted by the installer, which then re-loads them
 from the file local/CodeRunner/coderunner/db/questions-CR_PROTOTYPES.xml.
 Hence if you have developed your own question prototypes and placed them in
-the system CR_PROTOTYPES category you must export them in Moodle XML format before
+the system CR\_PROTOTYPES category you must export them in Moodle XML format before
 upgrading. You can if you wish place that exported file in the 'db' directory
-with a name ending in '_PROTOTYPES.xml'; they will then be automatically
+with a name ending in '\_PROTOTYPES.xml'; they will then be automatically
 loaded by the installer. Alternatively you can reload them at your leisure
 later on.
-
 
 ### Installing CodeRunner from scratch
 
@@ -113,7 +120,7 @@ or
 If you have local question prototypes to add to the built-in prototype set,
 copy them into the local/CodeRunner/coderunner/db folder; they should be
 Moodle XML file(s) with names ending in '_PROTOTYPES.xml' (case-sensitive).
-[If you don't understand what this paragraph means, then it doesn't concern 
+[If you don't understand what this paragraph means, then it doesn't concern
 you ... move on.]
 
 CodeRunner should then be installed in the `<moodlehome>/local` directory as follows.
@@ -128,7 +135,7 @@ The install script sets up symbolic links from the `question/type` and
 must have configured the webserver to follow symbolic links for this to work.
 
 If you wish to use the RunguardSandbox (see below), you will also need to
-compile the *runguard* program and add a new user called *coderunner* to the 
+compile the *runguard* program and add a new user called *coderunner* to the
 system. Do not proceed until you have read the various security warnings
 in the section *The Runguard Sandbox* below. If you still wish to install
 RunGuard, type the command
@@ -147,7 +154,7 @@ root permissions to set this up.
 
 All going well, you should finish up with a user 'coderunner'
 and a program *runguard* in CodeRunner/coderunner/Sandbox/ with
-setuid-root capabilities. *runguard* should owned by root with the webserver
+setuid-root capabilities. *runguard* should be owned by root with the webserver
 user as its group.
 This program should not be accessible to users other than root and the web
 server.
@@ -161,43 +168,41 @@ CodeRunner plugin, accessed via
 
     *Site administration > Plugins > Question types > CodeRunner*.
 
-Available sandboxes are as follows;
+Available sandboxes are as follows:
 
-#### The JobeSandbox.
+1. The JobeSandbox.
 
-This is the only sandbox enabled by default. It fully
+    This is the only sandbox enabled by default. It fully
 isolates student code from the Moodle server, but does require
-the installation of a separate server. Follow the instructions at 
+the installation of a separate server. Follow the instructions at
 https://github.com/trampgeek/jobe to build a Jobe server, then use the
 Moodle administrator interface to define the Jobe
-host name and perhaps port number. If your Jobe
-server requires an authentication key (not yet implemented in the current
-version of the Jobe server) you will need to specify that, too.
+host name and perhaps port number.
 
 
-#### The Liu sandbox
+2. The Liu sandbox
 
-If you wish to run only C or C++ jobs and wish to avoid the complication of setting
+    If you wish to run only C or C++ jobs and wish to avoid the complication of setting
 up and maintaining a separate Jobe server, you might wish to consider the
 Liu sandbox, which can be installed on the Moodle server itself. It runs all
 code with *ptrace*, and disallows any system call that might allow escape
 from the sandbox, including most file i/o. The job to be run is compiled and
 built as a static load module before being passed to the sandbox. While the
 possibility of an exploit can never be absolutely disregarded, the Liu
-sandbox does offer a high level of protection. 
+sandbox does offer a high level of protection.
 
-The Liu sandbox can be obtained
+    The Liu sandbox can be obtained
 from [here](http://sourceforge.net/projects/libsandbox/).  Both the binary and the
 Python2 interface need to be installed. Note that CodeRunner does not
 currently work with the Python3 interface to the sandbox.
 
-The easiest way to install the Liu sandbox is by
+    The easiest way to install the Liu sandbox is by
 downloading appropriate `.deb`s or `.rpm`s of both `libsandbox` and `pysandbox` (for
 Python version 2). Note that the `pysandbox` download must be the one appropriate
 to the installed  version of Python2 (currently typically 2.6 on RHEL systems
 or 2.7 on most other flavours of Linux).
 
-The Liu sandbox requires that C programs be compiled and built using static
+    The Liu sandbox requires that C programs be compiled and built using static
 version of the libraries rather than the usual dynamically-loaded libraries.
 Many versions of the C development packages no longer include static libraries
 by default, so you may need to download these separately. Before trying to
@@ -206,14 +211,15 @@ build a statically linked executable with a command like
 
         gcc -Wall -Werror -std=c99 -static src.c -lm
 
-It is also possible to configure the Liu sandbox to run other languages,
+    It is also possible to configure the Liu sandbox to run other languages,
 but it must be configured to allow any extra system calls required by those
 languages and also to access those parts of the file system that the language
-expects to access. These are many and varied so this approach is not 
+expects to access. These are many and varied so this approach is not
 recommended.
 
-#### The RunguardSandbox.
-The RunguardSandbox is by far the easiest one to use, as it requires no
+3. The RunguardSandbox.
+
+    The RunguardSandbox is the easiest one to use, as it requires no
 extra resources apart from whatever languages (Python3, Java etc) you wish
 to use in CodeRunner questions. However, the RunguardSandbox also the least
 secure. It runs student submitted jobs on the Moodle server itself, so most
@@ -221,7 +227,7 @@ certainly should not be used on an institutional Moodle server, but it
 is reasonably
 safe if a special-purpose quiz server is being used, assuming that server requires
 student login. Our own quiz server at the
-University of Canterbury 
+University of Canterbury
 made extensive use of the RunguardSandbox for two years with no known security
 failures and only one minor resource-depletion problem that has now been
 prevented in the code. You should be aware that it does not
@@ -229,8 +235,7 @@ prevent use of system calls like *socket* that might open connections to
 other servers behind your firewall and of course it depends on the Unix
 server being securely set up in the first place.
 
-
-The RunguardSandbox uses a program `runguard`, written
+    The RunguardSandbox uses a program `runguard`, written
 by Jaap Eldering as part of
 the programming contest server [DOMJudge](http://domjudge.sourceforge.net/).
 This program enforces various resource limitations, such as on CPU time and
@@ -240,8 +245,8 @@ with a Linux account can do (as they can't create files outside the /tmp
 directory and have severe restrictions on cpu time, threads and memory use).
 
 
-#### The IdeoneSandbox.
-ideone.com is a compute server that runs
+4.  The IdeoneSandbox.
+    ideone.com is a compute server that runs
 programs submitted either through a browser or through a web-services API in
 a huge number of different languages. It is not recommended for production
 use, as execution turn-around time is frequently too large (from 10 seconds
@@ -304,7 +309,7 @@ can run a single test class from within the moodle home directory with the synta
         sudo vendor/bin/phpunit <testclass> <testfilepath>
 e.g.
         sudo vendor/bin/phpunit qtype_coderunner_test local/CodeRunner/coderunner/questiontype_test.php
-       
+
 A basic set for classes and associated files for testing python3 and C on the
 jobe sandbox might be:
 
@@ -317,7 +322,7 @@ jobe sandbox might be:
         qtype_coderunner_grader_test in grader_test.php
         qtype_coderunner_template_test in template_test.php
         qtype_coderunner_walkthrough_test in walkthroughtest.php
-        
+
 Please [email me](mailto:richard.lobb@canterbury.ac.nz) if you have problems
 with the installation.
 
@@ -430,7 +435,7 @@ example. The student supplies
  compiler with the language set to
  accept C99 and with both *-Wall* and *-Werror* options set on the command line
  to issue all warnings and reject the code if there are any warnings.
- The Liu sandbox also requires that the executable be statically linked; you 
+ The Liu sandbox also requires that the executable be statically linked; you
  may need to download the static libraries separately from the default C
  development install to enable this.
 
@@ -476,12 +481,12 @@ for that test.
 
  1. **octave\_function**. This uses the open-source Octave system to process
 matlab-like student submissions. It has not yet been used for teaching so
-should be regarded as experimental. 
+should be regarded as experimental.
 
 As discussed later, this base set of question types can
 be customised or extended in various ways.
 
-C++ isn't available as a built-in type at present, as we don't teach it. 
+C++ isn't available as a built-in type at present, as we don't teach it.
 However, if the Jobe server is configured to run C++ jobs (probably using
 the language ID 'cpp') you should be able to make a custom C++ question
 type by starting with the C question type, setting the language to *cpp*
@@ -591,7 +596,7 @@ code and the test code into the template would then be a program like:
 When authoring a question you can inspect the template for your chosen
 question type by temporarily checking the 'Customise' checkbox. Additionally,
 if you check the *Template debugging* checkbox (hidden until you click the
-*Show more* link) you will get to see 
+*Show more* link) you will get to see
 in the output web page each of the
 complete programs that gets run during a question submission.
 
@@ -732,7 +737,7 @@ python escaper e('py') is just one of the available escapers. Others are:
 
         student_answer = sprintf('{{ STUDENT_ANSWER | e('matlab')}}');
 
- 1. e('js'), e('html') for use in JavaScript and html respectively. These 
+ 1. e('js'), e('html') for use in JavaScript and html respectively. These
     are Twig built-ins. See the Twig documentation for details.
 
 ## Template parameters
@@ -744,7 +749,7 @@ different questions. For example, you might want to use the *pylint* question
 type above but change the maximum allowable length of a function in different
 questions. Customising the template for each such question has the disadvantage
 that your derived questions no longer inherit from the original prototype, so
-that if you wish to alter the prototype you will also need to find 
+that if you wish to alter the prototype you will also need to find
 and modify all the
 derived questions, too.
 
@@ -770,7 +775,7 @@ If a particular pylint question then wishes to set limits on the number of
 statements and the number of arguments per function it could set the
 template parameters for the question to
 
-    {"pylintoptions":['--max-statement=20', '--max-args=3']}
+    {"pylintoptions":["--max-statement=20", "--max-args=3"]}
 
 ## Grading with templates
 Using just the template mechanism described above it is possible to write
@@ -806,7 +811,7 @@ Writing a grading template that executes the student's code is, however,
 rather difficult as the generated program needs to be robust against errors
 in the submitted code.
 
-##An advanced grading-template example
+## An advanced grading-template example
 As an example of the use of a custom grader, consider the following question:
 
 "What single line of code can be inserted into the underlined blank space
@@ -888,7 +893,7 @@ its length. No custom grader is then required. That is
 somewhat clumsy from the student perspective
 but is much easier for the author.
 
-##User-defined question types
+## User-defined question types
 
 NOTE: User-defined question types should be regarded as experimental. If
 you wish to use them, please read the following very carefully as there are
@@ -905,12 +910,13 @@ fact that it's a prototype, in order to make it easier to find. The convention
 is to start the question name with
 the string PROTOTYPE\_, followed by the type name. For example,
 PROTOTYPE\_python3\_OOP. Having a
-separate category for prototype questions is also recommended. Obviously the
-type name you use should be unique, at least within the context of the course
+separate PROTOTYPES category for prototype questions is also strongly recommended.
+Obviously the
+question type name you use should be unique, at least within the context of the course
 in which the prototype question is being used.
 
-In the current implementation, CodeRunner searches for prototype questions
-just in the current course. The search includes parent
+CodeRunner searches for prototype questions
+just in the current course context. The search includes parent
 contexts, typically visible only to an administrator, such as the system
 context; the built-in prototypes all reside in that system context. Thus if
 a teacher in one course creates a new question type, it will immediately
@@ -920,17 +926,6 @@ to make a new question type available globally you should ask a
 Moodle administrator
 to move the question to the system context, such as a LOCAL_PROTOTYPES
 category, mentioned above.
-
-BUG ALERT: it is currently possible to define a prototype question in a
-category generated by Moodle
-that is specific to a particular quiz but is not shared in the course context.
-The current search algorithm will not find such a prototype so it cannot be
-used. Furthermore a
-"programmer error" exception will be thrown if you subsequently attempt
-to edit that prototype; it must be deleted or moved to a category that's
-visible to the entire course. To avoid issues of this sort, you should define
-a PROTOTYPES category within your course and place all question prototypes
-there.
 
 The above-described scoping of user-defined prototypes is experimental and
 might change in the future, e.g. back to a simple global scope in which all
@@ -959,7 +954,7 @@ anywhere else! Similarly, if you delete a prototype question that's actually
 in use, all the children will break, giving runtime errors. To repeat:
 user-defined question types are experimental. Caveat emptor.
 
-##How programming quizzes should work
+## How programming quizzes should work
 
 Historical notes and a diatribe on the use of Adaptive Mode questions ...
 

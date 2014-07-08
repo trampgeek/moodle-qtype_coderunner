@@ -1,6 +1,6 @@
 <h1>CODE RUNNER</h1>
 
-<p>Version: 2.0 beta April 2014</p>
+<p>Version: 2.1 June 2014</p>
 
 <p>Author: Richard Lobb, University of Canterbury, New Zealand.</p>
 
@@ -51,16 +51,24 @@ about 30 quiz questions per minute while maintaining a response time of less
 than about 3 - 4 seconds, assuming the student code itself runs in a
 fraction of a second.</p>
 
-<p>Administrator privileges and some Unix skills are needed to install Coderunner.</p>
+<p>Administrator privileges and some Linux skills are needed to install Coderunner.</p>
 
-<h2>Upgrading from an earlier version</h2>
+<h2>Installation</h2>
+
+<p>This chapter describes how to install CodeRunner. It assumes the
+existance of a working Moodle system and a reasonable level of Linux
+adminstration skills.</p>
+
+<p>If you are installing for the first time, jump straight to section 2.2.</p>
+
+<h3>Upgrading to version 2</h3>
 
 <p>CodeRunner version 2 is a major upgrade from version 1, with many new features
 and significant restructuring of the database tables. Although the new
 version attempts to update all the database tables to the new format the
 update process has been tested on only one system. Some problems occurred and the
 upgrade code was edited to deal with those problems but the edits have received
-minimal testing because of the absence of any "pure" version 1 system on which to 
+minimal testing because of the absence of any "pure" version 1 system on which to
 test them. If you are currently
 running version 1 and wish to upgrade to version 2, it is strongly recommended
 that:</p>
@@ -68,7 +76,7 @@ that:</p>
 <ol>
 <li><p>You do not attempt such an upgrade during term time.</p></li>
 <li><p>You make a complete backup of your existing server's database before attempting the
-upgrade. </p></li>
+upgrade.</p></li>
 <li><p>You export all your coderunner questions from the question
 database in Moodle XML format.</p></li>
 </ol>
@@ -81,6 +89,16 @@ as a raw installation; the upgrade.php script should modify all the database
 tables and preserve all existing questions and student submissions. Move the
 existing <moodleHome>/local/CodeRunner folder to a backup location, then just
 follow the instructions in the next section.</p>
+
+<p>All existing questions in the system CR_PROTOTYPES category with names containing the
+string 'PROTOTYPE_' are deleted by the installer, which then re-loads them
+from the file local/CodeRunner/coderunner/db/questions-CR_PROTOTYPES.xml.
+Hence if you have developed your own question prototypes and placed them in
+the system CR_PROTOTYPES category you must export them in Moodle XML format before
+upgrading. You can if you wish place that exported file in the 'db' directory
+with a name ending in '_PROTOTYPES.xml'; they will then be automatically
+loaded by the installer. Alternatively you can reload them at your leisure
+later on.</p>
 
 <h3>Installing CodeRunner from scratch</h3>
 
@@ -102,6 +120,12 @@ command like (depending on your system)</p>
 <pre><code>yum install pear
 </code></pre>
 
+<p>If you have local question prototypes to add to the built-in prototype set,
+copy them into the local/CodeRunner/coderunner/db folder; they should be
+Moodle XML file(s) with names ending in '_PROTOTYPES.xml' (case-sensitive).
+[If you don't understand what this paragraph means, then it doesn't concern
+you ... move on.]</p>
+
 <p>CodeRunner should then be installed in the <code>&lt;moodlehome&gt;/local</code> directory as follows.</p>
 
 <pre><code>cd &lt;moodlehome&gt;/local
@@ -115,7 +139,7 @@ sudo ./install
 must have configured the webserver to follow symbolic links for this to work.</p>
 
 <p>If you wish to use the RunguardSandbox (see below), you will also need to
-compile the <em>runguard</em> program and add a new user called <em>coderunner</em> to the 
+compile the <em>runguard</em> program and add a new user called <em>coderunner</em> to the
 system. Do not proceed until you have read the various security warnings
 in the section <em>The Runguard Sandbox</em> below. If you still wish to install
 RunGuard, type the command</p>
@@ -135,7 +159,7 @@ root permissions to set this up.</p>
 
 <p>All going well, you should finish up with a user 'coderunner'
 and a program <em>runguard</em> in CodeRunner/coderunner/Sandbox/ with
-setuid-root capabilities. <em>runguard</em> should owned by root with the webserver
+setuid-root capabilities. <em>runguard</em> should be owned by root with the webserver
 user as its group.
 This program should not be accessible to users other than root and the web
 server.</p>
@@ -150,20 +174,18 @@ CodeRunner plugin, accessed via</p>
 <pre><code>*Site administration &gt; Plugins &gt; Question types &gt; CodeRunner*.
 </code></pre>
 
-<p>Available sandboxes are as follows;</p>
+<p>Available sandboxes are as follows:</p>
 
-<h4>The JobeSandbox.</h4>
+<ol>
+<li><p>The JobeSandbox.</p>
 
 <p>This is the only sandbox enabled by default. It fully
 isolates student code from the Moodle server, but does require
-the installation of a separate server. Follow the instructions at 
+the installation of a separate server. Follow the instructions at
 https://github.com/trampgeek/jobe to build a Jobe server, then use the
 Moodle administrator interface to define the Jobe
-host name and perhaps port number. If your Jobe
-server requires an authentication key (not yet implemented in the current
-version of the Jobe server) you will need to specify that, too.</p>
-
-<h4>The Liu sandbox</h4>
+host name and perhaps port number.</p></li>
+<li><p>The Liu sandbox</p>
 
 <p>If you wish to run only C or C++ jobs and wish to avoid the complication of setting
 up and maintaining a separate Jobe server, you might wish to consider the
@@ -172,7 +194,7 @@ code with <em>ptrace</em>, and disallows any system call that might allow escape
 from the sandbox, including most file i/o. The job to be run is compiled and
 built as a static load module before being passed to the sandbox. While the
 possibility of an exploit can never be absolutely disregarded, the Liu
-sandbox does offer a high level of protection. </p>
+sandbox does offer a high level of protection.</p>
 
 <p>The Liu sandbox can be obtained
 from <a href="http://sourceforge.net/projects/libsandbox/">here</a>.  Both the binary and the
@@ -192,18 +214,17 @@ by default, so you may need to download these separately. Before trying to
 use the Liu sandbox, check you can
 build a statically linked executable with a command like</p>
 
-<pre><code>    gcc -Wall -Werror -std=c99 -static src.c -lm
+<pre><code>gcc -Wall -Werror -std=c99 -static src.c -lm
 </code></pre>
 
 <p>It is also possible to configure the Liu sandbox to run other languages,
 but it must be configured to allow any extra system calls required by those
 languages and also to access those parts of the file system that the language
-expects to access. These are many and varied so this approach is not 
-recommended.</p>
+expects to access. These are many and varied so this approach is not
+recommended.</p></li>
+<li><p>The RunguardSandbox.</p>
 
-<h4>The RunguardSandbox.</h4>
-
-<p>The RunguardSandbox is by far the easiest one to use, as it requires no
+<p>The RunguardSandbox is the easiest one to use, as it requires no
 extra resources apart from whatever languages (Python3, Java etc) you wish
 to use in CodeRunner questions. However, the RunguardSandbox also the least
 secure. It runs student submitted jobs on the Moodle server itself, so most
@@ -211,7 +232,7 @@ certainly should not be used on an institutional Moodle server, but it
 is reasonably
 safe if a special-purpose quiz server is being used, assuming that server requires
 student login. Our own quiz server at the
-University of Canterbury 
+University of Canterbury
 made extensive use of the RunguardSandbox for two years with no known security
 failures and only one minor resource-depletion problem that has now been
 prevented in the code. You should be aware that it does not
@@ -226,11 +247,9 @@ This program enforces various resource limitations, such as on CPU time and
 memory use, on the student program. It runs the code as the non-privileged
 user <em>coderunner</em> so student-submitted code can do even less than a student
 with a Linux account can do (as they can't create files outside the /tmp
-directory and have severe restrictions on cpu time, threads and memory use).</p>
-
-<h4>The IdeoneSandbox.</h4>
-
-<p>ideone.com is a compute server that runs
+directory and have severe restrictions on cpu time, threads and memory use).</p></li>
+<li><p>The IdeoneSandbox.
+ideone.com is a compute server that runs
 programs submitted either through a browser or through a web-services API in
 a huge number of different languages. It is not recommended for production
 use, as execution turn-around time is frequently too large (from 10 seconds
@@ -243,7 +262,8 @@ The IdeoneSandbox is there mainly as a proof of concept of the idea of off-line
 execution and to support occasional use of unusual languages. As with
 the other sandboxes, you can configure
 the username and password for use of the IdeoneSandbox via the administrator
-settings panel for CodeRunner.</p>
+settings panel for CodeRunner.</p></li>
+</ol>
 
 <h3>Checking security</h3>
 
@@ -264,20 +284,53 @@ So you then need to re-run the CodeRunner installer to fix it.</p>
 <p>If your Moodle installation includes the
 <em>phpunit</em> system for testing Moodle modules, you might wish to test the
 CodeRunner installation. Most tests require that at least python2 and python3
-are installed. </p>
+are installed.</p>
 
-<p>You should then be able to run the tests with</p>
+<p>Before running any tests you first need to edit the file
+local/CodeRunner/coderunner/tests/config.php to match
+whatever configuration of sandboxes you wish to test and to set the jobe
+server URL, if appropriate. You should then initialise
+the phpunit environment with the commands</p>
 
 <pre><code>    cd &lt;moodlehome&gt;
     sudo php admin/tool/phpunit/cli/init.php
-    sudo ./phpunit --testsuite="qtype_coderunner test suite"
 </code></pre>
 
-<p>You will almost certainly get a number of errors relating to the various
-sandboxes and languages that you have not installed, e.g. the LiuSandbox,
+<p>You can then run the full test suite with</p>
+
+<pre><code>    sudo vendor/bin/phpunit --verbose --testsuite="qtype_coderunner test suite"
+</code></pre>
+
+<p>This will almost certainly show lots of skipped or failed tests relating
+to the various sandboxes and languages that you have not installed, e.g.
+the LiuSandbox,
 Matlab, Octave and Java. These can all be ignored unless you plan to use
 those capabilities. The name of the failing tests should be sufficient to
 tell you if you need be at all worried.</p>
+
+<p>An alternative approach is to run just the subset of the tests that relate
+to the particular set of sandboxes and languages that you have installed. You
+can run a single test class from within the moodle home directory with the syntax</p>
+
+<pre><code>    sudo vendor/bin/phpunit &lt;testclass&gt; &lt;testfilepath&gt;
+</code></pre>
+
+<p>e.g.
+        sudo vendor/bin/phpunit qtype<em>coderunner</em>test local/CodeRunner/coderunner/questiontype_test.php</p>
+
+<p>A basic set for classes and associated files for testing python3 and C on the
+jobe sandbox might be:</p>
+
+<pre><code>    qtype_coderunner_test in questiontype_test.php
+    qtype_coderunner_jobesandbox_test in jobesandbox_test.php
+    qtype_coderunner_pythonquestions_test in pythonquestions_test.php
+    qtype_coderunner_c_question_test in cquestions_test.php
+    qtype_coderunner_customise_test in customise_test.php
+    qtype_coderunner_datafile_test in datafile_test.php
+    qtype_coderunner_grader_test in grader_test.php
+    qtype_coderunner_template_test in template_test.php
+    qtype_coderunner_walkthrough_test in walkthroughtest.php
+</code></pre>
 
 <p>Please <a href="mailto:richard.lobb@canterbury.ac.nz">email me</a> if you have problems
 with the installation.</p>
@@ -394,7 +447,7 @@ execution is passed. The Liu Sandbox and the CodeRunner sandbox both use the gcc
 compiler with the language set to
 accept C99 and with both <em>-Wall</em> and <em>-Werror</em> options set on the command line
 to issue all warnings and reject the code if there are any warnings.
-The Liu sandbox also requires that the executable be statically linked; you 
+The Liu sandbox also requires that the executable be statically linked; you
 may need to download the static libraries separately from the default C
 development install to enable this.</p></li>
 <li><p><strong>python3</strong>. Used for most Python3 questions. For each test case, the student
@@ -433,13 +486,13 @@ then executed once for each test case to see if it generates the expected output
 for that test.</p></li>
 <li><p><strong>octave_function</strong>. This uses the open-source Octave system to process
 matlab-like student submissions. It has not yet been used for teaching so
-should be regarded as experimental. </p></li>
+should be regarded as experimental.</p></li>
 </ol>
 
 <p>As discussed later, this base set of question types can
 be customised or extended in various ways.</p>
 
-<p>C++ isn't available as a built-in type at present, as we don't teach it. 
+<p>C++ isn't available as a built-in type at present, as we don't teach it.
 However, if the Jobe server is configured to run C++ jobs (probably using
 the language ID 'cpp') you should be able to make a custom C++ question
 type by starting with the C question type, setting the language to <em>cpp</em>
@@ -550,7 +603,7 @@ code and the test code into the template would then be a program like:</p>
 <p>When authoring a question you can inspect the template for your chosen
 question type by temporarily checking the 'Customise' checkbox. Additionally,
 if you check the <em>Template debugging</em> checkbox (hidden until you click the
-<em>Show more</em> link) you will get to see 
+<em>Show more</em> link) you will get to see
 in the output web page each of the
 complete programs that gets run during a question submission.</p>
 
@@ -630,7 +683,7 @@ the appropriate server) is:</p>
 import subprocess
 
 def check_code(s):
-    try:javaEscaper
+    try:
         source = open('source.py', 'w')
         source.write(s)
         source.close()
@@ -692,7 +745,7 @@ It must be used in the context of sprintf, e.g.</p>
 
 <pre><code>student_answer = sprintf('{{ STUDENT_ANSWER | e('matlab')}}');
 </code></pre></li>
-<li><p>e('js'), e('html') for use with JavaScript and html respectively. These 
+<li><p>e('js'), e('html') for use in JavaScript and html respectively. These
 are Twig built-ins. See the Twig documentation for details.</p></li>
 </ol>
 
@@ -705,7 +758,7 @@ different questions. For example, you might want to use the <em>pylint</em> ques
 type above but change the maximum allowable length of a function in different
 questions. Customising the template for each such question has the disadvantage
 that your derived questions no longer inherit from the original prototype, so
-that if you wish to alter the prototype you will also need to find 
+that if you wish to alter the prototype you will also need to find
 and modify all the
 derived questions, too.</p>
 
