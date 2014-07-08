@@ -155,7 +155,7 @@ int main() {
     <combinator_template></combinator_template>
     <test_splitter_re></test_splitter_re>
     <enable_combinator>0</enable_combinator>
-    <per_test_template>{{ STUDENT_ANSWER }}
+    <per_test_template>{{ STUDENT_ANSWER | replace({'public class ': 'class '}) }}
 
 public class __Tester__ {
 
