@@ -872,6 +872,12 @@ half marks would be
 given for that particular test case and the 'Got' column would display the
 text "Half the answers were right!".
 
+As a further extension to permit more elaborate output the template grader may
+instead define JSON object attributes 'got_html' and/or 'expected_html'; 
+if these are provided they are used as the raw HTML cell contents in the
+results table allowing, for example, canvas or svg graphics to appear in
+the cells.
+
 Writing a grading template that executes the student's code is, however,
 rather difficult as the generated program needs to be robust against errors
 in the submitted code.
