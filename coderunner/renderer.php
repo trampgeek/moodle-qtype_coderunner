@@ -253,31 +253,42 @@ class qtype_coderunner_renderer extends qtype_renderer {
             if ($canViewHidden || $testIsVisible) {
                 $tableRow = array();
                 if ($showTests) {
-                    $tableRow[] = s(restrict_qty($testResult->testcode));
+                    $tableRow[] = $this->formatCell(restrict_qty($testResult->testcode));
                 }
                 if ($showStdins) {
-                    $tableRow[] = s(restrict_qty($testResult->stdin));
+                    $tableRow[] = $this->formatCell(restrict_qty($testResult->stdin));
                 }
                 if ($question->showexpected) {
-                    $tableRow[] = s($testResult->expected);
+                    if (isset($testResult->expected_html)) {
+                        // If template grader provides a raw HTML version, we
+                        // use that instead of the generally cleaned up 'expected'
+                        // field. WARNING: this assumes a trustworthy template
+                        // grader.
+                        $tableRow[] = $testResult->expected_html;
+                    } else {
+                        $tableRow[] = $this->formatCell($testResult->expected);
+                    }
                 }
                 if ($question->showoutput) {
-                    $tableRow[] = s($testResult->got);
+                    if (isset($testResult->got_html)) {
+                        // If template grader provides a raw HTML version, we
+                        // use that instead of the generally cleaned up 'got'
+                        // field. WARNING: this assumes a trustworthy template
+                        // grader.
+                        $tableRow[] = $testResult->got_html;
+                    } else {
+                        $tableRow[] = $this->formatCell($testResult->got);
+                    }
                 }
 
                 $mark = $testResult->awarded;
                 $fraction = $mark / $testResult->mark;
                 if ($question->showmark && !$question->all_or_nothing) {
-                    $tableRow[] = sprintf('%.2f/%.2f', $mark, $testResult->mark);
+                    $tableRow[] = s(sprintf('%.2f/%.2f', $mark, $testResult->mark));
                 }
 
-                $rowWithLineBreaks = array();
-                foreach ($tableRow as $col) {
-                    $rowWithLineBreaks[] = $this->addLineBreaks($col);
-                }
-
-                $rowWithLineBreaks[] = $this->feedback_image($fraction);
-                $tableData[] = $rowWithLineBreaks;
+                $tableRow[] = $this->feedback_image($fraction);
+                $tableData[] = $tableRow;
                 if (!$testIsVisible) {
                     $rowclasses[$i] = 'hidden-test';
                 }
@@ -296,6 +307,11 @@ class qtype_coderunner_renderer extends qtype_renderer {
         } else {
             return null;
         }
+    }
+    
+    // Sanitise with 's()' and add line breaks to a given string
+    private function formatCell($cell) {
+        return str_replace("\n", "<br />", str_replace(' ', '&nbsp;', s($cell)));
     }
 
     // Compute the HTML feedback summary for a given test outcome.
@@ -399,12 +415,12 @@ class qtype_coderunner_renderer extends qtype_renderer {
         foreach ($examples as $example) {
             $row = array();
             if ($numShell) {
-                $row[] = $this->addLineBreaks(s($example->testcode));
+                $row[] = $this->formatCell($example->testcode);
             }
             if ($numStd) {
-                $row[] = $this->addLineBreaks(s($example->stdin));
+                $row[] = $this->formatCell($example->stdin);
             }
-            $row[] = $this->addLineBreaks(s($example->expected));
+            $row[] = $this->formatCell($example->expected);
             $tableRows[] = $row;
         }
         $table->data = $tableRows;
@@ -427,15 +443,6 @@ class qtype_coderunner_renderer extends qtype_renderer {
         }
         return array($numStds, $numShell);
     }
-
-
-
-    // Replace all newline chars in a string with HTML line breaks.
-    // Also replace spaces with &nbsp;
-    private function addLineBreaks($s) {
-        return str_replace("\n", "<br />", str_replace(' ', '&nbsp;', $s));
-    }
-
 
 
     // Count the number of errors in hidden testcases, given the arrays of

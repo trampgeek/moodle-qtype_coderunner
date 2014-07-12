@@ -188,5 +188,41 @@ EOTEMPLATE;
         $this->check_current_output( new question_pattern_expectation('/Tiddlypom/') );
         $this->check_current_output( new question_pattern_expectation('/Twiddlydee/') );
     }
+    
+    public function test_grading_template_html_output() {
+        /* Test a grading template that supplies a JSON record with a got_html
+           attribute. For a per-test template this is used in the results
+           table as the raw html contents of the "got" column.
+         */
+        $q = test_question_maker::make_question('coderunner', 'sqrnoprint');
+        $q->per_test_template = <<<EOTEMPLATE
+{{ STUDENT_ANSWER }}
+got = str({{TEST.testcode}})
+expected = """{{TEST.expected|e('py')}}""".strip()
+if expected == '49' and expected == got:
+    print('{"fraction":"1.0","got_html":"<svg width=\'100\' height=\'200\'></svg>"}')
+elif expected == '36' and expected == got:
+    print('{"fraction":"0.5"}')  # Broken grader here
+elif expected == got:
+    print('{"fraction":"1","got_html":"<em>Tweedledum</em>"}')
+else:
+    print('{"fraction":"0","expected_html": "<h2>Header</h2>", "got_html":"<script>document.write(\'YeeHa\')</script>"}')
+EOTEMPLATE;
+        $q->all_or_nothing = FALSE;
+        $q->grader = 'TemplateGrader';
+        $q->customise = TRUE;
+        $q->enable_combinator = FALSE;
+        $q->unitpenalty = 0;
+
+        // Submit an answer that's right for all except one test case
+        $this->start_attempt_at_question($q, 'adaptive', 1, 1);
+        $this->process_submission(array('-submit' => 1,
+            'answer' => "def sqr(n): return -1 if n == 1 else n * n \n"));
+        //echo $html = $this->quba->render_question($this->slot, $this->displayoptions);
+        $this->check_current_mark(21.0/31.0);
+        $this->check_current_output( new question_pattern_expectation('|<svg width=\'100\' height=\'200\'></svg>|') );
+        $this->check_current_output( new question_pattern_expectation('/YeeHa/') );
+        $this->check_current_output( new question_pattern_expectation('|<h2>Header</h2>|') );
+    }
 }
 
