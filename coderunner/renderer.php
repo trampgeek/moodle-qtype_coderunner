@@ -116,8 +116,6 @@ class qtype_coderunner_renderer extends qtype_renderer {
         }
         return $qtext;
 
-        // TODO: consider how to prevent multiple submits while one submit in progress
-        // (if it's actually a problem ... check first).
     }
 
 
@@ -158,12 +156,14 @@ class qtype_coderunner_renderer extends qtype_renderer {
             $fb .= html_writer::start_tag('div', array('class' => $resultsclass));
             // Hack to insert run host as hidden comment in html
             $fb .= "\n<!-- Run on {$testOutcome->runHost} -->\n";
-            $fb .= html_writer::tag('p', '&nbsp;', array('class' => 'coderunner-spacer'));
+
             if ($testOutcome->hasSyntaxError()) {
                 $fb .= html_writer::tag('h3', 'Syntax Error(s)');
-                $fb .= html_writer::tag('p', str_replace("\n", "<br />", s($testOutcome->errorMessage)));
+                $fb .= html_writer::tag('pre', s($testOutcome->errorMessage), 
+                        array('class' => 'pre_syntax_error'));
             }
             else {
+                $fb .= html_writer::tag('p', '&nbsp;', array('class' => 'coderunner-spacer'));
                 $results = $this->buildResultsTable($q, $testCases, $testResults);
                 if ($results != NULL) {
                     $fb .= $results;
