@@ -200,7 +200,6 @@ class qtype_coderunner_question extends question_graded_automatically {
         $this->setUpGrader();
 
         $this->allRuns = array();
-        $this->allGradings = array();
 
         // TODO: clean up the whole sandbox parameter business
         if (isset($this->sandbox_params)) {
@@ -236,7 +235,6 @@ class qtype_coderunner_question extends question_graded_automatically {
         $this->sandboxInstance->close();
         if ($this->show_source) {
             $outcome->sourceCodeList = $this->allRuns;
-            $outcome->graderCodeList = $this->allGradings;
         }
     	return $outcome;
     }
@@ -299,57 +297,59 @@ class qtype_coderunner_question extends question_graded_automatically {
     // Return true if successful.
     // 26/5/14 - add entire QUESTION to template environment.
     private function runWithCombinator($code, $testCases, $files, $sandboxParams) {
+
+        $isCombinatorGrader = strtolower($this->grader) === 'combinatortemplategrader';  
+        $useCombinator = $isCombinatorGrader
+            || ($this->enable_combinator && $this->noStdins($testCases) &&
+                strtolower($this->grader) !== 'templategrader');
+        if (!$useCombinator) {
+            return NULL;  // Not our job
+        }
+        
+        // We're OK to use a combinator. Let's go.
+        
         $outcome = NULL;
         $maxMark = $this->maximumPossibleMark($testCases);
+        if ($maxMark == 0) {
+            $maxMark = 1; // Must be a combinator template grader
+        }
 
-        if ($this->enable_combinator && $this->noStdins($testCases) &&
-                strtolower($this->grader) !== 'templategrader') {
-            assert($this->test_splitter_re != '');
+        $templateParams = array(
+            'STUDENT_ANSWER' => $code,
+            'ESCAPED_STUDENT_ANSWER' => pythonEscaper(NULL, $code, NULL),
+            'MATLAB_ESCAPED_STUDENT_ANSWER' => matlabEscaper(NULL, $code, NULL),
+            'QUESTION' => $this,
+            'TESTCASES' => $testCases);
+        $testProg = $this->twig->render($this->combinator_template, $templateParams);
 
-            $templateParams = array(
-                'STUDENT_ANSWER' => $code,
-                'ESCAPED_STUDENT_ANSWER' => pythonEscaper(NULL, $code, NULL),
-                'MATLAB_ESCAPED_STUDENT_ANSWER' => matlabEscaper(NULL, $code, NULL),
-                'QUESTION' => $this,
-                'TESTCASES' => $testCases);
-            $testProg = $this->twig->render($this->combinator_template, $templateParams);
+        $this->allRuns[] = $testProg;
+        $run = $this->sandboxInstance->execute($testProg, $this->language,
+                NULL, $files, $sandboxParams);
 
-            $this->allRuns[] = $testProg;
-            $run = $this->sandboxInstance->execute($testProg, $this->language,
-                    NULL, $files, $sandboxParams);
-
-            if ($run->result === SANDBOX::RESULT_COMPILATION_ERROR) {
-                $outcome = new TestingOutcome($maxMark,
-                        TestingOutcome::STATUS_SYNTAX_ERROR,
-                        $run->cmpinfo);
-            }
-            else if ($run->result === SANDBOX::RESULT_ABNORMAL_TERMINATION) {
-                // Could be a syntax error but might be a runtime error on just
-                // one test case so abandon combinator approach
-            }
-            // Cater for very rare situation that a successful run is recorded
-            // but stderr output is generated as well. [e.g.
-            // SyntaxWarning from misuse of a global declaration.] Can't split
-            // stdout in this case so give up on the combinator template.
-            else if ($run->result === Sandbox::RESULT_SUCCESS && !$run->stderr) {
-                $outputs = preg_split($this->test_splitter_re, $run->output);
-                if (count($outputs) == count($testCases)) {
-                    $outcome = new TestingOutcome($maxMark);
-                    $i = 0;
-                    foreach ($testCases as $testCase) {
-                        $outcome->addTestResult($this->grade($outputs[$i], $testCase));
-                        $i++;
-                    }
-
+        // If it's a combinator grader, we pass the result to the
+        // doCombinatorGrading method. Otherwise we deal with syntax errors or
+        // a successful result (without accompanying stderr, as can
+        // occur rarely). In all other cases (runtime error etc) we give up
+        // on the combinator.
+        
+        if ($isCombinatorGrader) {
+            $outcome = $this->doCombinatorGrading($maxMark, $run);
+        } else if ($run->result === SANDBOX::RESULT_COMPILATION_ERROR) {
+            $outcome = new TestingOutcome($maxMark,
+                    TestingOutcome::STATUS_SYNTAX_ERROR,
+                    $run->cmpinfo);
+        } else if ($run->result === Sandbox::RESULT_SUCCESS && !$run->stderr) {
+            $outputs = preg_split($this->test_splitter_re, $run->output);
+            if (count($outputs) == count($testCases)) {
+                $outcome = new TestingOutcome($maxMark);
+                $i = 0;
+                foreach ($testCases as $testCase) {
+                    $outcome->addTestResult($this->grade($outputs[$i], $testCase));
+                    $i++;
                 }
-                else {
-                }
-            }
-            else {
-                // Could be any of the other failure modes, e.g. runtime error.
-                // Abandon combinator approach
             }
         }
+
         return $outcome;
     }
 
@@ -482,6 +482,34 @@ class qtype_coderunner_question extends question_graded_automatically {
 
     private function grade($output, $testcase, $isBad = FALSE) {
         return $this->graderInstance->grade($output, $testcase, $isBad);
+    }
+    
+    
+    private function doCombinatorGrading($maxMark, $run) {
+        // Given the result of a sandbox run with the combinator template,
+        // build and return a testingOutcome object with a status of
+        // STATUS_COMBINATOR_TEMPLATE_GRADER and appropriate feedback_html.
+        
+        if ($run->result !== SANDBOX::RESULT_SUCCESS) {
+            $fract = 0;
+            $html = '<h2>BAD TEMPLATE RUN<h2><pre>' . $run->cmpinfo . 
+                    $run->stderr . '</pre>';
+        } 
+        else  {
+            $result = json_decode($run->output);
+            if ($result === NULL || !isset($result->fraction) ||
+                    !is_numeric($result->fraction) ||
+                    !isset($result->feedback_html)) {
+                $fract = 0;
+                $html = "<h2>BAD TEMPLATE OUTPUT</h2><pre>{$run->output}</pre>";
+            } else {
+                $fract = $result->fraction;
+                $html = $result->feedback_html;
+            }
+        } 
+        $outcome = new TestingOutcome($maxMark, TestingOutcome::STATUS_COMBINATOR_TEMPLATE_GRADER);
+        $outcome->setMarkAndFeedback($maxMark * $fract, $html);
+        return $outcome;
     }
 
 

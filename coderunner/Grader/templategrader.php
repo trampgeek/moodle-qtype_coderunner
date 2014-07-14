@@ -59,6 +59,17 @@ class TemplateGrader extends Grader {
                 Grader::tidy($result->got),
                 Grader::tidy($result->stdin)
             );
+            
+            /* To accommodate generalised template graders that need to
+             * output their own HTML results, we also add any other result
+             * attributes not already used into the TestResult object.
+             */
+            foreach ((array) $result as $key=>$value) {
+                if ($key !== 'fraction' && !isset($outcome->$key)) {
+                    $outcome->$key = $value;
+                }
+            }
+            
         }
         return $outcome;
     }

@@ -12,9 +12,15 @@
 // All fields currently public as changing them to private breaks the
 // deserialisation of all current question attempt records in the database
 // and I don't feel strongly enough about it to try to fix that. Think Python!
+
+// When a combinator-template grader is used, there is no concept of per-test
+// case results, so there are no individual testResults and the feedback_html
+// field is defined instead.
 class TestingOutcome {
     const STATUS_VALID = 1;         // A full set of test results is returned
     const STATUS_SYNTAX_ERROR = 2;  // The code (on any one test) didn't compile
+    const STATUS_COMBINATOR_TEMPLATE_GRADER = 3;  // This is a combinator-template-grading result
+    const TOLERANCE = 0.00001;    // Allowable difference between actual and max marks for a correct outcome
 
     public $status;                  // One of the STATUS_ constants above
                                      // If this is not 1, subsequent fields may not be meaningful
@@ -25,15 +31,13 @@ class TestingOutcome {
     public $testResults;             // An array of TestResult objects
     public $sourceCodeList;          // Array of all test runs
     public $graderCodeList;          // Array of source code of all grader runs
+    public $feedback_html;           // Feedback defined by combinator-template-grader (subsumes testResults)
 
     public function __construct(
             $maxPossMark,
             $status=TestingOutcome::STATUS_VALID,
             $errorMessage = '') {
-        if ($status != TestingOutcome::STATUS_VALID &&
-            $status != TestingOutcome::STATUS_SYNTAX_ERROR) {
-            throw new CodingException('Bad parameter to TestingOutcome constructor');
-        }
+
         $this->status = $status;
         $this->errorMessage = $errorMessage;
         $this->errorCount = 0;
@@ -43,6 +47,7 @@ class TestingOutcome {
         $this->testResults = array();
         $this->sourceCodeList = null;     // Array of all test runs on the sandbox
         $this->graderCodeList = null;    // Array of all grader runs on the sandbox
+        $this->feedback_html = null;     // Used only by combinator template grader
     }
 
     public function hasSyntaxError()  {
@@ -51,7 +56,7 @@ class TestingOutcome {
 
 
     public function allCorrect() {
-        return $this->status === TestingOutcome::STATUS_VALID && $this->errorCount == 0;
+        return $this->status !== TestingOutcome::STATUS_SYNTAX_ERROR && $this->errorCount == 0;
     }
 
     public function markAsFraction() {
@@ -71,10 +76,22 @@ class TestingOutcome {
             $this->errorCount++;
         }
     }
+    
+    // Method used only by combinator template grader to set the mark and 
+    // feedback  html.
+    public function setMarkAndFeedback($mark, $html) {
+        $this->actualMark = $mark;
+        $this->feedback_html = $html;
+        if (abs($mark - $this->maxPossMark) > TestingOutcome::TOLERANCE) {
+            $this->errorCount += 1;
+        }
+    }
 }
 
 
 class TestResult {
+    // NB: there may be other attributes added by the template grader
+    // e.g. HTML fields for the renderer to use directly.
     var $testcode;          // The test that was run (trimmed, snipped)
     var $isCorrect;         // True iff test passed fully (100%)
     var $expected;          // Expected output (trimmed, snipped)

@@ -73,8 +73,12 @@ div.coderunner-test-results.good {
 }
 
 
-div.coderunner-test-results.bad {
+div.coderunner-test-results.bad, pre.pre_syntax_error {
     background-color: #FFAAAA;
+}
+
+pre.pre_syntax_error {
+    border: none;
 }
 
 div.coderunner-test-results.partial {

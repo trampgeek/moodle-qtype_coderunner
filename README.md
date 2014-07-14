@@ -852,12 +852,19 @@ you may wish to subject
 a student's code to a very large
 number of tests and award a mark according to how many of the test cases
 it can handle. The usual exact-match
-grader cannot handle these situations. For such cases the "template does
-grading" checkbox can be used.
+grader cannot handle these situations. For such cases one of the two
+template grading options.
 
-When the 'template does grading' checkbox is checked
-the output from the run is not passed to the grader but is taken as the
-grading result. The output from the template-generated program must now
+### Per-test-case template grading
+
+When the 'Per-test-case template grader' is selected as the grader
+the per-test-case template
+changes its role to that of a grader for a particular test case.
+The combinator template is not used
+and the per-test-case template is applied to each test case in turn. The
+output of the run is not passed to the grader but is taken as the
+grading result for the corresponding row of the result table.
+The output from the template-generated program must now
 be a JSON-encoded object (such as a dictionary, in Python) containing
 at least a 'fraction' field, which is multiplied by TEST.mark to decide how
 many marks the test case is awarded. It should usually also contain a 'got'
@@ -872,12 +879,49 @@ half marks would be
 given for that particular test case and the 'Got' column would display the
 text "Half the answers were right!".
 
+As a further extension to permit more elaborate output the 
+per-test-case template grader may
+instead define JSON object attributes 'got_html' and/or 'expected_html'; 
+if these are provided they are used as the raw HTML cell contents in the
+results table allowing, for example, canvas or svg graphics to appear in
+the cells.
+
 Writing a grading template that executes the student's code is, however,
 rather difficult as the generated program needs to be robust against errors
 in the submitted code.
 
+### Combinator-template grading
+
+The ultimate in grading flexibility is achieved by use of the "Combinator
+template grading" option. In this mode the per-test template is not used. The
+combinator template is passed to the Twig template engine and the output
+program is executed in the usual way. Its output must now be a JSON-encoded
+object with two mandatory attributes: a 'fraction' in the range 0 - 1,
+which specifies the fractional mark awarded to the question, and a
+'feedback_html' that fully defines the specific feedback to be presented
+to the student in place of the normal results table. It might still be a
+table, but any other HTML-supported output is possible such as paragraphs of
+text, canvases or SVG graphics.
+
+Combinator-template grading is intended for use where a result table is just not
+appropriate, e.g. if the question does not involve programming at
+all. As an extreme example, imagine a question that asks the student to
+submit an English essay on some topic and an AI grading program is used
+to mark and to generate
+a report on the quality of the essay for feedback to the student.
+[Would that such AI existed!] 
+
+The combinator-template grader has available to it the full list of all
+test cases and their attributes (testcode, stdin, expected, mark, display etc)
+for use in any way the question author sees fit. It is highly likely that
+many of them will be disregarded or alternatively have some meaning completely
+unlike their normal meaning in a programming environment. It is also
+possible that a question using a combinator template grader will not
+make use of test cases at all.
+
 ## An advanced grading-template example
-As an example of the use of a custom grader, consider the following question:
+As an example of the use of a per-test-case template grader
+consider the following question:
 
 "What single line of code can be inserted into the underlined blank space
 in the code below to make the function behave as specified? Your answer

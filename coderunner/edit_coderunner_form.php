@@ -158,7 +158,8 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $graderTypes = array('EqualityGrader' => 'Exact match',
                 'NearEqualityGrader' => 'Nearly exact match',
                 'RegexGrader' => 'Regular expression',
-                'TemplateGrader' => 'Template does grading');
+                'TemplateGrader' => 'Per-test-template grader',
+                'CombinatorTemplateGrader' => 'Combinator-template grader');
         $gradingControls[] = $mform->createElement('select', 'grader',
                 NULL, $graderTypes);
         $mform->addElement('group', 'gradingcontrols',
@@ -489,10 +490,16 @@ class qtype_coderunner_edit_form extends question_edit_form {
             $errors['template_group'] = get_string('badtemplateparams', 'qtype_coderunner');
         }
 
-        if ($data['prototype_type'] == 0) {
-            // Unless it's a prototype it needs at least one testcase
+        if ($data['prototype_type'] == 0 && $data['grader'] !== 'CombinatorTemplateGrader') {
+            // Unless it's a prototype or uses a combinator-template grader
+            // it needs at least one testcase
             $testCaseErrors = $this->validate_test_cases($data);
             $errors = array_merge($errors, $testCaseErrors);
+        }
+        
+        if ($data['grader'] === 'CombinatorTemplateGrader' &&
+                $data['enable_combinator'] == FALSE) {
+            $errors['combinator_controls'] = get_string('combinator_required', 'qtype_coderunner');
         }
 
 

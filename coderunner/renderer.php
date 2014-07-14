@@ -116,8 +116,6 @@ class qtype_coderunner_renderer extends qtype_renderer {
         }
         return $qtext;
 
-        // TODO: consider how to prevent multiple submits while one submit in progress
-        // (if it's actually a problem ... check first).
     }
 
 
@@ -158,12 +156,16 @@ class qtype_coderunner_renderer extends qtype_renderer {
             $fb .= html_writer::start_tag('div', array('class' => $resultsclass));
             // Hack to insert run host as hidden comment in html
             $fb .= "\n<!-- Run on {$testOutcome->runHost} -->\n";
-            $fb .= html_writer::tag('p', '&nbsp;', array('class' => 'coderunner-spacer'));
+
             if ($testOutcome->hasSyntaxError()) {
                 $fb .= html_writer::tag('h3', 'Syntax Error(s)');
-                $fb .= html_writer::tag('p', str_replace("\n", "<br />", s($testOutcome->errorMessage)));
+                $fb .= html_writer::tag('pre', s($testOutcome->errorMessage), 
+                        array('class' => 'pre_syntax_error'));
             }
-            else {
+            else if ($testOutcome->feedback_html) {
+                $fb .= $testOutcome->feedback_html;
+            } else {
+                $fb .= html_writer::tag('p', '&nbsp;', array('class' => 'coderunner-spacer'));
                 $results = $this->buildResultsTable($q, $testCases, $testResults);
                 if ($results != NULL) {
                     $fb .= $results;
@@ -172,7 +174,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
             // Summarise the status of the response in a paragraph at the end.
 
-            if (!$testOutcome->hasSyntaxError()) {
+            if (!$testOutcome->hasSyntaxError() && !$testOutcome->feedback_html) {
                 $fb .= $this->buildFeedbackSummary($q, $testCases, $testOutcome);
             }
             $fb .= html_writer::end_tag('div');
@@ -253,31 +255,42 @@ class qtype_coderunner_renderer extends qtype_renderer {
             if ($canViewHidden || $testIsVisible) {
                 $tableRow = array();
                 if ($showTests) {
-                    $tableRow[] = s(restrict_qty($testResult->testcode));
+                    $tableRow[] = $this->formatCell(restrict_qty($testResult->testcode));
                 }
                 if ($showStdins) {
-                    $tableRow[] = s(restrict_qty($testResult->stdin));
+                    $tableRow[] = $this->formatCell(restrict_qty($testResult->stdin));
                 }
                 if ($question->showexpected) {
-                    $tableRow[] = s($testResult->expected);
+                    if (isset($testResult->expected_html)) {
+                        // If template grader provides a raw HTML version, we
+                        // use that instead of the generally cleaned up 'expected'
+                        // field. WARNING: this assumes a trustworthy template
+                        // grader.
+                        $tableRow[] = $testResult->expected_html;
+                    } else {
+                        $tableRow[] = $this->formatCell($testResult->expected);
+                    }
                 }
                 if ($question->showoutput) {
-                    $tableRow[] = s($testResult->got);
+                    if (isset($testResult->got_html)) {
+                        // If template grader provides a raw HTML version, we
+                        // use that instead of the generally cleaned up 'got'
+                        // field. WARNING: this assumes a trustworthy template
+                        // grader.
+                        $tableRow[] = $testResult->got_html;
+                    } else {
+                        $tableRow[] = $this->formatCell($testResult->got);
+                    }
                 }
 
                 $mark = $testResult->awarded;
                 $fraction = $mark / $testResult->mark;
                 if ($question->showmark && !$question->all_or_nothing) {
-                    $tableRow[] = sprintf('%.2f/%.2f', $mark, $testResult->mark);
+                    $tableRow[] = s(sprintf('%.2f/%.2f', $mark, $testResult->mark));
                 }
 
-                $rowWithLineBreaks = array();
-                foreach ($tableRow as $col) {
-                    $rowWithLineBreaks[] = $this->addLineBreaks($col);
-                }
-
-                $rowWithLineBreaks[] = $this->feedback_image($fraction);
-                $tableData[] = $rowWithLineBreaks;
+                $tableRow[] = $this->feedback_image($fraction);
+                $tableData[] = $tableRow;
                 if (!$testIsVisible) {
                     $rowclasses[$i] = 'hidden-test';
                 }
@@ -297,9 +310,15 @@ class qtype_coderunner_renderer extends qtype_renderer {
             return null;
         }
     }
+    
+    // Sanitise with 's()' and add line breaks to a given string
+    private function formatCell($cell) {
+        return str_replace("\n", "<br />", str_replace(' ', '&nbsp;', s($cell)));
+    }
 
     // Compute the HTML feedback summary for a given test outcome.
-    // Should not be called if there were any syntax errors.
+    // Should not be called if there were any syntax errors, or if a
+    // combinator-template grader was used. 
     private function buildFeedbackSummary($question, $testCases, $testOutcome) {
         assert(!$testOutcome->hasSyntaxError());
         $lines = array();  // List of lines of output
@@ -399,12 +418,12 @@ class qtype_coderunner_renderer extends qtype_renderer {
         foreach ($examples as $example) {
             $row = array();
             if ($numShell) {
-                $row[] = $this->addLineBreaks(s($example->testcode));
+                $row[] = $this->formatCell($example->testcode);
             }
             if ($numStd) {
-                $row[] = $this->addLineBreaks(s($example->stdin));
+                $row[] = $this->formatCell($example->stdin);
             }
-            $row[] = $this->addLineBreaks(s($example->expected));
+            $row[] = $this->formatCell($example->expected);
             $tableRows[] = $row;
         }
         $table->data = $tableRows;
@@ -427,15 +446,6 @@ class qtype_coderunner_renderer extends qtype_renderer {
         }
         return array($numStds, $numShell);
     }
-
-
-
-    // Replace all newline chars in a string with HTML line breaks.
-    // Also replace spaces with &nbsp;
-    private function addLineBreaks($s) {
-        return str_replace("\n", "<br />", str_replace(' ', '&nbsp;', $s));
-    }
-
 
 
     // Count the number of errors in hidden testcases, given the arrays of
