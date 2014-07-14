@@ -95,7 +95,7 @@ $string['columncontrols_help'] = 'The checkboxes select which columns of the ' .
         'results table should be displayed to the student after submission';
 
 $string['combinator_controls'] = "Combinator";
-        //
+$string['combinator_required'] = "When using a combinator-template grader, the 'enable combinator' checkbox must be checked";
 $string['combinator_template'] = "Template";
 $string['combinator_controls_help'] = <<<EO_TEMPLATE_HELP
 Like the per-test-case template above, the combinator template defines a

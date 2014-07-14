@@ -52,7 +52,6 @@ class qtype_coderunner_walkthrough_test extends qbehaviour_walkthrough_test_base
     }
 
     public function test_adaptive() {
-
         $q = test_question_maker::make_question('coderunner', 'sqr');
         $q->hints = array(
             new question_hint(1, 'This is the first hint.', FORMAT_HTML),
@@ -223,6 +222,51 @@ EOTEMPLATE;
         $this->check_current_output( new question_pattern_expectation('|<svg width=\'100\' height=\'200\'></svg>|') );
         $this->check_current_output( new question_pattern_expectation('/YeeHa/') );
         $this->check_current_output( new question_pattern_expectation('|<h2>Header</h2>|') );
+    }
+    
+    
+    public function test_combinator_template_grading() {
+        // Use the question maker to provide a dummy question.
+        // Mostly ignore it. This question wants an answer with exactly
+        // two occurrences of each of the tokens 'hi' and 'ho' and awards
+        // a mark according to how well this criterion is satisfied.
+        $q = test_question_maker::make_question('coderunner', 'sqrnoprint');
+        $q->combinator_template = <<<EOTEMPLATE
+import json
+answer = """{{ STUDENT_ANSWER | e('py') }}"""
+tokens = answer.split()
+num_hi = len([t for t in tokens if t.lower() == 'hi'])
+num_ho = len([t for t in tokens if t.lower() == 'ho'])
+hi_mark = 2 if num_hi == 2 else 1 if abs(num_hi - 2) == 1 else 0
+ho_mark = 2 if num_ho == 2 else 1 if abs(num_ho - 2) == 1 else 0
+fraction = (hi_mark + ho_mark) / 4
+if fraction == 1.0:
+    feedback = '<h2>Well done</h2><p>I got 2 of each of hi and ho.</p>'
+else:
+    feedback = '<h2>Wrong numbers of hi and/or ho</h2><p>I wanted 2 of each but got {} and {} respectively.</p>'.format(num_hi, num_ho)
+print(json.dumps({'fraction': fraction, 'feedback_html': feedback}))
+EOTEMPLATE;
+        $q->all_or_nothing = FALSE;
+        $q->grader = 'CombinatorTemplateGrader';
+        $q->customise = TRUE;
+        $q->enable_combinator = TRUE;
+        $q->unitpenalty = 0;
+
+        // Submit a right answer
+        $this->start_attempt_at_question($q, 'adaptive', 1, 1);
+        $this->process_submission(array('-submit' => 1,
+            'answer' => "hi di hi and HO DI HO"));
+        //echo $html = $this->quba->render_question($this->slot, $this->displayoptions);
+        $this->check_current_mark(1.0);
+        $this->check_current_output( new question_pattern_expectation('|<h2>Well done</h2>|') );
+        
+        // Submit a partially right  answer
+        $this->start_attempt_at_question($q, 'adaptive', 1, 1);
+        $this->process_submission(array('-submit' => 1,
+            'answer' => "hi di nothi and HO DI NOTHO"));
+        //echo $html = $this->quba->render_question($this->slot, $this->displayoptions);
+        $this->check_current_mark(0.5);
+        $this->check_current_output( new question_pattern_expectation('|<h2>Wrong numbers of hi and/or ho</h2>|') );
     }
 }
 

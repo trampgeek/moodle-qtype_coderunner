@@ -162,7 +162,9 @@ class qtype_coderunner_renderer extends qtype_renderer {
                 $fb .= html_writer::tag('pre', s($testOutcome->errorMessage), 
                         array('class' => 'pre_syntax_error'));
             }
-            else {
+            else if ($testOutcome->feedback_html) {
+                $fb .= $testOutcome->feedback_html;
+            } else {
                 $fb .= html_writer::tag('p', '&nbsp;', array('class' => 'coderunner-spacer'));
                 $results = $this->buildResultsTable($q, $testCases, $testResults);
                 if ($results != NULL) {
@@ -172,7 +174,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
             // Summarise the status of the response in a paragraph at the end.
 
-            if (!$testOutcome->hasSyntaxError()) {
+            if (!$testOutcome->hasSyntaxError() && !$testOutcome->feedback_html) {
                 $fb .= $this->buildFeedbackSummary($q, $testCases, $testOutcome);
             }
             $fb .= html_writer::end_tag('div');
@@ -315,7 +317,8 @@ class qtype_coderunner_renderer extends qtype_renderer {
     }
 
     // Compute the HTML feedback summary for a given test outcome.
-    // Should not be called if there were any syntax errors.
+    // Should not be called if there were any syntax errors, or if a
+    // combinator-template grader was used. 
     private function buildFeedbackSummary($question, $testCases, $testOutcome) {
         assert(!$testOutcome->hasSyntaxError());
         $lines = array();  // List of lines of output
