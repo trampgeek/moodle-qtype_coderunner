@@ -225,7 +225,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
         $table = new html_table();
         $table->attributes['class'] = 'coderunner-test-results';
-        $table->head = array();
+        $table->head = array('');  // First column is tick or cross, like last column
         if ($showTests) {
             $table->head[] = 'Test';
         }
@@ -253,7 +253,9 @@ class qtype_coderunner_renderer extends qtype_renderer {
             $testCase = $testCases[$testCaseKeys[$i]];
             $testIsVisible = $this->shouldDisplayResult($testCase, $testResult);
             if ($canViewHidden || $testIsVisible) {
-                $tableRow = array();
+                $mark = $testResult->awarded;
+                $fraction = $mark / $testResult->mark;
+                $tableRow = array($this->feedback_image($fraction)); // Tick or cross
                 if ($showTests) {
                     $tableRow[] = $this->formatCell(restrict_qty($testResult->testcode));
                 }
@@ -283,8 +285,6 @@ class qtype_coderunner_renderer extends qtype_renderer {
                     }
                 }
 
-                $mark = $testResult->awarded;
-                $fraction = $mark / $testResult->mark;
                 if ($question->showmark && !$question->all_or_nothing) {
                     $tableRow[] = s(sprintf('%.2f/%.2f', $mark, $testResult->mark));
                 }
