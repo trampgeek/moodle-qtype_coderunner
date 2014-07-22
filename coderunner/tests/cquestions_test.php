@@ -161,6 +161,21 @@ class qtype_coderunner_c_question_test extends qtype_coderunner_testcase {
         $this->assertFalse($testOutcome->allCorrect());
         $this->assertEquals("***Time limit exceeded***\n", $testOutcome->testResults[0]->got);
     }
+    
+    
+    public function test_outputlimit_exceeded() {
+        $q = $this->make_question('helloProgC');
+        $response = array('answer' => "#include <stdio.h>\nint main() { while(1) { printf(\"Hello\"); };return 0;}\n");
+        list($mark, $grade, $cache) = $q->grade_response($response);
+        $this->assertEquals(0, $mark);
+        $this->assertEquals(question_state::$gradedwrong, $grade);
+        $this->assertTrue(isset($cache['_testoutcome']));
+        $testOutcome = unserialize($cache['_testoutcome']);
+        $this->assertFalse($testOutcome->hasSyntaxError());
+        $this->assertEquals(1, count($testOutcome->testResults));
+        $this->assertFalse($testOutcome->allCorrect());
+        $this->assertTrue(strpos($testOutcome->testResults[0]->got, "***Time limit exceeded***\n") !== FALSE); 
+    }
 
 
 
