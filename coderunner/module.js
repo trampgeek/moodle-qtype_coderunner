@@ -71,12 +71,13 @@ M.qtype_coderunner.init_ace = function (Y, field, lang) {
 
         editor.setOptions({
             enableBasicAutocompletion: true,
-            newLineMode: "unix"
+            newLineMode: "unix",
         });
 
-
+        /*
 	if (! document.activeElement.parentNode.className.match("ace"))
             editor.focus();
+         */
     }
 
 
