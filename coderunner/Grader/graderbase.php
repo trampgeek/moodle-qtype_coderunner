@@ -84,7 +84,11 @@ abstract class Grader {
                 $spaces = ''; // Discard spaces before a newline
                 $nls .= $c;
             } else {
-                if ($c < " " || $c > "\x7E") {
+                if ($c === "\r") {
+                    $c = '\\r';
+                } else if ($c === "\t") {
+                    $c = '\\t';
+                } else if ($c < " " || $c > "\x7E") {
                     $c = '\\x' . sprintf("%02x", ord($c));
                 }
                 $new_s .= $nls . $spaces . $c;

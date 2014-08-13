@@ -170,6 +170,9 @@ abstract class Sandbox {
         if (!in_array($language, $this->getLanguages()->languages)) {
             throw new coding_exception('Executing an unsupported language in sandbox');
         }
+        if ($input !== '' && substr($input, -1) != "\n") {
+            $input .= "\n";  // Force newline on the end if necessary
+        }
         $result = $this->createSubmission($sourceCode, $language, $input,
                 TRUE, TRUE, $files, $params);
         $error = $result->error;

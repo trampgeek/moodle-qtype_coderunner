@@ -14,7 +14,7 @@ M.qtype_coderunner.init_ace = function (Y, field, lang) {
     }
 
     ace_setup();
-
+    
     // helper function to insert an editor after the specific selector
     function ace_setup() {
         var yta = Y.one('[id="' + field + '"]');
@@ -59,28 +59,23 @@ M.qtype_coderunner.init_ace = function (Y, field, lang) {
         editor.getSession().on('change', function(){
             textarea.set('value', editor.getSession().getValue());
         });
-
-        if (textarea.getAttribute('readonly'))
+        
+        if (textarea.getAttribute('readonly')) {
             editor.setReadOnly(true);
+        }
 
         textarea.hide();
 
         var mode = find_mode(lang);
-        if (mode)
+        if (mode) {
             editor.getSession().setMode(mode.mode);
+        }
 
         editor.setOptions({
             enableBasicAutocompletion: true,
             newLineMode: "unix",
         });
-
-        /*
-	if (! document.activeElement.parentNode.className.match("ace"))
-            editor.focus();
-         */
     }
-
-
 }
 
 
