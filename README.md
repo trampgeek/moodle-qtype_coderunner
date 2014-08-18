@@ -143,6 +143,20 @@ The install script sets up symbolic links from the `question/type` and
 `question/behaviour` directories to corresponding CodeRunner directories; you
 must have configured the webserver to follow symbolic links for this to work.
 
+If you're installing CodeRunner on an SELinux system it is recommended that you
+turn off SELinux during the install, e.g. with commands like
+
+    sed -i-dist -e 's|SELINUX=enforcing|SELINUX=permissive|' /etc/selinux/config
+    setenforce 0
+
+If, having got CodeRunner working, you wish to re-enable SELinux then
+good luck to you. I don't use it myself. You'll probably need to know quite a few
+magic SELinux incantations to make it work, particularly if you're also using
+the RunguardSandbox (below). [You might also want to consider
+whether enabling SELinux while
+using the RunguardSandbox isn't a bit like wrapping all the glassware in tissue
+paper before letting the elephant into the room]
+
 If you wish to use the RunguardSandbox (see below), you will also need to
 compile the *runguard* program and add a new user called *coderunner* to the
 system. Do not proceed until you have read the various security warnings
@@ -539,7 +553,7 @@ the start of the program. This is useful in "write a function" questions
    For example, the Template parameters string in the question authoring form
 might be set to
 
-        {"makemoduledocstring": true, "pylintoptions":["--max-statements=20","--max-args=3"]}
+        {"isfunction": true, "pylintoptions":["--max-statements=20","--max-args=3"]}
 
    to generate a dummy module docstring at the start and to set the maximum
    number of
@@ -670,7 +684,8 @@ allows the author to set the size of the student's answer box, and in a
 case like the above you'd typically set it to just one or two lines in height
 and perhaps 30 columns in width.
 
-When you edit the per-test template, the combinator template is immediately
+IMPORTANT WARNING: When you edit the per-test template, the combinator
+template is immediately
 disabled. You can re-enable and edit it, if you wish, by opening
 the *Advanced
 Customisation* block.

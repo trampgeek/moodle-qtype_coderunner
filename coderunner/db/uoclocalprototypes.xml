@@ -21,7 +21,7 @@
 <li>pylintoptions: this should be a JSON list of strings.</li>
 </ul>
 <p>For example, the Template parameters string in the question authoring form might be set to</p>
-<p>{"makemoduledocstring": true, "pylintoptions":["--max-statements=20","--max-args=3"]}</p>
+<p>{"isfunction": true, "pylintoptions":["--max-statements=20","--max-args=3"]}</p>
 <p>to generate a module docstring at the start and to set the maximum number of statements and arguments for each function to 20 and 3 respectively.</p>]]></text>
     </questiontext>
     <generalfeedback format="html">
