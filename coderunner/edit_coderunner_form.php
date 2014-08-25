@@ -521,7 +521,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 $bit = trim($bits[$i]);
                 if ($bit === '...') {
                     if ($i != $n - 1 || $n < 3 || floatval($bits[$i - 1]) <= floatval($bits[$i - 2])) {
-                        $errors['penalty_regime'] = get_string('bad_dotdotdot', 'qtype_coderunner');
+                        $errors['marking_group'] = get_string('bad_dotdotdot', 'qtype_coderunner');
                     }
                 }
             }
