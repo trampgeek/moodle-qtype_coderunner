@@ -328,8 +328,8 @@ class qtype_coderunner_question extends question_graded_automatically {
 
         // If it's a combinator grader, we pass the result to the
         // doCombinatorGrading method. Otherwise we deal with syntax errors or
-        // a successful result (without accompanying stderr, as can
-        // occur rarely). In all other cases (runtime error etc) we give up
+        // a successful result without accompanying stderr.
+        // In all other cases (runtime error etc) we give up
         // on the combinator.
         
         if ($isCombinatorGrader) {
@@ -394,9 +394,8 @@ class qtype_coderunner_question extends question_graded_automatically {
                 $outcome->addTestResult($this->grade($errorMessage, $testCase, $isError));
                 break;
             } else {
-                // Very rarely Python will generate stderr output AND
-                // valid stdout output, so must merge them.
-                $output = $run->stderr ? $run->stderr + '\n' + $run->output : $run->output;
+                // Merge stdout and stderr for display
+                $output = $run->stderr ? $run->output + '\n' + $run->stderr : $run->output;
                 $outcome->addTestResult($this->grade($output, $testCase));
             }
         }
@@ -538,7 +537,7 @@ class qtype_coderunner_question extends question_graded_automatically {
                 $err .= " (signal $sig)";
             }
         }
-        return $this->merge("\n", array($run->cmpinfo, $run->stderr, $run->output, $err));
+        return $this->merge("\n", array($run->cmpinfo, $run->output, $err, $run->stderr));
     }
 
 
