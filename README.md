@@ -120,7 +120,7 @@ the command
 This assumes pear is already installed. If not, install it first with a
 command like (depending on your system)
 
-    sudo apt-get install pear
+    sudo apt-get install php-pear
 
 or
 
