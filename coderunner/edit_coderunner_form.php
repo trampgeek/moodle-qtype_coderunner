@@ -54,13 +54,8 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
 
     protected function definition() {
-        // Override to add my coderunner_type selector at the top.
-        // Need to support both JavaScript enabled and JavaScript disabled
-        // sites, so there's a normal select item, containing all languages
-        // and question types, for a default and a YUI3 hierarchical menu
-        // that the JavaScript switches on if it's enabled.
-        // [But it's currently not being used as it looks horrible. Needs
-        // better CSS or a rethink.]
+        // Define the CodeRunner question edit form
+
         global $PAGE;
         global $SANDBOXES;
         $jsmodule = array(
