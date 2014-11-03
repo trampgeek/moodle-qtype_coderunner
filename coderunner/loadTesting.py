@@ -33,7 +33,7 @@ import shelve
 import random
 import traceback
 
-LANGUAGE = 'PYTHON3'
+LANGUAGE = 'CLOJURE'
 
 shelf = shelve.open('coderunner_loadtesting_results')
 
@@ -123,7 +123,19 @@ end
    disp(s);
 end
 '''
-]
+],
+"CLOJURE": """
+(defn arg-max [f ls]
+  (reduce (fn [x y] (if (> (f x) (f y)) x y)) (first ls) ls))
+;
+(defn compose [& fns]
+  (fn [x] (reduce (fn [x f] (f x)) x fns)))
+;
+(defn conjoin [& ps]
+  (fn [x] (reduce (fn [v p] (and v (p x))) true ps)))
+;
+(defn transpose [ls] (apply map list ls))
+""".split(';')
 }
 
 FIRST_STUDENT = 5
@@ -182,15 +194,7 @@ def quiz_runner(arg_tup): #quiz_name, student, [Queue]
         main_form = forms[0]
         textarea = main_form.controls[4]
 
-        if LANGUAGE == 'C':
-            qa = quiz_answer + '/* %.4f */' % random.random()
-        elif LANGUAGE == 'PYTHON3':
-            qa = quiz_answer + '# %.4f' % random.random()
-        elif LANGUAGE == 'MATLAB':
-            qa = quiz_answer + '% {:.4}'.format(random.random())
-        # Add a random comment at the end to prevent use of cached result
-        # [Probably no longer necessary as "Check" now forces a recomputation,
-        # but left in anyway. RJL 24/1/14.]
+        qa = quiz_answer;
 
         print 'Entering code into textarea:'
         textarea._value = qa
@@ -204,11 +208,15 @@ def quiz_runner(arg_tup): #quiz_name, student, [Queue]
         data = res.get_data()
         dt = time.time() - start
         if 'coderunner-test-results' in data:
-            if 'coderunner-test-results-good' in data:
+            if 'coderunner-test-results good' in data:
                 print 'Success! Test results returned in %.3f secs' % dt
                 err = ''
             else:
                 print '***Failed***! Test results returned in %.3f secs' % dt
+                #f = open('junk.html', 'w')
+                #f.write(data)
+                #f.close()
+                #sys.exit(0)
         else:
             print 'Something went wrong'
             print data
@@ -299,8 +307,8 @@ def sim(avg_gap, sim_length):
 
 
 if __name__ == '__main__':
-    SIMULATION_GAP_SECS = 0.5
-    SIMULATION_DURATION_SECS = 600
+    SIMULATION_GAP_SECS = 2
+    SIMULATION_DURATION_SECS = 60
 
     before = time.time()
     (results, errs) = sim(SIMULATION_GAP_SECS, SIMULATION_DURATION_SECS)
