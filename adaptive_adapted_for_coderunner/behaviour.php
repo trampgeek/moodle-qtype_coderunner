@@ -142,12 +142,14 @@ class qbehaviour_adaptive_adapted_for_coderunner extends qbehaviour_adaptive {
     }
 
 
-    // Override usual adaptive mark details to handle penalty regime..
+    // Override usual adaptive mark details to handle penalty regime.
     // This is messy. TODO: is there a better way?
-    protected function adaptive_mark_details_from_step(question_attempt_step $gradedstep,
+    
+    protected function adaptive_mark_details_from_step(
+            question_attempt_step $gradedstep,
             question_state $state, $maxmark, $penalty) {
         if (!isset($this->question->penalty_regime) || $this->question->penalty_regime === '') {
-            return parent::adaptive_mark_details_from_step($gradedstep, $state, $maxmark, $penalty);
+            $details = parent::adaptive_mark_details_from_step($gradedstep, $state, $maxmark, $penalty);
         } else {
             $prevtries = $this->qa->get_last_behaviour_var('_try', 0);
             $fract = $this->adjusted_fraction(1.0, $prevtries);
@@ -159,7 +161,7 @@ class qbehaviour_adaptive_adapted_for_coderunner extends qbehaviour_adaptive {
             $details->currentpenalty = $details->totalpenalty * $details->maxmark;
             $details->improvable = $this->is_state_improvable($gradedstep->get_state());
         }
-
+        
         return $details;
     }
 
