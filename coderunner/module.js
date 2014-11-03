@@ -1,10 +1,14 @@
 // JavaScript functions for CodeRunner
-// Thanks for Ulrich Dangel for the code that loads and configures ace.
+// Thanks to Ulrich Dangel for the initial implementation of Ace within
+// CodeRunner.
 
-M.qtype_coderunner = {};
+var HANDLE_SIZE = 5,
+    MIN_WIDTH = 300,
+    MIN_HEIGHT = 100;
 
+M.qtype_coderunner = M.qtype_coderunner || {};
 
-// Function to load ace and insert an editor into the current page
+// Functions to allow the use of the Ace editor for code text areas.
 M.qtype_coderunner.init_ace = function (Y, field, lang) {
 
     // Load the required ace modules
@@ -45,27 +49,56 @@ M.qtype_coderunner.init_ace = function (Y, field, lang) {
 
     // create ace editor for a specific text area
     function create_editor_element(textarea) {
-        var id = textarea.get("id")
-        var edit_node = Y.Node.create("<div></div>");
-        textarea.insert(edit_node, "after");
+        var id = textarea.get("id"),
+            h = parseInt(textarea.getComputedStyle("height")),
+            w = parseInt(textarea.getComputedStyle("width")),
+            wrapper_node = Y.Node.create('<div></div>'),
+            edit_node = Y.Node.create("<div></div>"),
+            editor = null,
+            parent = null, 
+            hLast = h - HANDLE_SIZE,
+            wLast = w - HANDLE_SIZE,
+            do_resize = function (h, w) {
+                // Resize the editor to fit within a resizable wrapper 
+                // div of the given height and width, allowing a bit of
+                // space to show at least some of the resize handle.
+                // This is a bit hacky, but I haven't figured out any way
+                // to incorporate the resize handle into the edit div itself.
+                edit_node.set("offsetHeight", h - HANDLE_SIZE);
+                edit_node.set("offsetWidth", w - HANDLE_SIZE);
+                editor.resize();
+                hLast = h;
+                wLast = w;
+            };
+        
+        wrapper_node.setStyles({
+            resize: 'both',
+            overflow: 'hidden',
+            height: h,
+            width: w,
+            minWidth: MIN_WIDTH,  // GRRR YUI needs camelCase not hyphens
+            minHeight: MIN_HEIGHT
+        });
+        
 
-        // Mimic the existing textarea
-        edit_node.set("offsetHeight", parseInt(textarea.getComputedStyle("height")));
-        edit_node.set("offsetWidth", parseInt(textarea.getComputedStyle("width")));
-
-
-        var editor = ace.edit(edit_node.getDOMNode());
+        edit_node.setStyles({
+            resize: 'none', // Chrome wrongly inherits this
+            height: h - HANDLE_SIZE,
+            width: w - HANDLE_SIZE
+        }); 
+        
+        textarea.insert(wrapper_node, "after");
+        wrapper_node.insert(edit_node, "replace");
+     
+        editor = ace.edit(edit_node.getDOMNode());
+        if (textarea.getAttribute('readonly')) {
+            editor.setReadOnly(true);
+        }
         editor.getSession().setValue(textarea.get('value'));
         editor.getSession().on('change', function(){
             textarea.set('value', editor.getSession().getValue());
         });
-        
-        if (textarea.getAttribute('readonly')) {
-            editor.setReadOnly(true);
-        }
-
-        textarea.hide();
-
+         
         var mode = find_mode(lang);
         if (mode) {
             editor.getSession().setMode(mode.mode);
@@ -75,6 +108,33 @@ M.qtype_coderunner.init_ace = function (Y, field, lang) {
             enableBasicAutocompletion: true,
             newLineMode: "unix",
         });
+        
+        textarea.hide();
+        
+        /* Because chrome doesn't generate mutation events when a user resizes
+         * a resizable div, we have to poll the wrapper div size on mouse 
+         * motion events. Furthermore, we need to observe the mouse events
+         * on the parent window rather than the resizable div, as Chrome doesn't
+         * generate the events on the child (unlike Firefox).
+         */
+        parent = wrapper_node.ancestor();
+        parent.on('mousemove', function () {
+            var h = wrapper_node.get('offsetHeight'),
+                w = wrapper_node.get('offsetWidth');
+            if (h != hLast || w != wLast) {
+                do_resize(h, w);  
+            }
+        });
+        
+        /* The following is how the above should be done, if Chrome weren't buggy
+        var observer = new MutationObserver(function(mutations) {
+            var h = wrapper_node.get('offsetHeight'),
+                w = wrapper_node.get('offsetWidth');
+            do_resize(h, w);   
+        });
+        observer.observe(wrapper_node.getDOMNode(),
+            { attributes: true, childList: false, characterData: false });
+        */
     }
 }
 
