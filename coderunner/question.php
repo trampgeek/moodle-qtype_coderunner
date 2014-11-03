@@ -286,7 +286,7 @@ class qtype_coderunner_question extends question_graded_automatically {
 
     // Try running with the combinator template, which combines all tests into
     // a single sandbox run.
-    // Only do this if the cominator is enabled, there are no stdins and the
+    // Only do this if the combinator is enabled, there are no stdins and the
     // question isn't set to let the template (i.e., the per-test-case template)
     // do the grading.
     // Special template parameters are STUDENT_ANSWER, the raw submitted code,
