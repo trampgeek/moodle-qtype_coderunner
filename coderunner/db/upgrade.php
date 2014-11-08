@@ -338,6 +338,39 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         // Coderunner savepoint reached.
         upgrade_plugin_savepoint(true, 2014060802, 'qtype', 'coderunner');
     }
+    
+    
+    if ($oldversion != 0 && $oldversion < 2014110301) {
+
+        // Define field extra to be added to quest_coderunner_testcases.
+        $table = new xmldb_table('quest_coderunner_testcases');
+        $field = new xmldb_field('extra', XMLDB_TYPE_TEXT, null, null, null, null, null, 'expected');
+
+        // Conditionally launch add field extra.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        
+        // Define fields answer and ace-lang to be added to quest_coderunner_options.
+        
+        $table = new xmldb_table('quest_coderunner_options');
+        $field = new xmldb_field('answer', XMLDB_TYPE_TEXT, null, null, null, null, null, 'showoutput');
+
+        // Conditionally launch add field answer
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        
+        $field = new xmldb_field('ace_lang', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'language');
+
+        // Conditionally launch add field ace_lang.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Coderunner savepoint reached.
+        upgrade_plugin_savepoint(true, 2014110301, 'qtype', 'coderunner');
+    }
 
 
     

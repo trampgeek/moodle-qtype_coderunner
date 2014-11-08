@@ -33,7 +33,8 @@ class TemplateGrader extends Grader {
                     0.0,
                     Grader::tidy($testcase->expected),
                     $errorMessage,
-                    Grader::tidy($testcase->stdin)
+                    Grader::tidy($testcase->stdin),
+                    Grader::tidy($testCase->extra)
             );
         } else {
             // First copy any missing fields from test case into result
@@ -57,7 +58,8 @@ class TemplateGrader extends Grader {
                 $result->awarded,
                 Grader::tidy($result->expected),
                 Grader::tidy($result->got),
-                Grader::tidy($result->stdin)
+                Grader::tidy($result->stdin),
+                Grader::tidy($testCase->extra)
             );
             
             /* To accommodate generalised template graders that need to

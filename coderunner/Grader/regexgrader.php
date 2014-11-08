@@ -48,7 +48,8 @@ class RegexGrader extends Grader {
                 $awardedMark,
                 Grader::snip($testCase->expected),
                 Grader::snip($output),
-                $resultStdin
+                $resultStdin,
+                Grader::tidy($testCase->extra)
         );
     }
 }

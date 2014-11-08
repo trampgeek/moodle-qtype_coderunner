@@ -100,11 +100,13 @@ class qtype_coderunner extends question_type {
             'showexpected',
             'showoutput',
             'showmark',
+            'answer',
             'combinator_template',
             'test_splitter_re',
             'enable_combinator',
             'per_test_template',
             'language',
+            'ace_lang',
             'sandbox',
             'grader',
             'cputimelimitsecs',
@@ -129,6 +131,7 @@ class qtype_coderunner extends question_type {
             'answerbox_lines',
             'answerbox_columns',
             'use_ace',
+            'answer',
             'template_params'
             );
     }
@@ -168,6 +171,7 @@ class qtype_coderunner extends question_type {
             $input = $this->filterCrs($question->testcode[$i]);
             $stdin = $this->filterCrs($question->stdin[$i]);
             $expected = $this->filterCrs($question->expected[$i]);
+            $extra = $this->filterCrs($question->extra[$i]);
             if ($input == '' && $stdin == '' && $expected == '') {
                 continue;
             }
@@ -176,6 +180,7 @@ class qtype_coderunner extends question_type {
             $testcase->testcode = $input;
             $testcase->stdin = $stdin;
             $testcase->expected = $expected;
+            $testcase->extra = $extra;
             $testcase->useasexample = isset($question->useasexample[$i]);
             $testcase->display = $question->display[$i];
             $testcase->hiderestiffail = isset($question->hiderestiffail[$i]);
@@ -559,6 +564,7 @@ class qtype_coderunner extends question_type {
                 else {
                     $tc->expected = $testcase['#']['expected'][0]['#']['text'][0]['#'];
                 }
+                $tc->extra = $testcase['#']['extra'][0]['#']['text'][0]['#'];
                 $tc->display = 'SHOW';
                 $tc->mark = 1.0;
                 if (isset($testcase['@']['mark'])) {
@@ -641,7 +647,7 @@ class qtype_coderunner extends question_type {
             $hiderestiffail = $testcase->hiderestiffail ? 1 : 0;
             $mark = sprintf("%.7f", $testcase->mark);
             $expout .= "      <testcase useasexample=\"$useasexample\" hiderestiffail=\"$hiderestiffail\" mark=\"$mark\" >\n";
-            foreach (array('testcode', 'stdin', 'expected', 'display') as $field) {
+            foreach (array('testcode', 'stdin', 'expected', 'extra', 'display') as $field) {
                 $exportedValue = $format->writetext($testcase->$field, 4);
                 $expout .= "      <{$field}>\n        {$exportedValue}      </{$field}>\n";
             }

@@ -41,7 +41,8 @@ abstract class Grader {
                         0.0,
                         Grader::tidy($testcase->expected),
                         Grader::tidy($output),
-                        Grader::tidy($testcase->stdin)
+                        Grader::tidy($testcase->stdin),
+                        Grader::tidy($testcase->extra)
             );
         } else {
             $outcome = $this->gradeKnownGood($output, $testcase);

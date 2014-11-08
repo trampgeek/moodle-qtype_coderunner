@@ -311,6 +311,23 @@ class qtype_coderunner_renderer extends qtype_renderer {
         }
     }
     
+    
+    public function correct_response(question_attempt $qa) {
+        $question = $qa->get_question();
+
+        $answer = $question->answer;
+        if (!$answer) {
+            return '';
+        }
+
+        $heading = get_string('asolutionis', 'qtype_coderunner');
+        $html = html_writer::start_tag('div', array('class' => 'sample code'));
+        $html .= html_writer::tag('h4', $heading);
+        $html .= html_writer::tag('pre', s($answer));
+        $html .= html_writer::end_tag('div');
+        return $html;
+    }
+    
     // Sanitise with 's()' and add line breaks to a given string
     private function formatCell($cell) {
         return str_replace("\n", "<br />", str_replace(' ', '&nbsp;', s($cell)));

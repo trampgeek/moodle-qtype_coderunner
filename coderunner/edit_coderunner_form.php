@@ -275,6 +275,8 @@ class qtype_coderunner_edit_form extends question_edit_form {
         //$mform->addElement('static', 'answersinstruct');
         //$mform->closeHeaderBefore('answersinstruct');
 
+        $this->add_sample_answer_field($mform);
+        
         if (isset($this->question->options->testcases)) {
             $numTestcases = count($this->question->options->testcases) + NUM_TESTCASES_ADD;
         }
@@ -314,12 +316,24 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $this->add_interactive_settings();
     }
 
+    /**
+     * Add a field for a sample answer to this problem (optional)
+     * @param object $mform the form being built
+     */
+    protected function add_sample_answer_field(&$mform) {
+        $mform->addElement('header', 'answerhdr',
+                    get_string('sampleanswer', 'qtype_coderunner'), '');
+        $mform->setExpanded('answerhdr', 1);
+        $mform->addElement('textarea', 'answer',
+                get_string('answer', 'qtype_coderunner'),
+                array('cols' => 80, 'rows' => 15, 'class' => 'sampleanswer edit_code'));
+    }
 
  /**
      * Add a set of form fields, obtained from get_per_test_fields, to the form,
      * one for each existing testcase, with some blanks for some new ones
      * This overrides the base-case version because we're dealing with test
-     * cases, not answers.
+     * cases, not answers.1
      * @param object $mform the form being built.
      * @param $label the label to use for each option.
      * @param $gradeoptions the possible grades for each answer.
@@ -328,9 +342,9 @@ class qtype_coderunner_edit_form extends question_edit_form {
      * @param $addoptions the number of testcase blanks to add. Default QUESTION_NUMANS_ADD.
      */
     protected function add_per_testcase_fields(&$mform, $label, $numTestcases) {
-        $mform->addElement('header', 'answerhdr',
+        $mform->addElement('header', 'testcasehdr',
                     get_string('testcases', 'qtype_coderunner'), '');
-        $mform->setExpanded('answerhdr', 1);
+        $mform->setExpanded('testcasehdr', 1);
         $repeatedoptions = array();
         $repeated = $this->get_per_testcase_fields($mform, $label, $repeatedoptions);
         $this->repeat_elements($repeated, $numTestcases, $repeatedoptions,
@@ -357,6 +371,10 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $repeated[] = & $mform->createElement('textarea', 'expected',
                 get_string('expected', 'qtype_coderunner'),
                 array('cols' => 80, 'rows' => 3, 'class' => 'testcaseresult edit_code'));
+        
+       $repeated[] = & $mform->createElement('textarea', 'extra',
+                get_string('extra', 'qtype_coderunner'),
+                array('cols' => 80, 'rows' => 3, 'class' => 'testcaseresult edit_code'));
 
         $group[] =& $mform->createElement('checkbox', 'useasexample', NULL,
                 get_string('useasexample', 'qtype_coderunner'));
@@ -381,6 +399,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $repeatedoptions['expected']['type'] = PARAM_RAW;
         $repeatedoptions['testcode']['type'] = PARAM_RAW;
         $repeatedoptions['stdin']['type'] = PARAM_RAW;
+        $repeatedoptions['extra']['type'] = PARAM_RAW;
         $repeatedoptions['mark']['type'] = PARAM_FLOAT;
         // $repeatedoptions['mark']['default'] = 1.000;  TODO: Why does this break? Moodle bug??
 
@@ -403,11 +422,13 @@ class qtype_coderunner_edit_form extends question_edit_form {
             $question->expected = array();
             $question->useasexample = array();
             $question->display = array();
+            $question->extra = array();
             $question->hiderestifail = array();
             foreach ($question->options->testcases as $tc) {
                 $question->testcode[] = $this->newlineHack($tc->testcode);
                 $question->stdin[] = $this->newlineHack($tc->stdin);
                 $question->expected[] = $this->newlineHack($tc->expected);
+                $question->extra[] = $this->newlineHack($tc->extra);
                 $question->useasexample[] = $tc->useasexample;
                 $question->display[] = $tc->display;
                 $question->hiderestiffail[] = $tc->hiderestiffail;

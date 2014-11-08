@@ -74,12 +74,14 @@ If the template-debugging checkbox is clicked, the program generated
 for each testcase will be displayed in the output.
 ";
 $string['advanced_customisation'] = "Advanced customisation";
+$string['answer'] = "Answer";
 $string['answerbox_group'] = "Answer box";
 $string['answerbox_columns'] = "Columns";
 $string['answerbox_lines'] = 'Rows';
 $string['answerbox_group_help'] = 'Set the number of rows and columns to allocate for the answer box. ' .
         'If the answer overflows the box vertically or horizontally, scrollbars will appear.' .
         'If \'Use ace\' is checked, the ACE JavaScript code editor will manage the answer box.';
+$string['asolutionis'] = "Question author's solution:";
 $string['bad_dotdotdot'] = "Misuse of '...'. Must be at end, after two increasing numeric penalties";
 $string['badpenalties'] = 'Penalty regime must be a comma separated list of numbers in the range [0, 100]';
 $string['badtemplateparams'] = 'Template parameters must be either blank or a valid JSON record';
@@ -136,6 +138,7 @@ $string['enablecombinator'] = 'Enable combinator';
 $string['enable_sandbox_desc'] = 'Permit use of the specified sandbox for ' .
          'running student submissions';
 $string['expected'] = 'Expected output';
+$string['extra'] = 'Extra template data';
 $string['failedhidden'] = 'Your code failed one or more hidden tests.';
 $string['fileheader'] = 'Support files';
 $string['filloutoneanswer'] = 'You must enter source code that '
@@ -268,6 +271,7 @@ QUESTION_TYPE_HELP;
 $string['question_type_name'] = 'Question type';
 $string['questiontype_required'] = 'You must select the type of question';
 $string['row_properties'] = 'Row properties:';
+$string['sampleanswer'] = 'Sample answer';
 $string['sandboxcontrols'] = 'Sandbox';
 $string['sandboxcontrols_help'] = 'Select what sandbox you wish the student ' .
         'submissions to run in; choosing DEFAULT will use the highest ' .

@@ -27,14 +27,12 @@
 define('DEFAULT_GRADER', 'EqualityGrader');
 defined('MOODLE_INTERNAL') || die();
 
-// TODO -- fix up the horrible hack defining MAX_OUTPUT_LENGTH and FUNC_MIN_LENGTH
-// (to avoid any conflict with the legacy prgcode module).
-
 /** Max size of output to be stored in question_attempt_step_data table
  *  (which is of type text so limited to 64k).
  */
-defined('MAX_OUTPUT_LENGTH') || define('MAX_OUTPUT_LENGTH', 60000);
-defined('FUNC_MIN_LENGTH') ||  define('FUNC_MIN_LENGTH', 1);  /* Minimum no. of bytes for a valid bit of code */
+define('MAX_OUTPUT_LENGTH', 60000);
+
+define('FUNC_MIN_LENGTH', 1);  /* Minimum no. of bytes for a valid bit of code */
 
 require_once($CFG->dirroot . '/question/behaviour/adaptive/behaviour.php');
 require_once($CFG->dirroot . '/question/engine/questionattemptstep.php');
@@ -138,7 +136,7 @@ class qtype_coderunner_question extends question_graded_automatically {
 
 
     public function get_correct_answer() {
-        // Allow for the possibility in the future of providing a sample answer
+        // Return the sample answer, if supplied
         return isset($this->answer) ? array('answer' => $this->answer) : array();
     }
 
@@ -249,7 +247,8 @@ class qtype_coderunner_question extends question_graded_automatically {
      * @param type $testcases The set of testcases, each consisting of
      * all the fields contained in the quest_coderunner_testcases database table
      * (q.v.) and including the testcode to run for the test, the stdin to
-     * use and the expected output.
+     * use, the expected output and the 'extra' field (used by some special
+     * templates).
      */
     public function setTestcases($testcases) {
         $this->testcases = $testcases;

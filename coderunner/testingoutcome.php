@@ -99,8 +99,9 @@ class TestResult {
     var $awarded;           // The mark actually awarded.
     var $got;               // What the student's code gave (trimmed, snipped)
     var $stdin;             // The standard input data (trimmed, snipped)
+    var $extra;             // Extra data for use by some templates
 
-    public function __construct($test, $mark, $isCorrect, $awardedMark, $expected, $got, $stdin = NULL) {
+    public function __construct($test, $mark, $isCorrect, $awardedMark, $expected, $got, $stdin=NULL, $extra=NULL) {
         $this->testcode = $test;
         $this->mark = $mark;
         $this->isCorrect = $isCorrect;
@@ -108,6 +109,7 @@ class TestResult {
         $this->expected = $expected;
         $this->got = $got;
         $this->stdin = $stdin;
+        $this->extra = $extra;
     }
 }
 
