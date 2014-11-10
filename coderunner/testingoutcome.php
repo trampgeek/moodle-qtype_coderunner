@@ -91,7 +91,6 @@ class TestingOutcome {
 
 class TestResult {
     // NB: there may be other attributes added by the template grader
-    // e.g. HTML fields for the renderer to use directly.
     var $testcode;          // The test that was run (trimmed, snipped)
     var $isCorrect;         // True iff test passed fully (100%)
     var $expected;          // Expected output (trimmed, snipped)

@@ -31,6 +31,7 @@ class qtype_coderunner_grader_test extends qtype_coderunner_testcase {
         $q->testcases = array(
             (object) array('testcode' => 'copyStdin()',
                           'stdin'       => "Line1\n  Line2  \n /123Line 3456/ \n",
+                          'extra'       => '',
                           'expected'    => "^ *Line1 *\n +Line2 +. /[1-3]{3}Line *3[4-6]{3}/ *\n$",
                           'useasexample' => 0,
                           'display' => 'SHOW',

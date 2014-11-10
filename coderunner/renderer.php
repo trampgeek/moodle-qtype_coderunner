@@ -28,6 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 define('FORCE_TABULAR_EXAMPLES', TRUE);
 define('MAX_LINE_LENGTH', 120);
 define('MAX_NUM_LINES', 200);
+define('DEFAULT_RESULT_COLUMNS', '[["Test", "testcode"], ["Input", "stdin"], ["Expected", "expected"], ["Got", "got"]]');
 
 //
 // require_once($CFG->dirroot . '/question/type/coderunner/testingoutcome.php');
@@ -207,89 +208,97 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
     // Return a table of results or NULL if there are no results to show.
     private function buildResultsTable($question, $testCases, $testResults) {
-        // The set of columns to be displayed is specified by the boolean
-        // flags showtest, showstdin, showexpected, showoutput and showmark
-        // with the proviso that neither of the first two will be displayed
-        // if they are empty strings for all testcases.
+        // The set of columns to be displayed is specified by the 
+        // question's result_columns variable. This is a JSON-encoded list
+        // of column specifiers. A column specifier is itself a list, usually
+        // with 2 or 3 elements. The first element is the column header
+        // the second is the test result object field name whose value is to be
+        // displayed in the column and the third (optional) element is the
+        // sprintf format used to display the field. It is also possible to
+        // combine more than one field of the test result object into a single
+        // field by adding extra field names into the column specifier before
+        // the format, which is then mandatory. For example, to display the
+        // mark awarded for a test case as, say '0.71 out of 1.00' the column 
+        // specifier would be ["Mark", "awarded", "mark", "%.2f out of %.2f"]
+        // A special case format specifier is '%h' denoting that
+        // te result object field value should be treated as ready-to-output html.
+        // Empty columns are suppressed.
 
         global $COURSE;
+                
+        if (isset($question->result_columns) && $question->result_columns) {
+            $result_columns = json_decode($question->result_columns);
+        } else {
+            $result_columns = json_decode(DEFAULT_RESULT_COLUMNS);
+        }
         if ($COURSE && $coursecontext = context_course::instance($COURSE->id)) {
             $canViewHidden = has_capability('moodle/grade:viewhidden', $coursecontext);
         } else {
             $canViewHidden = FALSE;
         }
 
-        list($numStdins, $numTests) = $this->countBits($testResults);
-        $showTests = $question->showtest && $numTests > 0;
-        $showStdins = $question->showstdin && $numStdins > 0;
-
         $table = new html_table();
         $table->attributes['class'] = 'coderunner-test-results';
+
+        
+        // Build the table header, containing all the specified field headers,
+        // unless all rows in that column would be blank.
+
         $table->head = array('');  // First column is tick or cross, like last column
-        if ($showTests) {
-            $table->head[] = 'Test';
+        foreach ($result_columns as &$col_spec) {
+            $len = count($col_spec);
+            if ($len < 3) {
+                $col_spec[] = '%s';  // Add missing default format
+            }
+            $header = $col_spec[0];
+            $field = $col_spec[1];  // Primary field - there may be more
+            $num_non_blank = count_non_blanks($field, $testResults);
+            if ($num_non_blank == 0) {
+                $col_spec[count($col_spec) - 1] = '';  // Zap format to hide column
+            } else {
+                $table->head[] = $header;
+            }
         }
-        if ($showStdins) {
-            $table->head[] = 'Input';
-        }
-        if ($question->showexpected) {
-            $table->head[] = ($question->grader === 'RegexGrader' ?
-                    'Expected RE' : 'Expected');
-        }
-        if ($question->showoutput) {
-            $table->head[] = 'Got';
-        }
-        if ($question->showmark && !$question->all_or_nothing) {
-            $table->head[] = 'Mark';
-        }
-
-        $table->head[] = '';  // Tick or cross column is always shown
-
+        $table->head[] = '';  // Final tick/cross column
+        
+        // Process each row of the results table
+        
         $tableData = array();
         $testCaseKeys = array_keys($testCases);  // Arbitrary numeric indices. Aarghhh.
         $i = 0;
-
         foreach ($testResults as $testResult) {
             $testCase = $testCases[$testCaseKeys[$i]];
             $testIsVisible = $this->shouldDisplayResult($testCase, $testResult);
             if ($canViewHidden || $testIsVisible) {
-                $mark = $testResult->awarded;
-                $fraction = $mark / $testResult->mark;
-                $tableRow = array($this->feedback_image($fraction)); // Tick or cross
-                if ($showTests) {
-                    $tableRow[] = $this->formatCell(restrict_qty($testResult->testcode));
-                }
-                if ($showStdins) {
-                    $tableRow[] = $this->formatCell(restrict_qty($testResult->stdin));
-                }
-                if ($question->showexpected) {
-                    if (isset($testResult->expected_html)) {
-                        // If template grader provides a raw HTML version, we
-                        // use that instead of the generally cleaned up 'expected'
-                        // field. WARNING: this assumes a trustworthy template
-                        // grader.
-                        $tableRow[] = $testResult->expected_html;
-                    } else {
-                        $tableRow[] = $this->formatCell($testResult->expected);
+                $fraction = $testResult->awarded / $testResult->mark;
+                $tick_or_cross = $this->feedback_image($fraction);
+                $tableRow = array($tick_or_cross); // Tick or cross
+                foreach ($result_columns as &$col_spec) {
+                    $len = count($col_spec);
+                    $format = $col_spec[$len - 1];
+                    if ($format === '%h') {  // If it's an html format
+                        $field = $col_spec[1]; // ... use the template supplied value directly
+                        if (property_exists($testResult, $field)) {
+                            $value = $testResult->$field;
+                        } else {
+                            $value = "Field '$field' does not exist";
+                        }
+                        $tableRow[] = $value;  
+                    } else if ($format !== '') {  // Else if it's a non-null column
+                        $args = array($format);
+                        for ($j = 1; $j < $len - 1; $j++) {
+                            $field = $col_spec[$j];
+                            if (property_exists($testResult, $field)) {
+                                $args[] = restrict_qty($testResult->$field);
+                            } else {
+                                $args[] = "Field '$field' does not exist";
+                            }
+                        }
+                        $content = call_user_func_array('sprintf', $args);
+                        $tableRow[] = $this->formatCell($content);
                     }
                 }
-                if ($question->showoutput) {
-                    if (isset($testResult->got_html)) {
-                        // If template grader provides a raw HTML version, we
-                        // use that instead of the generally cleaned up 'got'
-                        // field. WARNING: this assumes a trustworthy template
-                        // grader.
-                        $tableRow[] = $testResult->got_html;
-                    } else {
-                        $tableRow[] = $this->formatCell($testResult->got);
-                    }
-                }
-
-                if ($question->showmark && !$question->all_or_nothing) {
-                    $tableRow[] = s(sprintf('%.2f/%.2f', $mark, $testResult->mark));
-                }
-
-                $tableRow[] = $this->feedback_image($fraction);
+                $tableRow[] = $tick_or_cross;
                 $tableData[] = $tableRow;
                 if (!$testIsVisible) {
                     $rowclasses[$i] = 'hidden-test';
@@ -300,6 +309,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
                 break;
             }
         }
+        
         $table->data = $tableData;
         if (isset($rowclasses)) {
             $table->rowclasses = $rowclasses;
@@ -539,3 +549,21 @@ function restrict_qty($s) {
     }
     return $result . $line;
 }
+
+
+// support function to count how many objects in the given list of objects
+// have the given 'field' attribute non-blank. Non-existent fields are also
+// included in order to generate a column showing the error, but null values
+
+function count_non_blanks($field, $objects) {
+    $n = 0;
+    foreach ($objects as $obj) {
+        if (!property_exists($obj, $field) ||
+            (!is_null($obj->$field) && !is_string($obj->$field)) ||
+            (is_string($obj->$field) && trim($obj->$field !== ''))) {
+            $n++;
+        }
+    }
+    return $n;
+}
+

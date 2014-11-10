@@ -38,11 +38,6 @@
     <answerbox_lines>60</answerbox_lines>
     <answerbox_columns>100</answerbox_columns>
     <use_ace>1</use_ace>
-    <showtest>1</showtest>
-    <showstdin>1</showstdin>
-    <showexpected>1</showexpected>
-    <showoutput>1</showoutput>
-    <showmark>0</showmark>
     <combinator_template></combinator_template>
     <test_splitter_re><![CDATA[|#<ab@17943918#@>#|ms]]></test_splitter_re>
     <enable_combinator>0</enable_combinator>
@@ -112,11 +107,6 @@ check_code(__student_answer__)
     <answerbox_lines>18</answerbox_lines>
     <answerbox_columns>100</answerbox_columns>
     <use_ace>1</use_ace>
-    <showtest>1</showtest>
-    <showstdin>1</showstdin>
-    <showexpected>1</showexpected>
-    <showoutput>1</showoutput>
-    <showmark>0</showmark>
     <combinator_template></combinator_template>
     <test_splitter_re></test_splitter_re>
     <enable_combinator>0</enable_combinator>
@@ -159,11 +149,6 @@ check_code(__student_answer__)
     <answerbox_lines>18</answerbox_lines>
     <answerbox_columns>100</answerbox_columns>
     <use_ace>1</use_ace>
-    <showtest>1</showtest>
-    <showstdin>1</showstdin>
-    <showexpected>1</showexpected>
-    <showoutput>1</showoutput>
-    <showmark>0</showmark>
     <combinator_template></combinator_template>
     <test_splitter_re></test_splitter_re>
     <enable_combinator>0</enable_combinator>
@@ -201,11 +186,6 @@ check_code(__student_answer__)
     <answerbox_lines>18</answerbox_lines>
     <answerbox_columns>100</answerbox_columns>
     <use_ace>1</use_ace>
-    <showtest>1</showtest>
-    <showstdin>1</showstdin>
-    <showexpected>1</showexpected>
-    <showoutput>1</showoutput>
-    <showmark>0</showmark>
     <combinator_template><![CDATA[function tester()
    {% for TEST in TESTCASES %}
    {{ TEST.testcode }};
@@ -258,11 +238,6 @@ end
     <answerbox_lines>18</answerbox_lines>
     <answerbox_columns>100</answerbox_columns>
     <use_ace>1</use_ace>
-    <showtest>1</showtest>
-    <showstdin>1</showstdin>
-    <showexpected>1</showexpected>
-    <showoutput>1</showoutput>
-    <showmark>0</showmark>
     <combinator_template><![CDATA[{{ STUDENT_ANSWER }}
 
 __student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""

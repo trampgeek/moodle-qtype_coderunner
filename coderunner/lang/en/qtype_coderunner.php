@@ -73,6 +73,7 @@ more information.
 If the template-debugging checkbox is clicked, the program generated
 for each testcase will be displayed in the output.
 ";
+$string['ace-language'] = "Ace language";
 $string['advanced_customisation'] = "Advanced customisation";
 $string['answer'] = "Answer";
 $string['answerbox_group'] = "Answer box";
@@ -189,11 +190,19 @@ $string['ideone_pass_desc'] = 'The password to use when connecting to the ' .
         'Ideone server (if the ideone sandbox is enabled)';
 $string['is_prototype'] = 'Use as prototype';
 
-$string['language'] = 'Language';
-$string['language_help'] = 'The computer language used to run the submission. '.
-        'Must be known to the chosen sandbox (if a specific one has been '.
-        'selected) or to at least one of the enabled sandboxes (otherwise). ' .
-        'This should usually not be altered; tweak it at your peril.';
+$string['language'] = 'Sandbox language';
+$string['languages'] = 'Languages';
+$string['languages_help'] = 'The sandbox language is the computer language used'
+    . ' to run the submission. '
+    . ' Must be known to the chosen sandbox (if a specific one has been'
+    . ' selected) or to at least one of the enabled sandboxes (otherwise).'
+    . ' This should not usually need altering from the value in the'
+    . ' parent template; tweak it at your peril.  Ace-language is the'
+    . ' language used by the Ace code editor (if enabled) for the student\'s answer.'
+    . ' By default this is the same as the sandbox language; enter a different'
+    . ' value here only if the template language is different from the language'
+    . ' that the student is expected to write (e.g. if a Python preprocessor is'
+    . ' used to validate a student\'s C program prior to running it).';
 $string['mark'] = 'Mark';
 $string['marking'] = 'Mark allocation';
 $string['memorylimit'] = 'MemLimit (MB)';
@@ -270,6 +279,34 @@ $string['questiontype_help'] = <<<QUESTION_TYPE_HELP
 QUESTION_TYPE_HELP;
 $string['question_type_name'] = 'Question type';
 $string['questiontype_required'] = 'You must select the type of question';
+$string['result_columns'] = 'Result columns';
+$string['result_columns_help'] = 'By default the result table displays '
+    . 'the testcode, stdin, expected and got columns, provided the columns '
+    . 'are not empty. You can change the default, and/or the column headers '
+    . 'by entering a value for the result_columns (leave blank for the default '
+    . 'behaviour). If supplied, the result_columns field must be a JSON-encoded '
+    . 'list of column specifiers. Each column specifier is itself a list, '
+    . 'typically with just two or three elements. The first element is the '
+    . 'column header, the second element is the field from the TestResult '
+    . 'object being displayed in the column and the optional third '
+    . 'element is an sprintf format string used to display the field. The fields '
+    . 'available in the standard TestResult object are: testcode, stdin, expected, ' 
+    . 'got, extra, awarded, and mark. testcode, stdin, expected and extra are '
+    . 'the fields from the testcase while got is the actual output generated '
+    . 'and awarded and mark are the actual awarded mark and the maximum mark '
+    . 'for the testcase respsectively. Custom-grader templates may add their '
+    . 'own fields, which can also be selected for display. It is also possible '
+    . 'to combine multiple fields into a column by adding extra fields to the '
+    . 'specifier: these must precede the sprintf format specifier, which then '
+    . 'becomes mandatory. For example, to display a Mark Fraction column in the '
+    . 'form 0.74/1.00, say, a column format specifier of ["Mark Fraction", "awarded"'
+    . ', "mark", "%.2f/%.2f"] could be used. As a further special case, a format '
+    . 'of %h means that the test result field should be taken as ready-to-output '
+    . 'HTML and should not be subject to further processing; this is useful '
+    . 'only with custom-grader templates that generate HTML output, such as '
+    . 'SVG graphics.  The default value of result_columns is [["Test", "testcode"],'
+    . '["Input", "stdin"], ["Expected", "expected"], ["Got", "got"]].';
+        
 $string['row_properties'] = 'Row properties:';
 $string['sampleanswer'] = 'Sample answer';
 $string['sandboxcontrols'] = 'Sandbox';
@@ -284,7 +321,7 @@ $string['sandboxcontrols_help'] = 'Select what sandbox you wish the student ' .
         'languages like Java and Matlab). A value of zero for the maximum memory ' .
         'results in no limit being imposed. The amount of memory specified here ' .
         'is the total amount needed for the run including all libraries, interpreters, ' .
-        'VMs etc. The "Other" entry is used to pass' .
+        'VMs etc. The "Other" entry is used to pass ' .
         'further sandbox-specific data, such as API-keys. It should generally be left ' .
         'blank but if non-blank it must be a valid JSON record. ' .
         'Some sandboxes (e.g. Ideone) may ' .

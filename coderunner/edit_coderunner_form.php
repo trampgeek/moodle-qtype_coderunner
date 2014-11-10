@@ -31,6 +31,7 @@ define("NUM_TESTCASES_ADD", 3);   // Extra empty test cases to add
 define("DEFAULT_NUM_ROWS", 18);   // Answer box rows
 define("DEFAULT_NUM_COLS", 100);   // Answer box rows
 define("TEMPLATE_PARAM_SIZE", 80); // The size of the template parameter field
+define("RESULT_COLUMNS_SIZE", 80); // The size of the result_columns field
 
 require_once($CFG->dirroot . '/question/type/coderunner/Sandbox/sandbox_config.php');
 require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
@@ -162,31 +163,16 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 NULL, false);
         $mform->addHelpButton('gradingcontrols', 'gradingcontrols', 'qtype_coderunner');
 
-        $columnControls = array();
-        $columnControls[] =& $mform->createElement('advcheckbox', 'showtest', NULL,
-                get_string('show_test', 'qtype_coderunner'));
-        $columnControls[] =& $mform->createElement('advcheckbox', 'showstdin', NULL,
-                get_string('show_stdin', 'qtype_coderunner'));
-        $columnControls[] =& $mform->createElement('advcheckbox', 'showexpected', NULL,
-                get_string('show_expected', 'qtype_coderunner'));
-        $columnControls[] =& $mform->createElement('advcheckbox', 'showoutput', NULL,
-                get_string('show_output', 'qtype_coderunner'));
-        $columnControls[] =& $mform->createElement('advcheckbox', 'showmark', NULL,
-                get_string('show_mark', 'qtype_coderunner'));
-        foreach (array('showtest', 'showstdin', 'showexpected', 'showoutput') as $control) {
-            $mform->setDefault($control, True);
-        }
-        $mform->setDefault('showmark', False);
-
-        $mform->addElement('group', 'columncontrols',
-                get_string('columncontrols', 'qtype_coderunner'),
-                $columnControls,NULL, false);
-        $mform->addHelpButton('columncontrols', 'columncontrols', 'qtype_coderunner');
+        $mform->addElement('text', 'result_columns',
+            get_string('result_columns', 'qtype_coderunner'),
+            array('size' => RESULT_COLUMNS_SIZE));
+        $mform->setType('result_columns', PARAM_RAW);
+        $mform->addHelpButton('result_columns', 'result_columns', 'qtype_coderunner');
 
 
         // The next set of fields are also used to customise a question by overriding
         // values from the base question type, but these ones are much more
-        // advanced and not recommended for most users. They too are hidden
+        // advanced and not recommended for most users. They too arRESULT_COLUMNS_SIZEe hidden
         // unless the 'customise' checkbox is checked.
 
         $mform->addElement('header', 'advancedcustomisationheader',
@@ -235,10 +221,19 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->setType('sandbox_params', PARAM_RAW);
         $mform->addHelpButton('sandboxcontrols', 'sandboxcontrols', 'qtype_coderunner');
 
-        $mform->addElement('text', 'language', get_string('language', 'qtype_coderunner'),
-                array('size' => 10));
+        $languages = array();
+        $languages[]  =& $mform->createElement('text', 'language',
+            get_string('language', 'qtype_coderunner'),
+            array('size' => 10));
         $mform->setType('language', PARAM_RAW);
-        $mform->addHelpButton('language', 'language', 'qtype_coderunner');
+        $languages[]  =& $mform->createElement('text', 'ace_lang',
+            get_string('ace-language', 'qtype_coderunner'),
+            array('size' => 10));
+        $mform->setType('ace_lang', PARAM_RAW);
+        $mform->addElement('group', 'languages',
+            get_string('languages', 'qtype_coderunner'), 
+            $languages, NULL, false);
+        $mform->addHelpButton('languages', 'languages', 'qtype_coderunner');
 
         $combinatorControls = array();
 

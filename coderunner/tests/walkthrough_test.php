@@ -212,6 +212,7 @@ EOTEMPLATE;
         $q->customise = TRUE;
         $q->enable_combinator = FALSE;
         $q->unitpenalty = 0;
+        $q->result_columns = '[["Test", "testcode"], ["Expected", "expected_html", "%h"], ["Got", "got_html", "%h"]]';
 
         // Submit an answer that's right for all except one test case
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);

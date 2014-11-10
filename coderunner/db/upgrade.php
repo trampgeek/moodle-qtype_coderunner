@@ -371,6 +371,22 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         // Coderunner savepoint reached.
         upgrade_plugin_savepoint(true, 2014110301, 'qtype', 'coderunner');
     }
+    
+    if ($oldversion != 0 && $oldversion < 20141101001) {
+
+        // Define field result_columns to be added to quest_coderunner_options.
+        $table = new xmldb_table('quest_coderunner_options');
+        $field = new xmldb_field('result_columns', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'showmark');
+        // Conditionally launch add field result_columns.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        
+        make_result_columns();
+
+        // Coderunner savepoint reached.
+        upgrade_plugin_savepoint(true, 2014111001, 'qtype', 'coderunner');
+    }
 
 
     
@@ -536,4 +552,38 @@ function load_questions($category, $importfilename, $contextId) {
     }
 }
 
-?>
+
+function make_result_columns() {
+    // Find all questions using non-standard result table display and 
+    // build a result_columns field that matches the currently defined 
+    // set of showtest, showstdin, showexpected, showoutput and showmark
+    global $DB;
+    
+    $questions = $DB->get_records_select('quest_coderunner_options',
+            "showtest != 1 or showstdin != 1 or showexpected != 1 or showoutput != 1 or showmark = 1");
+    foreach ($questions as $q) {
+        $cols = array();
+        if ($q->showtest) {
+            $cols[] = '["Test", "testcode"]';
+        }
+        if ($q->showstdin) {
+            $cols[] = '["Input", "stdin"]';
+        }
+        if ($q->showexpected) {
+            $cols[] = '["Expected", "expected"]';
+        }
+        if ($q->showoutput) {
+            $cols[] = '["Got", "got"]';
+        }
+        if ($q->showmark) {
+            $cols[] = '["Mark", "awarded", "mark", "%.2f/%.2f"]';
+        }
+        $field = '[' . implode(",", $cols) . ']';
+        $row_id = $q->id;
+        $query = "UPDATE {quest_coderunner_options} "
+            . "SET result_columns = '$field' WHERE id=$row_id";
+        $DB->execute($query);
+    }
+}
+
+

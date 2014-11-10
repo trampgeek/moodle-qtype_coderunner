@@ -53,6 +53,16 @@ class qtype_coderunner_walkthrough_extras_test extends qbehaviour_walkthrough_te
                           'useasexample' => 0,
                           'display' => 'SHOW',
                           'mark'    => 1.0,
+                          'hiderestiffail'  => 0)    public function test_extra_testcase_field() {
+        $q = test_question_maker::make_question('coderunner', 'sqr');
+        $q->testcases = array(
+            (object) array('testcode' => 'print("Oops")',
+                          'extra'     => 'print(sqr(-11))',
+                          'expected'  => '121',
+                          'stdin'      => '',
+                          'useasexample' => 0,
+                          'display' => 'SHOW',
+                          'mark'    => 1.0,
                           'hiderestiffail'  => 0)
             );
         $q->per_test_template = <<<EOTEMPLATE
@@ -68,6 +78,52 @@ EOTEMPLATE;
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
         $this->process_submission(array('-submit' => 1, 'answer' => "def sqr(n): return n * n\n"));
         $this->check_current_mark(1.0);
+    }
+            );
+        $q->per_test_template = <<<EOTEMPLATE
+{{ STUDENT_ANSWER }}
+{{ TEST.extra }}  # Use this instead of the normal testcode field
+EOTEMPLATE;
+        $q->all_or_nothing = FALSE;
+        $q->customise = TRUE;
+        $q->enable_combinator = FALSE;testcases = array(
+            (object) array('testcode' => 'print("Oops")',
+                          'extra'     => 'print(sqr(-11))',
+                          'expected'  => '121',
+                          'stdin'      => '',
+                          'useasexample' => 0,
+                          'display' => 'SHOW',
+                          'mark'    => 1.0,
+                          'hiderestiffail'  => 0)
+            );
+        $q->per_test_template = <<<EOTEMPLATE
+{{ STUDENT_ANSWER }}
+{{ TEST.extra }}  # Use this instead of the normal testcode field
+EOTEMPLATE;
+        $q->all_or_nothing = FALSE;
+        $q->customise = TRUE;
+        $q->enable_combinator = FALSE;
+        $q->unitpenalty = 0;
+        $q->unitpenalty = 0;
+
+        // Submit a right answer
+        $this->start_attempt_at_question($q, 'adaptive', 1, 1);
+        $this->process_submission(array('-submit' => 1, 'answer' => "def sqr(n): return n * n\n"));
+        $this->check_current_mark(1.0);
+    }
+    
+    public function test_result_column_selection() {
+        // Make sure can relabel result table columns
+        $q = test_question_maker::make_question('coderunner', 'sqr');
+        $q->result_columns = '[["Blah", "testcode"], ["Thing", "expected"], ["Gottim", "got"]]';
+
+        // Submit a right answer
+        $this->start_attempt_at_question($q, 'adaptive', 1, 1);
+        $this->process_submission(array('-submit' => 1, 'answer' => "def sqr(n): return n * n\n"));
+        $this->check_current_mark(1.0);
+        $this->check_current_output( new question_pattern_expectation('/Blah/') );
+        $this->check_current_output( new question_pattern_expectation('/Thing/') );
+        $this->check_current_output( new question_pattern_expectation('/Gottim/') );
     }
     
 }

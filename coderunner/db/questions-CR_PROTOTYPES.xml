@@ -31,11 +31,6 @@
     <answerbox_lines>18</answerbox_lines>
     <answerbox_columns>100</answerbox_columns>
     <use_ace>1</use_ace>
-    <showtest>1</showtest>
-    <showstdin>1</showstdin>
-    <showexpected>1</showexpected>
-    <showoutput>1</showoutput>
-    <showmark>0</showmark>
     <combinator_template><![CDATA[#include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -100,11 +95,6 @@ int main() {
     <answerbox_lines>18</answerbox_lines>
     <answerbox_columns>100</answerbox_columns>
     <use_ace>1</use_ace>
-    <showtest>1</showtest>
-    <showstdin>1</showstdin>
-    <showexpected>1</showexpected>
-    <showoutput>1</showoutput>
-    <showmark>0</showmark>
     <combinator_template></combinator_template>
     <test_splitter_re></test_splitter_re>
     <enable_combinator>0</enable_combinator>
@@ -147,11 +137,6 @@ int main() {
     <answerbox_lines>18</answerbox_lines>
     <answerbox_columns>100</answerbox_columns>
     <use_ace>1</use_ace>
-    <showtest>1</showtest>
-    <showstdin>1</showstdin>
-    <showexpected>1</showexpected>
-    <showoutput>1</showoutput>
-    <showmark>0</showmark>
     <combinator_template></combinator_template>
     <test_splitter_re></test_splitter_re>
     <enable_combinator>0</enable_combinator>
@@ -204,11 +189,6 @@ public class __Tester__ {
     <answerbox_lines>18</answerbox_lines>
     <answerbox_columns>100</answerbox_columns>
     <use_ace>1</use_ace>
-    <showtest>1</showtest>
-    <showstdin>1</showstdin>
-    <showexpected>1</showexpected>
-    <showoutput>1</showoutput>
-    <showmark>0</showmark>
     <combinator_template><![CDATA[public class Main {
     static String SEPARATOR = "#<ab@17943918#@>#";
     {{ STUDENT_ANSWER }}
@@ -277,11 +257,6 @@ public class __Tester__ {
     <answerbox_lines>18</answerbox_lines>
     <answerbox_columns>100</answerbox_columns>
     <use_ace>1</use_ace>
-    <showtest>1</showtest>
-    <showstdin>1</showstdin>
-    <showexpected>1</showexpected>
-    <showoutput>1</showoutput>
-    <showmark>0</showmark>
     <combinator_template></combinator_template>
     <test_splitter_re></test_splitter_re>
     <enable_combinator>0</enable_combinator>
@@ -320,11 +295,6 @@ public class __Tester__ {
     <answerbox_lines>18</answerbox_lines>
     <answerbox_columns>100</answerbox_columns>
     <use_ace>1</use_ace>
-    <showtest>1</showtest>
-    <showstdin>1</showstdin>
-    <showexpected>1</showexpected>
-    <showoutput>1</showoutput>
-    <showmark>0</showmark>
     <combinator_template><![CDATA[{{ STUDENT_ANSWER }}
 
 format free
@@ -376,11 +346,6 @@ format free
     <answerbox_lines>18</answerbox_lines>
     <answerbox_columns>100</answerbox_columns>
     <use_ace>1</use_ace>
-    <showtest>1</showtest>
-    <showstdin>1</showstdin>
-    <showexpected>1</showexpected>
-    <showoutput>1</showoutput>
-    <showmark>0</showmark>
     <combinator_template><![CDATA[{{ STUDENT_ANSWER }}
 
 __student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
@@ -433,11 +398,6 @@ __student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
     <answerbox_lines>18</answerbox_lines>
     <answerbox_columns>100</answerbox_columns>
     <use_ace>1</use_ace>
-    <showtest>1</showtest>
-    <showstdin>1</showstdin>
-    <showexpected>1</showexpected>
-    <showoutput>1</showoutput>
-    <showmark>0</showmark>
     <combinator_template><![CDATA[{{ STUDENT_ANSWER }}
 
 __student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""

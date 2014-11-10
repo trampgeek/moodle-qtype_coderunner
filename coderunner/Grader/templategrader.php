@@ -59,7 +59,7 @@ class TemplateGrader extends Grader {
                 Grader::tidy($result->expected),
                 Grader::tidy($result->got),
                 Grader::tidy($result->stdin),
-                Grader::tidy($testCase->extra)
+                Grader::tidy($result->extra)
             );
             
             /* To accommodate generalised template graders that need to
