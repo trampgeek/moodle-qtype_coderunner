@@ -10,21 +10,10 @@ M.qtype_coderunner = M.qtype_coderunner || {};
 
 // Functions to allow the use of the Ace editor for code text areas.
 M.qtype_coderunner.init_ace = function (Y, field, lang) {
-
-    // Load the required ace modules
-    if (! M.qtype_coderunner.modelist) {
-        M.qtype_coderunner.modelist = ace.require('ace/ext/modelist');
-        ace.require("ace/ext/language_tools");
-    }
-
-    ace_setup();
     
-    // helper function to insert an editor after the specific selector
-    function ace_setup() {
-        var yta = Y.one('[id="' + field + '"]');
-        if (yta)
-            create_editor_element(yta);
-    }
+    var mode =  null,
+        session = null,
+        textarea = null;
 
     // try to find the correct ace language mode
     function find_mode(language) {
@@ -42,13 +31,14 @@ M.qtype_coderunner.init_ace = function (Y, field, lang) {
                 modelist.getModeForPath(filename) ||
                 modelist.getModeForPath(filename.toLowerCase());
 
-            if (result && result.name != 'text')
+            if (result && result.name !== 'text') {
                 return result;
+            }
         }
     }
 
     // create ace editor for a specific text area
-    function create_editor_element(textarea) {
+    function create_editor_element(textarea, mode) {
         var id = textarea.get("id"),
             h = parseInt(textarea.getComputedStyle("height")),
             w = parseInt(textarea.getComputedStyle("width")),
@@ -99,7 +89,6 @@ M.qtype_coderunner.init_ace = function (Y, field, lang) {
             textarea.set('value', editor.getSession().getValue());
         });
          
-        var mode = find_mode(lang);
         if (mode) {
             editor.getSession().setMode(mode.mode);
         }
@@ -135,6 +124,36 @@ M.qtype_coderunner.init_ace = function (Y, field, lang) {
         observer.observe(wrapper_node.getDOMNode(),
             { attributes: true, childList: false, characterData: false });
         */
+       
+        return editor;
+    }
+    
+    // The main body of the init_ace function
+    // ======================================
+    
+    // Load the required ace modules
+    if (! M.qtype_coderunner.modelist) {
+        M.qtype_coderunner.modelist = ace.require('ace/ext/modelist');
+        ace.require("ace/ext/language_tools");
+    }
+    
+    // Keep track of all active editors on this page (in module global)
+    if (! M.qtype_coderunner.active_editors) {
+        M.qtype_coderunner.active_editors = {};
+    }
+
+    textarea = Y.one('[id="' + field + '"]');
+    if (textarea) {
+        mode =  find_mode(lang);   
+        if (M.qtype_coderunner.active_editors[field]) {
+            if (mode) {  // If we already have an editor set up, reload code, change mode
+                session = M.qtype_coderunner.active_editors[field].getSession();
+                session.setValue(textarea.get('value'));
+                session.setMode(mode.mode);
+            }
+        } else {  // Otherwise create a new editor
+            M.qtype_coderunner.active_editors[field] = create_editor_element(textarea, mode);
+        }
     }
 }
 
@@ -194,6 +213,7 @@ M.qtype_coderunner.initTextArea = function (Y, yta) {
     });
 };
 
+
 M.qtype_coderunner.insertString = function(Y, ta, sToInsert) {
     if (ta.selectionStart != undefined) {  // firefox etc.
         var before = ta.value.substring(0, ta.selectionStart);
@@ -231,6 +251,7 @@ M.qtype_coderunner.initEditForm = function(Y) {
     var typeCombo = Y.one('#id_coderunner_type'),
         template = Y.one('#id_per_test_template'),
         enable_combinator = Y.one('#id_enable_combinator'),
+        use_ace = Y.one('#id_use_ace'),
         combinator_template = Y.one('#id_combinator_template'),
         test_splitter = Y.one('#id_test_splitter_re'),
         language = Y.one('#id_language'),
@@ -252,9 +273,14 @@ M.qtype_coderunner.initEditForm = function(Y) {
         message = '';
 
     function setCustomisationVisibility(isVisible) {
-        var display = isVisible ? 'block' : 'none';
+        var display = isVisible ? 'block' : 'none',
+            lang = language.get('value');
         customisationFieldSet.setStyle('display', display);
         advancedCustomisation.setStyle('display', display);
+        if (isVisible && use_ace.get('checked')) {
+            M.qtype_coderunner.init_ace(Y, 'id_per_test_template', lang);
+            M.qtype_coderunner.init_ace(Y, 'id_combinator_template', lang);
+        }
     }
 
     function loadDefaultCustomisationFields(Y) {

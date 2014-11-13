@@ -35,6 +35,7 @@ define("RESULT_COLUMNS_SIZE", 80); // The size of the result_columns field
 
 require_once($CFG->dirroot . '/question/type/coderunner/Sandbox/sandbox_config.php');
 require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
+require_once($CFG->dirroot . '/question/type/coderunner/locallib.php');
 
 /**
  * coderunner editing form definition.
@@ -260,6 +261,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
         $PAGE->requires->js_init_call('M.qtype_coderunner.setupAllTAs',  array(), false, $jsmodule);
         $PAGE->requires->js_init_call('M.qtype_coderunner.initEditForm', array(), false, $jsmodule);
+        load_ace_scripts();  // May be needed e.g. for template editing
         parent::definition($mform);
     }
 
@@ -533,6 +535,29 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 if ($bit === '...') {
                     if ($i != $n - 1 || $n < 3 || floatval($bits[$i - 1]) <= floatval($bits[$i - 2])) {
                         $errors['marking_group'] = get_string('bad_dotdotdot', 'qtype_coderunner');
+                    }
+                }
+            }
+        }
+        
+        $result_columns_json = trim($data['result_columns']);
+        if ($result_columns_json !== '') {
+            $result_columns = json_decode($result_columns_json);
+            if ($result_columns === NULL) {
+                $errors['result_columns'] = get_string('resultcolumnsnotjson', 'qtype_coderunner');
+            } else if (!is_array($result_columns)) {
+                $errors['result_columns'] = get_string('resultcolumnsnotlist', 'qtype_coderunner');
+            } else {
+                foreach ($result_columns as $col) {
+                    if (!is_array($col) || count($col) < 2) {
+                        $errors['result_columns'] = get_string('resultcolumnspecbad', 'qtype_coderunner');
+                        break;
+                    }
+                    foreach ($col as $el) {
+                        if (!is_string($el)) {
+                            $errors['result_columns'] = get_string('resultcolumnspecbad', 'qtype_coderunner');
+                        break;
+                        }
                     }
                 }
             }

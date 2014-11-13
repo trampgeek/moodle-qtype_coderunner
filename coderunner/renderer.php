@@ -30,8 +30,7 @@ define('MAX_LINE_LENGTH', 120);
 define('MAX_NUM_LINES', 200);
 define('DEFAULT_RESULT_COLUMNS', '[["Test", "testcode"], ["Input", "stdin"], ["Expected", "expected"], ["Got", "got"]]');
 
-//
-// require_once($CFG->dirroot . '/question/type/coderunner/testingoutcome.php');
+require_once($CFG->dirroot . '/question/type/coderunner/locallib.php');
 
 /**
  * Subclass for generating the bits of output specific to coderunner questions.
@@ -104,17 +103,8 @@ class qtype_coderunner_renderer extends qtype_renderer {
         // Thanks to Ulrich Dangel for incorporating the Ace code editor.
 
         $PAGE->requires->js_init_call('M.qtype_coderunner.initQuestionTA', array($responsefieldid));
-        if ($question->use_ace) {
-            $lang = ucwords($question->language);
-            if ($lang = 'OCTAVE') {
-                $lang = 'MATLAB';
-            }
-            $plugindirrel = '/question/type/coderunner';
-            $PAGE->requires->js('/' . $plugindirrel . '/ace/ace.js');
-            $PAGE->requires->js('/' . $plugindirrel . '/ace/ext-language_tools.js');
-            $PAGE->requires->js('/' . $plugindirrel . '/ace/ext-modelist.js');
-            $PAGE->requires->js_init_call('M.qtype_coderunner.init_ace', array($responsefieldid, $lang));
-        }
+        load_ace_if_required($question, $responsefieldid, USER_LANGUAGE);
+
         return $qtext;
 
     }

@@ -307,6 +307,9 @@ $string['result_columns_help'] = 'By default the result table displays '
     . 'SVG graphics.  The default value of result_columns is [["Test", "testcode"],'
     . '["Input", "stdin"], ["Expected", "expected"], ["Got", "got"]].';
         
+$string['resultcolumnsnotjson'] = 'Result columns field is not a valid JSON string';
+$string['resultcolumnsnotlist'] = 'Result columns field must a JSON-encoded list of column specifiers';
+$string['resultcolumnspecbad'] = 'Invalid column specifier found: each one must be a list of two or more strings';
 $string['row_properties'] = 'Row properties:';
 $string['sampleanswer'] = 'Sample answer';
 $string['sandboxcontrols'] = 'Sandbox';

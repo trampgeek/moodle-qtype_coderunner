@@ -16,7 +16,7 @@ div.coderunner .formulation {
     background: #d1e1e5;
 }
 
-div.coderunner .ace_editor {
+div.coderunner .ace_editor, body#page-question-type-coderunner .ace_editor {
     font-size: 100%;
     line-height: 18px;
 }
