@@ -372,7 +372,7 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2014110301, 'qtype', 'coderunner');
     }
     
-    if ($oldversion != 0 && $oldversion < 20141101001) {
+    if ($oldversion != 0 && $oldversion < 2014111002) {
 
         // Define field result_columns to be added to quest_coderunner_options.
         $table = new xmldb_table('quest_coderunner_options');
@@ -385,7 +385,7 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         make_result_columns();
 
         // Coderunner savepoint reached.
-        upgrade_plugin_savepoint(true, 2014111001, 'qtype', 'coderunner');
+        upgrade_plugin_savepoint(true, 2014111002, 'qtype', 'coderunner');
     }
 
 
