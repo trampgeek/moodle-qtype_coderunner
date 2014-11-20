@@ -1,6 +1,6 @@
 # CODE RUNNER
 
-Version: 2.1 June 2014
+Version: 2.3 November 2014
 
 Author: Richard Lobb, University of Canterbury, New Zealand.
 
@@ -11,9 +11,12 @@ together with a sample quiz containing a few CodeRunner questions, at
 ## Introduction
 
 CodeRunner is a Moodle question type that requests students to submit program code
-to some given specification, e.g. a Python function *sqr(x)* that returns its
-parameter squared. The submission is graded by running a series of tests on
+to some given specification. The submission is graded by running a series of tests on
 the code in a sandbox, comparing the output with the expected output.
+A trivial example might be a Python function *sqr(x)* that returns its
+parameter squared, but there is essentially no limit on the complexity of
+questions that can be asked.
+
 CodeRunner is intended to be run in an adaptive mode, so that students know
 immediately if their code is passing the tests. In the typical
 'all-or-nothing' mode, all test cases must pass
@@ -25,28 +28,34 @@ in a traditional quiz mode where the mark is determined by how many of the tests
 the code successfully passes.
 
 CodeRunner and its predecessors *pycode* and *ccode* has been in use at the
-University of Canterbury for about four years, running tens of thousands of
+University of Canterbury for about five years, running tens of thousands of
 student quiz submissions in Python, C and Matlab. All laboratory
 and assignment work in the
 introductory first year Python programming course, which has around 400 students
 in the first semester and 200 in the second, is assessed using CodeRunner
-questions. The mid-semester test also uses Moodle/CodeRunner and it is intended to
-run the final examination on Moodle/Coderunner in semester 2, 2014.
+questions. The mid-semester test also uses Moodle/CodeRunner and 
+the final examination for the second-semester version of the course was
+successfully run on Moodle/Coderunner in November, 2014.
+
 The second year C course of around 200 students makes similar use of Coderunner
 using C questions and a third year Civil Engineering course, taught in Matlab,
-uses Coderunner for all labs and for the mid-semester programming exam.
+uses Coderunner for all labs and for the mid-semester programming exam. Other
+courses using Moodle/CodeRunner include:
 
-The system currently supports Python2 (considered obsolescent), Python3,
-C, Octave and Matlab. Java support
+    1. COSC261 Formal Languages and Compilers 
+    1. COSC367 Computational Intelligence
+    1. SENG365 Web Computing Architectures
+
+CodeRunner currently supports Python2 (considered obsolescent), Python3,
+C, PHP5, JavaScript (NodeJS), Octave and Matlab. Java support
 is also present but has not yet been used in courses. C++ questions are
 not built-in but can be easily supported by custom question types.
 The architecture allows
-easy extension to other languages and one lecturer has made
-intermittent use of *clojure* questions.
+easy extension to other languages.
 
 For security and load reasons, it is recommended that CodeRunner be set up
 on a special quiz-server rather than on an institution-wide Moodle server.
-However, this latest version of CodeRunner does allow use of a remote
+However, CodeRunner does allow use of a remote
 sandbox machine for running all student-submitted code so provided only
 that sandbox is enabled, as discussed below, this version should actually
 be safe to install
@@ -62,7 +71,7 @@ Administrator privileges and some Linux skills are needed to install Coderunner.
 ## Installation
 
 This chapter describes how to install CodeRunner. It assumes the
-existance of a working Moodle system and a reasonable level of Linux
+existence of a working Moodle system and a reasonable level of Linux
 adminstration skills.
 
 If you are installing for the first time, jump straight to section 2.2.
@@ -106,8 +115,9 @@ Hence if you have developed your own question prototypes and placed them in
 the system CR\_PROTOTYPES category you must export them in Moodle XML format before
 upgrading. You can if you wish place that exported file in the 'db' directory
 with a name ending in `_PROTOTYPES.xml`; they will then be automatically
-loaded by the installer. Alternatively you can reload them at your leisure
-later on.
+loaded by the installer. Alternatively you can import them at your leisure
+later on using the usual question-bank import function in the
+web interface.
 
 ### Installing CodeRunner from scratch
 
@@ -155,7 +165,7 @@ magic SELinux incantations to make it work, particularly if you're also using
 the RunguardSandbox (below). [You might also want to consider
 whether enabling SELinux while
 using the RunguardSandbox isn't a bit like wrapping all the glassware in tissue
-paper before letting the elephant into the room]
+paper before letting the elephant into the room.]
 
 If you wish to use the RunguardSandbox (see below), you will also need to
 compile the *runguard* program and add a new user called *coderunner* to the
@@ -167,7 +177,7 @@ RunGuard, type the command
 
 This will build *runguard* and add the user *coderunner*.  The install script
 may prompt for details like the office and phone
-number of the coderunner user -- just hit enter to accept the defaults.
+number of the coderunner user - just hit enter to accept the defaults.
 The switch to the coderunner user and the controlled execution of the
 submitted program in *RunguardSandbox* is done by a program `runguard`, written
 by Jaap Eldering as part of
@@ -183,6 +193,7 @@ This program should not be accessible to users other than root and the web
 server. Note that any subsequent recursive `chown` or `chmod` on the
 CodeRunner directory tree will probably break `runguard` and you'll need to
 re-run the runguard installer.
+
 
 ### Sandbox Configuration
 
@@ -202,10 +213,22 @@ isolates student code from the Moodle server, but does require
 the installation of a separate server. Follow the instructions at
 [https://github.com/trampgeek/jobe](https://github.com/trampgeek/jobe)
 to build a Jobe server, then use the
-Moodle administrator interface to define the Jobe
+Moodle administrator interface for the CodeRunner plug-in to define the Jobe
 host name and perhaps port number. If you intend running unit tests you
 will also need to edit `tests/config.php` to set the correct URL for
 the Jobe server.
+
+Note that Jobe *can* be installed on the Moodle server itself, rather than on a 
+completely different machine. This works fine and is a bit more secure
+than using the Runguard Sandbox but is much less secure than running it on
+a completely separate machine. If a student program manages to break out of
+the sandbox when it's running on a separate machine, the worst it can do is
+bring the sandbox server down, whereas a security breach on the Moodle server
+could be used to hack into the Moodle database, which contains student run results
+and marks. That said, our Computer Science department used the Runguard
+Sandbox for some years without any ill effects; Moodle keeps extensive logs
+of all activities, so a student deliberately breaching security is taking a
+huge risk.
 
 
 2. The Liu sandbox
@@ -357,6 +380,54 @@ jobe sandbox might be:
 Feel free to [email me](mailto:richard.lobb@canterbury.ac.nz) if you have problems
 with the installation.
 
+## The Architecture of CodeRunner
+
+Although it's straightforward to write simple questions using the
+built-in question types, anything more advanced than that requires
+an understanding of how CodeRunner works.
+
+The block diagram below shows the components of CodeRunner and the path taken
+as a student submission is graded.
+
+<img src="http://coderunner.org.nz/pluginfile.php/145/mod_page/content/2/coderunnerarchitecture.png" width="473" height="250" />
+
+Following through the grading process step by step:
+
+1. For each of the test cases, the [Twig template engine](http://twig.sensiolabs.org/) merges the student's submitted answer with
+the question's per-test-case template together with code for this particular test case to yield an executable program.
+By "executable", we mean a program that can be executed, possibly
+with a preliminary compilation step.
+1. The executable program is passed into whatever sandbox is configured
+   for this question (e.g. the Jobe sandbox). The sandbox compiles the program (if necessary) and runs it,
+   using the standard input supplied by the testcase.
+1. The output from the run is passed into whatever Grader component is
+   configured, as is the expected output. The most common grader is the
+   "exact match" grader but other types are available.
+1. The output from the grader is a "test result object" which contains
+   (amongst other things) "Expected" and "Got" attributes.
+1. The above steps are repeated for all testcases, giving an array of
+   test result objects (not shown explicitly in the figure).
+1. All the test results are passed to the CodeRunner question renderer,
+   which presents them in tabular form to the user, with tests that pass
+   shown with a green tick and failing ones shown with a red cross.
+   Typically the whole table is coloured red if any tests fail or green
+   if all tests pass.
+       
+The above description is somewhat simplified. Firstly, it 
+ignores the existence of what is the "combinator template", which
+attempts if possible to combine all the test cases into a single executable
+program. The per-test template is used only if there is no combinator
+template or if each test case has its own standard input stream or if an
+exception occurs during execution of the combined program.
+This will all be explained later, in the section on templates. 
+
+Secondly, there are several more-advanced features that are ignored by the
+above, such as special customised grading templates, that generate an
+executable program which does the grading of the student code as well. This can
+be done by a per-test-case template grader, which defines a single
+row of the result table, or by a combinator template grade, which essentially
+defines the entire result table. See the section on grading templates for
+more information.
 
 ## Question types
 
@@ -684,7 +755,7 @@ allows the author to set the size of the student's answer box, and in a
 case like the above you'd typically set it to just one or two lines in height
 and perhaps 30 columns in width.
 
-IMPORTANT WARNING: When you edit the per-test template, the combinator
+**IMPORTANT WARNING:** When you edit the per-test template, the combinator
 template is immediately
 disabled. You can re-enable and edit it, if you wish, by opening
 the *Advanced
@@ -778,7 +849,7 @@ used in practice include:
 As explained above, the Twig syntax {{ STUDENT\_ANSWER | e('py') }} results
 in the student's submission
 being filtered by a Python escape function that escapes all
-all double quote and backslash characters with an added backslash. The
+all double quote and backslash characters with an added backslasthat includes h. The
 python escaper e('py') is just one of the available escapers. Others are:
 
  1. e('java'). This prefixes single and double quote characters with a backslash
@@ -894,12 +965,12 @@ half marks would be
 given for that particular test case and the 'Got' column would display the
 text "Half the answers were right!".
 
-As a further extension to permit more elaborate output the 
-per-test-case template grader may
-instead define JSON object attributes 'got_html' and/or 'expected_html'; 
-if these are provided they are used as the raw HTML cell contents in the
-results table allowing, for example, canvas or svg graphics to appear in
-the cells.
+For even more flexibility the *result_columns* field in the question editing
+form can be used to customise the display of the test case in the result
+table. That field allows the author to define an arbitrary number of arbitrarily
+named result-table columns and to specify using *printf* style formatting
+how the attributes of the grading output object should be formatted into those
+columns. For more details see the section on result-table customisation.
 
 Writing a grading template that executes the student's code is, however,
 rather difficult as the generated program needs to be robust against errors
@@ -916,7 +987,8 @@ which specifies the fractional mark awarded to the question, and a
 'feedback_html' that fully defines the specific feedback to be presented
 to the student in place of the normal results table. It might still be a
 table, but any other HTML-supported output is possible such as paragraphs of
-text, canvases or SVG graphics.
+text, canvases or SVG graphics. The *result_columns* field from the
+question editing form is ignored in this mode.
 
 Combinator-template grading is intended for use where a result table is just not
 appropriate, e.g. if the question does not involve programming at
@@ -953,7 +1025,7 @@ works correctly.
                numbers in nums is greater than lo and the maximum of
                the numbers in nums is less than hi.'''
             ____________________________
-
+question'
 The grader for this question, which needs to check both the number of
 lines of code submitted and the correctness, awarding marks and appropriate
 feedback accordingly, might be the following:
@@ -962,7 +1034,7 @@ feedback accordingly, might be the following:
         __student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
         if __student_answer__.strip().startswith('def'):
             raise Exception("You seem to have pasted the whole function " +
-                            "definition. READ THE INSTRUCTIONS!")
+                            "definition. READ THE INSTRUCTIONS!")question'
         if re.search(r'print *\(.*\)', __student_answer__):
             mark = 0
             got = "BAD CODE: your function should not print anything"
@@ -971,7 +1043,7 @@ feedback accordingly, might be the following:
             __lines__ = __student_answer__.split('\n')
             __lines__ = ['    ' + line +
                     '\n' for line in __lines__ if line.strip() != '']
-            code = 'def nums_in_range(nums, lo, hi):\n' + ''.join(__lines__)
+            code = 'def nums_in_range(nums, lo, hi):\n' + ''.join(__linequestion's__)
             exec(code)
             num_lines = len(__lines__)
 
@@ -1017,11 +1089,59 @@ its length. No custom grader is then required. That is
 somewhat clumsy from the student perspective
 but is much easier for the author.
 
+## Customising the result table
+
+The output from the standard graders is a list of so-called *TestResult* objects,
+each with the following fields (which include the actual test case data):
+
+    testcode      // The test that was run (trimmed, snipped)
+    isCorrect     // True iff test passed fully (100%)
+    expected      // Expected output (trimmed, snipped)
+    mark          // The max mark awardable for this test
+    awarded       // The mark actually awarded.
+    got           // What the student's code gave (trimmed, snipped)
+    stdin         // The standard input data (trimmed, snipped)
+    extra         // Extra data for use by some templates
+
+
+A field called *result_columns* in the question authoring form can be used
+to control which of these fields are used, how the columns are headed and
+how the data from the field is formatted into the result table.
+
+By default the result table displays
+the testcode, stdin, expected and got columns, provided the columns
+are not empty. You can change the default, and/or the column headers
+by entering a value for *result_columns* (leave blank for the default
+behaviour). If supplied, the result_columns field must be a JSON-encoded
+list of column specifiers.
+
+Each column specifier is itself a list,
+typically with just two or three elements. The first element is the
+column header, the second element is the field from the TestResult
+object being displayed in the column (one of those values listed above) and the optional third
+element is an sprintf format string used to display the field.
+Custom-grader templates may add their
+own fields, which can also be selected for display. It is also possible
+to combine multiple fields into a column by adding extra fields to the
+specifier: these must precede the sprintf format specifier, which then
+becomes mandatory. For example, to display a Mark Fraction column in the
+form `0.74 out of 1.00`, say, a column format specifier of `["Mark Fraction", "awarded",
+"mark", "%.2f out of %.2f"]` could be used. As a further special case, a format
+of `%h` means that the test result field should be taken as ready-to-output
+HTML and should not be subject to further processing; this is useful
+only with custom-grader templates that generate HTML output, such as
+SVG graphics. 
+
+The default value of *result_columns* is `[["Test", "testcode"],
+["Input", "stdin"], ["Expected", "expected"], ["Got", "got"]]`.
+
+
+
 ## User-defined question types
 
-NOTE: User-defined question types should be regarded as experimental. If
-you wish to use them, please read the following very carefully as there are
-a few known pitfalls.
+NOTE: User-defined question types are very powerful but are not for the faint
+of heart. There are some known pitfalls, so please read the following very
+carefully.
 
 As explained earlier, each question type is defined by a prototype question,
 which is just
@@ -1051,10 +1171,6 @@ Moodle administrator
 to move the question to the system context, such as a LOCAL\_PROTOTYPES
 category, mentioned above.
 
-The above-described scoping of user-defined prototypes is experimental and
-might change in the future, e.g. back to a simple global scope in which all
-user-defined prototypes are visible everywhere.
-
 When you create a question of a particular type, including user-defined
 types, all the so-called "customisable" fields are inherited from the
 prototype. This means changes to the prototype will affect all the "children"
@@ -1066,17 +1182,18 @@ basic ones (per-test-template, grader, result-table column selectors etc) and
 "advanced"
 ones. The latter include the language, sandbox, timeout, memory limit and
 the "make this question a prototype" feature. The combinator
-template is also considered to be an advanced feature. By default, when you edit
-the per-test-template the combinator is disabled; you must explicitly re-enable
-it (and edit it) if you need it. The JavaScript alerts that tell you this are a
-tad annoying but I'm leaving them in so no one can accuse me of not warning them.
+template is also considered to be an advanced feature.
 
-One major warning: if you define your own question type you'd better make sure
+**WARNING #1:** by default, when you edit
+the per-test-template the combinator is disabled; you must explicitly re-enable
+it (and edit it) if you need it.
+
+**WARNING #2:** if you define your own question type you'd better make sure
 when you export your question bank
 that you include the prototype, or all of its children will die on being imported
 anywhere else! Similarly, if you delete a prototype question that's actually
 in use, all the children will break, giving runtime errors. To repeat:
-user-defined question types are experimental. Caveat emptor.
+user-defined question types are not for the faint of heart. Caveat emptor.
 
 ## How programming quizzes should work
 
@@ -1097,7 +1214,7 @@ are ticked. If code is incorrect, students can simply correct it and resubmit.
 experienced programmers receive pleasure from the column of green ticks and
 all students are highly motivated to fix their code and retry if it fails one or more
 tests. Some key attributes of this success, to be incorporated into *pycode*,
-were:
+were:in red
 
 1. Instant feedback. The student pastes their code into the site, clicks
 *submit*, and almost immediately receives back their results.
