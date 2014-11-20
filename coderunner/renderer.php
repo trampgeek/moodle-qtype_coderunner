@@ -508,6 +508,9 @@ class qtype_coderunner_renderer extends qtype_renderer {
  * MAX_NUM_LINES.
  */
 function restrict_qty($s) {
+    if (!is_string($s)) {  // It's a no-op for non-strings.
+        return $s;
+    }
     $result = '';
     $n = strlen($s);
     $line = '';
