@@ -43,7 +43,7 @@ function load_ace_if_required($question, $textareaid, $which_lang) {
             $lang = $question->ace_lang;
         }
         $lang = ucwords($lang);
-        if ($lang == 'OCTAVE') {
+        if (strtoupper($lang) === 'OCTAVE') {
             $lang = 'MATLAB';
         }
         
