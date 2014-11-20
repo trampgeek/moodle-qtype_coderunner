@@ -63,11 +63,11 @@ class TemplateGrader extends Grader {
             );
             
             /* To accommodate generalised template graders that need to
-             * output their own HTML results, we also add any other result
+             * have their own custom attributes, we also add any other result
              * attributes not already used into the TestResult object.
              */
             foreach ((array) $result as $key=>$value) {
-                if ($key !== 'fraction' && !isset($outcome->$key)) {
+                if (!isset($outcome->$key)) {
                     $outcome->$key = $value;
                 }
             }
