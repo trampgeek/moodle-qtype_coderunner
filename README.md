@@ -35,16 +35,16 @@ introductory first year Python programming course, which has around 400 students
 in the first semester and 200 in the second, is assessed using CodeRunner
 questions. The mid-semester test also uses Moodle/CodeRunner and 
 the final examination for the second-semester version of the course was
-successfully run on Moodle/Coderunner in November, 2014.
+successfully run on Moodle/CodeRunner in November, 2014.
 
-The second year C course of around 200 students makes similar use of Coderunner
+The second year C course of around 200 students makes similar use of CodeRunner
 using C questions and a third year Civil Engineering course, taught in Matlab,
-uses Coderunner for all labs and for the mid-semester programming exam. Other
+uses CodeRunner for all labs and for the mid-semester programming exam. Other
 courses using Moodle/CodeRunner include:
 
-    1. COSC261 Formal Languages and Compilers 
-    1. COSC367 Computational Intelligence
-    1. SENG365 Web Computing Architectures
+1. COSC261 Formal Languages and Compilers 
+1. COSC367 Computational Intelligence
+1. SENG365 Web Computing Architectures
 
 CodeRunner currently supports Python2 (considered obsolescent), Python3,
 C, PHP5, JavaScript (NodeJS), Octave and Matlab. Java support
@@ -66,7 +66,7 @@ about 30 quiz questions per minute while maintaining a response time of less
 than about 3 - 4 seconds, assuming the student code itself runs in a
 fraction of a second.
 
-Administrator privileges and some Linux skills are needed to install Coderunner.
+Administrator privileges and some Linux skills are needed to install CodeRunner.
 
 ## Installation
 
@@ -218,7 +218,7 @@ host name and perhaps port number. If you intend running unit tests you
 will also need to edit `tests/config.php` to set the correct URL for
 the Jobe server.
 
-Note that Jobe *can* be installed on the Moodle server itself, rather than on a 
+    Note that Jobe *can* be installed on the Moodle server itself, rather than on a 
 completely different machine. This works fine and is a bit more secure
 than using the Runguard Sandbox but is much less secure than running it on
 a completely separate machine. If a student program manages to break out of
@@ -401,31 +401,31 @@ with a preliminary compilation step.
    for this question (e.g. the Jobe sandbox). The sandbox compiles the program (if necessary) and runs it,
    using the standard input supplied by the testcase.
 1. The output from the run is passed into whatever Grader component is
-   configured, as is the expected output. The most common grader is the
+   configured, as is the expected output specified for the test case. The most common grader is the
    "exact match" grader but other types are available.
 1. The output from the grader is a "test result object" which contains
    (amongst other things) "Expected" and "Got" attributes.
 1. The above steps are repeated for all testcases, giving an array of
    test result objects (not shown explicitly in the figure).
 1. All the test results are passed to the CodeRunner question renderer,
-   which presents them in tabular form to the user, with tests that pass
-   shown with a green tick and failing ones shown with a red cross.
+   which presents them in to the user as the Results Table. Tests that pass
+   are shown with a green tick and failing ones shown with a red cross.
    Typically the whole table is coloured red if any tests fail or green
    if all tests pass.
        
 The above description is somewhat simplified. Firstly, it 
-ignores the existence of what is the "combinator template", which
-attempts if possible to combine all the test cases into a single executable
+ignores the existence of the "combinator template", which
+combines all the test cases into a single executable
 program. The per-test template is used only if there is no combinator
 template or if each test case has its own standard input stream or if an
 exception occurs during execution of the combined program.
 This will all be explained later, in the section on templates. 
 
 Secondly, there are several more-advanced features that are ignored by the
-above, such as special customised grading templates, that generate an
-executable program which does the grading of the student code as well. This can
-be done by a per-test-case template grader, which defines a single
-row of the result table, or by a combinator template grade, which essentially
+above, such as special customised grading templates, which generate an
+executable program that does the grading of the student code as well.
+A per-test-case template grader can be used to define each
+row of the result table, or a combinator template grader can be used to
 defines the entire result table. See the section on grading templates for
 more information.
 
@@ -434,7 +434,7 @@ more information.
 CodeRunner support a wide variety of question types and can easily be
 extended to support others. A CodeRunner question type is defined by a
 *question prototype*, which specifies run time parameters like the execution
-language and sandbox and defines how a test program is built from the
+language and sandbox and also the templates that define how a test program is built from the
 question's test-cases plus the student's submission. The prototype also
 defines whether the correctness of the student's submission is assessed by use
 of an *EqualityGrader*, a *NearEqualityGrader* or *RegexGrader*. The EqualityGrader expects
@@ -583,8 +583,7 @@ source file, is extracted from the submission by a regular expression search for
 a public class with a `public static void main` method.
 
  1. **octave\_function**. This uses the open-source Octave system to process
-matlab-like student submissions. It has not yet been used for teaching so
-should be regarded as experimental.
+matlab-like student submissions.
 
 As discussed later, this base set of question types can
 be customised or extended in various ways.
@@ -645,9 +644,6 @@ form of one or more function declarations. That .m file is executed by Matlab,
 various Matlab-generated noise is filtered, and the output must match that
 specified for the test cases.
 
- 1. **octave\_function**. This uses the open-source Octave system to process
-matlab-like student submissions. It has not yet been used for teaching so
-should be regarded as experimental.
 
 ## Templates
 
@@ -815,7 +811,7 @@ simplest form might be:
 
 The Twig syntax {{ STUDENT\_ANSWER | e('py') }} results in the student's submission
 being filtered by a Python escape function that escapes all
-all double quote and backslash characters with an added backslash.
+double quote and backslash characters with an added backslash.
 
 The full `Python3_pylint` question type is a bit more complex than the
 above. It is given in full in the section on *template parameters*.
@@ -849,7 +845,7 @@ used in practice include:
 As explained above, the Twig syntax {{ STUDENT\_ANSWER | e('py') }} results
 in the student's submission
 being filtered by a Python escape function that escapes all
-all double quote and backslash characters with an added backslasthat includes h. The
+all double quote and backslash characters with an added backslash. The
 python escaper e('py') is just one of the available escapers. Others are:
 
  1. e('java'). This prefixes single and double quote characters with a backslash
@@ -859,7 +855,7 @@ python escaper e('py') is just one of the available escapers. Others are:
  1. e('c').  This is an alias for e('java').
 
  1. e('matlab'). This escapes single quotes, percents and newline characters.
-    It must be used in the context of sprintf, e.g.
+    It must be used in the context of Matlab's sprintf, e.g.
 
         student_answer = sprintf('{{ STUDENT_ANSWER | e('matlab')}}');
 
@@ -879,7 +875,7 @@ derived questions, too.
 
 In such cases a better approach may be to use template parameters.
 
-If the *+Show more* link on the Coderunner question type panel in the question
+If the *+Show more* link on the CodeRunner question type panel in the question
 authoring form is clicked, some extra controls appear. One of these is
 *Template parameters*. This can be set to a JSON-encoded record containing
 definitions of variables that can be used by the template engine to perform
@@ -939,7 +935,7 @@ a student's code to a very large
 number of tests and award a mark according to how many of the test cases
 it can handle. The usual exact-match
 grader cannot handle these situations. For such cases one of the two
-template grading options.
+template grading options can be used.
 
 ### Per-test-case template grading
 
@@ -982,9 +978,9 @@ The ultimate in grading flexibility is achieved by use of the "Combinator
 template grading" option. In this mode the per-test template is not used. The
 combinator template is passed to the Twig template engine and the output
 program is executed in the usual way. Its output must now be a JSON-encoded
-object with two mandatory attributes: a 'fraction' in the range 0 - 1,
+object with two mandatory attributes: a *fraction* in the range 0 - 1,
 which specifies the fractional mark awarded to the question, and a
-'feedback_html' that fully defines the specific feedback to be presented
+*feedback_html* that fully defines the specific feedback to be presented
 to the student in place of the normal results table. It might still be a
 table, but any other HTML-supported output is possible such as paragraphs of
 text, canvases or SVG graphics. The *result_columns* field from the
@@ -1025,7 +1021,8 @@ works correctly.
                numbers in nums is greater than lo and the maximum of
                the numbers in nums is less than hi.'''
             ____________________________
-question'
+
+
 The grader for this question, which needs to check both the number of
 lines of code submitted and the correctness, awarding marks and appropriate
 feedback accordingly, might be the following:
@@ -1034,7 +1031,7 @@ feedback accordingly, might be the following:
         __student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
         if __student_answer__.strip().startswith('def'):
             raise Exception("You seem to have pasted the whole function " +
-                            "definition. READ THE INSTRUCTIONS!")question'
+                            "definition. READ THE INSTRUCTIONS!")
         if re.search(r'print *\(.*\)', __student_answer__):
             mark = 0
             got = "BAD CODE: your function should not print anything"
@@ -1043,7 +1040,7 @@ feedback accordingly, might be the following:
             __lines__ = __student_answer__.split('\n')
             __lines__ = ['    ' + line +
                     '\n' for line in __lines__ if line.strip() != '']
-            code = 'def nums_in_range(nums, lo, hi):\n' + ''.join(__linequestion's__)
+            code = 'def nums_in_range(nums, lo, hi):\n' + ''.join(__lines__)
             exec(code)
             num_lines = len(__lines__)
 
@@ -1071,6 +1068,9 @@ their grading table looks normal, e.g.
 If they submit multiple lines of code that behave correctly, their result
 table might instead be:
 ![wrong answer image](http://coderunner.org.nz/pluginfile.php/56/mod_page/content/7/wrongAnswerToGraderExample.png)
+
+In both the above examples the result table has been customised to show the
+mark column. Result table customisation is covered in the next section.
 
 Note that the "Got" column contains a customised message in addition to
 their output and the customised message varies according to whether their
@@ -1214,7 +1214,7 @@ are ticked. If code is incorrect, students can simply correct it and resubmit.
 experienced programmers receive pleasure from the column of green ticks and
 all students are highly motivated to fix their code and retry if it fails one or more
 tests. Some key attributes of this success, to be incorporated into *pycode*,
-were:in red
+were:
 
 1. Instant feedback. The student pastes their code into the site, clicks
 *submit*, and almost immediately receives back their results.
