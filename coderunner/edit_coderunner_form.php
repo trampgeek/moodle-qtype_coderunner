@@ -141,7 +141,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->setExpanded('answerhdr', 1);
         $mform->addElement('textarea', 'answer',
                 get_string('answer', 'qtype_coderunner'),
-                array('cols' => 80, 'rows' => 15, 'class' => 'sampleanswer edit_code'));
+                array('rows' => 15, 'class' => 'sampleanswer edit_code'));
     }
 
  /**
@@ -179,17 +179,17 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $repeated = array();
         $repeated[] = & $mform->createElement('textarea', 'testcode',
                 $label,
-                array('cols' => 80, 'rows' => 3, 'class' => 'testcaseexpression edit_code'));
+                array('rows' => 3, 'class' => 'testcaseexpression edit_code'));
         $repeated[] = & $mform->createElement('textarea', 'stdin',
                 get_string('stdin', 'qtype_coderunner'),
-                array('cols' => 80, 'rows' => 3, 'class' => 'testcasestdin edit_code'));
+                array('rows' => 3, 'class' => 'testcasestdin edit_code'));
         $repeated[] = & $mform->createElement('textarea', 'expected',
                 get_string('expected', 'qtype_coderunner'),
-                array('cols' => 80, 'rows' => 3, 'class' => 'testcaseresult edit_code'));
+                array('rows' => 3, 'class' => 'testcaseresult edit_code'));
         
        $repeated[] = & $mform->createElement('textarea', 'extra',
                 get_string('extra', 'qtype_coderunner'),
-                array('cols' => 80, 'rows' => 3, 'class' => 'testcaseresult edit_code'));
+                array('rows' => 3, 'class' => 'testcaseresult edit_code'));
 
         $group[] =& $mform->createElement('checkbox', 'useasexample', NULL,
                 get_string('useasexample', 'qtype_coderunner'));
@@ -484,7 +484,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
         $mform->addElement('textarea', 'per_test_template',
                 get_string('template', 'qtype_coderunner'),
-                array('rows'=>8, 'cols'=>80, 'class'=>'template edit_code',
+                array('rows'=>8, 'class'=>'template edit_code',
                       'name'=>'per_test_template'));
 
 
@@ -586,7 +586,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
         $combinatorControls[] =& $mform->createElement('textarea', 'combinator_template',
                 '',
-                array('rows'=>8, 'cols'=>80, 'class'=>'template edit_code',
+                array('rows'=>8, 'class'=>'template edit_code',
                        'name'=>'combinator_template'));
 
         $mform->addElement('group', 'combinator_controls',

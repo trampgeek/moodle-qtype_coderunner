@@ -169,8 +169,8 @@ body#page-question-type-coderunner input[type="checkbox"]+label {
 /* Question edit form */
 
 textarea.edit_code {
-    width: 50em;
-    max-width: 100%;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 input.testcasemark, input.coderunner_answerbox_size,
