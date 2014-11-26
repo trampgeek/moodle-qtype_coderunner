@@ -586,7 +586,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
         $combinatorControls[] =& $mform->createElement('textarea', 'combinator_template',
                 '',
-                array('rows'=>8, 'class'=>'template edit_code',
+                array('cols'=>60, 'rows'=>8, 'class'=>'template edit_code',
                        'name'=>'combinator_template'));
 
         $mform->addElement('group', 'combinator_controls',
