@@ -55,11 +55,9 @@ class qtype_coderunner_edit_form extends question_edit_form {
     }
 
 
+    // Define the CodeRunner question edit form
     protected function definition() {
-        // Define the CodeRunner question edit form
-
         global $PAGE;
-        global $SANDBOXES;
         $jsmodule = array(
             'name'      => 'qtype_coderunner',
             'fullpath'  => '/question/type/coderunner/module.js',
@@ -67,210 +65,25 @@ class qtype_coderunner_edit_form extends question_edit_form {
         );
 
         $mform = $this->_form;
-        $question = $this->question;
-
-        list($languages, $types) = $this->get_languages_and_types();
-
-        $mform->addElement('header', 'questiontypeheader', get_string('type_header','qtype_coderunner'));
-
-        $typeSelectorElements = array();
-        $expandedTypes = array_merge(array('Undefined' => 'Undefined'), $types);
-        $typeSelectorElements[] = $mform->createElement('select', 'coderunner_type',
-                NULL, $expandedTypes);
-
-        // Fancy YUI type menu disabled for now as it looked ugly. To re-enable
-        // uncomment the following statement and add the line 'this.useYuiTypesMenu(Y);'
-        // to the init() function in module.js.
-        // $typeControls =& $mform->createElement('html', $this->makeYuiMenu(array_keys($languages), array_keys($types)));
-
-        $typeSelectorElements[] = $mform->createElement('advcheckbox', 'customise', NULL,
-                get_string('customise', 'qtype_coderunner'));
-        
-        $typeSelectorElements[] =  $mform->createElement('advcheckbox', 'show_source', NULL,
-                get_string('show_source', 'qtype_coderunner'));
-        $mform->setDefault('show_source', False);
-
-        $mform->addElement('group', 'coderunner_type_group',
-                get_string('questiontype', 'qtype_coderunner'), $typeSelectorElements, NULL, false);
-        $mform->addHelpButton('coderunner_type_group', 'coderunner_type', 'qtype_coderunner');
-
-        $answerboxElements = array();
-        $answerboxElements[] = $mform->createElement('text', 'answerbox_lines',
-                get_string('answerbox_lines', 'qtype_coderunner'),
-                array('size'=>3, 'class'=>'coderunner_answerbox_size'));
-        $mform->setType('answerbox_lines', PARAM_INT);
-        $mform->setDefault('answerbox_lines', DEFAULT_NUM_ROWS);
-        $answerboxElements[] = $mform->createElement('text', 'answerbox_columns',
-                get_string('answerbox_columns', 'qtype_coderunner'),
-                array('size'=>3, 'class'=>'coderunner_answerbox_size'));
-        $mform->setType('answerbox_columns', PARAM_INT);
-        $mform->setDefault('answerbox_columns', DEFAULT_NUM_COLS);
-        $answerboxElements[] = $mform->createElement('advcheckbox', 'use_ace', NULL,
-                get_string('use_ace', 'qtype_coderunner'));
-        $mform->setDefault('use_ace', True);
-        $mform->addElement('group', 'answerbox_group', get_string('answerbox_group', 'qtype_coderunner'),
-                $answerboxElements, NULL, false);
-        $mform->addHelpButton('answerbox_group', 'answerbox_group', 'qtype_coderunner');
-
-        $markingElements = array();
-        $markingElements[] = $mform->createElement('advcheckbox', 'all_or_nothing',
-                get_string('marking', 'qtype_coderunner'),
-                get_string('all_or_nothing', 'qtype_coderunner'));
-        $markingElements[] = $mform->CreateElement('text', 'penalty_regime',
-            get_string('penalty_regime', 'qtype_coderunner'),
-            array('size' => 20));
-        $mform->addElement('group', 'marking_group', get_string('marking_group', 'qtype_coderunner'),
-                $markingElements, NULL, false);
-        $mform->setDefault('all_or_nothing', True);
-        $mform->setType('penalty_regime', PARAM_RAW);
-        $mform->addHelpButton('marking_group', 'marking_group', 'qtype_coderunner');
-
-        $templateElements = array();
-        $templateElements[] =  $mform->createElement('advcheckbox', 'show_source', NULL,
-                get_string('show_source', 'qtype_coderunner'));
-        $mform->setDefault('show_source', False);
-
-        $mform->addElement('text', 'template_params',
-            get_string('template_params', 'qtype_coderunner'),
-            array('size' => TEMPLATE_PARAM_SIZE));
-        $mform->setType('template_params', PARAM_RAW);
-        $mform->addHelpButton('template_params', 'template_params', 'qtype_coderunner');
-        $mform->setAdvanced('template_params');
-        
-        // The following fields are used to customise a question by overriding
-        // values from the base question type. All are hidden
-        // unless the 'customise' checkbox is checked.
-
-        $mform->addElement('header', 'customisationheader',
-                get_string('customisation','qtype_coderunner'));
-
-        $mform->addElement('textarea', 'per_test_template',
-                get_string('template', 'qtype_coderunner'),
-                array('rows'=>8, 'cols'=>80, 'class'=>'template edit_code',
-                      'name'=>'per_test_template'));
-
-
-        $mform->addHelpButton('per_test_template', 'template', 'qtype_coderunner');
-        $gradingControls = array();
-        $graderTypes = array('EqualityGrader' => 'Exact match',
-                'NearEqualityGrader' => 'Nearly exact match',
-                'RegexGrader' => 'Regular expression',
-                'TemplateGrader' => 'Per-test-template grader',
-                'CombinatorTemplateGrader' => 'Combinator-template grader');
-        $gradingControls[] = $mform->createElement('select', 'grader',
-                NULL, $graderTypes);
-        $mform->addElement('group', 'gradingcontrols',
-                get_string('grading', 'qtype_coderunner'), $gradingControls,
-                NULL, false);
-        $mform->addHelpButton('gradingcontrols', 'gradingcontrols', 'qtype_coderunner');
-
-        $mform->addElement('text', 'result_columns',
-            get_string('result_columns', 'qtype_coderunner'),
-            array('size' => RESULT_COLUMNS_SIZE));
-        $mform->setType('result_columns', PARAM_RAW);
-        $mform->addHelpButton('result_columns', 'result_columns', 'qtype_coderunner');
-
-
-        // The next set of fields are also used to customise a question by overriding
-        // values from the base question type, but these ones are much more
-        // advanced and not recommended for most users. They too arRESULT_COLUMNS_SIZEe hidden
-        // unless the 'customise' checkbox is checked.
-
-        $mform->addElement('header', 'advancedcustomisationheader',
-                get_string('advanced_customisation','qtype_coderunner'));
-
-        $prototypeControls = array();
-
-        $prototypeSelect =& $mform->createElement('select', 'prototype_type',
-                get_string('prototypeQ', 'qtype_coderunner'));
-        $prototypeSelect->addOption('No', '0');
-        $prototypeSelect->addOption('Yes (built-in)', '1', array('disabled'=>'disabled'));
-        $prototypeSelect->addOption('Yes (user defined)', '2');
-        $prototypeControls[] =& $prototypeSelect;
-        $prototypeControls[] =& $mform->createElement('text', 'type_name',
-                get_string('question_type_name', 'qtype_coderunner'), array('size' => 30));
-        $mform->addElement('group', 'prototypecontrols',
-                get_string('prototypecontrols', 'qtype_coderunner'),
-                $prototypeControls, NULL, false);
-        $mform->setDefault('is_prototype', False);
-        $mform->setType('type_name', PARAM_RAW);
-        $mform->addElement('hidden', 'saved_prototype_type');
-        $mform->setType('saved_prototype_type', PARAM_RAW);
-        $mform->addHelpButton('prototypecontrols', 'prototypecontrols', 'qtype_coderunner');
-
-
-        $sandboxControls = array();
-
-        $sandboxes = array('DEFAULT' => 'DEFAULT');
-        foreach ($SANDBOXES as $box) {
-            $sandboxes[$box] = $box;
-        }
-
-        $sandboxControls[] =  $mform->createElement('select', 'sandbox', NULL, $sandboxes);
-
-        $sandboxControls[] =& $mform->createElement('text', 'cputimelimitsecs',
-                get_string('cputime', 'qtype_coderunner'), array('size' => 3));
-        $sandboxControls[] =& $mform->createElement('text', 'memlimitmb',
-                get_string('memorylimit', 'qtype_coderunner'), array('size' => 5));
-        $sandboxControls[] =& $mform->createElement('text', 'sandbox_params',
-                get_string('sandbox_params', 'qtype_coderunner'), array('size' => 15));
-        $mform->addElement('group', 'sandboxcontrols',
-                get_string('sandboxcontrols', 'qtype_coderunner'),
-                $sandboxControls, NULL, false);
-        $mform->setType('cputimelimitsecs', PARAM_RAW);
-        $mform->setType('memlimitmb', PARAM_RAW);
-        $mform->setType('sandbox_params', PARAM_RAW);
-        $mform->addHelpButton('sandboxcontrols', 'sandboxcontrols', 'qtype_coderunner');
-
-        $languages = array();
-        $languages[]  =& $mform->createElement('text', 'language',
-            get_string('language', 'qtype_coderunner'),
-            array('size' => 10));
-        $mform->setType('language', PARAM_RAW);
-        $languages[]  =& $mform->createElement('text', 'ace_lang',
-            get_string('ace-language', 'qtype_coderunner'),
-            array('size' => 10));
-        $mform->setType('ace_lang', PARAM_RAW);
-        $mform->addElement('group', 'languages',
-            get_string('languages', 'qtype_coderunner'), 
-            $languages, NULL, false);
-        $mform->addHelpButton('languages', 'languages', 'qtype_coderunner');
-
-        $combinatorControls = array();
-
-        $combinatorControls[] =& $mform->createElement('advcheckbox', 'enable_combinator', NULL,
-                get_string('enablecombinator', 'qtype_coderunner'));
-        $combinatorControls[] =& $mform->createElement('text', 'test_splitter_re',
-                get_string('test_splitter_re', 'qtype_coderunner'),
-                array('size' => 45));
-        $mform->setType('test_splitter_re', PARAM_RAW);
-        $mform->disabledIf('type_name', 'prototype_type', 'neq', '2');
-
-        $combinatorControls[] =& $mform->createElement('textarea', 'combinator_template',
-                '',
-                array('rows'=>8, 'cols'=>80, 'class'=>'template edit_code',
-                       'name'=>'combinator_template'));
-
-        $mform->addElement('group', 'combinator_controls',
-                get_string('combinator_controls', 'qtype_coderunner'),
-                $combinatorControls, NULL, false);
-
-        $mform->addHelpButton('combinator_controls', 'combinator_controls', 'qtype_coderunner');
-
-        $mform->setExpanded('customisationheader');  // Although expanded it's hidden until JavaScript unhides it
+        $this->make_questiontype_panel($mform);
+        $this->make_customisation_panel($mform);
+        $this->make_advanced_customisation_panel($mform);
 
         $PAGE->requires->js_init_call('M.qtype_coderunner.setupAllTAs',  array(), false, $jsmodule);
         $PAGE->requires->js_init_call('M.qtype_coderunner.initEditForm', array(), false, $jsmodule);
         load_ace_scripts();  // May be needed e.g. for template editing
-        parent::definition($mform);
+        
+        parent::definition($mform);  // The supercalss adds the "General" stuff
     }
 
 
+    // Defines the bit of the CodeRunner question edit form after the "General"
+    // section and before the footer stuff.
     public function definition_inner($mform) {
 
-        // TODO: what was the purpose of the next 2 lines?
-        //$mform->addElement('static', 'answersinstruct');
-        //$mform->closeHeaderBefore('answersinstruct');
+        // Note to self: what was the purpose of the next 2 lines in the superclass?
+        // $mform->addElement('static', 'answersinstruct');
+        // $mform->closeHeaderBefore('answersinstruct');
 
         $this->add_sample_answer_field($mform);
         
@@ -293,6 +106,11 @@ class qtype_coderunner_edit_form extends question_edit_form {
         // I believe this is a bug in the underlying Moodle question type, not
         // mine, but ... how to be sure?
         $mform->setDefault('mark', array_fill(0, $numTestcases + 5 * NUM_TESTCASES_ADD, 1.0));
+        $ordering = array();
+        for ($i = 0; $i < 5 * NUM_TESTCASES_ADD; $i++) {
+            $ordering[] = 10 * $i;
+        }
+        $mform->setDefault('ordering', $ordering);
 
         $this->add_per_testcase_fields($mform, get_string('testcase', 'qtype_coderunner', "{no}"),
                 $numTestcases);
@@ -330,7 +148,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
      * Add a set of form fields, obtained from get_per_test_fields, to the form,
      * one for each existing testcase, with some blanks for some new ones
      * This overrides the base-case version because we're dealing with test
-     * cases, not answers.1
+     * cases, not answers.
      * @param object $mform the form being built.
      * @param $label the label to use for each option.
      * @param $gradeoptions the possible grades for each answer.
@@ -388,9 +206,12 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $group[] =& $mform->createElement('text', 'mark',
                 get_string('mark', 'qtype_coderunner'),
                 array('size' => 5, 'class' => 'testcasemark'));
+        $group[] =& $mform->createElement('text', 'ordering',
+                get_string('ordering', 'qtype_coderunner'),
+                array('size' => 3, 'class' => 'testcaseordering'));
 
         $repeated[] =& $mform->createElement('group', 'testcasecontrols',
-                        get_string('row_properties', 'qtype_coderunner'),
+                        get_string('testcasecontrols', 'qtype_coderunner'),
                         $group, NULL, false);
 
         $repeatedoptions['expected']['type'] = PARAM_RAW;
@@ -398,7 +219,14 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $repeatedoptions['stdin']['type'] = PARAM_RAW;
         $repeatedoptions['extra']['type'] = PARAM_RAW;
         $repeatedoptions['mark']['type'] = PARAM_FLOAT;
-        // $repeatedoptions['mark']['default'] = 1.000;  TODO: Why does this break? Moodle bug??
+        $repeatedoptions['ordering']['type'] = PARAM_INT;
+        
+        foreach (array('testcode', 'stdin', 'expected', 'extra', 'testcasecontrols') as $field) {
+            $repeatedoptions[$field]['helpbutton'] = array($field, 'qtype_coderunner');
+        }
+        
+        // Why does the following line not work? See "Confusion alert" in definition_inner.
+        // $repeatedoptions['mark']['default'] = 1.000; 
 
         return $repeated;
     }
@@ -409,11 +237,12 @@ class qtype_coderunner_edit_form extends question_edit_form {
         return array('SHOW', 'HIDE', 'HIDE_IF_FAIL', 'HIDE_IF_SUCCEED');
     }
 
-
+    
     public function data_preprocessing($question) {
         // Load question data into form ($this). Called by set_data after
         // standard stuff all loaded.
         global $COURSE;
+       
         if (isset($question->options->testcases)) { // Reloading a saved question?
             $question->testcode = array();
             $question->expected = array();
@@ -421,6 +250,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
             $question->display = array();
             $question->extra = array();
             $question->hiderestifail = array();
+
             foreach ($question->options->testcases as $tc) {
                 $question->testcode[] = $this->newlineHack($tc->testcode);
                 $question->stdin[] = $this->newlineHack($tc->stdin);
@@ -565,6 +395,211 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
         return $errors;
     }
+    
+    // FUNCTIONS TO BUILD PARTS OF THE MAIN FORM
+    // =========================================
+    
+    
+    // Add to the supplied $mform the panel "Coderunner question type"
+    private function make_questiontype_panel(&$mform) {
+        list($languages, $types) = $this->get_languages_and_types();
+
+        $mform->addElement('header', 'questiontypeheader', get_string('type_header','qtype_coderunner'));
+
+        $typeSelectorElements = array();
+        $expandedTypes = array_merge(array('Undefined' => 'Undefined'), $types);
+        $typeSelectorElements[] = $mform->createElement('select', 'coderunner_type',
+                NULL, $expandedTypes);
+        // Fancy YUI type menu disabled for now as it looked ugly. To re-enable
+        // uncomment the following statement and add the line 'this.useYuiTypesMenu(Y);'
+        // to the init() function in module.js.
+        // $typeControls =& $mform->createElement('html', $this->makeYuiMenu(array_keys($languages), array_keys($types)));
+        $typeSelectorElements[] = $mform->createElement('advcheckbox', 'customise', NULL,
+                get_string('customise', 'qtype_coderunner'));
+        
+        $typeSelectorElements[] =  $mform->createElement('advcheckbox', 'show_source', NULL,
+                get_string('show_source', 'qtype_coderunner'));
+        $mform->setDefault('show_source', False);
+
+        $mform->addElement('group', 'coderunner_type_group',
+                get_string('questiontype', 'qtype_coderunner'), $typeSelectorElements, NULL, false);
+        $mform->addHelpButton('coderunner_type_group', 'coderunner_type', 'qtype_coderunner');
+
+        $answerboxElements = array();
+        $answerboxElements[] = $mform->createElement('text', 'answerbox_lines',
+                get_string('answerbox_lines', 'qtype_coderunner'),
+                array('size'=>3, 'class'=>'coderunner_answerbox_size'));
+        $mform->setType('answerbox_lines', PARAM_INT);
+        $mform->setDefault('answerbox_lines', DEFAULT_NUM_ROWS);
+        $answerboxElements[] = $mform->createElement('text', 'answerbox_columns',
+                get_string('answerbox_columns', 'qtype_coderunner'),
+                array('size'=>3, 'class'=>'coderunner_answerbox_size'));
+        $mform->setType('answerbox_columns', PARAM_INT);
+        $mform->setDefault('answerbox_columns', DEFAULT_NUM_COLS);
+        $answerboxElements[] = $mform->createElement('advcheckbox', 'use_ace', NULL,
+                get_string('use_ace', 'qtype_coderunner'));
+        $mform->setDefault('use_ace', True);
+        $mform->addElement('group', 'answerbox_group', get_string('answerbox_group', 'qtype_coderunner'),
+                $answerboxElements, NULL, false);
+        $mform->addHelpButton('answerbox_group', 'answerbox_group', 'qtype_coderunner');
+
+        $markingElements = array();
+        $markingElements[] = $mform->createElement('advcheckbox', 'all_or_nothing',
+                get_string('marking', 'qtype_coderunner'),
+                get_string('all_or_nothing', 'qtype_coderunner'));
+        $markingElements[] = $mform->CreateElement('text', 'penalty_regime',
+            get_string('penalty_regime', 'qtype_coderunner'),
+            array('size' => 20));
+        $mform->addElement('group', 'marking_group', get_string('marking_group', 'qtype_coderunner'),
+                $markingElements, NULL, false);
+        $mform->setDefault('all_or_nothing', True);
+        $mform->setType('penalty_regime', PARAM_RAW);
+        $mform->addHelpButton('marking_group', 'marking_group', 'qtype_coderunner');
+
+        $templateElements = array();
+        $templateElements[] =  $mform->createElement('advcheckbox', 'show_source', NULL,
+                get_string('show_source', 'qtype_coderunner'));
+        $mform->setDefault('show_source', False);
+
+        $mform->addElement('text', 'template_params',
+            get_string('template_params', 'qtype_coderunner'),
+            array('size' => TEMPLATE_PARAM_SIZE));
+        $mform->setType('template_params', PARAM_RAW);
+        $mform->addHelpButton('template_params', 'template_params', 'qtype_coderunner');
+        $mform->setAdvanced('template_params');
+    }
+    
+    
+    // Add to the supplied $mform the Customisation Panel
+    // The panel is hidden by default but exposed when the user clicks
+    // the 'Customise' checkbox in the question-type panel.
+    private function make_customisation_panel(&$mform) {
+        
+        // The following fields are used to customise a question by overriding
+        // values from the base question type. All are hidden
+        // unless the 'customise' checkbox is checked.
+
+        $mform->addElement('header', 'customisationheader',
+                get_string('customisation','qtype_coderunner'));
+
+        $mform->addElement('textarea', 'per_test_template',
+                get_string('template', 'qtype_coderunner'),
+                array('rows'=>8, 'cols'=>80, 'class'=>'template edit_code',
+                      'name'=>'per_test_template'));
+
+
+        $mform->addHelpButton('per_test_template', 'template', 'qtype_coderunner');
+        $gradingControls = array();
+        $graderTypes = array('EqualityGrader' => 'Exact match',
+                'NearEqualityGrader' => 'Nearly exact match',
+                'RegexGrader' => 'Regular expression',
+                'TemplateGrader' => 'Per-test-template grader',
+                'CombinatorTemplateGrader' => 'Combinator-template grader');
+        $gradingControls[] = $mform->createElement('select', 'grader',
+                NULL, $graderTypes);
+        $mform->addElement('group', 'gradingcontrols',
+                get_string('grading', 'qtype_coderunner'), $gradingControls,
+                NULL, false);
+        $mform->addHelpButton('gradingcontrols', 'gradingcontrols', 'qtype_coderunner');
+
+        $mform->addElement('text', 'result_columns',
+            get_string('result_columns', 'qtype_coderunner'),
+            array('size' => RESULT_COLUMNS_SIZE));
+        $mform->setType('result_columns', PARAM_RAW);
+        $mform->addHelpButton('result_columns', 'result_columns', 'qtype_coderunner');
+    }
+    
+    
+    // Make the advanced customisation panel, also hidden until the user
+    // customises the question. The fields in this part of the form are much more
+   // advanced and not recommended for most users. 
+    private function make_advanced_customisation_panel(&$mform) {
+        global $SANDBOXES;
+        $mform->addElement('header', 'advancedcustomisationheader',
+                get_string('advanced_customisation','qtype_coderunner'));
+
+        $prototypeControls = array();
+
+        $prototypeSelect =& $mform->createElement('select', 'prototype_type',
+                get_string('prototypeQ', 'qtype_coderunner'));
+        $prototypeSelect->addOption('No', '0');
+        $prototypeSelect->addOption('Yes (built-in)', '1', array('disabled'=>'disabled'));
+        $prototypeSelect->addOption('Yes (user defined)', '2');
+        $prototypeControls[] =& $prototypeSelect;
+        $prototypeControls[] =& $mform->createElement('text', 'type_name',
+                get_string('question_type_name', 'qtype_coderunner'), array('size' => 30));
+        $mform->addElement('group', 'prototypecontrols',
+                get_string('prototypecontrols', 'qtype_coderunner'),
+                $prototypeControls, NULL, false);
+        $mform->setDefault('is_prototype', False);
+        $mform->setType('type_name', PARAM_RAW);
+        $mform->addElement('hidden', 'saved_prototype_type');
+        $mform->setType('saved_prototype_type', PARAM_RAW);
+        $mform->addHelpButton('prototypecontrols', 'prototypecontrols', 'qtype_coderunner');
+
+        $sandboxControls = array();
+
+        $sandboxes = array('DEFAULT' => 'DEFAULT');
+        foreach ($SANDBOXES as $box) {
+            $sandboxes[$box] = $box;
+        }
+
+        $sandboxControls[] =  $mform->createElement('select', 'sandbox', NULL, $sandboxes);
+
+        $sandboxControls[] =& $mform->createElement('text', 'cputimelimitsecs',
+                get_string('cputime', 'qtype_coderunner'), array('size' => 3));
+        $sandboxControls[] =& $mform->createElement('text', 'memlimitmb',
+                get_string('memorylimit', 'qtype_coderunner'), array('size' => 5));
+        $sandboxControls[] =& $mform->createElement('text', 'sandbox_params',
+                get_string('sandbox_params', 'qtype_coderunner'), array('size' => 15));
+        $mform->addElement('group', 'sandboxcontrols',
+                get_string('sandboxcontrols', 'qtype_coderunner'),
+                $sandboxControls, NULL, false);
+        $mform->setType('cputimelimitsecs', PARAM_RAW);
+        $mform->setType('memlimitmb', PARAM_RAW);
+        $mform->setType('sandbox_params', PARAM_RAW);
+        $mform->addHelpButton('sandboxcontrols', 'sandboxcontrols', 'qtype_coderunner');
+
+        $languages = array();
+        $languages[]  =& $mform->createElement('text', 'language',
+            get_string('language', 'qtype_coderunner'),
+            array('size' => 10));
+        $mform->setType('language', PARAM_RAW);
+        $languages[]  =& $mform->createElement('text', 'ace_lang',
+            get_string('ace-language', 'qtype_coderunner'),
+            array('size' => 10));
+        $mform->setType('ace_lang', PARAM_RAW);
+        $mform->addElement('group', 'languages',
+            get_string('languages', 'qtype_coderunner'), 
+            $languages, NULL, false);
+        $mform->addHelpButton('languages', 'languages', 'qtype_coderunner');
+
+        $combinatorControls = array();
+
+        $combinatorControls[] =& $mform->createElement('advcheckbox', 'enable_combinator', NULL,
+                get_string('enablecombinator', 'qtype_coderunner'));
+        $combinatorControls[] =& $mform->createElement('text', 'test_splitter_re',
+                get_string('test_splitter_re', 'qtype_coderunner'),
+                array('size' => 45));
+        $mform->setType('test_splitter_re', PARAM_RAW);
+        $mform->disabledIf('type_name', 'prototype_type', 'neq', '2');
+
+        $combinatorControls[] =& $mform->createElement('textarea', 'combinator_template',
+                '',
+                array('rows'=>8, 'cols'=>80, 'class'=>'template edit_code',
+                       'name'=>'combinator_template'));
+
+        $mform->addElement('group', 'combinator_controls',
+                get_string('combinator_controls', 'qtype_coderunner'),
+                $combinatorControls, NULL, false);
+
+        $mform->addHelpButton('combinator_controls', 'combinator_controls', 'qtype_coderunner');
+
+        $mform->setExpanded('customisationheader');  // Although expanded it's hidden until JavaScript unhides it        
+    }
+    
+    // UTILITY FUNCTIONS
+    // =================
 
     // True iff the given name is valid for a new type, i.e., it's not in use
     // in the current context (Currently only a single global context is

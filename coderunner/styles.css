@@ -156,7 +156,7 @@ body#page-question-type-coderunner div[id^=fgroup_id_][id*=testcasecontrols] {
     padding-bottom: 8px;
 }
 
-body#page-question-type-coderunner input[type="checkbox"] {
+body#page-question-type-coderunner input[name="usecurrentcat"] {
     margin-right: 1px;
     margin-left: 2em;
 }

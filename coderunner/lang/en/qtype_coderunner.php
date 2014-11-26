@@ -133,6 +133,7 @@ $string['datafiles_help'] = 'Any files uploaded here will be added to the ' .
 $string['display'] = 'Display';
 
 $string['editingcoderunner'] = 'Editing a CodeRunner Question';
+$string['expected_help'] = 'The expected output from the test. Seen by the template as {{TEST.expected}}.';
 $string['empty_new_prototype_name'] = 'New question type name cannot be empty';
 $string['enable'] = 'Enable';
 $string['enablecombinator'] = 'Enable combinator';
@@ -140,6 +141,7 @@ $string['enable_sandbox_desc'] = 'Permit use of the specified sandbox for ' .
          'running student submissions';
 $string['expected'] = 'Expected output';
 $string['extra'] = 'Extra template data';
+$string['extra_help'] = 'A sometimes-useful extra text field for use by the template, accessed as {{TEST.extra}}';
 $string['failedhidden'] = 'Your code failed one or more hidden tests.';
 $string['fileheader'] = 'Support files';
 $string['filloutoneanswer'] = 'You must enter source code that '
@@ -216,6 +218,7 @@ $string['negativeorzeromark'] = 'Mark must be greater than zero';
 $string['qWrongBehaviour'] = 'Detailed test results unavailable. '
     . 'Perhaps an empty answer, or question not using Adaptive Mode?';
 $string['options'] = 'Options';
+$string['ordering'] = 'Ordering';
 $string['penalty_regime'] = 'Penalty regime';
 $string['marking_group'] = 'Marking';
 $string['marking_group_help'] = 'If \'All-or-nothing\' is checked, all test cases must be satisfied ' .
@@ -310,7 +313,6 @@ $string['result_columns_help'] = 'By default the result table displays '
 $string['resultcolumnsnotjson'] = 'Result columns field is not a valid JSON string';
 $string['resultcolumnsnotlist'] = 'Result columns field must a JSON-encoded list of column specifiers';
 $string['resultcolumnspecbad'] = 'Invalid column specifier found: each one must be a list of two or more strings';
-$string['row_properties'] = 'Row properties:';
 $string['sampleanswer'] = 'Sample answer';
 $string['sandboxcontrols'] = 'Sandbox';
 $string['sandboxcontrols_help'] = 'Select what sandbox you wish the student ' .
@@ -343,7 +345,21 @@ $string['show_test'] = 'test';
 $string['show_output'] = 'got';
 
 $string['stdin'] = 'Standard Input';
+$string['stdin_help'] = 'The standard input to the test, seen by the template as {{TEST.stdin}}';
 $string['testcase'] = 'Test case {$a}';
+$string['testcasecontrols'] = 'Row properties:';
+$string['testcasecontrols_help'] = <<<EO_TESTCASECTRLS_HELP
+If "Use as example" is checked, this test will be automatically included in the
+question's "For example:" results table.<br>
+The "Display" combobox determines when this testcase is shown to the student
+in the results table.<br>
+If "Hide rest if fail" is checked and this test fails, all subsequent tests will
+be hidden from the student, regardless of the setting of the "Display" combobox.<br>
+"Mark" sets the value of this test case; meaningful only if this is not an
+"All-or-nothing" question.
+"Ordering" can be used to change the order of testcases when the question is
+saved: testcases are ordered by this field.
+EO_TESTCASECTRLS_HELP;
 $string['testcases'] = 'Test cases';
 $string['testcode'] = 'Test code';
 $string['test_splitter_re'] = 'Test splitter (regex)';
@@ -385,7 +401,8 @@ is
 the value 23 would be substituted into the template in place of the
 template variable {{ QUESTION.parameters.age }}.
 EO_TEMPLATE_PARAMS_HELP;
-$string['type_header'] = 'Coderunner question type';
+$string['testcode_help'] = 'The code for the test, seen by the template as {{TEST.testcode}}';
+$string['type_header'] = 'CodeRunner question type';
 $string['typerequired'] = 'Please select the type of question (language, format, etc)';
 $string['useasexample'] = 'Use as example';
 $string['use_ace'] = 'Use ace';
