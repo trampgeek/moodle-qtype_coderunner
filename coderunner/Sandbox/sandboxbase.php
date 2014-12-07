@@ -21,6 +21,9 @@ abstract class Sandbox {
     protected $authenticationError;
 
     // Symbolic constants as per ideone API
+    
+    // First the error codes from the initial create_submission call. Any
+    // value other than OK is fatal.
     const OK           = 0;
     const AUTH_ERROR   = 1;
     const PASTE_NOT_FOUND = 2;  // Link to a non-existent submission
@@ -29,13 +32,16 @@ abstract class Sandbox {
     const CANNOT_SUBMIT_THIS_MONTH_ANYMORE = 5; // Ideone only
     const CREATE_SUBMISSION_FAILED = 6; // Failed on call to CREATE_SUBMISSION
     const UNKNOWN_SERVER_ERROR = 7;
-    const HTTP_ERROR = 8; 
-
+    
+    // Values of the 'status' attribute of the object returned by
+    // a call to getSubmissionStatus.
     const STATUS_WAITING     = -1;
     const STATUS_DONE        = 0;
     const STATUS_COMPILING   = 1;
     const STATUS_RUNNING     = 3;
 
+    // Values of the result 'attribute' of the object returned by a call to
+    // get submissionStatus.
     const RESULT_NO_RUN      = 0;
     const RESULT_SUCCESS2    = 0; // Used by Jobe
     const RESULT_COMPILATION_ERROR = 11;
@@ -51,7 +57,7 @@ abstract class Sandbox {
     const RESULT_SANDBOX_POLICY = 22; // Sandbox BP error
     const RESULT_OUTPUT_LIMIT = 30;
     const RESULT_ABNORMAL_TERMINATION = 31;
-
+    
 
     const POLL_INTERVAL = 3;     // secs to wait for sandbox done
     const MAX_NUM_POLLS = 40;    // No more than 120 seconds waiting
@@ -74,6 +80,26 @@ abstract class Sandbox {
         $authenticationError = FALSE;
     }
 
+    // Strings corresponding to the create-submission error codes defined above
+    public static function errorString($errorCode) {
+        $ERROR_STRINGS = array(
+            Sandbox::OK              => "OK",
+            Sandbox::AUTH_ERROR      => "Unauthorised to use sandbox",
+            Sandbox::PASTE_NOT_FOUND => "Requesting status of non-existent job",
+            Sandbox::WRONG_LANG_ID   => "Non-existent language requested",
+            Sandbox::ACCESS_DENIED   => "Access to sandbox defined",
+            Sandbox::CANNOT_SUBMIT_THIS_MONTH_ANYMORE  => "Ideone job quota exceeded",
+            Sandbox::CREATE_SUBMISSION_FAILED  => "Submission to sandbox failed",
+            Sandbox::UNKNOWN_SERVER_ERROR  => "Unexpected error from sandbox (Jobe server down or excessive timeout, perhaps?)"  
+        );
+        if (!isset($ERROR_STRINGS[$errorCode])) {
+            throw new coding_exception("Bad call to sandbox.errorString");
+        }
+        return $ERROR_STRINGS[$errorCode];
+    }
+    
+    
+    // Strings corresponding to the RESULT_* defines above
     public static function resultString($resultCode) {
         $RESULT_STRINGS = array(
             Sandbox::RESULT_NO_RUN               => "No run",
@@ -138,8 +164,9 @@ abstract class Sandbox {
             $run=TRUE, $private=TRUE, $files=NULL, $params=NULL);
 
     // Enquire about the status of the submission with the given 'link' (aka
-    // handle. The return value is an object containing an error and a result
-    // field, the values of which are given by the symbolic constants above.
+    // handle. The return value is an object containing an error, a status and
+    // a result attribute, the values of which are given by the symbolic
+    // constants above.
     abstract public function getSubmissionStatus($link);
 
     // Should only be called if the status is STATUS_DONE. Returns an ideone
@@ -164,8 +191,20 @@ abstract class Sandbox {
      *         files (an associative array mapping filenames to string
      *         filecontents.
      *         If the $params array is NULL, sandbox defaults are used.
+     * @return an object with at least an attribute 'error'. This is one of the
+     *         values 0 through 8 (OK to UNKNOWN_SERVER_ERROR) as defined above. If
+     *         error is 0 (OK), the returned object has additional attributes
+     *         result, output, stderr, signal and cmpinfo as follows:
+     *             result: one of the result_* constants defined above
+     *             output: the stdout from the run
+     *             stderr: the stderr output from the run (generally a non-empty
+     *                     string is taken as a runtime error)
+     *             signal: one of the standard Linux signal values (but often not
+     *                     used)
+     *             cmpinfo: the output from the compilation run (usually empty
+     *                     unless the result code is for a compilation error).
      */
-    public function execute($sourceCode, $language, $input, $files=NULL, $params = NULL) {
+    public function execute($sourceCode, $language, $input, $files=NULL, $params=NULL) {
         $language = strtolower($language);
         if (!in_array($language, $this->getLanguages()->languages)) {
             throw new coding_exception('Executing an unsupported language in sandbox');

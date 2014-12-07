@@ -331,7 +331,11 @@ class qtype_coderunner_question extends question_graded_automatically {
         // In all other cases (runtime error etc) we give up
         // on the combinator.
         
-        if ($isCombinatorGrader) {
+        if ($run->error !== SANDBOX::OK) {
+            $outcome = new TestingOutcome($maxMark,
+                    TestingOutcome::STATUS_SANDBOX_ERROR,
+                    Sandbox::errorString($run->error));
+        } elseif ($isCombinatorGrader) {
             $outcome = $this->doCombinatorGrading($maxMark, $run);
         } else if ($run->result === SANDBOX::RESULT_COMPILATION_ERROR) {
             $outcome = new TestingOutcome($maxMark,
@@ -381,7 +385,14 @@ class qtype_coderunner_question extends question_graded_automatically {
             $this->allRuns[] = $testProg;
             $run = $this->sandboxInstance->execute($testProg, $this->language,
                     $input, $files, $sandboxParams);
-            if ($run->result === SANDBOX::RESULT_COMPILATION_ERROR) {
+            if ($run->error !== SANDBOX::OK) {
+                $outcome = new TestingOutcome(
+                    $maxMark, 
+                    TestingOutcome::STATUS_SANDBOX_ERROR,
+                    Sandbox::errorString($run->error));
+                break;
+            }
+            else if ($run->result === SANDBOX::RESULT_COMPILATION_ERROR) {
                 $outcome = new TestingOutcome(
                         $maxMark,
                         TestingOutcome::STATUS_SYNTAX_ERROR,

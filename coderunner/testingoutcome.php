@@ -20,6 +20,7 @@ class TestingOutcome {
     const STATUS_VALID = 1;         // A full set of test results is returned
     const STATUS_SYNTAX_ERROR = 2;  // The code (on any one test) didn't compile
     const STATUS_COMBINATOR_TEMPLATE_GRADER = 3;  // This is a combinator-template-grading result
+    const STATUS_SANDBOX_ERROR = 4;  // The run failed altogether
     const TOLERANCE = 0.00001;    // Allowable difference between actual and max marks for a correct outcome
 
     public $status;                  // One of the STATUS_ constants above
@@ -49,14 +50,22 @@ class TestingOutcome {
         $this->graderCodeList = null;    // Array of all grader runs on the sandbox
         $this->feedback_html = null;     // Used only by combinator template grader
     }
+    
+    
+    public function runFailed() {
+        return $this->status === TestingOutcome::STATUS_SANDBOX_ERROR;
+    }
 
+    
     public function hasSyntaxError()  {
         return $this->status === TestingOutcome::STATUS_SYNTAX_ERROR;
     }
 
 
     public function allCorrect() {
-        return $this->status !== TestingOutcome::STATUS_SYNTAX_ERROR && $this->errorCount == 0;
+        return $this->status !== TestingOutcome::STATUS_SYNTAX_ERROR && 
+               $this->status !== TestingOutcome::STATUS_SANDBOX_ERROR &&
+               $this->errorCount == 0;
     }
 
     public function markAsFraction() {

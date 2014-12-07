@@ -313,6 +313,7 @@ $string['result_columns_help'] = 'By default the result table displays '
 $string['resultcolumnsnotjson'] = 'Result columns field is not a valid JSON string';
 $string['resultcolumnsnotlist'] = 'Result columns field must a JSON-encoded list of column specifiers';
 $string['resultcolumnspecbad'] = 'Invalid column specifier found: each one must be a list of two or more strings';
+$string['run_failed'] = 'Failed to run tests';
 $string['sampleanswer'] = 'Sample answer';
 $string['sandboxcontrols'] = 'Sandbox';
 $string['sandboxcontrols_help'] = 'Select what sandbox you wish the student ' .
@@ -346,6 +347,7 @@ $string['show_output'] = 'got';
 
 $string['stdin'] = 'Standard Input';
 $string['stdin_help'] = 'The standard input to the test, seen by the template as {{TEST.stdin}}';
+$string['syntax_errors'] = 'Syntax Error(s)';
 $string['testcase'] = 'Test case {$a}';
 $string['testcasecontrols'] = 'Row properties:';
 $string['testcasecontrols_help'] = <<<EO_TESTCASECTRLS_HELP
