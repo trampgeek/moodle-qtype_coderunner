@@ -24,6 +24,18 @@ defined('MOODLE_INTERNAL') || die();
 define("TEMPLATE_LANGUAGE", 0);
 define("USER_LANGUAGE", 1);
 
+/* The class for exceptions thrown in the coderunner plugin */
+class coderunner_exception extends moodle_exception {
+    /**
+     * Constructor
+     * @param string $debuginfo Information to aid the debugging process
+     */
+    function __construct($debuginfo) {
+        parent::__construct('coderunnererror', 'qtype_coderunner', '', NULL, $debuginfo);
+    }
+}
+
+
 /*
  * Configure the ace editor for use with the given textarea (specified by its
  * id) if question is set to use Ace. Language is specified either as

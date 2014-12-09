@@ -31,6 +31,7 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once($CFG->dirroot . '/question/engine/tests/helpers.php');
+require_once($CFG->dirroot . '/question/type/coderunner/locallib.php');
 
 
 
@@ -83,6 +84,23 @@ EOTEMPLATE;
         $this->check_current_output( new question_pattern_expectation('/Blah/') );
         $this->check_current_output( new question_pattern_expectation('/Thing/') );
         $this->check_current_output( new question_pattern_expectation('/Gottim/') );
+    }
+    
+    /** Make sure that if the Jobe URL is wrong we get "jobesandbox is down
+     *  or misconfigured" exception.
+     *
+     * @expectedException coderunner_exception
+     * @expectedExceptionMessageRegExp |.*jobesandbox is down or misconfigured.*|
+     * @retrun void
+     */
+    public function test_misconfigured_jobe() {
+        // 
+        if (!get_config('qtype_coderunner', 'jobesandbox_enabled')) {
+            $this->markTestSkipped("Sandbox $sandbox unavailable: test skipped");
+        }
+        set_config('jobe_host', 'localhostxxx', 'qtype_coderunner');  // Broken jobe_host url
+        $q = test_question_maker::make_question('coderunner', 'sqr');
+        $this->start_attempt_at_question($q, 'adaptive', 1, 1);
     }
     
 }

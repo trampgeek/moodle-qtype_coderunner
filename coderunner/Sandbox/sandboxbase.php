@@ -15,6 +15,9 @@
 // TODO: provide a mechanism to check that a sandbox recognises all the
 // non-null parameters it has been given (in particular the 'files' param).
 
+global $CFG;
+require_once($CFG->dirroot . '/question/type/coderunner/locallib.php');
+
 abstract class Sandbox {
     protected $user;     // Username supplied when constructing
     protected $password; // Password supplied when constructing
@@ -207,7 +210,7 @@ abstract class Sandbox {
     public function execute($sourceCode, $language, $input, $files=NULL, $params=NULL) {
         $language = strtolower($language);
         if (!in_array($language, $this->getLanguages()->languages)) {
-            throw new coding_exception('Executing an unsupported language in sandbox');
+            throw new coderunner_exception('Executing an unsupported language in sandbox');
         }
         if ($input !== '' && substr($input, -1) != "\n") {
             $input .= "\n";  // Force newline on the end if necessary
@@ -233,7 +236,7 @@ abstract class Sandbox {
             }
 
             if ($count >= Sandbox::MAX_NUM_POLLS) {
-                throw new coding_exception("Timed out waiting for sandbox");
+                throw new coderunner_exception("Timed out waiting for sandbox");
             }
 
             if ($state->error !== Sandbox::OK ||
