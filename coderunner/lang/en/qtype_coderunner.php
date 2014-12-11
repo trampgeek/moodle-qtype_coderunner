@@ -327,12 +327,17 @@ $string['sandboxcontrols_help'] = 'Select what sandbox you wish the student ' .
         'languages like Java and Matlab). A value of zero for the maximum memory ' .
         'results in no limit being imposed. The amount of memory specified here ' .
         'is the total amount needed for the run including all libraries, interpreters, ' .
-        'VMs etc. The "Other" entry is used to pass ' .
-        'further sandbox-specific data, such as API-keys. It should generally be left ' .
-        'blank but if non-blank it must be a valid JSON record. ' .
+        'VMs etc. The "Parameters" entry is used to pass ' .
+        'further sandbox-specific data, such as compile options and API-keys. ' .
+        'It should generally be left ' .
+        'blank but if non-blank it must be a valid JSON record. In the case of ' .
+        'The jobe sandbox, available attributes include disklimit, streamsize, numprocs, ' .
+        'compileargs and interpreterargs. For example {"compileargs":["-std=c89"]} ' .
+        'for a C question would force C89 compliance and no other C options would ' .
+        'be used. See the jobe documentation for details. ' .
         'Some sandboxes (e.g. Ideone) may ' .
         'silently ignore any or all of these settings.';
-$string['sandbox_params'] = 'Other';
+$string['sandbox_params'] = 'Parameters';
 $string['SHOW'] = 'Show';
 $string['show_columns'] = 'Show columns:';
 $string['show_columns_help'] = 'Select which columns of the results table should ' .
