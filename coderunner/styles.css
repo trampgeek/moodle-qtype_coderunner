@@ -179,6 +179,6 @@ input#id_cputimelimitsecs, input#id_memlimitmb {
 }
 
 label+select, label+input {
-    margin-right: 2em;
+    margin-right: 1em;
 }
 
