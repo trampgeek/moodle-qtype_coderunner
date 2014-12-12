@@ -39,10 +39,10 @@ require_once($CFG->dirroot . '/question/engine/questionattemptstep.php');
 require_once($CFG->dirroot . '/question/behaviour/adaptive_adapted_for_coderunner/behaviour.php');
 require_once($CFG->dirroot . '/local/Twig/Autoloader.php');
 require_once($CFG->dirroot . '/question/type/coderunner/Sandbox/sandbox_config.php');
-
-require_once('Grader/graderbase.php');
-require_once('escapers.php');
-require_once('testingoutcome.php');
+require_once($CFG->dirroot . '/question/type/coderunner/locallib.php');
+require_once($CFG->dirroot . '/question/type/coderunner/Grader/graderbase.php');
+require_once($CFG->dirroot . '/question/type/coderunner/escapers.php');
+require_once($CFG->dirroot . '/question/type/coderunner/testingoutcome.php');
 
 /**
  * Represents a Python 'coderunner' question.
@@ -270,11 +270,16 @@ class qtype_coderunner_question extends question_graded_automatically {
             if (get_config('qtype_coderunner', $sandbox . '_enabled')) {
                 require_once("Sandbox/$sandbox.php");
                 $sb = new $sandbox();
-                $langsSupported = $sb->getLanguages()->languages;
-                foreach ($langsSupported as $lang) {
-                    if (strtolower($lang) == strtolower($language)) {
-                        return $sandbox;
+                $queryResult = $sb->getLanguages();
+                if ($queryResult->error == Sandbox::OK) {
+                    $langsSupported = $queryResult->languages;
+                    foreach ($langsSupported as $lang) {
+                        if (strtolower($lang) == strtolower($language)) {
+                            return $sandbox;
+                        }
                     }
+                } else {
+                    throw new coderunner_exception("Sandbox $sandbox is down or misconfigured.");
                 }
             }
         }
@@ -331,7 +336,11 @@ class qtype_coderunner_question extends question_graded_automatically {
         // In all other cases (runtime error etc) we give up
         // on the combinator.
         
-        if ($isCombinatorGrader) {
+        if ($run->error !== SANDBOX::OK) {
+            $outcome = new TestingOutcome($maxMark,
+                    TestingOutcome::STATUS_SANDBOX_ERROR,
+                    Sandbox::errorString($run->error));
+        } elseif ($isCombinatorGrader) {
             $outcome = $this->doCombinatorGrading($maxMark, $run);
         } else if ($run->result === SANDBOX::RESULT_COMPILATION_ERROR) {
             $outcome = new TestingOutcome($maxMark,
@@ -381,7 +390,14 @@ class qtype_coderunner_question extends question_graded_automatically {
             $this->allRuns[] = $testProg;
             $run = $this->sandboxInstance->execute($testProg, $this->language,
                     $input, $files, $sandboxParams);
-            if ($run->result === SANDBOX::RESULT_COMPILATION_ERROR) {
+            if ($run->error !== SANDBOX::OK) {
+                $outcome = new TestingOutcome(
+                    $maxMark, 
+                    TestingOutcome::STATUS_SANDBOX_ERROR,
+                    Sandbox::errorString($run->error));
+                break;
+            }
+            else if ($run->result === SANDBOX::RESULT_COMPILATION_ERROR) {
                 $outcome = new TestingOutcome(
                         $maxMark,
                         TestingOutcome::STATUS_SYNTAX_ERROR,
@@ -425,11 +441,11 @@ class qtype_coderunner_question extends question_graded_automatically {
         if ($sandboxClass === NULL)  {
             $this->sandbox = $sandboxClass = $this->getBestSandbox($this->language);
             if ($sandboxClass === NULL) {
-                throw new coding_exception("Language {$this->language} is not available on this system");
+                throw new coderunner_exception("Language {$this->language} is not available on this system");
             }
         } else {
             if (!get_config('qtype_coderunner', strtolower($sandboxClass) . '_enabled')) {
-                throw new coding_exception("Question is configured to use a disabled sandbox ($sandboxClass)");
+                throw new coderunner_exception("Question is configured to use a disabled sandbox ($sandboxClass)");
             }
         }
 

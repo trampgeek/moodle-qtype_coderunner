@@ -19,8 +19,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once('sandboxbase.php');
-
+global $CFG;
+require_once($CFG->dirroot . '/question/type/coderunner/locallib.php');
+require_once($CFG->dirroot . '/question/type/coderunner/Sandbox/sandboxbase.php');
 
 // A LanguageTask encapsulates the language specific behaviour associated
 // with compiling and running a particular bit of source code. It is subclassed
@@ -179,11 +180,11 @@ abstract class LocalSandbox extends Sandbox {
     public function createSubmission($sourceCode, $language, $input,
                             $run=TRUE, $private=TRUE, $files=NULL, $params = NULL) {
         if (!in_array($language, $this->getLanguages()->languages)) {
-            throw new coding_exception('LocalSandbox::createSubmission: Bad language');
+            throw new coderunner_exception('LocalSandbox::createSubmission: Bad language');
         }
 
         if (!$run || !$private) {
-            throw new coding_exception('LocalSandbox::createSubmission: unexpected param value');
+            throw new coderunner_exception('LocalSandbox::createSubmission: unexpected param value');
         }
 
         // Record input data in $this in case requested in call to getSubmissionDetails,

@@ -1195,6 +1195,9 @@ anywhere else! Similarly, if you delete a prototype question that's actually
 in use, all the children will break, giving runtime errors. To repeat:
 user-defined question types are not for the faint of heart. Caveat emptor.
 
+**WARNING #3:** although you can define test cases in a question prototype and
+add support files to it both of these are currently silently ignored
+
 ## How programming quizzes should work
 
 Historical notes and a diatribe on the use of Adaptive Mode questions ...

@@ -13,6 +13,9 @@ namespace RunguardSandbox;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+global $CFG;
+require_once($CFG->dirroot . '/question/type/coderunner/locallib.php');
+
 class Matlab_Task extends \LanguageTask {
     public function __construct($sandbox, $source) {
         \LanguageTask::__construct($sandbox, $source);
@@ -26,7 +29,7 @@ class Matlab_Task extends \LanguageTask {
         $this->setPath();
         $this->executableFileName = $this->sourceFileName . '.m';
         if (!copy($this->sourceFileName, $this->executableFileName)) {
-            throw new coding_exception("Matlab_Task: couldn't copy source file");
+            throw new coderunner_exception("Matlab_Task: couldn't copy source file");
         }
     }
 
@@ -99,7 +102,7 @@ class Octave_Task extends \LanguageTask {
     public function compile() {
         $this->executableFileName = $this->sourceFileName . '.m';
         if (!copy($this->sourceFileName, $this->executableFileName)) {
-            throw new coding_exception("Octave_Task: couldn't copy source file");
+            throw new coderunner_exception("Octave_Task: couldn't copy source file");
         }
     }
 
@@ -198,7 +201,7 @@ class Java_Task extends \LanguageTask {
         else {
             exec("mv {$this->sourceFileName} {$this->mainClassName}.java", $output, $returnVar);
             if ($returnVar !== 0) {
-                throw new coding_exception("Java compile: couldn't rename source file");
+                throw new coderunner_exception("Java compile: couldn't rename source file");
             }
             $this->sourceFileName = "{$this->mainClassName}.java";
             exec("/usr/bin/javac {$this->sourceFileName} 2>compile.out", $output, $returnVar);

@@ -148,12 +148,15 @@ class qtype_coderunner_renderer extends qtype_renderer {
             // Hack to insert run host as hidden comment in html
             $fb .= "\n<!-- Run on {$testOutcome->runHost} -->\n";
 
-            if ($testOutcome->hasSyntaxError()) {
-                $fb .= html_writer::tag('h3', 'Syntax Error(s)');
+            if ($testOutcome->runFailed()) {
+                $fb .= html_writer::tag('h3', get_string('run_failed', 'qtype_coderunner'));;
+                $fb .= html_writer::tag('p', s($testOutcome->errorMessage), 
+                        array('class' => 'run_failed_error'));
+            } else if ($testOutcome->hasSyntaxError()) {
+                $fb .= html_writer::tag('h3', get_string('syntax_errors', 'qtype_coderunner'));
                 $fb .= html_writer::tag('pre', s($testOutcome->errorMessage), 
                         array('class' => 'pre_syntax_error'));
-            }
-            else if ($testOutcome->feedback_html) {
+            } else if ($testOutcome->feedback_html) {
                 $fb .= $testOutcome->feedback_html;
             } else {
                 $fb .= html_writer::tag('p', '&nbsp;', array('class' => 'coderunner-spacer'));
@@ -165,7 +168,8 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
             // Summarise the status of the response in a paragraph at the end.
 
-            if (!$testOutcome->hasSyntaxError() && !$testOutcome->feedback_html) {
+            if (!$testOutcome->hasSyntaxError() && !$testOutcome->runFailed() &&
+                !$testOutcome->feedback_html) {
                 $fb .= $this->buildFeedbackSummary($q, $testCases, $testOutcome);
             }
             $fb .= html_writer::end_tag('div');
@@ -334,10 +338,9 @@ class qtype_coderunner_renderer extends qtype_renderer {
     }
 
     // Compute the HTML feedback summary for a given test outcome.
-    // Should not be called if there were any syntax errors, or if a
+    // Should not be called if there were any syntax or sandbox errors, or if a
     // combinator-template grader was used. 
     private function buildFeedbackSummary($question, $testCases, $testOutcome) {
-        assert(!$testOutcome->hasSyntaxError());
         $lines = array();  // List of lines of output
         $testResults = $testOutcome->testResults;
         if (count($testResults) != count($testCases)) {

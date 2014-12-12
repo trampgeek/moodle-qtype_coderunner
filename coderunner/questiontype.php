@@ -45,6 +45,7 @@
 
 require_once($CFG->dirroot . '/question/engine/bank.php');
 require_once($CFG->dirroot . '/lib/questionlib.php');
+require_once($CFG->dirroot . '/question/type/coderunner/locallib.php');
 
 define('COMPUTE_STATS', false);
 
@@ -347,7 +348,7 @@ class qtype_coderunner extends question_type {
                 array('questionid' => $question->id), 'id ASC')) {
             if ($question->options->prototype_type == 0
                     && $question->options->grader !== 'CombinatorTemplateGrader') {
-                throw new coding_exception("Failed to load testcases for question id {$question->id}");
+                throw new coderunner_exception("Failed to load testcases for question id {$question->id}");
             } else {
                 // Question prototypes may not have testcases
                 $question->options->testcases = array();
@@ -389,7 +390,7 @@ class qtype_coderunner extends question_type {
                "coderunner_type = '$coderunnerType' and prototype_type != 0");
         
         if (count($rows) == 0) {
-            throw new coding_exception("Failed to find prototype $coderunnerType");
+            throw new coderunner_exception("Failed to find prototype $coderunnerType");
         }
         
         $validProtos = array();
@@ -400,10 +401,10 @@ class qtype_coderunner extends question_type {
         }
         
         if (count($validProtos) == 0) {
-            throw new coding_exception("Prototype $coderunnerType is unavailable ".
+            throw new coderunner_exception("Prototype $coderunnerType is unavailable ".
                     "in this context");
         } else if (count($validProtos) != 1) {
-            throw new coding_exception("Multiple prototypes found for $coderunnerType");
+            throw new coderunner_exception("Multiple prototypes found for $coderunnerType");
         }
         return $validProtos[0];
     }
@@ -416,11 +417,11 @@ class qtype_coderunner extends question_type {
         static $activeCats = NULL;
 
         if (!$question = $DB->get_record('question', array('id' => $questionOptionsRow->questionid))) {
-            throw new coding_exception('Missing record in question table');
+            throw new coderunner_exception('Missing record in question table');
         }
         
         if (!$candidateCat = $DB->get_record('question_categories', array('id' => $question->category))) {
-            throw new coding_exception('Missing question category');
+            throw new coderunner_exception('Missing question category');
         }
         
         if ($activeCats === NULL) {
@@ -633,7 +634,7 @@ class qtype_coderunner extends question_type {
         if (!$row = $DB->get_record_select(
                 'quest_coderunner_options',
                 "coderunner_type = '$qtype' and prototype_type != 0")) {
-            throw new coding_exception("Failed to load type info for question id {$question->id}");
+            throw new coderunner_exception("Failed to load type info for question id {$question->id}");
         }
 
         // Clear all inherited fields equal in value to the corresponding Prototype field
