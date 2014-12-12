@@ -119,7 +119,7 @@ shown that you really have a performance problem.
 If the template-debugging checkbox is clicked, the program generated
 for each testcase will be displayed in the output.
 EO_TEMPLATE_HELP;
-$string['cputime'] = 'CPU time limit (secs)';
+$string['cputime'] = 'TimeLimit (secs)';
 $string['customisationcontrols'] = 'Customisation';
 $string['customise'] = 'Customise';
 $string['customisation'] = 'Customisation';
