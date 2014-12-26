@@ -126,11 +126,18 @@ class JobeSandbox extends Sandbox {
             throw new coding_exception("link mismatch in jobesandbox");
         }
         
-        return (object) array(
-                'error' => Sandbox::OK,
-                'status'=> Sandbox::STATUS_DONE,
-                'result'=> $this->resultObj->outcome
+        if (is_object($this->resultObj) && isset($this->resultObj->outcome)) {
+            return (object) array(
+                    'error' => Sandbox::OK,
+                    'status'=> Sandbox::STATUS_DONE,
+                    'result'=> $this->resultObj->outcome
             );
+        } else {
+            return (object) array(
+                    'error' => Sandbox::OK,
+                    'status'=> Sandbox::UNKNOWN_SERVER_ERROR
+            );
+        }
     }
 
 
@@ -203,6 +210,7 @@ class JobeSandbox extends Sandbox {
             $response = $request->send();
             $returnCode = $response->getStatus();
             $body = $response->getBody();
+            print("Body:"); print_r($body);
             if ($body) {
                 $body = json_decode($body);
             }
