@@ -22,6 +22,9 @@ class qtype_coderunner_testcase extends advanced_testcase {
         parent::setUp();
         require($CFG->dirroot . '/question/type/coderunner/tests/config.php');
         $this->resetAfterTest();
+        $this->setAdminUser();
+        $generator = $this->getDataGenerator()->get_plugin_generator('core_question');
+        $this->category = $generator->create_question_category(array());
     }
 
     function test_dummy() {
@@ -46,6 +49,7 @@ class qtype_coderunner_testcase extends advanced_testcase {
         } catch (MissingCoderunnerQuestionType $ex) {
             $this->markTestSkipped("$question question unavailable: test skipped");
         }
+        $q->contextid = $this->category->contextid;
         return $q;
     }
     

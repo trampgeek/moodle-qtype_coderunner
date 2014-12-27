@@ -35,7 +35,7 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/coderunnertestcase
 /**
  * Unit tests for coderunner C questions
  */
-class qtype_coderunner_c_question_test extends qtype_coderunner_testcase {
+class qtype_coderunner_c_questions_test extends qtype_coderunner_testcase {
 
     public function test_good_sqr_function() {
         $q = $this->make_question('sqrC');

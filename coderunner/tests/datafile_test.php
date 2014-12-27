@@ -34,45 +34,42 @@ require_once($CFG->dirroot . '/local/Twig/Autoloader.php');
 
 class qtype_coderunner_datafile_test extends qtype_coderunner_testcase {
 
+    // Test loading of files in the jobe sandbox
+    public function test_datafile_jobesandbox() {
+        $code = $this->python_solution();
+        $this->check_files_in_sandbox('generic_python3', 'jobesandbox', $code);
+    }
+    
+    // Test loading of support files running Python in the runguard sandbox.
     public function test_datafile_runguardsandbox() {
-        $q = $this->make_question('generic_python3');
-        $q->testcases = array(
-            (object) array(
-                'testcode'  => '',
-                'expected'  => "Success!\n",
-                'stdin'     => '',
-                'extra'     => '',
-                'useasexample' => 0,
-                'display'   => 'SHOW',
-                'mark'      => 1.0,
-                'hiderestiffail'  => 0
-                )
-            );
-        $q->contextid = 1;      // HACK. Hopefully this is a valid contextid
-        $q->id = 1101;          // Another random id
-        $code = <<<EOCODE
-import os
-files = os.listdir('.')
-if 'data.txt' in files:
-   data = open('data.txt').read()
-   if data.strip() == "This is data\\nLine 2":
-       print("Success!")
-   else:
-       print("Wrong contents")
-else:
-   print("File not present")
-EOCODE;
+        $code = $this->python_solution();
+        $this->check_files_in_sandbox('generic_python3', 'runguardsandbox', $code);
+    }
+
+
+    // Test loading of support files running C in the runguard sandbox.
+    public function test_datafile_liusandbox() {
+        $code = $this->c_solution();
+        $this->check_files_in_sandbox('generic_c', 'liusandbox', $code);
+    }
+    
+    
+    private function check_files_in_sandbox($question_name, $sandbox, $code) {
+        $this->check_sandbox_enabled($sandbox);
+        $q = $this->make_question($question_name);
+        $q->sandbox = $sandbox;
+
         $this->setAdminUser();
         $fs = get_file_storage();
 
         // Prepare file record object
         $fileinfo = array(
-            'contextid' => 1, // ID of context
+            'contextid' => $q->contextid,
             'component' => 'qtype_coderunner',
-            'filearea' => 'datafile',
-            'itemid' => $q->id,
-            'filepath' => '/',
-            'filename' => 'data.txt');
+            'filearea'  => 'datafile',
+            'itemid'    => $q->id,
+            'filepath'  => '/',
+            'filename'  => 'data.txt');
 
         // Create file
         $fs->create_file_from_string($fileinfo, "This is data\nLine 2");
@@ -89,26 +86,28 @@ EOCODE;
             $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename']);
         $file->delete();
     }
-
-
-    public function test_datafile_liusandbox() {
-        $this->check_sandbox_enabled('liusandbox');
-        $q = $this->make_question('generic_c');
-        $q->testcases = array(
-            (object) array(
-                'testcode'  => '',
-                'expected'  => "Success!\n",
-                'stdin'     => '',
-                'extra'     => '',
-                'useasexample' => 0,
-                'display'   => 'SHOW',
-                'mark'      => 1.0,
-                'hiderestiffail'  => 0
-                )
-            );
-        $q->contextid = 1;
-        $q->id = 1101;                            // Random question id
-        $q->sandbox = 'liusandbox';
+    
+    
+    // The python3 solution to the problem
+    private function python_solution() {
+        $code = <<<EOCODE
+import os
+files = os.listdir('.')
+if 'data.txt' in files:
+   data = open('data.txt').read()
+   if data.strip() == "This is data\\nLine 2":
+       print("Success!")
+   else:
+       print("Wrong contents")
+else:
+   print("File not present")
+EOCODE;
+        return $code;
+    }
+    
+    
+    // The C solution to the problem
+    private function c_solution() {
         $code = <<<EOCODE
 #include <stdio.h>
 #include <string.h>
@@ -128,32 +127,7 @@ int main() {
     }
 }
 EOCODE;
-        $this->setAdminUser();
-        $fs = get_file_storage();
-
-        // Prepare file record object
-        $fileinfo = array(
-            'contextid' => 1, // ID of context
-            'component' => 'qtype_coderunner',
-            'filearea' => 'datafile',
-            'itemid' => $q->id,
-            'filepath' => '/',
-            'filename' => 'data.txt');
-
-        // Create file
-        $fs->create_file_from_string($fileinfo, "This is data\nLine 2");
-
-        // Now test it
-
-        $response = array('answer' => $code);
-        $result = $q->grade_response($response);
-        list($mark, $grade, $cache) = $result;
-        $this->assertEquals(question_state::$gradedright, $grade);
-
-        // Clean up by deleting the file again
-        $file = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'],
-            $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename']);
-        $file->delete();
+        return $code;
     }
 
 }

@@ -26,7 +26,6 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-
 // Special class of exception thrown when the helper is asked to construct
 // a CodeRunner question of a type for which no prototype exists.
 // This may occur if, say Matlab has been installed in a sandbox but the
@@ -58,7 +57,8 @@ class qtype_coderunner_test_helper extends question_test_helper {
             'stringDelete',
             'sqrmatlab', 'testStudentAnswerMacro', 'sqroctave',
             'testStudentAnswerMacroOctave', 'sqrnodejs',
-            'sqrjava', 'nameclass', 'printsquares', 'printstr');
+            'sqrjava', 'nameclass', 'printsquares', 'printstr',
+            'sqr_user_prototype_child');
     }
 
     /**
@@ -79,14 +79,30 @@ class qtype_coderunner_test_helper extends question_test_helper {
 
 
     /**
-     *  Make a generic Python3 question
+     *  Make a generic Python3 question  (should print "Success!")
      */
     public function make_coderunner_question_generic_python3() {
         return $this->makeCodeRunnerQuestion(
                 'python3',
                 'GenericName',
-                'Generic question'
-        );
+                'Generic question',
+                array(
+                    array('expected'  => "Success!\n")
+                ));
+    }
+    
+    
+    /**
+     *  Make a generic C question (should print "Success!")
+     */
+    public function make_coderunner_question_generic_c() {
+        return $this->makeCodeRunnerQuestion(
+                'C_program',
+                'GenericName',
+                'Generic question',
+                array(
+                    array('expected'  => "Success!\n")
+                ));
     }
 
     /**
@@ -95,51 +111,29 @@ class qtype_coderunner_test_helper extends question_test_helper {
      * e.g. 'python3_pylint'.
      * @return qtype_coderunner_question
      */
-    private function make_coderunner_question_sqr_subtype($coderunner_type) {
+    private function make_coderunner_question_sqr_subtype($coderunner_type, $extras = array()) {
         $coderunner = $this->makeCodeRunnerQuestion(
                 $coderunner_type,
                 'Function to square a number n',
-                'Write a function sqr(n) that returns n squared'
-        );
+                'Write a function sqr(n) that returns n squared',
+                array(
+                    array('testcode' => 'print(sqr(0))',
+                          'expected' => '0'),
+                    array('testcode' => 'print(sqr(1))',
+                          'expected' => '1',
+                          'mark'     => 2.0),
+                    array('testcode' => 'print(sqr(11))',
+                          'expected' => '121',
+                          'mark'     => 4.0),
+                    array('testcode' => 'print(sqr(-7))',
+                          'expected' => '49',
+                          'mark'     => 8.0),
+                    array('testcode' => 'print(sqr(-6))',
+                          'expected' => '36',
+                          'display'  => 'HIDE', // The last testcase must be hidden
+                          'mark'     => 16.0)
+        ), $extras);
 
-        $coderunner->testcases = array(
-            (object) array('testcode' => 'print(sqr(0))',
-                          'expected'     => '0',
-                          'stdin'      => '',
-                          'extra'      => '',
-                          'useasexample' => 0,
-                          'display' => 'SHOW',
-                          'mark' => 1.0, 'hiderestiffail'  => 0),
-            (object) array('testcode' => 'print(sqr(1))',
-                          'expected'     => '1',
-                          'stdin'      => '',
-                          'extra'      => '',
-                          'useasexample' => 0,
-                          'display' => 'SHOW',
-                          'mark' => 2.0, 'hiderestiffail' =>  0),
-            (object) array('testcode' => 'print(sqr(11))',
-                          'expected'     => '121',
-                          'stdin'      => '',
-                          'extra'      => '',
-                          'useasexample' => 0,
-                          'display' => 'SHOW',
-                          'mark' => 4.0, 'hiderestiffail' =>  0),
-            (object) array('testcode' => 'print(sqr(-7))',
-                          'expected'     => '49',
-                          'stdin'      => '',
-                          'extra'      => '',
-                          'useasexample' => 0,
-                          'display' => 'SHOW',
-                          'mark' => 8.0, 'hiderestiffail' =>  0),
-            (object) array('testcode' => 'print(sqr(-6))',  // The last testcase must be hidden
-                           'expected'     => '36',
-                           'stdin'      => '',
-                           'extra'      => '',
-                           'useasexample' => 0,
-                           'display' => 'HIDE',
-                           'mark' => 16.0, 'hiderestiffail' =>  0)
-        );
-        $this->getOptions($coderunner);
         return $coderunner;
     }
 
@@ -154,66 +148,62 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $coderunner = $this->makeCodeRunnerQuestion(
                 'python3',
                 'Function to square a number n',
-                'Write a function sqr(n) that returns n squared'
-        );
-
-        $coderunner->testcases = array(
-            (object) array('testcode' => 'sqr(0)',
-                          'expected'     => '0',
-                          'stdin'      => '',
-                          'extra'      => '',
-                          'useasexample' => 0,
-                          'display' => 'SHOW',
-                          'mark' => 1.0, 'hiderestiffail'  => 0),
-            (object) array('testcode' => 'sqr(1)',
-                          'expected'     => '1',
-                          'stdin'      => '',
-                          'extra'      => '',
-                          'useasexample' => 0,
-                          'display' => 'SHOW',
-                          'mark' => 2.0, 'hiderestiffail' =>  0),
-            (object) array('testcode' => 'sqr(11)',
-                          'expected'     => '121',
-                          'stdin'      => '',
-                          'extra'      => '',
-                          'useasexample' => 0,
-                          'display' => 'SHOW',
-                          'mark' => 4.0, 'hiderestiffail' =>  0),
-            (object) array('testcode' => 'sqr(-7)',
-                          'expected'     => '49',
-                          'stdin'      => '',
-                          'extra'      => '',
-                          'useasexample' => 0,
-                          'display' => 'SHOW',
-                          'mark' => 8.0, 'hiderestiffail' =>  0),
-            (object) array('testcode' => 'sqr(-6)',  // The last testcase must be hidden
-                           'expected'     => '36',
-                           'stdin'      => '',
-                           'extra'      => '',
-                           'useasexample' => 0,
-                           'display' => 'HIDE',
-                           'mark' => 16.0, 'hiderestiffail' =>  0)
-        );
-        $this->getOptions($coderunner);
+                'Write a function sqr(n) that returns n squared',
+                array(
+                    array('testcode' => 'sqr(0)',
+                          'expected' => '0'),
+                    array('testcode' => 'sqr(1)',
+                          'expected' => '1',
+                          'mark'     => 2.0),
+                    array('testcode' => 'sqr(11)',
+                          'expected' => '121',
+                          'mark'     => 4.0),
+                    array('testcode' => 'sqr(-7)',
+                          'expected' => '49',
+                          'mark'     => 8.0),
+                    array('testcode' => 'sqr(-6)',
+                          'expected' => '36',
+                          'display'  => 'HIDE', // The last testcase must be hidden
+                          'mark'     => 16.0)
+        ));
         return $coderunner;
     }
 
     public function make_coderunner_question_sqrCustomised() {
-        $q = $this->make_coderunner_question_sqr();
-        $q->per_test_template = "def times(a, b): return a * b\n\n{{STUDENT_ANSWER}}\n\n{{TEST.testcode}}\n";
-        $q->enable_combinator = False;
+        $q = $this->make_coderunner_question_sqr_subtype('python3', 
+          array(
+            'per_test_template' => "def times(a, b): return a * b\n\n{{STUDENT_ANSWER}}\n\n{{TEST.testcode}}\n",
+            'enable_combinator' => False)
+          );
         return $q;
     }
 
     public function make_coderunner_question_sqrPartMarks() {
         // Make a version of the sqr question where testcase[i] carries a
-        // mark of i / 2.0 for i in range 1 .. ?
-        $q = $this->make_coderunner_question_sqr();
-        $q->all_or_nothing = false;
-        for ($i = 0; $i < count($q->testcases); $i++) {
-            $q->testcases[$i]->mark = ($i + 1) / 2.0;
-        }
-        return $q;
+        // mark of i / 2.0 for i in range 1 .. 5
+        $coderunner = $this->makeCodeRunnerQuestion(
+                'python3',
+                'Function to square a number n',
+                'Write a function sqr(n) that returns n squared',
+                array(
+                    array('testcode' => 'print(sqr(0))',
+                          'expected' => '0',
+                          'mark'     => 0.5,),
+                    array('testcode' => 'print(sqr(1))',
+                          'expected' => '1',
+                          'mark'     => 1.0),
+                    array('testcode' => 'print(sqr(11))',
+                          'expected' => '121',
+                          'mark'     => 1.5),
+                    array('testcode' => 'print(sqr(-7))',
+                          'expected' => '49',
+                          'mark'     => 2.0),
+                    array('testcode' => 'print(sqr(-6))',
+                          'expected' => '36',
+                          'display'  => 'HIDE', // The last testcase must be hidden
+                          'mark'     => 2.5)
+        ), array('all_or_nothing' => FALSE));
+        return $coderunner;
     }
 
     /**
@@ -225,42 +215,17 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $coderunner = $this->makeCodeRunnerQuestion(
                 'python3',
                 'Function to print hello to someone',
-                'Write a function sayHello(name) that prints "Hello <name>"'
-        );
-        $coderunner->testcases = array(
-            (object) array('testcode' => 'sayHello("")',
-                          'expected'      => 'Hello ',
-                          'stdin'       => '',
-                          'extra'      => '',
-                          'useasexample' => 0,
-                          'display'     => 'SHOW',
-                          'mark'        => 1.0,
-                          'hiderestiffail' =>  0),
-            (object) array('testcode' => 'sayHello("Angus")',
-                          'expected'      => 'Hello Angus',
-                          'stdin'      => '',
-                          'extra'      => '',
-                          'useasexample' => 0,
-                          'display'     => 'SHOW',
-                                'mark' => 1.0,
-                          'hiderestiffail' =>  0),
-            (object) array('testcode' => "name = 'Angus'\nsayHello(name)",
-                          'expected'      => 'Hello Angus',
-                          'stdin'      => '',
-                          'extra'      => '',
-                          'useasexample' => 0,
-                          'display' => 'SHOW',
-                          'mark'    => 1.0,
-                          'hiderestiffail' =>  0),
-            (object) array('testcode' => "name = \"'Angus'\"\nprint(name)\nsayHello(name)",
-                          'expected'  => "'Angus'\nHello 'Angus'",
-                          'stdin'      => '',
-                          'extra'      => '',
-                          'useasexample' => 0,
-                          'display' => 'SHOW',
-                          'mark' => 1.0,
-                          'hiderestiffail' =>  0)
-        );
+                'Write a function sayHello(name) that prints "Hello <name>"',
+                array(
+                    array('testcode' => 'sayHello("")',
+                          'expected' => 'Hello '),
+                    array('testcode' => 'sayHello("Angus")',
+                          'expected' => 'Hello Angus'),
+                    array('testcode' => "name = 'Angus'\nsayHello(name)",
+                          'expected' => 'Hello Angus'),
+                    array('testcode' => "name = \"'Angus'\"\nprint(name)\nsayHello(name)",
+                          'expected' => "'Angus'\nHello 'Angus'")
+        ));
 
         return $coderunner;
     }
@@ -274,53 +239,26 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $coderunner = $this->makeCodeRunnerQuestion(
                 'python3',
                 'Function to copy n lines of stdin to stdout',
-                'Write a function copyLines(n) that reads n lines from stdin and writes them to stdout. '
-        );
-        $coderunner->testcases = array(
-            (object) array('testcode' => 'copyStdin(0)',
-                          'stdin'       => '',
-                          'extra'      => '',
-                          'expected'      => '',
-                          'useasexample' => 0,
-                          'display' => 'SHOW',
-                          'mark' => 1.0,
-                          'hiderestiffail' =>  0),
-            (object) array('testcode' => 'copyStdin(1)',
-                          'stdin'       => "Line1\nLine2\n",
-                          'extra'      => '',
-                          'expected'      => "Line1\n",
-                          'useasexample' => 0,
-                          'display' => 'SHOW',
-                          'mark' => 1.0,
-                          'hiderestiffail' =>  0),
-            (object) array('testcode' => 'copyStdin(2)',
-                          'stdin'       => "Line1\nLine2\n",
-                          'extra'      => '',
-                          'expected'      => "Line1\nLine2\n",
-                          'useasexample' => 0,
-                          'display' => 'SHOW',
-                          'mark' => 1.0,
-                          'hiderestiffail' =>  0),
-            (object) array('testcode' => 'copyStdin(4)',
-                // This example is also designed to test the clean function in
-                // the grader (which should trim white space of the end of
-                // output lines and trim trailing blank lines).
-                          'stdin'       => " Line  1  \n   Line   2   \n  \n  \n   ",
-                          'extra'      => '',
-                          'expected'      => " Line  1\n   Line   2\n",
-                          'useasexample' => 0,
-                          'display' => 'SHOW',
-                          'mark' => 1.0,
-                          'hiderestiffail' =>  0),
-            (object) array('testcode' => 'copyStdin(3)',
-                          'stdin'       => "Line1\nLine2\n",
-                          'extra'      => '',
-                          'expected'      => "Line1\nLine2\n", # Irrelevant - runtime error
-                          'useasexample' => 0,
-                          'display' => 'SHOW',
-                          'mark' => 1.0,
-                          'hiderestiffail' =>  0)
-        );
+                'Write a function copyLines(n) that reads n lines from stdin and writes them to stdout. ',
+                array(
+                    array('testcode' => 'copyStdin(0)',
+                          'expected' => ''),
+                    array('testcode' => 'copyStdin(1)',
+                          'stdin'    => "Line1\nLine2\n",
+                          'expected' => "Line1\n"),
+                    array('testcode' => 'copyStdin(2)',
+                          'stdin'    => "Line1\nLine2\n",
+                          'expected' => "Line1\nLine2\n"),
+                    array('testcode' => 'copyStdin(4)',
+                        // This example is also designed to test the clean function in
+                        // the grader (which should trim white space of the end of
+                        // output lines and trim trailing blank lines).
+                          'stdin'    => " Line  1  \n   Line   2   \n  \n  \n   ",
+                          'expected' => " Line  1\n   Line   2\n"),
+                    array('testcode' => 'copyStdin(3)',
+                          'stdin'    => "Line1\nLine2\n",
+                          'expected' => "Line1\nLine2\n") # Irrelevant - runtime error
+        ));
 
         return $coderunner;
     }
@@ -334,18 +272,10 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $coderunner = $this->makeCodeRunnerQuestion(
                 'python3',
                 'Function to generate a timeout',
-                'Write a function that loops forever'
-        );
-        $coderunner->testcases = array(
-            (object) array('testcode' => 'timeout()',
-                          'stdin'       => '',
-                          'extra'      => '',
-                          'expected'      => '',
-                          'useasexample' => 0,
-                          'display' => 'SHOW',
-                          'mark' => 1.0,
-                          'hiderestiffail' =>  0)
-        );
+                'Write a function that loops forever',
+                array(
+                    array('testcode' => 'timeout()')
+        ));
 
         return $coderunner;
     }
@@ -359,18 +289,11 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $coderunner = $this->makeCodeRunnerQuestion(
                 'python3',
                 'Function to generate a timeout',
-                'Write a bit of code'
-        );
-        $coderunner->testcases = array(
-            (object) array('testcode' => 'print(__student_answer__)',
-                          'stdin'       => '',
-                          'extra'      => '',
-                          'expected'      => "\"\"\"Line1\n\"Line2\"\n'Line3'\nLine4\n\"\"\"",
-                          'useasexample' => 0,
-                          'display' => 'SHOW',
-                          'mark' => 1.0,
-                          'hiderestiffail' =>  0)
-        );
+                'Write a bit of code',
+                array(
+                    array('testcode' => 'print(__student_answer__)',
+                          'expected'      => "\"\"\"Line1\n\"Line2\"\n'Line3'\nLine4\n\"\"\"")
+        ));
 
         return $coderunner;
     }
@@ -385,35 +308,22 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $coderunner = $this->makeCodeRunnerQuestion(
                 'python3',
                 'Function to conditionally throw an exception',
-                'Write a function isOdd(n) that throws and ValueError exception iff n is odd'
-        );
-        $coderunner->testcases = array(
-            (object) array('testcode' => 'try:
+                'Write a function isOdd(n) that throws and ValueError exception iff n is odd',
+                array(
+                  array('testcode' => 'try:
   checkOdd(91)
   print("No exception")
 except ValueError:
   print("Exception")',
-                            'stdin'       => '',
-                            'extra'      => '',
-                            'expected'      => 'Exception',
-                            'useasexample' => 0,
-                            'display'     => 'SHOW',
-                            'mark' => 1.0,
-                            'hiderestiffail' =>  0),
-            (object) array('testcode' => 'for n in [1, 11, 84, 990, 7, 8]:
+                        'expected'      => 'Exception'),
+                  array('testcode' => 'for n in [1, 11, 84, 990, 7, 8]:
   try:
      checkOdd(n)
      print("No")
   except ValueError:
      print("Yes")',
-                          'stdin'       => '',
-                          'extra'      => '',
-                          'expected'      => "Yes\nYes\nNo\nNo\nYes\nNo\n",
-                          'useasexample' => 0,
-                          'display'     => 'SHOW',
-                          'mark' => 1.0,
-                          'hiderestiffail' =>  0)
-        );
+                        'expected'      => "Yes\nYes\nNo\nNo\nYes\nNo\n")
+        ));
 
         return $coderunner;
     }
@@ -428,19 +338,29 @@ except ValueError:
         $coderunner = $this->makeCodeRunnerQuestion(
                 'python3',
                 'Program to print "Hello Python"',
-                'Write a program that prints "Hello Python"'
-        );
-        $coderunner->testcases = array(
-            (object) array('testcode' => '',
-                          'expected'    => 'Hello Python',
-                          'stdin'     => '',
-                          'extra'      => '',
-                          'display'   => 'SHOW',
-                          'mark'      => 1.0,
-                          'hiderestiffail' => 0,
-                          'useasexample'   => 0)
-        );
+                'Write a program that prints "Hello Python"',
+                array(
+                    array('testcode' => '',
+                          'expected'    => 'Hello Python')
+        ));
 
+        return $coderunner;
+    }
+    
+    /**
+     * Makes a coderunner question of type 'sqr_user_prototype' to check out
+     * inheritance. The prototype must have been created before this method
+     * can be called.
+     */
+    public function make_coderunner_question_sqr_user_prototype_child() {
+        $coderunner = $this->makeCodeRunnerQuestion(
+                'sqr_user_prototype',
+                'Program to test prototype',
+                'Answer should (somehow) produce the expected answer below',
+                array(
+                    array('expected'   => "This is data\nLine 2")
+                )
+        );
         return $coderunner;
     }
 
@@ -448,17 +368,6 @@ except ValueError:
     // Now the C-question helper stuff
     // ===============================
 
-
-    /**
-     *  Make a generic C question
-     */
-    public function make_coderunner_question_generic_c() {
-        return $this->makeCodeRunnerQuestion(
-                'C_program',
-                'GenericName',
-                'Generic question'
-        );
-    }
 
    /**
      * Makes a coderunner question asking for a sqr() function
@@ -468,42 +377,17 @@ except ValueError:
         $coderunner = $this->makeCodeRunnerQuestion(
                 'c_function',
                 'Function to square a number n',
-                'Write a function int sqr(int n) that returns n squared.'
-        );
-        $coderunner->testcases = array(
-            (object) array('testcode'       => 'printf("%d", sqr(0));',
-                           'stdin'          => '',
-                           'extra'      => '',
-                           'expected'         => '0',
-                           'display'        => 'SHOW',
-                           'mark'           => 1.0,
-                           'hiderestiffail' => 0,
-                           'useasexample'   => 1),
-            (object) array('testcode'       => 'printf("%d", sqr(7));',
-                           'expected'         => '49',
-                            'stdin'          => '',
-                            'extra'      => '',
-                           'display'        => 'SHOW',
-                           'mark'           => 1.0,
-                           'hiderestiffail' => 0,
-                           'useasexample'   => 1),
-            (object) array('testcode'       => 'printf("%d", sqr(-11));',
-                           'expected'         => '121',
-                           'stdin'          => '',
-                           'extra'      => '',
-                           'display'        => 'SHOW',
-                           'mark'           => 1.0,
-                           'hiderestiffail' => 0,
-                           'useasexample'   => 0),
-           (object) array('testcode'        => 'printf("%d", sqr(-16));',
-                           'expected'         => '256',
-                           'stdin'          => '',
-                           'extra'      => '',
-                           'display'        => 'HIDE',
-                           'mark'           => 1.0,
-                           'hiderestiffail' => 0,
-                           'useasexample'   => 0)
-        );
+                'Write a function int sqr(int n) that returns n squared.',
+                array(
+                    array('testcode'       => 'printf("%d", sqr(0));',
+                         'expected'        => '0'),
+                    array('testcode'       => 'printf("%d", sqr(7));',
+                          'expected'       => '49'),
+                    array('testcode'       => 'printf("%d", sqr(-11));',
+                          'expected'       => '121'),
+                    array('testcode'       => 'printf("%d", sqr(-16));',
+                          'expected'       => '256')
+        ));
 
         return $coderunner;
     }
@@ -517,43 +401,17 @@ except ValueError:
         $coderunner = $this->makeCodeRunnerQuestion(
                 'c_function',
                 'Function to square a number n',
-                'Write a function int sqr(int n) that returns n squared.'
-        );
-
-        $coderunner->testcases = array(
-            (object) array('testcode'       => 'printf("%d", sqr(0))',
-                           'expected'         => '0',
-                           'stdin'          => '',
-                           'extra'      => '',
-                           'display'        => 'SHOW',
-                           'mark'           => 1.0,
-                           'hiderestiffail' => 0,
-                           'useasexample'   => 1),
-            (object) array('testcode'       => 'printf("%d", sqr(7))',
-                           'expected'         => '49',
-                           'stdin'          => '',
-                           'extra'      => '',
-                           'display'        => 'SHOW',
-                           'mark'           => 1.0,
-                           'hiderestiffail' => 0,
-                           'useasexample'   => 1),
-            (object) array('testcode'       => 'printf("%d", sqr(-11))',
-                           'expected'         => '121',
-                           'stdin'          => '',
-                           'extra'      => '',
-                           'display'        => 'SHOW',
-                           'mark'           => 1.0,
-                           'hiderestiffail' => 0,
-                           'useasexample'   => 0),
-           (object) array('testcode'        => 'printf("%d", sqr(-16))',
-                           'expected'         => '256',
-                           'stdin'          => '',
-                           'extra'      => '',
-                           'display'        => 'SHOW',
-                           'mark'           => 1.0,
-                           'hiderestiffail' => 0,
-                           'useasexample'   => 0)
-        );
+                'Write a function int sqr(int n) that returns n squared.',
+                array(
+                    array('testcode'       => 'printf("%d", sqr(0))',
+                          'expected'       => '0'),
+                    array('testcode'       => 'printf("%d", sqr(7))',
+                          'expected'       => '49'),
+                    array('testcode'       => 'printf("%d", sqr(-11))',
+                          'expected'       => '121'),
+                    array('testcode'       => 'printf("%d", sqr(-16))',
+                          'expected'       => '256')
+        ));
 
         return $coderunner;
     }
@@ -566,18 +424,11 @@ except ValueError:
         $coderunner = $this->makeCodeRunnerQuestion(
                 'c_program',
                 'Program to print "Hello ENCE260"',
-                'Write a program that prints "Hello ENCE260"'
-        );
-        $coderunner->testcases = array(
-            (object) array('testcode' => '',
-                          'expected'    => 'Hello ENCE260',
-                          'stdin'     => '',
-                          'extra'      => '',
-                          'display'   => 'SHOW',
-                          'mark'      => 1.0,
-                          'hiderestiffail' => 0,
-                          'useasexample'   => 0)
-        );
+                'Write a program that prints "Hello ENCE260"',
+                array(
+                    array('testcode' => '',
+                          'expected' => 'Hello ENCE260')
+        ));
 
         return $coderunner;
     }
@@ -591,34 +442,15 @@ except ValueError:
         $coderunner = $this->makeCodeRunnerQuestion(
                 'c_program',
                 'Function to copy n lines of stdin to stdout',
-                'Write a function copyLines(n) that reads stdin to stdout'
-        );
-        $coderunner->testcases = array(
-            (object) array('testcode' => '',
-                          'stdin'     => '',
-                          'extra'      => '',
-                          'expected'    => '',
-                          'display'   => 'SHOW',
-                          'useasexample'   => 0,
-                          'mark'      => 1.0,
-                          'hiderestiffail' => 0),
-            (object) array('testcode' => '',
-                          'stdin'     => "Line1\n",
-                          'extra'      => '',
-                          'expected'    => "Line1\n",
-                          'display'   => 'SHOW',
-                          'useasexample'   => 0,
-                          'mark'      => 1.0,
-                          'hiderestiffail' => 0),
-            (object) array('testcode' => '',
-                          'stdin'     => "Line1\nLine2\n",
-                          'extra'      => '',
-                          'expected'    => "Line1\nLine2\n",
-                          'display'   => 'SHOW',
-                          'useasexample'   => 0,
-                          'mark'      => 1.0,
-                          'hiderestiffail' => 0)
-        );
+                'Write a function copyLines(n) that reads stdin to stdout',
+                array(
+                    array('stdin'    => '',
+                          'expected' => ''),
+                    array('stdin'    => "Line1\n",
+                          'expected' => "Line1\n"),
+                    array('stdin'    => "Line1\nLine2\n",
+                          'expected' => "Line1\nLine2\n")
+        ));
 
         return $coderunner;
     }
@@ -628,34 +460,21 @@ except ValueError:
         $coderunner = $this->makeCodeRunnerQuestion(
                 'c_function',
                 'Function to convert string to uppercase',
-                'Write a function void strToUpper(char s[]) that converts s to uppercase'
-        );
-        $coderunner->testcases = array(
-            (object) array('testcode' => "
+                'Write a function void strToUpper(char s[]) that converts s to uppercase',
+                array(
+                    array('testcode' => "
 char s[] = {'1','@','a','B','c','d','E',';', 0};
 strToUpper(s);
 printf(\"%s\\n\", s);
 ",
-                          'stdin'     => '',
-                          'extra'      => '',
-                          'expected'    => '1@ABCDE;',
-                          'display'   => 'SHOW',
-                          'useasexample'   => 0,
-                          'mark'      => 1.0,
-                          'hiderestiffail' => 0),
-            (object) array('testcode' => "
+                          'expected' => '1@ABCDE;'),
+                    array('testcode' => "
 char s[] = {'1','@','A','b','C','D','e',';', 0};
 strToUpper(s);
 printf(\"%s\\n\", s);
 ",
-                          'stdin'     => '',
-                          'extra'      => '',
-                          'expected'    => '1@ABCDE;',
-                          'display'   => 'SHOW',
-                          'useasexample'   => 0,
-                          'mark'      => 1.0,
-                          'hiderestiffail' => 0)
-        );
+                          'expected'    => '1@ABCDE;')
+        ));
 
         return $coderunner;
     }
@@ -674,34 +493,15 @@ printf(\"%s\\n\", s);
                 'Function to delete from a source string all chars present in another string',
                 'Write a function void stringDelete(char *s, const char *charsToDelete) '.
                 'that takes any two C strings as parameters and modifies the ' .
-                'string s by deleting from it all characters that are present in charsToDelete.'
-        );
-        $coderunner->testcases = array(
-            (object) array('testcode'       => "char s[] = \"abcdefg\";\nstringDelete(s, \"xcaye\");\nprintf(\"%s\\n\", s);",
-                           'expected'         => 'bdfg',
-                           'stdin'          => '',
-                           'extra'      => '',
-                           'display'        => 'SHOW',
-                           'mark'           => 1.0,
-                           'hiderestiffail' => 0,
-                           'useasexample'   => 1),
-            (object) array('testcode'       => "char s[] = \"abcdefg\";\nstringDelete(s, \"\");\nprintf(\"%s\\n\", s);",
-                           'expected'         => 'abcdefg',
-                           'stdin'          => '',
-                           'extra'      => '',
-                           'display'        => 'SHOW',
-                           'mark'           => 1.0,
-                           'hiderestiffail' => 0,
-                           'useasexample'   => 1),
-            (object) array('testcode'       => "char s[] = \"aaaaabbbbb\";\nstringDelete(s, \"x\");\nprintf(\"%s\\n\", s);",
-                           'expected'         => 'aaaaabbbbb',
-                           'stdin'          => '',
-                           'extra'      => '',
-                           'display'        => 'SHOW',
-                           'mark'           => 1.0,
-                           'hiderestiffail' => 0,
-                           'useasexample'   => 0)
-        );
+                'string s by deleting from it all characters that are present in charsToDelete.',
+                array(
+                    array('testcode'  => "char s[] = \"abcdefg\";\nstringDelete(s, \"xcaye\");\nprintf(\"%s\\n\", s);",
+                          'expected'  => 'bdfg'),
+                    array('testcode'  => "char s[] = \"abcdefg\";\nstringDelete(s, \"\");\nprintf(\"%s\\n\", s);",
+                          'expected'  => 'abcdefg'),
+                    array('testcode'  => "char s[] = \"aaaaabbbbb\";\nstringDelete(s, \"x\");\nprintf(\"%s\\n\", s);",
+                          'expected'  => 'aaaaabbbbb')
+        ));
 
         return $coderunner;
     }
@@ -717,43 +517,17 @@ printf(\"%s\\n\", s);
         $coderunner = $this->makeCodeRunnerQuestion(
             'matlab_function',
             'Function to square a number n',
-            'Write a function sqr(n) that returns n squared.'
-        );
-
-        $coderunner->testcases = array(
-            (object) array('testcode'       => 'disp(sqr(0));',
-                           'stdin'          => '',
-                           'extra'          => '',
-                           'expected'         => '     0',
-                           'display'        => 'SHOW',
-                           'mark'           => 1.0,
-                           'hiderestiffail' => 0,
-                           'useasexample'   => 1),
-            (object) array('testcode'       => 'disp(sqr(7));',
-                           'expected'         => '    49',
-                           'stdin'          => '',
-                           'extra'          => '',
-                           'display'        => 'SHOW',
-                           'mark'           => 1.0,
-                           'hiderestiffail' => 0,
-                           'useasexample'   => 1),
-            (object) array('testcode'       => 'disp(sqr(-11));',
-                           'expected'         => '   121',
-                           'stdin'          => '',
-                           'extra'          => '',
-                           'display'        => 'SHOW',
-                           'mark'           => 1.0,
-                           'hiderestiffail' => 0,
-                           'useasexample'   => 0),
-           (object) array('testcode'        => 'disp(sqr(-16));',
-                           'expected'         => '   256',
-                           'stdin'          => '',
-                           'extra'          => '',
-                           'display'        => 'HIDE',
-                           'mark'           => 1.0,
-                           'hiderestiffail' => 0,
-                           'useasexample'   => 0)
-        );
+            'Write a function sqr(n) that returns n squared.',
+            array(
+                array('testcode'       => 'disp(sqr(0));',
+                      'expected'       => '     0'),
+                array('testcode'       => 'disp(sqr(7));',
+                      'expected'       => '    49'),
+                array('testcode'       => 'disp(sqr(-11));',
+                      'expected'       => '   121'),
+                array('testcode'       => 'disp(sqr(-16));',
+                     'expected'        => '   256')
+        ));
 
         return $coderunner;
     }
@@ -769,11 +543,21 @@ printf(\"%s\\n\", s);
     
     
     private function makeMacroQuestion($qtype) {
-        $coderunner = $this->makeCodeRunnerQuestion(
-                $qtype,
-                'Matlab/Octave escaped student answer tester'
-        );
-        $coderunner->questiontext = <<<EOT
+        $options = array();
+        $options['per_test_template'] = <<<EOT
+function tester()
+  ESCAPED_STUDENT_ANSWER =  sprintf('{{MATLAB_ESCAPED_STUDENT_ANSWER}}');
+  {{TEST.testcode}};quit();
+end
+
+{{STUDENT_ANSWER}}
+EOT;
+        if ($qtype === 'octave_function') {
+            $options['per_test_template'] .= "\n\ntester()\n";
+        }
+        $options['enable_combinator'] = FALSE;
+        
+        $questiontext = <<<EOT
  Enter the following program:
 
  function mytest()
@@ -783,17 +567,15 @@ printf(\"%s\\n\", s);
      disp(s2);
 end
 EOT;
-        $coderunner->testcases = array(
-            (object) array('testcode'       => 'mytest();',
-                           'stdin'          => '',
-                           'extra'          => '',
-                           'expected'       => "\"Hi!\" he said\n'Hi!' he said",
-                           'display'        => 'SHOW',
-                           'mark'           => 1.0,
-                           'hiderestiffail' => 0,
-                           'useasexample'   => 1),
-            (object) array('testcode'       => 'disp(ESCAPED_STUDENT_ANSWER);',
-                           'expected'         => <<<EOT
+        $coderunner = $this->makeCodeRunnerQuestion(
+            $qtype,
+            'Matlab/Octave escaped student answer tester',
+            $questiontext,
+            array(
+                array('testcode'       => 'mytest();',
+                      'expected'       => "\"Hi!\" he said\n'Hi!' he said"),
+                array('testcode'       => 'disp(ESCAPED_STUDENT_ANSWER);',
+                      'expected'       => <<<EOT
 function mytest()
     s1 = '"Hi!" he said'; % a comment
     s2 = '''Hi!'' he said';
@@ -801,26 +583,9 @@ function mytest()
     disp(s2);
 end
 EOT
-,                          'stdin'         => '',
-                           'extra'          => '',
-                           'display'        => 'SHOW',
-                           'mark'           => 1.0,
-                           'hiderestiffail' => 0,
-                           'useasexample'   => 0)
-        );
+                )
+        ), $options);
 
-        $coderunner->per_test_template = <<<EOT
-function tester()
-  ESCAPED_STUDENT_ANSWER =  sprintf('{{MATLAB_ESCAPED_STUDENT_ANSWER}}');
-  {{TEST.testcode}};quit();
-end
-
-{{STUDENT_ANSWER}}
-EOT;
-        if ($qtype === 'octave_function') {
-            $coderunner->per_test_template .= "\n\ntester()\n";
-        }
-        $coderunner->enable_combinator = False;
         return $coderunner;
     }
 
@@ -838,43 +603,17 @@ EOT;
         $coderunner = $this->makeCodeRunnerQuestion(
             'octave_function',
             'Function to square a number n',
-            'Write a function sqr(n) that returns n squared.'
-        );
-
-        $coderunner->testcases = array(
-            (object) array('testcode'       => 'disp(sqr(0));',
-                           'stdin'          => '',
-                           'extra'          => '',
-                           'expected'       => '0',
-                           'display'        => 'SHOW',
-                           'mark'           => 1.0,
-                           'hiderestiffail' => 0,
-                           'useasexample'   => 1),
-            (object) array('testcode'       => 'disp(sqr(7));',
-                           'expected'       => '49',
-                           'stdin'          => '',
-                           'extra'          => '',
-                           'display'        => 'SHOW',
-                           'mark'           => 1.0,
-                           'hiderestiffail' => 0,
-                           'useasexample'   => 1),
-            (object) array('testcode'       => 'disp(sqr(-11));',
-                           'expected'       => '121',
-                           'stdin'          => '',
-                           'extra'          => '',
-                           'display'        => 'SHOW',
-                           'mark'           => 1.0,
-                           'hiderestiffail' => 0,
-                           'useasexample'   => 0),
-           (object) array('testcode'        => 'disp(sqr(-16));',
-                           'expected'       => '256',
-                           'stdin'          => '',
-                           'extra'          => '',
-                           'display'        => 'HIDE',
-                           'mark'           => 1.0,
-                           'hiderestiffail' => 0,
-                           'useasexample'   => 0)
-        );
+            'Write a function sqr(n) that returns n squared.',
+            array(
+                array('testcode'       => 'disp(sqr(0));',
+                      'expected'       => '0'),
+                array('testcode'       => 'disp(sqr(7));',
+                      'expected'       => '49'),
+                array('testcode'       => 'disp(sqr(-11));',
+                      'expected'       => '121'),
+                array('testcode'       => 'disp(sqr(-16));',
+                      'expected'       => '256')
+        ));
 
         return $coderunner;
     }
@@ -882,57 +621,29 @@ EOT;
     
    /**
      * Makes an nodejs question asking for a sqr() function.
-     * Nodejs is not a built-in type, so we pretend it's a python3 question
-     * but then change the language on it.
+     * Nodejs is not a built-in type.
      * @return qtype_coderunner_question
      */
     public function make_coderunner_question_sqrnodejs() {
         $coderunner = $this->makeCodeRunnerQuestion(
             'python3',
             'Function to square a number n',
-            'Write a js function sqr(n) that returns n squared.'
+            'Write a js function sqr(n) that returns n squared.',
+            array(
+                array('testcode'  => 'console.log(sqr(0));',
+                      'expected'  => '0'),
+                array('testcode'  => 'console.log(sqr(7));',
+                      'expected'  => '49'),
+                array('testcode'  => 'console.log(sqr(-11));',
+                      'expected'  => '121'),
+                array('testcode'  => 'console.log(sqr(-16));',
+                     'expected'   => '256'),
+             ),
+             array('language'          => 'nodejs',
+                   'sandbox_params'    => '{"memorylimit": 1000000}',
+                   'per_test_template' => "{{STUDENT_ANSWER}}\n{{TEST.testcode}}\n",
+                   'enable_combinator' => False)
         );
-
-        $coderunner->testcases = array(
-            (object) array('testcode'       => 'console.log(sqr(0));',
-                           'stdin'          => '',
-                           'extra'          => '',
-                           'expected'       => '0',
-                           'display'        => 'SHOW',
-                           'mark'           => 1.0,
-                           'hiderestiffail' => 0,
-                           'useasexample'   => 1),
-            (object) array('testcode'       => 'console.log(sqr(7));',
-                           'expected'         => '49',
-                           'stdin'         => '',
-                           'extra'          => '',
-                           'display'        => 'SHOW',
-                           'mark'           => 1.0,
-                           'hiderestiffail' => 0,
-                           'useasexample'   => 1),
-            (object) array('testcode'       => 'console.log(sqr(-11));',
-                           'expected'         => '121',
-                           'stdin'          => '',
-                           'extra'          => '',
-                           'display'        => 'SHOW',
-                           'mark'           => 1.0,
-                           'hiderestiffail' => 0,
-                           'useasexample'   => 0),
-           (object) array('testcode'        => 'console.log(sqr(-16));',
-                           'expected'       => '256',
-                           'stdin'          => '',
-                           'extra'          => '',
-                           'display'        => 'HIDE',
-                           'mark'           => 1.0,
-                           'hiderestiffail' => 0,
-                           'useasexample'   => 0)
-        );
-        
-        $coderunner->language = 'nodejs';
-        $coderunner->sandbox_params = '{"memorylimit": 1000000}';
-        $coderunner->per_test_template = "{{STUDENT_ANSWER}}\n"
-                . "{{TEST.testcode}}\n";
-        $coderunner->use_combinator = False;
         return $coderunner;
     }
     
@@ -954,42 +665,17 @@ EOT;
         $coderunner = $this->makeCodeRunnerQuestion(
                 'java_method',
                 'Method to square a number n',
-                'Write a method int sqr(int n) that returns n squared.'
-        );
-        $coderunner->testcases = array(
-            (object) array('testcode'       => 'System.out.println(sqr(0))',
-                           'stdin'          => '',
-                           'extra'          => '',
-                           'expected'         => '0',
-                           'display'        => 'SHOW',
-                           'mark'           => 1.0,
-                           'hiderestiffail' => 0,
-                           'useasexample'   => 1),
-            (object) array('testcode'       => 'System.out.println(sqr(7))',
-                           'expected'         => '49',
-                           'stdin'          => '',
-                           'extra'          => '',
-                           'display'        => 'SHOW',
-                           'mark'           => 1.0,
-                           'hiderestiffail' => 0,
-                           'useasexample'   => 1),
-            (object) array('testcode'       => 'System.out.println(sqr(-11))',
-                           'expected'         => '121',
-                           'stdin'          => '',
-                           'extra'          => '',
-                           'display'        => 'SHOW',
-                           'mark'           => 1.0,
-                           'hiderestiffail' => 0,
-                           'useasexample'   => 0),
-           (object) array('testcode'        => 'System.out.println(sqr(16))',
-                           'expected'         => '256',
-                           'stdin'          => '',
-                           'extra'          => '',
-                           'display'        => 'HIDE',
-                           'mark'           => 1.0,
-                           'hiderestiffail' => 0,
-                           'useasexample'   => 0)
-        );
+                'Write a method int sqr(int n) that returns n squared.',
+                array(
+                    array('testcode'  => 'System.out.println(sqr(0))',
+                          'expected'  => '0'),
+                    array('testcode'  => 'System.out.println(sqr(7))',
+                          'expected'  => '49'),
+                    array('testcode'  => 'System.out.println(sqr(-11))',
+                          'expected'  => '121'),
+                    array('testcode'  => 'System.out.println(sqr(16))',
+                          'expected'  => '256')
+        ));
 
 
         return $coderunner;
@@ -1005,27 +691,13 @@ EOT;
                 'Name class',
                 'Write a class Name with a constructor ' .
                 'that has firstName and lastName parameters with a toString ' .
-                'method that returns firstName space lastName'
-        );
-
-        $coderunner->testcases = array(
-            (object) array('testcode'       => 'System.out.println(new Name("Joe", "Brown"))',
-                           'stdin'          => '',
-                           'extra'          => '',
-                           'expected'         => 'Joe Brown',
-                           'display'        => 'SHOW',
-                           'mark'           => 1.0,
-                           'hiderestiffail' => 0,
-                           'useasexample'   => 1),
-            (object) array('testcode'       => 'System.out.println(new Name("a", "b"))',
-                           'expected'         => 'a b',
-                            'stdin'          => '',
-                            'extra'          => '',
-                           'display'        => 'SHOW',
-                           'mark'           => 1.0,
-                           'hiderestiffail' => 0,
-                           'useasexample'   => 1)
-        );
+                'method that returns firstName space lastName',
+                array(
+                    array('testcode'   => 'System.out.println(new Name("Joe", "Brown"))',
+                          'expected'   => 'Joe Brown'),
+                    array('testcode'   => 'System.out.println(new Name("a", "b"))',
+                          'expected'   => 'a b')
+        ));
 
         return $coderunner;
     }
@@ -1040,26 +712,13 @@ EOT;
                 'java_program',
                 'Name class',
                 'Write a program squares that reads an integer from stdin and prints ' .
-                'the squares of all integers from 1 up to that number, all on one line, space separated.');
-
-        $coderunner->testcases = array(
-            (object) array('testcode'       => '',
-                           'stdin'          => "5\n",
-                           'extra'          => '',
-                           'expected'         => "1 4 9 16 25\n",
-                           'display'        => 'SHOW',
-                           'mark'           => 1.0,
-                           'hiderestiffail' => 0,
-                           'useasexample'   => 1),
-            (object) array('testcode'       => '',
-                           'stdin'          => "1\n",
-                           'extra'          => '',
-                           'expected'         => "1\n",
-                           'display'        => 'SHOW',
-                           'mark'           => 1.0, 'hiderestiffail' => 0,
-                           'useasexample'   => 1)
-        );
-
+                'the squares of all integers from 1 up to that number, all on one line, space separated.',
+                array(
+                    array('stdin'      => "5\n",
+                          'expected'   => "1 4 9 16 25\n"),
+                    array('stdin'      => "1\n",
+                          'expected'   => "1\n")
+        ));
         return $coderunner;
     }
 
@@ -1071,29 +730,14 @@ EOT;
      * @return qtype_coderunner_question
      */
     public function make_coderunner_question_printstr() {
-        $q = $this->makeCodeRunnerQuestion(
-                'java_program',
-                'Print string',
-                'No question answer required');
-
-        $q->testcases = array(
-            (object) array('testcode'       => <<<EOTEST
+        $code = <<<EOTEST
 a0
 b\t
 c\f
 d'This is a string'
 "So is this"
-EOTEST
-,                          'stdin'          => "5\n",
-                           'extra'          => '',
-                           'expected'       => "a0\nb\t\nc\f\nd'This is a string'\n\"So is this\"",
-                           'display'        => 'SHOW',
-                           'mark'           => 1.0,
-                           'hiderestiffail' => 0,
-                           'useasexample'   => 1)
-        );
-        $q->customise = true;
-        $q->per_test_template = <<<EOPROG
+EOTEST;
+        $template = <<<EOPROG
 public class Test
 {
     public static void main(String[] args) {
@@ -1101,6 +745,18 @@ public class Test
     }
 }
 EOPROG;
+        $q = $this->makeCodeRunnerQuestion(
+                'java_program',
+                'Print string',
+                'No question answer required',
+                array(
+                  array('testcode' => $code,
+                        'stdin'    => "5\n",
+                        'expected' => "a0\nb\t\nc\f\nd'This is a string'\n\"So is this\"")
+                ),
+                array('per_test_template' =>  $template,
+                      'enable_combinator' => FALSE)
+        );
         return $q;
     }
 
@@ -1108,15 +764,15 @@ EOPROG;
     // ============== SUPPORT METHODS ====================
 
     /* Fill in the option information for a specific question type,
-     * by reading it from the database.
+     * by reading it from the database. Can't use questiontype's
+     * get_question_options method, as we'd like to, because it requires
+     * a form rather than a question and may have a files area with files
+     * to upload - too hard to set up :-(
      */
     private function getOptions(&$question) {
         global $CFG, $DB;
-        require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
         
-        $qtype = new qtype_coderunner();
-
-        $type = $question->options['coderunner_type'];
+        $type = $question->coderunner_type;
 
         if (!$row = $DB->get_record_select(
                    'quest_coderunner_options',
@@ -1124,15 +780,17 @@ EOPROG;
                throw new MissingCoderunnerQuestionType("TestHelper: failed to load type info for question with type $type");
         }
         
+        $noninherited = qtype_coderunner::noninherited_fields();
         foreach ($row as $field=>$value) {
-            $question->$field = $value;
+            if (!in_array($field, $noninherited)) {
+                $question->$field = $value;
+            }
         }
+        
 
-        if (!isset($question->per_test_template)) {
-            $question->per_test_template = '';
+        foreach ($question->options as $key=>$value) {
+            $question->$key = $value;
         }
-
-        $question->customise = trim($question->per_test_template) != '';
 
         if (!isset($question->sandbox)) {
             $question->sandbox = $question->getBestSandbox($question->language);
@@ -1144,15 +802,44 @@ EOPROG;
             $question->grader = 'EqualityGrader';
         }
     }
+    
+    
+    // Given an array of tests in which each element has just the bare minimum
+    // of info, add in all the other necessary fields to get an array of
+    // testCase objects.
+    private static function makeTestCases($rawTests) {
+        $basicTest = array('testcode'       => '',
+                           'stdin'          => '',
+                           'extra'          => '',
+                           'expected'       => '',
+                           'display'        => 'SHOW',
+                           'mark'           => 1.0,
+                           'hiderestiffail' => 0,
+                           'useasexample'   => 0);
+        $tests = array();
+        foreach ($rawTests as $test) {
+            $t = $basicTest; // Copy
+            foreach ($test as $key=>$value) {
+                $t[$key] = $value;
+            }
+            $tests[] = (object) $t;
+        }
+        return $tests;      
+    }
 
 
-    // Return an empty CodeRunner question
-    private function makeCodeRunnerQuestion($type, $name='', $questionText='') {
+    // Return a CodeRunner question of a given (sub)type with given testcases
+    // and other options. Further fields might be added by
+    // coderunnertestcase::make_question (q.v.).
+    
+    private function makeCodeRunnerQuestion($type, $name='', $questionText='', 
+            $testcases, $otherOptions = array()) {
         question_bank::load_question_definition_classes('coderunner');
         $coderunner = new qtype_coderunner_question();
         test_question_maker::initialise_a_question($coderunner);
         $coderunner->qtype = question_bank::get_qtype('coderunner');
-        $coderunner->options = array('coderunner_type' => $type);
+        $coderunner->coderunner_type = $type;
+        $coderunner->prototype_type = 0;
         $coderunner->name = $name;
         $coderunner->questiontext = $questionText;
         $coderunner->all_or_nothing = true;
@@ -1160,7 +847,11 @@ EOPROG;
         $coderunner->generalfeedback = 'No feedback available for coderunner questions.';
         $coderunner->unitpenalty = 0.2;
         $coderunner->customise = FALSE;
-        $coderunner->contextid = 1;   // HACK. Needed when requesting data files.
+        $coderunner->testcases = self::makeTestCases($testcases);
+        $coderunner->options = array();
+        foreach ($otherOptions as $key=>$value) {
+            $coderunner->options[$key] = $value;
+        }
         $this->getOptions($coderunner);
         return $coderunner;
     }

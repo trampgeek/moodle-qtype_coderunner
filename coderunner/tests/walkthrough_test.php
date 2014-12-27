@@ -125,7 +125,6 @@ class qtype_coderunner_walkthrough_test extends qbehaviour_walkthrough_test_base
 
         // Submit a partially right answer
         $this->process_submission(array('-submit' => 1, 'answer' => 'def sqr(n): return n * n if n < 0 else -19'));
-        //debugging(print_r($this, true));
         $this->check_current_mark(0.2666666667);
         $this->check_current_output(
                 new question_pattern_expectation('/' .

@@ -303,6 +303,5 @@ EOT;
         $this->assertEquals(1, $mark);
         $this->assertEquals(question_state::$gradedright, $grade);
     }
-
 }
 
