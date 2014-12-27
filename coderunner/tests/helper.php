@@ -841,6 +841,7 @@ EOPROG;
         $coderunner->coderunner_type = $type;
         $coderunner->prototype_type = 0;
         $coderunner->name = $name;
+        $coderunner->use_ace = TRUE;
         $coderunner->questiontext = $questionText;
         $coderunner->all_or_nothing = true;
         $coderunner->show_source = false;
