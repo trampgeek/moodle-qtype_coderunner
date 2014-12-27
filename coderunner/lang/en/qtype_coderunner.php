@@ -323,8 +323,9 @@ $string['sandboxcontrols_help'] = 'Select what sandbox you wish the student ' .
         'You can also set the maximum CPU time in seconds ' .
         'allowed for each testcase run and the maximum memory a single testcase ' .
         'run can consume (MB). A blank entry uses the sandbox\'s ' .
-        'default value, but this may not be suitable for resource-demanding ' .
-        'languages like Java and Matlab). A value of zero for the maximum memory ' .
+        'default value (typically 5 secs for the CPU time limit and a ' .
+        'language-dependent amount of memory), but the defaults may not be suitable for resource-demanding ' .
+        'programs. A value of zero for the maximum memory ' .
         'results in no limit being imposed. The amount of memory specified here ' .
         'is the total amount needed for the run including all libraries, interpreters, ' .
         'VMs etc. The "Parameters" entry is used to pass ' .

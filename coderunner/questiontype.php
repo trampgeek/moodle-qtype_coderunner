@@ -118,7 +118,7 @@ class qtype_coderunner extends question_type {
      *  as 'customise' fields.
      * @return array of strings
      */
-    public function noninherited_fields() {
+    public static function noninherited_fields() {
         return array(
             'coderunner_type',
             'prototype_type',
@@ -159,8 +159,8 @@ class qtype_coderunner extends question_type {
     }
 
 
-// Function to copy testcases from form fields into question->testcases
-    private function copy_testcases_from_form(&$question) {
+    // Function to copy testcases from form fields into question->testcases
+    private function copy_testcases_from_form(&$question) {            
         
         
     
@@ -379,12 +379,13 @@ class qtype_coderunner extends question_type {
     
     
     // Get the specified prototype question from the database.
+    // Returns the row from the quest_coderunner_options table, not the
+    // question itself.
     // To be valid, the named prototype (a question of the specified type
     // and with prototype_type non zero) must be in a question category that's 
     // available in the given current context. 
     public static function getPrototype($coderunnerType, $context) {
         global $DB;
-        
         $rows = $DB->get_records_select(
                'quest_coderunner_options',
                "coderunner_type = '$coderunnerType' and prototype_type != 0");
@@ -438,14 +439,21 @@ class qtype_coderunner extends question_type {
     }
     
     
-    // Returns the context of this question's category.
+    // Returns the context of the given question's category. The question
+    // parameter might be a true question or might be a row from the
+    // question options table.
     public static function questionContext($question) {
         global $DB;
-        
-        $sql = "SELECT contextid FROM mdl_question_categories, mdl_question " .
-               "WHERE mdl_question.id = {$question->id} " .
-               "AND mdl_question.category = mdl_question_categories.id";
-        $contextid = $DB->get_field_sql($sql, NULL, MUST_EXIST);
+
+        if (!isset($question->contextid)) {
+            $questionid = isset($question->questionid) ? $question->questionid : $question->id;
+            $sql = "SELECT contextid FROM {question_categories}, {question} " .
+                   "WHERE {question}.id = $questionid " .
+                   "AND {question}.category = {question_categories}.id";
+            $contextid = $DB->get_field_sql($sql, NULL, MUST_EXIST);
+        } else {
+            $contextid = $question->contextid;
+        }
         return context::instance_by_id($contextid);
     }
 

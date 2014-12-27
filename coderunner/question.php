@@ -43,6 +43,7 @@ require_once($CFG->dirroot . '/question/type/coderunner/locallib.php');
 require_once($CFG->dirroot . '/question/type/coderunner/Grader/graderbase.php');
 require_once($CFG->dirroot . '/question/type/coderunner/escapers.php');
 require_once($CFG->dirroot . '/question/type/coderunner/testingoutcome.php');
+require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
 
 /**
  * Represents a Python 'coderunner' question.
@@ -199,13 +200,21 @@ class qtype_coderunner_question extends question_graded_automatically {
 
         $this->allRuns = array();
 
-        // TODO: clean up the whole sandbox parameter business
         if (isset($this->sandbox_params)) {
             $sandboxParams = json_decode($this->sandbox_params, true);
         } else {
             $sandboxParams = array();
         }
-        $files = $this->getDataFiles();
+        
+        if ($this->prototype_type != 0) {
+            $files = array(); // We're running a prototype question ?!
+        } else {
+            // Load any files from the prototype
+            $context = qtype_coderunner::questionContext($this);
+            $prototype = qtype_coderunner::getPrototype($this->coderunner_type, $context);
+            $files = $this->getDataFiles($prototype);
+        }
+        $files += $this->getDataFiles($this, $this->contextid);  // Add in files for this question
         if (isset($this->cputimelimitsecs)) {
             $sandboxParams['cputime'] = intval($this->cputimelimitsecs);
         }
@@ -468,22 +477,29 @@ class qtype_coderunner_question extends question_graded_automatically {
 
     /**
      *  Return an associative array mapping filename to datafile contents
-     *  for all the datafiles associated with this question
+     *  for all the datafiles associated with a given question (which may
+     *  be a real question or, in the case of a prototype, the question_options
+     *  row).
      */
-    private function getDataFiles() {
+    private static function getDataFiles($question) {
         global $DB;
-        if (isset($this->contextid)) {  // Is this possible? No harm in trying
-            $contextid = $this->contextid;
-        } else if (isset($this->context)) {
-            $contextid = $this->context->id;
+
+        // Deal with problem that $question might not be an actual question
+        // but (in case of prototype) a row from the question_options table.
+        $questionid = isset($question->questionid) ? $question->questionid : $question->id;
+        
+        // If not given in the question object get the contextid from the database
+
+        if (isset($question->contextid)) {
+            $contextid = $question->contextid;
         } else {
-            $record = $DB->get_record('question_categories',
-                array('id' => $this->category), 'contextid');
-            $contextid = $record->contextid;
+            $context = qtype_coderunner::questionContext($question);
+            $contextid = $context->id;
         }
+
         $fs = get_file_storage();
         $fileMap = array();
-        $files = $fs->get_area_files($contextid, 'qtype_coderunner', 'datafile', $this->id);
+        $files = $fs->get_area_files($contextid, 'qtype_coderunner', 'datafile', $questionid);
         foreach ($files as $f) {
             $name = $f->get_filename();
             if ($name !== '.') {
