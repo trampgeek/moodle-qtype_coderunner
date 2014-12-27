@@ -210,7 +210,6 @@ class JobeSandbox extends Sandbox {
             $response = $request->send();
             $returnCode = $response->getStatus();
             $body = $response->getBody();
-            print("Body:"); print_r($body);
             if ($body) {
                 $body = json_decode($body);
             }
