@@ -126,10 +126,7 @@ $string['customisation'] = 'Customisation';
 $string['datafiles'] = 'Run-time data';
 $string['datafiles_help'] = 'Any files uploaded here will be added to the ' .
         'working directory when the expanded template program is executed. ' .
-        'This allows large data files to be conveniently added, but be warned ' .
-        'that at present the data files are not included with the question ' .
-        'if it is exported. They are however backed up and restored as part ' .
-        'of the usual Moodle course backup-and-restore mechanism.';
+        'This allows large data or support files to be conveniently added.';
 $string['display'] = 'Display';
 
 $string['editingcoderunner'] = 'Editing a CodeRunner Question';
@@ -323,8 +320,9 @@ $string['sandboxcontrols_help'] = 'Select what sandbox you wish the student ' .
         'You can also set the maximum CPU time in seconds ' .
         'allowed for each testcase run and the maximum memory a single testcase ' .
         'run can consume (MB). A blank entry uses the sandbox\'s ' .
-        'default value, but this may not be suitable for resource-demanding ' .
-        'languages like Java and Matlab). A value of zero for the maximum memory ' .
+        'default value (typically 5 secs for the CPU time limit and a ' .
+        'language-dependent amount of memory), but the defaults may not be suitable for resource-demanding ' .
+        'programs. A value of zero for the maximum memory ' .
         'results in no limit being imposed. The amount of memory specified here ' .
         'is the total amount needed for the run including all libraries, interpreters, ' .
         'VMs etc. The "Parameters" entry is used to pass ' .
