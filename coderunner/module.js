@@ -302,7 +302,7 @@ M.qtype_coderunner.initEditForm = function(Y) {
                     success: function (id, result) {
                         var outcome = JSON.parse(result.responseText);
                         if (outcome.success) {
-                            template.set('text', outcome.per_test_template);
+                            template.set('value', outcome.per_test_template);
                             secs = outcome.cputimelimitsecs ? outcome.cputimelimitsecs : '';
                             cputime.set('value', secs);
                             mb = outcome.memlimitmb ? outcome.memlimitmb : '';
@@ -311,7 +311,7 @@ M.qtype_coderunner.initEditForm = function(Y) {
                             sandbox.set('value', sb);
                             sb_param_val = outcome.sandbox_params ? outcome.sandbox_params : '';
                             sandboxparams.set('value', sb_param_val);
-                            combinator_template.set('text', outcome.combinator_template);
+                            combinator_template.set('value', outcome.combinator_template);
                             enable_combinator.set('checked', outcome.enable_combinator == "1");
                             splitter = outcome.test_splitter_re ? outcome.test_splitter_re.replace('\n','\\n'): '';
                             test_splitter.set('value', splitter);
@@ -321,12 +321,13 @@ M.qtype_coderunner.initEditForm = function(Y) {
                             setCustomisationVisibility(false);
                         }
                         else {
-                            template.set('text', "*** AJAX ERROR. DON'T SAVE THIS! ***\n" + outcome.error);
+                            template.set('value', "*** TEMPLATE LOAD FAILURE. DON'T SAVE THIS! ***\n" + outcome.error + 
+                                    "\nCourseId: " + courseId + ", qtype: " + newType);
                         }
 
                     },
                     failure: function (id, result) {
-                        template.set('text', "*** AJAX ERROR. DON'T SAVE THIS! ***");
+                        template.set('value', "*** AJAX ERROR. DON'T SAVE THIS! ***");
                     }
                 }
             });
@@ -353,7 +354,7 @@ M.qtype_coderunner.initEditForm = function(Y) {
            message = "If you save this question with 'Customise' " +
                "unchecked, any customisation you've done will be lost.";
            if (confirm(message + " Proceed?")) {
-                 setCustomisationVisibility(false);
+               setCustomisationVisibility(false);
            } else {
                customise.set('checked',true);
            }
@@ -365,7 +366,7 @@ M.qtype_coderunner.initEditForm = function(Y) {
            // [User must explicitly re-enable it if they wish to use it.]
            // The combinator-disabled alert has been disabled for now.
            // Let's see if it really matters. It's annoying!
-           var combinator_non_blank = combinator_template.get('text').trim() !== '';
+           var combinator_non_blank = combinator_template.get('value').trim() !== '';
            if (combinator_non_blank &&
                 !('alertIssued' in template) &&
                 enable_combinator.get('checked')
@@ -405,7 +406,7 @@ M.qtype_coderunner.useYuiTypesMenu = function(Y) {
     defaultComboGroup.setStyle('display', 'none');
 
     if (currentValue != 'Undefined') {
-        topLevel.set('text', currentValue);
+        topLevel.set('value', currentValue);
     }
 
     typesMenu.delegate('click', function(e) {
@@ -418,9 +419,9 @@ M.qtype_coderunner.useYuiTypesMenu = function(Y) {
 
            // Update hidden combo state to the newly selected value
            combo.all('option').each(function(opt) {
-                    if (opt.get('text') == target) {
+                    if (opt.get('value') == target) {
                         opt.set('selected', 'selected');
-                        topLevel.set('text', target);  // Change top level text
+                        topLevel.set('value', target);  // Change top level text
                     } else {
                         opt.removeAttribute('selected');
                     }
