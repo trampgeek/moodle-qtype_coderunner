@@ -126,10 +126,7 @@ $string['customisation'] = 'Customisation';
 $string['datafiles'] = 'Run-time data';
 $string['datafiles_help'] = 'Any files uploaded here will be added to the ' .
         'working directory when the expanded template program is executed. ' .
-        'This allows large data files to be conveniently added, but be warned ' .
-        'that at present the data files are not included with the question ' .
-        'if it is exported. They are however backed up and restored as part ' .
-        'of the usual Moodle course backup-and-restore mechanism.';
+        'This allows large data or support files to be conveniently added.';
 $string['display'] = 'Display';
 
 $string['editingcoderunner'] = 'Editing a CodeRunner Question';
