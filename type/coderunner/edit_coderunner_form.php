@@ -33,7 +33,7 @@ define("DEFAULT_NUM_COLS", 100);   // Answer box rows
 define("TEMPLATE_PARAM_SIZE", 80); // The size of the template parameter field
 define("RESULT_COLUMNS_SIZE", 80); // The size of the result_columns field
 
-require_once($CFG->dirroot . '/question/type/coderunner/Sandbox/sandbox_config.php');
+require_once($CFG->dirroot . '/question/type/coderunner/Sandbox/sandboxbase.php');
 require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
 require_once($CFG->dirroot . '/question/type/coderunner/locallib.php');
 
@@ -538,10 +538,9 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
         $sandboxControls = array();
 
-        $sandboxes = array('DEFAULT' => 'DEFAULT') + 
-            Sandbox::availableSandboxes();
-        foreach ($sandboxes as $box) {
-            $sandboxes[$box] = $box;
+        $sandboxes = array('DEFAULT' => 'DEFAULT');
+        foreach (Sandbox::available_sandboxes() as $ext=>$class) {
+            $sandboxes[$ext] = $ext;
         }
 
         $sandboxControls[] =  $mform->createElement('select', 'sandbox', NULL, $sandboxes);

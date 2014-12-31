@@ -247,7 +247,7 @@ else:
 print(json.dumps({'fraction': fraction, 'feedback_html': feedback}))
 EOTEMPLATE;
         $q->all_or_nothing = false;
-        $q->grader = 'qtype_coderunner_combinator_template_grader';
+        $q->grader = 'CombinatorTemplateGrader';
         $q->customise = true;
         $q->enable_combinator = true;
         $q->unitpenalty = 0;

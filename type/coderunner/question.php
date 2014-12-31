@@ -528,7 +528,7 @@ class qtype_coderunner_question extends question_graded_automatically {
         // build and return a testingOutcome object with a status of
         // STATUS_COMBINATOR_TEMPLATE_GRADER and appropriate feedback_html.
         
-        if ($run->result !== qtype_coderunner_sandbox::RESULT_SUCCESS) {
+        if ($run->result !== Sandbox::RESULT_SUCCESS) {
             $fract = 0;
             $html = '<h2>BAD TEMPLATE RUN<h2><pre>' . $run->cmpinfo . 
                     $run->stderr . '</pre>';

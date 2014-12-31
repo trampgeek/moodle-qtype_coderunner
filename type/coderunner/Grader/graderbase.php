@@ -40,7 +40,7 @@ abstract class qtype_coderunner_grader {
     static public function available_graders() {
         return array('EqualityGrader'       => 'qtype_coderunner_equality_grader',
                      'NearEqualityGrader'   => 'qtype_coderunner_near_equality_grader',
-                     'RexexGrader'          => 'qtype_coderunner_regex_grader',
+                     'RegexGrader'          => 'qtype_coderunner_regex_grader',
                      'TemplateGrader'       => 'qtype_coderunner_template_grader',
                      'CombinatorTemplateGrader' => 'qtype_coderunner_combinator_template_grader'
                 );  
