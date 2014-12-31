@@ -345,13 +345,13 @@ class qtype_coderunner_question extends question_graded_automatically {
         // In all other cases (runtime error etc) we give up
         // on the combinator.
         
-        if ($run->error !== SANDBOX::OK) {
+        if ($run->error !== Sandbox::OK) {
             $outcome = new TestingOutcome($maxMark,
                     TestingOutcome::STATUS_SANDBOX_ERROR,
                     Sandbox::errorString($run->error));
         } elseif ($isCombinatorGrader) {
             $outcome = $this->doCombinatorGrading($maxMark, $run);
-        } else if ($run->result === SANDBOX::RESULT_COMPILATION_ERROR) {
+        } else if ($run->result === Sandbox::RESULT_COMPILATION_ERROR) {
             $outcome = new TestingOutcome($maxMark,
                     TestingOutcome::STATUS_SYNTAX_ERROR,
                     $run->cmpinfo);
@@ -399,14 +399,14 @@ class qtype_coderunner_question extends question_graded_automatically {
             $this->allRuns[] = $testProg;
             $run = $this->sandboxInstance->execute($testProg, $this->language,
                     $input, $files, $sandboxParams);
-            if ($run->error !== SANDBOX::OK) {
+            if ($run->error !== Sandbox::OK) {
                 $outcome = new TestingOutcome(
                     $maxMark, 
                     TestingOutcome::STATUS_SANDBOX_ERROR,
                     Sandbox::errorString($run->error));
                 break;
             }
-            else if ($run->result === SANDBOX::RESULT_COMPILATION_ERROR) {
+            else if ($run->result === Sandbox::RESULT_COMPILATION_ERROR) {
                 $outcome = new TestingOutcome(
                         $maxMark,
                         TestingOutcome::STATUS_SYNTAX_ERROR,
@@ -523,7 +523,7 @@ class qtype_coderunner_question extends question_graded_automatically {
         // build and return a testingOutcome object with a status of
         // STATUS_COMBINATOR_TEMPLATE_GRADER and appropriate feedback_html.
         
-        if ($run->result !== SANDBOX::RESULT_SUCCESS) {
+        if ($run->result !== Sandbox::RESULT_SUCCESS) {
             $fract = 0;
             $html = '<h2>BAD TEMPLATE RUN<h2><pre>' . $run->cmpinfo . 
                     $run->stderr . '</pre>';
