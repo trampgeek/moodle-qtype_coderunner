@@ -65,9 +65,9 @@ print( '{{QUESTION.sandbox_params}}')
     
 
 EOTEMPLATE;
-         $q->customise = TRUE;
-         $q->all_or_nothing = FALSE;
-         $q->enable_combinator = FALSE;
+         $q->customise = true;
+         $q->all_or_nothing = false;
+         $q->enable_combinator = false;
          $q->testcases = array(
             (object) array('testcode' => 'print(sqr(-3))',
                           'expected'     => "9\ntwiddle-twaddle",
@@ -77,9 +77,9 @@ EOTEMPLATE;
                           'display' => 'SHOW',
                           'mark' => 1.0, 'hiderestiffail'  => 0),
          );
-         $q->customise = TRUE;
-         $q->all_or_nothing = FALSE;
-         $q->enable_combinator = FALSE;
+         $q->customise = true;
+         $q->all_or_nothing = false;
+         $q->enable_combinator = false;
          $code = "def sqr(n): return n * n\n";
          $response = array('answer' => $code);
          $result = $q->grade_response($response);
@@ -109,9 +109,9 @@ else:
     print('{"fraction":0}')
 EOTEMPLATE;
          $q->grader = 'TemplateGrader';
-         $q->customise = TRUE;
-         $q->all_or_nothing = FALSE;
-         $q->enable_combinator = FALSE;
+         $q->customise = true;
+         $q->all_or_nothing = false;
+         $q->enable_combinator = false;
          $code = "def sqr(n): return n * n\n";
          $response = array('answer' => $code);
          $result = $q->grade_response($response);
@@ -131,9 +131,9 @@ print( {{QUESTION.parameters.age}}, '{{QUESTION.parameters.string}}')
     
 
 EOTEMPLATE;
-         $q->customise = TRUE;
-         $q->all_or_nothing = FALSE;
-         $q->enable_combinator = FALSE;
+         $q->customise = true;
+         $q->all_or_nothing = false;
+         $q->enable_combinator = false;
          $q->testcases = array(
             (object) array('testcode' => '',
                           'expected'     => "23 blah",
@@ -143,9 +143,9 @@ EOTEMPLATE;
                           'display' => 'SHOW',
                           'mark' => 1.0, 'hiderestiffail'  => 0),
          );
-         $q->customise = TRUE;
-         $q->all_or_nothing = FALSE;
-         $q->enable_combinator = FALSE;
+         $q->customise = true;
+         $q->all_or_nothing = false;
+         $q->enable_combinator = false;
          $code = "";
          $response = array('answer' => $code);
          $result = $q->grade_response($response);

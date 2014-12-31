@@ -17,7 +17,7 @@
 
 require_once($CFG->dirroot . '/question/type/coderunner/testingoutcome.php');
 
-abstract class Grader {
+abstract class qtype_coderunner_grader {
     /** Check all outputs, returning an array of TestResult objects.
      * A TestResult is an object with expected, got, isCorrect and grade fields.
      * 'got' and 'expected' fields are sanitised by replacing embedded
@@ -32,17 +32,17 @@ abstract class Grader {
      *  must have called tidy on the expected, output and stdin fields
      *  to limit their lengths.
      */
-    function grade(&$output, &$testcase, $isBad = FALSE) {
+    function grade(&$output, &$testcase, $isBad = false) {
        if ($isBad) {
             $outcome = new TestResult(
-                        Grader::tidy($testcase->testcode),
+                        qtype_coderunner_grader::tidy($testcase->testcode),
                         $testcase->mark,
-                        FALSE,
+                        false,
                         0.0,
-                        Grader::tidy($testcase->expected),
-                        Grader::tidy($output),
-                        Grader::tidy($testcase->stdin),
-                        Grader::tidy($testcase->extra)
+                        qtype_coderunner_grader::tidy($testcase->expected),
+                        qtype_coderunner_grader::tidy($output),
+                        qtype_coderunner_grader::tidy($testcase->stdin),
+                        qtype_coderunner_grader::tidy($testcase->extra)
             );
         } else {
             $outcome = $this->gradeKnownGood($output, $testcase);
@@ -58,8 +58,8 @@ abstract class Grader {
         if ($s === NULL) {
             return NULL;
         } else {
-            $cleanS = Grader::clean($s);
-            return Grader::snip($cleanS);
+            $cleanS = qtype_coderunner_grader::clean($s);
+            return qtype_coderunner_grader::snip($cleanS);
         }
     }
 
@@ -110,8 +110,8 @@ abstract class Grader {
         // [... snip ... ] in its place
         $snipInsert = ' ...snip... ';
         $len = strlen($s);
-        if ($len > Grader::MAX_STRING_LENGTH) {
-            $lenToRemove = $len - Grader::MAX_STRING_LENGTH + strlen($snipInsert);
+        if ($len > qtype_coderunner_grader::MAX_STRING_LENGTH) {
+            $lenToRemove = $len - qtype_coderunner_grader::MAX_STRING_LENGTH + strlen($snipInsert);
             $partLength = ($len - $lenToRemove) / 2;
             $firstBit = substr($s, 0, $partLength);
             $lastBit = substr($s, $len - $partLength, $partLength);

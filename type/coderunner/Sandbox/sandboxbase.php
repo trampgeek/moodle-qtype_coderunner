@@ -80,11 +80,11 @@ abstract class Sandbox {
     public function __construct($user=NULL, $pass=NULL) {
         $this->user = $user;
         $this->pass = $pass;
-        $authenticationError = FALSE;
+        $authenticationError = false;
     }
 
     // Strings corresponding to the create-submission error codes defined above
-    public static function errorString($errorCode) {
+    public static function error_string($errorCode) {
         $ERROR_STRINGS = array(
             Sandbox::OK              => "OK",
             Sandbox::AUTH_ERROR      => "Unauthorised to use sandbox",
@@ -103,7 +103,7 @@ abstract class Sandbox {
     
     
     // Strings corresponding to the RESULT_* defines above
-    public static function resultString($resultCode) {
+    public static function result_string($resultCode) {
         $RESULT_STRINGS = array(
             Sandbox::RESULT_NO_RUN               => "No run",
             Sandbox::RESULT_COMPILATION_ERROR    => "Compilation error",
@@ -147,7 +147,7 @@ abstract class Sandbox {
     // where the latter is a list of strings of languages handled by this sandbox.
     // This latter consists of all the languages returned by a query to Ideone plus
     // the local simplified aliases, like python2, python3, C.
-    abstract public function getLanguages();
+    abstract public function get_languages();
 
     // Create a submission object, which has an error and a link field, the
     // latter being the 'handle' by which the submission is subsequently
@@ -164,7 +164,7 @@ abstract class Sandbox {
     // 'memorylimit' (in megabytes) and 'files' (an associative array mapping
     // filenames to string filecontents).
     abstract public function createSubmission($sourceCode, $language, $input,
-            $run=TRUE, $private=TRUE, $files=NULL, $params=NULL);
+            $run=true, $private=true, $files=NULL, $params=NULL);
 
     // Enquire about the status of the submission with the given 'link' (aka
     // handle. The return value is an object containing an error, a status and
@@ -175,9 +175,9 @@ abstract class Sandbox {
     // Should only be called if the status is STATUS_DONE. Returns an ideone
     // style object with fields error, langId, langName, langVersion, time,
     // date, status, result, memory, signal, cmpinfo, output.
-    abstract public function getSubmissionDetails($link, $withSource=FALSE,
-            $withInput=FALSE, $withOutput=TRUE, $withStderr=TRUE,
-            $withCmpinfo=TRUE);
+    abstract public function getSubmissionDetails($link, $withSource=false,
+            $withInput=false, $withOutput=true, $withStderr=true,
+            $withCmpinfo=true);
 
     /** Main interface function for use by coderunner but not part of ideone API.
      *  Executes the given source code in the given language with the given
@@ -209,14 +209,14 @@ abstract class Sandbox {
      */
     public function execute($sourceCode, $language, $input, $files=NULL, $params=NULL) {
         $language = strtolower($language);
-        if (!in_array($language, $this->getLanguages()->languages)) {
+        if (!in_array($language, $this->get_languages()->languages)) {
             throw new coderunner_exception('Executing an unsupported language in sandbox');
         }
         if ($input !== '' && substr($input, -1) != "\n") {
             $input .= "\n";  // Force newline on the end if necessary
         }
         $result = $this->createSubmission($sourceCode, $language, $input,
-                TRUE, TRUE, $files, $params);
+                true, true, $files, $params);
         $error = $result->error;
         if ($error === Sandbox::OK) {
             $state = $this->getSubmissionStatus($result->link);
@@ -265,7 +265,7 @@ abstract class Sandbox {
                 'moreHelp' => 'No more help available',
                 'pi' => 3.14,
                 'answerToLifeAndEverything' => 42,
-                'oOok' => TRUE
+                'oOok' => true
             );
         }
     }

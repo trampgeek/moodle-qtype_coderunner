@@ -174,7 +174,7 @@ class qtype_coderunner_c_questions_test extends qtype_coderunner_testcase {
         $this->assertFalse($testOutcome->hasSyntaxError());
         $this->assertEquals(1, count($testOutcome->testResults));
         $this->assertFalse($testOutcome->allCorrect());
-        $this->assertTrue(strpos($testOutcome->testResults[0]->got, "***Time limit exceeded***\n") !== FALSE); 
+        $this->assertTrue(strpos($testOutcome->testResults[0]->got, "***Time limit exceeded***\n") !== false); 
     }
 
 
@@ -222,7 +222,7 @@ int sqr(int n) {
         $testOutcome = unserialize($cache['_testoutcome']);
         $this->assertTrue(
                 strpos($testOutcome->testResults[1]->got, 
-                    "***Illegal function call***") !== FALSE ||
+                    "***Illegal function call***") !== false ||
                 $grade == question_state::$gradedright
                 );
     }

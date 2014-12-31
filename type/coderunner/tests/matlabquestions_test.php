@@ -76,7 +76,7 @@ class qtype_coderunner_matlab_question_test extends qtype_coderunner_testcase {
         $this->assertTrue(isset($cache['_testoutcome']));
         $testOutcome = unserialize($cache['_testoutcome']);
         $this->assertEquals(1, count($testOutcome->testResults));
-        $this->assertTrue(strpos($testOutcome->testResults[0]->got, "Abnormal termination") !== FALSE);
+        $this->assertTrue(strpos($testOutcome->testResults[0]->got, "Abnormal termination") !== false);
     }
 
     public function test_student_answer_macro() {

@@ -202,7 +202,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
                           'expected' => '36',
                           'display'  => 'HIDE', // The last testcase must be hidden
                           'mark'     => 2.5)
-        ), array('all_or_nothing' => FALSE));
+        ), array('all_or_nothing' => false));
         return $coderunner;
     }
 
@@ -555,7 +555,7 @@ EOT;
         if ($qtype === 'octave_function') {
             $options['per_test_template'] .= "\n\ntester()\n";
         }
-        $options['enable_combinator'] = FALSE;
+        $options['enable_combinator'] = false;
         
         $questiontext = <<<EOT
  Enter the following program:
@@ -755,7 +755,7 @@ EOPROG;
                         'expected' => "a0\nb\t\nc\f\nd'This is a string'\n\"So is this\"")
                 ),
                 array('per_test_template' =>  $template,
-                      'enable_combinator' => FALSE)
+                      'enable_combinator' => false)
         );
         return $q;
     }
@@ -793,7 +793,7 @@ EOPROG;
         }
 
         if (!isset($question->sandbox)) {
-            $question->sandbox = $question->getBestSandbox($question->language);
+            $question->sandbox = $question->get_best_sandbox($question->language);
             if ($question->sandbox === NULL) {
                 throw new exception("TestHelper: no sandbox available for language {$question->language}");
             }
@@ -841,13 +841,13 @@ EOPROG;
         $coderunner->coderunner_type = $type;
         $coderunner->prototype_type = 0;
         $coderunner->name = $name;
-        $coderunner->use_ace = TRUE;
+        $coderunner->use_ace = true;
         $coderunner->questiontext = $questionText;
         $coderunner->all_or_nothing = true;
         $coderunner->show_source = false;
         $coderunner->generalfeedback = 'No feedback available for coderunner questions.';
         $coderunner->unitpenalty = 0.2;
-        $coderunner->customise = FALSE;
+        $coderunner->customise = false;
         $coderunner->testcases = self::makeTestCases($testcases);
         $coderunner->options = array();
         foreach ($otherOptions as $key=>$value) {

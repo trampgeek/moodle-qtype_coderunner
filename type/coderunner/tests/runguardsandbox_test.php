@@ -25,11 +25,11 @@ class qtype_coderunner_runguardsandbox_test extends qtype_coderunner_testcase {
         $this->assertEquals(3.14, $tr->pi);
         $this->assertEquals(42, $tr->answerToLifeAndEverything);
         $this->assertTrue($tr->oOok);
-        $langs = $sandbox->getLanguages();
+        $langs = $sandbox->get_languages();
         $langs = $langs->languages;
-        $this->assertTrue(in_array('python2', $langs, TRUE));
-        $this->assertTrue(in_array('matlab', $langs, TRUE));
-        $this->assertTrue(in_array('java', $langs, TRUE));
+        $this->assertTrue(in_array('python2', $langs, true));
+        $this->assertTrue(in_array('matlab', $langs, true));
+        $this->assertTrue(in_array('java', $langs, true));
     }
 
 
@@ -56,7 +56,7 @@ class qtype_coderunner_runguardsandbox_test extends qtype_coderunner_testcase {
         $result = $sandbox->execute($code, 'python2', NULL);
         $this->assertEquals(Sandbox::RESULT_ABNORMAL_TERMINATION, $result->result);
         $this->assertEquals(0, $result->signal);
-        $this->assertTrue(strpos($result->stderr, 'SyntaxError') !== FALSE);
+        $this->assertTrue(strpos($result->stderr, 'SyntaxError') !== false);
         $sandbox->close();
     }
 
@@ -83,8 +83,8 @@ class qtype_coderunner_runguardsandbox_test extends qtype_coderunner_testcase {
         $result = $sandbox->execute($code, 'python2', NULL);
         $this->assertEquals(Sandbox::RESULT_ABNORMAL_TERMINATION, $result->result);
         $this->assertEquals('', $result->output);
-        $this->assertTrue(strpos($result->stderr, 'MemoryError') !== FALSE ||
-                strpos($result->stderr, 'OverflowError') !== FALSE);
+        $this->assertTrue(strpos($result->stderr, 'MemoryError') !== false ||
+                strpos($result->stderr, 'OverflowError') !== false);
         $this->assertEquals('', $result->cmpinfo);
         $sandbox->close();
     }

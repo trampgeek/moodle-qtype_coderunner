@@ -61,7 +61,7 @@ class IdeoneSandbox extends Sandbox {
     // where the latter is a list of strings of languages handled by this sandbox.
     // This latter consists of all the languages returned by a query to Ideone plus
     // the local simplified aliases, like python2, python3, C.
-    public function getLanguages() {
+    public function get_languages() {
         $resultObj = (object) array('error'=>Sandbox::OK,
             'languages'=>array_keys($this->langMap));
         return $resultObj;
@@ -74,11 +74,11 @@ class IdeoneSandbox extends Sandbox {
     // TODO: come up with a better way of handling non-null $files and
     // $params.
     public function createSubmission($sourceCode, $language, $input,
-            $run=TRUE, $private=TRUE, $files=NULL, $params = NULL)
+            $run=true, $private=true, $files=NULL, $params = NULL)
     {
         // Check language is valid and the user isn't attempting to set
         // files or execution parameters (since Ideone does not have such options).
-        assert(in_array($language, $this->getLanguages()->languages));
+        assert(in_array($language, $this->get_languages()->languages));
         if ($files !== NULL && count($files) !== 0) {
             throw new moodle_exception("Ideone sandbox doesn't accept files");
         }
@@ -116,9 +116,9 @@ class IdeoneSandbox extends Sandbox {
 
     // Should only be called if the status is STATUS_DONE. Returns an object
     // with fields error, result, time, memory, signal, cmpinfo, stderr, output.
-    public function getSubmissionDetails($link, $withSource=FALSE,
-            $withInput=FALSE, $withOutput=TRUE, $withStderr=TRUE,
-            $withCmpinfo=TRUE)
+    public function getSubmissionDetails($link, $withSource=false,
+            $withInput=false, $withOutput=true, $withStderr=true,
+            $withCmpinfo=true)
     {
         $response = $this->client->getSubmissionDetails($this->user, $this->pass,
                 $link, $withSource, $withInput, $withOutput,

@@ -1,9 +1,10 @@
 <?php
-/** The CombinatorTemplateGrader class. This isn't actually a grader at all and
- *  is never called. Combinator Template grading uses the combinator template to
- *  generate a mark and the feedback to the student in a single run.
- *  The output is not split into separate test runs, so the normal interface
- *  does not apply. See the doCombinatorGrading method of the question class.
+/** The qtype_coderunner_combinator_template_grader class. This isn't actually a 
+ *  grader at all and is never called. Combinator Template grading uses the
+ *  combinator template to generate a mark and the feedback to the student in 
+ *  a single run. The output is not split into separate test runs, so the normal
+ *  interface does not apply. See the doCombinatorGrading method of the question
+ *  class.
  */
 
 /**
@@ -14,7 +15,7 @@
  */
 
 require_once('graderbase.php');
-class CombinatorTemplateGrader extends Grader {
+class qtype_coderunner_combinator_template_grader extends qtype_coderunner_grader {
 
     function gradeKnownGood(&$output, &$testcase) {
         throw new CodingException("CombinatorGrader shouldn't be called");

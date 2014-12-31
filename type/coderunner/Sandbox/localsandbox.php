@@ -111,10 +111,10 @@ abstract class LanguageTask {
     protected function setPath() {          
         $envVars = array();
         exec('printenv', $envVars);
-        $hasPath = FALSE;
+        $hasPath = false;
         foreach ($envVars as $var) {
             if (strpos($var, 'PATH=') === 0) {
-                $hasPath = TRUE;
+                $hasPath = true;
                 break;
             }
         }
@@ -178,8 +178,8 @@ abstract class LocalSandbox extends Sandbox {
      *
      */
     public function createSubmission($sourceCode, $language, $input,
-                            $run=TRUE, $private=TRUE, $files=NULL, $params = NULL) {
-        if (!in_array($language, $this->getLanguages()->languages)) {
+                            $run=true, $private=true, $files=NULL, $params = NULL) {
+        if (!in_array($language, $this->get_languages()->languages)) {
             throw new coderunner_exception('LocalSandbox::createSubmission: Bad language');
         }
 
@@ -227,9 +227,9 @@ abstract class LocalSandbox extends Sandbox {
     }
 
 
-    public function getSubmissionDetails($link, $withSource=FALSE,
-            $withInput=FALSE, $withOutput=TRUE, $withStderr=TRUE,
-            $withCmpinfo=TRUE) {
+    public function getSubmissionDetails($link, $withSource=false,
+            $withInput=false, $withOutput=true, $withStderr=true,
+            $withCmpinfo=true) {
 
         if (!isset($this->task) || $link !== self::$currentRunId) {
             return (object) array('error' => Sandbox::PASTE_NOT_FOUND);
@@ -238,14 +238,14 @@ abstract class LocalSandbox extends Sandbox {
                 'error'     => Sandbox::OK,
                 'status'    => Sandbox::STATUS_DONE,
                 'result'    => $this->task->result,
-                'langId'    => array_search($this->language, $this->getLanguages()->languages),
+                'langId'    => array_search($this->language, $this->get_languages()->languages),
                 'langName'  => $this->language,
                 'langVersion' => $this->task->getVersion(),
                 'time'      => $this->task->time,
                 'date'      => $this->date,
                 'memory'    => $this->task->memory,
                 'signal'    => $this->task->signal,
-                'public'    => FALSE);
+                'public'    => false);
 
             if ($withSource) {
                 $retVal->source = $this->currentSource;

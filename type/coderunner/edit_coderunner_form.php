@@ -333,15 +333,15 @@ class qtype_coderunner_edit_form extends question_edit_form {
             $errors['template_group'] = get_string('badtemplateparams', 'qtype_coderunner');
         }
 
-        if ($data['prototype_type'] == 0 && $data['grader'] !== 'CombinatorTemplateGrader') {
+        if ($data['prototype_type'] == 0 && $data['grader'] !== 'qtype_coderunner_combinator_template_grader') {
             // Unless it's a prototype or uses a combinator-template grader
             // it needs at least one testcase
             $testCaseErrors = $this->validate_test_cases($data);
             $errors = array_merge($errors, $testCaseErrors);
         }
         
-        if ($data['grader'] === 'CombinatorTemplateGrader' &&
-                $data['enable_combinator'] == FALSE) {
+        if ($data['grader'] === 'qtype_coderunner_combinator_template_grader' &&
+                $data['enable_combinator'] == false) {
             $errors['combinator_controls'] = get_string('combinator_required', 'qtype_coderunner');
         }
 
@@ -490,11 +490,11 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
         $mform->addHelpButton('per_test_template', 'template', 'qtype_coderunner');
         $gradingControls = array();
-        $graderTypes = array('EqualityGrader' => 'Exact match',
-                'NearEqualityGrader' => 'Nearly exact match',
-                'RegexGrader' => 'Regular expression',
-                'TemplateGrader' => 'Per-test-template grader',
-                'CombinatorTemplateGrader' => 'Combinator-template grader');
+        $graderTypes = array('qtype_coderunner_equality_grader' => 'Exact match',
+                'qtype_coderunner_near_equality_grader' => 'Nearly exact match',
+                'qtype_coderunner_regex_grader' => 'Regular expression',
+                'qtype_coderunner_per_test_template_grader' => 'Per-test-template grader',
+                'qtype_coderunner_combinator_template_grader' => 'Combinator-template grader');
         $gradingControls[] = $mform->createElement('select', 'grader',
                 NULL, $graderTypes);
         $mform->addElement('group', 'gradingcontrols',
@@ -623,7 +623,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $records = qtype_coderunner::getAllPrototypes();
         $types = array();
         foreach ($records as $row) {
-            if (($pos = strpos($row->coderunner_type, '_')) !== FALSE) {
+            if (($pos = strpos($row->coderunner_type, '_')) !== false) {
                 $subtype = substr($row->coderunner_type, $pos + 1);
                 $language = substr($row->coderunner_type, 0, $pos);
             }

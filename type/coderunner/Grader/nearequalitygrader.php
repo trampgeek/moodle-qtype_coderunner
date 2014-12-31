@@ -16,7 +16,7 @@
  */
 
 require_once('graderbase.php');
-class NearEqualityGrader extends Grader {
+class qtype_coderunner_near_equality_grader extends qtype_coderunner_grader {
 
     /** This grader tests if the expected output matches the actual
      *  output after removing all empty lines and trailing white space,
@@ -27,27 +27,27 @@ class NearEqualityGrader extends Grader {
      *  As requested by Ulrich Dangel.
      */
     function gradeKnownGood(&$output, &$testCase) {
-        $cleanedOutput = Grader::clean($output);
-        $cleanedExpected = Grader::clean($testCase->expected);
+        $cleanedOutput = qtype_coderunner_grader::clean($output);
+        $cleanedExpected = qtype_coderunner_grader::clean($testCase->expected);
         
         $isCorrect = $this->reduce($cleanedOutput) == $this->reduce($cleanedExpected);
         $awardedMark = $isCorrect ? $testCase->mark : 0.0;
 
         if ($testCase->stdin) {
-            $resultStdin = Grader::tidy($testCase->stdin);
+            $resultStdin = qtype_coderunner_grader::tidy($testCase->stdin);
         } else {
             $resultStdin = NULL;
         }
 
         return new TestResult(
-                Grader::tidy($testCase->testcode),
+                qtype_coderunner_grader::tidy($testCase->testcode),
                 $testCase->mark,
                 $isCorrect,
                 $awardedMark,
-                Grader::snip($cleanedExpected),
-                Grader::snip($cleanedOutput),
+                qtype_coderunner_grader::snip($cleanedExpected),
+                qtype_coderunner_grader::snip($cleanedOutput),
                 $resultStdin,
-                Grader::tidy($testCase->extra)
+                qtype_coderunner_grader::tidy($testCase->extra)
         );
     }
     

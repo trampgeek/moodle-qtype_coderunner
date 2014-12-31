@@ -33,7 +33,7 @@
  * @param type $charset   The charset (currenly ignored)
  * @return typestudentanswervar
  */
-function pythonEscaper($environ, $s, $charset) {
+function python_escaper($environ, $s, $charset) {
     return str_replace('"', '\"', str_replace('\\', '\\\\', $s));
 }
 
@@ -46,7 +46,7 @@ function pythonEscaper($environ, $s, $charset) {
  * @param type $charset   The charset (currenly ignored)
  * @return type
  */
-function matlabEscaper($environ, $s, $charset) {
+function matlab_escaper($environ, $s, $charset) {
     return str_replace(
                 array("'",  "\n", "\r", '%'),
                 array("''", '\\n',  '',  '%%'),
@@ -62,7 +62,7 @@ function matlabEscaper($environ, $s, $charset) {
  * @param type $charset   The charset (currenly ignored)
  * @return type
  */
-function javaEscaper($environ, $s, $charset) {
+function java_escaper($environ, $s, $charset) {
     return str_replace(
                 array("'",    '"',  "\n",  "\r",   "\t", "\f",  "\b"),
                 array("\\'", '\\"', "\\n", "\\r", "\\t","\\f", "\\b"),

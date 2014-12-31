@@ -60,9 +60,9 @@ class qtype_coderunner_walkthrough_extras_test extends qbehaviour_walkthrough_te
 {{ STUDENT_ANSWER }}
 {{ TEST.extra }}  # Use this instead of the normal testcode field
 EOTEMPLATE;
-        $q->all_or_nothing = FALSE;
-        $q->customise = TRUE;
-        $q->enable_combinator = FALSE;
+        $q->all_or_nothing = false;
+        $q->customise = true;
+        $q->enable_combinator = false;
         $q->unitpenalty = 0;
 
         // Submit a right answer

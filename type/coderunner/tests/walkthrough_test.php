@@ -159,10 +159,10 @@ elif expected == got:
 else:
     print('{"fraction":"0","expected":"Twiddlydee"}')
 EOTEMPLATE;
-        $q->all_or_nothing = FALSE;
+        $q->all_or_nothing = false;
         $q->grader = 'TemplateGrader';
-        $q->customise = TRUE;
-        $q->enable_combinator = FALSE;
+        $q->customise = true;
+        $q->enable_combinator = false;
         $q->unitpenalty = 0;
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
 
@@ -206,10 +206,10 @@ elif expected == got:
 else:
     print('{"fraction":"0","expected_html": "<h2>Header</h2>", "got_html":"<script>document.write(\'YeeHa\')</script>"}')
 EOTEMPLATE;
-        $q->all_or_nothing = FALSE;
+        $q->all_or_nothing = false;
         $q->grader = 'TemplateGrader';
-        $q->customise = TRUE;
-        $q->enable_combinator = FALSE;
+        $q->customise = true;
+        $q->enable_combinator = false;
         $q->unitpenalty = 0;
         $q->result_columns = '[["Test", "testcode"], ["Expected", "expected_html", "%h"], ["Got", "got_html", "%h"]]';
 
@@ -246,10 +246,10 @@ else:
     feedback = '<h2>Wrong numbers of hi and/or ho</h2><p>I wanted 2 of each but got {} and {} respectively.</p>'.format(num_hi, num_ho)
 print(json.dumps({'fraction': fraction, 'feedback_html': feedback}))
 EOTEMPLATE;
-        $q->all_or_nothing = FALSE;
-        $q->grader = 'CombinatorTemplateGrader';
-        $q->customise = TRUE;
-        $q->enable_combinator = TRUE;
+        $q->all_or_nothing = false;
+        $q->grader = 'qtype_coderunner_combinator_template_grader';
+        $q->customise = true;
+        $q->enable_combinator = true;
         $q->unitpenalty = 0;
 
         // Submit a right answer

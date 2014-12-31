@@ -75,7 +75,7 @@ class qtype_coderunner extends question_type {
      * for things like the quiz statistics report.
      */
     public function can_analyse_responses() {
-        return FALSE;  // TODO Consider if this functionality should be enabled
+        return false;  // TODO Consider if this functionality should be enabled
     }
 
     /**
@@ -347,7 +347,7 @@ class qtype_coderunner extends question_type {
         if (!$question->options->testcases = $DB->get_records('quest_coderunner_testcases',
                 array('questionid' => $question->id), 'id ASC')) {
             if ($question->options->prototype_type == 0
-                    && $question->options->grader !== 'CombinatorTemplateGrader') {
+                    && $question->options->grader !== 'qtype_coderunner_combinator_template_grader') {
                 throw new coderunner_exception("Failed to load testcases for question id {$question->id}");
             } else {
                 // Question prototypes may not have testcases
@@ -426,23 +426,23 @@ class qtype_coderunner extends question_type {
         }
         
         if ($activeCats === NULL) {
-            $allContexts = $context->get_parent_context_ids(TRUE);
+            $allContexts = $context->get_parent_context_ids(true);
             $activeCats = get_categories_for_contexts(implode(',', $allContexts));
         }
         
         foreach ($activeCats as $cat) {
             if ($cat->id == $candidateCat->id) {
-                return TRUE;
+                return true;
             }
         }
-        return FALSE;
+        return false;
     }
     
     
     // Returns the context of the given question's category. The question
     // parameter might be a true question or might be a row from the
     // question options table.
-    public static function questionContext($question) {
+    public static function question_context($question) {
         global $DB;
 
         if (!isset($question->contextid)) {

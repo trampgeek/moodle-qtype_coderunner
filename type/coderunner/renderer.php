@@ -25,7 +25,7 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-define('FORCE_TABULAR_EXAMPLES', TRUE);
+define('FORCE_TABULAR_EXAMPLES', true);
 define('MAX_LINE_LENGTH', 120);
 define('MAX_NUM_LINES', 200);
 define('DEFAULT_RESULT_COLUMNS', '[["Test", "testcode"], ["Input", "stdin"], ["Expected", "expected"], ["Got", "got"]]');
@@ -136,10 +136,10 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
             $fb = '';
 
-            if ($q->show_source && count($testOutcome->sourceCodeList) > 0) {
+            if ($q->show_source && count($testOutcome->sourcecodelist) > 0) {
                 $fb .= $this->makeSourceCodeDiv(
                         'Debug: source code from all test runs',
-                        $testOutcome->sourceCodeList
+                        $testOutcome->sourcecodelist
                 );
             }
 
@@ -228,7 +228,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
         if ($COURSE && $coursecontext = context_course::instance($COURSE->id)) {
             $canViewHidden = has_capability('moodle/grade:viewhidden', $coursecontext);
         } else {
-            $canViewHidden = FALSE;
+            $canViewHidden = false;
         }
 
         $table = new html_table();
@@ -299,7 +299,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
                 }
             }
             $i++;
-            if ($testCase->hiderestiffail && !$testResult->isCorrect) {
+            if ($testCase->hiderestiffail && !$testResult->iscorrect) {
                 break;
             }
         }
@@ -399,12 +399,12 @@ class qtype_coderunner_renderer extends qtype_renderer {
     private function allSingleLine($examples) {
         foreach ($examples as $example) {
             if (!empty($example->stdin) ||
-                strpos($example->testcode, "\n") !== FALSE ||
-                strpos($example->expected, "\n") !== FALSE) {
-               return FALSE;
+                strpos($example->testcode, "\n") !== false ||
+                strpos($example->expected, "\n") !== false) {
+               return false;
             }
          }
-         return TRUE;
+         return true;
     }
 
 
@@ -475,20 +475,20 @@ class qtype_coderunner_renderer extends qtype_renderer {
         $testCaseKeys = array_keys($testCases);  // Arbitrary numeric indices. Aarghhh.
         $i = 0;
         $count = 0;
-        $hidingRest = FALSE;
+        $hidingRest = false;
         foreach ($testResults as $tr) {
             $testCase = $testCases[$testCaseKeys[$i]];
             if ($hidingRest) {
-                $isDisplayed = FALSE;
+                $isDisplayed = false;
             }
             else {
                 $isDisplayed = $this->shouldDisplayResult($testCase, $tr);
             }
-            if (!$isDisplayed && !$tr->isCorrect) {
+            if (!$isDisplayed && !$tr->iscorrect) {
                 $count++;
             }
-            if ($testCase->hiderestiffail && !$tr->isCorrect) {
-                $hidingRest = TRUE;
+            if ($testCase->hiderestiffail && !$tr->iscorrect) {
+                $hidingRest = true;
             }
             $i++;
         }
@@ -499,8 +499,8 @@ class qtype_coderunner_renderer extends qtype_renderer {
     // True iff the given test result should be displayed
     private function shouldDisplayResult($testCase, $testResult) {
         return $testCase->display == 'SHOW' ||
-            ($testCase->display == 'HIDE_IF_FAIL' && $testResult->isCorrect) ||
-            ($testCase->display == 'HIDE_IF_SUCCEED' && !$testResult->isCorrect);
+            ($testCase->display == 'HIDE_IF_FAIL' && $testResult->iscorrect) ||
+            ($testCase->display == 'HIDE_IF_SUCCEED' && !$testResult->iscorrect);
     }
 
 }

@@ -42,7 +42,7 @@ class JobeSandbox extends Sandbox {
     // Returns an object containing an error field and a languages field,
     // where the latter is a list of strings of languages handled by this sandbox.
     // This latter consists of all the languages returned by a query to Jobe.
-    public function getLanguages() {
+    public function get_languages() {
         
         $resultObj = (object) array('error'    => $this->status,
                                     'languages'=> $this->languages);
@@ -55,10 +55,10 @@ class JobeSandbox extends Sandbox {
     // the handle for the submission, for use in the following two calls.
 
     public function createSubmission($sourceCode, $language, $input,
-            $run=TRUE, $private=TRUE, $files=NULL, $params = NULL)
+            $run=true, $private=true, $files=NULL, $params = NULL)
     {
         // Check language is valid
-        if (!in_array($language, $this->getLanguages()->languages)) {
+        if (!in_array($language, $this->get_languages()->languages)) {
             return (object) array('error' => Sandbox::WRONG_LANG_ID,
                                   'link' => 0);
         }
@@ -143,9 +143,9 @@ class JobeSandbox extends Sandbox {
 
     // Should only be called if the status is STATUS_DONE. Returns an object
     // with fields error, time, memory, signal, cmpinfo, stderr, output.
-    public function getSubmissionDetails($link, $withSource=FALSE,
-            $withInput=FALSE, $withOutput=TRUE, $withStderr=TRUE,
-            $withCmpinfo=TRUE)
+    public function getSubmissionDetails($link, $withSource=false,
+            $withInput=false, $withOutput=true, $withStderr=true,
+            $withCmpinfo=true)
     {
         if ($link != $this->link) {
             throw new coding_exception("link mismatch in jobesandbox");

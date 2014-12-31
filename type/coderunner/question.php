@@ -24,7 +24,7 @@
  */
 
 
-define('DEFAULT_GRADER', 'EqualityGrader');
+define('DEFAULT_GRADER', 'qtype_coderunner_equality_grader');
 defined('MOODLE_INTERNAL') || die();
 
 /** Max size of output to be stored in question_attempt_step_data table
@@ -46,15 +46,15 @@ require_once($CFG->dirroot . '/question/type/coderunner/testingoutcome.php');
 require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
 
 /**
- * Represents a Python 'coderunner' question.
+ * Represents a 'CodeRunner' question.
  */
 class qtype_coderunner_question extends question_graded_automatically {
 
     public  $testcases;    // Array of testcases
-    private $graderInstance = NULL;      // The grader instance, if it's NOT a custom one
+    private $graderinstance = NULL;      // The grader instance, if it's NOT a custom one
     private $twig = NULL;                // The template processor environment
-    private $sandboxInstance = NULL;     // The sandbox we're using
-    private $allRuns = NULL;             // Array of the source code for all runs
+    private $sandboxinstance = NULL;     // The sandbox we're using
+    private $allruns = NULL;             // Array of the source code for all runs
 
     /**
      * Override default behaviour so that we can use a specialised behaviour
@@ -150,24 +150,24 @@ class qtype_coderunner_question extends question_graded_automatically {
     public function grade_response(array $response) {
         if (empty($response['_testoutcome'])) {
             $code = $response['answer'];
-            $testOutcome = $this->run_tests($code, $this->testcases);
-            $testOutcomeSerial = serialize($testOutcome);
+            $testoutcome = $this->run_tests($code, $this->testcases);
+            $testoutcomeserial = serialize($testoutcome);
         }
         else {
-            $testOutcomeSerial = $response['_testoutcome'];
-            $testOutcome = unserialize($testOutcomeSerial);
+            $testoutcomeserial = $response['_testoutcome'];
+            $testoutcome = unserialize($testoutcomeserial);
         }
 
-        $dataToCache = array('_testoutcome' => $testOutcomeSerial);
-        if ($testOutcome->allCorrect()) {
-             return array(1, question_state::$gradedright, $dataToCache);
+        $datatocache = array('_testoutcome' => $testoutcomeserial);
+        if ($testoutcome->allCorrect()) {
+             return array(1, question_state::$gradedright, $datatocache);
         }
         elseif ($this->all_or_nothing) {
-            return array(0, question_state::$gradedwrong, $dataToCache);
+            return array(0, question_state::$gradedwrong, $datatocache);
         }
         else {
-            return array($testOutcome->markAsFraction(),
-                    question_state::$gradedpartial, $dataToCache);
+            return array($testoutcome->markAsFraction(),
+                    question_state::$gradedpartial, $datatocache);
         }
     }
 
@@ -176,7 +176,7 @@ class qtype_coderunner_question extends question_graded_automatically {
     // response (i.e. "answer") and and a set of testCases.
     // Returns a TestingOutcome object.
 
-    protected function run_tests($code, $testCases) {
+    protected function run_tests($code, $testcases) {
         global $CFG;
 
         Twig_Autoloader::register();
@@ -187,46 +187,46 @@ class qtype_coderunner_question extends question_graded_automatically {
             'optimizations' => 0
         ));
 
-        $twigCore = $this->twig->getExtension('core');
-        $twigCore->setEscaper('py', 'pythonEscaper');
-        $twigCore->setEscaper('python', 'pythonEscaper');
-        $twigCore->setEscaper('c',  'javaEscaper');
-        $twigCore->setEscaper('java', 'javaEscaper');
-        $twigCore->setEscaper('ml', 'matlabEscaper');
-        $twigCore->setEscaper('matlab', 'matlabEscaper');
+        $twigcore = $this->twig->getExtension('core');
+        $twigcore->setEscaper('py', 'python_escaper');
+        $twigcore->setEscaper('python', 'python_escaper');
+        $twigcore->setEscaper('c',  'java_escaper');
+        $twigcore->setEscaper('java', 'java_escaper');
+        $twigcore->setEscaper('ml', 'matlab_escaper');
+        $twigcore->setEscaper('matlab', 'matlab_escaper');
 
         $this->setUpSandbox();
         $this->setUpGrader();
 
-        $this->allRuns = array();
+        $this->allruns = array();
 
         if (isset($this->sandbox_params)) {
-            $sandboxParams = json_decode($this->sandbox_params, true);
+            $sandboxparams = json_decode($this->sandbox_params, true);
         } else {
-            $sandboxParams = array();
+            $sandboxparams = array();
         }
         
         if ($this->prototype_type != 0) {
             $files = array(); // We're running a prototype question ?!
         } else {
             // Load any files from the prototype
-            $context = qtype_coderunner::questionContext($this);
+            $context = qtype_coderunner::question_context($this);
             $prototype = qtype_coderunner::getPrototype($this->coderunner_type, $context);
-            $files = $this->getDataFiles($prototype);
+            $files = $this->get_data_files($prototype);
         }
-        $files += $this->getDataFiles($this, $this->contextid);  // Add in files for this question
+        $files += $this->get_data_files($this, $this->contextid);  // Add in files for this question
         if (isset($this->cputimelimitsecs)) {
-            $sandboxParams['cputime'] = intval($this->cputimelimitsecs);
+            $sandboxparams['cputime'] = intval($this->cputimelimitsecs);
         }
         if (isset($this->memlimitmb)) {
-            $sandboxParams['memorylimit'] = intval($this->memlimitmb);
+            $sandboxparams['memorylimit'] = intval($this->memlimitmb);
         }
         
         if (isset($this->template_params) && $this->template_params != '') {
             $this->parameters = json_decode($this->template_params);
         }
 
-        $outcome = $this->runWithCombinator($code, $testCases, $files, $sandboxParams);
+        $outcome = $this->run_with_combinator($code, $testcases, $files, $sandboxparams);
 
         // If that failed for any reason (e.g. no combinator template or timeout
         // or signal) run the tests individually. Any compilation
@@ -236,12 +236,12 @@ class qtype_coderunner_question extends question_graded_automatically {
         // case.
 
         if ($outcome == NULL) {
-            $outcome = $this->runTestsSingly($code, $testCases, $files, $sandboxParams);
+            $outcome = $this->run_tests_singly($code, $testcases, $files, $sandboxparams);
         }
 
-        $this->sandboxInstance->close();
+        $this->sandboxinstance->close();
         if ($this->show_source) {
-            $outcome->sourceCodeList = $this->allRuns;
+            $outcome->sourcecodelist = $this->allruns;
         }
     	return $outcome;
     }
@@ -273,16 +273,16 @@ class qtype_coderunner_question extends question_graded_automatically {
      *  @return the preferred sandbox for the given language or NULL if no
      *  enabled sandboxes support this language.
      */
-    public static function getBestSandbox($language) {
+    public static function get_best_sandbox($language) {
         global $SANDBOXES;
         foreach($SANDBOXES as $sandbox) {
             if (get_config('qtype_coderunner', $sandbox . '_enabled')) {
                 require_once("Sandbox/$sandbox.php");
                 $sb = new $sandbox();
-                $queryResult = $sb->getLanguages();
-                if ($queryResult->error == Sandbox::OK) {
-                    $langsSupported = $queryResult->languages;
-                    foreach ($langsSupported as $lang) {
+                $queryresult = $sb->get_languages();
+                if ($queryresult->error == Sandbox::OK) {
+                    $supportedlangs = $queryresult->languages;
+                    foreach ($supportedlangs as $lang) {
                         if (strtolower($lang) == strtolower($language)) {
                             return $sandbox;
                         }
@@ -309,35 +309,35 @@ class qtype_coderunner_question extends question_graded_automatically {
     // to be used as s = sprintf('{{MATLAB_ESCAPED_STUDENT_ANSWER}}')
     // Return true if successful.
     // 26/5/14 - add entire QUESTION to template environment.
-    private function runWithCombinator($code, $testCases, $files, $sandboxParams) {
+    private function run_with_combinator($code, $testcases, $files, $sandboxparams) {
 
-        $isCombinatorGrader = strtolower($this->grader) === 'combinatortemplategrader';  
-        $useCombinator = $isCombinatorGrader
-            || ($this->enable_combinator && $this->noStdins($testCases) &&
+        $iscombinatorgrader = strtolower($this->grader) === 'combinatortemplategrader';  
+        $usecombinator = $iscombinatorgrader
+            || ($this->enable_combinator && $this->has_no_stdins($testcases) &&
                 strtolower($this->grader) !== 'templategrader');
-        if (!$useCombinator) {
+        if (!$usecombinator) {
             return NULL;  // Not our job
         }
         
         // We're OK to use a combinator. Let's go.
         
         $outcome = NULL;
-        $maxMark = $this->maximumPossibleMark($testCases);
-        if ($maxMark == 0) {
-            $maxMark = 1; // Must be a combinator template grader
+        $maxmark = $this->maximum_possible_mark($testcases);
+        if ($maxmark == 0) {
+            $maxmark = 1; // Must be a combinator template grader
         }
 
-        $templateParams = array(
+        $templateparams = array(
             'STUDENT_ANSWER' => $code,
-            'ESCAPED_STUDENT_ANSWER' => pythonEscaper(NULL, $code, NULL),
-            'MATLAB_ESCAPED_STUDENT_ANSWER' => matlabEscaper(NULL, $code, NULL),
+            'ESCAPED_STUDENT_ANSWER' => python_escaper(NULL, $code, NULL),
+            'MATLAB_ESCAPED_STUDENT_ANSWER' => matlab_escaper(NULL, $code, NULL),
             'QUESTION' => $this,
-            'TESTCASES' => $testCases);
-        $testProg = $this->twig->render($this->combinator_template, $templateParams);
+            'TESTCASES' => $testcases);
+        $testprog = $this->twig->render($this->combinator_template, $templateparams);
 
-        $this->allRuns[] = $testProg;
-        $run = $this->sandboxInstance->execute($testProg, $this->language,
-                NULL, $files, $sandboxParams);
+        $this->allruns[] = $testprog;
+        $run = $this->sandboxinstance->execute($testprog, $this->language,
+                NULL, $files, $sandboxparams);
 
         // If it's a combinator grader, we pass the result to the
         // doCombinatorGrading method. Otherwise we deal with syntax errors or
@@ -346,22 +346,22 @@ class qtype_coderunner_question extends question_graded_automatically {
         // on the combinator.
         
         if ($run->error !== SANDBOX::OK) {
-            $outcome = new TestingOutcome($maxMark,
+            $outcome = new TestingOutcome($maxmark,
                     TestingOutcome::STATUS_SANDBOX_ERROR,
-                    Sandbox::errorString($run->error));
-        } elseif ($isCombinatorGrader) {
-            $outcome = $this->doCombinatorGrading($maxMark, $run);
+                    Sandbox::error_string($run->error));
+        } elseif ($iscombinatorgrader) {
+            $outcome = $this->do_combinator_grading($maxmark, $run);
         } else if ($run->result === SANDBOX::RESULT_COMPILATION_ERROR) {
-            $outcome = new TestingOutcome($maxMark,
+            $outcome = new TestingOutcome($maxmark,
                     TestingOutcome::STATUS_SYNTAX_ERROR,
                     $run->cmpinfo);
         } else if ($run->result === Sandbox::RESULT_SUCCESS && !$run->stderr) {
             $outputs = preg_split($this->test_splitter_re, $run->output);
-            if (count($outputs) == count($testCases)) {
-                $outcome = new TestingOutcome($maxMark);
+            if (count($outputs) == count($testcases)) {
+                $outcome = new TestingOutcome($maxmark);
                 $i = 0;
-                foreach ($testCases as $testCase) {
-                    $outcome->addTestResult($this->grade($outputs[$i], $testCase));
+                foreach ($testcases as $testcase) {
+                    $outcome->add_test_result($this->grade($outputs[$i], $testcase));
                     $i++;
                 }
             }
@@ -372,21 +372,21 @@ class qtype_coderunner_question extends question_graded_automatically {
 
 
     // Run all tests one-by-one on the sandbox
-    private function runTestsSingly($code, $testCases, $files, $sandboxParams) {
-        $maxMark = $this->maximumPossibleMark($testCases);
-        $templateParams = array(
+    private function run_tests_singly($code, $testcases, $files, $sandboxparams) {
+        $maxMark = $this->maximum_possible_mark($testcases);
+        $templateparams = array(
             'STUDENT_ANSWER' => $code,
-            'ESCAPED_STUDENT_ANSWER' => pythonEscaper(NULL, $code, NULL),
-            'MATLAB_ESCAPED_STUDENT_ANSWER' => matlabEscaper(NULL, $code, NULL),
+            'ESCAPED_STUDENT_ANSWER' => python_escaper(NULL, $code, NULL),
+            'MATLAB_ESCAPED_STUDENT_ANSWER' => matlab_escaper(NULL, $code, NULL),
             'QUESTION' => $this
          );
 
         $outcome = new TestingOutcome($maxMark);
         $template = $this->per_test_template;
-        foreach ($testCases as $testCase) {
-            $templateParams['TEST'] = $testCase;
+        foreach ($testcases as $testcase) {
+            $templateparams['TEST'] = $testcase;
             try {
-                $testProg = $this->twig->render($template, $templateParams);
+                $testprog = $this->twig->render($template, $templateparams);
             } catch (Exception $e) {
                 $outcome = new TestingOutcome(
                         $maxMark,
@@ -395,15 +395,15 @@ class qtype_coderunner_question extends question_graded_automatically {
                 break;
             }
 
-            $input = isset($testCase->stdin) ? $testCase->stdin : '';
-            $this->allRuns[] = $testProg;
-            $run = $this->sandboxInstance->execute($testProg, $this->language,
-                    $input, $files, $sandboxParams);
+            $input = isset($testcase->stdin) ? $testcase->stdin : '';
+            $this->allruns[] = $testprog;
+            $run = $this->sandboxinstance->execute($testprog, $this->language,
+                    $input, $files, $sandboxparams);
             if ($run->error !== SANDBOX::OK) {
                 $outcome = new TestingOutcome(
                     $maxMark, 
                     TestingOutcome::STATUS_SANDBOX_ERROR,
-                    Sandbox::errorString($run->error));
+                    Sandbox::error_string($run->error));
                 break;
             }
             else if ($run->result === SANDBOX::RESULT_COMPILATION_ERROR) {
@@ -413,9 +413,9 @@ class qtype_coderunner_question extends question_graded_automatically {
                         $run->cmpinfo);
                 break;
             } else if ($run->result != Sandbox::RESULT_SUCCESS) {
-                $errorMessage = $this->makeErrorMessage($run);
-                $isError = TRUE;
-                $outcome->addTestResult($this->grade($errorMessage, $testCase, $isError));
+                $errormessage = $this->make_error_message($run);
+                $iserror = true;
+                $outcome->add_test_result($this->grade($errormessage, $testcase, $iserror));
                 break;
             } else {
                 // Successful run. Merge stdout and stderr for grading.
@@ -423,7 +423,7 @@ class qtype_coderunner_question extends question_graded_automatically {
                 // RESULT_SUCCESS result but it has been known to happen in the
                 //  past, possibly with a now-defunct sandbox.]
                 $output = $run->stderr ? $run->output + '\n' + $run->stderr : $run->output;
-                $outcome->addTestResult($this->grade($output, $testCase));
+                $outcome->add_test_result($this->grade($output, $testcase));
             }
         }
         return $outcome;
@@ -433,39 +433,39 @@ class qtype_coderunner_question extends question_graded_automatically {
     // Set up a grader instance.
     private function setUpGrader() {
         global $CFG;
-        $graderClass = $this->grader;
-        if ($graderClass === NULL) {
-            $this->grader = $graderClass = DEFAULT_GRADER;
+        $graderclass = $this->grader;
+        if ($graderclass === NULL) {
+            $this->grader = $graderclass = DEFAULT_GRADER;
         }
-        $graderClassLC = strtolower($graderClass);
-        require_once($CFG->dirroot . "/question/type/coderunner/Grader/$graderClassLC.php");
-        $this->graderInstance = new $graderClass();
+        $graderclasslc = strtolower($graderclass);
+        require_once($CFG->dirroot . "/question/type/coderunner/Grader/$graderclasslc.php");
+        $this->graderinstance = new $graderclass();
     }
 
 
     // Set $this->sandboxInstance
     private function setUpSandbox() {
         global $CFG;
-        $sandboxClass = $this->sandbox;
-        if ($sandboxClass === NULL)  {
-            $this->sandbox = $sandboxClass = $this->getBestSandbox($this->language);
-            if ($sandboxClass === NULL) {
+        $sandboxclass = $this->sandbox;
+        if ($sandboxclass === NULL)  {
+            $this->sandbox = $sandboxclass = $this->get_best_sandbox($this->language);
+            if ($sandboxclass === NULL) {
                 throw new coderunner_exception("Language {$this->language} is not available on this system");
             }
         } else {
-            if (!get_config('qtype_coderunner', strtolower($sandboxClass) . '_enabled')) {
-                throw new coderunner_exception("Question is configured to use a disabled sandbox ($sandboxClass)");
+            if (!get_config('qtype_coderunner', strtolower($sandboxclass) . '_enabled')) {
+                throw new coderunner_exception("Question is configured to use a disabled sandbox ($sandboxclass)");
             }
         }
 
-        $sandboxClassLC = strtolower($sandboxClass);
-        require_once($CFG->dirroot . "/question/type/coderunner/Sandbox/$sandboxClassLC.php");
-        $this->sandboxInstance = new $sandboxClass();
+        $sandboxclasslc = strtolower($sandboxclass);
+        require_once($CFG->dirroot . "/question/type/coderunner/Sandbox/$sandboxclasslc.php");
+        $this->sandboxinstance = new $sandboxclass();
     }
 
 
     // Return the maximum possible mark from the given set of testcases.
-    private function maximumPossibleMark($testcases) {
+    private function maximum_possible_mark($testcases) {
         $total = 0;
         foreach ($testcases as $testcase) {
             $total += $testcase->mark;
@@ -481,7 +481,7 @@ class qtype_coderunner_question extends question_graded_automatically {
      *  be a real question or, in the case of a prototype, the question_options
      *  row).
      */
-    private static function getDataFiles($question) {
+    private static function get_data_files($question) {
         global $DB;
 
         // Deal with problem that $question might not be an actual question
@@ -493,7 +493,7 @@ class qtype_coderunner_question extends question_graded_automatically {
         if (isset($question->contextid)) {
             $contextid = $question->contextid;
         } else {
-            $context = qtype_coderunner::questionContext($question);
+            $context = qtype_coderunner::question_context($question);
             $contextid = $context->id;
         }
 
@@ -513,12 +513,12 @@ class qtype_coderunner_question extends question_graded_automatically {
 
     // Grade a given test result by calling the grader.
 
-    private function grade($output, $testcase, $isBad = FALSE) {
-        return $this->graderInstance->grade($output, $testcase, $isBad);
+    private function grade($output, $testcase, $isBad = false) {
+        return $this->graderinstance->grade($output, $testcase, $isBad);
     }
     
     
-    private function doCombinatorGrading($maxMark, $run) {
+    private function do_combinator_grading($maxmark, $run) {
         // Given the result of a sandbox run with the combinator template,
         // build and return a testingOutcome object with a status of
         // STATUS_COMBINATOR_TEMPLATE_GRADER and appropriate feedback_html.
@@ -540,8 +540,8 @@ class qtype_coderunner_question extends question_graded_automatically {
                 $html = $result->feedback_html;
             }
         } 
-        $outcome = new TestingOutcome($maxMark, TestingOutcome::STATUS_COMBINATOR_TEMPLATE_GRADER);
-        $outcome->setMarkAndFeedback($maxMark * $fract, $html);
+        $outcome = new TestingOutcome($maxmark, TestingOutcome::STATUS_COMBINATOR_TEMPLATE_GRADER);
+        $outcome->set_mark_and_feedback($maxmark * $fract, $html);
         return $outcome;
     }
 
@@ -563,8 +563,8 @@ class qtype_coderunner_question extends question_graded_automatically {
     }
 
 
-    private function makeErrorMessage($run) {
-        $err = "***" . Sandbox::resultString($run->result) . "***";
+    private function make_error_message($run) {
+        $err = "***" . Sandbox::result_string($run->result) . "***";
         if ($run->result === Sandbox::RESULT_RUNTIME_ERROR) {
             $sig = $run->signal;
             if ($sig) {
@@ -576,23 +576,23 @@ class qtype_coderunner_question extends question_graded_automatically {
 
 
     /** True IFF no testcases have nonempty stdin. */
-    private function noStdins($testCases) {
-        foreach ($testCases as $testCase) {
-            if ($testCase->stdin != '') {
-                return FALSE;
+    private function has_no_stdins($testcases) {
+        foreach ($testcases as $testcase) {
+            if ($testcase->stdin != '') {
+                return false;
             }
         }
-        return TRUE;
+        return true;
     }
 
 
     // Count the number of errors in the given array of test results.
     // TODO -- figure out how to eliminate either this one or the identical
     // version in renderer.php.
-    private function count_errors($testResults) {
+    private function count_errors($testresults) {
         $errors = 0;
-        foreach ($testResults as $tr) {
-            if (!$tr->isCorrect) {
+        foreach ($testresults as $tr) {
+            if (!$tr->iscorrect) {
                 $errors++;
             }
         }

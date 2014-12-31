@@ -65,15 +65,15 @@ class Matlab_Task extends \LanguageTask {
      public function filterOutput($out) {
          $lines = explode("\n", $out);
          $outlines = array();
-         $headerEnded = FALSE;
+         $headerEnded = false;
 
          foreach ($lines as $line) {
              $line = rtrim($line);
              if ($headerEnded) {
                  $outlines[] = $line;
              }
-             if (strpos($line, 'For product information, visit www.mathworks.com.') !== FALSE) {
-                 $headerEnded = TRUE;
+             if (strpos($line, 'For product information, visit www.mathworks.com.') !== false) {
+                 $headerEnded = true;
              }
          }
 
@@ -195,7 +195,7 @@ class Java_Task extends \LanguageTask {
 
     public function compile() {
         $prog = file_get_contents($this->sourceFileName);
-        if (($this->mainClassName = $this->getMainClass($prog)) === FALSE) {
+        if (($this->mainClassName = $this->getMainClass($prog)) === false) {
             $this->cmpinfo = "Error: no main class found, or multiple main classes. [Did you write a public class when asked for a non-public one?]";
         }
         else {
@@ -228,7 +228,7 @@ class Java_Task extends \LanguageTask {
     }
 
 
-     // Return the name of the main class in the given prog, or FALSE if no
+     // Return the name of the main class in the given prog, or false if no
      // such class found. Uses a regular expression to find a public class with
      // a public static void main method.
      // Not totally safe as it doesn't parse the file, e.g. would be fooled
@@ -236,7 +236,7 @@ class Java_Task extends \LanguageTask {
      private function getMainClass($prog) {
          $pattern = '/(^|\W)public\s+class\s+(\w+)\s*\{.*?public\s+static\s+void\s+main\s*\(\s*String/ms';
          if (preg_match_all($pattern, $prog, $matches) !== 1) {
-             return FALSE;
+             return false;
          }
          else {
              return $matches[2][0];

@@ -30,11 +30,11 @@ class qtype_coderunner_ideonesandbox_test extends qtype_coderunner_testcase {
 
         // Now check if we have at least a few of the expected languages.
 
-        $langObj = $sandbox->getLanguages();
+        $langObj = $sandbox->get_languages();
         $langs = $langObj->languages;
-        $this->assertTrue(in_array('python2', $langs, TRUE));
-        $this->assertTrue(in_array('python3', $langs, TRUE));
-        $this->assertTrue(in_array('c', $langs, TRUE));
+        $this->assertTrue(in_array('python2', $langs, true));
+        $this->assertTrue(in_array('python3', $langs, true));
+        $this->assertTrue(in_array('c', $langs, true));
     }
 
 
@@ -116,7 +116,7 @@ class qtype_coderunner_ideonesandbox_test extends qtype_coderunner_testcase {
         $code = "#include <stdio.h>\nint main(): {\n    printf(\"Hello sandbox\");\n    return 0;\n}\n";
         $result = $sandbox->execute($code, 'C', NULL);
         $this->assertEquals(Sandbox::RESULT_COMPILATION_ERROR, $result->result);
-        $this->assertTrue(strpos($result->cmpinfo, 'error:') !== FALSE);
+        $this->assertTrue(strpos($result->cmpinfo, 'error:') !== false);
         $sandbox->close();
     }
 

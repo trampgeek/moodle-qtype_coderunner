@@ -76,8 +76,8 @@ class qtype_coderunner_octave_question_test extends qtype_coderunner_testcase {
         $this->assertTrue(isset($cache['_testoutcome']));
         $testOutcome = unserialize($cache['_testoutcome']);
         $this->assertEquals(1, count($testOutcome->testResults));
-        $this->assertTrue(strpos($testOutcome->testResults[0]->got, "Abnormal termination") !== FALSE
-                || strpos($testOutcome->testResults[0]->got, "syntax error") !== FALSE);
+        $this->assertTrue(strpos($testOutcome->testResults[0]->got, "Abnormal termination") !== false
+                || strpos($testOutcome->testResults[0]->got, "syntax error") !== false);
     }
 
     public function test_student_answer_macro() {

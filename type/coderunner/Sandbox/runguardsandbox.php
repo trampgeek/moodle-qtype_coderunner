@@ -55,7 +55,7 @@ class RunguardSandbox extends LocalSandbox {
         LocalSandbox::__construct($user, $pass);
     }
 
-    public function getLanguages() {
+    public function get_languages() {
         return (object) array(
             'error' => Sandbox::OK,
             'languages' => array('matlab', 'octave', 'python2', 'python3', 'java', 'c')

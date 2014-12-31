@@ -30,7 +30,7 @@ class qtype_coderunner_prototype_test extends qtype_coderunner_testcase {
      
     // Test any prototype files are also used by child
     public function test_files_inherited() {
-        $id = $this->make_sqr_user_type_prototype(TRUE);
+        $id = $this->make_sqr_user_type_prototype(true);
 
         $this->setAdminUser();
         $fs = get_file_storage();
@@ -66,7 +66,7 @@ class qtype_coderunner_prototype_test extends qtype_coderunner_testcase {
     // Optionally, prototype has a file attached for testing file inheritance.
     // Returns prototype question id
 
-    private function make_sqr_user_type_prototype($fileAttachmentReqd=FALSE) {
+    private function make_sqr_user_type_prototype($fileAttachmentReqd=false) {
         global $DB;
         $q = $this->make_question('sqr');
         $q->test_cases = array();  // No testcases in a prototype

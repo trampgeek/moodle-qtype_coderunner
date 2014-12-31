@@ -29,7 +29,7 @@ class qtype_coderunner_customise_test extends qtype_coderunner_testcase {
         $testOutcome = unserialize($cache['_testoutcome']);
         $this->assertFalse($testOutcome->hasSyntaxError());
         foreach ($testOutcome->testResults as $tr) {
-            $this->assertTrue($tr->isCorrect);
+            $this->assertTrue($tr->iscorrect);
         }
     }
 }

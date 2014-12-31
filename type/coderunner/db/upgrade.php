@@ -12,7 +12,7 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
     $dbman = $DB->get_manager();
     if ($oldversion != 0 && $oldversion < 2013010201) {
         $table = new xmldb_table('quest_coderunner_options');
-        $allOrNothingField = new xmldb_field('all_or_nothing', XMLDB_TYPE_INTEGER, '1', XMLDB_UNSIGNED, TRUE, null, '1');
+        $allOrNothingField = new xmldb_field('all_or_nothing', XMLDB_TYPE_INTEGER, '1', XMLDB_UNSIGNED, true, null, '1');
         $dbman->add_field($table, $allOrNothingField);
 
         $DB->set_field('quest_coderunner_options', 'coderunner_type', 'python3', array('coderunner_type' => 'python3_basic'));
@@ -25,7 +25,7 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
 
     if ($oldversion != 0 && $oldversion < 2013010202) {
         $table = new xmldb_table('quest_coderunner_testcases');
-        $mark = new xmldb_field('mark', XMLDB_TYPE_NUMBER, '12', XMLDB_UNSIGNED, TRUE, null, '1.0');
+        $mark = new xmldb_field('mark', XMLDB_TYPE_NUMBER, '12', XMLDB_UNSIGNED, true, null, '1.0');
         $dbman->add_field($table, $mark);
         upgrade_plugin_savepoint(true, 2013010202, 'qtype', 'coderunner');
     }
@@ -33,8 +33,8 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
     if ($oldversion != 0 && $oldversion < 2013010301) {
         // Allow NULL sandbox and validator fields
         $table = new xmldb_table('quest_coderunner_types');
-        $sandbox = new xmldb_field('sandbox', XMLDB_TYPE_CHAR, '255', XMLDB_UNSIGNED, FALSE, null);
-        $validator = new xmldb_field('validator', XMLDB_TYPE_CHAR, '255', XMLDB_UNSIGNED, FALSE, null);
+        $sandbox = new xmldb_field('sandbox', XMLDB_TYPE_CHAR, '255', XMLDB_UNSIGNED, false, null);
+        $validator = new xmldb_field('validator', XMLDB_TYPE_CHAR, '255', XMLDB_UNSIGNED, false, null);
         $dbman->change_field_type($table, $sandbox);
         $dbman->change_field_type($table, $validator);
         upgrade_plugin_savepoint(true, 2013010301, 'qtype', 'coderunner');
@@ -43,18 +43,18 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
     if ($oldversion != 0 && $oldversion < 2013010501) {
         // Add custom template option to question
         $table = new xmldb_table('quest_coderunner_options');
-        $customTemplate = new xmldb_field('custom_template', XMLDB_TYPE_TEXT, 'medium', XMLDB_UNSIGNED, FALSE, null);
+        $customTemplate = new xmldb_field('custom_template', XMLDB_TYPE_TEXT, 'medium', XMLDB_UNSIGNED, false, null);
         $dbman->add_field($table, $customTemplate);
         // Remove is_custom field from quest_coderunner_types
         $table = new xmldb_table('quest_coderunner_types');
-        $fieldToDrop = new xmldb_field('is_custom', XMLDB_TYPE_INTEGER, '1', XMLDB_UNSIGNED, TRUE, null, '0');
+        $fieldToDrop = new xmldb_field('is_custom', XMLDB_TYPE_INTEGER, '1', XMLDB_UNSIGNED, true, null, '0');
         $dbman->drop_field($table, $fieldToDrop);
         upgrade_plugin_savepoint(true, 2013010502, 'qtype', 'coderunner');
     }
 
     if ($oldversion != 0 && $oldversion < 2013013001) {
         $table = new xmldb_table('quest_coderunner_testcases');
-        $mark = new xmldb_field('mark', XMLDB_TYPE_NUMBER, '8,3', XMLDB_UNSIGNED, TRUE, null, '1.0');
+        $mark = new xmldb_field('mark', XMLDB_TYPE_NUMBER, '8,3', XMLDB_UNSIGNED, true, null, '1.0');
         $dbman->change_field_type($table, $mark);
         upgrade_plugin_savepoint(true, 2013013001, 'qtype', 'coderunner');
     }
@@ -62,7 +62,7 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
     if ($oldversion != 0 && $oldversion < 2013013101) {
         // Add show source option to question
         $table = new xmldb_table('quest_coderunner_options');
-        $showSource = new xmldb_field('show_source', XMLDB_TYPE_INTEGER, '1', XMLDB_UNSIGNED, TRUE, null, '0');
+        $showSource = new xmldb_field('show_source', XMLDB_TYPE_INTEGER, '1', XMLDB_UNSIGNED, true, null, '0');
         $dbman->add_field($table, $showSource);
         upgrade_plugin_savepoint(true, 2013013101, 'qtype', 'coderunner');
     }
@@ -72,7 +72,7 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         $table = new xmldb_table('quest_coderunner_options');
         foreach (array('showtest', 'showstdin', 'showexpected', 'showoutput', 'showmark') as $newBool) {
             $default = $newBool === 'showmark' ? 0 : 1;
-            $field = new xmldb_field($newBool, XMLDB_TYPE_INTEGER, '1', XMLDB_UNSIGNED, TRUE, null, $default);
+            $field = new xmldb_field($newBool, XMLDB_TYPE_INTEGER, '1', XMLDB_UNSIGNED, true, null, $default);
             $dbman->add_field($table, $field);
         }
         upgrade_plugin_savepoint(true, 2013102401, 'qtype', 'coderunner');
@@ -80,14 +80,14 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
 
     if ($oldversion != 0 && $oldversion < 2013102601) {
         $table = new xmldb_table('quest_coderunner_types');
-        $validatorField = new xmldb_field('validator', XMLDB_TYPE_CHAR, '255', XMLDB_UNSIGNED, FALSE, null);
+        $validatorField = new xmldb_field('validator', XMLDB_TYPE_CHAR, '255', XMLDB_UNSIGNED, false, null);
         $dbman->rename_field($table, $validatorField, 'grader');
         upgrade_plugin_savepoint(true, 2013102601, 'qtype', 'coderunner');
     }
 
     if ($oldversion != 0 && $oldversion < 2013103102) {
         $table = new xmldb_table('quest_coderunner_testcases');
-        $outputField = new xmldb_field('output', XMLDB_TYPE_TEXT, 'medium', XMLDB_UNSIGNED, FALSE, null);
+        $outputField = new xmldb_field('output', XMLDB_TYPE_TEXT, 'medium', XMLDB_UNSIGNED, false, null);
         $dbman->rename_field($table, $outputField, 'expected');
         upgrade_plugin_savepoint(true, 2013103102, 'qtype', 'coderunner');
     }
@@ -95,7 +95,7 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
     if ($oldversion != 0 && $oldversion < 2013110201) {
         $table = new xmldb_table('quest_coderunner_options');
         $template_does_grading = new xmldb_field('template_does_grading',
-                XMLDB_TYPE_INTEGER, '1', XMLDB_UNSIGNED, TRUE, null, 0, 'custom_template');
+                XMLDB_TYPE_INTEGER, '1', XMLDB_UNSIGNED, true, null, 0, 'custom_template');
         $dbman->add_field($table, $template_does_grading);
         upgrade_plugin_savepoint(true, 2013110201, 'qtype', 'coderunner');
     }
@@ -103,32 +103,32 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
     if ($oldversion != 0 && $oldversion < 2013110401) {
         // Add booleans to control display of result table columns
         $table = new xmldb_table('quest_coderunner_options');
-        $timelimit = new xmldb_field('timelimitsecs', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, FALSE, null, null);
+        $timelimit = new xmldb_field('timelimitsecs', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, false, null, null);
         $dbman->add_field($table, $timelimit);
-        $memlimit = new xmldb_field('memlimitmb', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, FALSE, null, null);
+        $memlimit = new xmldb_field('memlimitmb', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, false, null, null);
         $dbman->add_field($table, $memlimit);
         upgrade_plugin_savepoint(true, 2013110401, 'qtype', 'coderunner');
     }
 
     if ($oldversion != 0 && $oldversion < 2013110701) {
         $table = new xmldb_table('quest_coderunner_options');
-        $timelimit = new xmldb_field('timelimitsecs', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, FALSE, null, null);
+        $timelimit = new xmldb_field('timelimitsecs', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, false, null, null);
         $dbman->rename_field($table, $timelimit, 'cputimelimitsecs');
         upgrade_plugin_savepoint(true, 2013110701, 'qtype', 'coderunner');
     }
 
     if ($oldversion != 0 && $oldversion < 2013110702) {
         $table = new xmldb_table('quest_coderunner_types');
-        $timelimit = new xmldb_field('cputimelimitsecs', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, FALSE, null, null);
+        $timelimit = new xmldb_field('cputimelimitsecs', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, false, null, null);
         $dbman->add_field($table, $timelimit);
-        $memlimit = new xmldb_field('memlimitmb', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, FALSE, null, null);
+        $memlimit = new xmldb_field('memlimitmb', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, false, null, null);
         $dbman->add_field($table, $memlimit);
         upgrade_plugin_savepoint(true, 2013110702, 'qtype', 'coderunner');
     }
 
     if ($oldversion != 0 && $oldversion < 2013112101) {
         $table = new xmldb_table('quest_coderunner_options');
-        $grader = new xmldb_field('grader', XMLDB_TYPE_CHAR, '255', XMLDB_UNSIGNED, FALSE, null, null);
+        $grader = new xmldb_field('grader', XMLDB_TYPE_CHAR, '255', XMLDB_UNSIGNED, false, null, null);
         $dbman->add_field($table, $grader);
         upgrade_plugin_savepoint(true, 2013112101, 'qtype', 'coderunner');
     }
@@ -145,7 +145,7 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
 
     if ($oldversion != 0 && $oldversion < 2013112202) {
         $table = new xmldb_table('quest_coderunner_options');
-        $customTemplate = new xmldb_field('custom_template', XMLDB_TYPE_TEXT, 'medium', XMLDB_UNSIGNED, FALSE, null);
+        $customTemplate = new xmldb_field('custom_template', XMLDB_TYPE_TEXT, 'medium', XMLDB_UNSIGNED, false, null);
         $dbman->rename_field($table, $customTemplate, 'per_test_template');
         upgrade_plugin_savepoint(true, 2013112202, 'qtype', 'coderunner');
     }
@@ -166,7 +166,7 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
 
         // Define field enable_combinator to be added to quest_coderunner_options.
         $table = new xmldb_table('quest_coderunner_options');
-        $field = new xmldb_field('enable_combinator', XMLDB_TYPE_INTEGER, '1', null, FALSE, null, null, 'test_splitter_re');
+        $field = new xmldb_field('enable_combinator', XMLDB_TYPE_INTEGER, '1', null, false, null, null, 'test_splitter_re');
 
         // Conditionally launch add field enable_combinator.
         if (!$dbman->field_exists($table, $field)) {
@@ -180,7 +180,7 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
 
         foreach (array('showtest', 'showstdin', 'showexpected', 'showoutput', 'showmark') as $fieldname) {
             $default = $fieldname === 'showmark' ? 0 : 1;
-            $field = new xmldb_field($fieldname, XMLDB_TYPE_INTEGER, '1', XMLDB_UNSIGNED, FALSE, null, $default);
+            $field = new xmldb_field($fieldname, XMLDB_TYPE_INTEGER, '1', XMLDB_UNSIGNED, false, null, $default);
             $dbman->change_field_notnull($table, $field);  // Make it inheritable by making notnull false
         }
 
@@ -191,7 +191,7 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
 
     if ($oldversion != 0 && $oldversion < 2014021502) {
         $table = new xmldb_table('quest_coderunner_options');
-        $field = new xmldb_field('penalty_regime', XMLDB_TYPE_CHAR, '255', XMLDB_UNSIGNED, FALSE, null, null);
+        $field = new xmldb_field('penalty_regime', XMLDB_TYPE_CHAR, '255', XMLDB_UNSIGNED, false, null, null);
         // Conditionally launch add field enable_combinator.
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
@@ -242,7 +242,7 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         // Fix screw up in version numbers resulting in broken DB upgrade
         update_to_use_prototypes();
         $table = new xmldb_table('quest_coderunner_options');
-        $field = new xmldb_field('enable_combinator', XMLDB_TYPE_INTEGER, '1', null, FALSE, null, null, 'test_splitter_re');
+        $field = new xmldb_field('enable_combinator', XMLDB_TYPE_INTEGER, '1', null, false, null, null, 'test_splitter_re');
 
         // Conditionally launch add field enable_combinator.
         if (!$dbman->field_exists($table, $field)) {
@@ -256,7 +256,7 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
 
         foreach (array('showtest', 'showstdin', 'showexpected', 'showoutput', 'showmark') as $fieldname) {
             $default = $fieldname === 'showmark' ? 0 : 1;
-            $field = new xmldb_field($fieldname, XMLDB_TYPE_INTEGER, '1', XMLDB_UNSIGNED, FALSE, null, $default);
+            $field = new xmldb_field($fieldname, XMLDB_TYPE_INTEGER, '1', XMLDB_UNSIGNED, false, null, $default);
             $dbman->change_field_notnull($table, $field);  // Make it inheritable by making notnull false
         }
 
@@ -392,7 +392,7 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
     
     updateQuestionTypes();
             
-    return TRUE;
+    return true;
 
 }
 
@@ -470,7 +470,7 @@ function updateQuestionTypes() {
     // Find id of CR_PROTOTYPES category
     global $DB, $CFG;
     
-    $success = TRUE;
+    $success = true;
     $systemcontext = context_system::instance();
     $systemcontextid = $systemcontext->id;
     if (!$systemcontextid) {
@@ -532,9 +532,9 @@ function load_questions($category, $importfilename, $contextId) {
     $qformat->setFilename($importfilename);
     $qformat->setRealfilename($importfilename);
     $qformat->setMatchgrades('error');
-    $qformat->setCatfromfile(FALSE);
-    $qformat->setContextfromfile(FALSE);
-    $qformat->setStoponerror(TRUE);
+    $qformat->setCatfromfile(false);
+    $qformat->setContextfromfile(false);
+    $qformat->setStoponerror(true);
 
     // Do anything before that we need to
     if (!$qformat->importpreprocess()) {

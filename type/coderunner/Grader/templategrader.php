@@ -1,5 +1,6 @@
 <?php
-/** The TemplateGrader class. This is a dummy grader that takes the output
+/** The qtype_coderunner_per_test_template_grader class.
+ *  This is a dummy grader that takes the output
  *  from the test to be an actual grading result encoded as a JSON object.
  *  This is used when the per-test-template is set up to do the grading in
  *  addition to the actual test run (if such a thing is needed).
@@ -13,7 +14,7 @@
  */
 
 require_once('graderbase.php');
-class TemplateGrader extends Grader {
+class qtype_coderunner_per_test_template_grader extends qtype_coderunner_grader {
 
     /** Called to grade the output from a given testcase run when
      *  the template was used to generate a program that does both the test
@@ -27,14 +28,14 @@ class TemplateGrader extends Grader {
         if ($result === NULL || !isset($result->fraction) || !is_numeric($result->fraction)) {
             $errorMessage = "Bad grading result from template:'" . $output . "'";
             $outcome = new TestResult(
-                    Grader::tidy($testcase->testcode),
+                    qtype_coderunner_grader::tidy($testcase->testcode),
                     $testcase->mark,
-                    FALSE,
+                    false,
                     0.0,
-                    Grader::tidy($testcase->expected),
+                    qtype_coderunner_grader::tidy($testcase->expected),
                     $errorMessage,
-                    Grader::tidy($testcase->stdin),
-                    Grader::tidy($testCase->extra)
+                    qtype_coderunner_grader::tidy($testcase->stdin),
+                    qtype_coderunner_grader::tidy($testCase->extra)
             );
         } else {
             // First copy any missing fields from test case into result
@@ -49,17 +50,17 @@ class TemplateGrader extends Grader {
             if (!isset($result->got)) {
                 $result->got = '';
             }
-            $result->isCorrect =  abs($result->fraction - 1.0) < 0.000001;
+            $result->iscorrect =  abs($result->fraction - 1.0) < 0.000001;
 
             $outcome = new TestResult(
-                Grader::tidy($result->testcode),
+                qtype_coderunner_grader::tidy($result->testcode),
                 $result->mark,
-                $result->isCorrect,
+                $result->iscorrect,
                 $result->awarded,
-                Grader::tidy($result->expected),
-                Grader::tidy($result->got),
-                Grader::tidy($result->stdin),
-                Grader::tidy($result->extra)
+                qtype_coderunner_grader::tidy($result->expected),
+                qtype_coderunner_grader::tidy($result->got),
+                qtype_coderunner_grader::tidy($result->stdin),
+                qtype_coderunner_grader::tidy($result->extra)
             );
             
             /* To accommodate generalised template graders that need to

@@ -23,11 +23,11 @@ class qtype_coderunner_jobesandbox_test extends qtype_coderunner_testcase {
     public function test_languages() {
         $this->check_sandbox_enabled('jobesandbox');
         $sandbox = new JobeSandbox(); 
-        $langObj = $sandbox->getLanguages();
+        $langObj = $sandbox->get_languages();
         $this->assertEquals(0, $langObj->error);
         $langs = $langObj->languages;
-        $this->assertTrue(in_array('python3', $langs, TRUE));
-        $this->assertTrue(in_array('c', $langs, TRUE));
+        $this->assertTrue(in_array('python3', $langs, true));
+        $this->assertTrue(in_array('c', $langs, true));
     }
 
 
@@ -98,7 +98,7 @@ print(open('second.bb').read())
         $code = "#include <stdio.h>\nint main(): {\n    printf(\"Hello sandbox\");\n    return 0;\n}\n";
         $result = $sandbox->execute($code, 'c', NULL);
         $this->assertEquals(Sandbox::RESULT_COMPILATION_ERROR, $result->result);
-        $this->assertTrue(strpos($result->cmpinfo, 'error:') !== FALSE);
+        $this->assertTrue(strpos($result->cmpinfo, 'error:') !== false);
         $sandbox->close();
     }
 
@@ -120,7 +120,7 @@ print(open('second.bb').read())
     public function test_jobe_sandbox_ok_java() {
         $this->check_sandbox_enabled('jobesandbox');
         $sandbox = new JobeSandbox();
-        $langs = $sandbox->getLanguages()->languages;
+        $langs = $sandbox->get_languages()->languages;
         if (!in_array('java', $langs)) {
             $this->markTestSkipped('Java not available on the Jobe server. ' .
                     'Test skipped');

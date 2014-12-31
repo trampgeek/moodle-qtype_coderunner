@@ -23,9 +23,9 @@ class qtype_coderunner_liusandbox_test extends qtype_coderunner_testcase {
         $this->assertEquals(3.14, $tr->pi);
         $this->assertEquals(42, $tr->answerToLifeAndEverything);
         $this->assertTrue($tr->oOok);
-        $langs = $sandbox->getLanguages();
+        $langs = $sandbox->get_languages();
         $langs = $langs->languages;
-        $this->assertTrue(in_array('c', $langs, TRUE));
+        $this->assertTrue(in_array('c', $langs, true));
     }
 
     public function test_liu_sandbox_raw() {
@@ -79,7 +79,7 @@ class qtype_coderunner_liusandbox_test extends qtype_coderunner_testcase {
         $code = "#include <stdio.h>\nint main(): {\n    printf(\"Hello sandbox\");\n    return 0;\n}\n";
         $result = $sandbox->execute($code, 'C', NULL);
         $this->assertEquals(Sandbox::RESULT_COMPILATION_ERROR, $result->result);
-        $this->assertTrue(strpos($result->cmpinfo, 'error:') !== FALSE);
+        $this->assertTrue(strpos($result->cmpinfo, 'error:') !== false);
         $sandbox->close();
     }
 

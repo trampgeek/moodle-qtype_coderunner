@@ -66,7 +66,7 @@ class qtype_coderunner_pythonquestions_test extends qtype_coderunner_testcase {
         $testOutcome = unserialize($cache['_testoutcome']);
         $this->assertFalse($testOutcome->hasSyntaxError());
         foreach ($testOutcome->testResults as $tr) {
-            $this->assertTrue($tr->isCorrect);
+            $this->assertTrue($tr->iscorrect);
         }
     }
 
@@ -107,7 +107,7 @@ class qtype_coderunner_pythonquestions_test extends qtype_coderunner_testcase {
         $this->assertTrue(isset($cache['_testoutcome']));
         $testOutcome = unserialize($cache['_testoutcome']);
         $this->assertEquals(1, count($testOutcome->testResults));
-        $this->assertFalse($testOutcome->testResults[0]->isCorrect);
+        $this->assertFalse($testOutcome->testResults[0]->iscorrect);
     }
 
 
@@ -133,7 +133,7 @@ class qtype_coderunner_pythonquestions_test extends qtype_coderunner_testcase {
         $this->assertTrue(isset($cache['_testoutcome']));
         $testOutcome = unserialize($cache['_testoutcome']);
         $this->assertEquals(1, count($testOutcome->testResults));
-        $this->assertFalse($testOutcome->testResults[0]->isCorrect);
+        $this->assertFalse($testOutcome->testResults[0]->iscorrect);
     }
 
 
@@ -148,8 +148,8 @@ class qtype_coderunner_pythonquestions_test extends qtype_coderunner_testcase {
         $this->assertTrue(isset($cache['_testoutcome']));
         $testOutcome = unserialize($cache['_testoutcome']);
         $this->assertEquals(3, count($testOutcome->testResults));
-        $this->assertTrue($testOutcome->testResults[0]->isCorrect);
-        $this->assertFalse($testOutcome->testResults[2]->isCorrect);
+        $this->assertTrue($testOutcome->testResults[0]->iscorrect);
+        $this->assertFalse($testOutcome->testResults[2]->iscorrect);
     }
 
 
@@ -170,7 +170,7 @@ EOCODE;
         $testOutcome = unserialize($cache['_testoutcome']);
         $this->assertEquals(5, count($testOutcome->testResults));
         foreach ($testOutcome->testResults as $tr) {
-            $this->assertTrue($tr->isCorrect);
+            $this->assertTrue($tr->iscorrect);
         }
     }
 
@@ -188,7 +188,7 @@ EOCODE;
         $testOutcome = unserialize($cache['_testoutcome']);
         $this->assertEquals(4, count($testOutcome->testResults));
         foreach ($testOutcome->testResults as $tr) {
-            $this->assertTrue($tr->isCorrect);
+            $this->assertTrue($tr->iscorrect);
         }
     }
 
@@ -210,12 +210,12 @@ EOCODE;
         $this->assertTrue(isset($cache['_testoutcome']));
         $testOutcome = unserialize($cache['_testoutcome']);
         $this->assertEquals(5, count($testOutcome->testResults));
-        $this->assertTrue($testOutcome->testResults[0]->isCorrect);
-        $this->assertTrue($testOutcome->testResults[1]->isCorrect);
-        $this->assertTrue($testOutcome->testResults[2]->isCorrect);
-        $this->assertTrue($testOutcome->testResults[3]->isCorrect);
-        $this->assertFalse($testOutcome->testResults[4]->isCorrect);
-        $this->assertTrue(strpos($testOutcome->testResults[4]->got, 'EOFError') !== FALSE);
+        $this->assertTrue($testOutcome->testResults[0]->iscorrect);
+        $this->assertTrue($testOutcome->testResults[1]->iscorrect);
+        $this->assertTrue($testOutcome->testResults[2]->iscorrect);
+        $this->assertTrue($testOutcome->testResults[3]->iscorrect);
+        $this->assertFalse($testOutcome->testResults[4]->iscorrect);
+        $this->assertTrue(strpos($testOutcome->testResults[4]->got, 'EOFError') !== false);
      }
 
 
@@ -231,8 +231,8 @@ EOCODE;
         $this->assertTrue(isset($cache['_testoutcome']));
         $testOutcome = unserialize($cache['_testoutcome']);
         $this->assertEquals(1, count($testOutcome->testResults));
-        $this->assertFalse($testOutcome->testResults[0]->isCorrect);
-        $this->assertTrue(strpos($testOutcome->testResults[0]->got, 'Time limit exceeded') !== FALSE);
+        $this->assertFalse($testOutcome->testResults[0]->iscorrect);
+        $this->assertTrue(strpos($testOutcome->testResults[0]->got, 'Time limit exceeded') !== false);
      }
 
 
