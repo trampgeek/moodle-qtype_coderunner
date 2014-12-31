@@ -16,7 +16,7 @@ require_once 'HTTP/Request2.php';
 
 define('DEBUGGING', '0');
 
-class JobeSandbox extends Sandbox {
+class qtype_coderunner_jobesandbox extends Sandbox {
 
     var $languages = NULL;   // Languages supported by this sandbox
     var $status = NULL;      // Status as set by constructor

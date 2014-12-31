@@ -22,7 +22,7 @@ class qtype_coderunner_jobesandbox_test extends qtype_coderunner_testcase {
 
     public function test_languages() {
         $this->check_sandbox_enabled('jobesandbox');
-        $sandbox = new JobeSandbox(); 
+        $sandbox = new qtype_coderunner_jobesandbox(); 
         $langObj = $sandbox->get_languages();
         $this->assertEquals(0, $langObj->error);
         $langs = $langObj->languages;
@@ -36,7 +36,7 @@ class qtype_coderunner_jobesandbox_test extends qtype_coderunner_testcase {
         // with a valid python3 program.
         $this->check_sandbox_enabled('jobesandbox');
         $source = 'print("Hello sandbox!")';
-        $sandbox = new JobeSandbox();
+        $sandbox = new qtype_coderunner_jobesandbox();
         $result = $sandbox->execute($source, 'python3', '');
         $this->assertEquals(Sandbox::OK, $result->error);
         $this->assertEquals(Sandbox::RESULT_SUCCESS, $result->result);
@@ -52,7 +52,7 @@ class qtype_coderunner_jobesandbox_test extends qtype_coderunner_testcase {
     public function test_jobesandbox_python3_bad() {
         $this->check_sandbox_enabled('jobesandbox');
         $source = "print('Hello sandbox!'):\n";
-        $sandbox = new JobeSandbox();
+        $sandbox = new qtype_coderunner_jobesandbox();
         $result = $sandbox->execute($source, 'python3', '');
         $this->assertEquals(Sandbox::RESULT_COMPILATION_ERROR, $result->result);
         $sandbox->close();
@@ -64,7 +64,7 @@ class qtype_coderunner_jobesandbox_test extends qtype_coderunner_testcase {
         $source = "print(open('first.a').read())
 print(open('second.bb').read())
 ";
-        $sandbox = new JobeSandbox();
+        $sandbox = new qtype_coderunner_jobesandbox();
         $result = $sandbox->execute($source, 'python3', '',
                 array('first.a' => "Line1\nLine2",
                       'second.bb' => 'Otherfile'));
@@ -81,7 +81,7 @@ print(open('second.bb').read())
         // with a python3 program that loops.
         $this->check_sandbox_enabled('jobesandbox');
         $source = "while 1: pass\n";
-        $sandbox = new JobeSandbox();
+        $sandbox = new qtype_coderunner_jobesandbox();
         $result = $sandbox->execute($source, 'python3', '');
         $this->assertEquals(Sandbox::RESULT_TIME_LIMIT, $result->result);
         $this->assertEquals('', $result->output);
@@ -94,7 +94,7 @@ print(open('second.bb').read())
     // Test the jobe sandbox with a syntactically bad C program
     public function test_jobe_sandbox_bad_C() {
         $this->check_sandbox_enabled('jobesandbox');
-        $sandbox = new JobeSandbox();
+        $sandbox = new qtype_coderunner_jobesandbox();
         $code = "#include <stdio.h>\nint main(): {\n    printf(\"Hello sandbox\");\n    return 0;\n}\n";
         $result = $sandbox->execute($code, 'c', NULL);
         $this->assertEquals(Sandbox::RESULT_COMPILATION_ERROR, $result->result);
@@ -105,7 +105,7 @@ print(open('second.bb').read())
     // Test the jobe sandbox with a valid C program
     public function test_jobe_sandbox_ok_C() {
         $this->check_sandbox_enabled('jobesandbox');
-        $sandbox = new JobeSandbox();
+        $sandbox = new qtype_coderunner_jobesandbox();
         $code = "#include <stdio.h>\nint main() {\n    printf(\"Hello sandbox\\n\");\n    return 0;\n}\n";
         $result = $sandbox->execute($code, 'c', NULL);
         $this->assertEquals(Sandbox::RESULT_SUCCESS, $result->result);
@@ -119,7 +119,7 @@ print(open('second.bb').read())
     // Test the jobe sandbox with a valid java program
     public function test_jobe_sandbox_ok_java() {
         $this->check_sandbox_enabled('jobesandbox');
-        $sandbox = new JobeSandbox();
+        $sandbox = new qtype_coderunner_jobesandbox();
         $langs = $sandbox->get_languages()->languages;
         if (!in_array('java', $langs)) {
             $this->markTestSkipped('Java not available on the Jobe server. ' .

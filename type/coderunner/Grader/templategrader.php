@@ -14,7 +14,7 @@
  */
 
 require_once('graderbase.php');
-class qtype_coderunner_per_test_template_grader extends qtype_coderunner_grader {
+class qtype_coderunner_template_grader extends qtype_coderunner_grader {
 
     /** Called to grade the output from a given testcase run when
      *  the template was used to generate a program that does both the test

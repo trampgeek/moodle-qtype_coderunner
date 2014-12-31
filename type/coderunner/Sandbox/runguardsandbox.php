@@ -47,12 +47,12 @@ define('MAX_READ', 4096);  // Max bytes to read in popen
 //
 // ==============================================================
 
-class RunguardSandbox extends LocalSandbox {
+class qtype_coderunner_runguardsandbox extends qtype_coderunner_localsandbox {
 
     public static $default_numprocs = 200;    // Number of processes/threads
 
     public function __construct($user=NULL, $pass=NULL) {
-        LocalSandbox::__construct($user, $pass);
+        parent::__construct($user, $pass);
     }
 
     public function get_languages() {

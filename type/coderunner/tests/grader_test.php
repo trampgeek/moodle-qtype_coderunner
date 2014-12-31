@@ -1,5 +1,5 @@
 <?php
-// Tests of various graders other than the default 'EqualityGrader', which
+// Tests of various graders other than the default 'equality grader', which
 // is extensively tested by the other tests.
 
 /**

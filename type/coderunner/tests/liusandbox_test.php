@@ -17,7 +17,7 @@ class qtype_coderunner_liusandbox_test extends qtype_coderunner_testcase {
 
     public function test_testfunction() {
         $this->check_sandbox_enabled('liusandbox');
-        $sandbox = new LiuSandbox();
+        $sandbox = new qtype_coderunner_liusandbox();
         $tr = $sandbox->testFunction();
         $this->assertEquals(Sandbox::OK, $tr->error);
         $this->assertEquals(3.14, $tr->pi);
@@ -75,7 +75,7 @@ class qtype_coderunner_liusandbox_test extends qtype_coderunner_testcase {
     // Test the liu sandbox with a syntactically bad C program
     public function test_liu_sandbox_bad_C() {
         $this->check_sandbox_enabled('liusandbox');
-        $sandbox = new LiuSandbox();
+        $sandbox = new qtype_coderunner_liusandbox();
         $code = "#include <stdio.h>\nint main(): {\n    printf(\"Hello sandbox\");\n    return 0;\n}\n";
         $result = $sandbox->execute($code, 'C', NULL);
         $this->assertEquals(Sandbox::RESULT_COMPILATION_ERROR, $result->result);
@@ -86,7 +86,7 @@ class qtype_coderunner_liusandbox_test extends qtype_coderunner_testcase {
     // Test the liu sandbox with a valid C program
     public function test_liu_sandbox_ok_C() {
         $this->check_sandbox_enabled('liusandbox');
-        $sandbox = new LiuSandbox();
+        $sandbox = new qtype_coderunner_liusandbox();
         $code = "#include <stdio.h>\nint main() {\n    printf(\"Hello sandbox\\n\");\n    return 0;\n}\n";
         $result = $sandbox->execute($code, 'C', NULL);
         $this->assertEquals(Sandbox::RESULT_SUCCESS, $result->result);
@@ -99,7 +99,7 @@ class qtype_coderunner_liusandbox_test extends qtype_coderunner_testcase {
     // Test the liu sandbox will allow opening, writing and reading in the current dir
     public function test_liu_sandbox_fileio_in_cwd() {
         $this->check_sandbox_enabled('liusandbox');
-        $sandbox = new LiuSandbox();
+        $sandbox = new qtype_coderunner_liusandbox();
         $code =
 "#include <stdio.h>
  int main() {
@@ -125,7 +125,7 @@ class qtype_coderunner_liusandbox_test extends qtype_coderunner_testcase {
     // Test the liu sandbox will not allow opening, writing and reading in /tmp
     public function test_liu_sandbox_fileio_bad() {
         $this->check_sandbox_enabled('liusandbox');
-        $sandbox = new LiuSandbox();
+        $sandbox = new qtype_coderunner_liusandbox();
         $code =
 "#include <stdio.h>
  int main() {
@@ -148,7 +148,7 @@ class qtype_coderunner_liusandbox_test extends qtype_coderunner_testcase {
     // Test the liu sandbox with a timeout error
     public function test_liu_sandbox_timeout() {
         $this->check_sandbox_enabled('liusandbox');
-        $sandbox = new LiuSandbox();
+        $sandbox = new qtype_coderunner_liusandbox();
         $code = "#include <stdio.h>
 int main() {
   while(1) {}
@@ -166,7 +166,7 @@ int main() {
     // Test the liu sandbox with a memory limit error
     public function test_liu_sandbox_memlimit() {
         $this->check_sandbox_enabled('liusandbox');
-        $sandbox = new LiuSandbox();
+        $sandbox = new qtype_coderunner_liusandbox();
         $code = "#include <stdlib.h>
 int main() {
   char* p;

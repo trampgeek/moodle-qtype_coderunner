@@ -140,7 +140,7 @@ abstract class LanguageTask {
 //
 //******************************************************************
 
-abstract class LocalSandbox extends Sandbox {
+abstract class qtype_coderunner_localsandbox extends Sandbox {
 
     private static $currentRunId = '99';  // The only one we ever use
     protected $date = NULL;         // Current date/time

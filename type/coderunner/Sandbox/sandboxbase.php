@@ -1,5 +1,8 @@
 <?php
 /** The base class for the CodeRunner Sandbox classes.
+ *  Sandboxes have an external name, which appears in the exported .xml question
+ *  files for example, and a classname and a filename in which the class is
+ *  defined.
  *  Essentially just defines the API, which is heavily based on the ideone
  *  API, which should be consulted for details:
  *  see ideone.com/files/ideone-api.pdf
@@ -27,11 +30,11 @@ abstract class Sandbox {
     
     // First the error codes from the initial create_submission call. Any
     // value other than OK is fatal.
-    const OK           = 0;
-    const AUTH_ERROR   = 1;
-    const PASTE_NOT_FOUND = 2;  // Link to a non-existent submission
-    const WRONG_LANG_ID   = 3;  // No such language
-    const ACCESS_DENIED   = 4;  // Only if using ideone or jobe
+    const OK                = 0;
+    const AUTH_ERROR        = 1;
+    const PASTE_NOT_FOUND   = 2;  // Link to a non-existent submission
+    const WRONG_LANG_ID     = 3;  // No such language
+    const ACCESS_DENIED     = 4;  // Only if using ideone or jobe
     const CANNOT_SUBMIT_THIS_MONTH_ANYMORE = 5; // Ideone only
     const CREATE_SUBMISSION_FAILED = 6; // Failed on call to CREATE_SUBMISSION
     const UNKNOWN_SERVER_ERROR = 7;
@@ -45,20 +48,20 @@ abstract class Sandbox {
 
     // Values of the result 'attribute' of the object returned by a call to
     // get submissionStatus.
-    const RESULT_NO_RUN      = 0;
-    const RESULT_SUCCESS2    = 0; // Used by Jobe
-    const RESULT_COMPILATION_ERROR = 11;
-    const RESULT_RUNTIME_ERROR = 12;
-    const RESULT_TIME_LIMIT   = 13;
-    const RESULT_SUCCESS      = 15;
-    const RESULT_MEMORY_LIMIT    = 17;
-    const RESULT_ILLEGAL_SYSCALL = 19;
-    const RESULT_INTERNAL_ERR = 20;
+    const RESULT_NO_RUN             = 0;
+    const RESULT_SUCCESS2           = 0; // Used by Jobe
+    const RESULT_COMPILATION_ERROR  = 11;
+    const RESULT_RUNTIME_ERROR      = 12;
+    const RESULT_TIME_LIMIT         = 13;
+    const RESULT_SUCCESS            = 15;
+    const RESULT_MEMORY_LIMIT       = 17;
+    const RESULT_ILLEGAL_SYSCALL    = 19;
+    const RESULT_INTERNAL_ERR       = 20;
 
     // Additions to ideone API for Liu Sandbox compatibility
-    const RESULT_SANDBOX_PENDING = 21; // Sandbox PD error
-    const RESULT_SANDBOX_POLICY = 22; // Sandbox BP error
-    const RESULT_OUTPUT_LIMIT = 30;
+    const RESULT_SANDBOX_PENDING    = 21; // Sandbox PD error
+    const RESULT_SANDBOX_POLICY     = 22; // Sandbox BP error
+    const RESULT_OUTPUT_LIMIT       = 30;
     const RESULT_ABNORMAL_TERMINATION = 31;
     
 
@@ -76,6 +79,34 @@ abstract class Sandbox {
     public static $default_files = NULL;     // Associative array of data files
     
     protected $params = NULL;       // Associative array of run params
+    
+    
+    /**
+     * A list of available standboxes. Keys are the externally known sandbox names
+     * as they appear in the exported questions, values are the associated
+     * class names. File names are the same as the class names with the
+     * leading qtype_coderunner and all underscores removed.
+     * @return array 
+     */
+    public static function available_sandboxes() {
+        return array('jobesandbox'      => 'qtype_coderunner_jobesandbox',
+                     'liusandbox'       => 'qtype_coderunner_liusandbox',
+                     'runguardsandbox'  => 'qtype_coderunner_runguardsandbox',
+                     'ideonesandbox'    => 'qtype_coderunner_ideonesandbox'
+                );
+
+    }
+    
+    /**
+     * Get the filename containing the given external sandbox name
+     * @param string $externalsandboxname
+     * @return string $filename
+     */
+    public static function get_filename($extsandboxname) {
+        $classname = self::available_sandboxes()[$extsandboxname];
+        return str_replace('_', '', str_replace('qtype_coderunner_', '', $classname)) . '.php';
+    }
+    
         
     public function __construct($user=NULL, $pass=NULL) {
         $this->user = $user;

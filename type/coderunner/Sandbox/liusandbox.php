@@ -22,7 +22,7 @@ require_once('liusandboxtasks.php');
 // ==============================================================
 
 
-class LiuSandbox extends LocalSandbox {
+class qtype_coderunner_liusandbox extends qtype_coderunner_localsandbox {
     private $LANGUAGES = array('c');
 
     private $RESULT_CODES = array(
@@ -39,7 +39,7 @@ class LiuSandbox extends LocalSandbox {
     );
 
     public function __construct($user=NULL, $pass=NULL) {
-        LocalSandbox::__construct($user, $pass);
+        qtype_coderunner_localsandbox::__construct($user, $pass);
     }
 
     public function get_languages() {

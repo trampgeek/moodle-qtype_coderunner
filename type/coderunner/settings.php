@@ -25,15 +25,16 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->dirroot . '/question/type/coderunner/Sandbox/sandbox_config.php');
-global $SANDBOXES;
+require_once($CFG->dirroot . '/question/type/coderunner/Sandbox/sandboxbase.php');
 
-foreach ($SANDBOXES as $sandbox) {
+$sandboxes = Sandbox::available_sandboxes();
+foreach ($sandboxes as $sandbox=>$classname) {
     $settings->add(new admin_setting_configcheckbox(
         "qtype_coderunner/{$sandbox}_enabled",
         get_string('enable', 'qtype_coderunner') . ' ' .$sandbox,
         get_string('enable_sandbox_desc', 'qtype_coderunner'),
-        $sandbox === 'jobesandbox'));
+        $sandbox === 'jobesandbox')  //Only jobesandbox is enabled by default
+    );
 }
 
 $settings->add(new admin_setting_configtext(

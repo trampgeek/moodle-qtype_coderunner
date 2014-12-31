@@ -514,7 +514,6 @@ class qtype_coderunner_edit_form extends question_edit_form {
     // customises the question. The fields in this part of the form are much more
    // advanced and not recommended for most users. 
     private function make_advanced_customisation_panel(&$mform) {
-        global $SANDBOXES;
         $mform->addElement('header', 'advancedcustomisationheader',
                 get_string('advanced_customisation','qtype_coderunner'));
 
@@ -539,8 +538,9 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
         $sandboxControls = array();
 
-        $sandboxes = array('DEFAULT' => 'DEFAULT');
-        foreach ($SANDBOXES as $box) {
+        $sandboxes = array('DEFAULT' => 'DEFAULT') + 
+            Sandbox::availableSandboxes();
+        foreach ($sandboxes as $box) {
             $sandboxes[$box] = $box;
         }
 

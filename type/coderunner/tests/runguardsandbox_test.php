@@ -19,7 +19,7 @@ class qtype_coderunner_runguardsandbox_test extends qtype_coderunner_testcase {
 
     public function test_testfunction() {
         $this->check_sandbox_enabled('runguardsandbox');
-        $sandbox = new runguardsandbox();
+        $sandbox = new qtype_coderunner_runguardsandbox();
         $tr = $sandbox->testFunction();
         $this->assertEquals(Sandbox::OK, $tr->error);
         $this->assertEquals(3.14, $tr->pi);
@@ -36,7 +36,7 @@ class qtype_coderunner_runguardsandbox_test extends qtype_coderunner_testcase {
     // Test the runguardsandbox class at the PHP level with a good Python2 program
     public function test_runguardsandbox_ok_python2() {
         $this->check_sandbox_enabled('runguardsandbox');
-        $sandbox = new runguardsandbox();
+        $sandbox = new qtype_coderunner_runguardsandbox();
         $code = "print 'Hello Sandbox'\nprint 'Python rulz'";
         $result = $sandbox->execute($code, 'python2', NULL);
         $this->assertEquals(Sandbox::RESULT_SUCCESS, $result->result);
@@ -51,7 +51,7 @@ class qtype_coderunner_runguardsandbox_test extends qtype_coderunner_testcase {
     // program 'runs' but terminates abnormally with a syntax error.
     public function test_runguardsandbox_syntax_error_python2() {
         $this->check_sandbox_enabled('runguardsandbox');
-        $sandbox = new runguardsandbox();
+        $sandbox = new qtype_coderunner_runguardsandbox();
         $code = "print 'Hello Sandbox'\nprint 'Python rulz' + ";
         $result = $sandbox->execute($code, 'python2', NULL);
         $this->assertEquals(Sandbox::RESULT_ABNORMAL_TERMINATION, $result->result);
@@ -65,7 +65,7 @@ class qtype_coderunner_runguardsandbox_test extends qtype_coderunner_testcase {
     // signal 9.
     public function test_runguardsandbox_timeout() {
         $this->check_sandbox_enabled('runguardsandbox');
-        $sandbox = new runguardsandbox();
+        $sandbox = new qtype_coderunner_runguardsandbox();
         $code = "while True: pass";
         $result = $sandbox->execute($code, 'python2', NULL);
         $this->assertEquals(Sandbox::RESULT_TIME_LIMIT, $result->result);
@@ -78,7 +78,7 @@ class qtype_coderunner_runguardsandbox_test extends qtype_coderunner_testcase {
     // Test the runguardsandbox with a memory limit error
     public function test_runguardsandbox_memlimit() {
         $this->check_sandbox_enabled('runguardsandbox');
-        $sandbox = new runguardsandbox();
+        $sandbox = new qtype_coderunner_runguardsandbox();
         $code = "data = list(range(1,100000000000))";
         $result = $sandbox->execute($code, 'python2', NULL);
         $this->assertEquals(Sandbox::RESULT_ABNORMAL_TERMINATION, $result->result);
@@ -95,7 +95,7 @@ class qtype_coderunner_runguardsandbox_test extends qtype_coderunner_testcase {
     // of runguard.
     public function test_runguardsandbox_excessiveoutput() {
         $this->check_sandbox_enabled('runguardsandbox');
-        $sandbox = new runguardsandbox();
+        $sandbox = new qtype_coderunner_runguardsandbox();
         $code = "while 1: print('blah blah blah blah blah blah blah')";
         $result = $sandbox->execute($code, 'python3', NULL);
         $this->assertEquals(Sandbox::RESULT_TIME_LIMIT, $result->result);

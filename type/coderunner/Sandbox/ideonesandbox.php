@@ -12,7 +12,7 @@
 require_once('sandboxbase.php');
 
 
-class IdeoneSandbox extends Sandbox {
+class qtype_coderunner_ideonesandbox extends Sandbox {
 
     var $client = NULL;  // The soap client referencing ideone.com
     var $langMap = NULL;   // Languages supported by this sandbox: map from name to id
