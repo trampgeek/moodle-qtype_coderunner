@@ -47,8 +47,8 @@ class qtype_coderunner_matlab_question_test extends qtype_coderunner_testcase {
         $this->assertEquals(question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testOutcome = unserialize($cache['_testoutcome']);
-        $this->assertEquals(4, count($testOutcome->testResults));
-        $this->assertTrue($testOutcome->allCorrect());
+        $this->assertEquals(4, count($testOutcome->testresults));
+        $this->assertTrue($testOutcome->all_correct());
     }
 
 
@@ -61,8 +61,8 @@ class qtype_coderunner_matlab_question_test extends qtype_coderunner_testcase {
         $this->assertEquals(question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testOutcome = unserialize($cache['_testoutcome']);
-        $this->assertEquals(4, count($testOutcome->testResults));
-        $this->assertFalse($testOutcome->allCorrect());
+        $this->assertEquals(4, count($testOutcome->testresults));
+        $this->assertFalse($testOutcome->all_correct());
     }
 
 
@@ -75,8 +75,8 @@ class qtype_coderunner_matlab_question_test extends qtype_coderunner_testcase {
         $this->assertEquals(question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testOutcome = unserialize($cache['_testoutcome']);
-        $this->assertEquals(1, count($testOutcome->testResults));
-        $this->assertTrue(strpos($testOutcome->testResults[0]->got, "Abnormal termination") !== false);
+        $this->assertEquals(1, count($testOutcome->testresults));
+        $this->assertTrue(strpos($testOutcome->testresults[0]->got, "Abnormal termination") !== false);
     }
 
     public function test_student_answer_macro() {

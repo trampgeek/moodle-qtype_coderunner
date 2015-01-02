@@ -17,19 +17,19 @@ require_login();
 require_sesskey();
 
 $qtype  = required_param('qtype', PARAM_ALPHANUMEXT);
-$courseId = required_param('courseid', PARAM_INT);
+$courseid = required_param('courseid', PARAM_INT);
 
 header('Content-type: application/json; charset=utf-8');
 try {
-    $courseContext = context_course::instance($courseId);
-    $questionType = qtype_coderunner::getPrototype($qtype, $courseContext);
-    $questionType->success = true;
-    $questionType->error = '';
+    $coursecontext = context_course::instance($courseid);
+    $questiontype = qtype_coderunner::get_prototype($qtype, $coursecontext);
+    $questiontype->success = true;
+    $questiontype->error = '';
 } catch (moodle_exception $e) {
-    $questionType = new stdClass();
-    $questionType->success = false;
-    $questionType->error = "Prototype not found. " . $e->getMessage();
+    $questiontype = new stdClass();
+    $questiontype->success = false;
+    $questiontype->error = "Prototype not found. " . $e->getMessage();
 }
-echo json_encode($questionType);
+echo json_encode($questiontype);
 die();
 ?>

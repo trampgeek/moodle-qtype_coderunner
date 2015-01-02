@@ -31,7 +31,7 @@ class coderunner_exception extends moodle_exception {
      * @param string $debuginfo Information to aid the debugging process
      */
     function __construct($debuginfo) {
-        parent::__construct('coderunnererror', 'qtype_coderunner', '', NULL, $debuginfo);
+        parent::__construct('coderunnererror', 'qtype_coderunner', '', null, $debuginfo);
     }
 }
 
@@ -45,10 +45,10 @@ class coderunner_exception extends moodle_exception {
  * ace_lang field is used for the USER and the $question->language for the
  * template.
  */
-function load_ace_if_required($question, $textareaid, $which_lang) {
+function load_ace_if_required($question, $textareaid, $whichlang) {
     global $CFG, $PAGE;
     if ($question->use_ace) {
-        if ($which_lang === TEMPLATE_LANGUAGE ||
+        if ($whichlang === TEMPLATE_LANGUAGE ||
                empty($question->ace_lang)) {
             $lang = $question->language;
         } else {

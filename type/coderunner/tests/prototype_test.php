@@ -58,7 +58,7 @@ class qtype_coderunner_prototype_test extends qtype_coderunner_testcase {
         list($mark, $grade, $cache) = $result;
         $testOutcome = unserialize($cache['_testoutcome']);
 
-        $this->assertTrue($testOutcome->allCorrect());
+        $this->assertTrue($testOutcome->all_correct());
     }    
     
     

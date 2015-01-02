@@ -38,7 +38,7 @@ class qtype_coderunner_liusandbox extends qtype_coderunner_localsandbox {
             'BP' => Sandbox::RESULT_SANDBOX_POLICY // Shouldn't occur
     );
 
-    public function __construct($user=NULL, $pass=NULL) {
+    public function __construct($user=null, $pass=null) {
         qtype_coderunner_localsandbox::__construct($user, $pass);
     }
 

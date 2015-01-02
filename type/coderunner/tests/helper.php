@@ -794,7 +794,7 @@ EOPROG;
 
         if (!isset($question->sandbox)) {
             $question->sandbox = $question->get_best_sandbox($question->language);
-            if ($question->sandbox === NULL) {
+            if ($question->sandbox === null) {
                 throw new exception("TestHelper: no sandbox available for language {$question->language}");
             }
         }

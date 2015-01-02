@@ -16,7 +16,7 @@
 // When a combinator-template grader is used, there is no concept of per-test
 // case results, so there are no individual testResults and the feedback_html
 // field is defined instead.
-class TestingOutcome {
+class qtype_coderunner_testing_outcome {
     const STATUS_VALID = 1;         // A full set of test results is returned
     const STATUS_SYNTAX_ERROR = 2;  // The code (on any one test) didn't compile
     const STATUS_COMBINATOR_TEMPLATE_GRADER = 3;  // This is a combinator-template-grading result
@@ -25,80 +25,80 @@ class TestingOutcome {
 
     public $status;                  // One of the STATUS_ constants above
                                      // If this is not 1, subsequent fields may not be meaningful
-    public $errorCount;              // The number of failing test cases
-    public $maxPossMark;             // The maximum possible mark
-    public $runHost;                 // Host name of the front-end on which the run was done
-    public $actualMark;              // Actual mark (meaningful only if this is not an all_or_nothing question)
-    public $testResults;             // An array of TestResult objects
+    public $errorcount;              // The number of failing test cases
+    public $maxpossmark;             // The maximum possible mark
+    public $runhost;                 // Host name of the front-end on which the run was done
+    public $actualmark;              // Actual mark (meaningful only if this is not an all_or_nothing question)
+    public $testresults;             // An array of TestResult objects
     public $sourcecodelist;          // Array of all test runs
-    public $graderCodeList;          // Array of source code of all grader runs
-    public $feedback_html;           // Feedback defined by combinator-template-grader (subsumes testResults)
+    public $gradercodelist;          // Array of source code of all grader runs
+    public $feedbackhtml;           // Feedback defined by combinator-template-grader (subsumes testResults)
 
     public function __construct(
-            $maxPossMark,
-            $status=TestingOutcome::STATUS_VALID,
-            $errorMessage = '') {
+            $maxpossmark,
+            $status = self::STATUS_VALID,
+            $errormessage = '') {
 
         $this->status = $status;
-        $this->errorMessage = $errorMessage;
-        $this->errorCount = 0;
-        $this->actualMark = 0;
-        $this->maxPossMark = $maxPossMark;
-        $this->runHost = php_uname('n');  // Useful for debugging with multiple front-ends
-        $this->testResults = array();
+        $this->errorMessage = $errormessage;
+        $this->errorcount = 0;
+        $this->actualmark = 0;
+        $this->maxpossmark = $maxpossmark;
+        $this->runhost = php_uname('n');  // Useful for debugging with multiple front-ends
+        $this->testresults = array();
         $this->sourcecodelist = null;     // Array of all test runs on the sandbox
-        $this->graderCodeList = null;    // Array of all grader runs on the sandbox
-        $this->feedback_html = null;     // Used only by combinator template grader
+        $this->gradercodelist = null;    // Array of all grader runs on the sandbox
+        $this->feedbackhtml = null;     // Used only by combinator template grader
     }
     
     
-    public function runFailed() {
-        return $this->status === TestingOutcome::STATUS_SANDBOX_ERROR;
+    public function run_failed() {
+        return $this->status === self::STATUS_SANDBOX_ERROR;
     }
 
     
-    public function hasSyntaxError()  {
-        return $this->status === TestingOutcome::STATUS_SYNTAX_ERROR;
+    public function has_syntax_error()  {
+        return $this->status === self::STATUS_SYNTAX_ERROR;
     }
 
 
-    public function allCorrect() {
-        return $this->status !== TestingOutcome::STATUS_SYNTAX_ERROR && 
-               $this->status !== TestingOutcome::STATUS_SANDBOX_ERROR &&
-               $this->errorCount == 0;
+    public function all_correct() {
+        return $this->status !== self::STATUS_SYNTAX_ERROR && 
+               $this->status !== self::STATUS_SANDBOX_ERROR &&
+               $this->errorcount == 0;
     }
 
-    public function markAsFraction() {
+    public function mark_as_fraction() {
         // Need to ensure return exactly 1.0 for a right answer
-        if ($this->hasSyntaxError()) {
+        if ($this->has_syntax_error()) {
             return 0.0;
         }
         else {
-            return $this->errorCount == 0 ? 1.0 : $this->actualMark / $this->maxPossMark;
+            return $this->errorcount == 0 ? 1.0 : $this->actualmark / $this->maxpossmark;
         }
     }
 
     public function add_test_result($tr) {
-        $this->testResults[] = $tr;
-        $this->actualMark += $tr->awarded;
+        $this->testresults[] = $tr;
+        $this->actualmark += $tr->awarded;
         if (!$tr->iscorrect) {
-            $this->errorCount++;
+            $this->errorcount++;
         }
     }
     
     // Method used only by combinator template grader to set the mark and 
     // feedback  html.
     public function set_mark_and_feedback($mark, $html) {
-        $this->actualMark = $mark;
-        $this->feedback_html = $html;
-        if (abs($mark - $this->maxPossMark) > TestingOutcome::TOLERANCE) {
-            $this->errorCount += 1;
+        $this->actualmark = $mark;
+        $this->feedbackhtml = $html;
+        if (abs($mark - $this->maxpossmark) > self::TOLERANCE) {
+            $this->errorcount += 1;
         }
     }
 }
 
 
-class TestResult {
+class qtype_coderunner_test_result {
     // NB: there may be other attributes added by the template grader
     var $testcode;          // The test that was run (trimmed, snipped)
     var $iscorrect;         // True iff test passed fully (100%)
@@ -109,11 +109,11 @@ class TestResult {
     var $stdin;             // The standard input data (trimmed, snipped)
     var $extra;             // Extra data for use by some templates
 
-    public function __construct($test, $mark, $isCorrect, $awardedMark, $expected, $got, $stdin=NULL, $extra=NULL) {
+    public function __construct($test, $mark, $iscorrect, $awardedmark, $expected, $got, $stdin=null, $extra=null) {
         $this->testcode = $test;
         $this->mark = $mark;
-        $this->iscorrect = $isCorrect;
-        $this->awarded = $awardedMark;
+        $this->iscorrect = $iscorrect;
+        $this->awarded = $awardedmark;
         $this->expected = $expected;
         $this->got = $got;
         $this->stdin = $stdin;

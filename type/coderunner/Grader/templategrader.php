@@ -25,9 +25,9 @@ class qtype_coderunner_template_grader extends qtype_coderunner_grader {
      */
     function gradeKnownGood(&$output, &$testcase) {
         $result = json_decode($output);
-        if ($result === NULL || !isset($result->fraction) || !is_numeric($result->fraction)) {
+        if ($result === null || !isset($result->fraction) || !is_numeric($result->fraction)) {
             $errorMessage = "Bad grading result from template:'" . $output . "'";
-            $outcome = new TestResult(
+            $outcome = new qtype_coderunner_test_result(
                     qtype_coderunner_grader::tidy($testcase->testcode),
                     $testcase->mark,
                     false,
@@ -52,7 +52,7 @@ class qtype_coderunner_template_grader extends qtype_coderunner_grader {
             }
             $result->iscorrect =  abs($result->fraction - 1.0) < 0.000001;
 
-            $outcome = new TestResult(
+            $outcome = new qtype_coderunner_test_result(
                 qtype_coderunner_grader::tidy($result->testcode),
                 $result->mark,
                 $result->iscorrect,

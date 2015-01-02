@@ -76,9 +76,9 @@ abstract class Sandbox {
     public static $default_memorylimit = 64; // Max MB memory per run
     public static $default_disklimit = 10;   // Max MB disk usage
     public static $default_numprocs = 20;    // Number of processes/threads
-    public static $default_files = NULL;     // Associative array of data files
+    public static $default_files = null;     // Associative array of data files
     
-    protected $params = NULL;       // Associative array of run params
+    protected $params = null;       // Associative array of run params
     
     
     /**
@@ -108,7 +108,7 @@ abstract class Sandbox {
     }
     
         
-    public function __construct($user=NULL, $pass=NULL) {
+    public function __construct($user=null, $pass=null) {
         $this->user = $user;
         $this->pass = $pass;
         $authenticationError = false;
@@ -165,7 +165,7 @@ abstract class Sandbox {
      * @return type
      */
     protected function getParam($param) {
-        if ($this->params !== NULL && isset($this->params[$param])) {
+        if ($this->params !== null && isset($this->params[$param])) {
             return $this->params[$param];
         } else {
             $staticName = "default_$param";
@@ -187,7 +187,7 @@ abstract class Sandbox {
     // exactly the values defined by the ideone api, with a couple of additions.
     // The $files parameter is an addition to the Ideone-based interface to
     // allow for providing a set of files for use at runtime. It is an
-    // associative array mapping filename to filecontents (or NULL for no files).
+    // associative array mapping filename to filecontents (or null for no files).
     // The $params parameter is also an addition to the Ideone-based interface to
     // allow for setting sandbox parameters. It's an associative array, with
     // a sandbox-dependent set of keys, although all except the Ideone sandbox
@@ -195,7 +195,7 @@ abstract class Sandbox {
     // 'memorylimit' (in megabytes) and 'files' (an associative array mapping
     // filenames to string filecontents).
     abstract public function createSubmission($sourceCode, $language, $input,
-            $run=true, $private=true, $files=NULL, $params=NULL);
+            $run=true, $private=true, $files=null, $params=null);
 
     // Enquire about the status of the submission with the given 'link' (aka
     // handle. The return value is an object containing an error, a status and
@@ -217,14 +217,14 @@ abstract class Sandbox {
      * @param string $sourceCode The source file to compile and run
      * @param string $language  One of the languages regognised by the sandbox
      * @param string $input A string to use as standard input during execution
-     * @param associative array $files either NULL or a map from filename to
+     * @param associative array $files either null or a map from filename to
      *         file contents, defining a file context at execution time
      * @param associative array $params Sandbox parameters, depends on
      *         particular sandbox but most sandboxes should recognise
      *         at least cputime (secs), memorylimit (Megabytes) and
      *         files (an associative array mapping filenames to string
      *         filecontents.
-     *         If the $params array is NULL, sandbox defaults are used.
+     *         If the $params array is null, sandbox defaults are used.
      * @return an object with at least an attribute 'error'. This is one of the
      *         values 0 through 8 (OK to UNKNOWN_SERVER_ERROR) as defined above. If
      *         error is 0 (OK), the returned object has additional attributes
@@ -238,7 +238,7 @@ abstract class Sandbox {
      *             cmpinfo: the output from the compilation run (usually empty
      *                     unless the result code is for a compilation error).
      */
-    public function execute($sourceCode, $language, $input, $files=NULL, $params=NULL) {
+    public function execute($sourceCode, $language, $input, $files=null, $params=null) {
         $language = strtolower($language);
         if (!in_array($language, $this->get_languages()->languages)) {
             throw new coderunner_exception('Executing an unsupported language in sandbox');

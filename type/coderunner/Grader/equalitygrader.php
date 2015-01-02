@@ -33,10 +33,10 @@ class qtype_coderunner_equality_grader extends qtype_coderunner_grader {
         if ($testCase->stdin) {
             $resultStdin = qtype_coderunner_grader::tidy($testCase->stdin);
         } else {
-            $resultStdin = NULL;
+            $resultStdin = null;
         }
 
-        return new TestResult(
+        return new qtype_coderunner_test_result(
                 qtype_coderunner_grader::tidy($testCase->testcode),
                 $testCase->mark,
                 $isCorrect,

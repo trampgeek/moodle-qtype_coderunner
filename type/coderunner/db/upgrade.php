@@ -31,7 +31,7 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
     }
 
     if ($oldversion != 0 && $oldversion < 2013010301) {
-        // Allow NULL sandbox and validator fields
+        // Allow null sandbox and validator fields
         $table = new xmldb_table('quest_coderunner_types');
         $sandbox = new xmldb_field('sandbox', XMLDB_TYPE_CHAR, '255', XMLDB_UNSIGNED, false, null);
         $validator = new xmldb_field('validator', XMLDB_TYPE_CHAR, '255', XMLDB_UNSIGNED, false, null);
@@ -175,7 +175,7 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
 
         // Inherit combinator use on all except builtins and existing custom template questions
         $DB->execute("UPDATE {quest_coderunner_options}
-            SET enable_combinator = IF(per_test_template IS NOT NULL AND per_test_template != '', 0, NULL)
+            SET enable_combinator = IF(per_test_template IS NOT null AND per_test_template != '', 0, null)
             WHERE prototype_type = 0");
 
         foreach (array('showtest', 'showstdin', 'showexpected', 'showoutput', 'showmark') as $fieldname) {
@@ -251,7 +251,7 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
 
         // Inherit combinator use on all except builtins and existing custom template questions
         $DB->execute("UPDATE {quest_coderunner_options}
-            SET enable_combinator = IF(per_test_template IS NOT NULL AND per_test_template != '', 0, NULL)
+            SET enable_combinator = IF(per_test_template IS NOT null AND per_test_template != '', 0, null)
             WHERE prototype_type = 0");
 
         foreach (array('showtest', 'showstdin', 'showexpected', 'showoutput', 'showmark') as $fieldname) {
@@ -282,10 +282,10 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         // can't fix prototype_type as it's an index. No matter.)
         $table = new xmldb_table('quest_coderunner_options');
         $fields = array(
-            new xmldb_field('penalty_regime', XMLDB_TYPE_CHAR, '255', XMLDB_UNSIGNED, XMLDB_NOTNULL, NULL, ''),
-            // new xmldb_field('prototype_type', XMLDB_TYPE_INTEGER, '1', XMLDB_UNSIGNED, XMLDB_NOTNULL, NULL, 0),
-            new xmldb_field('answerbox_columns', XMLDB_TYPE_INTEGER, '5', XMLDB_UNSIGNED, XMLDB_NOTNULL, NULL, 100),
-            new xmldb_field('use_ace', XMLDB_TYPE_INTEGER, '1', XMLDB_UNSIGNED, XMLDB_NOTNULL, NULL, 1));
+            new xmldb_field('penalty_regime', XMLDB_TYPE_CHAR, '255', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, ''),
+            // new xmldb_field('prototype_type', XMLDB_TYPE_INTEGER, '1', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, 0),
+            new xmldb_field('answerbox_columns', XMLDB_TYPE_INTEGER, '5', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, 100),
+            new xmldb_field('use_ace', XMLDB_TYPE_INTEGER, '1', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, 1));
         foreach ($fields as $field) {
             $dbman->change_field_type($table, $field);
         }
@@ -328,7 +328,7 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         // [Repeated as omitted from xml file so needed to be added in after
         // a clean install]
         $table = new xmldb_table('quest_coderunner_options');
-        $field = new xmldb_field('sandbox_params', XMLDB_TYPE_CHAR, '255', XMLDB_UNSIGNED, NULL, NULL, NULL);
+        $field = new xmldb_field('sandbox_params', XMLDB_TYPE_CHAR, '255', XMLDB_UNSIGNED, null, null, null);
 
         // Conditionally launch add field sandbox_params.
         if (!$dbman->field_exists($table, $field)) {

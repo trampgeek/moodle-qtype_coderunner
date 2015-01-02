@@ -51,7 +51,7 @@ class qtype_coderunner_runguardsandbox extends qtype_coderunner_localsandbox {
 
     public static $default_numprocs = 200;    // Number of processes/threads
 
-    public function __construct($user=NULL, $pass=NULL) {
+    public function __construct($user=null, $pass=null) {
         parent::__construct($user, $pass);
     }
 

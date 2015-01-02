@@ -46,8 +46,8 @@ class qtype_coderunner_nodejs_question_test extends qtype_coderunner_testcase {
         $this->assertEquals(question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testOutcome = unserialize($cache['_testoutcome']);
-        $this->assertEquals(4, count($testOutcome->testResults));
-        $this->assertTrue($testOutcome->allCorrect());
+        $this->assertEquals(4, count($testOutcome->testresults));
+        $this->assertTrue($testOutcome->all_correct());
     }
 
 
@@ -61,7 +61,7 @@ class qtype_coderunner_nodejs_question_test extends qtype_coderunner_testcase {
         $this->assertEquals(question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testOutcome = unserialize($cache['_testoutcome']);
-        $this->assertFalse($testOutcome->allCorrect());
+        $this->assertFalse($testOutcome->all_correct());
     }
 }
 

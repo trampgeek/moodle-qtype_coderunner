@@ -65,7 +65,7 @@ abstract class qtype_coderunner_grader {
      */
     public function grade(&$output, &$testcase, $isBad = false) {
        if ($isBad) {
-            $outcome = new TestResult(
+            $outcome = new qtype_coderunner_test_result(
                         qtype_coderunner_grader::tidy($testcase->testcode),
                         $testcase->mark,
                         false,
@@ -84,10 +84,10 @@ abstract class qtype_coderunner_grader {
 
     abstract function gradeKnownGood(&$output, &$testCase);
 
-    // Return a cleaned and snipped version of the string s (or NULL if s is null).
+    // Return a cleaned and snipped version of the string s (or null if s is null).
     protected static function tidy($s) {
-        if ($s === NULL) {
-            return NULL;
+        if ($s === null) {
+            return null;
         } else {
             $cleanS = qtype_coderunner_grader::clean($s);
             return qtype_coderunner_grader::snip($cleanS);

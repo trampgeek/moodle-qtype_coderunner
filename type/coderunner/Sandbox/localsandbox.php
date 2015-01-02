@@ -27,7 +27,7 @@ require_once($CFG->dirroot . '/question/type/coderunner/Sandbox/sandboxbase.php'
 // with compiling and running a particular bit of source code. It is subclassed
 // for each provided language.
 abstract class LanguageTask {
-    public $sandbox = NULL; // The sandbox on which this task is running
+    public $sandbox = null; // The sandbox on which this task is running
     public $cmpinfo = '';   // Output from compilation
     public $time = 0;       // Execution time (secs)
     public $memory = 0;     // Memory used (MB)
@@ -143,11 +143,11 @@ abstract class LanguageTask {
 abstract class qtype_coderunner_localsandbox extends Sandbox {
 
     private static $currentRunId = '99';  // The only one we ever use
-    protected $date = NULL;         // Current date/time
-    protected $input = NULL;        // Standard input for the current task
-    protected $language = NULL;     // The language of the current task
+    protected $date = null;         // Current date/time
+    protected $input = null;        // Standard input for the current task
+    protected $language = null;     // The language of the current task
 
-    public function __construct($user=NULL, $pass=NULL) {
+    public function __construct($user=null, $pass=null) {
         Sandbox::__construct($user, $pass);
     }
 
@@ -178,7 +178,7 @@ abstract class qtype_coderunner_localsandbox extends Sandbox {
      *
      */
     public function createSubmission($sourceCode, $language, $input,
-                            $run=true, $private=true, $files=NULL, $params = NULL) {
+                            $run=true, $private=true, $files=null, $params = null) {
         if (!in_array($language, $this->get_languages()->languages)) {
             throw new coderunner_exception('LocalSandbox::createSubmission: Bad language');
         }
@@ -282,7 +282,7 @@ abstract class qtype_coderunner_localsandbox extends Sandbox {
      * @param type $files an associative map from filename to file contents.
      */
     protected function loadFiles($files) {
-        if ($files !== NULL) {
+        if ($files !== null) {
             foreach ($files as $filename=>$contents) {
                 file_put_contents($filename, $contents);
             }
@@ -291,7 +291,7 @@ abstract class qtype_coderunner_localsandbox extends Sandbox {
 
 
     // Create and return a LanguageTask object for the given language and
-    // the given source code. If the $files parameter is non-NULL it must be
+    // the given source code. If the $files parameter is non-null it must be
     // an associative array mapping filename to filecontents; a set of such
     // files is built in the local execution environment.
     protected abstract function createTask($language, $source);

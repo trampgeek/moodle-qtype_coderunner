@@ -15,7 +15,7 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once($CFG->dirroot . '/question/type/coderunner/tests/coderunnertestcase.php');
-require_once($CFG->dirroot . '/local/Twig/Autoloader.php');
+require_once($CFG->dirroot . '/question/type/coderunner/twig/Autoloader.php');
 
 class qtype_coderunner_customise_test extends qtype_coderunner_testcase {
 
@@ -27,8 +27,8 @@ class qtype_coderunner_customise_test extends qtype_coderunner_testcase {
         $this->assertEquals(question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testOutcome = unserialize($cache['_testoutcome']);
-        $this->assertFalse($testOutcome->hasSyntaxError());
-        foreach ($testOutcome->testResults as $tr) {
+        $this->assertFalse($testOutcome->has_syntax_error());
+        foreach ($testOutcome->testresults as $tr) {
             $this->assertTrue($tr->iscorrect);
         }
     }

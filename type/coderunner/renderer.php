@@ -76,7 +76,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
         $responsefieldid = 'id_' . $responsefieldname;
         $rows =  isset($question->answerbox_lines) ? $question->answerbox_lines : 18;
         $cols = isset($question->answerbox_columns) ? $question->answerbox_columns : 100;
-        $ta_attributes = array(
+        $taattributes = array(
             'class' => 'coderunner-answer edit_code',
             'name'  => $responsefieldname,
             'id'    => $responsefieldid,
@@ -86,12 +86,12 @@ class qtype_coderunner_renderer extends qtype_renderer {
         );
 
         if ($options->readonly) {
-            $ta_attributes['readonly'] = 'readonly';
+            $taattributes['readonly'] = 'readonly';
         }
 
         $currentanswer = $qa->get_last_qt_var('answer');
         $currentrating = $qa->get_last_qt_var('rating', 0);
-        $qtext .= html_writer::tag('textarea', s($currentanswer), $ta_attributes);
+        $qtext .= html_writer::tag('textarea', s($currentanswer), $taattributes);
 
         if ($qa->get_state() == question_state::$invalid) {
             $qtext .= html_writer::nonempty_tag('div',
@@ -120,15 +120,15 @@ class qtype_coderunner_renderer extends qtype_renderer {
      * @return string HTML fragment.
      */
     protected function specific_feedback(question_attempt $qa) {
-        $toSerialised = $qa->get_last_qt_var('_testoutcome');
-        if ($toSerialised) {
+        $toserialised = $qa->get_last_qt_var('_testoutcome');
+        if ($toserialised) {
             $q = $qa->get_question();
             $testCases = $q->testcases;
-            $testOutcome = unserialize($toSerialised);
-            $testResults = $testOutcome->testResults;
-            if ($testOutcome->allCorrect()) {
+            $testoutcome = unserialize($toserialised);
+            $testResults = $testoutcome->testresults;
+            if ($testoutcome->all_correct()) {
                 $resultsclass = "coderunner-test-results good";
-            } elseif (!$q->all_or_nothing && $testOutcome->markAsFraction() > 0) {
+            } elseif (!$q->all_or_nothing && $testoutcome->mark_as_fraction() > 0) {
                 $resultsclass = 'coderunner-test-results partial';
             } else {
                 $resultsclass = "coderunner-test-results bad";
@@ -136,41 +136,41 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
             $fb = '';
 
-            if ($q->show_source && count($testOutcome->sourcecodelist) > 0) {
-                $fb .= $this->makeSourceCodeDiv(
+            if ($q->show_source && count($testoutcome->sourcecodelist) > 0) {
+                $fb .= $this->make_source_code_div(
                         'Debug: source code from all test runs',
-                        $testOutcome->sourcecodelist
+                        $testoutcome->sourcecodelist
                 );
             }
 
 
             $fb .= html_writer::start_tag('div', array('class' => $resultsclass));
             // Hack to insert run host as hidden comment in html
-            $fb .= "\n<!-- Run on {$testOutcome->runHost} -->\n";
+            $fb .= "\n<!-- Run on {$testoutcome->runhost} -->\n";
 
-            if ($testOutcome->runFailed()) {
+            if ($testoutcome->run_failed()) {
                 $fb .= html_writer::tag('h3', get_string('run_failed', 'qtype_coderunner'));;
-                $fb .= html_writer::tag('p', s($testOutcome->errorMessage), 
+                $fb .= html_writer::tag('p', s($testoutcome->errorMessage), 
                         array('class' => 'run_failed_error'));
-            } else if ($testOutcome->hasSyntaxError()) {
+            } else if ($testoutcome->has_syntax_error()) {
                 $fb .= html_writer::tag('h3', get_string('syntax_errors', 'qtype_coderunner'));
-                $fb .= html_writer::tag('pre', s($testOutcome->errorMessage), 
+                $fb .= html_writer::tag('pre', s($testoutcome->errorMessage), 
                         array('class' => 'pre_syntax_error'));
-            } else if ($testOutcome->feedback_html) {
-                $fb .= $testOutcome->feedback_html;
+            } else if ($testoutcome->feedbackhtml) {
+                $fb .= $testoutcome->feedbackhtml;
             } else {
                 $fb .= html_writer::tag('p', '&nbsp;', array('class' => 'coderunner-spacer'));
                 $results = $this->buildResultsTable($q, $testCases, $testResults);
-                if ($results != NULL) {
+                if ($results != null) {
                     $fb .= $results;
                 }
             }
 
             // Summarise the status of the response in a paragraph at the end.
 
-            if (!$testOutcome->hasSyntaxError() && !$testOutcome->runFailed() &&
-                !$testOutcome->feedback_html) {
-                $fb .= $this->buildFeedbackSummary($q, $testCases, $testOutcome);
+            if (!$testoutcome->has_syntax_error() && !$testoutcome->run_failed() &&
+                !$testoutcome->feedbackhtml) {
+                $fb .= $this->buildFeedbackSummary($q, $testCases, $testoutcome);
             }
             $fb .= html_writer::end_tag('div');
         } else { // No testresults?! Probably due to a wrong behaviour selected
@@ -185,7 +185,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
     // Build and return an HTML div section containing a list of template
     // outputs used as source code.
-    private function makeSourceCodeDiv($heading, $runs) {
+    private function make_source_code_div($heading, $runs) {
         $html = html_writer::start_tag('div', array('class' => 'debugging'));
         $html .= html_writer::tag('h3', $heading);
         $i = 1;
@@ -200,7 +200,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
     }
 
 
-    // Return a table of results or NULL if there are no results to show.
+    // Return a table of results or null if there are no results to show.
     private function buildResultsTable($question, $testCases, $testResults) {
         // The set of columns to be displayed is specified by the 
         // question's result_columns variable. This is a JSON-encoded list
@@ -342,11 +342,11 @@ class qtype_coderunner_renderer extends qtype_renderer {
     // combinator-template grader was used. 
     private function buildFeedbackSummary($question, $testCases, $testOutcome) {
         $lines = array();  // List of lines of output
-        $testResults = $testOutcome->testResults;
+        $testResults = $testOutcome->testresults;
         if (count($testResults) != count($testCases)) {
             $lines[] = get_string('aborted', 'qtype_coderunner');
         } else {
-            $numErrors = $testOutcome->errorCount;
+            $numErrors = $testOutcome->errorcount;
             $hiddenErrors = $this->count_hidden_errors($testResults, $testCases);
             if ($numErrors > 0) {
                 if ($numErrors == $hiddenErrors) {
@@ -359,7 +359,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
             }
         }
 
-        if ($testOutcome->allCorrect()) {
+        if ($testOutcome->all_correct()) {
             $lines[] = get_string('allok', 'qtype_coderunner') .
                         "&nbsp;" . $this->feedback_image(1.0);
         } else if ($question->all_or_nothing) {

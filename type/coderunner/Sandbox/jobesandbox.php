@@ -18,14 +18,14 @@ define('DEBUGGING', '0');
 
 class qtype_coderunner_jobesandbox extends Sandbox {
 
-    var $languages = NULL;   // Languages supported by this sandbox
-    var $status = NULL;      // Status as set by constructor
+    var $languages = null;   // Languages supported by this sandbox
+    var $status = null;      // Status as set by constructor
 
     public function __construct() {
         // Constructor gets languages from Jobe and stores them.
         Sandbox::__construct();
         list($returnCode, $language_pairs) = $this->httpRequest(
-                'languages', HTTP_Request2::METHOD_GET, NULL);
+                'languages', HTTP_Request2::METHOD_GET, null);
 
         if ($returnCode == 200 && is_array($language_pairs)) {
             $this->languages = array();
@@ -55,7 +55,7 @@ class qtype_coderunner_jobesandbox extends Sandbox {
     // the handle for the submission, for use in the following two calls.
 
     public function createSubmission($sourceCode, $language, $input,
-            $run=true, $private=true, $files=NULL, $params = NULL)
+            $run=true, $private=true, $files=null, $params = null)
     {
         // Check language is valid
         if (!in_array($language, $this->get_languages()->languages)) {
@@ -63,7 +63,7 @@ class qtype_coderunner_jobesandbox extends Sandbox {
                                   'link' => 0);
         }
         $fileList = array();
-        if ($files !== NULL) {
+        if ($files !== null) {
             foreach($files as $filename=>$contents) {
                 $id = md5($contents);
                 $fileList[] = array($id, $filename);
@@ -84,7 +84,7 @@ class qtype_coderunner_jobesandbox extends Sandbox {
             $run_spec['debug'] = 1;
         }
         
-        if($params !== NULL) {
+        if($params !== null) {
             $run_spec['parameters'] = $params;
             if (isset($params['debug']) && $params['debug']) {
                 $run_spec['debug'] = 1;
@@ -196,7 +196,7 @@ class qtype_coderunner_jobesandbox extends Sandbox {
     // Return value is a 2-element
     // array containing the http response code and the response body.
     // The code is -1 if the request fails utterly.
-    private function httpRequest($resource, $method, $body=NULL) {
+    private function httpRequest($resource, $method, $body=null) {
         $jobe = get_config('qtype_coderunner', 'jobe_host');
         $url = "http://$jobe/jobe/index.php/restapi/$resource";
         $request = new HTTP_Request2($url, $method);

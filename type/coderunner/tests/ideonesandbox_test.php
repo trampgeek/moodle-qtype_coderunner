@@ -99,7 +99,7 @@ class qtype_coderunner_ideonesandbox_test extends qtype_coderunner_testcase {
     public function test_ideone_sandbox_memlimit() {
         $sandbox = new IdeoneSandbox();
         $code = "data = []\nwhile True: data.append(1)";
-        $result = $sandbox->execute($code, 'python2', NULL);
+        $result = $sandbox->execute($code, 'python2', null);
         $this->assertEquals(Sandbox::RESULT_MEMORY_LIMIT, $result->result);
         $this->assertEquals('', $result->output);
         $this->assertEquals('', $result->stderr);
@@ -114,7 +114,7 @@ class qtype_coderunner_ideonesandbox_test extends qtype_coderunner_testcase {
         $this->check_sandbox_enabled('ideonesandbox');
         $sandbox = new qtype_coderunner_ideonesandbox();
         $code = "#include <stdio.h>\nint main(): {\n    printf(\"Hello sandbox\");\n    return 0;\n}\n";
-        $result = $sandbox->execute($code, 'C', NULL);
+        $result = $sandbox->execute($code, 'C', null);
         $this->assertEquals(Sandbox::RESULT_COMPILATION_ERROR, $result->result);
         $this->assertTrue(strpos($result->cmpinfo, 'error:') !== false);
         $sandbox->close();
@@ -125,7 +125,7 @@ class qtype_coderunner_ideonesandbox_test extends qtype_coderunner_testcase {
         $this->check_sandbox_enabled('ideonesandbox');
         $sandbox = new qtype_coderunner_ideonesandbox();
         $code = "#include <stdio.h>\nint main() {\n    printf(\"Hello sandbox\\n\");\n    return 0;\n}\n";
-        $result = $sandbox->execute($code, 'C', NULL);
+        $result = $sandbox->execute($code, 'C', null);
         $this->assertEquals(Sandbox::RESULT_SUCCESS, $result->result);
         $this->assertEquals("Hello sandbox\n", $result->output);
         $this->assertEquals(0, $result->signal);
@@ -147,7 +147,7 @@ f = open('/tmp/junk')
 print(f.read())
 f.close()
 ";
-        $result = $sandbox->execute($code, 'python3', NULL);
+        $result = $sandbox->execute($code, 'python3', null);
         $this->assertEquals(Sandbox::RESULT_RUNTIME_ERROR, $result->result);
         $sandbox->close();
     }

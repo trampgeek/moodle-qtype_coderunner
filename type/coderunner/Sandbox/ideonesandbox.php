@@ -14,15 +14,15 @@ require_once('sandboxbase.php');
 
 class qtype_coderunner_ideonesandbox extends Sandbox {
 
-    var $client = NULL;  // The soap client referencing ideone.com
-    var $langMap = NULL;   // Languages supported by this sandbox: map from name to id
+    var $client = null;  // The soap client referencing ideone.com
+    var $langMap = null;   // Languages supported by this sandbox: map from name to id
 
-    public function __construct($user=NULL, $pass=NULL) {
-        if ($user == NULL) {
+    public function __construct($user=null, $pass=null) {
+        if ($user == null) {
             $user = get_config('qtype_coderunner', 'ideone_user');
         }
 
-        if ($pass == NULL) {
+        if ($pass == null) {
             $pass = get_config('qtype_coderunner', 'ideone_password');
         }
 
@@ -74,15 +74,15 @@ class qtype_coderunner_ideonesandbox extends Sandbox {
     // TODO: come up with a better way of handling non-null $files and
     // $params.
     public function createSubmission($sourceCode, $language, $input,
-            $run=true, $private=true, $files=NULL, $params = NULL)
+            $run=true, $private=true, $files=null, $params = null)
     {
         // Check language is valid and the user isn't attempting to set
         // files or execution parameters (since Ideone does not have such options).
         assert(in_array($language, $this->get_languages()->languages));
-        if ($files !== NULL && count($files) !== 0) {
+        if ($files !== null && count($files) !== 0) {
             throw new moodle_exception("Ideone sandbox doesn't accept files");
         }
-        if($params !== NULL) {
+        if($params !== null) {
             throw new moodle_exception(
    "ideone sandbox doesn't accept parameters like cpu time or memory limit");
         }

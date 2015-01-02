@@ -96,7 +96,7 @@ print(open('second.bb').read())
         $this->check_sandbox_enabled('jobesandbox');
         $sandbox = new qtype_coderunner_jobesandbox();
         $code = "#include <stdio.h>\nint main(): {\n    printf(\"Hello sandbox\");\n    return 0;\n}\n";
-        $result = $sandbox->execute($code, 'c', NULL);
+        $result = $sandbox->execute($code, 'c', null);
         $this->assertEquals(Sandbox::RESULT_COMPILATION_ERROR, $result->result);
         $this->assertTrue(strpos($result->cmpinfo, 'error:') !== false);
         $sandbox->close();
@@ -107,7 +107,7 @@ print(open('second.bb').read())
         $this->check_sandbox_enabled('jobesandbox');
         $sandbox = new qtype_coderunner_jobesandbox();
         $code = "#include <stdio.h>\nint main() {\n    printf(\"Hello sandbox\\n\");\n    return 0;\n}\n";
-        $result = $sandbox->execute($code, 'c', NULL);
+        $result = $sandbox->execute($code, 'c', null);
         $this->assertEquals(Sandbox::RESULT_SUCCESS, $result->result);
         $this->assertEquals("Hello sandbox\n", $result->output);
         $this->assertEquals(0, $result->signal);
@@ -130,7 +130,7 @@ print(open('second.bb').read())
       System.out.println("Hello sandbox");
    }
 }';
-        $result = $sandbox->execute($code, 'java', NULL);
+        $result = $sandbox->execute($code, 'java', null);
         $this->assertEquals(Sandbox::RESULT_SUCCESS, $result->result);
         $this->assertEquals("Hello sandbox\n", $result->output);
         $this->assertEquals(0, $result->signal);
