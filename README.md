@@ -980,7 +980,7 @@ combinator template is passed to the Twig template engine and the output
 program is executed in the usual way. Its output must now be a JSON-encoded
 object with two mandatory attributes: a *fraction* in the range 0 - 1,
 which specifies the fractional mark awarded to the question, and a
-*feedback_html* that fully defines the specific feedback to be presented
+*feedbackhtml* that fully defines the specific feedback to be presented
 to the student in place of the normal results table. It might still be a
 table, but any other HTML-supported output is possible such as paragraphs of
 text, canvases or SVG graphics. The *result_columns* field from the
