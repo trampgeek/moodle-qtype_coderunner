@@ -28,7 +28,7 @@ try {
 } catch (moodle_exception $e) {
     $questiontype = new stdClass();
     $questiontype->success = false;
-    $questiontype->error = "Prototype not found. " . $e->getMessage();
+    $questionType->error = "Prototype not found or not unique. " . $e->getMessage();
 }
 echo json_encode($questiontype);
 die();
