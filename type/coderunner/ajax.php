@@ -9,7 +9,13 @@
 
 define('AJAX_SCRIPT', true);
 
-require_once('../../../config.php');
+$dir = dirname(__FILE__);
+
+if (strpos($dir, 'local/CodeRunner/type/coderunner') !== false) {
+    require_once('../../../../config.php'); // Symbolically linked rather than copied
+} else {
+    require_once('../../../config.php'); // "Normal" case of a copy of the code
+}
 require_once($CFG->dirroot . '/question/engine/lib.php');
 require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');;
 
