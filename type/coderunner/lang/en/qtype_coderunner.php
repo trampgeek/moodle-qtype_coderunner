@@ -28,7 +28,7 @@ $string['addingcoderunner'] = 'Adding a new CodeRunner Question';
 $string['allok'] = 'Passed all tests! ';
 $string['allornothing'] = 'Test code must be provided either for all '
     . 'testcases or for none.';
-$string['all_or_nothing'] = 'All-or-nothing grading';
+$string['allornothing'] = 'All-or-nothing grading';
 $string['all_or_nothing_help'] = 'If \'All-or-nothing\' is checked, all test cases must be satisfied ' .
         'for the submission to earn any marks. Otherwise, the mark is obtained ' .
         'by summing the marks for all the test cases that pass ' .
@@ -46,7 +46,7 @@ $string['badpenalties'] = 'Penalty regime must be a comma separated list of numb
 $string['columncontrols'] = 'Result table';
 $string['coderunner'] = 'Program Code';
 $string['coderunner_type_required'] = 'You must select a language and question type';
-$string['coderunner_type'] = "Question type:";
+$string['coderunnertype'] = "Question type:";
 $string['coderunner_type_help'] = "Select the programming language and question type.
 
 Predefined types include
@@ -77,8 +77,8 @@ $string['ace-language'] = "Ace language";
 $string['advanced_customisation'] = "Advanced customisation";
 $string['answer'] = "Answer";
 $string['answerbox_group'] = "Answer box";
-$string['answerbox_columns'] = "Columns";
-$string['answerbox_lines'] = 'Rows';
+$string['answerboxcolumns'] = "Columns";
+$string['answerboxlines'] = 'Rows';
 $string['answerbox_group_help'] = 'Set the number of rows and columns to allocate for the answer box. ' .
         'If the answer overflows the box vertically or horizontally, scrollbars will appear.' .
         'If \'Use ace\' is checked, the ACE JavaScript code editor will manage the answer box.';
@@ -97,10 +97,8 @@ $string['coderunner_link'] = 'question/type/coderunner';
 $string['columncontrols_help'] = 'The checkboxes select which columns of the ' .
         'results table should be displayed to the student after submission';
 
-$string['combinator_controls'] = "Combinator";
-$string['combinator_required'] = "When using a combinator-template grader, the 'enable combinator' checkbox must be checked";
-$string['combinator_template'] = "Template";
-$string['combinator_controls_help'] = <<<EO_TEMPLATE_HELP
+$string['combinatorcontrols'] = "Combinator";
+$string['combinatorcontrols_help'] = <<<EO_TEMPLATE_HELP
 Like the per-test-case template above, the combinator template defines a
 program to be run given the student submission and the test data. Unlike the
 per-test-case version this one attempts to build a single program using all
@@ -119,6 +117,8 @@ shown that you really have a performance problem.
 If the template-debugging checkbox is clicked, the program generated
 for each testcase will be displayed in the output.
 EO_TEMPLATE_HELP;
+$string['combinator_required'] = "When using a combinator-template grader, the 'enable combinator' checkbox must be checked";
+$string['combinatortemplate'] = "Template";
 $string['cputime'] = 'TimeLimit (secs)';
 $string['customisationcontrols'] = 'Customisation';
 $string['customise'] = 'Customise';
@@ -130,13 +130,13 @@ $string['datafiles_help'] = 'Any files uploaded here will be added to the ' .
 $string['display'] = 'Display';
 
 $string['editingcoderunner'] = 'Editing a CodeRunner Question';
-$string['expected_help'] = 'The expected output from the test. Seen by the template as {{TEST.expected}}.';
 $string['empty_new_prototype_name'] = 'New question type name cannot be empty';
 $string['enable'] = 'Enable';
 $string['enablecombinator'] = 'Enable combinator';
 $string['enable_sandbox_desc'] = 'Permit use of the specified sandbox for ' .
          'running student submissions';
 $string['expected'] = 'Expected output';
+$string['expected_help'] = 'The expected output from the test. Seen by the template as {{TEST.expected}}.';
 $string['extra'] = 'Extra template data';
 $string['extra_help'] = 'A sometimes-useful extra text field for use by the template, accessed as {{TEST.extra}}';
 $string['failedhidden'] = 'Your code failed one or more hidden tests.';
@@ -216,9 +216,9 @@ $string['qWrongBehaviour'] = 'Detailed test results unavailable. '
     . 'Perhaps an empty answer, or question not using Adaptive Mode?';
 $string['options'] = 'Options';
 $string['ordering'] = 'Ordering';
-$string['penalty_regime'] = 'Penalty regime';
-$string['marking_group'] = 'Marking';
-$string['marking_group_help'] = 'If \'All-or-nothing\' is checked, all test cases must be satisfied ' .
+$string['penaltyregime'] = 'Penalty regime';
+$string['markinggroup'] = 'Marking';
+$string['markinggroup_help'] = 'If \'All-or-nothing\' is checked, all test cases must be satisfied ' .
         'for the submission to earn any marks. Otherwise, the mark is obtained ' .
         'by summing the marks for all the test cases that pass ' .
         'and expressing this as a fraction of the maximum possible mark. ' .
@@ -279,12 +279,12 @@ $string['questiontype_help'] = <<<QUESTION_TYPE_HELP
 QUESTION_TYPE_HELP;
 $string['question_type_name'] = 'Question type';
 $string['questiontype_required'] = 'You must select the type of question';
-$string['result_columns'] = 'Result columns';
+$string['resultcolumns'] = 'Result columns';
 $string['result_columns_help'] = 'By default the result table displays '
     . 'the testcode, stdin, expected and got columns, provided the columns '
     . 'are not empty. You can change the default, and/or the column headers '
-    . 'by entering a value for the result_columns (leave blank for the default '
-    . 'behaviour). If supplied, the result_columns field must be a JSON-encoded '
+    . 'by entering a value for the resultcolumns (leave blank for the default '
+    . 'behaviour). If supplied, the resultcolumns field must be a JSON-encoded '
     . 'list of column specifiers. Each column specifier is itself a list, '
     . 'typically with just two or three elements. The first element is the '
     . 'column header, the second element is the field from the TestResult '
@@ -304,7 +304,7 @@ $string['result_columns_help'] = 'By default the result table displays '
     . 'of %h means that the test result field should be taken as ready-to-output '
     . 'HTML and should not be subject to further processing; this is useful '
     . 'only with custom-grader templates that generate HTML output, such as '
-    . 'SVG graphics.  The default value of result_columns is [["Test", "testcode"],'
+    . 'SVG graphics.  The default value of resultcolumns is [["Test", "testcode"],'
     . '["Input", "stdin"], ["Expected", "expected"], ["Got", "got"]].';
         
 $string['resultcolumnsnotjson'] = 'Result columns field is not a valid JSON string';
@@ -335,7 +335,7 @@ $string['sandboxcontrols_help'] = 'Select what sandbox you wish the student ' .
         'be used. See the jobe documentation for details. ' .
         'Some sandboxes (e.g. Ideone) may ' .
         'silently ignore any or all of these settings.';
-$string['sandbox_params'] = 'Parameters';
+$string['sandboxparams'] = 'Parameters';
 $string['SHOW'] = 'Show';
 $string['show_columns'] = 'Show columns:';
 $string['show_columns_help'] = 'Select which columns of the results table should ' .
@@ -343,7 +343,7 @@ $string['show_columns_help'] = 'Select which columns of the results table should
         'The defaults are appropriate for most uses.';
 $string['show_expected'] = 'expected';
 $string['show_mark'] = 'mark';
-$string['show_source'] = 'Template debugging';
+$string['showsource'] = 'Template debugging';
 $string['show_stdin'] = 'stdin';
 $string['show_test'] = 'test';
 $string['show_output'] = 'got';
@@ -367,7 +367,7 @@ saved: testcases are ordered by this field.
 EO_TESTCASECTRLS_HELP;
 $string['testcases'] = 'Test cases';
 $string['testcode'] = 'Test code';
-$string['test_splitter_re'] = 'Test splitter (regex)';
+$string['testsplitterre'] = 'Test splitter (regex)';
 $string['template'] = 'Template';
 $string['template_help'] = <<<EO_TEMPLATE_HELP
 The template defines the program that is to be run for each test case, depending
@@ -393,7 +393,7 @@ has many test cases.
 If the template-debugging checkbox is clicked, the program generated
 for each testcase will be displayed in the output.
 EO_TEMPLATE_HELP;
-$string['template_params'] = 'Template params';
+$string['templateparams'] = 'Template params';
 $string['template_params_help'] = <<<EO_TEMPLATE_PARAMS_HELP
 The template parameters field lets you pass string parameters to a question's
 template(s). If non-blank, this must be a JSON-format record. The fields of
@@ -410,5 +410,5 @@ $string['testcode_help'] = 'The code for the test, seen by the template as {{TES
 $string['type_header'] = 'CodeRunner question type';
 $string['typerequired'] = 'Please select the type of question (language, format, etc)';
 $string['useasexample'] = 'Use as example';
-$string['use_ace'] = 'Use ace';
+$string['useace'] = 'Use ace';
 $string['xmlcoderunnerformaterror'] = 'XML format error in coderunner question';

@@ -57,17 +57,17 @@ class qtype_coderunner_template_test extends qtype_coderunner_testcase {
          // from the question itself. Also tests the JSON handling of sandbox
          // params.
          $q = $this->make_question('sqr');
-         $q->sandbox_params = "twiddle-twaddle";
-         $q->per_test_template = <<<EOTEMPLATE
+         $q->sandboxparams = "twiddle-twaddle";
+         $q->pertesttemplate = <<<EOTEMPLATE
 {{ STUDENT_ANSWER }}
 {{ TEST.testcode }}
-print( '{{QUESTION.sandbox_params}}')
+print( '{{QUESTION.sandboxparams}}')
     
 
 EOTEMPLATE;
          $q->customise = true;
-         $q->all_or_nothing = false;
-         $q->enable_combinator = false;
+         $q->allornothing = false;
+         $q->enablecombinator = false;
          $q->testcases = array(
             (object) array('testcode' => 'print(sqr(-3))',
                           'expected'     => "9\ntwiddle-twaddle",
@@ -78,8 +78,8 @@ EOTEMPLATE;
                           'mark' => 1.0, 'hiderestiffail'  => 0),
          );
          $q->customise = true;
-         $q->all_or_nothing = false;
-         $q->enable_combinator = false;
+         $q->allornothing = false;
+         $q->enablecombinator = false;
          $code = "def sqr(n): return n * n\n";
          $response = array('answer' => $code);
          $result = $q->grade_response($response);
@@ -97,7 +97,7 @@ EOTEMPLATE;
          // 1, 2, 4, 8, 16 respectively. So the expected mark is 24 / 31
          // i.e 0.7742
          $q = $this->make_question('sqrnoprint');
-         $q->per_test_template = <<<EOTEMPLATE
+         $q->pertesttemplate = <<<EOTEMPLATE
 {{ STUDENT_ANSWER }}
 got = str({{TEST.testcode}})
 expected = """{{TEST.expected|e('py')}}""".strip()
@@ -110,8 +110,8 @@ else:
 EOTEMPLATE;
          $q->grader = 'TemplateGrader';
          $q->customise = true;
-         $q->all_or_nothing = false;
-         $q->enable_combinator = false;
+         $q->allornothing = false;
+         $q->enablecombinator = false;
          $code = "def sqr(n): return n * n\n";
          $response = array('answer' => $code);
          $result = $q->grade_response($response);
@@ -120,11 +120,11 @@ EOTEMPLATE;
      }
      
      public function test_template_params() {
-         // Test that a template_params field in the question is expanded
+         // Test that a templateparams field in the question is expanded
          // from a JSON string and available to the template engine.
          $q = $this->make_question('sqr');
-         $q->template_params = '{"age":23, "string":"blah"}';
-         $q->per_test_template = <<<EOTEMPLATE
+         $q->templateparams = '{"age":23, "string":"blah"}';
+         $q->pertesttemplate = <<<EOTEMPLATE
 {{ STUDENT_ANSWER }}
 {{ TEST.testcode }}
 print( {{QUESTION.parameters.age}}, '{{QUESTION.parameters.string}}')
@@ -132,8 +132,8 @@ print( {{QUESTION.parameters.age}}, '{{QUESTION.parameters.string}}')
 
 EOTEMPLATE;
          $q->customise = true;
-         $q->all_or_nothing = false;
-         $q->enable_combinator = false;
+         $q->allornothing = false;
+         $q->enablecombinator = false;
          $q->testcases = array(
             (object) array('testcode' => '',
                           'expected'     => "23 blah",
@@ -144,8 +144,8 @@ EOTEMPLATE;
                           'mark' => 1.0, 'hiderestiffail'  => 0),
          );
          $q->customise = true;
-         $q->all_or_nothing = false;
-         $q->enable_combinator = false;
+         $q->allornothing = false;
+         $q->enablecombinator = false;
          $code = "";
          $response = array('answer' => $code);
          $result = $q->grade_response($response);

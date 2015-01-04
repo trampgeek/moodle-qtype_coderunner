@@ -104,7 +104,7 @@ class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
                 unset($data->output);
             }
             // Insert record
-            $newitemid = $DB->insert_record("quest_coderunner_testcases", $data);
+            $newitemid = $DB->insert_record("question_coderunner_tests", $data);
         } else {
             // Nothing to remap if the question already existed
             // TODO: determine if the above statement is true!!
@@ -133,10 +133,10 @@ class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
             // 'per-test-template' (in case we're restoring an earlier-version
             // backup).
             if (isset($data->custom_template)) {
-                $data->per_test_template = $data->custom_template;
+                $data->pertesttemplate = $data->custom_template;
                 unset($data->custom_template);
             }
-            $newitemid = $DB->insert_record("quest_coderunner_options", $data);
+            $newitemid = $DB->insert_record("question_coderunner_options", $data);
         } else {
             // Nothing to remap if the question already existed
         }

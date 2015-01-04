@@ -56,13 +56,13 @@ class qtype_coderunner_walkthrough_extras_test extends qbehaviour_walkthrough_te
                           'mark'    => 1.0,
                           'hiderestiffail'  => 0)
             );
-        $q->per_test_template = <<<EOTEMPLATE
+        $q->pertesttemplate = <<<EOTEMPLATE
 {{ STUDENT_ANSWER }}
 {{ TEST.extra }}  # Use this instead of the normal testcode field
 EOTEMPLATE;
-        $q->all_or_nothing = false;
+        $q->allornothing = false;
         $q->customise = true;
-        $q->enable_combinator = false;
+        $q->enablecombinator = false;
         $q->unitpenalty = 0;
 
         // Submit a right answer
@@ -75,7 +75,7 @@ EOTEMPLATE;
     public function test_result_column_selection() {
         // Make sure can relabel result table columns
         $q = test_question_maker::make_question('coderunner', 'sqr');
-        $q->result_columns = '[["Blah", "testcode"], ["Thing", "expected"], ["Gottim", "got"]]';
+        $q->resultcolumns = '[["Blah", "testcode"], ["Thing", "expected"], ["Gottim", "got"]]';
 
         // Submit a right answer
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);

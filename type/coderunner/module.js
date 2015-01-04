@@ -252,7 +252,7 @@ M.qtype_coderunner.initEditForm = function(Y) {
         template = Y.one('#id_per_test_template'),
         enable_combinator = Y.one('#id_enable_combinator'),
         use_ace = Y.one('#id_use_ace'),
-        combinator_template = Y.one('#id_combinator_template'),
+        combinatortemplate = Y.one('#id_combinator_template'),
         test_splitter = Y.one('#id_test_splitter_re'),
         language = Y.one('#id_language'),
         templateBlock = Y.one('#fitem_id_per_test_template'),
@@ -302,18 +302,18 @@ M.qtype_coderunner.initEditForm = function(Y) {
                     success: function (id, result) {
                         var outcome = JSON.parse(result.responseText);
                         if (outcome.success) {
-                            template.set('value', outcome.per_test_template);
+                            template.set('value', outcome.pertesttemplate);
                             secs = outcome.cputimelimitsecs ? outcome.cputimelimitsecs : '';
                             cputime.set('value', secs);
                             mb = outcome.memlimitmb ? outcome.memlimitmb : '';
                             memlimit.set('value', mb);
                             sb = outcome.sandbox ? outcome.sandbox : 'DEFAULT';
                             sandbox.set('value', sb);
-                            sb_param_val = outcome.sandbox_params ? outcome.sandbox_params : '';
+                            sb_param_val = outcome.sandboxparams ? outcome.sandboxparams : '';
                             sandboxparams.set('value', sb_param_val);
-                            combinator_template.set('value', outcome.combinator_template);
+                            combinatortemplate.set('value', outcome.combinatortemplate);
                             enable_combinator.set('checked', outcome.enable_combinator == "1");
-                            splitter = outcome.test_splitter_re ? outcome.test_splitter_re.replace('\n','\\n'): '';
+                            splitter = outcome.testsplitterre ? outcome.testsplitterre.replace('\n','\\n'): '';
                             test_splitter.set('value', splitter);
                             language.set('value', outcome.language);
                             typeName.set('value', newType);
@@ -366,7 +366,7 @@ M.qtype_coderunner.initEditForm = function(Y) {
            // [User must explicitly re-enable it if they wish to use it.]
            // The combinator-disabled alert has been disabled for now.
            // Let's see if it really matters. It's annoying!
-           var combinator_non_blank = combinator_template.get('value').trim() !== '';
+           var combinator_non_blank = combinatortemplate.get('value').trim() !== '';
            if (combinator_non_blank &&
                 !('alertIssued' in template) &&
                 enable_combinator.get('checked')

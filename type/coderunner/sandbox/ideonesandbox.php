@@ -12,7 +12,7 @@
 require_once('sandboxbase.php');
 
 
-class qtype_coderunner_ideonesandbox extends Sandbox {
+class qtype_coderunner_ideonesandbox extends qtype_coderunner_sandbox {
 
     var $client = null;  // The soap client referencing ideone.com
     var $langMap = null;   // Languages supported by this sandbox: map from name to id
@@ -26,7 +26,7 @@ class qtype_coderunner_ideonesandbox extends Sandbox {
             $pass = get_config('qtype_coderunner', 'ideone_password');
         }
 
-        Sandbox::__construct($user, $pass);
+        qtype_coderunner_sandbox::__construct($user, $pass);
 
         // A map from Ideone language names (regular expressions) to their
         // local short name, where appropriate
@@ -62,7 +62,7 @@ class qtype_coderunner_ideonesandbox extends Sandbox {
     // This latter consists of all the languages returned by a query to Ideone plus
     // the local simplified aliases, like python2, python3, C.
     public function get_languages() {
-        $resultObj = (object) array('error'=>Sandbox::OK,
+        $resultObj = (object) array('error'=>qtype_coderunner_sandbox::OK,
             'languages'=>array_keys($this->langMap));
         return $resultObj;
     }
@@ -94,7 +94,7 @@ class qtype_coderunner_ideonesandbox extends Sandbox {
             throw new moodle_exception("IdeoneSandbox::getSubmissionStatus: error ($error)");
         }
         else {
-            return (object) array('error'=>Sandbox::OK, 'link'=> $response['link']);
+            return (object) array('error'=>qtype_coderunner_sandbox::OK, 'link'=> $response['link']);
         }
     }
 
@@ -106,7 +106,7 @@ class qtype_coderunner_ideonesandbox extends Sandbox {
         }
         else {
             return (object) array(
-                'error' =>Sandbox::OK,
+                'error' =>qtype_coderunner_sandbox::OK,
                 'status'=>$response['status'],
                 'result'=>$response['result']
             );
@@ -130,7 +130,7 @@ class qtype_coderunner_ideonesandbox extends Sandbox {
         }
         else {
             return (object) array(
-                'error'  => Sandbox::OK,
+                'error'  => qtype_coderunner_sandbox::OK,
                 'time'   => $response['time'],
                 'memory' => $response['memory'],
                 'signal' => $response['signal'],

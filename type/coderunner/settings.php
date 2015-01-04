@@ -25,9 +25,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->dirroot . '/question/type/coderunner/Sandbox/sandboxbase.php');
+require_once($CFG->dirroot . '/question/type/coderunner/sandbox/sandboxbase.php');
 
-$sandboxes = Sandbox::available_sandboxes();
+$sandboxes = qtype_coderunner_sandbox::available_sandboxes();
 foreach ($sandboxes as $sandbox=>$classname) {
     $settings->add(new admin_setting_configcheckbox(
         "qtype_coderunner/{$sandbox}_enabled",

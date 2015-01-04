@@ -20,12 +20,12 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$plugin->version  = 2014122701;
+$plugin->version  = 2015010401;
 $plugin->requires = 2013051400;
 $plugin->cron = 0;
 $plugin->component = 'qtype_coderunner';
 $plugin->maturity = MATURITY_BETA;
-$plugin->release = '2.4.1';
+$plugin->release = '3.0';
 
 $plugin->dependencies = array();
 

@@ -146,7 +146,7 @@ class qtype_coderunner_walkthrough_test extends qbehaviour_walkthrough_test_base
 
     public function test_grading_template_output() {
         $q = test_question_maker::make_question('coderunner', 'sqrnoprint');
-        $q->per_test_template = <<<EOTEMPLATE
+        $q->pertesttemplate = <<<EOTEMPLATE
 {{ STUDENT_ANSWER }}
 got = str({{TEST.testcode}})
 expected = """{{TEST.expected|e('py')}}""".strip()
@@ -159,10 +159,10 @@ elif expected == got:
 else:
     print('{"fraction":"0","expected":"Twiddlydee"}')
 EOTEMPLATE;
-        $q->all_or_nothing = false;
+        $q->allornothing = false;
         $q->grader = 'TemplateGrader';
         $q->customise = true;
-        $q->enable_combinator = false;
+        $q->enablecombinator = false;
         $q->unitpenalty = 0;
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
 
@@ -193,7 +193,7 @@ EOTEMPLATE;
            table as the raw html contents of the "got" column.
          */
         $q = test_question_maker::make_question('coderunner', 'sqrnoprint');
-        $q->per_test_template = <<<EOTEMPLATE
+        $q->pertesttemplate = <<<EOTEMPLATE
 {{ STUDENT_ANSWER }}
 got = str({{TEST.testcode}})
 expected = """{{TEST.expected|e('py')}}""".strip()
@@ -206,12 +206,12 @@ elif expected == got:
 else:
     print('{"fraction":"0","expected_html": "<h2>Header</h2>", "got_html":"<script>document.write(\'YeeHa\')</script>"}')
 EOTEMPLATE;
-        $q->all_or_nothing = false;
+        $q->allornothing = false;
         $q->grader = 'TemplateGrader';
         $q->customise = true;
-        $q->enable_combinator = false;
+        $q->enablecombinator = false;
         $q->unitpenalty = 0;
-        $q->result_columns = '[["Test", "testcode"], ["Expected", "expected_html", "%h"], ["Got", "got_html", "%h"]]';
+        $q->resultcolumns = '[["Test", "testcode"], ["Expected", "expected_html", "%h"], ["Got", "got_html", "%h"]]';
 
         // Submit an answer that's right for all except one test case
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
@@ -231,7 +231,7 @@ EOTEMPLATE;
         // two occurrences of each of the tokens 'hi' and 'ho' and awards
         // a mark according to how well this criterion is satisfied.
         $q = test_question_maker::make_question('coderunner', 'sqrnoprint');
-        $q->combinator_template = <<<EOTEMPLATE
+        $q->combinatortemplate = <<<EOTEMPLATE
 import json
 answer = """{{ STUDENT_ANSWER | e('py') }}"""
 tokens = answer.split()
@@ -246,10 +246,10 @@ else:
     feedback = '<h2>Wrong numbers of hi and/or ho</h2><p>I wanted 2 of each but got {} and {} respectively.</p>'.format(num_hi, num_ho)
 print(json.dumps({'fraction': fraction, 'feedback_html': feedback}))
 EOTEMPLATE;
-        $q->all_or_nothing = false;
+        $q->allornothing = false;
         $q->grader = 'CombinatorTemplateGrader';
         $q->customise = true;
-        $q->enable_combinator = true;
+        $q->enablecombinator = true;
         $q->unitpenalty = 0;
 
         // Submit a right answer

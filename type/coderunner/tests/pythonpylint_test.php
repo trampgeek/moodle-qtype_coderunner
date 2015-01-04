@@ -41,7 +41,7 @@ class qtype_coderunner_pythonpylint_test extends qtype_coderunner_testcase {
         // Test that a python3_pylint question with a good pylint-compatible
         // submission passes.
         $q = $this->make_question('sqr_pylint');
-        $q->template_params = '{"isfunction":true}';
+        $q->templateparams = '{"isfunction":true}';
         $code = <<<EOCODE
 import posix  # Checks if pylint bug patched
 def sqr(n):

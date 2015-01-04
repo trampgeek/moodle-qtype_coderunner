@@ -39,8 +39,8 @@ require_once($CFG->dirroot . '/question/engine/questionattemptstep.php');
 require_once($CFG->dirroot . '/question/behaviour/adaptive_adapted_for_coderunner/behaviour.php');
 require_once($CFG->dirroot . '/question/type/coderunner/twig/Autoloader.php');
 require_once($CFG->dirroot . '/question/type/coderunner/locallib.php');
-require_once($CFG->dirroot . '/question/type/coderunner/Grader/graderbase.php');
-require_once($CFG->dirroot . '/question/type/coderunner/Sandbox/sandboxbase.php');
+require_once($CFG->dirroot . '/question/type/coderunner/grader/graderbase.php');
+require_once($CFG->dirroot . '/question/type/coderunner/sandbox/sandboxbase.php');
 require_once($CFG->dirroot . '/question/type/coderunner/escapers.php');
 require_once($CFG->dirroot . '/question/type/coderunner/testingoutcome.php');
 require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
@@ -162,7 +162,7 @@ class qtype_coderunner_question extends question_graded_automatically {
         if ($testoutcome->all_correct()) {
              return array(1, question_state::$gradedright, $datatocache);
         }
-        elseif ($this->all_or_nothing) {
+        elseif ($this->allornothing) {
             return array(0, question_state::$gradedwrong, $datatocache);
         }
         else {
@@ -200,18 +200,18 @@ class qtype_coderunner_question extends question_graded_automatically {
 
         $this->allruns = array();
 
-        if (isset($this->sandbox_params)) {
-            $sandboxparams = json_decode($this->sandbox_params, true);
+        if (isset($this->sandboxparams)) {
+            $sandboxparams = json_decode($this->sandboxparams, true);
         } else {
             $sandboxparams = array();
         }
         
-        if ($this->prototype_type != 0) {
+        if ($this->prototypetype != 0) {
             $files = array(); // We're running a prototype question ?!
         } else {
             // Load any files from the prototype
             $context = qtype_coderunner::question_context($this);
-            $prototype = qtype_coderunner::get_prototype($this->coderunner_type, $context);
+            $prototype = qtype_coderunner::get_prototype($this->coderunnertype, $context);
             $files = $this->get_data_files($prototype);
         }
         $files += $this->get_data_files($this, $this->contextid);  // Add in files for this question
@@ -222,8 +222,8 @@ class qtype_coderunner_question extends question_graded_automatically {
             $sandboxparams['memorylimit'] = intval($this->memlimitmb);
         }
         
-        if (isset($this->template_params) && $this->template_params != '') {
-            $this->parameters = json_decode($this->template_params);
+        if (isset($this->templateparams) && $this->templateparams != '') {
+            $this->parameters = json_decode($this->templateparams);
         }
 
         $outcome = $this->run_with_combinator($code, $testcases, $files, $sandboxparams);
@@ -240,7 +240,7 @@ class qtype_coderunner_question extends question_graded_automatically {
         }
 
         $this->sandboxinstance->close();
-        if ($this->show_source) {
+        if ($this->showsource) {
             $outcome->sourcecodelist = $this->allruns;
         }
     	return $outcome;
@@ -254,7 +254,7 @@ class qtype_coderunner_question extends question_graded_automatically {
      *  I'm leaving this code in place for documentation purposes, however.
      *
      * @param type $testcases The set of testcases, each consisting of
-     * all the fields contained in the quest_coderunner_testcases database table
+     * all the fields contained in the question_coderunner_tests database table
      * (q.v.) and including the testcode to run for the test, the stdin to
      * use, the expected output and the 'extra' field (used by some special
      * templates).
@@ -274,14 +274,14 @@ class qtype_coderunner_question extends question_graded_automatically {
      *  or null if no enabled sandboxes support this language.
      */
     public static function get_best_sandbox($language) {
-        $sandboxes = Sandbox::available_sandboxes();
+        $sandboxes = qtype_coderunner_sandbox::available_sandboxes();
         foreach($sandboxes as $extname=>$classname) {
             if (get_config('qtype_coderunner', $extname . '_enabled')) {
-                $filename = Sandbox::get_filename($extname);
-                require_once("Sandbox/$filename");
+                $filename = qtype_coderunner_sandbox::get_filename($extname);
+                require_once("sandbox/$filename");
                 $sb = new $classname();
                 $queryresult = $sb->get_languages();
-                if ($queryresult->error == Sandbox::OK) {
+                if ($queryresult->error == qtype_coderunner_sandbox::OK) {
                     $supportedlangs = $queryresult->languages;
                     foreach ($supportedlangs as $lang) {
                         if (strtolower($lang) == strtolower($language)) {
@@ -314,7 +314,7 @@ class qtype_coderunner_question extends question_graded_automatically {
 
         $iscombinatorgrader = strtolower($this->grader) === 'combinatortemplategrader';  
         $usecombinator = $iscombinatorgrader
-            || ($this->enable_combinator && $this->has_no_stdins($testcases) &&
+            || ($this->enablecombinator && $this->has_no_stdins($testcases) &&
                 strtolower($this->grader) !== 'templategrader');
         if (!$usecombinator) {
             return null;  // Not our job
@@ -334,7 +334,7 @@ class qtype_coderunner_question extends question_graded_automatically {
             'MATLAB_ESCAPED_STUDENT_ANSWER' => matlab_escaper(null, $code, null),
             'QUESTION' => $this,
             'TESTCASES' => $testcases);
-        $testprog = $this->twig->render($this->combinator_template, $templateparams);
+        $testprog = $this->twig->render($this->combinatortemplate, $templateparams);
 
         $this->allruns[] = $testprog;
         $run = $this->sandboxinstance->execute($testprog, $this->language,
@@ -346,18 +346,18 @@ class qtype_coderunner_question extends question_graded_automatically {
         // In all other cases (runtime error etc) we give up
         // on the combinator.
         
-        if ($run->error !== Sandbox::OK) {
+        if ($run->error !== qtype_coderunner_sandbox::OK) {
             $outcome = new qtype_coderunner_testing_outcome($maxmark,
                     qtype_coderunner_testing_outcome::STATUS_SANDBOX_ERROR,
-                    Sandbox::error_string($run->error));
+                    qtype_coderunner_sandbox::error_string($run->error));
         } elseif ($iscombinatorgrader) {
             $outcome = $this->do_combinator_grading($maxmark, $run);
-        } else if ($run->result === Sandbox::RESULT_COMPILATION_ERROR) {
+        } else if ($run->result === qtype_coderunner_sandbox::RESULT_COMPILATION_ERROR) {
             $outcome = new qtype_coderunner_testing_outcome($maxmark,
                     qtype_coderunner_testing_outcome::STATUS_SYNTAX_ERROR,
                     $run->cmpinfo);
-        } else if ($run->result === Sandbox::RESULT_SUCCESS && !$run->stderr) {
-            $outputs = preg_split($this->test_splitter_re, $run->output);
+        } else if ($run->result === qtype_coderunner_sandbox::RESULT_SUCCESS && !$run->stderr) {
+            $outputs = preg_split($this->testsplitterre, $run->output);
             if (count($outputs) == count($testcases)) {
                 $outcome = new qtype_coderunner_testing_outcome($maxmark);
                 $i = 0;
@@ -383,7 +383,7 @@ class qtype_coderunner_question extends question_graded_automatically {
          );
 
         $outcome = new qtype_coderunner_testing_outcome($maxMark);
-        $template = $this->per_test_template;
+        $template = $this->pertesttemplate;
         foreach ($testcases as $testcase) {
             $templateparams['TEST'] = $testcase;
             try {
@@ -400,20 +400,20 @@ class qtype_coderunner_question extends question_graded_automatically {
             $this->allruns[] = $testprog;
             $run = $this->sandboxinstance->execute($testprog, $this->language,
                     $input, $files, $sandboxparams);
-            if ($run->error !== Sandbox::OK) {
+            if ($run->error !== qtype_coderunner_sandbox::OK) {
                 $outcome = new qtype_coderunner_testing_outcome(
                     $maxMark, 
                     qtype_coderunner_testing_outcome::STATUS_SANDBOX_ERROR,
-                    Sandbox::error_string($run->error));
+                    qtype_coderunner_sandbox::error_string($run->error));
                 break;
             }
-            else if ($run->result === Sandbox::RESULT_COMPILATION_ERROR) {
+            else if ($run->result === qtype_coderunner_sandbox::RESULT_COMPILATION_ERROR) {
                 $outcome = new qtype_coderunner_testing_outcome(
                         $maxMark,
                         qtype_coderunner_testing_outcome::STATUS_SYNTAX_ERROR,
                         $run->cmpinfo);
                 break;
-            } else if ($run->result != Sandbox::RESULT_SUCCESS) {
+            } else if ($run->result != qtype_coderunner_sandbox::RESULT_SUCCESS) {
                 $errormessage = $this->make_error_message($run);
                 $iserror = true;
                 $outcome->add_test_result($this->grade($errormessage, $testcase, $iserror));
@@ -441,7 +441,7 @@ class qtype_coderunner_question extends question_graded_automatically {
 
         $filename = qtype_coderunner_grader::get_filename($grader);
         $graderclass = qtype_coderunner_grader::available_graders()[$grader];
-        require_once($CFG->dirroot . "/question/type/coderunner/Grader/$filename");
+        require_once($CFG->dirroot . "/question/type/coderunner/grader/$filename");
         $this->graderinstance = new $graderclass();
     }
 
@@ -462,9 +462,9 @@ class qtype_coderunner_question extends question_graded_automatically {
 
         }
 
-        $sandboxclass = Sandbox::available_sandboxes()[$sandbox];
-        $filename = Sandbox::get_filename($sandbox);
-        require_once($CFG->dirroot . "/question/type/coderunner/Sandbox/$filename");
+        $sandboxclass = qtype_coderunner_sandbox::available_sandboxes()[$sandbox];
+        $filename = qtype_coderunner_sandbox::get_filename($sandbox);
+        require_once($CFG->dirroot . "/question/type/coderunner/sandbox/$filename");
         $this->sandboxinstance = new $sandboxclass();
     }
 
@@ -528,7 +528,7 @@ class qtype_coderunner_question extends question_graded_automatically {
         // build and return a testingOutcome object with a status of
         // STATUS_COMBINATOR_TEMPLATE_GRADER and appropriate feedback_html.
         
-        if ($run->result !== Sandbox::RESULT_SUCCESS) {
+        if ($run->result !== qtype_coderunner_sandbox::RESULT_SUCCESS) {
             $fract = 0;
             $html = '<h2>BAD TEMPLATE RUN<h2><pre>' . $run->cmpinfo . 
                     $run->stderr . '</pre>';
@@ -572,8 +572,8 @@ class qtype_coderunner_question extends question_graded_automatically {
 
 
     private function make_error_message($run) {
-        $err = "***" . Sandbox::result_string($run->result) . "***";
-        if ($run->result === Sandbox::RESULT_RUNTIME_ERROR) {
+        $err = "***" . qtype_coderunner_sandbox::result_string($run->result) . "***";
+        if ($run->result === qtype_coderunner_sandbox::RESULT_RUNTIME_ERROR) {
             $sig = $run->signal;
             if ($sig) {
                 $err .= " (signal $sig)";

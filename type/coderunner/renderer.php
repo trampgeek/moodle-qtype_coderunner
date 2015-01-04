@@ -74,8 +74,8 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
         $responsefieldname = $qa->get_qt_field_name('answer');
         $responsefieldid = 'id_' . $responsefieldname;
-        $rows =  isset($question->answerbox_lines) ? $question->answerbox_lines : 18;
-        $cols = isset($question->answerbox_columns) ? $question->answerbox_columns : 100;
+        $rows =  isset($question->answerboxlines) ? $question->answerboxlines : 18;
+        $cols = isset($question->answerboxcolumns) ? $question->answerboxcolumns : 100;
         $taattributes = array(
             'class' => 'coderunner-answer edit_code',
             'name'  => $responsefieldname,
@@ -128,7 +128,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
             $testResults = $testoutcome->testresults;
             if ($testoutcome->all_correct()) {
                 $resultsclass = "coderunner-test-results good";
-            } elseif (!$q->all_or_nothing && $testoutcome->mark_as_fraction() > 0) {
+            } elseif (!$q->allornothing && $testoutcome->mark_as_fraction() > 0) {
                 $resultsclass = 'coderunner-test-results partial';
             } else {
                 $resultsclass = "coderunner-test-results bad";
@@ -136,7 +136,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
             $fb = '';
 
-            if ($q->show_source && count($testoutcome->sourcecodelist) > 0) {
+            if ($q->showsource && count($testoutcome->sourcecodelist) > 0) {
                 $fb .= $this->make_source_code_div(
                         'Debug: source code from all test runs',
                         $testoutcome->sourcecodelist
@@ -203,7 +203,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
     // Return a table of results or null if there are no results to show.
     private function buildResultsTable($question, $testCases, $testResults) {
         // The set of columns to be displayed is specified by the 
-        // question's result_columns variable. This is a JSON-encoded list
+        // question's resultcolumns variable. This is a JSON-encoded list
         // of column specifiers. A column specifier is itself a list, usually
         // with 2 or 3 elements. The first element is the column header
         // the second is the test result object field name whose value is to be
@@ -220,10 +220,10 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
         global $COURSE;
                 
-        if (isset($question->result_columns) && $question->result_columns) {
-            $result_columns = json_decode($question->result_columns);
+        if (isset($question->resultcolumns) && $question->resultcolumns) {
+            $resultcolumns = json_decode($question->resultcolumns);
         } else {
-            $result_columns = json_decode(DEFAULT_RESULT_COLUMNS);
+            $resultcolumns = json_decode(DEFAULT_RESULT_COLUMNS);
         }
         if ($COURSE && $coursecontext = context_course::instance($COURSE->id)) {
             $canViewHidden = has_capability('moodle/grade:viewhidden', $coursecontext);
@@ -239,7 +239,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
         // unless all rows in that column would be blank.
 
         $table->head = array('');  // First column is tick or cross, like last column
-        foreach ($result_columns as &$col_spec) {
+        foreach ($resultcolumns as &$col_spec) {
             $len = count($col_spec);
             if ($len < 3) {
                 $col_spec[] = '%s';  // Add missing default format
@@ -267,7 +267,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
                 $fraction = $testResult->awarded / $testResult->mark;
                 $tick_or_cross = $this->feedback_image($fraction);
                 $tableRow = array($tick_or_cross); // Tick or cross
-                foreach ($result_columns as &$col_spec) {
+                foreach ($resultcolumns as &$col_spec) {
                     $len = count($col_spec);
                     $format = $col_spec[$len - 1];
                     if ($format === '%h') {  // If it's an html format
@@ -362,7 +362,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
         if ($testOutcome->all_correct()) {
             $lines[] = get_string('allok', 'qtype_coderunner') .
                         "&nbsp;" . $this->feedback_image(1.0);
-        } else if ($question->all_or_nothing) {
+        } else if ($question->allornothing) {
             $lines[] = get_string('noerrorsallowed', 'qtype_coderunner');
         }
 

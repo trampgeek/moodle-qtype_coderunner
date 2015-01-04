@@ -113,19 +113,19 @@ class qbehaviour_adaptive_adapted_for_coderunner extends qbehaviour_adaptive {
     }
 
 
-    // Override of adjusted_fraction to allow use of penalty_regime if defined
+    // Override of adjusted_fraction to allow use of penaltyregime if defined
     // for this question. The penalty regime is a list of floating point
     // penalties, each a percent, to be applied in order on each submission.
     // If the last penalty is '...', expand the previous two entries as an
     // arithmetic progression.
     protected function adjusted_fraction($fraction, $prevtries)
     {
-        if (!isset($this->question->penalty_regime) || $this->question->penalty_regime === '') {
+        if (!isset($this->question->penaltyregime) || $this->question->penaltyregime === '') {
             return parent::adjusted_fraction($fraction, $prevtries);
         } else if ($prevtries == 0) {
             return $fraction;
         } else {
-            $penalties = explode(",", $this->question->penalty_regime);
+            $penalties = explode(",", $this->question->penaltyregime);
             $n = count($penalties);
             if (trim($penalties[$n - 1]) === '...') {
                 $delta = floatval($penalties[$n - 2]) - floatval($penalties[$n - 3]);
@@ -148,7 +148,7 @@ class qbehaviour_adaptive_adapted_for_coderunner extends qbehaviour_adaptive {
     protected function adaptive_mark_details_from_step(
             question_attempt_step $gradedstep,
             question_state $state, $maxmark, $penalty) {
-        if (!isset($this->question->penalty_regime) || $this->question->penalty_regime === '') {
+        if (!isset($this->question->penaltyregime) || $this->question->penaltyregime === '') {
             $details = parent::adaptive_mark_details_from_step($gradedstep, $state, $maxmark, $penalty);
         } else {
             $prevtries = $this->qa->get_last_behaviour_var('_try', 0);

@@ -28,7 +28,7 @@ class qtype_coderunner_testing_outcome {
     public $errorcount;              // The number of failing test cases
     public $maxpossmark;             // The maximum possible mark
     public $runhost;                 // Host name of the front-end on which the run was done
-    public $actualmark;              // Actual mark (meaningful only if this is not an all_or_nothing question)
+    public $actualmark;              // Actual mark (meaningful only if this is not an allornothing question)
     public $testresults;             // An array of TestResult objects
     public $sourcecodelist;          // Array of all test runs
     public $gradercodelist;          // Array of source code of all grader runs

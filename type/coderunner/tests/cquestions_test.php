@@ -216,7 +216,7 @@ int sqr(int n) {
         return n * n;
     }
 }");
-        $q->sandbox_params = '{"numprocs": 1}';
+        $q->sandboxparams = '{"numprocs": 1}';
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testOutcome = unserialize($cache['_testoutcome']);

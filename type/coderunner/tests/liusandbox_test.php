@@ -11,7 +11,7 @@
 
 global $CFG;
 require_once($CFG->dirroot . '/question/type/coderunner/tests/coderunnertestcase.php');
-require_once($CFG->dirroot . '/question/type/coderunner/Sandbox/liusandbox.php');
+require_once($CFG->dirroot . '/question/type/coderunner/sandbox/liusandbox.php');
 
 class qtype_coderunner_liusandbox_test extends qtype_coderunner_testcase {
 
@@ -19,7 +19,7 @@ class qtype_coderunner_liusandbox_test extends qtype_coderunner_testcase {
         $this->check_sandbox_enabled('liusandbox');
         $sandbox = new qtype_coderunner_liusandbox();
         $tr = $sandbox->testFunction();
-        $this->assertEquals(Sandbox::OK, $tr->error);
+        $this->assertEquals(qtype_coderunner_sandbox::OK, $tr->error);
         $this->assertEquals(3.14, $tr->pi);
         $this->assertEquals(42, $tr->answerToLifeAndEverything);
         $this->assertTrue($tr->oOok);
@@ -61,7 +61,7 @@ class qtype_coderunner_liusandbox_test extends qtype_coderunner_testcase {
         fwrite($handle, json_encode($run));
         fclose($handle);
         $output = array();
-        $cmd = $CFG->dirroot . "/question/type/coderunner/Sandbox/liusandbox.py runspec.json";
+        $cmd = $CFG->dirroot . "/question/type/coderunner/sandbox/liusandbox.py runspec.json";
         exec($cmd, $output, $returnVar);
         $outputJson = $output[0];
         $result = json_decode($outputJson);
@@ -78,7 +78,7 @@ class qtype_coderunner_liusandbox_test extends qtype_coderunner_testcase {
         $sandbox = new qtype_coderunner_liusandbox();
         $code = "#include <stdio.h>\nint main(): {\n    printf(\"Hello sandbox\");\n    return 0;\n}\n";
         $result = $sandbox->execute($code, 'C', null);
-        $this->assertEquals(Sandbox::RESULT_COMPILATION_ERROR, $result->result);
+        $this->assertEquals(qtype_coderunner_sandbox::RESULT_COMPILATION_ERROR, $result->result);
         $this->assertTrue(strpos($result->cmpinfo, 'error:') !== false);
         $sandbox->close();
     }
@@ -89,7 +89,7 @@ class qtype_coderunner_liusandbox_test extends qtype_coderunner_testcase {
         $sandbox = new qtype_coderunner_liusandbox();
         $code = "#include <stdio.h>\nint main() {\n    printf(\"Hello sandbox\\n\");\n    return 0;\n}\n";
         $result = $sandbox->execute($code, 'C', null);
-        $this->assertEquals(Sandbox::RESULT_SUCCESS, $result->result);
+        $this->assertEquals(qtype_coderunner_sandbox::RESULT_SUCCESS, $result->result);
         $this->assertEquals("Hello sandbox\n", $result->output);
         $this->assertEquals(0, $result->signal);
         $this->assertEquals('', $result->cmpinfo);
@@ -114,7 +114,7 @@ class qtype_coderunner_liusandbox_test extends qtype_coderunner_testcase {
 }
 ";
         $result = $sandbox->execute($code, 'C', null);
-        $this->assertEquals(Sandbox::RESULT_SUCCESS, $result->result);
+        $this->assertEquals(qtype_coderunner_sandbox::RESULT_SUCCESS, $result->result);
         $this->assertEquals("stuff\n", $result->output);
         $this->assertEquals(0, $result->signal);
         $this->assertEquals('', $result->cmpinfo);
@@ -140,7 +140,7 @@ class qtype_coderunner_liusandbox_test extends qtype_coderunner_testcase {
 }
 ";
         $result = $sandbox->execute($code, 'C', null);
-        $this->assertEquals(Sandbox::RESULT_ILLEGAL_SYSCALL, $result->result);
+        $this->assertEquals(qtype_coderunner_sandbox::RESULT_ILLEGAL_SYSCALL, $result->result);
         $sandbox->close();
     }
 
@@ -155,7 +155,7 @@ int main() {
 }
 ";
         $result = $sandbox->execute($code, 'C', null);
-        $this->assertEquals(Sandbox::RESULT_TIME_LIMIT, $result->result);
+        $this->assertEquals(qtype_coderunner_sandbox::RESULT_TIME_LIMIT, $result->result);
         $this->assertEquals('', $result->output);
         $this->assertEquals('', $result->stderr);
         $this->assertTrue($result->signal == 18 || $result->signal == 10);
@@ -174,7 +174,7 @@ int main() {
 }
 ";
         $result = $sandbox->execute($code, 'C', null);
-        $this->assertEquals(Sandbox::RESULT_MEMORY_LIMIT, $result->result);
+        $this->assertEquals(qtype_coderunner_sandbox::RESULT_MEMORY_LIMIT, $result->result);
         $this->assertEquals('', $result->output);
         $this->assertEquals('', $result->stderr);
         $this->assertEquals('', $result->cmpinfo);

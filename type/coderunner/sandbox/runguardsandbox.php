@@ -57,7 +57,7 @@ class qtype_coderunner_runguardsandbox extends qtype_coderunner_localsandbox {
 
     public function get_languages() {
         return (object) array(
-            'error' => Sandbox::OK,
+            'error' => qtype_coderunner_sandbox::OK,
             'languages' => array('matlab', 'octave', 'python2', 'python3', 'java', 'c')
         );
     }
@@ -127,27 +127,27 @@ class qtype_coderunner_runguardsandbox extends qtype_coderunner_localsandbox {
             }
             if ($this->task->stderr != '') {
                 if (strpos($this->task->stderr, "warning: timelimit exceeded")) {
-                    $this->task->result = Sandbox::RESULT_TIME_LIMIT;
+                    $this->task->result = qtype_coderunner_sandbox::RESULT_TIME_LIMIT;
                     $this->task->signal = 9;
                     $this->task->stderr = '';
                 } else if(strpos($this->task->stderr, "warning: command terminated with signal 11")) {
-                    $this->task->result = Sandbox::RESULT_RUNTIME_ERROR;
+                    $this->task->result = qtype_coderunner_sandbox::RESULT_RUNTIME_ERROR;
                     $this->task->signal = 11;
                     $this->task->stderr = '';
                 }
                 else {
-                    $this->task->result = Sandbox::RESULT_ABNORMAL_TERMINATION;
+                    $this->task->result = qtype_coderunner_sandbox::RESULT_ABNORMAL_TERMINATION;
                 }
             }
             else {
-                $this->task->result = Sandbox::RESULT_SUCCESS;
+                $this->task->result = qtype_coderunner_sandbox::RESULT_SUCCESS;
             }
 
             $this->task->output = $this->task->filterOutput(
                     file_get_contents("$workdir/prog.out"));
         }
         catch (Exception $e) {
-            $this->task->result = Sandbox::RESULT_INTERNAL_ERR;
+            $this->task->result = qtype_coderunner_sandbox::RESULT_INTERNAL_ERR;
             $this->task->stderr = $this->task->cmpinfo = print_r($e, true);
             $this->task->output = $this->task->stderr;
             $this->task->signal = $this->task->time = $this->task->memory = 0;

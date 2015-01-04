@@ -26,16 +26,16 @@ class qtype_coderunner_liusandbox extends qtype_coderunner_localsandbox {
     private $LANGUAGES = array('c');
 
     private $RESULT_CODES = array(
-            'PD' => Sandbox::RESULT_SANDBOX_PENDING,  // Shouldn't occur
-            'OK' => Sandbox::RESULT_SUCCESS,
-            'RF' => Sandbox::RESULT_ILLEGAL_SYSCALL,
-            'RT' => Sandbox::RESULT_RUNTIME_ERROR,
-            'TL' => Sandbox::RESULT_TIME_LIMIT,
-            'ML' => Sandbox::RESULT_MEMORY_LIMIT,
-            'OL' => Sandbox::RESULT_OUTPUT_LIMIT,
-            'AT' => Sandbox::RESULT_ABNORMAL_TERMINATION,
-            'IE' => Sandbox::RESULT_INTERNAL_ERR,
-            'BP' => Sandbox::RESULT_SANDBOX_POLICY // Shouldn't occur
+            'PD' => qtype_coderunner_sandbox::RESULT_SANDBOX_PENDING,  // Shouldn't occur
+            'OK' => qtype_coderunner_sandbox::RESULT_SUCCESS,
+            'RF' => qtype_coderunner_sandbox::RESULT_ILLEGAL_SYSCALL,
+            'RT' => qtype_coderunner_sandbox::RESULT_RUNTIME_ERROR,
+            'TL' => qtype_coderunner_sandbox::RESULT_TIME_LIMIT,
+            'ML' => qtype_coderunner_sandbox::RESULT_MEMORY_LIMIT,
+            'OL' => qtype_coderunner_sandbox::RESULT_OUTPUT_LIMIT,
+            'AT' => qtype_coderunner_sandbox::RESULT_ABNORMAL_TERMINATION,
+            'IE' => qtype_coderunner_sandbox::RESULT_INTERNAL_ERR,
+            'BP' => qtype_coderunner_sandbox::RESULT_SANDBOX_POLICY // Shouldn't occur
     );
 
     public function __construct($user=null, $pass=null) {
@@ -43,7 +43,7 @@ class qtype_coderunner_liusandbox extends qtype_coderunner_localsandbox {
     }
 
     public function get_languages() {
-        return (object) array('error' => Sandbox::OK,
+        return (object) array('error' => qtype_coderunner_sandbox::OK,
             'languages' => $this->LANGUAGES);
     }
 
@@ -87,7 +87,7 @@ class qtype_coderunner_liusandbox extends qtype_coderunner_localsandbox {
         // Run the command in the sandbox. Output is a JSON-encoded
         // sandbox-result structure.
 
-        $cmd = $CFG->dirroot . "/question/type/coderunner/Sandbox/liusandbox.py $taskname";
+        $cmd = $CFG->dirroot . "/question/type/coderunner/sandbox/liusandbox.py $taskname";
 
         exec($cmd, $output, $returnVar);
         $outputJson = $output[0];

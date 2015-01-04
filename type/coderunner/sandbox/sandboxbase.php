@@ -21,7 +21,7 @@
 global $CFG;
 require_once($CFG->dirroot . '/question/type/coderunner/locallib.php');
 
-abstract class Sandbox {
+abstract class qtype_coderunner_sandbox {
     protected $user;     // Username supplied when constructing
     protected $password; // Password supplied when constructing
     protected $authenticationError;
@@ -117,14 +117,14 @@ abstract class Sandbox {
     // Strings corresponding to the create-submission error codes defined above
     public static function error_string($errorCode) {
         $ERROR_STRINGS = array(
-            Sandbox::OK              => "OK",
-            Sandbox::AUTH_ERROR      => "Unauthorised to use sandbox",
-            Sandbox::PASTE_NOT_FOUND => "Requesting status of non-existent job",
-            Sandbox::WRONG_LANG_ID   => "Non-existent language requested",
-            Sandbox::ACCESS_DENIED   => "Access to sandbox defined",
-            Sandbox::CANNOT_SUBMIT_THIS_MONTH_ANYMORE  => "Ideone job quota exceeded",
-            Sandbox::CREATE_SUBMISSION_FAILED  => "Submission to sandbox failed",
-            Sandbox::UNKNOWN_SERVER_ERROR  => "Unexpected error from sandbox (Jobe server down or excessive timeout, perhaps?)"  
+            qtype_coderunner_sandbox::OK              => "OK",
+            qtype_coderunner_sandbox::AUTH_ERROR      => "Unauthorised to use sandbox",
+            qtype_coderunner_sandbox::PASTE_NOT_FOUND => "Requesting status of non-existent job",
+            qtype_coderunner_sandbox::WRONG_LANG_ID   => "Non-existent language requested",
+            qtype_coderunner_sandbox::ACCESS_DENIED   => "Access to sandbox defined",
+            qtype_coderunner_sandbox::CANNOT_SUBMIT_THIS_MONTH_ANYMORE  => "Ideone job quota exceeded",
+            qtype_coderunner_sandbox::CREATE_SUBMISSION_FAILED  => "Submission to sandbox failed",
+            qtype_coderunner_sandbox::UNKNOWN_SERVER_ERROR  => "Unexpected error from sandbox (Jobe server down or excessive timeout, perhaps?)"  
         );
         if (!isset($ERROR_STRINGS[$errorCode])) {
             throw new coding_exception("Bad call to sandbox.errorString");
@@ -136,18 +136,18 @@ abstract class Sandbox {
     // Strings corresponding to the RESULT_* defines above
     public static function result_string($resultCode) {
         $RESULT_STRINGS = array(
-            Sandbox::RESULT_NO_RUN               => "No run",
-            Sandbox::RESULT_COMPILATION_ERROR    => "Compilation error",
-            Sandbox::RESULT_RUNTIME_ERROR        => "Runtime error",
-            Sandbox::RESULT_TIME_LIMIT           => "Time limit exceeded",
-            Sandbox::RESULT_SUCCESS              => "OK",
-            Sandbox::RESULT_MEMORY_LIMIT         => "Memory limit exceeded",
-            Sandbox::RESULT_ILLEGAL_SYSCALL      => "Illegal function call",
-            Sandbox::RESULT_INTERNAL_ERR         => "CodeRunner error (IE): please tell a tutor",
-            Sandbox::RESULT_SANDBOX_PENDING      => "CodeRunner error (PD): please tell a tutor",
-            Sandbox::RESULT_SANDBOX_POLICY       => "CodeRunner error (BP): please tell a tutor",
-            Sandbox::RESULT_OUTPUT_LIMIT         => "Excessive output",
-            Sandbox::RESULT_ABNORMAL_TERMINATION => "Abnormal termination"
+            qtype_coderunner_sandbox::RESULT_NO_RUN               => "No run",
+            qtype_coderunner_sandbox::RESULT_COMPILATION_ERROR    => "Compilation error",
+            qtype_coderunner_sandbox::RESULT_RUNTIME_ERROR        => "Runtime error",
+            qtype_coderunner_sandbox::RESULT_TIME_LIMIT           => "Time limit exceeded",
+            qtype_coderunner_sandbox::RESULT_SUCCESS              => "OK",
+            qtype_coderunner_sandbox::RESULT_MEMORY_LIMIT         => "Memory limit exceeded",
+            qtype_coderunner_sandbox::RESULT_ILLEGAL_SYSCALL      => "Illegal function call",
+            qtype_coderunner_sandbox::RESULT_INTERNAL_ERR         => "CodeRunner error (IE): please tell a tutor",
+            qtype_coderunner_sandbox::RESULT_SANDBOX_PENDING      => "CodeRunner error (PD): please tell a tutor",
+            qtype_coderunner_sandbox::RESULT_SANDBOX_POLICY       => "CodeRunner error (BP): please tell a tutor",
+            qtype_coderunner_sandbox::RESULT_OUTPUT_LIMIT         => "Excessive output",
+            qtype_coderunner_sandbox::RESULT_ABNORMAL_TERMINATION => "Abnormal termination"
         );
         if (!isset($RESULT_STRINGS[$resultCode])) {
             throw new coding_exception("Bad call to sandbox.resultString");
@@ -249,36 +249,36 @@ abstract class Sandbox {
         $result = $this->createSubmission($sourceCode, $language, $input,
                 true, true, $files, $params);
         $error = $result->error;
-        if ($error === Sandbox::OK) {
+        if ($error === qtype_coderunner_sandbox::OK) {
             $state = $this->getSubmissionStatus($result->link);
             $error = $state->error;
         }
 
-        if ($error != Sandbox::OK) {
+        if ($error != qtype_coderunner_sandbox::OK) {
             return (object) array('error' => $error);
         } else {
             $count = 0;
-            while ($state->error === Sandbox::OK &&
-                   $state->status !== Sandbox::STATUS_DONE &&
-                   $count < Sandbox::MAX_NUM_POLLS) {
+            while ($state->error === qtype_coderunner_sandbox::OK &&
+                   $state->status !== qtype_coderunner_sandbox::STATUS_DONE &&
+                   $count < qtype_coderunner_sandbox::MAX_NUM_POLLS) {
                 $count += 1;
-                sleep(Sandbox::POLL_INTERVAL);
+                sleep(qtype_coderunner_sandbox::POLL_INTERVAL);
                 $state = $this->getSubmissionStatus($result->link);
             }
 
-            if ($count >= Sandbox::MAX_NUM_POLLS) {
+            if ($count >= qtype_coderunner_sandbox::MAX_NUM_POLLS) {
                 throw new coderunner_exception("Timed out waiting for sandbox");
             }
 
-            if ($state->error !== Sandbox::OK ||
-                    $state->status !== Sandbox::STATUS_DONE) {
+            if ($state->error !== qtype_coderunner_sandbox::OK ||
+                    $state->status !== qtype_coderunner_sandbox::STATUS_DONE) {
                 throw new coding_exception("Error response or bad status from sandbox");
             }
 
             $details = $this->getSubmissionDetails($result->link);
 
             return (object) array(
-                'error'   => Sandbox::OK,
+                'error'   => qtype_coderunner_sandbox::OK,
                 'result'  => $state->result,
                 'output'  => $details->output,
                 'stderr'  => $details->stderr,
@@ -289,10 +289,10 @@ abstract class Sandbox {
 
     public function testFunction() {
         if ($this->authenticationError) {
-            return (object) array('error'=>Sandbox::AUTH_ERROR);
+            return (object) array('error'=>qtype_coderunner_sandbox::AUTH_ERROR);
         } else {
             return (object) array(
-                'error' => Sandbox::OK,
+                'error' => qtype_coderunner_sandbox::OK,
                 'moreHelp' => 'No more help available',
                 'pi' => 3.14,
                 'answerToLifeAndEverything' => 42,

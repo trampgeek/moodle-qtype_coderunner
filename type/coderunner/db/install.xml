@@ -4,34 +4,34 @@
     xsi:noNamespaceSchemaLocation="../../../../lib/xmldb/xmldb.xsd"
 >
   <TABLES>
-    <TABLE NAME="quest_coderunner_options" COMMENT="Extension of the coderunner question table">
+    <TABLE NAME="question_coderunner_options" COMMENT="Extension of the coderunner question table">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" COMMENT="Every home should have one"/>
         <FIELD NAME="questionid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The question this option applies to"/>
-        <FIELD NAME="coderunner_type" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="The name of the prototype question from which this question inherits. It should be a valid question name within the current question category or one of its ancestors."/>
-        <FIELD NAME="prototype_type" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="0 =&amp;gt; not a prototype, 1 =&amp;gt; built-in prototype, 2 =&amp;gt; user_defined prototype"/>
-        <FIELD NAME="all_or_nothing" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="True if answer must pass all test cases to earn any marks"/>
-        <FIELD NAME="show_source" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="True to display full source code after template expansion, for debugging template."/>
-        <FIELD NAME="answerbox_lines" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="18" SEQUENCE="false" COMMENT="The number of lines for the answer box"/>
-        <FIELD NAME="answerbox_columns" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="100" SEQUENCE="false" COMMENT="Number of columns of answerbox."/>
-        <FIELD NAME="use_ace" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="True to use the Ace code editor to control the student answer"/>
-        <FIELD NAME="penalty_regime" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="A comma-separated list of percentage penalties to apply to each submission. If empty use default question penalty"/>
-        <FIELD NAME="showtest" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="1" SEQUENCE="false" COMMENT="True if the test column of the results table is to be displayed to students. DEFUNCT. See result_columns."/>
-        <FIELD NAME="showstdin" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="1" SEQUENCE="false" COMMENT="True if the stdin column of the results table is to be displayed to students.  DEFUNCT. See result_columns."/>
-        <FIELD NAME="showexpected" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="1" SEQUENCE="false" COMMENT="True if the expected column of the results table is to be displayed to students.  DEFUNCT. See result_columns."/>
-        <FIELD NAME="showoutput" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="1" SEQUENCE="false" COMMENT="True if the output column of the results table is to be displayed to students.  DEFUNCT. See result_columns."/>
+        <FIELD NAME="coderunnertype" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="The name of the prototype question from which this question inherits. It should be a valid question name within the current question category or one of its ancestors."/>
+        <FIELD NAME="prototypetype" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="0 =&amp;gt; not a prototype, 1 =&amp;gt; built-in prototype, 2 =&amp;gt; user_defined prototype"/>
+        <FIELD NAME="allornothing" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="True if answer must pass all test cases to earn any marks"/>
+        <FIELD NAME="showsource" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="True to display full source code after template expansion, for debugging template."/>
+        <FIELD NAME="answerboxlines" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="18" SEQUENCE="false" COMMENT="The number of lines for the answer box"/>
+        <FIELD NAME="answerboxcolumns" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="100" SEQUENCE="false" COMMENT="Number of columns of answerbox."/>
+        <FIELD NAME="useace" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="True to use the Ace code editor to control the student answer"/>
+        <FIELD NAME="penaltyregime" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="A comma-separated list of percentage penalties to apply to each submission. If empty use default question penalty"/>
+        <FIELD NAME="showtest" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="1" SEQUENCE="false" COMMENT="True if the test column of the results table is to be displayed to students. DEFUNCT. See resultcolumns."/>
+        <FIELD NAME="showstdin" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="1" SEQUENCE="false" COMMENT="True if the stdin column of the results table is to be displayed to students.  DEFUNCT. See resultcolumns."/>
+        <FIELD NAME="showexpected" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="1" SEQUENCE="false" COMMENT="True if the expected column of the results table is to be displayed to students.  DEFUNCT. See resultcolumns."/>
+        <FIELD NAME="showoutput" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="1" SEQUENCE="false" COMMENT="True if the output column of the results table is to be displayed to students.  DEFUNCT. See resultcolumns."/>
         <FIELD NAME="answer" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="A solution to the problem. Should satisfy all the test cases (and may be used to generate solutions to them)."/>
-        <FIELD NAME="enable_combinator" TYPE="int" LENGTH="1" NOTNULL="false" SEQUENCE="false" COMMENT="True if the combinator template may be used. True for most built-in questions (i.e. the prototypes) and false for most other customised questions."/>
-        <FIELD NAME="showmark" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="True if the mark column of the results table is to be displayed to students.  DEFUNCT. See result_columns."/>
-        <FIELD NAME="result_columns" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="A JSON record defining which result fields to display in the results table and what column name to use."/>
-        <FIELD NAME="combinator_template" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="An optional template to be used to combine all tests into a single run"/>
-        <FIELD NAME="test_splitter_re" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="The regular expression argument to preg_split to split output from the combinator run into the basic tests again. Meaningful only if combinator template provided"/>
-        <FIELD NAME="per_test_template" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="A template to build a test run for each test case. Required."/>
-        <FIELD NAME="template_params" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="A json-encoded record of extra parameters to pass to the template engine when building the source code to be executed."/>
+        <FIELD NAME="enablecombinator" TYPE="int" LENGTH="1" NOTNULL="false" SEQUENCE="false" COMMENT="True if the combinator template may be used. True for most built-in questions (i.e. the prototypes) and false for most other customised questions."/>
+        <FIELD NAME="showmark" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="True if the mark column of the results table is to be displayed to students.  DEFUNCT. See resultcolumns."/>
+        <FIELD NAME="resultcolumns" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="A JSON record defining which result fields to display in the results table and what column name to use."/>
+        <FIELD NAME="combinatortemplate" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="An optional template to be used to combine all tests into a single run"/>
+        <FIELD NAME="testsplitterre" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="The regular expression argument to preg_split to split output from the combinator run into the basic tests again. Meaningful only if combinator template provided"/>
+        <FIELD NAME="pertesttemplate" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="A template to build a test run for each test case. Required."/>
+        <FIELD NAME="templateparams" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="A json-encoded record of extra parameters to pass to the template engine when building the source code to be executed."/>
         <FIELD NAME="language" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="The programming language, to be passed to the sandbox"/>
-        <FIELD NAME="ace_lang" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="The language to configure the ace editor (if used). Required only if that language is different from the template language, which is what's used by default."/>
+        <FIELD NAME="acelang" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="The language to configure the ace editor (if used). Required only if that language is different from the template language, which is what's used by default."/>
         <FIELD NAME="sandbox" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="The PHP class name of a specific sandbox to use. If null, a default one for the language is used."/>
-        <FIELD NAME="sandbox_params" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="JSON-encoded extra parameters to sandbox."/>
+        <FIELD NAME="sandboxparams" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="JSON-encoded extra parameters to sandbox."/>
         <FIELD NAME="grader" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="The PHP class name of the grader to use to grade results from the sandbox. If null, the BasicGrader class is used."/>
         <FIELD NAME="cputimelimitsecs" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="The maximum CPU time allowed for execution (secs)"/>
         <FIELD NAME="memlimitmb" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="The maximum memory allowed for this task execution (MB)"/>
@@ -45,7 +45,7 @@
         <INDEX NAME="prototype_type" UNIQUE="false" FIELDS="prototype_type"/>
       </INDEXES>
     </TABLE>
-    <TABLE NAME="quest_coderunner_testcases" COMMENT="A test case is a test to perform on a student's code answer; should output the given output. A test case is regarded as an extension of an 'answer' in Moodle parlance.">
+    <TABLE NAME="question_coderunner_tests" COMMENT="Contains test  (usually called 'testcases') to perform on a student's code answer; should output the given output. A test case is regarded as an extension of an 'answer' in Moodle parlance.">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="questionid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Foreign key referencing question to which this test case relates"/>

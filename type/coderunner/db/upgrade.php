@@ -388,7 +388,42 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2014111002, 'qtype', 'coderunner');
     }
 
-
+    if ($oldversion != 0 && $oldversion < 2015010401) {
+        // Major changes for version 3. Rename options and testcases tables
+        // plus all fields with underscores (removing the underscores).
+        // Done for compatibility with Moodle coding guidelines. Sigh.
+        $table1 = new xmldb_table('quest_coderunner_options');
+        if ($dbman->table_exists($table)) {
+            $dbman->rename_table($table1, 'question_coderunner_options');
+        }
+        $table2 = new xmldb_table('quest_coderunner_testcases');
+        if ($dbman->table_exists($table2)) {
+            $dbman->rename_table($table2, 'question_coderunner_tests');
+        }
+        
+        $oldfields = array(  // Fields requiring renaming
+            'coderunner_type',
+            'prototype_type',
+            'all_or_nothing',
+            'answerbox_lines',
+            'answerbox_columns',
+            'use_ace',
+            'penalty_regime',
+            'enable_combinator',
+            'result_columns',
+            'combinator_template',
+            'test_splitter_re',
+            'per_test_template',
+            'template_params',
+            'ace_lang',
+            'sandbox_params'
+        ); 
+        foreach ($oldfields as $fieldname) {
+            $newfieldname = str_replace('_', '', $fieldname);
+            $field = 
+            $dbman->rename_field($table1, $field, $newfield);
+        }
+    }
     
     updateQuestionTypes();
             

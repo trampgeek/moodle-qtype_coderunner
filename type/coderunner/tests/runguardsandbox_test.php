@@ -13,7 +13,7 @@
 
 global $CFG;
 require_once($CFG->dirroot . '/question/type/coderunner/tests/coderunnertestcase.php');
-require_once($CFG->dirroot . '/question/type/coderunner/Sandbox/runguardsandbox.php');
+require_once($CFG->dirroot . '/question/type/coderunner/sandbox/runguardsandbox.php');
 
 class qtype_coderunner_runguardsandbox_test extends qtype_coderunner_testcase {
 
@@ -21,7 +21,7 @@ class qtype_coderunner_runguardsandbox_test extends qtype_coderunner_testcase {
         $this->check_sandbox_enabled('runguardsandbox');
         $sandbox = new qtype_coderunner_runguardsandbox();
         $tr = $sandbox->testFunction();
-        $this->assertEquals(Sandbox::OK, $tr->error);
+        $this->assertEquals(qtype_coderunner_sandbox::OK, $tr->error);
         $this->assertEquals(3.14, $tr->pi);
         $this->assertEquals(42, $tr->answerToLifeAndEverything);
         $this->assertTrue($tr->oOok);
@@ -39,7 +39,7 @@ class qtype_coderunner_runguardsandbox_test extends qtype_coderunner_testcase {
         $sandbox = new qtype_coderunner_runguardsandbox();
         $code = "print 'Hello Sandbox'\nprint 'Python rulz'";
         $result = $sandbox->execute($code, 'python2', null);
-        $this->assertEquals(Sandbox::RESULT_SUCCESS, $result->result);
+        $this->assertEquals(qtype_coderunner_sandbox::RESULT_SUCCESS, $result->result);
         $this->assertEquals("Hello Sandbox\nPython rulz\n", $result->output);
         $this->assertEquals(0, $result->signal);
         $this->assertEquals('', $result->cmpinfo);
@@ -54,7 +54,7 @@ class qtype_coderunner_runguardsandbox_test extends qtype_coderunner_testcase {
         $sandbox = new qtype_coderunner_runguardsandbox();
         $code = "print 'Hello Sandbox'\nprint 'Python rulz' + ";
         $result = $sandbox->execute($code, 'python2', null);
-        $this->assertEquals(Sandbox::RESULT_ABNORMAL_TERMINATION, $result->result);
+        $this->assertEquals(qtype_coderunner_sandbox::RESULT_ABNORMAL_TERMINATION, $result->result);
         $this->assertEquals(0, $result->signal);
         $this->assertTrue(strpos($result->stderr, 'SyntaxError') !== false);
         $sandbox->close();
@@ -68,7 +68,7 @@ class qtype_coderunner_runguardsandbox_test extends qtype_coderunner_testcase {
         $sandbox = new qtype_coderunner_runguardsandbox();
         $code = "while True: pass";
         $result = $sandbox->execute($code, 'python2', null);
-        $this->assertEquals(Sandbox::RESULT_TIME_LIMIT, $result->result);
+        $this->assertEquals(qtype_coderunner_sandbox::RESULT_TIME_LIMIT, $result->result);
         $this->assertEquals('', $result->output);
         $this->assertTrue($result->signal == 9);
         $this->assertEquals('', $result->cmpinfo);
@@ -81,7 +81,7 @@ class qtype_coderunner_runguardsandbox_test extends qtype_coderunner_testcase {
         $sandbox = new qtype_coderunner_runguardsandbox();
         $code = "data = list(range(1,100000000000))";
         $result = $sandbox->execute($code, 'python2', null);
-        $this->assertEquals(Sandbox::RESULT_ABNORMAL_TERMINATION, $result->result);
+        $this->assertEquals(qtype_coderunner_sandbox::RESULT_ABNORMAL_TERMINATION, $result->result);
         $this->assertEquals('', $result->output);
         $this->assertTrue(strpos($result->stderr, 'MemoryError') !== false ||
                 strpos($result->stderr, 'OverflowError') !== false);
@@ -98,7 +98,7 @@ class qtype_coderunner_runguardsandbox_test extends qtype_coderunner_testcase {
         $sandbox = new qtype_coderunner_runguardsandbox();
         $code = "while 1: print('blah blah blah blah blah blah blah')";
         $result = $sandbox->execute($code, 'python3', null);
-        $this->assertEquals(Sandbox::RESULT_TIME_LIMIT, $result->result);
+        $this->assertEquals(qtype_coderunner_sandbox::RESULT_TIME_LIMIT, $result->result);
         $this->assertTrue($result->signal == 9);
         $this->assertEquals('', $result->cmpinfo);
         $sandbox->close();

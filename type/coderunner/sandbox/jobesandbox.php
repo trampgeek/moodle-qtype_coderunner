@@ -16,14 +16,14 @@ require_once 'HTTP/Request2.php';
 
 define('DEBUGGING', '0');
 
-class qtype_coderunner_jobesandbox extends Sandbox {
+class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
 
     var $languages = null;   // Languages supported by this sandbox
     var $status = null;      // Status as set by constructor
 
     public function __construct() {
         // Constructor gets languages from Jobe and stores them.
-        Sandbox::__construct();
+        qtype_coderunner_sandbox::__construct();
         list($returnCode, $language_pairs) = $this->httpRequest(
                 'languages', HTTP_Request2::METHOD_GET, null);
 
@@ -32,9 +32,9 @@ class qtype_coderunner_jobesandbox extends Sandbox {
             foreach ($language_pairs as $lang) {
                 $this->languages[] = $lang[0];
             };
-            $this->status = Sandbox::OK; 
+            $this->status = qtype_coderunner_sandbox::OK; 
         } else {
-            $this->status = Sandbox::UNKNOWN_SERVER_ERROR;
+            $this->status = qtype_coderunner_sandbox::UNKNOWN_SERVER_ERROR;
         }        
     }
 
@@ -59,7 +59,7 @@ class qtype_coderunner_jobesandbox extends Sandbox {
     {
         // Check language is valid
         if (!in_array($language, $this->get_languages()->languages)) {
-            return (object) array('error' => Sandbox::WRONG_LANG_ID,
+            return (object) array('error' => qtype_coderunner_sandbox::WRONG_LANG_ID,
                                   'link' => 0);
         }
         $fileList = array();
@@ -112,9 +112,9 @@ class qtype_coderunner_jobesandbox extends Sandbox {
         }
 
         if ($httpCode == 200) {  // We don't deal with Jobe servers that return 202!
-            $status = Sandbox::OK;  // (And resultObject has been saved in this)
+            $status = qtype_coderunner_sandbox::OK;  // (And resultObject has been saved in this)
         } else {
-            $status = Sandbox::UNKNOWN_SERVER_ERROR;
+            $status = qtype_coderunner_sandbox::UNKNOWN_SERVER_ERROR;
         }
         $this->link = rand();  // A constant should do but this protects against inadvertent re-enty
         $answer = (object) array('error'=>$status, 'link'=>$this->link);
@@ -128,14 +128,14 @@ class qtype_coderunner_jobesandbox extends Sandbox {
         
         if (is_object($this->resultObj) && isset($this->resultObj->outcome)) {
             return (object) array(
-                    'error' => Sandbox::OK,
-                    'status'=> Sandbox::STATUS_DONE,
+                    'error' => qtype_coderunner_sandbox::OK,
+                    'status'=> qtype_coderunner_sandbox::STATUS_DONE,
                     'result'=> $this->resultObj->outcome
             );
         } else {
             return (object) array(
-                    'error' => Sandbox::OK,
-                    'status'=> Sandbox::UNKNOWN_SERVER_ERROR
+                    'error' => qtype_coderunner_sandbox::OK,
+                    'status'=> qtype_coderunner_sandbox::UNKNOWN_SERVER_ERROR
             );
         }
     }
@@ -152,7 +152,7 @@ class qtype_coderunner_jobesandbox extends Sandbox {
         }
 
         return (object) array(
-                'error'  => Sandbox::OK,
+                'error'  => qtype_coderunner_sandbox::OK,
                 'time'   => 0,  // TODO - consider if this needs fixing
                 'memory' => 0,  // TODO - consider if this needs fixing
                 'signal' => 0,  // TODO - consider if this needs fixing

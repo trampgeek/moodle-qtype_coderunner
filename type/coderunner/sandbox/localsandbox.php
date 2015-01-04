@@ -1,6 +1,6 @@
 <?php
-/** A LocalSandbox is a subclass of the base Sandbox class, representing
- *  a sandbox that runs on the local server, performing compilation locally,
+/** A LocalSandbox is a subclass of the base qtype_coderunner_sandbox class, 
+ *  representing a sandbox that runs on the local server, performing compilation locally,
  *  caching compiled files, and processing the entire submission in a single
  *  call, rather than queueing the task for asynchronous procesing or
  *  sending it to a remove web service.
@@ -21,7 +21,7 @@
 
 global $CFG;
 require_once($CFG->dirroot . '/question/type/coderunner/locallib.php');
-require_once($CFG->dirroot . '/question/type/coderunner/Sandbox/sandboxbase.php');
+require_once($CFG->dirroot . '/question/type/coderunner/sandbox/sandboxbase.php');
 
 // A LanguageTask encapsulates the language specific behaviour associated
 // with compiling and running a particular bit of source code. It is subclassed
@@ -34,7 +34,7 @@ abstract class LanguageTask {
     public $signal = 0;
     public $output = '';    // Output from execution
     public $stderr = '';
-    public $result = Sandbox::RESULT_NO_RUN;
+    public $result = qtype_coderunner_sandbox::RESULT_NO_RUN;
     public $workdir = '';   // The temporary working directory created in constructor
 
     // For all languages it is necessary to store the source code in a
@@ -140,7 +140,7 @@ abstract class LanguageTask {
 //
 //******************************************************************
 
-abstract class qtype_coderunner_localsandbox extends Sandbox {
+abstract class qtype_coderunner_localsandbox extends qtype_coderunner_sandbox {
 
     private static $currentRunId = '99';  // The only one we ever use
     protected $date = null;         // Current date/time
@@ -148,7 +148,7 @@ abstract class qtype_coderunner_localsandbox extends Sandbox {
     protected $language = null;     // The language of the current task
 
     public function __construct($user=null, $pass=null) {
-        Sandbox::__construct($user, $pass);
+        qtype_coderunner_sandbox::__construct($user, $pass);
     }
 
 
@@ -209,19 +209,19 @@ abstract class qtype_coderunner_localsandbox extends Sandbox {
             $this->runInSandbox($input, $files);
         }
         else {
-            $this->task->result = Sandbox::RESULT_COMPILATION_ERROR;
+            $this->task->result = qtype_coderunner_sandbox::RESULT_COMPILATION_ERROR;
         }
 
-        return (object) array('error' => Sandbox::OK, 'link' => self::$currentRunId);
+        return (object) array('error' => qtype_coderunner_sandbox::OK, 'link' => self::$currentRunId);
     }
 
 
     public function getSubmissionStatus($link) {
         if (!isset($this->task) || $link !== self::$currentRunId) {
-            return (object) array('error' => Sandbox::PASTE_NOT_FOUND);
+            return (object) array('error' => qtype_coderunner_sandbox::PASTE_NOT_FOUND);
         } else {
-            return (object) array('error' => Sandbox::OK,
-                         'status' => Sandbox::STATUS_DONE,
+            return (object) array('error' => qtype_coderunner_sandbox::OK,
+                         'status' => qtype_coderunner_sandbox::STATUS_DONE,
                          'result' => $this->task->result);
         }
     }
@@ -232,11 +232,11 @@ abstract class qtype_coderunner_localsandbox extends Sandbox {
             $withCmpinfo=true) {
 
         if (!isset($this->task) || $link !== self::$currentRunId) {
-            return (object) array('error' => Sandbox::PASTE_NOT_FOUND);
+            return (object) array('error' => qtype_coderunner_sandbox::PASTE_NOT_FOUND);
         } else {
             $retVal = (object) array(
-                'error'     => Sandbox::OK,
-                'status'    => Sandbox::STATUS_DONE,
+                'error'     => qtype_coderunner_sandbox::OK,
+                'status'    => qtype_coderunner_sandbox::STATUS_DONE,
                 'result'    => $this->task->result,
                 'langId'    => array_search($this->language, $this->get_languages()->languages),
                 'langName'  => $this->language,

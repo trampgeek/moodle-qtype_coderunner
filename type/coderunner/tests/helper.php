@@ -107,13 +107,13 @@ class qtype_coderunner_test_helper extends question_test_helper {
 
     /**
      * Makes a coderunner question asking for a sqr() function.
-     * @param $coderunner_type  The type of coderunner function to generate,
+     * @param $coderunnertype  The type of coderunner function to generate,
      * e.g. 'python3_pylint'.
      * @return qtype_coderunner_question
      */
-    private function make_coderunner_question_sqr_subtype($coderunner_type, $extras = array()) {
+    private function make_coderunner_question_sqr_subtype($coderunnertype, $extras = array()) {
         $coderunner = $this->makeCodeRunnerQuestion(
-                $coderunner_type,
+                $coderunnertype,
                 'Function to square a number n',
                 'Write a function sqr(n) that returns n squared',
                 array(
@@ -172,8 +172,8 @@ class qtype_coderunner_test_helper extends question_test_helper {
     public function make_coderunner_question_sqrCustomised() {
         $q = $this->make_coderunner_question_sqr_subtype('python3', 
           array(
-            'per_test_template' => "def times(a, b): return a * b\n\n{{STUDENT_ANSWER}}\n\n{{TEST.testcode}}\n",
-            'enable_combinator' => False)
+            'pertesttemplate' => "def times(a, b): return a * b\n\n{{STUDENT_ANSWER}}\n\n{{TEST.testcode}}\n",
+            'enablecombinator' => False)
           );
         return $q;
     }
@@ -202,7 +202,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
                           'expected' => '36',
                           'display'  => 'HIDE', // The last testcase must be hidden
                           'mark'     => 2.5)
-        ), array('all_or_nothing' => false));
+        ), array('allornothing' => false));
         return $coderunner;
     }
 
@@ -544,7 +544,7 @@ printf(\"%s\\n\", s);
     
     private function makeMacroQuestion($qtype) {
         $options = array();
-        $options['per_test_template'] = <<<EOT
+        $options['pertesttemplate'] = <<<EOT
 function tester()
   ESCAPED_STUDENT_ANSWER =  sprintf('{{MATLAB_ESCAPED_STUDENT_ANSWER}}');
   {{TEST.testcode}};quit();
@@ -553,9 +553,9 @@ end
 {{STUDENT_ANSWER}}
 EOT;
         if ($qtype === 'octave_function') {
-            $options['per_test_template'] .= "\n\ntester()\n";
+            $options['pertesttemplate'] .= "\n\ntester()\n";
         }
-        $options['enable_combinator'] = false;
+        $options['enablecombinator'] = false;
         
         $questiontext = <<<EOT
  Enter the following program:
@@ -640,9 +640,9 @@ EOT
                      'expected'   => '256'),
              ),
              array('language'          => 'nodejs',
-                   'sandbox_params'    => '{"memorylimit": 1000000}',
-                   'per_test_template' => "{{STUDENT_ANSWER}}\n{{TEST.testcode}}\n",
-                   'enable_combinator' => False)
+                   'sandboxparams'    => '{"memorylimit": 1000000}',
+                   'pertesttemplate' => "{{STUDENT_ANSWER}}\n{{TEST.testcode}}\n",
+                   'enablecombinator' => False)
         );
         return $coderunner;
     }
@@ -754,8 +754,8 @@ EOPROG;
                         'stdin'    => "5\n",
                         'expected' => "a0\nb\t\nc\f\nd'This is a string'\n\"So is this\"")
                 ),
-                array('per_test_template' =>  $template,
-                      'enable_combinator' => false)
+                array('pertesttemplate' =>  $template,
+                      'enablecombinator' => false)
         );
         return $q;
     }
@@ -772,11 +772,11 @@ EOPROG;
     private function getOptions(&$question) {
         global $CFG, $DB;
         
-        $type = $question->coderunner_type;
+        $type = $question->coderunnertype;
 
         if (!$row = $DB->get_record_select(
-                   'quest_coderunner_options',
-                   "coderunner_type = '$type' and prototype_type != 0")) {
+                   'question_coderunner_options',
+                   "coderunnertype = '$type' and prototypetype != 0")) {
                throw new MissingCoderunnerQuestionType("TestHelper: failed to load type info for question with type $type");
         }
         
@@ -838,13 +838,13 @@ EOPROG;
         $coderunner = new qtype_coderunner_question();
         test_question_maker::initialise_a_question($coderunner);
         $coderunner->qtype = question_bank::get_qtype('coderunner');
-        $coderunner->coderunner_type = $type;
-        $coderunner->prototype_type = 0;
+        $coderunner->coderunnertype = $type;
+        $coderunner->prototypetype = 0;
         $coderunner->name = $name;
-        $coderunner->use_ace = true;
+        $coderunner->useace = true;
         $coderunner->questiontext = $questionText;
-        $coderunner->all_or_nothing = true;
-        $coderunner->show_source = false;
+        $coderunner->allornothing = true;
+        $coderunner->showsource = false;
         $coderunner->generalfeedback = 'No feedback available for coderunner questions.';
         $coderunner->unitpenalty = 0.2;
         $coderunner->customise = false;

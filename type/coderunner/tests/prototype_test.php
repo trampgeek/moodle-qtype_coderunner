@@ -24,7 +24,7 @@ class qtype_coderunner_prototype_test extends qtype_coderunner_testcase {
     public function test_inheritance_from_prototype() {
         $this->make_sqr_user_type_prototype();
         $q2 = $this->make_question('sqr_user_prototype_child');  // Make a derived question
-        $this->assertEquals('combinatortemplatevalue', $q2->combinator_template);
+        $this->assertEquals('combinatortemplatevalue', $q2->combinatortemplate);
         $this->assertEquals('jobesandbox', $q2->sandbox);
     }
      
@@ -71,10 +71,10 @@ class qtype_coderunner_prototype_test extends qtype_coderunner_testcase {
         $q = $this->make_question('sqr');
         $q->test_cases = array();  // No testcases in a prototype
         $q->customise = 1;
-        $q->prototype_type = 2;
+        $q->prototypetype = 2;
         $q->type_name = "sqr_user_prototype";
         $q->cputimelimitsecs = 179; // Silly test value
-        $q->combinator_template = 'combinatortemplatevalue';
+        $q->combinatortemplate = 'combinatortemplatevalue';
         $q->sandbox = "jobesandbox";
         
         // Save the prototype to the DB so it has an accessible context for

@@ -254,7 +254,7 @@ EOCODE;
      }
 
      public function test_partial_mark_question() {
-         // Test a question that isn't of the usual all_or_nothing variety
+         // Test a question that isn't of the usual allornothing variety
         $q = $this->make_question('sqrPartMarks');
         $code = "def sqr(n):\n  return -17.995";
         $response = array('answer' => $code);

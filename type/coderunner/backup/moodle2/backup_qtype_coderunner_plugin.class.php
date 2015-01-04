@@ -58,7 +58,7 @@ class backup_qtype_coderunner_plugin extends backup_qtype_plugin {
         $options->add_child($option);
 
         // Set the source
-        $option->set_source_table('quest_coderunner_options', array('questionid' => backup::VAR_PARENTID));
+        $option->set_source_table('question_coderunner_options', array('questionid' => backup::VAR_PARENTID));
     }
 
 
@@ -80,7 +80,7 @@ class backup_qtype_coderunner_plugin extends backup_qtype_plugin {
         $testcases->add_child($testcase);
 
         // Set the source
-        $testcase->set_source_table("quest_coderunner_testcases", array('questionid' => backup::VAR_PARENTID));
+        $testcase->set_source_table("question_coderunner_tests", array('questionid' => backup::VAR_PARENTID));
 
         // TODO: sort out how to associate the files with the question.
 
