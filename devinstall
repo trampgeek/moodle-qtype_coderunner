@@ -8,6 +8,7 @@
 
 from __future__ import print_function
 import os
+import shutil
 import subprocess
 
 def printFailMessage():
@@ -34,9 +35,15 @@ def main():
                 ("behaviour/adaptive_adapted_for_coderunner", "moodle/question/behaviour/adaptive_adapted_for_coderunner")]
 
             for (src,dest) in dirs:
-                if os.path.isdir("{0}/{1}".format(basedir, dest)):
-                    continue  # Directory already exists
-                if subprocess.call("ln -s {0}/{1} {2}/{3}".format(installdir, src, basedir, dest), shell=True) != 0:
+                newdir = "{0}/{1}".format(basedir, dest)
+                if os.path.islink(newdir):  # Symbolic link?
+                    print("Deleting symbolic link {}".format(newdir))
+                    os.unlink(newdir)
+                elif os.path.isdir(newdir):
+                    print("Removing existing directory {}".format(newdir))
+                    shutil.rmtree(newdir) 
+                print("Creating new symbolic link {}".format(newdir))                  
+                if subprocess.call("ln -s {0}/{1} {2}".format(installdir, src, newdir), shell=True) != 0:
                     raise OSError("Failed to create symbolic link")
             print("Install complete.")
 

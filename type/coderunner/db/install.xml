@@ -41,8 +41,8 @@
         <KEY NAME="questionid" TYPE="foreign" FIELDS="questionid" REFTABLE="questions" REFFIELDS="id"/>
       </KEYS>
       <INDEXES>
-        <INDEX NAME="coderunner_type" UNIQUE="false" FIELDS="coderunner_type"/>
-        <INDEX NAME="prototype_type" UNIQUE="false" FIELDS="prototype_type"/>
+        <INDEX NAME="coderunnertype" UNIQUE="false" FIELDS="coderunnertype"/>
+        <INDEX NAME="prototypetype" UNIQUE="false" FIELDS="prototypetype"/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="question_coderunner_tests" COMMENT="Contains test  (usually called 'testcases') to perform on a student's code answer; should output the given output. A test case is regarded as an extension of an 'answer' in Moodle parlance.">

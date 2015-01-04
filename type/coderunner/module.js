@@ -248,14 +248,14 @@ M.qtype_coderunner.insertString = function(Y, ta, sToInsert) {
 
 // Script for the edit_coderunner_form page.
 M.qtype_coderunner.initEditForm = function(Y) {
-    var typeCombo = Y.one('#id_coderunner_type'),
-        template = Y.one('#id_per_test_template'),
-        enable_combinator = Y.one('#id_enable_combinator'),
-        use_ace = Y.one('#id_use_ace'),
-        combinatortemplate = Y.one('#id_combinator_template'),
-        test_splitter = Y.one('#id_test_splitter_re'),
+    var typeCombo = Y.one('#id_coderunnertype'),
+        template = Y.one('#id_pertesttemplate'),
+        enablecombinator = Y.one('#id_enablecombinator'),
+        useace = Y.one('#id_use_ace'),
+        combinatortemplate = Y.one('#id_combinatortemplate'),
+        testsplitter = Y.one('#id_testsplitterre'),
         language = Y.one('#id_language'),
-        templateBlock = Y.one('#fitem_id_per_test_template'),
+        templateBlock = Y.one('#fitem_id_pertesttemplate'),
         gradingBlock = Y.one('#fgroup_id_gradingcontrols'),
         columnDisplayBlock = Y.one('#fgroup_id_columncontrols'),
         sandboxBlock = Y.one('#fgroup_id_sandboxcontrols'),
@@ -263,12 +263,12 @@ M.qtype_coderunner.initEditForm = function(Y) {
         cputime = Y.one('#id_cputimelimitsecs'),
         memlimit = Y.one('#id_memlimitmb'),
         sandbox = Y.one('#id_sandbox'),
-        sandboxparams = Y.one('#id_sandbox_params'),
+        sandboxparams = Y.one('#id_sandboxparams'),
         customisationFieldSet = Y.one('#id_customisationheader'),
         advancedCustomisation = Y.one('#id_advancedcustomisationheader'),
         isCustomised = customise.get('checked'),
-        prototypeType = Y.one("#id_prototype_type"),
-        typeName = Y.one('#id_type_name'),
+        prototypeType = Y.one("#id_prototypetype"),
+        typeName = Y.one('#id_typename'),
         courseId = Y.one('input[name="courseid"]').get('value'),
         message = '';
 
@@ -278,8 +278,8 @@ M.qtype_coderunner.initEditForm = function(Y) {
         customisationFieldSet.setStyle('display', display);
         advancedCustomisation.setStyle('display', display);
         if (isVisible && use_ace.get('checked')) {
-            M.qtype_coderunner.init_ace(Y, 'id_per_test_template', lang);
-            M.qtype_coderunner.init_ace(Y, 'id_combinator_template', lang);
+            M.qtype_coderunner.init_ace(Y, 'id_pertesttemplate', lang);
+            M.qtype_coderunner.init_ace(Y, 'id_combinatortemplate', lang);
         }
     }
 
@@ -312,9 +312,9 @@ M.qtype_coderunner.initEditForm = function(Y) {
                             sb_param_val = outcome.sandboxparams ? outcome.sandboxparams : '';
                             sandboxparams.set('value', sb_param_val);
                             combinatortemplate.set('value', outcome.combinatortemplate);
-                            enable_combinator.set('checked', outcome.enable_combinator == "1");
+                            enablecombinator.set('checked', outcome.enablecombinator == "1");
                             splitter = outcome.testsplitterre ? outcome.testsplitterre.replace('\n','\\n'): '';
-                            test_splitter.set('value', splitter);
+                            testsplitter.set('value', splitter);
                             language.set('value', outcome.language);
                             typeName.set('value', newType);
                             customise.set('checked', false);

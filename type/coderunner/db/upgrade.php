@@ -393,7 +393,7 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         // plus all fields with underscores (removing the underscores).
         // Done for compatibility with Moodle coding guidelines. Sigh.
         $table1 = new xmldb_table('quest_coderunner_options');
-        if ($dbman->table_exists($table)) {
+        if ($dbman->table_exists($table1)) {
             $dbman->rename_table($table1, 'question_coderunner_options');
         }
         $table2 = new xmldb_table('quest_coderunner_testcases');
@@ -401,28 +401,43 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
             $dbman->rename_table($table2, 'question_coderunner_tests');
         }
         
-        $oldfields = array(  // Fields requiring renaming
-            'coderunner_type',
-            'prototype_type',
-            'all_or_nothing',
-            'answerbox_lines',
-            'answerbox_columns',
-            'use_ace',
-            'penalty_regime',
-            'enable_combinator',
-            'result_columns',
-            'combinator_template',
-            'test_splitter_re',
-            'per_test_template',
-            'template_params',
-            'ace_lang',
-            'sandbox_params'
+        $optionstable = new xmldb_table('question_coderunner_options');
+        
+        // Now all the renames
+        $oldfields = array(  // Fields requiring renaming (why do I need their types? Grrr.)
+            array('coderunner_type', XMLDB_TYPE_CHAR, 255),
+            array('prototype_type', XMLDB_TYPE_INTEGER, 1),
+            array('all_or_nothing', XMLDB_TYPE_INTEGER, 1),
+            array('answerbox_lines', XMLDB_TYPE_INTEGER, 5),
+            array('answerbox_columns', XMLDB_TYPE_INTEGER, 5),
+            array('use_ace', XMLDB_TYPE_INTEGER, 1),
+            array('penalty_regime', XMLDB_TYPE_CHAR, 255),
+            array('enable_combinator', XMLDB_TYPE_INTEGER, 1),
+            array('result_columns', XMLDB_TYPE_CHAR, 255),
+            array('combinator_template', XMLDB_TYPE_TEXT, 0),
+            array('test_splitter_re', XMLDB_TYPE_CHAR, 255),
+            array('per_test_template', XMLDB_TYPE_TEXT, 0),
+            array('template_params', XMLDB_TYPE_CHAR, 255),
+            array('ace_lang', XMLDB_TYPE_CHAR, 255),
+            array('sandbox_params', XMLDB_TYPE_CHAR, 255),
+            array('show_source', XMLDB_TYPE_INTEGER, 1)
         ); 
-        foreach ($oldfields as $fieldname) {
+        foreach ($oldfields as $f) {
+            list($fieldname, $type, $len) = $f;
             $newfieldname = str_replace('_', '', $fieldname);
-            $field = 
-            $dbman->rename_field($table1, $field, $newfield);
+            if ($len != 0) {
+                $field = new xmldb_field($fieldname, $type, $len);
+            } else {
+                $field = new xmldb_field($fieldname, $type);
+            }
+            if ($dbman->field_exists($optionstable, $field)) {
+                $dbman->rename_field($optionstable, $field, $newfieldname);
+            }
         }
+        
+        // Coderunner savepoint reached.
+        upgrade_plugin_savepoint(true, 2015010401, 'qtype', 'coderunner');
+
     }
     
     updateQuestionTypes();
@@ -535,7 +550,7 @@ function updateQuestionTypes() {
     $prototypes = $DB->get_records_select('question',
             "category = $prototypeCategoryId and name like '%PROTOTYPE_%'");
     foreach ($prototypes as $question) {
-       $DB->delete_records('quest_coderunner_options',
+       $DB->delete_records('question_coderunner_options',
             array('questionid' => $question->id));
        $DB->delete_records('question', array('id' => $question->id));
     }
@@ -592,6 +607,7 @@ function make_result_columns() {
     // Find all questions using non-standard result table display and 
     // build a result_columns field that matches the currently defined 
     // set of showtest, showstdin, showexpected, showoutput and showmark
+    // This code should only run prior to the version 3 upgrade.
     global $DB;
     
     $questions = $DB->get_records_select('quest_coderunner_options',
