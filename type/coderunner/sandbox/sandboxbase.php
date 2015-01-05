@@ -3,7 +3,7 @@
  *  Sandboxes have an external name, which appears in the exported .xml question
  *  files for example, and a classname and a filename in which the class is
  *  defined.
- *  Essentially just defines the API, which is heavily based on the ideone
+ *  Error and result codes are based on those of the ideone
  *  API, which should be consulted for details:
  *  see ideone.com/files/ideone-api.pdf
  */
@@ -39,12 +39,6 @@ abstract class qtype_coderunner_sandbox {
     const CREATE_SUBMISSION_FAILED = 6; // Failed on call to CREATE_SUBMISSION
     const UNKNOWN_SERVER_ERROR = 7;
     
-    // Values of the 'status' attribute of the object returned by
-    // a call to getSubmissionStatus.
-    const STATUS_WAITING     = -1;
-    const STATUS_DONE        = 0;
-    const STATUS_COMPILING   = 1;
-    const STATUS_RUNNING     = 3;
 
     // Values of the result 'attribute' of the object returned by a call to
     // get submissionStatus.
@@ -62,7 +56,6 @@ abstract class qtype_coderunner_sandbox {
     const RESULT_SANDBOX_POLICY     = 22; // Liu sandbox BP error
     const RESULT_OUTPUT_LIMIT       = 30;
     const RESULT_ABNORMAL_TERMINATION = 31;
-    
 
     const POLL_INTERVAL = 3;     // secs to wait for sandbox done
     const MAX_NUM_POLLS = 40;    // No more than 120 seconds waiting
@@ -113,7 +106,7 @@ abstract class qtype_coderunner_sandbox {
         $authenticationError = false;
     }
 
-    // Strings corresponding to the create-submission error codes defined above
+    // Strings corresponding to the execute error codes defined above
     public static function error_string($errorcode) {
         $ERROR_STRINGS = array(
             qtype_coderunner_sandbox::OK              => "OK",
@@ -180,40 +173,9 @@ abstract class qtype_coderunner_sandbox {
      */
     abstract public function get_languages();
 
-    // Create a submission object, which has an error and a link field, the
-    // latter being the 'handle' by which the submission is subsequently
-    // referred to. Error codes are as defined by the first block of symbolic
-    // constants above (the values 0 through 6). These are
-    // exactly the values defined by the ideone api, with a couple of additions.
-    // The $files parameter is an addition to the Ideone-based interface to
-    // allow for providing a set of files for use at runtime. It is an
-    // associative array mapping filename to filecontents (or null for no files).
-    // The $params parameter is also an addition to the Ideone-based interface to
-    // allow for setting sandbox parameters. It's an associative array, with
-    // a sandbox-dependent set of keys, although all except the Ideone sandbox
-    // should recognise at least the keys 'cputime' (CPU time limit, in seconds)
-    // 'memorylimit' (in megabytes) and 'files' (an associative array mapping
-    // filenames to string filecontents).
-    abstract public function create_submission($sourceCode, $language, $input,
-            $run=true, $private=true, $files=null, $params=null);
 
-    // Enquire about the status of the submission with the given 'link' (aka
-    // handle. The return value is an object containing an error, a status and
-    // a result attribute, the values of which are given by the symbolic
-    // constants above.
-    abstract public function get_submission_status($link);
-
-    // Should only be called if the status is STATUS_DONE. Returns an ideone
-    // style object with fields error, langId, langName, langVersion, time,
-    // date, status, result, memory, signal, cmpinfo, output.
-    abstract public function get_submission_details($link, $withSource=false,
-            $withInput=false, $withOutput=true, $withStderr=true,
-            $withCmpinfo=true);
-
-    /** Main interface function for use by coderunner but not part of ideone API.
-     *  Executes the given source code in the given language with the given
-     *  input and returns an object with fields error, result, time,
-     *  memory, signal, cmpinfo, stderr, output.
+    /** Execute the given source code in the given language with the given
+     *  input and returns an object with fields error, result, signal, cmpinfo, stderr, output.
      * @param string $sourcecode The source file to compile and run
      * @param string $language  One of the languages regognised by the sandbox
      * @param string $input A string to use as standard input during execution
@@ -238,55 +200,7 @@ abstract class qtype_coderunner_sandbox {
      *             cmpinfo: the output from the compilation run (usually empty
      *                     unless the result code is for a compilation error).
      */
-    public function execute($sourcecode, $language, $input, $files=null, $params=null) {
-        $language = strtolower($language);
-        if ($this->get_languages() === null || !in_array($language, $this->get_languages())) {
-            // Shouldn't be possible
-            throw new coderunner_exception('Executing an unsupported language in sandbox');
-        }
-        if ($input !== '' && substr($input, -1) != "\n") {
-            $input .= "\n";  // Force newline on the end if necessary
-        }
-        $result = $this->create_submission($sourcecode, $language, $input,
-                true, true, $files, $params);
-        $error = $result->error;
-        if ($error === qtype_coderunner_sandbox::OK) {
-            $state = $this->get_submission_status($result->link);
-            $error = $state->error;
-        }
-
-        if ($error != qtype_coderunner_sandbox::OK) {
-            return (object) array('error' => $error);
-        } else {
-            $count = 0;
-            while ($state->error === qtype_coderunner_sandbox::OK &&
-                   $state->status !== qtype_coderunner_sandbox::STATUS_DONE &&
-                   $count < qtype_coderunner_sandbox::MAX_NUM_POLLS) {
-                $count += 1;
-                sleep(qtype_coderunner_sandbox::POLL_INTERVAL);
-                $state = $this->get_submission_status($result->link);
-            }
-
-            if ($count >= qtype_coderunner_sandbox::MAX_NUM_POLLS) {
-                throw new coderunner_exception("Timed out waiting for sandbox");
-            }
-
-            if ($state->error !== qtype_coderunner_sandbox::OK ||
-                    $state->status !== qtype_coderunner_sandbox::STATUS_DONE) {
-                throw new coding_exception("Error response or bad status from sandbox");
-            }
-
-            $details = $this->get_submission_details($result->link);
-
-            return (object) array(
-                'error'   => qtype_coderunner_sandbox::OK,
-                'result'  => $state->result,
-                'output'  => $details->output,
-                'stderr'  => $details->stderr,
-                'signal'  => $details->signal,
-                'cmpinfo' => $details->cmpinfo);
-        }
-    }
+    abstract public function execute($sourcecode, $language, $input, $files=null, $params=null);
 
     /** Function called by the tester as a simple sanity check on the
      *  existence of a particular sandbox subclass.

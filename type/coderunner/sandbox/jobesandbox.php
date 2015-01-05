@@ -11,30 +11,32 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once('sandboxbase.php');
+require_once $CFG->dirroot . '/question/type/coderunner/sandbox/sandboxbase.php';
 require_once 'HTTP/Request2.php';
 
-define('DEBUGGING', '0');
 
 class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
 
-    var $languages = null;   // Languages supported by this sandbox
-    var $status = null;      // Status as set by constructor
+    const DEBUGGING = 0;
+    
+    private $languages = null;   // Languages supported by this sandbox
+    private $response = null;    // Response from HTTP request to server
 
+    // Constructor gets languages from Jobe and stores them.
+    // If $this->languages is left null, the Jobe server is down or
+    // misconfigured.
     public function __construct() {
-        // Constructor gets languages from Jobe and stores them.
         qtype_coderunner_sandbox::__construct();
-        list($returnCode, $language_pairs) = $this->httpRequest(
+        list($returncode, $languagepairs) = $this->http_request(
                 'languages', HTTP_Request2::METHOD_GET, null);
 
-        if ($returnCode == 200 && is_array($language_pairs)) {
+        if ($returncode == 200 && is_array($languagepairs)) {
             $this->languages = array();
-            foreach ($language_pairs as $lang) {
+            foreach ($languagepairs as $lang) {
                 $this->languages[] = $lang[0];
-            };
-            $this->status = qtype_coderunner_sandbox::OK; 
+            }
         } else {
-            $this->status = qtype_coderunner_sandbox::UNKNOWN_SERVER_ERROR;
+            $this->languages = null;
         }        
     }
 
@@ -43,25 +45,54 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
     public function get_languages() {
         return $this->languages;
     }
-
-
-    // Create a submission.
-    // Return an object with an error and a link field, the latter being
-    // the handle for the submission, for use in the following two calls.
-
-    public function create_submission($sourceCode, $language, $input,
-            $run=true, $private=true, $files=null, $params = null)
-    {
-        // Check language is valid
-        if (!in_array($language, $this->get_languages())) {
-            return (object) array('error' => qtype_coderunner_sandbox::WRONG_LANG_ID,
-                                  'link' => 0);
+    
+    /** Execute the given source code in the given language with the given
+     *  input and returns an object with fields error, result, signal, cmpinfo, stderr, output.
+     * @param string $sourcecode The source file to compile and run
+     * @param string $language  One of the languages regognised by the sandbox
+     * @param string $input A string to use as standard input during execution
+     * @param associative array $files either null or a map from filename to
+     *         file contents, defining a file context at execution time
+     * @param associative array $params Sandbox parameters, depends on
+     *         particular sandbox but most sandboxes should recognise
+     *         at least cputime (secs), memorylimit (Megabytes) and
+     *         files (an associative array mapping filenames to string
+     *         filecontents.
+     *         If the $params array is null, sandbox defaults are used.
+     * @return an object with at least an attribute 'error'. This is one of the
+     *         values 0 through 8 (OK to UNKNOWN_SERVER_ERROR) as defined above. If
+     *         error is 0 (OK), the returned object has additional attributes
+     *         result, output, stderr, signal and cmpinfo as follows:
+     *             result: one of the result_* constants defined above
+     *             output: the stdout from the run
+     *             stderr: the stderr output from the run (generally a non-empty
+     *                     string is taken as a runtime error)
+     *             signal: one of the standard Linux signal values (but often not
+     *                     used)
+     *             cmpinfo: the output from the compilation run (usually empty
+     *                     unless the result code is for a compilation error).
+     */
+    
+    public function execute($sourcecode, $language, $input, $files=null, $params=null)  {
+        if ($this->get_languages() === null) {
+            return (object) array('error' => qtype_coderunner_sandbox::UNKNOWN_SERVER_ERROR);
         }
-        $fileList = array();
+        
+        $language = strtolower($language);
+        if (!in_array($language, $this->get_languages())) {
+            // Shouldn't be possible
+            throw new coderunner_exception('Executing an unsupported language in sandbox');
+        }
+        
+        if ($input !== '' && substr($input, -1) != "\n") {
+            $input .= "\n";  // Force newline on the end if necessary
+        }
+
+        $filelist = array();
         if ($files !== null) {
             foreach($files as $filename=>$contents) {
                 $id = md5($contents);
-                $fileList[] = array($id, $filename);
+                $filelist[] = array($id, $filename);
             }
         }
 
@@ -69,17 +100,18 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
         
         $run_spec = array(
                 'language_id'       => $language,
-                'sourcecode'        => $sourceCode,
+                'sourcecode'        => $sourcecode,
                 'sourcefilename'    => $progname,
                 'input'             => $input,
-                'file_list'         => $fileList
+                'file_list'         => $filelist
             );
              
-        if (DEBUGGING) {
+        if (self::DEBUGGING) {
             $run_spec['debug'] = 1;
         }
         
         if($params !== null) {
+            // Process any given sandbox parameters
             $run_spec['parameters'] = $params;
             if (isset($params['debug']) && $params['debug']) {
                 $run_spec['debug'] = 1;
@@ -89,82 +121,48 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
             }
         }
         
-        $postBody = array('run_spec' => $run_spec);
+        $postbody = array('run_spec' => $run_spec);
         
         // Try submitting the job. If we get a 404, try again after
         // putting all the files on the server. Anything else is an error.
-        $httpCode = $this->submit($postBody);
-        if ($httpCode == 404) { // Missing file(s)?
+        $httpcode = $this->submit($postbody);
+        if ($httpcode == 404) { // Missing file(s)?
             foreach($files as $filename=>$contents) {
-                if (($httpCode = $this->putFile($contents)) != 204) {
+                if (($httpcode = $this->put_file($contents)) != 204) {
                     break;
                 }
             }
-            if ($httpCode == 204) {
+            if ($httpcode == 204) {
                 // Try again if put_files all worked
-                $httpCode = $this->submit($postBody);
+                $httpcode = $this->submit($postbody);
             }
         }
 
-        if ($httpCode == 200) {  // We don't deal with Jobe servers that return 202!
-            $status = qtype_coderunner_sandbox::OK;  // (And resultObject has been saved in this)
+        if ($httpcode != 200                // We don't deal with Jobe servers that return 202!
+            || !is_object($this->response)  // Or any sort of broken ...
+            || !isset($this->response->outcome)) {     // ... communication with server.
+            return (object) array('error' => qtype_coderunner_sandbox::UNKNOWN_SERVER_ERROR);
         } else {
-            $status = qtype_coderunner_sandbox::UNKNOWN_SERVER_ERROR;
-        }
-        $this->link = rand();  // A constant should do but this protects against inadvertent re-enty
-        $answer = (object) array('error'=>$status, 'link'=>$this->link);
-        return $answer;
-    }
-
-    public function get_submission_status($link) {
-        if ($link != $this->link) {
-            throw new coding_exception("link mismatch in jobesandbox");
-        }
-        
-        if (is_object($this->resultObj) && isset($this->resultObj->outcome)) {
-            return (object) array(
-                    'error' => qtype_coderunner_sandbox::OK,
-                    'status'=> qtype_coderunner_sandbox::STATUS_DONE,
-                    'result'=> $this->resultObj->outcome
-            );
-        } else {
-            return (object) array(
-                    'error' => qtype_coderunner_sandbox::OK,
-                    'status'=> qtype_coderunner_sandbox::UNKNOWN_SERVER_ERROR
-            );
-        }
-    }
-
-
-    // Should only be called if the status is STATUS_DONE. Returns an object
-    // with fields error, time, memory, signal, cmpinfo, stderr, output.
-    public function get_submission_details($link, $withSource=false,
-            $withInput=false, $withOutput=true, $withStderr=true,
-            $withCmpinfo=true)
-    {
-        if ($link != $this->link) {
-            throw new coding_exception("link mismatch in jobesandbox");
-        }
-
-        return (object) array(
+              return (object) array(
                 'error'  => qtype_coderunner_sandbox::OK,
-                'time'   => 0,  // TODO - consider if this needs fixing
-                'memory' => 0,  // TODO - consider if this needs fixing
-                'signal' => 0,  // TODO - consider if this needs fixing
-                'cmpinfo'=> $this->resultObj->cmpinfo,
-                'output' => $this->filter_file_path($this->resultObj->stdout),
-                'stderr' => $this->filter_file_path($this->resultObj->stderr)
-        );
+                'result' => $this->response->outcome,
+                'signal' => 0,              // Jobe doesn't return this
+                'cmpinfo'=> $this->response->cmpinfo,
+                'output' => $this->filter_file_path($this->response->stdout),
+                'stderr' => $this->filter_file_path($this->response->stderr)
+              );
+        }
     }
-    
-    
+
+   
+   
     // Put the given file to the server, using its MD5 checksum as the id.
     // Returns the HTTP response code, or -1 if the HTTP request fails
     // altogether
-    private function putFile($contents) {
+    private function put_file($contents) {
         $id = md5($contents);
         $contentsb64 = base64_encode($contents);
-        list($httpCode, $body) = $this->httpRequest("files/$id", 
+        list($httpCode, $body) = $this->http_request("files/$id", 
                 HTTP_Request2::METHOD_PUT,
                 array('file_contents' => $contentsb64));
         return $httpCode;  
@@ -172,16 +170,15 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
     
     // Submit the given job, which must be an associative array with at
     // least a key 'run_spec'. Return value is the HTTP response code. If
-    // the return value is 200, the response is copied into $this->resultObj.
-    // We don't at this stage deal with Jobe servers that may defer requests,
-    // returning 202 Accepted rather than 200 OK.
+    // the return value is 200, the response is copied into $this->response.
+    // We don't at this stage deal with Jobe servers that may defer requests
+    // i.e. that return 202 Accepted rather than 200 OK.
     private function submit($job) {
-        list($returnCode, $response) = $this->httpRequest('runs',
-                HTTP_Request2::METHOD_POST, $job);
-        if ($returnCode == 200) {
-            $this->resultObj = $response;
+        list($returncode, $response) = $this->http_request('runs', HTTP_Request2::METHOD_POST, $job);
+        if ($returncode == 200) {
+            $this->response = $response;
         }
-        return $returnCode;
+        return $returncode;
         
     }
     
@@ -191,7 +188,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
     // Return value is a 2-element
     // array containing the http response code and the response body.
     // The code is -1 if the request fails utterly.
-    private function httpRequest($resource, $method, $body=null) {
+    private function http_request($resource, $method, $body=null) {
         $jobe = get_config('qtype_coderunner', 'jobe_host');
         $url = "http://$jobe/jobe/index.php/restapi/$resource";
         $request = new HTTP_Request2($url, $method);
@@ -203,16 +200,16 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
         
         try {
             $response = $request->send();
-            $returnCode = $response->getStatus();
+            $returncode = $response->getStatus();
             $body = $response->getBody();
             if ($body) {
                 $body = json_decode($body);
             }
    
         } catch (HTTP_Request2_Exception $e) {
-            $returnCode = -1;
+            $returncode = -1;
         }   
-        return array($returnCode, $body);
+        return array($returncode, $body);
     }
     
     

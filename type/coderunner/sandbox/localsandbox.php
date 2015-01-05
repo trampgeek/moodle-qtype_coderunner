@@ -115,6 +115,40 @@ abstract class qtype_coderunner_localsandbox extends qtype_coderunner_sandbox {
                          'result' => $this->task->result);
         }
     }
+    
+    public function execute($sourcecode, $language, $input, $files=null, $params=null) {
+          if ($error != qtype_coderunner_sandbox::OK) {
+            return (object) array('error' => $error);
+        } else {
+            $count = 0;
+            while ($state->error === qtype_coderunner_sandbox::OK &&
+                   $state->status !== qtype_coderunner_sandbox::STATUS_DONE &&
+                   $count < qtype_coderunner_sandbox::MAX_NUM_POLLS) {
+                $count += 1;
+                sleep(qtype_coderunner_sandbox::POLL_INTERVAL);
+                $state = $this->get_submission_status($result->link);
+            }
+
+            if ($count >= qtype_coderunner_sandbox::MAX_NUM_POLLS) {
+                throw new coderunner_exception("Timed out waiting for sandbox");
+            }
+
+            if ($state->error !== qtype_coderunner_sandbox::OK ||
+                    $state->status !== qtype_coderunner_sandbox::STATUS_DONE) {
+                throw new coding_exception("Error response or bad status from sandbox");
+            }
+
+            $details = $this->get_submission_details($result->link);
+
+            return (object) array(
+                'error'   => qtype_coderunner_sandbox::OK,
+                'result'  => $state->result,
+                'output'  => $details->output,
+                'stderr'  => $details->stderr,
+                'signal'  => $details->signal,
+                'cmpinfo' => $details->cmpinfo);
+        }
+    }
 
 
     public function get_submission_details($link, $withSource=false,
