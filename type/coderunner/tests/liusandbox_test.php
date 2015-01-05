@@ -18,13 +18,12 @@ class qtype_coderunner_liusandbox_test extends qtype_coderunner_testcase {
     public function test_testfunction() {
         $this->check_sandbox_enabled('liusandbox');
         $sandbox = new qtype_coderunner_liusandbox();
-        $tr = $sandbox->testFunction();
+        $tr = $sandbox->test_function();
         $this->assertEquals(qtype_coderunner_sandbox::OK, $tr->error);
         $this->assertEquals(3.14, $tr->pi);
         $this->assertEquals(42, $tr->answerToLifeAndEverything);
         $this->assertTrue($tr->oOok);
         $langs = $sandbox->get_languages();
-        $langs = $langs->languages;
         $this->assertTrue(in_array('c', $langs, true));
     }
 

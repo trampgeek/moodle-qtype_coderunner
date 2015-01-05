@@ -39,14 +39,9 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
     }
 
 
-    // Returns an object containing an error field and a languages field,
-    // where the latter is a list of strings of languages handled by this sandbox.
-    // This latter consists of all the languages returned by a query to Jobe.
+    // List of supported languages
     public function get_languages() {
-        
-        $resultObj = (object) array('error'    => $this->status,
-                                    'languages'=> $this->languages);
-        return $resultObj;
+        return $this->languages;
     }
 
 
@@ -54,11 +49,11 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
     // Return an object with an error and a link field, the latter being
     // the handle for the submission, for use in the following two calls.
 
-    public function createSubmission($sourceCode, $language, $input,
+    public function create_submission($sourceCode, $language, $input,
             $run=true, $private=true, $files=null, $params = null)
     {
         // Check language is valid
-        if (!in_array($language, $this->get_languages()->languages)) {
+        if (!in_array($language, $this->get_languages())) {
             return (object) array('error' => qtype_coderunner_sandbox::WRONG_LANG_ID,
                                   'link' => 0);
         }
@@ -121,7 +116,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
         return $answer;
     }
 
-    public function getSubmissionStatus($link) {
+    public function get_submission_status($link) {
         if ($link != $this->link) {
             throw new coding_exception("link mismatch in jobesandbox");
         }
@@ -143,7 +138,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
 
     // Should only be called if the status is STATUS_DONE. Returns an object
     // with fields error, time, memory, signal, cmpinfo, stderr, output.
-    public function getSubmissionDetails($link, $withSource=false,
+    public function get_submission_details($link, $withSource=false,
             $withInput=false, $withOutput=true, $withStderr=true,
             $withCmpinfo=true)
     {

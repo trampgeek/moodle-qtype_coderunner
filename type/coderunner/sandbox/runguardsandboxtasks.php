@@ -15,6 +15,7 @@ namespace RunguardSandbox;
 
 global $CFG;
 require_once($CFG->dirroot . '/question/type/coderunner/locallib.php');
+require_once($CFG->dirroot . '/question/type/coderunner/sandbox/languagetask.php');
 
 class Matlab_Task extends \LanguageTask {
     public function __construct($sandbox, $source) {

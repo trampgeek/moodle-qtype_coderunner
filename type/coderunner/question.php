@@ -280,9 +280,8 @@ class qtype_coderunner_question extends question_graded_automatically {
                 $filename = qtype_coderunner_sandbox::get_filename($extname);
                 require_once("sandbox/$filename");
                 $sb = new $classname();
-                $queryresult = $sb->get_languages();
-                if ($queryresult->error == qtype_coderunner_sandbox::OK) {
-                    $supportedlangs = $queryresult->languages;
+                $supportedlangs = $sb->get_languages();
+                if ($supportedlangs !== NULL) {
                     foreach ($supportedlangs as $lang) {
                         if (strtolower($lang) == strtolower($language)) {
                             return $extname;

@@ -57,14 +57,8 @@ class qtype_coderunner_ideonesandbox extends qtype_coderunner_sandbox {
     }
 
 
-    // Returns an object containing an error field and a languages field,
-    // where the latter is a list of strings of languages handled by this sandbox.
-    // This latter consists of all the languages returned by a query to Ideone plus
-    // the local simplified aliases, like python2, python3, C.
     public function get_languages() {
-        $resultObj = (object) array('error'=>qtype_coderunner_sandbox::OK,
-            'languages'=>array_keys($this->langMap));
-        return $resultObj;
+        return $this->langMap === null ? null : array_keys($this->langMap);
     }
 
 
@@ -73,12 +67,12 @@ class qtype_coderunner_ideonesandbox extends qtype_coderunner_sandbox {
     // the handle for the submission, for use in the following two calls.
     // TODO: come up with a better way of handling non-null $files and
     // $params.
-    public function createSubmission($sourceCode, $language, $input,
+    public function create_submission($sourceCode, $language, $input,
             $run=true, $private=true, $files=null, $params = null)
     {
         // Check language is valid and the user isn't attempting to set
         // files or execution parameters (since Ideone does not have such options).
-        assert(in_array($language, $this->get_languages()->languages));
+        assert(in_array($language, $this->get_languages()));
         if ($files !== null && count($files) !== 0) {
             throw new moodle_exception("Ideone sandbox doesn't accept files");
         }
@@ -98,7 +92,7 @@ class qtype_coderunner_ideonesandbox extends qtype_coderunner_sandbox {
         }
     }
 
-    public function getSubmissionStatus($link) {
+    public function get_submission_status($link) {
         $response = $this->client->getSubmissionStatus($this->user, $this->pass, $link);
         $error = $response['error'];
         if ($error !== "OK") {
@@ -116,7 +110,7 @@ class qtype_coderunner_ideonesandbox extends qtype_coderunner_sandbox {
 
     // Should only be called if the status is STATUS_DONE. Returns an object
     // with fields error, result, time, memory, signal, cmpinfo, stderr, output.
-    public function getSubmissionDetails($link, $withSource=false,
+    public function get_submission_details($link, $withSource=false,
             $withInput=false, $withOutput=true, $withStderr=true,
             $withCmpinfo=true)
     {

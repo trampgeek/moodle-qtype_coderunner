@@ -24,7 +24,7 @@ require_once($CFG->dirroot . '/question/type/coderunner/locallib.php');
 abstract class qtype_coderunner_sandbox {
     protected $user;     // Username supplied when constructing
     protected $password; // Password supplied when constructing
-    protected $authenticationError;
+    protected $authenticationerror;
 
     // Symbolic constants as per ideone API
     
@@ -58,9 +58,8 @@ abstract class qtype_coderunner_sandbox {
     const RESULT_ILLEGAL_SYSCALL    = 19;
     const RESULT_INTERNAL_ERR       = 20;
 
-    // Additions to ideone API for Liu Sandbox compatibility
-    const RESULT_SANDBOX_PENDING    = 21; // Sandbox PD error
-    const RESULT_SANDBOX_POLICY     = 22; // Sandbox BP error
+    const RESULT_SANDBOX_PENDING    = 21; // Liu sandbox PD error
+    const RESULT_SANDBOX_POLICY     = 22; // Liu sandbox BP error
     const RESULT_OUTPUT_LIMIT       = 30;
     const RESULT_ABNORMAL_TERMINATION = 31;
     
@@ -115,7 +114,7 @@ abstract class qtype_coderunner_sandbox {
     }
 
     // Strings corresponding to the create-submission error codes defined above
-    public static function error_string($errorCode) {
+    public static function error_string($errorcode) {
         $ERROR_STRINGS = array(
             qtype_coderunner_sandbox::OK              => "OK",
             qtype_coderunner_sandbox::AUTH_ERROR      => "Unauthorised to use sandbox",
@@ -126,10 +125,10 @@ abstract class qtype_coderunner_sandbox {
             qtype_coderunner_sandbox::CREATE_SUBMISSION_FAILED  => "Submission to sandbox failed",
             qtype_coderunner_sandbox::UNKNOWN_SERVER_ERROR  => "Unexpected error from sandbox (Jobe server down or excessive timeout, perhaps?)"  
         );
-        if (!isset($ERROR_STRINGS[$errorCode])) {
+        if (!isset($ERROR_STRINGS[$errorcode])) {
             throw new coding_exception("Bad call to sandbox.errorString");
         }
-        return $ERROR_STRINGS[$errorCode];
+        return $ERROR_STRINGS[$errorcode];
     }
     
     
@@ -161,23 +160,24 @@ abstract class qtype_coderunner_sandbox {
      * Return the value of the given parameter from the $params parameter
      * of the currently executing submission (see createSubmission) if defined
      * or the static variable of name "default_$param" otherwise.
-     * @param type $param
-     * @return type
+     * @param string $param The name of the required parameter
+     * @return string The value of the specified parameter
      */
-    protected function getParam($param) {
+    protected function get_param($param) {
         if ($this->params !== null && isset($this->params[$param])) {
             return $this->params[$param];
         } else {
-            $staticName = "default_$param";
-            assert(isset(static::$$staticName));
-            return static::$$staticName;
+            $staticname = "default_$param";
+            assert(isset(static::$$staticname));
+            return static::$$staticname;
         }
     }
 
-    // Returns an object containing an error field and a languages field,
-    // where the latter is a list of strings of languages handled by this sandbox.
-    // This latter consists of all the languages returned by a query to Ideone plus
-    // the local simplified aliases, like python2, python3, C.
+    /**
+     * @return string array A list of languages handled by the sandbox.
+     * May include different varieties of a given language as well as aliases,
+     * e.g. C89, C99, C.
+     */
     abstract public function get_languages();
 
     // Create a submission object, which has an error and a link field, the
@@ -194,19 +194,19 @@ abstract class qtype_coderunner_sandbox {
     // should recognise at least the keys 'cputime' (CPU time limit, in seconds)
     // 'memorylimit' (in megabytes) and 'files' (an associative array mapping
     // filenames to string filecontents).
-    abstract public function createSubmission($sourceCode, $language, $input,
+    abstract public function create_submission($sourceCode, $language, $input,
             $run=true, $private=true, $files=null, $params=null);
 
     // Enquire about the status of the submission with the given 'link' (aka
     // handle. The return value is an object containing an error, a status and
     // a result attribute, the values of which are given by the symbolic
     // constants above.
-    abstract public function getSubmissionStatus($link);
+    abstract public function get_submission_status($link);
 
     // Should only be called if the status is STATUS_DONE. Returns an ideone
     // style object with fields error, langId, langName, langVersion, time,
     // date, status, result, memory, signal, cmpinfo, output.
-    abstract public function getSubmissionDetails($link, $withSource=false,
+    abstract public function get_submission_details($link, $withSource=false,
             $withInput=false, $withOutput=true, $withStderr=true,
             $withCmpinfo=true);
 
@@ -214,7 +214,7 @@ abstract class qtype_coderunner_sandbox {
      *  Executes the given source code in the given language with the given
      *  input and returns an object with fields error, result, time,
      *  memory, signal, cmpinfo, stderr, output.
-     * @param string $sourceCode The source file to compile and run
+     * @param string $sourcecode The source file to compile and run
      * @param string $language  One of the languages regognised by the sandbox
      * @param string $input A string to use as standard input during execution
      * @param associative array $files either null or a map from filename to
@@ -238,19 +238,20 @@ abstract class qtype_coderunner_sandbox {
      *             cmpinfo: the output from the compilation run (usually empty
      *                     unless the result code is for a compilation error).
      */
-    public function execute($sourceCode, $language, $input, $files=null, $params=null) {
+    public function execute($sourcecode, $language, $input, $files=null, $params=null) {
         $language = strtolower($language);
-        if (!in_array($language, $this->get_languages()->languages)) {
+        if ($this->get_languages() === null || !in_array($language, $this->get_languages())) {
+            // Shouldn't be possible
             throw new coderunner_exception('Executing an unsupported language in sandbox');
         }
         if ($input !== '' && substr($input, -1) != "\n") {
             $input .= "\n";  // Force newline on the end if necessary
         }
-        $result = $this->createSubmission($sourceCode, $language, $input,
+        $result = $this->create_submission($sourcecode, $language, $input,
                 true, true, $files, $params);
         $error = $result->error;
         if ($error === qtype_coderunner_sandbox::OK) {
-            $state = $this->getSubmissionStatus($result->link);
+            $state = $this->get_submission_status($result->link);
             $error = $state->error;
         }
 
@@ -263,7 +264,7 @@ abstract class qtype_coderunner_sandbox {
                    $count < qtype_coderunner_sandbox::MAX_NUM_POLLS) {
                 $count += 1;
                 sleep(qtype_coderunner_sandbox::POLL_INTERVAL);
-                $state = $this->getSubmissionStatus($result->link);
+                $state = $this->get_submission_status($result->link);
             }
 
             if ($count >= qtype_coderunner_sandbox::MAX_NUM_POLLS) {
@@ -275,7 +276,7 @@ abstract class qtype_coderunner_sandbox {
                 throw new coding_exception("Error response or bad status from sandbox");
             }
 
-            $details = $this->getSubmissionDetails($result->link);
+            $details = $this->get_submission_details($result->link);
 
             return (object) array(
                 'error'   => qtype_coderunner_sandbox::OK,
@@ -287,8 +288,14 @@ abstract class qtype_coderunner_sandbox {
         }
     }
 
-    public function testFunction() {
-        if ($this->authenticationError) {
+    /** Function called by the tester as a simple sanity check on the
+     *  existence of a particular sandbox subclass.
+     * @return object A result object with an 'error' attribute. If that 
+     * attribute is OK, attributes of moreHelp, pi, answerToLifeAndEverything
+     * and oOok are also defined.
+     */
+    public function test_function() {
+        if ($this->authenticationerror) {
             return (object) array('error'=>qtype_coderunner_sandbox::AUTH_ERROR);
         } else {
             return (object) array(
@@ -303,10 +310,9 @@ abstract class qtype_coderunner_sandbox {
 
 
 
-    // SHould be called when the sandbox is no longer needed.
+    // Should be called when the sandbox is no longer needed.
     // Can be used by the sandbox for garbage collection, e.g. deleting a
     // cached object file to avoid re-compilation.
-    // Not part of the ideone API.
     public function close() {
     }
 }

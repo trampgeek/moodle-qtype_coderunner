@@ -56,10 +56,7 @@ class qtype_coderunner_runguardsandbox extends qtype_coderunner_localsandbox {
     }
 
     public function get_languages() {
-        return (object) array(
-            'error' => qtype_coderunner_sandbox::OK,
-            'languages' => array('matlab', 'octave', 'python2', 'python3', 'java', 'c')
-        );
+        return array('matlab', 'octave', 'python2', 'python3', 'java', 'c');
     }
 
 
@@ -77,10 +74,10 @@ class qtype_coderunner_runguardsandbox extends qtype_coderunner_localsandbox {
     // Results are all left in $this->task for later access by
     // getSubmissionDetails
     protected function runInSandbox($input, $files) {
-        $filesize = 1000 * $this->getParam('disklimit'); // MB -> kB
-        $memsize = 1000 * $this->getParam('memorylimit');
-        $cputime = $this->getParam('cputime');
-        $numProcs = $this->getParam('numprocs');
+        $filesize = 1000 * $this->get_param('disklimit'); // MB -> kB
+        $memsize = 1000 * $this->get_param('memorylimit');
+        $cputime = $this->get_param('cputime');
+        $numProcs = $this->get_param('numprocs');
         $sandboxCmdBits = array(
              dirname(__FILE__)  . "/runguard",
              "--user=coderunner",

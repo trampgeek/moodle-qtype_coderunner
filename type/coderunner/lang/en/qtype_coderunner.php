@@ -340,6 +340,7 @@ $string['showcolumns'] = 'Show columns:';
 $string['showcolumns_help'] = 'Select which columns of the results table should ' .
         'be displayed to students. Empty columns will be hidden regardless. ' .
         'The defaults are appropriate for most uses.';
+$string['showsource'] = 'Template debugging';
 $string['stdin'] = 'Standard Input';
 $string['stdin_help'] = 'The standard input to the test, seen by the template as {{TEST.stdin}}';
 $string['syntax_errors'] = 'Syntax Error(s)';
@@ -400,6 +401,7 @@ $string['testcode'] = 'Test code';
 $string['testsplitterre'] = 'Test splitter (regex)';
 $string['testcode_help'] = 'The code for the test, seen by the template as {{TEST.testcode}}';
 $string['type_header'] = 'CodeRunner question type';
+$string['typename'] = 'Question type';
 $string['typerequired'] = 'Please select the type of question (language, format, etc)';
 $string['useasexample'] = 'Use as example';
 $string['useace'] = 'Use ace';

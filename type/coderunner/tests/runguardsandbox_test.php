@@ -20,13 +20,12 @@ class qtype_coderunner_runguardsandbox_test extends qtype_coderunner_testcase {
     public function test_testfunction() {
         $this->check_sandbox_enabled('runguardsandbox');
         $sandbox = new qtype_coderunner_runguardsandbox();
-        $tr = $sandbox->testFunction();
+        $tr = $sandbox->test_function();
         $this->assertEquals(qtype_coderunner_sandbox::OK, $tr->error);
         $this->assertEquals(3.14, $tr->pi);
         $this->assertEquals(42, $tr->answerToLifeAndEverything);
         $this->assertTrue($tr->oOok);
         $langs = $sandbox->get_languages();
-        $langs = $langs->languages;
         $this->assertTrue(in_array('python2', $langs, true));
         $this->assertTrue(in_array('matlab', $langs, true));
         $this->assertTrue(in_array('java', $langs, true));

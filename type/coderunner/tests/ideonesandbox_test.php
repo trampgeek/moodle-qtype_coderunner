@@ -22,7 +22,7 @@ class qtype_coderunner_ideonesandbox_test extends qtype_coderunner_testcase {
         $this->check_sandbox_enabled('ideonesandbox');
         $sandbox = new qtype_coderunner_ideonesandbox();  // Lots happens here!
 
-        $tr = $sandbox->testFunction();  // Make sure the generic test runs
+        $tr = $sandbox->test_function();  // Make sure the generic test runs
         $this->assertEquals(qtype_coderunner_sandbox::OK, $tr->error);
         $this->assertEquals(3.14, $tr->pi);
         $this->assertEquals(42, $tr->answerToLifeAndEverything);
@@ -30,8 +30,7 @@ class qtype_coderunner_ideonesandbox_test extends qtype_coderunner_testcase {
 
         // Now check if we have at least a few of the expected languages.
 
-        $langObj = $sandbox->get_languages();
-        $langs = $langObj->languages;
+        $langs = $sandbox->get_languages();
         $this->assertTrue(in_array('python2', $langs, true));
         $this->assertTrue(in_array('python3', $langs, true));
         $this->assertTrue(in_array('c', $langs, true));

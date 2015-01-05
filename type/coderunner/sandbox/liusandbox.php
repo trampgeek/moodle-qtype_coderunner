@@ -43,8 +43,7 @@ class qtype_coderunner_liusandbox extends qtype_coderunner_localsandbox {
     }
 
     public function get_languages() {
-        return (object) array('error' => qtype_coderunner_sandbox::OK,
-            'languages' => $this->LANGUAGES);
+        return $this->LANGUAGES;
     }
 
     protected function createTask($language, $source) {
@@ -64,10 +63,10 @@ class qtype_coderunner_liusandbox extends qtype_coderunner_localsandbox {
             'cmd'       => $this->task->getRunCommand(),
             'input'     => $input,
             'quota'     => array(
-                'wallclock' => 1000 * $this->getParam('walltime'),
-                'cpu'       => 1000 * $this->getParam('cputime'),
-                'memory'    => 1000000 * $this->getParam('memorylimit'),
-                'disk'      => 1000000 * $this->getParam('disklimit')
+                'wallclock' => 1000 * $this->get_param('walltime'),
+                'cpu'       => 1000 * $this->get_param('cputime'),
+                'memory'    => 1000000 * $this->get_param('memorylimit'),
+                'disk'      => 1000000 * $this->get_param('disklimit')
             ),
             'readableDirs' => $this->task->readableDirs(),
             'workdir'      => $this->task->workdir

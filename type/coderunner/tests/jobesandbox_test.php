@@ -23,9 +23,7 @@ class qtype_coderunner_jobesandbox_test extends qtype_coderunner_testcase {
     public function test_languages() {
         $this->check_sandbox_enabled('jobesandbox');
         $sandbox = new qtype_coderunner_jobesandbox(); 
-        $langObj = $sandbox->get_languages();
-        $this->assertEquals(0, $langObj->error);
-        $langs = $langObj->languages;
+        $langs = $sandbox->get_languages();
         $this->assertTrue(in_array('python3', $langs, true));
         $this->assertTrue(in_array('c', $langs, true));
     }
@@ -120,7 +118,7 @@ print(open('second.bb').read())
     public function test_jobe_sandbox_ok_java() {
         $this->check_sandbox_enabled('jobesandbox');
         $sandbox = new qtype_coderunner_jobesandbox();
-        $langs = $sandbox->get_languages()->languages;
+        $langs = $sandbox->get_languages();
         if (!in_array('java', $langs)) {
             $this->markTestSkipped('Java not available on the Jobe server. ' .
                     'Test skipped');
