@@ -25,7 +25,7 @@ $plugin->requires = 2013051400;
 $plugin->cron = 0;
 $plugin->component = 'qtype_coderunner';
 $plugin->maturity = MATURITY_BETA;
-$plugin->release = '3.0';
+$plugin->release = '2.4';
 
 $plugin->dependencies = array();
 

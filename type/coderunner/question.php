@@ -37,7 +37,7 @@ define('FUNC_MIN_LENGTH', 1);  /* Minimum no. of bytes for a valid bit of code *
 require_once($CFG->dirroot . '/question/behaviour/adaptive/behaviour.php');
 require_once($CFG->dirroot . '/question/engine/questionattemptstep.php');
 require_once($CFG->dirroot . '/question/behaviour/adaptive_adapted_for_coderunner/behaviour.php');
-require_once($CFG->dirroot . '/question/type/coderunner/twig/Autoloader.php');
+require_once($CFG->dirroot . '/question/type/coderunner/Twig/Autoloader.php');
 require_once($CFG->dirroot . '/question/type/coderunner/locallib.php');
 require_once($CFG->dirroot . '/question/type/coderunner/grader/graderbase.php');
 require_once($CFG->dirroot . '/question/type/coderunner/sandbox/sandboxbase.php');

@@ -273,9 +273,9 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
             // Load the type-name if this is a prototype, else make it blank
             if ($question->prototypetype != 0) {
-                $question->type_name = $question->coderunnertype;
+                $question->typename = $question->coderunnertype;
             } else {
-                $question->type_name = '';
+                $question->typename = '';
             }
             
             // Convert raw newline chars in testsplitterre into 2-char form
@@ -348,9 +348,9 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
 
         if ($data['prototypetype'] == 2 && ($data['saved_prototype_type'] != 2 ||
-                   $data['type_name'] != $data['coderunnertype'])){
+                   $data['typename'] != $data['coderunnertype'])){
             // User-defined prototype, either newly created or undergoing a name change
-            $typeName = trim($data['type_name']);
+            $typeName = trim($data['typename']);
             if ($typeName === '') {
                 $errors['prototypecontrols'] = get_string('empty_new_prototype_name', 'qtype_coderunner');
             } else if (!$this->is_valid_new_type($typeName)) {
@@ -523,13 +523,13 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $prototypeselect->addOption('Yes (built-in)', '1', array('disabled'=>'disabled'));
         $prototypeselect->addOption('Yes (user defined)', '2');
         $prototypecontrols[] =& $prototypeselect;
-        $prototypecontrols[] =& $mform->createElement('text', 'type_name',
-                get_string('question_type_name', 'qtype_coderunner'), array('size' => 30));
+        $prototypecontrols[] =& $mform->createElement('text', 'typename',
+                get_string('typename', 'qtype_coderunner'), array('size' => 30));
         $mform->addElement('group', 'prototypecontrols',
                 get_string('prototypecontrols', 'qtype_coderunner'),
                 $prototypecontrols, null, false);
         $mform->setDefault('is_prototype', False);
-        $mform->setType('type_name', PARAM_RAW);
+        $mform->setType('typename', PARAM_RAW);
         $mform->addElement('hidden', 'saved_prototype_type');
         $mform->setType('saved_prototype_type', PARAM_RAW);
         $mform->addHelpButton('prototypecontrols', 'prototypecontrols', 'qtype_coderunner');
@@ -579,7 +579,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 get_string('testsplitterre', 'qtype_coderunner'),
                 array('size' => 45));
         $mform->setType('testsplitterre', PARAM_RAW);
-        $mform->disabledIf('type_name', 'prototypetype', 'neq', '2');
+        $mform->disabledIf('typename', 'prototypetype', 'neq', '2');
 
         $combinatorcontrols[] =& $mform->createElement('textarea', 'combinatortemplate',
                 '',

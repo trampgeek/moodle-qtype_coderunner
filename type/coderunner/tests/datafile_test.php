@@ -29,7 +29,7 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once($CFG->dirroot . '/question/type/coderunner/tests/coderunnertestcase.php');
-require_once($CFG->dirroot . '/question/type/coderunner/twig/Autoloader.php');
+require_once($CFG->dirroot . '/question/type/coderunner/Twig/Autoloader.php');
 
 
 class qtype_coderunner_datafile_test extends qtype_coderunner_testcase {

@@ -72,7 +72,7 @@ class qtype_coderunner_prototype_test extends qtype_coderunner_testcase {
         $q->test_cases = array();  // No testcases in a prototype
         $q->customise = 1;
         $q->prototypetype = 2;
-        $q->type_name = "sqr_user_prototype";
+        $q->typename = "sqr_user_prototype";
         $q->cputimelimitsecs = 179; // Silly test value
         $q->combinatortemplate = 'combinatortemplatevalue';
         $q->sandbox = "jobesandbox";

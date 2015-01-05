@@ -17,7 +17,7 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once($CFG->dirroot . '/question/type/coderunner/tests/coderunnertestcase.php');
-require_once($CFG->dirroot . '/question/type/coderunner/twig/Autoloader.php');
+require_once($CFG->dirroot . '/question/type/coderunner/Twig/Autoloader.php');
 
 /**
  * Unit tests for the RegexGrader class.

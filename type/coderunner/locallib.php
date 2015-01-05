@@ -27,11 +27,11 @@ define("USER_LANGUAGE", 1);
 /* The class for exceptions thrown in the coderunner plugin */
 class coderunner_exception extends moodle_exception {
     /**
-     * Constructor
-     * @param string $debuginfo Information to aid the debugging process
+     * @param string $errorcode exception description identifier
+     * @param mixed $debuginfo debugging data to display
      */
-    function __construct($debuginfo) {
-        parent::__construct('coderunnererror', 'qtype_coderunner', '', null, $debuginfo);
+    function __construct($errorcode, $a=null, $debuginfo=null) {
+        parent::__construct($errorcode, 'qtype_coderunner', '', $a, $debuginfo);
     }
 }
 

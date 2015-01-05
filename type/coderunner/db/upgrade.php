@@ -389,7 +389,7 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
     }
 
     if ($oldversion != 0 && $oldversion < 2015010401) {
-        // Major changes for version 3. Rename options and testcases tables
+        // Major changes for version 2.4. Rename options and testcases tables
         // plus all fields with underscores (removing the underscores).
         // Done for compatibility with Moodle coding guidelines. Sigh.
         $table1 = new xmldb_table('quest_coderunner_options');
@@ -607,7 +607,7 @@ function make_result_columns() {
     // Find all questions using non-standard result table display and 
     // build a result_columns field that matches the currently defined 
     // set of showtest, showstdin, showexpected, showoutput and showmark
-    // This code should only run prior to the version 3 upgrade.
+    // This code should only run prior to the version 2.4 upgrade.
     global $DB;
     
     $questions = $DB->get_records_select('quest_coderunner_options',

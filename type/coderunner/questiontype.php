@@ -209,10 +209,10 @@ class qtype_coderunner extends question_type {
         $customised = isset($question->customise) && $question->customise;
         $isprototype = $question->prototypetype != 0;
         if ($customised && $question->prototypetype == 2 &&
-                $question->coderunnertype != $question->type_name) {
+                $question->coderunnertype != $question->typename) {
             // Saving a new user-defined prototype.
             // Copy new type name into coderunnertype
-            $question->coderunnertype = $question->type_name;
+            $question->coderunnertype = $question->typename;
         }
 
         // Set all inherited fields to null if the corresponding form
@@ -413,7 +413,7 @@ class qtype_coderunner extends question_type {
         static $activeCats = null;
 
         if (!$question = $DB->get_record('question', array('id' => $questionoptionsrow->questionid))) {
-            throw new coderunner_exception('Missing record in question table');
+            throw new coderunner_exception("Missing question id = {$questionoptionsrow->questionid} in question table");
         }
         
         if (!$candidatecat = $DB->get_record('question_categories', array('id' => $question->category))) {
@@ -541,6 +541,7 @@ class qtype_coderunner extends question_type {
         array_shift($extraquestionfields);
         $qo = $format->import_headers($data);
         $qo->qtype = $questiontype;
+        
         $newdefaults = array(
             'allornothing' => 1,
             'answerboxlines' => 15,
@@ -554,6 +555,11 @@ class qtype_coderunner extends question_type {
                 $qo->pertesttemplate = $format->getpath($data, array('#', 'custom_template', 0, '#'), '');
             }
             else {
+                $map = $this->legacy_field_name_map();
+                if (isset($map[$field]) && isset($data['#'][$map[$field]])) {
+                    $data['#'][$field] = $data['#'][$map[$field]]; // Map old field names to new
+                    unset($data['#'][$map[$field]]);
+                }
                 if (array_key_exists($field, $newdefaults)) {
                     $default = $newdefaults[$field];
                 } else {
@@ -687,6 +693,31 @@ class qtype_coderunner extends question_type {
             $s = substr($s, 0, strlen($s) - 1);
         }
         return $s;
+    }
+    
+    
+    // A map from question_options field names to their legacy versions
+    // withn underscores. Only those field names changed between versions 2.3
+    // and 2.4 of CodeRunner appear here. 
+    public function legacy_field_name_map() {
+        $oldfields = array(
+            'coderunnertype'   => 'coderunner_type',
+            'prototypetype'    => 'prototype_type',
+            'allornothing'     => 'all_or_nothing',
+            'answerboxlines'   => 'answerbox_lines',
+            'answerboxcolumns' => 'answerbox_columns',
+            'useace'           => 'use_ace',
+            'penaltyregime'    => 'penalty_regime',
+            'enablecombinator' => 'enable_combinator',
+            'resultcolumns'    => 'result_columns',
+            'combinatortemplate' => 'combinator_template',
+            'testsplitterre'   => 'test_splitter_re',
+            'pertesttemplate'  => 'per_test_template',
+            'templateparams'   => 'template_params',
+            'acelang'          => 'ace_lang',
+            'sandboxparams'    => 'sandbox_params',
+            'showsource'       => 'show_source');
+        return $oldfields;    
     }
 
 }

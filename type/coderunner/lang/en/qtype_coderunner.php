@@ -29,7 +29,7 @@ $string['allok'] = 'Passed all tests! ';
 $string['allornothing'] = 'Test code must be provided either for all '
     . 'testcases or for none.';
 $string['allornothing'] = 'All-or-nothing grading';
-$string['all_or_nothing_help'] = 'If \'All-or-nothing\' is checked, all test cases must be satisfied ' .
+$string['allornothing_help'] = 'If \'All-or-nothing\' is checked, all test cases must be satisfied ' .
         'for the submission to earn any marks. Otherwise, the mark is obtained ' .
         'by summing the marks for all the test cases that pass ' .
         'and expressing this as a fraction of the maximum possible mark. ' .
@@ -45,9 +45,8 @@ $string['badmemlimit'] = 'Memory limit must either be left blank or must be a no
 $string['badpenalties'] = 'Penalty regime must be a comma separated list of numbers in the range [0, 100]';
 $string['columncontrols'] = 'Result table';
 $string['coderunner'] = 'Program Code';
-$string['coderunner_type_required'] = 'You must select a language and question type';
 $string['coderunnertype'] = "Question type:";
-$string['coderunner_type_help'] = "Select the programming language and question type.
+$string['coderunnertype_help'] = "Select the programming language and question type.
 
 Predefined types include
 
@@ -277,10 +276,10 @@ $string['questiontype_help'] = <<<QUESTION_TYPE_HELP
         If the template-debugging checkbox is clicked, the program generated
         for each testcase will be displayed in the output.
 QUESTION_TYPE_HELP;
-$string['question_type_name'] = 'Question type';
+
 $string['questiontype_required'] = 'You must select the type of question';
 $string['resultcolumns'] = 'Result columns';
-$string['result_columns_help'] = 'By default the result table displays '
+$string['resultcolumns_help'] = 'By default the result table displays '
     . 'the testcode, stdin, expected and got columns, provided the columns '
     . 'are not empty. You can change the default, and/or the column headers '
     . 'by entering a value for the resultcolumns (leave blank for the default '
@@ -337,37 +336,13 @@ $string['sandboxcontrols_help'] = 'Select what sandbox you wish the student ' .
         'silently ignore any or all of these settings.';
 $string['sandboxparams'] = 'Parameters';
 $string['SHOW'] = 'Show';
-$string['show_columns'] = 'Show columns:';
-$string['show_columns_help'] = 'Select which columns of the results table should ' .
+$string['showcolumns'] = 'Show columns:';
+$string['showcolumns_help'] = 'Select which columns of the results table should ' .
         'be displayed to students. Empty columns will be hidden regardless. ' .
         'The defaults are appropriate for most uses.';
-$string['show_expected'] = 'expected';
-$string['show_mark'] = 'mark';
-$string['showsource'] = 'Template debugging';
-$string['show_stdin'] = 'stdin';
-$string['show_test'] = 'test';
-$string['show_output'] = 'got';
-
 $string['stdin'] = 'Standard Input';
 $string['stdin_help'] = 'The standard input to the test, seen by the template as {{TEST.stdin}}';
 $string['syntax_errors'] = 'Syntax Error(s)';
-$string['testcase'] = 'Test case {$a}';
-$string['testcasecontrols'] = 'Row properties:';
-$string['testcasecontrols_help'] = <<<EO_TESTCASECTRLS_HELP
-If "Use as example" is checked, this test will be automatically included in the
-question's "For example:" results table.<br>
-The "Display" combobox determines when this testcase is shown to the student
-in the results table.<br>
-If "Hide rest if fail" is checked and this test fails, all subsequent tests will
-be hidden from the student, regardless of the setting of the "Display" combobox.<br>
-"Mark" sets the value of this test case; meaningful only if this is not an
-"All-or-nothing" question.
-"Ordering" can be used to change the order of testcases when the question is
-saved: testcases are ordered by this field.
-EO_TESTCASECTRLS_HELP;
-$string['testcases'] = 'Test cases';
-$string['testcode'] = 'Test code';
-$string['testsplitterre'] = 'Test splitter (regex)';
 $string['template'] = 'Template';
 $string['template_help'] = <<<EO_TEMPLATE_HELP
 The template defines the program that is to be run for each test case, depending
@@ -394,7 +369,7 @@ If the template-debugging checkbox is clicked, the program generated
 for each testcase will be displayed in the output.
 EO_TEMPLATE_HELP;
 $string['templateparams'] = 'Template params';
-$string['template_params_help'] = <<<EO_TEMPLATE_PARAMS_HELP
+$string['templateparams_help'] = <<<EO_TEMPLATE_PARAMS_HELP
 The template parameters field lets you pass string parameters to a question's
 template(s). If non-blank, this must be a JSON-format record. The fields of
 the record can then be used within the template, where they appear as
@@ -406,6 +381,23 @@ is
 the value 23 would be substituted into the template in place of the
 template variable {{ QUESTION.parameters.age }}.
 EO_TEMPLATE_PARAMS_HELP;
+$string['testcase'] = 'Test case {$a}';
+$string['testcasecontrols'] = 'Row properties:';
+$string['testcasecontrols_help'] = <<<EO_TESTCASECTRLS_HELP
+If "Use as example" is checked, this test will be automatically included in the
+question's "For example:" results table.<br>
+The "Display" combobox determines when this testcase is shown to the student
+in the results table.<br>
+If "Hide rest if fail" is checked and this test fails, all subsequent tests will
+be hidden from the student, regardless of the setting of the "Display" combobox.<br>
+"Mark" sets the value of this test case; meaningful only if this is not an
+"All-or-nothing" question.
+"Ordering" can be used to change the order of testcases when the question is
+saved: testcases are ordered by this field.
+EO_TESTCASECTRLS_HELP;
+$string['testcases'] = 'Test cases';
+$string['testcode'] = 'Test code';
+$string['testsplitterre'] = 'Test splitter (regex)';
 $string['testcode_help'] = 'The code for the test, seen by the template as {{TEST.testcode}}';
 $string['type_header'] = 'CodeRunner question type';
 $string['typerequired'] = 'Please select the type of question (language, format, etc)';
