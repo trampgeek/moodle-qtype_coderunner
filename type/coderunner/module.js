@@ -276,7 +276,7 @@ M.qtype_coderunner.initEditForm = function(Y) {
     var typeCombo = Y.one('#id_coderunnertype'),
         template = Y.one('#id_pertesttemplate'),
         enablecombinator = Y.one('#id_enablecombinator'),
-        useace = Y.one('#id_use_ace'),
+        useace = Y.one('#id_useace'),
         combinatortemplate = Y.one('#id_combinatortemplate'),
         testsplitter = Y.one('#id_testsplitterre'),
         language = Y.one('#id_language'),
@@ -302,7 +302,7 @@ M.qtype_coderunner.initEditForm = function(Y) {
             lang = language.get('value');
         customisationFieldSet.setStyle('display', display);
         advancedCustomisation.setStyle('display', display);
-        if (isVisible && use_ace.get('checked')) {
+        if (isVisible && useace.get('checked')) {
             M.qtype_coderunner.init_ace(Y, 'id_pertesttemplate', lang);
             M.qtype_coderunner.init_ace(Y, 'id_combinatortemplate', lang);
         }
