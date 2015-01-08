@@ -18,7 +18,7 @@ def printFailMessage():
     print("access.")
     print()
     print("If you intend to use the Runguard sandbox, you should 'cd' to the ")
-    print("<moodlehome>/local/CodeRunner/coderunner directory and type the commands:\n")
+    print("<moodlehome>/local/CodeRunner/type/coderunner directory and type the commands:\n")
     print("    make runguard")
     print("    sudo chown root runguard")
     print("    sudo chgrp <webserverUser> runguard")
@@ -71,7 +71,7 @@ else:
             do_command('useradd -M -s "/bin/false" ' + username)
 
         commands = [
-            "cd {0}/coderunner/Sandbox".format(installdir),
+            "cd {0}/type/coderunner/sandbox".format(installdir),
             "gcc -o runguard runguard.c", # Add -lcgroups  if using cgroups
             "chown root runguard",
             "chgrp {0} runguard".format(webserver_user),

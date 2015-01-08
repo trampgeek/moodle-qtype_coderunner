@@ -1,0 +1,54 @@
+#!/usr/bin/env python
+# This "installer" is not a true installer. It simply sets up symbolic links
+# to the 2 subdirectories, i.e. for the question/type and question/behaviour
+# directories. It is intended for use by developers only because
+# it means that changes to the source code are immediately "live", because
+# the live code is symbolically linked to the developer code.
+# It needs to be run only on the initial cloning of the repository.
+
+from __future__ import print_function
+import os
+import shutil
+import subprocess
+
+def printFailMessage():
+    print("This script failed to set up the necessary symbolic links.")
+    print("You will need to manually make the following symbolic links to ")
+    print("directories in this module:")
+    print("<moodlehome>/question/type/coderunner -> coderunner")
+    print("<moodlehome>/question/behaviour/adaptive_adapted_for_coderunner -> adaptive_adapted_for_coderunner")
+
+
+def main():
+    cwd = os.getcwd()
+    if "moodle/local/CodeRunner" not in cwd:
+        print("WARNING: CodeRunner appears not to have been cloned into moodle/local")
+        print ("as recommended.")
+        printFailMessage()
+    else:
+        try:
+            searchString = "/moodle/local/CodeRunner"
+            pos = cwd.index(searchString)
+            basedir = cwd[0:pos]
+            installdir = cwd[0:pos + len(searchString)]
+            dirs = [("type/coderunner", "moodle/question/type/coderunner"),
+                ("behaviour/adaptive_adapted_for_coderunner", "moodle/question/behaviour/adaptive_adapted_for_coderunner")]
+
+            for (src,dest) in dirs:
+                newdir = "{0}/{1}".format(basedir, dest)
+                if os.path.islink(newdir):  # Symbolic link?
+                    print("Deleting symbolic link {}".format(newdir))
+                    os.unlink(newdir)
+                elif os.path.isdir(newdir):
+                    print("Removing existing directory {}".format(newdir))
+                    shutil.rmtree(newdir) 
+                print("Creating new symbolic link {}".format(newdir))                  
+                if subprocess.call("ln -s {0}/{1} {2}".format(installdir, src, newdir), shell=True) != 0:
+                    raise OSError("Failed to create symbolic link")
+            print("Install complete.")
+
+        except Exception as e:
+            print("Exception when making symbolic links: " + str(e))
+            printFailMessage()
+
+main()
