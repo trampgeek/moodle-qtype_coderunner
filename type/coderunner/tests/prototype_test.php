@@ -117,4 +117,4 @@ class qtype_coderunner_prototype_test extends qtype_coderunner_testcase {
     }
     
 }
-?>
+

@@ -54,7 +54,7 @@ class qtype_coderunner_ideonesandbox extends qtype_coderunner_sandbox {
             throw new coding_exception("IdeoneSandbox::getLanguages: error ($error)");
         }
 
-        foreach ($response['languages'] as $id=>$lang) {
+        foreach ($response['languages'] as $id => $lang) {
             $this->langMap[$lang] = $id;
             foreach ($aliases as $pattern=>$alias) {
                 if (preg_match('/' . $pattern . '/', $lang)) {
@@ -220,4 +220,4 @@ class qtype_coderunner_ideonesandbox extends qtype_coderunner_sandbox {
         }
     }
 }
-?>
+

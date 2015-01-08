@@ -230,4 +230,4 @@ abstract class qtype_coderunner_sandbox {
     public function close() {
     }
 }
-?>
+

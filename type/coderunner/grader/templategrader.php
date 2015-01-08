@@ -39,7 +39,7 @@ class qtype_coderunner_template_grader extends qtype_coderunner_grader {
             );
         } else {
             // First copy any missing fields from test case into result
-            foreach (get_object_vars($testcase) as $key=>$value) {
+            foreach (get_object_vars($testcase) as $key => $value) {
                 if (!isset($result->$key)) {
                     $result->$key = $value;
                 }
@@ -67,7 +67,7 @@ class qtype_coderunner_template_grader extends qtype_coderunner_grader {
              * have their own custom attributes, we also add any other result
              * attributes not already used into the TestResult object.
              */
-            foreach ((array) $result as $key=>$value) {
+            foreach ((array) $result as $key => $value) {
                 if (!isset($outcome->$key)) {
                     $outcome->$key = $value;
                 }
@@ -77,4 +77,4 @@ class qtype_coderunner_template_grader extends qtype_coderunner_grader {
         return $outcome;
     }
 }
-?>
+

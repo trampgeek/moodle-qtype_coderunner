@@ -81,6 +81,7 @@ abstract class qtype_coderunner_localsandbox extends qtype_coderunner_sandbox {
      *                     unless the result code is for a compilation error).
      */
     public function execute($sourcecode, $language, $input, $files=NULL, $params=NULL) {
+        $savedcurrentdir = getcwd();
         $language = strtolower($language);
         if (!in_array($language, $this->get_languages())) {
             throw new coderunner_exception('Executing an unsupported language in sandbox');
@@ -118,6 +119,7 @@ abstract class qtype_coderunner_localsandbox extends qtype_coderunner_sandbox {
             $error = $this->run_in_sandbox();
         }
 
+        chdir($savedcurrentdir);
         if ($error === self::OK) {
             return (object) array(
                 'error'     => self::OK,
@@ -163,7 +165,7 @@ abstract class qtype_coderunner_localsandbox extends qtype_coderunner_sandbox {
     private function load_files() {
         if ($this->files !== null) {
             chdir($this->workdir);
-            foreach ($this->files as $filename=>$contents) {
+            foreach ($this->files as $filename => $contents) {
                 file_put_contents($filename, $contents);
             }
         }
@@ -233,4 +235,4 @@ abstract class qtype_coderunner_localsandbox extends qtype_coderunner_sandbox {
     protected abstract function run_in_sandbox();
     
 }
-?>
+

@@ -10,8 +10,8 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
     $dbman = $DB->get_manager();
     if ($oldversion != 0 && $oldversion < 2013010201) {
         $table = new xmldb_table('quest_coderunner_options');
-        $allOrNothingField = new xmldb_field('all_or_nothing', XMLDB_TYPE_INTEGER, '1', XMLDB_UNSIGNED, true, null, '1');
-        $dbman->add_field($table, $allOrNothingField);
+        $allornothingfield = new xmldb_field('all_or_nothing', XMLDB_TYPE_INTEGER, '1', XMLDB_UNSIGNED, true, null, '1');
+        $dbman->add_field($table, $allornothingfield);
 
         $DB->set_field('quest_coderunner_options', 'coderunner_type', 'python3', array('coderunner_type' => 'python3_basic'));
         $DB->set_field('quest_coderunner_options', 'coderunner_type', 'python2', array('coderunner_type' => 'python2_basic'));
@@ -45,8 +45,8 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         $dbman->add_field($table, $customTemplate);
         // Remove is_custom field from quest_coderunner_types
         $table = new xmldb_table('quest_coderunner_types');
-        $fieldToDrop = new xmldb_field('is_custom', XMLDB_TYPE_INTEGER, '1', XMLDB_UNSIGNED, true, null, '0');
-        $dbman->drop_field($table, $fieldToDrop);
+        $fieldtodrop = new xmldb_field('is_custom', XMLDB_TYPE_INTEGER, '1', XMLDB_UNSIGNED, true, null, '0');
+        $dbman->drop_field($table, $fieldtodrop);
         upgrade_plugin_savepoint(true, 2013010502, 'qtype', 'coderunner');
     }
 
@@ -68,9 +68,9 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
     if ($oldversion != 0 && $oldversion < 2013102401) {
         // Add booleans to control display of result table columns
         $table = new xmldb_table('quest_coderunner_options');
-        foreach (array('showtest', 'showstdin', 'showexpected', 'showoutput', 'showmark') as $newBool) {
-            $default = $newBool === 'showmark' ? 0 : 1;
-            $field = new xmldb_field($newBool, XMLDB_TYPE_INTEGER, '1', XMLDB_UNSIGNED, true, null, $default);
+        foreach (array('showtest', 'showstdin', 'showexpected', 'showoutput', 'showmark') as $newbool) {
+            $default = $newbool === 'showmark' ? 0 : 1;
+            $field = new xmldb_field($newbool, XMLDB_TYPE_INTEGER, '1', XMLDB_UNSIGNED, true, null, $default);
             $dbman->add_field($table, $field);
         }
         upgrade_plugin_savepoint(true, 2013102401, 'qtype', 'coderunner');
@@ -92,9 +92,9 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
 
     if ($oldversion != 0 && $oldversion < 2013110201) {
         $table = new xmldb_table('quest_coderunner_options');
-        $template_does_grading = new xmldb_field('template_does_grading',
+        $templatedoesgrading = new xmldb_field('template_does_grading',
                 XMLDB_TYPE_INTEGER, '1', XMLDB_UNSIGNED, true, null, 0, 'custom_template');
-        $dbman->add_field($table, $template_does_grading);
+        $dbman->add_field($table, $templatedoesgrading);
         upgrade_plugin_savepoint(true, 2013110201, 'qtype', 'coderunner');
     }
 
@@ -135,8 +135,8 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
     if ($oldversion != 0 && $oldversion < 2013112102) {
         $DB->set_field('quest_coderunner_options', 'grader', 'TemplateGrader', array('template_does_grading' => 1));
         $table = new xmldb_table('quest_coderunner_options');
-        $template_does_grading = new xmldb_field('template_does_grading');
-        $dbman->drop_field($table, $template_does_grading);
+        $templatedoesgrading = new xmldb_field('template_does_grading');
+        $dbman->drop_field($table, $templatedoesgrading);
         upgrade_plugin_savepoint(true, 2013112102, 'qtype', 'coderunner');
     }
 
@@ -268,10 +268,10 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         $prototypes = $DB->get_records('quest_coderunner_options',
                     array('prototype_type' => 1));
         foreach ($prototypes as $prototype) {
-            $questionId = $prototype->questionid;
+            $questionid = $prototype->questionid;
             $DB->delete_records('quest_coderunner_options',
-                array('questionid' => $questionId));
-            $DB->delete_records('question', array('id' => $questionId));
+                array('questionid' => $questionid));
+            $DB->delete_records('question', array('id' => $questionid));
         }
     }
     
@@ -517,7 +517,6 @@ function updateQuestionTypes() {
     
     // Find id of CR_PROTOTYPES category
     global $DB, $CFG;
-    define('PROTOTYPE_ENDING', '_PROTOTYPES.xml');  // prototype file ending
     
     $success = true;
     $systemcontext = context_system::instance();
@@ -554,12 +553,12 @@ function updateQuestionTypes() {
        $DB->delete_records('question', array('id' => $question->id));
     }
     
-    $dbDir = dirname(__FILE__);
-    $dbFiles = scandir($dbDir);
-    foreach ($dbFiles as $file) {
+    $dbdir = dirname(__FILE__);
+    $dbfiles = scandir($dbdir);
+    foreach ($dbfiles as $file) {
         // Load any files in the db directory ending with _PROTOTYPES.xml
         if (strpos(strrev($file), strrev('_PROTOTYPES.xml')) === 0) {
-            $filename = $dbDir . '/' . $file;
+            $filename = $dbdir . '/' . $file;
             load_questions($category, $filename, $systemcontextid);
         }
     }

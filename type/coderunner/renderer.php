@@ -26,6 +26,9 @@
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/question/type/coderunner/locallib.php');
+require_once($CFG->dirroot . '/question/type/coderunner/constants.php');
+
+use qtype_coderunner\constants;
 
 /**
  * Subclass for generating the bits of output specific to coderunner questions.
@@ -33,6 +36,8 @@ require_once($CFG->dirroot . '/question/type/coderunner/locallib.php');
  * @copyright  Richard Lobb, University of Canterbury.
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+
 class qtype_coderunner_renderer extends qtype_renderer {
     
     const FORCE_TABULAR_EXAMPLES = true;
@@ -62,7 +67,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
         if (count($examples) > 0) {
             $qtext .= html_writer::tag('p', 'For example:', array('class' => 'for-example-para'));
             $qtext .= html_writer::start_tag('div', array('class' => 'coderunner-examples'));
-            $qtext .= $this->formatExamples($examples);
+            $qtext .= $this->format_examples($examples);
             $qtext .= html_writer::end_tag('div');
         }
 
@@ -103,7 +108,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
         // Thanks to Ulrich Dangel for incorporating the Ace code editor.
 
         $PAGE->requires->js_init_call('M.qtype_coderunner.initQuestionTA', array($responsefieldid));
-        load_ace_if_required($question, $responsefieldid, self::USER_LANGUAGE);
+        load_ace_if_required($question, $responsefieldid, constants::USER_LANGUAGE);
 
         return $qtext;
 
@@ -128,7 +133,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
             $testResults = $testoutcome->testresults;
             if ($testoutcome->all_correct()) {
                 $resultsclass = "coderunner-test-results good";
-            } elseif (!$q->allornothing && $testoutcome->mark_as_fraction() > 0) {
+            } else if (!$q->allornothing && $testoutcome->mark_as_fraction() > 0) {
                 $resultsclass = 'coderunner-test-results partial';
             } else {
                 $resultsclass = "coderunner-test-results bad";
@@ -160,7 +165,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
                 $fb .= $testoutcome->feedbackhtml;
             } else {
                 $fb .= html_writer::tag('p', '&nbsp;', array('class' => 'coderunner-spacer'));
-                $results = $this->buildResultsTable($q, $testCases, $testResults);
+                $results = $this->build_results_table($q, $testCases, $testResults);
                 if ($results != null) {
                     $fb .= $results;
                 }
@@ -170,7 +175,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
             if (!$testoutcome->has_syntax_error() && !$testoutcome->run_failed() &&
                 !$testoutcome->feedbackhtml) {
-                $fb .= $this->buildFeedbackSummary($q, $testCases, $testoutcome);
+                $fb .= $this->build_feedback_summary($q, $testCases, $testoutcome);
             }
             $fb .= html_writer::end_tag('div');
         } else { // No testresults?! Probably due to a wrong behaviour selected
@@ -201,7 +206,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
 
     // Return a table of results or null if there are no results to show.
-    private function buildResultsTable($question, $testCases, $testResults) {
+    private function build_results_table($question, $testcases, $testresults) {
         // The set of columns to be displayed is specified by the 
         // question's resultcolumns variable. This is a JSON-encoded list
         // of column specifiers. A column specifier is itself a list, usually
@@ -223,12 +228,12 @@ class qtype_coderunner_renderer extends qtype_renderer {
         if (isset($question->resultcolumns) && $question->resultcolumns) {
             $resultcolumns = json_decode($question->resultcolumns);
         } else {
-            $resultcolumns = json_decode(DEFAULT_RESULT_COLUMNS);
+            $resultcolumns = json_decode(self::DEFAULT_RESULT_COLUMNS);
         }
         if ($COURSE && $coursecontext = context_course::instance($COURSE->id)) {
-            $canViewHidden = has_capability('moodle/grade:viewhidden', $coursecontext);
+            $canviewhidden = has_capability('moodle/grade:viewhidden', $coursecontext);
         } else {
-            $canViewHidden = false;
+            $canviewhidden = false;
         }
 
         $table = new html_table();
@@ -239,16 +244,16 @@ class qtype_coderunner_renderer extends qtype_renderer {
         // unless all rows in that column would be blank.
 
         $table->head = array('');  // First column is tick or cross, like last column
-        foreach ($resultcolumns as &$col_spec) {
-            $len = count($col_spec);
+        foreach ($resultcolumns as &$colspec) {
+            $len = count($colspec);
             if ($len < 3) {
-                $col_spec[] = '%s';  // Add missing default format
+                $colspec[] = '%s';  // Add missing default format
             }
-            $header = $col_spec[0];
-            $field = $col_spec[1];  // Primary field - there may be more
-            $num_non_blank = count_non_blanks($field, $testResults);
+            $header = $colspec[0];
+            $field = $colspec[1];  // Primary field - there may be more
+            $num_non_blank = self::count_non_blanks($field, $testresults);
             if ($num_non_blank == 0) {
-                $col_spec[count($col_spec) - 1] = '';  // Zap format to hide column
+                $colspec[count($colspec) - 1] = '';  // Zap format to hide column
             } else {
                 $table->head[] = $header;
             }
@@ -257,58 +262,58 @@ class qtype_coderunner_renderer extends qtype_renderer {
         
         // Process each row of the results table
         
-        $tableData = array();
-        $testCaseKeys = array_keys($testCases);  // Arbitrary numeric indices. Aarghhh.
+        $tabledata = array();
+        $testcasekeys = array_keys($testcases);  // Arbitrary numeric indices. Aarghhh.
         $i = 0;
-        foreach ($testResults as $testResult) {
-            $testCase = $testCases[$testCaseKeys[$i]];
-            $testIsVisible = $this->shouldDisplayResult($testCase, $testResult);
-            if ($canViewHidden || $testIsVisible) {
-                $fraction = $testResult->awarded / $testResult->mark;
-                $tick_or_cross = $this->feedback_image($fraction);
-                $tableRow = array($tick_or_cross); // Tick or cross
-                foreach ($resultcolumns as &$col_spec) {
-                    $len = count($col_spec);
-                    $format = $col_spec[$len - 1];
+        foreach ($testresults as $testresult) {
+            $testcase = $testcases[$testcasekeys[$i]];
+            $testIsVisible = $this->should_display_result($testcase, $testresult);
+            if ($canviewhidden || $testIsVisible) {
+                $fraction = $testresult->awarded / $testresult->mark;
+                $tickorcross = $this->feedback_image($fraction);
+                $tablerow = array($tickorcross); // Tick or cross
+                foreach ($resultcolumns as &$colspec) {
+                    $len = count($colspec);
+                    $format = $colspec[$len - 1];
                     if ($format === '%h') {  // If it's an html format
-                        $field = $col_spec[1]; // ... use the template supplied value directly
-                        if (property_exists($testResult, $field)) {
-                            $value = $testResult->$field;
+                        $field = $colspec[1]; // ... use the template supplied value directly
+                        if (property_exists($testresult, $field)) {
+                            $value = $testresult->$field;
                         } else {
                             $value = "Field '$field' does not exist";
                         }
-                        $tableRow[] = $value;  
+                        $tablerow[] = $value;  
                     } else if ($format !== '') {  // Else if it's a non-null column
                         $args = array($format);
                         for ($j = 1; $j < $len - 1; $j++) {
-                            $field = $col_spec[$j];
-                            if (property_exists($testResult, $field)) {
-                                $args[] = restrict_qty($testResult->$field);
+                            $field = $colspec[$j];
+                            if (property_exists($testresult, $field)) {
+                                $args[] = self::restrict_qty($testresult->$field);
                             } else {
                                 $args[] = "Field '$field' does not exist";
                             }
                         }
                         $content = call_user_func_array('sprintf', $args);
-                        $tableRow[] = $this->formatCell($content);
+                        $tablerow[] = self::format_cell($content);
                     }
                 }
-                $tableRow[] = $tick_or_cross;
-                $tableData[] = $tableRow;
+                $tablerow[] = $tickorcross;
+                $tabledata[] = $tablerow;
                 if (!$testIsVisible) {
                     $rowclasses[$i] = 'hidden-test';
                 }
             }
             $i++;
-            if ($testCase->hiderestiffail && !$testResult->iscorrect) {
+            if ($testcase->hiderestiffail && !$testresult->iscorrect) {
                 break;
             }
         }
         
-        $table->data = $tableData;
+        $table->data = $tabledata;
         if (isset($rowclasses)) {
             $table->rowclasses = $rowclasses;
         }
-        if (count($tableData) > 0) {
+        if (count($tabledata) > 0) {
             return html_writer::table($table);
         } else {
             return null;
@@ -333,33 +338,33 @@ class qtype_coderunner_renderer extends qtype_renderer {
     }
     
     // Sanitise with 's()' and add line breaks to a given string
-    private function formatCell($cell) {
+    private static function format_cell($cell) {
         return str_replace("\n", "<br />", str_replace(' ', '&nbsp;', s($cell)));
     }
 
     // Compute the HTML feedback summary for a given test outcome.
     // Should not be called if there were any syntax or sandbox errors, or if a
     // combinator-template grader was used. 
-    private function buildFeedbackSummary($question, $testCases, $testOutcome) {
+    private function build_feedback_summary($question, $testcases, $testoutcome) {
         $lines = array();  // List of lines of output
-        $testResults = $testOutcome->testresults;
-        if (count($testResults) != count($testCases)) {
+        $testresults = $testoutcome->testresults;
+        if (count($testresults) != count($testcases)) {
             $lines[] = get_string('aborted', 'qtype_coderunner');
         } else {
-            $numErrors = $testOutcome->errorcount;
-            $hiddenErrors = $this->count_hidden_errors($testResults, $testCases);
-            if ($numErrors > 0) {
-                if ($numErrors == $hiddenErrors) {
+            $numerrors = $testoutcome->errorcount;
+            $hiddenerrors = $this->count_hidden_errors($testresults, $testcases);
+            if ($numerrors > 0) {
+                if ($numerrors == $hiddenerrors) {
                     // Only hidden tests were failed
                     $lines[] = get_string('failedhidden', 'qtype_coderunner');
                 }
-                else if ($hiddenErrors > 0) {
+                else if ($hiddenerrors > 0) {
                     $lines[] = get_string('morehidden', 'qtype_coderunner');
                 }
             }
         }
 
-        if ($testOutcome->all_correct()) {
+        if ($testoutcome->all_correct()) {
             $lines[] = get_string('allok', 'qtype_coderunner') .
                         "&nbsp;" . $this->feedback_image(1.0);
         } else if ($question->allornothing) {
@@ -384,19 +389,19 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
 
     // Format one or more examples
-    protected function formatExamples($examples) {
-        if ($this->allSingleLine($examples) && ! self::FORCE_TABULAR_EXAMPLES) {
-            return $this->formatExamplesOnePerLine($examples);
+    protected function format_examples($examples) {
+        if ($this->all_single_line($examples) && ! self::FORCE_TABULAR_EXAMPLES) {
+            return $this->format_examples_one_per_line($examples);
         }
         else {
-            return $this->formatExamplesAsTable($examples);
+            return $this->format_examples_as_table($examples);
         }
     }
 
 
     // Return true iff there is no standard input and all expectedoutput and shell
     // input cases are single line only
-    private function allSingleLine($examples) {
+    private function all_single_line($examples) {
         foreach ($examples as $example) {
             if (!empty($example->stdin) ||
                 strpos($example->testcode, "\n") !== false ||
@@ -411,7 +416,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
     // Return a '<br>' separated list of expression -> result examples.
     // For use only where there is no stdin and shell input is one line only.
-    private function formatExamplesOnePerLine($examples) {
+    private function format_examples_one_per_line($examples) {
        $text = '';
        foreach ($examples as $example) {
             $text .=  $example->testcode . ' &rarr; ' . $example->expected;
@@ -421,10 +426,10 @@ class qtype_coderunner_renderer extends qtype_renderer {
     }
 
 
-    private function formatExamplesAsTable($examples) {
+    private function format_examples_as_table($examples) {
         $table = new html_table();
         $table->attributes['class'] = 'coderunnerexamples';
-        list($numStd, $numShell) = $this->countBits($examples);
+        list($numStd, $numShell) = $this->count_bits($examples);
         $table->head = array();
         if ($numShell) {
             $table->head[] = 'Test';
@@ -434,26 +439,26 @@ class qtype_coderunner_renderer extends qtype_renderer {
         }
         $table->head[] = 'Result';
 
-        $tableRows = array();
+        $tablerows = array();
         foreach ($examples as $example) {
             $row = array();
             if ($numShell) {
-                $row[] = $this->formatCell($example->testcode);
+                $row[] = self::format_cell($example->testcode);
             }
             if ($numStd) {
-                $row[] = $this->formatCell($example->stdin);
+                $row[] = self::format_cell($example->stdin);
             }
-            $row[] = $this->formatCell($example->expected);
-            $tableRows[] = $row;
+            $row[] = self::format_cell($example->expected);
+            $tablerows[] = $row;
         }
-        $table->data = $tableRows;
+        $table->data = $tablerows;
         return html_writer::table($table);
     }
 
 
     // Return a count of the number of non-empty stdins and non-empty shell
     // inputs in the given list of test result objects.
-    private function countBits($tests) {
+    private function count_bits($tests) {
         $numStds = 0;
         $numShell = 0;
         foreach ($tests as $test) {
@@ -471,24 +476,24 @@ class qtype_coderunner_renderer extends qtype_renderer {
     // Count the number of errors in hidden testcases, given the arrays of
     // testcases and testresults. A slight complication here is that the testcase keys
     // are arbitrary integers.
-    private function count_hidden_errors($testResults, $testCases) {
-        $testCaseKeys = array_keys($testCases);  // Arbitrary numeric indices. Aarghhh.
+    private function count_hidden_errors($testresults, $testcases) {
+        $testcasekeys = array_keys($testcases);  // Arbitrary numeric indices. Aarghhh.
         $i = 0;
         $count = 0;
-        $hidingRest = false;
-        foreach ($testResults as $tr) {
-            $testCase = $testCases[$testCaseKeys[$i]];
-            if ($hidingRest) {
-                $isDisplayed = false;
+        $hidingrest = false;
+        foreach ($testresults as $tr) {
+            $testcase = $testcases[$testcasekeys[$i]];
+            if ($hidingrest) {
+                $isdisplayed = false;
             }
             else {
-                $isDisplayed = $this->shouldDisplayResult($testCase, $tr);
+                $isdisplayed = $this->should_display_result($testcase, $tr);
             }
-            if (!$isDisplayed && !$tr->iscorrect) {
+            if (!$isdisplayed && !$tr->iscorrect) {
                 $count++;
             }
-            if ($testCase->hiderestiffail && !$tr->iscorrect) {
-                $hidingRest = true;
+            if ($testcase->hiderestiffail && !$tr->iscorrect) {
+                $hidingrest = true;
             }
             $i++;
         }
@@ -497,69 +502,68 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
 
     // True iff the given test result should be displayed
-    private function shouldDisplayResult($testCase, $testResult) {
-        return $testCase->display == 'SHOW' ||
-            ($testCase->display == 'HIDE_IF_FAIL' && $testResult->iscorrect) ||
-            ($testCase->display == 'HIDE_IF_SUCCEED' && !$testResult->iscorrect);
+    private function should_display_result($testcase, $testresult) {
+        return $testcase->display == 'SHOW' ||
+            ($testcase->display == 'HIDE_IF_FAIL' && $testresult->iscorrect) ||
+            ($testcase->display == 'HIDE_IF_SUCCEED' && !$testresult->iscorrect);
     }
+    
 
-}
-
-
-/* Support function to limit the size of a string for browser display.
- * Restricts line length to MAX_LINE_LENGTH and number of lines to
- * MAX_NUM_LINES.
- */
-function restrict_qty($s) {
-    if (!is_string($s)) {  // It's a no-op for non-strings.
-        return $s;
-    }
-    $result = '';
-    $n = strlen($s);
-    $line = '';
-    $lineLen = 0;
-    $numLines = 0;
-    for ($i = 0; $i < $n && $numLines < self::MAX_NUM_LINES; $i++) {
-        if ($s[$i] != "\n") {
-            if ($lineLen < self::MAX_LINE_LENGTH) {
-                $line .= $s[$i];
-            }
-            elseif ($lineLen == self::MAX_LINE_LENGTH) {
-                $line[self::MAX_LINE_LENGTH - 1] = $line[self::MAX_LINE_LENGTH - 2] =
-                $line[self::MAX_LINE_LENGTH -3] = '.';
+    /* Support function to limit the size of a string for browser display.
+     * Restricts line length to MAX_LINE_LENGTH and number of lines to
+     * MAX_NUM_LINES.
+     */
+    private static function restrict_qty($s) {
+        if (!is_string($s)) {  // It's a no-op for non-strings.
+            return $s;
+        }
+        $result = '';
+        $n = strlen($s);
+        $line = '';
+        $linelen = 0;
+        $numlines = 0;
+        for ($i = 0; $i < $n && $numlines < self::MAX_NUM_LINES; $i++) {
+            if ($s[$i] != "\n") {
+                if ($linelen < self::MAX_LINE_LENGTH) {
+                    $line .= $s[$i];
+                }
+                else if ($linelen == self::MAX_LINE_LENGTH) {
+                    $line[self::MAX_LINE_LENGTH - 1] = $line[self::MAX_LINE_LENGTH - 2] =
+                    $line[self::MAX_LINE_LENGTH -3] = '.';
+                }
+                else {
+                    /* ignore remainder of line */
+                }
+                $linelen++;
             }
             else {
-                /* ignore remainder of line */
-            }
-            $lineLen++;
-        }
-        else {
-            $result .= $line . "\n";
-            $line = '';
-            $lineLen = 0;
-            $numLines += 1;
-            if ($numLines == self::MAX_NUM_LINES) {
-                $result .= "[... snip ...]\n";
+                $result .= $line . "\n";
+                $line = '';
+                $linelen = 0;
+                $numlines += 1;
+                if ($numlines == self::MAX_NUM_LINES) {
+                    $result .= "[... snip ...]\n";
+                }
             }
         }
+        return $result . $line;
     }
-    return $result . $line;
-}
 
 
-// support function to count how many objects in the given list of objects
-// have the given 'field' attribute non-blank. Non-existent fields are also
-// included in order to generate a column showing the error, but null values
+    // support function to count how many objects in the given list of objects
+    // have the given 'field' attribute non-blank. Non-existent fields are also
+    // included in order to generate a column showing the error, but null values
 
-function count_non_blanks($field, $objects) {
-    $n = 0;
-    foreach ($objects as $obj) {
-        if (!property_exists($obj, $field) ||
-            (!is_null($obj->$field) && !is_string($obj->$field)) ||
-            (is_string($obj->$field) && trim($obj->$field !== ''))) {
-            $n++;
+    private static function count_non_blanks($field, $objects) {
+        $n = 0;
+        foreach ($objects as $obj) {
+            if (!property_exists($obj, $field) ||
+                (!is_null($obj->$field) && !is_string($obj->$field)) ||
+                (is_string($obj->$field) && trim($obj->$field !== ''))) {
+                $n++;
+            }
         }
+        return $n;
     }
-    return $n;
-}
 
+}

@@ -90,7 +90,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
 
         $filelist = array();
         if ($files !== null) {
-            foreach($files as $filename=>$contents) {
+            foreach($files as $filename => $contents) {
                 $id = md5($contents);
                 $filelist[] = array($id, $filename);
             }
@@ -127,7 +127,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
         // putting all the files on the server. Anything else is an error.
         $httpcode = $this->submit($postbody);
         if ($httpcode == 404) { // Missing file(s)?
-            foreach($files as $filename=>$contents) {
+            foreach($files as $filename => $contents) {
                 if (($httpcode = $this->put_file($contents)) != 204) {
                     break;
                 }
@@ -219,4 +219,4 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
         return preg_replace('|(/home/jobe/runs/jobe_[a-zA-Z0-9_]+/)([a-zA-Z0-9_]+)|', '$2', $s);
     }
 }
-?>
+

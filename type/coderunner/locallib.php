@@ -25,7 +25,7 @@ global $CFG;
 
 require_once($CFG->dirroot . '/question/type/coderunner/constants.php');
 
-use qtype_coderunner_constants\constants;
+use qtype_coderunner\constants;
 
 /* The class for exceptions thrown in the coderunner plugin */
 class coderunner_exception extends moodle_exception {

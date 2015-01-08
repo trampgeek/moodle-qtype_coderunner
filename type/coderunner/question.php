@@ -38,7 +38,7 @@ require_once($CFG->dirroot . '/question/type/coderunner/escapers.php');
 require_once($CFG->dirroot . '/question/type/coderunner/testingoutcome.php');
 require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
 
-use qtype_coderunner_constants\constants;
+use qtype_coderunner\constants;
 
 /**
  * Represents a 'CodeRunner' question.
@@ -270,7 +270,7 @@ class qtype_coderunner_question extends question_graded_automatically {
      */
     public static function get_best_sandbox($language) {
         $sandboxes = qtype_coderunner_sandbox::available_sandboxes();
-        foreach($sandboxes as $extname=>$classname) {
+        foreach($sandboxes as $extname => $classname) {
             if (get_config('qtype_coderunner', $extname . '_enabled')) {
                 $filename = qtype_coderunner_sandbox::get_filename($extname);
                 require_once("sandbox/$filename");
@@ -344,7 +344,7 @@ class qtype_coderunner_question extends question_graded_automatically {
             $outcome = new qtype_coderunner_testing_outcome($maxmark,
                     qtype_coderunner_testing_outcome::STATUS_SANDBOX_ERROR,
                     qtype_coderunner_sandbox::error_string($run->error));
-        } elseif ($iscombinatorgrader) {
+        } else if ($iscombinatorgrader) {
             $outcome = $this->do_combinator_grading($maxmark, $run);
         } else if ($run->result === qtype_coderunner_sandbox::RESULT_COMPILATION_ERROR) {
             $outcome = new qtype_coderunner_testing_outcome($maxmark,

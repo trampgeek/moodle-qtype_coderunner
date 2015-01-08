@@ -46,7 +46,7 @@ class qtype_coderunner_testcase extends advanced_testcase {
     public function make_question($question) {
         try {
             $q = test_question_maker::make_question('coderunner', $question);
-        } catch (MissingCoderunnerQuestionType $ex) {
+        } catch (qtype_coderunner_missing_question_type $ex) {
             $this->markTestSkipped("$question question unavailable: test skipped");
         }
         $q->contextid = $this->category->contextid;

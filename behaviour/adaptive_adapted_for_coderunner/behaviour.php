@@ -34,6 +34,9 @@
  *  question_attempt_pending_step as a parameter rather than the response
  *  copied from that step. This allows the question to cache the test results
  *  within the step, which is stored in the database.
+ * 
+ *  Also override adjusted_fraction and adaptive_mark_details_from_step to 
+ *  support the flexible CodeRunner penalty_regime.
  */
 
 defined('MOODLE_INTERNAL') || die();
@@ -67,24 +70,6 @@ class qbehaviour_adaptive_adapted_for_coderunner extends qbehaviour_adaptive {
         if (is_null($prevbest)) {
             $prevbest = 0;
         }
-
-        // *** changed bit #4 begins. TENTATIVE
-        // The effect of this change is
-        // to regrade ANY submission when CHECK is clicked, regardless of
-        // whether it has been changed since the last regrading.
-        // Although this seems counterintuitive, the regrading cost on individual
-        // user's CHECK clicks turns out to be insignificant. Allowing regrading
-        // helps with two problems: (a) confusion of authors when
-        // testing a changed set of test data and (b) questions in
-        // which the answer is a link to external data which may have changed.
-        // OTOH, will it lead to students getting penalised multiple times due
-        // to re-checks when frustrated?
-        // Let's see how it goes.
-
-        // if ($this->question->is_same_response($response, $prevresponse)) {
-        //    return question_attempt::DISCARD;
-        //}
-        // *** End of changed bit #4 ***
 
 
         // *** changed bit #1 begins ***
@@ -143,7 +128,7 @@ class qbehaviour_adaptive_adapted_for_coderunner extends qbehaviour_adaptive {
 
 
     // Override usual adaptive mark details to handle penalty regime.
-    // This is messy. TODO: is there a better way?
+    // This is messy. Is there a better way?
     
     protected function adaptive_mark_details_from_step(
             question_attempt_step $gradedstep,
@@ -196,10 +181,10 @@ class qbehaviour_adaptive_adapted_for_coderunner extends qbehaviour_adaptive {
 
             // *** changed bit #2 begins ***
             // Cache extra data from grade response.
-            $gradeData = $this->question->grade_response($response);
-            list($fraction, $state) = $gradeData;
-            if (count($gradeData) > 2) {
-                foreach($gradeData[2] as $name => $value) {
+            $gradedata = $this->question->grade_response($response);
+            list($fraction, $state) = $gradedata;
+            if (count($gradedata) > 2) {
+                foreach($gradedata[2] as $name => $value) {
                     $pendingstep->set_qt_var($name, $value);
                 }
             }

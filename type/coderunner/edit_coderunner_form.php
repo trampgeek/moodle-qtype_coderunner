@@ -537,7 +537,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $sandboxcontrols = array();
 
         $sandboxes = array('DEFAULT' => 'DEFAULT');
-        foreach (qtype_coderunner_sandbox::available_sandboxes() as $ext=>$class) {
+        foreach (qtype_coderunner_sandbox::available_sandboxes() as $ext => $class) {
             $sandboxes[$ext] = $ext;
         }
 

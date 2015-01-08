@@ -1,17 +1,42 @@
-// JavaScript functions for CodeRunner
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * JavaScript for the CodeRunner question type.
+ *
+ * @package    qtype
+ * @subpackage coderunner
+ * @copyright  Richard Lobb, 2015, The University of Canterbury
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 // Thanks to Ulrich Dangel for the initial implementation of Ace within
 // CodeRunner.
 
-var HANDLE_SIZE = 5,
-    MIN_WIDTH = 300,
-    MIN_HEIGHT = 100;
 
 M.qtype_coderunner = M.qtype_coderunner || {};
 
 // Functions to allow the use of the Ace editor for code text areas.
 M.qtype_coderunner.init_ace = function (Y, field, lang) {
     
-    var mode =  null,
+    
+    var HANDLE_SIZE = 5,
+        MIN_WIDTH = 300,
+        MIN_HEIGHT = 100,
+    
+        mode =  null,
         session = null,
         textarea = null;
 

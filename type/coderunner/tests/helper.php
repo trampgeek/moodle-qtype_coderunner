@@ -31,7 +31,7 @@ defined('MOODLE_INTERNAL') || die();
 // This may occur if, say Matlab has been installed in a sandbox but the
 // corresponding matlab question types have not been loaded prior to
 // phpunit being initialised.
-class MissingCoderunnerQuestionType extends Exception {
+class qtype_coderunner_missing_question_type extends Exception {
     public function __construct($message, $code = 0, Exception $previous = null) {
         parent::__construct($message, $code, $previous);
     }
@@ -777,7 +777,7 @@ EOPROG;
         if (!$row = $DB->get_record_select(
                    'question_coderunner_options',
                    "coderunnertype = '$type' and prototypetype != 0")) {
-               throw new MissingCoderunnerQuestionType("TestHelper: failed to load type info for question with type $type");
+               throw new qtype_coderunner_missing_question_type("TestHelper: failed to load type info for question with type $type");
         }
         
         $noninherited = qtype_coderunner::noninherited_fields();
@@ -788,7 +788,7 @@ EOPROG;
         }
         
 
-        foreach ($question->options as $key=>$value) {
+        foreach ($question->options as $key => $value) {
             $question->$key = $value;
         }
 
@@ -819,7 +819,7 @@ EOPROG;
         $tests = array();
         foreach ($rawTests as $test) {
             $t = $basicTest; // Copy
-            foreach ($test as $key=>$value) {
+            foreach ($test as $key => $value) {
                 $t[$key] = $value;
             }
             $tests[] = (object) $t;
@@ -850,7 +850,7 @@ EOPROG;
         $coderunner->customise = false;
         $coderunner->testcases = self::makeTestCases($testcases);
         $coderunner->options = array();
-        foreach ($otherOptions as $key=>$value) {
+        foreach ($otherOptions as $key => $value) {
             $coderunner->options[$key] = $value;
         }
         $this->getOptions($coderunner);

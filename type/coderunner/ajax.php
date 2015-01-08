@@ -42,7 +42,7 @@ if (strpos($dir, 'local/CodeRunner/type/coderunner') !== false) {
     require_once('../../../config.php'); // "Normal" case of a copy of the code
 }
 require_once($CFG->dirroot . '/question/engine/lib.php');
-require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');;
+require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
 
 require_login();
 require_sesskey();
@@ -63,4 +63,4 @@ try {
 }
 echo json_encode($questiontype);
 die();
-?>
+

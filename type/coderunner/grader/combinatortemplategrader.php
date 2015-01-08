@@ -21,4 +21,4 @@ class qtype_coderunner_combinator_template_grader extends qtype_coderunner_grade
         throw new CodingException("CombinatorGrader shouldn't be called");
     }
 }
-?>
+

@@ -13,9 +13,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace qtype_coderunner\languagetasks;
+namespace qtype_coderunner\local\languagetasks;
 
-use qtype_coderunner\languagetasks\language_task;
+use qtype_coderunner\local\languagetasks\language_task;
 
 global $CFG;
 require_once($CFG->dirroot . '/question/type/coderunner/locallib.php');
@@ -53,7 +53,7 @@ class Matlab_Task extends language_task {
              $c = $stderr[$i];
              if ($c === "\x07") {
                  // pass
-             } elseif ($c === "\x08" && strlen($out) > 0) {
+             } else if ($c === "\x08" && strlen($out) > 0) {
                  $out = substr($out, 0, -1);
              } else {
                  $out .= $c;
@@ -246,4 +246,4 @@ class C_Task extends language_task {
     }
 };
 
-?>
+

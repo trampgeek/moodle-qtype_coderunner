@@ -1,5 +1,5 @@
 This subtree contains the specialised adaptive quiz behaviour used by the
 CodeRunner questions.
-<moodlehome>/question/behaviour/adaptive_adapted_for_coderunner should be a
-symbolic link to this subtree; make such a link manually if the installer
-doesn't do so.
+
+Files in this subtree (except this one) should be either copied or
+symbolically linked to question/behaviour/adaptive_adapted_for_coderunner.

@@ -463,7 +463,7 @@ class qtype_coderunner extends question_type {
 
     protected function initialise_question_instance(question_definition $question, $questiondata) {
         parent::initialise_question_instance($question, $questiondata);
-        foreach ($questiondata->options as $field=>$value) {
+        foreach ($questiondata->options as $field => $value) {
             if (!isset($question->$field)) {
                 $question->$field = $value;
             }
@@ -699,7 +699,7 @@ class qtype_coderunner extends question_type {
     // A map from question_options field names to their legacy versions
     // withn underscores. Only those field names changed between versions 2.3
     // and 2.4 of CodeRunner appear here. 
-    public function legacy_field_name_map() {
+    public static function legacy_field_name_map() {
         $oldfields = array(
             'coderunnertype'   => 'coderunner_type',
             'prototypetype'    => 'prototype_type',

@@ -29,4 +29,3 @@ $plugin->release = '2.4';
 
 $plugin->dependencies = array();
 
-?>

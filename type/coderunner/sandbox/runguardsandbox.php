@@ -91,19 +91,19 @@ class qtype_coderunner_runguardsandbox extends qtype_coderunner_localsandbox {
         $filesize = 1000 * $this->get_param('disklimit'); // MB -> kB
         $memsize = 1000 * $this->get_param('memorylimit');
         $cputime = $this->get_param('cputime');
-        $numProcs = $this->get_param('numprocs');
-        $sandboxCmdBits = array(
+        $numprocs = $this->get_param('numprocs');
+        $sandboxcmdbits = array(
              dirname(__FILE__)  . "/runguard",
              "--user=coderunner",
              "--time=$cputime",         // Seconds of execution time allowed
              "--filesize=$filesize",    // Max file sizes
-             "--nproc=$numProcs",       // Max num processes/threads for this *user*
+             "--nproc=$numprocs",       // Max num processes/threads for this *user*
              "--no-core",
              "--streamsize=$filesize");  // Max stdout/stderr sizes
         if ($memsize != 0) {  // Special case: Matlab won't run with a memsize set. TODO: WHY NOT!
-            $sandboxCmdBits[] = "--memsize=$memsize";
+            $sandboxcmdbits[] = "--memsize=$memsize";
         }
-        $allCmdBits = array_merge($sandboxCmdBits, $this->task->get_run_command());
+        $allCmdBits = array_merge($sandboxcmdbits, $this->task->get_run_command());
         $cmd = implode(' ', $allCmdBits) . " >prog.out 2>prog.err";
 
         $workdir = $this->workdir;
@@ -165,4 +165,4 @@ class qtype_coderunner_runguardsandbox extends qtype_coderunner_localsandbox {
     }
 }
 
-?>
+

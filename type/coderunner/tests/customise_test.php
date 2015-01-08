@@ -33,4 +33,4 @@ class qtype_coderunner_customise_test extends qtype_coderunner_testcase {
         }
     }
 }
-?>
+

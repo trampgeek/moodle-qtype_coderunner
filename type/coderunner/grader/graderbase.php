@@ -112,7 +112,7 @@ abstract class qtype_coderunner_grader {
             $c = $s[$i];
             if ($c === ' ') {
                 $spaces .= $c;
-            } elseif ($c === "\n") {
+            } else if ($c === "\n") {
                 $spaces = ''; // Discard spaces before a newline
                 $nls .= $c;
             } else {
