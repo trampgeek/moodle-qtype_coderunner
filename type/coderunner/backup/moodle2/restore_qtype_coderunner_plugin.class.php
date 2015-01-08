@@ -25,13 +25,25 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-// TODO: Test me!
+require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
 
 /**
  * restore plugin class that provides the necessary information
  * needed to restore one coderunner qtype plugin
  */
 class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
+    
+    private $legacy_name_map = null; // Map from legacy DB column names to current
+    
+    // Constructor builds a map from old DB field names to new ones for use
+    // in function process_coderunner_options
+    public function __construct() {
+        $this->legacy_name_map = array('custom_template' => 'pertesttemplate');
+        $revmap = qtype_coderunner::legacy_field_name_map();
+        foreach ($revmap as $new => $old) {
+            $this->legacy_name_map[$old] = $new;  // Invert the mapping
+        }
+    }
 
     // Legacy code, for supporting a subclassing of coderunner.
     protected function qtype() {
@@ -129,13 +141,16 @@ class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
         // If the question has been created by restore, we need to create its question_testcases and options too
         if ($questioncreated) {
             $data->questionid = $newquestionid;
-            // Insert record, after remapping legacy name 'custom_template' to
-            // 'per-test-template' (in case we're restoring an earlier-version
-            // backup).
-            if (isset($data->custom_template)) {
-                $data->pertesttemplate = $data->custom_template;
-                unset($data->custom_template);
+            // Remap various legacy names to new
+            // names, in case we're restoring an earlier-version
+            // backup.
+            foreach ($this->$legacy_name_map as $old => $new)
+            if (isset($data->$old)) {
+                $data->$new = $data->$old;
+                unset($data->$old);
             }
+            
+            // Insert the record
             $newitemid = $DB->insert_record("question_coderunner_options", $data);
         } else {
             // Nothing to remap if the question already existed
