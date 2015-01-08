@@ -14,8 +14,9 @@
  */
 
 namespace qtype_coderunner\local\languagetasks;
-
 use qtype_coderunner\local\languagetasks\language_task;
+
+defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once($CFG->dirroot . '/question/type/coderunner/locallib.php');

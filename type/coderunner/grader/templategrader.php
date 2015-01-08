@@ -13,8 +13,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+defined('MOODLE_INTERNAL') || die();
+
 require_once('graderbase.php');
-use qtype_coderunner\local\test_result;
 
 class qtype_coderunner_template_grader extends qtype_coderunner_grader {
 
@@ -28,14 +29,14 @@ class qtype_coderunner_template_grader extends qtype_coderunner_grader {
     function grade_known_good(&$output, &$testcase) {
         $result = json_decode($output);
         if ($result === null || !isset($result->fraction) || !is_numeric($result->fraction)) {
-            $errorMessage = "Bad grading result from template:'" . $output . "'";
-            $outcome = new test_result(
+            $errormessage = "Bad grading result from template:'" . $output . "'";
+            $outcome = new qtype_coderunner_test_result(
                     qtype_coderunner_grader::tidy($testcase->testcode),
                     $testcase->mark,
                     false,
                     0.0,
                     qtype_coderunner_grader::tidy($testcase->expected),
-                    $errorMessage,
+                    $errormessage,
                     qtype_coderunner_grader::tidy($testcase->stdin),
                     qtype_coderunner_grader::tidy($testCase->extra)
             );
@@ -54,7 +55,7 @@ class qtype_coderunner_template_grader extends qtype_coderunner_grader {
             }
             $result->iscorrect =  abs($result->fraction - 1.0) < 0.000001;
 
-            $outcome = new test_result(
+            $outcome = new qtype_coderunner_test_result(
                 qtype_coderunner_grader::tidy($result->testcode),
                 $result->mark,
                 $result->iscorrect,

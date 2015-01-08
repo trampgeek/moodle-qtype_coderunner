@@ -43,6 +43,8 @@
  * @author 	Richard Lobb richard.lobb@canterbury.ac.nz
  */
 
+defined('MOODLE_INTERNAL') || die();
+
 require_once($CFG->dirroot . '/question/engine/bank.php');
 require_once($CFG->dirroot . '/lib/questionlib.php');
 require_once($CFG->dirroot . '/question/type/coderunner/locallib.php');

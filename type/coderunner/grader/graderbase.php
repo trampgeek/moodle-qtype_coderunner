@@ -18,9 +18,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once($CFG->dirroot . '/question/type/coderunner/testingoutcome.php');
+defined('MOODLE_INTERNAL') || die();
 
-use qtype_coderunner\local\test_result;
+require_once($CFG->dirroot . '/question/type/coderunner/testingoutcome.php');
 
 abstract class qtype_coderunner_grader {
     /** Check all outputs, returning an array of TestResult objects.
@@ -67,7 +67,7 @@ abstract class qtype_coderunner_grader {
      */
     public function grade(&$output, &$testcase, $isBad = false) {
        if ($isBad) {
-            $outcome = new test_result(
+            $outcome = new qtype_coderunner_test_result(
                         qtype_coderunner_grader::tidy($testcase->testcode),
                         $testcase->mark,
                         false,

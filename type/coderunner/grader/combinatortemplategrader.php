@@ -14,7 +14,10 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+defined('MOODLE_INTERNAL') || die();
+
 require_once('graderbase.php');
+
 class qtype_coderunner_combinator_template_grader extends qtype_coderunner_grader {
 
     function grade_known_good(&$output, &$testcase) {

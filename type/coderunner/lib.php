@@ -26,6 +26,7 @@
  */
 
 
+defined('MOODLE_INTERNAL') || die();
 
 function qtype_coderunner_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload) {
     global $DB, $CFG;

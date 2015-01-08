@@ -27,10 +27,10 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/question/type/coderunner/locallib.php');
 require_once($CFG->dirroot . '/question/type/coderunner/constants.php');
+require_once($CFG->dirroot . '/question/type/coderunner/testingoutcome.php');
+require_once($CFG->dirroot . '/question/type/coderunner/legacytestingoutcome.php');
 
 use qtype_coderunner\constants;
-use qtype_coderunner\local\testing_outcome;
-use qtype_coderunner\local\test_result;
 
 /**
  * Subclass for generating the bits of output specific to coderunner questions.
@@ -157,11 +157,11 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
             if ($testoutcome->run_failed()) {
                 $fb .= html_writer::tag('h3', get_string('run_failed', 'qtype_coderunner'));;
-                $fb .= html_writer::tag('p', s($testoutcome->errorMessage), 
+                $fb .= html_writer::tag('p', s($testoutcome->errormessage), 
                         array('class' => 'run_failed_error'));
             } else if ($testoutcome->has_syntax_error()) {
                 $fb .= html_writer::tag('h3', get_string('syntax_errors', 'qtype_coderunner'));
-                $fb .= html_writer::tag('pre', s($testoutcome->errorMessage), 
+                $fb .= html_writer::tag('pre', s($testoutcome->errormessage), 
                         array('class' => 'pre_syntax_error'));
             } else if ($testoutcome->feedbackhtml) {
                 $fb .= $testoutcome->feedbackhtml;

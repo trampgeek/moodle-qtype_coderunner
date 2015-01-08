@@ -18,6 +18,8 @@
 // TODO: provide a mechanism to check that a sandbox recognises all the
 // non-null parameters it has been given (in particular the 'files' param).
 
+defined('MOODLE_INTERNAL') || die();
+
 global $CFG;
 require_once($CFG->dirroot . '/question/type/coderunner/locallib.php');
 

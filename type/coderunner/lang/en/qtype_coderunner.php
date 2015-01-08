@@ -232,14 +232,17 @@ $string['markinggroup_help'] = 'If \'All-or-nothing\' is checked, all test cases
         'Leave blank for standard Moodle behaviour. ' .
         'If there are more submissions than defined penalties, the last value is used</p>';
 $string['parameterise_template'] = 'Set template params';
+
 $string['pluginname'] = 'CodeRunner';
 $string['pluginnameadding'] = 'Adding a CodeRunner question';
+$string['pluginnameediting'] = 'Editing a CodeRunner question';
 $string['pluginnamesummary'] = 'CodeRunner: runs student-submitted code in a sandbox';
 $string['pluginname_help'] = 'Use the "Question type" combo box to select the ' .
         'computer language that will be used to run the student\'s submission. ' .
         'Specify the problem that the student must write code for, then define '.
         'a set of tests to be run on the student\'s submission';
-$string['pluginnameediting'] = 'Editing a CodeRunner question';
+$string['pluginname_link'] = 'question/type/coderunner'; 
+
 $string['prototypecontrols'] = 'Prototyping';
 $string['prototypecontrols_help'] = 'If \'Is prototype\' is ' .
         'true, this question becomes a prototype for other questions. ' .

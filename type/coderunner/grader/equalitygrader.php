@@ -16,8 +16,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+defined('MOODLE_INTERNAL') || die();
+
 require_once('graderbase.php');
-use qtype_coderunner\local\test_result;
 
 class qtype_coderunner_equality_grader extends qtype_coderunner_grader {
 
@@ -38,7 +39,7 @@ class qtype_coderunner_equality_grader extends qtype_coderunner_grader {
             $resultStdin = null;
         }
 
-        return new test_result(
+        return new qtype_coderunner_test_result(
                 qtype_coderunner_grader::tidy($testCase->testcode),
                 $testCase->mark,
                 $isCorrect,

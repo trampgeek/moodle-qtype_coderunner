@@ -8,8 +8,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace qtype_coderunner\local;
-
 // The outcome from testing a question against all test cases.
 // All fields currently public as changing them to private breaks the
 // deserialisation of all current question attempt records in the database
@@ -18,7 +16,10 @@ namespace qtype_coderunner\local;
 // When a combinator-template grader is used, there is no concept of per-test
 // case results, so there are no individual testResults and the feedback_html
 // field is defined instead.
-class testing_outcome {
+
+defined('MOODLE_INTERNAL') || die();
+
+class qtype_coderunner_testing_outcome {
     const STATUS_VALID = 1;         // A full set of test results is returned
     const STATUS_SYNTAX_ERROR = 2;  // The code (on any one test) didn't compile
     const STATUS_COMBINATOR_TEMPLATE_GRADER = 3;  // This is a combinator-template-grading result
@@ -28,13 +29,14 @@ class testing_outcome {
     public $status;                  // One of the STATUS_ constants above
                                      // If this is not 1, subsequent fields may not be meaningful
     public $errorcount;              // The number of failing test cases
+    public $errormessage;            // The error message to display if there are errors
     public $maxpossmark;             // The maximum possible mark
     public $runhost;                 // Host name of the front-end on which the run was done
     public $actualmark;              // Actual mark (meaningful only if this is not an allornothing question)
     public $testresults;             // An array of TestResult objects
     public $sourcecodelist;          // Array of all test runs
     public $gradercodelist;          // Array of source code of all grader runs
-    public $feedbackhtml;           // Feedback defined by combinator-template-grader (subsumes testResults)
+    public $feedbackhtml;            // Feedback defined by combinator-template-grader (subsumes testResults)
 
     public function __construct(
             $maxpossmark,
@@ -42,7 +44,7 @@ class testing_outcome {
             $errormessage = '') {
 
         $this->status = $status;
-        $this->errorMessage = $errormessage;
+        $this->errormessage = $errormessage;
         $this->errorcount = 0;
         $this->actualmark = 0;
         $this->maxpossmark = $maxpossmark;
@@ -100,7 +102,7 @@ class testing_outcome {
 }
 
 
-class test_result {
+class qtype_coderunner_test_result {
     // NB: there may be other attributes added by the template grader
     var $testcode;          // The test that was run (trimmed, snipped)
     var $iscorrect;         // True iff test passed fully (100%)

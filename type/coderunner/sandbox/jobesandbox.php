@@ -7,11 +7,13 @@
  *
  * @package    qtype
  * @subpackage coderunner
- * @copyright  2014 Richard Lobb, University of Canterbury
+ * @copyright  2014, 2015 Richard Lobb, University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once $CFG->dirroot . '/question/type/coderunner/sandbox/sandboxbase.php';
+defined('MOODLE_INTERNAL') || die();
+
+require_once 'sandboxbase.php';
 require_once 'HTTP/Request2.php';
 
 
