@@ -14,6 +14,8 @@
  */
 
 require_once('graderbase.php');
+use qtype_coderunner\local\test_result;
+
 class qtype_coderunner_template_grader extends qtype_coderunner_grader {
 
     /** Called to grade the output from a given testcase run when
@@ -23,11 +25,11 @@ class qtype_coderunner_template_grader extends qtype_coderunner_grader {
      *  Should not be called if the execution failed (syntax error, exception
      *  etc).
      */
-    function gradeKnownGood(&$output, &$testcase) {
+    function grade_known_good(&$output, &$testcase) {
         $result = json_decode($output);
         if ($result === null || !isset($result->fraction) || !is_numeric($result->fraction)) {
             $errorMessage = "Bad grading result from template:'" . $output . "'";
-            $outcome = new qtype_coderunner_test_result(
+            $outcome = new test_result(
                     qtype_coderunner_grader::tidy($testcase->testcode),
                     $testcase->mark,
                     false,
@@ -52,7 +54,7 @@ class qtype_coderunner_template_grader extends qtype_coderunner_grader {
             }
             $result->iscorrect =  abs($result->fraction - 1.0) < 0.000001;
 
-            $outcome = new qtype_coderunner_test_result(
+            $outcome = new test_result(
                 qtype_coderunner_grader::tidy($result->testcode),
                 $result->mark,
                 $result->iscorrect,

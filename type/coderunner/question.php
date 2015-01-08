@@ -39,6 +39,8 @@ require_once($CFG->dirroot . '/question/type/coderunner/testingoutcome.php');
 require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
 
 use qtype_coderunner\constants;
+use qtype_coderunner\local\testing_outcome;
+use qtype_coderunner\local\test_result;
 
 /**
  * Represents a 'CodeRunner' question.
@@ -341,19 +343,19 @@ class qtype_coderunner_question extends question_graded_automatically {
         // on the combinator.
         
         if ($run->error !== qtype_coderunner_sandbox::OK) {
-            $outcome = new qtype_coderunner_testing_outcome($maxmark,
-                    qtype_coderunner_testing_outcome::STATUS_SANDBOX_ERROR,
+            $outcome = new testing_outcome($maxmark,
+                    testing_outcome::STATUS_SANDBOX_ERROR,
                     qtype_coderunner_sandbox::error_string($run->error));
         } else if ($iscombinatorgrader) {
             $outcome = $this->do_combinator_grading($maxmark, $run);
         } else if ($run->result === qtype_coderunner_sandbox::RESULT_COMPILATION_ERROR) {
-            $outcome = new qtype_coderunner_testing_outcome($maxmark,
-                    qtype_coderunner_testing_outcome::STATUS_SYNTAX_ERROR,
+            $outcome = new testing_outcome($maxmark,
+                    testing_outcome::STATUS_SYNTAX_ERROR,
                     $run->cmpinfo);
         } else if ($run->result === qtype_coderunner_sandbox::RESULT_SUCCESS && !$run->stderr) {
             $outputs = preg_split($this->testsplitterre, $run->output);
             if (count($outputs) == count($testcases)) {
-                $outcome = new qtype_coderunner_testing_outcome($maxmark);
+                $outcome = new testing_outcome($maxmark);
                 $i = 0;
                 foreach ($testcases as $testcase) {
                     $outcome->add_test_result($this->grade($outputs[$i], $testcase));
@@ -376,16 +378,16 @@ class qtype_coderunner_question extends question_graded_automatically {
             'QUESTION' => $this
          );
 
-        $outcome = new qtype_coderunner_testing_outcome($maxMark);
+        $outcome = new testing_outcome($maxMark);
         $template = $this->pertesttemplate;
         foreach ($testcases as $testcase) {
             $templateparams['TEST'] = $testcase;
             try {
                 $testprog = $this->twig->render($template, $templateparams);
             } catch (Exception $e) {
-                $outcome = new qtype_coderunner_testing_outcome(
+                $outcome = new testing_outcome(
                         $maxMark,
-                        qtype_coderunner_testing_outcome::STATUS_SYNTAX_ERROR,
+                        testing_outcome::STATUS_SYNTAX_ERROR,
                         'TEMPLATE ERROR: ' . $e->getMessage());
                 break;
             }
@@ -395,16 +397,16 @@ class qtype_coderunner_question extends question_graded_automatically {
             $run = $this->sandboxinstance->execute($testprog, $this->language,
                     $input, $files, $sandboxparams);
             if ($run->error !== qtype_coderunner_sandbox::OK) {
-                $outcome = new qtype_coderunner_testing_outcome(
+                $outcome = new testing_outcome(
                     $maxMark, 
-                    qtype_coderunner_testing_outcome::STATUS_SANDBOX_ERROR,
+                    testing_outcome::STATUS_SANDBOX_ERROR,
                     qtype_coderunner_sandbox::error_string($run->error));
                 break;
             }
             else if ($run->result === qtype_coderunner_sandbox::RESULT_COMPILATION_ERROR) {
-                $outcome = new qtype_coderunner_testing_outcome(
+                $outcome = new testing_outcome(
                         $maxMark,
-                        qtype_coderunner_testing_outcome::STATUS_SYNTAX_ERROR,
+                        testing_outcome::STATUS_SYNTAX_ERROR,
                         $run->cmpinfo);
                 break;
             } else if ($run->result != qtype_coderunner_sandbox::RESULT_SUCCESS) {
@@ -542,7 +544,7 @@ class qtype_coderunner_question extends question_graded_automatically {
                 $html = $result->feedbackhtml;
             }
         } 
-        $outcome = new qtype_coderunner_testing_outcome($maxmark, qtype_coderunner_testing_outcome::STATUS_COMBINATOR_TEMPLATE_GRADER);
+        $outcome = new testing_outcome($maxmark, testing_outcome::STATUS_COMBINATOR_TEMPLATE_GRADER);
         $outcome->set_mark_and_feedback($maxmark * $fract, $html);
         return $outcome;
     }

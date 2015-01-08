@@ -20,6 +20,8 @@
 
 require_once($CFG->dirroot . '/question/type/coderunner/testingoutcome.php');
 
+use qtype_coderunner\local\test_result;
+
 abstract class qtype_coderunner_grader {
     /** Check all outputs, returning an array of TestResult objects.
      * A TestResult is an object with expected, got, isCorrect and grade fields.
@@ -65,7 +67,7 @@ abstract class qtype_coderunner_grader {
      */
     public function grade(&$output, &$testcase, $isBad = false) {
        if ($isBad) {
-            $outcome = new qtype_coderunner_test_result(
+            $outcome = new test_result(
                         qtype_coderunner_grader::tidy($testcase->testcode),
                         $testcase->mark,
                         false,
@@ -76,13 +78,13 @@ abstract class qtype_coderunner_grader {
                         qtype_coderunner_grader::tidy($testcase->extra)
             );
         } else {
-            $outcome = $this->gradeKnownGood($output, $testcase);
+            $outcome = $this->grade_known_good($output, $testcase);
         }
         return $outcome;
     }
 
 
-    abstract function gradeKnownGood(&$output, &$testCase);
+    abstract function grade_known_good(&$output, &$testCase);
 
     // Return a cleaned and snipped version of the string s (or null if s is null).
     protected static function tidy($s) {

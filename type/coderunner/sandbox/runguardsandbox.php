@@ -68,7 +68,7 @@ class qtype_coderunner_runguardsandbox extends qtype_coderunner_localsandbox {
      * @return int qtype_coderunner_sandbox::OK 
      */
     public function compile() {
-        $taskclass = 'qtype_coderunner\\languagetasks\\' . ucwords($this->language) . '_Task';
+        $taskclass = 'qtype_coderunner\\local\\languagetasks\\' . ucwords($this->language) . '_Task';
         $this->task = new $taskclass();
         chdir($this->workdir);
         $this->cmpinfo = $this->task->compile($this->workdir, $this->sourcefilename);

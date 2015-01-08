@@ -29,6 +29,8 @@ require_once($CFG->dirroot . '/question/type/coderunner/locallib.php');
 require_once($CFG->dirroot . '/question/type/coderunner/constants.php');
 
 use qtype_coderunner\constants;
+use qtype_coderunner\local\testing_outcome;
+use qtype_coderunner\local\test_result;
 
 /**
  * Subclass for generating the bits of output specific to coderunner questions.
@@ -128,9 +130,9 @@ class qtype_coderunner_renderer extends qtype_renderer {
         $toserialised = $qa->get_last_qt_var('_testoutcome');
         if ($toserialised) {
             $q = $qa->get_question();
-            $testCases = $q->testcases;
+            $testcases = $q->testcases;
             $testoutcome = unserialize($toserialised);
-            $testResults = $testoutcome->testresults;
+            $testresults = $testoutcome->testresults;
             if ($testoutcome->all_correct()) {
                 $resultsclass = "coderunner-test-results good";
             } else if (!$q->allornothing && $testoutcome->mark_as_fraction() > 0) {
@@ -165,7 +167,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
                 $fb .= $testoutcome->feedbackhtml;
             } else {
                 $fb .= html_writer::tag('p', '&nbsp;', array('class' => 'coderunner-spacer'));
-                $results = $this->build_results_table($q, $testCases, $testResults);
+                $results = $this->build_results_table($q, $testcases, $testresults);
                 if ($results != null) {
                     $fb .= $results;
                 }
@@ -175,7 +177,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
             if (!$testoutcome->has_syntax_error() && !$testoutcome->run_failed() &&
                 !$testoutcome->feedbackhtml) {
-                $fb .= $this->build_feedback_summary($q, $testCases, $testoutcome);
+                $fb .= $this->build_feedback_summary($q, $testcases, $testoutcome);
             }
             $fb .= html_writer::end_tag('div');
         } else { // No testresults?! Probably due to a wrong behaviour selected

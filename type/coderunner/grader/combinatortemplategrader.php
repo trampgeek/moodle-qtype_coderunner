@@ -17,7 +17,7 @@
 require_once('graderbase.php');
 class qtype_coderunner_combinator_template_grader extends qtype_coderunner_grader {
 
-    function gradeKnownGood(&$output, &$testcase) {
+    function grade_known_good(&$output, &$testcase) {
         throw new CodingException("CombinatorGrader shouldn't be called");
     }
 }

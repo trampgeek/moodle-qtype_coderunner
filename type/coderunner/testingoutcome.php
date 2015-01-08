@@ -8,6 +8,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace qtype_coderunner\local;
+
 // The outcome from testing a question against all test cases.
 // All fields currently public as changing them to private breaks the
 // deserialisation of all current question attempt records in the database
@@ -16,7 +18,7 @@
 // When a combinator-template grader is used, there is no concept of per-test
 // case results, so there are no individual testResults and the feedback_html
 // field is defined instead.
-class qtype_coderunner_testing_outcome {
+class testing_outcome {
     const STATUS_VALID = 1;         // A full set of test results is returned
     const STATUS_SYNTAX_ERROR = 2;  // The code (on any one test) didn't compile
     const STATUS_COMBINATOR_TEMPLATE_GRADER = 3;  // This is a combinator-template-grading result
@@ -98,7 +100,7 @@ class qtype_coderunner_testing_outcome {
 }
 
 
-class qtype_coderunner_test_result {
+class test_result {
     // NB: there may be other attributes added by the template grader
     var $testcode;          // The test that was run (trimmed, snipped)
     var $iscorrect;         // True iff test passed fully (100%)

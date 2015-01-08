@@ -16,6 +16,8 @@
  */
 
 require_once('graderbase.php');
+use qtype_coderunner\local\test_result;
+
 class qtype_coderunner_near_equality_grader extends qtype_coderunner_grader {
 
     /** This grader tests if the expected output matches the actual
@@ -26,7 +28,7 @@ class qtype_coderunner_near_equality_grader extends qtype_coderunner_grader {
      * 
      *  As requested by Ulrich Dangel.
      */
-    function gradeKnownGood(&$output, &$testCase) {
+    function grade_known_good(&$output, &$testCase) {
         $cleanedOutput = qtype_coderunner_grader::clean($output);
         $cleanedExpected = qtype_coderunner_grader::clean($testCase->expected);
         
@@ -39,7 +41,7 @@ class qtype_coderunner_near_equality_grader extends qtype_coderunner_grader {
             $resultStdin = null;
         }
 
-        return new qtype_coderunner_test_result(
+        return new test_result(
                 qtype_coderunner_grader::tidy($testCase->testcode),
                 $testCase->mark,
                 $isCorrect,
