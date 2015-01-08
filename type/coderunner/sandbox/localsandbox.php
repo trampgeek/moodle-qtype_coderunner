@@ -31,200 +31,206 @@ require_once($CFG->dirroot . '/question/type/coderunner/sandbox/sandboxbase.php'
 //******************************************************************
 
 abstract class qtype_coderunner_localsandbox extends qtype_coderunner_sandbox {
-
-    private static $currentRunId = '99';  // The only one we ever use
-    protected $date = null;         // Current date/time
-    protected $input = null;        // Standard input for the current task
+    
+    const SOURCE_FILE_NAME = 'sourcefile'; 
+    
+    protected $source = null;       // Source code for the current task
     protected $language = null;     // The language of the current task
+    protected $input = null;        // Standard input for the current task
+    protected $params = null;       // The parameters passed to the sandbox
+    protected $files = null;        // Map from filename to filecontents for any run-time files required
+    protected $sourcefilename = null; // Name of saved source in working directory
+    
+    protected $result = null;       // One of the sandbox RESULT_* values defined in the parent class
+    protected $cmpinfo = null;      // Compiler output
+    protected $output = null;       // Stdout of the task
+    protected $stderr = null;       // Stderr from the task
+    protected $signal = null;       // Numeric signal value if run aborted (optional)
+    
+    protected $workdir = null;      // The current temporary working directory
 
     public function __construct($user=null, $pass=null) {
         qtype_coderunner_sandbox::__construct($user, $pass);
     }
 
-
-
-
-    /** Implement the abstract createSubmission method, which mimics the
-     *  ideone function of the same name. Following the ideone API, a call
-     *  to this method would generally be followed by calls to
-     *  getSubmissionStatus and getSubmissionDetails, using the return 'link'.
-     *  This implementation does a compile (if necessary) and run,
-     *  rather than queuing the task. Results from this are stored in the
-     *  object's instance fields for use by getSubmissionDetails.
-     *
-     *  Since a new object of this class will be created for each student
-     *  submission of a question, multiple calls to createSubmission should
-     *  always be with the same language, but not necessarily the same
-     *  sourceCode as this may vary per testcase.
-     *
-     * @param string $sourceCode
-     * @param string $language -- must be one of the entries in $LANGUAGES above
-     * @param string $input -- stdin for use when running the program
-     * @param boolean $run -- hook for ideone com
-     * @param boolean $private -- hook for ideone compatibility (not used)
-     * @param associative array $params -- sandbox parameters. See base class.
-     * @return object with 'error' field (always '') and 'link' field (always $currentRunId above)
-     * @throws coding_exception if I've goofed
-     *
+ 
+  /**   Execute the given source code in the given language with the given
+     *  input and return an object with fields error, result, signal, cmpinfo, stderr, output.
+     * @param string $sourcecode The source file to compile and run
+     * @param string $language  One of the languages regognised by the sandbox
+     * @param string $input A string to use as standard input during execution
+     * @param associative array $files either NULL or a map from filename to
+     *         file contents, defining a file context at execution time
+     * @param associative array $params Sandbox parameters, depends on
+     *         particular sandbox but most sandboxes should recognise
+     *         at least cputime (secs), memorylimit (Megabytes) and
+     *         files (an associative array mapping filenames to string
+     *         filecontents.
+     *         If the $params array is NULL, sandbox defaults are used.
+     * @return an object with at least an attribute 'error'. This is one of the
+     *         values 0 through 8 (OK to UNKNOWN_SERVER_ERROR) as defined above. If
+     *         error is 0 (OK), the returned object has additional attributes
+     *         result, output, signal, stderr, signal and cmpinfo as follows:
+     *             result: one of the result_* constants defined above
+     *             output: the stdout from the run
+     *             stderr: the stderr output from the run (generally a non-empty
+     *                     string is taken as a runtime error)
+     *             signal: one of the standard Linux signal values (but often not
+     *                     used)
+     *             cmpinfo: the output from the compilation run (usually empty
+     *                     unless the result code is for a compilation error).
      */
-    public function create_submission($sourceCode, $language, $input,
-                            $run=true, $private=true, $files=null, $params = null) {
+    public function execute($sourcecode, $language, $input, $files=NULL, $params=NULL) {
+        $language = strtolower($language);
         if (!in_array($language, $this->get_languages())) {
-            throw new coderunner_exception('LocalSandbox::createSubmission: Bad language');
+            throw new coderunner_exception('Executing an unsupported language in sandbox');
         }
-
-        if (!$run || !$private) {
-            throw new coderunner_exception('LocalSandbox::createSubmission: unexpected param value');
+        if ($input !== '' && substr($input, -1) != "\n") {
+            $input .= "\n";  // Force newline on the end if necessary
         }
-
-        // Record input data in $this in case requested in call to getSubmissionDetails,
-        // and also for use by LanguageTask if desired, via its reference
-        // back to $this.
-        $this->date = date("Y-m-d H-i-s");
+        // Record input data in $this
         $this->input = $input;
         $this->language = $language;
-        $this->params = $params;
-        if (!isset($this->currentSource) || $this->currentSource !== $sourceCode) {
-            // Only need to save source code and consider recompiling etc
-            // if sourcecode changes between tests
-            if (isset($this->task)) {
-                $this->task->close();  // Clean up if any existing task
+        $this->params = $params; 
+        $this->files = $files;
+        
+        // If this is the first call, make a working directory.
+        if (empty($this->workdir))  {
+            $this->set_path();
+            $this->make_directory();
+        }
+        
+        $this->load_files();  // Do this on every call in case a test run corrupts the files
+        
+        $error = self::OK; // Start by being optimistic
+        
+        if (empty($this->source) || $this->source !== $sourcecode) {
+            // Copy sourcecode and recompile if new run or new sourcecode
+            $this->source = $sourcecode;
+            $this->save_source();
+            $error = $this->compile();
+            if ($error === self::OK && !empty($this->cmpinfo)) {
+                $this->result = self::RESULT_COMPILATION_ERROR;
             }
-            $this->currentSource = $sourceCode;
-            $this->task = $this->createTask($language, $sourceCode);
-            $this->task->compile();
         }
 
-        if ($this->task->cmpinfo === '') {
-            $this->runInSandbox($input, $files);
-        }
-        else {
-            $this->task->result = qtype_coderunner_sandbox::RESULT_COMPILATION_ERROR;
+        if ($error === self::OK && empty($this->cmpinfo)) {
+            $error = $this->run_in_sandbox();
         }
 
-        return (object) array('error' => qtype_coderunner_sandbox::OK, 'link' => self::$currentRunId);
-    }
-
-
-    public function get_submission_status($link) {
-        if (!isset($this->task) || $link !== self::$currentRunId) {
-            return (object) array('error' => qtype_coderunner_sandbox::PASTE_NOT_FOUND);
+        if ($error === self::OK) {
+            return (object) array(
+                'error'     => self::OK,
+                'cmpinfo'   => $this->cmpinfo,
+                'result'    => $this->result,
+                'stderr'    => $this->stderr,
+                'output'    => $this->output,
+                'signal'    => $this->signal);
         } else {
-            return (object) array('error' => qtype_coderunner_sandbox::OK,
-                         'status' => qtype_coderunner_sandbox::STATUS_DONE,
-                         'result' => $this->task->result);
+            return (object) array('error' => $error);
         }
     }
     
-    public function execute($sourcecode, $language, $input, $files=null, $params=null) {
-          if ($error != qtype_coderunner_sandbox::OK) {
-            return (object) array('error' => $error);
-        } else {
-            $count = 0;
-            while ($state->error === qtype_coderunner_sandbox::OK &&
-                   $state->status !== qtype_coderunner_sandbox::STATUS_DONE &&
-                   $count < qtype_coderunner_sandbox::MAX_NUM_POLLS) {
-                $count += 1;
-                sleep(qtype_coderunner_sandbox::POLL_INTERVAL);
-                $state = $this->get_submission_status($result->link);
-            }
-
-            if ($count >= qtype_coderunner_sandbox::MAX_NUM_POLLS) {
-                throw new coderunner_exception("Timed out waiting for sandbox");
-            }
-
-            if ($state->error !== qtype_coderunner_sandbox::OK ||
-                    $state->status !== qtype_coderunner_sandbox::STATUS_DONE) {
-                throw new coding_exception("Error response or bad status from sandbox");
-            }
-
-            $details = $this->get_submission_details($result->link);
-
-            return (object) array(
-                'error'   => qtype_coderunner_sandbox::OK,
-                'result'  => $state->result,
-                'output'  => $details->output,
-                'stderr'  => $details->stderr,
-                'signal'  => $details->signal,
-                'cmpinfo' => $details->cmpinfo);
+    // Set up a temporary working directory and copy the current set of 
+    // files into it.
+    private function make_directory() {
+        $this->workdir = tempnam("/tmp", "coderunner_");
+        if (!unlink($this->workdir) || !mkdir($this->workdir)) {
+            throw new coding_exception("localsandbox: error making temp directory (race error?)");
         }
     }
-
-
-    public function get_submission_details($link, $withSource=false,
-            $withInput=false, $withOutput=true, $withStderr=true,
-            $withCmpinfo=true) {
-
-        if (!isset($this->task) || $link !== self::$currentRunId) {
-            return (object) array('error' => qtype_coderunner_sandbox::PASTE_NOT_FOUND);
-        } else {
-            $retVal = (object) array(
-                'error'     => qtype_coderunner_sandbox::OK,
-                'status'    => qtype_coderunner_sandbox::STATUS_DONE,
-                'result'    => $this->task->result,
-                'langId'    => array_search($this->language, $this->get_languages()),
-                'langName'  => $this->language,
-                'langVersion' => $this->task->getVersion(),
-                'time'      => $this->task->time,
-                'date'      => $this->date,
-                'memory'    => $this->task->memory,
-                'signal'    => $this->task->signal,
-                'public'    => false);
-
-            if ($withSource) {
-                $retVal->source = $this->currentSource;
-            }
-            if ($withInput) {
-                $retVal->input = $this->input;
-            }
-            if ($withOutput) {
-                $retVal->output = $this->task->output;
-            }
-            if ($withStderr) {
-                $retVal->stderr = $this->task->stderr;
-            }
-            if ($withCmpinfo) {
-                $retVal->cmpinfo = $this->task->cmpinfo;
-            }
-            return $retVal;
-        }
-    }
-
-
-    // On close, delete the last compiler output file (if we have one).
-    public function close() {
-        if (isset($this->task)) {
-            $this->task->close();
-        }
-        unset($this->task);
+    
+    
+    /**
+     * Copy the text in $this->source into the current working directory,
+     * naming it self::SOURCE_FILE_NAME. That name is recorded in
+     * $this->sourcefilename.
+     */
+    private function save_source() {
+        assert(!empty($this->workdir));
+        chdir($this->workdir);
+        $handle = fopen(self::SOURCE_FILE_NAME, "w");
+        fwrite($handle, $this->source);
+        fclose($handle);
+        $this->sourcefilename = self::SOURCE_FILE_NAME;
     }
 
 
     /**
-     * Generate a set of files in the current directory as defined by the
-     * $files parameter.
-     * @param type $files an associative map from filename to file contents.
+     * Generate in the current working directory a set of files as defined by the
+     * $this->files.
      */
-    protected function loadFiles($files) {
-        if ($files !== null) {
-            foreach ($files as $filename=>$contents) {
+    private function load_files() {
+        if ($this->files !== null) {
+            chdir($this->workdir);
+            foreach ($this->files as $filename=>$contents) {
                 file_put_contents($filename, $contents);
             }
         }
     }
+    
+    
+    /** Delete the working directory and its contents when the set of runs
+     *  finishes.
+     */
+    public function close() {
+        self::del_tree($this->workdir);
+    }
+    
+    
+    // Delete a given directory tree
+    private static function del_tree($dir) {
+        $files = array_diff(scandir($dir), array('.','..'));
+        foreach ($files as $file) {
+            (is_dir("$dir/$file")) ? self::del_tree("$dir/$file") : unlink("$dir/$file");
+        }
+        return rmdir($dir);
+    }
+    
+    
+    // Check if PHP exec environment includes a PATH. If not, set up a
+    // default, or gcc misbehaves. [Thanks to Binoj D for this bug fix,
+    // needed on his CentOS system.]
+    private static function set_path() {          
+        $envvars = array();
+        exec('printenv', $envvars);
+        $haspath = false;
+        foreach ($envvars as $var) {
+            if (strpos($var, 'PATH=') === 0) {
+                $haspath = true;
+                break;
+            }
+        }
+        if (!$haspath) {
+            putenv("PATH=/sbin:/bin:/usr/sbin:/usr/bin");
+        }
+    }
+    
+    // ======== ABSTRACT METHODS TO BE IMPLEMENTED BY SUBCLASSES ======
+    
+    /**
+     *  compile $this->source in language $this->language. Set $this->cmpinfo to
+     *  a non-empty value in the event of a compiler error. Otherwise leave
+     *  the output object file in the current working directory for use by
+     *  run_in_sandbox.
+     *  @return qtype_coderunner_sandbox::ok if run succeeds in the sense
+     *  of nothing going terribly wrong or qtype_coderunner_sandbox::UNKNOWN_SERVER_ERROR
+     *  otherwise.
+     */
+    protected abstract function compile();
+    
 
-
-    // Create and return a LanguageTask object for the given language and
-    // the given source code. If the $files parameter is non-null it must be
-    // an associative array mapping filename to filecontents; a set of such
-    // files is built in the local execution environment.
-    protected abstract function createTask($language, $source);
-
-
-    // Run the given command in the sandbox with the given set of files
-    // in the local working directory.
-    protected abstract function runInSandbox($input, $files);
-
-
+    /** Run the task defined by the source, language, input and params attributes
+     *  of this in the sandbox, defining the result, stderr, output and
+     * signal attributes of $this. If a compilation step is required, this
+     * must already have been performed with the compiler output left in 
+     * $this->cmpinfo (non-empty is taken as a compiler error) and the object
+     * code in a location defined by the subclass.
+     * @return qtype_coderunner_sandbox::ok if run succeeds in the sense
+     * of nothing going terribly wrong or qtype_coderunner_sandbox::UNKNOWN_SERVER_ERROR
+     * otherwise.
+     */
+    protected abstract function run_in_sandbox();
+    
 }
 ?>

@@ -46,9 +46,9 @@ class qtype_coderunner_octave_question_test extends qtype_coderunner_testcase {
         $this->assertEquals(1, $mark);
         $this->assertEquals(question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
-        $testOutcome = unserialize($cache['_testoutcome']);
-        $this->assertEquals(4, count($testOutcome->testresults));
-        $this->assertTrue($testOutcome->all_correct());
+        $testoutcome = unserialize($cache['_testoutcome']);
+        $this->assertEquals(4, count($testoutcome->testresults));
+        $this->assertTrue($testoutcome->all_correct());
     }
 
 
@@ -60,9 +60,9 @@ class qtype_coderunner_octave_question_test extends qtype_coderunner_testcase {
         $this->assertEquals(0, $mark);
         $this->assertEquals(question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
-        $testOutcome = unserialize($cache['_testoutcome']);
-        $this->assertEquals(4, count($testOutcome->testresults));
-        $this->assertFalse($testOutcome->all_correct());
+        $testoutcome = unserialize($cache['_testoutcome']);
+        $this->assertEquals(4, count($testoutcome->testresults));
+        $this->assertFalse($testoutcome->all_correct());
     }
 
 
@@ -74,10 +74,10 @@ class qtype_coderunner_octave_question_test extends qtype_coderunner_testcase {
         $this->assertEquals(0, $mark);
         $this->assertEquals(question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
-        $testOutcome = unserialize($cache['_testoutcome']);
-        $this->assertEquals(1, count($testOutcome->testresults));
-        $this->assertTrue(strpos($testOutcome->testresults[0]->got, "Abnormal termination") !== false
-                || strpos($testOutcome->testresults[0]->got, "syntax error") !== false);
+        $testoutcome = unserialize($cache['_testoutcome']);
+        $this->assertEquals(1, count($testoutcome->testresults));
+        $this->assertTrue(strpos($testoutcome->testresults[0]->got, "Abnormal termination") !== false
+                || strpos($testoutcome->testresults[0]->got, "syntax error") !== false);
     }
 
     public function test_student_answer_macro() {

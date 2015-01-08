@@ -49,8 +49,8 @@ EOCODE;
         $response = array('answer' => $code);
         $result = $q->grade_response($response);
         list($mark, $grade, $cache) = $result;
-        $testOutcome = unserialize($cache['_testoutcome']); // For debugging test
-        //var_dump($testOutcome);
+        $testoutcome = unserialize($cache['_testoutcome']); // For debugging test
+        //var_dump($testoutcome);
         $this->assertEquals(1, $mark);
         $this->assertEquals(question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));

@@ -25,11 +25,6 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-define('FORCE_TABULAR_EXAMPLES', true);
-define('MAX_LINE_LENGTH', 120);
-define('MAX_NUM_LINES', 200);
-define('DEFAULT_RESULT_COLUMNS', '[["Test", "testcode"], ["Input", "stdin"], ["Expected", "expected"], ["Got", "got"]]');
-
 require_once($CFG->dirroot . '/question/type/coderunner/locallib.php');
 
 /**
@@ -39,6 +34,11 @@ require_once($CFG->dirroot . '/question/type/coderunner/locallib.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class qtype_coderunner_renderer extends qtype_renderer {
+    
+    const FORCE_TABULAR_EXAMPLES = true;
+    const MAX_LINE_LENGTH = 120;
+    const MAX_NUM_LINES = 200;
+    const DEFAULT_RESULT_COLUMNS = '[["Test", "testcode"], ["Input", "stdin"], ["Expected", "expected"], ["Got", "got"]]';
 
     /**
      * Generate the display of the formulation part of the question. This is the
@@ -103,7 +103,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
         // Thanks to Ulrich Dangel for incorporating the Ace code editor.
 
         $PAGE->requires->js_init_call('M.qtype_coderunner.initQuestionTA', array($responsefieldid));
-        load_ace_if_required($question, $responsefieldid, USER_LANGUAGE);
+        load_ace_if_required($question, $responsefieldid, self::USER_LANGUAGE);
 
         return $qtext;
 
@@ -385,7 +385,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
     // Format one or more examples
     protected function formatExamples($examples) {
-        if ($this->allSingleLine($examples) && ! FORCE_TABULAR_EXAMPLES) {
+        if ($this->allSingleLine($examples) && ! self::FORCE_TABULAR_EXAMPLES) {
             return $this->formatExamplesOnePerLine($examples);
         }
         else {
@@ -519,14 +519,14 @@ function restrict_qty($s) {
     $line = '';
     $lineLen = 0;
     $numLines = 0;
-    for ($i = 0; $i < $n && $numLines < MAX_NUM_LINES; $i++) {
+    for ($i = 0; $i < $n && $numLines < self::MAX_NUM_LINES; $i++) {
         if ($s[$i] != "\n") {
-            if ($lineLen < MAX_LINE_LENGTH) {
+            if ($lineLen < self::MAX_LINE_LENGTH) {
                 $line .= $s[$i];
             }
-            elseif ($lineLen == MAX_LINE_LENGTH) {
-                $line[MAX_LINE_LENGTH - 1] = $line[MAX_LINE_LENGTH - 2] =
-                $line[MAX_LINE_LENGTH -3] = '.';
+            elseif ($lineLen == self::MAX_LINE_LENGTH) {
+                $line[self::MAX_LINE_LENGTH - 1] = $line[self::MAX_LINE_LENGTH - 2] =
+                $line[self::MAX_LINE_LENGTH -3] = '.';
             }
             else {
                 /* ignore remainder of line */
@@ -538,7 +538,7 @@ function restrict_qty($s) {
             $line = '';
             $lineLen = 0;
             $numLines += 1;
-            if ($numLines == MAX_NUM_LINES) {
+            if ($numLines == self::MAX_NUM_LINES) {
                 $result .= "[... snip ...]\n";
             }
         }

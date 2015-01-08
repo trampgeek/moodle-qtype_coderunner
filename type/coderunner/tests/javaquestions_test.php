@@ -44,9 +44,9 @@ class qtype_coderunner_java_question_test extends qtype_coderunner_testcase {
         $this->assertEquals(1, $mark);
         $this->assertEquals(question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
-        $testOutcome = unserialize($cache['_testoutcome']);
-        $this->assertEquals(4, count($testOutcome->testresults));
-        $this->assertTrue($testOutcome->all_correct());
+        $testoutcome = unserialize($cache['_testoutcome']);
+        $this->assertEquals(4, count($testoutcome->testresults));
+        $this->assertTrue($testoutcome->all_correct());
     }
 
 
@@ -57,9 +57,9 @@ class qtype_coderunner_java_question_test extends qtype_coderunner_testcase {
         $this->assertEquals(0, $mark);
         $this->assertEquals(question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
-        $testOutcome = unserialize($cache['_testoutcome']);
-        $this->assertEquals(4, count($testOutcome->testresults));
-        $this->assertFalse($testOutcome->all_correct());
+        $testoutcome = unserialize($cache['_testoutcome']);
+        $this->assertEquals(4, count($testoutcome->testresults));
+        $this->assertFalse($testoutcome->all_correct());
     }
 
 
@@ -70,9 +70,9 @@ class qtype_coderunner_java_question_test extends qtype_coderunner_testcase {
         $this->assertEquals(0, $mark);
         $this->assertEquals(question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
-        $testOutcome = unserialize($cache['_testoutcome']);
-        $this->assertTrue($testOutcome->has_syntax_error());
-        $this->assertEquals(0, count($testOutcome->testresults));
+        $testoutcome = unserialize($cache['_testoutcome']);
+        $this->assertTrue($testoutcome->has_syntax_error());
+        $this->assertEquals(0, count($testoutcome->testresults));
     }
 
 
@@ -95,9 +95,9 @@ class qtype_coderunner_java_question_test extends qtype_coderunner_testcase {
         $this->assertEquals(1, $mark);
         $this->assertEquals(question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
-        $testOutcome = unserialize($cache['_testoutcome']);
-        $this->assertEquals(2, count($testOutcome->testresults));
-        $this->assertTrue($testOutcome->all_correct());
+        $testoutcome = unserialize($cache['_testoutcome']);
+        $this->assertEquals(2, count($testoutcome->testresults));
+        $this->assertTrue($testoutcome->all_correct());
     }
 
     public function test_program_type() {
@@ -120,9 +120,9 @@ class qtype_coderunner_java_question_test extends qtype_coderunner_testcase {
         $this->assertEquals(1, $mark);
         $this->assertEquals(question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
-        $testOutcome = unserialize($cache['_testoutcome']);
-        $this->assertEquals(2, count($testOutcome->testresults));
-        $this->assertTrue($testOutcome->all_correct());
+        $testoutcome = unserialize($cache['_testoutcome']);
+        $this->assertEquals(2, count($testoutcome->testresults));
+        $this->assertTrue($testoutcome->all_correct());
     }
 
 

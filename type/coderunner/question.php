@@ -24,26 +24,21 @@
  */
 
 
-define('DEFAULT_GRADER', 'EqualityGrader');  // Name of file containing default grader
 defined('MOODLE_INTERNAL') || die();
-
-/** Max size of output to be stored in question_attempt_step_data table
- *  (which is of type text so limited to 64k).
- */
-define('MAX_OUTPUT_LENGTH', 60000);
-
-define('FUNC_MIN_LENGTH', 1);  /* Minimum no. of bytes for a valid bit of code */
 
 require_once($CFG->dirroot . '/question/behaviour/adaptive/behaviour.php');
 require_once($CFG->dirroot . '/question/engine/questionattemptstep.php');
 require_once($CFG->dirroot . '/question/behaviour/adaptive_adapted_for_coderunner/behaviour.php');
 require_once($CFG->dirroot . '/question/type/coderunner/Twig/Autoloader.php');
 require_once($CFG->dirroot . '/question/type/coderunner/locallib.php');
+require_once($CFG->dirroot . '/question/type/coderunner/constants.php');
 require_once($CFG->dirroot . '/question/type/coderunner/grader/graderbase.php');
 require_once($CFG->dirroot . '/question/type/coderunner/sandbox/sandboxbase.php');
 require_once($CFG->dirroot . '/question/type/coderunner/escapers.php');
 require_once($CFG->dirroot . '/question/type/coderunner/testingoutcome.php');
 require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
+
+use qtype_coderunner_constants\constants;
 
 /**
  * Represents a 'CodeRunner' question.
@@ -94,7 +89,7 @@ class qtype_coderunner_question extends question_graded_automatically {
     public function is_gradable_response(array $response) {
         return array_key_exists('answer', $response) &&
                 !empty($response['answer']) &&
-                strlen($response['answer']) > FUNC_MIN_LENGTH;
+                strlen($response['answer']) > constants::FUNC_MIN_LENGTH;
     }
 
     public function is_complete_response(array $response) {
@@ -435,7 +430,7 @@ class qtype_coderunner_question extends question_graded_automatically {
         global $CFG;
         $grader = $this->grader;
         if ($grader === null) {
-            $this->grader = $grader = DEFAULT_GRADER;
+            $this->grader = $grader = constants::DEFAULT_GRADER;
         }
 
         $filename = qtype_coderunner_grader::get_filename($grader);

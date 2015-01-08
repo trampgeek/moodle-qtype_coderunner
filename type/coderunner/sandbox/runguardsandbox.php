@@ -37,8 +37,6 @@
 require_once('localsandbox.php');
 require_once('runguardsandboxtasks.php');
 
-define('MAX_READ', 4096);  // Max bytes to read in popen
-
 // ==============================================================
 //
 // This sandbox has a very high default number of processes because the resource
@@ -48,6 +46,8 @@ define('MAX_READ', 4096);  // Max bytes to read in popen
 // ==============================================================
 
 class qtype_coderunner_runguardsandbox extends qtype_coderunner_localsandbox {
+    
+    const MAX_READ = 4096;  // Max bytes to read in popen
 
     public static $default_numprocs = 200;    // Number of processes/threads
 
@@ -58,57 +58,36 @@ class qtype_coderunner_runguardsandbox extends qtype_coderunner_localsandbox {
     public function get_languages() {
         return array('matlab', 'octave', 'python2', 'python3', 'java', 'c');
     }
+     
     
-    
-    public function execute($sourcecode, $language, $input, $files=null, $params=null) {
-          if ($error != qtype_coderunner_sandbox::OK) {
-            return (object) array('error' => $error);
-        } else {
-            $count = 0;
-            while ($state->error === qtype_coderunner_sandbox::OK &&
-                   $state->status !== qtype_coderunner_sandbox::STATUS_DONE &&
-                   $count < qtype_coderunner_sandbox::MAX_NUM_POLLS) {
-                $count += 1;
-                sleep(qtype_coderunner_sandbox::POLL_INTERVAL);
-                $state = $this->get_submission_status($result->link);
-            }
-
-            if ($count >= qtype_coderunner_sandbox::MAX_NUM_POLLS) {
-                throw new coderunner_exception("Timed out waiting for sandbox");
-            }
-
-            if ($state->error !== qtype_coderunner_sandbox::OK ||
-                    $state->status !== qtype_coderunner_sandbox::STATUS_DONE) {
-                throw new coding_exception("Error response or bad status from sandbox");
-            }
-
-            $details = $this->get_submission_details($result->link);
-
-            return (object) array(
-                'error'   => qtype_coderunner_sandbox::OK,
-                'result'  => $state->result,
-                'output'  => $details->output,
-                'stderr'  => $details->stderr,
-                'signal'  => $details->signal,
-                'cmpinfo' => $details->cmpinfo);
-        }
+    /**
+     * Compile the source code in $this->source in the current working directory.
+     * Set $this->cmpinfo to any compiler error messages, empty if no errors.
+     * The output of the compilation (if there is any compilation) is left in
+     * the working directory for subsequent use by run_in_sandbox.
+     * @return int qtype_coderunner_sandbox::OK 
+     */
+    public function compile() {
+        $taskclass = 'qtype_coderunner\\languagetasks\\' . ucwords($this->language) . '_Task';
+        $this->task = new $taskclass();
+        chdir($this->workdir);
+        $this->cmpinfo = $this->task->compile($this->workdir, $this->sourcefilename);
+        return qtype_coderunner_sandbox::OK;
     }
 
 
-    protected function createTask($language, $source) {
-        $reqdClass = 'RunguardSandbox\\' . ucwords($language) . '_Task';
-        return new $reqdClass($this, $source);
-    }
 
-
-    // Run the current $this->task on the current machine with resource
-    // limits like maxmemory, maxnumprocesses and maxtime set.
-    // If $files is non-null it defines a map from filename to filecontents;
-    // these files are created in the current directory before the run begins.
-    // [And they're recreated for each run in case the program corrupts them.]
-    // Results are all left in $this->task for later access by
-    // getSubmissionDetails
-    protected function runInSandbox($input, $files) {
+    /** Run the task defined by the source, language, input and params attributes
+     *  of this in the sandbox, defining the result, stderr, output and
+     * signal attributes of $this. If a compilation step is required, this
+     * must already have been performed with the compiler output left in 
+     * $this->cmpinfo (non-empty is taken as a compiler error) and the object
+     * code in a location defined by the subclass.
+     * @return qtype_coderunner_sandbox::OK if run succeeds in the sense
+     * of nothing going terribly wrong or qtype_coderunner_sandbox::UNKNOWN_SERVER_ERROR
+     * otherwise.
+     */
+    protected function run_in_sandbox() {
         $filesize = 1000 * $this->get_param('disklimit'); // MB -> kB
         $memsize = 1000 * $this->get_param('memorylimit');
         $cputime = $this->get_param('cputime');
@@ -124,21 +103,19 @@ class qtype_coderunner_runguardsandbox extends qtype_coderunner_localsandbox {
         if ($memsize != 0) {  // Special case: Matlab won't run with a memsize set. TODO: WHY NOT!
             $sandboxCmdBits[] = "--memsize=$memsize";
         }
-        $allCmdBits = array_merge($sandboxCmdBits, $this->task->getRunCommand());
+        $allCmdBits = array_merge($sandboxCmdBits, $this->task->get_run_command());
         $cmd = implode(' ', $allCmdBits) . " >prog.out 2>prog.err";
 
-        $workdir = $this->task->workdir;
+        $workdir = $this->workdir;
         chdir($workdir);
-        $this->loadFiles($files);
-        try {
-            $this->task->cmpinfo = ''; // Set defaults first
-            $this->task->signal = 0;
-            $this->task->time = 0;
-            $this->task->memory = 0;
 
-            if ($input != '') {
+        try {
+            $this->cmpinfo = ''; // Set defaults first
+            $this->signal = 0;
+
+            if ($this->input != '') {
                 $f = fopen('prog.in', 'w');
-                fwrite($f, $input);
+                fwrite($f, $this->input);
                 fclose($f);
                 $cmd .= " <prog.in";
             }
@@ -147,43 +124,44 @@ class qtype_coderunner_runguardsandbox extends qtype_coderunner_localsandbox {
             }
 
             $handle = popen($cmd, 'r');
-            $result = fread($handle, MAX_READ);
+            $result = fread($handle, self::MAX_READ);
             pclose($handle);
 
             if (file_exists("$workdir/prog.err")) {
                 $stderr = file_get_contents("$workdir/prog.err");
-                $this->task->stderr = $this->task->filterStderr($stderr);
+                $this->stderr = $this->task->filter_stderr($stderr);
             }
             else {
-                $this->task->stderr = '';
+                $this->stderr = '';
             }
-            if ($this->task->stderr != '') {
-                if (strpos($this->task->stderr, "warning: timelimit exceeded")) {
-                    $this->task->result = qtype_coderunner_sandbox::RESULT_TIME_LIMIT;
-                    $this->task->signal = 9;
-                    $this->task->stderr = '';
-                } else if(strpos($this->task->stderr, "warning: command terminated with signal 11")) {
-                    $this->task->result = qtype_coderunner_sandbox::RESULT_RUNTIME_ERROR;
-                    $this->task->signal = 11;
-                    $this->task->stderr = '';
+            if ($this->stderr !== '') {
+                if (strpos($this->stderr, "warning: timelimit exceeded")) {
+                    $this->result = self::RESULT_TIME_LIMIT;
+                    $this->signal = 9;
+                    $this->stderr = '';
+                } else if(strpos($this->stderr, "warning: command terminated with signal 11")) {
+                    $this->result = self::RESULT_RUNTIME_ERROR;
+                    $this->signal = 11;
+                    $this->stderr = '';
                 }
                 else {
-                    $this->task->result = qtype_coderunner_sandbox::RESULT_ABNORMAL_TERMINATION;
+                    $this->result = self::RESULT_ABNORMAL_TERMINATION;
                 }
             }
             else {
-                $this->task->result = qtype_coderunner_sandbox::RESULT_SUCCESS;
+                $this->result = self::RESULT_SUCCESS;
             }
 
-            $this->task->output = $this->task->filterOutput(
-                    file_get_contents("$workdir/prog.out"));
+            $this->output = $this->task->filter_output(file_get_contents("$workdir/prog.out"));
         }
         catch (Exception $e) {
-            $this->task->result = qtype_coderunner_sandbox::RESULT_INTERNAL_ERR;
-            $this->task->stderr = $this->task->cmpinfo = print_r($e, true);
-            $this->task->output = $this->task->stderr;
-            $this->task->signal = $this->task->time = $this->task->memory = 0;
+            $this->result = self::RESULT_INTERNAL_ERR;
+            $this->stderr = print_r($e, true);
+            $this->output = $this->stderr;
+            $this->signal = 0;
+            return self::UNKNOWN_SERVER_ERROR;
         }
+        return self::OK;
     }
 }
 

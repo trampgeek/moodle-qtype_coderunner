@@ -21,8 +21,11 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-define("TEMPLATE_LANGUAGE", 0);
-define("USER_LANGUAGE", 1);
+global $CFG;
+
+require_once($CFG->dirroot . '/question/type/coderunner/constants.php');
+
+use qtype_coderunner_constants\constants;
 
 /* The class for exceptions thrown in the coderunner plugin */
 class coderunner_exception extends moodle_exception {
@@ -48,7 +51,7 @@ class coderunner_exception extends moodle_exception {
 function load_ace_if_required($question, $textareaid, $whichlang) {
     global $CFG, $PAGE;
     if ($question->useace) {
-        if ($whichlang === TEMPLATE_LANGUAGE ||
+        if ($whichlang === constants::TEMPLATE_LANGUAGE ||
                empty($question->acelang)) {
             $lang = $question->language;
         } else {

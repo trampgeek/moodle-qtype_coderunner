@@ -25,7 +25,7 @@ class qtype_coderunner_prototype_test extends qtype_coderunner_testcase {
         $this->make_sqr_user_type_prototype();
         $q2 = $this->make_question('sqr_user_prototype_child');  // Make a derived question
         $this->assertEquals('combinatortemplatevalue', $q2->combinatortemplate);
-        $this->assertEquals('jobesandbox', $q2->sandbox);
+        $this->assertEquals(179, $q2->cputimelimitsecs);
     }
      
     // Test any prototype files are also used by child
@@ -56,9 +56,9 @@ class qtype_coderunner_prototype_test extends qtype_coderunner_testcase {
         $response = array('answer' => $code);
         $result = $q->grade_response($response);
         list($mark, $grade, $cache) = $result;
-        $testOutcome = unserialize($cache['_testoutcome']);
+        $testoutcome = unserialize($cache['_testoutcome']);
 
-        $this->assertTrue($testOutcome->all_correct());
+        $this->assertTrue($testoutcome->all_correct());
     }    
     
     
@@ -75,7 +75,6 @@ class qtype_coderunner_prototype_test extends qtype_coderunner_testcase {
         $q->typename = "sqr_user_prototype";
         $q->cputimelimitsecs = 179; // Silly test value
         $q->combinatortemplate = 'combinatortemplatevalue';
-        $q->sandbox = "jobesandbox";
         
         // Save the prototype to the DB so it has an accessible context for
         // retrieving associated files. All we need is its id and

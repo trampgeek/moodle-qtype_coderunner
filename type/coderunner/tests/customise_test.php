@@ -26,9 +26,9 @@ class qtype_coderunner_customise_test extends qtype_coderunner_testcase {
         $this->assertEquals(1, $mark);
         $this->assertEquals(question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
-        $testOutcome = unserialize($cache['_testoutcome']);
-        $this->assertFalse($testOutcome->has_syntax_error());
-        foreach ($testOutcome->testresults as $tr) {
+        $testoutcome = unserialize($cache['_testoutcome']);
+        $this->assertFalse($testoutcome->has_syntax_error());
+        foreach ($testoutcome->testresults as $tr) {
             $this->assertTrue($tr->iscorrect);
         }
     }

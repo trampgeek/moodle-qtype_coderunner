@@ -4,8 +4,6 @@ require_once($CFG->dirroot . '/question/format/xml/format.php');
 require_once($CFG->dirroot . '/lib/questionlib.php');
 require_once($CFG->dirroot . '/lib/accesslib.php');
 
-define('PROTOTYPE_ENDING', '_PROTOTYPES.xml');  // prototype file ending
-
 function xmldb_qtype_coderunner_upgrade($oldversion) {
     global $CFG, $DB;
 
@@ -519,6 +517,7 @@ function updateQuestionTypes() {
     
     // Find id of CR_PROTOTYPES category
     global $DB, $CFG;
+    define('PROTOTYPE_ENDING', '_PROTOTYPES.xml');  // prototype file ending
     
     $success = true;
     $systemcontext = context_system::instance();
@@ -558,8 +557,8 @@ function updateQuestionTypes() {
     $dbDir = dirname(__FILE__);
     $dbFiles = scandir($dbDir);
     foreach ($dbFiles as $file) {
-        // Load any files in the db directory ending with PROTOTYPE_ENDING
-        if (strpos(strrev($file), strrev(PROTOTYPE_ENDING)) === 0) {
+        // Load any files in the db directory ending with _PROTOTYPES.xml
+        if (strpos(strrev($file), strrev('_PROTOTYPES.xml')) === 0) {
             $filename = $dbDir . '/' . $file;
             load_questions($category, $filename, $systemcontextid);
         }
