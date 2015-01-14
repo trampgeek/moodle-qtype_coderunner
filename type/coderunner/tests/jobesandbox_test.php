@@ -52,6 +52,7 @@ class qtype_coderunner_jobesandbox_test extends qtype_coderunner_testcase {
         $source = "print('Hello sandbox!'):\n";
         $sandbox = new qtype_coderunner_jobesandbox();
         $result = $sandbox->execute($source, 'python3', '');
+        $this->assertEquals(qtype_coderunner_sandbox::OK, $result->error);
         $this->assertEquals(qtype_coderunner_sandbox::RESULT_COMPILATION_ERROR, $result->result);
         $sandbox->close();
     }
@@ -81,6 +82,7 @@ print(open('second.bb').read())
         $source = "while 1: pass\n";
         $sandbox = new qtype_coderunner_jobesandbox();
         $result = $sandbox->execute($source, 'python3', '');
+        $this->assertEquals(qtype_coderunner_sandbox::OK, $result->error);
         $this->assertEquals(qtype_coderunner_sandbox::RESULT_TIME_LIMIT, $result->result);
         $this->assertEquals('', $result->output);
         $this->assertEquals('', $result->stderr);
@@ -95,6 +97,7 @@ print(open('second.bb').read())
         $sandbox = new qtype_coderunner_jobesandbox();
         $code = "#include <stdio.h>\nint main(): {\n    printf(\"Hello sandbox\");\n    return 0;\n}\n";
         $result = $sandbox->execute($code, 'c', null);
+        $this->assertEquals(qtype_coderunner_sandbox::OK, $result->error);
         $this->assertEquals(qtype_coderunner_sandbox::RESULT_COMPILATION_ERROR, $result->result);
         $this->assertTrue(strpos($result->cmpinfo, 'error:') !== false);
         $sandbox->close();
@@ -106,6 +109,7 @@ print(open('second.bb').read())
         $sandbox = new qtype_coderunner_jobesandbox();
         $code = "#include <stdio.h>\nint main() {\n    printf(\"Hello sandbox\\n\");\n    return 0;\n}\n";
         $result = $sandbox->execute($code, 'c', null);
+        $this->assertEquals(qtype_coderunner_sandbox::OK, $result->error);
         $this->assertEquals(qtype_coderunner_sandbox::RESULT_SUCCESS, $result->result);
         $this->assertEquals("Hello sandbox\n", $result->output);
         $this->assertEquals(0, $result->signal);
@@ -129,6 +133,7 @@ print(open('second.bb').read())
    }
 }';
         $result = $sandbox->execute($code, 'java', null);
+        $this->assertEquals(qtype_coderunner_sandbox::OK, $result->error);
         $this->assertEquals(qtype_coderunner_sandbox::RESULT_SUCCESS, $result->result);
         $this->assertEquals("Hello sandbox\n", $result->output);
         $this->assertEquals(0, $result->signal);
