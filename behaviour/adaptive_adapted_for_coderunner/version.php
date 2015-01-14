@@ -15,21 +15,18 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package   qtype_coderunner
+ * @package   qbehaviour_adaptive_adapted_for_coderunner
  * @copyright Richard Lobb, The University of Canterbury, New Zealand.
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version  = 2015010401;
+$plugin->version  = 2015011201;
 $plugin->requires = 2013051400;
 $plugin->cron = 0;
-$plugin->component = 'qtype_coderunner';
-$plugin->maturity = MATURITY_BETA;  // This is the development version
-$plugin->release = '2.4';
+$plugin->component = 'qbehaviour_adaptive_adapted_for_coderunner';
+$plugin->maturity = MATURITY_STABLE;
+$plugin->release = '1.2';
 
-$plugin->dependencies = array(
-    'qbehaviour_adaptive_adapted_for_coderunner' => 2015011201
-);
-
+$plugin->dependencies = array();

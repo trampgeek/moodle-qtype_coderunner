@@ -62,7 +62,7 @@ be safe to install
 on an institutional server.
 
 A single 4-core server can handle an average quiz question submission rate of
-about 30 quiz questions per minute while maintaining a response time of less
+about 60 quiz questions per minute while maintaining a response time of less
 than about 3 - 4 seconds, assuming the student code itself runs in a
 fraction of a second.
 
@@ -76,36 +76,36 @@ adminstration skills.
 
 If you are installing for the first time, jump straight to section 2.2.
 
-### Upgrading to version 2
+### Upgrading from an earlier version
 
-CodeRunner version 2 is a major upgrade from version 1, with many new features
-and significant restructuring of the database tables. Although the new
-version attempts to update all the database tables to the new format the
-update process has been tested on only one system. Some problems occurred and the
-upgrade code was edited to deal with those problems but the edits have received
-minimal testing because of the absence of any "pure" version 1 system on which to
-test them. If you are currently
-running version 1 and wish to upgrade to version 2, it is strongly recommended
-that:
+CodeRunner version 2.4 uses different database table names from earlier
+versions and some of the column names have been changed too. The script
+upgrade.php will make these changes for you, and the code for importing
+questions and restoring courses has been extended to handle legacy-format
+exports. All the same, because the database is being significantly altered it
+is recommended that:
 
 1. You do not attempt such an upgrade during term time.
 
 1. You make a complete backup of your existing server's database before attempting the
-   upgrade.
+   upgrade so that you can, if necessary, revert to the previous version of
+   the code.
 
-1. You first export all your coderunner questions from the question
+1. You do a full backup of any existing courses that use CodeRunner questions
+   before starting the upgrade.
+
+1. You export all your CodeRunner questions from the question
    database in Moodle XML format.
 
 Also, please feel free to contact the developer (richard.lobb@canterbury.ac.nz)
 either to discuss your upgrade beforehand or afterwards if any problems occur.
 
 With all those caveats, upgrading from an earlier version should be as simple
-as a raw installation; the upgrade.php script should modify all the database
-tables and preserve all existing questions and student submissions. Move the
+as a raw installation. Move the
 existing `<moodleHome>/local/CodeRunner` folder to a backup location, then just
 follow the instructions in the next section.
 
-All existing questions in the system `CR_PROTOTYPES` category with names containing the
+Note that all existing questions in the system `CR_PROTOTYPES` category with names containing the
 string `PROTOTYPE_` are deleted by the installer, which then re-loads them
 from the file
 
@@ -121,77 +121,91 @@ web interface.
 
 ### Installing CodeRunner from scratch
 
-If you are intending to use the Jobe sandbox, which runs student code on a
-remote server, you should first install the PEAR HTTP\_Request2 library with
-the command
-
-    pear install HTTP_Request2
-
-This assumes pear is already installed. If not, install it first with a
-command like (depending on your system)
-
-    sudo apt-get install php-pear
-
-or
-
-    yum install pear
-
-If you have local question prototypes to add to the built-in prototype set,
-copy them into the `local/CodeRunner/coderunner/db` folder; they should be
-Moodle XML file(s) with names ending in `_PROTOTYPES.xml` (case-sensitive).
-[If you don't understand what this paragraph means, then it doesn't concern
-you ... move on.]
-
-CodeRunner should then be installed in the `<moodlehome>/local` directory as follows.
-
-    cd <moodlehome>/local
-    git clone https://github.com/trampgeek/CodeRunner.git
-    cd CodeRunner
-    sudo ./install
-
-The install script sets up symbolic links from the `question/type` and
-`question/behaviour` directories to corresponding CodeRunner directories; you
-must have configured the webserver to follow symbolic links for this to work.
-
-If you're installing CodeRunner on an SELinux system it is recommended that you
-turn off SELinux during the install, e.g. with commands like
+Note: if you're installing CodeRunner on an SELinux system you may need to disable
+SELinux, depending on the version you're using and the sandboxes you're
+using. This can be done with commands like
 
     sed -i-dist -e 's|SELINUX=enforcing|SELINUX=permissive|' /etc/selinux/config
     setenforce 0
 
-If, having got CodeRunner working, you wish to re-enable SELinux then
-good luck to you. I don't use it myself. You'll probably need to know quite a few
-magic SELinux incantations to make it work, particularly if you're also using
-the RunguardSandbox (below). [You might also want to consider
-whether enabling SELinux while
-using the RunguardSandbox isn't a bit like wrapping all the glassware in tissue
-paper before letting the elephant into the room.]
+There are three different ways to install CodeRunner, as follows:
 
-If you wish to use the RunguardSandbox (see below), you will also need to
-compile the *runguard* program and add a new user called *coderunner* to the
-system. Do not proceed until you have read the various security warnings
-in the section *The Runguard Sandbox* below. If you still wish to install
-RunGuard, type the command
+1. Download just the files `qtype_coderunner.zip` and `qbehaviour_coderunner.zip`
+   and unzip them into the directories `<moodlehome>/question/type` and
+   `<moodlehome>/question/behaviour` respectively. This installation
+   method does not support the use of the RunGuard sandbox (see below).
 
-    sudo ./install_runguard
+1. Clone the entire repository into any directory you like, say `<somewhere>`
+   and then copy the files into question/type and question/behaviour
+   directories. The commands to achieve this are
 
-This will build *runguard* and add the user *coderunner*.  The install script
-may prompt for details like the office and phone
-number of the coderunner user - just hit enter to accept the defaults.
-The switch to the coderunner user and the controlled execution of the
-submitted program in *RunguardSandbox* is done by a program `runguard`, written
+        cd <somewhere>
+        git clone https://github.com/trampgeek/CodeRunner.git
+        cd CodeRunner
+        sudo ./install
+
+1. Clone the entire repository into the `<moodlehome>/local` directory
+   and then make symbolic links to the question/type and question/behaviour
+   directories. The commands to achieve this are
+
+        cd <moodlehome>/local
+        git clone https://github.com/trampgeek/CodeRunner.git
+        cd CodeRunner
+        sudo ./devinstall
+
+The first of these methods is the more traditional Moodle install, while the
+second is equivalent in effect but makes it possible to also install the
+RunGuard sandbox and gives you the full CodeRunner source
+tree to experiment with. The third method, which also allows
+use of the RunGuard sandbox, is intended for developers. Because
+it symbolically links to the source code, any changes made to the source in
+the `<moodlehome>/local/CodeRunner` subtree will take immediate effect.
+
+Having carried out one of the above methods,
+if you have local question prototypes to add to the built-in prototype set you
+should now
+copy them into the `<moodlehome>/qtypes/type/coderunner/db` folder. They should be
+Moodle XML file(s) with names ending in `_PROTOTYPES.xml` (case-sensitive).
+[If you don't understand what this paragraph means, then it doesn't concern
+you ... move on.]
+
+After carrying out one of the above install methods, you can complete the
+installation by logging onto the server through the web interface as an
+administrator and following the prompts to upgrade the database as appropriate.
+Do not interrupt that upgrade process.
+
+### Building the RunGuardSandbox
+
+The RunguardSandbox allows student jobs to be run on the Moodle server itself.
+It users a program `runguard`, written
 by Jaap Eldering as part of
 the programming contest server [DOMJudge](http://domjudge.sourceforge.net/). This
 program needs to be 'setuid root', and hence the install script requires
 root permissions to set this up.
 
+If you wish to use the RunguardSandbox
+you must have used either
+the second or third of the installation methods given above. 
+Do not proceed until you have read the various security warnings
+in the section *The Runguard Sandbox* below. Then, if you still wish to install
+RunGuard, type the command
+
+    sudo ./install_runguard
+
+from within the outermost CodeRunner directory.
+This will compile and build the *runguard* program and add the user
+account *coderunner*,
+which is used for running the submitted jobs. 
+The install script
+may prompt for details like the office and phone
+number of the coderunner user - just hit enter to accept the defaults.
+
 All going well, you should finish up with a user 'coderunner'
 and a program *runguard* in CodeRunner/coderunner/Sandbox/ with
 setuid-root capabilities. *runguard* should be owned by root with the webserver
-user as its group.
-This program should not be accessible to users other than root and the web
+user as its group. This program should not be accessible to users other than root and the web
 server. Note that any subsequent recursive `chown` or `chmod` on the
-CodeRunner directory tree will probably break `runguard` and you'll need to
+*question/type/coderunner* directory tree will probably break `runguard` and you'll need to
 re-run the runguard installer.
 
 
@@ -208,9 +222,9 @@ Available sandboxes are as follows:
 
 1. The JobeSandbox.
 
-    This is the only sandbox enabled by default. It fully
-isolates student code from the Moodle server, but does require
-the installation of a separate server. Follow the instructions at
+    This is the only sandbox enabled by default. It makes use of a 
+separate server, developed for use by CodeRunner, called *Jobe*.
+Follow the instructions at
 [https://github.com/trampgeek/jobe](https://github.com/trampgeek/jobe)
 to build a Jobe server, then use the
 Moodle administrator interface for the CodeRunner plug-in to define the Jobe
@@ -218,14 +232,17 @@ host name and perhaps port number. If you intend running unit tests you
 will also need to edit `tests/config.php` to set the correct URL for
 the Jobe server.
 
-    Note that Jobe *can* be installed on the Moodle server itself, rather than on a 
+    Assuming you have built *Jobe* on a separate server, the JobeSandbox fully
+isolates student code from the Moodle server. However, Jobe *can* be installed
+on the Moodle server itself, rather than on a 
 completely different machine. This works fine and is a bit more secure
-than using the Runguard Sandbox but is much less secure than running it on
+than using the Runguard Sandbox but is much less secure than running Jobe on
 a completely separate machine. If a student program manages to break out of
 the sandbox when it's running on a separate machine, the worst it can do is
 bring the sandbox server down, whereas a security breach on the Moodle server
 could be used to hack into the Moodle database, which contains student run results
-and marks. That said, our Computer Science department used the Runguard
+and marks. That said, our Computer Science department used the even less
+secure Runguard
 Sandbox for some years without any ill effects; Moodle keeps extensive logs
 of all activities, so a student deliberately breaching security is taking a
 huge risk.
@@ -262,7 +279,7 @@ build a statically linked executable with a command like
 
         gcc -Wall -Werror -std=c99 -static src.c -lm
 
-    It is also possible to configure the Liu sandbox to run other languages,
+    It is also possible to use the Liu sandbox to run other languages,
 but it must be configured to allow any extra system calls required by those
 languages and also to access those parts of the file system that the language
 expects to access. These are many and varied so this approach is not
@@ -280,8 +297,7 @@ safe if a special-purpose quiz server is being used, assuming that server requir
 student login. Our own quiz server at the
 University of Canterbury
 made extensive use of the RunguardSandbox for two years with no known security
-failures and only one minor resource-depletion problem that has now been
-prevented in the code. You should be aware that it does not
+failures. You should be aware that it does not
 prevent use of system calls like *socket* that might open connections to
 other servers behind your firewall and of course it depends on the Unix
 server being securely set up in the first place.
@@ -308,8 +324,7 @@ the Ideone web-services. Runs are free up to a certain number
 but you then have to pay for usage.
 The IdeoneSandbox is there mainly as a proof of concept of the idea of off-line
 execution and to support occasional use of unusual languages. As with
-the other sandboxes, you can configure
-the username and password for use of the IdeoneSandbox via the administrator
+the other sandboxes, you can configure the IdeoneSandbox via the administrator
 settings panel for CodeRunner.
 
 ### Checking security
@@ -335,7 +350,7 @@ CodeRunner installation. Most tests require that at least python2 and python3
 are installed.
 
 Before running any tests you first need to edit the file
-`local/CodeRunner/coderunner/tests/config.php` to match
+`<moodlehome>/question/type/coderunner/tests/config.php` to match
 whatever configuration of sandboxes you wish to test and to set the jobe
 server URL, if appropriate. You should then initialise
 the phpunit environment with the commands
@@ -353,29 +368,6 @@ the LiuSandbox,
 Matlab, Octave and Java. These can all be ignored unless you plan to use
 those capabilities. The name of the failing tests should be sufficient to
 tell you if you need be at all worried.
-
-An alternative approach is to run just the subset of the tests that relate
-to the particular set of sandboxes and languages that you have installed. You
-can run a single test class from within the moodle home directory with the syntax
-
-        sudo vendor/bin/phpunit <testclass> <testfilepath>
-
-e.g.
-
-        sudo vendor/bin/phpunit qtype_coderunner_test local/CodeRunner/coderunner/questiontype_test.php
-
-A basic set for classes and associated files for testing python3 and C on the
-jobe sandbox might be:
-
-        qtype_coderunner_test in questiontype_test.php
-        qtype_coderunner_jobesandbox_test in jobesandbox_test.php
-        qtype_coderunner_pythonquestions_test in pythonquestions_test.php
-        qtype_coderunner_c_question_test in cquestions_test.php
-        qtype_coderunner_customise_test in customise_test.php
-        qtype_coderunner_datafile_test in datafile_test.php
-        qtype_coderunner_grader_test in grader_test.php
-        qtype_coderunner_template_test in template_test.php
-        qtype_coderunner_walkthrough_test in walkthroughtest.php
 
 Feel free to [email me](mailto:richard.lobb@canterbury.ac.nz) if you have problems
 with the installation.

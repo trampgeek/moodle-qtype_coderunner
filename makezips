@@ -1,0 +1,15 @@
+#!/usr/bin/env python
+# This script makes (in this script's directory) zip archives of the question/type
+# and question/behaviour subdirectories, for use in "normal" Moodle
+# plug-in installs.
+
+from __future__ import print_function
+import subprocess
+import os
+
+os.chdir('type')
+cmd = 'git archive -o "../qtype_coderunner.zip" HEAD coderunner'
+subprocess.call(cmd, shell=True)
+os.chdir('../behaviour')
+cmd = 'git archive -o "../qbehaviour_adaptive_adapted_for_coderunner.zip" HEAD adaptive_adapted_for_coderunner'
+subprocess.call(cmd, shell=True)

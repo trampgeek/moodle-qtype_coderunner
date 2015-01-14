@@ -9,8 +9,7 @@ import subprocess
 
 
 def printFailMessage():
-    print("Unable to build the runguard program, which is used to control ")
-    print("the execution of student-submitted programs in the Runguard sandbox. ")
+    print("Runguard installation failed. ")
     print("Perhaps you weren't running the installer as root? You have to be ")
     print("root to make runguard a 'setuid root' program, so that it can ")
     print("run the student program as the coderunner user, thereby stopping it ")
@@ -18,7 +17,7 @@ def printFailMessage():
     print("access.")
     print()
     print("If you intend to use the Runguard sandbox, you should 'cd' to the ")
-    print("<moodlehome>/local/CodeRunner/type/coderunner directory and type the commands:\n")
+    print("<moodlehome>/question/type/coderunner/sandbox directory and type the commands:\n")
     print("    make runguard")
     print("    sudo chown root runguard")
     print("    sudo chgrp <webserverUser> runguard")
@@ -47,42 +46,54 @@ def do_command(cmd):
         raise OSError("Command ({}) failed".format(cmd))
 
 
-cwd = os.getcwd()
-if "moodle/local/CodeRunner" not in cwd:
-    print("***** module appears not to have been installed in moodle/local")
-    print ("as recommended****")
-    printFailMessage()
-elif subprocess.check_output('whoami', shell=True) != b'root\n':
-    print("****This script must be run by root*****")
-    printFailMessage()
-else:
-    searchString = "/moodle/local/CodeRunner"
-    pos = cwd.index(searchString)
-    basedir = cwd[0:pos]
-    installdir = cwd[0:pos + len(searchString)]
-    try:
-        webserver_user = get_webserver()
-        print("Web server is", webserver_user)
-        username = 'coderunner'
-        try:
-            do_command('id ' + username + '> /dev/null 2>&1')
-            print('User ' + username + ' already exists')
-        except:
-            do_command('useradd -M -s "/bin/false" ' + username)
-
-        commands = [
-            "cd {0}/type/coderunner/sandbox".format(installdir),
-            "gcc -o runguard runguard.c", # Add -lcgroups  if using cgroups
-            "chown root runguard",
-            "chgrp {0} runguard".format(webserver_user),
-            "chmod 4750 runguard"
-        ]
-        cmd = ';'.join(commands)
-        if subprocess.call(cmd, shell=True) != 0:
-            raise OSError("Command ({}) failed".format(cmd))
-        print("Runguard installation complete")
-    except Exception as e:
-        print("Exception when setting up runguard: " + str(e))
+def install():
+    if subprocess.check_output('whoami', shell=True) != b'root\n':
+        print("****This script must be run by root*****")
         printFailMessage()
+    else:
+        if os.path.exists('/var/www/html/moodle/question'):
+            moodlehome = '/var/www/html/moodle/question'
+        elif os.path.exists('/var/www/moodle/question'):
+            moodlehome = '/var/www/moodle/question'
+        else:
+            raise Exception('<moodlehome> not found in either of the expected places')
+        try:
+            webserver_user = get_webserver()
+            print("Web server is", webserver_user)
+            username = 'coderunner'
+            try:
+                do_command('id ' + username + '> /dev/null 2>&1')
+                print('User ' + username + ' already exists')
+            except:
+                do_command('useradd -M -s "/bin/false" ' + username)
 
+            commands = [
+                "cd {0}/type/coderunner/sandbox".format(moodlehome),
+                "gcc -o runguard runguard.c", # Add -lcgroups  if using cgroups
+                "chown root runguard",
+                "chgrp {0} runguard".format(webserver_user),
+                "chmod 4750 runguard"
+            ]
+            cmd = ';'.join(commands)
+            if subprocess.call(cmd, shell=True) != 0:
+                raise OSError("Command ({}) failed".format(cmd))
+            print("Runguard installation complete")
+        except Exception as e:
+            print("Exception when setting up runguard: " + str(e))
+            printFailMessage()
 
+def main():
+    print ("Installing the RunGuard sandbox...")
+    print("NOTE: The RunGuard sandbox is deprecated in favour of the JobeSandbox, which")
+    print("can be installed on the Moodle server directly if you want to use just")
+    print("a single machine (though that's not the preferred approach).")
+    prompt = "Proceed (Y/N)?"
+    line = input(prompt)
+    while (line[0].lower() not in ['y', 'n']):
+        print("Please respond with yes or no")
+        print(prompt)
+    if line[0].lower() != 'y':
+        print("RunGuard installation aborted")
+    install()
+
+main()
