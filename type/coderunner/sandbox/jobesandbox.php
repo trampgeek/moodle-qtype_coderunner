@@ -14,12 +14,15 @@
 defined('MOODLE_INTERNAL') || die();
 
 require_once 'sandboxbase.php';
-require_once 'HTTP/Request2.php';
 
 
 class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
 
     const DEBUGGING = 0;
+    const HTTP_GET = 1;
+    const HTTP_POST = 2;
+    const HTTP_PUT = 3;
+    
     
     private $languages = null;   // Languages supported by this sandbox
     private $response = null;    // Response from HTTP request to server
@@ -30,7 +33,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
     public function __construct() {
         qtype_coderunner_sandbox::__construct();
         list($returncode, $languagepairs) = $this->http_request(
-                'languages', HTTP_Request2::METHOD_GET, null);
+                'languages', self::HTTP_GET);
 
         if ($returncode == 200 && is_array($languagepairs)) {
             $this->languages = array();
@@ -165,8 +168,9 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
         $id = md5($contents);
         $contentsb64 = base64_encode($contents);
         list($httpCode, $body) = $this->http_request("files/$id", 
-                HTTP_Request2::METHOD_PUT,
+                self::HTTP_PUT,
                 array('file_contents' => $contentsb64));
+        
         return $httpCode;  
     }
     
@@ -176,7 +180,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
     // We don't at this stage deal with Jobe servers that may defer requests
     // i.e. that return 202 Accepted rather than 200 OK.
     private function submit($job) {
-        list($returncode, $response) = $this->http_request('runs', HTTP_Request2::METHOD_POST, $job);
+        list($returncode, $response) = $this->http_request('runs', self::HTTP_POST, $job);
         if ($returncode == 200) {
             $this->response = $response;
         }
@@ -184,34 +188,53 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
         
     }
     
-    // Send an http request to the Jobe server at the given resource using
-    // the given method (HTTP_Request2::METHOD_PUT etc). The body, if given,
-    // is json encoded and added to the request. 
+    // Send an http request to the Jobe server at the given
+    // resource using the given method (self::HTTP_GET, self::HTTP_POST of self::HTTP_PUT).
+    // The body, if given, is json encoded and added to the request. 
     // Return value is a 2-element
-    // array containing the http response code and the response body.
+    // array containing the http response code and the response body (decoded
+    // from json).
     // The code is -1 if the request fails utterly.
     private function http_request($resource, $method, $body=null) {
         $jobe = get_config('qtype_coderunner', 'jobe_host');
         $url = "http://$jobe/jobe/index.php/restapi/$resource";
-        $request = new HTTP_Request2($url, $method);
-        $request->setHeader('Content-type', 'application/json; charset=utf-8');
-        $request->setHeader('Accept', 'application/json');
-        if ($body) {
-            $request->setBody(json_encode($body));
+        $curl = new curl();
+        $curl->setHeader(array(
+                'Content-Type: application/json; charset=utf-8',
+                'Accept: application/json')
+        );
+
+        if ($method === self::HTTP_GET) {
+            assert(empty($body));
+            $response = $curl->get($url);
+        } else if ($method === self::HTTP_POST) {
+            assert (!empty($body));
+            $bodyjson = json_encode($body);
+            $response = $curl->post($url, $bodyjson);
+        } else if ($method === self::HTTP_PUT) {
+            // Moodle curl class only supports put of a file, so must write
+            // data to a file first (groan).
+            assert (!empty($body));
+            $tempname = tempnam('/tmp', 'cr_');
+            $temp = fopen($tempname, 'w');
+            fwrite($temp, $body);
+            $response = $curl->put($resource, array('file' => $tempname));
+            fclose($temp);
+            unlink($tempname);
+        } else {
+            throw new CodingException('Invalid method passed to http_request');
         }
         
-        try {
-            $response = $request->send();
-            $returncode = $response->getStatus();
-            $body = $response->getBody();
-            if ($body) {
-                $body = json_decode($body);
-            }
-   
-        } catch (HTTP_Request2_Exception $e) {
+        if ($response !== FALSE) {
+            $returncode = $curl->info['http_code'];
+            $responsebody = $response === '' ? '' : json_decode($response);
+        } else {
             $returncode = -1;
-        }   
-        return array($returncode, $body);
+            $responsebody = '';
+        }
+   
+  
+        return array($returncode, $responsebody);
     }
     
     
