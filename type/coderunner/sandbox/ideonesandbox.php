@@ -165,7 +165,10 @@ class qtype_coderunner_ideonesandbox extends qtype_coderunner_sandbox {
             throw new moodle_exception("Ideone sandbox doesn't accept files");
         }
         if($params !== null) {
-            throw new moodle_exception( "ideone sandbox doesn't accept parameters like cpu time or memory limit");
+            // TODO: consider if there's a better way of handling this situation.
+            //  Can't just throw an exception as parameters are now provided
+            //  by default.
+            // throw new moodle_exception( "ideone sandbox doesn't accept parameters like cpu time or memory limit");
         }
         $langId = $this->langMap[$language];
         $response = $this->client->createSubmission($this->user, $this->pass,
