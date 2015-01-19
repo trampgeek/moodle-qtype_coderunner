@@ -172,7 +172,11 @@ you ... move on.]
 After carrying out one of the above install methods, you can complete the
 installation by logging onto the server through the web interface as an
 administrator and following the prompts to upgrade the database as appropriate.
-Do not interrupt that upgrade process.
+Do not interrupt that upgrade process. If you are upgrading from an earlier
+version of CodeRunner you will likely receive quite a few warning messages
+from the cachestore, relating to files that have been moved or renamed in
+the transition from version 2.3. These warnings can be safely
+ignored (I hope).
 
 ### Building the RunGuardSandbox
 
