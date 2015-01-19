@@ -36,7 +36,12 @@ def main():
         for dir in ['behaviour/adaptive_adapted_for_coderunner', 'type/coderunner']:
             srctree = os.path.join(cwd, dir)
             destree = os.path.join(target, dir)
-            shutil.rmtree(destree, True)
+            if os.path.islink(destree):  # Symbolic link?
+                print("Deleting symbolic link {}".format(destree))
+                os.unlink(destree)
+            elif os.path.isdir(destree):
+                print("Removing existing directory {}".format(destree))
+                shutil.rmtree(destree, True) 
             shutil.copytree(srctree, destree, ignore=ignore_fun)
 
         print("Install complete.")
