@@ -33,15 +33,16 @@ require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
  */
 class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
     
-    private $legacy_name_map = null; // Map from legacy DB column names to current
+    private $legacynamemap = null; // Map from legacy DB column names to current
     
     // Constructor builds a map from old DB field names to new ones for use
     // in function process_coderunner_options
-    public function __construct() {
-        $this->legacy_name_map = array('custom_template' => 'pertesttemplate');
+    public function __construct($plugintype, $pluginname, $step) {
+        parent::__construct($plugintype, $pluginname, $step);
+        $this->legacynamemap = array('custom_template' => 'pertesttemplate');
         $revmap = qtype_coderunner::legacy_field_name_map();
         foreach ($revmap as $new => $old) {
-            $this->legacy_name_map[$old] = $new;  // Invert the mapping
+            $this->legacynamemap[$old] = $new;  // Invert the mapping
         }
     }
 
@@ -144,10 +145,11 @@ class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
             // Remap various legacy names to new
             // names, in case we're restoring an earlier-version
             // backup.
-            foreach ($this->$legacy_name_map as $old => $new)
-            if (isset($data->$old)) {
-                $data->$new = $data->$old;
-                unset($data->$old);
+            foreach ($this->legacynamemap as $old => $new) {
+                if (isset($data->$old)) {
+                    $data->$new = $data->$old;
+                    unset($data->$old);
+                }
             }
             
             // Insert the record
