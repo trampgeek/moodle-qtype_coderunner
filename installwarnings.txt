@@ -1,0 +1,35 @@
+Warning: include(/var/www/html/moodle/local/CodeRunner/coderunner/lang/en/qtype_coderunner.php): failed to open stream: No such file or directory in /var/www/html/moodle/lib/classes/string_manager_standard.php on line 173
+
+Warning: include(): Failed opening '/var/www/html/moodle/question/type/coderunner/lang/en/qtype_coderunner.php' for inclusion (include_path='/var/www/html/moodle/lib/zend:/var/www/html/moodle/lib/pear:.:/usr/share/php:/usr/share/pear') in /var/www/html/moodle/lib/classes/string_manager_standard.php on line 173
+
+Warning: unlink(/var/moodledata/cache/cachestore_file/default_application/core_config/a29-cache/a29ba7b1dbb4b1e7cc2b181f168d86e4c2b6d0c2.cache): Permission denied in /var/www/html/moodle/lib/moodlelib.php on line 9117
+
+Warning: rmdir(/var/moodledata/cache/cachestore_file/default_application/core_config/a29-cache): Directory not empty in /var/www/html/moodle/lib/moodlelib.php on line 9126
+
+Warning: unlink(/var/moodledata/cache/cachestore_file/default_application/core_config/d75-cache/d75efc2e8f795c6cbf3d7bace0932125b2921ea5.cache): Permission denied in /var/www/html/moodle/lib/moodlelib.php on line 9117
+
+Warning: rmdir(/var/moodledata/cache/cachestore_file/default_application/core_config/d75-cache): Directory not empty in /var/www/html/moodle/lib/moodlelib.php on line 9126
+
+Warning: unlink(/var/moodledata/cache/cachestore_file/default_application/core_config/49a-cache/49ac7c67ec5d5c92d1cd265a167f0f7d8e4a1328.cache): Permission denied in /var/www/html/moodle/lib/moodlelib.php on line 9117
+
+Warning: rmdir(/var/moodledata/cache/cachestore_file/default_application/core_config/49a-cache): Directory not empty in /var/www/html/moodle/lib/moodlelib.php on line 9126
+
+Warning: unlink(/var/moodledata/cache/cachestore_file/default_application/core_config/e0c-cache/e0cf2396878ab43707d23a0198f9b75069743473.cache): Permission denied in /var/www/html/moodle/lib/moodlelib.php on line 9117
+
+Warning: rmdir(/var/moodledata/cache/cachestore_file/default_application/core_config/e0c-cache): Directory not empty in /var/www/html/moodle/lib/moodlelib.php on line 9126
+
+Warning: rmdir(/var/moodledata/cache/cachestore_file/default_application/core_config): Directory not empty in /var/www/html/moodle/lib/moodlelib.php on line 9126
+
+Warning: unlink(/var/moodledata/cache/cachestore_file/default_application/core_coursemodinfo/41--cache/41-60b98794b312e9b6f25ba17d1b4fdce4.cache): Permission denied in /var/www/html/moodle/lib/moodlelib.php on line 9117
+
+Warning: rmdir(/var/moodledata/cache/cachestore_file/default_application/core_coursemodinfo/41--cache): Directory not empty in /var/www/html/moodle/lib/moodlelib.php on line 9126
+
+Warning: unlink(/var/moodledata/cache/cachestore_file/default_application/core_coursemodinfo/42--cache/42-60b98794b312e9b6f25ba17d1b4fdce4.cache): Permission denied in /var/www/html/moodle/lib/moodlelib.php on line 9117
+
+Warning: rmdir(/var/moodledata/cache/cachestore_file/default_application/core_coursemodinfo/42--cache): Directory not empty in /var/www/html/moodle/lib/moodlelib.php on line 9126
+
+Warning: rmdir(/var/moodledata/cache/cachestore_file/default_application/core_coursemodinfo): Directory not empty in /var/www/html/moodle/lib/moodlelib.php on line 9126
+
+Warning: rmdir(/var/moodledata/cache/cachestore_file/default_application): Directory not empty in /var/www/html/moodle/lib/moodlelib.php on line 9126
+
+Warning: rmdir(/var/moodledata/cache/cachestore_file): Directory not empty in /var/www/html/moodle/lib/moodlelib.php on line 9126

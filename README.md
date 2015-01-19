@@ -122,7 +122,7 @@ web interface.
 ### Installing CodeRunner from scratch
 
 Note: if you're installing CodeRunner on an SELinux system you may need to disable
-SELinux, depending on the version you're using and the sandboxes you're
+SELinux, depending on which sandboxes you're
 using. This can be done with commands like
 
     sed -i-dist -e 's|SELINUX=enforcing|SELINUX=permissive|' /etc/selinux/config
@@ -130,7 +130,7 @@ using. This can be done with commands like
 
 There are three different ways to install CodeRunner, as follows:
 
-1. Download just the files `qtype_coderunner.zip` and `qbehaviour_coderunner.zip`
+1. Download just the raw files `qtype_coderunner.zip` and `qbehaviour_coderunner.zip`
    and unzip them into the directories `<moodlehome>/question/type` and
    `<moodlehome>/question/behaviour` respectively. This installation
    method does not support the use of the RunGuard sandbox (see below).
@@ -358,9 +358,14 @@ the phpunit environment with the commands
         cd <moodlehome>
         sudo php admin/tool/phpunit/cli/init.php
 
-You can then run the full test suite with a command like
+You can then run the full CodeRunner test suite with one of the following two commands,
+depending on which version of phpunit you're using:
 
         sudo -u apache vendor/bin/phpunit --verbose --testsuite="qtype_coderunner test suite"
+
+or
+
+        sudo -u apache vendor/bin/phpunit --verbose --testsuite="qtype_coderunner_testsuite"
 
 This will almost certainly show lots of skipped or failed tests relating
 to the various sandboxes and languages that you have not installed, e.g.
