@@ -2,9 +2,12 @@
 
 /*
  * Provides the RunguardSandbox class, which is a lightweight sandbox that
- * runs jobs without using the 'runguard' program that provides the controlled
+ * runs jobs using the 'runguard' program that provides the controlled
  * execution environment in the DomJudge programming contest system
  * (see http://www.domjudge.org/).
+ * 
+ * THIS CLASS IS NOW DEPRECATED - use the Jobe Sandbox instead.
+ * 
  * Jobs are run as user 'coderunner' with resource limits set by
  * the language, so is at least safe against major resource depletion issues
  * (memory, CPU). However, it does not protect against system calls like socket,
@@ -26,6 +29,9 @@
  * Python task at the time, and a second concurrent test would fail. For now
  * this problem has been resolved by increasing the allocation of processes
  * to 200, but a better solution is needed in the longer term.
+ * 
+ * The problem has been solved in the Jobe sandbox, which is one of the many reasons
+ * the runguardsandbox class is now deprecated.
  *
  *
  * @package    qtype

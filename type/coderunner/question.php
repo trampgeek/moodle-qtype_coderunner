@@ -208,9 +208,10 @@ class qtype_coderunner_question extends question_graded_automatically {
             // Load any files from the prototype
             $context = qtype_coderunner::question_context($this);
             $prototype = qtype_coderunner::get_prototype($this->coderunnertype, $context);
-            $files = $this->get_data_files($prototype);
+            $files = $this->get_data_files($prototype, $prototype->questionid);
         }
-        $files += $this->get_data_files($this, $this->contextid);  // Add in files for this question
+        $files += $this->get_data_files($this, $this->id);  // Add in files for this question
+
         if (isset($this->cputimelimitsecs)) {
             $sandboxparams['cputime'] = intval($this->cputimelimitsecs);
         }
@@ -479,14 +480,10 @@ class qtype_coderunner_question extends question_graded_automatically {
      *  Return an associative array mapping filename to datafile contents
      *  for all the datafiles associated with a given question (which may
      *  be a real question or, in the case of a prototype, the question_options
-     *  row).
+     *  row) and the questionid from the mdl_questions table.
      */
-    private static function get_data_files($question) {
+    private static function get_data_files($question, $questionid) {
         global $DB;
-
-        // Deal with problem that $question might not be an actual question
-        // but (in case of prototype) a row from the question_options table.
-        $questionid = isset($question->questionid) ? $question->questionid : $question->id;
         
         // If not given in the question object get the contextid from the database
 

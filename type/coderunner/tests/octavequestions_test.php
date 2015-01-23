@@ -82,7 +82,7 @@ class qtype_coderunner_octave_question_test extends qtype_coderunner_testcase {
 
     public function test_student_answer_macro() {
         $this->check_language_available('octave');
-        $q = $this->make_question('testStudentAnswerMacroOctave');
+        $q = $this->make_question('teststudentanswermacrooctave');
         $response = array('answer' => <<<EOT
 function mytest()
     s1 = '"Hi!" he said'; % a comment

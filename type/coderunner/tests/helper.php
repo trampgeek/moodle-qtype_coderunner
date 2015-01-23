@@ -55,8 +55,8 @@ class qtype_coderunner_test_helper extends question_test_helper {
             'helloProgC',
             'copyStdinC', 'timeoutC', 'exceptionsC', 'strToUpper',
             'stringDelete',
-            'sqrmatlab', 'testStudentAnswerMacro', 'sqroctave',
-            'testStudentAnswerMacroOctave', 'sqrnodejs',
+            'sqrmatlab', 'teststudentanswermacro', 'sqroctave',
+            'teststudentanswermacrooctave', 'sqrnodejs',
             'sqrjava', 'nameclass', 'printsquares', 'printstr',
             'sqr_user_prototype_child');
     }
@@ -82,7 +82,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
      *  Make a generic Python3 question  (should print "Success!")
      */
     public function make_coderunner_question_generic_python3() {
-        return $this->makeCodeRunnerQuestion(
+        return $this->make_coderunner_question(
                 'python3',
                 'GenericName',
                 'Generic question',
@@ -96,7 +96,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
      *  Make a generic C question (should print "Success!")
      */
     public function make_coderunner_question_generic_c() {
-        return $this->makeCodeRunnerQuestion(
+        return $this->make_coderunner_question(
                 'C_program',
                 'GenericName',
                 'Generic question',
@@ -112,7 +112,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
      * @return qtype_coderunner_question
      */
     private function make_coderunner_question_sqr_subtype($coderunnertype, $extras = array()) {
-        $coderunner = $this->makeCodeRunnerQuestion(
+        $coderunner = $this->make_coderunner_question(
                 $coderunnertype,
                 'Function to square a number n',
                 'Write a function sqr(n) that returns n squared',
@@ -145,7 +145,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
 
      */
     public function make_coderunner_question_sqrnoprint() {
-        $coderunner = $this->makeCodeRunnerQuestion(
+        $coderunner = $this->make_coderunner_question(
                 'python3',
                 'Function to square a number n',
                 'Write a function sqr(n) that returns n squared',
@@ -181,7 +181,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
     public function make_coderunner_question_sqrPartMarks() {
         // Make a version of the sqr question where testcase[i] carries a
         // mark of i / 2.0 for i in range 1 .. 5
-        $coderunner = $this->makeCodeRunnerQuestion(
+        $coderunner = $this->make_coderunner_question(
                 'python3',
                 'Function to square a number n',
                 'Write a function sqr(n) that returns n squared',
@@ -212,7 +212,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
      * @return qtype_coderunner_question
      */
     public function make_coderunner_question_helloFunc() {
-        $coderunner = $this->makeCodeRunnerQuestion(
+        $coderunner = $this->make_coderunner_question(
                 'python3',
                 'Function to print hello to someone',
                 'Write a function sayHello(name) that prints "Hello <name>"',
@@ -236,7 +236,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
      * @return qtype_coderunner_question
      */
     public function make_coderunner_question_copyStdin() {
-        $coderunner = $this->makeCodeRunnerQuestion(
+        $coderunner = $this->make_coderunner_question(
                 'python3',
                 'Function to copy n lines of stdin to stdout',
                 'Write a function copyLines(n) that reads n lines from stdin and writes them to stdout. ',
@@ -269,7 +269,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
      * @return qtype_coderunner_question
      */
     public function make_coderunner_question_timeout() {
-        $coderunner = $this->makeCodeRunnerQuestion(
+        $coderunner = $this->make_coderunner_question(
                 'python3',
                 'Function to generate a timeout',
                 'Write a function that loops forever',
@@ -286,7 +286,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
      * __student_answer__ variable is correctly set within each test case.
      */
     public function make_coderunner_question_studentanswervar() {
-        $coderunner = $this->makeCodeRunnerQuestion(
+        $coderunner = $this->make_coderunner_question(
                 'python3',
                 'Function to generate a timeout',
                 'Write a bit of code',
@@ -305,7 +305,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
      * @return qtype_coderunner_question
      */
     public function make_coderunner_question_exceptions() {
-        $coderunner = $this->makeCodeRunnerQuestion(
+        $coderunner = $this->make_coderunner_question(
                 'python3',
                 'Function to conditionally throw an exception',
                 'Write a function isOdd(n) that throws and ValueError exception iff n is odd',
@@ -335,7 +335,7 @@ except ValueError:
      * @return qtype_coderunner_question
      */
     public function make_coderunner_question_helloPython() {
-        $coderunner = $this->makeCodeRunnerQuestion(
+        $coderunner = $this->make_coderunner_question(
                 'python3',
                 'Program to print "Hello Python"',
                 'Write a program that prints "Hello Python"',
@@ -353,7 +353,7 @@ except ValueError:
      * can be called.
      */
     public function make_coderunner_question_sqr_user_prototype_child() {
-        $coderunner = $this->makeCodeRunnerQuestion(
+        $coderunner = $this->make_coderunner_question(
                 'sqr_user_prototype',
                 'Program to test prototype',
                 'Answer should (somehow) produce the expected answer below',
@@ -374,7 +374,7 @@ except ValueError:
      * @return qtype_coderunner_question
      */
     public function make_coderunner_question_sqrC() {
-        $coderunner = $this->makeCodeRunnerQuestion(
+        $coderunner = $this->make_coderunner_question(
                 'c_function',
                 'Function to square a number n',
                 'Write a function int sqr(int n) that returns n squared.',
@@ -398,7 +398,7 @@ except ValueError:
      * @return qtype_coderunner_question
      */
     public function make_coderunner_question_sqrNoSemicolons() {
-        $coderunner = $this->makeCodeRunnerQuestion(
+        $coderunner = $this->make_coderunner_question(
                 'c_function',
                 'Function to square a number n',
                 'Write a function int sqr(int n) that returns n squared.',
@@ -421,7 +421,7 @@ except ValueError:
      * @return qtype_coderunner_question
      */
     public function make_coderunner_question_helloProgC() {
-        $coderunner = $this->makeCodeRunnerQuestion(
+        $coderunner = $this->make_coderunner_question(
                 'c_program',
                 'Program to print "Hello ENCE260"',
                 'Write a program that prints "Hello ENCE260"',
@@ -439,7 +439,7 @@ except ValueError:
      * @return qtype_coderunner_question
      */
     public function make_coderunner_question_copyStdinC() {
-        $coderunner = $this->makeCodeRunnerQuestion(
+        $coderunner = $this->make_coderunner_question(
                 'c_program',
                 'Function to copy n lines of stdin to stdout',
                 'Write a function copyLines(n) that reads stdin to stdout',
@@ -457,7 +457,7 @@ except ValueError:
 
 
     public function make_coderunner_question_strToUpper() {
-        $coderunner = $this->makeCodeRunnerQuestion(
+        $coderunner = $this->make_coderunner_question(
                 'c_function',
                 'Function to convert string to uppercase',
                 'Write a function void strToUpper(char s[]) that converts s to uppercase',
@@ -488,7 +488,7 @@ printf(\"%s\\n\", s);
      * @return qtype_coderunner_question
      */
     public function make_coderunner_question_stringDelete() {
-        $coderunner = $this->makeCodeRunnerQuestion(
+        $coderunner = $this->make_coderunner_question(
                 'c_function',
                 'Function to delete from a source string all chars present in another string',
                 'Write a function void stringDelete(char *s, const char *charsToDelete) '.
@@ -514,7 +514,7 @@ printf(\"%s\\n\", s);
      * @return qtype_coderunner_question
      */
     public function make_coderunner_question_sqrmatlab() {
-        $coderunner = $this->makeCodeRunnerQuestion(
+        $coderunner = $this->make_coderunner_question(
             'matlab_function',
             'Function to square a number n',
             'Write a function sqr(n) that returns n squared.',
@@ -537,12 +537,12 @@ printf(\"%s\\n\", s);
     *  variable is working and usable within Matlab/Octave
      * @return qtype_coderunner_question
      */
-    public function make_coderunner_question_testStudentAnswerMacro() {
-        return $this->makeMacroQuestion('matlab_function');
+    public function make_coderunner_question_teststudentanswermacro() {
+        return $this->make_macro_question('matlab_function');
     }
     
     
-    private function makeMacroQuestion($qtype) {
+    private function make_macro_question($qtype) {
         $options = array();
         $options['pertesttemplate'] = <<<EOT
 function tester()
@@ -567,7 +567,7 @@ EOT;
      disp(s2);
 end
 EOT;
-        $coderunner = $this->makeCodeRunnerQuestion(
+        $coderunner = $this->make_coderunner_question(
             $qtype,
             'Matlab/Octave escaped student answer tester',
             $questiontext,
@@ -600,7 +600,7 @@ EOT
      * @return qtype_coderunner_question
      */
     public function make_coderunner_question_sqroctave() {
-        $coderunner = $this->makeCodeRunnerQuestion(
+        $coderunner = $this->make_coderunner_question(
             'octave_function',
             'Function to square a number n',
             'Write a function sqr(n) that returns n squared.',
@@ -625,7 +625,7 @@ EOT
      * @return qtype_coderunner_question
      */
     public function make_coderunner_question_sqrnodejs() {
-        $coderunner = $this->makeCodeRunnerQuestion(
+        $coderunner = $this->make_coderunner_question(
             'python3',
             'Function to square a number n',
             'Write a js function sqr(n) that returns n squared.',
@@ -647,9 +647,9 @@ EOT
         return $coderunner;
     }
     
-    public function make_coderunner_question_testStudentAnswerMacroOctave()
+    public function make_coderunner_question_teststudentanswermacrooctave()
     {
-        return $this->makeMacroQuestion('octave_function');
+        return $this->make_macro_question('octave_function');
     }
 
    
@@ -662,7 +662,7 @@ EOT
      * @return qtype_coderunner_question
      */
     public function make_coderunner_question_sqrjava() {
-        $coderunner = $this->makeCodeRunnerQuestion(
+        $coderunner = $this->make_coderunner_question(
                 'java_method',
                 'Method to square a number n',
                 'Write a method int sqr(int n) that returns n squared.',
@@ -686,7 +686,7 @@ EOT
      * @return qtype_coderunner_question
      */
     public function make_coderunner_question_nameclass() {
-        $coderunner = $this->makeCodeRunnerQuestion(
+        $coderunner = $this->make_coderunner_question(
                 'java_class',
                 'Name class',
                 'Write a class Name with a constructor ' .
@@ -708,7 +708,7 @@ EOT
      * @return qtype_coderunner_question
      */
     public function make_coderunner_question_printsquares() {
-        $coderunner = $this->makeCodeRunnerQuestion(
+        $coderunner = $this->make_coderunner_question(
                 'java_program',
                 'Name class',
                 'Write a program squares that reads an integer from stdin and prints ' .
@@ -745,7 +745,7 @@ public class Test
     }
 }
 EOPROG;
-        $q = $this->makeCodeRunnerQuestion(
+        $q = $this->make_coderunner_question(
                 'java_program',
                 'Print string',
                 'No question answer required',
@@ -769,7 +769,7 @@ EOPROG;
      * a form rather than a question and may have a files area with files
      * to upload - too hard to set up :-(
      */
-    private function getOptions(&$question) {
+    private function get_options(&$question) {
         global $CFG, $DB;
         
         $type = $question->coderunnertype;
@@ -807,7 +807,7 @@ EOPROG;
     // Given an array of tests in which each element has just the bare minimum
     // of info, add in all the other necessary fields to get an array of
     // testCase objects.
-    private static function makeTestCases($rawTests) {
+    private static function make_test_cases($rawtests) {
         $basicTest = array('testcode'       => '',
                            'stdin'          => '',
                            'extra'          => '',
@@ -817,7 +817,7 @@ EOPROG;
                            'hiderestiffail' => 0,
                            'useasexample'   => 0);
         $tests = array();
-        foreach ($rawTests as $test) {
+        foreach ($rawtests as $test) {
             $t = $basicTest; // Copy
             foreach ($test as $key => $value) {
                 $t[$key] = $value;
@@ -832,7 +832,7 @@ EOPROG;
     // and other options. Further fields might be added by
     // coderunnertestcase::make_question (q.v.).
     
-    private function makeCodeRunnerQuestion($type, $name='', $questionText='', 
+    private function make_coderunner_question($type, $name='', $questionText='', 
             $testcases, $otherOptions = array()) {
         question_bank::load_question_definition_classes('coderunner');
         $coderunner = new qtype_coderunner_question();
@@ -848,12 +848,14 @@ EOPROG;
         $coderunner->generalfeedback = 'No feedback available for coderunner questions.';
         $coderunner->unitpenalty = 0.2;
         $coderunner->customise = false;
-        $coderunner->testcases = self::makeTestCases($testcases);
+        $coderunner->testcases = self::make_test_cases($testcases);
         $coderunner->options = array();
+        $coderunner->isnew = true;  // Extra field normally added by save_question
+        $coderunner->context = context_system::instance(); // Use system context for testing
         foreach ($otherOptions as $key => $value) {
             $coderunner->options[$key] = $value;
         }
-        $this->getOptions($coderunner);
+        $this->get_options($coderunner);
         return $coderunner;
     }
 }

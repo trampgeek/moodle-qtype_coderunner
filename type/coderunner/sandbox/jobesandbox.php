@@ -103,7 +103,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
 
         $progname = "prog.$language";
         
-        $run_spec = array(
+        $runspec = array(
                 'language_id'       => $language,
                 'sourcecode'        => $sourcecode,
                 'sourcefilename'    => $progname,
@@ -112,21 +112,21 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
             );
              
         if (self::DEBUGGING) {
-            $run_spec['debug'] = 1;
+            $runspec['debug'] = 1;
         }
         
         if($params !== null) {
             // Process any given sandbox parameters
-            $run_spec['parameters'] = $params;
+            $runspec['parameters'] = $params;
             if (isset($params['debug']) && $params['debug']) {
-                $run_spec['debug'] = 1;
+                $runspec['debug'] = 1;
             }
             if (isset($params['sourcefilename'])) {
-                $run_spec['sourcefilename'] = $params['sourcefilename'];
+                $runspec['sourcefilename'] = $params['sourcefilename'];
             }
         }
         
-        $postbody = array('run_spec' => $run_spec);
+        $postbody = array('run_spec' => $runspec);
         
         // Try submitting the job. If we get a 404, try again after
         // putting all the files on the server. Anything else is an error.
@@ -160,18 +160,34 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
     }
 
    
-   
     // Put the given file to the server, using its MD5 checksum as the id.
     // Returns the HTTP response code, or -1 if the HTTP request fails
-    // altogether
+    // altogether.
+    // Moodle curl class doesn't support an appropriate form of PUT so
+    // we use raw PHP curl here.
     private function put_file($contents) {
         $id = md5($contents);
         $contentsb64 = base64_encode($contents);
-        list($httpCode, $body) = $this->http_request("files/$id", 
-                self::HTTP_PUT,
-                array('file_contents' => $contentsb64));
-        
-        return $httpCode;  
+        $resource = "files/$id";
+        $jobe = get_config('qtype_coderunner', 'jobe_host');
+        $url = "http://$jobe/jobe/index.php/restapi/$resource";
+        $body = array('file_contents' => $contentsb64);
+
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_HTTPHEADER, array(
+            'User-Agent: CodeRunner',
+            'Content-Type: application/json; charset=utf-8',
+            'Accept-Charset: utf-8',
+            'Accept: application/json'
+            ));
+        curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PUT");
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($body));
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+        $result = curl_exec($curl); 
+        $info = curl_getinfo($curl);
+        curl_close($curl);
+        return $result === false ? -1 : $info['http_code'];  
     }
     
     // Submit the given job, which must be an associative array with at
@@ -189,7 +205,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
     }
     
     // Send an http request to the Jobe server at the given
-    // resource using the given method (self::HTTP_GET, self::HTTP_POST of self::HTTP_PUT).
+    // resource using the given method (self::HTTP_GET or self::HTTP_POST).
     // The body, if given, is json encoded and added to the request. 
     // Return value is a 2-element
     // array containing the http response code and the response body (decoded
@@ -211,16 +227,6 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
             assert (!empty($body));
             $bodyjson = json_encode($body);
             $response = $curl->post($url, $bodyjson);
-        } else if ($method === self::HTTP_PUT) {
-            // Moodle curl class only supports put of a file, so must write
-            // data to a file first (groan).
-            assert (!empty($body));
-            $tempname = tempnam('/tmp', 'cr_');
-            $temp = fopen($tempname, 'w');
-            fwrite($temp, $body);
-            $response = $curl->put($resource, array('file' => $tempname));
-            fclose($temp);
-            unlink($tempname);
         } else {
             throw new CodingException('Invalid method passed to http_request');
         }

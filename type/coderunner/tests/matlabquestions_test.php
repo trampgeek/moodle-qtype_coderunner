@@ -81,7 +81,7 @@ class qtype_coderunner_matlab_question_test extends qtype_coderunner_testcase {
 
     public function test_student_answer_macro() {
         $this->check_language_available('matlab');
-        $q = $this->make_question('testStudentAnswerMacro');
+        $q = $this->make_question('teststudentanswermacro');
         $response = array('answer' => <<<EOT
 function mytest()
     s1 = '"Hi!" he said'; % a comment

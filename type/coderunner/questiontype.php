@@ -198,6 +198,16 @@ class qtype_coderunner extends question_type {
 
         $question->testcases = $testcases;  // Can't call setTestcases as question is a stdClass :-(
     }
+    
+    
+    // Override save_question to record in $form if this is a new question or
+    // not. Needed by save_question_options when saving prototypes.
+    // Note that the $form parameter to save_question is passed through
+    // to save_question_options as the $question parameter.
+    public function save_question($question, $form) {
+        $form->isnew = empty($question->id);
+        return parent::save_question($question, $form);
+    }
 
     // This override saves all the extra question data, including
     // the set of testcases and any datafiles to the database.
@@ -215,6 +225,24 @@ class qtype_coderunner extends question_type {
             // Saving a new user-defined prototype.
             // Copy new type name into coderunnertype
             $question->coderunnertype = $question->typename;
+        }
+        
+        // If we're saving a new prototype, make sure its coderunnertype is
+        // unique by appending a suitable suffix. [Shouldn't happen via
+        // question edit form, but could be a spurious import or a question
+        // duplication mouse click.]
+        if ($question->isnew && $isprototype) {
+            $suffix = '';
+            $type = $question->coderunnertype;
+            while (true) {
+                try {
+                    $row = $this->get_prototype($type . $suffix, $question->context);
+                    $suffix = $suffix == '' ? '-1' : $suffix - 1;
+                } catch (coderunner_exception $e) {
+                    break;
+                }
+            }
+            $question->coderunnertype = $type . $suffix;
         }
 
         // Set all inherited fields to null if the corresponding form

@@ -527,7 +527,7 @@ function updateQuestionTypes() {
     $category = $DB->get_record('question_categories',
                 array('contextid' => $systemcontextid, 'name' => 'CR_PROTOTYPES'));
     if ($category) { 
-        $prototypeCategoryId = $category->id;
+        $prototypecategoryid = $category->id;
     } else { // CR_PROTOTYPES category not defined yet. Add it
         $category = array(
             'name'      => 'CR_PROTOTYPES',
@@ -536,17 +536,17 @@ function updateQuestionTypes() {
             'infoformat'=> 0,
             'parent'    => 0,
         );
-        $prototypeCategoryId = $DB->insert_record('question_categories', $category);
-        if (!$prototypeCategoryId) {
+        $prototypecategoryid = $DB->insert_record('question_categories', $category);
+        if (!$prototypecategoryid) {
             throw new coding_exception("Upgrade failed: couldn't create CR_PROTOTYPES category");
         }
         $category = $DB->get_record('question_categories',
-                array('id' => $prototypeCategoryId));
+                array('id' => $prototypecategoryid));
     }
     
     // Delete all existing prototypes
     $prototypes = $DB->get_records_select('question',
-            "category = $prototypeCategoryId and name like '%PROTOTYPE_%'");
+            "category = $prototypecategoryid and name like '%PROTOTYPE_%'");
     foreach ($prototypes as $question) {
        $DB->delete_records('question_coderunner_options',
             array('questionid' => $question->id));
@@ -567,13 +567,13 @@ function updateQuestionTypes() {
 }
 
 
-function load_questions($category, $importfilename, $contextId) {
+function load_questions($category, $importfilename, $contextid) {
     // Load all the questions from the given import file into the given category
     // The category from the import file will be ignored if present.
     global $COURSE;
     $qformat = new qformat_xml();
     $qformat->setCategory($category);
-    $systemcontext = context::instance_by_id($contextId);
+    $systemcontext = context::instance_by_id($contextid);
     $contexts = new question_edit_contexts($systemcontext);
     $qformat->setContexts($contexts->having_one_edit_tab_cap('import'));
     $qformat->setCourse($COURSE);
