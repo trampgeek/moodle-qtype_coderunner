@@ -174,7 +174,10 @@ class qtype_coderunner_c_questions_test extends qtype_coderunner_testcase {
         $this->assertFalse($testoutcome->has_syntax_error());
         $this->assertEquals(1, count($testoutcome->testresults));
         $this->assertFalse($testoutcome->all_correct());
-        $this->assertTrue(strpos($testoutcome->testresults[0]->got, "***Time limit exceeded***\n") !== false); 
+        $this->assertTrue(
+            strpos($testoutcome->testresults[0]->got, "***Time limit exceeded***\n") !== false ||
+            strpos($testoutcome->testresults[0]->got, "***Excessive output***\n") !== false
+        ); 
     }
 
 

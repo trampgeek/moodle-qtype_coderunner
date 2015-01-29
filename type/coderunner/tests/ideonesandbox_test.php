@@ -30,7 +30,7 @@ class qtype_coderunner_ideonesandbox_test extends qtype_coderunner_testcase {
 
         // Now check if we have at least a few of the expected languages.
 
-        $langs = $sandbox->get_languages();
+        $langs = $sandbox->get_languages()->languages;
         $this->assertTrue(in_array('python2', $langs, true));
         $this->assertTrue(in_array('python3', $langs, true));
         $this->assertTrue(in_array('c', $langs, true));

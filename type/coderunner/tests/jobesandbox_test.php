@@ -1,13 +1,17 @@
 <?php
 /**
  * Unit tests for coderunner's jobe sandbox class.
- * Need full internet connectivity to run this as it needs to
- * send jobs to jobe.com.
+ * This test requires that the jobe sandbox (configured in tests/config.php)
+ * be set to require an API-key and that the key "test-api-key" be set in
+ * its database as a valid key that *does* enforce limits. Because the
+ * Jobe sandbox maintains its own database of accesses, this test can only
+ * be run correctly once an hour, unless the limits table in the Jobe DB
+ * is cleared between tests.
  *
  * @group qtype_coderunner
  * @package    qtype
  * @subpackage coderunner
- * @copyright  2013 Richard Lobb, University of Canterbury
+ * @copyright  2013, 2014, 2015 Richard Lobb, University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -15,15 +19,38 @@ global $CFG;
 require_once($CFG->dirroot . '/question/type/coderunner/tests/coderunnertestcase.php');
 require_once($CFG->dirroot . '/question/type/coderunner/sandbox/jobesandbox.php');
 
-// TODO: remove case sensitivity on languages
-// TODO: add sandbox parameter handling.
 
 class qtype_coderunner_jobesandbox_test extends qtype_coderunner_testcase {
+    
+    private $hasfailed = false;
+    
+    protected function onNotSuccessfulTest(Exception $e) {
+        $this->hasfailed = true;
+        throw $e;
+    }
 
+    public function test_fail_with_bad_key() {
+        $this->check_sandbox_enabled('jobesandbox');
+        set_config('jobe_apikey', 'no-such-key-we-hope', 'qtype_coderunner');
+        $sandbox = new qtype_coderunner_jobesandbox();
+        $langs = $sandbox->get_languages();
+        $this->assertEquals($sandbox::AUTH_ERROR, $langs->error);
+    }
+    
+    
+    public function test_succeed_with_good_key() {
+        $this->check_sandbox_enabled('jobesandbox');
+        $sandbox = new qtype_coderunner_jobesandbox();
+        // config.php should have the correct api-key in it
+        $langs = $sandbox->get_languages();
+        $this->assertEquals($sandbox::OK, $langs->error);
+    }
+    
+    
     public function test_languages() {
         $this->check_sandbox_enabled('jobesandbox');
         $sandbox = new qtype_coderunner_jobesandbox(); 
-        $langs = $sandbox->get_languages();
+        $langs = $sandbox->get_languages()->languages;
         $this->assertTrue(in_array('python3', $langs, true));
         $this->assertTrue(in_array('c', $langs, true));
     }
@@ -122,7 +149,7 @@ print(open('second.bb').read())
     public function test_jobe_sandbox_ok_java() {
         $this->check_sandbox_enabled('jobesandbox');
         $sandbox = new qtype_coderunner_jobesandbox();
-        $langs = $sandbox->get_languages();
+        $langs = $sandbox->get_languages()->languages;
         if (!in_array('java', $langs)) {
             $this->markTestSkipped('Java not available on the Jobe server. ' .
                     'Test skipped');
@@ -139,6 +166,30 @@ print(open('second.bb').read())
         $this->assertEquals(0, $result->signal);
         $this->assertEquals('', $result->cmpinfo);
         $sandbox->close();
+    }
+    
+
+    // Test if limits are enforced, but only if all previous tests passed
+    // (otherwise we're done with testing for an hour).
+    public function test_limits_enforced() {
+        $this->check_sandbox_enabled('jobesandbox');
+        if ($this->hasfailed) {
+            $this->markTestSkipped("Skipping limit testing with JobeSandbox as there are other errors");
+        } else {
+            $maxnumtries = 100;  // Assume that jobe sets the max num gets per hour at 100
+            $sandbox = new qtype_coderunner_jobesandbox();
+            $source = 'print("Hello sandbox!")';
+            for ($i=0; $i<$maxnumtries; $i++) {
+                $result = $sandbox->execute($source, 'python3', '', null, array('debug' => 1));
+                if ($result->error === $sandbox::SUBMISSION_LIMIT_EXCEEDED) {
+                    return;
+                } else {
+                    $this->assertEquals($result->error, $sandbox::OK);
+                }
+            }
+
+            $this->assertTrue(false);  // Never got a submission limit exceeded
+        } 
     }
 }
 

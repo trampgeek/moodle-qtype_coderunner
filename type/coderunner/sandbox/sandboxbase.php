@@ -28,7 +28,7 @@ abstract class qtype_coderunner_sandbox {
     protected $password; // Password supplied when constructing
     protected $authenticationerror;
 
-    // Symbolic constants as per ideone API
+    // Symbolic constants as per ideone API (mostly)
     
     // First the error codes from the initial create_submission call. Any
     // value other than OK is fatal.
@@ -37,7 +37,7 @@ abstract class qtype_coderunner_sandbox {
     const PASTE_NOT_FOUND   = 2;  // Link to a non-existent submission
     const WRONG_LANG_ID     = 3;  // No such language
     const ACCESS_DENIED     = 4;  // Only if using ideone or jobe
-    const CANNOT_SUBMIT_THIS_MONTH_ANYMORE = 5; // Ideone only
+    const SUBMISSION_LIMIT_EXCEEDED = 5; // Ideone or Jobe only
     const CREATE_SUBMISSION_FAILED = 6; // Failed on call to CREATE_SUBMISSION
     const UNKNOWN_SERVER_ERROR = 7;
     
@@ -116,7 +116,7 @@ abstract class qtype_coderunner_sandbox {
             qtype_coderunner_sandbox::PASTE_NOT_FOUND => "Requesting status of non-existent job",
             qtype_coderunner_sandbox::WRONG_LANG_ID   => "Non-existent language requested",
             qtype_coderunner_sandbox::ACCESS_DENIED   => "Access to sandbox defined",
-            qtype_coderunner_sandbox::CANNOT_SUBMIT_THIS_MONTH_ANYMORE  => "Ideone job quota exceeded",
+            qtype_coderunner_sandbox::SUBMISSION_LIMIT_EXCEEDED  => "Sandbox submission limit reached",
             qtype_coderunner_sandbox::CREATE_SUBMISSION_FAILED  => "Submission to sandbox failed",
             qtype_coderunner_sandbox::UNKNOWN_SERVER_ERROR  => "Unexpected error from sandbox (Jobe server down or excessive timeout, perhaps?)"  
         );
@@ -169,9 +169,12 @@ abstract class qtype_coderunner_sandbox {
     }
 
     /**
-     * @return string array A list of languages handled by the sandbox.
-     * May include different varieties of a given language as well as aliases,
-     * e.g. C89, C99, C.
+     * @return object result An object with an 'error' attribute taking one of
+     *  the values OK through UNKNOWN_SERVER_ERROR above. If the value is
+     *  OK the object also includes a 'languages' attribute that is a
+     *  list of languages handled by the sandbox. The languages list
+     *  may include different varieties of a given language as well as aliases,
+     *  e.g. C89, C99, C.
      */
     abstract public function get_languages();
 

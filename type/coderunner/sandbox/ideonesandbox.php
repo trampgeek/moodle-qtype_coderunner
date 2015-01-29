@@ -17,8 +17,9 @@ require_once('sandboxbase.php');
 
 class qtype_coderunner_ideonesandbox extends qtype_coderunner_sandbox {
 
-    var $client = null;  // The soap client referencing ideone.com
-    var $langMap = null;   // Languages supported by this sandbox: map from name to id
+    var $client = null;       // The soap client referencing ideone.com
+    var $langserror = null;   // The error attribute from the last call to getLanguages
+    var $langmap = null;      // Languages supported by this sandbox: map from name to id
     //
     // Values of the 'status' attribute of the object returned by
     // a call to the Sphere getSubmissionStatus method.
@@ -48,28 +49,31 @@ class qtype_coderunner_ideonesandbox extends qtype_coderunner_sandbox {
                      'Java.*sun-jdk.*'              => 'java');
 
         $this->client = $client = new SoapClient("http://ideone.com/api/1/service.wsdl");
-        $this->langMap = array();  // Construct a map from language name to id
+        $this->langmap = array();  // Construct a map from language name to id
 
         $response = $this->client->getLanguages($user, $pass);
-        $error = $response['error'];
-        if ($error !== 'OK') {
-            throw new coding_exception("IdeoneSandbox::getLanguages: error ($error)");
-        }
-
-        foreach ($response['languages'] as $id => $lang) {
-            $this->langMap[$lang] = $id;
-            foreach ($aliases as $pattern=>$alias) {
-                if (preg_match('/' . $pattern . '/', $lang)) {
-                    $this->langMap[$alias] = $id;
+        $this->langserror = $response['error'];
+        
+        if ($this->langserror == self::OK) {
+            foreach ($response['languages'] as $id => $lang) {
+                $this->langmap[$lang] = $id;
+                foreach ($aliases as $pattern=>$alias) {
+                    if (preg_match('/' . $pattern . '/', $lang)) {
+                        $this->langmap[$alias] = $id;
+                    }
                 }
             }
+        } else {
+            $this->langmap = array();
         }
 
     }
 
 
     public function get_languages() {
-        return $this->langMap === null ? null : array_keys($this->langMap);
+        return (object) array(
+            'error'     => $this->langserror,
+            'languages' => array_keys($this->langmap));
     }
     
     
@@ -102,7 +106,7 @@ class qtype_coderunner_ideonesandbox extends qtype_coderunner_sandbox {
      */
     public function execute($sourcecode, $language, $input, $files=NULL, $params=NULL) {
         $language = strtolower($language);
-        if (!in_array($language, $this->get_languages())) {
+        if (!in_array($language, $this->get_languages()->languages)) {
             throw new coderunner_exception('Executing an unsupported language in sandbox');
         }
         if ($input !== '' && substr($input, -1) != "\n") {
@@ -160,7 +164,7 @@ class qtype_coderunner_ideonesandbox extends qtype_coderunner_sandbox {
     {
         // Check language is valid and the user isn't attempting to set
         // files or execution parameters (since Ideone does not have such options).
-        assert(in_array($language, $this->get_languages()));
+        assert(in_array($language, $this->get_languages()->languages));
         if ($files !== null && count($files) !== 0) {
             throw new moodle_exception("Ideone sandbox doesn't accept files");
         }
@@ -170,7 +174,7 @@ class qtype_coderunner_ideonesandbox extends qtype_coderunner_sandbox {
             //  by default.
             // throw new moodle_exception( "ideone sandbox doesn't accept parameters like cpu time or memory limit");
         }
-        $langId = $this->langMap[$language];
+        $langId = $this->langmap[$language];
         $response = $this->client->createSubmission($this->user, $this->pass,
                 $sourcecode, $langId, $input, $run, $private);
         $error = $response['error'];

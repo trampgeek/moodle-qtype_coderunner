@@ -25,30 +25,34 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
     
     
     private $languages = null;   // Languages supported by this sandbox
+    private $httpcode = null;    // HTTP response code
     private $response = null;    // Response from HTTP request to server
 
     // Constructor gets languages from Jobe and stores them.
     // If $this->languages is left null, the Jobe server is down or
-    // misconfigured.
+    // refusing requests or misconfigured. The actual HTTP returncode and response
+    // are left in $httpcode and $response resp.
     public function __construct() {
         qtype_coderunner_sandbox::__construct();
-        list($returncode, $languagepairs) = $this->http_request(
+        list($this->httpcode, $this->response) = $this->http_request(
                 'languages', self::HTTP_GET);
 
-        if ($returncode == 200 && is_array($languagepairs)) {
+        if ($this->httpcode == 200 && is_array($this->response)) {
             $this->languages = array();
-            foreach ($languagepairs as $lang) {
+            foreach ($this->response as $lang) {
                 $this->languages[] = $lang[0];
             }
         } else {
-            $this->languages = null;
+            $this->languages = array();
         }        
     }
 
 
     // List of supported languages
     public function get_languages() {
-        return $this->languages;
+        return (object) array(
+            'error'     => $this->get_error_code($this->httpcode),
+            'languages' => $this->languages);
     }
     
     /** Execute the given source code in the given language with the given
@@ -65,10 +69,11 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
      *         filecontents.
      *         If the $params array is null, sandbox defaults are used.
      * @return an object with at least an attribute 'error'. This is one of the
-     *         values 0 through 8 (OK to UNKNOWN_SERVER_ERROR) as defined above. If
+     *         values 0 through 8 (OK to UNKNOWN_SERVER_ERROR) as defined in the
+     *         base class. If
      *         error is 0 (OK), the returned object has additional attributes
      *         result, output, stderr, signal and cmpinfo as follows:
-     *             result: one of the result_* constants defined above
+     *             result: one of the result_* constants defined in the base class
      *             output: the stdout from the run
      *             stderr: the stderr output from the run (generally a non-empty
      *                     string is taken as a runtime error)
@@ -78,15 +83,10 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
      *                     unless the result code is for a compilation error).
      */
     
-    public function execute($sourcecode, $language, $input, $files=null, $params=null)  {
-        if ($this->get_languages() === null) {
-            return (object) array('error' => qtype_coderunner_sandbox::UNKNOWN_SERVER_ERROR);
-        }
-        
+    public function execute($sourcecode, $language, $input, $files=null, $params=null)  {      
         $language = strtolower($language);
-        if (!in_array($language, $this->get_languages())) {
-            // Shouldn't be possible
-            throw new coderunner_exception('Executing an unsupported language in sandbox');
+        if (!in_array($language, $this->languages)) { // This shouldn't be possible
+            return (object) array('error' => self::UNKNOWN_SERVER_ERROR);
         }
         
         if ($input !== '' && substr($input, -1) != "\n") {
@@ -143,19 +143,37 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
             }
         }
 
-        if ($httpcode != 200                // We don't deal with Jobe servers that return 202!
-            || !is_object($this->response)  // Or any sort of broken ...
-            || !isset($this->response->outcome)) {     // ... communication with server.
-            return (object) array('error' => qtype_coderunner_sandbox::UNKNOWN_SERVER_ERROR);
+        if ($httpcode != 200   // We don't deal with Jobe servers that return 202!
+                || !is_object($this->response)  // Or any sort of broken ...
+                || !isset($this->response->outcome)) {     // ... communication with server.
+            $error_code = $httpcode == 200 ? self::UNKNOWN_SERVER_ERROR : $this->get_error_code($httpcode);
+            return (object) array('error' => $error_code);
         } else {
               return (object) array(
-                'error'  => qtype_coderunner_sandbox::OK,
+                'error'  => self::OK,
                 'result' => $this->response->outcome,
                 'signal' => 0,              // Jobe doesn't return this
                 'cmpinfo'=> $this->response->cmpinfo,
                 'output' => $this->filter_file_path($this->response->stdout),
                 'stderr' => $this->filter_file_path($this->response->stderr)
               );
+        }
+    }
+    
+    
+    // Return the sandbox error code corresponding to the given httpcode.
+    private function get_error_code($httpcode) {
+        $codemap = array(
+            '200' => self::OK,
+            '202' => self::OK,
+            '204' => self::OK,
+            '401' => self::SUBMISSION_LIMIT_EXCEEDED,
+            '403' => self::AUTH_ERROR
+        );
+        if (isset($codemap[$httpcode])) {
+            return $codemap[$httpcode];
+        } else {
+            return self::UNKNOWN_SERVER_ERROR;
         }
     }
 
@@ -174,12 +192,17 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
         $body = array('file_contents' => $contentsb64);
 
         $curl = curl_init();
-        curl_setopt($curl, CURLOPT_HTTPHEADER, array(
+        $headers = array(
             'User-Agent: CodeRunner',
             'Content-Type: application/json; charset=utf-8',
             'Accept-Charset: utf-8',
             'Accept: application/json'
-            ));
+            );
+        $apikey =  get_config('qtype_coderunner', 'jobe_apikey');
+        if (!empty($apikey)) {
+            $headers[] = "X-API-KEY: $apikey";
+        }
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PUT");
         curl_setopt($curl, CURLOPT_URL, $url);
         curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($body));
@@ -213,12 +236,17 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
     // The code is -1 if the request fails utterly.
     private function http_request($resource, $method, $body=null) {
         $jobe = get_config('qtype_coderunner', 'jobe_host');
+        $apikey =  get_config('qtype_coderunner', 'jobe_apikey');
+        $headers = array(
+                'Content-Type: application/json; charset=utf-8',
+                'Accept: application/json');
+        if (!empty($apikey)) {
+            $headers[] = "X-API-KEY: $apikey";
+        }
+
         $url = "http://$jobe/jobe/index.php/restapi/$resource";
         $curl = new curl();
-        $curl->setHeader(array(
-                'Content-Type: application/json; charset=utf-8',
-                'Accept: application/json')
-        );
+        $curl->setHeader($headers);
 
         if ($method === self::HTTP_GET) {
             assert(empty($body));
@@ -238,7 +266,6 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
             $returncode = -1;
             $responsebody = '';
         }
-   
   
         return array($returncode, $responsebody);
     }

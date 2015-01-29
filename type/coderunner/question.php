@@ -277,15 +277,16 @@ class qtype_coderunner_question extends question_graded_automatically {
                 $filename = qtype_coderunner_sandbox::get_filename($extname);
                 require_once("sandbox/$filename");
                 $sb = new $classname();
-                $supportedlangs = $sb->get_languages();
-                if ($supportedlangs !== NULL) {
-                    foreach ($supportedlangs as $lang) {
+                $langs = $sb->get_languages();
+                if ($langs->error == $sb::OK) {
+                    foreach ($langs->languages as $lang) {
                         if (strtolower($lang) == strtolower($language)) {
                             return $extname;
                         }
                     }
                 } else {
-                    throw new coderunner_exception("Sandbox $extname is down or misconfigured.");
+                    $errorstring = $sb->error_string($langs->error);
+                    throw new coderunner_exception("Sandbox $extname error: $errorstring");
                 }
             }
         }

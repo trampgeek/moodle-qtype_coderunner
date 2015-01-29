@@ -44,6 +44,13 @@ $settings->add(new admin_setting_configtext(
         ''));
 
 $settings->add(new admin_setting_configtext(
+        "qtype_coderunner/jobe_apikey",
+        get_string('jobe_apikey', 'qtype_coderunner'),
+        get_string('jobe_apikey_desc', 'qtype_coderunner'),
+        '2AAA7A5415B4A9B394B54BF1D2E9D'
+        ));
+
+$settings->add(new admin_setting_configtext(
         "qtype_coderunner/ideone_user",
         get_string('ideone_user', 'qtype_coderunner'),
         get_string('ideone_user_desc', 'qtype_coderunner'),

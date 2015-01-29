@@ -1,0 +1,3 @@
+29/1/15. Version 2.4.1. Added code to support use of an API-key when accessing a
+jobe server. Fixed bug in advanced question authoring interface - combinator
+template was no longer being disabled when per-test template was edited.

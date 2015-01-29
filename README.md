@@ -1185,19 +1185,19 @@ ones. The latter include the language, sandbox, timeout, memory limit and
 the "make this question a prototype" feature. The combinator
 template is also considered to be an advanced feature.
 
-**WARNING #1:** by default, when you edit
-the per-test-template the combinator is disabled; you must explicitly re-enable
-it (and edit it) if you need it.
-
-**WARNING #2:** if you define your own question type you'd better make sure
+**WARNING #1:** if you define your own question type you'd better make sure
 when you export your question bank
 that you include the prototype, or all of its children will die on being imported
-anywhere else! Similarly, if you delete a prototype question that's actually
-in use, all the children will break, giving runtime errors. To repeat:
+anywhere else! 
+Similarly, if you delete a prototype question that's actually
+in use, all the children will break, giving runtime errors. To recover
+from such screw ups you will need to create a new prototype
+of the right name (preferably by importing the original correct prototype).
+To repeat:
 user-defined question types are not for the faint of heart. Caveat emptor.
 
-**WARNING #3:** although you can define test cases in a question prototype and
-add support files to it both of these are currently silently ignored
+**WARNING #2:** although you can define test cases in a question prototype
+these have no relevance and are silently ignored.
 
 ## How programming quizzes should work
 

@@ -54,7 +54,7 @@ class qtype_coderunner_liusandbox extends qtype_coderunner_localsandbox {
     }
 
     public function get_languages() {
-        return $this->LANGUAGES;
+        return (object) array('error' => self::OK, 'languages' => $this->LANGUAGES);
     }
     
     

@@ -177,9 +177,7 @@ $string['HIDE'] = 'Hide';
 $string['HIDE_IF_FAIL'] = 'Hide if fail';
 $string['HIDE_IF_SUCCEED'] = 'Hide if succeed';
 $string['hiderestiffail'] = 'Hide rest if fail';
-$string['jobe_host'] = 'Jobe server';
-$string['jobe_host_desc'] = 'The host name of the Jobe server plus the port ' .
-       'number if other than port 80, e.g. jobe.somewhere.edu:4010';
+
 $string['ideone_user'] = 'Ideone server user';
 $string['ideone_user_desc'] = 'The login name to use when connecting to the ' .
         'Ideone server (if the ideone sandbox is enabled)';
@@ -187,6 +185,13 @@ $string['ideone_pass'] = 'Ideone server password';
 $string['ideone_pass_desc'] = 'The password to use when connecting to the ' .
         'Ideone server (if the ideone sandbox is enabled)';
 $string['is_prototype'] = 'Use as prototype';
+
+$string['jobe_apikey'] = 'Jobe API-key';
+$string['jobe_apikey_desc'] = 'The API key to be included in all REST requests ' .
+       'to the Jobe server (if required). Max 40 chars. Leave blank to omit the API Key from requests';
+$string['jobe_host'] = 'Jobe server';
+$string['jobe_host_desc'] = 'The host name of the Jobe server plus the port ' .
+       'number if other than port 80, e.g. jobe.somewhere.edu:4010';
 
 $string['language'] = 'Sandbox language';
 $string['languages'] = 'Languages';

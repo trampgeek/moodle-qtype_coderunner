@@ -70,7 +70,8 @@ M.qtype_coderunner.init_ace = function (Y, field, lang) {
             wrapper_node = Y.Node.create('<div></div>'),
             edit_node = Y.Node.create("<div></div>"),
             editor = null,
-            parent = null, 
+            parent = null,
+            contents_changed = false,
             hLast = h - HANDLE_SIZE,
             wLast = w - HANDLE_SIZE,
             do_resize = function (h, w) {
@@ -85,7 +86,7 @@ M.qtype_coderunner.init_ace = function (Y, field, lang) {
                 hLast = h;
                 wLast = w;
             };
-        
+           
         wrapper_node.setStyles({
             resize: 'both',
             overflow: 'hidden',
@@ -112,6 +113,12 @@ M.qtype_coderunner.init_ace = function (Y, field, lang) {
         editor.getSession().setValue(textarea.get('value'));
         editor.getSession().on('change', function(){
             textarea.set('value', editor.getSession().getValue());
+            contents_changed = true
+        });
+        editor.on('blur', function() {
+            if (contents_changed) {
+                textarea.simulate('change');
+            }
         });
          
         if (mode) {
@@ -386,20 +393,15 @@ M.qtype_coderunner.initEditForm = function(Y) {
        }
     });
 
-    template.on('focus', function(e) {
-           // Per-test template is being changed. Disable combinator.
-           // [User must explicitly re-enable it if they wish to use it.]
-           // The combinator-disabled alert has been disabled for now.
-           // Let's see if it really matters. It's annoying!
-           var combinator_non_blank = combinatortemplate.get('value').trim() !== '';
-           if (combinator_non_blank &&
-                !('alertIssued' in template) &&
-                enable_combinator.get('checked')
-                // && confirm("Editing per-test template - disable combinator? ['Cancel' leaves it enabled.]")
+    template.on('change', function(e) {
+           // Per-test template has been changed. Check if combinator should
+           // be disabled.
+           var combinatornonblank = combinatortemplate.get('value').trim() !== '';
+           if (combinatornonblank && enablecombinator.get('checked')
+                    && confirm("Per-test template changed - disable combinator? ['Cancel' leaves it enabled.]")
               ) {
-               enable_combinator.set('checked', false);
+               enablecombinator.set('checked', false);
            }
-           template.alertIssued = true;
     });
 
 

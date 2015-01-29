@@ -85,8 +85,8 @@ abstract class qtype_coderunner_localsandbox extends qtype_coderunner_sandbox {
     public function execute($sourcecode, $language, $input, $files=NULL, $params=NULL) {
         $savedcurrentdir = getcwd();
         $language = strtolower($language);
-        if (!in_array($language, $this->get_languages())) {
-            throw new coderunner_exception('Executing an unsupported language in sandbox');
+        if (!in_array($language, $this->get_languages()->languages)) {
+            return (object) array('error' => self::WRONG_LANG_ID);  // Should be impossible
         }
         if ($input !== '' && substr($input, -1) != "\n") {
             $input .= "\n";  // Force newline on the end if necessary

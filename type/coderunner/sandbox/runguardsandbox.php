@@ -64,7 +64,10 @@ class qtype_coderunner_runguardsandbox extends qtype_coderunner_localsandbox {
     }
 
     public function get_languages() {
-        return array('matlab', 'octave', 'python2', 'python3', 'java', 'c');
+        return (object) array(
+            'error'     => self::OK,
+            'languages' => array('matlab', 'octave', 'python2', 'python3', 'java', 'c')
+        );
     }
      
     
