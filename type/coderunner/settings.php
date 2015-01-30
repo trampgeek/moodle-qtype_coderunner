@@ -41,7 +41,7 @@ $settings->add(new admin_setting_configtext(
         "qtype_coderunner/jobe_host",
         get_string('jobe_host', 'qtype_coderunner'),
         get_string('jobe_host_desc', 'qtype_coderunner'),
-        ''));
+        'jobe2.cosc.canterbury.ac.nz'));
 
 $settings->add(new admin_setting_configtext(
         "qtype_coderunner/jobe_apikey",
