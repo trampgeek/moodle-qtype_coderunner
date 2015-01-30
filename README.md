@@ -178,6 +178,22 @@ from the cachestore, relating to files that have been moved or renamed in
 the transition from version 2.3. These warnings can be safely
 ignored (I hope).
 
+In its initial configuration, CodeRunner is set to use a University of
+Canterbury [jobe server](https://github.com/trampgeek/jobe) to run jobs. You are
+welcome to use this for an hour or two during initial testing, but it is
+not intended for production use. Authentication and authorisation
+on that server is
+via an API-key and the default API-key given with CodeRunner imposes
+a limit of 100
+per hour over all clients using that key. If you decide that CodeRunner is
+useful to you, *please* set up your own sandbox (Jobe or otherwise) as 
+described in *Sandbox configuration* below. [Alternatively, if you wish to
+continue to use our Jobe server, you can apply to the
+[developer](mailto://trampgeek@gmail.org) for your own
+API key, stating how long you will need to use the key and a reasonable
+upper bound on the number of jobs you will need to submit her hour. We
+will do our best to accommodate you if we have sufficient capacity.]
+
 ### Building the RunGuardSandbox
 
 The RunguardSandbox allows student jobs to be run on the Moodle server itself.
@@ -227,12 +243,19 @@ Available sandboxes are as follows:
 1. The JobeSandbox.
 
     This is the only sandbox enabled by default. It makes use of a 
-separate server, developed for use by CodeRunner, called *Jobe*.
+separate server, developed for use by CodeRunner, called *Jobe*. As explained
+at the end of the section on installing CodeRunner from scratch, the initial
+configuration uses the Jobe server at the University of Canterbury. This is not
+suitable for production use. Please switch
+to using your own Jobe server as soon as possible.
+
 Follow the instructions at
 [https://github.com/trampgeek/jobe](https://github.com/trampgeek/jobe)
 to build a Jobe server, then use the
 Moodle administrator interface for the CodeRunner plug-in to define the Jobe
-host name and perhaps port number. If you intend running unit tests you
+host name and perhaps port number. Depending on how you've chosen to
+configure your Jobe server, you may also need to supply an API-Key through
+the same interface. If you intend running unit tests you
 will also need to edit `tests/config.php` to set the correct URL for
 the Jobe server.
 
