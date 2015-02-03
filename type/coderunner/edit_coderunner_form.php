@@ -331,7 +331,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         
         if ($data['templateparams'] != '' &&
                 json_decode($data['templateparams']) === null) {
-            $errors['template_group'] = get_string('badtemplateparams', 'qtype_coderunner');
+            $errors['templateparams'] = get_string('badtemplateparams', 'qtype_coderunner');
         }
 
         if ($data['prototypetype'] == 0 && $data['grader'] !== 'qtype_coderunner_combinator_template_grader') {
