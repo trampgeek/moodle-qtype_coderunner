@@ -302,7 +302,8 @@ M.qtype_coderunner.initEditForm = function(Y) {
         prototypeType = Y.one("#id_prototypetype"),
         typeName = Y.one('#id_typename'),
         courseId = Y.one('input[name="courseid"]').get('value'),
-        message = '';
+        message = '',
+        alertIssued = false;
 
     function setCustomisationVisibility(isVisible) {
         var display = isVisible ? 'block' : 'none',
@@ -397,11 +398,14 @@ M.qtype_coderunner.initEditForm = function(Y) {
            // Per-test template has been changed. Check if combinator should
            // be disabled.
            var combinatornonblank = combinatortemplate.get('value').trim() !== '';
-           if (combinatornonblank && enablecombinator.get('checked')
-                    && confirm("Per-test template changed - disable combinator? ['Cancel' leaves it enabled.]")
+           if (combinatornonblank
+                   && !alertIssued
+                   && enablecombinator.get('checked')
+                   && confirm("Per-test template changed - disable combinator? ['Cancel' leaves it enabled.]")
               ) {
                enablecombinator.set('checked', false);
            }
+           alertIssued = true;
     });
 
 
