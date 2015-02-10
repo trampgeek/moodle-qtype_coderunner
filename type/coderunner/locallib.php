@@ -44,7 +44,7 @@ class coderunner_exception extends moodle_exception {
  * id) if question is set to use Ace. Language is specified either as
  * TEMPLATE_LANGUAGE (the language used in the sandbox) or USER_LANGUAGE.
  * They are the same unless a different language has been explicitly specified
- * by the acelang field in the question authoring form,in which case the
+ * by the acelang field in the question authoring form, in which case the
  * acelang field is used for the USER and the $question->language for the
  * template.
  */
@@ -57,11 +57,7 @@ function load_ace_if_required($question, $textareaid, $whichlang) {
         } else {
             $lang = $question->acelang;
         }
-        $lang = ucwords($lang);
-        if (strtoupper($lang) === 'OCTAVE') {
-            $lang = 'MATLAB';
-        }
-        
+        $lang = ucwords($lang);       
         load_ace_scripts();
         $PAGE->requires->js_init_call('M.qtype_coderunner.init_ace', array($textareaid, $lang));
     }
