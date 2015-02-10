@@ -42,12 +42,15 @@ M.qtype_coderunner.init_ace = function (Y, field, lang) {
 
     // try to find the correct ace language mode
     function find_mode(language) {
-        var modelist = M.qtype_coderunner.modelist;
-
-        // possible candiates for the editor
-        var candidates = [language, language.replace(/\d*$/, "")];
-
-        for (var i=0; i<candidates.length; i++) {
+        var modelist = M.qtype_coderunner.modelist,
+            candidates = []; // List of candidate modes
+        
+        if (language.toLowerCase() === 'octave') {
+            language = 'matlab';
+        }
+        
+        candidates = [language, language.replace(/\d*$/, "")];
+        for (var i=0; i < candidates.length; i++) {
             var v = candidates[i];
             var filename = "input." + v;
 
@@ -307,7 +310,7 @@ M.qtype_coderunner.initEditForm = function(Y) {
 
     function setCustomisationVisibility(isVisible) {
         var display = isVisible ? 'block' : 'none',
-            lang = language.get('value');
+            lang = language.get('value').toLowerCase();
         customisationFieldSet.setStyle('display', display);
         advancedCustomisation.setStyle('display', display);
         if (isVisible && useace.get('checked')) {
