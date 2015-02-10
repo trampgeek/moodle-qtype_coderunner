@@ -305,6 +305,8 @@ class qtype_coderunner_question extends question_graded_automatically {
     // (for use in a Python statement like s = """{{ESCAPED_STUDENT_ANSWER}}""" and
     // MATLAB_ESCAPED_STUDENT_ANSWER, a string for use in Matlab intended
     // to be used as s = sprintf('{{MATLAB_ESCAPED_STUDENT_ANSWER}}')
+    // The escaped version are deprecated: the use of a twig escaper is
+    // preferred.
     // Return true if successful.
     // 26/5/14 - add entire QUESTION to template environment.
     private function run_with_combinator($code, $testcases, $files, $sandboxparams) {
@@ -553,7 +555,7 @@ class qtype_coderunner_question extends question_graded_automatically {
     private function merge($sep, $strings) {
         $s = '';
         foreach($strings as $el) {
-            if ($el) {
+            if (trim($el)) {
                 if ($s !== '') {
                     $s .= $sep;
                 }
