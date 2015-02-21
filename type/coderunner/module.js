@@ -31,7 +31,6 @@ M.qtype_coderunner = M.qtype_coderunner || {};
 // Functions to allow the use of the Ace editor for code text areas.
 M.qtype_coderunner.init_ace = function (Y, field, lang) {
     
-    
     var HANDLE_SIZE = 5,
         MIN_WIDTH = 300,
         MIN_HEIGHT = 100,
@@ -44,13 +43,13 @@ M.qtype_coderunner.init_ace = function (Y, field, lang) {
     function find_mode(language) {
         var modelist = M.qtype_coderunner.modelist,
             candidates = []; // List of candidate modes
-        
+
         if (language.toLowerCase() === 'octave') {
             language = 'matlab';
         }
-        
+
         candidates = [language, language.replace(/\d*$/, "")];
-        for (var i=0; i < candidates.length; i++) {
+        for (var i=0; i<candidates.length; i++) {
             var v = candidates[i];
             var filename = "input." + v;
 
@@ -73,7 +72,7 @@ M.qtype_coderunner.init_ace = function (Y, field, lang) {
             wrapper_node = Y.Node.create('<div></div>'),
             edit_node = Y.Node.create("<div></div>"),
             editor = null,
-            parent = null,
+            parent = null, 
             contents_changed = false,
             hLast = h - HANDLE_SIZE,
             wLast = w - HANDLE_SIZE,
@@ -89,7 +88,7 @@ M.qtype_coderunner.init_ace = function (Y, field, lang) {
                 hLast = h;
                 wLast = w;
             };
-           
+        
         wrapper_node.setStyles({
             resize: 'both',
             overflow: 'hidden',
@@ -390,7 +389,7 @@ M.qtype_coderunner.initEditForm = function(Y) {
            message = "If you save this question with 'Customise' " +
                "unchecked, any customisation you've done will be lost.";
            if (confirm(message + " Proceed?")) {
-               setCustomisationVisibility(false);
+                 setCustomisationVisibility(false);
            } else {
                customise.set('checked',true);
            }
@@ -423,4 +422,3 @@ M.qtype_coderunner.initEditForm = function(Y) {
         }
     });
 };
-
