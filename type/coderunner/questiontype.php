@@ -598,7 +598,8 @@ class qtype_coderunner extends question_type {
                 $qo->$field = $format->getpath($data, array('#', $field, 0, '#'), $default);
             }
         }
-
+        $qo->isnew = true;
+        
         $qo->testcases = array();
         
         if (isset($data['#']['testcases'][0]['#']['testcase']) && 
