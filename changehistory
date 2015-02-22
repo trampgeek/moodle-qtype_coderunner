@@ -1,3 +1,15 @@
 29/1/15. Version 2.4.1. Added code to support use of an API-key when accessing a
 jobe server. Fixed bug in advanced question authoring interface - combinator
 template was no longer being disabled when per-test template was edited.
+
+Dec 2014/Jan 2015. Version 2.4.0. Refactored code to conform to Moodle style
+guidelines. Added functionality:
+
+    - Files can now be attached to prototypes
+    - An 'ordering' field associated with each test case allows easy reordering
+      of test cases
+    - Use of Ace code editor for template editing
+    - Prompt for disabling combinator template when per-test-case template
+      altered
+    - Improved ability to pass compile and run parameters to Jobe sandbox
+    
