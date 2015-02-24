@@ -249,7 +249,7 @@ configuration uses the Jobe server at the University of Canterbury. This is not
 suitable for production use. Please switch
 to using your own Jobe server as soon as possible.
 
-Follow the instructions at
+    Follow the instructions at
 [https://github.com/trampgeek/jobe](https://github.com/trampgeek/jobe)
 to build a Jobe server, then use the
 Moodle administrator interface for the CodeRunner plug-in to define the Jobe
@@ -269,8 +269,7 @@ the sandbox when it's running on a separate machine, the worst it can do is
 bring the sandbox server down, whereas a security breach on the Moodle server
 could be used to hack into the Moodle database, which contains student run results
 and marks. That said, our Computer Science department used the even less
-secure Runguard
-Sandbox for some years without any ill effects; Moodle keeps extensive logs
+secure Runguard Sandbox for some years without any ill effects; Moodle keeps extensive logs
 of all activities, so a student deliberately breaching security is taking a
 huge risk.
 
@@ -532,7 +531,7 @@ The file `<moodlehome>/question/type/coderunner/db/questions-CR_PROTOTYPES.xml`
 is a moodle-xml export format file containing the definitions of all the
 built-in question types. During installation, and at the end of any version upgrade,
 the prototype questions from that file are all loaded into a category
-CR\_PROTOTYPES in the system context. A system administrator can edit the
+CR\_PROTOTYPES in the system context. A system administrator can edit
 those prototypes but this is not generally recommended as the modified versions
 will be lost on each upgrade. Instead, a category LOCAL\_PROTOTYPES
 (or other such name of your choice) should be created and copies of any prototype
@@ -541,7 +540,7 @@ name modified accordingly. New prototype question types can also be created
 in that category. Editing of prototypes is discussed later in this
 document.
 
-Built-in question types including the following:
+Built-in question types include the following:
 
  1. **c\_function**. This is the question type discussed in the above
 example. The student supplies
@@ -653,10 +652,6 @@ might be set to
    number of
    statements and arguments for each function to 20 and 3 respectively.
 
-
- 1. **c\_full\_main_tests**. This is a rarely used special question type where
-students write global declarations (types, functions etc) and each test is a
-complete C main function that uses the student-supplied declarations.
 
  1. **matlab\_function**. This is the only supported matlab question type.
 It assumes
@@ -774,12 +769,6 @@ to students what context their code appears in. The authoring interface
 allows the author to set the size of the student's answer box, and in a
 case like the above you'd typically set it to just one or two lines in height
 and perhaps 30 columns in width.
-
-**IMPORTANT WARNING:** When you edit the per-test template, the combinator
-template is immediately
-disabled. You can re-enable and edit it, if you wish, by opening
-the *Advanced
-Customisation* block.
 
 You will need to understand loops and selection in
 the Twig template engine if you wish to write your own combinator templates.
@@ -1149,7 +1138,7 @@ own fields, which can also be selected for display. It is also possible
 to combine multiple fields into a column by adding extra fields to the
 specifier: these must precede the sprintf format specifier, which then
 becomes mandatory. For example, to display a Mark Fraction column in the
-form `0.74 out of 1.00`, say, a column format specifier of `["Mark Fraction", "awarded",
+form `0.74 out of 1.00`, a column format specifier of `["Mark Fraction", "awarded",
 "mark", "%.2f out of %.2f"]` could be used. As a further special case, a format
 of `%h` means that the test result field should be taken as ready-to-output
 HTML and should not be subject to further processing; this is useful
