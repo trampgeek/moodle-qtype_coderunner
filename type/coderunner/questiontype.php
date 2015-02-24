@@ -662,7 +662,7 @@ class qtype_coderunner extends question_type {
     // are not equal in value to the field from the prototype.
 
     function export_to_xml($question, qformat_xml $format, $extra=null) {
-        global $DB;
+        global $COURSE;
         if ($extra !== null) {
             throw new coding_exception("coderunner:export_to_xml: Unexpected parameter");
         }
@@ -672,11 +672,8 @@ class qtype_coderunner extends question_type {
         $questiontoexport = clone $question; 
        
         $qtype = $question->options->coderunnertype;
-        if (!$row = $DB->get_record_select(
-                'question_coderunner_options',
-                "coderunnertype = '$qtype' and prototypetype != 0")) {
-            throw new coderunner_exception("Failed to load type info for question id {$question->id}");
-        }
+        $coursecontext = context_course::instance($COURSE->id);
+        $row = self::get_prototype($qtype, $coursecontext);
 
         // Clear all inherited fields equal in value to the corresponding Prototype field
         // (but only if this is not a prototype question itself)
