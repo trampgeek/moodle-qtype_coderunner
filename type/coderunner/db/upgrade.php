@@ -553,12 +553,11 @@ function updateQuestionTypes() {
        $DB->delete_records('question', array('id' => $question->id));
     }
     
-    $dbdir = dirname(__FILE__);
-    $dbfiles = scandir($dbdir);
+    $dbfiles = scandir(__DIR__);
     foreach ($dbfiles as $file) {
         // Load any files in the db directory ending with _PROTOTYPES.xml
         if (strpos(strrev($file), strrev('_PROTOTYPES.xml')) === 0) {
-            $filename = $dbdir . '/' . $file;
+            $filename = __DIR__ . '/' . $file;
             load_questions($category, $filename, $systemcontextid);
         }
     }

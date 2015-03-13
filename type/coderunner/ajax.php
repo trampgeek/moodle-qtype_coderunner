@@ -31,12 +31,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
 define('AJAX_SCRIPT', true);
 
-$dir = dirname(__FILE__);
-
-if (strpos($dir, 'local/CodeRunner/type/coderunner') !== false) {
+if (strpos(__DIR__, 'local/CodeRunner/type/coderunner') !== false) {
     require_once('../../../../config.php'); // Symbolically linked rather than copied
 } else {
     require_once('../../../config.php'); // "Normal" case of a copy of the code
@@ -63,4 +60,3 @@ try {
 }
 echo json_encode($questiontype);
 die();
-
