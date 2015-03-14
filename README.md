@@ -66,13 +66,21 @@ about 60 quiz questions per minute while maintaining a response time of less
 than about 3 - 4 seconds, assuming the student code itself runs in a
 fraction of a second.
 
-Administrator privileges and some Linux skills are needed to install CodeRunner.
+The CodeRunner question type can be installed on any modern Moodle system, on Linux,
+Windows and Mac. Windows and Mac installations will need to connect to a
+remote Jobe server to run submitted code, but Linux installations have the
+additional option of using either the built-in Runguard Sandbox or the
+third-party Liu sandbox to run jobs directly on the Moodle server. See the
+*Sandbox Configuration* section for details. Note that the Jobe sandbox
+runs only on Linux systems.
 
 ## Installation
 
 This chapter describes how to install CodeRunner. It assumes the
-existence of a working Moodle system and a reasonable level of Linux
-adminstration skills.
+existence of a working Moodle system, version 2.6 or later.
+If you wish to install the optional Runguard
+sandbox, you must be running a Linux-based system and you need
+administrator privileges.
 
 If you are installing for the first time, jump straight to section 2.2.
 
@@ -121,9 +129,9 @@ web interface.
 
 ### Installing CodeRunner from scratch
 
-Note: if you're installing CodeRunner on an SELinux system you may need to disable
-SELinux, depending on which sandboxes you're
-using. This can be done with commands like
+Note: if you're installing CodeRunner on an SELinux system and you wish
+to use the Runguard Sandbox you will probably need to disable
+SELinux. This can be done with a command like
 
     sed -i-dist -e 's|SELINUX=enforcing|SELINUX=permissive|' /etc/selinux/config
     setenforce 0
@@ -134,10 +142,13 @@ There are three different ways to install CodeRunner, as follows:
    and unzip them into the directories `<moodlehome>/question/type` and
    `<moodlehome>/question/behaviour` respectively. This installation
    method does not support the use of the RunGuard sandbox (see below).
+   It can be used on any Linux, Windows or Mac.
 
 1. Clone the entire repository into any directory you like, say `<somewhere>`
-   and then copy the files into question/type and question/behaviour
-   directories. The commands to achieve this are
+   and then copy the type/coderunner and
+   behaviour/adaptive\_adapted\_for\_coderunner subtrees
+   into the Moodle question/type and question/behaviour
+   directories. The commands to achieve this under Linux are
 
         cd <somewhere>
         git clone https://github.com/trampgeek/CodeRunner.git
@@ -145,8 +156,9 @@ There are three different ways to install CodeRunner, as follows:
         sudo ./install
 
 1. Clone the entire repository into the `<moodlehome>/local` directory
-   and then make symbolic links to the question/type and question/behaviour
-   directories. The commands to achieve this are
+   and then make symbolic links from Moodle's question/type and question/behaviour
+   directories into the corresponding CodeRunner subtrees.
+   The commands to achieve this on a Linux system are are
 
         cd <moodlehome>/local
         git clone https://github.com/trampgeek/CodeRunner.git
@@ -155,19 +167,21 @@ There are three different ways to install CodeRunner, as follows:
 
 The first of these methods is the more traditional Moodle install, while the
 second is equivalent in effect but makes it possible to also install the
-RunGuard sandbox and gives you the full CodeRunner source
+RunGuard sandbox (provided you're running a Linux-based Moodle)
+and gives you the full CodeRunner source
 tree to experiment with. The third method, which also allows
-use of the RunGuard sandbox, is intended for developers. Because
+use of the RunGuard sandbox (on Linux systems only), is intended for developers.
+Because
 it symbolically links to the source code, any changes made to the source in
 the `<moodlehome>/local/CodeRunner` subtree will take immediate effect.
 
 Having carried out one of the above methods,
 if you have local question prototypes to add to the built-in prototype set you
 should now
-copy them into the `<moodlehome>/qtypes/type/coderunner/db` folder. They should be
+copy them into the `<moodlehome>/question/type/coderunner/db` folder. They should be
 Moodle XML file(s) with names ending in `_PROTOTYPES.xml` (case-sensitive).
-[If you don't understand what this paragraph means, then it doesn't concern
-you ... move on.]
+[If you don't understand what this paragraph means, then it probably
+doesn't concern you ... move on.]
 
 After carrying out one of the above install methods, you can complete the
 installation by logging onto the server through the web interface as an
@@ -180,19 +194,24 @@ ignored (I hope).
 
 In its initial configuration, CodeRunner is set to use a University of
 Canterbury [jobe server](https://github.com/trampgeek/jobe) to run jobs. You are
-welcome to use this for an hour or two during initial testing, but it is
+welcome to use this for a few hours during initial testing, but it is
 not intended for production use. Authentication and authorisation
 on that server is
 via an API-key and the default API-key given with CodeRunner imposes
 a limit of 100
 per hour over all clients using that key. If you decide that CodeRunner is
 useful to you, *please* set up your own sandbox (Jobe or otherwise) as 
-described in *Sandbox configuration* below. [Alternatively, if you wish to
+described in *Sandbox configuration* below. Alternatively, if you wish to
 continue to use our Jobe server, you can apply to the
 [developer](mailto://trampgeek@gmail.org) for your own
 API key, stating how long you will need to use the key and a reasonable
 upper bound on the number of jobs you will need to submit her hour. We
-will do our best to accommodate you if we have sufficient capacity.]
+will do our best to accommodate you if we have sufficient capacity.
+
+If you want a few CodeRunner questions to get started with, try importing the
+file
+`<MoodleHome>/question/type/coderunner/db/demoquestions.xml`. This contains
+all the questions from the [demo site](http://www.coderunner.org.nz).
 
 ### Building the RunGuardSandbox
 
@@ -348,8 +367,9 @@ to a minute or more) to give a tolerable user experience. An
 (username and password) is required to access
 the Ideone web-services. Runs are free up to a certain number
 but you then have to pay for usage.
-The IdeoneSandbox is there mainly as a proof of concept of the idea of off-line
-execution and to support occasional use of unusual languages. As with
+The IdeoneSandbox was originally developed as a proof of concept of the idea
+of off-line execution, but remains (with little or no guarantees) to
+support occasional use of unusual languages. As with
 the other sandboxes, you can configure the IdeoneSandbox via the administrator
 settings panel for CodeRunner.
 
