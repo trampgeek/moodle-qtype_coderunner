@@ -55,46 +55,6 @@
     </testcases>
   </question>
 
-<!-- question: 14979  -->
-  <question type="coderunner">
-    <name>
-      <text>UOC_PROTOTYPE_clojure</text>
-    </name>
-    <questiontext format="moodle_auto_format">
-      <text>Test of Clojure questions where the student' code isrun then the test code. There is currently no combinator, so the program is executed for each test case. Written mainly as a test of the Ideone sandbox.</text>
-    </questiontext>
-    <generalfeedback format="moodle_auto_format">
-      <text></text>
-    </generalfeedback>
-    <defaultgrade>1.0000000</defaultgrade>
-    <penalty>0.3333333</penalty>
-    <hidden>0</hidden>
-    <coderunner_type>clojure</coderunner_type>
-    <prototype_type>2</prototype_type>
-    <all_or_nothing>1</all_or_nothing>
-    <penalty_regime></penalty_regime>
-    <show_source>0</show_source>
-    <answerbox_lines>18</answerbox_lines>
-    <answerbox_columns>100</answerbox_columns>
-    <use_ace>1</use_ace>
-    <result_columns></result_columns>
-    <answer></answer>
-    <combinator_template></combinator_template>
-    <test_splitter_re></test_splitter_re>
-    <enable_combinator>0</enable_combinator>
-    <per_test_template>{{ STUDENT_ANSWER }}
-{{TEST.testcode}}</per_test_template>
-    <language>Clojure (clojure 1.5.0-RC2)</language>
-    <ace_lang></ace_lang>
-    <sandbox></sandbox>
-    <grader></grader>
-    <cputimelimitsecs></cputimelimitsecs>
-    <memlimitmb></memlimitmb>
-    <sandbox_params></sandbox_params>
-    <template_params></template_params>
-    <testcases>
-    </testcases>
-  </question>
 
 <!-- question: 14980  -->
   <question type="coderunner">
@@ -203,61 +163,6 @@ print(SEPARATOR)
     </testcases>
   </question>
 
-<!-- question: 14981  -->
-  <question type="coderunner">
-    <name>
-      <text>UOC_PROTOTYPE_python3_ideone</text>
-    </name>
-    <questiontext format="moodle_auto_format">
-      <text>Used for testing the Ideone sandbox.</text>
-    </questiontext>
-    <generalfeedback format="moodle_auto_format">
-      <text></text>
-    </generalfeedback>
-    <defaultgrade>1.0000000</defaultgrade>
-    <penalty>0.3333333</penalty>
-    <hidden>0</hidden>
-    <coderunner_type>python3_ideone</coderunner_type>
-    <prototype_type>2</prototype_type>
-    <all_or_nothing>1</all_or_nothing>
-    <penalty_regime></penalty_regime>
-    <show_source>0</show_source>
-    <answerbox_lines>18</answerbox_lines>
-    <answerbox_columns>100</answerbox_columns>
-    <use_ace>1</use_ace>
-    <result_columns></result_columns>
-    <answer></answer>
-    <combinator_template><![CDATA[{{ STUDENT_ANSWER }}
-
-__student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
-
-SEPARATOR = "#<ab@17943918#@>#"
-
-{% for TEST in TESTCASES %}
-{{ TEST.testcode }}
-{% if not loop.last %}
-print(SEPARATOR)
-{% endif %}
-{% endfor %}]]></combinator_template>
-    <test_splitter_re><![CDATA[|#<ab@17943918#@>#
-|ms]]></test_splitter_re>
-    <enable_combinator>1</enable_combinator>
-    <per_test_template><![CDATA[{{STUDENT_ANSWER}}
-
-__student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
-
-{{ TEST.testcode }}]]></per_test_template>
-    <language>python3</language>
-    <ace_lang></ace_lang>
-    <sandbox>IdeoneSandbox</sandbox>
-    <grader></grader>
-    <cputimelimitsecs></cputimelimitsecs>
-    <memlimitmb></memlimitmb>
-    <sandbox_params></sandbox_params>
-    <template_params></template_params>
-    <testcases>
-    </testcases>
-  </question>
 
 <!-- question: 14977  -->
   <question type="coderunner">
