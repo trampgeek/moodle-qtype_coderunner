@@ -108,7 +108,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         // mine, but ... how to be sure?
         $mform->setDefault('mark', array_fill(0, $numtestcases + 5 * self::NUM_TESTCASES_ADD, 1.0));
         $ordering = array();
-        for ($i = 0; $i < 5 * self::NUM_TESTCASES_ADD; $i++) {
+        for ($i = 0; $i < $numtestcases + 5 * self::NUM_TESTCASES_ADD; $i++) {
             $ordering[] = 10 * $i;
         }
         $mform->setDefault('ordering', $ordering);
