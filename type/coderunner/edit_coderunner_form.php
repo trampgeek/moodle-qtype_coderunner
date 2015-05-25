@@ -673,7 +673,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
             $errors["testcode[0]"] = get_string('atleastonetest', 'qtype_coderunner');
         }
         else if ($numnonemptytests != 0 && $numnonemptytests != $count) {
-            $errors["testcode[0]"] = get_string('allornothing', 'qtype_coderunner');
+            $errors["testcode[0]"] = get_string('allornone', 'qtype_coderunner');
         }
         return $errors;
     }
