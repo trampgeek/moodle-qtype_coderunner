@@ -26,7 +26,7 @@
 $string['aborted'] = 'Testing was aborted due to error.';
 $string['addingcoderunner'] = 'Adding a new CodeRunner Question';
 $string['allok'] = 'Passed all tests! ';
-$string['allornothing'] = 'Test code must be provided either for all '
+$string['allornone'] = 'Test code must be provided either for all '
     . 'testcases or for none.';
 $string['allornothing'] = 'All-or-nothing grading';
 $string['allornothing_help'] = 'If \'All-or-nothing\' is checked, all test cases must be satisfied ' .
