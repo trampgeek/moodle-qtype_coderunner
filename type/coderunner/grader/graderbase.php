@@ -55,7 +55,8 @@ abstract class qtype_coderunner_grader {
      * @return string $filename
      */
     public static function get_filename($extgradername) {
-        $classname = self::available_graders()[$extgradername];
+        $graders = self::available_graders();
+        $classname = $graders[$extgradername];
         return str_replace('_', '', str_replace('qtype_coderunner_', '', $classname)) . '.php';
     }
     
