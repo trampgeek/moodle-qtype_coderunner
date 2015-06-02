@@ -249,14 +249,18 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
         $curl->setHeader($headers);
 
         if ($method === self::HTTP_GET) {
-            assert(empty($body));
+            if (!empty($body)) {
+                throw new coding_exception("Illegal HTTP GET: non-empty body");
+            }
             $response = $curl->get($url);
         } else if ($method === self::HTTP_POST) {
-            assert (!empty($body));
+            if (empty($body)) {
+                throw new coding_exception("Illegal HTTP POST: empty body");
+            }
             $bodyjson = json_encode($body);
             $response = $curl->post($url, $bodyjson);
         } else {
-            throw new CodingException('Invalid method passed to http_request');
+            throw new coding_exception('Invalid method passed to http_request');
         }
         
         if ($response !== FALSE) {
