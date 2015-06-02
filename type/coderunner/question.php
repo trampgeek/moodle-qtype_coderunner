@@ -437,7 +437,8 @@ class qtype_coderunner_question extends question_graded_automatically {
             $this->grader = $grader = constants::DEFAULT_GRADER;
         }
         $filename = qtype_coderunner_grader::get_filename($grader);
-        $graderclass = qtype_coderunner_grader::available_graders()[$grader];
+        $graders = qtype_coderunner_grader::available_graders();
+        $graderclass = $graders[$grader];
         require_once($CFG->dirroot . "/question/type/coderunner/grader/$filename");
         $this->graderinstance = new $graderclass();
     }
@@ -458,7 +459,8 @@ class qtype_coderunner_question extends question_graded_automatically {
             }
         }
 
-        $sandboxclass = qtype_coderunner_sandbox::available_sandboxes()[$sandbox];
+        $sandboxes = qtype_coderunner_sandbox::available_sandboxes();
+        $sandboxclass = $sandboxes[$sandbox];
         $filename = qtype_coderunner_sandbox::get_filename($sandbox);
         require_once($CFG->dirroot . "/question/type/coderunner/sandbox/$filename");
         $this->sandboxinstance = new $sandboxclass();
