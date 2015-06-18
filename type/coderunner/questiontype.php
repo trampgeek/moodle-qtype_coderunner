@@ -315,6 +315,22 @@ class qtype_coderunner extends question_type {
 
         return true;
     }
+    
+    
+    /**
+     * Move all the files belonging to this question from one context to another.
+     * Override superclass implementation to handle the extra data files
+     * we have in CodeRunner questions.
+     * @param int $questionid the question being moved.
+     * @param int $oldcontextid the context it is moving from.
+     * @param int $newcontextid the context it is moving to.
+     */
+    public function move_files($questionid, $oldcontextid, $newcontextid) {
+        parent::move_files($questionid, $oldcontextid, $newcontextid);
+        $fs = get_file_storage();
+        $fs->move_area_files_to_new_context($oldcontextid,
+                $newcontextid, 'qtype_coderunner', 'datafile', $questionid);
+    }
 
     // Load the question options (all the question extension fields and
     // testcases) from the database into the question.
