@@ -56,7 +56,7 @@ try {
 } catch (moodle_exception $e) {
     $questiontype = new stdClass();
     $questiontype->success = false;
-    $questionType->error = "Prototype not found or not unique. " . $e->getMessage();
+    $questiontype->error = "Error fetching prototype. " . $e->getMessage();
 }
 echo json_encode($questiontype);
 die();
