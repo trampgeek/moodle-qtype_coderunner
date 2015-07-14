@@ -693,10 +693,12 @@ class qtype_coderunner extends question_type {
 
         // Clear all inherited fields equal in value to the corresponding Prototype field
         // (but only if this is not a prototype question itself)
-        if ($row->prototypetype == 0) {
-            $noninheritedFields = $this->noninherited_fields();
+        if ($questiontoexport->prototypetype == 0) {
+            $noninheritedfields = $this->noninherited_fields();
+            $extrafields = $this->extra_question_fields();
             foreach ($row as $field => $value) {
-                if (!in_array($field, $noninheritedFields) && 
+                if (in_array($field, $extrafields) && 
+                        !in_array($field, $noninheritedfields) && 
                         $question->options->$field === $value) {
                     $questiontoexport->options->$field = null;
                 }
