@@ -356,12 +356,15 @@ M.qtype_coderunner.initEditForm = function(Y) {
                             setCustomisationVisibility(false);
                         }
                         else {
-                            template.set('value', "*** TEMPLATE LOAD FAILURE. DON'T SAVE THIS! ***\n" + outcome.error + 
-                                    "\nCourseId: " + courseId + ", qtype: " + newType);
+                            alert("Error loading prototype: " + outcome.error);
+                            $error = "*** PROTOTYPE LOAD FAILURE. DON'T SAVE THIS! ***\n" + outcome.error + 
+                                    "\nCourseId: " + courseId + ", qtype: " + newType;
+                            template.set('value', $error);
                         }
 
                     },
                     failure: function (id, result) {
+                        alert("Error loading prototype. Network problems or server down, perhaps?");
                         template.set('value', "*** AJAX ERROR. DON'T SAVE THIS! ***");
                     }
                 }
