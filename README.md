@@ -213,6 +213,16 @@ file
 `<MoodleHome>/question/type/coderunner/db/demoquestions.xml`. This contains
 all the questions from the [demo site](http://www.coderunner.org.nz).
 
+WARNING: at least a couple of users have broken CodeRunner by duplicating
+the prototype questions in the System/CR_PROTOTYPES category. `Do not` touch
+those special questions until you have read this entire manual and
+are familiar with the inner workings of CodeRunner. Even then, you should
+proceed with caution. These prototypes are not
+for normal use - they are akin to base classes in a prototypal inheritance
+system like JavaScript's. If you duplicate a prototype question the question
+type will become unusable, as CodeRunner doesn't know which version of the
+prototype to use.
+
 ### Building the RunGuardSandbox
 
 The RunguardSandbox allows student jobs to be run on the Moodle server itself.
