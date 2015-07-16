@@ -50,7 +50,9 @@ class qtype_coderunner_prototype_test extends qtype_coderunner_testcase {
         $q->qtype = $q->qtype->name(); // TODO: Why does qformat_xml expect this field to be a string?!
         $exporter = new qformat_xml();
         $xml = $exporter->writequestion($q);
-        $expectedxml = '<!-- question: 335000  -->
+        $bits = preg_split("/<!-- question: [0-9]*  -->/", $xml);
+        $xml_no_line1 = $bits[1];
+        $expectedxml = '
   <question type="coderunner">
     <name>
       <text>Program to test prototype</text>
@@ -108,7 +110,7 @@ Line 2</text>
     </testcases>
   </question>
 ';
-        $this->assert_same_xml($expectedxml, $xml);
+        $this->assert_same_xml($expectedxml, $xml_no_line1);
     }
     
     // Support function to make a parent and its child
