@@ -314,9 +314,8 @@ class qtype_coderunner_renderer extends qtype_renderer {
         }
         
         $table->data = $tabledata;
-        if (isset($rowclasses)) {
-            $table->rowclasses = $rowclasses;
-        }
+        $table->rowclasses = $rowclasses;
+
         if (count($tabledata) > 0) {
             return html_writer::table($table);
         } else {
