@@ -1,6 +1,6 @@
 # CODE RUNNER
 
-Version: 2.4 January 2015
+Version: 2.4.1 September 2015
 
 Author: Richard Lobb, University of Canterbury, New Zealand.
 
