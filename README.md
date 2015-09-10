@@ -158,7 +158,7 @@ There are three different ways to install CodeRunner, as follows:
 1. Clone the entire repository into the `<moodlehome>/local` directory
    and then make symbolic links from Moodle's question/type and question/behaviour
    directories into the corresponding CodeRunner subtrees.
-   The commands to achieve this on a Linux system are are
+   The commands to achieve this on a Linux system are
 
         cd <moodlehome>/local
         git clone https://github.com/trampgeek/CodeRunner.git
@@ -224,6 +224,9 @@ type will become unusable, as CodeRunner doesn't know which version of the
 prototype to use.
 
 ### Building the RunGuardSandbox
+
+Note: the RunGuardSandbox is no longer being maintained and will probably be
+removed in the near future.
 
 The RunguardSandbox allows student jobs to be run on the Moodle server itself.
 It users a program `runguard`, written
@@ -342,7 +345,9 @@ recommended.
 
 3. The RunguardSandbox.
 
-    The RunguardSandbox is the easiest one to use, as it requires no
+    [Note: The RunguardSandbox is no longer being maintained and will
+probably be deleted from CodeRunner in the near future.]
+The RunguardSandbox is the easiest one to use, as it requires no
 extra resources apart from whatever languages (Python3, Java etc) you wish
 to use in CodeRunner questions. However, the RunguardSandbox is also the least
 secure. It runs student submitted jobs on the Moodle server itself, so most
@@ -365,23 +370,6 @@ memory use, on the student program. It runs the code as the non-privileged
 user *coderunner* so student-submitted code can do even less than a student
 with a Linux account can do (as they can't create files outside the `/tmp`
 directory and have severe restrictions on cpu time, threads and memory use).
-
-
-4.  The IdeoneSandbox.
-    ideone.com is a compute server that runs
-programs submitted either through a browser or through a web-services API in
-a huge number of different languages. It is not recommended for production
-use, as execution turn-around time is frequently too large (from 10 seconds
-to a minute or more) to give a tolerable user experience. An
-[Ideone account](http://ideone.com/account/register)
-(username and password) is required to access
-the Ideone web-services. Runs are free up to a certain number
-but you then have to pay for usage.
-The IdeoneSandbox was originally developed as a proof of concept of the idea
-of off-line execution, but remains (with little or no guarantees) to
-support occasional use of unusual languages. As with
-the other sandboxes, you can configure the IdeoneSandbox via the administrator
-settings panel for CodeRunner.
 
 ### Checking security
 
