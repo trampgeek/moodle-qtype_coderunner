@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- This file defines all the built-in CodeRunner question types -->
 <quiz>
 <!-- question: 0  -->
   <question type="category">
@@ -9,33 +8,36 @@
     </category>
   </question>
 
-<!-- question: 1330  -->
+<!-- question: 16909  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_c_function</text>
     </name>
-    <questiontext format="moodle_auto_format">
+    <questiontext format="html">
       <text>Used for C write-a-function questions but ONLY IF the function should have no side-effects. Must not be used for C functions that generate or consume output or alter global state in any way, as it attempts to wrap all tests into a single compile-and-run step</text>
     </questiontext>
-    <generalfeedback format="moodle_auto_format">
+    <generalfeedback format="html">
       <text></text>
     </generalfeedback>
     <defaultgrade>1.0000000</defaultgrade>
     <penalty>0.3333333</penalty>
     <hidden>0</hidden>
-    <coderunner_type>c_function</coderunner_type>
-    <prototype_type>1</prototype_type>
-    <all_or_nothing>1</all_or_nothing>
-    <penalty_regime></penalty_regime>
-    <show_source>0</show_source>
-    <answerbox_lines>18</answerbox_lines>
-    <answerbox_columns>100</answerbox_columns>
-    <use_ace>1</use_ace>
-    <combinator_template><![CDATA[#include <stdio.h>
+    <coderunnertype>c_function</coderunnertype>
+    <prototypetype>1</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime></penaltyregime>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <useace>1</useace>
+    <resultcolumns></resultcolumns>
+    <answer></answer>
+    <combinatortemplate><![CDATA[#include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
 #include <stdbool.h>
+#include <math.h>
 #define SEPARATOR "#<ab@17943918#@>#"
 
 {{ STUDENT_ANSWER }}
@@ -48,32 +50,35 @@ int main() {
     {% if not loop.last %}printf("%s\n", SEPARATOR);{% endif %}
 {% endfor %}
     return 0;
-}]]></combinator_template>
-    <test_splitter_re><![CDATA[|#<ab@17943918#@>#
-|ms]]></test_splitter_re>
-    <enable_combinator>1</enable_combinator>
-    <per_test_template><![CDATA[#include <stdio.h>
+}]]></combinatortemplate>
+    <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
+    <enablecombinator>1</enablecombinator>
+    <pertesttemplate><![CDATA[#include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
 #include <stdbool.h>
+#include <math.h>
 
 {{ STUDENT_ANSWER }}
 
 int main() {
     {{ TEST.testcode }};
     return 0;
-}]]></per_test_template>
+}]]></pertesttemplate>
     <language>C</language>
+    <acelang></acelang>
     <sandbox></sandbox>
-    <grader></grader>
+    <grader>EqualityGrader</grader>
     <cputimelimitsecs></cputimelimitsecs>
     <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams></templateparams>
     <testcases>
     </testcases>
   </question>
 
-<!-- question: 1331  -->
+<!-- question: 16910  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_c_program</text>
@@ -87,29 +92,33 @@ int main() {
     <defaultgrade>1.0000000</defaultgrade>
     <penalty>0.3333333</penalty>
     <hidden>0</hidden>
-    <coderunner_type>c_program</coderunner_type>
-    <prototype_type>1</prototype_type>
-    <all_or_nothing>1</all_or_nothing>
-    <penalty_regime></penalty_regime>
-    <show_source>0</show_source>
-    <answerbox_lines>18</answerbox_lines>
-    <answerbox_columns>100</answerbox_columns>
-    <use_ace>1</use_ace>
-    <combinator_template></combinator_template>
-    <test_splitter_re></test_splitter_re>
-    <enable_combinator>0</enable_combinator>
-    <per_test_template>{{ STUDENT_ANSWER }}</per_test_template>
+    <coderunnertype>c_program</coderunnertype>
+    <prototypetype>1</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime></penaltyregime>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <useace>1</useace>
+    <resultcolumns></resultcolumns>
+    <answer></answer>
+    <combinatortemplate></combinatortemplate>
+    <testsplitterre></testsplitterre>
+    <enablecombinator>0</enablecombinator>
+    <pertesttemplate>{{ STUDENT_ANSWER }}</pertesttemplate>
     <language>C</language>
+    <acelang></acelang>
     <sandbox></sandbox>
     <grader></grader>
     <cputimelimitsecs></cputimelimitsecs>
     <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams></templateparams>
     <testcases>
     </testcases>
   </question>
 
-
-<!-- question: 1336  -->
+<!-- question: 16911  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_java_class</text>
@@ -129,18 +138,20 @@ int main() {
     <defaultgrade>1.0000000</defaultgrade>
     <penalty>0.3333333</penalty>
     <hidden>0</hidden>
-    <coderunner_type>java_class</coderunner_type>
-    <prototype_type>1</prototype_type>
-    <all_or_nothing>1</all_or_nothing>
-    <penalty_regime></penalty_regime>
-    <show_source>0</show_source>
-    <answerbox_lines>18</answerbox_lines>
-    <answerbox_columns>100</answerbox_columns>
-    <use_ace>1</use_ace>
-    <combinator_template></combinator_template>
-    <test_splitter_re></test_splitter_re>
-    <enable_combinator>0</enable_combinator>
-    <per_test_template>{{ STUDENT_ANSWER | replace({'public class ': 'class '}) }}
+    <coderunnertype>java_class</coderunnertype>
+    <prototypetype>1</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime></penaltyregime>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <useace>1</useace>
+    <resultcolumns></resultcolumns>
+    <answer></answer>
+    <combinatortemplate></combinatortemplate>
+    <testsplitterre></testsplitterre>
+    <enablecombinator>0</enablecombinator>
+    <pertesttemplate>{{ STUDENT_ANSWER | replace({'public class ': 'class '}) }}
 
 public class __Tester__ {
 
@@ -153,17 +164,20 @@ public class __Tester__ {
         {{ TEST.testcode }};
     }
 }
-</per_test_template>
+</pertesttemplate>
     <language>Java</language>
+    <acelang></acelang>
     <sandbox></sandbox>
     <grader></grader>
     <cputimelimitsecs></cputimelimitsecs>
     <memlimitmb>2000</memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams></templateparams>
     <testcases>
     </testcases>
   </question>
 
-<!-- question: 1335  -->
+<!-- question: 16912  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_java_method</text>
@@ -181,15 +195,17 @@ public class __Tester__ {
     <defaultgrade>1.0000000</defaultgrade>
     <penalty>0.3333333</penalty>
     <hidden>0</hidden>
-    <coderunner_type>java_method</coderunner_type>
-    <prototype_type>1</prototype_type>
-    <all_or_nothing>1</all_or_nothing>
-    <penalty_regime></penalty_regime>
-    <show_source>0</show_source>
-    <answerbox_lines>18</answerbox_lines>
-    <answerbox_columns>100</answerbox_columns>
-    <use_ace>1</use_ace>
-    <combinator_template><![CDATA[public class Main {
+    <coderunnertype>java_method</coderunnertype>
+    <prototypetype>1</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime></penaltyregime>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <useace>1</useace>
+    <resultcolumns></resultcolumns>
+    <answer></answer>
+    <combinatortemplate><![CDATA[public class Main {
     static String SEPARATOR = "#<ab@17943918#@>#";
     {{ STUDENT_ANSWER }}
 
@@ -206,11 +222,11 @@ public class __Tester__ {
     {% endif %}
 {% endfor %}
     }
-}]]></combinator_template>
-    <test_splitter_re><![CDATA[|#<ab@17943918#@>#
-|ms]]></test_splitter_re>
-    <enable_combinator>1</enable_combinator>
-    <per_test_template>public class Main {
+}]]></combinatortemplate>
+    <testsplitterre><![CDATA[|#<ab@17943918#@>#
+|ms]]></testsplitterre>
+    <enablecombinator>1</enablecombinator>
+    <pertesttemplate>public class Main {
 
     {{ STUDENT_ANSWER }}
 
@@ -222,17 +238,20 @@ public class __Tester__ {
     public void runTests() {
         {{ TEST.testcode }};
     }
-}</per_test_template>
+}</pertesttemplate>
     <language>Java</language>
+    <acelang></acelang>
     <sandbox></sandbox>
     <grader></grader>
     <cputimelimitsecs></cputimelimitsecs>
     <memlimitmb>2000</memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams></templateparams>
     <testcases>
     </testcases>
   </question>
 
-<!-- question: 1337  -->
+<!-- question: 16913  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_java_program</text>
@@ -241,7 +260,7 @@ public class __Tester__ {
       <text>Used for Java write-a-program questions where the student submits
           a complete program as their answer. The program is executed for each
           test case. There is no test code, just stdin test data
-          (though this isn't actually checked: caveat emptor). </text>
+          (though this isn't actually checked: caveat emptor).</text>
     </questiontext>
     <generalfeedback format="moodle_auto_format">
       <text></text>
@@ -249,29 +268,33 @@ public class __Tester__ {
     <defaultgrade>1.0000000</defaultgrade>
     <penalty>0.3333333</penalty>
     <hidden>0</hidden>
-    <coderunner_type>java_program</coderunner_type>
-    <prototype_type>1</prototype_type>
-    <all_or_nothing>1</all_or_nothing>
-    <penalty_regime></penalty_regime>
-    <show_source>0</show_source>
-    <answerbox_lines>18</answerbox_lines>
-    <answerbox_columns>100</answerbox_columns>
-    <use_ace>1</use_ace>
-    <combinator_template></combinator_template>
-    <test_splitter_re></test_splitter_re>
-    <enable_combinator>0</enable_combinator>
-    <per_test_template>{{ STUDENT_ANSWER }}</per_test_template>
+    <coderunnertype>java_program</coderunnertype>
+    <prototypetype>1</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime></penaltyregime>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <useace>1</useace>
+    <resultcolumns></resultcolumns>
+    <answer></answer>
+    <combinatortemplate></combinatortemplate>
+    <testsplitterre></testsplitterre>
+    <enablecombinator>0</enablecombinator>
+    <pertesttemplate>{{ STUDENT_ANSWER }}</pertesttemplate>
     <language>Java</language>
+    <acelang></acelang>
     <sandbox></sandbox>
     <grader></grader>
     <cputimelimitsecs></cputimelimitsecs>
     <memlimitmb>2000</memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams></templateparams>
     <testcases>
     </testcases>
   </question>
 
-
-<!-- question: 1334  -->
+<!-- question: 16914  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_octave_function</text>
@@ -287,15 +310,17 @@ public class __Tester__ {
     <defaultgrade>1.0000000</defaultgrade>
     <penalty>0.3333333</penalty>
     <hidden>0</hidden>
-    <coderunner_type>octave_function</coderunner_type>
-    <prototype_type>1</prototype_type>
-    <all_or_nothing>1</all_or_nothing>
-    <penalty_regime></penalty_regime>
-    <show_source>0</show_source>
-    <answerbox_lines>18</answerbox_lines>
-    <answerbox_columns>100</answerbox_columns>
-    <use_ace>1</use_ace>
-    <combinator_template><![CDATA[{{ STUDENT_ANSWER }}
+    <coderunnertype>octave_function</coderunnertype>
+    <prototypetype>1</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime></penaltyregime>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <useace>1</useace>
+    <resultcolumns></resultcolumns>
+    <answer></answer>
+    <combinatortemplate><![CDATA[{{ STUDENT_ANSWER }}
 
 format free
         
@@ -305,25 +330,79 @@ format free
 disp('#<ab@17943918#@>#');
 {% endif %}
 {% endfor %}
-]]></combinator_template>
-    <test_splitter_re><![CDATA[|#<ab@17943918#@>#
-|ms]]></test_splitter_re>
-    <enable_combinator>1</enable_combinator>
-    <per_test_template>{{ STUDENT_ANSWER }}
+]]></combinatortemplate>
+    <testsplitterre><![CDATA[|#<ab@17943918#@>#
+|ms]]></testsplitterre>
+    <enablecombinator>1</enablecombinator>
+    <pertesttemplate>{{ STUDENT_ANSWER }}
 
 format free
         
-{{ TEST.testcode }};</per_test_template>
+{{ TEST.testcode }};</pertesttemplate>
     <language>octave</language>
+    <acelang></acelang>
     <sandbox></sandbox>
     <grader></grader>
     <cputimelimitsecs>3</cputimelimitsecs>
     <memlimitmb>1000</memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams></templateparams>
     <testcases>
     </testcases>
   </question>
 
-<!-- question: 1325  -->
+<!-- question: 2760  -->
+  <question type="coderunner">
+    <name>
+      <text>BUILT_IN_PROTOTYPE_php</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<p>A php question in which the student submission is a normal php file, with PHP code enclosed in &lt;?php ... ?&gt; tags and the output is the usual PHP output including all HTML content outside the php tags.</p>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.3333333</penalty>
+    <hidden>0</hidden>
+    <coderunnertype>php</coderunnertype>
+    <prototypetype>2</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime></penaltyregime>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <useace>1</useace>
+    <resultcolumns></resultcolumns>
+    <answer></answer>
+    <combinatortemplate><![CDATA[{{ STUDENT_ANSWER }}
+
+define('SEPARATOR', '#<ab@17943918#@>#');
+
+{% for TEST in TESTCASES %}
+{{ TEST.testcode }};
+{% if not loop.last %}
+echo SEPARATOR;
+{% endif %}
+{% endfor %}]]></combinatortemplate>
+    <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
+    <enablecombinator>1</enablecombinator>
+    <pertesttemplate>{{STUDENT_ANSWER}}
+
+{{TEST.testcode}}</pertesttemplate>
+    <language>php</language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader>EqualityGrader</grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb>500000</memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams></templateparams>
+    <testcases>
+    </testcases>
+  </question>
+
+<!-- question: 16915  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_python2</text>
@@ -338,15 +417,17 @@ format free
     <defaultgrade>1.0000000</defaultgrade>
     <penalty>0.3333333</penalty>
     <hidden>0</hidden>
-    <coderunner_type>python2</coderunner_type>
-    <prototype_type>1</prototype_type>
-    <all_or_nothing>1</all_or_nothing>
-    <penalty_regime></penalty_regime>
-    <show_source>0</show_source>
-    <answerbox_lines>18</answerbox_lines>
-    <answerbox_columns>100</answerbox_columns>
-    <use_ace>1</use_ace>
-    <combinator_template><![CDATA[{{ STUDENT_ANSWER }}
+    <coderunnertype>python2</coderunnertype>
+    <prototypetype>1</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime></penaltyregime>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <useace>1</useace>
+    <resultcolumns></resultcolumns>
+    <answer></answer>
+    <combinatortemplate><![CDATA[{{ STUDENT_ANSWER }}
 
 __student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
 
@@ -357,32 +438,35 @@ SEPARATOR = "#<ab@17943918#@>#"
 {% if not loop.last %}
 print(SEPARATOR)
 {% endif %}
-{% endfor %}]]></combinator_template>
-    <test_splitter_re><![CDATA[|#<ab@17943918#@>#
-|ms]]></test_splitter_re>
-    <enable_combinator>1</enable_combinator>
-    <per_test_template><![CDATA[{{STUDENT_ANSWER}}
+{% endfor %}]]></combinatortemplate>
+    <testsplitterre><![CDATA[|#<ab@17943918#@>#
+|ms]]></testsplitterre>
+    <enablecombinator>1</enablecombinator>
+    <pertesttemplate><![CDATA[{{STUDENT_ANSWER}}
 
 __student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
 
-{{TEST.testcode}}]]></per_test_template>
+{{TEST.testcode}}]]></pertesttemplate>
     <language>python2</language>
+    <acelang></acelang>
     <sandbox></sandbox>
     <grader></grader>
     <cputimelimitsecs></cputimelimitsecs>
     <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams></templateparams>
     <testcases>
     </testcases>
   </question>
 
-<!-- question: 1326  -->
+<!-- question: 16916  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_python3</text>
     </name>
     <questiontext format="moodle_auto_format">
       <text>Used for most Python3 questions. For each test case, runs the
-          student code followed by the test code. </text>
+          student code followed by the test code.</text>
     </questiontext>
     <generalfeedback format="moodle_auto_format">
       <text></text>
@@ -390,15 +474,17 @@ __student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
     <defaultgrade>1.0000000</defaultgrade>
     <penalty>0.3333333</penalty>
     <hidden>0</hidden>
-    <coderunner_type>python3</coderunner_type>
-    <prototype_type>1</prototype_type>
-    <all_or_nothing>1</all_or_nothing>
-    <penalty_regime></penalty_regime>
-    <show_source>0</show_source>
-    <answerbox_lines>18</answerbox_lines>
-    <answerbox_columns>100</answerbox_columns>
-    <use_ace>1</use_ace>
-    <combinator_template><![CDATA[{{ STUDENT_ANSWER }}
+    <coderunnertype>python3</coderunnertype>
+    <prototypetype>1</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime></penaltyregime>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <useace>1</useace>
+    <resultcolumns></resultcolumns>
+    <answer></answer>
+    <combinatortemplate><![CDATA[{{ STUDENT_ANSWER }}
 
 __student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
 
@@ -409,20 +495,23 @@ SEPARATOR = "#<ab@17943918#@>#"
 {% if not loop.last %}
 print(SEPARATOR)
 {% endif %}
-{% endfor %}]]></combinator_template>
-    <test_splitter_re><![CDATA[|#<ab@17943918#@>#
-|ms]]></test_splitter_re>
-    <enable_combinator>1</enable_combinator>
-    <per_test_template><![CDATA[{{STUDENT_ANSWER}}
+{% endfor %}]]></combinatortemplate>
+    <testsplitterre><![CDATA[|#<ab@17943918#@>#
+|ms]]></testsplitterre>
+    <enablecombinator>1</enablecombinator>
+    <pertesttemplate><![CDATA[{{STUDENT_ANSWER}}
 
 __student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
 
-{{TEST.testcode}}]]></per_test_template>
+{{TEST.testcode}}]]></pertesttemplate>
     <language>python3</language>
+    <acelang></acelang>
     <sandbox></sandbox>
     <grader></grader>
     <cputimelimitsecs></cputimelimitsecs>
     <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams></templateparams>
     <testcases>
     </testcases>
   </question>
