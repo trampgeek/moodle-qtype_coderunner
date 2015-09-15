@@ -515,5 +515,56 @@ __student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
     <testcases>
     </testcases>
   </question>
+  
+<!-- question: 17428  -->
+<question type="coderunner">
+    <name>
+        <text>BUILT_IN_PROTOTYPE_Python3_w_input</text>
+    </name>
+    <questiontext format="html">
+        <text>
+            <p>A variant of the normal Python3 question in which the usual Python3 input() function is replaced with a version that echoes the data it reads from standard input to standard output. This results in the program output looking the same to the student as when the run it interactively, with keyboard characters being echoed to the screen.</p>
+            <p>A slight disadvantage is that the line numbers in any error messages are displayed by the inserted function, so don't correspond to those displayed in the ACE edit window.</p>
+        </text>
+    </questiontext>
+    <generalfeedback format="html">
+        <text/>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.3333333</penalty>
+    <hidden>0</hidden>
+    <coderunnertype>python3_w_input</coderunnertype>
+    <prototypetype>1</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime/>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <useace>1</useace>
+    <resultcolumns/>
+    <answer/>
+    <combinatortemplate>__saved_input__ = input
+def input(prompt=''):
+    s = __saved_input__(prompt)
+    print(s)
+    return s
+
+SEPARATOR = "#<ab@17943918#@>#"
+
+{% for TEST in TESTCASES %}
+{{ TEST.testcode }}
+{% if not loop.last %}
+print(SEPARATOR)
+{% endif %}
+{% endfor %}</combinatortemplate><testsplitterre>|#<ab@17943918#@>#\n|ms</testsplitterre><enablecombinator>1</enablecombinator><pertesttemplate>__saved_input__ = input
+def input(prompt=''):
+    s = __saved_input__(prompt)
+    print(s)
+    return s
+    
+{{STUDENT_ANSWER}}
+
+{{TEST.testcode}}</pertesttemplate><language>python3</language><acelang/><sandbox/><grader>EqualityGrader</grader><cputimelimitsecs/><memlimitmb/><sandboxparams/><templateparams/><testcases>
+    </testcases></question>
 
 </quiz>
