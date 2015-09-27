@@ -905,7 +905,16 @@ print(SEPARATOR)
     <questiontext format="html">
       <text><![CDATA[<p>Prototype for a COSC121 Python3 question that is checked by pylint before being executed. Other style checks are also implemented.</p><p>It can take the following template parameters:</p>
 <ul>
-<li>isfunction: unless this isexplicitly set to false, a dummy module docstring will be inserted at the start of the program <b>unless there is one there&nbsp;</b><b>already</b>. Thus, if your question is of the "write a program" variety, you <i>should</i>&nbsp;set this to false. Otherwise omit it.</li><li><span style="font-size: 14px;">pylintoptions: this should be a JSON list of strings.&nbsp;</span><span style="font-size: 14px;">For example, the Template parameters string in the question authoring form might be set to</span></li><li><p>{"isfunction": false, "pylintoptions":["--max-statements=20","--max-args=3"]}&nbsp;<span style="font-size: 14px;">to suppress the insertion of a dummy module docstring at the start and to set the maximum number of statements and arguments for each function to 20 and 3 respectively.</span></p></li><li><p>proscribedconstructs: this is a list of Python constructs (if, while, def, etc) that <b>must not</b> appear in the student's program.</p></li><li><p>prescribedconstructs:&nbsp;<span style="font-size: 14px;">this is a list of Python constructs (if, while, def, etc) that</span><b style="font-size: 14px;">must </b><span style="font-size: 14px;">appear in the student's program.</span></p></li><li><p><span style="font-size: 14px;">allowglobals: set this to true to allow global variables (i.e. to allow lowercase globals, not just "constants")</span></p></li><li><p><span style="font-size: 14px;">maxnumconstants: the maximum number of constants (i.e. uppercase globals) allowed. An integer, defaulting to 4.</span></p></li><li><p><span style="font-size: 14px;">norun: if set to true, the normal execution of the student's code will not take place. Any test code provided will however still be run.</span></p></li><li><p><span style="font-size: 14px;">stripmain: if set to True, the program is expected to contain a global invocation of the main function, which is a line starting "main()". That line is deleted from the program. If the line is not present a "Missing call to main" exception is raised.</span></p></li><li><span style="font-size: 14px;">runextra: if set (to any value) the Extra Template Data is added to the program as test code <i>before</i> the usual testcode.<br></span></li>
+<li>isfunction: unless this isexplicitly set to false, a dummy module docstring will be inserted at the start of the program <b>unless there is one there&nbsp;</b><b>already</b>. Thus, if your question is of the "write a program" variety, you <i>should</i>&nbsp;set this to false. Otherwise omit it.</li>
+<li><span style="font-size: 14px;">pylintoptions: this should be a JSON list of strings.&nbsp;</span><span style="font-size: 14px;">For example, the Template parameters string in the question authoring form might be set to</span></li>
+<li><p>{"isfunction": false, "pylintoptions":["--max-statements=20","--max-args=3"]}&nbsp;<span style="font-size: 14px;">to suppress the insertion of a dummy module docstring at the start and to set the maximum number of statements and arguments for each function to 20 and 3 respectively.</span></p></li>
+<li><p>proscribedconstructs: this is a list of Python constructs (if, while, def, etc) that <b>must not</b> appear in the student's program.</p></li>
+<li><p>requiredconstructs:&nbsp;<span style="font-size: 14px;">this is a list of Python constructs (if, while, def, etc) that</span><b style="font-size: 14px;">must </b><span style="font-size: 14px;">appear in the student's program.</span></p></li>
+<li><p><span style="font-size: 14px;">allowglobals: set this to true to allow global variables (i.e. to allow lowercase globals, not just "constants")</span></p></li>
+<li><p><span style="font-size: 14px;">maxnumconstants: the maximum number of constants (i.e. uppercase globals) allowed. An integer, defaulting to 4.</span></p></li><li><p><span style="font-size: 14px;">norun: if set to true, the normal execution of the student's code will not take place. Any test code provided will however still be run.</span></p></li>
+<li><p><span style="font-size: 14px;">stripmain: if set to True, the program is expected to contain a global invocation of the main function, which is a line starting "main()". That line is deleted from the program. If the line is not present a "Missing call to main" exception is raised.</span></p></li>
+<li><span style="font-size: 14px;">runextra: if set (to any value) the Extra Template Data is added to the program as test code <i>before</i> the usual testcode.<br></span>
+</li>
 </ul>
 <p><br></p>
 <p><br></p>]]></text>
@@ -983,9 +992,15 @@ def pylint_is_happy(s):
         return True
 
 
-def __contains__(code, construct):
-    '''True iff the given construct is used in code'''
-    return any(line.strip().startswith(construct + ' ') for line in code.split('\n'))
+def __contains__(code, construct, terminators =' :'):
+    '''True iff the given construct is used in code.
+       If non empty, terminators is a string of possible terminator
+       characters for the required construct.'''
+    term = '' if terminators == '' else '[' + terminators + ']'
+    if re.search('^[ \t]*' + construct + term, code, re.MULTILINE) is None:
+        return False
+    else:
+        return True
 
 
 def local_checks_ok(code):
@@ -1103,9 +1118,15 @@ def pylint_is_happy(s):
         return True
 
 
-def __contains__(code, construct, separator=' '):
-    '''True iff the given construct is used in code'''
-    return any(line.strip().startswith(construct + separator) for line in code.split('\n'))
+def __contains__(code, construct, terminators =' :'):
+    '''True iff the given construct is used in code.
+       If non empty, terminators is a string of possible terminator
+       characters for the required construct.'''
+    term = '' if terminators == '' else '[' + terminators + ']'
+    if re.search('^[ \t]*' + construct + term, code, re.MULTILINE) is None:
+        return False
+    else:
+        return True
 
 
 def local_checks_ok(code):
