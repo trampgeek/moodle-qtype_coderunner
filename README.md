@@ -1024,7 +1024,7 @@ The `{% if` and
 `{% for` are Twig control structures that conditionally insert extra data
 from the template parameters field of the author editing panel.
 
-### The QUESTION template parameter
+### The Twig QUESTION variable
 As may be deduced from the previous section, there is a Twig template variable
 called `QUESTION`, which is an object containing all the fields of the
 PHP question object. Some of the other
@@ -1032,6 +1032,7 @@ QUESTION fields/attributes that might be of interest to authors include the
 following.
 
  * QUESTION.questionid The unique internal ID of this question. 
+ * QUESTION.questiontext The question text itself
  * QUESTION.answer The supplied sample answer (null if not explicitly set).
  * QUESTION.language The language being used to run the question in the sandbox,
 e.g. "Python3".
