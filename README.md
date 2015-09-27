@@ -216,7 +216,7 @@ described in *Sandbox configuration* below. Alternatively, if you wish to
 continue to use our Jobe server, you can apply to the
 [developer](mailto://trampgeek@gmail.org) for your own
 API key, stating how long you will need to use the key and a reasonable
-upper bound on the number of jobs you will need to submit her hour. We
+upper bound on the number of jobs you will need to submit per hour. We
 will do our best to accommodate you if we have sufficient capacity.
 
 If you want a few CodeRunner questions to get started with, try importing the
@@ -398,9 +398,10 @@ ensure that that particular file is not world-readable.
 
 A better fix is to set the group of the entire Moodle subtree to apache
 (or www-data depending on what user the web server runs as) and then make it
-all not world readable. However, if you do that after installing CodeRunner
-you'll break the set-uid-root program that's used to start the Runguard sandbox.
-So you then need to re-run the runguard installer to fix it.
+all not world readable. However, if you've installed the Runguard sandbox prior
+to changing the group and/or access modes of the Moodle subtree, you'll break
+the set-uid-root program that's used to start the Runguard
+sandbox. So you then need to re-run the runguard installer to fix it.
 
 ### Running the unit tests
 
@@ -631,7 +632,7 @@ that will not be correctly processed by this simplistic substitution, the
 outcome will simply be that they fail the tests. They will soon learn to write
 their
 classes in the expected manner (i.e. with `public` and `class` on the same
-line, separated by a single space)!]
+line, separated by a single space)!
 
  1. **java\_program**. Here the student writes a complete program which is compiled
 then executed once for each test case to see if it generates the expected output
@@ -641,6 +642,10 @@ a public class with a `public static void main` method.
 
  1. **octave\_function**. This uses the open-source Octave system to process
 matlab-like student submissions.
+
+ 1. **php**. A php question in which the student submission is a normal php
+file, with PHP code enclosed in <?php ... ?> tags and the output is the
+usual PHP output including all HTML content outside the php tags.
 
 As discussed later, this base set of question types can
 be customised or extended in various ways.
@@ -691,14 +696,14 @@ respectively. See the pylint documentation for a list of its options.
     * proscribedconstructs: this is a list of Python constructs
 (if, while, def, etc) that must not appear in the student's program.
 
-    * prescribedconstructs: this is a list of Python constructs
+    * requiredconstructs: this is a list of Python constructs
 (if, while, def, etc) that must appear in the student's program.
 
     * allowglobals: set this to true to allow global variables (i.e. to
 allow lowercase globals, not just ALL_CAPS "constants")
 
     * maxnumconstants: the maximum number of constants (i.e. uppercase globals)
-allowed. An integer, defaulting to 4. Such such constraint is required when
+allowed. An integer, defaulting to 4. Some such constraint is required when
 teaching pylint at early stages to stop students achieving pylint compliance
 with a global script simply by typing all identifiers in upper case.
 
@@ -710,7 +715,10 @@ pylint-compliant.
     * stripmain: if set to True, the program is expected to contain a
 global invocation of the main function, which is a line starting "main()".
 All such calls to main are replaced by 'pass'. If no such line is not present
-a "Missing call to main" exception is raised.
+a "Missing call to main" exception is raised. Stripping the main gives the
+question author the ability to test individual functions in the student submission
+as well as, or instead of, testing the program as a whole by explicitly
+calling *main()*.
 
     * runextra: if set (to any value) the Extra Template Data is added to the
 program as test code before the usual testcode. This allows the question
@@ -731,6 +739,9 @@ and then runs the student's code, which may or may not generate output
 dependent on the context. Finally the code in Extra Template Data is run
 (if any). Octave's `disp` function is replaced with one that emulates 
 Matlab's more closely, but, as above: caveat emptor.
+
+ 1. **nodejs**. A question type in which the student's JavaScript submission
+is followed by the test code and the whole program is executed using *nodejs*.
 
 ## Templates
 
@@ -1012,6 +1023,32 @@ questions is then:
 The `{% if` and 
 `{% for` are Twig control structures that conditionally insert extra data
 from the template parameters field of the author editing panel.
+
+### The QUESTION template parameter
+As may be deduced from the previous section, there is a Twig template variable
+called `QUESTION`, which is an object containing all the fields of the
+PHP question object. Some of the other
+QUESTION fields/attributes that might be of interest to authors include the
+following.
+
+ * QUESTION.questionid The unique internal ID of this question. 
+ * QUESTION.answer The supplied sample answer (null if not explicitly set).
+ * QUESTION.language The language being used to run the question in the sandbox,
+e.g. "Python3".
+ * QUESTION.useace '1'/'0' if the ace editor is/is not in use.
+ * QUESTION.sandbox The sandbox being used, e.g. "jobesandbox".
+ * QUESTION.grader The PHP grader class being used, e.g. "EqualityGrader".
+ * QUESTION.cputimelimitssecs The allowed CPU time (null unless explicitly set).
+ * QUESTION.memlimitmb The allowed memory in MB (null unless explicitly set).
+ * QUESTION.sandboxparams The JSON string used to specify the sandbox parameters
+in the question authoring form (null unless explicitly set).
+ * QUESTION.templateparams The JSON string used to specify the template
+parameters in the question authoring form. (Normally the question author
+will not use this but will instead access the specific parameters as in
+the previous section).
+ * QUESTION.resultcolumns The JSON string used in the question authoring
+form to select which columns to display, and how to display them (null
+unless explicitly set).
 
 
 ## Grading with templates
