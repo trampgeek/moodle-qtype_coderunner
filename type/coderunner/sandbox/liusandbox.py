@@ -76,8 +76,3 @@ if __name__ == '__main__':
     finally:
         result = { 'returnCode': retCode, 'output': output, 'stderr': stderr, 'details': details}
         print(json.dumps(result))
-
-
-
-
-

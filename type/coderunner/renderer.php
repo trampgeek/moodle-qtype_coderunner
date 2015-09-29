@@ -267,7 +267,9 @@ class qtype_coderunner_renderer extends qtype_renderer {
         $tabledata = array();
         $testcasekeys = array_keys($testcases);  // Arbitrary numeric indices. Aarghhh.
         $i = 0;
+        $rowclasses = array();
         foreach ($testresults as $testresult) {
+            $rowclasses[$i] = $i % 2 == 0 ? 'r0' : 'r1';
             $testcase = $testcases[$testcasekeys[$i]];
             $testIsVisible = $this->should_display_result($testcase, $testresult);
             if ($canviewhidden || $testIsVisible) {
@@ -302,7 +304,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
                 $tablerow[] = $tickorcross;
                 $tabledata[] = $tablerow;
                 if (!$testIsVisible) {
-                    $rowclasses[$i] = 'hidden-test';
+                    $rowclasses[$i] .= ' hidden-test';
                 }
             }
             $i++;
@@ -312,9 +314,8 @@ class qtype_coderunner_renderer extends qtype_renderer {
         }
         
         $table->data = $tabledata;
-        if (isset($rowclasses)) {
-            $table->rowclasses = $rowclasses;
-        }
+        $table->rowclasses = $rowclasses;
+
         if (count($tabledata) > 0) {
             return html_writer::table($table);
         } else {

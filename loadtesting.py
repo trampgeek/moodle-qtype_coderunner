@@ -33,7 +33,7 @@ import shelve
 import random
 import traceback
 
-LANGUAGE = 'CLOJURE'
+LANGUAGE = 'PYTHON3'
 
 shelf = shelve.open('coderunner_loadtesting_results')
 
@@ -98,6 +98,10 @@ n = int(input())
 for i in range(1, n+1):
    print(str(i) + ' ', end='')
 print()
+''',
+
+'''
+([[{},{},{1,4,8}],[2,{},{}],[{},3,{}],[3,3,{}],[4,{4,5},{}],[6,{},{}],[{},7,{}],[7,7,{}],[8,{8,9},{}],[10,{},{}],[{},{},{}]],[3,7,10])
 '''],
 
 # ====== MATLAB ======
@@ -124,6 +128,8 @@ end
 end
 '''
 ],
+
+# ====== CLOJURE ======
 "CLOJURE": """
 (defn arg-max [f ls]
   (reduce (fn [x y] (if (> (f x) (f y)) x y)) (first ls) ls))
@@ -164,7 +170,7 @@ def quiz_runner(arg_tup): #quiz_name, student, [Queue]
     quiz_num = int(quiz_name[-1]) - 1
     quiz_answer = quiz_answers[LANGUAGE][quiz_num]
     try:
-        login = 'http://quiz.cosc.canterbury.ac.nz/login/index.php'
+        login = 'https://quiz.cosc.canterbury.ac.nz/login/index.php'
 
         print 'opening quiz page'
         br = mech.Browser()
@@ -172,6 +178,7 @@ def quiz_runner(arg_tup): #quiz_name, student, [Queue]
         br.open(login)
 
         print 'Logging in as ' + student
+        #print br.response().get_data()
         log_form = list(br.forms())[0]
         br.form = log_form
         br['username'] = student

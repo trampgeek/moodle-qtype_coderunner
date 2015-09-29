@@ -1,6 +1,6 @@
 # CODE RUNNER
 
-Version: 2.4 January 2015
+Version: 2.4.2 September 2015
 
 Author: Richard Lobb, University of Canterbury, New Zealand.
 
@@ -28,27 +28,31 @@ in a traditional quiz mode where the mark is determined by how many of the tests
 the code successfully passes.
 
 CodeRunner and its predecessors *pycode* and *ccode* has been in use at the
-University of Canterbury for about five years, running tens of thousands of
-student quiz submissions in Python, C and Matlab. All laboratory
-and assignment work in the
-introductory first year Python programming course, which has around 400 students
-in the first semester and 200 in the second, is assessed using CodeRunner
-questions. The mid-semester test also uses Moodle/CodeRunner and 
-the final examination for the second-semester version of the course was
-successfully run on Moodle/CodeRunner in November, 2014.
+University of Canterbury for about five years, running many hundreds of
+thousands of
+student quiz submissions in Python, C , Octave and Matlab. Laboratory work,
+assignment work and mid-semester tests in the
+introductory first year Python programming course (COSC121), which has around
+400 students
+in the first semester and 200 in the second, are all assessed using CodeRunner
+questions. The final exams for COSC121 have also been run
+using Moodle/CodeRunner since November 2014.
 
-The second year C course of around 200 students makes similar use of CodeRunner
-using C questions and a third year Civil Engineering course, taught in Matlab,
+The second year C course (ENCE260) of around 200 students makes similar
+use of CodeRunner
+using C questions and a third year Civil Engineering course (ENCN305),
+taught in Matlab,
 uses CodeRunner for all labs and for the mid-semester programming exam. Other
 courses using Moodle/CodeRunner include:
 
+1. EMTH171 Mathematical Modelling and Computation
 1. COSC261 Formal Languages and Compilers 
 1. COSC367 Computational Intelligence
+1. ENCE360 Operating Systems
 1. SENG365 Web Computing Architectures
 
 CodeRunner currently supports Python2 (considered obsolescent), Python3,
-C, PHP5, JavaScript (NodeJS), Octave and Matlab. Java support
-is also present but has not yet been used in courses. C++ questions are
+C, Java, PHP5, JavaScript (NodeJS), Octave and Matlab. C++ questions are
 not built-in but can be easily supported by custom question types.
 The architecture allows
 easy extension to other languages.
@@ -64,15 +68,28 @@ on an institutional server.
 A single 4-core server can handle an average quiz question submission rate of
 about 60 quiz questions per minute while maintaining a response time of less
 than about 3 - 4 seconds, assuming the student code itself runs in a
-fraction of a second.
+fraction of a second. We have run CodeRunner-based exams with around 250 students
+and experienced only light to moderate load factors on an 8-core Moodle
+server. The Jobe server, which runs student submissions (see below),
+is even more lightly loaded during such an exam.
 
-Administrator privileges and some Linux skills are needed to install CodeRunner.
+The CodeRunner question type can be installed on any modern Moodle system
+(version 2.6 or later), on Linux, Windows and Mac. For security reasons
+submitted jobs are usually run on a separate machine called the "Jobe server"
+or "Jobe sandbox machine".  Linux installations have the
+additional option of using the third-party Liu sandbox for running C jobs
+directly on the Moodle server and there is also a sandbox called the RunGuard
+sandbox built into CodeRunner, although the latter is now deprecated. See the
+*Sandbox Configuration* section for details. Note that the Jobe sandbox
+runs only on Linux systems.
 
 ## Installation
 
 This chapter describes how to install CodeRunner. It assumes the
-existence of a working Moodle system and a reasonable level of Linux
-adminstration skills.
+existence of a working Moodle system, version 2.6 or later.
+If you wish to install the optional Runguard
+sandbox, you must be running a Linux-based system and you need
+administrator privileges.
 
 If you are installing for the first time, jump straight to section 2.2.
 
@@ -121,23 +138,27 @@ web interface.
 
 ### Installing CodeRunner from scratch
 
-Note: if you're installing CodeRunner on an SELinux system you may need to disable
-SELinux, depending on which sandboxes you're
-using. This can be done with commands like
+Note: if you're installing CodeRunner on an SELinux system and you wish
+to use the deprecated RunguardSandbox you will probably need to disable
+SELinux. This can be done with a command like
 
     sed -i-dist -e 's|SELINUX=enforcing|SELINUX=permissive|' /etc/selinux/config
     setenforce 0
 
 There are three different ways to install CodeRunner, as follows:
 
-1. Download just the raw files `qtype_coderunner.zip` and `qbehaviour_coderunner.zip`
-   and unzip them into the directories `<moodlehome>/question/type` and
+1. Download the latest version of CodeRunner and extract the files
+   `qtype_coderunner.zip` and `qbehaviour_coderunner.zip`. Unzip these
+    into the directories `<moodlehome>/question/type` and
    `<moodlehome>/question/behaviour` respectively. This installation
    method does not support the use of the RunGuard sandbox (see below).
+   It can be used on any Linux, Windows or Mac.
 
 1. Clone the entire repository into any directory you like, say `<somewhere>`
-   and then copy the files into question/type and question/behaviour
-   directories. The commands to achieve this are
+   and then copy the type/coderunner and
+   behaviour/adaptive\_adapted\_for\_coderunner subtrees
+   into the Moodle question/type and question/behaviour
+   directories. The commands to achieve this under Linux are
 
         cd <somewhere>
         git clone https://github.com/trampgeek/CodeRunner.git
@@ -145,8 +166,9 @@ There are three different ways to install CodeRunner, as follows:
         sudo ./install
 
 1. Clone the entire repository into the `<moodlehome>/local` directory
-   and then make symbolic links to the question/type and question/behaviour
-   directories. The commands to achieve this are
+   and then make symbolic links from Moodle's question/type and question/behaviour
+   directories into the corresponding CodeRunner subtrees.
+   The commands to achieve this on a Linux system are
 
         cd <moodlehome>/local
         git clone https://github.com/trampgeek/CodeRunner.git
@@ -155,19 +177,22 @@ There are three different ways to install CodeRunner, as follows:
 
 The first of these methods is the more traditional Moodle install, while the
 second is equivalent in effect but makes it possible to also install the
-RunGuard sandbox and gives you the full CodeRunner source
+RunGuard sandbox (provided you're running a Linux-based Moodle)
+and gives you the full CodeRunner source
 tree to experiment with. The third method, which also allows
-use of the RunGuard sandbox, is intended for developers. Because
+use of the RunGuard sandbox (on Linux systems only), is intended for developers.
+Because
 it symbolically links to the source code, any changes made to the source in
 the `<moodlehome>/local/CodeRunner` subtree will take immediate effect.
 
 Having carried out one of the above methods,
 if you have local question prototypes to add to the built-in prototype set you
 should now
-copy them into the `<moodlehome>/qtypes/type/coderunner/db` folder. They should be
+copy them into the `<moodlehome>/question/type/coderunner/db` folder.
+They should be
 Moodle XML file(s) with names ending in `_PROTOTYPES.xml` (case-sensitive).
-[If you don't understand what this paragraph means, then it doesn't concern
-you ... move on.]
+[If you don't understand what this paragraph means, then it probably
+doesn't concern you ... move on.]
 
 After carrying out one of the above install methods, you can complete the
 installation by logging onto the server through the web interface as an
@@ -179,22 +204,45 @@ the transition from version 2.3. These warnings can be safely
 ignored (I hope).
 
 In its initial configuration, CodeRunner is set to use a University of
-Canterbury [jobe server](https://github.com/trampgeek/jobe) to run jobs. You are
-welcome to use this for an hour or two during initial testing, but it is
+Canterbury [Jobe server](https://github.com/trampgeek/jobe) to run jobs. You are
+welcome to use this during initial testing, but it is
 not intended for production use. Authentication and authorisation
 on that server is
 via an API-key and the default API-key given with CodeRunner imposes
 a limit of 100
 per hour over all clients using that key. If you decide that CodeRunner is
 useful to you, *please* set up your own sandbox (Jobe or otherwise) as 
-described in *Sandbox configuration* below. [Alternatively, if you wish to
+described in *Sandbox configuration* below. Alternatively, if you wish to
 continue to use our Jobe server, you can apply to the
 [developer](mailto://trampgeek@gmail.org) for your own
 API key, stating how long you will need to use the key and a reasonable
-upper bound on the number of jobs you will need to submit her hour. We
-will do our best to accommodate you if we have sufficient capacity.]
+upper bound on the number of jobs you will need to submit per hour. We
+will do our best to accommodate you if we have sufficient capacity.
+
+If you want a few CodeRunner questions to get started with, try importing the
+files
+`MoodleHome>/question/type/coderunner/db/simpledemoquestions.xml` and/or
+`MoodleHome>/question/type/coderunner/db/python3demoquestions.xml`
+These contains
+all the questions from the two tutorial quizzes on the
+[demo site](http://www.coderunner.org.nz). Note, though, that some of the
+questions from the `python3demoquestions` file make use of the University of
+Canterbury prototypes in uoc_prototypes.xml, so you'd need to import them, too.
+
+WARNING: at least a couple of users have broken CodeRunner by duplicating
+the prototype questions in the System/CR_PROTOTYPES category. `Do not` touch
+those special questions until you have read this entire manual and
+are familiar with the inner workings of CodeRunner. Even then, you should
+proceed with caution. These prototypes are not
+for normal use - they are akin to base classes in a prototypal inheritance
+system like JavaScript's. If you duplicate a prototype question the question
+type will become unusable, as CodeRunner doesn't know which version of the
+prototype to use.
 
 ### Building the RunGuardSandbox
+
+Note: the RunGuardSandbox is no longer being maintained and will probably be
+removed in the near future.
 
 The RunguardSandbox allows student jobs to be run on the Moodle server itself.
 It users a program `runguard`, written
@@ -232,8 +280,8 @@ re-run the runguard installer.
 ### Sandbox Configuration
 
 You next need to decide what particular sandbox or sandboxes you wish to use
-for running the student-submitted jobs. You can configure which sandboxes you wish to use
-together with the various sandbox parameters via the Moodle administrator settings for the
+for running the student-submitted jobs. You can configure sandboxes
+ via the Moodle administrator settings for the
 CodeRunner plugin, accessed via
 
     Site administration > Plugins > Question types > CodeRunner.
@@ -249,7 +297,7 @@ configuration uses the Jobe server at the University of Canterbury. This is not
 suitable for production use. Please switch
 to using your own Jobe server as soon as possible.
 
-Follow the instructions at
+    Follow the instructions at
 [https://github.com/trampgeek/jobe](https://github.com/trampgeek/jobe)
 to build a Jobe server, then use the
 Moodle administrator interface for the CodeRunner plug-in to define the Jobe
@@ -269,8 +317,7 @@ the sandbox when it's running on a separate machine, the worst it can do is
 bring the sandbox server down, whereas a security breach on the Moodle server
 could be used to hack into the Moodle database, which contains student run results
 and marks. That said, our Computer Science department used the even less
-secure Runguard
-Sandbox for some years without any ill effects; Moodle keeps extensive logs
+secure Runguard Sandbox for some years without any ill effects; Moodle keeps extensive logs
 of all activities, so a student deliberately breaching security is taking a
 huge risk.
 
@@ -314,7 +361,9 @@ recommended.
 
 3. The RunguardSandbox.
 
-    The RunguardSandbox is the easiest one to use, as it requires no
+    [Note: The RunguardSandbox is no longer being maintained and will
+probably be deleted from CodeRunner in the near future.]
+The RunguardSandbox is the easiest one to use, as it requires no
 extra resources apart from whatever languages (Python3, Java etc) you wish
 to use in CodeRunner questions. However, the RunguardSandbox is also the least
 secure. It runs student submitted jobs on the Moodle server itself, so most
@@ -338,22 +387,6 @@ user *coderunner* so student-submitted code can do even less than a student
 with a Linux account can do (as they can't create files outside the `/tmp`
 directory and have severe restrictions on cpu time, threads and memory use).
 
-
-4.  The IdeoneSandbox.
-    ideone.com is a compute server that runs
-programs submitted either through a browser or through a web-services API in
-a huge number of different languages. It is not recommended for production
-use, as execution turn-around time is frequently too large (from 10 seconds
-to a minute or more) to give a tolerable user experience. An
-[Ideone account](http://ideone.com/account/register)
-(username and password) is required to access
-the Ideone web-services. Runs are free up to a certain number
-but you then have to pay for usage.
-The IdeoneSandbox is there mainly as a proof of concept of the idea of off-line
-execution and to support occasional use of unusual languages. As with
-the other sandboxes, you can configure the IdeoneSandbox via the administrator
-settings panel for CodeRunner.
-
 ### Checking security
 
 Until recently the default Moodle install had all files in the <moodlehome> tree
@@ -365,9 +398,10 @@ ensure that that particular file is not world-readable.
 
 A better fix is to set the group of the entire Moodle subtree to apache
 (or www-data depending on what user the web server runs as) and then make it
-all not world readable. However, if you do that after installing CodeRunner
-you'll break the set-uid-root program that's used to start the Runguard sandbox.
-So you then need to re-run the runguard installer to fix it.
+all not world readable. However, if you've installed the Runguard sandbox prior
+to changing the group and/or access modes of the Moodle subtree, you'll break
+the set-uid-root program that's used to start the Runguard
+sandbox. So you then need to re-run the runguard installer to fix it.
 
 ### Running the unit tests
 
@@ -432,7 +466,7 @@ with a preliminary compilation step.
 1. The above steps are repeated for all testcases, giving an array of
    test result objects (not shown explicitly in the figure).
 1. All the test results are passed to the CodeRunner question renderer,
-   which presents them in to the user as the Results Table. Tests that pass
+   which presents them to the user as the Results Table. Tests that pass
    are shown with a green tick and failing ones shown with a red cross.
    Typically the whole table is coloured red if any tests fail or green
    if all tests pass.
@@ -528,11 +562,11 @@ back into individual test case results using the separator string as a splitter.
 
 ### Built-in question types
 
-The file `<moodlehome>/question/type/coderunner/db/questions-CR_PROTOTYPES.xml`
+The file `<moodlehome>/question/type/coderunner/db/builtin_PROTOTYPES.xml`
 is a moodle-xml export format file containing the definitions of all the
 built-in question types. During installation, and at the end of any version upgrade,
 the prototype questions from that file are all loaded into a category
-CR\_PROTOTYPES in the system context. A system administrator can edit the
+CR\_PROTOTYPES in the system context. A system administrator can edit
 those prototypes but this is not generally recommended as the modified versions
 will be lost on each upgrade. Instead, a category LOCAL\_PROTOTYPES
 (or other such name of your choice) should be created and copies of any prototype
@@ -541,7 +575,7 @@ name modified accordingly. New prototype question types can also be created
 in that category. Editing of prototypes is discussed later in this
 document.
 
-Built-in question types including the following:
+Built-in question types include the following:
 
  1. **c\_function**. This is the question type discussed in the above
 example. The student supplies
@@ -555,8 +589,8 @@ example. The student supplies
 
  The manner in which a C program is executed is not part of the question
  type definition: it is defined by the particular sandbox to which the
- execution is passed. The Liu Sandbox and the CodeRunner sandbox both use the gcc
- compiler with the language set to
+ execution is passed. The Jobe Sandbox, Liu Sandbox and Runguard sandboxes all
+ use the gcc compiler with the language set to
  accept C99 and with both *-Wall* and *-Werror* options set on the command line
  to issue all warnings and reject the code if there are any warnings.
  The Liu sandbox also requires that the executable be statically linked; you
@@ -566,7 +600,7 @@ example. The student supplies
  1. **python3**. Used for most Python3 questions. For each test case, the student
 code is run first, followed by the test code.
 
- 1. **python3\_w\_output**. A variant of the *python3* question in which the
+ 1. **python3\_w\_input**. A variant of the *python3* question in which the
 *input* function is redefined at the start of the program so that the standard
 input characters that it consumes are echoed to standard output as they are
 when typed on the keyboard during interactive testing. A slight downside of
@@ -598,7 +632,7 @@ that will not be correctly processed by this simplistic substitution, the
 outcome will simply be that they fail the tests. They will soon learn to write
 their
 classes in the expected manner (i.e. with `public` and `class` on the same
-line, separated by a single space)!]
+line, separated by a single space)!
 
  1. **java\_program**. Here the student writes a complete program which is compiled
 then executed once for each test case to see if it generates the expected output
@@ -609,11 +643,15 @@ a public class with a `public static void main` method.
  1. **octave\_function**. This uses the open-source Octave system to process
 matlab-like student submissions.
 
+ 1. **php**. A php question in which the student submission is a normal php
+file, with PHP code enclosed in <?php ... ?> tags and the output is the
+usual PHP output including all HTML content outside the php tags.
+
 As discussed later, this base set of question types can
 be customised or extended in various ways.
 
 C++ isn't available as a built-in type at present, as we don't teach it.
-However, if the Jobe server is configured to run C++ jobs (probably using
+However, as the Jobe server is by default configured to run C++ jobs (using
 the language ID 'cpp') you can easily make a custom C++ question
 type by starting with the C question type, setting the language to *cpp*
 and changing the template to include
@@ -628,46 +666,82 @@ and changing the template to include
 The following question types used to exist as built-ins but have now been
 dropped from the main install as they are intended primarily for University
 of Canterbury (UOC) use only. They can be imported, if desired, from the file
-**uoclocalprototypes.xml**, located in the CodeRunner/coderunner/db folder.
+**uoc_prototypes.xml**, located in the CodeRunner/coderunner/db folder.
 
 The UOC question types include:
 
- 1. **python3\_pylint**. This is a Python3 question where the student submission
-is passed through the [pylint](http://www.logilab.org/857)
-source code analyser. The submission is rejected if pylint gives any errors,
-otherwise testing proceeds as normal. Obviously, pylint needs to be installed
-on the Jobe server or the Moodle server itself if the RunguardSandbox is
-being used. This question type can take two template parameters:
+ 1. **python3\_cosc121**. This is a complex Python3 question
+type that's used at the University of Canterbury for nearly all questions in
+the COSC121 course.  The student submission
+is first passed through the [pylint](http://www.logilab.org/857)
+source code analyser and the submission is rejected if pylint gives any errors.
+Otherwise testing proceeds as normal. Obviously, pylint needs to be installed
+on the sandbox server. This question type takes the following template
+parameters (see the section entitled *Template parameters* for an explanation
+of what these are) to allow it to be used for a wide range of different problems:
 
-    * `isfunction`: if set and true a dummy module docstring will be inserted at
-the start of the program. This is useful in "write a function" questions
+    * isfunction: unless this is explicitly set to false, a dummy module docstring
+will be inserted at the start of the program unless there is one there already.
+Thus, if your question is of the "write a program" variety, you should set this
+to false. Otherwise omit it. This purpose is to stop pylint issuing a spurious
+missing module docstring message.
 
-    * `pylintoptions`: this should be a JSON list of strings.
+    * pylintoptions: this should be a JSON list of strings. For example,
+the Template parameters string in the question authoring form might be set to
+{"isfunction": false, "pylintoptions":["--max-statements=20","--max-args=3"]}
+to suppress the insertion of a dummy module docstring at the start and to set
+the maximum number of statements and arguments for each function to 20 and 3
+respectively. See the pylint documentation for a list of its options.
 
-   For example, the Template parameters string in the question authoring form
-might be set to
+    * proscribedconstructs: this is a list of Python constructs
+(if, while, def, etc) that must not appear in the student's program.
 
-        {"isfunction": true, "pylintoptions":["--max-statements=20","--max-args=3"]}
+    * requiredconstructs: this is a list of Python constructs
+(if, while, def, etc) that must appear in the student's program.
 
-   to generate a dummy module docstring at the start and to set the maximum
-   number of
-   statements and arguments for each function to 20 and 3 respectively.
+    * allowglobals: set this to true to allow global variables (i.e. to
+allow lowercase globals, not just ALL_CAPS "constants")
+
+    * maxnumconstants: the maximum number of constants (i.e. uppercase globals)
+allowed. An integer, defaulting to 4. Some such constraint is required when
+teaching pylint at early stages to stop students achieving pylint compliance
+with a global script simply by typing all identifiers in upper case.
+
+    * norun: if set to true, the normal execution of the student's code will
+not take place. Any test code provided will however still be run. This is
+intended for dummy questions that allow students to check if their code is
+pylint-compliant.
+
+    * stripmain: if set to True, the program is expected to contain a
+global invocation of the main function, which is a line starting "main()".
+All such calls to main are replaced by 'pass'. If no such line is not present
+a "Missing call to main" exception is raised. Stripping the main gives the
+question author the ability to test individual functions in the student submission
+as well as, or instead of, testing the program as a whole by explicitly
+calling *main()*.
+
+    * runextra: if set (to any value) the Extra Template Data is added to the
+program as test code before the usual testcode. This allows the question
+author to load extra test code through the Extra Template Data which the
+student does not get to see (usually because it would confuse them).
 
 
- 1. **c\_full\_main_tests**. This is a rarely used special question type where
-students write global declarations (types, functions etc) and each test is a
-complete C main function that uses the student-supplied declarations.
+ 1. **matlab\_function**. Used for Matlab function questions. Student code must be a
+function declaration, which is tested with each testcase. The name is actually
+a lie, as this question type now uses Octave instead, which is much more
+efficient and easier for the question author to program within the CodeRunner
+context. However, Octave has many subtle differences
+from Matlab and some problems are inevitable. Caveat emptor.
 
- 1. **matlab\_function**. This is the only supported matlab question type.
-It assumes
-matlab is installed on the Jobe or Moodle server and can be run with the shell command
-`/usr/local/bin/matlab_exec_cli`.
-A ".m" test file is built that contains a main test function, which executes
-all the supplied test cases, followed by the student code which must be in the
-form of one or more function declarations. That .m file is executed by Matlab,
-various Matlab-generated noise is filtered, and the output must match that
-specified for the test cases.
+ 1. **matlab\_script**. Like matlab\_function, this is a lie as it actually
+uses Octave. It runs the test code first (which usually sets up a context)
+and then runs the student's code, which may or may not generate output
+dependent on the context. Finally the code in Extra Template Data is run
+(if any). Octave's `disp` function is replaced with one that emulates 
+Matlab's more closely, but, as above: caveat emptor.
 
+ 1. **nodejs**. A question type in which the student's JavaScript submission
+is followed by the test code and the whole program is executed using *nodejs*.
 
 ## Templates
 
@@ -775,12 +849,6 @@ allows the author to set the size of the student's answer box, and in a
 case like the above you'd typically set it to just one or two lines in height
 and perhaps 30 columns in width.
 
-**IMPORTANT WARNING:** When you edit the per-test template, the combinator
-template is immediately
-disabled. You can re-enable and edit it, if you wish, by opening
-the *Advanced
-Customisation* block.
-
 You will need to understand loops and selection in
 the Twig template engine if you wish to write your own combinator templates.
 For one-off question use, the combinator template doesn't normally offer
@@ -799,55 +867,58 @@ the test process but in fact there's no need for this to happen. The student's
 answer can be treated as data by the template code, which can then execute
 various tests on that data to determine its correctness. The Python *pylint*
 question type mentioned earlier is a simple example: the template code first
-writes the student's code to a file and runs *pylint* over that file before
+writes the student's code to a file and runs *pylint* on that file before
 proceeding with any tests.
 
 The per-test template for such a question type in its
 simplest form might be:
 
-    __student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
-
     import subprocess
     import os
+    import sys
 
-    def check_code(s):
-
+    def code_ok(prog_to_test):
+        """Check prog_to_test with pylint. Return True if OK or False if not.
+           Any output from the pylint check will be displayed by CodeRunner
+        """
         try:
             source = open('source.py', 'w')
-            source.write(s)
+            source.write(prog_to_test)
             source.close()
             env = os.environ.copy()
             env['HOME'] = os.getcwd()
             cmd = ['pylint', 'source.py']
-            result = subprocess.check_output(cmd, stderr=subprocess.STDOUT, env=env)
+            result = subprocess.check_output(cmd, 
+                universal_newlines=True, stderr=subprocess.STDOUT, env=env)
         except Exception as e:
-            result = e.output.decode('utf-8')
+            result = e.output
 
         if result.strip():
-            print("pylint doesn't approve of your program")
-            print(result)
-            raise Exception("Submission rejected")
+            print("pylint doesn't approve of your program", file=sys.stderr)
+            print(result, file=sys.stderr)
+            print("Submission rejected", file=sys.stderr)
+            return False
+        else:
+            return True
 
-    check_code(__student_answer__)
 
-    {{ STUDENT_ANSWER }}
-    {{ TEST.testcode }}
+    __student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
+    if code_ok(__student_answer__):
+        __student_answer__ += '\n' + """{{ TEST.testcode | e('py') }}"""
+        exec(__student_answer__)
 
 The Twig syntax {{ STUDENT\_ANSWER | e('py') }} results in the student's submission
 being filtered by a Python escape function that escapes all
 double quote and backslash characters with an added backslash.
 
+Note that any output written to *stderr* is interpreted by CodeRunner as a
+runtime error, which aborts the test sequence, so the student sees the error
+output only on the first test case.
+
 The full `Python3_pylint` question type is a bit more complex than the
 above. It is given in full in the section on *template parameters*.
 
-Note that in the event of a failure to comply with pylint's style rules,
-an exception is raised; this ensures that
-further testing is aborted so that the student doesn't receive the same error
-for every test case. [As noted above, the tester aborts the testing sequence
-when using the per-test-case template if an exception occurs.]
-
-Some other more complex examples that we've
-used in practice include:
+Some other more complex examples that we've used include:
 
  1. A Matlab question in which the template code (also Matlab) breaks down
     the student's code into functions, checking the length of each to make
@@ -906,21 +977,22 @@ definitions of variables that can be used by the template engine to perform
 local per-question customisation of the template. The template parameters
 are passed to the template engine as the object `QUESTION.parameters`.
 
-The full template code for the University of Canterbury *Python3\_pylint*
-question type is:
-
-    __student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
+A more complete version of the Python3_pylint question type, which allows
+customisation of the pylint options via template parameters and also allows
+for an optional insertion of a module docstring for "write a function"
+questions is then:
 
     import subprocess
     import os
+    import sys
 
-    def check_code(s):
+    def code_ok(prog_to_test):
     {% if QUESTION.parameters.isfunction %}
-        s = "'''Dummy module docstring'''\n" + s
+        prog_to_test = "'''Dummy module docstring'''\n" + prog_to_test
     {% endif %}
         try:
             source = open('source.py', 'w')
-            source.write(s)
+            source.write(prog_to_test)
             source.close()
             env = os.environ.copy()
             env['HOME'] = os.getcwd()
@@ -929,23 +1001,55 @@ question type is:
             pylint_opts.append('{{option}}')
     {% endfor %}
             cmd = ['pylint', 'source.py'] + pylint_opts
-            result = subprocess.check_output(cmd, stderr=subprocess.STDOUT, env=env)
+            result = subprocess.check_output(cmd, 
+                universal_newlines=True, stderr=subprocess.STDOUT, env=env)
         except Exception as e:
-            result = e.output.decode('utf-8')
+            result = e.output
 
         if result.strip():
-            print("pylint doesn't approve of your program")
-            print(result)
-            raise Exception("Submission rejected")
+            print("pylint doesn't approve of your program", file=sys.stderr)
+            print(result, file=sys.stderr)
+            print("Submission rejected", file=sys.stderr)
+            return False
+        else:
+            return True
 
-    check_code(__student_answer__)
 
-    {{ STUDENT_ANSWER }}
-    {{ TEST.testcode }}
+    __student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
+    if code_ok(__student_answer__):
+        __student_answer__ += '\n' + """{{ TEST.testcode | e('py') }}"""
+        exec(__student_answer__)
 
 The `{% if` and 
 `{% for` are Twig control structures that conditionally insert extra data
 from the template parameters field of the author editing panel.
+
+### The Twig QUESTION variable
+As may be deduced from the previous section, there is a Twig template variable
+called `QUESTION`, which is an object containing all the fields of the
+PHP question object. Some of the other
+QUESTION fields/attributes that might be of interest to authors include the
+following.
+
+ * QUESTION.questionid The unique internal ID of this question. 
+ * QUESTION.questiontext The question text itself
+ * QUESTION.answer The supplied sample answer (null if not explicitly set).
+ * QUESTION.language The language being used to run the question in the sandbox,
+e.g. "Python3".
+ * QUESTION.useace '1'/'0' if the ace editor is/is not in use.
+ * QUESTION.sandbox The sandbox being used, e.g. "jobesandbox".
+ * QUESTION.grader The PHP grader class being used, e.g. "EqualityGrader".
+ * QUESTION.cputimelimitssecs The allowed CPU time (null unless explicitly set).
+ * QUESTION.memlimitmb The allowed memory in MB (null unless explicitly set).
+ * QUESTION.sandboxparams The JSON string used to specify the sandbox parameters
+in the question authoring form (null unless explicitly set).
+ * QUESTION.templateparams The JSON string used to specify the template
+parameters in the question authoring form. (Normally the question author
+will not use this but will instead access the specific parameters as in
+the previous section).
+ * QUESTION.resultcolumns The JSON string used in the question authoring
+form to select which columns to display, and how to display them (null
+unless explicitly set).
 
 
 ## Grading with templates
@@ -1119,7 +1223,7 @@ The output from the standard graders is a list of so-called *TestResult* objects
 each with the following fields (which include the actual test case data):
 
     testcode      // The test that was run (trimmed, snipped)
-    isCorrect     // True iff test passed fully (100%)
+    iscorrect     // True iff test passed fully (100%)
     expected      // Expected output (trimmed, snipped)
     mark          // The max mark awardable for this test
     awarded       // The mark actually awarded.
@@ -1134,7 +1238,8 @@ how the data from the field is formatted into the result table.
 
 By default the result table displays
 the testcode, stdin, expected and got columns, provided the columns
-are not empty. You can change the default, and/or the column headers
+are not empty. Empty columns are dropped from the table.
+You can change the default, and/or the column headers
 by entering a value for *result_columns* (leave blank for the default
 behaviour). If supplied, the result_columns field must be a JSON-encoded
 list of column specifiers.
@@ -1149,12 +1254,13 @@ own fields, which can also be selected for display. It is also possible
 to combine multiple fields into a column by adding extra fields to the
 specifier: these must precede the sprintf format specifier, which then
 becomes mandatory. For example, to display a Mark Fraction column in the
-form `0.74 out of 1.00`, say, a column format specifier of `["Mark Fraction", "awarded",
+form `0.74 out of 1.00`, a column format specifier of `["Mark Fraction", "awarded",
 "mark", "%.2f out of %.2f"]` could be used. As a further special case, a format
 of `%h` means that the test result field should be taken as ready-to-output
-HTML and should not be subject to further processing; this is useful
+HTML and should not be subject to further processing; this is usually useful
 only with custom-grader templates that generate HTML output, such as
-SVG graphics. 
+SVG graphics, but we have also used it in questions where the output from
+the student's program was HTML.
 
 The default value of *result_columns* is `[["Test", "testcode"],
 ["Input", "stdin"], ["Expected", "expected"], ["Got", "got"]]`.
@@ -1193,13 +1299,13 @@ that course but it will not be visible to authors in other courses. If you wish
 to make a new question type available globally you should ask a
 Moodle administrator
 to move the question to the system context, such as a LOCAL\_PROTOTYPES
-category, mentioned above.
+category.
 
 When you create a question of a particular type, including user-defined
 types, all the so-called "customisable" fields are inherited from the
 prototype. This means changes to the prototype will affect all the "children"
-questions. However, as soon as you customise a child question you copy all the
-prototype fields and lose that inheritance.
+questions. **However, as soon as you customise a child question you copy all the
+prototype fields and lose that inheritance.**
 
 To reduce the UI confusion, customisable fields are subdivided into the
 basic ones (per-test-template, grader, result-table column selectors etc) and
@@ -1222,7 +1328,7 @@ user-defined question types are not for the faint of heart. Caveat emptor.
 **WARNING #2:** although you can define test cases in a question prototype
 these have no relevance and are silently ignored.
 
-## How programming quizzes should work
+## APPENDIX: How programming quizzes should work
 
 Historical notes and a diatribe on the use of Adaptive Mode questions ...
 
@@ -1279,4 +1385,3 @@ is submitted, and allows resubmission for a penalty. The mark obtained in a
 programming-style quiz is thus determined by how many of the problems the
 student can solve in the given time, and how many submissions the student
 needs to make on each question.
-

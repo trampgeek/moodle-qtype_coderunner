@@ -32,8 +32,7 @@ class qtype_coderunner_equality_grader extends qtype_coderunner_grader {
         $cleanedExpected = qtype_coderunner_grader::clean($testCase->expected);
         $isCorrect = $cleanedOutput == $cleanedExpected;
         $awardedMark = $isCorrect ? $testCase->mark : 0.0;
-
-        if ($testCase->stdin) {
+        if (isset($testCase->stdin)) {
             $resultStdin = qtype_coderunner_grader::tidy($testCase->stdin);
         } else {
             $resultStdin = null;

@@ -1,3 +1,38 @@
+15 September 2015. Version 2.4.2.  Various bug fixes, most notably to fix broken
+export of custom question prototypes. Other minor changes and bug fixes include:
+    - Minor documentation tweaks, e.g. a warning on the perils of duplicating
+      question prototypes and correction to regular expression grader help.
+    - Fix broken styling of result table with Moodle 2.9 (odd/even row
+      colours weren't happening).
+    - Improve the error message issued if a prototype fetch fails.
+    - Fix bug that caused datafiles to get lost when a question was moved to
+      from the special "Default fo quiz" category.
+    - Improve error message from JobeSandbox e.g. from network failures.
+    - Fix incompatibility with older (pre 5.4) versions of PHP
+    - Fix wrong error message issued on inconsistent test cases.
+    - Fix bug in initialisation of 'ordering' form fields with >15 test cases.
+    - Remove some obsolete question types.
+    - Add some new question types to built-ins and to U of Canterbury set.
+    - Add some demo questions for new users.
+    - Fix PostgreSQL incompatibility (thanks Arnaud Trouvé)
+    - Fix bug in question export when multiple prototypes with the same type
+      name exist in different contexts.
+
 29/1/15. Version 2.4.1. Added code to support use of an API-key when accessing a
 jobe server. Fixed bug in advanced question authoring interface - combinator
 template was no longer being disabled when per-test template was edited.
+
+Dec 2014/Jan 2015. Version 2.4.0. Refactored code to conform to Moodle style
+guidelines. Added functionality:
+
+    - Files can now be attached to prototypes
+    - An 'ordering' field associated with each test case allows easy reordering
+      of test cases
+    - Use of Ace code editor for template editing
+    - Prompt for disabling combinator template when per-test-case template
+      altered
+    - Improved ability to pass compile and run parameters to Jobe sandbox
+
+
+
+

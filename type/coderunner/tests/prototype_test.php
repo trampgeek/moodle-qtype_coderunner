@@ -16,6 +16,8 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/question/type/coderunner/tests/coderunnertestcase.php');
 require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
+require_once($CFG->dirroot . '/question/format/xml/format.php');
+require_once($CFG->dirroot . '/question/engine/tests/helpers.php');
 
 class qtype_coderunner_prototype_test extends qtype_coderunner_testcase {
 
@@ -30,6 +32,90 @@ class qtype_coderunner_prototype_test extends qtype_coderunner_testcase {
      
     // Test any prototype files are also used by child
     public function test_files_inherited() {
+        $q = $this->make_parent_and_child();
+
+        $code = "print(open('data.txt').read())"; 
+        $response = array('answer' => $code);
+        $result = $q->grade_response($response);
+        list($mark, $grade, $cache) = $result;
+        $testoutcome = unserialize($cache['_testoutcome']);
+
+        $this->assertTrue($testoutcome->all_correct());
+    }
+    
+    // Test exported question does not contain inherited fields
+    public function test_export()
+    {
+        $q = $this->make_parent_and_child();
+        $q->qtype = $q->qtype->name(); // TODO: Why does qformat_xml expect this field to be a string?!
+        $exporter = new qformat_xml();
+        $xml = $exporter->writequestion($q);
+        $bits = preg_split("/<!-- question: [0-9]*  -->/", $xml);
+        $xml_no_line1 = $bits[1];
+        $expectedxml = '
+  <question type="coderunner">
+    <name>
+      <text>Program to test prototype</text>
+    </name>
+    <questiontext format="html">
+      <text>Answer should (somehow) produce the expected answer below</text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text>No feedback available for coderunner questions.</text>
+    </generalfeedback>
+    <defaultgrade>1</defaultgrade>
+    <penalty>0.3333333</penalty>
+    <hidden>0</hidden>
+    <coderunnertype>sqr_user_prototype</coderunnertype>
+    <prototypetype>0</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime></penaltyregime>
+    <showsource></showsource>
+    <answerboxlines></answerboxlines>
+    <answerboxcolumns></answerboxcolumns>
+    <useace>1</useace>
+    <resultcolumns></resultcolumns>
+    <answer></answer>
+    <combinatortemplate></combinatortemplate>
+    <testsplitterre></testsplitterre>
+    <enablecombinator></enablecombinator>
+    <pertesttemplate></pertesttemplate>
+    <language></language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader></grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams></templateparams>
+    <testcases>
+      <testcase useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>This is data
+Line 2</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+    </testcases>
+  </question>
+';
+        $this->assert_same_xml($expectedxml, $xml_no_line1);
+    }
+    
+    // Support function to make a parent and its child
+    private function make_parent_and_child()
+    {
         $id = $this->make_sqr_user_type_prototype(true);
 
         $this->setAdminUser();
@@ -51,16 +137,13 @@ class qtype_coderunner_prototype_test extends qtype_coderunner_testcase {
         $fs->create_file_from_string($fileinfo, "This is data\nLine 2");
         
         $q = $this->make_question('sqr_user_prototype_child');  // Make a derived question
-
-        $code = "print(open('data.txt').read())"; 
-        $response = array('answer' => $code);
-        $result = $q->grade_response($response);
-        list($mark, $grade, $cache) = $result;
-        $testoutcome = unserialize($cache['_testoutcome']);
-
-        $this->assertTrue($testoutcome->all_correct());
-    }    
+        return $q;
+    }
     
+    public function assert_same_xml($expectedxml, $xml) {
+        $this->assertEquals(str_replace("\r\n", "\n", $expectedxml),
+                str_replace("\r\n", "\n", $xml));
+    }
     
     // Support function to make and save a prototype question.
     // Optionally, prototype has a file attached for testing file inheritance.

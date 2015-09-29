@@ -172,9 +172,9 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         }
 
         // Inherit combinator use on all except builtins and existing custom template questions
-        $DB->execute("UPDATE {quest_coderunner_options}
-            SET enable_combinator = IF(per_test_template IS NOT null AND per_test_template != '', 0, null)
-            WHERE prototype_type = 0");
+        $DB->set_field('quest_coderunner_options', 'enable_combinator', 0, array('prototype_type' => 0));
+        $DB->set_field('quest_coderunner_options', 'enable_combinator', null, array('prototype_type' => 0, 'per_test_template' => null));
+        $DB->set_field('quest_coderunner_options', 'enable_combinator', null, array('prototype_type' => 0, 'per_test_template' => ''));
 
         foreach (array('showtest', 'showstdin', 'showexpected', 'showoutput', 'showmark') as $fieldname) {
             $default = $fieldname === 'showmark' ? 0 : 1;
@@ -248,9 +248,9 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         }
 
         // Inherit combinator use on all except builtins and existing custom template questions
-        $DB->execute("UPDATE {quest_coderunner_options}
-            SET enable_combinator = IF(per_test_template IS NOT null AND per_test_template != '', 0, null)
-            WHERE prototype_type = 0");
+        $DB->set_field('quest_coderunner_options', 'enable_combinator', 0, array('prototype_type' => 0));
+        $DB->set_field('quest_coderunner_options', 'enable_combinator', null, array('prototype_type' => 0, 'per_test_template' => null));
+        $DB->set_field('quest_coderunner_options', 'enable_combinator', null, array('prototype_type' => 0, 'per_test_template' => ''));
 
         foreach (array('showtest', 'showstdin', 'showexpected', 'showoutput', 'showmark') as $fieldname) {
             $default = $fieldname === 'showmark' ? 0 : 1;
@@ -553,12 +553,11 @@ function updateQuestionTypes() {
        $DB->delete_records('question', array('id' => $question->id));
     }
     
-    $dbdir = dirname(__FILE__);
-    $dbfiles = scandir($dbdir);
+    $dbfiles = scandir(__DIR__);
     foreach ($dbfiles as $file) {
         // Load any files in the db directory ending with _PROTOTYPES.xml
         if (strpos(strrev($file), strrev('_PROTOTYPES.xml')) === 0) {
-            $filename = $dbdir . '/' . $file;
+            $filename = __DIR__ . '/' . $file;
             load_questions($category, $filename, $systemcontextid);
         }
     }

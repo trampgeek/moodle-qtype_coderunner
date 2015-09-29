@@ -52,7 +52,7 @@ table.coderunner-test-results, table.coderunnerexamples {
     margin-bottom: 1em;
 }
 
-div.coderunner-test-results td:last-child,td:first-child {
+div.coderunner-test-results td:last-child, div.coderunner-test-results td:first-child {
     min-width: 16px;
 }
 

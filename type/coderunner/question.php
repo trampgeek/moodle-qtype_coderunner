@@ -26,6 +26,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+
 require_once($CFG->dirroot . '/question/behaviour/adaptive/behaviour.php');
 require_once($CFG->dirroot . '/question/engine/questionattemptstep.php');
 require_once($CFG->dirroot . '/question/behaviour/adaptive_adapted_for_coderunner/behaviour.php');
@@ -201,7 +202,6 @@ class qtype_coderunner_question extends question_graded_automatically {
         } else {
             $sandboxparams = array();
         }
-        
         if ($this->prototypetype != 0) {
             $files = array(); // We're running a prototype question ?!
         } else {
@@ -211,7 +211,6 @@ class qtype_coderunner_question extends question_graded_automatically {
             $files = $this->get_data_files($prototype, $prototype->questionid);
         }
         $files += $this->get_data_files($this, $this->id);  // Add in files for this question
-
         if (isset($this->cputimelimitsecs)) {
             $sandboxparams['cputime'] = intval($this->cputimelimitsecs);
         }
@@ -437,9 +436,9 @@ class qtype_coderunner_question extends question_graded_automatically {
         if ($grader === null) {
             $this->grader = $grader = constants::DEFAULT_GRADER;
         }
-
         $filename = qtype_coderunner_grader::get_filename($grader);
-        $graderclass = qtype_coderunner_grader::available_graders()[$grader];
+        $graders = qtype_coderunner_grader::available_graders();
+        $graderclass = $graders[$grader];
         require_once($CFG->dirroot . "/question/type/coderunner/grader/$filename");
         $this->graderinstance = new $graderclass();
     }
@@ -458,10 +457,10 @@ class qtype_coderunner_question extends question_graded_automatically {
             if (!get_config('qtype_coderunner', strtolower($sandbox) . '_enabled')) {
                 throw new coderunner_exception("Question is configured to use a disabled sandbox ($sandbox)");
             }
-
         }
 
-        $sandboxclass = qtype_coderunner_sandbox::available_sandboxes()[$sandbox];
+        $sandboxes = qtype_coderunner_sandbox::available_sandboxes();
+        $sandboxclass = $sandboxes[$sandbox];
         $filename = qtype_coderunner_sandbox::get_filename($sandbox);
         require_once($CFG->dirroot . "/question/type/coderunner/sandbox/$filename");
         $this->sandboxinstance = new $sandboxclass();
@@ -487,7 +486,6 @@ class qtype_coderunner_question extends question_graded_automatically {
      */
     private static function get_data_files($question, $questionid) {
         global $DB;
-        
         // If not given in the question object get the contextid from the database
 
         if (isset($question->contextid)) {
@@ -496,7 +494,6 @@ class qtype_coderunner_question extends question_graded_automatically {
             $context = qtype_coderunner::question_context($question);
             $contextid = $context->id;
         }
-
         $fs = get_file_storage();
         $fileMap = array();
         $files = $fs->get_area_files($contextid, 'qtype_coderunner', 'datafile', $questionid);

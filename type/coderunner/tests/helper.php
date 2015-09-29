@@ -768,6 +768,13 @@ EOPROG;
      * get_question_options method, as we'd like to, because it requires
      * a form rather than a question and may have a files area with files
      * to upload - too hard to set up :-(
+     * The normal get_options method returns all the options in 
+     * the 'options' field of the object, but CodeRunner then subsequently
+     * flattens the options into the question itself. This implementation does
+     * both - defining the options object and the flattened version - so the
+     * resulting question can be used in the usual CodeRunner context but
+     * also in contexts like the question-export tes (which expects the options
+     * field).
      */
     private function get_options(&$question) {
         global $CFG, $DB;
@@ -787,10 +794,28 @@ EOPROG;
             }
         }
         
-
+        
         foreach ($question->options as $key => $value) {
             $question->$key = $value;
         }
+
+        
+        // What follows is a rather horrible hack to support question export
+        // testing. Having built the flattened question, we now "unflatten"
+        // it back out to the set of options we get from the database.
+        
+        $question->options = new StdClass();
+        foreach ($question->qtype->extra_question_fields() as $field) {
+            if (isset($question->$field)) {
+                $question->options->$field = $question->$field;
+            } else {
+                $question->options->$field = NULL;
+            }
+        }
+        
+        $question->options->answers = array();  // For compatability with questiontype base
+        $question->options->testcases = $question->testcases;
+        
 
         if (!isset($question->sandbox)) {
             $question->sandbox = $question->get_best_sandbox($question->language);

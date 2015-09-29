@@ -36,7 +36,7 @@ class qtype_coderunner_near_equality_grader extends qtype_coderunner_grader {
         $isCorrect = $this->reduce($cleanedOutput) == $this->reduce($cleanedExpected);
         $awardedMark = $isCorrect ? $testCase->mark : 0.0;
 
-        if ($testCase->stdin) {
+        if (isset($testCase->stdin)) {
             $resultStdin = qtype_coderunner_grader::tidy($testCase->stdin);
         } else {
             $resultStdin = null;

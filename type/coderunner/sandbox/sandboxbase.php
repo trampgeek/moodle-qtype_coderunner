@@ -97,7 +97,8 @@ abstract class qtype_coderunner_sandbox {
      * @return string $filename
      */
     public static function get_filename($extsandboxname) {
-        $classname = self::available_sandboxes()[$extsandboxname];
+        $boxes = self::available_sandboxes();
+        $classname = $boxes[$extsandboxname];
         return str_replace('_', '', str_replace('qtype_coderunner_', '', $classname)) . '.php';
     }
     

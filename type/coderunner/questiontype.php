@@ -315,6 +315,22 @@ class qtype_coderunner extends question_type {
 
         return true;
     }
+    
+    
+    /**
+     * Move all the files belonging to this question from one context to another.
+     * Override superclass implementation to handle the extra data files
+     * we have in CodeRunner questions.
+     * @param int $questionid the question being moved.
+     * @param int $oldcontextid the context it is moving from.
+     * @param int $newcontextid the context it is moving to.
+     */
+    public function move_files($questionid, $oldcontextid, $newcontextid) {
+        parent::move_files($questionid, $oldcontextid, $newcontextid);
+        $fs = get_file_storage();
+        $fs->move_area_files_to_new_context($oldcontextid,
+                $newcontextid, 'qtype_coderunner', 'datafile', $questionid);
+    }
 
     // Load the question options (all the question extension fields and
     // testcases) from the database into the question.
@@ -598,6 +614,7 @@ class qtype_coderunner extends question_type {
                 $qo->$field = $format->getpath($data, array('#', $field, 0, '#'), $default);
             }
         }
+
         $qo->isnew = true;
         
         $qo->testcases = array();
@@ -661,7 +678,7 @@ class qtype_coderunner extends question_type {
     // are not equal in value to the field from the prototype.
 
     function export_to_xml($question, qformat_xml $format, $extra=null) {
-        global $DB;
+        global $COURSE;
         if ($extra !== null) {
             throw new coding_exception("coderunner:export_to_xml: Unexpected parameter");
         }
@@ -671,18 +688,17 @@ class qtype_coderunner extends question_type {
         $questiontoexport = clone $question; 
        
         $qtype = $question->options->coderunnertype;
-        if (!$row = $DB->get_record_select(
-                'question_coderunner_options',
-                "coderunnertype = '$qtype' and prototypetype != 0")) {
-            throw new coderunner_exception("Failed to load type info for question id {$question->id}");
-        }
+        $coursecontext = context_course::instance($COURSE->id);
+        $row = self::get_prototype($qtype, $coursecontext);
 
         // Clear all inherited fields equal in value to the corresponding Prototype field
         // (but only if this is not a prototype question itself)
-        if ($row->prototypetype == 0) {
-            $noninheritedFields = $this->noninherited_fields();
+        if ($questiontoexport->options->prototypetype == 0) {
+            $noninheritedfields = $this->noninherited_fields();
+            $extrafields = $this->extra_question_fields();
             foreach ($row as $field => $value) {
-                if (!in_array($field, $noninheritedFields) && 
+                if (in_array($field, $extrafields) && 
+                        !in_array($field, $noninheritedfields) && 
                         $question->options->$field === $value) {
                     $questiontoexport->options->$field = null;
                 }
