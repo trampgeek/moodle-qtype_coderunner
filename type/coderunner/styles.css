@@ -77,6 +77,23 @@ div.coderunner-test-results.bad, pre.pre_syntax_error {
     background-color: #FFAAAA;
 }
 
+
+/* Ins and del elements are used to show differences. ins elements are
+   always hidden and del elements are always displayed (without decoration),
+   but the background colour of del elements is toggled by the
+   Show/Hide differences button.
+*/
+
+div.coderunner-test-results del {
+    text-decoration: none;
+}
+
+div.coderunner-test-results ins {
+    display: none;
+    text-decoration: none;
+}
+
+
 pre.pre_syntax_error {
     border: none;
 }

@@ -211,6 +211,31 @@ M.qtype_coderunner.initQuestionTA = function (Y, taId) {
 };
 
 
+// Initialise a given "Show differences" button, which toggles the visibility
+// of <del> elements in the result table. showValue and hideValue are the
+// labels to display on the button.
+M.qtype_coderunner.initDiffButton = function(Y, buttonId, showValue, hideValue) {
+    var diffButton = Y.one('[id="' + buttonId + '"]');
+    diffButton.on("click", function(e) {
+        var showing = true;
+        if (diffButton.get('value') === showValue) {
+            diffButton.set('value', hideValue);
+        } else {
+            diffButton.set('value', showValue);
+            showing = false;
+        }
+        Y.all(".coderunner-test-results del").each(function (divEl) {
+            if (showing) {
+                divEl.setStyle('background-color', '#E0E000');
+            } else {
+                divEl.setStyle('background-color', 'inherit');
+            }
+        });
+    });
+    
+};
+
+
 // Set up the JavaScript to handle a given text area (as a YUI node)
 // Having given up on syntax colouring editors in the YUI context, I
 // now just do rudimentary autoindent on return and replace tab with

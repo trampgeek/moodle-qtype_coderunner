@@ -173,6 +173,7 @@ given for that particular test case and the 'Got' column would display the
 text "Half the answers were right!".
 EO_GC_HELP;
 $string['hidden'] = 'Hidden';
+$string['hidedifferences'] = 'Hide differences';
 $string['HIDE'] = 'Hide';
 $string['HIDE_IF_FAIL'] = 'Hide if fail';
 $string['HIDE_IF_SUCCEED'] = 'Hide if succeed';
@@ -348,6 +349,7 @@ $string['showcolumns'] = 'Show columns:';
 $string['showcolumns_help'] = 'Select which columns of the results table should ' .
         'be displayed to students. Empty columns will be hidden regardless. ' .
         'The defaults are appropriate for most uses.';
+$string['showdifferences'] = 'Show differences';
 $string['showsource'] = 'Template debugging';
 $string['stdin'] = 'Standard Input';
 $string['stdin_help'] = 'The standard input to the test, seen by the template as {{TEST.stdin}}';

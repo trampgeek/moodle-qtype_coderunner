@@ -669,19 +669,20 @@ class FineDiff {
 			}
 		}
 
+        // Modified for use in CodeRunner: rather than displaying deleted
+        // newlines as "\n" we add white space after them to make any empty
+        // deleted lines visible when coloured.
 	private static function renderDiffToHTMLFromOpcode($opcode, $from, $from_offset, $from_len) {
+                $s = htmlentities(substr($from, $from_offset, $from_len));
 		if ( $opcode === 'c' ) {
-			echo htmlentities(substr($from, $from_offset, $from_len));
+			echo $s;
 			}
 		else if ( $opcode === 'd' ) {
-			$deletion = substr($from, $from_offset, $from_len);
-			if ( strcspn($deletion, " \n\r") === 0 ) {
-				$deletion = str_replace(array("\n","\r"), array('\n','\r'), $deletion);
-				}
-			echo '<del>', htmlentities($deletion), '</del>';
+			$deletion = str_replace("\n", "&nbsp;\n", $s);
+			echo '<del>' . $deletion . '</del>';
 			}
 		else /* if ( $opcode === 'i' ) */ {
- 			echo '<ins>', htmlentities(substr($from, $from_offset, $from_len)), '</ins>';
+ 			echo '<ins>' . $s . '</ins>';
 			}
 		}
 	}

@@ -45,7 +45,8 @@ class qtype_coderunner_renderer extends qtype_renderer {
     const FORCE_TABULAR_EXAMPLES = true;
     const MAX_LINE_LENGTH = 120;
     const MAX_NUM_LINES = 200;
-    const DEFAULT_RESULT_COLUMNS = '[["Test", "testcode"], ["Input", "stdin"], ["Expected", "expected"], ["Got", "got"]]';
+    const SIMPLE_RESULT_COLUMNS = '[["Test", "testcode"], ["Input", "stdin"], ["Expected", "expected"], ["Got", "got"]]';
+    const DIFF_RESULT_COLUMNS = '[["Test", "testcode"], ["Input", "stdin"], ["Expected", "diff(expected, got)", "%h"], ["Got", "diff(got, expected)", "%h"]]';
 
     /**
      * Generate the display of the formulation part of the question. This is the
@@ -177,7 +178,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
             if (!$testoutcome->has_syntax_error() && !$testoutcome->run_failed() &&
                 !$testoutcome->feedbackhtml) {
-                $fb .= $this->build_feedback_summary($q, $testcases, $testoutcome);
+                $fb .= $this->build_feedback_summary($qa, $testcases, $testoutcome);
             }
             $fb .= html_writer::end_tag('div');
         } else { // No testresults?! Probably due to a wrong behaviour selected
@@ -213,8 +214,8 @@ class qtype_coderunner_renderer extends qtype_renderer {
         // question's resultcolumns variable. This is a JSON-encoded list
         // of column specifiers. A column specifier is itself a list, usually
         // with 2 or 3 elements. The first element is the column header
-        // the second is the test result object field name whose value is to be
-        // displayed in the column and the third (optional) element is the
+        // the second is (usually) the test result object field name whose value
+        // is to be displayed in the column and the third (optional) element is the
         // sprintf format used to display the field. It is also possible to
         // combine more than one field of the test result object into a single
         // field by adding extra field names into the column specifier before
@@ -224,13 +225,22 @@ class qtype_coderunner_renderer extends qtype_renderer {
         // A special case format specifier is '%h' denoting that
         // te result object field value should be treated as ready-to-output html.
         // Empty columns are suppressed.
+        // As an extension an expression of the form
+        // diff(resultObjectField1, resultObjectField2) can be used in place
+        // of a field name to generate an HTML-encoded difference display
+        // using finediff: https://github.com/gorhill/PHP-FineDiff. The output
+        // should then be displayed using a '%h' format.
+        
 
         global $COURSE;
-                
+
+        $question->usesdiff = FALSE;  // HACK ALERT -- adding a new field to question
         if (isset($question->resultcolumns) && $question->resultcolumns) {
             $resultcolumns = json_decode($question->resultcolumns);
+        } elseif (empty($question->grader) || $question->grader === 'EqualityGrader') {
+            $resultcolumns = json_decode(self::DIFF_RESULT_COLUMNS);
         } else {
-            $resultcolumns = json_decode(self::DEFAULT_RESULT_COLUMNS);
+            $resultcolumns = json_decode(self::SIMPLE_RESULT_COLUMNS);
         }
         if ($COURSE && $coursecontext = context_course::instance($COURSE->id)) {
             $canviewhidden = has_capability('moodle/grade:viewhidden', $coursecontext);
@@ -278,24 +288,18 @@ class qtype_coderunner_renderer extends qtype_renderer {
                 $tablerow = array($tickorcross); // Tick or cross
                 foreach ($resultcolumns as &$colspec) {
                     $len = count($colspec);
+                    if (strpos($colspec[1], 'diff') !== FALSE) {
+                        $question->usesdiff = TRUE;
+                    }
                     $format = $colspec[$len - 1];
-                    if ($format === '%h') {  // If it's an html format
-                        $field = $colspec[1]; // ... use the template supplied value directly
-                        if (property_exists($testresult, $field)) {
-                            $value = $testresult->$field;
-                        } else {
-                            $value = "Field '$field' does not exist";
-                        }
-                        $tablerow[] = $value;  
+                    if ($format === '%h') {  // If it's an html format, use value directly
+                        $value = self::restrict_qty($testresult->getvalue($colspec[1]));
+                        $tablerow[] = self::clean_html($value);  
                     } else if ($format !== '') {  // Else if it's a non-null column
                         $args = array($format);
                         for ($j = 1; $j < $len - 1; $j++) {
-                            $field = $colspec[$j];
-                            if (property_exists($testresult, $field)) {
-                                $args[] = self::restrict_qty($testresult->$field);
-                            } else {
-                                $args[] = "Field '$field' does not exist";
-                            }
+                            $value = self::restrict_qty($testresult->getvalue($colspec[$j]));
+                            $args[] = $value;
                         }
                         $content = call_user_func_array('sprintf', $args);
                         $tablerow[] = self::format_cell($content);
@@ -348,9 +352,11 @@ class qtype_coderunner_renderer extends qtype_renderer {
     // Compute the HTML feedback summary for a given test outcome.
     // Should not be called if there were any syntax or sandbox errors, or if a
     // combinator-template grader was used. 
-    private function build_feedback_summary($question, $testcases, $testoutcome) {
+    private function build_feedback_summary($qa, $testcases, $testoutcome) {
+        $question = $qa->get_question();
         $lines = array();  // List of lines of output
         $testresults = $testoutcome->testresults;
+        $onlyhiddenfailed = FALSE;
         if (count($testresults) != count($testcases)) {
             $lines[] = get_string('aborted', 'qtype_coderunner');
         } else {
@@ -358,7 +364,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
             $hiddenerrors = $this->count_hidden_errors($testresults, $testcases);
             if ($numerrors > 0) {
                 if ($numerrors == $hiddenerrors) {
-                    // Only hidden tests were failed
+                    $onlyhiddenfailed = TRUE;
                     $lines[] = get_string('failedhidden', 'qtype_coderunner');
                 }
                 else if ($hiddenerrors > 0) {
@@ -370,8 +376,13 @@ class qtype_coderunner_renderer extends qtype_renderer {
         if ($testoutcome->all_correct()) {
             $lines[] = get_string('allok', 'qtype_coderunner') .
                         "&nbsp;" . $this->feedback_image(1.0);
-        } else if ($question->allornothing) {
-            $lines[] = get_string('noerrorsallowed', 'qtype_coderunner');
+        } else {
+            if ($question->allornothing) {
+                $lines[] = get_string('noerrorsallowed', 'qtype_coderunner');
+            }
+            if ($question->usesdiff && !$onlyhiddenfailed) {
+                $lines[] = $this->diff_button($qa);
+            }
         }
 
 
@@ -413,6 +424,26 @@ class qtype_coderunner_renderer extends qtype_renderer {
             }
          }
          return true;
+    }
+    
+    
+    // Clean the given html by wrapping it in <pre> tags and passing it with libxml
+    // and outputing the (supposedly) cleaned up HTML.
+    private function clean_html($html) {
+        libxml_use_internal_errors(true);
+        $html = "<div>". $html . "</div>"; // Wrap it in a div (seems to help libxml)
+        $doc = new DOMDocument;
+        if ($doc->loadHTML($html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD)) {
+            return $doc->saveHTML();
+        } else {
+            $message = "Errors in HTML\n<br />";
+            foreach (libxml_get_errors() as $error) {
+                $message .= "Line {$error->line} column {$error->line}: {$error->code}\n<br />";
+            }
+            libxml_clear_errors();
+            $message .= "\n<br />" + $html;
+            return $message;
+        }
     }
 
 
@@ -567,6 +598,28 @@ class qtype_coderunner_renderer extends qtype_renderer {
             }
         }
         return $n;
+    }
+    
+    
+    // Support method to generate the "Show differences" button.
+    // Returns the HTML for the button, and sets up the JavaScript handler
+    // for it.
+    private static function diff_button($qa) {
+        global $PAGE;
+        $attributes = array(
+            'type' => 'button',
+            'id' => $qa->get_behaviour_field_name('button'),
+            'name' => $qa->get_behaviour_field_name('button'),
+            'value' => get_string('showdifferences', 'qtype_coderunner'),
+            'class' => 'btn',
+        );
+        $output = html_writer::empty_tag('input', $attributes);
+
+        $PAGE->requires->js_init_call('M.qtype_coderunner.initDiffButton', 
+                array($attributes['id'], $attributes['value'],
+                    get_string('hidedifferences', 'qtype_coderunner')));
+        return $output;
+
     }
 
 }

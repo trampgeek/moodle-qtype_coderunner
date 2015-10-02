@@ -19,6 +19,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+require_once($CFG->dirroot . '/question/type/coderunner/finediff.php');
+
 class qtype_coderunner_testing_outcome {
     const STATUS_VALID = 1;         // A full set of test results is returned
     const STATUS_SYNTAX_ERROR = 2;  // The code (on any one test) didn't compile
@@ -122,6 +124,51 @@ class qtype_coderunner_test_result {
         $this->got = $got;
         $this->stdin = $stdin;
         $this->extra = $extra;
+    }
+    
+    
+    // Return the value from this testresult as specified by the given
+    // $fieldspecifier, which is either a fieldname within the test result
+    // or an expression of the form diff(fieldspec1, fieldspec2). In the first
+    // case the return value is just the selected field. In the second case
+    // its an html-encoded diff between the two fields, for display using
+    // %h format.
+    public function getvalue($fieldspecifier) {
+        $matches = array();
+        if (preg_match('|diff\((\w+), ?(\w+)\)|', $fieldspecifier, $matches)) {
+            $field1 = $matches[1];
+            $field2 = $matches[2];
+            if (property_exists($this, $field1) && property_exists($this, $field2)) {
+                $value = $this->makediff($field1, $field2);
+            } else {
+                $value = "Bad diff expression";
+            }
+        } elseif (property_exists($this, $fieldspecifier)) {
+            $value = $this->$fieldspecifier;
+        } else {
+            $value = "Unknown field '$fieldspecifier'";
+        }
+        return $value;
+    }
+    
+    // Use finediff (https://github.com/gorhill/PHP-FineDiff) to make an HTML
+    // diff of the two fields (which must exist).
+    private function makediff($field1, $field2) {
+        $granularity = 3; // Character granularity
+        $fromtext = mb_convert_encoding($this->$field1, 'HTML-ENTITIES', 'UTF-8');
+	$totext = mb_convert_encoding($this->$field2, 'HTML-ENTITIES', 'UTF-8');
+
+	$granularityStacks = array(
+		FineDiff::$paragraphGranularity,
+		FineDiff::$sentenceGranularity,
+		FineDiff::$wordGranularity,
+		FineDiff::$characterGranularity
+	);
+	$diffopcodes = FineDiff::getDiffOpcodes($fromtext, $totext, 
+                $granularityStacks[$granularity]);
+        $rendereddiff = FineDiff::renderDiffToHTMLFromOpcodes($fromtext, $diffopcodes);
+        //return str_replace('<del>\n</del>', "<del>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\n</del>", $rendereddiff);
+        return str_replace(array('', "\n"), array('&nbsp;', "\n<br>"), $rendereddiff);
     }
 }
 
