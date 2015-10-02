@@ -427,7 +427,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
     }
     
     
-    // Clean the given html by wrapping it in <pre> tags and passing it with libxml
+    // Clean the given html by wrapping it in <div> tags and passing it with libxml
     // and outputing the (supposedly) cleaned up HTML.
     private function clean_html($html) {
         libxml_use_internal_errors(true);
