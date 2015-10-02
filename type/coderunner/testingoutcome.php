@@ -168,7 +168,7 @@ class qtype_coderunner_test_result {
                 $granularityStacks[$granularity]);
         $rendereddiff = FineDiff::renderDiffToHTMLFromOpcodes($fromtext, $diffopcodes);
         //return str_replace('<del>\n</del>', "<del>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\n</del>", $rendereddiff);
-        return str_replace(array('', "\n"), array('&nbsp;', "\n<br>"), $rendereddiff);
+        return str_replace(array(' ', "\n"), array('&nbsp;', "\n<br>"), $rendereddiff);
     }
 }
 
