@@ -154,7 +154,7 @@ class qtype_coderunner_test_result {
     // Use finediff (https://github.com/gorhill/PHP-FineDiff) to make an HTML
     // diff of the two fields (which must exist).
     private function makediff($field1, $field2) {
-        $granularity = 3; // Character granularity
+        $granularity = 2; // Word granularity
         $fromtext = mb_convert_encoding($this->$field1, 'HTML-ENTITIES', 'UTF-8');
 	$totext = mb_convert_encoding($this->$field2, 'HTML-ENTITIES', 'UTF-8');
 
@@ -166,9 +166,7 @@ class qtype_coderunner_test_result {
 	);
 	$diffopcodes = FineDiff::getDiffOpcodes($fromtext, $totext, 
                 $granularityStacks[$granularity]);
-        $rendereddiff = FineDiff::renderDiffToHTMLFromOpcodes($fromtext, $diffopcodes);
-        //return str_replace('<del>\n</del>', "<del>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\n</del>", $rendereddiff);
-        return str_replace(array(' ', "\n"), array('&nbsp;', "\n<br>"), $rendereddiff);
+        return FineDiff::renderDiffToHTMLFromOpcodes($fromtext, $diffopcodes);
     }
 }
 
