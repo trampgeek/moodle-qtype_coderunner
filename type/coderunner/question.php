@@ -420,7 +420,7 @@ class qtype_coderunner_question extends question_graded_automatically {
                 // Successful run. Merge stdout and stderr for grading.
                 // [Rarely if ever do we get both stderr output and a
                 // RESULT_SUCCESS result but it has been known to happen in the
-                //  past, possibly with a now-defunct sandbox.]
+                // past, possibly with a now-defunct sandbox.]
                 $output = $run->stderr ? $run->output + '\n' + $run->stderr : $run->output;
                 $testresult = $this->grade($output, $testcase);
                 $aborting = false;
