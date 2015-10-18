@@ -422,8 +422,20 @@ class qtype_coderunner_question extends question_graded_automatically {
                 // RESULT_SUCCESS result but it has been known to happen in the
                 //  past, possibly with a now-defunct sandbox.]
                 $output = $run->stderr ? $run->output + '\n' + $run->stderr : $run->output;
-                $outcome->add_test_result($this->grade($output, $testcase));
+                $testresult = $this->grade($output, $testcase);
+                $aborting = false;
+                if (isset($testresult->abort) && $testresult->abort) { # templategrade abort request?
+                    $testresult->awarded = 0;  // Mark it wrong regardless
+                    $testresult->iscorrect = false;
+                    $aborting = true;
+                }
+                $outcome->add_test_result($testresult);
+                if ($aborting) {
+                    break;
+                }
+
             }
+
         }
         return $outcome;
     }
