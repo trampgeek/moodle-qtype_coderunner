@@ -187,6 +187,39 @@ EOTEMPLATE;
         $this->check_current_output( new question_pattern_expectation('/Twiddlydee/') );
     }
     
+    
+    /* Test that if a template grader sets an abort attribute in the returned
+     * JSON object to a True value, the test-runner stops running testcases
+     * at that point.
+     */
+    public function test_grading_template_abort() {
+        $q = test_question_maker::make_question('coderunner', 'sqrnoprint');
+        $q->pertesttemplate = <<<EOTEMPLATE
+{{ STUDENT_ANSWER }}
+got = {{TEST.testcode}}  # e.g. sqr(-11)
+expected = got
+if expected != 121:
+    print('{"fraction":1.0,"got":"' + str(got) + '"}')  # Abort after this testcase
+else:
+    print('{"fraction":1.0,"got":"121","expected":"Twiddlydum","abort":True}')
+EOTEMPLATE;
+        $q->allornothing = false;
+        $q->grader = 'TemplateGrader';
+        $q->customise = true;
+        $q->enablecombinator = false;
+        $q->unitpenalty = 0;
+
+        // Submit a right answer. Because the template sets abort when it
+        // gets to the sqr(11) case, marks should be awarded only for the three
+        // test cases (0, 1, 11). The sqr(11) case will be awarded zero marks
+        // despite being given a fraction of 1.0.
+        $this->start_attempt_at_question($q, 'adaptive', 1, 1);
+        $this->process_submission(array('-submit' => 1, 'answer' => "def sqr(n): return n * n\n"));
+        $this->check_current_mark(3.0/31.0);
+        $this->check_current_output( new question_pattern_expectation('/Twiddlydum/') );
+    }
+    
+    
     public function test_grading_template_html_output() {
         /* Test a grading template that supplies a JSON record with a got_html
            attribute. For a per-test template this is used in the results
@@ -219,7 +252,7 @@ EOTEMPLATE;
             'answer' => "def sqr(n): return -1 if n == 1 else n * n \n"));
         //echo $html = $this->quba->render_question($this->slot, $this->displayoptions);
         $this->check_current_mark(21.0/31.0);
-        $this->check_current_output( new question_pattern_expectation('|<svg width=\'100\' height=\'200\'></svg>|') );
+        $this->check_current_output( new question_pattern_expectation("|<svg width=.100. height=.200.></svg>|") );
         $this->check_current_output( new question_pattern_expectation('/YeeHa/') );
         $this->check_current_output( new question_pattern_expectation('|<h2>Header</h2>|') );
     }
