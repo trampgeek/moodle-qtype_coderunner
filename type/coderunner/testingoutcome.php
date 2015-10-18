@@ -56,20 +56,20 @@ class qtype_coderunner_testing_outcome {
         $this->gradercodelist = null;    // Array of all grader runs on the sandbox
         $this->feedbackhtml = null;     // Used only by combinator template grader
     }
-    
-    
+
+
     public function run_failed() {
         return $this->status === self::STATUS_SANDBOX_ERROR;
     }
 
-    
+
     public function has_syntax_error()  {
         return $this->status === self::STATUS_SYNTAX_ERROR;
     }
 
 
     public function all_correct() {
-        return $this->status !== self::STATUS_SYNTAX_ERROR && 
+        return $this->status !== self::STATUS_SYNTAX_ERROR &&
                $this->status !== self::STATUS_SANDBOX_ERROR &&
                $this->errorcount == 0;
     }
@@ -91,8 +91,8 @@ class qtype_coderunner_testing_outcome {
             $this->errorcount++;
         }
     }
-    
-    // Method used only by combinator template grader to set the mark and 
+
+    // Method used only by combinator template grader to set the mark and
     // feedback  html.
     public function set_mark_and_feedback($mark, $html) {
         $this->actualmark = $mark;
@@ -125,8 +125,8 @@ class qtype_coderunner_test_result {
         $this->stdin = $stdin;
         $this->extra = $extra;
     }
-    
-    
+
+
     // Return the value from this testresult as specified by the given
     // $fieldspecifier, which is either a fieldname within the test result
     // or an expression of the form diff(fieldspec1, fieldspec2). In the first
@@ -150,21 +150,21 @@ class qtype_coderunner_test_result {
         }
         return $value;
     }
-    
+
     // Use finediff (https://github.com/gorhill/PHP-FineDiff) to make an HTML
     // diff of the two fields (which must exist).
     private function makediff($field1, $field2) {
         $granularity = 2; // Word granularity
         $fromtext = mb_convert_encoding($this->$field1, 'HTML-ENTITIES', 'UTF-8');
-	$totext = mb_convert_encoding($this->$field2, 'HTML-ENTITIES', 'UTF-8');
+        $totext = mb_convert_encoding($this->$field2, 'HTML-ENTITIES', 'UTF-8');
 
-	$granularityStacks = array(
-		FineDiff::$paragraphGranularity,
-		FineDiff::$sentenceGranularity,
-		FineDiff::$wordGranularity,
-		FineDiff::$characterGranularity
-	);
-	$diffopcodes = FineDiff::getDiffOpcodes($fromtext, $totext, 
+        $granularityStacks = array(
+            FineDiff::$paragraphGranularity,
+            FineDiff::$sentenceGranularity,
+            FineDiff::$wordGranularity,
+            FineDiff::$characterGranularity
+    );
+    $diffopcodes = FineDiff::getDiffOpcodes($fromtext, $totext,
                 $granularityStacks[$granularity]);
         return FineDiff::renderDiffToHTMLFromOpcodes($fromtext, $diffopcodes);
     }
