@@ -762,7 +762,11 @@ the template and a variable called
 STUDENT\_ANSWER, which is the text that the student entered into the answer box,
 plus another called TEST, which is a record containing the test-case
 that the question author has specified
-for the particular test. The template will typically use just the TEST.testcode
+for the particular test. The TEST attributes most likely to be used within
+the template are TEST.testcode (the code to execute for the test), TEXT.stdin
+(the standard input for the test -- not normally used within a template, but
+occasionally useful), TEXT.extra (the extra template data provided in the
+question authoring form). The template will typically use just the TEST.testcode
 field, which is the "test" field of the testcase, and usually (but not always)
 is a bit of code to be run to test the student's answer. As an example,
 the question type *c\_function*, which asks students to write a C function,
@@ -1098,7 +1102,19 @@ columns. For more details see the section on result-table customisation.
 
 Writing a grading template that executes the student's code is, however,
 rather difficult as the generated program needs to be robust against errors
-in the submitted code.
+in the submitted code. The template-grader should always return a JSON object
+and should not generate any stderr output.
+
+Sometimes the author of a template grader wishes to abort the testing of the 
+program after a test case, usually the first, e.g. when pre-checks on the
+acceptability of a student submission fail. This can be achieved by defining
+in the output JSON object an extra attribute 'abort', giving it the value
+'true'. If such
+an attribute is defined, any supplied 'fraction' value will be ignored, the
+test case will be marked wrong (equivalent to fraction = 0) and all further
+test cases will be skipped. For example:
+
+    {"fraction":0.0, "got":"Invalid submission!", "abort":true}
 
 ### Combinator-template grading
 
