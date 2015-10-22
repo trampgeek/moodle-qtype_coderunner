@@ -147,6 +147,10 @@ body#page-question-type-coderunner div[id^=fgroup_id_] {
     overflow: visible;
 }
 
+p.question-type-details-header {
+    font-size: 130%;
+    padding-botton: 10px;
+}
 
 body#page-question-type-coderunner div[id^=fgroup_id_][id*=show_columns]
         .felement span {

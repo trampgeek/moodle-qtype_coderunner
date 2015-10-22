@@ -7,7 +7,13 @@
       <text>Car</text>
     </name>
     <questiontext format="html">
-      <text><![CDATA[<p>The following question asks the students to write a Python3 class to a given specification. This can be done with any standard Python3 question type in which the student's code is followed by the per-test-case code. This particular example uses our COSC121 question type, which enforces pylint compatibility.</p><p>For those unfamiliar with Python classes, a possible solution is hidden in the following white panel - click and drag over it to see the code.</p><pre style="color:white; background-color:white">class Car:
+      <text><![CDATA[<p>The following question asks the students to write a
+Python3 class to a given specification. This can be done with any standard
+Python3 question type in which the student's code is followed by the
+per-test-case code. This particular example uses our COSC121 question
+type, which enforces pylint compatibility.</p><p>For those unfamiliar
+with Python classes, a possible solution is hidden in the following white
+panel - click and drag over it to see the code.</p><pre style="color:white; background-color:white">class Car:
     """A class that represents a car with a model, a year
        and a speed, plus accelerate and brake methods to
        alter the speed, plus a honk_horn method.

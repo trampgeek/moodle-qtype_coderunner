@@ -420,17 +420,20 @@ class qtype_coderunner extends question_type {
     
     
     // Get the specified prototype question from the database.
-    // Returns the row from the question_coderunner_options table, not the
-    // question itself.
+    // Returns the row from the question_coderunner_options table
+    // with the addition of the question text (for use in the edit-form
+    // question-type help button).
     // To be valid, the named prototype (a question of the specified type
     // and with prototypetype non zero) must be in a question category that's 
     // available in the given current context. 
     public static function get_prototype($coderunnertype, $context) {
         global $DB;
-        $rows = $DB->get_records_select(
-               'question_coderunner_options',
-               "coderunnertype = '$coderunnertype' and prototypetype != 0");
-        
+        $sql = 'SELECT {question_coderunner_options}.*, questiontext  ' .
+               'FROM {question_coderunner_options} ' .
+               'JOIN {question} ON questionid = {question}.id '.
+               "WHERE coderunnertype = '$coderunnertype' and prototypetype != 0";
+
+        $rows = $DB->get_records_sql($sql);
         if (count($rows) == 0) {
             throw new coderunner_exception("Failed to find prototype $coderunnertype");
         }

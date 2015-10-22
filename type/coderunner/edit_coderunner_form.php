@@ -67,6 +67,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
         $mform = $this->_form;
         $this->make_questiontype_panel($mform);
+        $this->make_questiontype_help_panel($mform);
         $this->make_customisation_panel($mform);
         $this->make_advanced_customisation_panel($mform);
 
@@ -407,22 +408,28 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
         $mform->addElement('header', 'questiontypeheader', get_string('type_header','qtype_coderunner'));
 
+        // The Question Type controls (used to contain customisation controls
+        // but now just a group with a single member).
         $typeselectorelements = array();
         $expandedtypes = array_merge(array('Undefined' => 'Undefined'), $types);
         $typeselectorelements[] = $mform->createElement('select', 'coderunnertype',
                 null, $expandedtypes);
-
-        $typeselectorelements[] = $mform->createElement('advcheckbox', 'customise', null,
-                get_string('customise', 'qtype_coderunner'));
-        
-        $typeselectorelements[] =  $mform->createElement('advcheckbox', 'showsource', null,
-                get_string('showsource', 'qtype_coderunner'));
-        $mform->setDefault('showsource', False);
-
         $mform->addElement('group', 'coderunner_type_group',
                 get_string('questiontype', 'qtype_coderunner'), $typeselectorelements, null, false);
         $mform->addHelpButton('coderunner_type_group', 'coderunnertype', 'qtype_coderunner');
 
+        // Customisation checkboxes
+        $typeselectorcheckboxes = array();
+        $typeselectorcheckboxes[] =  $mform->createElement('advcheckbox', 'customise', null,
+                get_string('customise', 'qtype_coderunner'));
+        $typeselectorcheckboxes[] = $mform->createElement('advcheckbox', 'showsource', null,
+                get_string('showsource', 'qtype_coderunner'));
+        $mform->setDefault('showsource', False);
+        $mform->addElement('group', 'coderunner_type_checkboxes',
+                get_string('questioncheckboxes', 'qtype_coderunner'), $typeselectorcheckboxes, null, false);
+        $mform->addHelpButton('coderunner_type_checkboxes', 'questioncheckboxes', 'qtype_coderunner');
+
+        // Answerbox controls
         $answerboxelements = array();
         $answerboxelements[] = $mform->createElement('text', 'answerboxlines',
                 get_string('answerboxlines', 'qtype_coderunner'),
@@ -441,6 +448,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 $answerboxelements, null, false);
         $mform->addHelpButton('answerbox_group', 'answerbox_group', 'qtype_coderunner');
 
+        // Marking controls
         $markingelements = array();
         $markingelements[] = $mform->createElement('advcheckbox', 'allornothing',
                 get_string('marking', 'qtype_coderunner'),
@@ -454,11 +462,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->setType('penaltyregime', PARAM_RAW);
         $mform->addHelpButton('markinggroup', 'markinggroup', 'qtype_coderunner');
 
-        $templateelements = array();
-        $templateelements[] =  $mform->createElement('advcheckbox', 'showsource', null,
-                get_string('showsource', 'qtype_coderunner'));
-        $mform->setDefault('showsource', False);
-
+        // Template params ('advanced' so have to click Show more... to see)
         $mform->addElement('text', 'templateparams',
             get_string('templateparams', 'qtype_coderunner'),
             array('size' => self::TEMPLATE_PARAM_SIZE));
@@ -467,6 +471,17 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->setAdvanced('templateparams');
     }
     
+    
+    // Add to the supplied $mform the question-type help panel.
+    // This displays the text of the currently-selected prototype.
+    private function make_questiontype_help_panel(&$mform) {
+
+        $mform->addElement('header', 'questiontypehelpheader',
+                get_string('questiontypedetails','qtype_coderunner'));
+
+        $mform->addElement('html', '<span id="qtype-help">Select a question type to see detailed help.</span>');
+        
+    }
     
     // Add to the supplied $mform the Customisation Panel
     // The panel is hidden by default but exposed when the user clicks
@@ -592,7 +607,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
         $mform->addHelpButton('combinatorcontrols', 'combinatorcontrols', 'qtype_coderunner');
 
-        $mform->setExpanded('customisationheader');  // Although expanded it's hidden until JavaScript unhides it        
+        $mform->setExpanded('customisationheader');  // Although expanded it's hidden until JavaScript unhides it 
     }
     
     // UTILITY FUNCTIONS

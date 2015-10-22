@@ -47,31 +47,8 @@ $string['columncontrols'] = 'Result table';
 $string['coderunner'] = 'Program Code';
 $string['coderunnertype'] = "Question type:";
 $string['coderunnertype_help'] = "Select the programming language and question type.
-
-Predefined types include
-
-* function/method: where the student writes one or more functions/methods and the
-tests call those functions. The tests are automatically wrapped into a main
-function/method so usually each test is a one-liner that calls the function and
-prints the result.
-* class (Java): where the student writes an entire class and the test code
-then instantiates that student class and tests it by calling its methods. Note
-that the student-written class must not be public.
-* program:  where the student writes the entire program which is then executed
-with the standard input provided in each testcase.
-* full_main_tests (C): where the student writes various declarations and
-each test case is a full main function.
-
-These various types are not applicable to Python, where the student's code is
-always run first, followed by the test code.
-
-It is also possible to customise the question type; click the 'Customise'
-checkbox and read the help available on the newly-visible form elements for
-more information.
-
-If the template-debugging checkbox is clicked, the program generated
-for each testcase will be displayed in the output.
-";
+    Once a type has been selected, details can be seen in the Question type details
+    panel below.";
 $string['ace-language'] = "Ace language";
 $string['advanced_customisation'] = "Advanced customisation";
 $string['answer'] = "Answer";
@@ -212,6 +189,7 @@ $string['marking'] = 'Mark allocation';
 $string['memorylimit'] = 'MemLimit (MB)';
 $string['missingoutput'] = 'You must supply the expected output from '
     . 'this test case.';
+$string['noqtype'] = 'No question type selected';
 $string['morehidden'] = 'Some hidden test cases failed, too.';
 $string['noerrorsallowed'] = 'Your code must pass all tests to earn any '
     . 'marks. Try again.';
@@ -269,6 +247,17 @@ $string['prototypecontrols_help'] = 'If \'Is prototype\' is ' .
         'like \'PROTOTYPE_for_my_new_question_type\' to make subsequent ' .
         'maintenance easier.';
 $string['prototypeQ'] = 'Is prototype?';
+$string['qtypehelp'] = 'Help with q-type';
+$string['questioncheckboxes'] = 'Customisation:';
+$string['questioncheckboxes_help'] = "
+To customise the question type, e.g. to edit the question templates or
+sandbox parameters, click the 'Customise'
+checkbox and read the help available on the newly-visible form elements for
+more information.
+
+If the template-debugging checkbox is clicked, the program generated
+for each testcase will be displayed in the output.
+";
 $string['questiontype'] = 'Question type';
 $string['questiontype_help'] = <<<QUESTION_TYPE_HELP
         Select the particular type of question.
@@ -285,6 +274,7 @@ $string['questiontype_help'] = <<<QUESTION_TYPE_HELP
         If the template-debugging checkbox is clicked, the program generated
         for each testcase will be displayed in the output.
 QUESTION_TYPE_HELP;
+$string['questiontypedetails'] = "Question type details";
 
 $string['questiontype_required'] = 'You must select the type of question';
 $string['resultcolumns'] = 'Result columns';

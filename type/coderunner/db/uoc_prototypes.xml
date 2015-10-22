@@ -6,9 +6,72 @@
       <text>PROTOTYPE_python3_tkinter</text>
     </name>
     <questiontext format="html">
-      <text><![CDATA[<p>A test question for use with simple tkinter programs. Use a mock Tk that supports a subset of the full functionality that should be sufficient for COSC121. A student's submission uses the functionality in the mock module instead of the normal Tk.</p>
-<p>The tk mainloop terminates immediately and it is then expected that further&nbsp;calls to the top level window's click, enter_text, raise_event methods<br> will be called, together with calls to the display method, which prints out&nbsp;the state of the Tk widget hierarchy to check if expected changes have taken<br> place.&nbsp;The global variable __tkwin__ is the most-recently instantiated Tk window;&nbsp;due to name-mangling it can't be accessed directly from outside the module,&nbsp;but should be obtained by calling getTk().</p>
-<p>See the listing of the code in the mock tkinter (i.e. in the template) for details.</p>]]></text>
+      <text><![CDATA[<p>A question for use with simple tkinter
+programs. Uses a mock Tk that supports a subset of the full functionality
+that should be sufficient for COSC121. As with the generic Python3 question
+type, the program that's run is the student's code followed by the test code.
+However, when it runs and imports tkinter and tkinter.ttk it gets the mock
+Tk instead. </p>
+<p>The tk mainloop() call terminates immediately and it is then expected that the
+test code will first call the function getTk() to get a reference to the
+mock top-level window. A typical test will then make further calls to that
+top-level window's <tt>click</tt>, <tt>enter_text</tt>, <tt>raise_event</tt>
+methods to generate pseudo-events that are expected to modify the GUI state
+(e.g. changing the text in Labels, etc). Lastly the test code will call
+the top-level window's <tt>display</tt> method, which
+prints out the state of the Tk widget hierarchy.
+</p><p>The question uses a regular-expression grader and the 'expected' test-case
+field is matched against the GUI-state as output by the <tt>display</tt> method
+to check that the output "looks right".</p>
+<p><b>The Selector object</b></p><p>
+</p><p>
+    Many of the methods of the Mock Tk object require a selector parameter to
+    determine which widget an action should be applied to. This is an instance
+    of class Selector, which has the following constructor:
+</p><p>
+<code>Selector(text=None, widget_type=None, path=None)</code>
+</p><p>
+        text is any text string, which is the text displayed by the widget either
+        by its 'text' attribute or by its 'textvariable' attribute.</p><p>widget_type is the class name of the widget, e.g. 'Label', 'Button', etc.</p><p>path is a list of pairs that selects a grid cell in the grid hierarchy.
+        For example, if the window has a grid with a frame at (0, 2) and a Button
+        is in the frame at (1,3), the path to select that button would be
+        [(0, 2), (1, 3)]
+</p><p>
+    The selector's 'matches' method returns True if a particular widget matches
+    this selector as follows. If the path was given to the constructor the widget
+    details are ignored and matches is true iff the paths match. Otherwise the
+    widget must match with regard to type and text. If one of type or text is
+    None, other the other must match.
+</p><p><b> Methods of the Mock Tk object returned by getTk()):</b>
+</p><p>
+    <code>display()</code>: Display a textual representation of the GUI's by grid cell,
+       top to bottom, left to right. However, just prints TERMINATED
+       if destroy() has been called.
+</p><p>
+    <code>click(selector)</code>: Click the widget selected by the given Selector object.
+</p><p>
+    <code>combo_select(selector, text)</code>: Set the selected combobox to the given text
+        value, which must be one be one of the widget's values, or an exception
+        is raised
+</p><p>
+    <code>raise_event(self, selector, text)</code>: Pass the given event object to the
+        widget matching the given selector if such a widget exists and if it has
+        a binding for the event's type.
+        event is a Tk_Event object whose attributes are a subset of the real
+        Tk Event attributes: widget, x, y, x_root, y_root, char, keysym,
+        keycode, num, width, height, type. [See
+        <a href="http://effbot.org/tkinterbook/tkinter-events-and-bindings.htm">
+http://effbot.org/tkinterbook/tkinter-events-and-bindings.htm</a>].
+        The event's widget attribute will be filled in automatically when the
+        widget is located. All others are required only if the handler is likely
+        to require them.
+</p><p>
+<code>text_entry(selector, text)</code>: Call the set method of the widget located by the
+        given selector, which must be an Entry widget or a runtime error will
+        result
+</p><p>See example questions or the listing of the code in the mock tkinter
+(i.e. in the template) for more details.
+</p>]]></text>
     </questiontext>
     <generalfeedback format="html">
       <text></text>
@@ -563,7 +626,9 @@ from tkinter import *
       <text>UOC_PROTOTYPE_c_full_main_tests</text>
     </name>
     <questiontext format="moodle_auto_format">
-      <text>Used for C questions where the student writes global declarations (types, functions etc) and each test case contains a complete main function that follows the student code.</text>
+      <text>Used for C questions where the student writes global declarations
+          (types, functions etc) and each test case contains a complete main
+          function that follows the student code.</text>
     </questiontext>
     <generalfeedback format="moodle_auto_format">
       <text></text>
@@ -760,7 +825,12 @@ quit();]]></pertesttemplate>
       <text>UOC_PROTOTYPE_matlab_script</text>
     </name>
     <questiontext format="html">
-      <text><![CDATA[Used for Matlab scripts (so-called). Runs the test code first (which probably sets up a context) and then runs the student's code, which may or may not generate output dependent on the context. Finally the <i>extra</i>&nbsp;code is run (if any).<p><br></p><p>This version actually uses Octave, with a modified 'disp' function, rather than Matlab. There are bound to be subtle differences.<p><p></p><p></p></p></p>]]></text>
+      <text><![CDATA[Used for Matlab scripts (so-called).
+Runs the test code first (which probably sets up a context) and then runs
+the student's code, which may or may not generate output dependent on the
+context. Finally the <i>extra</i>&nbsp;code is run (if any).<p>
+<p>This version actually uses Octave, with a modified 'disp' function,
+rather than Matlab. There are bound to be subtle differences.</p>]]></text>
     </questiontext>
     <generalfeedback format="html">
       <text></text>
@@ -905,15 +975,15 @@ print(SEPARATOR)
     <questiontext format="html">
       <text><![CDATA[<p>Prototype for a COSC121 Python3 question that is checked by pylint before being executed. Other style checks are also implemented.</p><p>It can take the following template parameters:</p>
 <ul>
-<li>isfunction: unless this isexplicitly set to false, a dummy module docstring will be inserted at the start of the program <b>unless there is one there&nbsp;</b><b>already</b>. Thus, if your question is of the "write a program" variety, you <i>should</i>&nbsp;set this to false. Otherwise omit it.</li>
-<li><span style="font-size: 14px;">pylintoptions: this should be a JSON list of strings.&nbsp;</span><span style="font-size: 14px;">For example, the Template parameters string in the question authoring form might be set to</span></li>
-<li><p>{"isfunction": false, "pylintoptions":["--max-statements=20","--max-args=3"]}&nbsp;<span style="font-size: 14px;">to suppress the insertion of a dummy module docstring at the start and to set the maximum number of statements and arguments for each function to 20 and 3 respectively.</span></p></li>
+<li><p>isfunction: unless this isexplicitly set to false, a dummy module docstring will be inserted at the start of the program <b>unless there is one there&nbsp;</b><b>already</b>. Thus, if your question is of the "write a program" variety, you <i>should</i>&nbsp;set this to false. Otherwise omit it.</p></li>
+<li><p>pylintoptions: this should be a JSON list of strings.&nbsp;For example, the Template parameters string in the question authoring form might be set to</p></li>
+<li><p>{"isfunction": false, "pylintoptions":["--max-statements=20","--max-args=3"]}&nbsp;to suppress the insertion of a dummy module docstring at the start and to set the maximum number of statements and arguments for each function to 20 and 3 respectively.</p></li>
 <li><p>proscribedconstructs: this is a list of Python constructs (if, while, def, etc) that <b>must not</b> appear in the student's program.</p></li>
-<li><p>requiredconstructs:&nbsp;<span style="font-size: 14px;">this is a list of Python constructs (if, while, def, etc) that</span><b style="font-size: 14px;">must </b><span style="font-size: 14px;">appear in the student's program.</span></p></li>
-<li><p><span style="font-size: 14px;">allowglobals: set this to true to allow global variables (i.e. to allow lowercase globals, not just "constants")</span></p></li>
-<li><p><span style="font-size: 14px;">maxnumconstants: the maximum number of constants (i.e. uppercase globals) allowed. An integer, defaulting to 4.</span></p></li><li><p><span style="font-size: 14px;">norun: if set to true, the normal execution of the student's code will not take place. Any test code provided will however still be run.</span></p></li>
-<li><p><span style="font-size: 14px;">stripmain: if set to True, the program is expected to contain a global invocation of the main function, which is a line starting "main()". That line is deleted from the program. If the line is not present a "Missing call to main" exception is raised.</span></p></li>
-<li><span style="font-size: 14px;">runextra: if set (to any value) the Extra Template Data is added to the program as test code <i>before</i> the usual testcode.<br></span>
+<li><p>requiredconstructs:&nbsp;this is a list of Python constructs (if, while, def, etc) that<b>must </b>appear in the student's program.</p></li>
+<li><p>allowglobals: set this to true to allow global variables (i.e. to allow lowercase globals, not just "constants")</p></li>
+<li><p>maxnumconstants: the maximum number of constants (i.e. uppercase globals) allowed. An integer, defaulting to 4.</p></li><li><p>norun: if set to true, the normal execution of the student's code will not take place. Any test code provided will however still be run.</p></li>
+<li><p>stripmain: if set to True, the program is expected to contain a global invocation of the main function, which is a line starting "main()". That line is deleted from the program. If the line is not present a "Missing call to main" exception is raised.</p></li>
+<li>runextra: if set (to any value) the Extra Template Data is added to the program as test code <i>before</i> the usual testcode.<br>
 </li>
 </ul>
 <p><br></p>

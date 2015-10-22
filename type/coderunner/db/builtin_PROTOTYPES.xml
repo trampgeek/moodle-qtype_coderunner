@@ -14,7 +14,10 @@
       <text>BUILT_IN_PROTOTYPE_c_function</text>
     </name>
     <questiontext format="html">
-      <text>Used for C write-a-function questions but ONLY IF the function should have no side-effects. Must not be used for C functions that generate or consume output or alter global state in any way, as it attempts to wrap all tests into a single compile-and-run step</text>
+      <text>Used for C write-a-function questions but ONLY IF the function
+          should have no side-effects. Must not be used for C functions that
+          generate output or consume input or alter global state in any way, as it
+          attempts to wrap all tests into a single compile-and-run step</text>
     </questiontext>
     <generalfeedback format="html">
       <text></text>
@@ -84,7 +87,9 @@ int main() {
       <text>BUILT_IN_PROTOTYPE_c_program</text>
     </name>
     <questiontext format="moodle_auto_format">
-      <text>Used for C write-a-program questions, where there is no per-test-case code, and the different tests just use different stdin data.</text>
+      <text>Used for C write-a-program questions, where there is no
+          per-test-case code, and the different tests just use different
+          stdin data.</text>
     </questiontext>
     <generalfeedback format="moodle_auto_format">
       <text></text>
@@ -357,7 +362,10 @@ format free
       <text>BUILT_IN_PROTOTYPE_php</text>
     </name>
     <questiontext format="html">
-      <text><![CDATA[<p>A php question in which the student submission is a normal php file, with PHP code enclosed in &lt;?php ... ?&gt; tags and the output is the usual PHP output including all HTML content outside the php tags.</p>]]></text>
+      <text><![CDATA[<p>A php question in which the student submission is a
+normal php file, with PHP code enclosed in &lt;?php ... ?&gt; tags and
+the output is the usual PHP output including all HTML content outside
+the php tags.</p>]]></text>
     </questiontext>
     <generalfeedback format="html">
       <text></text>
@@ -408,8 +416,8 @@ echo SEPARATOR;
       <text>BUILT_IN_PROTOTYPE_python2</text>
     </name>
     <questiontext format="moodle_auto_format">
-      <text>Used for most Python2 questions. For each test case, runs the
-          student code followed by the test code</text>
+      <text>A generic Python2 question. For each test case, the
+          student code runs first, followed by the test code.</text>
     </questiontext>
     <generalfeedback format="moodle_auto_format">
       <text></text>
@@ -465,8 +473,8 @@ __student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
       <text>BUILT_IN_PROTOTYPE_python3</text>
     </name>
     <questiontext format="moodle_auto_format">
-      <text>Used for most Python3 questions. For each test case, runs the
-          student code followed by the test code.</text>
+      <text>A generic Python3 question. For each test case, the
+          student code runs first, followed by the test code.</text>
     </questiontext>
     <generalfeedback format="moodle_auto_format">
       <text></text>
@@ -522,7 +530,14 @@ __student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
       <text>BUILTIN_PROTOTYPE_Python3_w_input</text>
     </name>
     <questiontext format="html">
-      <text><![CDATA[<p>A variant of the normal Python3 question in which the usual Python3 input() function is replaced with a version that echoes the data it reads from standard input to standard output. This results in the program output looking the same to the student as when the run it interactively, with keyboard characters being echoed to the screen.</p><p>A slight disadvantage is that the line numbers in any error messages are displayed by the inserted function, so don't correspond to those displayed in the ACE edit window.</p>]]></text>
+      <text><![CDATA[<p>A variant of the normal Python3 question in which the
+usual Python3 input() function is replaced with a version that echoes the data
+it reads from standard input to standard output. This results in the program
+output looking the same to the student as when the run it interactively,
+with keyboard characters being echoed to the screen.</p>
+<p>A slight disadvantage is that the line numbers in any error messages are
+displaced by the length of inserted function, so don't correspond to those
+displayed in the ACE edit window.</p>]]></text>
     </questiontext>
     <generalfeedback format="html">
       <text></text>

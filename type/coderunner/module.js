@@ -237,10 +237,10 @@ M.qtype_coderunner.initDiffButton = function(Y, buttonId, showValue, hideValue) 
 
 
 // Set up the JavaScript to handle a given text area (as a YUI node)
-// Having given up on syntax colouring editors in the YUI context, I
-// now just do rudimentary autoindent on return and replace tab with
+// By default I just do rudimentary autoindent on return and replace tabs with
 // 4 spaces always.
 // For info on key handling browser inconsistencies see http://unixpapa.com/js/key.html
+// If Ace is enabled, it will take over the functionality of this text area.
 M.qtype_coderunner.initTextArea = function (Y, yta) {
     var i = 0,
         ENTER = 13,
@@ -330,6 +330,7 @@ M.qtype_coderunner.initEditForm = function(Y) {
         typeName = Y.one('#id_typename'),
         courseId = Y.one('input[name="courseid"]').get('value'),
         message = '',
+        questiontypeHelpDiv = Y.one('#qtype-help'),
         alertIssued = false;
 
     function setCustomisationVisibility(isVisible) {
@@ -341,6 +342,12 @@ M.qtype_coderunner.initEditForm = function(Y) {
             M.qtype_coderunner.init_ace(Y, 'id_pertesttemplate', lang);
             M.qtype_coderunner.init_ace(Y, 'id_combinatortemplate', lang);
         }
+    }
+    
+    function detailsHtml(title, html) {
+        // Local function to return the HTML to display in the
+        // Question type details section of the form
+        return '<p class="question-type-details-header">CodeRunner question type: ' + title + '</p>\n' + html;
     }
 
     function loadDefaultCustomisationFields(Y) {
@@ -378,6 +385,8 @@ M.qtype_coderunner.initEditForm = function(Y) {
                             language.set('value', outcome.language);
                             typeName.set('value', newType);
                             customise.set('checked', false);
+                            questiontypeHelpDiv.setHTML(
+                                    detailsHtml(newType, outcome.questiontext));
                             setCustomisationVisibility(false);
                         }
                         else {
