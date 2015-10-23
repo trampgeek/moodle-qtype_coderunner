@@ -415,7 +415,9 @@ M.qtype_coderunner.initEditForm = function(Y) {
     setCustomisationVisibility(isCustomised);
     if (!isCustomised) {
         loadDefaultCustomisationFields(Y);
-    };
+    } else {
+        questiontypeHelpDiv.setHTML("<p>Question type information is not available for customised questions.</p>");
+    }
 
     customise.on('change', function(e) {
        isCustomised = customise.get('checked');
