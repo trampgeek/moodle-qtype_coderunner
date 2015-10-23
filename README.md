@@ -1108,13 +1108,18 @@ and should not generate any stderr output.
 Sometimes the author of a template grader wishes to abort the testing of the 
 program after a test case, usually the first, e.g. when pre-checks on the
 acceptability of a student submission fail. This can be achieved by defining
-in the output JSON object an extra attribute 'abort', giving it the value
-'true'. If such
-an attribute is defined, any supplied 'fraction' value will be ignored, the
-test case will be marked wrong (equivalent to fraction = 0) and all further
+in the output JSON object an extra attribute `abort`, giving it the boolean
+value `true`. If such
+an attribute is defined, any supplied `fraction` value will be ignored, the
+test case will be marked wrong (equivalent to `fraction = 0`) and all further
 test cases will be skipped. For example:
 
-    {"fraction":0.0, "got":"Invalid submission!", "abort":true}
+`{"fraction":0.0, "got":"Invalid submission!", "abort":true}`
+
+Note to Python programmers: the Python literal is `True` rather than `true`,
+so if generating JSON with `json.dumps()`, you need to write
+
+`json.dumps({"fraction":0.0, "got":"Invalid submission!", "abort":True})`
 
 ### Combinator-template grading
 
@@ -1354,6 +1359,9 @@ separate PROTOTYPES category for prototype questions is also strongly recommende
 Obviously the
 question type name you use should be unique, at least within the context of the course
 in which the prototype question is being used.
+
+The question text of a prototype question is displayed in the 'Question type
+details' panel in the question authoring form. 
 
 CodeRunner searches for prototype questions
 just in the current course context. The search includes parent

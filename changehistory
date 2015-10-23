@@ -1,3 +1,8 @@
+23 October 2015. Version 2.5.0. Added a feature to display help on the
+selected CodeRunner question type to the question author in an unfoldable
+section on the question author form. The displayed help information is the
+question text from the prototype question that defines the question text.
+
 15 September 2015. Version 2.4.2.  Various bug fixes, most notably to fix broken
 export of custom question prototypes. Other minor changes and bug fixes include:
     - Minor documentation tweaks, e.g. a warning on the perils of duplicating
