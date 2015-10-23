@@ -3,6 +3,10 @@ selected CodeRunner question type to the question author in an unfoldable
 section on the question author form. The displayed help information is the
 question text from the prototype question that defines the question text.
 
+Also added a feature that allows the author of a question using a template
+grader to abort the test process, e.g. if a pre-run check on the student's
+submission failed.
+
 15 September 2015. Version 2.4.2.  Various bug fixes, most notably to fix broken
 export of custom question prototypes. Other minor changes and bug fixes include:
     - Minor documentation tweaks, e.g. a warning on the perils of duplicating
