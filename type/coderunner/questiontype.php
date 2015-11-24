@@ -159,16 +159,7 @@ class qtype_coderunner extends question_type {
 
 
     // Function to copy testcases from form fields into question->testcases
-    private function copy_testcases_from_form(&$question) {            
-    
-        function test_case_order_cmp($tc1, $tc2) {
-            if ($tc1->ordering === $tc2->ordering) {
-                return 0;
-            } else {
-                return $tc1->ordering < $tc2->ordering ? -1 : 1;
-            }
-        }
-        
+    private function copy_testcases_from_form(&$question) {                    
         $testcases = array();
         $numtests = count($question->testcode);
         assert(count($question->expected) == $numtests);
@@ -194,7 +185,13 @@ class qtype_coderunner extends question_type {
             $testcases[] = $testcase;
         }
                     
-        usort($testcases, 'test_case_order_cmp');  // Sort by ordering field
+        usort($testcases, function ($tc1, $tc2) {
+            if ($tc1->ordering === $tc2->ordering) {
+                return 0;
+            } else {
+                return $tc1->ordering < $tc2->ordering ? -1 : 1;
+            }
+        });  // Sort by ordering field
 
         $question->testcases = $testcases;  // Can't call setTestcases as question is a stdClass :-(
     }

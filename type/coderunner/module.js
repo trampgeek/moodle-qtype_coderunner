@@ -246,7 +246,9 @@ M.qtype_coderunner.initTextArea = function (Y, yta) {
         ENTER = 13,
         TAB = 9,
         SPACE = 32;
+
     yta.on('keydown', function(e) {
+        if (window.hasOwnProperty('behattesting') && window.behattesting) { return; }  // Don't autoindent when behat testing in progress
         var ta = yta.getDOMNode()
         if(e.which == undefined || e.which != 0) { // 'Normal' keypress?
             if (e.keyCode == TAB) {

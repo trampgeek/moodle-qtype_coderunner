@@ -75,7 +75,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $PAGE->requires->js_init_call('M.qtype_coderunner.initEditForm', array(), false, $jsmodule);
         load_ace_scripts();  // May be needed e.g. for template editing
         
-        parent::definition($mform);  // The supercalss adds the "General" stuff
+        parent::definition($mform);  // The superclass adds the "General" stuff
     }
 
 

@@ -250,6 +250,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
         $table = new html_table();
         $table->attributes['class'] = 'coderunner-test-results';
+        $table->attributes['name'] = 'coderunner-test-results';
 
         
         // Build the table header, containing all the specified field headers,
@@ -427,7 +428,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
     }
     
     
-    // Clean the given html by wrapping it in <div> tags and passing it with libxml
+    // Clean the given html by wrapping it in <div> tags and parsing it with libxml
     // and outputing the (supposedly) cleaned up HTML.
     private function clean_html($html) {
         libxml_use_internal_errors(true);
