@@ -38,7 +38,7 @@ class qtype_coderunner_template_grader extends qtype_coderunner_grader {
                     qtype_coderunner_grader::tidy($testcase->expected),
                     $errormessage,
                     qtype_coderunner_grader::tidy($testcase->stdin),
-                    qtype_coderunner_grader::tidy($testCase->extra)
+                    qtype_coderunner_grader::tidy($testcase->extra)
             );
         } else {
             // First copy any missing fields from test case into result
