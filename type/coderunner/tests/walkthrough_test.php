@@ -201,7 +201,7 @@ expected = got
 if expected != 121:
     print('{"fraction":1.0,"got":"' + str(got) + '"}')  # Abort after this testcase
 else:
-    print('{"fraction":1.0,"got":"121","expected":"Twiddlydum","abort":True}')
+    print('{"fraction":1.0,"got":"121","expected":"Twiddlydum","abort":true}')
 EOTEMPLATE;
         $q->allornothing = false;
         $q->grader = 'TemplateGrader';
