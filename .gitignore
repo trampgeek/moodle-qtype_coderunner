@@ -1,9 +1,9 @@
 nbproject
 TopLogs
 .html
-type/coderunner/sandbox/sandboxpolicy.pyc
-type/coderunner/sandbox/runguard
-type/coderunner/loadtestingresults.ods
+/type/coderunner/sandbox/sandboxpolicy.pyc
+/type/coderunner/sandbox/runguard
+/type/coderunner/loadtestingresults.ods
 /MoodleBook/makemoodlebook.py
 moodlebook.zip
 /makemoodlebook.py
