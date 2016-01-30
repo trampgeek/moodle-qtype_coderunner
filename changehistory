@@ -1,3 +1,10 @@
+30 January 2016. Version 2.5.1. PHP7 compatibility checked. No problems found.
+New features:
+    - Built-in difference-checker to allow students to see how their output
+      differs from the expected output.
+    - Updated documentation.
+    - Improved installers to handle non-standard MoodleHome paths. 
+
 23 October 2015. Version 2.5.0. Added a feature to display help on the
 selected CodeRunner question type to the question author in an unfoldable
 section on the question author form. The displayed help information is the
@@ -41,7 +48,3 @@ guidelines. Added functionality:
     - Prompt for disabling combinator template when per-test-case template
       altered
     - Improved ability to pass compile and run parameters to Jobe sandbox
-
-
-
-

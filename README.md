@@ -1,6 +1,6 @@
 # CODE RUNNER
 
-Version: 2.4.2 September 2015
+Version: 2.5.1 January 2016
 
 Author: Richard Lobb, University of Canterbury, New Zealand.
 
@@ -86,7 +86,8 @@ runs only on Linux systems.
 ## Installation
 
 This chapter describes how to install CodeRunner. It assumes the
-existence of a working Moodle system, version 2.6 or later.
+existence of a working Moodle system, version 2.6 or later (including
+Moodle 3).
 If you wish to install the optional Runguard
 sandbox, you must be running a Linux-based system and you need
 administrator privileges.
@@ -219,16 +220,6 @@ API key, stating how long you will need to use the key and a reasonable
 upper bound on the number of jobs you will need to submit per hour. We
 will do our best to accommodate you if we have sufficient capacity.
 
-If you want a few CodeRunner questions to get started with, try importing the
-files
-`MoodleHome>/question/type/coderunner/db/simpledemoquestions.xml` and/or
-`MoodleHome>/question/type/coderunner/db/python3demoquestions.xml`
-These contains
-all the questions from the two tutorial quizzes on the
-[demo site](http://www.coderunner.org.nz). Note, though, that some of the
-questions from the `python3demoquestions` file make use of the University of
-Canterbury prototypes in uoc_prototypes.xml, so you'd need to import them, too.
-
 WARNING: at least a couple of users have broken CodeRunner by duplicating
 the prototype questions in the System/CR_PROTOTYPES category. `Do not` touch
 those special questions until you have read this entire manual and
@@ -238,6 +229,60 @@ for normal use - they are akin to base classes in a prototypal inheritance
 system like JavaScript's. If you duplicate a prototype question the question
 type will become unusable, as CodeRunner doesn't know which version of the
 prototype to use.
+
+### Preliminary testing of the CodeRunner question type
+
+Once you have installed the CodeRunner question type, you should be able to
+run CodeRunner questions using the University of Canterbury's Jobe Server
+as a sandbox. It is
+recommended that you do this before proceeding to install and configure your
+own sandbox. Using the standard Moodle web interface, either as a Moodle
+administrator or as a teacher in a course you have set up, go to the Question
+Bank and try creating a new CodeRunner question. A simple Python3 test question
+is: "Write a function *sqr(n)* that returns the square of its
+parameter *n*.". Test cases for this might be:
+
+<table>
+<tr><th>Test</th><th>Expected</th></tr>
+<tr><td>print(sqr(-7))</td><td>49</td></tr>
+<tr><td>print(sqr(5))</td><td>25</td></tr>
+<tr><td>print(sqr(-1))</td><td>1</td></tr>
+<tr><td>print(sqr(0))</td><td>0</td></tr>
+<tr><td>print(sqr(-100))</td><td>10000</td></tr>
+</table>
+
+You could check the 'UseAsExample' checkbox on the first two (which results
+in the student seeing a simple "For example" table) and perhaps make the last
+case a hidden test case. (It is recommended that all questions have at least
+one hidden test case to prevent students synthesising code that works just for
+the known test cases).
+
+Save your new question, then preview it, entering both correct and
+incorrect answers.
+
+**IMPORTANT**: CodeRunner is designed to
+work only in an Adaptive Mode so you must set the *How questions behave* dropdown
+under *Attempt Options* to *Adaptive mode*. If you fail to do this, you'll
+receive a message like "Detailed test results unavailable.
+Perhaps an empty answer, or question behaviour not set to Adaptive Mode?". When setting
+quizzes using CodeRunner questions, you should run the entire quiz in Adaptive
+Mode, again using the 'Question behaviour' dropdown under Quiz Settings. If you
+are using a Moodle server set up specifically to run CodeRunner questions, it is
+recommended that you set the default question behaviour for the whole site to
+Adaptive Mode. An Moodle administrator does this by going to
+*Site administration > Plugins >
+Activity Modules > Quiz* and selecting *Adaptive Mode* from the *How questions
+behave* dropdown.
+
+If you want a few more CodeRunner questions to play with, try importing the
+files
+`MoodleHome>/question/type/coderunner/db/simpledemoquestions.xml` and/or
+`MoodleHome>/question/type/coderunner/db/python3demoquestions.xml`
+These contains
+all the questions from the two tutorial quizzes on the
+[demo site](http://www.coderunner.org.nz). Note, though, that some of the
+questions from the `python3demoquestions` file make use of the University of
+Canterbury prototypes in `uoc_prototypes.xml`, so you'd need to import them, too.
 
 ### Building the RunGuardSandbox
 
