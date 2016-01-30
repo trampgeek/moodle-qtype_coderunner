@@ -21,7 +21,7 @@ def printFailMessage():
 
 def main():
     cwd = os.getcwd()
-    if "moodle/local/CodeRunner" not in cwd:
+    if "local/CodeRunner" not in cwd:
         print("WARNING: CodeRunner appears not to have been cloned into moodle/local")
         print ("as recommended.")
         printFailMessage()
