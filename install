@@ -21,8 +21,10 @@ def main():
         target = '/var/www/html/moodle/question'
     elif os.path.exists('/var/www/moodle/question'):
         target = '/var/www/moodle/question'
+    elif os.path.exists('../../question/behaviour'): # Running from moodle/local
+        target = '../../question'
     else:
-        raise Exception('<moodlehome> not found in either of the expected places')
+        raise Exception('<moodlehome> not found in any of the expected places')
     
     try:
         if os.path.exists('.gitignore'):
