@@ -109,6 +109,10 @@ $string['editingcoderunner'] = 'Editing a CodeRunner Question';
 $string['empty_new_prototype_name'] = 'New question type name cannot be empty';
 $string['enable'] = 'Enable';
 $string['enablecombinator'] = 'Enable combinator';
+$string['enable_diff_check'] = 'Enable "Show differences" button';
+$string['enable_diff_check_desc'] = 'Present students with a "Show differences" button ' .
+        'if their answer is wrong and an exact-match validator is being used (experimental)';
+$string['enable_diff_check_unavailable'] = 'UNAVAILABLE FEATURE - needs PHP >= 5.4.0 and Libxml version >= 2.7.8';
 $string['enable_sandbox_desc'] = 'Permit use of the specified sandbox for ' .
          'running student submissions';
 $string['expected'] = 'Expected output';

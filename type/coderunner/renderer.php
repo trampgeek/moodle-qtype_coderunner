@@ -237,7 +237,8 @@ class qtype_coderunner_renderer extends qtype_renderer {
         $question->usesdiff = FALSE;  // HACK ALERT -- adding a new field to question
         if (isset($question->resultcolumns) && $question->resultcolumns) {
             $resultcolumns = json_decode($question->resultcolumns);
-        } elseif (empty($question->grader) || $question->grader === 'EqualityGrader') {
+        } elseif (get_config('qtype_coderunner', 'diff_check_enabled') &&
+                (empty($question->grader) || $question->grader === 'EqualityGrader')) {
             $resultcolumns = json_decode(self::DIFF_RESULT_COLUMNS);
         } else {
             $resultcolumns = json_decode(self::SIMPLE_RESULT_COLUMNS);
