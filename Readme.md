@@ -124,7 +124,7 @@ unzip it, and place it in the directory `moodle/question/type/coderunner`. Or
 1. Get the code using git by running the following command in the
 top level folder of your Moodle install:
 
-    git clone git://github.com/trampgeek/moodle-qtype_coderunner.git question/type/coderunner
+        git clone git://github.com/trampgeek/moodle-qtype_coderunner.git question/type/coderunner
 
 
 Having carried out one of the above methods,
