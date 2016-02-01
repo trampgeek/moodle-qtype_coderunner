@@ -1,9 +1,21 @@
-30 January 2016. Version 2.5.1. PHP7 compatibility checked. No problems found.
+30 January 2016. Version 3.0.0. A restructured version of the code to
+conform to Moodle standards. The question behaviour has been deleted from
+this project, and is now a separate github project
+moodle-qbehaviour_adaptive_adapted_for_coderunner. The 
+moodle-qtype_coderunner project now contains
+just the question type code, which has been moved up the file hierarchy to the
+top level.
+Discontinued features:
+    - The runguard sandbox and the Liu sandbox have both been dropped from
+      this version. Only the Jobe sandbox is officially supported. The
+      ideone sandbox remains as a proof of concept, only. It has never been
+      officially supported.
+    - Support for upgrading from CodeRunner versions prior to 2.4 has been
+      dropped.
 New features:
     - Built-in difference-checker to allow students to see how their output
-      differs from the expected output.
+      differs from the expected output (experimental feature)
     - Updated documentation.
-    - Improved installers to handle non-standard MoodleHome paths. 
 
 23 October 2015. Version 2.5.0. Added a feature to display help on the
 selected CodeRunner question type to the question author in an unfoldable
