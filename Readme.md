@@ -118,7 +118,7 @@ first (see the instructions within the repository), then the question type secon
 
 To install the question type, either:
 
-1. [download the zip file](https://github.com/trampgeek/moodle-qtype_coderunner/zipball/master),
+1. Download the zip file of the required branch from github,
 unzip it, and place it in the directory `moodle/question/type/coderunner`. Or
 
 1. Get the code using git by running the following command in the
