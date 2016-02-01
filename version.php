@@ -26,8 +26,8 @@ $plugin->version  = 2016013101;
 $plugin->requires = 2013051400;
 $plugin->cron = 0;
 $plugin->component = 'qtype_coderunner';
-$plugin->maturity = MATURITY_STABLE;
-$plugin->release = '2.5.1';
+$plugin->maturity = MATURITY_BETA;
+$plugin->release = '3.0.0';
 
 $plugin->dependencies = array(
     'qbehaviour_adaptive_adapted_for_coderunner' => 2015011201
