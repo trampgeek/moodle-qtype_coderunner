@@ -39,19 +39,6 @@ class qtype_coderunner_datafile_test extends qtype_coderunner_testcase {
         $this->check_files_in_sandbox('generic_python3', 'jobesandbox', $code);
     }
     
-    // Test loading of support files running Python in the runguard sandbox.
-    public function test_datafile_runguardsandbox() {
-        $code = $this->python_solution();
-        $this->check_files_in_sandbox('generic_python3', 'runguardsandbox', $code);
-    }
-
-
-    // Test loading of support files running C in the runguard sandbox.
-    public function test_datafile_liusandbox() {
-        $code = $this->c_solution();
-        $this->check_files_in_sandbox('generic_c', 'liusandbox', $code);
-    }
-    
     
     private function check_files_in_sandbox($question_name, $sandbox, $code) {
         $this->check_sandbox_enabled($sandbox);
