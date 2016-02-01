@@ -76,12 +76,7 @@ is even more lightly loaded during such an exam.
 The CodeRunner question type can be installed on any modern Moodle system
 (version 2.6 or later), on Linux, Windows and Mac. For security reasons
 submitted jobs are usually run on a separate machine called the "Jobe server"
-or "Jobe sandbox machine".  Linux installations have the
-additional option of using the third-party Liu sandbox for running C jobs
-directly on the Moodle server and there is also a sandbox called the RunGuard
-sandbox built into CodeRunner, although the latter is now deprecated. See the
-*Sandbox Configuration* section for details. Note that the Jobe sandbox
-runs only on Linux systems.
+or "Jobe sandbox machine".
 
 ## Installation
 
@@ -251,8 +246,7 @@ the Jobe server.
     Assuming you have built *Jobe* on a separate server, the JobeSandbox fully
 isolates student code from the Moodle server. However, Jobe *can* be installed
 on the Moodle server itself, rather than on a 
-completely different machine. This works fine and is a bit more secure
-than using the Runguard Sandbox but is much less secure than running Jobe on
+completely different machine. This works fine but is much less secure than running Jobe on
 a completely separate machine. If a student program manages to break out of
 the sandbox when it's running on a separate machine, the worst it can do is
 bring the sandbox server down, whereas a security breach on the Moodle server
@@ -261,23 +255,6 @@ and marks. That said, our Computer Science department an earlier even less
 secure Sandbox for some years without any ill effects; Moodle keeps extensive logs
 of all activities, so a student deliberately breaching security is taking a
 huge risk.
-
-
-### Checking security
-
-Until recently the default Moodle install had all files in the <moodlehome> tree
-world-readable.
-This is BAD, especially if you're running code in the Runguard sandbox,
-because the all-important `config.php`, which contains the database password,
-can be read by student code. So it's most important that you at very least
-ensure that that particular file is not world-readable.
-
-A better fix is to set the group of the entire Moodle subtree to apache
-(or www-data depending on what user the web server runs as) and then make it
-all not world readable. However, if you've installed the Runguard sandbox prior
-to changing the group and/or access modes of the Moodle subtree, you'll break
-the set-uid-root program that's used to start the Runguard
-sandbox. So you then need to re-run the runguard installer to fix it.
 
 ### Running the unit tests
 
@@ -465,13 +442,11 @@ example. The student supplies
 
  The manner in which a C program is executed is not part of the question
  type definition: it is defined by the particular sandbox to which the
- execution is passed. The Jobe Sandbox, Liu Sandbox and Runguard sandboxes all
- use the gcc compiler with the language set to
+ execution is passed. The Jobe sandbox
+ uses the gcc compiler with the language set to
  accept C99 and with both *-Wall* and *-Werror* options set on the command line
  to issue all warnings and reject the code if there are any warnings.
- The Liu sandbox also requires that the executable be statically linked; you
- may need to download the static libraries separately from the default C
- development install to enable this.
+
 
  1. **python3**. Used for most Python3 questions. For each test case, the student
 code is run first, followed by the test code.
