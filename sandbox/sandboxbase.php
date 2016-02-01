@@ -54,8 +54,8 @@ abstract class qtype_coderunner_sandbox {
     const RESULT_ILLEGAL_SYSCALL    = 19;
     const RESULT_INTERNAL_ERR       = 20;
 
-    const RESULT_SANDBOX_PENDING    = 21; // Liu sandbox PD error
-    const RESULT_SANDBOX_POLICY     = 22; // Liu sandbox BP error
+    const RESULT_SANDBOX_PENDING    = 21; // Liu sandbox PD error (defunct)
+    const RESULT_SANDBOX_POLICY     = 22; // Liu sandbox BP error (defunct)
     const RESULT_OUTPUT_LIMIT       = 30;
     const RESULT_ABNORMAL_TERMINATION = 31;
 
@@ -84,8 +84,6 @@ abstract class qtype_coderunner_sandbox {
      */
     public static function available_sandboxes() {
         return array('jobesandbox'      => 'qtype_coderunner_jobesandbox',
-                     'liusandbox'       => 'qtype_coderunner_liusandbox',
-                     'runguardsandbox'  => 'qtype_coderunner_runguardsandbox',
                      'ideonesandbox'    => 'qtype_coderunner_ideonesandbox'
                 );
 
