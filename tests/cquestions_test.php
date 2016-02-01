@@ -202,10 +202,6 @@ class qtype_coderunner_c_questions_test extends qtype_coderunner_testcase {
 
     public function test_simple_fork_bomb() {
         // Check that sandbox can handle a fork-bomb.
-        // Liu sandbox issues issues illegal function call while
-        // Runguard simply aborts all forks and output is valid,
-        // because numprocs is set to 1 (which also tests setting of
-        // sandbox parameters).
         $q = $this->make_question('sqrC');
         $response = array('answer' =>
 "#include <linux/unistd.h>
