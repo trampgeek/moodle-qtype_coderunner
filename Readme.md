@@ -119,13 +119,18 @@ first (see the instructions within the repository), then the question type secon
 To install the question type, either:
 
 1. Download the zip file of the required branch from github,
-unzip it, and place it in the directory `moodle/question/type/coderunner`. Or
+unzip it into the directory `moodle/question/type` and change the name
+of the newly-created directory from `moodle-qtype_coderunner-<branchname>` to just
+`coderunner`.
 
 1. Get the code using git by running the following command in the
 top level folder of your Moodle install:
 
         git clone git://github.com/trampgeek/moodle-qtype_coderunner.git question/type/coderunner
 
+Whichever of the two methods you used, you will also need to change the ownership
+and access rights to ensure the directory and
+its contents are readable by the webserver.
 
 Having carried out one of the above methods,
 if you have local question prototypes to add to the built-in prototype set you
