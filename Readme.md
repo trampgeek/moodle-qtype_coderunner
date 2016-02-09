@@ -90,7 +90,7 @@ If you are installing for the first time, jump straight to section 2.2.
 
 IMPORTANT: this version of CodeRunner is incompatible with versions prior to
 2.4.0. If you're attempting to upgrade from an earlier version, you should
-first upgrade to 2.4.0.
+first upgrade to the most recent version 2 (checkout branch V2 in the repository).
 
 If you are already running CodeRunner version 2.4.0 or later, you can upgrade
 simply by following the instructions in the next section.
@@ -114,7 +114,7 @@ web interface.
 To conform to Moodle standards, the CodeRunner question type is now in two
 different github repositories: github.com/trampgeek/moodle-qbehaviour_adaptive_adapted_for_coderunner
 and github.com/trampgeek/moodle-qtype_coderunner. Install the question behaviour
-first (see the instructions within the repository), then the question type second.
+first (see the instructions within that repository), then the question type second.
 
 To install the question type, either:
 
