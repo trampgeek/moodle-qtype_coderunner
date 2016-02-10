@@ -280,10 +280,11 @@ class qtype_coderunner_renderer extends qtype_renderer {
         $testcasekeys = array_keys($testcases);  // Arbitrary numeric indices. Aarghhh.
         $i = 0;
         $rowclasses = array();
+        $hidingRest = False;
         foreach ($testresults as $testresult) {
             $rowclasses[$i] = $i % 2 == 0 ? 'r0' : 'r1';
             $testcase = $testcases[$testcasekeys[$i]];
-            $testIsVisible = $this->should_display_result($testcase, $testresult);
+            $testIsVisible = $this->should_display_result($testcase, $testresult) && !$hidingRest;
             if ($canviewhidden || $testIsVisible) {
                 $fraction = $testresult->awarded / $testresult->mark;
                 $tickorcross = $this->feedback_image($fraction);
@@ -315,7 +316,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
             }
             $i++;
             if ($testcase->hiderestiffail && !$testresult->iscorrect) {
-                break;
+                $hidingRest = True;
             }
         }
         
