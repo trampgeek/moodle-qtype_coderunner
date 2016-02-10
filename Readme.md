@@ -74,7 +74,7 @@ server. The Jobe server, which runs student submissions (see below),
 is even more lightly loaded during such an exam.
 
 The CodeRunner question type can be installed on any modern Moodle system
-(version 2.6 or later), on Linux, Windows and Mac. For security reasons
+(version 2.6 or later including version 3.0), on Linux, Windows and Mac. For security reasons
 submitted jobs are usually run on a separate machine called the "Jobe server"
 or "Jobe sandbox machine".
 
