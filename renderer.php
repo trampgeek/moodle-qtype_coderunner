@@ -477,8 +477,11 @@ class qtype_coderunner_renderer extends qtype_renderer {
         $table->head[] = 'Result';
 
         $tablerows = array();
+        $rowclasses = array();
+        $i = 0;
         foreach ($examples as $example) {
             $row = array();
+            $rowclasses[$i] = $i % 2 == 0 ? 'r0' : 'r1';
             if ($numShell) {
                 $row[] = self::format_cell($example->testcode);
             }
@@ -487,8 +490,10 @@ class qtype_coderunner_renderer extends qtype_renderer {
             }
             $row[] = self::format_cell($example->expected);
             $tablerows[] = $row;
+            $i++;
         }
         $table->data = $tablerows;
+        $table->rowclasses = $rowclasses;
         return html_writer::table($table);
     }
 
