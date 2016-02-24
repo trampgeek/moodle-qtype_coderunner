@@ -128,12 +128,27 @@ class qtype_coderunner_renderer extends qtype_renderer {
      * @return string HTML fragment.
      */
     protected function specific_feedback(question_attempt $qa) {
+        $q = $qa->get_question();
+        $testcases = $q->testcases;
+        $fb = '';
         $toserialised = $qa->get_last_qt_var('_testoutcome');
-        if ($toserialised) {
-            $q = $qa->get_question();
-            $testcases = $q->testcases;
+
+        if (!$toserialised) {  // Bad bad bad. Not running in Adaptive mode.
+            $response = $qa->get_last_qt_data(); // TODO - can I depend on this? See rendererbase.php which has extra checks
+            if ($q->is_gradable_response($response)) {
+                $text = get_string('qWrongBehaviour', 'qtype_coderunner');
+                $fb .= html_writer::start_tag('div', array('class' => 'wrongBehaviour'));
+                $fb .= html_writer::tag('p', $text);
+                $fb .= html_writer::end_tag('div');
+                list($markfraction, $state, $cachedata) = $q->grade_response($response);
+                $toserialised = $cachedata['_testoutcome'];
+            }
+        }
+        
+        if ($toserialised) {  // Proceed only if we've managed to get some test data
             $testoutcome = unserialize($toserialised);
             $testresults = $testoutcome->testresults;
+
             if ($testoutcome->all_correct()) {
                 $resultsclass = "coderunner-test-results good";
             } else if (!$q->allornothing && $testoutcome->mark_as_fraction() > 0) {
@@ -142,7 +157,6 @@ class qtype_coderunner_renderer extends qtype_renderer {
                 $resultsclass = "coderunner-test-results bad";
             }
 
-            $fb = '';
 
             if ($q->showsource && count($testoutcome->sourcecodelist) > 0) {
                 $fb .= $this->make_source_code_div(
@@ -181,15 +195,11 @@ class qtype_coderunner_renderer extends qtype_renderer {
                 $fb .= $this->build_feedback_summary($qa, $testcases, $testoutcome);
             }
             $fb .= html_writer::end_tag('div');
-        } else { // No testresults?! Probably due to a wrong behaviour selected
-            $text = get_string('qWrongBehaviour', 'qtype_coderunner');
-            $fb = html_writer::start_tag('div', array('class' => 'missingResults'));
-            $fb .= html_writer::tag('p', $text);
-            $fb .= html_writer::end_tag('div');
         }
+
         return $fb;
     }
-
+    
 
     // Build and return an HTML div section containing a list of template
     // outputs used as source code.
@@ -619,7 +629,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
         $PAGE->requires->js_init_call('M.qtype_coderunner.initDiffButton', 
                 array($attributes['id'], $attributes['value'],
-                    get_string('hidedifferences', 'qtype_coderunner')));
+                get_string('hidedifferences', 'qtype_coderunner')));
         return $output;
 
     }
