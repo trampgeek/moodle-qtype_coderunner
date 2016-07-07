@@ -7,7 +7,7 @@ div.coderunner-examples {
 
 table.coderunner-test-results td,
 table.coderunnerexamples td,
-.edit_code {
+textarea.edit_code {
     font-family:courier,monospace;
     vertical-align: top;
 }
