@@ -1,3 +1,12 @@
+15 July 2016. Version 3.0.1. Minor bug fixes, including:
+    - Use of Show Differences button with questions containing significant
+      while space output resulted in premature line truncation and/or
+      invalid html output
+    - Ace editor was not doing syntax highlighting for nodejs questions
+    - Several panels in question authoring form had monospace labels in
+      Moodle 3.1
+Also, the documentation for custom template grading has been rewritten.
+
 8 February 2016. Version 3.0.0. A restructured version of the code to
 conform to Moodle standards. The question behaviour has been deleted from
 this project, and is now a separate github project
