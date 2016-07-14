@@ -46,6 +46,8 @@ M.qtype_coderunner.init_ace = function (Y, field, lang) {
 
         if (language.toLowerCase() === 'octave') {
             language = 'matlab';
+        } else if (language.toLowerCase() === 'nodejs') {
+            language = 'javascript';
         }
 
         candidates = [language, language.replace(/\d*$/, "")];
