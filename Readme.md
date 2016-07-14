@@ -238,7 +238,7 @@ configuration uses the Jobe server at the University of Canterbury. This is not
 suitable for production use. Please switch
 to using your own Jobe server as soon as possible.
 
-    Follow the instructions at
+Follow the instructions at
 [https://github.com/trampgeek/jobe](https://github.com/trampgeek/jobe)
 to build a Jobe server, then use the
 Moodle administrator interface for the CodeRunner plug-in to define the Jobe
@@ -248,7 +248,7 @@ the same interface. If you intend running unit tests you
 will also need to edit `tests/config.php` to set the correct URL for
 the Jobe server.
 
-    Assuming you have built *Jobe* on a separate server, the JobeSandbox fully
+Assuming you have built *Jobe* on a separate server, the JobeSandbox fully
 isolates student code from the Moodle server. However, Jobe *can* be installed
 on the Moodle server itself, rather than on a 
 completely different machine. This works fine but is much less secure than running Jobe on
@@ -256,7 +256,7 @@ a completely separate machine. If a student program manages to break out of
 the sandbox when it's running on a separate machine, the worst it can do is
 bring the sandbox server down, whereas a security breach on the Moodle server
 could be used to hack into the Moodle database, which contains student run results
-and marks. That said, our Computer Science department an earlier even less
+and marks. That said, our Computer Science department used an earlier even less
 secure Sandbox for some years without any ill effects; Moodle keeps extensive logs
 of all activities, so a student deliberately breaching security is taking a
 huge risk.
@@ -619,9 +619,9 @@ STUDENT\_ANSWER, which is the text that the student entered into the answer box,
 plus another called TEST, which is a record containing the test-case
 that the question author has specified
 for the particular test. The TEST attributes most likely to be used within
-the template are TEST.testcode (the code to execute for the test), TEXT.stdin
+the template are TEST.testcode (the code to execute for the test), TEST.stdin
 (the standard input for the test -- not normally used within a template, but
-occasionally useful), TEXT.extra (the extra template data provided in the
+occasionally useful), TEST.extra (the extra template data provided in the
 question authoring form). The template will typically use just the TEST.testcode
 field, which is the "test" field of the testcase, and usually (but not always)
 is a bit of code to be run to test the student's answer. As an example,
@@ -997,7 +997,7 @@ all. As an extreme example, imagine a question that asks the student to
 submit an English essay on some topic and an AI grading program is used
 to mark and to generate
 a report on the quality of the essay for feedback to the student.
-[Would that such AI existed!] 
+[Would that such AI existed!] 
 
 The combinator-template grader has available to it the full list of all
 test cases and their attributes (testcode, stdin, expected, mark, display etc)
@@ -1007,92 +1007,142 @@ unlike their normal meaning in a programming environment. It is also
 possible that a question using a combinator template grader will not
 make use of test cases at all.
 
-## An advanced grading-template example
-As an example of the use of a per-test-case template grader
-consider the following question:
+## A simple grading-template example
+A simple case in which one might use a template grader is where the
+answer supplied by the student isn't actually code to be run, but is some
+sort of raw text to be graded by computer. For example,
+the student's answer might be the output of some simulation the student has
+run. To simplify further, let's assume that the student's answer is
+expected to be exactly 5 lines of text, which are to be compared with
+the expected 5 lines, entered as the 'Expected' field of a single test case.
+One mark is to be awarded for each correct line, and the displayed output
+should show how each line has been marked (right or wrong).
 
-"What single line of code can be inserted into the underlined blank space
-in the code below to make the function behave as specified? Your answer
-should be just the missing line of code, not the whole function.
-It doesn't matter if you indent your code or not in the answer box.
-For full marks your answer must be a single line of code. However,
-half marks will be awarded if you provide more than one line of code but it
-works correctly.
+A template grader for this situation might be the following
 
+        import json
 
-        def nums_in_range(nums, lo, hi):
-            '''Given a non-empty list of numbers nums and two numbers
-               lo and hi return True if and only if the minimum of the
-               numbers in nums is greater than lo and the maximum of
-               the numbers in nums is less than hi.'''
-            ____________________________
-
-
-The grader for this question, which needs to check both the number of
-lines of code submitted and the correctness, awarding marks and appropriate
-feedback accordingly, might be the following:
-
-        import re
-        __student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
-        if __student_answer__.strip().startswith('def'):
-            raise Exception("You seem to have pasted the whole function " +
-                            "definition. READ THE INSTRUCTIONS!")
-        if re.search(r'print *\(.*\)', __student_answer__):
-            mark = 0
-            got = "BAD CODE: your function should not print anything"
+        got = """{{ STUDENT_ANSWER | e('py') }}"""
+        expected = """{{ TEST.expected | e('py') }}"""
+        got_lines = got.split('\n')
+        expected_lines = expected.split('\n')
+        mark = 0
+        if len(got_lines) != 5:
+            comment = "Expected 5 lines, got {}".format(len(got_lines))
         else:
-            # Split the code into lines. Indent if necessary.
-            __lines__ = __student_answer__.split('\n')
-            __lines__ = ['    ' + line +
-                    '\n' for line in __lines__ if line.strip() != '']
-            code = 'def nums_in_range(nums, lo, hi):\n' + ''.join(__lines__)
-            exec(code)
-            num_lines = len(__lines__)
-
-            result = {{TEST.testcode}}
-            if result == {{TEST.expected}}:
-                if num_lines > 1:
-                    mark = 0.5
-                    got = repr(result) + r"\n(but more than 1 line of code)"
+            comment = ''
+            for i in range(5):
+                if got_lines[i] == expected_lines[i]:
+                    mark += 1
+                    comment += "Line {} right\n".format(i)
                 else:
-                    mark = 1
-                    got = repr(result)
-            else:
-                mark = 0
-                if num_lines > 1:
-                    got = repr(result) + r"\n(and more than one line of code)"
-                else:
-                    got = repr(result)
+                    comment += "Line {} wrong\n".format(i)
 
-        print('{"fraction":' + str(mark) + ',"got":"' + got + '"}')
+        print(json.dumps({'got': got, 'comment': comment, 'fraction': mark / 5}))
 
-If the student submits one line of code that behaves correctly
-their grading table looks normal, e.g.
-![right answer image](http://coderunner.org.nz/pluginfile.php/56/mod_page/content/7/rightAnswerToGraderExample.png)
+In order to display the *comment* in the output JSON, the 
+the 'Result columns' field of the question (in the 'customisation' part of
+the question authoring form) should include that field and its column header, e.g.
 
-If they submit multiple lines of code that behave correctly, their result
-table might instead be:
-![wrong answer image](http://coderunner.org.nz/pluginfile.php/56/mod_page/content/7/wrongAnswerToGraderExample.png)
+        [["Expected", "expected"], ["Got", "got"], ["Comment", "comment"], ["Mark", "awarded"]]
 
-In both the above examples the result table has been customised to show the
-mark column. Result table customisation is covered in the next section.
+The following two images show the student's result table after submitting
+a fully correct answer and a partially correct answer, respectively.
 
-Note that the "Got" column contains a customised message in addition to
-their output and the customised message varies according to whether their
-answer was right or wrong. Note too that the template performs various other
-checks on their code, such as whether it contains any print statements or
-whether they have pasted an entire function definition.
+![right answer](http://coderunner.org.nz/pluginfile.php/56/mod_page/content/15/Selection_052.png)
+
+![partially right answer](http://coderunner.org.nz/pluginfile.php/56/mod_page/content/15/Selection_053.png)
+
+## A more advanced grading-template example
+A template-grader can also be used to grade programming questions when the
+usual graders (e.g. exact or regular-expression matching of the program's
+output) are inadequate. 
+
+As a simple example, suppose the student has to write their own Python square
+root function (perhaps as an exercise in Newton Raphson iteration?), such
+that their answer, when squared, is within an absolute tolerance of 0.00001
+of the correct answer. To prevent them from using the math module, any use
+of an import statement would need to be disallowed but we'll ignore that aspect
+in order to focus on the grading aspect.
+
+The simplest way to deal with this issue is to write a series of testcases
+of the form
+
+        approx = student_sqrt(2)
+        right_answer = math.sqrt(2)
+        if math.abs(approx - right_answer) < 0.00001:
+            print("OK")
+        else:
+            print("Fail (got {}, expected {})".format(approx, right_answer))
+
+where the expected output is "OK". However, if one wishes to test the student's
+code with a large number of values - say 100 or more - this approach becomes
+impracticable. For that, we need to right our own tester, which we can do
+using a template grade.
+
+Template graders that run student-supplied code are somewhat tricky to write
+correctly, as they need to output a valid JSON record under all situations,
+handling problems like extraneous output from the student's code, runtime
+errors or syntax error. The safest approach is usually to run the student's
+code in a subprocess and then grade the output.
+
+A per-test template grader for the student square root question, which tests
+the student's *student_sqrt* function with 100 random numbers in the range
+0 to 1000, might be as follows:
+
+        import subprocess, json, sys
+        student_func = """{{ STUDENT_ANSWER | e('py') }}"""
+
+        if 'import' in student_func:
+            output = 'The word "import" was found in your code!'
+            result = {'got': output, 'fraction': 0}
+            print(json.dumps(result))
+            sys.exit(0)
+
+        test_program = """import math
+        from random import uniform
+        TOLERANCE = 0.000001
+        NUM_TESTS = 1000
+        {{ STUDENT_ANSWER | e('py') }}
+        ok = True
+        for i in range(NUM_TESTS):
+            x = uniform(0, 1000)
+            stud_answer = student_sqrt(n)
+            right = math.sqrt(x)
+            if abs(right - stud_answer) > TOLERANCE:
+                print("Wrong sqrt for {}. Expected {}, got {}".format(x, right, stud_answer))
+                ok = False
+                break
+
+        if ok:
+            print("All good!")
+        """
+        try:
+            with open('code.py', 'w') as fout:
+                fout.write(test_program)
+            output = subprocess.check_output(['python3', 'code.py'], 
+                stderr=subprocess.STDOUT, universal_newlines=True)
+        except subprocess.CalledProcessError as e:
+            output = e.output
+
+        mark = 1 if output.strip() == 'All good!' else 0
+        result = {'got': output, 'fraction': mark}
+        print(json.dumps(result))
+        
+The following figures show this question in action.
+
+![right answer](http://coderunner.org.nz/pluginfile.php/56/mod_page/content/23/Selection_061.png)
+![Insufficient iterations](http://coderunner.org.nz/pluginfile.php/56/mod_page/content/23/Selection_060.png)
+![Syntax error](http://coderunner.org.nz/pluginfile.php/56/mod_page/content/23/Selection_062.png)
+
 
 Obviously, writing questions using custom graders is much harder than
 using the normal built-in equality based grader. It is usually possible to
 ask the question in a different way that avoids the need for a custom grader.
-In the above example, the
-student could have been asked to submit their entire function twice,
-once to a question that evaluated its
-correctness and a second time to one that evaluated its correctness *and*
-its length. No custom grader is then required. That is
-somewhat clumsy from the student perspective
-but is much easier for the author.
+In the above example, you would have to ask yourself if it mightn't have been
+sufficient to test the function with 10 fixed numbers in the range 0 to 1000
+using ten different test cases of the type suggested in the third 
+paragraph of this section.
 
 ## Customising the result table
 
