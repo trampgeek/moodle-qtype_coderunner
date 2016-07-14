@@ -200,7 +200,7 @@ $string['noerrorsallowed'] = 'Your code must pass all tests to earn any '
 $string['nonnumericmark'] = 'Non-numeric mark';
 $string['negativeorzeromark'] = 'Mark must be greater than zero';
 $string['qWrongBehaviour'] = 'Detailed test results unavailable. '
-    . 'Perhaps an empty answer, or question not using Adaptive Mode?';
+    . 'Probably an empty answer, or the question is not set to use the required Adaptive Behaviour.';
 $string['options'] = 'Options';
 $string['ordering'] = 'Ordering';
 $string['penaltyregime'] = 'Penalty regime';

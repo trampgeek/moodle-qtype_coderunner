@@ -55,10 +55,6 @@ require_once($CFG->dirroot . '/question/type/coderunner/locallib.php');
  * that contains the definitions for the testcases associated with a programming code
  * question. There are an arbitrary number of these, so they can't be handled
  * by adding columns to the standard question table.
- * Each subclass cas its own testcase database table.
- *
- * Note: the database tables were to be given names like question_coderunner_testcases
- * but names are limited to 28 chars! So quest_coderunner_.* was used instead.
  */
 class qtype_coderunner extends question_type {
 
@@ -74,7 +70,7 @@ class qtype_coderunner extends question_type {
      * for things like the quiz statistics report.
      */
     public function can_analyse_responses() {
-        return false;  // TODO Consider if this functionality should be enabled
+        return false;
     }
 
     /**

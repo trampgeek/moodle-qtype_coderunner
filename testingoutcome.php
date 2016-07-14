@@ -105,6 +105,10 @@ class qtype_coderunner_testing_outcome {
 
 
 class qtype_coderunner_test_result {
+    
+    const MAX_LINE_LENGTH = 100;
+    const MAX_NUM_LINES = 200;
+    
     // NB: there may be other attributes added by the template grader
     var $testcode;          // The test that was run (trimmed, snipped)
     var $iscorrect;         // True iff test passed fully (100%)
@@ -133,13 +137,18 @@ class qtype_coderunner_test_result {
     // case the return value is just the selected field. In the second case
     // its an html-encoded diff between the two fields, for display using
     // %h format.
-    public function getvalue($fieldspecifier) {
+    // The value is trimmed to a size suitable for browser display, by
+    // restricting line length to MAX_LINE_LENGTH and number of lines to
+    // MAX_NUM_LINES.
+    public function gettrimmedvalue($fieldspecifier) {
         $matches = array();
         if (preg_match('|diff\((\w+), ?(\w+)\)|', $fieldspecifier, $matches)) {
             $field1 = $matches[1];
             $field2 = $matches[2];
             if (property_exists($this, $field1) && property_exists($this, $field2)) {
-                $value = $this->makediff($field1, $field2);
+                $trimmed1 = self::restrict_qty($field1);
+                $trimmed2 = self::restrict_qty($field2);
+                $value = $this->makediff($trimmed1, $trimmed2);
             } else {
                 $value = "Bad diff expression";
             }
@@ -151,8 +160,12 @@ class qtype_coderunner_test_result {
         return $value;
     }
 
+    
     // Use finediff (https://github.com/gorhill/PHP-FineDiff) to make an HTML
     // diff of the two fields (which must exist).
+    // The fact that the fields might have been trimmed can possibly result in
+    // difference artifacts, but such trimming should only occur if an answer
+    // is seriously wrong, anyway.
     private function makediff($field1, $field2) {
         $granularity = 2; // Word granularity
         $fromtext = mb_convert_encoding($this->$field1, 'HTML-ENTITIES', 'UTF-8');
@@ -167,6 +180,47 @@ class qtype_coderunner_test_result {
         $diffopcodes = FineDiff::getDiffOpcodes($fromtext, $totext,
                 $granularityStacks[$granularity]);
         return FineDiff::renderDiffToHTMLFromOpcodes($fromtext, $diffopcodes);
+    }
+    
+    
+    /* Support function to limit the size of a string for browser display.
+     * Restricts line length to MAX_LINE_LENGTH and number of lines to
+     * MAX_NUM_LINES.
+     */
+    private static function restrict_qty($s) {
+        if (!is_string($s)) {  // It's a no-op for non-strings.
+            return $s;
+        }
+        $result = '';
+        $n = strlen($s);
+        $line = '';
+        $linelen = 0;
+        $numlines = 0;
+        for ($i = 0; $i < $n && $numlines < self::MAX_NUM_LINES; $i++) {
+            if ($s[$i] != "\n") {
+                if ($linelen < self::MAX_LINE_LENGTH) {
+                    $line .= $s[$i];
+                }
+                else if ($linelen == self::MAX_LINE_LENGTH) {
+                    $line[self::MAX_LINE_LENGTH - 1] = $line[self::MAX_LINE_LENGTH - 2] =
+                    $line[self::MAX_LINE_LENGTH -3] = '.';
+                }
+                else {
+                    /* ignore remainder of line */
+                }
+                $linelen++;
+            }
+            else { // Newline
+                $result .= $line . "\n";
+                $line = '';
+                $linelen = 0;
+                $numlines += 1;
+                if ($numlines == self::MAX_NUM_LINES) {
+                    $result .= "[... snip ...]\n";
+                }
+            }
+        }
+        return $result . $line;
     }
 }
 
