@@ -43,8 +43,6 @@ use qtype_coderunner\constants;
 class qtype_coderunner_renderer extends qtype_renderer {
     
     const FORCE_TABULAR_EXAMPLES = true;
-    const MAX_LINE_LENGTH = 120;
-    const MAX_NUM_LINES = 200;
     const SIMPLE_RESULT_COLUMNS = '[["Test", "testcode"], ["Input", "stdin"], ["Expected", "expected"], ["Got", "got"]]';
     const DIFF_RESULT_COLUMNS = '[["Test", "testcode"], ["Input", "stdin"], ["Expected", "diff(expected, got)", "%h"], ["Got", "diff(got, expected)", "%h"]]';
 
@@ -296,12 +294,12 @@ class qtype_coderunner_renderer extends qtype_renderer {
                     }
                     $format = $colspec[$len - 1];
                     if ($format === '%h') {  // If it's an html format, use value directly
-                        $value = self::restrict_qty($testresult->getvalue($colspec[1]));
+                        $value = $testresult->gettrimmedvalue($colspec[1]);
                         $tablerow[] = self::clean_html($value);  
                     } else if ($format !== '') {  // Else if it's a non-null column
                         $args = array($format);
                         for ($j = 1; $j < $len - 1; $j++) {
-                            $value = self::restrict_qty($testresult->getvalue($colspec[$j]));
+                            $value = $testresult->gettrimmedvalue($colspec[$j]);
                             $args[] = $value;
                         }
                         $content = call_user_func_array('sprintf', $args);
@@ -550,47 +548,6 @@ class qtype_coderunner_renderer extends qtype_renderer {
             ($testcase->display == 'HIDE_IF_SUCCEED' && !$testresult->iscorrect);
     }
     
-
-    /* Support function to limit the size of a string for browser display.
-     * Restricts line length to MAX_LINE_LENGTH and number of lines to
-     * MAX_NUM_LINES.
-     */
-    private static function restrict_qty($s) {
-        if (!is_string($s)) {  // It's a no-op for non-strings.
-            return $s;
-        }
-        $result = '';
-        $n = strlen($s);
-        $line = '';
-        $linelen = 0;
-        $numlines = 0;
-        for ($i = 0; $i < $n && $numlines < self::MAX_NUM_LINES; $i++) {
-            if ($s[$i] != "\n") {
-                if ($linelen < self::MAX_LINE_LENGTH) {
-                    $line .= $s[$i];
-                }
-                else if ($linelen == self::MAX_LINE_LENGTH) {
-                    $line[self::MAX_LINE_LENGTH - 1] = $line[self::MAX_LINE_LENGTH - 2] =
-                    $line[self::MAX_LINE_LENGTH -3] = '.';
-                }
-                else {
-                    /* ignore remainder of line */
-                }
-                $linelen++;
-            }
-            else {
-                $result .= $line . "\n";
-                $line = '';
-                $linelen = 0;
-                $numlines += 1;
-                if ($numlines == self::MAX_NUM_LINES) {
-                    $result .= "[... snip ...]\n";
-                }
-            }
-        }
-        return $result . $line;
-    }
-
 
     // support function to count how many objects in the given list of objects
     // have the given 'field' attribute non-blank. Non-existent fields are also
