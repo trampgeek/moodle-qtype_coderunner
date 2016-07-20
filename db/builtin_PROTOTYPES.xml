@@ -306,8 +306,7 @@ public class __Tester__ {
     </name>
     <questiontext format="moodle_auto_format">
       <text>Used for Octave function questions. Student code must be a function
-          declaration, which is tested with each testcase. This question
-          type is experimental and has had little use.</text>
+          declaration, which is tested with each testcase.</text>
     </questiontext>
     <generalfeedback format="moodle_auto_format">
       <text></text>

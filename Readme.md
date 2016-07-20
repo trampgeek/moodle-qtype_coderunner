@@ -1007,7 +1007,15 @@ unlike their normal meaning in a programming environment. It is also
 possible that a question using a combinator template grader will not
 make use of test cases at all.
 
-## A simple grading-template example
+## Template grader examples
+In this section we look at two uses of a per-test-case template grader,
+both implemented in Python3. The first example shows how we can grade a
+student submission that isn't actually code to be run but is some text to
+e graded by a program. The second example, which is a bit more complicated,
+shows how we can test student code in a more complex manner than simply running
+tests and matching the output against the expected output.
+
+### A simple grading-template example
 A simple case in which one might use a template grader is where the
 answer supplied by the student isn't actually code to be run, but is some
 sort of raw text to be graded by computer. For example,
@@ -1053,14 +1061,14 @@ a fully correct answer and a partially correct answer, respectively.
 
 ![partially right answer](http://coderunner.org.nz/pluginfile.php/56/mod_page/content/15/Selection_053.png)
 
-## A more advanced grading-template example
+### A more advanced grading-template example
 A template-grader can also be used to grade programming questions when the
 usual graders (e.g. exact or regular-expression matching of the program's
 output) are inadequate. 
 
 As a simple example, suppose the student has to write their own Python square
 root function (perhaps as an exercise in Newton Raphson iteration?), such
-that their answer, when squared, is within an absolute tolerance of 0.00001
+that their answer, when squared, is within an absolute tolerance of 0.000001
 of the correct answer. To prevent them from using the math module, any use
 of an import statement would need to be disallowed but we'll ignore that aspect
 in order to focus on the grading aspect.
@@ -1087,7 +1095,7 @@ errors or syntax error. The safest approach is usually to run the student's
 code in a subprocess and then grade the output.
 
 A per-test template grader for the student square root question, which tests
-the student's *student_sqrt* function with 100 random numbers in the range
+the student's *student_sqrt* function with 1000 random numbers in the range
 0 to 1000, might be as follows:
 
         import subprocess, json, sys
@@ -1211,7 +1219,7 @@ where `filter` is the name of a built-in filter function that filters the
 given testResult field(s) in some way. Currently the only such built-in
 filter function is `diff`: it takes two test result fields as parameters and
 returns an HTML string that represents the first test field with embedded
-HTML &lt;ins&gt; and <&lt;del&gt; elements that show the insertions and deletions necessary
+HTML &lt;ins&gt; and &lt;del&gt; elements that show the insertions and deletions necessary
 to convert the first field into the second. This is intended for use with
 the `Expected` and `Got` fields, so the student can easily see where their
 output is wrong. It is used by the default result column display if an
@@ -1225,12 +1233,15 @@ The stylesheet by default displays &lt;del&gt; content in the same style as the
 surrounding text and hides the &lt;ins&gt; content so that the first field is
 displayed verbatim. If the question does not earn full marks, a "Show differences"
 button is added at the end of the results table. When this is clicked, any
-&lt;del&gt; content is highlighted. &lt;ins&gt; content remains hidden. With the default
+&lt;del&gt; content is highlighted, as shown in the figure below.
+&lt;ins&gt; content remains hidden. With the default
 settings (see below) the highlighting in the *Expected* column thus shows
 what is missing in the *Got* column, while the highlighting in the *Got* column
 shows additional text that shouldn't be present. 
 
 Other filter functions may be added in the future if demand arises.
+
+<img src="http://coderunner.org.nz/pluginfile.php/56/mod_page/content/24/Selection_074.png" />
 
 ### Default result columns
 

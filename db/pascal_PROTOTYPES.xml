@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<quiz>
+<!-- question: 0  -->
+  <question type="category">
+    <category>
+        <text>$system$/CR_PROTOTYPES</text>
+
+    </category>
+  </question>
+
+<!-- question: 16909  -->
+  <question type="coderunner">
+    <name>
+      <text>BUILT_IN_PROTOTYPE_pascal_function</text>
+    </name>
+    <questiontext format="html">
+      <text>A Pascal question type where the student is asked to write
+      a procedure or function, which is then tested with a main program
+      consisting of the CodeRunner 'testcode' wrapped in begin end.</text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.3333333</penalty>
+    <hidden>0</hidden>
+    <coderunnertype>pascal_function</coderunnertype>
+    <prototypetype>1</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime></penaltyregime>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <useace>1</useace>
+    <resultcolumns></resultcolumns>
+    <answer></answer>
+    <combinatortemplate></combinatortemplate>
+    <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
+    <enablecombinator>0</enablecombinator>
+    <pertesttemplate><![CDATA[
+
+{{ STUDENT_ANSWER }}
+
+begin
+    {{ TEST.testcode }};
+end.
+]]></pertesttemplate>
+    <language>pascal</language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader>EqualityGrader</grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams></templateparams>
+    <testcases>
+    </testcases>
+  </question>
+
+<!-- question: 16910  -->
+  <question type="coderunner">
+    <name>
+      <text>BUILT_IN_PROTOTYPE_pascal_program</text>
+    </name>
+    <questiontext format="moodle_auto_format">
+      <text>Used for Pascal write-a-program questions, where there is no
+          per-test-case code, and the different tests just use different
+          stdin data.</text>
+    </questiontext>
+    <generalfeedback format="moodle_auto_format">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.3333333</penalty>
+    <hidden>0</hidden>
+    <coderunnertype>pascal_program</coderunnertype>
+    <prototypetype>1</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime></penaltyregime>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <useace>1</useace>
+    <resultcolumns></resultcolumns>
+    <answer></answer>
+    <combinatortemplate></combinatortemplate>
+    <testsplitterre></testsplitterre>
+    <enablecombinator>0</enablecombinator>
+    <pertesttemplate>{{ STUDENT_ANSWER }}</pertesttemplate>
+    <language>pascal</language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader></grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams></templateparams>
+    <testcases>
+    </testcases>
+  </question>
+
+
+</quiz>
