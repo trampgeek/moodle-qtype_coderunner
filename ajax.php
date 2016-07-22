@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of CodeRunner - http://coderunner.org.nz/
 //
 // CodeRunner is free software: you can redistribute it and/or modify
@@ -33,11 +32,7 @@
 
 define('AJAX_SCRIPT', true);
 
-if (strpos(__DIR__, 'local/CodeRunner/type/coderunner') !== false) {
-    require_once('../../../../config.php'); // Symbolically linked rather than copied
-} else {
-    require_once('../../../config.php'); // "Normal" case of a copy of the code
-}
+require_once('../../../config.php');
 require_once($CFG->dirroot . '/question/engine/lib.php');
 require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
 

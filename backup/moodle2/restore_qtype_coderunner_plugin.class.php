@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -32,17 +31,17 @@ require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
  * needed to restore one coderunner qtype plugin
  */
 class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
-    
-    private $legacynamemap = null; // Map from legacy DB column names to current
-    
+
+    private $legacynamemap = null; // Map from legacy DB column names to current.
+
     // Constructor builds a map from old DB field names to new ones for use
-    // in function process_coderunner_options
+    // in function process_coderunner_options.
     public function __construct($plugintype, $pluginname, $step) {
         parent::__construct($plugintype, $pluginname, $step);
         $this->legacynamemap = array('custom_template' => 'pertesttemplate');
         $revmap = qtype_coderunner::legacy_field_name_map();
         foreach ($revmap as $new => $old) {
-            $this->legacynamemap[$old] = $new;  // Invert the mapping
+            $this->legacynamemap[$old] = $new;  // Invert the mapping.
         }
     }
 
@@ -52,25 +51,25 @@ class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
     }
 
 
-	/*
-	 * Add the options to the restore structure
-	 */
+    /*
+     * Add the options to the restore structure.
+     */
     private function add_question_options(&$paths) {
-        // Check $paths is an array
+        // Check $paths is an array.
         if (!is_array($paths)) {
             throw new restore_step_exception('paths_must_be_array', $paths);
         }
 
         $elename = 'coderunner_options';
-        $elepath = $this->get_pathfor('/coderunner_options/coderunner_option');  // we used get_recommended_name() so this works
+        $elepath = $this->get_pathfor('/coderunner_options/coderunner_option');  // We used get_recommended_name() so this works.
         $paths[] = new restore_path_element($elename, $elepath);
     }
 
-	/*
-	 * Add the testcases to the restore structure
-	 */
+    /*
+     * Add the testcases to the restore structure.
+     */
     private function add_question_testcases(&$paths) {
-        // Check $paths is one array
+        // Check $paths is one array.
         if (!is_array($paths)) {
             throw new restore_step_exception('paths_must_be_array', $paths);
         }
@@ -81,17 +80,17 @@ class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
     }
 
     /**
-     * Returns the paths to be handled by the plugin at question level
+     * Returns the paths to be handled by the plugin at question level.
      */
-    function define_question_plugin_structure() {
+    public function define_question_plugin_structure() {
 
         $paths = array();
 
-        // Add options and testcases to the restore structure
+        // Add options and testcases to the restore structure.
         $this->add_question_options($paths);
         $this->add_question_testcases($paths);
 
-        return $paths; // And return the paths
+        return $paths; // And return the paths.
     }
 
     /*
@@ -104,24 +103,23 @@ class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
         $data = (object)$data;
         $oldid = $data->id;
 
-        // Detect if the question is created or mapped
+        // Detect if the question is created or mapped.
         $oldquestionid   = $this->get_old_parentid('question');
         $newquestionid   = $this->get_new_parentid('question');
         $questioncreated = $this->get_mappingid('question_created', $oldquestionid) ? true : false;
 
-        // If the question has been created by restore, we need to create its question_testcases and options too
+        // If the question has been created by restore, we need to create its question_testcases and options too.
         if ($questioncreated) {
             $data->questionid = $newquestionid;
-            if (isset($data->output)) {  // Handle old saved files
+            if (isset($data->output)) {  // Handle old saved files.
                 $data->expected = $data->output;
                 unset($data->output);
             }
-            // Insert record
+            // Insert record.
             $newitemid = $DB->insert_record("question_coderunner_tests", $data);
-        } else {
-            // Nothing to remap if the question already existed
-            // TODO: determine if the above statement is true!!
         }
+        // Nothing to remap if the question already existed.
+
     }
 
     /*
@@ -134,12 +132,12 @@ class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
         $data = (object)$data;
         $oldid = $data->id;
 
-        // Detect if the question is created or mapped
+        // Detect if the question is created or mapped.
         $oldquestionid   = $this->get_old_parentid('question');
         $newquestionid   = $this->get_new_parentid('question');
         $questioncreated = $this->get_mappingid('question_created', $oldquestionid) ? true : false;
 
-        // If the question has been created by restore, we need to create its question_testcases and options too
+        // If the question has been created by restore, we need to create its question_testcases and options too.
         if ($questioncreated) {
             $data->questionid = $newquestionid;
             // Remap various legacy names to new
@@ -151,11 +149,11 @@ class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
                     unset($data->$old);
                 }
             }
-            
-            // Insert the record
+
+            // Insert the record.
             $newitemid = $DB->insert_record("question_coderunner_options", $data);
-        } else {
-            // Nothing to remap if the question already existed
         }
+        // Nothing to remap if the question already existed.
+
     }
 }
