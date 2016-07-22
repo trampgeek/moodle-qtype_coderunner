@@ -591,5 +591,57 @@ def input(prompt=''):
     <testcases>
     </testcases>
   </question>
+  
+<!-- question: 893  -->
+  <question type="coderunner">
+    <name>
+      <text>UOC_PROTOTYPE_nodejs</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<p>A generic nodejs question in which the student answer precedes the tests.</p>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.3333333</penalty>
+    <hidden>0</hidden>
+    <coderunnertype>nodejs</coderunnertype>
+    <prototypetype>2</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime></penaltyregime>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <useace>1</useace>
+    <resultcolumns></resultcolumns>
+    <answer></answer>
+    <combinatortemplate><![CDATA[{{ STUDENT_ANSWER }}
+
+SEPARATOR = "#<ab@17943918#@>#"
+
+{% for TEST in TESTCASES %}
+{{ TEST.testcode }}
+{% if not loop.last %}
+print(SEPARATOR)
+{% endif %}
+{% endfor %}]]></combinatortemplate>
+    <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
+    <enablecombinator>1</enablecombinator>
+    <pertesttemplate>{{STUDENT_ANSWER}}
+
+{{TEST.testcode}}</pertesttemplate>
+    <language>nodejs</language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader>EqualityGrader</grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb>1000</memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams></templateparams>
+    <testcases>
+    </testcases>
+  </question>
+
 
 </quiz>
