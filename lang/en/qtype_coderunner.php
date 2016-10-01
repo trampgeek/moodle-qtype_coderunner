@@ -228,7 +228,7 @@ $string['pluginname_help'] = 'Use the "Question type" combo box to select the ' 
         'computer language that will be used to run the student\'s submission. ' .
         'Specify the problem that the student must write code for, then define '.
         'a set of tests to be run on the student\'s submission';
-$string['pluginname_link'] = 'question/type/coderunner'; 
+$string['pluginname_link'] = 'question/type/coderunner';
 
 $string['prototypecontrols'] = 'Prototyping';
 $string['prototypecontrols_help'] = 'If \'Is prototype\' is ' .
@@ -264,16 +264,16 @@ for each testcase will be displayed in the output.
 $string['questiontype'] = 'Question type';
 $string['questiontype_help'] = <<<QUESTION_TYPE_HELP
         Select the particular type of question.
-        
-        The combo-box selects one of the built-in types, each of which 
+
+        The combo-box selects one of the built-in types, each of which
         specifies a particular language and, sometimes, a sandbox in which
         the program will be executed. Each question type has a
         template that defines how the executable program is built from the
         testcase data and the student answer.
-            
+
         The template can be viewed and optionally customised by clicking
         the "Customise" checkbox.
-        
+
         If the template-debugging checkbox is clicked, the program generated
         for each testcase will be displayed in the output.
 QUESTION_TYPE_HELP;
@@ -291,7 +291,7 @@ $string['resultcolumns_help'] = 'By default the result table displays '
     . 'column header, the second element is the field from the TestResult '
     . 'object being displayed in the column and the optional third '
     . 'element is an sprintf format string used to display the field. The fields '
-    . 'available in the standard TestResult object are: testcode, stdin, expected, ' 
+    . 'available in the standard TestResult object are: testcode, stdin, expected, '
     . 'got, extra, awarded, and mark. testcode, stdin, expected and extra are '
     . 'the fields from the testcase while got is the actual output generated '
     . 'and awarded and mark are the actual awarded mark and the maximum mark '
@@ -307,7 +307,7 @@ $string['resultcolumns_help'] = 'By default the result table displays '
     . 'only with custom-grader templates that generate HTML output, such as '
     . 'SVG graphics.  The default value of resultcolumns is [["Test", "testcode"],'
     . '["Input", "stdin"], ["Expected", "expected"], ["Got", "got"]].';
-        
+
 $string['resultcolumnsnotjson'] = 'Result columns field is not a valid JSON string';
 $string['resultcolumnsnotlist'] = 'Result columns field must a JSON-encoded list of column specifiers';
 $string['resultcolumnspecbad'] = 'Invalid column specifier found: each one must be a list of two or more strings';
@@ -379,9 +379,9 @@ template(s). If non-blank, this must be a JSON-format record. The fields of
 the record can then be used within the template, where they appear as
 QUESTION.parameters.&lt;&lt;param&gt;&gt;. For example, if template params
 is
-        
+
         {"age": 23}
-        
+
 the value 23 would be substituted into the template in place of the
 template variable {{ QUESTION.parameters.age }}.
 EO_TEMPLATE_PARAMS_HELP;

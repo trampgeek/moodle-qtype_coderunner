@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of CodeRunner - http://coderunner.org.nz/
 //
 // CodeRunner is free software: you can redistribute it and/or modify
@@ -65,8 +64,8 @@ function matlab_escaper($environ, $s, $charset) {
  */
 function java_escaper($environ, $s, $charset) {
     return str_replace(
-                array("'",    '"',  "\n",  "\r",   "\t", "\f",  "\b"),
-                array("\\'", '\\"', "\\n", "\\r", "\\t","\\f", "\\b"),
+                array("'",    '"',  "\n",  "\r",   "\t",  "\f",  "\b"),
+                array("\\'", '\\"', "\\n", "\\r", "\\t", "\\f", "\\b"),
                 str_replace("\\", "\\\\", $s));
 }
 

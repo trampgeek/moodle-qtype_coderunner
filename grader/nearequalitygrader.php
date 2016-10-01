@@ -40,40 +40,40 @@ class qtype_coderunner_near_equality_grader extends qtype_coderunner_grader {
      *  collapsing all sequences of space or tab characters to a single
      *  space and converting all letters to lower case. [These changes
      *  are of course applied to both expected and actual outputs.]
-     * 
+     *
      *  As requested by Ulrich Dangel.
      */
-    function grade_known_good(&$output, &$testCase) {
-        $cleanedOutput = qtype_coderunner_grader::clean($output);
-        $cleanedExpected = qtype_coderunner_grader::clean($testCase->expected);
-        
-        $isCorrect = $this->reduce($cleanedOutput) == $this->reduce($cleanedExpected);
-        $awardedMark = $isCorrect ? $testCase->mark : 0.0;
+    protected function grade_known_good(&$output, &$testcase) {
+        $cleanedoutput = self::clean($output);
+        $cleanedexpected = self::clean($testcase->expected);
 
-        if (isset($testCase->stdin)) {
-            $resultStdin = qtype_coderunner_grader::tidy($testCase->stdin);
+        $iscorrect = $this->reduce($cleanedoutput) == $this->reduce($cleanedexpected);
+        $awardedmark = $iscorrect ? $testcase->mark : 0.0;
+
+        if (isset($testcase->stdin)) {
+            $resultstdin = self::tidy($testcase->stdin);
         } else {
-            $resultStdin = null;
+            $resultstdin = null;
         }
 
         return new qtype_coderunner_test_result(
-                qtype_coderunner_grader::tidy($testCase->testcode),
-                $testCase->mark,
-                $isCorrect,
-                $awardedMark,
-                qtype_coderunner_grader::snip($cleanedExpected),
-                qtype_coderunner_grader::snip($cleanedOutput),
-                $resultStdin,
-                qtype_coderunner_grader::tidy($testCase->extra)
+                self::tidy($testcase->testcode),
+                $testcase->mark,
+                $iscorrect,
+                $awardedmark,
+                self::snip($cleanedexpected),
+                self::snip($cleanedoutput),
+                $resultstdin,
+                self::tidy($testcase->extra)
         );
     }
-    
+
     // Simplify the output string by removing empty lines, collapsing
     // sequences of tab or space characters to a single space and converting
     // to lower case.
     private function reduce(&$output) {
         $reduced = preg_replace("/\n\n+/", "\n", $output);
-        $reduced2 = preg_replace("/^\n/", '', $reduced);  // Delete blank first line
+        $reduced2 = preg_replace("/^\n/", '', $reduced);  // Delete blank first line.
         $reduced3 = preg_replace('/[ \t][ \t]+/', ' ', $reduced2);
         return strtolower($reduced3);
     }
