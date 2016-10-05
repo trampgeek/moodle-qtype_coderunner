@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Set-up config variables for running tests.
  *

@@ -24,21 +24,19 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once($CFG->dirroot . '/question/type/coderunner/tests/coderunnertestcase.php');
 require_once($CFG->dirroot . '/question/type/coderunner/Twig/Autoloader.php');
 
-
 /**
  * Unit tests for the coderunner question definition class.
  */
 class qtype_coderunner_pythonpylint_test extends qtype_coderunner_testcase {
 
-     public function test_pylint_func_good() {
-        // Test that a python3_pylint question with a good pylint-compatible
+    public function test_pylint_func_good() {
+        // Test that a python3_pylint question with a good pylint-compatible.
         // submission passes.
         $q = $this->make_question('sqr_pylint');
         $q->templateparams = '{"isfunction":true}';
@@ -50,30 +48,27 @@ def sqr(n):
         return n * n
     else:
         return 0
-                
+
 EOCODE;
         $response = array('answer' => $code);
         $result = $q->grade_response($response);
         list($mark, $grade, $cache) = $result;
         $this->assertEquals(question_state::$gradedright, $grade);
-     }
+    }
 
-
-     public function test_pylint_func_bad() {
+    public function test_pylint_func_bad() {
         // Test that a python3_pylint question with a bad (pylint-incompatible)
         // submission fails.
         $q = $this->make_question('sqr_pylint');
-        // Code lacks a docstring
+        // Code lacks a docstring.
         $code = <<<EOCODE
 def sqr(n):
   return n * n
-                
+
 EOCODE;
         $response = array('answer' => $code);
         $result = $q->grade_response($response);
         list($mark, $grade, $cache) = $result;
         $this->assertEquals(question_state::$gradedwrong, $grade);
-     }
-
+    }
 }
-
