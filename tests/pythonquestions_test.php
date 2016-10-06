@@ -24,7 +24,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
@@ -41,20 +40,17 @@ class qtype_coderunner_pythonquestions_test extends qtype_coderunner_testcase {
         $this->goodcode = "def sqr(n): return n * n";
     }
 
-
     public function test_get_question_summary() {
         $q = $this->make_question('sqr');
         $this->assertEquals('Write a function sqr(n) that returns n squared',
                 $q->get_question_summary());
     }
 
-
     public function test_summarise_response() {
         $s = $this->goodcode;
         $q = $this->make_question('sqr');
         $this->assertEquals($s, $q->summarise_response(array('answer' => $s)));
     }
-
 
     public function test_grade_response_right() {
         $q = $this->make_question('sqr');
@@ -70,7 +66,6 @@ class qtype_coderunner_pythonquestions_test extends qtype_coderunner_testcase {
         }
     }
 
-
     public function test_grade_response_wrong_ans() {
         $q = $this->make_question('sqr');
         $code = "def sqr(x): return x * x * x / abs(x)";
@@ -81,12 +76,11 @@ class qtype_coderunner_pythonquestions_test extends qtype_coderunner_testcase {
         $this->assertTrue(isset($cache['_testoutcome']));
     }
 
-
     public function test_grade_syntax_error() {
         $q = $this->make_question('sqr');
         $code = "def sqr(x): return x  x";
         $response = array('answer' => $code);
-        list($mark, $grade, $cache) =  $q->grade_response($response);
+        list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(0, $mark);
         $this->assertEquals(question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
@@ -94,7 +88,6 @@ class qtype_coderunner_pythonquestions_test extends qtype_coderunner_testcase {
         $this->assertTrue($testoutcome->has_syntax_error());
         $this->assertEquals(0, count($testoutcome->testresults));
     }
-
 
     public function test_grade_runtime_error() {
         $q = $this->make_question('sqr');
@@ -110,7 +103,6 @@ class qtype_coderunner_pythonquestions_test extends qtype_coderunner_testcase {
         $this->assertFalse($testoutcome->testresults[0]->iscorrect);
     }
 
-
     public function test_student_answer_variable() {
         $q = $this->make_question('studentanswervar');
         $code = "\"\"\"Line1\n\"Line2\"\n'Line3'\nLine4\n\"\"\"";
@@ -120,7 +112,6 @@ class qtype_coderunner_pythonquestions_test extends qtype_coderunner_testcase {
         $this->assertEquals(1, $mark);
         $this->assertEquals(question_state::$gradedright, $grade);
     }
-
 
     public function test_illegal_open_error() {
         $q = $this->make_question('sqr');
@@ -136,7 +127,6 @@ class qtype_coderunner_pythonquestions_test extends qtype_coderunner_testcase {
         $this->assertFalse($testoutcome->testresults[0]->iscorrect);
     }
 
-
     public function test_grade_delayed_runtime_error() {
         $q = $this->make_question('sqr');
         $code = "def sqr(x):\n  if x != 11:\n    return x * x\n  else:\n    return y";
@@ -151,7 +141,6 @@ class qtype_coderunner_pythonquestions_test extends qtype_coderunner_testcase {
         $this->assertTrue($testoutcome->testresults[0]->iscorrect);
         $this->assertFalse($testoutcome->testresults[2]->iscorrect);
     }
-
 
     public function test_triple_quotes() {
         $q = $this->make_question('sqr');
@@ -174,9 +163,8 @@ EOCODE;
         }
     }
 
-
-    public function test_helloFunc() {
-        // Check a question type with a function that prints output
+    public function test_hellofunc() {
+        // Check a question type with a function that prints output.
         $q = $this->make_question('helloFunc');
         $code = "def sayHello(name):\n  print('Hello ' + name)";
         $response = array('answer' => $code);
@@ -192,9 +180,8 @@ EOCODE;
         }
     }
 
-
-    public function test_copyStdin() {
-        // Check a question that reads stdin and writes to stdout
+    public function test_copystdin() {
+        // Check a question that reads stdin and writes to stdout.
         $q = $this->make_question('copyStdin');
         $code = <<<EOCODE
 def copyStdin(n):
@@ -216,11 +203,10 @@ EOCODE;
         $this->assertTrue($testoutcome->testresults[3]->iscorrect);
         $this->assertFalse($testoutcome->testresults[4]->iscorrect);
         $this->assertTrue(strpos($testoutcome->testresults[4]->got, 'EOFError') !== false);
-     }
+    }
 
-
-     public function test_timeout() {
-         // Check a question that loops forever. Should cause sandbox timeout
+    public function test_timeout() {
+         // Check a question that loops forever. Should cause sandbox timeout.
         $q = $this->make_question('timeout');
         $code = "def timeout():\n  while (1):\n    pass";
         $response = array('answer' => $code);
@@ -233,11 +219,10 @@ EOCODE;
         $this->assertEquals(1, count($testoutcome->testresults));
         $this->assertFalse($testoutcome->testresults[0]->iscorrect);
         $this->assertTrue(strpos($testoutcome->testresults[0]->got, 'Time limit exceeded') !== false);
-     }
+    }
 
-
-     public function test_exceptions() {
-         // Check a function that conditionally throws exceptions
+    public function test_exceptions() {
+         // Check a function that conditionally throws exceptions.
         $q = $this->make_question('exceptions');
         $code = "def checkOdd(n):\n  if n & 1:\n    raise ValueError()";
         $response = array('answer' => $code);
@@ -251,10 +236,10 @@ EOCODE;
         $this->assertEquals("Exception\n", $testoutcome->testresults[0]->got);
         $this->assertEquals("Yes\nYes\nNo\nNo\nYes\nNo\n",
                 $testoutcome->testresults[1]->got);
-     }
+    }
 
-     public function test_partial_mark_question() {
-         // Test a question that isn't of the usual allornothing variety
+    public function test_partial_mark_question() {
+        // Test a question that isn't of the usual allornothing variety.
         $q = $this->make_question('sqrPartMarks');
         $code = "def sqr(n):\n  return -17.995";
         $response = array('answer' => $code);
@@ -263,45 +248,43 @@ EOCODE;
         $this->assertEquals(question_state::$gradedpartial, $grade);
         $this->assertEquals(0, $mark);
 
-        $code = "def sqr(n):\n  return 0";  // Passes first test only
+        $code = "def sqr(n):\n  return 0";  // Passes first test only.
         $response = array('answer' => $code);
         $result = $q->grade_response($response);
         list($mark, $grade, $cache) = $result;
         $this->assertEquals(question_state::$gradedpartial, $grade);
-        $this->assertTrue(abs($mark - 0.5/7.5) < 0.00001);
+        $this->assertTrue(abs($mark - 0.5 / 7.5) < 0.00001);
 
-        $code = "def sqr(n):\n  return n * n if n <= 0 else -17.995";  // Passes first test and last two only
+        $code = "def sqr(n):\n  return n * n if n <= 0 else -17.995";  // Passes first test and last two only.
         $response = array('answer' => $code);
         $result = $q->grade_response($response);
         list($mark, $grade, $cache) = $result;
         $this->assertEquals(question_state::$gradedpartial, $grade);
-        $this->assertTrue(abs($mark - 5.0/7.5) < 0.00001);
+        $this->assertTrue(abs($mark - 5.0 / 7.5) < 0.00001);
 
-        $code = "def sqr(n):\n    return n * n if n <= 0 else 1 / 0";  // Passes first test then aborts
+        $code = "def sqr(n):\n    return n * n if n <= 0 else 1 / 0";  // Passes first test then aborts.
         $response = array('answer' => $code);
         $result = $q->grade_response($response);
         list($mark, $grade, $cache) = $result;
         $this->assertEquals(question_state::$gradedpartial, $grade);
-        $this->assertTrue(abs($mark - 0.5/7.5) < 0.00001);
-     }
+        $this->assertTrue(abs($mark - 0.5 / 7.5) < 0.00001);
+    }
 
-
-     public function test_customised_timeout() {
+    public function test_customised_timeout() {
         $q = $this->make_question('helloPython');
-        $slowSquare = <<<EOT
+        $slowsquare = <<<EOT
 from time import clock
 t = clock()
 while clock() < t + 10: pass  # Wait 10 seconds
 print("Hello Python")
 EOT;
-        $response = array('answer' => $slowSquare);  // Should time out
+        $response = array('answer' => $slowsquare);  // Should time out.
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(0, $mark);
         $this->assertEquals(question_state::$gradedwrong, $grade);
-        $q->cputimelimitsecs = 20;  // This should fix it
+        $q->cputimelimitsecs = 20;  // This should fix it.
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(1, $mark);
         $this->assertEquals(question_state::$gradedright, $grade);
     }
 }
-

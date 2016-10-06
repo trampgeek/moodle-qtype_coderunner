@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Unit tests for the coderunner question customistation capability
  * @group qtype_coderunner

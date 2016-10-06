@@ -90,12 +90,10 @@ function mytest()
     disp(s2);
 end
 EOT
-);
+        );
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(1, $mark);
         $this->assertEquals(question_state::$gradedright, $grade);
     }
-    
 
 }
-

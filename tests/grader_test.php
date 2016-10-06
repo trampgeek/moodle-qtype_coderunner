@@ -36,7 +36,7 @@ class qtype_coderunner_grader_test extends qtype_coderunner_testcase {
                           'useasexample' => 0,
                           'display' => 'SHOW',
                           'mark' => 1.0,
-                          'hiderestiffail' =>  0));
+                          'hiderestiffail' => 0));
         $code = <<<EOCODE
 def copyStdin():
   try:
@@ -55,7 +55,5 @@ EOCODE;
         $this->assertEquals(question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
 
-     }
+    }
 }
-
-
