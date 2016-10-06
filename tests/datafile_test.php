@@ -33,22 +33,21 @@ require_once($CFG->dirroot . '/question/type/coderunner/Twig/Autoloader.php');
 
 class qtype_coderunner_datafile_test extends qtype_coderunner_testcase {
 
-    // Test loading of files in the jobe sandbox
+    // Test loading of files in the jobe sandbox.
     public function test_datafile_jobesandbox() {
         $code = $this->python_solution();
         $this->check_files_in_sandbox('generic_python3', 'jobesandbox', $code);
     }
-    
-    
-    private function check_files_in_sandbox($question_name, $sandbox, $code) {
+
+    private function check_files_in_sandbox($questionname, $sandbox, $code) {
         $this->check_sandbox_enabled($sandbox);
-        $q = $this->make_question($question_name);
+        $q = $this->make_question($questionname);
         $q->sandbox = $sandbox;
 
         $this->setAdminUser();
         $fs = get_file_storage();
 
-        // Prepare file record object
+        // Prepare file record object.
         $fileinfo = array(
             'contextid' => $q->contextid,
             'component' => 'qtype_coderunner',
@@ -57,24 +56,23 @@ class qtype_coderunner_datafile_test extends qtype_coderunner_testcase {
             'filepath'  => '/',
             'filename'  => 'data.txt');
 
-        // Create file
+        // Create file.
         $fs->create_file_from_string($fileinfo, "This is data\nLine 2");
 
-        // Now test it
+        // Now test it.
 
         $response = array('answer' => $code);
         $result = $q->grade_response($response);
         list($mark, $grade, $cache) = $result;
         $this->assertEquals(question_state::$gradedright, $grade);
 
-        // Clean up by deleting the file again
+        // Clean up by deleting the file again.
         $file = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'],
             $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename']);
         $file->delete();
     }
-    
-    
-    // The python3 solution to the problem
+
+    // The python3 solution to the problem.
     private function python_solution() {
         $code = <<<EOCODE
 import os
@@ -90,9 +88,8 @@ else:
 EOCODE;
         return $code;
     }
-    
-    
-    // The C solution to the problem
+
+    // The C solution to the problem.
     private function c_solution() {
         $code = <<<EOCODE
 #include <stdio.h>
@@ -117,4 +114,3 @@ EOCODE;
     }
 
 }
-

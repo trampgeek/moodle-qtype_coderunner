@@ -37,14 +37,12 @@ class qtype_coderunner_missing_question_type extends Exception {
     }
 }
 
-
 /**
  * Test helper class for the coderunner question type.
  *
  */
 class qtype_coderunner_test_helper extends question_test_helper {
-   
-    
+
     public function get_test_questions() {
         return array('sqr', 'sqr_pylint',
             'helloFunc', 'copyStdin', 'timeout', 'exceptions',
@@ -77,7 +75,6 @@ class qtype_coderunner_test_helper extends question_test_helper {
         return $this->make_coderunner_question_sqr_subtype('python3_pylint');
     }
 
-
     /**
      *  Make a generic Python3 question  (should print "Success!")
      */
@@ -90,8 +87,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
                     array('expected'  => "Success!\n")
                 ));
     }
-    
-    
+
     /**
      *  Make a generic C question (should print "Success!")
      */
@@ -130,15 +126,14 @@ class qtype_coderunner_test_helper extends question_test_helper {
                           'mark'     => 8.0),
                     array('testcode' => 'print(sqr(-6))',
                           'expected' => '36',
-                          'display'  => 'HIDE', // The last testcase must be hidden
+                          'display'  => 'HIDE', // The last testcase must be hidden.
                           'mark'     => 16.0)
         ), $extras);
 
         return $coderunner;
     }
 
-
-   /**
+    /**
      * Makes a coderunner question asking for a sqr() function.
      * This version uses testcases that don't print the result, for use in
      * testing custom grader templates.
@@ -163,24 +158,24 @@ class qtype_coderunner_test_helper extends question_test_helper {
                           'mark'     => 8.0),
                     array('testcode' => 'sqr(-6)',
                           'expected' => '36',
-                          'display'  => 'HIDE', // The last testcase must be hidden
+                          'display'  => 'HIDE', // The last testcase must be hidden.
                           'mark'     => 16.0)
         ));
         return $coderunner;
     }
 
     public function make_coderunner_question_sqrCustomised() {
-        $q = $this->make_coderunner_question_sqr_subtype('python3', 
+        $q = $this->make_coderunner_question_sqr_subtype('python3',
           array(
             'pertesttemplate' => "def times(a, b): return a * b\n\n{{STUDENT_ANSWER}}\n\n{{TEST.testcode}}\n",
-            'enablecombinator' => False)
+            'enablecombinator' => false)
           );
         return $q;
     }
 
     public function make_coderunner_question_sqrPartMarks() {
         // Make a version of the sqr question where testcase[i] carries a
-        // mark of i / 2.0 for i in range 1 .. 5
+        // mark of i / 2.0 for i in range 1 .. 5.
         $coderunner = $this->make_coderunner_question(
                 'python3',
                 'Function to square a number n',
@@ -200,7 +195,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
                           'mark'     => 2.0),
                     array('testcode' => 'print(sqr(-6))',
                           'expected' => '36',
-                          'display'  => 'HIDE', // The last testcase must be hidden
+                          'display'  => 'HIDE', // The last testcase must be hidden.
                           'mark'     => 2.5)
         ), array('allornothing' => false));
         return $coderunner;
@@ -257,7 +252,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
                           'expected' => " Line  1\n   Line   2\n"),
                     array('testcode' => 'copyStdin(3)',
                           'stdin'    => "Line1\nLine2\n",
-                          'expected' => "Line1\nLine2\n") # Irrelevant - runtime error
+                          'expected' => "Line1\nLine2\n") // Irrelevant - runtime error.
         ));
 
         return $coderunner;
@@ -328,8 +323,6 @@ except ValueError:
         return $coderunner;
     }
 
-
-
     /**
      * Makes a coderunner question to write a Python3 program that just print 'Hello Python'
      * @return qtype_coderunner_question
@@ -346,7 +339,7 @@ except ValueError:
 
         return $coderunner;
     }
-    
+
     /**
      * Makes a coderunner question of type 'sqr_user_prototype' to check out
      * inheritance. The prototype must have been created before this method
@@ -364,13 +357,11 @@ except ValueError:
         return $coderunner;
     }
 
-
     // Now the C-question helper stuff
     // ===============================
 
-
-   /**
-     * Makes a coderunner question asking for a sqr() function
+    /**
+     * Makes a coderunner question asking for a sqr() function.
      * @return qtype_coderunner_question
      */
     public function make_coderunner_question_sqrC() {
@@ -484,7 +475,7 @@ printf(\"%s\\n\", s);
     /**
      * Makes a coderunner question asking for a stringDelete() function that
      * deletes from a given string all characters present in another
-     * string
+     * string.
      * @return qtype_coderunner_question
      */
     public function make_coderunner_question_stringDelete() {
@@ -506,11 +497,11 @@ printf(\"%s\\n\", s);
         return $coderunner;
     }
 
- // Now the matlab-question helper stuff
-    // ===============================
+    // Now the matlab-question helper stuff.
+    // =====================================
 
-   /**
-     * Makes a matlab question asking for a sqr() function
+    /**
+     * Makes a matlab question asking for a sqr() function.
      * @return qtype_coderunner_question
      */
     public function make_coderunner_question_sqrmatlab() {
@@ -532,7 +523,7 @@ printf(\"%s\\n\", s);
         return $coderunner;
     }
 
-   /**
+    /**
      * Makes a coderunner question designed to check if the MATLAB_ESCAPED_STUDENT_ANSWER
     *  variable is working and usable within Matlab/Octave
      * @return qtype_coderunner_question
@@ -540,8 +531,7 @@ printf(\"%s\\n\", s);
     public function make_coderunner_question_teststudentanswermacro() {
         return $this->make_macro_question('matlab_function');
     }
-    
-    
+
     private function make_macro_question($qtype) {
         $options = array();
         $options['pertesttemplate'] = <<<EOT
@@ -556,7 +546,7 @@ EOT;
             $options['pertesttemplate'] .= "\n\ntester()\n";
         }
         $options['enablecombinator'] = false;
-        
+
         $questiontext = <<<EOT
  Enter the following program:
 
@@ -589,13 +579,12 @@ EOT
         return $coderunner;
     }
 
-    
-    // Now the octave-question helper stuff
-    // ===================================
+    // Now the octave-question helper stuff.
+    // ====================================
     // An edited version of Matlab helper stuff.
     // Has to handle the difference in the behaviour of disp.
 
-   /**
+    /**
      * Makes an octave question asking for a sqr() function
      * @return qtype_coderunner_question
      */
@@ -617,9 +606,8 @@ EOT
 
         return $coderunner;
     }
-    
-    
-   /**
+
+    /**
      * Makes an nodejs question asking for a sqr() function.
      * Nodejs is not a built-in type.
      * @return qtype_coderunner_question
@@ -642,21 +630,19 @@ EOT
              array('language'          => 'nodejs',
                    'sandboxparams'    => '{"memorylimit": 1000000}',
                    'pertesttemplate' => "{{STUDENT_ANSWER}}\n{{TEST.testcode}}\n",
-                   'enablecombinator' => False)
+                   'enablecombinator' => false)
         );
         return $coderunner;
     }
-    
-    public function make_coderunner_question_teststudentanswermacrooctave()
-    {
+
+    public function make_coderunner_question_teststudentanswermacrooctave() {
         return $this->make_macro_question('octave_function');
     }
 
-   
+    /* Now Java questions
+     * ==================
+     */
 
-/* Now Java questions
- * ==================
- */
     /**
      * Makes a coderunner question asking for a sqr() method in Java
      * @return qtype_coderunner_question
@@ -677,11 +663,10 @@ EOT
                           'expected'  => '256')
         ));
 
-
         return $coderunner;
     }
 
-   /**
+    /**
      * Makes a coderunner question asking for a Java 'Name' class
      * @return qtype_coderunner_question
      */
@@ -702,7 +687,7 @@ EOT
         return $coderunner;
     }
 
-   /**
+    /**
      * Makes a coderunner question asking for a program that prints squares
      * of numbers from 1 up to and including a value read from stdin.
      * @return qtype_coderunner_question
@@ -721,7 +706,6 @@ EOT
         ));
         return $coderunner;
     }
-
 
     /**
      * Makes a coderunner question in which the testcode is just a Java literal
@@ -754,7 +738,7 @@ EOPROG;
                         'stdin'    => "5\n",
                         'expected' => "a0\nb\t\nc\f\nd'This is a string'\n\"So is this\"")
                 ),
-                array('pertesttemplate' =>  $template,
+                array('pertesttemplate' => $template,
                       'enablecombinator' => false)
         );
         return $q;
@@ -768,7 +752,7 @@ EOPROG;
      * get_question_options method, as we'd like to, because it requires
      * a form rather than a question and may have a files area with files
      * to upload - too hard to set up :-(
-     * The normal get_options method returns all the options in 
+     * The normal get_options method returns all the options in
      * the 'options' field of the object, but CodeRunner then subsequently
      * flattens the options into the question itself. This implementation does
      * both - defining the options object and the flattened version - so the
@@ -778,7 +762,7 @@ EOPROG;
      */
     private function get_options(&$question) {
         global $CFG, $DB;
-        
+
         $type = $question->coderunnertype;
 
         if (!$row = $DB->get_record_select(
@@ -786,36 +770,33 @@ EOPROG;
                    "coderunnertype = '$type' and prototypetype != 0")) {
                throw new qtype_coderunner_missing_question_type("TestHelper: failed to load type info for question with type $type");
         }
-        
+
         $noninherited = qtype_coderunner::noninherited_fields();
-        foreach ($row as $field=>$value) {
+        foreach ($row as $field => $value) {
             if (!in_array($field, $noninherited)) {
                 $question->$field = $value;
             }
         }
-        
-        
+
         foreach ($question->options as $key => $value) {
             $question->$key = $value;
         }
 
-        
         // What follows is a rather horrible hack to support question export
         // testing. Having built the flattened question, we now "unflatten"
         // it back out to the set of options we get from the database.
-        
+
         $question->options = new StdClass();
         foreach ($question->qtype->extra_question_fields() as $field) {
             if (isset($question->$field)) {
                 $question->options->$field = $question->$field;
             } else {
-                $question->options->$field = NULL;
+                $question->options->$field = null;
             }
         }
-        
-        $question->options->answers = array();  // For compatability with questiontype base
+
+        $question->options->answers = array();  // For compatability with questiontype base.
         $question->options->testcases = $question->testcases;
-        
 
         if (!isset($question->sandbox)) {
             $question->sandbox = $question->get_best_sandbox($question->language);
@@ -827,8 +808,7 @@ EOPROG;
             $question->grader = 'EqualityGrader';
         }
     }
-    
-    
+
     // Given an array of tests in which each element has just the bare minimum
     // of info, add in all the other necessary fields to get an array of
     // testCase objects.
@@ -852,12 +832,10 @@ EOPROG;
         return $tests;      
     }
 
-
     // Return a CodeRunner question of a given (sub)type with given testcases
     // and other options. Further fields might be added by
     // coderunnertestcase::make_question (q.v.).
-    
-    private function make_coderunner_question($type, $name='', $questionText='', 
+    private function make_coderunner_question($type, $name = '', $questionText = '',
             $testcases, $otherOptions = array()) {
         question_bank::load_question_definition_classes('coderunner');
         $coderunner = new qtype_coderunner_question();
@@ -875,8 +853,8 @@ EOPROG;
         $coderunner->customise = false;
         $coderunner->testcases = self::make_test_cases($testcases);
         $coderunner->options = array();
-        $coderunner->isnew = true;  // Extra field normally added by save_question
-        $coderunner->context = context_system::instance(); // Use system context for testing
+        $coderunner->isnew = true;  // Extra field normally added by save_question.
+        $coderunner->context = context_system::instance(); // Use system context for testing.
         foreach ($otherOptions as $key => $value) {
             $coderunner->options[$key] = $value;
         }
@@ -884,4 +862,3 @@ EOPROG;
         return $coderunner;
     }
 }
-

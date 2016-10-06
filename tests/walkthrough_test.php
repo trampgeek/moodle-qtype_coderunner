@@ -24,12 +24,10 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once($CFG->dirroot . '/question/engine/tests/helpers.php');
-
 
 /**
  * Unit tests for the coderunner question type.
@@ -42,9 +40,8 @@ require_once($CFG->dirroot . '/question/engine/tests/helpers.php');
  * testcase controls (useAsExample, display, hideRestIfFail).
  */
 
-
 class qtype_coderunner_walkthrough_test extends qbehaviour_walkthrough_test_base {
-    
+
     protected function setUp() {
         global $CFG;
         parent::setUp();
@@ -84,7 +81,7 @@ class qtype_coderunner_walkthrough_test extends qbehaviour_walkthrough_test_base
                 $this->get_does_not_contain_try_again_button_expectation(),
                 $this->get_no_hint_visible_expectation());
 
-        // Submit a wrong answer
+        // Submit a wrong answer.
         $this->process_submission(array('-submit' => 1, 'answer' => 'def sqr(n): return n'));
 
         // Verify.
@@ -112,7 +109,7 @@ class qtype_coderunner_walkthrough_test extends qbehaviour_walkthrough_test_base
         $q = test_question_maker::make_question('coderunner', 'sqrPartMarks');
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
 
-         // Submit a totally wrong answer
+         // Submit a totally wrong answer.
         $this->process_submission(array('-submit' => 1, 'answer' => 'def sqr(n): return -19'));
 
         // Verify.
@@ -123,7 +120,7 @@ class qtype_coderunner_walkthrough_test extends qbehaviour_walkthrough_test_base
                         preg_quote(get_string('incorrect', 'question') . '/'))
               );
 
-        // Submit a partially right answer
+        // Submit a partially right answer.
         $this->process_submission(array('-submit' => 1, 'answer' => 'def sqr(n): return n * n if n < 0 else -19'));
         $this->check_current_mark(0.2666666667);
         $this->check_current_output(
@@ -166,7 +163,7 @@ EOTEMPLATE;
         $q->unitpenalty = 0;
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
 
-         // Submit a totally wrong answer
+         // Submit a totally wrong answer.
         $this->process_submission(array('-submit' => 1, 'answer' => 'def sqr(n): return -19'));
 
         // Verify.
@@ -182,12 +179,11 @@ EOTEMPLATE;
         // per-submission penalties doesn't seem to work.
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
         $this->process_submission(array('-submit' => 1, 'answer' => "def sqr(n): return n * n\n"));
-        $this->check_current_mark(23.0/31.0);
+        $this->check_current_mark(23.0 / 31.0);
         $this->check_current_output( new question_pattern_expectation('/Tiddlypom/') );
         $this->check_current_output( new question_pattern_expectation('/Twiddlydee/') );
     }
-    
-    
+
     /* Test that if a template grader sets an abort attribute in the returned
      * JSON object to a True value, the test-runner stops running testcases
      * at that point.
@@ -215,11 +211,10 @@ EOTEMPLATE;
         // despite being given a fraction of 1.0.
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
         $this->process_submission(array('-submit' => 1, 'answer' => "def sqr(n): return n * n\n"));
-        $this->check_current_mark(3.0/31.0);
+        $this->check_current_mark(3.0 / 31.0);
         $this->check_current_output( new question_pattern_expectation('/Twiddlydum/') );
     }
-    
-    
+
     public function test_grading_template_html_output() {
         /* Test a grading template that supplies a JSON record with a got_html
            attribute. For a per-test template this is used in the results
@@ -246,18 +241,17 @@ EOTEMPLATE;
         $q->unitpenalty = 0;
         $q->resultcolumns = '[["Test", "testcode"], ["Expected", "expected_html", "%h"], ["Got", "got_html", "%h"]]';
 
-        // Submit an answer that's right for all except one test case
+        // Submit an answer that's right for all except one test case.
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
         $this->process_submission(array('-submit' => 1,
             'answer' => "def sqr(n): return -1 if n == 1 else n * n \n"));
         //echo $html = $this->quba->render_question($this->slot, $this->displayoptions);
-        $this->check_current_mark(21.0/31.0);
+        $this->check_current_mark(21.0 / 31.0);
         $this->check_current_output( new question_pattern_expectation("|<svg width=.100. height=.200.></svg>|") );
         $this->check_current_output( new question_pattern_expectation('/YeeHa/') );
         $this->check_current_output( new question_pattern_expectation('|<h2>Header</h2>|') );
     }
-    
-    
+
     public function test_combinator_template_grading() {
         // Use the question maker to provide a dummy question.
         // Mostly ignore it. This question wants an answer with exactly
@@ -285,15 +279,15 @@ EOTEMPLATE;
         $q->enablecombinator = true;
         $q->unitpenalty = 0;
 
-        // Submit a right answer
+        // Submit a right answer.
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
         $this->process_submission(array('-submit' => 1,
             'answer' => "hi di hi and HO DI HO"));
         //echo $html = $this->quba->render_question($this->slot, $this->displayoptions);
         $this->check_current_mark(1.0);
         $this->check_current_output( new question_pattern_expectation('|<h2>Well done</h2>|') );
-        
-        // Submit a partially right  answer
+
+        // Submit a partially right  answer.
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
         $this->process_submission(array('-submit' => 1,
             'answer' => "hi di nothi and HO DI NOTHO"));

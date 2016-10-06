@@ -49,7 +49,6 @@ class qtype_coderunner_c_questions_test extends qtype_coderunner_testcase {
         $this->assertTrue($testoutcome->all_correct());
     }
 
-
     public function test_compile_error() {
         $q = $this->make_question('sqrC');
         $response = array('answer' => "int sqr(int n) { return n * n; /* No closing brace */");
@@ -61,8 +60,6 @@ class qtype_coderunner_c_questions_test extends qtype_coderunner_testcase {
         $this->assertTrue($testoutcome->has_syntax_error());
         $this->assertEquals(0, count($testoutcome->testresults));
     }
-
-
 
     public function test_good_hello_world() {
         $q = $this->make_question('helloProgC');
@@ -77,7 +74,6 @@ class qtype_coderunner_c_questions_test extends qtype_coderunner_testcase {
         $this->assertTrue($testoutcome->all_correct());
     }
 
-
     public function test_bad_hello_world() {
         $q = $this->make_question('helloProgC');
         $response = array('answer' => "#include <stdio.h>\nint main() { printf(\"Hello ENCE260!\\n\");return 0;}\n");
@@ -91,7 +87,6 @@ class qtype_coderunner_c_questions_test extends qtype_coderunner_testcase {
         $this->assertFalse($testoutcome->all_correct());
     }
 
-
     public function test_copy_stdinC() {
         $q = $this->make_question('copyStdinC');
         $response = array('answer' => "#include <stdio.h>\nint main() { char c;\nwhile((c = getchar()) != EOF) {\n putchar(c);\n}\nreturn 0;}\n");
@@ -104,7 +99,6 @@ class qtype_coderunner_c_questions_test extends qtype_coderunner_testcase {
         $this->assertEquals(3, count($testoutcome->testresults));
         $this->assertTrue($testoutcome->all_correct());
     }
-
 
     public function test_C_func_with_side_effects() {
         // This used to test the c_function_side_effects question type, but
@@ -131,8 +125,6 @@ class qtype_coderunner_c_questions_test extends qtype_coderunner_testcase {
         $this->assertTrue($testoutcome->all_correct());
     }
 
-
-
     public function test_runtime_error() {
         $q = $this->make_question('helloProgC');
         $response = array('answer' => "#include <stdio.h>\n#include <stdlib.h>\nint main() { char* p = NULL; *p = 10; return 0; }\n");
@@ -147,7 +139,6 @@ class qtype_coderunner_c_questions_test extends qtype_coderunner_testcase {
         $this->assertTrue(strpos($testoutcome->testresults[0]->got, '***Runtime error***') === 0);
     }
 
-
     public function test_timelimit_exceeded() {
         $q = $this->make_question('helloProgC');
         $response = array('answer' => "#include <stdio.h>\nint main() { while(1) {};return 0;}\n");
@@ -161,8 +152,7 @@ class qtype_coderunner_c_questions_test extends qtype_coderunner_testcase {
         $this->assertFalse($testoutcome->all_correct());
         $this->assertEquals("***Time limit exceeded***\n", $testoutcome->testresults[0]->got);
     }
-    
-    
+
     public function test_outputlimit_exceeded() {
         $q = $this->make_question('helloProgC');
         $response = array('answer' => "#include <stdio.h>\nint main() { while(1) { printf(\"Hello\"); };return 0;}\n");
@@ -180,13 +170,10 @@ class qtype_coderunner_c_questions_test extends qtype_coderunner_testcase {
         ); 
     }
 
-
-
-
     public function test_missing_semicolon() {
-        // Check that a missing semicolon in a simple printf test is reinsterted
+        // Check that a missing semicolon in a simple printf test is reinsterted.
         // Check grading of a "write-a-function" question with multiple
-        // test cases and a correct solution
+        // test cases and a correct solution.
         $q = $this->make_question('sqrNoSemicolons');
         $response = array('answer' => "int sqr(int n) { return n * n;}\n");
         list($mark, $grade, $cache) = $q->grade_response($response);
@@ -197,8 +184,6 @@ class qtype_coderunner_c_questions_test extends qtype_coderunner_testcase {
         $this->assertEquals(4, count($testoutcome->testresults));
         $this->assertTrue($testoutcome->all_correct());
     }
-
-
 
     public function test_simple_fork_bomb() {
         // Check that sandbox can handle a fork-bomb.
@@ -220,10 +205,9 @@ int sqr(int n) {
         $this->assertTrue(isset($cache['_testoutcome']));
         $testoutcome = unserialize($cache['_testoutcome']);
         $this->assertTrue(
-                strpos($testoutcome->testresults[1]->got, 
+                strpos($testoutcome->testresults[1]->got,
                     "***Illegal function call***") !== false ||
                 $grade == question_state::$gradedright
                 );
     }
 }
-

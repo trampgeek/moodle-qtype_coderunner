@@ -39,16 +39,16 @@ class qtype_coderunner_prototype_test extends qtype_coderunner_testcase {
     // inherits a few representative fields.
     public function test_inheritance_from_prototype() {
         $this->make_sqr_user_type_prototype();
-        $q2 = $this->make_question('sqr_user_prototype_child');  // Make a derived question
+        $q2 = $this->make_question('sqr_user_prototype_child');  // Make a derived question.
         $this->assertEquals('combinatortemplatevalue', $q2->combinatortemplate);
         $this->assertEquals(179, $q2->cputimelimitsecs);
     }
-     
-    // Test any prototype files are also used by child
+
+    // Test any prototype files are also used by child.
     public function test_files_inherited() {
         $q = $this->make_parent_and_child();
 
-        $code = "print(open('data.txt').read())"; 
+        $code = "print(open('data.txt').read())";
         $response = array('answer' => $code);
         $result = $q->grade_response($response);
         list($mark, $grade, $cache) = $result;
@@ -56,10 +56,9 @@ class qtype_coderunner_prototype_test extends qtype_coderunner_testcase {
 
         $this->assertTrue($testoutcome->all_correct());
     }
-    
-    // Test exported question does not contain inherited fields
-    public function test_export()
-    {
+
+    // Test exported question does not contain inherited fields.
+    public function test_export() {
         $q = $this->make_parent_and_child();
         $q->qtype = $q->qtype->name(); // TODO: Why does qformat_xml expect this field to be a string?!
         $exporter = new qformat_xml();
@@ -126,58 +125,57 @@ Line 2</text>
 ';
         $this->assert_same_xml($expectedxml, $xml_no_line1);
     }
-    
-    // Support function to make a parent and its child
-    private function make_parent_and_child()
-    {
+
+    // Support function to make a parent and its child.
+    private function make_parent_and_child() {
         $id = $this->make_sqr_user_type_prototype(true);
 
         $this->setAdminUser();
         $fs = get_file_storage();
 
-        // Prepare file record object
+        // Prepare file record object.
         $fileinfo = array(
-            'contextid' => 1, // ID of context for prototype
+            'contextid' => 1, // ID of context for prototype.
             'component' => 'qtype_coderunner',
             'filearea' => 'datafile',
             'itemid' => $id,
             'filepath' => '/',
             'filename' => 'data.txt');
 
-        // Create file (deleting any existing version first)
+        // Create file (deleting any existing version first).
         $file = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'],
             $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename']);
         $file->delete();
         $fs->create_file_from_string($fileinfo, "This is data\nLine 2");
-        
-        $q = $this->make_question('sqr_user_prototype_child');  // Make a derived question
+
+        $q = $this->make_question('sqr_user_prototype_child');  // Make a derived question.
         return $q;
     }
-    
+
     public function assert_same_xml($expectedxml, $xml) {
         $this->assertEquals(str_replace("\r\n", "\n", $expectedxml),
                 str_replace("\r\n", "\n", $xml));
     }
-    
+
     // Support function to make and save a prototype question.
     // Optionally, prototype has a file attached for testing file inheritance.
-    // Returns prototype question id
+    // Returns prototype question id.
 
-    private function make_sqr_user_type_prototype($fileAttachmentReqd=false) {
+    private function make_sqr_user_type_prototype($fileAttachmentReqd = false) {
         global $DB;
         $q = $this->make_question('sqr');
-        $q->test_cases = array();  // No testcases in a prototype
+        $q->test_cases = array();  // No testcases in a prototype.
         $q->customise = 1;
         $q->prototypetype = 2;
         $q->typename = "sqr_user_prototype";
         $q->cputimelimitsecs = 179; // Silly test value
         $q->combinatortemplate = 'combinatortemplatevalue';
-        
+
         // Save the prototype to the DB so it has an accessible context for
         // retrieving associated files. All we need is its id and
         // its category, but the DB has other required fields so we dummy
         // up a minimal question containing the right category, at least.
-        
+
         question_bank::load_question_definition_classes('coderunner');
         $row = new qtype_coderunner_question();
         test_question_maker::initialise_a_question($row);
@@ -207,11 +205,9 @@ Line 2</text>
                 'filepath'  => '/',
                 'filename'  => 'data.txt');
 
-            // Create file
+            // Create file.
             $fs->create_file_from_string($fileinfo, "This is data\nLine 2");
         }
         return $q->id;
     }
-    
 }
-

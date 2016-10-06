@@ -42,10 +42,9 @@ class qtype_coderunner_testcase extends advanced_testcase {
     }
 
     function test_dummy() {
-        /* Present to avoid a warning about no testcases */
+        /* Present to avoid a warning about no testcases. */
     }
-    
-    
+
     // Check if language installed. If not, mark test skipped and don't
     // return (exception raised internally).
     protected function check_language_available($language) {
@@ -54,8 +53,7 @@ class qtype_coderunner_testcase extends advanced_testcase {
                     "$language is not installed on your server. Test skipped.");
         }
     }
-    
-    
+
     // Make and return a question, skipping the test if it can't be made.
     public function make_question($question) {
         try {
@@ -66,13 +64,11 @@ class qtype_coderunner_testcase extends advanced_testcase {
         $q->contextid = $this->category->contextid;
         return $q;
     }
-    
-    
+
     // Check if a particular sandbox is enabled. Skip test if not.
     protected function check_sandbox_enabled($sandbox) {
         if (!get_config('qtype_coderunner', $sandbox . '_enabled')) {
             $this->markTestSkipped("Sandbox $sandbox unavailable: test skipped");
         }
     }
-
 }
