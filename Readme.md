@@ -1207,7 +1207,7 @@ in the following section.
 NOTE: `%h` format required PHP >= 5.4.0 and Libxml >= 2.7.8 in order to
 parse and clean the HTML output.
 
-### Extended column specifier syntax
+### Extended column specifier syntax (*obsolescent*)
 
 It was stated above that the values to be formatted by the format string (if
 given) were fields from the TestResult object. This is a slight simplification. 
@@ -1217,45 +1217,27 @@ The syntax actually allows for expressions of the form:
 
 where `filter` is the name of a built-in filter function that filters the
 given testResult field(s) in some way. Currently the only such built-in
-filter function is `diff`: it takes two test result fields as parameters and
-returns an HTML string that represents the first test field with embedded
-HTML &lt;ins&gt; and &lt;del&gt; elements that show the insertions and deletions necessary
-to convert the first field into the second. This is intended for use with
-the `Expected` and `Got` fields, so the student can easily see where their
-output is wrong. It is used by the default result column display if an
-ExactMatch grader is used (see below).
-
-If the diff filter is being used, the column specifier should have exactly
-three elements: the column header, the diff expression and a format specifier
-of '%h'.
-
-The stylesheet by default displays &lt;del&gt; content in the same style as the
-surrounding text and hides the &lt;ins&gt; content so that the first field is
-displayed verbatim. If the question does not earn full marks, a "Show differences"
-button is added at the end of the results table. When this is clicked, any
-&lt;del&gt; content is highlighted, as shown in the figure below.
-&lt;ins&gt; content remains hidden. With the default
-settings (see below) the highlighting in the *Expected* column thus shows
-what is missing in the *Got* column, while the highlighting in the *Got* column
-shows additional text that shouldn't be present. 
-
-Other filter functions may be added in the future if demand arises.
+filter function is `diff`. This is (or was) a function 
+taking two test result fields as parameters and
+returning an HTML string that representing the first test field with embedded
+HTML &lt;ins&gt; and &lt;del&gt; elements that show the insertions and deletions
+necessary
+to convert the first field into the second. This was used to provide support
+for the Show Differences button, which the user could click in order to
+highlight differences between the *Expected* and *Got* fields. However that
+functionality is now provided by JavaScript; the Show Differences button is
+automatically displayed if an answer is being marked wrong and if an 
+exact-match grader is being used. Hence the *diff* filter function
+is no longer functional but it remains supported syntactially to provide
+support or legacy questions that used it.
 
 <img src="http://coderunner.org.nz/pluginfile.php/56/mod_page/content/24/Selection_074.png" />
 
 ### Default result columns
 
-The default value of *result_columns* for questions using an ExactMatch grader
-is
-
-`[["Test", "testcode"],
-["Input", "stdin"], ["Expected", "diff(expected, got)", "%h"],
-["Got", "diff(got, expected)", "%h"]]`.
-
-Otherwise the default value is:
+The default value of *result_columns*  is:
 
 `[["Test", "testcode"], ["Input", "stdin"], ["Expected", "expected"], ["Got", "got"]]`.
-
 
 
 ## User-defined question types

@@ -64,7 +64,7 @@ class qtype_coderunner_prototype_test extends qtype_coderunner_testcase {
         $exporter = new qformat_xml();
         $xml = $exporter->writequestion($q);
         $bits = preg_split("/<!-- question: [0-9]*  -->/", $xml);
-        $xml_no_line1 = $bits[1];
+        $xmlnoline1 = $bits[1];
         $expectedxml = '
   <question type="coderunner">
     <name>
@@ -123,7 +123,7 @@ Line 2</text>
     </testcases>
   </question>
 ';
-        $this->assert_same_xml($expectedxml, $xml_no_line1);
+        $this->assert_same_xml($expectedxml, $xmlnoline1);
     }
 
     // Support function to make a parent and its child.
@@ -161,14 +161,14 @@ Line 2</text>
     // Optionally, prototype has a file attached for testing file inheritance.
     // Returns prototype question id.
 
-    private function make_sqr_user_type_prototype($fileAttachmentReqd = false) {
+    private function make_sqr_user_type_prototype($fileattachmentreqd = false) {
         global $DB;
         $q = $this->make_question('sqr');
         $q->test_cases = array();  // No testcases in a prototype.
         $q->customise = 1;
         $q->prototypetype = 2;
         $q->typename = "sqr_user_prototype";
-        $q->cputimelimitsecs = 179; // Silly test value
+        $q->cputimelimitsecs = 179; // Silly test value.
         $q->combinatortemplate = 'combinatortemplatevalue';
 
         // Save the prototype to the DB so it has an accessible context for
@@ -179,10 +179,10 @@ Line 2</text>
         question_bank::load_question_definition_classes('coderunner');
         $row = new qtype_coderunner_question();
         test_question_maker::initialise_a_question($row);
-        $catRow = $DB->get_record_select(  // Find the question category for system context (1)
+        $catrow = $DB->get_record_select(  // Find the question category for system context (1).
                    'question_categories',
                    "contextid=1 limit 1");
-        $row->category = $catRow->id;
+        $row->category = $catrow->id;
         $row->qtype = 'qtype_coderunner';
         $row->contextid = 1;
         foreach (array('id', 'name', 'questiontext', 'generalfeedback') as $key) {
@@ -194,7 +194,7 @@ Line 2</text>
         $qtype = new qtype_coderunner();
         $qtype->save_question_options($q);
 
-        if ($fileAttachmentReqd) {
+        if ($fileattachmentreqd) {
             // Attach a file.
             $fs = get_file_storage();
             $fileinfo = array(

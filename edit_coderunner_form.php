@@ -56,21 +56,21 @@ class qtype_coderunner_edit_form extends question_edit_form {
     // Define the CodeRunner question edit form.
     protected function definition() {
         global $PAGE;
-        $jsmodule = array(
-            'name'      => 'qtype_coderunner',
-            'fullpath'  => '/question/type/coderunner/module.js',
-            'requires'  => array('base', 'widget', 'io', 'node-menunav')
-        );
 
         $mform = $this->_form;
         $this->make_questiontype_panel($mform);
         $this->make_questiontype_help_panel($mform);
         $this->make_customisation_panel($mform);
         $this->make_advanced_customisation_panel($mform);
+        load_ace();
 
-        $PAGE->requires->js_init_call('M.qtype_coderunner.setupAllTAs',  array(), false, $jsmodule);
-        $PAGE->requires->js_init_call('M.qtype_coderunner.initEditForm', array(), false, $jsmodule);
-        load_ace_scripts();  // May be needed e.g. for template editing.
+        $keys = array('coderunner_question_type', 'confirm_proceed', 'template_changed',
+            'info_unavailable', 'proceed_at_own_risk', 'error_loading_prototype',
+            'ajax_error', 'prototype_load_failure', 'prototype_error',
+            'coderunner_question_type', 'question_type_changed');
+        $PAGE->requires->strings_for_js($keys, 'qtype_coderunner');
+        $PAGE->requires->js_call_amd('qtype_coderunner/textareas', 'setupAllTAs');
+        $PAGE->requires->js_call_amd('qtype_coderunner/authorform', 'initEditForm');
 
         parent::definition($mform);  // The superclass adds the "General" stuff.
     }
@@ -397,8 +397,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
         $mform->addElement('header', 'questiontypeheader', get_string('type_header', 'qtype_coderunner'));
 
-        // The Question Type controls (used to contain customisation controls
-        // but now just a group with a single member).
+        // The Question Type controls (a group with just a single member).
         $typeselectorelements = array();
         $expandedtypes = array_merge(array('Undefined' => 'Undefined'), $types);
         $typeselectorelements[] = $mform->createElement('select', 'coderunnertype',
@@ -457,7 +456,6 @@ class qtype_coderunner_edit_form extends question_edit_form {
             array('size' => self::TEMPLATE_PARAM_SIZE));
         $mform->setType('templateparams', PARAM_RAW);
         $mform->addHelpButton('templateparams', 'templateparams', 'qtype_coderunner');
-        $mform->setAdvanced('templateparams');
     }
 
 
@@ -506,6 +504,8 @@ class qtype_coderunner_edit_form extends question_edit_form {
             array('size' => self::RESULT_COLUMNS_SIZE));
         $mform->setType('resultcolumns', PARAM_RAW);
         $mform->addHelpButton('resultcolumns', 'resultcolumns', 'qtype_coderunner');
+
+        $mform->setExpanded('customisationheader');  // Although expanded it's hidden until JavaScript unhides it .
     }
 
 
@@ -584,7 +584,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
         $combinatorcontrols[] =& $mform->createElement('textarea', 'combinatortemplate',
                 '',
-                array('cols' => 60, 'rows' => 8, 'class' => 'template edit_code',
+                array('rows' => 8, 'class' => 'template edit_code',
                       'name' => 'combinatortemplate'));
 
         $mform->addElement('group', 'combinatorcontrols',
@@ -593,7 +593,6 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
         $mform->addHelpButton('combinatorcontrols', 'combinatorcontrols', 'qtype_coderunner');
 
-        $mform->setExpanded('customisationheader');  // Although expanded it's hidden until JavaScript unhides it .
     }
 
     // UTILITY FUNCTIONS.

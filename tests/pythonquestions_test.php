@@ -165,7 +165,7 @@ EOCODE;
 
     public function test_hellofunc() {
         // Check a question type with a function that prints output.
-        $q = $this->make_question('helloFunc');
+        $q = $this->make_question('hello_func');
         $code = "def sayHello(name):\n  print('Hello ' + name)";
         $response = array('answer' => $code);
         $result = $q->grade_response($response);
@@ -182,9 +182,9 @@ EOCODE;
 
     public function test_copystdin() {
         // Check a question that reads stdin and writes to stdout.
-        $q = $this->make_question('copyStdin');
+        $q = $this->make_question('copy_stdin');
         $code = <<<EOCODE
-def copyStdin(n):
+def copy_stdin(n):
   for i in range(n):
     line = input()
     print(line)
@@ -240,7 +240,7 @@ EOCODE;
 
     public function test_partial_mark_question() {
         // Test a question that isn't of the usual allornothing variety.
-        $q = $this->make_question('sqrPartMarks');
+        $q = $this->make_question('sqr_part_marks');
         $code = "def sqr(n):\n  return -17.995";
         $response = array('answer' => $code);
         $result = $q->grade_response($response);
@@ -271,7 +271,7 @@ EOCODE;
     }
 
     public function test_customised_timeout() {
-        $q = $this->make_question('helloPython');
+        $q = $this->make_question('hello_python');
         $slowsquare = <<<EOT
 from time import clock
 t = clock()

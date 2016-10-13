@@ -31,6 +31,9 @@ require_once($CFG->dirroot . '/question/engine/tests/helpers.php');
 require_once($CFG->dirroot . '/question/type/coderunner/question.php');
 
 class qtype_coderunner_testcase extends advanced_testcase {
+
+    protected $hasfailed = false; // Set to true when a test fails.
+
     protected function setUp() {
         global $CFG;
         parent::setUp();
@@ -41,7 +44,15 @@ class qtype_coderunner_testcase extends advanced_testcase {
         $this->category = $generator->create_question_category(array());
     }
 
-    function test_dummy() {
+    // Override base class method to set a flag, which can be tested
+    // to conditionally skip later tests. See jobesendbox_test.
+    // Name can't be made moodle-standards compliant as it's defined by phpunit.
+    protected function onNotSuccessfulTest(Exception $e) {
+        $this->hasfailed = true;
+        throw $e;
+    }
+
+    public function test_dummy() {
         /* Present to avoid a warning about no testcases. */
     }
 

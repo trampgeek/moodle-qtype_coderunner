@@ -38,7 +38,7 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/coderunnertestcase
 class qtype_coderunner_c_questions_test extends qtype_coderunner_testcase {
 
     public function test_good_sqr_function() {
-        $q = $this->make_question('sqrC');
+        $q = $this->make_question('sqr_c');
         $response = array('answer' => "int sqr(int n) { return n * n;}\n");
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(1, $mark);
@@ -50,7 +50,7 @@ class qtype_coderunner_c_questions_test extends qtype_coderunner_testcase {
     }
 
     public function test_compile_error() {
-        $q = $this->make_question('sqrC');
+        $q = $this->make_question('sqr_c');
         $response = array('answer' => "int sqr(int n) { return n * n; /* No closing brace */");
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(0, $mark);
@@ -62,7 +62,7 @@ class qtype_coderunner_c_questions_test extends qtype_coderunner_testcase {
     }
 
     public function test_good_hello_world() {
-        $q = $this->make_question('helloProgC');
+        $q = $this->make_question('hello_prog_c');
         $response = array('answer' => "#include <stdio.h>\nint main() { printf(\"Hello ENCE260\\n\");return 0;}\n");
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(1, $mark);
@@ -75,7 +75,7 @@ class qtype_coderunner_c_questions_test extends qtype_coderunner_testcase {
     }
 
     public function test_bad_hello_world() {
-        $q = $this->make_question('helloProgC');
+        $q = $this->make_question('hello_prog_c');
         $response = array('answer' => "#include <stdio.h>\nint main() { printf(\"Hello ENCE260!\\n\");return 0;}\n");
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(0, $mark);
@@ -87,9 +87,15 @@ class qtype_coderunner_c_questions_test extends qtype_coderunner_testcase {
         $this->assertFalse($testoutcome->all_correct());
     }
 
-    public function test_copy_stdinC() {
-        $q = $this->make_question('copyStdinC');
-        $response = array('answer' => "#include <stdio.h>\nint main() { char c;\nwhile((c = getchar()) != EOF) {\n putchar(c);\n}\nreturn 0;}\n");
+    public function test_copy_stdin_c() {
+        $q = $this->make_question('copy_stdin_c');
+        $response = array('answer' => "#include <stdio.h>\n" .
+            "int main() {\n" .
+            "char c;\n" .
+            "while((c = getchar()) != EOF) {\n" .
+            "putchar(c);\n" .
+            "}\n" .
+            "return 0;}\n");
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testoutcome = unserialize($cache['_testoutcome']);
@@ -100,21 +106,20 @@ class qtype_coderunner_c_questions_test extends qtype_coderunner_testcase {
         $this->assertTrue($testoutcome->all_correct());
     }
 
-    public function test_C_func_with_side_effects() {
+    public function test_c_func_with_side_effects() {
         // This used to test the c_function_side_effects question type, but
         // that's now defunct. The test is still vaguely useful, though, as
         // it tests that what looks like a global array in each test case
         // is actually local to each test within the same combined function.
-        $q = $this->make_question('strToUpper');
-        $response = array('answer' =>
-"void strToUpper(char s[]) {
-    int i = 0;
-    while (s[i]) {
-       s[i] = toupper(s[i]);
-       i++;
-    }
-}
-");
+        $q = $this->make_question('str_to_upper');
+        $response = array('answer' => "void str_to_upper(char s[]) {\n" .
+            "int i = 0;\n" .
+            "while (s[i]) {\n" .
+            "s[i] = toupper(s[i]);\n" .
+            "i++;\n" .
+            "}\n" .
+            "}\n"
+        );
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(1, $mark);
         $this->assertEquals(question_state::$gradedright, $grade);
@@ -126,8 +131,10 @@ class qtype_coderunner_c_questions_test extends qtype_coderunner_testcase {
     }
 
     public function test_runtime_error() {
-        $q = $this->make_question('helloProgC');
-        $response = array('answer' => "#include <stdio.h>\n#include <stdlib.h>\nint main() { char* p = NULL; *p = 10; return 0; }\n");
+        $q = $this->make_question('hello_prog_c');
+        $response = array('answer' => "#include <stdio.h>\n" .
+            "#include <stdlib.h>\n" .
+            "int main() { char* p = NULL; *p = 10; return 0; }\n");
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(0, $mark);
         $this->assertEquals(question_state::$gradedwrong, $grade);
@@ -140,7 +147,7 @@ class qtype_coderunner_c_questions_test extends qtype_coderunner_testcase {
     }
 
     public function test_timelimit_exceeded() {
-        $q = $this->make_question('helloProgC');
+        $q = $this->make_question('hello_prog_c');
         $response = array('answer' => "#include <stdio.h>\nint main() { while(1) {};return 0;}\n");
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(0, $mark);
@@ -154,7 +161,7 @@ class qtype_coderunner_c_questions_test extends qtype_coderunner_testcase {
     }
 
     public function test_outputlimit_exceeded() {
-        $q = $this->make_question('helloProgC');
+        $q = $this->make_question('hello_prog_c');
         $response = array('answer' => "#include <stdio.h>\nint main() { while(1) { printf(\"Hello\"); };return 0;}\n");
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(0, $mark);
@@ -167,14 +174,14 @@ class qtype_coderunner_c_questions_test extends qtype_coderunner_testcase {
         $this->assertTrue(
             strpos($testoutcome->testresults[0]->got, "***Time limit exceeded***\n") !== false ||
             strpos($testoutcome->testresults[0]->got, "***Excessive output***\n") !== false
-        ); 
+        );
     }
 
     public function test_missing_semicolon() {
         // Check that a missing semicolon in a simple printf test is reinsterted.
         // Check grading of a "write-a-function" question with multiple
         // test cases and a correct solution.
-        $q = $this->make_question('sqrNoSemicolons');
+        $q = $this->make_question('sqr_no_semicolons');
         $response = array('answer' => "int sqr(int n) { return n * n;}\n");
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(1, $mark);
@@ -187,9 +194,9 @@ class qtype_coderunner_c_questions_test extends qtype_coderunner_testcase {
 
     public function test_simple_fork_bomb() {
         // Check that sandbox can handle a fork-bomb.
-        $q = $this->make_question('sqrC');
-        $response = array('answer' =>
-"#include <linux/unistd.h>
+        $q = $this->make_question('sqr_c');
+        $response = array('answer' => <<< EOANS
+#include <linux/unistd.h>
 #include <unistd.h>
 int sqr(int n) {
     if (n == 0) return 0;
@@ -199,7 +206,9 @@ int sqr(int n) {
             fork();
         return n * n;
     }
-}");
+}
+EOANS
+        );
         $q->sandboxparams = '{"numprocs": 1}';
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertTrue(isset($cache['_testoutcome']));

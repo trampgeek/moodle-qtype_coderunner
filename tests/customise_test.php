@@ -34,7 +34,7 @@ require_once($CFG->dirroot . '/question/type/coderunner/Twig/Autoloader.php');
 class qtype_coderunner_customise_test extends qtype_coderunner_testcase {
 
     public function test_grade_response_right() {
-        $q = $this->make_question('sqrCustomised');
+        $q = $this->make_question('sqr_customised');
         $response = array('answer' => 'def sqr(n): return times(n, n)');
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(1, $mark);

@@ -82,23 +82,6 @@ EOTEMPLATE;
         $this->check_current_output( new question_pattern_expectation('/Gottim/') );
     }
 
-    public function test_diff_filter() {
-        // Test that we can do a diff filter call in the result-column selector.
-        $q = test_question_maker::make_question('coderunner', 'sqr');
-        $q->resultcolumns = '[["Blah", "testcode"], ["Expected", "diff(expected, got)", "%h"],'
-                . '["Got", "diff(got, expected)", "%h"]]';
-
-        // Submit a wrong answer.
-        $this->start_attempt_at_question($q, 'adaptive', 1, 1);
-        $this->process_submission(array('-submit' => 1,
-            'answer' => "def sqr(n): return n * n if n != -7 else 99\n "));
-        $this->check_current_mark(0.0);
-        $this->check_current_output( new question_pattern_expectation('|<del>4</del>|') );
-        $this->check_current_output( new question_pattern_expectation('|<ins>9</ins>|') );
-        $this->check_current_output( new question_pattern_expectation('|<del>9</del>|') );
-        $this->check_current_output( new question_pattern_expectation('|<ins>4</ins>|') );
-    }
-
     /** Make sure that if the Jobe URL is wrong we get "jobesandbox is down
      *  or misconfigured" exception.
      *
@@ -110,7 +93,7 @@ EOTEMPLATE;
         if (!get_config('qtype_coderunner', 'jobesandbox_enabled')) {
             $this->markTestSkipped("Sandbox $sandbox unavailable: test skipped");
         }
-        set_config('jobe_host', 'localhostxxx', 'qtype_coderunner');  // Broken jobe_host url
+        set_config('jobe_host', 'localhostxxx', 'qtype_coderunner');  // Broken jobe_host url.
         $q = test_question_maker::make_question('coderunner', 'sqr');
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
     }

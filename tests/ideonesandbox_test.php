@@ -18,7 +18,7 @@
  * Unit tests for coderunner's ideone sandbox class.
  * Need full internet connectivity to run this as it needs to
  * send jobs to ideone.com.
- * 
+ *
  * @group qtype_coderunner
  *
  * @package    qtype
@@ -37,7 +37,7 @@ class qtype_coderunner_ideonesandbox_test extends qtype_coderunner_testcase {
         $this->check_sandbox_enabled('ideonesandbox');
         $sandbox = new qtype_coderunner_ideonesandbox();  // Lots happens here!
 
-        $tr = $sandbox->test_function();  // Make sure the generic test runs
+        $tr = $sandbox->test_function();  // Make sure the generic test runs.
         $this->assertEquals(qtype_coderunner_sandbox::OK, $tr->error);
         $this->assertEquals(3.14, $tr->pi);
         $this->assertEquals(42, $tr->answerToLifeAndEverything);
@@ -109,22 +109,11 @@ class qtype_coderunner_ideonesandbox_test extends qtype_coderunner_testcase {
     }
 
     // Test the ideone sandbox with a memory limit error
-    /*** Commented out as it actually just times out instead, so no point.
-    public function test_ideone_sandbox_memlimit() {
-        $sandbox = new IdeoneSandbox();
-        $code = "data = []\nwhile True: data.append(1)";
-        $result = $sandbox->execute($code, 'python2', null);
-        $this->assertEquals(qtype_coderunner_sandbox::RESULT_MEMORY_LIMIT, $result->result);
-        $this->assertEquals('', $result->output);
-        $this->assertEquals('', $result->stderr);
-        $this->assertEquals('', $result->cmpinfo);
-        $sandbox->close();
-    }
-    */
+    // ** Code deleted** as it just times out rather than running out of memory.
 
 
-    // Test the ideone sandbox with a syntactically bad C program
-    public function test_ideone_sandbox_bad_C() {
+    // Test the ideone sandbox with a syntactically bad C program.
+    public function test_ideone_sandbox_bad_c() {
         $this->check_sandbox_enabled('ideonesandbox');
         $sandbox = new qtype_coderunner_ideonesandbox();
         $code = "#include <stdio.h>\nint main(): {\n    printf(\"Hello sandbox\");\n    return 0;\n}\n";
@@ -134,8 +123,8 @@ class qtype_coderunner_ideonesandbox_test extends qtype_coderunner_testcase {
         $sandbox->close();
     }
 
-    // Test the ideone sandbox with a valid C program
-    public function test_ideone_sandbox_ok_C() {
+    // Test the ideone sandbox with a valid C program.
+    public function test_ideone_sandbox_ok_c() {
         $this->check_sandbox_enabled('ideonesandbox');
         $sandbox = new qtype_coderunner_ideonesandbox();
         $code = "#include <stdio.h>\nint main() {\n    printf(\"Hello sandbox\\n\");\n    return 0;\n}\n";
@@ -148,19 +137,19 @@ class qtype_coderunner_ideonesandbox_test extends qtype_coderunner_testcase {
     }
 
 
-    // Test the Ideone sandbox will not allow opening, writing and reading in /tmp
+    // Test the Ideone sandbox will not allow opening, writing and reading in /tmp.
     public function test_ideone_sandbox_fileio_bad() {
         $this->check_sandbox_enabled('ideonesandbox');
         $sandbox = new qtype_coderunner_ideonesandbox();
-        $code =
-"import os
+        $code = <<< EOCODE
+import os
 f = open('/tmp/junk', 'w')
 f.write('stuff')
 f.close()
 f = open('/tmp/junk')
 print(f.read())
 f.close()
-";
+EOCODE;
         $result = $sandbox->execute($code, 'python3', null);
         $this->assertEquals(qtype_coderunner_sandbox::RESULT_RUNTIME_ERROR, $result->result);
         $sandbox->close();

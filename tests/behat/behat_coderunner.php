@@ -41,13 +41,19 @@ class behat_coderunner extends behat_base {
      * @param string $expected The string that we expect to find
      */
     public function i_should_see_highlighted($expected) {
-       $insxpath = "//ins[contains(@style, 'background-color') and not(contains(@style, 'background-color: inherit')) and not(contains(@style, 'display: none')) and contains(text(), '{$expected}')]";
-       $delxpath = "//del[contains(@style, 'background-color') and not(contains(@style, 'background-color: inherit')) and not(contains(@style, 'display: none')) and contains(text(), '{$expected}')]";
-       $msg = "'{$expected}' not found within a highlighted del or ins element";
-       $driver = $this->getSession()->getDriver();
-       if (!$driver->find($insxpath) && ! $driver->find($delxpath)) {
-           throw new ExpectationException($msg, $this->getSession());
-       }
+        $insxpath = "//ins[contains(@style, 'background-color') " .
+                "and not(contains(@style, 'background-color: inherit')) " .
+                "and not(contains(@style, 'display: none')) ".
+                "and contains(text(), '{$expected}')]";
+        $delxpath = "//del[contains(@style, 'background-color') " .
+                "and not(contains(@style, 'background-color: inherit')) " .
+                "and not(contains(@style, 'display: none')) " .
+                "and contains(text(), '{$expected}')]";
+        $msg = "'{$expected}' not found within a highlighted del or ins element";
+        $driver = $this->getSession()->getDriver();
+        if (!$driver->find($insxpath) && ! $driver->find($delxpath)) {
+            throw new ExpectationException($msg, $this->getSession());
+        }
     }
 
     /**
@@ -67,67 +73,60 @@ class behat_coderunner extends behat_base {
         $msg = "'{$nonexpected}' found within a highlighted del or ins element";
         throw new ExpectationException($msg, $this->getSession());
     }
-    
+
      /**
-      * Step to ok any confirm dialogs
-      * 
+      * Step to ok any confirm dialogs.
+      *
       * @When /^I ok any confirm dialogs/
       */
-    public function i_ok_any_confirm_dialogs()
-    {
-       $javascript = "window.confirm = function() { return true};"  ; 
-       $this->getSession()->executeScript($javascript);
-    }
-    
-     /**
-      * Step to cancel any confirm dialogs
-      * 
-      * @When /^I cancel any confirm dialogs/
-      */
-    public function i_cancel_any_confirm_dialogs()
-    {
-       $javascript = "window.confirm = function() { return false};"  ; 
-       $this->getSession()->executeScript($javascript);
-    }
-    
-    /**
-      * Step to set a global variable 'behattesting' to true to prevent
-      * textarea autoindent, which messes up behat's setting of the textarea
-      * value. [See module.js]
-      * 
-      * @When /^I set behat testing/
-      */
-    public function i_set_behat_testing()
-    {
-        $javascript = "window.behattesting = true;"  ; 
+    public function i_ok_any_confirm_dialogs() {
+        $javascript = "window.confirm = function() { return true};";
         $this->getSession()->executeScript($javascript);
     }
-    
+
      /**
-      * Step to wait one second. [Grrr. This is messy.]
-      * 
+      * Step to cancel any confirm dialogs.
+      *
+      * @When /^I cancel any confirm dialogs/
+      */
+    public function i_cancel_any_confirm_dialogs() {
+        $javascript = "window.confirm = function() { return false};";
+        $this->getSession()->executeScript($javascript);
+    }
+
+    /**
+     * Step to set a global variable 'behattesting' to true to prevent
+     * textarea autoindent, which messes up behat's setting of the textarea
+     * value. [See module.js]
+     *
+     * @When /^I set behat testing/
+     */
+    public function i_set_behat_testing() {
+        $javascript = "window.behattesting = true;";
+        $this->getSession()->executeScript($javascript);
+    }
+
+     /**
+      * Step to wait one second. Grrr. This is messy.
+      *
       * @When /^I wait one second/
       */
-    public function i_wait_one_second()
-    {
-       sleep(1);
+    public function i_wait_one_second() {
+        sleep(1);
     }
-    
+
     /**
      * Sets the contents of a field with multi-line input.
      *
      * @Given /^I set the field "(?P<field_string>(?:[^"]|\\")*)" to:$/
-     * 
+     *
      * From https://moodle.org/mod/forum/discuss.php?d=283216
      */
     public function i_set_the_field_to_pystring($fieldlocator, Behat\Gherkin\Node\PyStringNode $value) {
         return array(new Given('I set the field "'. $fieldlocator. '" to "'. $value. '"'));
-        //$field = behat_field_manager::get_form_field_from_label($fieldlocator, $this);
-        //$string = str_replace("\n", '\\n', $value->__toString());
-        //$field->set_value($string);
     }
-    
-     
+
+
     /**
      * @Given /^I dismiss the dialog$/
      */
@@ -135,5 +134,4 @@ class behat_coderunner extends behat_base {
         $this->getSession()->getDriver()->getWebDriverSession()->dismiss_alert();
         $this->handleAjaxTimeout();
     }
- }
-
+}

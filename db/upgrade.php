@@ -164,20 +164,26 @@ function load_questions($category, $importfilename, $contextid) {
     $qformat->setContextfromfile(false);
     $qformat->setStoponerror(true);
 
+    ob_start(); // Discard import output during installs & upgrades.
+
     // Do anything before that we need to.
     if (!$qformat->importpreprocess()) {
+        ob_end_clean();
         throw new coding_exception('Upgrade failed: error preprocessing prototype upload');
     }
 
     // Process the given file.
     if (!$qformat->importprocess($category)) {
+        ob_end_clean();
         throw new coding_exception('Upgrade failed: error uploading prototype questions');
     }
 
     // In case anything needs to be done after.
     if (!$qformat->importpostprocess()) {
+        ob_end_clean();
         throw new coding_exception('Upgrade failed: error postprocessing prototype upload');
     }
+    ob_end_clean();
 }
 
 

@@ -33,7 +33,7 @@ foreach ($sandboxes as $sandbox => $classname) {
         "qtype_coderunner/{$sandbox}_enabled",
         get_string('enable', 'qtype_coderunner') . ' ' .$sandbox,
         get_string('enable_sandbox_desc', 'qtype_coderunner'),
-        $sandbox === 'jobesandbox')  //Only jobesandbox is enabled by default
+        $sandbox === 'jobesandbox')  // Only jobesandbox is enabled by default.
     );
 }
 
@@ -73,4 +73,4 @@ $settings->add(new admin_setting_configcheckbox(
         "qtype_coderunner/diff_check_enabled",
         get_string('enable_diff_check', 'qtype_coderunner'),
         $desc,
-        False));
+        false));

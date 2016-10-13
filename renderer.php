@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of CodeRunner - http://coderunner.org.nz/
 //
 // CodeRunner is free software: you can redistribute it and/or modify
@@ -28,7 +27,6 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/question/type/coderunner/locallib.php');
 require_once($CFG->dirroot . '/question/type/coderunner/constants.php');
 require_once($CFG->dirroot . '/question/type/coderunner/testingoutcome.php');
-require_once($CFG->dirroot . '/question/type/coderunner/legacytestingoutcome.php');
 
 use qtype_coderunner\constants;
 
@@ -41,10 +39,9 @@ use qtype_coderunner\constants;
 
 
 class qtype_coderunner_renderer extends qtype_renderer {
-    
+
     const FORCE_TABULAR_EXAMPLES = true;
-    const SIMPLE_RESULT_COLUMNS = '[["Test", "testcode"], ["Input", "stdin"], ["Expected", "expected"], ["Got", "got"]]';
-    const DIFF_RESULT_COLUMNS = '[["Test", "testcode"], ["Input", "stdin"], ["Expected", "diff(expected, got)", "%h"], ["Got", "diff(got, expected)", "%h"]]';
+    const RESULT_COLUMNS = '[["Test", "testcode"], ["Input", "stdin"], ["Expected", "expected"], ["Got", "got"]]';
 
     /**
      * Generate the display of the formulation part of the question. This is the
@@ -64,14 +61,13 @@ class qtype_coderunner_renderer extends qtype_renderer {
         $testcases = $question->testcases;
         $examples = array_filter($testcases, function($tc) {
                     return $tc->useasexample;
-                });
+        });
         if (count($examples) > 0) {
             $qtext .= html_writer::tag('p', 'For example:', array('class' => 'for-example-para'));
             $qtext .= html_writer::start_tag('div', array('class' => 'coderunner-examples'));
             $qtext .= $this->format_examples($examples);
             $qtext .= html_writer::end_tag('div');
         }
-
 
         $qtext .= html_writer::start_tag('div', array('class' => 'prompt'));
         $answerprompt = get_string("answer", "quiz") . ': ';
@@ -80,7 +76,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
         $responsefieldname = $qa->get_qt_field_name('answer');
         $responsefieldid = 'id_' . $responsefieldname;
-        $rows =  isset($question->answerboxlines) ? $question->answerboxlines : 18;
+        $rows = isset($question->answerboxlines) ? $question->answerboxlines : 18;
         $cols = isset($question->answerboxcolumns) ? $question->answerboxcolumns : 100;
         $taattributes = array(
             'class' => 'coderunner-answer edit_code',
@@ -108,8 +104,8 @@ class qtype_coderunner_renderer extends qtype_renderer {
         // Initialise any program-editing JavaScript.
         // Thanks to Ulrich Dangel for incorporating the Ace code editor.
 
-        $PAGE->requires->js_init_call('M.qtype_coderunner.initQuestionTA', array($responsefieldid));
         load_ace_if_required($question, $responsefieldid, constants::USER_LANGUAGE);
+        $PAGE->requires->js_call_amd('qtype_coderunner/textareas', 'initQuestionTA', array($responsefieldid));
 
         return $qtext;
 
@@ -121,7 +117,8 @@ class qtype_coderunner_renderer extends qtype_renderer {
      * the reponse the student gave.
      * This code tries to allow for the possiblity that the question is being
      * used with the wrong (i.e. non-adaptive) behaviour, which would mean that
-     * test results aren't available.
+     * test results aren't available. However, this can cause huge performance
+     * loss, so a warning message accompanies the output in such cases.
      * @param question_attempt $qa the question attempt to display.
      * @return string HTML fragment.
      */
@@ -132,7 +129,10 @@ class qtype_coderunner_renderer extends qtype_renderer {
         $toserialised = $qa->get_last_qt_var('_testoutcome');
 
         if (!$toserialised) {  // Bad bad bad. Not running in Adaptive mode.
-            $response = $qa->get_last_qt_data(); // TODO - can I depend on this? See rendererbase.php which has extra checks
+            $response = $qa->get_last_qt_data();
+            if (!$response) {
+                return ''; // Not sure how this happens but renderbase.php does this check.
+            }
             if ($q->is_gradable_response($response)) {
                 $text = get_string('qWrongBehaviour', 'qtype_coderunner');
                 $fb .= html_writer::start_tag('div', array('class' => 'wrongBehaviour'));
@@ -142,8 +142,8 @@ class qtype_coderunner_renderer extends qtype_renderer {
                 $toserialised = $cachedata['_testoutcome'];
             }
         }
-        
-        if ($toserialised) {  // Proceed only if we've managed to get some test data
+
+        if ($toserialised) {  // Proceed only if we've managed to get some test data.
             $testoutcome = unserialize($toserialised);
             $testresults = $testoutcome->testresults;
 
@@ -155,7 +155,6 @@ class qtype_coderunner_renderer extends qtype_renderer {
                 $resultsclass = "coderunner-test-results bad";
             }
 
-
             if ($q->showsource && count($testoutcome->sourcecodelist) > 0) {
                 $fb .= $this->make_source_code_div(
                         'Debug: source code from all test runs',
@@ -163,18 +162,17 @@ class qtype_coderunner_renderer extends qtype_renderer {
                 );
             }
 
-
             $fb .= html_writer::start_tag('div', array('class' => $resultsclass));
-            // Hack to insert run host as hidden comment in html
+            // Hack to insert run host as hidden comment in html.
             $fb .= "\n<!-- Run on {$testoutcome->runhost} -->\n";
 
             if ($testoutcome->run_failed()) {
                 $fb .= html_writer::tag('h3', get_string('run_failed', 'qtype_coderunner'));;
-                $fb .= html_writer::tag('p', s($testoutcome->errormessage), 
+                $fb .= html_writer::tag('p', s($testoutcome->errormessage),
                         array('class' => 'run_failed_error'));
             } else if ($testoutcome->has_syntax_error()) {
                 $fb .= html_writer::tag('h3', get_string('syntax_errors', 'qtype_coderunner'));
-                $fb .= html_writer::tag('pre', s($testoutcome->errormessage), 
+                $fb .= html_writer::tag('pre', s($testoutcome->errormessage),
                         array('class' => 'pre_syntax_error'));
             } else if ($testoutcome->feedbackhtml) {
                 $fb .= $testoutcome->feedbackhtml;
@@ -197,7 +195,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
         return $fb;
     }
-    
+
 
     // Build and return an HTML div section containing a list of template
     // outputs used as source code.
@@ -218,7 +216,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
     // Return a table of results or null if there are no results to show.
     private function build_results_table($question, $testcases, $testresults) {
-        // The set of columns to be displayed is specified by the 
+        // The set of columns to be displayed is specified by the
         // question's resultcolumns variable. This is a JSON-encoded list
         // of column specifiers. A column specifier is itself a list, usually
         // with 2 or 3 elements. The first element is the column header
@@ -228,28 +226,18 @@ class qtype_coderunner_renderer extends qtype_renderer {
         // combine more than one field of the test result object into a single
         // field by adding extra field names into the column specifier before
         // the format, which is then mandatory. For example, to display the
-        // mark awarded for a test case as, say '0.71 out of 1.00' the column 
+        // mark awarded for a test case as, say '0.71 out of 1.00' the column
         // specifier would be ["Mark", "awarded", "mark", "%.2f out of %.2f"]
         // A special case format specifier is '%h' denoting that
         // te result object field value should be treated as ready-to-output html.
         // Empty columns are suppressed.
-        // As an extension an expression of the form
-        // diff(resultObjectField1, resultObjectField2) can be used in place
-        // of a field name to generate an HTML-encoded difference display
-        // using finediff: https://github.com/gorhill/PHP-FineDiff. The output
-        // should then be displayed using a '%h' format.
-        
 
         global $COURSE;
 
-        $question->usesdiff = FALSE;  // HACK ALERT -- adding a new field to question
         if (isset($question->resultcolumns) && $question->resultcolumns) {
             $resultcolumns = json_decode($question->resultcolumns);
-        } elseif (get_config('qtype_coderunner', 'diff_check_enabled') &&
-                (empty($question->grader) || $question->grader === 'EqualityGrader')) {
-            $resultcolumns = json_decode(self::DIFF_RESULT_COLUMNS);
         } else {
-            $resultcolumns = json_decode(self::SIMPLE_RESULT_COLUMNS);
+            $resultcolumns = json_decode(self::RESULT_COLUMNS);
         }
         if ($COURSE && $coursecontext = context_course::instance($COURSE->id)) {
             $canviewhidden = has_capability('moodle/grade:viewhidden', $coursecontext);
@@ -261,52 +249,48 @@ class qtype_coderunner_renderer extends qtype_renderer {
         $table->attributes['class'] = 'coderunner-test-results';
         $table->attributes['name'] = 'coderunner-test-results';
 
-        
         // Build the table header, containing all the specified field headers,
         // unless all rows in that column would be blank.
 
-        $table->head = array('');  // First column is tick or cross, like last column
+        $table->head = array('');  // First column is tick or cross, like last column.
         foreach ($resultcolumns as &$colspec) {
             $len = count($colspec);
             if ($len < 3) {
-                $colspec[] = '%s';  // Add missing default format
+                $colspec[] = '%s';  // Add missing default format.
             }
             $header = $colspec[0];
-            $field = $colspec[1];  // Primary field - there may be more
-            $num_non_blank = self::count_non_blanks($field, $testresults);
-            if ($num_non_blank == 0) {
-                $colspec[count($colspec) - 1] = '';  // Zap format to hide column
+            $field = $colspec[1];  // Primary field - there may be more.
+            $numnonblank = self::count_non_blanks($field, $testresults);
+            if ($numnonblank == 0) {
+                $colspec[count($colspec) - 1] = '';  // Zap format to hide column.
             } else {
                 $table->head[] = $header;
             }
         }
-        $table->head[] = '';  // Final tick/cross column
-        
-        // Process each row of the results table
-        
+        $table->head[] = '';  // Final tick/cross column.
+
+        // Process each row of the results table.
+
         $tabledata = array();
         $testcasekeys = array_keys($testcases);  // Arbitrary numeric indices. Aarghhh.
         $i = 0;
         $rowclasses = array();
-        $hidingRest = False;
+        $hidingrest = false;
         foreach ($testresults as $testresult) {
             $rowclasses[$i] = $i % 2 == 0 ? 'r0' : 'r1';
             $testcase = $testcases[$testcasekeys[$i]];
-            $testIsVisible = $this->should_display_result($testcase, $testresult) && !$hidingRest;
-            if ($canviewhidden || $testIsVisible) {
+            $testisvisibile = $this->should_display_result($testcase, $testresult) && !$hidingrest;
+            if ($canviewhidden || $testisvisibile) {
                 $fraction = $testresult->awarded / $testresult->mark;
                 $tickorcross = $this->feedback_image($fraction);
-                $tablerow = array($tickorcross); // Tick or cross
+                $tablerow = array($tickorcross); // Tick or cross.
                 foreach ($resultcolumns as &$colspec) {
                     $len = count($colspec);
-                    if (strpos($colspec[1], 'diff') !== FALSE) {
-                        $question->usesdiff = TRUE;
-                    }
                     $format = $colspec[$len - 1];
-                    if ($format === '%h') {  // If it's an html format, use value directly
+                    if ($format === '%h') {  // If it's an html format, use value directly.
                         $value = $testresult->gettrimmedvalue($colspec[1]);
-                        $tablerow[] = self::clean_html($value);  
-                    } else if ($format !== '') {  // Else if it's a non-null column
+                        $tablerow[] = self::clean_html($value);
+                    } else if ($format !== '') {  // Else if it's a non-null column.
                         $args = array($format);
                         for ($j = 1; $j < $len - 1; $j++) {
                             $value = $testresult->gettrimmedvalue($colspec[$j]);
@@ -318,16 +302,16 @@ class qtype_coderunner_renderer extends qtype_renderer {
                 }
                 $tablerow[] = $tickorcross;
                 $tabledata[] = $tablerow;
-                if (!$testIsVisible) {
+                if (!$testisvisibile) {
                     $rowclasses[$i] .= ' hidden-test';
                 }
             }
             $i++;
             if ($testcase->hiderestiffail && !$testresult->iscorrect) {
-                $hidingRest = True;
+                $hidingrest = true;
             }
         }
-        
+
         $table->data = $tabledata;
         $table->rowclasses = $rowclasses;
 
@@ -337,8 +321,8 @@ class qtype_coderunner_renderer extends qtype_renderer {
             return null;
         }
     }
-    
-    
+
+
     public function correct_response(question_attempt $qa) {
         $question = $qa->get_question();
 
@@ -354,20 +338,20 @@ class qtype_coderunner_renderer extends qtype_renderer {
         $html .= html_writer::end_tag('div');
         return $html;
     }
-    
-    // Sanitise with 's()' and add line breaks to a given string
+
+    // Sanitise with 's()' and add line breaks to a given string.
     private static function format_cell($cell) {
         return str_replace("\n", "<br />", str_replace(' ', '&nbsp;', s($cell)));
     }
 
     // Compute the HTML feedback summary for a given test outcome.
     // Should not be called if there were any syntax or sandbox errors, or if a
-    // combinator-template grader was used. 
+    // combinator-template grader was used.
     private function build_feedback_summary($qa, $testcases, $testoutcome) {
         $question = $qa->get_question();
-        $lines = array();  // List of lines of output
+        $lines = array();  // List of lines of output.
         $testresults = $testoutcome->testresults;
-        $onlyhiddenfailed = FALSE;
+        $onlyhiddenfailed = false;
         if (count($testresults) != count($testcases)) {
             $lines[] = get_string('aborted', 'qtype_coderunner');
         } else {
@@ -375,10 +359,9 @@ class qtype_coderunner_renderer extends qtype_renderer {
             $hiddenerrors = $this->count_hidden_errors($testresults, $testcases);
             if ($numerrors > 0) {
                 if ($numerrors == $hiddenerrors) {
-                    $onlyhiddenfailed = TRUE;
+                    $onlyhiddenfailed = true;
                     $lines[] = get_string('failedhidden', 'qtype_coderunner');
-                }
-                else if ($hiddenerrors > 0) {
+                } else if ($hiddenerrors > 0) {
                     $lines[] = get_string('morehidden', 'qtype_coderunner');
                 }
             }
@@ -391,13 +374,17 @@ class qtype_coderunner_renderer extends qtype_renderer {
             if ($question->allornothing) {
                 $lines[] = get_string('noerrorsallowed', 'qtype_coderunner');
             }
-            if ($question->usesdiff && !$onlyhiddenfailed) {
+
+            // Provide a show differences button if answer wrong and equality grader used.
+            if ((empty($question->grader) ||
+                 $question->grader == 'EqualityGrader' ||
+                 $question->grader == 'NearEqualityGrader') &&
+                    !$onlyhiddenfailed) {
                 $lines[] = $this->diff_button($qa);
             }
         }
 
-
-        // Convert list of lines to HTML paragraph
+        // Convert list of lines to HTML paragraph.
 
         if (count($lines) > 0) {
             $para = html_writer::start_tag('p');
@@ -413,36 +400,35 @@ class qtype_coderunner_renderer extends qtype_renderer {
     }
 
 
-    // Format one or more examples
+    // Format one or more examples.
     protected function format_examples($examples) {
         if ($this->all_single_line($examples) && ! self::FORCE_TABULAR_EXAMPLES) {
             return $this->format_examples_one_per_line($examples);
-        }
-        else {
+        } else {
             return $this->format_examples_as_table($examples);
         }
     }
 
 
     // Return true iff there is no standard input and all expectedoutput and shell
-    // input cases are single line only
+    // input cases are single line only.
     private function all_single_line($examples) {
         foreach ($examples as $example) {
             if (!empty($example->stdin) ||
                 strpos($example->testcode, "\n") !== false ||
                 strpos($example->expected, "\n") !== false) {
-               return false;
+                return false;
             }
-         }
-         return true;
+        }
+        return true;
     }
-    
-    
+
+
     // Clean the given html by wrapping it in <div> tags and parsing it with libxml
     // and outputing the (supposedly) cleaned up HTML.
     private function clean_html($html) {
         libxml_use_internal_errors(true);
-        $html = "<div>". $html . "</div>"; // Wrap it in a div (seems to help libxml)
+        $html = "<div>". $html . "</div>"; // Wrap it in a div (seems to help libxml).
         $doc = new DOMDocument;
         if ($doc->loadHTML($html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD)) {
             return $doc->saveHTML();
@@ -462,24 +448,24 @@ class qtype_coderunner_renderer extends qtype_renderer {
     // Return a '<br>' separated list of expression -> result examples.
     // For use only where there is no stdin and shell input is one line only.
     private function format_examples_one_per_line($examples) {
-       $text = '';
-       foreach ($examples as $example) {
-            $text .=  $example->testcode . ' &rarr; ' . $example->expected;
+        $text = '';
+        foreach ($examples as $example) {
+            $text .= $example->testcode . ' &rarr; ' . $example->expected;
             $text .= html_writer::empty_tag('br');
-       }
-       return $text;
+        }
+        return $text;
     }
 
 
     private function format_examples_as_table($examples) {
         $table = new html_table();
         $table->attributes['class'] = 'coderunnerexamples';
-        list($numStd, $numShell) = $this->count_bits($examples);
+        list($numstd, $numshell) = $this->count_bits($examples);
         $table->head = array();
-        if ($numShell) {
+        if ($numshell) {
             $table->head[] = 'Test';
         }
-        if ($numStd) {
+        if ($numstd) {
             $table->head[] = 'Input';
         }
         $table->head[] = 'Result';
@@ -490,10 +476,10 @@ class qtype_coderunner_renderer extends qtype_renderer {
         foreach ($examples as $example) {
             $row = array();
             $rowclasses[$i] = $i % 2 == 0 ? 'r0' : 'r1';
-            if ($numShell) {
+            if ($numshell) {
                 $row[] = self::format_cell($example->testcode);
             }
-            if ($numStd) {
+            if ($numstd) {
                 $row[] = self::format_cell($example->stdin);
             }
             $row[] = self::format_cell($example->expected);
@@ -509,17 +495,17 @@ class qtype_coderunner_renderer extends qtype_renderer {
     // Return a count of the number of non-empty stdins and non-empty shell
     // inputs in the given list of test result objects.
     private function count_bits($tests) {
-        $numStds = 0;
-        $numShell = 0;
+        $numstds = 0;
+        $numshell = 0;
         foreach ($tests as $test) {
             if (trim($test->stdin) !== '') {
-                $numStds++;
+                $numstds++;
             }
             if (trim($test->testcode) !== '') {
-                $numShell++;
+                $numshell++;
             }
         }
-        return array($numStds, $numShell);
+        return array($numstds, $numshell);
     }
 
 
@@ -535,8 +521,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
             $testcase = $testcases[$testcasekeys[$i]];
             if ($hidingrest) {
                 $isdisplayed = false;
-            }
-            else {
+            } else {
                 $isdisplayed = $this->should_display_result($testcase, $tr);
             }
             if (!$isdisplayed && !$tr->iscorrect) {
@@ -551,17 +536,17 @@ class qtype_coderunner_renderer extends qtype_renderer {
     }
 
 
-    // True iff the given test result should be displayed
+    // True iff the given test result should be displayed.
     private function should_display_result($testcase, $testresult) {
         return $testcase->display == 'SHOW' ||
             ($testcase->display == 'HIDE_IF_FAIL' && $testresult->iscorrect) ||
             ($testcase->display == 'HIDE_IF_SUCCEED' && !$testresult->iscorrect);
     }
-    
 
-    // support function to count how many objects in the given list of objects
+
+    // Support function to count how many objects in the given list of objects
     // have the given 'field' attribute non-blank. Non-existent fields are also
-    // included in order to generate a column showing the error, but null values
+    // included in order to generate a column showing the error, but null values.
 
     private static function count_non_blanks($field, $objects) {
         $n = 0;
@@ -574,8 +559,8 @@ class qtype_coderunner_renderer extends qtype_renderer {
         }
         return $n;
     }
-    
-    
+
+
     // Support method to generate the "Show differences" button.
     // Returns the HTML for the button, and sets up the JavaScript handler
     // for it.
@@ -590,11 +575,14 @@ class qtype_coderunner_renderer extends qtype_renderer {
         );
         $output = html_writer::empty_tag('input', $attributes);
 
-        $PAGE->requires->js_init_call('M.qtype_coderunner.initDiffButton', 
-                array($attributes['id'], $attributes['value'],
-                get_string('hidedifferences', 'qtype_coderunner')));
+        $PAGE->requires->js_call_amd('qtype_coderunner/showdiff',
+            'initDiffButton',
+            array($attributes['id'],
+                get_string('showdifferences', 'qtype_coderunner'),
+                get_string('hidedifferences', 'qtype_coderunner')
+            )
+        );
+
         return $output;
-
     }
-
 }

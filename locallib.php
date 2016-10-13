@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -33,7 +32,7 @@ class coderunner_exception extends moodle_exception {
      * @param string $errorcode exception description identifier
      * @param mixed $debuginfo debugging data to display
      */
-    function __construct($errorcode, $a=null, $debuginfo=null) {
+    public function __construct($errorcode, $a=null, $debuginfo=null) {
         parent::__construct($errorcode, 'qtype_coderunner', '', $a, $debuginfo);
     }
 }
@@ -57,15 +56,15 @@ function load_ace_if_required($question, $textareaid, $whichlang) {
         } else {
             $lang = $question->acelang;
         }
-        $lang = ucwords($lang);       
-        load_ace_scripts();
-        $PAGE->requires->js_init_call('M.qtype_coderunner.init_ace', array($textareaid, $lang));
+        $lang = ucwords($lang);
+        load_ace();
+        $PAGE->requires->js_call_amd('qtype_coderunner/aceinterface', 'initAce', array($textareaid, $lang));
     }
 }
 
 
-// Load the ace scripts
-function load_ace_scripts() {
+// Load the ace scripts.
+function load_ace() {
     global $PAGE;
     $plugindirrel = '/question/type/coderunner';
     $PAGE->requires->js($plugindirrel . '/ace/ace.js');

@@ -106,7 +106,7 @@ class qtype_coderunner_walkthrough_test extends qbehaviour_walkthrough_test_base
     }
 
     public function test_partial_marks() {
-        $q = test_question_maker::make_question('coderunner', 'sqrPartMarks');
+        $q = test_question_maker::make_question('coderunner', 'sqr_part_marks');
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
 
          // Submit a totally wrong answer.
@@ -245,7 +245,6 @@ EOTEMPLATE;
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
         $this->process_submission(array('-submit' => 1,
             'answer' => "def sqr(n): return -1 if n == 1 else n * n \n"));
-        //echo $html = $this->quba->render_question($this->slot, $this->displayoptions);
         $this->check_current_mark(21.0 / 31.0);
         $this->check_current_output( new question_pattern_expectation("|<svg width=.100. height=.200.></svg>|") );
         $this->check_current_output( new question_pattern_expectation('/YeeHa/') );
@@ -270,7 +269,9 @@ fraction = (hi_mark + ho_mark) / 4
 if fraction == 1.0:
     feedback = '<h2>Well done</h2><p>I got 2 of each of hi and ho.</p>'
 else:
-    feedback = '<h2>Wrong numbers of hi and/or ho</h2><p>I wanted 2 of each but got {} and {} respectively.</p>'.format(num_hi, num_ho)
+    template = '<h2>Wrong numbers of hi and/or ho</h2>'
+    template += '<p>I wanted 2 of each but got {} and {} respectively.</p>'
+    feedback = template.format(num_hi, num_ho)
 print(json.dumps({'fraction': fraction, 'feedback_html': feedback}))
 EOTEMPLATE;
         $q->allornothing = false;
@@ -283,7 +284,6 @@ EOTEMPLATE;
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
         $this->process_submission(array('-submit' => 1,
             'answer' => "hi di hi and HO DI HO"));
-        //echo $html = $this->quba->render_question($this->slot, $this->displayoptions);
         $this->check_current_mark(1.0);
         $this->check_current_output( new question_pattern_expectation('|<h2>Well done</h2>|') );
 
@@ -291,7 +291,6 @@ EOTEMPLATE;
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
         $this->process_submission(array('-submit' => 1,
             'answer' => "hi di nothi and HO DI NOTHO"));
-        //echo $html = $this->quba->render_question($this->slot, $this->displayoptions);
         $this->check_current_mark(0.5);
         $this->check_current_output( new question_pattern_expectation('|<h2>Wrong numbers of hi and/or ho</h2>|') );
     }

@@ -39,28 +39,28 @@ global $CFG;
 require_once($CFG->dirroot . '/question/type/coderunner/locallib.php');
 
 abstract class qtype_coderunner_sandbox {
-    protected $user;     // Username supplied when constructing
-    protected $password; // Password supplied when constructing
+    protected $user;     // Username supplied when constructing.
+    protected $password; // Password supplied when constructing.
     protected $authenticationerror;
 
-    // Symbolic constants as per ideone API (mostly)
-    
+    // Symbolic constants as per ideone API (mostly).
+
     // First the error codes from the initial create_submission call. Any
     // value other than OK is fatal.
     const OK                = 0;
     const AUTH_ERROR        = 1;
-    const PASTE_NOT_FOUND   = 2;  // Link to a non-existent submission
-    const WRONG_LANG_ID     = 3;  // No such language
-    const ACCESS_DENIED     = 4;  // Only if using ideone or jobe
-    const SUBMISSION_LIMIT_EXCEEDED = 5; // Ideone or Jobe only
-    const CREATE_SUBMISSION_FAILED = 6; // Failed on call to CREATE_SUBMISSION
+    const PASTE_NOT_FOUND   = 2;  // Link to a non-existent submission.
+    const WRONG_LANG_ID     = 3;  // No such language.
+    const ACCESS_DENIED     = 4;  // Only if using ideone or jobe.
+    const SUBMISSION_LIMIT_EXCEEDED = 5; // Ideone or Jobe only.
+    const CREATE_SUBMISSION_FAILED = 6; // Failed on call to CREATE_SUBMISSION.
     const UNKNOWN_SERVER_ERROR = 7;
-    
+
 
     // Values of the result 'attribute' of the object returned by a call to
     // get submissionStatus.
     const RESULT_NO_RUN             = 0;
-    const RESULT_SUCCESS2           = 0; // Used by Jobe
+    const RESULT_SUCCESS2           = 0; // Used by Jobe.
     const RESULT_COMPILATION_ERROR  = 11;
     const RESULT_RUNTIME_ERROR      = 12;
     const RESULT_TIME_LIMIT         = 13;
@@ -69,33 +69,33 @@ abstract class qtype_coderunner_sandbox {
     const RESULT_ILLEGAL_SYSCALL    = 19;
     const RESULT_INTERNAL_ERR       = 20;
 
-    const RESULT_SANDBOX_PENDING    = 21; // Liu sandbox PD error (defunct)
-    const RESULT_SANDBOX_POLICY     = 22; // Liu sandbox BP error (defunct)
+    const RESULT_SANDBOX_PENDING    = 21; // Liu sandbox PD error (defunct).
+    const RESULT_SANDBOX_POLICY     = 22; // Liu sandbox BP error (defunct).
     const RESULT_OUTPUT_LIMIT       = 30;
     const RESULT_ABNORMAL_TERMINATION = 31;
 
-    const POLL_INTERVAL = 3;     // secs to wait for sandbox done
-    const MAX_NUM_POLLS = 40;    // No more than 120 seconds waiting
+    const POLL_INTERVAL = 3;     // Secs to wait for sandbox done.
+    const MAX_NUM_POLLS = 40;    // No more than 120 seconds waiting.
 
 
     // The following run constants can be overridden in subclasses.
     // See function getParam for their usage.
-    public static $default_cputime = 3;   // Max seconds CPU time per run
-    public static $default_walltime = 30; // Max seconds wall clock time per run
-    public static $default_memorylimit = 64; // Max MB memory per run
-    public static $default_disklimit = 10;   // Max MB disk usage
-    public static $default_numprocs = 20;    // Number of processes/threads
-    public static $default_files = null;     // Associative array of data files
-    
-    protected $params = null;       // Associative array of run params
-    
-    
+    public static $defaultcputime = 3;   // Max seconds CPU time per run.
+    public static $defaultwalltime = 30; // Max seconds wall clock time per run.
+    public static $defaultmemorylimit = 64; // Max MB memory per run.
+    public static $defaultdisklimit = 10;   // Max MB disk usage.
+    public static $defaultnumprocs = 20;    // Number of processes/threads.
+    public static $defaultfiles = null;     // Associative array of data files.
+
+    protected $params = null;       // Associative array of run params.
+
+
     /**
      * A list of available standboxes. Keys are the externally known sandbox names
      * as they appear in the exported questions, values are the associated
      * class names. File names are the same as the class names with the
      * leading qtype_coderunner and all underscores removed.
-     * @return array 
+     * @return array
      */
     public static function available_sandboxes() {
         return array('jobesandbox'      => 'qtype_coderunner_jobesandbox',
@@ -103,9 +103,9 @@ abstract class qtype_coderunner_sandbox {
                 );
 
     }
-    
+
     /**
-     * Get the filename containing the given external sandbox name
+     * Get the filename containing the given external sandbox name.
      * @param string $externalsandboxname
      * @return string $filename
      */
@@ -114,61 +114,61 @@ abstract class qtype_coderunner_sandbox {
         $classname = $boxes[$extsandboxname];
         return str_replace('_', '', str_replace('qtype_coderunner_', '', $classname)) . '.php';
     }
-    
-        
+
+
     public function __construct($user=null, $pass=null) {
         $this->user = $user;
         $this->pass = $pass;
-        $authenticationError = false;
+        $authenticationerror = false;
     }
 
-    // Strings corresponding to the execute error codes defined above
+    // Strings corresponding to the execute error codes defined above.
     public static function error_string($errorcode) {
-        $ERROR_STRINGS = array(
-            qtype_coderunner_sandbox::OK              => "OK",
-            qtype_coderunner_sandbox::AUTH_ERROR      => "Unauthorised to use sandbox",
-            qtype_coderunner_sandbox::PASTE_NOT_FOUND => "Requesting status of non-existent job",
-            qtype_coderunner_sandbox::WRONG_LANG_ID   => "Non-existent language requested",
-            qtype_coderunner_sandbox::ACCESS_DENIED   => "Access to sandbox defined",
-            qtype_coderunner_sandbox::SUBMISSION_LIMIT_EXCEEDED  => "Sandbox submission limit reached",
-            qtype_coderunner_sandbox::CREATE_SUBMISSION_FAILED  => "Submission to sandbox failed",
-            qtype_coderunner_sandbox::UNKNOWN_SERVER_ERROR  => "Unexpected error from sandbox (Jobe server down or excessive timeout, perhaps?)"  
+        $errorstrings = array(
+            self::OK              => "OK",
+            self::AUTH_ERROR      => "Unauthorised to use sandbox",
+            self::PASTE_NOT_FOUND => "Requesting status of non-existent job",
+            self::WRONG_LANG_ID   => "Non-existent language requested",
+            self::ACCESS_DENIED   => "Access to sandbox defined",
+            self::SUBMISSION_LIMIT_EXCEEDED  => "Sandbox submission limit reached",
+            self::CREATE_SUBMISSION_FAILED  => "Submission to sandbox failed",
+            self::UNKNOWN_SERVER_ERROR  => "Unexpected error from sandbox (Jobe server down or excessive timeout, perhaps?)"
         );
-        if (!isset($ERROR_STRINGS[$errorcode])) {
+        if (!isset($errorstrings[$errorcode])) {
             throw new coding_exception("Bad call to sandbox.errorString");
         }
-        return $ERROR_STRINGS[$errorcode];
+        return $errorstrings[$errorcode];
     }
-    
-    
-    // Strings corresponding to the RESULT_* defines above
-    public static function result_string($resultCode) {
-        $RESULT_STRINGS = array(
-            qtype_coderunner_sandbox::RESULT_NO_RUN               => "No run",
-            qtype_coderunner_sandbox::RESULT_COMPILATION_ERROR    => "Compilation error",
-            qtype_coderunner_sandbox::RESULT_RUNTIME_ERROR        => "Runtime error",
-            qtype_coderunner_sandbox::RESULT_TIME_LIMIT           => "Time limit exceeded",
-            qtype_coderunner_sandbox::RESULT_SUCCESS              => "OK",
-            qtype_coderunner_sandbox::RESULT_MEMORY_LIMIT         => "Memory limit exceeded",
-            qtype_coderunner_sandbox::RESULT_ILLEGAL_SYSCALL      => "Illegal function call",
-            qtype_coderunner_sandbox::RESULT_INTERNAL_ERR         => "CodeRunner error (IE): please tell a tutor",
-            qtype_coderunner_sandbox::RESULT_SANDBOX_PENDING      => "CodeRunner error (PD): please tell a tutor",
-            qtype_coderunner_sandbox::RESULT_SANDBOX_POLICY       => "CodeRunner error (BP): please tell a tutor",
-            qtype_coderunner_sandbox::RESULT_OUTPUT_LIMIT         => "Excessive output",
-            qtype_coderunner_sandbox::RESULT_ABNORMAL_TERMINATION => "Abnormal termination"
+
+
+    // Strings corresponding to the RESULT_* defines above.
+    public static function result_string($resultcode) {
+        $resultstrings = array(
+            self::RESULT_NO_RUN               => "No run",
+            self::RESULT_COMPILATION_ERROR    => "Compilation error",
+            self::RESULT_RUNTIME_ERROR        => "Runtime error",
+            self::RESULT_TIME_LIMIT           => "Time limit exceeded",
+            self::RESULT_SUCCESS              => "OK",
+            self::RESULT_MEMORY_LIMIT         => "Memory limit exceeded",
+            self::RESULT_ILLEGAL_SYSCALL      => "Illegal function call",
+            self::RESULT_INTERNAL_ERR         => "CodeRunner error (IE): please tell a tutor",
+            self::RESULT_SANDBOX_PENDING      => "CodeRunner error (PD): please tell a tutor",
+            self::RESULT_SANDBOX_POLICY       => "CodeRunner error (BP): please tell a tutor",
+            self::RESULT_OUTPUT_LIMIT         => "Excessive output",
+            self::RESULT_ABNORMAL_TERMINATION => "Abnormal termination"
         );
-        if (!isset($RESULT_STRINGS[$resultCode])) {
+        if (!isset($resultstrings[$resultcode])) {
             throw new coding_exception("Bad call to sandbox.resultString");
         }
-        return $RESULT_STRINGS[$resultCode];
+        return $resultstrings[$resultcode];
     }
-    
-    
+
+
 
     /**
      * Return the value of the given parameter from the $params parameter
      * of the currently executing submission (see createSubmission) if defined
-     * or the static variable of name "default_$param" otherwise.
+     * or the static variable of name "default$param" otherwise.
      * @param string $param The name of the required parameter
      * @return string The value of the specified parameter
      */
@@ -176,7 +176,7 @@ abstract class qtype_coderunner_sandbox {
         if ($this->params !== null && isset($this->params[$param])) {
             return $this->params[$param];
         } else {
-            $staticname = "default_$param";
+            $staticname = "default$param";
             assert(isset(static::$$staticname));
             return static::$$staticname;
         }
@@ -223,16 +223,16 @@ abstract class qtype_coderunner_sandbox {
 
     /** Function called by the tester as a simple sanity check on the
      *  existence of a particular sandbox subclass.
-     * @return object A result object with an 'error' attribute. If that 
+     * @return object A result object with an 'error' attribute. If that
      * attribute is OK, attributes of moreHelp, pi, answerToLifeAndEverything
      * and oOok are also defined.
      */
     public function test_function() {
         if ($this->authenticationerror) {
-            return (object) array('error'=>qtype_coderunner_sandbox::AUTH_ERROR);
+            return (object) array('error' => self::AUTH_ERROR);
         } else {
             return (object) array(
-                'error' => qtype_coderunner_sandbox::OK,
+                'error' => self::OK,
                 'moreHelp' => 'No more help available',
                 'pi' => 3.14,
                 'answerToLifeAndEverything' => 42,

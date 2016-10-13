@@ -37,7 +37,6 @@ require_once($CFG->dirroot . '/question/type/coderunner/grader/graderbase.php');
 require_once($CFG->dirroot . '/question/type/coderunner/sandbox/sandboxbase.php');
 require_once($CFG->dirroot . '/question/type/coderunner/escapers.php');
 require_once($CFG->dirroot . '/question/type/coderunner/testingoutcome.php');
-require_once($CFG->dirroot . '/question/type/coderunner/legacytestingoutcome.php');
 require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
 
 use qtype_coderunner\constants;
@@ -246,19 +245,19 @@ class qtype_coderunner_question extends question_graded_automatically {
      * use, the expected output and the 'extra' field (used by some special
      * templates).
      */
-    public function setTestcases($testcases) {
+    public function settestcases($testcases) {
         $this->testcases = $testcases;
     }
 
 
     /** Find the 'best' sandbox for a given language, defined to be the
-     *  first one in the ordered list of sandboxes in sandbox_config.php
-     *  that has been enabled by the administrator (through the usual
-     *  plug-in setting controls) and that supports the given language.
-     *  It's public so the tester can call it (yuck, hacky).
-     *  @param type $language to run. 
-     *  @return the external name of the preferred sandbox for the given language
-     *  or null if no enabled sandboxes support this language.
+     * first one in the ordered list of sandboxes in sandbox_config.php
+     * that has been enabled by the administrator (through the usual
+     * plug-in setting controls) and that supports the given language.
+     * It's public so the tester can call it (yuck, hacky).
+     * @param type $language to run.
+     * @return the external name of the preferred sandbox for the given language
+     * or null if no enabled sandboxes support this language.
      */
     public static function get_best_sandbox($language) {
         $sandboxes = qtype_coderunner_sandbox::available_sandboxes();
@@ -360,7 +359,7 @@ class qtype_coderunner_question extends question_graded_automatically {
 
     // Run all tests one-by-one on the sandbox.
     private function run_tests_singly($code, $testcases, $files, $sandboxparams) {
-        $maxMark = $this->maximum_possible_mark($testcases);
+        $maxmark = $this->maximum_possible_mark($testcases);
         $templateparams = array(
             'STUDENT_ANSWER' => $code,
             'ESCAPED_STUDENT_ANSWER' => python_escaper(null, $code, null),
@@ -368,7 +367,7 @@ class qtype_coderunner_question extends question_graded_automatically {
             'QUESTION' => $this
          );
 
-        $outcome = new qtype_coderunner_testing_outcome($maxMark);
+        $outcome = new qtype_coderunner_testing_outcome($maxmark);
         $template = $this->pertesttemplate;
         foreach ($testcases as $testcase) {
             $templateparams['TEST'] = $testcase;
@@ -376,7 +375,7 @@ class qtype_coderunner_question extends question_graded_automatically {
                 $testprog = $this->twig->render($template, $templateparams);
             } catch (Exception $e) {
                 $outcome = new qtype_coderunner_testing_outcome(
-                        $maxMark,
+                        $maxmark,
                         qtype_coderunner_testing_outcome::STATUS_SYNTAX_ERROR,
                         'TEMPLATE ERROR: ' . $e->getMessage());
                 break;
@@ -388,13 +387,13 @@ class qtype_coderunner_question extends question_graded_automatically {
                     $input, $files, $sandboxparams);
             if ($run->error !== qtype_coderunner_sandbox::OK) {
                 $outcome = new qtype_coderunner_testing_outcome(
-                    $maxMark,
+                    $maxmark,
                     qtype_coderunner_testing_outcome::STATUS_SANDBOX_ERROR,
                     qtype_coderunner_sandbox::error_string($run->error));
                 break;
             } else if ($run->result === qtype_coderunner_sandbox::RESULT_COMPILATION_ERROR) {
                 $outcome = new qtype_coderunner_testing_outcome(
-                        $maxMark,
+                        $maxmark,
                         qtype_coderunner_testing_outcome::STATUS_SYNTAX_ERROR,
                         $run->cmpinfo);
                 break;
@@ -405,13 +404,13 @@ class qtype_coderunner_question extends question_graded_automatically {
                 break;
             } else {
                 // Successful run. Merge stdout and stderr for grading.
-                // [Rarely if ever do we get both stderr output and a
+                // Rarely if ever do we get both stderr output and a
                 // RESULT_SUCCESS result but it has been known to happen in the
-                // past, possibly with a now-defunct sandbox.]
+                // past, possibly with a now-defunct sandbox.
                 $output = $run->stderr ? $run->output + '\n' + $run->stderr : $run->output;
                 $testresult = $this->grade($output, $testcase);
                 $aborting = false;
-                if (isset($testresult->abort) && $testresult->abort) { // templategrade abort request?
+                if (isset($testresult->abort) && $testresult->abort) { // Templategrader abort request?
                     $testresult->awarded = 0;  // Mark it wrong regardless.
                     $testresult->iscorrect = false;
                     $aborting = true;
@@ -491,15 +490,15 @@ class qtype_coderunner_question extends question_graded_automatically {
             $contextid = $context->id;
         }
         $fs = get_file_storage();
-        $fileMap = array();
+        $filemap = array();
         $files = $fs->get_area_files($contextid, 'qtype_coderunner', 'datafile', $questionid);
         foreach ($files as $f) {
             $name = $f->get_filename();
             if ($name !== '.') {
-                $fileMap[$f->get_filename()] = $f->get_content();
+                $filemap[$f->get_filename()] = $f->get_content();
             }
         }
-        return $fileMap;
+        return $filemap;
     }
 
     // Grade a given test result by calling the grader.
@@ -530,7 +529,8 @@ class qtype_coderunner_question extends question_graded_automatically {
                 $html = $result->feedbackhtml;
             }
         }
-        $outcome = new qtype_coderunner_testing_outcome($maxmark, qtype_coderunner_testing_outcome::STATUS_COMBINATOR_TEMPLATE_GRADER);
+        $outcome = new qtype_coderunner_testing_outcome($maxmark,
+                qtype_coderunner_testing_outcome::STATUS_COMBINATOR_TEMPLATE_GRADER);
         $outcome->set_mark_and_feedback($maxmark * $fract, $html);
         return $outcome;
     }

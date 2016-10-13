@@ -37,15 +37,11 @@ require_once($CFG->dirroot . '/question/type/coderunner/sandbox/jobesandbox.php'
 
 class qtype_coderunner_jobesandbox_test extends qtype_coderunner_testcase {
 
-    private $hasfailed = false;
-
-    protected function onNotSuccessfulTest(Exception $e) {
-        $this->hasfailed = true;
-        throw $e;
-    }
-
     public function test_fail_with_bad_key() {
         $this->check_sandbox_enabled('jobesandbox');
+        if (!get_config('qtype_coderunner', 'jobe_apikey_enabled')) {
+            $this->markTestSkipped("Jobe API key security disabled: test skipped");
+        }
         set_config('jobe_apikey', 'no-such-key-we-hope', 'qtype_coderunner');
         $sandbox = new qtype_coderunner_jobesandbox();
         $langs = $sandbox->get_languages();
@@ -54,8 +50,11 @@ class qtype_coderunner_jobesandbox_test extends qtype_coderunner_testcase {
 
     public function test_succeed_with_good_key() {
         $this->check_sandbox_enabled('jobesandbox');
+        if (!get_config('qtype_coderunner', 'jobe_apikey_enabled')) {
+            $this->markTestSkipped("Jobe API key security disabled: test skipped");
+        }
         $sandbox = new qtype_coderunner_jobesandbox();
-        // config.php should have the correct api-key in it
+        // NB: config.php should have the correct api-key in it.
         $langs = $sandbox->get_languages();
         $this->assertEquals($sandbox::OK, $langs->error);
     }
@@ -127,7 +126,7 @@ print(open('second.bb').read())
     }
 
     // Test the jobe sandbox with a syntactically bad C program.
-    public function test_jobe_sandbox_bad_C() {
+    public function test_jobe_sandbox_bad_c() {
         $this->check_sandbox_enabled('jobesandbox');
         $sandbox = new qtype_coderunner_jobesandbox();
         $code = "#include <stdio.h>\nint main(): {\n    printf(\"Hello sandbox\");\n    return 0;\n}\n";
@@ -139,7 +138,7 @@ print(open('second.bb').read())
     }
 
     // Test the jobe sandbox with a valid C program.
-    public function test_jobe_sandbox_ok_C() {
+    public function test_jobe_sandbox_ok_c() {
         $this->check_sandbox_enabled('jobesandbox');
         $sandbox = new qtype_coderunner_jobesandbox();
         $code = "#include <stdio.h>\nint main() {\n    printf(\"Hello sandbox\\n\");\n    return 0;\n}\n";
@@ -161,11 +160,13 @@ print(open('second.bb').read())
             $this->markTestSkipped('Java not available on the Jobe server. ' .
                     'Test skipped');
         }
-        $code = 'public class HelloWorld { 
-   public static void main(String[] args) { 
+        $code = <<< EOCODE
+public class HelloWorld {
+   public static void main(String[] args) {
       System.out.println("Hello sandbox");
    }
-}';
+}
+EOCODE;
         $result = $sandbox->execute($code, 'java', null);
         $this->assertEquals(qtype_coderunner_sandbox::OK, $result->error);
         $this->assertEquals(qtype_coderunner_sandbox::RESULT_SUCCESS, $result->result);
@@ -176,9 +177,13 @@ print(open('second.bb').read())
     }
 
     // Test if limits are enforced, but only if all previous tests passed
-    // (otherwise we're done with testing for an hour).
+    // (otherwise we're done with testing for an hour) and if config parameter
+    // 'jobe_limits_enforced is true.
     public function test_limits_enforced() {
         $this->check_sandbox_enabled('jobesandbox');
+        if (!get_config('qtype_coderunner', 'jobe_limits_enforced')) {
+            $this->markTestSkipped("Jobe limits not being enforced: test skipped");
+        }
         if ($this->hasfailed) {
             $this->markTestSkipped("Skipping limit testing with JobeSandbox as there are other errors");
         } else {

@@ -103,8 +103,8 @@ div.coderunner-test-results.partial {
 }
 
 div.coderunner-feedback {
-	border:none;
-	padding-bottom: 15px;
+    border:none;
+    padding-bottom: 15px;
 }
 
 input[id~="grading"] {
@@ -202,4 +202,3 @@ input#id_cputimelimitsecs, input#id_memlimitmb {
 label+select, label+input {
     margin-right: 1em;
 }
-

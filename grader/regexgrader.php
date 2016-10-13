@@ -47,26 +47,26 @@ class qtype_coderunner_regex_grader extends qtype_coderunner_grader {
      *  Should not be called if the execution failed (syntax error, exception
      *  etc).
      */
-    function grade_known_good(&$output, &$testCase) {
-        $regex = '/' . str_replace('/', '\/', rtrim($testCase->expected)) . '/ms';
-        $isCorrect = preg_match($regex, $output);
-        $awardedMark = $isCorrect ? $testCase->mark : 0.0;
-        
-        if (isset($testCase->stdin)) {
-            $resultStdin = qtype_coderunner_grader::tidy($testCase->stdin);
+    public function grade_known_good(&$output, &$testcase) {
+        $regex = '/' . str_replace('/', '\/', rtrim($testcase->expected)) . '/ms';
+        $iscorrect = preg_match($regex, $output);
+        $awardedmark = $iscorrect ? $testcase->mark : 0.0;
+
+        if (isset($testcase->stdin)) {
+            $resultstdin = qtype_coderunner_grader::tidy($testcase->stdin);
         } else {
-            $resultStdin = null;
+            $resultstdin = null;
         }
 
         return new qtype_coderunner_test_result(
-                qtype_coderunner_grader::tidy($testCase->testcode),
-                $testCase->mark,
-                $isCorrect,
-                $awardedMark,
-                qtype_coderunner_grader::snip($testCase->expected),
+                qtype_coderunner_grader::tidy($testcase->testcode),
+                $testcase->mark,
+                $iscorrect,
+                $awardedmark,
+                qtype_coderunner_grader::snip($testcase->expected),
                 qtype_coderunner_grader::snip($output),
-                $resultStdin,
-                qtype_coderunner_grader::tidy($testCase->extra)
+                $resultstdin,
+                qtype_coderunner_grader::tidy($testcase->extra)
         );
     }
 }

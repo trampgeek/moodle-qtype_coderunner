@@ -34,26 +34,24 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->dirroot . '/question/type/coderunner/finediff.php');
-
 class qtype_coderunner_testing_outcome {
-    const STATUS_VALID = 1;         // A full set of test results is returned
-    const STATUS_SYNTAX_ERROR = 2;  // The code (on any one test) didn't compile
-    const STATUS_COMBINATOR_TEMPLATE_GRADER = 3;  // This is a combinator-template-grading result
-    const STATUS_SANDBOX_ERROR = 4;  // The run failed altogether
-    const TOLERANCE = 0.00001;    // Allowable difference between actual and max marks for a correct outcome
+    const STATUS_VALID = 1;         // A full set of test results is returned.
+    const STATUS_SYNTAX_ERROR = 2;  // The code (on any one test) didn't compile.
+    const STATUS_COMBINATOR_TEMPLATE_GRADER = 3;  // This is a combinator-template-grading result.
+    const STATUS_SANDBOX_ERROR = 4;  // The run failed altogether.
+    const TOLERANCE = 0.00001;       // Allowable difference between actual and max marks for a correct outcome.
 
-    public $status;                  // One of the STATUS_ constants above
-                                     // If this is not 1, subsequent fields may not be meaningful
-    public $errorcount;              // The number of failing test cases
-    public $errormessage;            // The error message to display if there are errors
-    public $maxpossmark;             // The maximum possible mark
-    public $runhost;                 // Host name of the front-end on which the run was done
-    public $actualmark;              // Actual mark (meaningful only if this is not an allornothing question)
-    public $testresults;             // An array of TestResult objects
-    public $sourcecodelist;          // Array of all test runs
-    public $gradercodelist;          // Array of source code of all grader runs
-    public $feedbackhtml;            // Feedback defined by combinator-template-grader (subsumes testResults)
+    public $status;                  // One of the STATUS_ constants above.
+                                     // If this is not 1, subsequent fields may not be meaningful.
+    public $errorcount;              // The number of failing test cases.
+    public $errormessage;            // The error message to display if there are errors.
+    public $maxpossmark;             // The maximum possible mark.
+    public $runhost;                 // Host name of the front-end on which the run was done.
+    public $actualmark;              // Actual mark (meaningful only if this is not an allornothing question).
+    public $testresults;             // An array of TestResult objects.
+    public $sourcecodelist;          // Array of all test runs.
+    public $gradercodelist;          // Array of source code of all grader runs.
+    public $feedbackhtml;            // Feedback defined by combinator-template-grader (subsumes testResults).
 
     public function __construct(
             $maxpossmark,
@@ -65,11 +63,11 @@ class qtype_coderunner_testing_outcome {
         $this->errorcount = 0;
         $this->actualmark = 0;
         $this->maxpossmark = $maxpossmark;
-        $this->runhost = php_uname('n');  // Useful for debugging with multiple front-ends
+        $this->runhost = php_uname('n');  // Useful for debugging with multiple front-ends.
         $this->testresults = array();
-        $this->sourcecodelist = null;     // Array of all test runs on the sandbox
-        $this->gradercodelist = null;    // Array of all grader runs on the sandbox
-        $this->feedbackhtml = null;     // Used only by combinator template grader
+        $this->sourcecodelist = null;     // Array of all test runs on the sandbox.
+        $this->gradercodelist = null;    // Array of all grader runs on the sandbox.
+        $this->feedbackhtml = null;     // Used only by combinator template grader.
     }
 
 
@@ -78,7 +76,7 @@ class qtype_coderunner_testing_outcome {
     }
 
 
-    public function has_syntax_error()  {
+    public function has_syntax_error() {
         return $this->status === self::STATUS_SYNTAX_ERROR;
     }
 
@@ -90,11 +88,10 @@ class qtype_coderunner_testing_outcome {
     }
 
     public function mark_as_fraction() {
-        // Need to ensure return exactly 1.0 for a right answer
+        // Need to ensure return exactly 1.0 for a right answer.
         if ($this->has_syntax_error()) {
             return 0.0;
-        }
-        else {
+        } else {
             return $this->errorcount == 0 ? 1.0 : $this->actualmark / $this->maxpossmark;
         }
     }
@@ -120,19 +117,19 @@ class qtype_coderunner_testing_outcome {
 
 
 class qtype_coderunner_test_result {
-    
+
     const MAX_LINE_LENGTH = 100;
     const MAX_NUM_LINES = 200;
-    
-    // NB: there may be other attributes added by the template grader
-    var $testcode;          // The test that was run (trimmed, snipped)
-    var $iscorrect;         // True iff test passed fully (100%)
-    var $expected;          // Expected output (trimmed, snipped)
-    var $mark;              // The max mark awardable for this test
-    var $awarded;           // The mark actually awarded.
-    var $got;               // What the student's code gave (trimmed, snipped)
-    var $stdin;             // The standard input data (trimmed, snipped)
-    var $extra;             // Extra data for use by some templates
+
+    // NB: there may be other attributes added by the template grader.
+    public $testcode;          // The test that was run (trimmed, snipped).
+    public $iscorrect;         // True iff test passed fully (100%).
+    public $expected;          // Expected output (trimmed, snipped).
+    public $mark;              // The max mark awardable for this test.
+    public $awarded;           // The mark actually awarded.
+    public $got;               // What the student's code gave (trimmed, snipped).
+    public $stdin;             // The standard input data (trimmed, snipped).
+    public $extra;             // Extra data for use by some templates.
 
     public function __construct($test, $mark, $iscorrect, $awardedmark, $expected, $got, $stdin=null, $extra=null) {
         $this->testcode = $test;
@@ -148,26 +145,17 @@ class qtype_coderunner_test_result {
 
     // Return the value from this testresult as specified by the given
     // $fieldspecifier, which is either a fieldname within the test result
-    // or an expression of the form diff(fieldspec1, fieldspec2). In the first
-    // case the return value is just the selected field. In the second case
-    // its an html-encoded diff between the two fields, for display using
-    // %h format.
-    // The value is trimmed to a size suitable for browser display, by
-    // restricting line length to MAX_LINE_LENGTH and number of lines to
-    // MAX_NUM_LINES.
+    // or an expression of the form diff(fieldspec1, fieldspec2). Both forms
+    // now return the same result, namely the fieldspecifier or fieldspec1
+    // in the diff case. The diff variant is obsolete - it was
+    // used to provide a Show Differences button but that functionality is
+    // now provided in JavaScript.
     public function gettrimmedvalue($fieldspecifier) {
         $matches = array();
         if (preg_match('|diff\((\w+), ?(\w+)\)|', $fieldspecifier, $matches)) {
-            $field1 = $matches[1];
-            $field2 = $matches[2];
-            if (property_exists($this, $field1) && property_exists($this, $field2)) {
-                $trimmed1 = self::restrict_qty($field1);
-                $trimmed2 = self::restrict_qty($field2);
-                $value = $this->makediff($trimmed1, $trimmed2);
-            } else {
-                $value = "Bad diff expression";
-            }
-        } elseif (property_exists($this, $fieldspecifier)) {
+            $fieldspecifier = $matches[1];
+        }
+        if (property_exists($this, $fieldspecifier)) {
             $value = $this->$fieldspecifier;
         } else {
             $value = "Unknown field '$fieldspecifier'";
@@ -175,29 +163,7 @@ class qtype_coderunner_test_result {
         return $value;
     }
 
-    
-    // Use finediff (https://github.com/gorhill/PHP-FineDiff) to make an HTML
-    // diff of the two fields (which must exist).
-    // The fact that the fields might have been trimmed can possibly result in
-    // difference artifacts, but such trimming should only occur if an answer
-    // is seriously wrong, anyway.
-    private function makediff($field1, $field2) {
-        $granularity = 2; // Word granularity
-        $fromtext = mb_convert_encoding($this->$field1, 'HTML-ENTITIES', 'UTF-8');
-        $totext = mb_convert_encoding($this->$field2, 'HTML-ENTITIES', 'UTF-8');
 
-        $granularityStacks = array(
-            FineDiff::$paragraphGranularity,
-            FineDiff::$sentenceGranularity,
-            FineDiff::$wordGranularity,
-            FineDiff::$characterGranularity
-        );
-        $diffopcodes = FineDiff::getDiffOpcodes($fromtext, $totext,
-                $granularityStacks[$granularity]);
-        return FineDiff::renderDiffToHTMLFromOpcodes($fromtext, $diffopcodes);
-    }
-    
-    
     /* Support function to limit the size of a string for browser display.
      * Restricts line length to MAX_LINE_LENGTH and number of lines to
      * MAX_NUM_LINES.
@@ -215,17 +181,13 @@ class qtype_coderunner_test_result {
             if ($s[$i] != "\n") {
                 if ($linelen < self::MAX_LINE_LENGTH) {
                     $line .= $s[$i];
-                }
-                else if ($linelen == self::MAX_LINE_LENGTH) {
-                    $line[self::MAX_LINE_LENGTH - 1] = $line[self::MAX_LINE_LENGTH - 2] =
-                    $line[self::MAX_LINE_LENGTH -3] = '.';
-                }
-                else {
-                    /* ignore remainder of line */
-                }
+                } else if ($linelen == self::MAX_LINE_LENGTH) {
+                    for ($j = 1; $j <= 3; $j++) {
+                        $line[self::MAX_LINE_LENGTH - $j] = '.'; // Insert '...'.
+                    }
+                } // else { ...  ignore remainder of line ... }
                 $linelen++;
-            }
-            else { // Newline
+            } else { // Newline.
                 $result .= $line . "\n";
                 $line = '';
                 $linelen = 0;

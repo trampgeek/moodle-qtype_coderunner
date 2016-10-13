@@ -31,3 +31,7 @@ set_config('jobe_host', 'localhost', 'qtype_coderunner');
 set_config('jobe_apikey', '2AAA7A5415B4A9B394B54BF1D2E9D', 'qtype_coderunner');
 set_config('ideone_user', 'coderunner', 'qtype_coderunner');
 set_config('ideone_password', 'moodlequizzes', 'qtype_coderunner');
+
+// Configuration extras, used only when testing.
+set_config('jobe_apikey_enabled', 0, 'qtype_coderunner');
+set_config('jobe_limits_enforced', 0, 'qtype_coderunner');
