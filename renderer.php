@@ -177,7 +177,6 @@ class qtype_coderunner_renderer extends qtype_renderer {
             } else if ($testoutcome->feedbackhtml) {
                 $fb .= $testoutcome->feedbackhtml;
             } else {
-                $fb .= html_writer::tag('p', '&nbsp;', array('class' => 'coderunner-spacer'));
                 $results = $this->build_results_table($q, $testcases, $testresults);
                 if ($results != null) {
                     $fb .= $results;

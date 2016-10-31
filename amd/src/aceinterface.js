@@ -51,7 +51,7 @@ define(['jquery'], function($) {
         this.MIN_HEIGHT = 100;
 
         this.editNode = $("<div></div>"); // Ace editor manages this
-        this.wrapperNode = $("<div id='" + textareaId + "_wrapper'></div>"); // Outer div with resize handle
+        this.wrapperNode = $("<div id='" + textareaId + "_wrapper' class='ace_wrapper'></div>"); // Outer div with resize handle
         this.editor = null;
         this.contents_changed = false;
         this.hLast = h - this.HANDLE_SIZE;

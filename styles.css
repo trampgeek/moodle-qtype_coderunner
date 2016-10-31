@@ -1,100 +1,86 @@
 /* Question and results page */
 
-div.coderunner-examples {
+.que.coderunner div.coderunner-examples,
+.que.coderunner div.coderunner-test-results {
     width: 100%;
-    overflow:auto;
+    overflow-x: auto;
+    box-sizing: border-box;
 }
 
-table.coderunner-test-results td,
-table.coderunnerexamples td,
-textarea.edit_code {
+.que.coderunner table.coderunner-test-results td,
+.que.coderunner table.coderunnerexamples td,
+.que.coderunner textarea.edit_code {
     font-family:courier,monospace;
     vertical-align: top;
 }
 
-div.coderunner .formulation {
-    background: #d1e1e5;
+.que.coderunner div.coderunnerexamples {
+    padding-bottom: 10px;
 }
 
-div.coderunner .ace_editor, body#page-question-type-coderunner .ace_editor {
+.que.coderunner .ace_wrapper {
+    max-width: 100%;
+}
+
+.que.coderunner .ace_editor,
+body#page-question-type-coderunner .ace_editor {
     font-size: 100%;
     line-height: 18px;
 }
 
-p.for-example-para {
+.que.coderunner p.for-example-para {
     font-weight: bold;
 }
 
-div.coderunnerexamples {
-    padding-bottom: 10px;
+.que.coderunner div.coderunner-test-results {
+    padding: 0.5em;
 }
 
-div.outcome {
-    overflow: auto;
-}
-
-table.coderunner-test-results td, table.coderunner-test-results th,
-table.coderunnerexamples td, table.coderunnerexamples th {
+.que.coderunner table.coderunner-test-results td, table.coderunner-test-results th,
+.que.coderunner table.coderunnerexamples td, table.coderunnerexamples th {
     border: 1px solid #B0B0B0;
     padding: 0.4em;
 }
 
-table.coderunner-test-results .header, table.coderunnerexamples .header {
+.que.coderunner table.coderunner-test-results .header, table.coderunnerexamples .header {
     text-align: left;
     background-color: #F8F8FF;
 }
 
-table.coderunner-test-results tr.hidden-test {
+.que.coderunner table.coderunner-test-results tr.hidden-test {
     opacity: 0.5;
 }
 
-table.coderunner-test-results, table.coderunnerexamples {
+.que.coderunner table.coderunner-test-results,
+.que.coderunner table.coderunnerexamples {
     margin-bottom: 1em;
 }
 
-div.coderunner-test-results td:last-child, div.coderunner-test-results td:first-child {
+.que.coderunner div.coderunner-test-results td:last-child,
+.que.coderunner div.coderunner-test-results td:first-child {
     min-width: 16px;
 }
 
-
-textarea.coderunner-answer[cols] {
+.que.coderunner textarea.coderunner-answer[cols] {
     max-width: 100%;
     width: auto;
     line-height: 18px;
 }
 
-
-div.coderunner-test-results {
+.que.coderunner div.coderunner-test-results {
     color: black;
 }
 
-div.coderunner-test-results.good {
+.que.coderunner div.coderunner-test-results.good {
     background-color: #AAFFAA;
 }
 
-
-div.coderunner-test-results.bad, pre.pre_syntax_error {
+.que.coderunner div.coderunner-test-results.bad,
+.que.coderunner pre.pre_syntax_error {
     background-color: #FFAAAA;
 }
 
-
-/* Ins and del elements are used to show differences. ins elements are
-   always hidden and del elements are always displayed (without decoration),
-   but the background colour of del elements is toggled by the
-   Show/Hide differences button.
-*/
-
-div.coderunner-test-results del {
-    text-decoration: none;
-}
-
-div.coderunner-test-results ins {
-    display: none;
-    text-decoration: none;
-}
-
-
-pre.pre_syntax_error {
+.que.coderunner pre.pre_syntax_error {
     border: none;
 }
 
@@ -102,37 +88,33 @@ div.coderunner-test-results.partial {
     background-color: #FFF3BF;
 }
 
-div.coderunner-feedback {
-    border:none;
-    padding-bottom: 15px;
+/* Ins and del elements are used to show differences. ins elements are
+   always hidden and del elements are always displayed (without decoration),
+   but the background colour of del elements is toggled by the
+   Show/Hide differences button.
+*/
+.que.coderunner div.coderunner-test-results del {
+    text-decoration: none;
 }
 
-input[id~="grading"] {
-    color:grey;
+.que.coderunner div.coderunner-test-results ins {
+    display: none;
+    text-decoration: none;
 }
-
-p.coderunner-spacer {
-    font-size: 5px;
-}
-
 
 /* Add lines I seem to have somehow overridden in styles.php */
-
-tr.r0 td {
+.que.coderunner tr.r0 td {
     background-color:#F5F5F5
 }
 
-tr.r1 td {
+.que.coderunner tr.r1 td {
     background-color:#E5E5E5
 }
 
 /* Editing form. */
-
-
-#id_custom_template {
+body#page-question-type-coderunner #id_custom_template {
     width: 100%;
 }
-
 
 body#page-question-type-coderunner div[id^=fitem_id_],
 body#page-question-type-coderunner div[id^=fgroup_id_] {
@@ -147,7 +129,7 @@ body#page-question-type-coderunner div[id^=fgroup_id_] {
     overflow: visible;
 }
 
-p.question-type-details-header {
+body#page-question-type-coderunner p.question-type-details-header {
     font-size: 130%;
     padding-botton: 10px;
 }
@@ -172,7 +154,6 @@ body#page-question-type-coderunner div[id^=fgroup_id_][id*=testcasecontrols] {
     border-top: 0;
 }
 
-
 body#page-question-type-coderunner div[id^=fgroup_id_][id*=testcasecontrols] {
     padding-bottom: 8px;
 }
@@ -186,19 +167,19 @@ body#page-question-type-coderunner input[type="checkbox"]+label {
     margin-right: 1em;
 }
 
-
-/* Question edit form */
-
-textarea.edit_code {
+body#page-question-type-coderunner textarea.edit_code {
     width: 100%;
     box-sizing: border-box;
 }
 
-input.testcasemark, input.coderunner_answerbox_size,
-input#id_cputimelimitsecs, input#id_memlimitmb {
+body#page-question-type-coderunner input.testcasemark,
+body#page-question-type-coderunner input.coderunner_answerbox_size,
+body#page-question-type-coderunner input#id_cputimelimitsecs,
+body#page-question-type-coderunner input#id_memlimitmb {
     width: auto;
 }
 
-label+select, label+input {
+body#page-question-type-coderunner label+select,
+body#page-question-type-coderunner label+input {
     margin-right: 1em;
 }
