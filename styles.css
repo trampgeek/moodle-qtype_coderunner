@@ -34,6 +34,7 @@ body#page-question-type-coderunner .ace_editor {
 
 .que.coderunner div.coderunner-test-results {
     padding: 0.5em;
+    margin: 30px;
 }
 
 .que.coderunner table.coderunner-test-results td, table.coderunner-test-results th,
