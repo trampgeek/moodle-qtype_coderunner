@@ -36,13 +36,16 @@ body#page-question-type-coderunner .ace_editor {
     padding: 0.5em;
 }
 
-.que.coderunner table.coderunner-test-results td, table.coderunner-test-results th,
-.que.coderunner table.coderunnerexamples td, table.coderunnerexamples th {
+.que.coderunner table.coderunner-test-results td,
+.que.coderunner table.coderunner-test-results th,
+.que.coderunner table.coderunnerexamples td,
+.que.coderunner table.coderunnerexamples th {
     border: 1px solid #B0B0B0;
     padding: 0.4em;
 }
 
-.que.coderunner table.coderunner-test-results .header, table.coderunnerexamples .header {
+.que.coderunner table.coderunner-test-results .header,
+.que.coderunner table.coderunnerexamples .header {
     text-align: left;
     background-color: #F8F8FF;
 }
