@@ -1,6 +1,6 @@
 @qtype @qtype_coderunner @javascript @sqrfunctests
-Feature: sqr_function_runs
-  To check the questions I created work
+Feature: Preview the Python 3 sqr function CodeRunner question
+  To check the CodeRunner questions I created work
   As a teacher
   I must be able to preview them
 
