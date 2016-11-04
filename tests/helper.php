@@ -65,6 +65,44 @@ class qtype_coderunner_test_helper extends question_test_helper {
     }
 
     /**
+     * Gets the form data that would come back when the editing form is saved,
+     * if you were creating the standard sql question.
+     * @return stdClass the form data.
+     */
+    public function get_coderunner_question_form_data_sqr() {
+        $form = new stdClass();
+
+        $form->coderunnertype = 'python3';
+        $form->customise = 0;
+        $form->showsource = 0;
+        $form->answerboxlines = 18;
+        $form->answerboxcolumns = 100;
+        $form->useace = 1;
+        $form->allornothing = 0;
+        $form->grader = 'EqualityGrader';
+        $form->prototypetype = 0;
+        $form->sandbox = 'DEFAULT';
+        $form->language = 'python3';
+        $form->enablecombinator = 1;
+        $form->testsplitterre = '|#<ab@17943918#@>#\n|ms';
+        $form->name = 'Square function';
+        $form->questiontext = array('text' => 'Write a function sqr(n) that returns n squared.', 'format' => FORMAT_HTML);
+        $form->defaultmark = 31.0;
+        $form->generalfeedback = array('text' => 'No feedback available for coderunner questions.', 'format' => FORMAT_HTML);
+        $form->penalty = 0.3333333;
+
+        $form->testcode = array('print(sqr(0))', 'print(sqr(1))', 'print(sqr(11))', 'print(sqr(-7))', 'print(sqr(-6))');
+        $form->stdin = array('', '', '', '', '');
+        $form->expected = array('0', '1', '121', '49', '36');
+        $form->extra = array('', '', '', '', '');
+        $form->display = array('SHOW', 'SHOW', 'SHOW', 'SHOW', 'HIDE');
+        $form->mark = array('1.0', '2.0', '4.0', '8.0', '16.0');
+        $form->ordering = array('0', '10', '20', '30', '40');
+
+        return $form;
+    }
+
+    /**
      * Makes a coderunner python3-pylint-func question asking for a sqr() function
      * @return qtype_coderunner_question
      */
