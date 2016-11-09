@@ -139,10 +139,15 @@ class qtype_coderunner_question extends question_graded_automatically {
     // third array element in its response, containing data to be cached and
     // served up again in the response on subsequent calls.
 
-    public function grade_response(array $response) {
+    public function grade_response(array $response, $isprecheck=false) {
         if (empty($response['_testoutcome'])) {
             $code = $response['answer'];
-            $testoutcome = $this->run_tests($code, $this->testcases);
+            if ($isprecheck) {
+                $testcases = $this->example_testcases();
+            } else {
+                $testcases = $this->testcases;
+            }
+            $testoutcome = $this->run_tests($code, $testcases);
             $testoutcomeserial = serialize($testoutcome);
         } else {
             $testoutcomeserial = $response['_testoutcome'];
@@ -158,6 +163,18 @@ class qtype_coderunner_question extends question_graded_automatically {
             return array($testoutcome->mark_as_fraction(),
                     question_state::$gradedpartial, $datatocache);
         }
+    }
+
+
+    // Return a list of the test cases that have "Use as example" set
+    protected function example_testcases() {
+        $examples = array();
+        foreach ($this->testcases as $testcase) {
+            if ($testcase->useasexample) {
+                $examples[] = $testcase;
+            }
+        }
+        return $examples;
     }
 
     // Check the correctness of a student's code given the student's
@@ -419,9 +436,7 @@ class qtype_coderunner_question extends question_graded_automatically {
                 if ($aborting) {
                     break;
                 }
-
             }
-
         }
         return $outcome;
     }

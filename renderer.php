@@ -113,9 +113,9 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
 
     /**
-     * Gereate the specific feedback. This is feedback that varies according to
-     * the reponse the student gave.
-     * This code tries to allow for the possiblity that the question is being
+     * Generate the specific feedback. This is feedback that varies according to
+     * the response the student gave.
+     * This code tries to allow for the possibility that the question is being
      * used with the wrong (i.e. non-adaptive) behaviour, which would mean that
      * test results aren't available. However, this can cause huge performance
      * loss, so a warning message accompanies the output in such cases.
@@ -125,6 +125,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
     protected function specific_feedback(question_attempt $qa) {
         $q = $qa->get_question();
         $testcases = $q->testcases;
+        $isprecheck = $qa->get_last_behaviour_var('_precheck', 0);
         $fb = '';
         $toserialised = $qa->get_last_qt_var('_testoutcome');
 
@@ -155,6 +156,10 @@ class qtype_coderunner_renderer extends qtype_renderer {
                 $resultsclass = "coderunner-test-results bad";
             }
 
+            if ($isprecheck) {
+                $resultsclass .= ' precheck';
+            }
+
             if ($q->showsource && count($testoutcome->sourcecodelist) > 0) {
                 $fb .= $this->make_source_code_div(
                         'Debug: source code from all test runs',
@@ -165,7 +170,6 @@ class qtype_coderunner_renderer extends qtype_renderer {
             $fb .= html_writer::start_tag('div', array('class' => $resultsclass));
             // Hack to insert run host as hidden comment in html.
             $fb .= "\n<!-- Run on {$testoutcome->runhost} -->\n";
-
             if ($testoutcome->run_failed()) {
                 $fb .= html_writer::tag('h3', get_string('run_failed', 'qtype_coderunner'));;
                 $fb .= html_writer::tag('p', s($testoutcome->errormessage),
@@ -174,12 +178,17 @@ class qtype_coderunner_renderer extends qtype_renderer {
                 $fb .= html_writer::tag('h3', get_string('syntax_errors', 'qtype_coderunner'));
                 $fb .= html_writer::tag('pre', s($testoutcome->errormessage),
                         array('class' => 'pre_syntax_error'));
-            } else if ($testoutcome->feedbackhtml) {
-                $fb .= $testoutcome->feedbackhtml;
             } else {
-                $results = $this->build_results_table($q, $testcases, $testresults);
-                if ($results != null) {
-                    $fb .= $results;
+                if ($isprecheck) {
+                    $fb .= html_writer::tag('h3', get_string('precheck_only', 'qtype_coderunner'));
+                }
+                if ($testoutcome->feedbackhtml) {
+                    $fb .= $testoutcome->feedbackhtml;
+                } else {
+                    $results = $this->build_results_table($q, $testcases, $testresults);
+                    if ($results != null) {
+                        $fb .= $results;
+                    }
                 }
             }
 
@@ -348,10 +357,11 @@ class qtype_coderunner_renderer extends qtype_renderer {
     // combinator-template grader was used.
     private function build_feedback_summary($qa, $testcases, $testoutcome) {
         $question = $qa->get_question();
+        $isprecheck = $qa->get_last_behaviour_var('_precheck', 0);
         $lines = array();  // List of lines of output.
         $testresults = $testoutcome->testresults;
         $onlyhiddenfailed = false;
-        if (count($testresults) != count($testcases)) {
+        if (!$isprecheck && (count($testresults) != count($testcases))) {
             $lines[] = get_string('aborted', 'qtype_coderunner');
         } else {
             $numerrors = $testoutcome->errorcount;

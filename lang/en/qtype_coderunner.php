@@ -245,6 +245,7 @@ $string['pluginname_help'] = 'Use the "Question type" combo box to select the ' 
         'Specify the problem that the student must write code for, then define '.
         'a set of tests to be run on the student\'s submission';
 $string['pluginname_link'] = 'question/type/coderunner';
+$string['precheck_only'] = "PRE-CHECK ONLY";
 $string['proceed_at_own_risk'] = 'Editing a built-in question prototype?! Proceed at your own risk!';
 $string['prototypecontrols'] = 'Prototyping';
 $string['prototypecontrols_help'] = <<<EOPCHELP

@@ -34,6 +34,15 @@ import sys
 import shelve
 import random
 
+COURSE = 'LoadTesting'
+LANGUAGE = 'PYTHON3'
+NUM_QUESTIONS = 4
+FIRST_QUESTION = 0
+LAST_QUESTION = FIRST_QUESTION + NUM_QUESTIONS - 1
+DEBUGGING = False
+INTER_SUBMISSION_GAP_SECS = 0
+SIMULATION_DURATION_SECS = 300
+NUM_STUDENTS = 20
 PASSWORD = 'S-tudent0'
 
 # Correct answers to the four one-question quizzes for each language.
@@ -276,15 +285,7 @@ def simulate(num_students, avg_gap, sim_length):
     #print "Success times:", results
     return (results, errs)
 
-COURSE = 'LoadTesting'
-LANGUAGE = 'PYTHON3'
-NUM_QUESTIONS = 4
-FIRST_QUESTION = 0
-LAST_QUESTION = FIRST_QUESTION + NUM_QUESTIONS - 1
-DEBUGGING = False
-INTER_SUBMISSION_GAP_SECS = 0
-SIMULATION_DURATION_SECS = 300
-NUM_STUDENTS = 10
+
 
 if __name__ == '__main__':
     before = time.time()
