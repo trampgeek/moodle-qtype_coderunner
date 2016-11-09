@@ -61,14 +61,9 @@ class qtype_coderunner_question extends question_graded_automatically {
      * @return question_behaviour the new behaviour object.
      */
     public function make_behaviour(question_attempt $qa, $preferredbehaviour) {
-        // TODO: see if there's some way or issuing a warning message when
-        // coderunner questions aren't being used in an adaptive mode.
-
-        if ($preferredbehaviour == 'adaptive') {
-            return  new qbehaviour_adaptive_adapted_for_coderunner($qa, $preferredbehaviour);
-        } else {
-            return parent::make_behaviour($qa, $preferredbehaviour);
-        }
+        // Regardless of the preferred behaviour, always use an adaptive
+        // behaviour.
+        return  new qbehaviour_adaptive_adapted_for_coderunner($qa, $preferredbehaviour);
     }
 
     public function get_expected_data() {
