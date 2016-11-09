@@ -98,11 +98,7 @@ div.coderunner-test-results.partial {
 */
 .que.coderunner div.coderunner-test-results del {
     text-decoration: none;
-}
-
-.que.coderunner div.coderunner-test-results ins {
-    display: none;
-    text-decoration: none;
+    background-color: #E0E000;
 }
 
 /* Add lines I seem to have somehow overridden in styles.php */
