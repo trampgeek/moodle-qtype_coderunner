@@ -41,17 +41,10 @@ class behat_coderunner extends behat_base {
      * @param string $expected The string that we expect to find
      */
     public function i_should_see_highlighted($expected) {
-        $insxpath = "//ins[contains(@style, 'background-color') " .
-                "and not(contains(@style, 'background-color: inherit')) " .
-                "and not(contains(@style, 'display: none')) ".
-                "and contains(text(), '{$expected}')]";
-        $delxpath = "//del[contains(@style, 'background-color') " .
-                "and not(contains(@style, 'background-color: inherit')) " .
-                "and not(contains(@style, 'display: none')) " .
-                "and contains(text(), '{$expected}')]";
-        $msg = "'{$expected}' not found within a highlighted del or ins element";
+        $delxpath = "//div[contains(@class, 'coderunner-test-results')]//del[contains(text(), '{$expected}')]";
+        $msg = "'{$expected}' not found within a highlighted del element";
         $driver = $this->getSession()->getDriver();
-        if (!$driver->find($insxpath) && ! $driver->find($delxpath)) {
+        if (! $driver->find($delxpath)) {
             throw new ExpectationException($msg, $this->getSession());
         }
     }
