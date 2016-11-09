@@ -79,7 +79,7 @@ class backup_qtype_coderunner_plugin extends backup_qtype_plugin {
         $testcases->add_child($testcase);
 
         // Set the source.
-        $testcase->set_source_table("question_coderunner_tests", array('questionid' => backup::VAR_PARENTID));
+        $testcase->set_source_table("question_coderunner_tests", array('questionid' => backup::VAR_PARENTID), 'id ASC');
     }
 
 
