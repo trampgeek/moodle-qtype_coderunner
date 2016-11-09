@@ -113,7 +113,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
 
     /**
-     * Gereate the specific feedback. This is feedback that varies according to
+     * Generate the specific feedback. This is feedback that varies according to
      * the response the student gave.
      * This code tries to allow for the possibility that the question is being
      * used with the wrong (i.e. non-adaptive) behaviour, which would mean that
