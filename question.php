@@ -161,7 +161,8 @@ class qtype_coderunner_question extends question_graded_automatically {
     }
 
 
-    // Extract from the set of testcases those that have
+    // Extract from the set of testcases those that match the criteria
+    // selected by the precheck setting for this question.
     protected function filter_testcases($precheck) {
         if ($precheck === 'empty') {
             return array();
@@ -174,9 +175,7 @@ class qtype_coderunner_question extends question_graded_automatically {
             }
             return $examples;
         } else if ($precheck === 'selected') {
-            return array(); // Unimlemented at present
-        } else {  // Case of 'all' - a rather pointless precheck
-            return $this->testcases;
+            return array(); // Unimplemented at present
         }
     }
 

@@ -20,7 +20,8 @@ require_once($CFG->dirroot . '/lib/accesslib.php');
 
 function xmldb_qtype_coderunner_upgrade($oldversion) {
     global $CFG, $DB;
-    if ($oldversion < 2016011091) {
+    $dbman = $DB->get_manager();
+    if ($oldversion < 2016110900) {
 
         // Define field precheck to be added to question_coderunner_options.
         $table = new xmldb_table('question_coderunner_options');
@@ -32,7 +33,7 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         }
 
         // Coderunner savepoint reached.
-        upgrade_plugin_savepoint(true, 2016011091, 'qtype', 'coderunner');
+        upgrade_plugin_savepoint(true, 2016110900, 'qtype', 'coderunner');
     }
     update_question_types();
 
