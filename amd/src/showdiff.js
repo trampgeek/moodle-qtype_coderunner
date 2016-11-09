@@ -167,7 +167,7 @@ define(['jquery'], function($) {
     function showDifferences(firstEl, secondEl) {
         var splitter = '',
             showNls = true,
-            openDelTag = '<del style="background-color: #E0E000">',
+            openDelTag = '<del>',
             closeDelTag = '</del>',
             seq1,
             seq2,
