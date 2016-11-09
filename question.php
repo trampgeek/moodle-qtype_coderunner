@@ -61,14 +61,9 @@ class qtype_coderunner_question extends question_graded_automatically {
      * @return question_behaviour the new behaviour object.
      */
     public function make_behaviour(question_attempt $qa, $preferredbehaviour) {
-        // TODO: see if there's some way or issuing a warning message when
-        // coderunner questions aren't being used in an adaptive mode.
-
-        if ($preferredbehaviour == 'adaptive') {
-            return  new qbehaviour_adaptive_adapted_for_coderunner($qa, $preferredbehaviour);
-        } else {
-            return parent::make_behaviour($qa, $preferredbehaviour);
-        }
+        // Regardless of the preferred behaviour, always use an adaptive
+        // behaviour.
+        return  new qbehaviour_adaptive_adapted_for_coderunner($qa, $preferredbehaviour);
     }
 
     public function get_expected_data() {
@@ -143,7 +138,7 @@ class qtype_coderunner_question extends question_graded_automatically {
         if (empty($response['_testoutcome'])) {
             $code = $response['answer'];
             if ($isprecheck) {
-                $testcases = $this->example_testcases();
+                $testcases = $this->filter_testcases($this->precheck);
             } else {
                 $testcases = $this->testcases;
             }
@@ -166,15 +161,23 @@ class qtype_coderunner_question extends question_graded_automatically {
     }
 
 
-    // Return a list of the test cases that have "Use as example" set
-    protected function example_testcases() {
-        $examples = array();
-        foreach ($this->testcases as $testcase) {
-            if ($testcase->useasexample) {
-                $examples[] = $testcase;
+    // Extract from the set of testcases those that have
+    protected function filter_testcases($precheck) {
+        if ($precheck === 'empty') {
+            return array();
+        } else if ($precheck === 'examples') {
+            $examples = array();
+            foreach ($this->testcases as $testcase) {
+                if ($testcase->useasexample) {
+                    $examples[] = $testcase;
+                }
             }
+            return $examples;
+        } else if ($precheck === 'selected') {
+            return array(); // Unimlemented at present
+        } else {  // Case of 'all' - a rather pointless precheck
+            return $this->testcases;
         }
-        return $examples;
     }
 
     // Check the correctness of a student's code given the student's
