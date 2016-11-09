@@ -17,19 +17,20 @@ A trivial example might be a Python function *sqr(x)* that returns its
 parameter squared, but there is essentially no limit on the complexity of
 questions that can be asked.
 
-CodeRunner is intended to be run in an adaptive mode, so that students know
-immediately if their code is passing the tests. In the typical
+Regardless of the behaviour chosen for a quiz, CodeRunner questions always
+run in an adaptive mode, in which students can click a *Check* button to see
+if their code passes the tests. If not, they can resubmit, typically for a 
+small penalty. In the typical
 'all-or-nothing' mode, all test cases must pass
 if the submission is to be awarded any marks. The mark for a set of questions
 in a quiz is then determined primarily by which questions the student is able
 to  solve successfully and then secondarily by how many submissions the student
-makes on each question. However, it is also possible to run CodeRunner questions
-in a traditional quiz mode where the mark is determined by how many of the tests
+makes on each question. However, it is also possible to configure CodeRunner
+questions so that the mark is determined by how many of the tests
 the code successfully passes.
 
 CodeRunner and its predecessors *pycode* and *ccode* has been in use at the
-University of Canterbury for about five years, running many hundreds of
-thousands of
+University of Canterbury for about five years, running over a million 
 student quiz submissions in Python, C , Octave and Matlab. Laboratory work,
 assignment work and mid-semester tests in the
 introductory first year Python programming course (COSC121), which has around
@@ -200,20 +201,6 @@ the known test cases).
 
 Save your new question, then preview it, entering both correct and
 incorrect answers.
-
-**IMPORTANT**: CodeRunner is designed to
-work only in an Adaptive Mode so you must set the *How questions behave* dropdown
-under *Attempt Options* to *Adaptive mode*. If you fail to do this, you'll
-receive a message like "Detailed test results unavailable.
-Perhaps an empty answer, or question behaviour not set to Adaptive Mode?". When setting
-quizzes using CodeRunner questions, you should run the entire quiz in Adaptive
-Mode, again using the 'Question behaviour' dropdown under Quiz Settings. If you
-are using a Moodle server set up specifically to run CodeRunner questions, it is
-recommended that you set the default question behaviour for the whole site to
-Adaptive Mode. An Moodle administrator does this by going to
-*Site administration > Plugins >
-Activity Modules > Quiz* and selecting *Adaptive Mode* from the *How questions
-behave* dropdown.
 
 If you want a few more CodeRunner questions to play with, try importing the
 files
@@ -1355,9 +1342,11 @@ code, for example a string tokenizing function that works only with alphabetic
 data, may get well over half marks if the question-setter was not expecting
 such flaws.
 
-Accordingly, a key assumption underlying CodeRunner is that quizzes will always
-run in Moodle's adaptive mode, which displays results after each question
-is submitted, and allows resubmission for a penalty. The mark obtained in a
-programming-style quiz is thus determined by how many of the problems the
-student can solve in the given time, and how many submissions the student
+Accordingly, CodeRunner questions always use Moodle's adaptive behaviour,
+regardless of the behaviour set for the quiz in which the questions are being
+run. Students can check their code for correctness as soon as it has been
+entered and, if their answer is wrong, can resubmit, usually for a 
+small penalty. The mark obtained in a
+programming-style quiz is thus determined primarily by how many of the problems the
+student can solve in the given time, and secondarily by how many submissions the student
 needs to make on each question.
