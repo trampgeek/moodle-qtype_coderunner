@@ -114,11 +114,15 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
     /**
      * Gereate the specific feedback. This is feedback that varies according to
-     * the reponse the student gave.
-     * This code tries to allow for the possiblity that the question is being
+     * the response the student gave.
+     * This code tries to allow for the possibility that the question is being
      * used with the wrong (i.e. non-adaptive) behaviour, which would mean that
      * test results aren't available. However, this can cause huge performance
      * loss, so a warning message accompanies the output in such cases.
+     * As of 10 November 2016, a wrong behaviour type shouldn't be possible,
+     * as CodeRunner questions now force adaptive mode. However, the code has
+     * been left in place in case there is a need for a change to the policy
+     * in future.
      * @param question_attempt $qa the question attempt to display.
      * @return string HTML fragment.
      */
