@@ -29,6 +29,9 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/question/type/coderunner/sandbox/sandboxbase.php');
 require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
 require_once($CFG->dirroot . '/question/type/coderunner/locallib.php');
+require_once($CFG->dirroot . '/question/type/coderunner/constants.php');
+
+use qtype_coderunner\constants;
 
 /*
  * coderunner editing form definition.
@@ -183,7 +186,6 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $repeated[] = & $mform->createElement('textarea', 'extra',
                 get_string('extra', 'qtype_coderunner'),
                 array('rows' => 3, 'class' => 'testcaseresult edit_code'));
-
         $group[] =& $mform->createElement('checkbox', 'useasexample', null,
                 get_string('useasexample', 'qtype_coderunner'));
 
@@ -203,9 +205,20 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 get_string('ordering', 'qtype_coderunner'),
                 array('size' => 3, 'class' => 'testcaseordering'));
 
-        $repeated[] =& $mform->createElement('group', 'testcasecontrols',
+        $repeated[] = & $mform->createElement('group', 'testcasecontrols',
                         get_string('testcasecontrols', 'qtype_coderunner'),
                         $group, null, false);
+
+        $typevalues = array(
+            constants::TESTTYPE_NORMAL   => get_string('testtype_normal',   'qtype_coderunner'),
+            constants::TESTTYPE_PRECHECK => get_string('testtype_precheck', 'qtype_coderunner'),
+            constants::TESTTYPE_BOTH     => get_string('testtype_both',     'qtype_coderunner'),
+        );
+
+        $repeated[] = & $mform->createElement('select', 'testtype',
+                get_string('testtype', 'qtype_coderunner'),
+                $typevalues,
+                array('class' => 'testtype'));
 
         $repeatedoptions['expected']['type'] = PARAM_RAW;
         $repeatedoptions['testcode']['type'] = PARAM_RAW;
@@ -213,8 +226,9 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $repeatedoptions['extra']['type'] = PARAM_RAW;
         $repeatedoptions['mark']['type'] = PARAM_FLOAT;
         $repeatedoptions['ordering']['type'] = PARAM_INT;
+        $repeatedoptions['testtype']['type'] = PARAM_RAW;
 
-        foreach (array('testcode', 'stdin', 'expected', 'extra', 'testcasecontrols') as $field) {
+        foreach (array('testcode', 'stdin', 'expected', 'extra', 'testcasecontrols', 'testtype') as $field) {
             $repeatedoptions[$field]['helpbutton'] = array($field, 'qtype_coderunner');
         }
 
@@ -246,6 +260,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
             foreach ($question->options->testcases as $tc) {
                 $question->testcode[] = $this->newline_hack($tc->testcode);
+                $question->testtype[] = $tc->testtype;
                 $question->stdin[] = $this->newline_hack($tc->stdin);
                 $question->expected[] = $this->newline_hack($tc->expected);
                 $question->extra[] = $this->newline_hack($tc->extra);
@@ -435,6 +450,22 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->addElement('group', 'answerbox_group', get_string('answerbox_group', 'qtype_coderunner'),
                 $answerboxelements, null, false);
         $mform->addHelpButton('answerbox_group', 'answerbox_group', 'qtype_coderunner');
+
+        // Precheck control (a group with only one element)
+        // The 'empty' case is disabled for now - I hope to re-enable it once the
+        // two combinators have been combined into one and a clearly-defined
+        // behaviour is apparent.
+        $precheckelements = array();
+        $precheckvalues = array(
+            constants::PRECHECK_DISABLED => get_string('precheck_disabled', 'qtype_coderunner'),
+            //constants::PRECHECK_EMPTY    => get_string('precheck_empty', 'qtype_coderunner'),
+            constants::PRECHECK_EXAMPLES => get_string('precheck_examples', 'qtype_coderunner'),
+            constants::PRECHECK_SELECTED => get_string('precheck_selected', 'qtype_coderunner'),
+        );
+        $precheckelements[] = $mform->createElement('select', 'precheck', null, $precheckvalues);
+        $mform->addElement('group', 'coderunner_precheck_group',
+                get_string('precheck', 'qtype_coderunner'), $precheckelements, null, false);
+        $mform->addHelpButton('coderunner_precheck_group', 'precheck', 'qtype_coderunner');
 
         // Marking controls.
         $markingelements = array();

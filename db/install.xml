@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="question/type/coderunner/db" VERSION="20161109" COMMENT="XMLDB file for Moodle question/type/coderunner"
+<XMLDB PATH="question/type/coderunner/db" VERSION="20161111" COMMENT="XMLDB file for Moodle question/type/coderunner"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../../lib/xmldb/xmldb.xsd"
 >
@@ -13,7 +13,7 @@
         <FIELD NAME="allornothing" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="True if answer must pass all test cases to earn any marks"/>
         <FIELD NAME="showsource" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="True to display full source code after template expansion, for debugging template."/>
         <FIELD NAME="answerboxlines" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="18" SEQUENCE="false" COMMENT="The number of lines for the answer box"/>
-        <FIELD NAME="precheck" TYPE="char" LENGTH="64" NOTNULL="false" DEFAULT="disable" SEQUENCE="false" COMMENT="Sets what test-set is used if pre-checking is available. 'disable': no pretest button available; 'empty' for no actual tests; 'examples' for all use-as-example tests; 'selected' for specific selected tests; 'all' for all tests."/>
+        <FIELD NAME="precheck" TYPE="int" LENGTH="8" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Sets what test-set is used if pre-checking is available. 0 = 'disable': no pretest button available; 1 = 'empty' for no actual tests; 2 = 'examples' for all use-as-example tests; 3 = 'selected' for specific selected tests."/>
         <FIELD NAME="answerboxcolumns" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="100" SEQUENCE="false" COMMENT="Number of columns of answerbox."/>
         <FIELD NAME="useace" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="True to use the Ace code editor to control the student answer"/>
         <FIELD NAME="penaltyregime" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="A comma-separated list of percentage penalties to apply to each submission. If empty use default question penalty"/>
@@ -46,10 +46,11 @@
         <INDEX NAME="prototypetype" UNIQUE="false" FIELDS="prototypetype"/>
       </INDEXES>
     </TABLE>
-    <TABLE NAME="question_coderunner_tests" COMMENT="Contains test  (usually called 'testcases') to perform on a student's code answer; should output the given output. A test case is regarded as an extension of an 'answer' in Moodle parlance.">
+    <TABLE NAME="question_coderunner_tests" COMMENT="Contains tests (usually called 'testcases') to perform on a student's code answer; should output the given output. A test case is regarded as an extension of an 'answer' in Moodle parlance.">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="questionid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Foreign key referencing question to which this test case relates"/>
+        <FIELD NAME="testtype" TYPE="int" LENGTH="8" NOTNULL="false" SEQUENCE="false" COMMENT="How to treat this test when precheck='selected'. 0 = Normal (i.e. not included in precheck), 1 = Precheck-only, 2 = Both"/>
         <FIELD NAME="testcode" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="The code for this test, to be combined with the student's code to construct a test program"/>
         <FIELD NAME="stdin" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="The standard input to the program during the test. Empty for most questions"/>
         <FIELD NAME="expected" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="The expected output after running the student's code and executing the shell input"/>

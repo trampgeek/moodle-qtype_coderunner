@@ -69,6 +69,8 @@ define(['jquery'], function($) {
             typeName = $('#id_typename'),
             courseId = $('input[name="courseid"]').prop('value'),
             questiontypeHelpDiv = $('#qtype-help'),
+            precheck = $('select#id_precheck'),
+            testtypedivs = $('div[id^=fitem_id_testtype]'),
             alertIssued = false;
 
         // Check if need to (re-)initialise Ace in a textarea. Do this if
@@ -175,6 +177,16 @@ define(['jquery'], function($) {
             }
         }
 
+        // Show/hide all testtype divs in the testcases according to the
+        // 'Precheck' selector.
+        function set_testtype_visibilities() {
+            if (precheck.val() !== '2') { // Show only for case of 'Selected'
+                testtypedivs.show();
+            } else {
+                testtypedivs.hide();
+            }
+        }
+
         // Body of initEditFormWhenReady starts here.
 
         if (prototypeType.prop('value') == 1) {
@@ -191,6 +203,8 @@ define(['jquery'], function($) {
         } else {
             questiontypeHelpDiv.setHTML("<p>" + getString('info_unavailable') + "</p>");
         }
+
+        set_testtype_visibilities();
 
         // Set up event Handlers.
 
@@ -240,6 +254,8 @@ define(['jquery'], function($) {
                 });
             }
         });
+
+        precheck.on('change', set_testtype_visibilities);
 
         // In order to initialise Ace when the combinator template becomes
         // visible, we monitor attribute mutations in the Advanced Customisation

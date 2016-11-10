@@ -71,3 +71,109 @@ function load_ace() {
     $PAGE->requires->js($plugindirrel . '/ace/ext-language_tools.js');
     $PAGE->requires->js($plugindirrel . '/ace/ext-modelist.js');
 }
+
+
+/* Function to limit the size of a string for browser display.
+ * Restricts line length to MAX_LINE_LENGTH and number of lines to
+ * MAX_NUM_LINES.
+ */
+function restrict_qty($s) {
+    if (!is_string($s)) {  // It's a no-op for non-strings.
+        return $s;
+    }
+    $result = '';
+    $n = strlen($s);
+    $line = '';
+    $linelen = 0;
+    $numlines = 0;
+    for ($i = 0; $i < $n && $numlines < constants::MAX_NUM_LINES; $i++) {
+        if ($s[$i] != "\n") {
+            if ($linelen < constants::MAX_LINE_LENGTH) {
+                $line .= $s[$i];
+            } else if ($linelen == constants::MAX_LINE_LENGTH) {
+                for ($j = 1; $j <= 3; $j++) {
+                    $line[constants::MAX_LINE_LENGTH - $j] = '.'; // Insert '...'.
+                }
+            } // else { ...  ignore remainder of line ... }
+            $linelen++;
+        } else { // Newline.
+            $result .= $line . "\n";
+            $line = '';
+            $linelen = 0;
+            $numlines += 1;
+            if ($numlines == constants::MAX_NUM_LINES) {
+                $result .= "[... snip ...]\n";
+            }
+        }
+    }
+    return $result . $line;
+}
+
+
+// Return a copy of $s with trailing blank lines removed and trailing white
+// space from each line removed. Also sanitised by replacing all control
+// chars except newlines with hex equivalents.
+// A newline terminator is added at the end unless the string to be
+// returned is otherwise empty.
+// Used e.g. by the equality grader subclass.
+// This implementation is a bit algorithmically complex because the
+// original implemention, breaking the string into lines using explode,
+// was a hideous memory hog.
+function clean(&$s) {
+    $nls = '';     // Unused line breaks.
+    $output = '';  // Output string.
+    $spaces = '';  // Unused space characters.
+    $n = strlen($s);
+    for ($i = 0; $i < $n; $i++) {
+        $c = $s[$i];
+        if ($c === ' ') {
+            $spaces .= $c;
+        } else if ($c === "\n") {
+            $spaces = ''; // Discard spaces before a newline.
+            $nls .= $c;
+        } else {
+            if ($c === "\r") {
+                $c = '\\r';
+            } else if ($c === "\t") {
+                $c = '\\t';
+            } else if ($c < " " || $c > "\x7E") {
+                $c = '\\x' . sprintf("%02x", ord($c));
+            }
+            $output .= $nls . $spaces . $c;
+            $spaces = '';
+            $nls = '';
+        }
+    }
+    if ($output !== '') {
+        $output .= "\n";
+    }
+    return $output;
+}
+
+
+// Limit the length of the given string to MAX_STRING_LENGTH by
+// removing the centre of the string, inserting the substring
+// [... snip ... ] in its place.
+function snip(&$s) {
+    $snipinsert = ' ...snip... ';
+    $len = strlen($s);
+    if ($len > constants::MAX_STRING_LENGTH) {
+        $lentoremove = $len - constants::MAX_STRING_LENGTH + strlen($snipinsert);
+        $partlength = ($len - $lentoremove) / 2;
+        $firstbit = substr($s, 0, $partlength);
+        $lastbit = substr($s, $len - $partlength, $partlength);
+        $s = $firstbit . $snipinsert . $lastbit;
+    }
+    return $s;
+}
+
+
+// Return a cleaned and snipped version of the string s (or null if s is null).
+function tidy($s) {
+    if ($s === null) {
+        return null;
+    } else {
+        $cleaneds = clean($s);
+        return snip($cleaneds);
+    }
+}

@@ -83,6 +83,7 @@ class qtype_coderunner_prototype_test extends qtype_coderunner_testcase {
     <prototypetype>0</prototypetype>
     <allornothing>1</allornothing>
     <penaltyregime></penaltyregime>
+    <precheck>0</precheck>
     <showsource></showsource>
     <answerboxlines></answerboxlines>
     <answerboxcolumns></answerboxcolumns>
@@ -102,7 +103,7 @@ class qtype_coderunner_prototype_test extends qtype_coderunner_testcase {
     <sandboxparams></sandboxparams>
     <templateparams></templateparams>
     <testcases>
-      <testcase useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcase type="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
       <testcode>
                 <text></text>
       </testcode>

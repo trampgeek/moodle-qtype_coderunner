@@ -34,6 +34,10 @@ require_once('graderbase.php');
 
 class qtype_coderunner_template_grader extends qtype_coderunner_grader {
 
+    public function name() {
+        return "TemplateGrader";
+    }
+
     /** Called to grade the output from a given testcase run when
      *  the template was used to generate a program that does both the test
      *  execution and the grading of the result.
@@ -45,53 +49,20 @@ class qtype_coderunner_template_grader extends qtype_coderunner_grader {
         $result = json_decode($output);
         if ($result === null || !isset($result->fraction) || !is_numeric($result->fraction)) {
             $errormessage = "Bad grading result from template:'" . $output . "'";
-            $outcome = new qtype_coderunner_test_result(
-                    self::tidy($testcase->testcode),
-                    $testcase->mark,
-                    false,
-                    0.0,
-                    self::tidy($testcase->expected),
-                    $errormessage,
-                    self::tidy($testcase->stdin),
-                    self::tidy($testcase->extra)
-            );
-        } else {
-            // First copy any missing fields from test case into result.
-            foreach (get_object_vars($testcase) as $key => $value) {
-                if (!isset($result->$key)) {
-                    $result->$key = $value;
-                }
-            }
-            if (!isset($result->awarded)) {
-                $result->awarded = $result->mark * $result->fraction;
-            }
-            if (!isset($result->got)) {
-                $result->got = '';
-            }
-            $result->iscorrect = abs($result->fraction - 1.0) < 0.000001;
+            $testresultobj = new qtype_coderunner_test_result($testcase, false, 0.0, $errormessage);
+         } else {
+            $iscorrect = abs($result->fraction - 1.0) < 0.000001;
+            $awarded = isset($result->awarded) ? $result->awarded : $testcase->mark * $result->fraction;
+            $got = isset($result->got) ? $result->got : '';
 
-            $outcome = new qtype_coderunner_test_result(
-                self::tidy($result->testcode),
-                $result->mark,
-                $result->iscorrect,
-                $result->awarded,
-                self::tidy($result->expected),
-                self::tidy($result->got),
-                self::tidy($result->stdin),
-                self::tidy($result->extra)
-            );
-
-            /* To accommodate generalised template graders that need to
-             * have their own custom attributes, we also add any other result
-             * attributes not already used into the TestResult object.
-             */
-            foreach ((array) $result as $key => $value) {
-                if (!isset($outcome->$key)) {
-                    $outcome->$key = $value;
-                }
+            $testresultobj = new qtype_coderunner_test_result($testcase, $iscorrect, $awarded, $got);
+            // Now allow any fields defined in the grader's result object to
+            // override any of the corresponding attributes of the testresult object.
+            foreach (get_object_vars($result) as $key => $value) {
+                $testresultobj->$key = $value;
             }
         }
-        return $outcome;
+        return $testresultobj;
     }
 }
 

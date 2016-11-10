@@ -44,13 +44,14 @@ class qtype_coderunner_walkthrough_extras_test extends qbehaviour_walkthrough_te
     public function test_extra_testcase_field() {
         $q = test_question_maker::make_question('coderunner', 'sqr');
         $q->testcases = array(
-            (object) array('testcode' => 'print("Oops")',
+            (object) array('type'     => 0,
+                          'testcode'  => 'print("Oops")',
                           'extra'     => 'print(sqr(-11))',
                           'expected'  => '121',
-                          'stdin'      => '',
+                          'stdin'     => '',
                           'useasexample' => 0,
-                          'display' => 'SHOW',
-                          'mark'    => 1.0,
+                          'display'   => 'SHOW',
+                          'mark'      => 1.0,
                           'hiderestiffail'  => 0)
             );
         $q->pertesttemplate = <<<EOTEMPLATE

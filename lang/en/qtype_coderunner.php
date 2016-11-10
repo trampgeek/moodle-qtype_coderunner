@@ -245,7 +245,20 @@ $string['pluginname_help'] = 'Use the "Question type" combo box to select the ' 
         'Specify the problem that the student must write code for, then define '.
         'a set of tests to be run on the student\'s submission';
 $string['pluginname_link'] = 'question/type/coderunner';
-$string['precheck_only'] = "PRE-CHECK ONLY";
+$string['precheck'] = 'Precheck';
+$string['precheck_disabled'] = 'Disabled';
+$string['precheck_empty'] = 'Empty';
+$string['precheck_examples'] = 'Examples';
+$string['precheck_selected'] = 'Selected';
+$string['precheck_help'] = <<<EOPRECHECK
+If Precheck is enabled, students will have an extra button to the left of the
+usual check button to give them a penalty-free run to check their code against
+a subset of the question test cases. If 'Examples' is selected, the code will
+be tested against all the tests for which 'use_as_example' has been checked.
+If 'Selected' is selected, an extra UI element is added to each test case
+to allow the author to select a specific subset of the tests.
+EOPRECHECK;
+$string['precheck_only'] = "Pre-check only";
 $string['proceed_at_own_risk'] = 'Editing a built-in question prototype?! Proceed at your own risk!';
 $string['prototypecontrols'] = 'Prototyping';
 $string['prototypecontrols_help'] = <<<EOPCHELP
@@ -412,7 +425,7 @@ the value 23 would be substituted into the template in place of the
 template variable {{ QUESTION.parameters.age }}.
 EO_TEMPLATE_PARAMS_HELP;
 $string['testcase'] = 'Test case {$a}';
-$string['testcasecontrols'] = 'Row properties:';
+$string['testcasecontrols'] = 'Test properties:';
 $string['testcasecontrols_help'] = <<<EO_TESTCASECTRLS_HELP
 If "Use as example" is checked, this test will be automatically included in the
 question's "For example:" results table.<br>
@@ -429,6 +442,16 @@ $string['testcases'] = 'Test cases';
 $string['testcode'] = 'Test code';
 $string['testsplitterre'] = 'Test splitter (regex)';
 $string['testcode_help'] = 'The code for the test, seen by the template as {{TEST.testcode}}';
+$string['testtype'] = 'Precheck test type';
+$string['testtype_help'] = <<<EOTTHELP
+If Prechecking is enabled and set to "selected", this setting controls whether
+the test is used only with a normal run, only with a precheck run or in both runs.
+If Prechecking is set to anything other than "selected", this setting is
+ignored.
+EOTTHELP;
+$string['testtype_normal'] = 'Check only';
+$string['testtype_precheck'] = 'Precheck only';
+$string['testtype_both'] = 'Both';
 $string['type_header'] = 'CodeRunner question type';
 $string['typename'] = 'Question type';
 $string['typerequired'] = 'Please select the type of question (language, format, etc)';

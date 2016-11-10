@@ -24,20 +24,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-/*********************************************************************
- *
- * coderunner_diff is a module providing a basic diff algorithm plus
- * functions to add/remove del tags to html elements to display their
- * differences.
- *
- * @module    qtype_coderunner/showdiff
- * @class     showdiff
- * @package   qtype_coderunner
- * @copyright 2016 Richard Lobb, University of Canterbury
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @since     3.1
- *
- **********************************************************************/
 
 define(['jquery'], function($) {
 

@@ -44,7 +44,8 @@ abstract class qtype_coderunner_grader {
      * lengths to MAX_STRING_LENGTH.
      */
 
-    const MAX_STRING_LENGTH = 8000;
+    // Return the name of this grader - one of available_graders() below.
+    abstract public function name();
 
     /**
      * A list of available graders. Keys are the externally known grader names
@@ -82,16 +83,7 @@ abstract class qtype_coderunner_grader {
      */
     public function grade(&$output, &$testcase, $isbad = false) {
         if ($isbad) {
-            $outcome = new qtype_coderunner_test_result(
-                        self::tidy($testcase->testcode),
-                        $testcase->mark,
-                        false,
-                        0.0,
-                        self::tidy($testcase->expected),
-                        self::tidy($output),
-                        self::tidy($testcase->stdin),
-                        self::tidy($testcase->extra)
-                    );
+            $outcome = new qtype_coderunner_test_result($testcase, false, 0.0, $output);
         } else {
             $outcome = $this->grade_known_good($output, $testcase);
         }
@@ -101,70 +93,4 @@ abstract class qtype_coderunner_grader {
 
     abstract protected function grade_known_good(&$output, &$testcase);
 
-    // Return a cleaned and snipped version of the string s (or null if s is null).
-    protected static function tidy($s) {
-        if ($s === null) {
-            return null;
-        } else {
-            $cleaneds = self::clean($s);
-            return self::snip($cleaneds);
-        }
-    }
-
-    protected static function clean(&$s) {
-        // A copy of $s with trailing blank lines removed and trailing white
-        // space from each line removed. Also sanitised by replacing all control
-        // chars except newlines with hex equivalents.
-        // A newline terminator is added at the end unless the string to be
-        // returned is otherwise empty.
-        // Used e.g. by the equality grader subclass.
-        // This implementation is a bit algorithmically complex because the
-        // original implemention, breaking the string into lines using explode,
-        // was a hideous memory hog.
-        $nls = '';     // Unused line breaks.
-        $output = '';  // Output string.
-        $spaces = '';  // Unused space characters.
-        $n = strlen($s);
-        for ($i = 0; $i < $n; $i++) {
-            $c = $s[$i];
-            if ($c === ' ') {
-                $spaces .= $c;
-            } else if ($c === "\n") {
-                $spaces = ''; // Discard spaces before a newline.
-                $nls .= $c;
-            } else {
-                if ($c === "\r") {
-                    $c = '\\r';
-                } else if ($c === "\t") {
-                    $c = '\\t';
-                } else if ($c < " " || $c > "\x7E") {
-                    $c = '\\x' . sprintf("%02x", ord($c));
-                }
-                $output .= $nls . $spaces . $c;
-                $spaces = '';
-                $nls = '';
-            }
-        }
-        if ($output !== '') {
-            $output .= "\n";
-        }
-        return $output;
-    }
-
-
-    protected static function snip(&$s) {
-        // Limit the length of the given string to MAX_STRING_LENGTH by
-        // removing the centre of the string, inserting the substring
-        // [... snip ... ] in its place.
-        $snipinsert = ' ...snip... ';
-        $len = strlen($s);
-        if ($len > self::MAX_STRING_LENGTH) {
-            $lentoremove = $len - self::MAX_STRING_LENGTH + strlen($snipinsert);
-            $partlength = ($len - $lentoremove) / 2;
-            $firstbit = substr($s, 0, $partlength);
-            $lastbit = substr($s, $len - $partlength, $partlength);
-            $s = $firstbit . $snipinsert . $lastbit;
-        }
-        return $s;
-    }
 }

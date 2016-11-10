@@ -141,6 +141,41 @@ class qtype_coderunner_walkthrough_test extends qbehaviour_walkthrough_test_base
 
     }
 
+
+    // Check that penalty regime is displayed with both the Moodle default
+    // penalty (if no explicit regime) or with CodeRunner's regime if set.
+    public function test_display_of_penalty_regime() {
+        $q = test_question_maker::make_question('coderunner', 'sqr');
+        $q->penaltyregime = '';
+        $q->penalty = 0.18555555;
+        $this->start_attempt_at_question($q, 'adaptive', 1, 1);
+        $this->check_output_contains('Penalty regime: 18.6 %');
+                $q = test_question_maker::make_question('coderunner', 'sqr');
+        $q->penaltyregime = '0,11,33, ...';
+        $q->penalty = 0.18555555;
+        $this->start_attempt_at_question($q, 'adaptive', 1, 1);
+        $this->check_output_contains('Penalty regime: 0,11,33, ... %');
+    }
+
+
+    // Test that if an runtime error occurs with a combinator template,
+    // the system falls back to a per test template and that the final results
+    // table includes all tests up to and including the failing test.
+    public function test_behaviour_with_run_error() {
+        $q = test_question_maker::make_question('coderunner', 'sqr');
+        $this->start_attempt_at_question($q, 'adaptive', 1, 1);
+        $answer = "def sqr(n): return n * n if n != 11 else x * x\n";
+        $this->process_submission(array('-submit'=>1, 'answer'=>$answer));
+        $this->check_output_contains('print(sqr(0))');
+        $this->check_output_contains('print(sqr(1))');
+        $this->check_output_contains('print(sqr(11))');
+        $this->check_output_does_not_contain('print(sqr(-7))');
+        $this->check_output_does_not_contain('print(sqr(-6))');
+        $this->check_output_contains('Testing was aborted due to error');
+        $this->check_current_mark(0.0);
+    }
+
+
     public function test_grading_template_output() {
         $q = test_question_maker::make_question('coderunner', 'sqrnoprint');
         $q->pertesttemplate = <<<EOTEMPLATE

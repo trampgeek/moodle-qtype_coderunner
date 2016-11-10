@@ -15,7 +15,7 @@
 // along with CodeRunner.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Multiple choice question renderer classes.
+ * CodeRunner renderer class.
  *
  * @package    qtype
  * @subpackage coderunner
@@ -58,10 +58,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
         $question = $qa->get_question();
         $qtext = $question->format_questiontext($qa);
-        $testcases = $question->testcases;
-        $examples = array_filter($testcases, function($tc) {
-                    return $tc->useasexample;
-        });
+        $examples = $question->example_testcases();
         if (count($examples) > 0) {
             $qtext .= html_writer::tag('p', 'For example:', array('class' => 'for-example-para'));
             $qtext .= html_writer::start_tag('div', array('class' => 'coderunner-examples'));
@@ -92,7 +89,6 @@ class qtype_coderunner_renderer extends qtype_renderer {
         }
 
         $currentanswer = $qa->get_last_qt_var('answer');
-        $currentrating = $qa->get_last_qt_var('rating', 0);
         $qtext .= html_writer::tag('textarea', s($currentanswer), $taattributes);
 
         if ($qa->get_state() == question_state::$invalid) {
@@ -102,14 +98,13 @@ class qtype_coderunner_renderer extends qtype_renderer {
         }
 
         // Initialise any program-editing JavaScript.
-        // Thanks to Ulrich Dangel for incorporating the Ace code editor.
-
+        // Thanks to Ulrich Dangel for the original implementation of the Ace code editor.
         load_ace_if_required($question, $responsefieldid, constants::USER_LANGUAGE);
         $PAGE->requires->js_call_amd('qtype_coderunner/textareas', 'initQuestionTA', array($responsefieldid));
 
         return $qtext;
-
     }
+
 
 
     /**
@@ -128,7 +123,6 @@ class qtype_coderunner_renderer extends qtype_renderer {
      */
     protected function specific_feedback(question_attempt $qa) {
         $q = $qa->get_question();
-        $testcases = $q->testcases;
         $isprecheck = $qa->get_last_behaviour_var('_precheck', 0);
         $fb = '';
         $toserialised = $qa->get_last_qt_var('_testoutcome');
@@ -136,7 +130,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
         if (!$toserialised) {  // Bad bad bad. Not running in Adaptive mode.
             $response = $qa->get_last_qt_data();
             if (!$response) {
-                return ''; // Not sure how this happens but renderbase.php does this check.
+                return ''; // Not sure how this could happen copying renderbase.php.
             }
             if ($q->is_gradable_response($response)) {
                 $text = get_string('qWrongBehaviour', 'qtype_coderunner');
@@ -172,8 +166,6 @@ class qtype_coderunner_renderer extends qtype_renderer {
             }
 
             $fb .= html_writer::start_tag('div', array('class' => $resultsclass));
-            // Hack to insert run host as hidden comment in html.
-            $fb .= "\n<!-- Run on {$testoutcome->runhost} -->\n";
             if ($testoutcome->run_failed()) {
                 $fb .= html_writer::tag('h3', get_string('run_failed', 'qtype_coderunner'));;
                 $fb .= html_writer::tag('p', s($testoutcome->errormessage),
@@ -189,7 +181,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
                 if ($testoutcome->feedbackhtml) {
                     $fb .= $testoutcome->feedbackhtml;
                 } else {
-                    $results = $this->build_results_table($q, $testcases, $testresults);
+                    $results = $this->build_results_table($q, $testresults);
                     if ($results != null) {
                         $fb .= $results;
                     }
@@ -197,10 +189,10 @@ class qtype_coderunner_renderer extends qtype_renderer {
             }
 
             // Summarise the status of the response in a paragraph at the end.
-
-            if (!$testoutcome->has_syntax_error() && !$testoutcome->run_failed() &&
-                !$testoutcome->feedbackhtml) {
-                $fb .= $this->build_feedback_summary($qa, $testcases, $testoutcome);
+            // Suppress this if there's a syntax error or the sandbox run failed.
+            if (!$testoutcome->has_syntax_error() &&
+                 !$testoutcome->run_failed() && !$testoutcome->feedbackhtml) {
+                $fb .= $this->build_feedback_summary($qa, $testoutcome);
             }
             $fb .= html_writer::end_tag('div');
         }
@@ -227,7 +219,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
 
     // Return a table of results or null if there are no results to show.
-    private function build_results_table($question, $testcases, $testresults) {
+    private function build_results_table($question, $testresults) {
         // The set of columns to be displayed is specified by the
         // question's resultcolumns variable. This is a JSON-encoded list
         // of column specifiers. A column specifier is itself a list, usually
@@ -284,14 +276,12 @@ class qtype_coderunner_renderer extends qtype_renderer {
         // Process each row of the results table.
 
         $tabledata = array();
-        $testcasekeys = array_keys($testcases);  // Arbitrary numeric indices. Aarghhh.
         $i = 0;
         $rowclasses = array();
         $hidingrest = false;
         foreach ($testresults as $testresult) {
             $rowclasses[$i] = $i % 2 == 0 ? 'r0' : 'r1';
-            $testcase = $testcases[$testcasekeys[$i]];
-            $testisvisibile = $this->should_display_result($testcase, $testresult) && !$hidingrest;
+            $testisvisibile = $this->should_display_result($testresult) && !$hidingrest;
             if ($canviewhidden || $testisvisibile) {
                 $fraction = $testresult->awarded / $testresult->mark;
                 $tickorcross = $this->feedback_image($fraction);
@@ -319,7 +309,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
                 }
             }
             $i++;
-            if ($testcase->hiderestiffail && !$testresult->iscorrect) {
+            if ($testresult->hiderestiffail && !$testresult->iscorrect) {
                 $hidingrest = true;
             }
         }
@@ -359,17 +349,17 @@ class qtype_coderunner_renderer extends qtype_renderer {
     // Compute the HTML feedback summary for a given test outcome.
     // Should not be called if there were any syntax or sandbox errors, or if a
     // combinator-template grader was used.
-    private function build_feedback_summary($qa, $testcases, $testoutcome) {
+    private function build_feedback_summary($qa, $testoutcome) {
         $question = $qa->get_question();
         $isprecheck = $qa->get_last_behaviour_var('_precheck', 0);
         $lines = array();  // List of lines of output.
         $testresults = $testoutcome->testresults;
         $onlyhiddenfailed = false;
-        if (!$isprecheck && (count($testresults) != count($testcases))) {
+        if ($testoutcome->was_aborted()) {
             $lines[] = get_string('aborted', 'qtype_coderunner');
         } else {
             $numerrors = $testoutcome->errorcount;
-            $hiddenerrors = $this->count_hidden_errors($testresults, $testcases);
+            $hiddenerrors = $this->count_hidden_errors($testresults);
             if ($numerrors > 0) {
                 if ($numerrors == $hiddenerrors) {
                     $onlyhiddenfailed = true;
@@ -381,10 +371,12 @@ class qtype_coderunner_renderer extends qtype_renderer {
         }
 
         if ($testoutcome->all_correct()) {
-            $lines[] = get_string('allok', 'qtype_coderunner') .
+            if (!$isprecheck) {
+                $lines[] = get_string('allok', 'qtype_coderunner') .
                         "&nbsp;" . $this->feedback_image(1.0);
+            }
         } else {
-            if ($question->allornothing) {
+            if ($question->allornothing && !$isprecheck) {
                 $lines[] = get_string('noerrorsallowed', 'qtype_coderunner');
             }
 
@@ -522,38 +514,33 @@ class qtype_coderunner_renderer extends qtype_renderer {
     }
 
 
-    // Count the number of errors in hidden testcases, given the arrays of
-    // testcases and testresults. A slight complication here is that the testcase keys
-    // are arbitrary integers.
-    private function count_hidden_errors($testresults, $testcases) {
-        $testcasekeys = array_keys($testcases);  // Arbitrary numeric indices. Aarghhh.
-        $i = 0;
+    // Count the number of errors in hidden testcases, given the array of
+    // testresults.
+    private function count_hidden_errors($testresults) {
         $count = 0;
         $hidingrest = false;
         foreach ($testresults as $tr) {
-            $testcase = $testcases[$testcasekeys[$i]];
             if ($hidingrest) {
                 $isdisplayed = false;
             } else {
-                $isdisplayed = $this->should_display_result($testcase, $tr);
+                $isdisplayed = $this->should_display_result($tr);
             }
             if (!$isdisplayed && !$tr->iscorrect) {
                 $count++;
             }
-            if ($testcase->hiderestiffail && !$tr->iscorrect) {
+            if ($tr->hiderestiffail && !$tr->iscorrect) {
                 $hidingrest = true;
             }
-            $i++;
         }
         return $count;
     }
 
 
     // True iff the given test result should be displayed.
-    private function should_display_result($testcase, $testresult) {
-        return $testcase->display == 'SHOW' ||
-            ($testcase->display == 'HIDE_IF_FAIL' && $testresult->iscorrect) ||
-            ($testcase->display == 'HIDE_IF_SUCCEED' && !$testresult->iscorrect);
+    private function should_display_result($testresult) {
+        return $testresult->display == 'SHOW' ||
+            ($testresult->display == 'HIDE_IF_FAIL' && $testresult->iscorrect) ||
+            ($testresult->display == 'HIDE_IF_SUCCEED' && !$testresult->iscorrect);
     }
 
 

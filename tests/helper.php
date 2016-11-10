@@ -48,7 +48,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
             'generic_python3', 'generic_c',
             'sqr_c', 'sqr_no_semicolons', 'sqr_customised',
             'hello_prog_c',
-            'copy_stdin_c', 'timeoutC', 'exceptionsC', 'str_to_upper',
+            'copy_stdin_c', 'str_to_upper',
             'string_delete',
             'sqrmatlab', 'teststudentanswermacro', 'sqroctave',
             'teststudentanswermacrooctave', 'sqrnodejs',
@@ -78,6 +78,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $form->answerboxlines = 18;
         $form->answerboxcolumns = 100;
         $form->useace = 1;
+        $form->precheck = 0;
         $form->allornothing = 0;
         $form->grader = 'EqualityGrader';
         $form->prototypetype = 0;
@@ -149,7 +150,8 @@ class qtype_coderunner_test_helper extends question_test_helper {
                 'Write a function sqr(n) that returns n squared',
                 array(
                     array('testcode' => 'print(sqr(0))',
-                          'expected' => '0'),
+                          'expected' => '0',
+                          'mark'     => 1.0),
                     array('testcode' => 'print(sqr(1))',
                           'expected' => '1',
                           'mark'     => 2.0),
@@ -181,7 +183,8 @@ class qtype_coderunner_test_helper extends question_test_helper {
                 'Write a function sqr(n) that returns n squared',
                 array(
                     array('testcode' => 'sqr(0)',
-                          'expected' => '0'),
+                          'expected' => '0',
+                          'mark'     => 1.0),
                     array('testcode' => 'sqr(1)',
                           'expected' => '1',
                           'mark'     => 2.0),
@@ -338,7 +341,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $coderunner = $this->make_coderunner_question(
                 'python3',
                 'Function to conditionally throw an exception',
-                'Write a function isOdd(n) that throws and ValueError exception iff n is odd',
+                'Write a function isOdd(n) that throws a ValueError exception iff n is odd',
                 array(
                   array('testcode' => 'try:
   checkOdd(91)
@@ -834,12 +837,6 @@ EOPROG;
         $question->options->answers = array();  // For compatability with questiontype base.
         $question->options->testcases = $question->testcases;
 
-        if (!isset($question->sandbox)) {
-            $question->sandbox = $question->get_best_sandbox($question->language);
-            if ($question->sandbox === null) {
-                throw new exception("TestHelper: no sandbox available for language {$question->language}");
-            }
-        }
         if (!isset($question->grader)) {
             $question->grader = 'EqualityGrader';
         }
@@ -849,7 +846,8 @@ EOPROG;
     // of info, add in all the other necessary fields to get an array of
     // testcase objects.
     private static function make_test_cases($rawtests) {
-        $basictest = array('testcode'       => '',
+        $basictest = array('type'           => 0,
+                           'testcode'       => '',
                            'stdin'          => '',
                            'extra'          => '',
                            'expected'       => '',
@@ -881,11 +879,13 @@ EOPROG;
         $coderunner->prototypetype = 0;
         $coderunner->name = $name;
         $coderunner->useace = true;
+        $coderunner->precheck = 0;
         $coderunner->questiontext = $questiontext;
         $coderunner->allornothing = true;
         $coderunner->showsource = false;
         $coderunner->generalfeedback = 'No feedback available for coderunner questions.';
         $coderunner->unitpenalty = 0.2;
+        $coderunner->penaltyregime = '';
         $coderunner->customise = false;
         $coderunner->testcases = self::make_test_cases($testcases);
         $coderunner->options = array();

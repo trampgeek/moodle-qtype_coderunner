@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with CodeRunner.  If not, see <http://www.gnu.org/licenses/>.
 
-/** Defines classes involved in reporting on the result of testing a student's
- *  answer code with a given set of testCases and grading the result.
+/** Defines a testing_outcome class which contains the complete set of
+ *  results from running all the tests on a particular submission.
  *
  * @package    qtype
  * @subpackage coderunner
@@ -23,14 +23,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-// The outcome from testing a question against all test cases.
-// All fields currently public as changing them to private breaks the
-// deserialisation of all current question attempt records in the database
-// and I don't feel strongly enough about it to try to fix that. Think Python!
-
-// When a combinator-template grader is used, there is no concept of per-test
-// case results, so there are no individual testResults and the feedback_html
-// field is defined instead.
+require_once($CFG->dirroot . '/question/type/coderunner/testresult.php');
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -46,15 +39,14 @@ class qtype_coderunner_testing_outcome {
     public $errorcount;              // The number of failing test cases.
     public $errormessage;            // The error message to display if there are errors.
     public $maxpossmark;             // The maximum possible mark.
-    public $runhost;                 // Host name of the front-end on which the run was done.
-    public $actualmark;              // Actual mark (meaningful only if this is not an allornothing question).
+    public $actualmark;              // Actual mark (meaningful only if this is not an all-or-nothing question).
     public $testresults;             // An array of TestResult objects.
     public $sourcecodelist;          // Array of all test runs.
-    public $gradercodelist;          // Array of source code of all grader runs.
     public $feedbackhtml;            // Feedback defined by combinator-template-grader (subsumes testResults).
 
     public function __construct(
             $maxpossmark,
+            $numtestsexpected,
             $status = self::STATUS_VALID,
             $errormessage = '') {
 
@@ -63,13 +55,16 @@ class qtype_coderunner_testing_outcome {
         $this->errorcount = 0;
         $this->actualmark = 0;
         $this->maxpossmark = $maxpossmark;
-        $this->runhost = php_uname('n');  // Useful for debugging with multiple front-ends.
+        $this->numtestsexpected = $numtestsexpected;
         $this->testresults = array();
         $this->sourcecodelist = null;     // Array of all test runs on the sandbox.
-        $this->gradercodelist = null;    // Array of all grader runs on the sandbox.
-        $this->feedbackhtml = null;     // Used only by combinator template grader.
+        $this->feedbackhtml = null;       // Used only by combinator template grader.
     }
 
+    public function set_status($status, $errormessage='') {
+        $this->status = $status;
+        $this->errormessage = $errormessage;
+    }
 
     public function run_failed() {
         return $this->status === self::STATUS_SANDBOX_ERROR;
@@ -104,6 +99,12 @@ class qtype_coderunner_testing_outcome {
         }
     }
 
+    // True if the number of tests does not equal the number originally
+    // expected, meaning that testing was aborted.
+    public function was_aborted() {
+        return count($this->testresults) != $this->numtestsexpected;
+    }
+
     // Method used only by combinator template grader to set the mark and
     // feedback  html.
     public function set_mark_and_feedback($mark, $html) {
@@ -114,91 +115,3 @@ class qtype_coderunner_testing_outcome {
         }
     }
 }
-
-
-class qtype_coderunner_test_result {
-
-    const MAX_LINE_LENGTH = 100;
-    const MAX_NUM_LINES = 200;
-
-    // NB: there may be other attributes added by the template grader.
-    public $testcode;          // The test that was run (trimmed, snipped).
-    public $iscorrect;         // True iff test passed fully (100%).
-    public $expected;          // Expected output (trimmed, snipped).
-    public $mark;              // The max mark awardable for this test.
-    public $awarded;           // The mark actually awarded.
-    public $got;               // What the student's code gave (trimmed, snipped).
-    public $stdin;             // The standard input data (trimmed, snipped).
-    public $extra;             // Extra data for use by some templates.
-
-    public function __construct($test, $mark, $iscorrect, $awardedmark, $expected, $got, $stdin=null, $extra=null) {
-        $this->testcode = $test;
-        $this->mark = $mark;
-        $this->iscorrect = $iscorrect;
-        $this->awarded = $awardedmark;
-        $this->expected = $expected;
-        $this->got = $got;
-        $this->stdin = $stdin;
-        $this->extra = $extra;
-    }
-
-
-    // Return the value from this testresult as specified by the given
-    // $fieldspecifier, which is either a fieldname within the test result
-    // or an expression of the form diff(fieldspec1, fieldspec2). Both forms
-    // now return the same result, namely the fieldspecifier or fieldspec1
-    // in the diff case. The diff variant is obsolete - it was
-    // used to provide a Show Differences button but that functionality is
-    // now provided in JavaScript.
-    public function gettrimmedvalue($fieldspecifier) {
-        $matches = array();
-        if (preg_match('|diff\((\w+), ?(\w+)\)|', $fieldspecifier, $matches)) {
-            $fieldspecifier = $matches[1];
-        }
-        if (property_exists($this, $fieldspecifier)) {
-            $value = $this->$fieldspecifier;
-        } else {
-            $value = "Unknown field '$fieldspecifier'";
-        }
-        return $value;
-    }
-
-
-    /* Support function to limit the size of a string for browser display.
-     * Restricts line length to MAX_LINE_LENGTH and number of lines to
-     * MAX_NUM_LINES.
-     */
-    private static function restrict_qty($s) {
-        if (!is_string($s)) {  // It's a no-op for non-strings.
-            return $s;
-        }
-        $result = '';
-        $n = strlen($s);
-        $line = '';
-        $linelen = 0;
-        $numlines = 0;
-        for ($i = 0; $i < $n && $numlines < self::MAX_NUM_LINES; $i++) {
-            if ($s[$i] != "\n") {
-                if ($linelen < self::MAX_LINE_LENGTH) {
-                    $line .= $s[$i];
-                } else if ($linelen == self::MAX_LINE_LENGTH) {
-                    for ($j = 1; $j <= 3; $j++) {
-                        $line[self::MAX_LINE_LENGTH - $j] = '.'; // Insert '...'.
-                    }
-                } // else { ...  ignore remainder of line ... }
-                $linelen++;
-            } else { // Newline.
-                $result .= $line . "\n";
-                $line = '';
-                $linelen = 0;
-                $numlines += 1;
-                if ($numlines == self::MAX_NUM_LINES) {
-                    $result .= "[... snip ...]\n";
-                }
-            }
-        }
-        return $result . $line;
-    }
-}
-
-

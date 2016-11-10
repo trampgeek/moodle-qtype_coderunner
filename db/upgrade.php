@@ -21,11 +21,11 @@ require_once($CFG->dirroot . '/lib/accesslib.php');
 function xmldb_qtype_coderunner_upgrade($oldversion) {
     global $CFG, $DB;
     $dbman = $DB->get_manager();
-    if ($oldversion < 2016110900) {
 
+    if ($oldversion != 0 && $oldversion < 2016111105) {
         // Define field precheck to be added to question_coderunner_options.
         $table = new xmldb_table('question_coderunner_options');
-        $field = new xmldb_field('precheck', XMLDB_TYPE_CHAR, '64', null, null, null, 'disable', 'answerboxlines');
+        $field = new xmldb_field('precheck', XMLDB_TYPE_INTEGER, '8', null, null, null, '0', 'answerboxlines');
 
         // Conditionally launch add field precheck.
         if (!$dbman->field_exists($table, $field)) {
@@ -33,8 +33,36 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         }
 
         // Coderunner savepoint reached.
-        upgrade_plugin_savepoint(true, 2016110900, 'qtype', 'coderunner');
+        upgrade_plugin_savepoint(true, 2016111105, 'qtype', 'coderunner');
     }
+
+    if ($oldversion != 0 && $oldversion < 2016111200) {
+        // Define field precheck to be added to question_coderunner_options.
+        $table = new xmldb_table('question_coderunner_tests');
+        $field = new xmldb_field('type', XMLDB_TYPE_INTEGER, '8', null, null, null, '0', 'questionid');
+
+        // Conditionally launch add field precheck.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Coderunner savepoint reached.
+        upgrade_plugin_savepoint(true, '2016111200', 'qtype', 'coderunner');
+    }
+
+    if ($oldversion != 0 && $oldversion < 2016111201) {
+
+        // Rename field type on table question_coderunner_tests to testtype.
+        $table = new xmldb_table('question_coderunner_tests');
+        $field = new xmldb_field('type', XMLDB_TYPE_INTEGER, '8', null, null, null, null, 'questionid');
+
+        // Launch rename field testtype.
+        $dbman->rename_field($table, $field, 'testtype');
+
+        // Coderunner savepoint reached.
+        upgrade_plugin_savepoint(true, 2016111201, 'qtype', 'coderunner');
+    }
+
     update_question_types();
 
     return true;

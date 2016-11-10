@@ -59,7 +59,7 @@ class qtype_coderunner_testcase extends advanced_testcase {
     // Check if language installed. If not, mark test skipped and don't
     // return (exception raised internally).
     protected function check_language_available($language) {
-        if (qtype_coderunner_question::get_best_sandbox($language) === null) {
+        if (qtype_coderunner_sandbox::get_best_sandbox($language) === null) {
             $this->markTestSkipped(
                     "$language is not installed on your server. Test skipped.");
         }

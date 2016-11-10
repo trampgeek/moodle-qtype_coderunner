@@ -72,7 +72,7 @@ class backup_qtype_coderunner_plugin extends backup_qtype_plugin {
         // Define the elements.
         $testcases = new backup_nested_element('coderunner_testcases');
         $testcase = new backup_nested_element('coderunner_testcase', array('id'), array(
-            'testcode', 'expected', 'useasexample', 'display', 'hiderestiffail', 'mark', 'stdin', 'extra'));
+            'testcode', 'type', 'expected', 'useasexample', 'display', 'hiderestiffail', 'mark', 'stdin', 'extra'));
 
         // Build the tree.
         $element->add_child($testcases);

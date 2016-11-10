@@ -87,7 +87,7 @@ class qtype_coderunner extends question_type {
             'prototypetype',
             'allornothing',
             'penaltyregime',
-            'pretest',
+            'precheck',
             'showsource',
             'answerboxlines',
             'answerboxcolumns',
@@ -120,7 +120,7 @@ class qtype_coderunner extends question_type {
             'prototypetype',
             'allornothing',
             'penaltyregime',
-            'pretest',
+            'precheck',
             'showsource',
             'answerboxlines',
             'answerboxcolumns',
@@ -171,6 +171,7 @@ class qtype_coderunner extends question_type {
             }
             $testcase = new stdClass;
             $testcase->questionid = isset($question->id) ? $question->id : 0;
+            $testcase->testtype = isset($question->testtype[$i]) ? $question->testtype[$i] : 0;
             $testcase->testcode = $input;
             $testcase->stdin = $stdin;
             $testcase->expected = $expected;
@@ -562,7 +563,8 @@ class qtype_coderunner extends question_type {
      * not a list of answers.
      *
      */
-    public function import_from_xml($data, $question, qformat_xml $format, $extra=null) {
+    public function
+            import_from_xml($data, $question, qformat_xml $format, $extra=null) {
 
         if ($extra != null) {
             throw new coding_exception("coderunner:import_from_xml: unexpected 'extra' parameter");
@@ -585,7 +587,7 @@ class qtype_coderunner extends question_type {
 
         $newdefaults = array(
             'allornothing' => 1,
-            'pretest' => 'disable',
+            'precheck' => 0,
             'answerboxlines' => 15,
             'answerboxcolumns' => 90,
             'useace' => 1
@@ -642,6 +644,11 @@ class qtype_coderunner extends question_type {
                     $tc->hiderestiffail = $testcase['@']['hiderestiffail'] == "1" ? 1 : 0;
                 } else {
                     $tc->hiderestiffail = 0;
+                }
+                if (isset($testcase['@']['type'] )) {
+                    $tc->type = intval($testcase['@']['type']);
+                } else {
+                    $tc->type = 0;
                 }
                 $tc->useasexample = $testcase['@']['useasexample'] == "1" ? 1 : 0;
                 $qo->testcases[] = $tc;
@@ -705,8 +712,10 @@ class qtype_coderunner extends question_type {
         foreach ($question->options->testcases as $testcase) {
             $useasexample = $testcase->useasexample ? 1 : 0;
             $hiderestiffail = $testcase->hiderestiffail ? 1 : 0;
+            $type = $testcase->type;
             $mark = sprintf("%.7f", $testcase->mark);
-            $expout .= "      <testcase useasexample=\"$useasexample\" hiderestiffail=\"$hiderestiffail\" mark=\"$mark\" >\n";
+            $expout .= "      <testcase type=\"$type\" useasexample=\"$useasexample\"";
+            $expout .=  " hiderestiffail=\"$hiderestiffail\" mark=\"$mark\" >\n";
             foreach (array('testcode', 'stdin', 'expected', 'extra', 'display') as $field) {
                 $exportedvalue = $format->writetext($testcase->$field, 4);
                 $expout .= "      <{$field}>\n        {$exportedvalue}      </{$field}>\n";

@@ -90,6 +90,51 @@ abstract class qtype_coderunner_sandbox {
     protected $params = null;       // Associative array of run params.
 
 
+
+    /** Find the 'best' sandbox for a given language, defined to be the
+     * first one in the ordered list of sandboxes in sandbox_config.php
+     * that has been enabled by the administrator (through the usual
+     * plug-in setting controls) and that supports the given language.
+     * It's public so the tester can call it (yuck, hacky).
+     * @param type $language to run.
+     * @return the external name of the preferred sandbox for the given language
+     * or null if no enabled sandboxes support this language.
+     */
+    public static function get_best_sandbox($language) {
+        $sandboxes = self::available_sandboxes();
+        foreach ($sandboxes as $extname => $classname) {
+            if (get_config('qtype_coderunner', $extname . '_enabled')) {
+                $filename = self::get_filename($extname);
+                require_once("$filename");
+                $sb = new $classname();
+                $langs = $sb->get_languages();
+                if ($langs->error == $sb::OK) {
+                    foreach ($langs->languages as $lang) {
+                        if (strtolower($lang) == strtolower($language)) {
+                            return $extname;
+                        }
+                    }
+                } else {
+                    $errorstring = $sb->error_string($langs->error);
+                    throw new coderunner_exception("Sandbox $extname error: $errorstring");
+                }
+            }
+        }
+        return null;
+    }
+
+
+    // Factory method to return an instance of a sandbox of the specified type
+    public static function make_sandbox($sandbox) {
+        global $CFG;
+        $sandboxes = self::available_sandboxes();
+        $sandboxclass = $sandboxes[$sandbox];
+        $filename = self::get_filename($sandbox);
+        require_once($CFG->dirroot . "/question/type/coderunner/sandbox/$filename");
+        return new $sandboxclass();
+    }
+
+
     /**
      * A list of available standboxes. Keys are the externally known sandbox names
      * as they appear in the exported questions, values are the associated
@@ -240,7 +285,6 @@ abstract class qtype_coderunner_sandbox {
             );
         }
     }
-
 
 
     // Should be called when the sandbox is no longer needed.

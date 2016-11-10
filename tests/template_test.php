@@ -65,13 +65,15 @@ EOTEMPLATE;
         $q->allornothing = false;
         $q->enablecombinator = false;
         $q->testcases = array(
-           (object) array('testcode' => 'print(sqr(-3))',
-                         'expected'     => "9\ntwiddle-twaddle",
-                         'stdin'      => '',
-                         'extra'      => '',
-                         'useasexample' => 0,
-                         'display' => 'SHOW',
-                         'mark' => 1.0, 'hiderestiffail'  => 0),
+           (object) array('type'         => 0,
+                         'testcode'      => 'print(sqr(-3))',
+                         'expected'      => "9\ntwiddle-twaddle",
+                         'stdin'         => '',
+                         'extra'         => '',
+                         'useasexample'  => 0,
+                         'display'       => 'SHOW',
+                         'mark'          => 1.0,
+                         'hiderestiffail'=> 0),
         );
         $q->customise = true;
         $q->allornothing = false;
@@ -130,13 +132,15 @@ EOTEMPLATE;
         $q->allornothing = false;
         $q->enablecombinator = false;
         $q->testcases = array(
-           (object) array('testcode' => '',
-                         'expected'     => "23 blah",
-                         'stdin'      => '',
-                         'extra'      => '',
-                         'useasexample' => 0,
-                         'display' => 'SHOW',
-                         'mark' => 1.0, 'hiderestiffail'  => 0),
+                       (object) array('type' => 0,
+                         'testcode'       => '',
+                         'expected'       => "23 blah",
+                         'stdin'          => '',
+                         'extra'          => '',
+                         'useasexample'   => 0,
+                         'display'        => 'SHOW',
+                         'mark'           => 1.0,
+                         'hiderestiffail' => 0),
         );
         $q->customise = true;
         $q->allornothing = false;

@@ -27,4 +27,17 @@ class constants {
     const USER_LANGUAGE = 1;
     const DEFAULT_GRADER = 'EqualityGrader';  // External name of default grader
     const FUNC_MIN_LENGTH = 1;  /* Minimum no. of bytes for a valid bit of code */
+
+    const PRECHECK_DISABLED = 0;
+    const PRECHECK_EMPTY = 1;
+    const PRECHECK_EXAMPLES = 2;
+    const PRECHECK_SELECTED = 3;
+
+    const TESTTYPE_NORMAL = 0;
+    const TESTTYPE_PRECHECK = 1;
+    const TESTTYPE_BOTH = 2;
+
+    const MAX_STRING_LENGTH = 8000;  // Maximum length of a string for display in the result table
+    const MAX_LINE_LENGTH = 100;     // Maximum length of a string for display in the result table
+    const MAX_NUM_LINES = 200;       // Maximum number of lines of text to be displayed a result table cell
 }
