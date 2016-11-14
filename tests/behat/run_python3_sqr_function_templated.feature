@@ -1,8 +1,8 @@
 @qtype @qtype_coderunner @javascript @customisetests
-Feature: sqr_function_templated
-  As a teacher I must be able to customise and run a Python3 sqr function.
-  The combinator template should be used first but the per-test template
-  should be used if runtime errors occur.
+Feature: Per-test template used if the combinator template execution errors
+  In order to get feedback even when there are runtime errors
+  As a student
+  I need the per-test template to be used if the combinator template gives a runtime error
 
   Background:
     Given the following "users" exist:
@@ -32,7 +32,7 @@ Feature: sqr_function_templated
       | id_testcode_2     | sqr(-3)                 |
       | id_expected_2     | 9                       |
       | id_display_2      | Hide                    |
-    And I click on "a[title='Edit']" "css_element"
+    When I click on "Edit" "link" in the "sqr acceptance question" "table_row"
     And I set the field "id_customise" to "1"
     And I cancel any confirm dialogs
     # Set up a per-test template with extra (junk) output
@@ -59,9 +59,9 @@ Feature: sqr_function_templated
     And I press "id_submitbutton"
 
   Scenario: As a teacher, I get marked right (using combinator template) if I submit a correct answer
-    When I click on "a[title='Preview']" "css_element"
+    When I click on "Preview" "link" in the "sqr acceptance question" "table_row"
     And I switch to "questionpreview" window
-    And I set the field "id_behaviour" to "Adaptive mode"
+    And I set the field "How questions behave" to "Adaptive mode"
     And I press "Start again with these options"
     And I set the field with xpath "//textarea[contains(@name, 'answer')]" to "def sqr(n): return n * n"
     And I press "Check"
@@ -76,9 +76,9 @@ Feature: sqr_function_templated
     And I should see "Marks for this submission: 1.00/1.00"
 
   Scenario: As a teacher, I get marked wrong (using per-test template) if I submit an answer that gives a runtime error
-    When I click on "a[title='Preview']" "css_element"
+    When I click on "Preview" "link" in the "sqr acceptance question" "table_row"
     And I switch to "questionpreview" window
-    And I set the field "id_behaviour" to "Adaptive mode"
+    And I set the field "How questions behave" to "Adaptive mode"
     And I press "Start again with these options"
     And I set the field with xpath "//textarea[contains(@name, 'answer')]" to "def sqr(n): return n * n if n != -3 else sqr(n)"
     And I press "Check"

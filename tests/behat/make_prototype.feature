@@ -1,21 +1,22 @@
 @qtype @qtype_coderunner @javascript @prototypetests
 Feature: make_prototype
-    As a teacher I must be able to use the prototype mechanism to create a
-    new question type, which I must then be able to run.
+  In order to to create more sophisticated CodeRunner questions
+  As a teacher
+  I must be able to create new question templates
 
-Background:
+  Background:
     Given the following "users" exist:
-       | username | firstname | lastname | email            |
-       | teacher1 | Teacher   | 1        | teacher1@asd.com |
+      | username | firstname | lastname | email            |
+      | teacher1 | Teacher   | 1        | teacher1@asd.com |
     And the following "courses" exist:
-       | fullname | shortname | category |
-       | Course 1 | C1        | 0        |
+      | fullname | shortname | category |
+      | Course 1 | C1        | 0        |
     And the following "course enrolments" exist:
-       | user     | course | role           |
-       | teacher1 | C1     | editingteacher |
+      | user     | course | role           |
+      | teacher1 | C1     | editingteacher |
     And the following "question categories" exist:
-       | contextlevel | reference | questioncategory | name          |
-       | Course       | C1        | Top              | Behat Testing |
+      | contextlevel | reference | questioncategory | name          |
+      | Course       | C1        | Top              | Behat Testing |
     And I log in as "teacher1"
     And I follow "Course 1"
     And I follow "Question bank"
@@ -25,21 +26,21 @@ Background:
     # Also, have to set a global variable behattesting to suppress normal
     # module.js autoindent.
     And I add a "CodeRunner" question filling the form with:
-        | id_coderunnertype | python3                  |
-        | name              | PROTOTYPE_test_prototype |
-        | id_questiontext   | Dummy question text      |
-        | id_useace         |                          |
-        | id_testcode_0     | Dummy test code          |
+      | id_coderunnertype | python3                  |
+      | name              | PROTOTYPE_test_prototype |
+      | id_questiontext   | Dummy question text      |
+      | id_useace         |                          |
+      | id_testcode_0     | Dummy test code          |
     And I click on "a[title='Edit']" "css_element"
     And I ok any confirm dialogs
     And I set the field "id_customise" to "1"
-    And I set behat testing
+    And I set CodeRunner behat testing flag
     And I set the field "id_pertesttemplate" to:
-    """
-    {{STUDENT_ANSWER}}
+      """
+      {{STUDENT_ANSWER}}
 
-    print({{TEST.testcode}})
-    """
+      print({{TEST.testcode}})
+      """
     # Hack to scroll window into right place follows
     And I set the field "Question name" to "prototype acceptance question"
 
@@ -50,16 +51,16 @@ Background:
 
     # Now try to add a new question of type python3_test_prototype
     And I add a "CodeRunner" question filling the form with:
-        | id_coderunnertype | python3_test_prototype            |
-        | name              | Prototype tester                  |
-        | id_questiontext   | Write the inevitable sqr function |
-        | id_useace         |                                   |
-        | id_testcode_0     | sqr(-11)                          |
-        | id_expected_0     | 121                               |
-        | id_testcode_1     | sqr(9)                            |
-        | id_expected_1     | 81                                |
+      | id_coderunnertype | python3_test_prototype            |
+      | name              | Prototype tester                  |
+      | id_questiontext   | Write the inevitable sqr function |
+      | id_useace         |                                   |
+      | id_testcode_0     | sqr(-11)                          |
+      | id_expected_0     | 121                               |
+      | id_testcode_1     | sqr(9)                            |
+      | id_expected_1     | 81                                |
 
-Scenario: As a teacher, I get marked right (using combinator template) if I submit a correct answer
+  Scenario: As a teacher, I get marked right (using combinator template) if I submit a correct answer
     When I click on "table#categoryquestions tr.r1 a[title='Preview']" "css_element"
     And I switch to "questionpreview" window
     And I set the field "id_behaviour" to "Adaptive mode"

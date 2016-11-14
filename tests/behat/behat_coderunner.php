@@ -92,7 +92,7 @@ class behat_coderunner extends behat_base {
      * textarea autoindent, which messes up behat's setting of the textarea
      * value. [See module.js]
      *
-     * @When /^I set behat testing/
+     * @When /^I set CodeRunner behat testing flag/
      */
     public function i_set_behat_testing() {
         $javascript = "window.behattesting = true;";
@@ -116,7 +116,7 @@ class behat_coderunner extends behat_base {
      * From https://moodle.org/mod/forum/discuss.php?d=283216
      */
     public function i_set_the_field_to_pystring($fieldlocator, Behat\Gherkin\Node\PyStringNode $value) {
-        return array(new Given('I set the field "'. $fieldlocator. '" to "'. $value. '"'));
+        $this->execute('behat_forms::i_set_the_field_to', array($fieldlocator, $this->escape($value)));
     }
 
 
