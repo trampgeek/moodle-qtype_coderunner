@@ -1,5 +1,5 @@
 @qtype @qtype_coderunner @javascript
-Feature: Create a coderunner question (sql function)
+Feature: Create a CoderRunner question (the sqr function example)
   In order to test my students' programming ability
   As a teacher
   I need to create a new CodeRunner question

@@ -1,5 +1,5 @@
 @qtype @qtype_coderunner
-Feature: Test duplicating a quiz containing a CodeRunner question
+Feature: Duplicate a course containing a CodeRunner question
   In order re-use my courses containing CodeRunner questions
   As a teacher
   I need to be able to back them up and restore them
