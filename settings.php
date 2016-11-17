@@ -27,6 +27,17 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/question/type/coderunner/sandbox/sandboxbase.php');
 
+$links = array(
+    get_string('bulkquestiontester', 'qtype_coderunner',
+            array('link' => (string) new moodle_url('/question/type/coderunner/bulktestindex.php')))
+);
+
+$settings->add(new admin_setting_heading('supportscripts',
+        get_string('supportscripts', 'qtype_coderunner'), '* ' . implode("\n* ", $links)));
+
+$settings->add(new admin_setting_heading('codeRunnersettings',
+        get_string('coderunnersettings', 'qtype_coderunner'), ''));
+
 $sandboxes = qtype_coderunner_sandbox::available_sandboxes();
 foreach ($sandboxes as $sandbox => $classname) {
     $settings->add(new admin_setting_configcheckbox(
@@ -74,3 +85,4 @@ $settings->add(new admin_setting_configcheckbox(
         get_string('enable_diff_check', 'qtype_coderunner'),
         $desc,
         false));
+

@@ -180,7 +180,7 @@ define(['jquery'], function($) {
         // Show/hide all testtype divs in the testcases according to the
         // 'Precheck' selector.
         function set_testtype_visibilities() {
-            if (precheck.val() !== '2') { // Show only for case of 'Selected'
+            if (precheck.val() === '3') { // Show only for case of 'Selected'
                 testtypedivs.show();
             } else {
                 testtypedivs.hide();
@@ -201,7 +201,7 @@ define(['jquery'], function($) {
         if (!isCustomised) {
             loadCustomisationFields();
         } else {
-            questiontypeHelpDiv.setHTML("<p>" + getString('info_unavailable') + "</p>");
+            questiontypeHelpDiv.html("<p>" + getString('info_unavailable') + "</p>");
         }
 
         set_testtype_visibilities();

@@ -97,6 +97,13 @@ class qtype_coderunner_renderer extends qtype_renderer {
                     array('class' => 'validationerror'));
         }
 
+        $penalties = $question->penaltyregime ? $question->penaltyregime :
+            number_format($question->penalty * 100, 1);
+        $penaltypara =  html_writer::tag('p',
+            get_string('penaltyregime', 'qtype_coderunner') . ': ' . s($penalties) . ' %',
+            array('class' => 'penaltyregime'));
+        $qtext .= $penaltypara;
+
         // Initialise any program-editing JavaScript.
         // Thanks to Ulrich Dangel for the original implementation of the Ace code editor.
         load_ace_if_required($question, $responsefieldid, constants::USER_LANGUAGE);
@@ -342,6 +349,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
     }
 
     // Sanitise with 's()' and add line breaks to a given string.
+    // TODO: expand tabs (which appear in Java traceback output).
     private static function format_cell($cell) {
         return str_replace("\n", "<br />", str_replace(' ', '&nbsp;', s($cell)));
     }

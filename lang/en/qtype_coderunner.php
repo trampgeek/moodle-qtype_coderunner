@@ -57,14 +57,29 @@ $string['bad_new_prototype_name'] = 'Illegal name for new prototype: already in 
 $string['badpenalties'] = 'Penalty regime must be a comma separated list of numbers in the range [0, 100]';
 $string['badsandboxparams'] = '"Other" field (sandbox params) must be either blank or a valid JSON record';
 $string['badtemplateparams'] = 'Template parameters must be either blank or a valid JSON record';
+$string['bulkquestiontester'] = 'The <a href="{$a->link}">bulk tester script</a> tests that the sample answers ' .
+                'for all questions in the current context are marked right';
+$string['bulktesttitle'] = 'Running all the question tests in {$a}';
+$string['bulktestindextitle'] = 'CodeRunner bulk testing';
+$string['bulktestrun'] = 'Run all the question tests for all the questions in the system (slow, admin only)';
 
+$string['coderunnercontexts'] = 'Contexts with CodeRunner questions';
 $string['coderunner'] = 'Program Code';
+
+$string['coderunner_install_testsuite_title'] = 'A test suite for CodeRunner sample answers';
+$string['coderunner_install_testsuite_title_desc'] = 'The <a href="{$a->link}">sample-answer-test script</a> verifies that the questions with sample answers are performing correctly.';
+$string['coderunner_install_testsuite_intro'] = 'This page allows you to test that the CodeRunner questions with sample answers are functioning correctly.';
+$string['coderunner_install_testsuite_pass'] = 'All tests passed!';
+$string['coderunner_install_testsuite_fail'] = 'Not all tests passed!';
+$string['coderunner_install_testsuite_failures'] = 'Tests that failed';
+
 $string['coderunner_help'] = 'In response to a question, which is a '
     . 'specification for a program fragment, function or whole program, '
     . 'the respondent enters source code in a specified computer '
     . 'language that satisfies the specification.';
 $string['coderunner_link'] = 'question/type/coderunner';
 $string['coderunner_question_type'] = "CodeRunner question type: ";
+$string['coderunnersettings'] = 'CodeRunner settings';
 $string['coderunnersummary'] = 'Answer is program code that is executed '
     . 'in the context of a set of test cases to determine its correctness.';
 $string['coderunnertype'] = "Question type:";
@@ -124,9 +139,12 @@ $string['enable_sandbox_desc'] = 'Permit use of the specified sandbox for ' .
 $string['error_loading_prototype'] = "Error loading prototype. Network problems or server down, perhaps?";
 $string['expected'] = 'Expected output';
 $string['expected_help'] = 'The expected output from the test. Seen by the template as {{TEST.expected}}.';
+$string['exportthisquestion'] = 'Export this question';
+$string['exportthisquestion_help'] = 'This will create a Moodle XML export file containing just this one question. One example of when this is useful if you think this question demonstrates a bug in CodeRunner that you would like to report to the developers.';
 $string['extra'] = 'Extra template data';
 $string['extra_help'] = 'A sometimes-useful extra text field for use by the template, accessed as {{TEST.extra}}';
 
+$string['fail'] = 'Fail';
 $string['failedhidden'] = 'Your code failed one or more hidden tests.';
 $string['fileheader'] = 'Support files';
 $string['filloutoneanswer'] = 'You must enter source code that '
@@ -230,12 +248,13 @@ $string['negativeorzeromark'] = 'Mark must be greater than zero';
 
 $string['options'] = 'Options';
 $string['ordering'] = 'Ordering';
+$string['overallresult'] = 'Overall result';
 
 $string['penaltyregime'] = 'Penalty regime';
 
 
 $string['parameterise_template'] = 'Set template params';
-
+$string['pass'] = 'Pass';
 $string['pluginname'] = 'CodeRunner';
 $string['pluginnameadding'] = 'Adding a CodeRunner question';
 $string['pluginnameediting'] = 'Editing a CodeRunner question';
@@ -292,6 +311,8 @@ more information.
 If the template-debugging checkbox is clicked, the program generated
 for each testcase will be displayed in the output.
 EOCBHELP;
+$string['questionloaderror'] = "Failed to load question";
+$string['questionpreview'] = 'Question preview';
 $string['questiontype'] = 'Question type';
 $string['question_type_changed'] = <<<EOQTCHANGED
         Changing question type. Click OK to reload customisation fields,
@@ -319,6 +340,7 @@ $string['qWrongBehaviour'] = 'Please use Adaptive Behaviour for all CodeRunner q
         'or there can be massive performance hits. For example, all questions on ' .
         'a page will need to be regraded when the page is re-displayed.';
 
+$string['replacedollarscount'] = 'This category contains {$a} CodeRunner questions.';
 $string['resultcolumns'] = 'Result columns';
 $string['resultcolumns_help'] = <<<EORCHELP
 By default the result table displays the testcode, stdin, expected and got
@@ -374,6 +396,7 @@ for details. Some sandboxes (e.g. Ideone) may silently ignore any or all of
 these settings.
 EOSBHELP;
 $string['sandboxparams'] = 'Parameters';
+$string['seethisquestioninthequestionbank'] = 'See this question in the question bank';
 $string['SHOW'] = 'Show';
 $string['showcolumns'] = 'Show columns:';
 $string['showcolumns_help'] = 'Select which columns of the results table should ' .
@@ -383,6 +406,7 @@ $string['showdifferences'] = 'Show differences';
 $string['showsource'] = 'Template debugging';
 $string['stdin'] = 'Standard Input';
 $string['stdin_help'] = 'The standard input to the test, seen by the template as {{TEST.stdin}}';
+$string['supportscripts'] = "Support scripts";
 $string['syntax_errors'] = 'Syntax Error(s)';
 
 $string['template'] = 'Template';
@@ -440,6 +464,7 @@ saved: testcases are ordered by this field.
 EO_TESTCASECTRLS_HELP;
 $string['testcases'] = 'Test cases';
 $string['testcode'] = 'Test code';
+$string['testingquestion'] = 'Testing question {$a}';
 $string['testsplitterre'] = 'Test splitter (regex)';
 $string['testcode_help'] = 'The code for the test, seen by the template as {{TEST.testcode}}';
 $string['testtype'] = 'Precheck test type';

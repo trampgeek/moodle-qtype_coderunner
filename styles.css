@@ -106,6 +106,11 @@ div.coderunner-test-results.partial {
     background-color: #FFF3BF;
 }
 
+.que.coderunner p.penaltyregime {
+    display: inline-block;
+    float: right;
+}
+
 /* Ins and del elements are used to show differences. ins elements are
    always hidden and del elements are always displayed (without decoration),
    but the background colour of del elements is toggled by the

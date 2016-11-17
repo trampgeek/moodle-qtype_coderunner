@@ -39,8 +39,8 @@ require_once($CFG->dirroot . '/question/type/coderunner/Twig/Autoloader.php');
  */
 class qtype_coderunner_grader_test extends qtype_coderunner_testcase {
 
-    public function test_copy_stdin() {
-        // Check a question that reads stdin and writes to stdout.
+    public function test_regex_grader() {
+        // Check using a question that reads stdin and writes to stdout.
         $q = $this->make_question('copy_stdin');
         $q->grader = 'RegexGrader';
         $q->testcases = array(
@@ -69,5 +69,67 @@ EOCODE;
         $this->assertEquals(question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
 
+    }
+
+    public function test_nearequality_grader_right_answer() {
+        // Check using a question that reads stdin and writes to stdout.
+        $q = $this->make_question('copy_stdin');
+        $q->grader = 'NearEqualityGrader';
+        $q->testcases = array(
+            (object) array('testcode' => 'copy_stdin()',
+                          'stdin'       => "line 1 \nline  2  \nline   3   \n\n\n",
+                          'extra'       => '',
+                          'expected'    => "Line 1\nLine 2\nLine 3\n",
+                          'useasexample' => 0,
+                          'display' => 'SHOW',
+                          'mark' => 1.0,
+                          'hiderestiffail' => 0));
+        $code = <<<EOCODE
+def copy_stdin():
+  try:
+    while True:
+        line = input()
+        print(line)
+  except EOFError:
+    pass
+EOCODE;
+        $response = array('answer' => $code);
+        $result = $q->grade_response($response);
+        list($mark, $grade, $cache) = $result;
+        $testoutcome = unserialize($cache['_testoutcome']); // For debugging test.
+        $this->assertEquals(1, $mark);
+        $this->assertEquals(question_state::$gradedright, $grade);
+        $this->assertTrue(isset($cache['_testoutcome']));
+    }
+
+    public function test_nearequality_grader_wrong_answer() {
+        // Check using a question that reads stdin and writes to stdout.
+        $q = $this->make_question('copy_stdin');
+        $q->grader = 'NearEqualityGrader';
+        $q->testcases = array(
+            (object) array('testcode' => 'copy_stdin()',
+                          'stdin'       => " line 1 \n line  2  \n line   3   \n\n\n",
+                          'extra'       => '',
+                          'expected'    => "Line 1\nLine 2\nLine 3\n",
+                          'useasexample' => 0,
+                          'display' => 'SHOW',
+                          'mark' => 1.0,
+                          'hiderestiffail' => 0));
+        $code = <<<EOCODE
+def copy_stdin():
+  try:
+    while True:
+        line = input()
+        print(line)
+  except EOFError:
+    pass
+EOCODE;
+        $response = array('answer' => $code);
+        $result = $q->grade_response($response);
+        list($mark, $grade, $cache) = $result;
+        $testoutcome = unserialize($cache['_testoutcome']); // For debugging test.
+        $this->assertEquals(0, $mark);
+        $this->assertEquals(question_state::$gradedwrong, $grade);
+        $this->assertTrue(isset($cache['_testoutcome']));
     }
 }

@@ -712,7 +712,7 @@ class qtype_coderunner extends question_type {
         foreach ($question->options->testcases as $testcase) {
             $useasexample = $testcase->useasexample ? 1 : 0;
             $hiderestiffail = $testcase->hiderestiffail ? 1 : 0;
-            $type = $testcase->type;
+            $type = isset($testcase->type) ? $testcase->type : 0;
             $mark = sprintf("%.7f", $testcase->mark);
             $expout .= "      <testcase type=\"$type\" useasexample=\"$useasexample\"";
             $expout .=  " hiderestiffail=\"$hiderestiffail\" mark=\"$mark\" >\n";
