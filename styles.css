@@ -198,6 +198,7 @@ body#page-question-type-coderunner input[type="checkbox"]+label {
 body#page-question-type-coderunner textarea.edit_code {
     width: 100%;
     box-sizing: border-box;
+    font-family: courier, monospace;
 }
 
 body#page-question-type-coderunner input.testcasemark,

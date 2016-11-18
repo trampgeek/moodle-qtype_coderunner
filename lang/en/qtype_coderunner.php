@@ -272,7 +272,10 @@ $string['precheck_selected'] = 'Selected';
 $string['precheck_help'] = <<<EOPRECHECK
 If Precheck is enabled, students will have an extra button to the left of the
 usual check button to give them a penalty-free run to check their code against
-a subset of the question test cases. If 'Examples' is selected, the code will
+a subset of the question test cases. If 'Empty' is selected, a single run
+will be done with the per-test template using a testcase in which all the
+fields (testcode, stdin, expected, etc) are the empty string. Use with caution:
+some templates will not handle this correctly. If 'Examples' is selected, the code will
 be tested against all the tests for which 'use_as_example' has been checked.
 If 'Selected' is selected, an extra UI element is added to each test case
 to allow the author to select a specific subset of the tests.

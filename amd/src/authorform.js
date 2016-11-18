@@ -76,13 +76,13 @@ define(['jquery'], function($) {
         // Check if need to (re-)initialise Ace in a textarea. Do this if
         // the textarea or its Ace wrapper is visible and Ace is enabled.
         // If Ace is already enabled, a call to initAce will reload its contents.
-        function checkAceStatus(template) {
+        function checkAceStatus(textarea) {
             var lang = language.prop('value').toLowerCase();
-            var templateVisible = $('#id_' + template).is(':visible') ||
-                    $('#id_' + template + '_wrapper').is(':visible');
-            if (useace.prop('checked') && templateVisible) {
+            var textareaVisible = $('#id_' + textarea).is(':visible') ||
+                    $('#id_' + textarea + '_wrapper').is(':visible');
+            if (useace.prop('checked') && textareaVisible) {
                 require(['qtype_coderunner/aceinterface'], function(AceInterface) {
-                    AceInterface.initAce('id_' + template, lang);
+                    AceInterface.initAce('id_' + textarea, lang);
                 });
             }
         }
@@ -197,6 +197,7 @@ define(['jquery'], function($) {
             customise.prop('disabled', true);
         }
 
+        checkAceStatus('answer');
         setCustomisationVisibility(isCustomised);
         if (!isCustomised) {
             loadCustomisationFields();

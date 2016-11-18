@@ -176,7 +176,7 @@ class qtype_coderunner_question extends question_graded_automatically {
             }
         } else { // This is a precheck run
             if ($prechecksetting == constants::PRECHECK_EMPTY) {
-                return array();
+                return array($this->empty_testcase());
             } else if ($prechecksetting == constants::PRECHECK_EXAMPLES) {
                 return $this->example_testcases();
             } else if ($prechecksetting == constants::PRECHECK_SELECTED) {
@@ -201,6 +201,22 @@ class qtype_coderunner_question extends question_graded_automatically {
         return $testcases;
     }
 
+
+    // Return an empty testcase - an artifical testcase with all fields
+    // empty or zero except for a mark of 1.
+    private function empty_testcase() {
+        return (object) array(
+            'testtype' => 0,
+            'testcode' => '',
+            'stdin'    => '',
+            'expected' => '',
+            'extra'    => '',
+            'display'  => 0,
+            'useasexample' => 0,
+            'hiderestiffail' => 0,
+            'mark'     => 1
+        );
+    }
 
 
 

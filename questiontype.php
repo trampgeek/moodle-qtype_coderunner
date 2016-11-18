@@ -645,10 +645,10 @@ class qtype_coderunner extends question_type {
                 } else {
                     $tc->hiderestiffail = 0;
                 }
-                if (isset($testcase['@']['type'] )) {
-                    $tc->type = intval($testcase['@']['type']);
+                if (isset($testcase['@']['testtype'] )) {
+                    $tc->testtype = intval($testcase['@']['testtype']);
                 } else {
-                    $tc->type = 0;
+                    $tc->testtype = 0;
                 }
                 $tc->useasexample = $testcase['@']['useasexample'] == "1" ? 1 : 0;
                 $qo->testcases[] = $tc;
@@ -712,9 +712,9 @@ class qtype_coderunner extends question_type {
         foreach ($question->options->testcases as $testcase) {
             $useasexample = $testcase->useasexample ? 1 : 0;
             $hiderestiffail = $testcase->hiderestiffail ? 1 : 0;
-            $type = isset($testcase->type) ? $testcase->type : 0;
+            $testtype = isset($testcase->testtype) ? $testcase->testtype : 0;
             $mark = sprintf("%.7f", $testcase->mark);
-            $expout .= "      <testcase type=\"$type\" useasexample=\"$useasexample\"";
+            $expout .= "      <testcase testtype=\"$testtype\" useasexample=\"$useasexample\"";
             $expout .=  " hiderestiffail=\"$hiderestiffail\" mark=\"$mark\" >\n";
             foreach (array('testcode', 'stdin', 'expected', 'extra', 'display') as $field) {
                 $exportedvalue = $format->writetext($testcase->$field, 4);

@@ -451,14 +451,11 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 $answerboxelements, null, false);
         $mform->addHelpButton('answerbox_group', 'answerbox_group', 'qtype_coderunner');
 
-        // Precheck control (a group with only one element)
-        // The 'empty' case is disabled for now - I hope to re-enable it once the
-        // two combinators have been combined into one and a clearly-defined
-        // behaviour is apparent.
+        // Precheck control (currently a group with only one element)
         $precheckelements = array();
         $precheckvalues = array(
             constants::PRECHECK_DISABLED => get_string('precheck_disabled', 'qtype_coderunner'),
-            //constants::PRECHECK_EMPTY    => get_string('precheck_empty', 'qtype_coderunner'),
+            constants::PRECHECK_EMPTY    => get_string('precheck_empty', 'qtype_coderunner'),
             constants::PRECHECK_EXAMPLES => get_string('precheck_examples', 'qtype_coderunner'),
             constants::PRECHECK_SELECTED => get_string('precheck_selected', 'qtype_coderunner'),
         );
@@ -481,7 +478,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->setType('penaltyregime', PARAM_RAW);
         $mform->addHelpButton('markinggroup', 'markinggroup', 'qtype_coderunner');
 
-        // Template params ('advanced' so have to click Show more... to see).
+        // Template params.
         $mform->addElement('text', 'templateparams',
             get_string('templateparams', 'qtype_coderunner'),
             array('size' => self::TEMPLATE_PARAM_SIZE));
