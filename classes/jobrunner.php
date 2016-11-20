@@ -21,12 +21,6 @@
  */
 
 require_once($CFG->dirroot . '/question/type/coderunner/Twig/Autoloader.php');
-require_once($CFG->dirroot . '/question/type/coderunner/locallib.php');
-require_once($CFG->dirroot . '/question/type/coderunner/constants.php');
-require_once($CFG->dirroot . '/question/type/coderunner/grader/graderbase.php');
-require_once($CFG->dirroot . '/question/type/coderunner/sandbox/sandboxbase.php');
-require_once($CFG->dirroot . '/question/type/coderunner/escapers.php');
-require_once($CFG->dirroot . '/question/type/coderunner/testingoutcome.php');
 require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
 
 
@@ -64,12 +58,12 @@ class qtype_coderunner_jobrunner {
         ));
 
         $twigcore = $this->twig->getExtension('core');
-        $twigcore->setEscaper('py', 'python_escaper');
-        $twigcore->setEscaper('python', 'python_escaper');
-        $twigcore->setEscaper('c',  'java_escaper');
-        $twigcore->setEscaper('java', 'java_escaper');
-        $twigcore->setEscaper('ml', 'matlab_escaper');
-        $twigcore->setEscaper('matlab', 'matlab_escaper');
+        $twigcore->setEscaper('py', 'qtype_coderunner_escapers::python');
+        $twigcore->setEscaper('python', 'qtype_coderunner_escapers::python');
+        $twigcore->setEscaper('c',  'qtype_coderunner_escapers::java');
+        $twigcore->setEscaper('java', 'qtype_coderunner_escapers::java');
+        $twigcore->setEscaper('ml', 'qtype_coderunner_escapers::java');
+        $twigcore->setEscaper('matlab', 'qtype_coderunner_escapers::java');
 
         $this->sandbox = $question->get_sandbox();
         $this->grader = $question->get_grader();
@@ -78,8 +72,8 @@ class qtype_coderunner_jobrunner {
         $this->allruns = array();
         $this->templateparams = array(
             'STUDENT_ANSWER' => $code,
-            'ESCAPED_STUDENT_ANSWER' => python_escaper(null, $code, null),
-            'MATLAB_ESCAPED_STUDENT_ANSWER' => matlab_escaper(null, $code, null),
+            'ESCAPED_STUDENT_ANSWER' => qtype_coderunner_escapers::python(null, $code, null),
+            'MATLAB_ESCAPED_STUDENT_ANSWER' => qtype_coderunner_escapers::matlab(null, $code, null),
             'IS_PRECHECK' => $isprecheck,
             'QUESTION' => $question
          );

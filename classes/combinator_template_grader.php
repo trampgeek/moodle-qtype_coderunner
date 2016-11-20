@@ -31,7 +31,6 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once('graderbase.php');
 
 class qtype_coderunner_combinator_template_grader extends qtype_coderunner_grader {
 

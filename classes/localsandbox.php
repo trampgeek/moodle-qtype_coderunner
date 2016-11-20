@@ -37,9 +37,6 @@
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
-require_once($CFG->dirroot . '/question/type/coderunner/locallib.php');
-require_once($CFG->dirroot . '/question/type/coderunner/sandbox/sandboxbase.php');
-
 
 /*******************************************************************
  *

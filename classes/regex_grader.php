@@ -38,8 +38,6 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once('graderbase.php');
-
 class qtype_coderunner_regex_grader extends qtype_coderunner_grader {
 
     public function name() {
@@ -55,13 +53,6 @@ class qtype_coderunner_regex_grader extends qtype_coderunner_grader {
         $regex = '/' . str_replace('/', '\/', rtrim($testcase->expected)) . '/ms';
         $iscorrect = preg_match($regex, $output);
         $awardedmark = $iscorrect ? $testcase->mark : 0.0;
-
-        if (isset($testcase->stdin)) {
-            $resultstdin = tidy($testcase->stdin);
-        } else {
-            $resultstdin = null;
-        }
-
         return new qtype_coderunner_test_result($testcase, $iscorrect, $awardedmark, $output);
     }
 }

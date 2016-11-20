@@ -36,7 +36,6 @@
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
-require_once($CFG->dirroot . '/question/type/coderunner/locallib.php');
 
 abstract class qtype_coderunner_sandbox {
     protected $user;     // Username supplied when constructing.
@@ -116,7 +115,7 @@ abstract class qtype_coderunner_sandbox {
                     }
                 } else {
                     $errorstring = $sb->error_string($langs->error);
-                    throw new coderunner_exception("Sandbox $extname error: $errorstring");
+                    throw new qtype_coderunner_exception("Sandbox $extname error: $errorstring");
                 }
             }
         }
@@ -130,7 +129,6 @@ abstract class qtype_coderunner_sandbox {
         $sandboxes = self::available_sandboxes();
         $sandboxclass = $sandboxes[$sandbox];
         $filename = self::get_filename($sandbox);
-        require_once($CFG->dirroot . "/question/type/coderunner/sandbox/$filename");
         return new $sandboxclass();
     }
 

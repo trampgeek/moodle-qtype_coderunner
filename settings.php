@@ -25,8 +25,6 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->dirroot . '/question/type/coderunner/sandbox/sandboxbase.php');
-
 $links = array(
     get_string('bulkquestiontester', 'qtype_coderunner',
             array('link' => (string) new moodle_url('/question/type/coderunner/bulktestindex.php')))
@@ -85,4 +83,3 @@ $settings->add(new admin_setting_configcheckbox(
         get_string('enable_diff_check', 'qtype_coderunner'),
         $desc,
         false));
-

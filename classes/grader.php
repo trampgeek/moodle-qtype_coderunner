@@ -34,8 +34,6 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->dirroot . '/question/type/coderunner/testingoutcome.php');
-
 abstract class qtype_coderunner_grader {
     /** Check all outputs, returning an array of TestResult objects.
      * A TestResult is an object with expected, got, isCorrect and grade fields.

@@ -31,8 +31,6 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once('graderbase.php');
-
 class qtype_coderunner_near_equality_grader extends qtype_coderunner_grader {
 
     /** This grader tests if the expected output matches the actual
@@ -50,8 +48,8 @@ class qtype_coderunner_near_equality_grader extends qtype_coderunner_grader {
 
 
     protected function grade_known_good(&$output, &$testcase) {
-        $cleanedoutput = clean($output);
-        $cleanedexpected = clean($testcase->expected);
+        $cleanedoutput = qtype_coderunner_util::clean($output);
+        $cleanedexpected = qtype_coderunner_util::clean($testcase->expected);
 
         $iscorrect = $this->reduce($cleanedoutput) == $this->reduce($cleanedexpected);
         $awardedmark = $iscorrect ? $testcase->mark : 0.0;

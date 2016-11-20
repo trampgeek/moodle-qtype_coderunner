@@ -31,7 +31,6 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once($CFG->dirroot . '/question/engine/tests/helpers.php');
-require_once($CFG->dirroot . '/question/type/coderunner/locallib.php');
 
 class qtype_coderunner_walkthrough_extras_test extends qbehaviour_walkthrough_test_base {
 
@@ -86,7 +85,7 @@ EOTEMPLATE;
     /** Make sure that if the Jobe URL is wrong we get "jobesandbox is down
      *  or misconfigured" exception.
      *
-     * @expectedException coderunner_exception
+     * @expectedException qtype_coderunner_exception
      * @expectedExceptionMessageRegExp |.*jobesandbox is down or misconfigured.*|
      * @retrun void
      */

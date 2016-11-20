@@ -47,7 +47,6 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/question/engine/bank.php');
 require_once($CFG->dirroot . '/lib/questionlib.php');
-require_once($CFG->dirroot . '/question/type/coderunner/locallib.php');
 
 /**
  * qtype_coderunner extends the base question_type to coderunner-specific functionality.
@@ -234,7 +233,7 @@ class qtype_coderunner extends question_type {
                 try {
                     $row = $this->get_prototype($type . $suffix, $question->context);
                     $suffix = $suffix == '' ? '-1' : $suffix - 1;
-                } catch (coderunner_exception $e) {
+                } catch (qtype_coderunner_exception $e) {
                     break;
                 }
             }
@@ -384,7 +383,7 @@ class qtype_coderunner extends question_type {
                 array('questionid' => $question->id), 'id ASC')) {
             if ($question->options->prototypetype == 0
                     && $question->options->grader !== 'qtype_coderunner_combinator_template_grader') {
-                throw new coderunner_exception("Failed to load testcases for question id {$question->id}");
+                throw new qtype_coderunner_exception("Failed to load testcases for question id {$question->id}");
             } else {
                 // Question prototypes may not have testcases.
                 $question->options->testcases = array();
@@ -429,7 +428,7 @@ class qtype_coderunner extends question_type {
 
         $rows = $DB->get_records_sql($sql);
         if (count($rows) == 0) {
-            throw new coderunner_exception("Failed to find prototype $coderunnertype");
+            throw new qtype_coderunner_exception("Failed to find prototype $coderunnertype");
         }
 
         $validprotos = array();
@@ -440,10 +439,10 @@ class qtype_coderunner extends question_type {
         }
 
         if (count($validprotos) == 0) {
-            throw new coderunner_exception("Prototype $coderunnertype is unavailable ".
+            throw new qtype_coderunner_exception("Prototype $coderunnertype is unavailable ".
                     "in this context");
         } else if (count($validprotos) != 1) {
-            throw new coderunner_exception("Multiple prototypes found for $coderunnertype");
+            throw new qtype_coderunner_exception("Multiple prototypes found for $coderunnertype");
         }
         return $validprotos[0];
     }
@@ -456,11 +455,11 @@ class qtype_coderunner extends question_type {
         static $activecats = null;
 
         if (!$question = $DB->get_record('question', array('id' => $questionoptionsrow->questionid))) {
-            throw new coderunner_exception("Missing question id = {$questionoptionsrow->questionid} in question table");
+            throw new qtype_coderunner_exception("Missing question id = {$questionoptionsrow->questionid} in question table");
         }
 
         if (!$candidatecat = $DB->get_record('question_categories', array('id' => $question->category))) {
-            throw new coderunner_exception('Missing question category');
+            throw new qtype_coderunner_exception('Missing question category');
         }
 
         if ($activecats === null) {

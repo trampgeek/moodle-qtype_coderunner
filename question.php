@@ -31,14 +31,8 @@ require_once($CFG->dirroot . '/question/behaviour/adaptive/behaviour.php');
 require_once($CFG->dirroot . '/question/engine/questionattemptstep.php');
 require_once($CFG->dirroot . '/question/behaviour/adaptive_adapted_for_coderunner/behaviour.php');
 require_once($CFG->dirroot . '/question/type/coderunner/Twig/Autoloader.php');
-require_once($CFG->dirroot . '/question/type/coderunner/locallib.php');
-require_once($CFG->dirroot . '/question/type/coderunner/constants.php');
-require_once($CFG->dirroot . '/question/type/coderunner/grader/graderbase.php');
-require_once($CFG->dirroot . '/question/type/coderunner/sandbox/sandboxbase.php');
-require_once($CFG->dirroot . '/question/type/coderunner/escapers.php');
-require_once($CFG->dirroot . '/question/type/coderunner/testingoutcome.php');
 require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
-require_once($CFG->dirroot . '/question/type/coderunner/jobrunner.php');
+
 
 use qtype_coderunner\constants;
 
@@ -264,11 +258,11 @@ class qtype_coderunner_question extends question_graded_automatically {
         if ($sandbox === null) {   // No sandbox specified. Use best we can find.
             $sandbox = qtype_coderunner_sandbox::get_best_sandbox($this->language);
             if ($sandbox === null) {
-                throw new coderunner_exception("Language {$this->language} is not available on this system");
+                throw new qtype_coderunner_exception("Language {$this->language} is not available on this system");
             }
         } else {
             if (!get_config('qtype_coderunner', strtolower($sandbox) . '_enabled')) {
-                throw new coderunner_exception("Question is configured to use a disabled sandbox ($sandbox)");
+                throw new qtype_coderunner_exception("Question is configured to use a disabled sandbox ($sandbox)");
             }
         }
 
@@ -283,7 +277,6 @@ class qtype_coderunner_question extends question_graded_automatically {
         $filename = qtype_coderunner_grader::get_filename($grader);
         $graders = qtype_coderunner_grader::available_graders();
         $graderclass = $graders[$grader];
-        require_once($CFG->dirroot . "/question/type/coderunner/grader/$filename");
         return new $graderclass();
     }
 

@@ -32,8 +32,6 @@
 require_once(__DIR__.'/../../../config.php');
 
 require_once($CFG->libdir . '/questionlib.php');
-require_once(__DIR__ . '/locallib.php');
-
 
 // Get the parameters from the URL.
 $questionid = required_param('questionid', PARAM_INT);

@@ -91,7 +91,7 @@ class coderunner_bulk_tester  {
 
                 try {
                     $question = question_bank::load_question($questionid);
-                } catch (coderunner_exception $e) {
+                } catch (qtype_coderunner_exception $e) {
                     echo "<p>\n**** " . get_string('questionloaderror', 'qtype_coderunner') . " $questionname: " . $e->getMessage() . " ****</p>";
                     continue;
                 }
@@ -128,7 +128,7 @@ class coderunner_bulk_tester  {
         try {
             list($fraction, $state) = $question->grade_response(array('answer' => $answer), false);
             $ok = $state == question_state::$gradedright;
-        } catch (coderunner_exception $e) {
+        } catch (qtype_coderunner_exception $e) {
             $ok = false; // If user clicks link to see why, they'll get the same exception
         }
 

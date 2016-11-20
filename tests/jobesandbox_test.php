@@ -32,7 +32,6 @@
 
 global $CFG;
 require_once($CFG->dirroot . '/question/type/coderunner/tests/coderunnertestcase.php');
-require_once($CFG->dirroot . '/question/type/coderunner/sandbox/jobesandbox.php');
 
 
 class qtype_coderunner_jobesandbox_test extends qtype_coderunner_testcase {

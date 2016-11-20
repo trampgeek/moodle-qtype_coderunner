@@ -28,8 +28,6 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/question/type/coderunner/sandbox/sandboxbase.php');
 require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
-require_once($CFG->dirroot . '/question/type/coderunner/locallib.php');
-require_once($CFG->dirroot . '/question/type/coderunner/constants.php');
 
 use qtype_coderunner\constants;
 
@@ -65,7 +63,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $this->make_questiontype_help_panel($mform);
         $this->make_customisation_panel($mform);
         $this->make_advanced_customisation_panel($mform);
-        load_ace();
+        qtype_coderunner_util::load_ace();
 
         $keys = array('coderunner_question_type', 'confirm_proceed', 'template_changed',
             'info_unavailable', 'proceed_at_own_risk', 'error_loading_prototype',

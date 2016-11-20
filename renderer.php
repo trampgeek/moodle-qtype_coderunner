@@ -24,10 +24,6 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->dirroot . '/question/type/coderunner/locallib.php');
-require_once($CFG->dirroot . '/question/type/coderunner/constants.php');
-require_once($CFG->dirroot . '/question/type/coderunner/testingoutcome.php');
-
 use qtype_coderunner\constants;
 
 /**
@@ -106,7 +102,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
         // Initialise any program-editing JavaScript.
         // Thanks to Ulrich Dangel for the original implementation of the Ace code editor.
-        load_ace_if_required($question, $responsefieldid, constants::USER_LANGUAGE);
+        qtype_coderunner_util::load_ace_if_required($question, $responsefieldid, constants::USER_LANGUAGE);
         $PAGE->requires->js_call_amd('qtype_coderunner/textareas', 'initQuestionTA', array($responsefieldid));
 
         return $qtext;

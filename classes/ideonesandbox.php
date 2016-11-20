@@ -27,8 +27,6 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once('sandboxbase.php');
-
 
 class qtype_coderunner_ideonesandbox extends qtype_coderunner_sandbox {
 
@@ -122,7 +120,7 @@ class qtype_coderunner_ideonesandbox extends qtype_coderunner_sandbox {
     public function execute($sourcecode, $language, $input, $files=null, $params=null) {
         $language = strtolower($language);
         if (!in_array($language, $this->get_languages()->languages)) {
-            throw new coderunner_exception('Executing an unsupported language in sandbox');
+            throw new qtype_coderunner_exception('Executing an unsupported language in sandbox');
         }
         if ($input !== '' && substr($input, -1) != "\n") {
             $input .= "\n";  // Force newline on the end if necessary.
@@ -148,7 +146,7 @@ class qtype_coderunner_ideonesandbox extends qtype_coderunner_sandbox {
             }
 
             if ($count >= self::MAX_NUM_POLLS) {
-                throw new coderunner_exception("Timed out waiting for sandbox");
+                throw new qtype_coderunner_exception("Timed out waiting for sandbox");
             }
 
             if ($state->error !== self::OK ||

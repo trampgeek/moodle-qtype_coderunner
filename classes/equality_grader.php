@@ -33,8 +33,6 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once('graderbase.php');
-
 class qtype_coderunner_equality_grader extends qtype_coderunner_grader {
 
     public function name() {
@@ -47,8 +45,8 @@ class qtype_coderunner_equality_grader extends qtype_coderunner_grader {
      *  etc).
      */
     public function grade_known_good(&$output, &$testcase) {
-        $cleanedoutput = clean($output);
-        $cleanedexpected = clean($testcase->expected);
+        $cleanedoutput = qtype_coderunner_util::clean($output);
+        $cleanedexpected = qtype_coderunner_util::clean($testcase->expected);
         $iscorrect = $cleanedoutput == $cleanedexpected;
         $awardedmark = $iscorrect ? $testcase->mark : 0.0;
 
