@@ -92,11 +92,10 @@ class qtype_coderunner extends question_type {
             'answerboxcolumns',
             'useace',
             'resultcolumns',
+            'template',
+            'iscombinatortemplate',
             'answer',
-            'combinatortemplate',
             'testsplitterre',
-            'enablecombinator',
-            'pertesttemplate',
             'language',
             'acelang',
             'sandbox',
@@ -378,11 +377,12 @@ class qtype_coderunner extends question_type {
             }
         }
 
-        // Add in any testcases (expect none for built-in prototypes).
+        // Add in any testcases (expect none for built-in prototypes and
+        // template graders may have none, too).
         if (!$question->options->testcases = $DB->get_records('question_coderunner_tests',
                 array('questionid' => $question->id), 'id ASC')) {
             if ($question->options->prototypetype == 0
-                    && $question->options->grader !== 'qtype_coderunner_combinator_template_grader') {
+                    && $question->options->grader !== 'qtype_template_grader') {
                 throw new qtype_coderunner_exception("Failed to load testcases for question id {$question->id}");
             } else {
                 // Question prototypes may not have testcases.
@@ -589,18 +589,24 @@ class qtype_coderunner extends question_type {
             'precheck' => 0,
             'answerboxlines' => 15,
             'answerboxcolumns' => 90,
-            'useace' => 1
+            'useace' => 1,
+            'iscombinatortemplate' => null,
+            'template' => null
         );
 
         foreach ($extraquestionfields as $field) {
-            if ($field === 'pertesttemplate'  && isset($data['#']['custom_template'])) {
-                // Legacy import.
-                $qo->pertesttemplate = $format->getpath($data, array('#', 'custom_template', 0, '#'), '');
+            if ($field === 'template'  && isset($data['#']['pertesttemplate'])) {
+                // Import from pre-version 3.1
+                if ($format->getpath($data, array('#', 'enablecombinator', 0, '#'), 0) != 0) {
+                    $qo->template = $format->getpath($data, array('#', 'combinatortemplate', 0, '#'), '');
+                    $qo->iscombinatortemplate = 1;
+                } else {
+                    $qo->template = $format->getpath($data, array('#', 'pertesttemplate', 0, '#'), '');
+                    $qo->iscombinatortemplate = 0;
+                }
             } else {
-                $map = $this->legacy_field_name_map();
-                if (isset($map[$field]) && isset($data['#'][$map[$field]])) {
-                    $data['#'][$field] = $data['#'][$map[$field]]; // Map old field names to new.
-                    unset($data['#'][$map[$field]]);
+                if ($field === 'iscombinatortemplate' && isset($qo->iscombinatortemplate)) {
+                    continue; // Already loaded in the case of a legacy question
                 }
                 if (array_key_exists($field, $newdefaults)) {
                     $default = $newdefaults[$field];
@@ -742,31 +748,5 @@ class qtype_coderunner extends question_type {
         }
         return $s;
     }
-
-
-    // A map from question_options field names to their legacy versions
-    // withn underscores. Only those field names changed between versions 2.3
-    // and 2.4 of CodeRunner appear here.
-    public static function legacy_field_name_map() {
-        $oldfields = array(
-            'coderunnertype'   => 'coderunner_type',
-            'prototypetype'    => 'prototype_type',
-            'allornothing'     => 'all_or_nothing',
-            'answerboxlines'   => 'answerbox_lines',
-            'answerboxcolumns' => 'answerbox_columns',
-            'useace'           => 'use_ace',
-            'penaltyregime'    => 'penalty_regime',
-            'enablecombinator' => 'enable_combinator',
-            'resultcolumns'    => 'result_columns',
-            'combinatortemplate' => 'combinator_template',
-            'testsplitterre'   => 'test_splitter_re',
-            'pertesttemplate'  => 'per_test_template',
-            'templateparams'   => 'template_params',
-            'acelang'          => 'ace_lang',
-            'sandboxparams'    => 'sandbox_params',
-            'showsource'       => 'show_source');
-        return $oldfields;
-    }
-
 }
 

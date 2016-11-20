@@ -54,18 +54,15 @@ class qtype_coderunner_template_test extends qtype_coderunner_testcase {
         // params.
         $q = $this->make_question('sqr');
         $q->sandboxparams = "twiddle-twaddle";
-        $q->pertesttemplate = <<<EOTEMPLATE
+        $q->template = <<<EOTEMPLATE
 {{ STUDENT_ANSWER }}
 {{ TEST.testcode }}
 print( '{{QUESTION.sandboxparams}}')
-
-
 EOTEMPLATE;
-        $q->customise = true;
+        $q->iscombinatortemplate = false;
         $q->allornothing = false;
-        $q->enablecombinator = false;
         $q->testcases = array(
-           (object) array('type'         => 0,
+           (object) array('testtype'         => 0,
                          'testcode'      => 'print(sqr(-3))',
                          'expected'      => "9\ntwiddle-twaddle",
                          'stdin'         => '',
@@ -75,9 +72,6 @@ EOTEMPLATE;
                          'mark'          => 1.0,
                          'hiderestiffail'=> 0),
         );
-        $q->customise = true;
-        $q->allornothing = false;
-        $q->enablecombinator = false;
         $code = "def sqr(n): return n * n\n";
         $response = array('answer' => $code);
         $result = $q->grade_response($response);
@@ -94,7 +88,7 @@ EOTEMPLATE;
         // 1, 2, 4, 8, 16 respectively. So the expected mark is 24 / 31
         // i.e 0.7742.
         $q = $this->make_question('sqrnoprint');
-        $q->pertesttemplate = <<<EOTEMPLATE
+        $q->template = <<<EOTEMPLATE
 {{ STUDENT_ANSWER }}
 got = str({{TEST.testcode}})
 expected = """{{TEST.expected|e('py')}}""".strip()
@@ -106,9 +100,8 @@ else:
     print('{"fraction":0}')
 EOTEMPLATE;
         $q->grader = 'TemplateGrader';
-        $q->customise = true;
+        $q->iscombinatortemplate = false;
         $q->allornothing = false;
-        $q->enablecombinator = false;
         $code = "def sqr(n): return n * n\n";
         $response = array('answer' => $code);
         $result = $q->grade_response($response);
@@ -119,18 +112,15 @@ EOTEMPLATE;
     public function test_template_params() {
         // Test that a templateparams field in the question is expanded
         // from a JSON string and available to the template engine.
-        $q = $this->make_question('sqr');
+        $q = $this->make_question('sqr');$q = $this->make_question('sqr');
         $q->templateparams = '{"age":23, "string":"blah"}';
-        $q->pertesttemplate = <<<EOTEMPLATE
+        $q->template = <<<EOTEMPLATE
 {{ STUDENT_ANSWER }}
 {{ TEST.testcode }}
 print( {{QUESTION.parameters.age}}, '{{QUESTION.parameters.string}}')
-
-
 EOTEMPLATE;
-        $q->customise = true;
         $q->allornothing = false;
-        $q->enablecombinator = false;
+        $q->iscombinatortemplate = false;
         $q->testcases = array(
                        (object) array('type' => 0,
                          'testcode'       => '',
@@ -142,13 +132,33 @@ EOTEMPLATE;
                          'mark'           => 1.0,
                          'hiderestiffail' => 0),
         );
-        $q->customise = true;
         $q->allornothing = false;
-        $q->enablecombinator = false;
+        $q->iscombinatortemplate = false;
         $code = "";
         $response = array('answer' => $code);
         $result = $q->grade_response($response);
         list($mark, $grade, $cache) = $result;
         $this->assertEquals(question_state::$gradedright, $grade);
+    }
+
+
+    // Test that if the combinator output fails to yield the expected number
+    // of test case outputs, we get an appropriate error message.
+    public function test_bad_combinator_error() {
+        $q = $this->make_question('sqr');
+        $q->template = <<<EOTEMPLATE
+{{ STUDENT_ANSWER }}
+__SEPARATOR__ = "#<ab@17943918#@>#"
+{% for TEST in TESTCASES %}
+{{ TEST.testcode }}
+print(__SEPARATOR__)
+{% endfor %}
+EOTEMPLATE;
+        $q->iscombinatortemplate = true;
+        $q->grader = 'TemplateGrader';
+        $response = array('answer' => 'def sqr(n): return n * n');
+        $result = $q->grade_response($response);
+        list($mark, $grade, $cache) = $result;
+        $this->assertEquals(question_state::$gradedwrong, $grade);
     }
 }

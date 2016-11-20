@@ -31,16 +31,11 @@ define(['jquery'], function($) {
     // empty and an optional filter function to apply to the field value before
     // setting the property with it.
     var JSON_TO_FORM_MAP = {
-        pertesttemplate:    ['#id_pertesttemplate', 'value', ''],
-        combinatortemplate: ['#id_combinatortemplate', 'value', ''],
+        template:           ['#id_template', 'value', ''],
         cputimelimitsecs:   ['#id_cputimelimitsecs', 'value', ''],
         memlimitmb:         ['#id_memlimitmb', 'value', ''],
         sandbox:            ['#id_sandbox', 'value', 'DEFAULT'],
         sandboxparams:      ['#id_sandboxparams', 'value', ''],
-        enablecombinator:   ['#id_enablecombinator', 'checked', true,
-                                function (enablecombinator) {
-                                    return enablecombinator == '1';
-                                }],
         testsplitterre:     ['#id_testsplitterre', 'value', '',
                                 function (splitter) {
                                     return splitter.replace('\n', '\\n');
@@ -56,11 +51,10 @@ define(['jquery'], function($) {
 
     function initEditFormWhenReady() {
         var typeCombo = $('#id_coderunnertype'),
-            pertesttemplate = $('#id_pertesttemplate'),
-            enablecombinator = $('#id_enablecombinator'),
+            template = $('#id_template'),
             useace = $('#id_useace'),
-            combinatortemplate = $('#id_combinatortemplate'),
             language = $('#id_language'),
+            acelang = $('#id_acelang'),
             customise = $('#id_customise'),
             customisationFieldSet = $('#id_customisationheader'),
             advancedCustomisation = $('#id_advancedcustomisationheader'),
@@ -70,19 +64,19 @@ define(['jquery'], function($) {
             courseId = $('input[name="courseid"]').prop('value'),
             questiontypeHelpDiv = $('#qtype-help'),
             precheck = $('select#id_precheck'),
-            testtypedivs = $('div[id^=fitem_id_testtype]'),
-            alertIssued = false;
+            answerLang = '',
+            testtypedivs = $('div[id^=fitem_id_testtype]');
 
-        // Check if need to (re-)initialise Ace in a textarea. Do this if
-        // the textarea or its Ace wrapper is visible and Ace is enabled.
+        // Check if need to (re-)initialise Ace in a given textarea with a
+        // given language.
+        // Do this if the textarea or its Ace wrapper is visible and Ace is enabled.
         // If Ace is already enabled, a call to initAce will reload its contents.
-        function checkAceStatus(textarea) {
-            var lang = language.prop('value').toLowerCase();
+        function checkAceStatus(textarea, lang) {
             var textareaVisible = $('#id_' + textarea).is(':visible') ||
                     $('#id_' + textarea + '_wrapper').is(':visible');
             if (useace.prop('checked') && textareaVisible) {
                 require(['qtype_coderunner/aceinterface'], function(AceInterface) {
-                    AceInterface.initAce('id_' + textarea, lang);
+                    AceInterface.initAce('id_' + textarea, lang.toLowerCase());
                 });
             }
         }
@@ -92,8 +86,7 @@ define(['jquery'], function($) {
             customisationFieldSet.css('display', display);
             advancedCustomisation.css('display', display);
             if (isVisible) {
-                checkAceStatus('pertesttemplate');
-                checkAceStatus('combinatortemplate');
+                checkAceStatus('template', language.prop('value'));
             }
         }
 
@@ -118,7 +111,7 @@ define(['jquery'], function($) {
 
         // A JSON request for a question type returned a 'failure' response - probably a
         // missing question type. Report the error with an alert, and replace
-        // the pertesttemplate contents with an error message in case the user
+        // the template contents with an error message in case the user
         // saves the question and later wonders why it breaks.
         function reportError(questionType, error) {
             var errorMessage;
@@ -126,7 +119,7 @@ define(['jquery'], function($) {
             errorMessage = getString('prototype_error') + "\n";
             errorMessage += error + '\n';
             errorMessage += "CourseId: " + courseId + ", qtype: " + questionType;
-            pertesttemplate.prop('value', errorMessage);
+            template.prop('value', errorMessage);
         }
 
         function detailsHtml(title, html) {
@@ -172,7 +165,7 @@ define(['jquery'], function($) {
                 ).error(function () {
                     // AJAX failed. We're dead, Fred.
                     window.alert(getString('error_loading_prototype'));
-                    pertesttemplate.prop('value', getString('ajax_error'));
+                    template.prop('value', getString('ajax_error'));
                 });
             }
         }
@@ -197,7 +190,8 @@ define(['jquery'], function($) {
             customise.prop('disabled', true);
         }
 
-        checkAceStatus('answer');
+        answerLang = acelang.prop('value') ? acelang.prop('value') : language.prop('value');
+        checkAceStatus('answer', answerLang);
         setCustomisationVisibility(isCustomised);
         if (!isCustomised) {
             loadCustomisationFields();
@@ -223,19 +217,11 @@ define(['jquery'], function($) {
             }
         });
 
-        pertesttemplate.on('change', function() {
-            // Per-test pertesttemplate has been changed. Check if combinator should
-            // be disabled.
-            var combinatornonblank = combinatortemplate.prop('value').trim() !== '';
-            if (combinatornonblank &&
-                 !alertIssued &&
-                  enablecombinator.prop('checked') &&
-                  window.confirm(getString('template_changed'))
-               ) {
-                enablecombinator.prop('checked', false);
-            }
-            alertIssued = true;
+        acelang.on('change', function() {
+            answerLang = acelang.prop('value') ? acelang.prop('value') : language.prop('value');
+            checkAceStatus('answer', answerLang);
         });
+
 
         typeCombo.on('change', function() {
             if (!customise.prop('checked') ||
@@ -247,8 +233,8 @@ define(['jquery'], function($) {
         useace.on('change', function() {
             var isTurningOn = useace.prop('checked');
             if (isTurningOn) {
-                checkAceStatus('pertesttemplate');
-                checkAceStatus('combinatortemplate');
+                checkAceStatus('template', language.prop('value'));
+                checkAceStatus('answer', acelang.prop('value'));
             } else {
                 require(['qtype_coderunner/aceinterface'], function(AceInterface) {
                     AceInterface.stopUsingAce();
@@ -257,15 +243,6 @@ define(['jquery'], function($) {
         });
 
         precheck.on('change', set_testtype_visibilities);
-
-        // In order to initialise Ace when the combinator template becomes
-        // visible, we monitor attribute mutations in the Advanced Customisation
-        // header.
-        var observer = new MutationObserver( function () {
-            checkAceStatus('combinatortemplate');
-        });
-
-        observer.observe(advancedCustomisation.get(0), {'attributes': true});
     }
 
     return {initEditForm: initEditForm};

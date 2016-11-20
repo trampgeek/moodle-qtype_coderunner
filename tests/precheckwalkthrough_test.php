@@ -80,14 +80,12 @@ class qtype_coderunner_precheckwalkthrough_test extends qbehaviour_walkthrough_t
                           'mark'      => 1.0,
                           'hiderestiffail'  => 0)
             );
-        $q->pertesttemplate = <<<EOTEMPLATE
+        $q->template = <<<EOTEMPLATE
 {{ STUDENT_ANSWER }}
 {{ TEST.testcode }}
 EOTEMPLATE;
+        $q->iscombinatortemplate = false;
         $q->precheck = constants::PRECHECK_EXAMPLES;
-        $q->allornothing = false;
-        $q->customise = true;
-        $q->enablecombinator = false;
         $q->unitpenalty = 0.5;
         $q->penaltyregime = "20, 40, ...";
         return $q;

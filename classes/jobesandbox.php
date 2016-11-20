@@ -68,7 +68,8 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
     }
 
     /** Execute the given source code in the given language with the given
-     *  input and returns an object with fields error, result, signal, cmpinfo, stderr, output.
+     *  input and returns an object with fields error, result, signal, cmpinfo,
+     *  stderr, output.
      * @param string $sourcecode The source file to compile and run
      * @param string $language  One of the languages regognised by the sandbox
      * @param string $input A string to use as standard input during execution
@@ -161,14 +162,19 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
             $errorcode = $httpcode == 200 ? self::UNKNOWN_SERVER_ERROR : $this->get_error_code($httpcode);
             return (object) array('error' => $errorcode);
         } else {
-              return (object) array(
-                'error'   => self::OK,
-                'result'  => $this->response->outcome,
-                'signal'  => 0,              // Jobe doesn't return this.
-                'cmpinfo' => $this->response->cmpinfo,
-                'output'  => $this->filter_file_path($this->response->stdout),
-                'stderr'  => $this->filter_file_path($this->response->stderr)
-              );
+            $stderr = $this->filter_file_path($this->response->stderr);
+            // Any stderr output is treated as a runtime error
+            if (trim($stderr) !== '') {
+                $this->response->outcome = self::RESULT_RUNTIME_ERROR;
+            }
+            return (object) array(
+              'error'   => self::OK,
+              'result'  => $this->response->outcome,
+              'signal'  => 0,              // Jobe doesn't return this.
+              'cmpinfo' => $this->response->cmpinfo,
+              'output'  => $this->filter_file_path($this->response->stdout),
+              'stderr'  => $stderr
+            );
         }
     }
 

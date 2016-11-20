@@ -40,14 +40,13 @@ class qtype_coderunner_prototype_test extends qtype_coderunner_testcase {
     public function test_inheritance_from_prototype() {
         $this->make_sqr_user_type_prototype();
         $q2 = $this->make_question('sqr_user_prototype_child');  // Make a derived question.
-        $this->assertEquals('combinatortemplatevalue', $q2->combinatortemplate);
+        $this->assertEquals('combinatortemplatevalue', $q2->template);
         $this->assertEquals(179, $q2->cputimelimitsecs);
     }
 
     // Test any prototype files are also used by child.
     public function test_files_inherited() {
         $q = $this->make_parent_and_child();
-
         $code = "print(open('data.txt').read())";
         $response = array('answer' => $code);
         $result = $q->grade_response($response);
@@ -89,11 +88,10 @@ class qtype_coderunner_prototype_test extends qtype_coderunner_testcase {
     <answerboxcolumns></answerboxcolumns>
     <useace>1</useace>
     <resultcolumns></resultcolumns>
+    <template></template>
+    <iscombinatortemplate></iscombinatortemplate>
     <answer></answer>
-    <combinatortemplate></combinatortemplate>
     <testsplitterre></testsplitterre>
-    <enablecombinator></enablecombinator>
-    <pertesttemplate></pertesttemplate>
     <language></language>
     <acelang></acelang>
     <sandbox></sandbox>
@@ -166,11 +164,11 @@ Line 2</text>
         global $DB;
         $q = $this->make_question('sqr');
         $q->test_cases = array();  // No testcases in a prototype.
-        $q->customise = 1;
         $q->prototypetype = 2;
         $q->typename = "sqr_user_prototype";
         $q->cputimelimitsecs = 179; // Silly test value.
-        $q->combinatortemplate = 'combinatortemplatevalue';
+        $q->template = 'combinatortemplatevalue';
+        $q->isprototypetemplate = true;
 
         // Save the prototype to the DB so it has an accessible context for
         // retrieving associated files. All we need is its id and

@@ -27,29 +27,9 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
 
 /**
- * restore plugin class that provides the necessary information
- * needed to restore one coderunner qtype plugin
+ * restore plugin class for coderunner questions.
  */
 class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
-
-    private $legacynamemap = null; // Map from legacy DB column names to current.
-
-    // Constructor builds a map from old DB field names to new ones for use
-    // in function process_coderunner_options.
-    public function __construct($plugintype, $pluginname, $step) {
-        parent::__construct($plugintype, $pluginname, $step);
-        $this->legacynamemap = array('custom_template' => 'pertesttemplate');
-        $revmap = qtype_coderunner::legacy_field_name_map();
-        foreach ($revmap as $new => $old) {
-            $this->legacynamemap[$old] = $new;  // Invert the mapping.
-        }
-    }
-
-    // Legacy code, for supporting a subclassing of coderunner.
-    protected function qtype() {
-        return 'coderunner';
-    }
-
 
     /*
      * Add the options to the restore structure.

@@ -48,6 +48,12 @@ class qtype_coderunner_jobrunner {
         $this->code = $code;
         $this->testcases = $testcases;
         $this->isprecheck = $isprecheck;
+        $this->grader = $question->get_grader();
+        $this->sandbox = $question->get_sandbox();
+        $this->template = $question->get_template();
+        $this->files = $question->get_files();
+        $this->sandboxparams = $question->get_sandbox_params();
+        $this->language = $question->get_language();
 
         Twig_Autoloader::register();
         $loader = new Twig_Loader_String();
@@ -63,12 +69,8 @@ class qtype_coderunner_jobrunner {
         $twigcore->setEscaper('c',  'qtype_coderunner_escapers::java');
         $twigcore->setEscaper('java', 'qtype_coderunner_escapers::java');
         $twigcore->setEscaper('ml', 'qtype_coderunner_escapers::java');
-        $twigcore->setEscaper('matlab', 'qtype_coderunner_escapers::java');
+        $twigcore->setEscaper('matlab', 'qtype_coderunner_escapers::matlab');
 
-        $this->sandbox = $question->get_sandbox();
-        $this->grader = $question->get_grader();
-        $this->files = $question->get_files();
-        $this->sandboxparams = $question->get_sandbox_params();
         $this->allruns = array();
         $this->templateparams = array(
             'STUDENT_ANSWER' => $code,
@@ -78,16 +80,20 @@ class qtype_coderunner_jobrunner {
             'QUESTION' => $question
          );
 
-        $outcome = $this->run_with_combinator();
+        if ($question->get_is_combinator() and $this->has_no_stdins()) {
+            $outcome = $this->run_combinator();
+        } else {
+            $outcome = null;
+        }
 
-        // If that failed for any reason (e.g. no combinator template or timeout
-        // or signal) run the tests individually. Any compilation
-        // errors or abnormal terminations (not including signals) in individual
-        // tests bomb the whole test process, but otherwise we should finish
-        // with a TestingOutcome object containing a test result for each test
-        // case.
+        // If that failed for any reason (e.g. timeout or signal), or if the
+        // template isn't a combinator, run the tests individually. Any compilation
+        // errors or stderr output in individual tests bomb the whole test process,
+        // but otherwise we should finish with a TestingOutcome object containing
+        // a test result for each test case.
 
         if ($outcome == null) {
+            assert ($this->grader->name() != 'TemplateGrader');
             $outcome = $this->run_tests_singly();
         }
 
@@ -99,74 +105,64 @@ class qtype_coderunner_jobrunner {
     }
 
 
-    // Try running with the combinator template, which combines all tests into
-    // a single sandbox run.
-    // Only do this if the combinator
-    // is enabled, there are no stdins and the grader is not a per-test-template
-    // grader.
+    // If the template is a combinator, try running all the tests in a single
+    // go.
+    //
     // Special template parameters are STUDENT_ANSWER, the raw submitted code,
-    // ESCAPED_STUDENT_ANSWER, the submitted code with all double quote chars escaped
-    // (for use in a Python statement like s = """{{ESCAPED_STUDENT_ANSWER}}""" and
-    // MATLAB_ESCAPED_STUDENT_ANSWER, a string for use in Matlab intended
-    // to be used as s = sprintf('{{MATLAB_ESCAPED_STUDENT_ANSWER}}')
-    // The escaped versions are deprecated: the use of a twig escaper is
-    // preferred.
-    // Return true if successful.
-    // 26/5/14 - add entire QUESTION to template environment.
-    private function run_with_combinator() {
-        $combinator = $this->question->get_combinator();
-        $iscombinatorgrader = $this->grader->name() === 'CombinatorTemplateGrader';
-        $usecombinator = $iscombinatorgrader || (!empty($combinator) &&
-                $this->has_no_stdins() &&
-                $this->grader->name() !== 'TemplateGrader');
-        if (!$usecombinator) {
-            return null;  // Not our job.
-        }
-
-        // We're OK to use a combinator. Let's go.
+    // IS_PRECHECK, which is true if this is a precheck run, TESTCASES,
+    // a list of all the test cases and QUESTION, the original question object.
+    // Return the testing outcome object if successful else null.
+    private function run_combinator() {
+        $numtests = count($this->testcases);
         $this->templateparams['TESTCASES'] = $this->testcases;
-        $outcome = null;
         $maxmark = $this->maximum_possible_mark();
-        if ($maxmark == 0) {
-            $maxmark = 1; // Must be a combinator template grader.
+        $outcome = new qtype_coderunner_testing_outcome($maxmark, $numtests);
+        try {
+            $testprog = $this->twig->render($this->template, $this->templateparams);
+        } catch (Exception $e) {
+            $outcome->set_status(
+                    qtype_coderunner_testing_outcome::STATUS_SYNTAX_ERROR,
+                    get_string('templateerror', 'qtype_coderunner') . $e->getMessage());
+            return $outcome;
         }
-
-        $testprog = $this->twig->render($combinator, $this->templateparams);
 
         $this->allruns[] = $testprog;
-        $run = $this->sandbox->execute($testprog, $this->question->get_language(),
+        $run = $this->sandbox->execute($testprog, $this->language,
                 null, $this->files, $this->sandboxparams);
 
-        // If it's a combinator grader, we pass the result to the
+        // If it's a template grader, we pass the result to the
         // do_combinator_grading method. Otherwise we deal with syntax errors or
         // a successful result without accompanying stderr.
         // In all other cases (runtime error etc) we give up
         // on the combinator.
-        $numtests = count($this->testcases);
+
         if ($run->error !== qtype_coderunner_sandbox::OK) {
-            $outcome = new qtype_coderunner_testing_outcome($maxmark,
-                    $numtests,
+            $outcome->set_status(
                     qtype_coderunner_testing_outcome::STATUS_SANDBOX_ERROR,
                     qtype_coderunner_sandbox::error_string($run->error));
-        } else if ($iscombinatorgrader) {
+        } else if ($this->grader->name() === 'TemplateGrader') {
             $outcome = $this->do_combinator_grading($maxmark, $run);
         } else if ($run->result === qtype_coderunner_sandbox::RESULT_COMPILATION_ERROR) {
-            $outcome = new qtype_coderunner_testing_outcome($maxmark,
-                    $numtests,
+            $outcome->set_status(
                     qtype_coderunner_testing_outcome::STATUS_SYNTAX_ERROR,
                     $run->cmpinfo);
-        } else if ($run->result === qtype_coderunner_sandbox::RESULT_SUCCESS && !$run->stderr) {
+        } else if ($run->result === qtype_coderunner_sandbox::RESULT_SUCCESS) {
             $outputs = preg_split($this->question->get_test_splitter_re(), $run->output);
-            if (count($outputs) == count($this->testcases)) {
-                $outcome = new qtype_coderunner_testing_outcome($maxmark, $numtests);
+            if (count($outputs) === $numtests) {
                 $i = 0;
                 foreach ($this->testcases as $testcase) {
                     $outcome->add_test_result($this->grade($outputs[$i], $testcase));
                     $i++;
                 }
+            } else {  // Error: wrong number of tests after splitting
+                $error = get_string('brokencombinator', 'qtype_coderunner',
+                        array('numtests' => $numtests, 'numresults' => count($outputs)));
+                $badtest = new qtype_coderunner_test_result(null, false, 0, $error);
+                $outcome->add_test_result($badtest);
             }
+        } else {
+            $outcome = null; // Something broke badly
         }
-
         return $outcome;
     }
 
@@ -176,11 +172,14 @@ class qtype_coderunner_jobrunner {
         $maxmark = $this->maximum_possible_mark($this->testcases);
         $numtests = count($this->testcases);
         $outcome = new qtype_coderunner_testing_outcome($maxmark, $numtests);
-        $template = $this->question->get_per_test_template();
         foreach ($this->testcases as $testcase) {
-            $this->templateparams['TEST'] = $testcase;
+            if ($this->question->iscombinatortemplate) {
+                $this->templateparams['TESTCASES'] = array($testcase);
+            } else {
+                $this->templateparams['TEST'] = $testcase;
+            }
             try {
-                $testprog = $this->twig->render($template, $this->templateparams);
+                $testprog = $this->twig->render($this->template, $this->templateparams);
             } catch (Exception $e) {
                 $outcome->set_status(
                         qtype_coderunner_testing_outcome::STATUS_SYNTAX_ERROR,
@@ -190,7 +189,7 @@ class qtype_coderunner_jobrunner {
 
             $input = isset($testcase->stdin) ? $testcase->stdin : '';
             $this->allruns[] = $testprog;
-            $run = $this->sandbox->execute($testprog, $this->question->language,
+            $run = $this->sandbox->execute($testprog, $this->language,
                     $input, $this->files, $this->sandboxparams);
             if ($run->error !== qtype_coderunner_sandbox::OK) {
                 $outcome->set_status(
@@ -208,12 +207,7 @@ class qtype_coderunner_jobrunner {
                 $outcome->add_test_result($this->grade($errormessage, $testcase, $iserror));
                 break;
             } else {
-                // Successful run. Merge stdout and stderr for grading.
-                // Rarely if ever do we get both stderr output and a
-                // RESULT_SUCCESS result but it has been known to happen in the
-                // past, possibly with a now-defunct sandbox.
-                $output = $run->stderr ? $run->output + '\n' + $run->stderr : $run->output;
-                $testresult = $this->grade($output, $testcase);
+                $testresult = $this->grade($run->output, $testcase);
                 $aborting = false;
                 if (isset($testresult->abort) && $testresult->abort) { // Templategrader abort request?
                     $testresult->awarded = 0;  // Mark it wrong regardless.

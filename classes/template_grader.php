@@ -36,12 +36,17 @@ class qtype_coderunner_template_grader extends qtype_coderunner_grader {
         return "TemplateGrader";
     }
 
-    /** Called to grade the output from a given testcase run when
+    /** Called to grade the output from a given run when
      *  the template was used to generate a program that does both the test
      *  execution and the grading of the result.
      *  Returns a single TestResult object.
      *  Should not be called if the execution failed (syntax error, exception
      *  etc).
+     *  Should also not be called if the template is a combinator template
+     *  as in that case an entire TestingOutcome needs to be build from the
+     *  output rather than a single TestResult as for all normal graders.
+     *  Construction of the TestingOutcome in the case of a combinator template
+     *  grading is done by jobrunner.php.
      */
     protected function grade_known_good(&$output, &$testcase) {
         $result = json_decode($output);

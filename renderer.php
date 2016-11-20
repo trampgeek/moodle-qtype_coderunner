@@ -542,7 +542,8 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
     // True iff the given test result should be displayed.
     private function should_display_result($testresult) {
-        return $testresult->display == 'SHOW' ||
+        return !isset($testresult->display) ||  // e.g. broken combinator template
+             $testresult->display == 'SHOW' ||
             ($testresult->display == 'HIDE_IF_FAIL' && $testresult->iscorrect) ||
             ($testresult->display == 'HIDE_IF_SUCCEED' && !$testresult->iscorrect);
     }

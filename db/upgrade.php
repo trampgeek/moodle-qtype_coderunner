@@ -65,71 +65,46 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
 
     update_question_types();
 
+    if ($oldversion != 0 && $oldversion < 2016112107) {
+
+        // Add fields 'template' and 'iscombinator'. Leave old pertesttemplate
+        // and combinatortemplate fields in the DB for now, but they're defunct.
+        $table = new xmldb_table('question_coderunner_options');
+        $field = new xmldb_field('template', XMLDB_TYPE_TEXT, null, null, null, null, null, 'resultcolumns');
+
+        // Conditionally launch add field template.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $field = new xmldb_field('iscombinatortemplate', XMLDB_TYPE_INTEGER, '1', null, null, null, '0', 'template');
+
+        // Conditionally launch add field iscombinator.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // For each question that has its own template(s) defined (mostly
+        // prototypes) copy either the per-test-template or combinator-template
+        // into the new template field and set iscombinator accordingly.
+        $sql1 = "UPDATE " . $CFG->prefix . "question_coderunner_options " .
+               "SET template = pertesttemplate, iscombinatortemplate = 0 " .
+               "WHERE enablecombinator = 0 " .
+               "AND TRIM(COALESCE(pertesttemplate, '')) <> ''";
+        $DB->execute($sql1);
+
+        $sql2 = "UPDATE " . $CFG->prefix . "question_coderunner_options " .
+       "SET template = combinatortemplate, iscombinatortemplate = 1 " .
+       "WHERE enablecombinator = 1 " .
+       "AND TRIM(COALESCE(combinatortemplate, '')) <> ''";
+        $DB->execute($sql2);
+
+        // Coderunner savepoint reached.
+        upgrade_plugin_savepoint(true, 2016112107, 'qtype', 'coderunner');
+    }
+
     return true;
 
-}
-
-
-function update_to_use_prototypes() {
-    global $CFG, $DB;
-    $dbman = $DB->get_manager();
-
-    $table = new xmldb_table('quest_coderunner_options');
-
-    $field = new xmldb_field('prototype_type', XMLDB_TYPE_INTEGER, '1', null, null, null, '0', 'coderunner_type');
-
-    // Conditionally launch add field prototype_type.
-    if (!$dbman->field_exists($table, $field)) {
-        $dbman->add_field($table, $field);
-    }
-
-    $field = new xmldb_field('combinator_template', XMLDB_TYPE_TEXT, null, null, null, null, null, 'showmark');
-
-    // Conditionally launch add field combinator_template.
-    if (!$dbman->field_exists($table, $field)) {
-        $dbman->add_field($table, $field);
-    }
-
-    $field = new xmldb_field('test_splitter_re', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'combinator_template');
-
-    // Conditionally launch add field test_splitter_re.
-    if (!$dbman->field_exists($table, $field)) {
-        $dbman->add_field($table, $field);
-    }
-
-    $field = new xmldb_field('language', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'per_test_template');
-
-    // Conditionally launch add field language.
-    if (!$dbman->field_exists($table, $field)) {
-        $dbman->add_field($table, $field);
-    }
-
-    $field = new xmldb_field('sandbox', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'language');
-
-    // Conditionally launch add field sandbox.
-    if (!$dbman->field_exists($table, $field)) {
-        $dbman->add_field($table, $field);
-    }
-
-    $index = new xmldb_index('prototype_type', XMLDB_INDEX_NOTUNIQUE, array('prototype_type'));
-
-    // Conditionally launch add index prototype_type.
-    if (!$dbman->index_exists($table, $index)) {
-        $dbman->add_index($table, $index);
-    }
-
-    $index = new xmldb_index('coderunner_type', XMLDB_INDEX_NOTUNIQUE, array('coderunner_type'));
-
-    // Conditionally launch add index coderunner_type.
-    if (!$dbman->index_exists($table, $index)) {
-        $dbman->add_index($table, $index);
-    }
-
-    $table = new xmldb_table('quest_coderunner_types');
-    // Conditionally launch drop table coderunner_types.
-    if ($dbman->table_exists($table)) {
-        $dbman->drop_table($table);
-    }
 }
 
 
@@ -227,41 +202,6 @@ function load_questions($category, $importfilename, $contextid) {
         throw new coding_exception('Upgrade failed: error postprocessing prototype upload');
     }
     ob_end_clean();
-}
-
-
-function make_result_columns() {
-    // Find all questions using non-standard result table display and
-    // build a result_columns field that matches the currently defined
-    // set of showtest, showstdin, showexpected, showoutput and showmark
-    // This code should only run prior to the version 2.4 upgrade.
-    global $DB;
-
-    $questions = $DB->get_records_select('quest_coderunner_options',
-            "showtest != 1 or showstdin != 1 or showexpected != 1 or showoutput != 1 or showmark = 1");
-    foreach ($questions as $q) {
-        $cols = array();
-        if ($q->showtest) {
-            $cols[] = '["Test", "testcode"]';
-        }
-        if ($q->showstdin) {
-            $cols[] = '["Input", "stdin"]';
-        }
-        if ($q->showexpected) {
-            $cols[] = '["Expected", "expected"]';
-        }
-        if ($q->showoutput) {
-            $cols[] = '["Got", "got"]';
-        }
-        if ($q->showmark) {
-            $cols[] = '["Mark", "awarded", "mark", "%.2f/%.2f"]';
-        }
-        $field = '[' . implode(",", $cols) . ']';
-        $rowid = $q->id;
-        $query = "UPDATE {quest_coderunner_options} "
-            . "SET result_columns = '$field' WHERE id=$rowid";
-        $DB->execute($query);
-    }
 }
 
 

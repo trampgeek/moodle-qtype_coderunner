@@ -53,13 +53,12 @@ class qtype_coderunner_walkthrough_extras_test extends qbehaviour_walkthrough_te
                           'mark'      => 1.0,
                           'hiderestiffail'  => 0)
             );
-        $q->pertesttemplate = <<<EOTEMPLATE
+        $q->template = <<<EOTEMPLATE
 {{ STUDENT_ANSWER }}
 {{ TEST.extra }}  # Use this instead of the normal testcode field
 EOTEMPLATE;
         $q->allornothing = false;
-        $q->customise = true;
-        $q->enablecombinator = false;
+        $q->iscombinatortemplate = false;
         $q->unitpenalty = 0;
 
         // Submit a right answer.

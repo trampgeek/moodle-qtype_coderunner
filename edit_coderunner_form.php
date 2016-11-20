@@ -26,7 +26,6 @@ defined('MOODLE_INTERNAL') || die();
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License
  */
 
-require_once($CFG->dirroot . '/question/type/coderunner/sandbox/sandboxbase.php');
 require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
 
 use qtype_coderunner\constants;
@@ -339,16 +338,12 @@ class qtype_coderunner_edit_form extends question_edit_form {
             $errors['templateparams'] = get_string('badtemplateparams', 'qtype_coderunner');
         }
 
-        if ($data['prototypetype'] == 0 && $data['grader'] !== 'qtype_coderunner_combinator_template_grader') {
+        if ($data['prototypetype'] == 0 && ($data['grader'] !== 'qtype_coderunner_template_grader'
+                || $data['iscombinator'] === false)) {
             // Unless it's a prototype or uses a combinator-template grader,
             // it needs at least one testcase.
             $testcaseerrors = $this->validate_test_cases($data);
             $errors = array_merge($errors, $testcaseerrors);
-        }
-
-        if ($data['grader'] === 'qtype_coderunner_combinator_template_grader' &&
-                $data['enablecombinator'] == false) {
-            $errors['combinatorcontrols'] = get_string('combinator_required', 'qtype_coderunner');
         }
 
         if ($data['prototypetype'] == 2 && ($data['saved_prototype_type'] != 2 ||
@@ -505,21 +500,31 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->addElement('header', 'customisationheader',
                 get_string('customisation', 'qtype_coderunner'));
 
-        $mform->addElement('textarea', 'pertesttemplate',
+        $mform->addElement('textarea', 'template',
                 get_string('template', 'qtype_coderunner'),
                 array('rows'  => 8,
                       'class' => 'template edit_code',
-                      'name'  => 'pertesttemplate'));
+                      'name'  => 'template'));
+        $mform->addHelpButton('template', 'template', 'qtype_coderunner');
 
-        $mform->addHelpButton('pertesttemplate', 'template', 'qtype_coderunner');
+        $templatecontrols = array();
+        $templatecontrols[] = $mform->createElement('advcheckbox', 'iscombinatortemplate', null,
+                get_string('iscombinatortemplate', 'qtype_coderunner'));
+
+        $templatecontrols[] =& $mform->createElement('text', 'testsplitterre',
+                get_string('testsplitterre', 'qtype_coderunner'),
+                array('size' => 45));
+        $mform->setType('testsplitterre', PARAM_RAW);
+        $mform->addElement('group', 'templatecontrols', get_string('templatecontrols', 'qtype_coderunner'),
+                $templatecontrols, null, false);
+        $mform->addHelpButton('templatecontrols', 'templatecontrols', 'qtype_coderunner');
+
         $gradingcontrols = array();
-        $gradertypes = array('EqualityGrader' => 'Exact match',
-                'NearEqualityGrader' => 'Nearly exact match',
-                'RegexGrader' => 'Regular expression',
-                'TemplateGrader' => 'Per-test-template grader',
-                'CombinatorTemplateGrader' => 'Combinator-template grader');
-        $gradingcontrols[] = $mform->createElement('select', 'grader',
-                null, $gradertypes);
+        $gradertypes = array('EqualityGrader' => get_string('equalitygrader', 'qtype_coderunner'),
+                'NearEqualityGrader' => get_string('nearequalitygrader', 'qtype_coderunner'),
+                'RegexGrader'    => get_string('regexgrader', 'qtype_coderunner'),
+                'TemplateGrader' => get_string('templategrader', 'qtype_coderunner'));
+        $gradingcontrols[] = $mform->createElement('select', 'grader', null, $gradertypes);
         $mform->addElement('group', 'gradingcontrols',
                 get_string('grading', 'qtype_coderunner'), $gradingcontrols,
                 null, false);
@@ -598,27 +603,8 @@ class qtype_coderunner_edit_form extends question_edit_form {
             $languages, null, false);
         $mform->addHelpButton('languages', 'languages', 'qtype_coderunner');
 
-        $combinatorcontrols = array();
-
-        $combinatorcontrols[] =& $mform->createElement('advcheckbox', 'enablecombinator', null,
-                get_string('enablecombinator', 'qtype_coderunner'));
-        $combinatorcontrols[] =& $mform->createElement('text', 'testsplitterre',
-                get_string('testsplitterre', 'qtype_coderunner'),
-                array('size' => 45));
-        $mform->setType('testsplitterre', PARAM_RAW);
         $mform->disabledIf('typename', 'prototypetype', 'neq', '2');
-
-        $combinatorcontrols[] =& $mform->createElement('textarea', 'combinatortemplate',
-                '',
-                array('rows' => 8, 'class' => 'template edit_code',
-                      'name' => 'combinatortemplate'));
-
-        $mform->addElement('group', 'combinatorcontrols',
-                get_string('combinatorcontrols', 'qtype_coderunner'),
-                $combinatorcontrols, null, false);
-
-        $mform->addHelpButton('combinatorcontrols', 'combinatorcontrols', 'qtype_coderunner');
-
+        $mform->disabledIf('testsplitterre', 'iscombinatortemplate', 'eq', 0);
     }
 
     // UTILITY FUNCTIONS.

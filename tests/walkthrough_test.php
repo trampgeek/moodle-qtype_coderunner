@@ -178,7 +178,7 @@ class qtype_coderunner_walkthrough_test extends qbehaviour_walkthrough_test_base
 
     public function test_grading_template_output() {
         $q = test_question_maker::make_question('coderunner', 'sqrnoprint');
-        $q->pertesttemplate = <<<EOTEMPLATE
+        $q->template = <<<EOTEMPLATE
 {{ STUDENT_ANSWER }}
 got = str({{TEST.testcode}})
 expected = """{{TEST.expected|e('py')}}""".strip()
@@ -191,10 +191,9 @@ elif expected == got:
 else:
     print('{"fraction":"0","expected":"Twiddlydee"}')
 EOTEMPLATE;
+        $q->iscombinatortemplate = false;
         $q->allornothing = false;
         $q->grader = 'TemplateGrader';
-        $q->customise = true;
-        $q->enablecombinator = false;
         $q->unitpenalty = 0;
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
 
@@ -225,7 +224,7 @@ EOTEMPLATE;
      */
     public function test_grading_template_abort() {
         $q = test_question_maker::make_question('coderunner', 'sqrnoprint');
-        $q->pertesttemplate = <<<EOTEMPLATE
+        $q->template = <<<EOTEMPLATE
 {{ STUDENT_ANSWER }}
 got = {{TEST.testcode}}  # e.g. sqr(-11)
 expected = got
@@ -234,10 +233,9 @@ if expected != 121:
 else:
     print('{"fraction":1.0,"got":"121","expected":"Twiddlydum","abort":true}')
 EOTEMPLATE;
+        $q->iscombinatortemplate = false;
         $q->allornothing = false;
         $q->grader = 'TemplateGrader';
-        $q->customise = true;
-        $q->enablecombinator = false;
         $q->unitpenalty = 0;
 
         // Submit a right answer. Because the template sets abort when it
@@ -256,7 +254,7 @@ EOTEMPLATE;
            table as the raw html contents of the "got" column.
          */
         $q = test_question_maker::make_question('coderunner', 'sqrnoprint');
-        $q->pertesttemplate = <<<EOTEMPLATE
+        $q->template = <<<EOTEMPLATE
 {{ STUDENT_ANSWER }}
 got = str({{TEST.testcode}})
 expected = """{{TEST.expected|e('py')}}""".strip()
@@ -269,10 +267,9 @@ elif expected == got:
 else:
     print('{"fraction":"0","expected_html": "<h2>Header</h2>", "got_html":"<script>document.write(\'YeeHa\')</script>"}')
 EOTEMPLATE;
+        $q->iscombinatortemplate = false;
         $q->allornothing = false;
         $q->grader = 'TemplateGrader';
-        $q->customise = true;
-        $q->enablecombinator = false;
         $q->unitpenalty = 0;
         $q->resultcolumns = '[["Test", "testcode"], ["Expected", "expected_html", "%h"], ["Got", "got_html", "%h"]]';
 
@@ -292,7 +289,7 @@ EOTEMPLATE;
         // two occurrences of each of the tokens 'hi' and 'ho' and awards
         // a mark according to how well this criterion is satisfied.
         $q = test_question_maker::make_question('coderunner', 'sqrnoprint');
-        $q->combinatortemplate = <<<EOTEMPLATE
+        $q->template = <<<EOTEMPLATE
 import json
 answer = """{{ STUDENT_ANSWER | e('py') }}"""
 tokens = answer.split()
@@ -309,10 +306,9 @@ else:
     feedback = template.format(num_hi, num_ho)
 print(json.dumps({'fraction': fraction, 'feedback_html': feedback}))
 EOTEMPLATE;
+        $q->iscombinatortemplate = true;
         $q->allornothing = false;
-        $q->grader = 'CombinatorTemplateGrader';
-        $q->customise = true;
-        $q->enablecombinator = true;
+        $q->grader = 'TemplateGrader';
         $q->unitpenalty = 0;
 
         // Submit a right answer.

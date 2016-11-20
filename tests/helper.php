@@ -73,7 +73,6 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $form = new stdClass();
 
         $form->coderunnertype = 'python3';
-        $form->customise = 0;
         $form->showsource = 0;
         $form->answerboxlines = 18;
         $form->answerboxcolumns = 100;
@@ -84,7 +83,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $form->prototypetype = 0;
         $form->sandbox = 'DEFAULT';
         $form->language = 'python3';
-        $form->enablecombinator = 1;
+        $form->iscombinatortemplate = 0;
         $form->testsplitterre = '|#<ab@17943918#@>#\n|ms';
         $form->name = 'Square function';
         $form->questiontext = array('text' => 'Write a function sqr(n) that returns n squared.', 'format' => FORMAT_HTML);
@@ -205,8 +204,8 @@ class qtype_coderunner_test_helper extends question_test_helper {
     public function make_coderunner_question_sqr_customised() {
         $q = $this->make_coderunner_question_sqr_subtype('python3',
           array(
-            'pertesttemplate' => "def times(a, b): return a * b\n\n{{STUDENT_ANSWER}}\n\n{{TEST.testcode}}\n",
-            'enablecombinator' => false)
+            'template' => "def times(a, b): return a * b\n\n{{STUDENT_ANSWER}}\n\n{{TEST.testcode}}\n",
+            'iscombinatortemplate' => false)
           );
         return $q;
     }
@@ -572,7 +571,7 @@ printf(\"%s\\n\", s);
 
     private function make_macro_question($qtype) {
         $options = array();
-        $options['pertesttemplate'] = <<<EOT
+        $options['template'] = <<<EOT
 function tester()
   ESCAPED_STUDENT_ANSWER =  sprintf('{{MATLAB_ESCAPED_STUDENT_ANSWER}}');
   {{TEST.testcode}};quit();
@@ -581,9 +580,9 @@ end
 {{STUDENT_ANSWER}}
 EOT;
         if ($qtype === 'octave_function') {
-            $options['pertesttemplate'] .= "\n\ntester()\n";
+            $options['template'] .= "\n\ntester()\n";
         }
-        $options['enablecombinator'] = false;
+        $options['iscombinatortemplate'] = false;
 
         $questiontext = <<<EOT
  Enter the following program:
@@ -667,8 +666,8 @@ EOT
              ),
              array('language'          => 'nodejs',
                    'sandboxparams'    => '{"memorylimit": 1000000}',
-                   'pertesttemplate' => "{{STUDENT_ANSWER}}\n{{TEST.testcode}}\n",
-                   'enablecombinator' => false)
+                   'template' => "{{STUDENT_ANSWER}}\n{{TEST.testcode}}\n",
+                   'iscombinatortemplate' => false)
         );
         return $coderunner;
     }
@@ -776,8 +775,8 @@ EOPROG;
                         'stdin'    => "5\n",
                         'expected' => "a0\nb\t\nc\f\nd'This is a string'\n\"So is this\"")
                 ),
-                array('pertesttemplate' => $template,
-                      'enablecombinator' => false)
+                array('template' => $template,
+                      'iscombinator' => false)
         );
         return $q;
     }
@@ -846,7 +845,7 @@ EOPROG;
     // of info, add in all the other necessary fields to get an array of
     // testcase objects.
     private static function make_test_cases($rawtests) {
-        $basictest = array('type'           => 0,
+        $basictest = array('testtype'           => 0,
                            'testcode'       => '',
                            'stdin'          => '',
                            'extra'          => '',
@@ -886,7 +885,6 @@ EOPROG;
         $coderunner->generalfeedback = 'No feedback available for coderunner questions.';
         $coderunner->unitpenalty = 0.2;
         $coderunner->penaltyregime = '';
-        $coderunner->customise = false;
         $coderunner->testcases = self::make_test_cases($testcases);
         $coderunner->options = array();
         $coderunner->isnew = true;  // Extra field normally added by save_question.
