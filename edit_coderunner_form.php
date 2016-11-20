@@ -26,7 +26,6 @@ defined('MOODLE_INTERNAL') || die();
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License
  */
 
-require_once($CFG->dirroot . '/question/type/coderunner/sandbox/sandboxbase.php');
 require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
 
 use qtype_coderunner\constants;
