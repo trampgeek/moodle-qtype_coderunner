@@ -28,6 +28,8 @@ require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
 
 /**
  * restore plugin class for coderunner questions.
+ *
+ * TODO: fix me!
  */
 class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
 
@@ -120,6 +122,10 @@ class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
         // If the question has been created by restore, we need to create its question_testcases and options too.
         if ($questioncreated) {
             $data->questionid = $newquestionid;
+
+            // TODO - NEED TO MAP FROM PRE 3.1 COLUMN NAMES TO POST 3.1 NAMES.
+            // ***************************************************************
+            //
             // Remap various legacy names to new
             // names, in case we're restoring an earlier-version
             // backup.
