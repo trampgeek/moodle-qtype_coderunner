@@ -90,14 +90,21 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         $sql1 = "UPDATE " . $CFG->prefix . "question_coderunner_options " .
                "SET template = pertesttemplate, iscombinatortemplate = 0 " .
                "WHERE enablecombinator = 0 " .
+               "AND grader <> 'CombinatorTemplateGrader'" .
                "AND TRIM(COALESCE(pertesttemplate, '')) <> ''";
         $DB->execute($sql1);
 
         $sql2 = "UPDATE " . $CFG->prefix . "question_coderunner_options " .
        "SET template = combinatortemplate, iscombinatortemplate = 1 " .
-       "WHERE enablecombinator = 1 " .
+       "WHERE (enablecombinator = 1 " .
+       "OR grader = 'CombinatorTemplateGrader')" .
        "AND TRIM(COALESCE(combinatortemplate, '')) <> ''";
         $DB->execute($sql2);
+
+        $sql3 = "UPDATE " . $CFG->prefix . "question_coderunner_options " .
+        "SET grader = 'TemplateGrader " .
+        "WHERE grader = 'CombinatorTemplateGrader'" .
+        $DB->execute($sql3);
 
         // Coderunner savepoint reached.
         upgrade_plugin_savepoint(true, 2016112107, 'qtype', 'coderunner');
