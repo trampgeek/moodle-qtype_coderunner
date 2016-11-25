@@ -23,7 +23,7 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-class coderunner_bulk_tester  {
+class qtype_coderunner_bulk_tester  {
 
     /**
      * Get all the contexts that contain at least one CodeRunner question, with a

@@ -27,7 +27,6 @@
 require_once(__DIR__ . '/../../../config.php');
 
 require_once($CFG->libdir . '/questionlib.php');
-require_once(__DIR__ . '/coderunner/bulktester.class.php');
 
 
 // Get the parameters from the URL.
@@ -50,7 +49,7 @@ if ($context->contextlevel == CONTEXT_MODULE) {
 }
 
 // Create the helper class.
-$bulktester = new coderunner_bulk_tester();
+$bulktester = new qtype_coderunner_bulk_tester();
 
 // Release the session, so the user can do other things while this runs.
 \core\session\manager::write_close();

@@ -61,9 +61,10 @@ $string['brokencombinator'] = 'Grading error. Expected {$a->numtests} test resul
         'Please report this error to your tutor.';
 $string['bulkquestiontester'] = 'The <a href="{$a->link}">bulk tester script</a> tests that the sample answers ' .
                 'for all questions in the current context are marked right';
-$string['bulktesttitle'] = 'Running all the question tests in {$a}';
+$string['bulktestcontinuefromhere'] = 'Run again or resume, starting from here';
 $string['bulktestindextitle'] = 'CodeRunner bulk testing';
 $string['bulktestrun'] = 'Run all the question tests for all the questions in the system (slow, admin only)';
+$string['bulktesttitle'] = 'Running all the question tests in {$a}';
 
 $string['coderunnercontexts'] = 'Contexts with CodeRunner questions';
 $string['coderunner'] = 'Program Code';
