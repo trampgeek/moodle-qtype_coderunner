@@ -17,20 +17,26 @@
 /**
  * API routines for qtype_coderunner
  *
- * @since 2.0
- * @package questionbank
- * @subpackage questiontypes
+ * @package qtype_coderunner
  * @author Dongsheng Cai <dongsheng@moodle.com>
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 
 defined('MOODLE_INTERNAL') || die();
 
-function qtype_coderunner_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload) {
-    global $DB, $CFG;
+/**
+ * Checks file access for CodeRunner questions.
+ *
+ * @param stdClass $course course object
+ * @param stdClass $cm course module object
+ * @param stdClass $context context object
+ * @param string $filearea file area
+ * @param array $args extra arguments
+ * @param bool $forcedownload whether or not force download
+ * @param array $options additional options affecting the file serving
+ */
+function qtype_coderunner_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options = array()) {
+    global $CFG;
     require_once($CFG->libdir . '/questionlib.php');
-    question_pluginfile($course, $context, 'qtype_coderunner', $filearea, $args, $forcedownload);
+    question_pluginfile($course, $context, 'qtype_coderunner', $filearea, $args, $forcedownload, $options);
 }
-
-
