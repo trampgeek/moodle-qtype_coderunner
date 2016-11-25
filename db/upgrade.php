@@ -102,8 +102,8 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         $DB->execute($sql2);
 
         $sql3 = "UPDATE " . $CFG->prefix . "question_coderunner_options " .
-        "SET grader = 'TemplateGrader " .
-        "WHERE grader = 'CombinatorTemplateGrader'" .
+        "SET grader = 'TemplateGrader' " .
+        "WHERE grader = 'CombinatorTemplateGrader'";
         $DB->execute($sql3);
 
         // Coderunner savepoint reached.
