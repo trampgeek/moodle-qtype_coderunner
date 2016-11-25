@@ -38,7 +38,7 @@ require_login();
 //require_capability('qtype/coderunner:usediagnostictools', $context);
 $PAGE->set_url('/question/type/coderunner/bulktest.php', array('contextid' => $context->id));
 $PAGE->set_context($context);
-$title = get_string('bulktesttitle', 'qtype_coderunner',$context->get_context_name());
+$title = get_string('bulktesttitle', 'qtype_coderunner', $context->get_context_name());
 $PAGE->set_title($title);
 
 if ($context->contextlevel == CONTEXT_MODULE) {

@@ -92,7 +92,8 @@ class qtype_coderunner_bulk_tester  {
                 try {
                     $question = question_bank::load_question($questionid);
                 } catch (qtype_coderunner_exception $e) {
-                    echo "<p>\n**** " . get_string('questionloaderror', 'qtype_coderunner') . " $questionname: " . $e->getMessage() . " ****</p>";
+                    echo "<p>\n**** " . get_string('questionloaderror', 'qtype_coderunner') .
+                            " $questionname: " . $e->getMessage() . " ****</p>";
                     continue;
                 }
 
@@ -123,17 +124,17 @@ class qtype_coderunner_bulk_tester  {
         core_php_time_limit::raise(60); // Prevent PHP timeouts.
         gc_collect_cycles(); // Because PHP's default memory management is rubbish.
 
-        // Grade the question
+        // Grade the question.
         $answer = $question->answer;
         try {
             list($fraction, $state) = $question->grade_response(array('answer' => $answer), false);
             $ok = $state == question_state::$gradedright;
         } catch (qtype_coderunner_exception $e) {
-            $ok = false; // If user clicks link to see why, they'll get the same exception
+            $ok = false; // If user clicks link to see why, they'll get the same exception.
         }
 
-        echo html_writer::tag('p', $ok ? get_string('pass', 'qtype_coderunner') :
-            get_string('fail', 'qtype_coderunner'));
+        echo html_writer::tag('p',
+                $ok ? get_string('pass', 'qtype_coderunner') : get_string('fail', 'qtype_coderunner'));
 
         flush(); // Force output to prevent timeouts and to make progress clear.
 
