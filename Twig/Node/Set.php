@@ -30,17 +30,12 @@ class Twig_Node_Set extends Twig_Node
 
             $values = $this->getNode('values');
             if ($values instanceof Twig_Node_Text) {
-                $this->setNode('values', new Twig_Node_Expression_Constant($values->getAttribute('data'), $values->getLine()));
+                $this->setNode('values', new Twig_Node_Expression_Constant($values->getAttribute('data'), $values->getTemplateLine()));
                 $this->setAttribute('capture', false);
             }
         }
     }
 
-    /**
-     * Compiles the node to PHP.
-     *
-     * @param Twig_Compiler A Twig_Compiler instance
-     */
     public function compile(Twig_Compiler $compiler)
     {
         $compiler->addDebugInfo($this);

@@ -19,6 +19,8 @@
  * @see http://en.wikipedia.org/wiki/Operator-precedence_parser
  *
  * @author Fabien Potencier <fabien@symfony.com>
+ *
+ * @internal
  */
 class Twig_ExpressionParser
 {
@@ -29,11 +31,23 @@ class Twig_ExpressionParser
     protected $unaryOperators;
     protected $binaryOperators;
 
-    public function __construct(Twig_Parser $parser, array $unaryOperators, array $binaryOperators)
+    private $env;
+
+    public function __construct(Twig_Parser $parser, Twig_Environment $env = null)
     {
         $this->parser = $parser;
-        $this->unaryOperators = $unaryOperators;
-        $this->binaryOperators = $binaryOperators;
+
+        if ($env instanceof Twig_Environment) {
+            $this->env = $env;
+            $this->unaryOperators = $env->getUnaryOperators();
+            $this->binaryOperators = $env->getBinaryOperators();
+        } else {
+            @trigger_error('Passing the operators as constructor arguments to '.__METHOD__.' is deprecated since version 1.27. Pass the environment instead.', E_USER_DEPRECATED);
+
+            $this->env = $parser->getEnvironment();
+            $this->unaryOperators = func_get_arg(1);
+            $this->binaryOperators = func_get_arg(2);
+        }
     }
 
     public function parseExpression($precedence = 0)
@@ -44,7 +58,11 @@ class Twig_ExpressionParser
             $op = $this->binaryOperators[$token->getValue()];
             $this->parser->getStream()->next();
 
-            if (isset($op['callable'])) {
+            if ('is not' === $token->getValue()) {
+                $expr = $this->parseNotTestExpression($expr);
+            } elseif ('is' === $token->getValue()) {
+                $expr = $this->parseTestExpression($expr);
+            } elseif (isset($op['callable'])) {
                 $expr = call_user_func($op['callable'], $this->parser, $expr);
             } else {
                 $expr1 = $this->parseExpression(self::OPERATOR_LEFT === $op['associativity'] ? $op['precedence'] + 1 : $op['precedence']);
@@ -86,18 +104,15 @@ class Twig_ExpressionParser
 
     protected function parseConditionalExpression($expr)
     {
-        while ($this->parser->getStream()->test(Twig_Token::PUNCTUATION_TYPE, '?')) {
-            $this->parser->getStream()->next();
-            if (!$this->parser->getStream()->test(Twig_Token::PUNCTUATION_TYPE, ':')) {
+        while ($this->parser->getStream()->nextIf(Twig_Token::PUNCTUATION_TYPE, '?')) {
+            if (!$this->parser->getStream()->nextIf(Twig_Token::PUNCTUATION_TYPE, ':')) {
                 $expr2 = $this->parseExpression();
-                if ($this->parser->getStream()->test(Twig_Token::PUNCTUATION_TYPE, ':')) {
-                    $this->parser->getStream()->next();
+                if ($this->parser->getStream()->nextIf(Twig_Token::PUNCTUATION_TYPE, ':')) {
                     $expr3 = $this->parseExpression();
                 } else {
                     $expr3 = new Twig_Node_Expression_Constant('', $this->parser->getCurrentToken()->getLine());
                 }
             } else {
-                $this->parser->getStream()->next();
                 $expr2 = $expr;
                 $expr3 = $this->parseExpression();
             }
@@ -167,6 +182,21 @@ class Twig_ExpressionParser
                     $this->parser->getStream()->next();
                     $node = new Twig_Node_Expression_Name($token->getValue(), $token->getLine());
                     break;
+                } elseif (isset($this->unaryOperators[$token->getValue()])) {
+                    $class = $this->unaryOperators[$token->getValue()]['class'];
+
+                    $ref = new ReflectionClass($class);
+                    $negClass = 'Twig_Node_Expression_Unary_Neg';
+                    $posClass = 'Twig_Node_Expression_Unary_Pos';
+                    if (!(in_array($ref->getName(), array($negClass, $posClass)) || $ref->isSubclassOf($negClass) || $ref->isSubclassOf($posClass))) {
+                        throw new Twig_Error_Syntax(sprintf('Unexpected unary operator "%s".', $token->getValue()), $token->getLine(), $this->parser->getStream()->getSourceContext()->getName());
+                    }
+
+                    $this->parser->getStream()->next();
+                    $expr = $this->parsePrimaryExpression();
+
+                    $node = new $class($expr, $token->getLine());
+                    break;
                 }
 
             default:
@@ -175,7 +205,7 @@ class Twig_ExpressionParser
                 } elseif ($token->test(Twig_Token::PUNCTUATION_TYPE, '{')) {
                     $node = $this->parseHashExpression();
                 } else {
-                    throw new Twig_Error_Syntax(sprintf('Unexpected token "%s" of value "%s"', Twig_Token::typeToEnglish($token->getType(), $token->getLine()), $token->getValue()), $token->getLine(), $this->parser->getFilename());
+                    throw new Twig_Error_Syntax(sprintf('Unexpected token "%s" of value "%s".', Twig_Token::typeToEnglish($token->getType()), $token->getValue()), $token->getLine(), $this->parser->getStream()->getSourceContext()->getName());
                 }
         }
 
@@ -190,12 +220,10 @@ class Twig_ExpressionParser
         // a string cannot be followed by another string in a single expression
         $nextCanBeString = true;
         while (true) {
-            if ($stream->test(Twig_Token::STRING_TYPE) && $nextCanBeString) {
-                $token = $stream->next();
+            if ($nextCanBeString && $token = $stream->nextIf(Twig_Token::STRING_TYPE)) {
                 $nodes[] = new Twig_Node_Expression_Constant($token->getValue(), $token->getLine());
                 $nextCanBeString = false;
-            } elseif ($stream->test(Twig_Token::INTERPOLATION_START_TYPE)) {
-                $stream->next();
+            } elseif ($stream->nextIf(Twig_Token::INTERPOLATION_START_TYPE)) {
                 $nodes[] = $this->parseExpression();
                 $stream->expect(Twig_Token::INTERPOLATION_END_TYPE);
                 $nextCanBeString = true;
@@ -206,7 +234,7 @@ class Twig_ExpressionParser
 
         $expr = array_shift($nodes);
         foreach ($nodes as $node) {
-            $expr = new Twig_Node_Expression_Binary_Concat($expr, $node, $node->getLine());
+            $expr = new Twig_Node_Expression_Binary_Concat($expr, $node, $node->getTemplateLine());
         }
 
         return $expr;
@@ -261,15 +289,14 @@ class Twig_ExpressionParser
             //  * a string -- 'a'
             //  * a name, which is equivalent to a string -- a
             //  * an expression, which must be enclosed in parentheses -- (1 + 2)
-            if ($stream->test(Twig_Token::STRING_TYPE) || $stream->test(Twig_Token::NAME_TYPE) || $stream->test(Twig_Token::NUMBER_TYPE)) {
-                $token = $stream->next();
+            if (($token = $stream->nextIf(Twig_Token::STRING_TYPE)) || ($token = $stream->nextIf(Twig_Token::NAME_TYPE)) || $token = $stream->nextIf(Twig_Token::NUMBER_TYPE)) {
                 $key = new Twig_Node_Expression_Constant($token->getValue(), $token->getLine());
             } elseif ($stream->test(Twig_Token::PUNCTUATION_TYPE, '(')) {
                 $key = $this->parseExpression();
             } else {
                 $current = $stream->getCurrent();
 
-                throw new Twig_Error_Syntax(sprintf('A hash key must be a quoted string, a number, a name, or an expression enclosed in parentheses (unexpected token "%s" of value "%s"', Twig_Token::typeToEnglish($current->getType(), $current->getLine()), $current->getValue()), $current->getLine(), $this->parser->getFilename());
+                throw new Twig_Error_Syntax(sprintf('A hash key must be a quoted string, a number, a name, or an expression enclosed in parentheses (unexpected token "%s" of value "%s".', Twig_Token::typeToEnglish($current->getType()), $current->getValue()), $current->getLine(), $stream->getSourceContext()->getName());
             }
 
             $stream->expect(Twig_Token::PUNCTUATION_TYPE, ':', 'A hash key must be followed by a colon (:)');
@@ -306,25 +333,30 @@ class Twig_ExpressionParser
     {
         switch ($name) {
             case 'parent':
-                $args = $this->parseArguments();
+                $this->parseArguments();
                 if (!count($this->parser->getBlockStack())) {
-                    throw new Twig_Error_Syntax('Calling "parent" outside a block is forbidden', $line, $this->parser->getFilename());
+                    throw new Twig_Error_Syntax('Calling "parent" outside a block is forbidden.', $line, $this->parser->getStream()->getSourceContext()->getName());
                 }
 
                 if (!$this->parser->getParent() && !$this->parser->hasTraits()) {
-                    throw new Twig_Error_Syntax('Calling "parent" on a template that does not extend nor "use" another template is forbidden', $line, $this->parser->getFilename());
+                    throw new Twig_Error_Syntax('Calling "parent" on a template that does not extend nor "use" another template is forbidden.', $line, $this->parser->getStream()->getSourceContext()->getName());
                 }
 
                 return new Twig_Node_Expression_Parent($this->parser->peekBlockStack(), $line);
             case 'block':
-                return new Twig_Node_Expression_BlockReference($this->parseArguments()->getNode(0), false, $line);
+                $args = $this->parseArguments();
+                if (count($args) < 1) {
+                    throw new Twig_Error_Syntax('The "block" function takes one argument (the block name).', $line, $this->parser->getStream()->getSourceContext()->getName());
+                }
+
+                return new Twig_Node_Expression_BlockReference($args->getNode(0), count($args) > 1 ? $args->getNode(1) : null, $line);
             case 'attribute':
                 $args = $this->parseArguments();
                 if (count($args) < 2) {
-                    throw new Twig_Error_Syntax('The "attribute" function takes at least two arguments (the variable and the attributes)', $line, $this->parser->getFilename());
+                    throw new Twig_Error_Syntax('The "attribute" function takes at least two arguments (the variable and the attributes).', $line, $this->parser->getStream()->getSourceContext()->getName());
                 }
 
-                return new Twig_Node_Expression_GetAttr($args->getNode(0), $args->getNode(1), count($args) > 2 ? $args->getNode(2) : new Twig_Node_Expression_Array(array(), $line), Twig_Template::ANY_CALL, $line);
+                return new Twig_Node_Expression_GetAttr($args->getNode(0), $args->getNode(1), count($args) > 2 ? $args->getNode(2) : null, Twig_Template::ANY_CALL, $line);
             default:
                 if (null !== $alias = $this->parser->getImportedSymbol('function', $name)) {
                     $arguments = new Twig_Node_Expression_Array(array(), $line);
@@ -364,21 +396,27 @@ class Twig_ExpressionParser
                 $arg = new Twig_Node_Expression_Constant($token->getValue(), $lineno);
 
                 if ($stream->test(Twig_Token::PUNCTUATION_TYPE, '(')) {
-                    $type = Twig_TemplateInterface::METHOD_CALL;
+                    $type = Twig_Template::METHOD_CALL;
                     foreach ($this->parseArguments() as $n) {
                         $arguments->addElement($n);
                     }
                 }
             } else {
-                throw new Twig_Error_Syntax('Expected name or number', $lineno, $this->parser->getFilename());
+                throw new Twig_Error_Syntax('Expected name or number.', $lineno, $stream->getSourceContext()->getName());
             }
 
             if ($node instanceof Twig_Node_Expression_Name && null !== $this->parser->getImportedSymbol('template', $node->getAttribute('name'))) {
                 if (!$arg instanceof Twig_Node_Expression_Constant) {
-                    throw new Twig_Error_Syntax(sprintf('Dynamic macro names are not supported (called on "%s")', $node->getAttribute('name')), $token->getLine(), $this->parser->getFilename());
+                    throw new Twig_Error_Syntax(sprintf('Dynamic macro names are not supported (called on "%s").', $node->getAttribute('name')), $token->getLine(), $stream->getSourceContext()->getName());
                 }
 
-                $node = new Twig_Node_Expression_MethodCall($node, 'get'.$arg->getAttribute('value'), $arguments, $lineno);
+                $name = $arg->getAttribute('value');
+
+                if ($this->parser->isReservedMacroName($name)) {
+                    throw new Twig_Error_Syntax(sprintf('"%s" cannot be called as macro as it is a reserved keyword.', $name), $token->getLine(), $stream->getSourceContext()->getName());
+                }
+
+                $node = new Twig_Node_Expression_MethodCall($node, 'get'.$name, $arguments, $lineno);
                 $node->setAttribute('safe', true);
 
                 return $node;
@@ -395,9 +433,8 @@ class Twig_ExpressionParser
                 $arg = $this->parseExpression();
             }
 
-            if ($stream->test(Twig_Token::PUNCTUATION_TYPE, ':')) {
+            if ($stream->nextIf(Twig_Token::PUNCTUATION_TYPE, ':')) {
                 $slice = true;
-                $stream->next();
             }
 
             if ($slice) {
@@ -458,8 +495,12 @@ class Twig_ExpressionParser
     /**
      * Parses arguments.
      *
-     * @param Boolean $namedArguments Whether to allow named arguments or not
-     * @param Boolean $definition     Whether we are parsing arguments for a function definition
+     * @param bool $namedArguments Whether to allow named arguments or not
+     * @param bool $definition     Whether we are parsing arguments for a function definition
+     *
+     * @return Twig_Node
+     *
+     * @throws Twig_Error_Syntax
      */
     public function parseArguments($namedArguments = false, $definition = false)
     {
@@ -480,10 +521,9 @@ class Twig_ExpressionParser
             }
 
             $name = null;
-            if ($namedArguments && $stream->test(Twig_Token::OPERATOR_TYPE, '=')) {
-                $token = $stream->next();
+            if ($namedArguments && $token = $stream->nextIf(Twig_Token::OPERATOR_TYPE, '=')) {
                 if (!$value instanceof Twig_Node_Expression_Name) {
-                    throw new Twig_Error_Syntax(sprintf('A parameter name must be a string, "%s" given', get_class($value)), $token->getLine(), $this->parser->getFilename());
+                    throw new Twig_Error_Syntax(sprintf('A parameter name must be a string, "%s" given.', get_class($value)), $token->getLine(), $stream->getSourceContext()->getName());
                 }
                 $name = $value->getAttribute('name');
 
@@ -491,7 +531,7 @@ class Twig_ExpressionParser
                     $value = $this->parsePrimaryExpression();
 
                     if (!$this->checkConstantExpression($value)) {
-                        throw new Twig_Error_Syntax(sprintf('A default value for an argument must be a constant (a boolean, a string, a number, or an array).'), $token->getLine(), $this->parser->getFilename());
+                        throw new Twig_Error_Syntax(sprintf('A default value for an argument must be a constant (a boolean, a string, a number, or an array).'), $token->getLine(), $stream->getSourceContext()->getName());
                     }
                 } else {
                     $value = $this->parseExpression();
@@ -519,18 +559,19 @@ class Twig_ExpressionParser
 
     public function parseAssignmentExpression()
     {
+        $stream = $this->parser->getStream();
         $targets = array();
         while (true) {
-            $token = $this->parser->getStream()->expect(Twig_Token::NAME_TYPE, null, 'Only variables can be assigned to');
-            if (in_array($token->getValue(), array('true', 'false', 'none'))) {
-                throw new Twig_Error_Syntax(sprintf('You cannot assign a value to "%s"', $token->getValue()), $token->getLine(), $this->parser->getFilename());
+            $token = $stream->expect(Twig_Token::NAME_TYPE, null, 'Only variables can be assigned to');
+            $value = $token->getValue();
+            if (in_array(strtolower($value), array('true', 'false', 'none', 'null'))) {
+                throw new Twig_Error_Syntax(sprintf('You cannot assign a value to "%s".', $value), $token->getLine(), $stream->getSourceContext()->getName());
             }
-            $targets[] = new Twig_Node_Expression_AssignName($token->getValue(), $token->getLine());
+            $targets[] = new Twig_Node_Expression_AssignName($value, $token->getLine());
 
-            if (!$this->parser->getStream()->test(Twig_Token::PUNCTUATION_TYPE, ',')) {
+            if (!$stream->nextIf(Twig_Token::PUNCTUATION_TYPE, ',')) {
                 break;
             }
-            $this->parser->getStream()->next();
         }
 
         return new Twig_Node($targets);
@@ -541,26 +582,102 @@ class Twig_ExpressionParser
         $targets = array();
         while (true) {
             $targets[] = $this->parseExpression();
-            if (!$this->parser->getStream()->test(Twig_Token::PUNCTUATION_TYPE, ',')) {
+            if (!$this->parser->getStream()->nextIf(Twig_Token::PUNCTUATION_TYPE, ',')) {
                 break;
             }
-            $this->parser->getStream()->next();
         }
 
         return new Twig_Node($targets);
     }
 
+    private function parseNotTestExpression(Twig_NodeInterface $node)
+    {
+        return new Twig_Node_Expression_Unary_Not($this->parseTestExpression($node), $this->parser->getCurrentToken()->getLine());
+    }
+
+    private function parseTestExpression(Twig_NodeInterface $node)
+    {
+        $stream = $this->parser->getStream();
+        list($name, $test) = $this->getTest($node->getTemplateLine());
+
+        $class = $this->getTestNodeClass($test);
+        $arguments = null;
+        if ($stream->test(Twig_Token::PUNCTUATION_TYPE, '(')) {
+            $arguments = $this->parser->getExpressionParser()->parseArguments(true);
+        }
+
+        return new $class($node, $name, $arguments, $this->parser->getCurrentToken()->getLine());
+    }
+
+    private function getTest($line)
+    {
+        $stream = $this->parser->getStream();
+        $name = $stream->expect(Twig_Token::NAME_TYPE)->getValue();
+
+        if ($test = $this->env->getTest($name)) {
+            return array($name, $test);
+        }
+
+        if ($stream->test(Twig_Token::NAME_TYPE)) {
+            // try 2-words tests
+            $name = $name.' '.$this->parser->getCurrentToken()->getValue();
+
+            if ($test = $this->env->getTest($name)) {
+                $stream->next();
+
+                return array($name, $test);
+            }
+        }
+
+        $e = new Twig_Error_Syntax(sprintf('Unknown "%s" test.', $name), $line, $stream->getSourceContext()->getName());
+        $e->addSuggestions($name, array_keys($this->env->getTests()));
+
+        throw $e;
+    }
+
+    private function getTestNodeClass($test)
+    {
+        if ($test instanceof Twig_SimpleTest && $test->isDeprecated()) {
+            $stream = $this->parser->getStream();
+            $message = sprintf('Twig Test "%s" is deprecated', $test->getName());
+            if (!is_bool($test->getDeprecatedVersion())) {
+                $message .= sprintf(' since version %s', $test->getDeprecatedVersion());
+            }
+            if ($test->getAlternative()) {
+                $message .= sprintf('. Use "%s" instead', $test->getAlternative());
+            }
+            $message .= sprintf(' in %s at line %d.', $stream->getSourceContext()->getName(), $stream->getCurrent()->getLine());
+
+            @trigger_error($message, E_USER_DEPRECATED);
+        }
+
+        if ($test instanceof Twig_SimpleTest) {
+            return $test->getNodeClass();
+        }
+
+        return $test instanceof Twig_Test_Node ? $test->getClass() : 'Twig_Node_Expression_Test';
+    }
+
     protected function getFunctionNodeClass($name, $line)
     {
-        $env = $this->parser->getEnvironment();
+        if (false === $function = $this->env->getFunction($name)) {
+            $e = new Twig_Error_Syntax(sprintf('Unknown "%s" function.', $name), $line, $this->parser->getStream()->getSourceContext()->getName());
+            $e->addSuggestions($name, array_keys($this->env->getFunctions()));
 
-        if (false === $function = $env->getFunction($name)) {
-            $message = sprintf('The function "%s" does not exist', $name);
-            if ($alternatives = $env->computeAlternatives($name, array_keys($env->getFunctions()))) {
-                $message = sprintf('%s. Did you mean "%s"', $message, implode('", "', $alternatives));
+            throw $e;
+        }
+
+        if ($function instanceof Twig_SimpleFunction && $function->isDeprecated()) {
+            $message = sprintf('Twig Function "%s" is deprecated', $function->getName());
+            if (!is_bool($function->getDeprecatedVersion())) {
+                $message .= sprintf(' since version %s', $function->getDeprecatedVersion());
             }
+            if ($function->getAlternative()) {
+                $message .= sprintf('. Use "%s" instead', $function->getAlternative());
+            }
+            $message .= sprintf(' in %s at line %d.', $this->parser->getStream()->getSourceContext()->getName(), $line);
 
-            throw new Twig_Error_Syntax($message, $line, $this->parser->getFilename());
+            @trigger_error($message, E_USER_DEPRECATED);
         }
 
         if ($function instanceof Twig_SimpleFunction) {
@@ -572,15 +689,24 @@ class Twig_ExpressionParser
 
     protected function getFilterNodeClass($name, $line)
     {
-        $env = $this->parser->getEnvironment();
+        if (false === $filter = $this->env->getFilter($name)) {
+            $e = new Twig_Error_Syntax(sprintf('Unknown "%s" filter.', $name), $line, $this->parser->getStream()->getSourceContext()->getName());
+            $e->addSuggestions($name, array_keys($this->env->getFilters()));
 
-        if (false === $filter = $env->getFilter($name)) {
-            $message = sprintf('The filter "%s" does not exist', $name);
-            if ($alternatives = $env->computeAlternatives($name, array_keys($env->getFilters()))) {
-                $message = sprintf('%s. Did you mean "%s"', $message, implode('", "', $alternatives));
+            throw $e;
+        }
+
+        if ($filter instanceof Twig_SimpleFilter && $filter->isDeprecated()) {
+            $message = sprintf('Twig Filter "%s" is deprecated', $filter->getName());
+            if (!is_bool($filter->getDeprecatedVersion())) {
+                $message .= sprintf(' since version %s', $filter->getDeprecatedVersion());
             }
+            if ($filter->getAlternative()) {
+                $message .= sprintf('. Use "%s" instead', $filter->getAlternative());
+            }
+            $message .= sprintf(' in %s at line %d.', $this->parser->getStream()->getSourceContext()->getName(), $line);
 
-            throw new Twig_Error_Syntax($message, $line, $this->parser->getFilename());
+            @trigger_error($message, E_USER_DEPRECATED);
         }
 
         if ($filter instanceof Twig_SimpleFilter) {
@@ -593,7 +719,9 @@ class Twig_ExpressionParser
     // checks that the node only contains "constant" elements
     protected function checkConstantExpression(Twig_NodeInterface $node)
     {
-        if (!($node instanceof Twig_Node_Expression_Constant || $node instanceof Twig_Node_Expression_Array)) {
+        if (!($node instanceof Twig_Node_Expression_Constant || $node instanceof Twig_Node_Expression_Array
+            || $node instanceof Twig_Node_Expression_Unary_Neg || $node instanceof Twig_Node_Expression_Unary_Pos
+        )) {
             return false;
         }
 

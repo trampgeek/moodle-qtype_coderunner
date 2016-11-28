@@ -33,6 +33,20 @@ require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
  */
 class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
 
+    /**
+     * Returns the paths to be handled by the plugin at question level.
+     */
+    public function define_question_plugin_structure() {
+
+        $paths = array();
+
+        // Add options and testcases to the restore structure.
+        $this->add_question_options($paths);
+        $this->add_question_testcases($paths);
+
+        return $paths; // And return the paths.
+    }
+
     /*
      * Add the options to the restore structure.
      */
@@ -61,19 +75,6 @@ class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
         $paths[] = new restore_path_element($elename, $elepath);
     }
 
-    /**
-     * Returns the paths to be handled by the plugin at question level.
-     */
-    public function define_question_plugin_structure() {
-
-        $paths = array();
-
-        // Add options and testcases to the restore structure.
-        $this->add_question_options($paths);
-        $this->add_question_testcases($paths);
-
-        return $paths; // And return the paths.
-    }
 
     /*
      * Called during restore to process the testcases within the
@@ -90,18 +91,13 @@ class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
         $newquestionid   = $this->get_new_parentid('question');
         $questioncreated = $this->get_mappingid('question_created', $oldquestionid) ? true : false;
 
-        // If the question has been created by restore, we need to create its question_testcases and options too.
+        // If the question has been created by restore, insert the new testcase
         if ($questioncreated) {
             $data->questionid = $newquestionid;
-            if (isset($data->output)) {  // Handle old saved files.
-                $data->expected = $data->output;
-                unset($data->output);
-            }
             // Insert record.
             $newitemid = $DB->insert_record("question_coderunner_tests", $data);
         }
         // Nothing to remap if the question already existed.
-
     }
 
     /*
@@ -119,21 +115,27 @@ class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
         $newquestionid   = $this->get_new_parentid('question');
         $questioncreated = $this->get_mappingid('question_created', $oldquestionid) ? true : false;
 
-        // If the question has been created by restore, we need to create its question_testcases and options too.
+        // If the question has been created by restore, we need to insert a new options record
         if ($questioncreated) {
             $data->questionid = $newquestionid;
 
-            // TODO - NEED TO MAP FROM PRE 3.1 COLUMN NAMES TO POST 3.1 NAMES.
-            // ***************************************************************
-            //
-            // Remap various legacy names to new
-            // names, in case we're restoring an earlier-version
-            // backup.
-            foreach ($this->legacynamemap as $old => $new) {
-                if (isset($data->$old)) {
-                    $data->$new = $data->$old;
-                    unset($data->$old);
-                }
+            // Convert pre-version 3.1 fields to post 3.1.
+            if (isset($data->pertesttemplate) &&
+                    trim($data->pertesttemplate) != '' &&
+                    empty($data->enablecombinator) &&
+                    $data->grader != 'CombinatorTemplateGrader') {
+                $data->template = $data->pertesttemplate;
+                $data->iscombinatortemplate = 0;
+            }
+            if (isset($data->combinatortemplate) &&
+                    trim($data->combinatortemplate) != '' &&
+                    ((isset($data->enablecombinator) && $data->enablecombinator == 1 )
+                            || $data->grader == 'CombinatorTemplateGrader')) {
+                $data->template = $data->combinatortemplate;
+                $data->iscombinatortemplate = 1;
+            }
+            if ($data->grader == 'CombinatorTemplateGrader') {
+                $data->grader = 'TemplateGrader';
             }
 
             // Insert the record.

@@ -24,6 +24,8 @@ interface Twig_LoaderInterface
      * @return string The template source code
      *
      * @throws Twig_Error_Loader When $name is not found
+     *
+     * @deprecated since 1.27 (to be removed in 2.0), implement Twig_SourceContextLoaderInterface
      */
     public function getSource($name);
 
@@ -41,10 +43,11 @@ interface Twig_LoaderInterface
     /**
      * Returns true if the template is still fresh.
      *
-     * @param string    $name The template name
-     * @param timestamp $time The last modification time of the cached template
+     * @param string $name The template name
+     * @param int    $time Timestamp of the last modification time of the
+     *                     cached template
      *
-     * @return Boolean true if the template is fresh, false otherwise
+     * @return bool true if the template is fresh, false otherwise
      *
      * @throws Twig_Error_Loader When $name is not found
      */
