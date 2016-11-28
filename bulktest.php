@@ -35,7 +35,7 @@ $contextid = required_param('contextid', PARAM_INT);
 // Login and check permissions.
 $context = context::instance_by_id($contextid);
 require_login();
-//require_capability('qtype/coderunner:usediagnostictools', $context);
+require_capability('moodle/question:editall', $context);
 $PAGE->set_url('/question/type/coderunner/bulktest.php', array('contextid' => $context->id));
 $PAGE->set_context($context);
 $title = get_string('bulktesttitle', 'qtype_coderunner', $context->get_context_name());
