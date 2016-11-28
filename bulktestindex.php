@@ -31,7 +31,7 @@ require_once($CFG->libdir . '/questionlib.php');
 // Login and check permissions.
 $context = context_system::instance();
 require_login();
-//require_capability('qtype/stack:usediagnostictools', $context);
+require_capability('moodle/question:editall', $context);
 $PAGE->set_url('/question/type/coderunner/bulktestindex.php');
 $PAGE->set_context($context);
 $PAGE->set_title(get_string('bulktestindextitle', 'qtype_coderunner'));
@@ -51,12 +51,10 @@ foreach ($bulktester->get_coderunner_questions_by_context() as $contextid => $nu
 }
 echo html_writer::end_tag('ul');
 
-/*
 if (has_capability('moodle/site:config', context_system::instance())) {
     echo html_writer::tag('p', html_writer::link(
             new moodle_url('/question/type/coderunner/bulktestall.php'), stack_string('bulktestrun')));
 }
- */
 
 echo $OUTPUT->footer();
 
