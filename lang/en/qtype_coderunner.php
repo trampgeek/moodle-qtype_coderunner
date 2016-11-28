@@ -61,9 +61,10 @@ $string['brokencombinator'] = 'Grading error. Expected {$a->numtests} test resul
         'Please report this error to your tutor.';
 $string['bulkquestiontester'] = 'The <a href="{$a->link}">bulk tester script</a> tests that the sample answers ' .
                 'for all questions in the current context are marked right';
-$string['bulktesttitle'] = 'Running all the question tests in {$a}';
+$string['bulktestcontinuefromhere'] = 'Run again or resume, starting from here';
 $string['bulktestindextitle'] = 'CodeRunner bulk testing';
 $string['bulktestrun'] = 'Run all the question tests for all the questions in the system (slow, admin only)';
+$string['bulktesttitle'] = 'Running all the question tests in {$a}';
 
 $string['coderunnercontexts'] = 'Contexts with CodeRunner questions';
 $string['coderunner'] = 'Program Code';
@@ -114,7 +115,6 @@ $string['enablecombinator'] = 'Enable combinator';
 $string['enable_diff_check'] = 'Enable "Show differences" button';
 $string['enable_diff_check_desc'] = 'Present students with a "Show differences" button ' .
         'if their answer is wrong and an exact-match validator is being used (experimental)';
-$string['enable_diff_check_unavailable'] = 'UNAVAILABLE FEATURE - needs PHP >= 5.4.0 and Libxml version >= 2.7.8';
 $string['enable_sandbox_desc'] = 'Permit use of the specified sandbox for ' .
          'running student submissions';
 $string['equalitygrader'] = "Exact match";

@@ -87,23 +87,23 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         // For each question that has its own template(s) defined (mostly
         // prototypes) copy either the per-test-template or combinator-template
         // into the new template field and set iscombinator accordingly.
-        $sql1 = "UPDATE " . $CFG->prefix . "question_coderunner_options " .
-               "SET template = pertesttemplate, iscombinatortemplate = 0 " .
-               "WHERE enablecombinator = 0 " .
-               "AND grader <> 'CombinatorTemplateGrader'" .
-               "AND TRIM(COALESCE(pertesttemplate, '')) <> ''";
+        $sql1 = "UPDATE {question_coderunner_options}
+                    SET template = pertesttemplate, iscombinatortemplate = 0
+                  WHERE enablecombinator = 0
+                    AND grader <> 'CombinatorTemplateGrader'
+                    AND TRIM(COALESCE(pertesttemplate, '')) <> ''";
         $DB->execute($sql1);
 
-        $sql2 = "UPDATE " . $CFG->prefix . "question_coderunner_options " .
-       "SET template = combinatortemplate, iscombinatortemplate = 1 " .
-       "WHERE (enablecombinator = 1 " .
-       "OR grader = 'CombinatorTemplateGrader')" .
-       "AND TRIM(COALESCE(combinatortemplate, '')) <> ''";
+        $sql2 = "UPDATE {question_coderunner_options}
+                    SET template = combinatortemplate, iscombinatortemplate = 1
+                  WHERE (enablecombinator = 1
+                         OR grader = 'CombinatorTemplateGrader')
+                    AND TRIM(COALESCE(combinatortemplate, '')) <> ''";
         $DB->execute($sql2);
 
-        $sql3 = "UPDATE " . $CFG->prefix . "question_coderunner_options " .
-        "SET grader = 'TemplateGrader " .
-        "WHERE grader = 'CombinatorTemplateGrader'" .
+        $sql3 = "UPDATE {question_coderunner_options}
+                    SET grader = 'TemplateGrader'
+                  WHERE grader = 'CombinatorTemplateGrader'";
         $DB->execute($sql3);
 
         // Coderunner savepoint reached.
@@ -114,15 +114,17 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
 
 }
 
-
+/**
+ * Add/replace standard question types by deleting all questions in the
+ * category CR_PROTOTYPES and reloading them from the file
+ * questions-CR_PROTOTYPES.xml.
+ *
+ * @return bool true if successful
+ */
 function update_question_types() {
 
-    // Add/replace standard question types by deleting all questions in the
-    // category CR_PROTOTYPES and reloading them from the file
-    // questions-CR_PROTOTYPES.xml.
-
     // Find id of CR_PROTOTYPES category.
-    global $DB, $CFG;
+    global $DB;
 
     $success = true;
     $systemcontext = context_system::instance();
@@ -171,10 +173,15 @@ function update_question_types() {
     return $success;
 }
 
-
+/**
+ * Load all the questions from the given import file into the given category.
+ * The category from the import file will be ignored if present.
+ *
+ * @param stdClass $category row from the question_categories table.
+ * @param string $importfilename full path of the file to import.
+ * @param int $contextid id of the context to import into.
+ */
 function load_questions($category, $importfilename, $contextid) {
-    // Load all the questions from the given import file into the given category.
-    // The category from the import file will be ignored if present.
     global $COURSE;
     $qformat = new qformat_xml();
     $qformat->setCategory($category);
@@ -210,5 +217,3 @@ function load_questions($category, $importfilename, $contextid) {
     }
     ob_end_clean();
 }
-
-

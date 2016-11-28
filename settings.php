@@ -71,15 +71,8 @@ $settings->add(new admin_setting_configtext(
         get_string('ideone_pass_desc', 'qtype_coderunner'),
         ''));
 
-
-if (phpversion() < '5.4.0' || LIBXML_VERSION < 20708) {
-    $desc = get_string('enable_diff_check_unavailable', 'qtype_coderunner');
-} else {
-    $desc = get_string('enable_diff_check_desc', 'qtype_coderunner');
-}
-
 $settings->add(new admin_setting_configcheckbox(
         "qtype_coderunner/diff_check_enabled",
         get_string('enable_diff_check', 'qtype_coderunner'),
-        $desc,
+        get_string('enable_diff_check_desc', 'qtype_coderunner'),
         false));

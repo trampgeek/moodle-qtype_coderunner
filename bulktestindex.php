@@ -26,7 +26,6 @@
 require_once(__DIR__.'/../../../config.php');
 
 require_once($CFG->libdir . '/questionlib.php');
-require_once(__DIR__ . '/coderunner/bulktester.class.php');
 
 
 // Login and check permissions.
@@ -38,7 +37,7 @@ $PAGE->set_context($context);
 $PAGE->set_title(get_string('bulktestindextitle', 'qtype_coderunner'));
 
 // Create the helper class.
-$bulktester = new coderunner_bulk_tester();
+$bulktester = new qtype_coderunner_bulk_tester();
 
 // Display.
 echo $OUTPUT->header();

@@ -97,6 +97,7 @@ EOTEMPLATE;
     public function test_precheck_examples() {
         $q = $this->make_precheck_question();
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
+        $qa = $this->get_question_attempt();
 
         // Precheck with a wrong answer
         $this->process_submission(array('-precheck' => 1, 'answer' => "def sqr(n): return n\n"));
@@ -109,6 +110,7 @@ EOTEMPLATE;
         $this->check_output_does_not_contain('Marks for this submission');
         $this->save_quba();
         $this->check_current_mark(0.0);
+        $this->assertEquals("Prechecked: def sqr(n): return n\n", $qa->summarise_action($qa->get_last_step()));
 
         // Now re-precheck with a right answer
         $this->process_submission(array('-precheck' => 1, 'answer' => "def sqr(n): return n * n\n"));

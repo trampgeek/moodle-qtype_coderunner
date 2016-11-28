@@ -55,6 +55,7 @@ class qtype_coderunner_walkthrough_test extends qbehaviour_walkthrough_test_base
             new question_hint(2, 'This is the second hint.', FORMAT_HTML),
         );
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
+        $qa = $this->get_question_attempt();
 
         // Check the initial state.
         $this->check_current_state(question_state::$todo);
@@ -66,6 +67,7 @@ class qtype_coderunner_walkthrough_test extends qbehaviour_walkthrough_test_base
                 $this->get_does_not_contain_validation_error_expectation(),
                 $this->get_does_not_contain_try_again_button_expectation(),
                 $this->get_no_hint_visible_expectation());
+        $this->assertEquals('Started', $qa->summarise_action($qa->get_last_step()));
 
         // Submit blank.
         $this->process_submission(array('-submit' => 1, 'answer' => ''));
@@ -80,6 +82,7 @@ class qtype_coderunner_walkthrough_test extends qbehaviour_walkthrough_test_base
                 $this->get_contains_validation_error_expectation(),
                 $this->get_does_not_contain_try_again_button_expectation(),
                 $this->get_no_hint_visible_expectation());
+        $this->assertEquals('Submit: ', $qa->summarise_action($qa->get_last_step()));
 
         // Submit a wrong answer.
         $this->process_submission(array('-submit' => 1, 'answer' => 'def sqr(n): return n'));
@@ -91,6 +94,7 @@ class qtype_coderunner_walkthrough_test extends qbehaviour_walkthrough_test_base
                 new question_pattern_expectation('/' .
                         preg_quote(get_string('noerrorsallowed', 'qtype_coderunner') . '/'))
               );
+        $this->assertEquals('Submit: def sqr(n): return n', $qa->summarise_action($qa->get_last_step()));
 
         // Now get it right.
         $this->process_submission(array('-submit' => 1, 'answer' => 'def sqr(n): return n * n'));
@@ -102,6 +106,7 @@ class qtype_coderunner_walkthrough_test extends qbehaviour_walkthrough_test_base
                 $this->get_contains_correct_expectation(),
                 $this->get_does_not_contain_validation_error_expectation(),
                 $this->get_no_hint_visible_expectation());
+        $this->assertEquals('Submit: def sqr(n): return n * n', $qa->summarise_action($qa->get_last_step()));
 
     }
 

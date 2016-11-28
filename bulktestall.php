@@ -27,7 +27,6 @@
 require_once(__DIR__ . '/../../../config.php');
 
 require_once($CFG->libdir . '/questionlib.php');
-require_once(__DIR__ . '/coderunner/bulktester.class.php');
 
 
 // Get the parameters from the URL. This is an option to restart the process
@@ -41,11 +40,11 @@ require_capability('moodle/site:config', $context);
 $PAGE->set_url('/question/type/coderunner/bulktestall.php',
         array('startfromcontextid' => $startfromcontextid));
 $PAGE->set_context($context);
-$title = coderunner_string('bulktesttitle', $context->get_context_name());
+$title = get_string('bulktesttitle', 'qtype_coderunner', $context->get_context_name());
 $PAGE->set_title($title);
 
 // Create the helper class.
-$bulktester = new coderunner_bulk_tester();
+$bulktester = new qtype_coderunner_bulk_tester();
 $allpassed = true;
 $allfailingtests = array();
 $skipping = $startfromcontextid != 0;
