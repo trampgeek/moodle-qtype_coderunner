@@ -393,105 +393,100 @@ class qtype_coderunner extends question_type {
         return true;
     }
 
-
-    // Get a list of all valid prototypes in the current
-    // course context.
+    /**
+     * Get all available prototypes from the current course context.
+     * @return stdClass[] prototype rows from question_coderunner_options.
+     */
     public static function get_all_prototypes() {
         global $DB, $COURSE;
-        $rows = $DB->get_records_select(
-               'question_coderunner_options',
-               'prototypetype != 0');
-        $valid = array();
         $coursecontext = context_course::instance($COURSE->id);
-        foreach ($rows as $row) {
-            if (self::is_available_prototype($row, $coursecontext)) {
-                $valid[] = $row;
-            }
-        }
-        return $valid;
+        list($contextcondition, $params) = $DB->get_in_or_equal($coursecontext->get_parent_context_ids(true));
+
+        $rows = $DB->get_records_sql("
+                SELECT qco.*
+                  FROM {question_coderunner_options} qco
+                  JOIN {question} q ON q.id = qco.questionid
+                  JOIN {question_categories} qc ON qc.id = q.category
+                 WHERE prototypetype != 0 AND qc.contextid $contextcondition", $params);
+
+        return $rows;
     }
 
-
-    // Get the specified prototype question from the database.
-    // Returns the row from the question_coderunner_options table
-    // with the addition of the question text (for use in the edit-form
-    // question-type help button).
-    // To be valid, the named prototype (a question of the specified type
-    // and with prototypetype non zero) must be in a question category that's
-    // available in the given current context.
+    /**
+     * Get a given named prototype available in a given context.
+     *
+     * To be valid, the named prototype (a question of the specified type
+     * and with prototypetype non zero) must be in a question category that's
+     * available in the given current context.
+     *
+     * @param string $coderunnertype prototype name.
+     * @param context $context a context.
+     * @return stdClass prototype row from question_coderunner_options, with the
+     * addition of the question text (for use in the edit-form question-type help button).
+     */
     public static function get_prototype($coderunnertype, $context) {
         global $DB;
-        $sql = 'SELECT {question_coderunner_options}.*, questiontext  ' .
-               'FROM {question_coderunner_options} ' .
-               'JOIN {question} ON questionid = {question}.id '.
-               "WHERE coderunnertype = '$coderunnertype' and prototypetype != 0";
+        list($contextcondition, $params) = $DB->get_in_or_equal($context->get_parent_context_ids(true));
+        $params[] = $coderunnertype;
 
-        $rows = $DB->get_records_sql($sql);
-        if (count($rows) == 0) {
-            throw new qtype_coderunner_exception("Failed to find prototype $coderunnertype");
-        }
+        $sql = "SELECT qco.*, q.questiontext
+                  FROM {question_coderunner_options} qco
+                  JOIN {question} q ON qco.questionid = q.id
+                  JOIN {question_categories} qc ON qc.id = q.category
+                 WHERE qco.prototypetype != 0
+                   AND qc.contextid $contextcondition
+                   AND qco.coderunnertype = ?";
 
-        $validprotos = array();
-        foreach ($rows as $row) {
-            if (self::is_available_prototype($row, $context)) {
-                $validprotos[] = $row;
-            }
-        }
-
+        $validprotos = $DB->get_records_sql($sql, $params);
         if (count($validprotos) == 0) {
             throw new qtype_coderunner_exception("Prototype $coderunnertype is unavailable ".
-                    "in this context");
+                    "in this context, or does not exist.");
         } else if (count($validprotos) != 1) {
             throw new qtype_coderunner_exception("Multiple prototypes found for $coderunnertype");
         }
-        return $validprotos[0];
+        return reset($validprotos);
     }
 
-
-    // True iff the given row from the question_coderunner_options table
-    // is a valid prototype in the given context.
-    public static function is_available_prototype($questionoptionsrow, $context) {
-        global $DB;
-        static $activecats = null;
-
-        if (!$question = $DB->get_record('question', array('id' => $questionoptionsrow->questionid))) {
-            throw new qtype_coderunner_exception("Missing question id = {$questionoptionsrow->questionid} in question table");
-        }
-
-        if (!$candidatecat = $DB->get_record('question_categories', array('id' => $question->category))) {
-            throw new qtype_coderunner_exception('Missing question category');
-        }
-
-        if ($activecats === null) {
-            $allcontexts = $context->get_parent_context_ids(true);
-            $activecats = get_categories_for_contexts(implode(',', $allcontexts));
-        }
-
-        foreach ($activecats as $cat) {
-            if ($cat->id == $candidatecat->id) {
-                return true;
-            }
-        }
-        return false;
+    /**
+     * True iff the given row from the question_coderunner_options table is a valid prototype in the given context.
+     *
+     * @param stdClass $questionoptionsrow a prototype row from the question_coderunner_options table.
+     * @param context $context the current context.
+     * @return bool this prototype is available in the given context.
+     */
+    public static function is_available_prototype($questionoptionsrow, context $context) {
+        return in_array(self::question_contextid($questionoptionsrow),
+                $context->get_parent_context_ids(true));
     }
 
-
-    // Returns the context of the given question's category. The question
-    // parameter might be a true question or might be a row from the
-    // question options table.
+    /**
+     * Get the context for a question.
+     *
+     * @param stdClass $question a row from either the question or question_coderunner_options tables.
+     * @return context the corresponding context id.
+     */
     public static function question_context($question) {
+        return context::instance_by_id(self::question_contextid($question));
+    }
+
+    /**
+     * Get the context id for a question.
+     *
+     * @param stdClass $question a row from either the question or question_coderunner_options tables.
+     * @return int the corresponding context id.
+     */
+    public static function question_contextid($question) {
         global $DB;
 
         if (!isset($question->contextid)) {
             $questionid = isset($question->questionid) ? $question->questionid : $question->id;
-            $sql = "SELECT contextid FROM {question_categories}, {question} " .
-                   "WHERE {question}.id = $questionid " .
-                   "AND {question}.category = {question_categories}.id";
-            $contextid = $DB->get_field_sql($sql, null, MUST_EXIST);
+            $sql = "SELECT contextid FROM {question_categories}, {question}
+                     WHERE {question}.id = ?
+                       AND {question}.category = {question_categories}.id";
+            return $DB->get_field_sql($sql, array($questionid), MUST_EXIST);
         } else {
-            $contextid = $question->contextid;
+            return $question->contextid;
         }
-        return context::instance_by_id($contextid);
     }
 
     // Initialise the question_definition object from the questiondata
@@ -502,7 +497,6 @@ class qtype_coderunner extends question_type {
     // All we do is flatten the question->options fields down into the
     // question itself, which will be all those fields of question->options
     // not already flattened down by the parent implementation.
-
     protected function initialise_question_instance(question_definition $question, $questiondata) {
         parent::initialise_question_instance($question, $questiondata);
         foreach ($questiondata->options as $field => $value) {
