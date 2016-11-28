@@ -63,8 +63,6 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2016111201, 'qtype', 'coderunner');
     }
 
-    update_question_types();
-
     if ($oldversion != 0 && $oldversion < 2016112107) {
 
         // Add fields 'template' and 'iscombinator'. Leave old pertesttemplate
@@ -110,6 +108,8 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2016112107, 'qtype', 'coderunner');
     }
 
+    update_question_types();
+
     return true;
 
 }
@@ -117,7 +117,8 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
 /**
  * Add/replace standard question types by deleting all questions in the
  * category CR_PROTOTYPES and reloading them from the file
- * questions-CR_PROTOTYPES.xml.
+ * questions-CR_PROTOTYPES.xml. Also loads any other prototype files
+ * whose names end in _PROTOTYPES.xml (case sensitive).
  *
  * @return bool true if successful
  */
