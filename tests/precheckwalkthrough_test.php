@@ -29,6 +29,8 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once($CFG->dirroot . '/question/engine/tests/helpers.php');
+require_once($CFG->dirroot . '/question/type/coderunner/tests/coderunnertestcase.php');
+require_once($CFG->dirroot . '/question/type/coderunner/question.php');
 
 use qtype_coderunner\constants;
 
@@ -37,7 +39,7 @@ class qtype_coderunner_precheckwalkthrough_test extends qbehaviour_walkthrough_t
     protected function setUp() {
         global $CFG;
         parent::setUp();
-        require($CFG->dirroot . '/question/type/coderunner/tests/config.php');
+        qtype_coderunner_testcase::setup_test_sandbox_configuration();
     }
 
     protected function make_precheck_question() {
