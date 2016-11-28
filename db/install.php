@@ -14,9 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with CodeRunner.  If not, see <http://www.gnu.org/licenses/>.
 
-require_once('upgrade.php');
-
+/**
+ * Extra install code for the CodeRunner question type.
+ */
 function xmldb_qtype_coderunner_install() {
-    xmldb_qtype_coderunner_upgrade(0);
+    require_once(__DIR__ . '/upgradelib.php');
+    update_question_types();
 }
 
