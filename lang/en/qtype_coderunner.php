@@ -24,43 +24,35 @@
 
 $string['aborted'] = 'Testing was aborted due to error.';
 $string['addingcoderunner'] = 'Adding a new CodeRunner Question';
-$string['ajax_error'] = "*** AJAX ERROR. DON'T SAVE THIS! ***";
+$string['ajax_error'] = '*** AJAX ERROR. DON\'T SAVE THIS! ***';
 $string['allok'] = 'Passed all tests! ';
-$string['allornone'] = 'Test code must be provided either for all '
-    . 'testcases or for none.';
+$string['allornone'] = 'Test code must be provided either for all testcases or for none.';
 $string['allornothing'] = 'All-or-nothing grading';
-$string['allornothing_help'] = 'If \'All-or-nothing\' is checked, all test cases must be satisfied ' .
-        'for the submission to earn any marks. Otherwise, the mark is obtained ' .
-        'by summing the marks for all the test cases that pass ' .
-        'and expressing this as a fraction of the maximum possible mark. ' .
-        'The per-test-case marks can be specified only if the all-or-nothing ' .
-        'checkbox is unchecked. If using a template grader that awards ' .
-        'part marks to test cases, \'All-or-nothing\' should generally be unchecked.';
+$string['allornothing_help'] = 'If \'All-or-nothing\' is checked, all test cases must be satisfied for the submission to earn any marks. Otherwise, the mark is obtained by summing the marks for all the test cases that pass and expressing this as a fraction of the maximum possible mark.
+
+The per-test-case marks can be specified only if the all-or-nothing checkbox is unchecked.
+
+If using a template grader that awards part marks to test cases, \'All-or-nothing\' should generally be unchecked.';
 $string['answerrequired'] = 'Please provide a non-empty answer';
-$string['atleastonetest'] = 'You must provide at least one test case '
-    . 'for this question.';
-$string['ace-language'] = "Ace language";
-$string['advanced_customisation'] = "Advanced customisation";
-$string['answer'] = "Answer";
-$string['answerbox_group'] = "Answer box";
-$string['answerboxcolumns'] = "Columns";
+$string['atleastonetest'] = 'You must provide at least one test case for this question.';
+$string['ace-language'] = 'Ace language';
+$string['advanced_customisation'] = 'Advanced customisation';
+$string['answer'] = 'Answer';
+$string['answerbox_group'] = 'Answer box';
+$string['answerboxcolumns'] = 'Columns';
 $string['answerboxlines'] = 'Rows';
-$string['answerbox_group_help'] = 'Set the number of rows and columns to allocate for the answer box. ' .
-        'If the answer overflows the box vertically or horizontally, scrollbars will appear.' .
-        'If \'Use ace\' is checked, the ACE JavaScript code editor will manage the answer box.';
-$string['asolutionis'] = "Question author's solution:";
+$string['answerbox_group_help'] = 'Set the number of rows and columns to allocate for the answer box. If the answer overflows the box vertically or horizontally, scrollbars will appear. If \'Use ace\' is checked, the ACE JavaScript code editor will manage the answer box.';
+$string['asolutionis'] = 'Question author\'s solution:';
 
 $string['badcputime'] = 'CPU time limit must be left blank or must be an integer greater than zero';
-$string['bad_dotdotdot'] = "Misuse of '...'. Must be at end, after two increasing numeric penalties";
+$string['bad_dotdotdot'] = 'Misuse of \'...\'. Must be at end, after two increasing numeric penalties';
 $string['badmemlimit'] = 'Memory limit must either be left blank or must be a non-negative integer';
 $string['bad_new_prototype_name'] = 'Illegal name for new prototype: already in use';
 $string['badpenalties'] = 'Penalty regime must be a comma separated list of numbers in the range [0, 100]';
-$string['badsandboxparams'] = '"Other" field (sandbox params) must be either blank or a valid JSON record';
+$string['badsandboxparams'] = '\'Other\' field (sandbox params) must be either blank or a valid JSON record';
 $string['badtemplateparams'] = 'Template parameters must be either blank or a valid JSON record';
-$string['brokencombinator'] = 'Grading error. Expected {$a->numtests} test results, got {$a->numresults}. ' .
-        'Please report this error to your tutor.';
-$string['bulkquestiontester'] = 'The <a href="{$a->link}">bulk tester script</a> tests that the sample answers ' .
-                'for all questions in the current context are marked right';
+$string['brokencombinator'] = 'Grading error. Expected {$a->numtests} test results, got {$a->numresults}. Please report this error to your tutor.';
+$string['bulkquestiontester'] = 'The <a href="{$a->link}">bulk tester script</a> tests that the sample answers for all questions in the current context are marked right';
 $string['bulktestcontinuefromhere'] = 'Run again or resume, starting from here';
 $string['bulktestindextitle'] = 'CodeRunner bulk testing';
 $string['bulktestrun'] = 'Run all the question tests for all the questions in the system (slow, admin only)';
@@ -76,49 +68,35 @@ $string['coderunner_install_testsuite_pass'] = 'All tests passed!';
 $string['coderunner_install_testsuite_fail'] = 'Not all tests passed!';
 $string['coderunner_install_testsuite_failures'] = 'Tests that failed';
 
-$string['coderunner_help'] = 'In response to a question, which is a '
-    . 'specification for a program fragment, function or whole program, '
-    . 'the respondent enters source code in a specified computer '
-    . 'language that satisfies the specification.';
+$string['coderunner_help'] = 'In response to a question, which is a specification for a program fragment, function or whole program, the respondent enters source code in a specified computer language that satisfies the specification.';
 $string['coderunner_link'] = 'question/type/coderunner';
-$string['coderunner_question_type'] = "CodeRunner question type: ";
+$string['coderunner_question_type'] = 'CodeRunner question type: ';
 $string['coderunnersettings'] = 'CodeRunner settings';
-$string['coderunnersummary'] = 'Answer is program code that is executed '
-    . 'in the context of a set of test cases to determine its correctness.';
-$string['coderunnertype'] = "Question type:";
-$string['coderunnertype_help'] = "Select the programming language and question type.
-    Once a type has been selected, details can be seen in the Question type details
-    panel below.";
+$string['coderunnersummary'] = 'Answer is program code that is executed in the context of a set of test cases to determine its correctness.';
+$string['coderunnertype'] = 'Question type:';
+$string['coderunnertype_help'] = 'Select the programming language and question type. Once a type has been selected, details can be seen in the Question type details panel below.';
 $string['columncontrols'] = 'Result table';
-$string['columncontrols_help'] = 'The checkboxes select which columns of the ' .
-        'results table should be displayed to the student after submission';
+$string['columncontrols_help'] = 'The checkboxes select which columns of the results table should be displayed to the student after submission';
 
-$string['confirm_proceed'] = <<<EOCONFIRM
-If you save this question with 'Customise' unchecked, any customisation you've done will be lost. Proceed?
-EOCONFIRM;
+$string['confirm_proceed'] = 'If you save this question with \'Customise\' unchecked, any customisations made will be lost. Proceed?';
 $string['cputime'] = 'TimeLimit (secs)';
 $string['customisationcontrols'] = 'Customisation';
 $string['customise'] = 'Customise';
 $string['customisation'] = 'Customisation';
 
 $string['datafiles'] = 'Run-time data';
-$string['datafiles_help'] = 'Any files uploaded here will be added to the ' .
-        'working directory when the expanded template program is executed. ' .
-        'This allows large data or support files to be conveniently added.';
+$string['datafiles_help'] = 'Any files uploaded here will be added to the working directory when the expanded template program is executed. This allows large data or support files to be conveniently added.';
 $string['display'] = 'Display';
-
 
 $string['editingcoderunner'] = 'Editing a CodeRunner Question';
 $string['empty_new_prototype_name'] = 'New question type name cannot be empty';
 $string['enable'] = 'Enable';
 $string['enablecombinator'] = 'Enable combinator';
-$string['enable_diff_check'] = 'Enable "Show differences" button';
-$string['enable_diff_check_desc'] = 'Present students with a "Show differences" button ' .
-        'if their answer is wrong and an exact-match validator is being used (experimental)';
-$string['enable_sandbox_desc'] = 'Permit use of the specified sandbox for ' .
-         'running student submissions';
-$string['equalitygrader'] = "Exact match";
-$string['error_loading_prototype'] = "Error loading prototype. Network problems or server down, perhaps?";
+$string['enable_diff_check'] = 'Enable \'Show differences\' button';
+$string['enable_diff_check_desc'] = 'Present students with a \'Show differences\' button if their answer is wrong and an exact-match validator is being used (experimental)';
+$string['enable_sandbox_desc'] = 'Permit use of the specified sandbox for running student submissions';
+$string['equalitygrader'] = 'Exact match';
+$string['error_loading_prototype'] = 'Error loading prototype. Network problems or server down, perhaps?';
 $string['expected'] = 'Expected output';
 $string['expected_help'] = 'The expected output from the test. Seen by the template as {{TEST.expected}}.';
 $string['exportthisquestion'] = 'Export this question';
@@ -129,44 +107,42 @@ $string['extra_help'] = 'A sometimes-useful extra text field for use by the temp
 $string['fail'] = 'Fail';
 $string['failedhidden'] = 'Your code failed one or more hidden tests.';
 $string['fileheader'] = 'Support files';
-$string['filloutoneanswer'] = 'You must enter source code that '
-    . 'satisfies the specification. The code you enter will be '
-    . 'executed to determine its correctness and a grade awarded '
-    . 'accordingly.';
+$string['filloutoneanswer'] = 'You must enter source code that satisfies the specification. The code you enter will be executed to determine its correctness and a grade awarded accordingly.';
 
 $string['grader'] = 'Grader';
 $string['grading'] = 'Grading';
 $string['gradingcontrols'] = 'Grading controls';
-$string['gradingcontrols_help'] = <<<EO_GC_HELP
-The default 'exact match' grader
+$string['gradingcontrols_help'] = 'The default \'exact match\' grader
 awards marks only if the output from the run exactly matches the expected value defined
 by the testcase. Trailing white space is stripped from all lines, and any trailing
 blank lines are deleted, before the
 equality test is made.
-<p>The near-equality grader is similar except that it
+
+The near-equality grader is similar except that it
 also collapses multiple spaces and tabs to a single space, deletes all blank
 lines and converts the strings to lower case.
-<p>The 'regular expression' grader uses the 'expected'
+
+The \'regular expression\' grader uses the \'expected\'
 field of the test case as a regular expression and tests the output to see
 if a match to the expected result can be found anywhere within the output.
 To force matching of the entire output, start and end the regular expression
-with '\A' and '\Z' respectively. Regular expression matching uses MULTILINE
+with \'\A\' and \'\Z\' respectively. Regular expression matching uses MULTILINE
 and DOTALL options.
-<p>The 'template grader' option assumes that the output
+
+The \'template grader\' option assumes that the output
 from the program is actually a
 grading result, i.e. that the template not tests *and grades* the student answer.
 The only output from such a template program must be a JSON-encoded record containing
-at least a 'fraction' field, which is multiplied by TEST.mark to decide how
-many marks the test case is awarded. It should usually also contain a 'got'
-field, which is the value displayed in the 'Got' column of the results table.
+at least a \'fraction\' field, which is multiplied by TEST.mark to decide how
+many marks the test case is awarded. It should usually also contain a \'got\'
+field, which is the value displayed in the \'Got\' column of the results table.
 The other columns of the results table (testcode, stdin, expected) can also
 be defined by the template grading program and will be used instead of the values from
 the testcase. As an example, if the output of the program is the string
-'{"fraction":0.5, "got": "Half the answers were right!"}', half marks would be
-given for that particular test case and the 'Got' column would display the
+`{"fraction":0.5, "got": "Half the answers were right!"}`, half marks would be
+given for that particular test case and the \'Got\' column would display the
 text "Half the answers were right!". Other columns can be added to the result
-table by adding extra attributes to the JSON record.
-EO_GC_HELP;
+table by adding extra attributes to the JSON record.';
 
 $string['hidden'] = 'Hidden';
 $string['hidedifferences'] = 'Hide differences';
@@ -177,61 +153,57 @@ $string['hiderestiffail'] = 'Hide rest if fail';
 
 $string['iscombinatortemplate'] = 'Is combinator';
 $string['ideone_user'] = 'Ideone server user';
-$string['ideone_user_desc'] = 'The login name to use when connecting to the ' .
-        'Ideone server (if the ideone sandbox is enabled)';
+$string['ideone_user_desc'] = 'The login name to use when connecting to the Ideone server (if the ideone sandbox is enabled)';
 $string['ideone_pass'] = 'Ideone server password';
-$string['ideone_pass_desc'] = 'The password to use when connecting to the ' .
-        'Ideone server (if the ideone sandbox is enabled)';
-$string['info_unavailable'] = "Question type information is not available for customised questions.";
+$string['ideone_pass_desc'] = 'The password to use when connecting to the Ideone server (if the ideone sandbox is enabled)';
+$string['info_unavailable'] = 'Question type information is not available for customised questions.';
 $string['is_prototype'] = 'Use as prototype';
 
 $string['jobe_apikey'] = 'Jobe API-key';
-$string['jobe_apikey_desc'] = 'The API key to be included in all REST requests ' .
-       'to the Jobe server (if required). Max 40 chars. Leave blank to omit the API Key from requests';
+$string['jobe_apikey_desc'] = 'The API key to be included in all REST requests to the Jobe server (if required). Max 40 chars. Leave blank to omit the API Key from requests';
 $string['jobe_host'] = 'Jobe server';
-$string['jobe_host_desc'] = 'The host name of the Jobe server plus the port ' .
-       'number if other than port 80, e.g. jobe.somewhere.edu:4010';
+$string['jobe_host_desc'] = 'The host name of the Jobe server plus the port number if other than port 80, e.g. jobe.somewhere.edu:4010';
 
 $string['language'] = 'Sandbox language';
 $string['languages'] = 'Languages';
-$string['languages_help'] = 'The sandbox language is the computer language used'
-    . ' to run the submission. '
-    . ' Must be known to the chosen sandbox (if a specific one has been'
-    . ' selected) or to at least one of the enabled sandboxes (otherwise).'
-    . ' This should not usually need altering from the value in the'
-    . ' parent template; tweak it at your peril.  Ace-language is the'
-    . ' language used by the Ace code editor (if enabled) for the student\'s answer.'
-    . ' By default this is the same as the sandbox language; enter a different'
-    . ' value here only if the template language is different from the language'
-    . ' that the student is expected to write (e.g. if a Python preprocessor is'
-    . ' used to validate a student\'s C program prior to running it).';
+$string['languages_help'] = 'The sandbox language is the computer language used
+to run the submission.
+Must be known to the chosen sandbox (if a specific one has been
+selected) or to at least one of the enabled sandboxes (otherwise). This should not usually need altering from the value in the
+parent template; tweak it at your peril.
+
+Ace-language is the
+language used by the Ace code editor (if enabled) for the student\'s answer.
+By default this is the same as the sandbox language; enter a different
+value here only if the template language is different from the language
+that the student is expected to write (e.g. if a Python preprocessor is
+used to validate a student\'s C program prior to running it).';
 
 $string['mark'] = 'Mark';
 $string['marking'] = 'Mark allocation';
 $string['markinggroup'] = 'Marking';
-$string['markinggroup_help'] = 'If \'All-or-nothing\' is checked, all test cases must be satisfied ' .
-        'for the submission to earn any marks. Otherwise, the mark is obtained ' .
-        'by summing the marks for all the test cases that pass ' .
-        'and expressing this as a fraction of the maximum possible mark. ' .
-        'The per-test-case marks can be specified only if the all-or-nothing ' .
-        'checkbox is unchecked. If using a template grader that awards ' .
-        'part marks to test cases, \'All-or-nothing\' should generally be unchecked.' .
-        '<p>The penalty regime is a comma-separated list of penalties (each a percent) ' .
-        'to apply to successive submissions. These are absolute, not cumulative. As a ' .
-        'special case the last penalty can be "..." to mean "extend the previous ' .
-        'two penalties as an arithmetic progression up to 100". For example, ' .
-        '"0,5,10,30,..." is equivalent to "0,5,10,30,50,70,90,100".' .
-        'Leave blank for standard Moodle behaviour. ' .
-        'If there are more submissions than defined penalties, the last value is used</p>';
+$string['markinggroup_help'] = 'If \'All-or-nothing\' is checked, all test cases must be satisfied
+for the submission to earn any marks. Otherwise, the mark is obtained
+by summing the marks for all the test cases that pass
+and expressing this as a fraction of the maximum possible mark.
+The per-test-case marks can be specified only if the all-or-nothing
+checkbox is unchecked. If using a template grader that awards
+part marks to test cases, \'All-or-nothing\' should generally be unchecked.
+
+The penalty regime is a comma-separated list of penalties (each a percent)
+to apply to successive submissions. These are absolute, not cumulative. As a
+special case the last penalty can be \'...\' to mean "extend the previous
+two penalties as an arithmetic progression up to 100". For example,
+`0,5,10,30,...` is equivalent to `0,5,10,30,50,70,90,100`.
+Leave blank for standard Moodle behaviour.
+If there are more submissions than defined penalties, the last value is used';
 $string['memorylimit'] = 'MemLimit (MB)';
-$string['missingoutput'] = 'You must supply the expected output from '
-    . 'this test case.';
+$string['missingoutput'] = 'You must supply the expected output from this test case.';
 
 $string['nearequalitygrader'] = 'Nearly exact match';
 $string['noqtype'] = 'No question type selected';
 $string['morehidden'] = 'Some hidden test cases failed, too.';
-$string['noerrorsallowed'] = 'Your code must pass all tests to earn any '
-    . 'marks. Try again.';
+$string['noerrorsallowed'] = 'Your code must pass all tests to earn any marks. Try again.';
 $string['nonnumericmark'] = 'Non-numeric mark';
 $string['negativeorzeromark'] = 'Mark must be greater than zero';
 
@@ -248,72 +220,69 @@ $string['pluginname'] = 'CodeRunner';
 $string['pluginnameadding'] = 'Adding a CodeRunner question';
 $string['pluginnameediting'] = 'Editing a CodeRunner question';
 $string['pluginnamesummary'] = 'CodeRunner: runs student-submitted code in a sandbox';
-$string['pluginname_help'] = 'Use the "Question type" combo box to select the ' .
-        'computer language that will be used to run the student\'s submission. ' .
-        'Specify the problem that the student must write code for, then define '.
-        'a set of tests to be run on the student\'s submission';
+$string['pluginname_help'] = 'Use the \'Question type\' combo box to select the
+computer language that will be used to run the student\'s submission.
+Specify the problem that the student must write code for, then define
+a set of tests to be run on the student\'s submission';
 $string['pluginname_link'] = 'question/type/coderunner';
 $string['precheck'] = 'Precheck';
 $string['precheck_disabled'] = 'Disabled';
 $string['precheck_empty'] = 'Empty';
 $string['precheck_examples'] = 'Examples';
 $string['precheck_selected'] = 'Selected';
-$string['precheck_help'] = <<<EOPRECHECK
-If Precheck is enabled, students will have an extra button to the left of the
+$string['precheck_help'] = 'If Precheck is enabled, students will have an extra button to the left of the
 usual check button to give them a penalty-free run to check their code against
-a subset of the question test cases. If 'Empty' is selected, a single run
+a subset of the question test cases.
+
+If \'Empty\' is selected, a single run
 will be done with the per-test template using a testcase in which all the
 fields (testcode, stdin, expected, etc) are the empty string. Use with caution:
-some templates will not handle this correctly. If 'Examples' is selected, the code will
-be tested against all the tests for which 'use_as_example' has been checked.
-If 'Selected' is selected, an extra UI element is added to each test case
+some templates will not handle this correctly.
+
+If \'Examples\' is selected, the code will
+be tested against all the tests for which \'use_as_example\' has been checked.
+
+If \'Selected\' is selected, an extra UI element is added to each test case
 to allow the author to select a specific subset of the tests. If required,
 the template can check whether or not the run is a precheck run using the
-Twig parameter {{ IS_PRECHECK }}, which is true during precheck runs only.
-EOPRECHECK;
-$string['precheck_only'] = "Pre-check only";
+Twig parameter {{ IS_PRECHECK }}, which is true during precheck runs only.';
+$string['precheck_only'] = 'Pre-check only';
 $string['proceed_at_own_risk'] = 'Editing a built-in question prototype?! Proceed at your own risk!';
 $string['prototypecontrols'] = 'Prototyping';
-$string['prototypecontrols_help'] = <<<EOPCHELP
-If 'Is prototype' is true, this question becomes a prototype for other questions.
+$string['prototypecontrols_help'] = 'If \'Is prototype\' is true, this question becomes a prototype for other questions.
 After saving, the specified question type name will appear in the dropdown list
 of question types. New questions based on this type will then by default inherit
 all the customisation attributes specified for this question. Subsequent changes
 to this question will then affect all derived questions unless they are
-themselves customised, which breaks the connection. Prototypal inheritance is
+themselves customised, which breaks the connection.
+
+Prototypal inheritance is
 single-level only, so this question, when saved as a prototype, loses its
 connection to its original base type, becoming a new base type in its own right.
 Be warned that when exporting derived questions you must ensure that this
 question is included in the export, too, or the derived question will be an
 orphan when imported into another system. Also, you are responsible for keeping
 track of which questions you are using as prototypes; it is strongly recommended
-that you rename the question to something like 'PROTOTYPE_for_my_new_question_type'
-to make subsequentmaintenance easier.
-EOPCHELP;
-$string['prototype_error'] = "*** PROTOTYPE LOAD FAILURE. DON'T SAVE THIS! ***";
-$string['prototype_load_failure'] = "Error loading prototype: ";
+that you rename the question to something like \'PROTOTYPE_for_my_new_question_type\'
+to make subsequentmaintenance easier.';
+$string['prototype_error'] = '*** PROTOTYPE LOAD FAILURE. DON\'T SAVE THIS! ***';
+$string['prototype_load_failure'] = 'Error loading prototype: ';
 $string['prototypeQ'] = 'Is prototype?';
 
 $string['qtypehelp'] = 'Help with q-type';
 $string['questioncheckboxes'] = 'Customisation:';
-$string['questioncheckboxes_help'] = <<<EOCBHELP
-To customise the question type, e.g. to edit the question templates or
-sandbox parameters, click the 'Customise'
+$string['questioncheckboxes_help'] = 'To customise the question type, e.g. to edit the question templates or
+sandbox parameters, click the \'Customise\'
 checkbox and read the help available on the newly-visible form elements for
 more information.
 
 If the template-debugging checkbox is clicked, the program generated
-for each testcase will be displayed in the output.
-EOCBHELP;
-$string['questionloaderror'] = "Failed to load question";
+for each testcase will be displayed in the output.';
+$string['questionloaderror'] = 'Failed to load question';
 $string['questionpreview'] = 'Question preview';
 $string['questiontype'] = 'Question type';
-$string['question_type_changed'] = <<<EOQTCHANGED
-        Changing question type. Click OK to reload customisation fields,
-        Cancel to retain your customised ones.
-EOQTCHANGED;
-$string['questiontype_help'] = <<<QUESTION_TYPE_HELP
-Select the particular type of question.
+$string['question_type_changed'] = 'Changing question type. Click OK to reload customisation fields, Cancel to retain your customised ones.';
+$string['questiontype_help'] = 'Select the particular type of question.
 
 The combo-box selects one of the built-in types, each of which
 specifies a particular language and, sometimes, a sandbox in which
@@ -322,47 +291,52 @@ template that defines how the executable program is built from the
 testcase data and the student answer.
 
 The template can be viewed and optionally customised by clicking
-the "Customise" checkbox.
+the \'Customise\' checkbox.
 
 If the template-debugging checkbox is clicked, the program generated
-for each testcase will be displayed in the output.
-QUESTION_TYPE_HELP;
-$string['questiontypedetails'] = "Question type details";
+for each testcase will be displayed in the output.';
+$string['questiontypedetails'] = 'Question type details';
 
 $string['questiontype_required'] = 'You must select the type of question';
-$string['qWrongBehaviour'] = 'Please use Adaptive Behaviour for all CodeRunner questions, ' .
-        'or there can be massive performance hits. For example, all questions on ' .
-        'a page will need to be regraded when the page is re-displayed.';
+$string['qWrongBehaviour'] = 'Please use Adaptive Behaviour for all CodeRunner questions, or there can be massive performance hits. For example, all questions on a page will need to be regraded when the page is re-displayed.';
 
 $string['regexgrader'] = 'Regular expression';
 $string['replacedollarscount'] = 'This category contains {$a} CodeRunner questions.';
 $string['resultcolumns'] = 'Result columns';
-$string['resultcolumns_help'] = <<<EORCHELP
-By default the result table displays the testcode, stdin, expected and got
+$string['resultcolumns_help'] = 'By default the result table displays the testcode, stdin, expected and got
 columns, provided the columns are not empty. You can change the default, and/or
 the column headers by entering a value for the resultcolumns (leave blank for
-the default behaviour). If supplied, the resultcolumns field must be a
+the default behaviour).
+
+If supplied, the resultcolumns field must be a
 JSON-encoded list of column specifiers. Each column specifier is itself a list,
 typically with just two or three elements. The first element is the column
 header, the second element is the field from the TestResult object being
 displayed in the column and the optional third element is an sprintf format
-string used to display the field. The fields available in the standard
+string used to display the field.
+
+The fields available in the standard
 TestResult object are: testcode, stdin, expected, got, extra, awarded, and mark.
 testcode, stdin, expected and extra are the fields from the testcase while got
 is the actual output generated and awarded and mark are the actual awarded mark
-and the maximum mark for the testcase respsectively. Custom-grader templates may
+and the maximum mark for the testcase respsectively.
+
+Custom-grader templates may
 add their own fields, which can also be selected for display. It is also
 possible to combine multiple fields into a column by adding extra fields to the
 specifier: these must precede the sprintf format specifier, which then becomes
 mandatory. For example, to display a Mark Fraction column in the form 0.74/1.00,
 say, a column format specifier of ["Mark Fraction", "awarded", "mark",
-"%.2f/%.2f"] could be used. As a further special case, a format of %h means that
+"%.2f/%.2f"] could be used.
+
+As a further special case, a format of %h means that
 the test result field should be taken as ready-to-output HTML and should not be
 subject to further processing; this is useful only with custom-grader templates
-that generate HTML output, such as SVG graphics.  The default value of
+that generate HTML output, such as SVG graphics.
+
+The default value of
 resultcolumns is [["Test", "testcode"],["Input", "stdin"], ["Expected",
-"expected"], ["Got", "got"]].
-EORCHELP;
+"expected"], ["Got", "got"]].';
 $string['resultcolumnsnotjson'] = 'Result columns field is not a valid JSON string';
 $string['resultcolumnsnotlist'] = 'Result columns field must a JSON-encoded list of column specifiers';
 $string['resultcolumnspecbad'] = 'Invalid column specifier found: each one must be a list of two or more strings';
@@ -370,142 +344,141 @@ $string['run_failed'] = 'Failed to run tests';
 
 $string['sampleanswer'] = 'Sample answer';
 $string['sandboxcontrols'] = 'Sandbox';
-$string['sandboxcontrols_help'] = <<<EOSBHELP
+$string['sandboxcontrols_help'] = '
 Select what sandbox you wish the student submissions to run in; choosing
 DEFAULT will use the highest priority sandbox available for the chosen language
-(recommended unless the question has special needs).  You can also set the
+(recommended unless the question has special needs).
+
+You can also set the
 maximum CPU time in seconds  allowed for each testcase run and the maximum
-memory a single testcase run can consume (MB). A blank entry uses the sandbox's
+memory a single testcase run can consume (MB). A blank entry uses the sandbox\'s
 default value (typically 5 secs for the CPU time limit and a language-dependent
 amount of memory), but the defaults may not be suitable for resource-demanding
 programs. A value of zero for the maximum memory results in no limit being
 imposed. The amount of memory specified here is the total amount needed for
-the run including all libraries, interpreters, VMs etc. The "Parameters" entry
+the run including all libraries, interpreters, VMs etc.
+
+The \'Parameters\' entry
 is used to pass further sandbox-specific data, such as compile options and
 API-keys. It should generally be left blank but if non-blank it must be a valid
 JSON record. In the case of the jobe sandbox, available attributes include
 disklimit, streamsize, numprocs, compileargs and interpreterargs. For
-example {"compileargs":["-std=c89"]} for a C question would force C89
+example `{"compileargs":["-std=c89"]}` for a C question would force C89
 compliance and no other C options would be used. See the jobe documentation
 for details. Some sandboxes (e.g. Ideone) may silently ignore any or all of
-these settings.
-EOSBHELP;
+these settings.';
 $string['sandboxparams'] = 'Parameters';
 $string['seethisquestioninthequestionbank'] = 'See this question in the question bank';
 $string['SHOW'] = 'Show';
 $string['showcolumns'] = 'Show columns:';
-$string['showcolumns_help'] = 'Select which columns of the results table should ' .
-        'be displayed to students. Empty columns will be hidden regardless. ' .
-        'The defaults are appropriate for most uses.';
+$string['showcolumns_help'] = 'Select which columns of the results table should
+be displayed to students. Empty columns will be hidden regardless.
+The defaults are appropriate for most uses.';
 $string['showdifferences'] = 'Show differences';
 $string['showsource'] = 'Template debugging';
 $string['stdin'] = 'Standard Input';
 $string['stdin_help'] = 'The standard input to the test, seen by the template as {{TEST.stdin}}';
-$string['supportscripts'] = "Support scripts";
+$string['supportscripts'] = 'Support scripts';
 $string['syntax_errors'] = 'Syntax Error(s)';
 
 $string['template'] = 'Template';
-$string['template_changed'] = "Per-test template changed - disable combinator? ['Cancel' leaves it enabled.]";
+$string['template_changed'] = 'Per-test template changed - disable combinator? [\'Cancel\' leaves it enabled.]';
 $string['templatecontrols'] = 'Template controls';
-$string['templatecontrols_help'] = <<<EO_TEMPLATE_CONTROLS_HELP
-Checking the "Is combinator" checkbox specifies that the template is a combinator
+$string['templatecontrols_help'] = 'Checking the \'Is combinator\' checkbox specifies that the template is a combinator
 template, which combines the student answer plus all test cases into a single run. If this
 checkbox is checked, you will also need to define the value of the test_splitter_re
 field, which is the PHP regular expression used to split the output from the
 program run back into a set of individual test runs. However, you do not need
-to define this if you're also using a template grader, as in that case the
+to define this if you\'re also using a template grader, as in that case the
 template code is responsible for splitting the output itself, and grading it.
+
 Combinator templates do not get passed a TEST Twig variable. Instead they
 receive a variable TESTCASES, which is a list of all the tests in the
 question. The program produced by the template is assumed to combine the
 STUDENT_ANSWER and all the TESTCASES into a single program that, when runs
 outputs the test results from each test case, separated by a unique string.
 The separator string is defined by a regular expression given by the form
-field <i>test_splitter_re</i> below. Combinator templates should not generally
+field \'test_splitter_re\' below. Combinator templates should not generally
 be used with questions in which each test case has its own standard input,
 though this is possible with sufficient ingenuity.
-<p>If a run of the combinator program results in any output to stderr, that
+
+If a run of the combinator program results in any output to stderr, that
 is interpreted as a run error. To ensure the student gets credit for as many
 valid tests as possible, the system will fall back to running test cases
 one at a time by passing each test case in turn as a single-element list in the
-Twig variable TESTCASES.
-EO_TEMPLATE_CONTROLS_HELP;
+Twig variable TESTCASES.';
 $string['templateerror'] = 'TEMPLATE ERROR';
 $string['templategrader'] = 'Template grader';
-$string['template_help'] = <<<EO_TEMPLATE_HELP
-The template defines the program(s) that run in the sandbox for a given
+$string['template_help'] = 'The template defines the program(s) that run in the sandbox for a given
 student answer and test(s). There are two
-types of template: <ul>
-    <li>a per-test template, which defines a program to be run for
-a single test case and,</li>
-    <li>a "combinator" template which defines a program that
-combines all the different cases into a single program.</li></ul>
-The 'is_combinator' checkbox is left unchecked for a per-test template and is
+types of template:
+
+* a per-test template, which defines a program to be run for a single test case and,
+* a \'combinator\' template which defines a program that combines all the different cases into a single program.
+
+The \'is_combinator\' checkbox is left unchecked for a per-test template and is
 set checked for a combinator template. The rest of this help panel assumes you
 are using a per-test template; see the full documentation for the use of
 combinator templates.
-<p>The template is processed
+
+The template is processed
 by the Twig template engine (see http://twig.sensiolabs.org)
-in a context in which STUDENT_ANSWER is the student's
+in a context in which STUDENT_ANSWER is the student\'s
 response and TEST.testcode is the code for the current testcase. These values
 (and other testcase values like TEST.expected, TEST.stdin, TEST.mark)
 can be inserted into the template by enclosing them in double braces, e.g.
-{{TEST.testcode}}. For use within literal strings, an appropriate escape
-function should be applied, e.g. {{STUDENT_ANSWER | e('py')}} is the student
+`{{TEST.testcode}}`. For use within literal strings, an appropriate escape
+function should be applied, e.g. `{{STUDENT_ANSWER | e(\'py\')}}` is the student
 answer escaped in a manner suitable for use within Python triple-double-quoted
-strings. Other escape functions are e('c'), e('java'), e('matlab'). The
+strings. Other escape functions are `e(\'c\')`, `e(\'java\')`, `e(\'matlab\')`. The
 program that is output by Twig is then compiled and executed
 with the language of the selected built-in type and with stdin set
 to TEST.stdin. Output from that program is then passed to the selected grader.
-See the help under
-'Grading controls' for more on that.
-<p>Note that if a customised per-test template is used
+See the help under \'Grading controls\' for more on that.
+
+Note that if a customised per-test template is used
 there will be a compile-and-execute cycle for every test case, whereas most
 built-in question types define instead a combinator template that combines
 all test cases into a single run.
-<p>
+
 If the template-debugging checkbox is clicked, the program generated
-for each testcase will be displayed in the output.
-EO_TEMPLATE_HELP;
+for each testcase will be displayed in the output.';
 $string['templateparams'] = 'Template params';
-$string['templateparams_help'] = <<<EO_TEMPLATE_PARAMS_HELP
-The template parameters field lets you pass string parameters to a question's
+$string['templateparams_help'] = 'The template parameters field lets you pass string parameters to a question\'s
 template(s). If non-blank, this must be a JSON-format record. The fields of
 the record can then be used within the template, where they appear as
-QUESTION.parameters.&lt;&lt;param&gt;&gt;. For example, if template params
-is
+QUESTION.parameters.&lt;&lt;param&gt;&gt;. For example, if template params is
 
         {"age": 23}
 
 the value 23 would be substituted into the template in place of the
-template variable {{ QUESTION.parameters.age }}.
-EO_TEMPLATE_PARAMS_HELP;
+template variable `{{ QUESTION.parameters.age }}`.';
 $string['testcase'] = 'Test case {$a}';
 $string['testcasecontrols'] = 'Test properties:';
-$string['testcasecontrols_help'] = <<<EO_TESTCASECTRLS_HELP
-If "Use as example" is checked, this test will be automatically included in the
-question's "For example:" results table.<br>
-The "Display" combobox determines when this testcase is shown to the student
-in the results table.<br>
-If "Hide rest if fail" is checked and this test fails, all subsequent tests will
-be hidden from the student, regardless of the setting of the "Display" combobox.<br>
-"Mark" sets the value of this test case; meaningful only if this is not an
-"All-or-nothing" question.
-"Ordering" can be used to change the order of testcases when the question is
-saved: testcases are ordered by this field.
-EO_TESTCASECTRLS_HELP;
+$string['testcasecontrols_help'] = 'If \'Use as example\' is checked, this test will be automatically included in the
+question\'s \'For example:\' results table.
+
+The \'Display\' combobox determines when this testcase is shown to the student
+in the results table.
+
+If \'Hide rest if fail\' is checked and this test fails, all subsequent tests will
+be hidden from the student, regardless of the setting of the \'Display\' combobox.
+
+\'Mark\' sets the value of this test case; meaningful only if this is not an
+\'All-or-nothing\' question.
+
+\'Ordering\' can be used to change the order of testcases when the question is
+saved: testcases are ordered by this field.';
 $string['testcases'] = 'Test cases';
 $string['testcode'] = 'Test code';
 $string['testingquestion'] = 'Testing question {$a}';
 $string['testsplitterre'] = 'Test splitter (regex)';
 $string['testcode_help'] = 'The code for the test, seen by the template as {{TEST.testcode}}';
 $string['testtype'] = 'Precheck test type';
-$string['testtype_help'] = <<<EOTTHELP
-If Prechecking is enabled and set to "selected", this setting controls whether
+$string['testtype_help'] = 'If Prechecking is enabled and set to \'selected\', this setting controls whether
 the test is used only with a normal run, only with a precheck run or in both runs.
-If Prechecking is set to anything other than "selected", this setting is
-ignored.
-EOTTHELP;
+If Prechecking is set to anything other than \'selected\', this setting is
+ignored.';
 $string['testtype_normal'] = 'Check only';
 $string['testtype_precheck'] = 'Precheck only';
 $string['testtype_both'] = 'Both';
@@ -515,4 +488,5 @@ $string['typerequired'] = 'Please select the type of question (language, format,
 
 $string['useasexample'] = 'Use as example';
 $string['useace'] = 'Use ace';
+
 $string['xmlcoderunnerformaterror'] = 'XML format error in coderunner question';
