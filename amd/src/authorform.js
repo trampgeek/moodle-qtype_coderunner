@@ -31,16 +31,23 @@ define(['jquery'], function($) {
     // empty and an optional filter function to apply to the field value before
     // setting the property with it.
     var JSON_TO_FORM_MAP = {
-        template:           ['#id_template', 'value', ''],
-        cputimelimitsecs:   ['#id_cputimelimitsecs', 'value', ''],
-        memlimitmb:         ['#id_memlimitmb', 'value', ''],
-        sandbox:            ['#id_sandbox', 'value', 'DEFAULT'],
-        sandboxparams:      ['#id_sandboxparams', 'value', ''],
-        testsplitterre:     ['#id_testsplitterre', 'value', '',
+        template:            ['#id_template', 'value', ''],
+        iscombinatortemplate:['#id_iscombinatortemplate', 'checked', '',
+                                function (value) {
+                                    return value === '1' ? true : false;
+                                }],  // Need nice clean boolean for 'checked' attribute
+        cputimelimitsecs:    ['#id_cputimelimitsecs', 'value', ''],
+        memlimitmb:          ['#id_memlimitmb', 'value', ''],
+        sandbox:             ['#id_sandbox', 'value', 'DEFAULT'],
+        sandboxparams:       ['#id_sandboxparams', 'value', ''],
+        testsplitterre:      ['#id_testsplitterre', 'value', '',
                                 function (splitter) {
                                     return splitter.replace('\n', '\\n');
                                 }],
-        language:           ['#id_language', 'value', '']
+        grader:              ['#id_grader', 'value', 'EqualityGrader'],
+        resultcolumns:       ['#id_resultcolumns', 'value', ''],
+        language:            ['#id_language', 'value', ''],
+        acelang:             ['#id_acelang', 'value', '']
     };
 
     // Postpone initialisation until document ready, because strings_for_js
