@@ -15,19 +15,15 @@
 // along with CodeRunner.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Behat extensions for coderunner..
- * @package    qtype
- * @subpackage coderunner
+ * Behat extensions for coderunner.
+ *
+ * @package    qtype_coderunner
  * @copyright  2015 Richard Lobb, University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 
-use Behat\Behat\Context\Step\Given as Given,
-    Behat\Gherkin\Node\TableNode as TableNode,
-    Behat\Mink\Exception\ExpectationException as ExpectationException,
-    Behat\Mink\Exception\DriverException as DriverException,
-    Behat\Mink\Exception\ElementNotFoundException as ElementNotFoundException;
+use Behat\Mink\Exception\ExpectationException as ExpectationException;
 
 class behat_coderunner extends behat_base {
     /**
@@ -99,15 +95,6 @@ class behat_coderunner extends behat_base {
         $this->getSession()->executeScript($javascript);
     }
 
-     /**
-      * Step to wait one second. Grrr. This is messy.
-      *
-      * @When /^I wait one second/
-      */
-    public function i_wait_one_second() {
-        sleep(1);
-    }
-
     /**
      * Sets the contents of a field with multi-line input.
      *
@@ -117,14 +104,5 @@ class behat_coderunner extends behat_base {
      */
     public function i_set_the_field_to_pystring($fieldlocator, Behat\Gherkin\Node\PyStringNode $value) {
         $this->execute('behat_forms::i_set_the_field_to', array($fieldlocator, $this->escape($value)));
-    }
-
-
-    /**
-     * @Given /^I dismiss the dialog$/
-     */
-    public function i_dismiss_the_dialog() {
-        $this->getSession()->getDriver()->getWebDriverSession()->dismiss_alert();
-        $this->handleAjaxTimeout();
     }
 }

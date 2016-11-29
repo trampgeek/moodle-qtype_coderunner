@@ -3,7 +3,7 @@
     <library>
         <location>Twig</location>
         <name>Twig</name>
-        <version>1.14.2</version>
+        <version>1.28.2</version>
         <license>BSD 3-Clause</license>
     </library>
     <library>
