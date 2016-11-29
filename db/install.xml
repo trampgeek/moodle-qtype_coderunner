@@ -26,7 +26,7 @@
         <FIELD NAME="showmark" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="True if the mark column of the results table is to be displayed to students.  DEFUNCT. See resultcolumns."/>
         <FIELD NAME="resultcolumns" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="A JSON record defining which result fields to display in the results table and what column name to use."/>
         <FIELD NAME="template" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="The template for this question, expanded by Twig to yield the program to be executed."/>
-        <FIELD NAME="iscombinatortemplate" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="True iff the template is a combinator template, i.e. takes a list of test cases rather than a single one."/>
+        <FIELD NAME="iscombinatortemplate" TYPE="int" LENGTH="1" NOTNULL="false" SEQUENCE="false" COMMENT="True iff the template is a combinator template, i.e. takes a list of test cases rather than a single one."/>
         <FIELD NAME="combinatortemplate" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="DEFUNCT: An optional template to be used to combine all tests into a single run"/>
         <FIELD NAME="testsplitterre" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="The regular expression argument to preg_split to split output from the combinator run into the basic tests again. Meaningful only if combinator template provided"/>
         <FIELD NAME="pertesttemplate" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="DEFUNCT: A template to build a test run for each test case. Required."/>
@@ -41,7 +41,7 @@
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-        <KEY NAME="questionid" TYPE="foreign" FIELDS="questionid" REFTABLE="questions" REFFIELDS="id"/>
+        <KEY NAME="questionid" TYPE="foreign" FIELDS="questionid" REFTABLE="question" REFFIELDS="id"/>
       </KEYS>
       <INDEXES>
         <INDEX NAME="coderunnertype" UNIQUE="false" FIELDS="coderunnertype"/>
@@ -64,7 +64,7 @@
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-        <KEY NAME="questionid" TYPE="foreign" FIELDS="questionid" REFTABLE="questions" REFFIELDS="id"/>
+        <KEY NAME="questionid" TYPE="foreign" FIELDS="questionid" REFTABLE="question" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
   </TABLES>
