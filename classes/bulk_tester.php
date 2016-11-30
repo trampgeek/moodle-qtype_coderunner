@@ -87,7 +87,7 @@ class qtype_coderunner_bulk_tester  {
             foreach ($questionids as $questionid => $name) {
                 $questionname = format_string($name);
                 $previewurl = new moodle_url($questiontestsurl, array('questionid' => $questionid));
-                $questionnamelink = html_writer::link($previewurl, $questionname);
+                $questionnamelink = html_writer::link($previewurl, $questionname, array('target' => '_blank'));
                 echo $OUTPUT->heading($questionnamelink, 4);
 
                 try {
