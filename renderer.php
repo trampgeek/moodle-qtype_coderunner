@@ -261,7 +261,6 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
         $table = new html_table();
         $table->attributes['class'] = 'coderunner-test-results';
-        $table->attributes['name'] = 'coderunner-test-results';
 
         // Build the table header, containing all the specified field headers,
         // unless all rows in that column would be blank.
