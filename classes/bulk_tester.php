@@ -25,6 +25,11 @@
 
 class qtype_coderunner_bulk_tester  {
 
+    const pass = 0;
+    const missinganswer = 1;
+    const fail = 2;
+    const exception = 3;
+
     /**
      * Get all the contexts that contain at least one CodeRunner question, with a
      * count of the number of those questions.
@@ -82,39 +87,60 @@ class qtype_coderunner_bulk_tester  {
             }
 
             $numquestions = count($questionids);
-            echo $OUTPUT->heading("{$category->name} ($numquestions)", 3);
-
+            echo $OUTPUT->heading("{$category->name} ($numquestions)", 4);
+            echo "<ul>\n";
             foreach ($questionids as $questionid => $name) {
                 $questionname = format_string($name);
                 $previewurl = new moodle_url($questiontestsurl, array('questionid' => $questionid));
                 $questionnamelink = html_writer::link($previewurl, $questionname, array('target' => '_blank'));
-                echo $OUTPUT->heading($questionnamelink, 4);
-
-                try {
-                    $question = question_bank::load_question($questionid);
-                } catch (qtype_coderunner_exception $e) {
-                    echo "<p>\n**** " . get_string('questionloaderror', 'qtype_coderunner') .
-                            " $questionname: " . $e->getMessage() . " ****</p>";
-                    $failingtests[] = $questionnamelink . ': Threw exception';
-                    continue;
-                }
-
-                if (empty(trim($question->answer))) {
-                    echo "<p class='missinganswer'>No sample answer.</p>";
+                list($outcome, $message) = $this->load_and_test_question($questionid);
+                $html = "<li>$questionnamelink: $message</li>";
+                if ($outcome === self::pass) {
+                    $numpasses += 1;
+                } else if ($outcome === self::missinganswer) {
                     $missinganswers[] = $questionnamelink;
                 } else {
-                    $ok = $this->qtype_coderunner_test_question($question);
-                    if ($ok) {
-                        $numpasses += 1;
-                    } else {
-                        $failingtests[] = $questionnamelink . ': Failed';
-                    }
+                    $failingtests[] = "$questionnamelink: $message";
                 }
-
+                $html = "<li>$questionnamelink: $message";
+                echo $html;
+                flush(); // Force output to prevent timeouts and show progress
             }
+            echo "</ul>\n";
         }
 
         return array($numpasses, $failingtests, $missinganswers);
+    }
+
+
+    /**
+     * Load and test a specified question.
+     * @param int $questionid the id of the question to be tested
+     * @return array with 2 elements: the status (one of pass, fail, missinganswer
+     *  or exception) and a string message describing the outcome.
+     */
+    private function load_and_test_question($questionid) {
+        try {
+            $question = question_bank::load_question($questionid);
+            if (empty(trim($question->answer))) {
+                $message = 'No sample answer.';
+                $status = self::missinganswer;
+            } else {
+                $ok = $this->test_question($question);
+                if ($ok) {
+                    $message = get_string('pass', 'qtype_coderunner');
+                    $status = self::pass;
+                } else {
+                    $message = get_string('fail', 'qtype_coderunner');
+                    $status = self::fail;
+                }
+            }
+        } catch (qtype_coderunner_exception $e) {
+            $message = '**** ' . get_string('questionloaderror', 'qtype_coderunner') .
+                    " $questionname: " . $e->getMessage() . ' ****';
+            $status = self::exception;
+        }
+        return array($status, $message);
     }
 
     /**
@@ -123,12 +149,9 @@ class qtype_coderunner_bulk_tester  {
      * @param qtype_coderunner_question $question the question to test.
      * @return bool true if the sample answer passed, else false.
      */
-    public function qtype_coderunner_test_question($question) {
-        flush(); // Force output to prevent timeouts and to make progress clear.
+    private function test_question($question) {
         core_php_time_limit::raise(60); // Prevent PHP timeouts.
         gc_collect_cycles(); // Because PHP's default memory management is rubbish.
-
-        // Grade the question.
         $answer = $question->answer;
         try {
             list($fraction, $state) = $question->grade_response(array('answer' => $answer), false);
@@ -136,12 +159,6 @@ class qtype_coderunner_bulk_tester  {
         } catch (qtype_coderunner_exception $e) {
             $ok = false; // If user clicks link to see why, they'll get the same exception.
         }
-
-        echo html_writer::tag('p',
-                $ok ? get_string('pass', 'qtype_coderunner') : get_string('fail', 'qtype_coderunner'));
-
-        flush(); // Force output to prevent timeouts and to make progress clear.
-
         return $ok;
     }
 
