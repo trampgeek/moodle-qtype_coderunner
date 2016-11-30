@@ -26,7 +26,6 @@
 
 require_once(__DIR__ . '/../../../config.php');
 require_once($CFG->libdir . '/questionlib.php');
-require_once(__DIR__  . '/classes/bulk_tester.php');
 
 // Get the parameters from the URL.
 $contextid = required_param('contextid', PARAM_INT);

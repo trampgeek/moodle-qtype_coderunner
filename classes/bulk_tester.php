@@ -67,6 +67,8 @@ class qtype_coderunner_bulk_tester  {
             $questiontestsurl->param('courseid', $context->instanceid);
         } else if ($context->contextlevel == CONTEXT_MODULE) {
             $questiontestsurl->param('cmid', $context->instanceid);
+        } else {
+            $questiontestsurl->param('courseid', SITEID);
         }
         $numpasses = 0;
         $failingtests = array();
