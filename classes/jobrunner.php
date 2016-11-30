@@ -157,8 +157,7 @@ class qtype_coderunner_jobrunner {
             } else {  // Error: wrong number of tests after splitting
                 $error = get_string('brokencombinator', 'qtype_coderunner',
                         array('numtests' => $numtests, 'numresults' => count($outputs)));
-                $badtest = new qtype_coderunner_test_result(null, false, 0, $error);
-                $outcome->add_test_result($badtest);
+                $outcome->set_status(qtype_coderunner_testing_outcome::STATUS_BAD_COMBINATOR, $error);
             }
         } else {
             $outcome = null; // Something broke badly

@@ -177,6 +177,11 @@ class qtype_coderunner_renderer extends qtype_renderer {
                 $fb .= html_writer::tag('h3', get_string('syntax_errors', 'qtype_coderunner'));
                 $fb .= html_writer::tag('pre', s($testoutcome->errormessage),
                         array('class' => 'pre_syntax_error'));
+            } else if ($testoutcome->combinator_error()) {
+                $fb .= html_writer::tag('h3', get_string('badquestion', 'qtype_coderunner'));
+                $fb .= html_writer::tag('pre', s($testoutcome->errormessage),
+                        array('class' => 'pre_question_error'));
+
             } else {
                 if ($isprecheck) {
                     $fb .= html_writer::tag('h3', get_string('precheck_only', 'qtype_coderunner'));
@@ -192,9 +197,11 @@ class qtype_coderunner_renderer extends qtype_renderer {
             }
 
             // Summarise the status of the response in a paragraph at the end.
-            // Suppress this if there's a syntax error or the sandbox run failed.
+            // Suppress when previous errors have already said enough.
             if (!$testoutcome->has_syntax_error() &&
-                 !$testoutcome->run_failed() && !$testoutcome->feedbackhtml) {
+                 !$testoutcome->is_ungradable() &&
+                 !$testoutcome->run_failed() &&
+                 !$testoutcome->feedbackhtml) {
                 $fb .= $this->build_feedback_summary($qa, $testoutcome);
             }
             $fb .= html_writer::end_tag('div');

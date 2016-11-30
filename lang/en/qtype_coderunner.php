@@ -49,9 +49,10 @@ $string['bad_dotdotdot'] = 'Misuse of \'...\'. Must be at end, after two increas
 $string['badmemlimit'] = 'Memory limit must either be left blank or must be a non-negative integer';
 $string['bad_new_prototype_name'] = 'Illegal name for new prototype: already in use';
 $string['badpenalties'] = 'Penalty regime must be a comma separated list of numbers in the range [0, 100]';
+$string['badquestion'] = 'Error in question';
 $string['badsandboxparams'] = '\'Other\' field (sandbox params) must be either blank or a valid JSON record';
 $string['badtemplateparams'] = 'Template parameters must be either blank or a valid JSON record';
-$string['brokencombinator'] = 'Grading error. Expected {$a->numtests} test results, got {$a->numresults}. Please report this error to your tutor.';
+$string['brokencombinator'] = 'Expected {$a->numtests} test results, got {$a->numresults}. Please report this error to your tutor.';
 $string['bulkquestiontester'] = 'The <a href="{$a->link}">bulk tester script</a> tests that the sample answers for all questions in the current context are marked right';
 $string['bulktestcontinuefromhere'] = 'Run again or resume, starting from here';
 $string['bulktestindextitle'] = 'CodeRunner bulk testing';

@@ -330,5 +330,28 @@ EOTEMPLATE;
         $this->check_current_mark(0.5);
         $this->check_current_output( new question_pattern_expectation('|<h2>Wrong numbers of hi and/or ho</h2>|') );
     }
+
+    // Test that if the combinator output fails to yield the expected number
+    // of test case outputs, we get an appropriate error message.
+    public function test_bad_combinator_error() {
+        $q = test_question_maker::make_question('coderunner', 'sqr');
+        $q->template = <<<EOTEMPLATE
+{{ STUDENT_ANSWER }}
+__SEPARATOR__ = "#<ab@17943918#@>#"
+{% for TEST in TESTCASES %}
+{{ TEST.testcode }}
+print(__SEPARATOR__)
+{% endfor %}
+EOTEMPLATE;
+        $q->iscombinatortemplate = true;
+        $q->grader = 'EqualityGrader';
+        // Submit a right answer.
+        $this->start_attempt_at_question($q, 'adaptive', 1, 1);
+        $this->process_submission(array('-submit' => 1,
+            'answer' => 'def sqr(n): return n * n'));
+        $this->check_current_mark(0.0);
+        $this->check_output_contains('Error in question');
+        $this->check_output_contains('Please report this error to your tutor');
+    }
 }
 

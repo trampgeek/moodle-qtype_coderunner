@@ -31,6 +31,7 @@ class qtype_coderunner_testing_outcome {
     const STATUS_SYNTAX_ERROR = 2;  // The code (on any one test) didn't compile.
     const STATUS_COMBINATOR_TEMPLATE_GRADER = 3;  // This is a combinator-template-grading result.
     const STATUS_SANDBOX_ERROR = 4;  // The run failed altogether.
+    const STATUS_BAD_COMBINATOR = 5; // A combinator template yielded an invalid result
     const TOLERANCE = 0.00001;       // Allowable difference between actual and max marks for a correct outcome.
 
     public $status;                  // One of the STATUS_ constants above.
@@ -69,15 +70,23 @@ class qtype_coderunner_testing_outcome {
         return $this->status === self::STATUS_SANDBOX_ERROR;
     }
 
-
     public function has_syntax_error() {
         return $this->status === self::STATUS_SYNTAX_ERROR;
     }
 
+    public function combinator_error() {
+        return $this->status === self::STATUS_BAD_COMBINATOR;
+    }
+
+    public function is_ungradable() {
+        return $this->status === self::STATUS_SANDBOX_ERROR ||
+               $this->status === self::STATUS_BAD_COMBINATOR;
+    }
 
     public function all_correct() {
         return $this->status !== self::STATUS_SYNTAX_ERROR &&
                $this->status !== self::STATUS_SANDBOX_ERROR &&
+               $this->status !== self::STATUS_BAD_COMBINATOR &&
                $this->errorcount == 0;
     }
 

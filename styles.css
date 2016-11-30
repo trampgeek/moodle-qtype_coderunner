@@ -89,7 +89,8 @@ body#page-question-type-coderunner .ace_editor {
 }
 
 .que.coderunner div.coderunner-test-results.bad,
-.que.coderunner pre.pre_syntax_error {
+.que.coderunner div.pre_syntax_error,
+.que.coderunner div.pre_question_error {
     background-color: #FFAAAA;
 }
 
@@ -98,7 +99,8 @@ body#page-question-type-coderunner .ace_editor {
     background: repeating-linear-gradient(0deg, #FFDDDD, #FFDDDD 8px, #FFEEEE 8px, #FFEEEE 16px);
 }
 
-.que.coderunner pre.pre_syntax_error {
+.que.coderunner pre.pre_syntax_error,
+.que.coderunner div.pre_question_error {
     border: none;
 }
 

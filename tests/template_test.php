@@ -140,25 +140,4 @@ EOTEMPLATE;
         list($mark, $grade, $cache) = $result;
         $this->assertEquals(question_state::$gradedright, $grade);
     }
-
-
-    // Test that if the combinator output fails to yield the expected number
-    // of test case outputs, we get an appropriate error message.
-    public function test_bad_combinator_error() {
-        $q = $this->make_question('sqr');
-        $q->template = <<<EOTEMPLATE
-{{ STUDENT_ANSWER }}
-__SEPARATOR__ = "#<ab@17943918#@>#"
-{% for TEST in TESTCASES %}
-{{ TEST.testcode }}
-print(__SEPARATOR__)
-{% endfor %}
-EOTEMPLATE;
-        $q->iscombinatortemplate = true;
-        $q->grader = 'TemplateGrader';
-        $response = array('answer' => 'def sqr(n): return n * n');
-        $result = $q->grade_response($response);
-        list($mark, $grade, $cache) = $result;
-        $this->assertEquals(question_state::$gradedwrong, $grade);
-    }
 }
