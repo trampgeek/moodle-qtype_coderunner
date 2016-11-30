@@ -35,6 +35,22 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
     const HTTP_POST = 2;
     const HTTP_PUT = 3;
 
+    /**
+     * @var string when this variable is set, it is added as a HTTP
+     * header X-CodeRunner-Job-Id: to every API call we make.
+     *
+     * This is intended for use when load-balancing over multiple instances
+     * of JOBE, so that a sequence of related API calls can all be
+     * routed to the same JOBE instance. Typically a particular value
+     * of the job id will not be used for more than a few seconds,
+     * so quite a short time-out can be used.
+     *
+     * Typical load-balancer config might be:
+     *  - with haproxy try "balance hdr(X-CodeRunner-Job-Id)" (not tested)
+     *  - with a Netscaler use rule-based persistence with expression
+     *    HTTP.REQ.HEADER(“X-CodeRunner-Job-Id”)
+     */
+    private $currentjobid = null;
 
     private $languages = null;   // Languages supported by this sandbox.
     private $httpcode = null;    // HTTP response code.
@@ -140,6 +156,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
         }
 
         $postbody = array('run_spec' => $runspec);
+        $this->currentjobid = sprintf('%08x', mt_rand());
 
         // Try submitting the job. If we get a 404, try again after
         // putting all the files on the server. Anything else is an error.
@@ -160,6 +177,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
                 || !is_object($this->response)  // Or any sort of broken ...
                 || !isset($this->response->outcome)) {     // ... communication with server.
             $errorcode = $httpcode == 200 ? self::UNKNOWN_SERVER_ERROR : $this->get_error_code($httpcode);
+            $this->currentjobid = null;
             return (object) array('error' => $errorcode);
         } else {
             $stderr = $this->filter_file_path($this->response->stderr);
@@ -167,6 +185,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
             if (trim($stderr) !== '') {
                 $this->response->outcome = self::RESULT_RUNTIME_ERROR;
             }
+            $this->currentjobid = null;
             return (object) array(
               'error'   => self::OK,
               'result'  => $this->response->outcome,
@@ -195,7 +214,6 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
         }
     }
 
-
     // Put the given file to the server, using its MD5 checksum as the id.
     // Returns the HTTP response code, or -1 if the HTTP request fails
     // altogether.
@@ -205,21 +223,11 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
         $id = md5($contents);
         $contentsb64 = base64_encode($contents);
         $resource = "files/$id";
-        $jobe = get_config('qtype_coderunner', 'jobe_host');
-        $url = "http://$jobe/jobe/index.php/restapi/$resource";
-        $body = array('file_contents' => $contentsb64);
 
+        list($url, $headers) = $this->get_jobe_connection_info($resource);
+
+        $body = array('file_contents' => $contentsb64);
         $curl = curl_init();
-        $headers = array(
-            'User-Agent: CodeRunner',
-            'Content-Type: application/json; charset=utf-8',
-            'Accept-Charset: utf-8',
-            'Accept: application/json'
-            );
-        $apikey = get_config('qtype_coderunner', 'jobe_apikey');
-        if (!empty($apikey)) {
-            $headers[] = "X-API-KEY: $apikey";
-        }
         curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PUT");
         curl_setopt($curl, CURLOPT_URL, $url);
@@ -229,6 +237,37 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
         $info = curl_getinfo($curl);
         curl_close($curl);
         return $result === false ? -1 : $info['http_code'];
+    }
+
+    /**
+     * Helper method  used by put_file and http_request.
+     *
+     * Determine the URL for a particular API call, and
+     * also get the HTTP headers that should be sent.
+     *
+     * @param strimg $resource specific REST API call to add to the URL.
+     * @return array with two elemenst, the URL for the given resource,
+     * and the HTTP headers that should be used in the request.
+     */
+    private function get_jobe_connection_info($resource) {
+        $jobe = get_config('qtype_coderunner', 'jobe_host');
+        $url = "http://$jobe/jobe/index.php/restapi/$resource";
+
+        $headers = array(
+                'User-Agent: CodeRunner',
+                'Content-Type: application/json; charset=utf-8',
+                'Accept-Charset: utf-8',
+                'Accept: application/json',
+        );
+        $apikey = get_config('qtype_coderunner', 'jobe_apikey');
+        if (!empty($apikey)) {
+            $headers[] = "X-API-KEY: $apikey";
+        }
+        if (!empty($this->currentjobid)) {
+            $headers[] = "X-CodeRunner-Job-Id: $this->currentjobid";
+        }
+
+        return array($url, $headers);
     }
 
     // Submit the given job, which must be an associative array with at
@@ -253,16 +292,8 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
     // from json).
     // The code is -1 if the request fails utterly.
     private function http_request($resource, $method, $body=null) {
-        $jobe = get_config('qtype_coderunner', 'jobe_host');
-        $apikey = get_config('qtype_coderunner', 'jobe_apikey');
-        $headers = array(
-                'Content-Type: application/json; charset=utf-8',
-                'Accept: application/json');
-        if (!empty($apikey)) {
-            $headers[] = "X-API-KEY: $apikey";
-        }
+        list($url, $headers) = $this->get_jobe_connection_info($resource);
 
-        $url = "http://$jobe/jobe/index.php/restapi/$resource";
         $curl = new curl();
         $curl->setHeader($headers);
 
