@@ -52,36 +52,35 @@ class qtype_coderunner_bulk_tester  {
      * Do output as we go along.
      *
      * @param context $context the context to run the tests for.
-     * @return array with two elements:
-     *              bool true if the tests passed, else false.
-     *              array of messages relating to the questions with failures.
+     * @return array with three elements:
+     *              int a count of how many tests passed
+     *              array of messages relating to the questions with failures
+     *              array of messages relating to the questions without sample answers
      */
     public function run_all_tests_for_context(context $context) {
         global $DB, $OUTPUT;
 
         // Load the necessary data.
-        $categories = question_category_options(array($context));
-        $categories = reset($categories);
+        $categories = get_categories_for_contexts($context->id);
         $questiontestsurl = new moodle_url('/question/type/coderunner/questiontestrun.php');
         if ($context->contextlevel == CONTEXT_COURSE) {
             $questiontestsurl->param('courseid', $context->instanceid);
         } else if ($context->contextlevel == CONTEXT_MODULE) {
             $questiontestsurl->param('cmid', $context->instanceid);
         }
-        $allpassed = true;
+        $numpasses = 0;
         $failingtests = array();
+        $missinganswers = array();
 
-        foreach ($categories as $key => $category) {
-            list($categoryid) = explode(',', $key);
-            echo $OUTPUT->heading($category, 3);
-
+        foreach ($categories as $category) {
             $questionids = $DB->get_records_menu('question',
-                    array('category' => $categoryid, 'qtype' => 'coderunner'), 'name', 'id,name');
+                    array('category' => $category->id, 'qtype' => 'coderunner'), 'name', 'id,name');
             if (!$questionids) {
                 continue;
             }
 
-            echo html_writer::tag('p', get_string('replacedollarscount', 'qtype_coderunner', count($questionids)));
+            $numquestions = count($questionids);
+            echo $OUTPUT->heading("{$category->name} ($numquestions)", 3);
 
             foreach ($questionids as $questionid => $name) {
                 $questionname = format_string($name);
@@ -94,15 +93,18 @@ class qtype_coderunner_bulk_tester  {
                 } catch (qtype_coderunner_exception $e) {
                     echo "<p>\n**** " . get_string('questionloaderror', 'qtype_coderunner') .
                             " $questionname: " . $e->getMessage() . " ****</p>";
+                    $failingtests[] = $questionnamelink . ': Threw exception';
                     continue;
                 }
 
                 if (empty(trim($question->answer))) {
                     echo "<p class='missinganswer'>No sample answer.</p>";
+                    $missinganswers[] = $questionnamelink;
                 } else {
                     $ok = $this->qtype_coderunner_test_question($question);
-                    if (!$ok) {
-                        $allpassed = false;
+                    if ($ok) {
+                        $numpasses += 1;
+                    } else {
                         $failingtests[] = $questionnamelink . ': Failed';
                     }
                 }
@@ -110,7 +112,7 @@ class qtype_coderunner_bulk_tester  {
             }
         }
 
-        return array($allpassed, $failingtests);
+        return array($numpasses, $failingtests, $missinganswers);
     }
 
     /**
@@ -144,21 +146,30 @@ class qtype_coderunner_bulk_tester  {
     /**
      * Print an overall summary, with a link back to the bulk test index.
      *
-     * @param bool $allpassed whether all the tests passed.
+     * @param int $numpasses count of tests passed.
      * @param array $failingtests list of the ones that failed.
+     * @param array $missinganswers list of all the ones without sample answers.
      */
-    public function print_overall_result($allpassed, $failingtests) {
+    public function print_overall_result($numpasses, $failingtests, $missinganswers) {
         global $OUTPUT;
         echo $OUTPUT->heading(get_string('overallresult', 'qtype_coderunner'), 2);
-        if ($allpassed) {
-            echo html_writer::tag('p', get_string('coderunner_install_testsuite_pass', 'qtype_coderunner'),
-                    array('class' => 'overallresult pass'));
-        } else {
-            echo html_writer::tag('p', get_string('coderunner_install_testsuite_fail', 'qtype_coderunner'),
-                    array('class' => 'overallresult fail'));
+        echo html_writer::tag('p', $numpasses . ' ' . get_string('passes', 'qtype_coderunner'));
+        echo html_writer::tag('p', count($failingtests) . ' ' . get_string('fails', 'qtype_coderunner'));
+        echo html_writer::tag('p', count($missinganswers) . ' ' . get_string('missinganswers', 'qtype_coderunner'));
+
+        if (count($failingtests) > 0) {
             echo $OUTPUT->heading(get_string('coderunner_install_testsuite_failures', 'qtype_coderunner'), 3);
             echo html_writer::start_tag('ul');
             foreach ($failingtests as $message) {
+                echo html_writer::tag('li', $message);
+            }
+            echo html_writer::end_tag('ul');
+        }
+
+        if (count($missinganswers) > 0) {
+            echo $OUTPUT->heading(get_string('coderunner_install_testsuite_noanswer', 'qtype_coderunner'), 3);
+            echo html_writer::start_tag('ul');
+            foreach ($missinganswers as $message) {
                 echo html_writer::tag('li', $message);
             }
             echo html_writer::end_tag('ul');

@@ -27,11 +27,12 @@ require_once(__DIR__.'/../../../config.php');
 
 require_once($CFG->libdir . '/questionlib.php');
 
+require_once(__DIR__  . '/classes/bulk_tester.php');
 
 // Login and check permissions.
 $context = context_system::instance();
 require_login();
-require_capability('moodle/question:editall', $context);
+
 $PAGE->set_url('/question/type/coderunner/bulktestindex.php');
 $PAGE->set_context($context);
 $PAGE->set_title(get_string('bulktestindextitle', 'qtype_coderunner'));
@@ -43,17 +44,41 @@ $bulktester = new qtype_coderunner_bulk_tester();
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('coderunnercontexts', 'qtype_coderunner'));
 
-echo html_writer::start_tag('ul');
-foreach ($bulktester->get_coderunner_questions_by_context() as $contextid => $numcoderunnerquestions) {
-    echo html_writer::tag('li', html_writer::link(
-            new moodle_url('/question/type/coderunner/bulktest.php', array('contextid' => $contextid)),
-            context::instance_by_id($contextid)->get_context_name(true, true) . ' (' . $numcoderunnerquestions . ')'));
+// Find which contexts the user can edit questions in
+$questionsbycontext = $bulktester->get_coderunner_questions_by_context();
+$availablequestionsbycontext = array();
+foreach ($questionsbycontext as $contextid => $numcoderunnerquestions) {
+    $context = context::instance_by_id($contextid);
+    if (has_capability('moodle/question:editall', $context)) {
+        $availablequestionsbycontext[$contextid] = $numcoderunnerquestions;
+    }
 }
-echo html_writer::end_tag('ul');
 
-if (has_capability('moodle/site:config', context_system::instance())) {
-    echo html_writer::tag('p', html_writer::link(
-            new moodle_url('/question/type/coderunner/bulktestall.php'), stack_string('bulktestrun')));
+// List all contexts available to the user
+if (count($availablequestionsbycontext) == 0) {
+    echo html_writer::tag('p', get_string('unauthorisedbulktest', 'qtype_coderunner'));
+} else {
+    echo html_writer::start_tag('ul');
+    foreach ($availablequestionsbycontext as $contextid => $numcoderunnerquestions) {
+        $context = context::instance_by_id($contextid);
+        $name = $context->get_context_name(true, true);
+        if (strpos($name, 'Quiz:') === 0) {
+            $class = 'bulktest coderunner context quiz';
+        } else {
+            $class = 'bulktest coderunner context normal';
+        }
+
+        echo html_writer::tag('li', html_writer::link(
+            new moodle_url('/question/type/coderunner/bulktest.php', array('contextid' => $contextid)),
+            $name . ' (' . $numcoderunnerquestions . ')'), array('class' => $class));
+    }
+
+    echo html_writer::end_tag('ul');
+
+    if (has_capability('moodle/site:config', context_system::instance())) {
+        echo html_writer::tag('p', html_writer::link(
+                new moodle_url('/question/type/coderunner/bulktestall.php'), get_string('bulktestrun', 'qtype_coderunner')));
+    }
 }
 
 echo $OUTPUT->footer();

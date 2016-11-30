@@ -65,9 +65,8 @@ $string['coderunner'] = 'Program Code';
 $string['coderunner_install_testsuite_title'] = 'A test suite for CodeRunner sample answers';
 $string['coderunner_install_testsuite_title_desc'] = 'The <a href="{$a->link}">sample-answer-test script</a> verifies that the questions with sample answers are performing correctly.';
 $string['coderunner_install_testsuite_intro'] = 'This page allows you to test that the CodeRunner questions with sample answers are functioning correctly.';
-$string['coderunner_install_testsuite_pass'] = 'All tests passed!';
-$string['coderunner_install_testsuite_fail'] = 'Not all tests passed!';
 $string['coderunner_install_testsuite_failures'] = 'Tests that failed';
+$string['coderunner_install_testsuite_noanswer'] = 'Questions without sample answers';
 
 $string['coderunner_help'] = 'In response to a question, which is a specification for a program fragment, function or whole program, the respondent enters source code in a specified computer language that satisfies the specification.';
 $string['coderunner_link'] = 'question/type/coderunner';
@@ -106,6 +105,7 @@ $string['extra'] = 'Extra template data';
 $string['extra_help'] = 'A sometimes-useful extra text field for use by the template, accessed as {{TEST.extra}}';
 
 $string['fail'] = 'Fail';
+$string['fails'] = 'failures';
 $string['failedhidden'] = 'Your code failed one or more hidden tests.';
 $string['fileheader'] = 'Support files';
 $string['filloutoneanswer'] = 'You must enter source code that satisfies the specification. The code you enter will be executed to determine its correctness and a grade awarded accordingly.';
@@ -199,6 +199,7 @@ two penalties as an arithmetic progression up to 100". For example,
 Leave blank for standard Moodle behaviour.
 If there are more submissions than defined penalties, the last value is used';
 $string['memorylimit'] = 'MemLimit (MB)';
+$string['missinganswers'] = 'missing answers';
 $string['missingoutput'] = 'You must supply the expected output from this test case.';
 
 $string['nearequalitygrader'] = 'Nearly exact match';
@@ -212,6 +213,7 @@ $string['options'] = 'Options';
 $string['ordering'] = 'Ordering';
 $string['overallresult'] = 'Overall result';
 
+$string['passes'] = 'passes';
 $string['penaltyregime'] = 'Penalty regime';
 
 
@@ -487,6 +489,7 @@ $string['type_header'] = 'CodeRunner question type';
 $string['typename'] = 'Question type';
 $string['typerequired'] = 'Please select the type of question (language, format, etc)';
 
+$string['unauthorisedbulktest'] = 'You do not have edit access to any CodeRunner questions';
 $string['useasexample'] = 'Use as example';
 $string['useace'] = 'Use ace';
 

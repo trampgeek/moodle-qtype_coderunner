@@ -25,18 +25,17 @@
  */
 
 require_once(__DIR__ . '/../../../config.php');
-
 require_once($CFG->libdir . '/questionlib.php');
-
+require_once(__DIR__  . '/classes/bulk_tester.php');
 
 // Get the parameters from the URL. This is an option to restart the process
 // in the middle. Useful if it crashes.
 $startfromcontextid = optional_param('startfromcontextid', 0, PARAM_INT);
 
-// Login and check permissions.
+// Login.
 $context = context_system::instance();
 require_login();
-require_capability('moodle/site:config', $context);
+require_capability('moodle/site:config', $context);  // Administrators only
 $PAGE->set_url('/question/type/coderunner/bulktestall.php',
         array('startfromcontextid' => $startfromcontextid));
 $PAGE->set_context($context);
@@ -45,8 +44,9 @@ $PAGE->set_title($title);
 
 // Create the helper class.
 $bulktester = new qtype_coderunner_bulk_tester();
-$allpassed = true;
+$numpasses = 0;
 $allfailingtests = array();
+$allmissinganswers = array();
 $skipping = $startfromcontextid != 0;
 
 // Release the session, so the user can do other things while this runs.
@@ -64,17 +64,20 @@ foreach ($bulktester->get_coderunner_questions_by_context() as $contextid => $nu
     $skipping = false;
 
     $testcontext = context::instance_by_id($contextid);
-    echo $OUTPUT->heading(get_string('bulktesttitle', 'qtype_coderunner', $testcontext->get_context_name()));
-    echo html_writer::tag('p', html_writer::link(
-            new moodle_url('/question/type/coderunner/bulktestall.php',
-                array('startfromcontextid' => $testcontext->id)),
-            get_string('bulktestcontinuefromhere', 'qtype_coderunner')));
+    if (has_capability('moodle/question:editall', $context)) {
+        echo $OUTPUT->heading(get_string('bulktesttitle', 'qtype_coderunner', $testcontext->get_context_name()));
+        echo html_writer::tag('p', html_writer::link(
+                new moodle_url('/question/type/coderunner/bulktestall.php',
+                    array('startfromcontextid' => $testcontext->id)),
+                get_string('bulktestcontinuefromhere', 'qtype_coderunner')));
 
-    list($passed, $failingtests) = $bulktester->run_all_tests_for_context($testcontext);
-    $allpassed = $allpassed && $passed;
-    $allfailingtests = array_merge($allfailingtests, $failingtests);
+        list($passes, $failingtests, $missinganswers) = $bulktester->run_all_tests_for_context($testcontext);
+        $numpasses += $passes;
+        $allfailingtests = array_merge($allfailingtests, $failingtests);
+        $allmissinganswers = array_merge($allmissinganswers, $missinganswers);
+    }
 }
 
 // Display the final summary.
-$bulktester->print_overall_result($allpassed, $allfailingtests);
+$bulktester->print_overall_result($numpasses, $allfailingtests, $allmissinganswers);
 echo $OUTPUT->footer();

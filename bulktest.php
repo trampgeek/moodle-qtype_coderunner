@@ -15,7 +15,7 @@
 // along with CodeRunner.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This script runs all the quesion tests for all deployed versions of all
+ * This script runs all the question tests for all deployed versions of all
  * questions in a given context.
  * It is a modified version of the script from the qtype_stack plugin.
  *
@@ -25,9 +25,8 @@
  */
 
 require_once(__DIR__ . '/../../../config.php');
-
 require_once($CFG->libdir . '/questionlib.php');
-
+require_once(__DIR__  . '/classes/bulk_tester.php');
 
 // Get the parameters from the URL.
 $contextid = required_param('contextid', PARAM_INT);
@@ -59,8 +58,8 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading($title);
 
 // Run the tests.
-list($allpassed, $failingtests) = $bulktester->run_all_tests_for_context($context);
+list($numpasses, $failingtests, $missinganswers) = $bulktester->run_all_tests_for_context($context);
 
 // Display the final summary.
-$bulktester->print_overall_result($allpassed, $failingtests);
+$bulktester->print_overall_result($numpasses, $failingtests, $missinganswers);
 echo $OUTPUT->footer();
