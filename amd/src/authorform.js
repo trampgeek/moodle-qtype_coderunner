@@ -72,7 +72,6 @@ define(['jquery'], function($) {
             questiontypeHelpDiv = $('#qtype-help'),
             precheck = $('select#id_precheck'),
             answerLang = '',
-            answerpreloadhdr = $('#id_answerpreloadhdr'),
             testtypedivs = $('div[id^=fitem_id_testtype]');
 
         // Check if need to (re-)initialise Ace in a given textarea with a
@@ -199,7 +198,7 @@ define(['jquery'], function($) {
         }
 
         answerLang = acelang.prop('value') ? acelang.prop('value') : language.prop('value');
-        checkAceStatus('sampleanswer', answerLang);
+        checkAceStatus('answer', answerLang);
         checkAceStatus('answerpreload', answerLang);
         setCustomisationVisibility(isCustomised);
         if (!isCustomised) {
@@ -228,7 +227,7 @@ define(['jquery'], function($) {
 
         acelang.on('change', function() {
             answerLang = acelang.prop('value') ? acelang.prop('value') : language.prop('value');
-            checkAceStatus('sampleanswer', answerLang);
+            checkAceStatus('answer', answerLang);
             checkAceStatus('answerpreload', answerLang);
         });
 
@@ -245,7 +244,7 @@ define(['jquery'], function($) {
             answerLang = acelang.prop('value') ? acelang.prop('value') : language.prop('value');
             if (isTurningOn) {
                 checkAceStatus('template', language.prop('value'));
-                checkAceStatus('sampleanswer', answerLang);
+                checkAceStatus('answer', answerLang);
                 checkAceStatus('answerpreload', answerLang);
             } else {
                 require(['qtype_coderunner/aceinterface'], function(AceInterface) {

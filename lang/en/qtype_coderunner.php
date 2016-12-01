@@ -33,6 +33,8 @@ $string['allornothing_help'] = 'If \'All-or-nothing\' is checked, all test cases
 The per-test-case marks can be specified only if the all-or-nothing checkbox is unchecked.
 
 If using a template grader that awards part marks to test cases, \'All-or-nothing\' should generally be unchecked.';
+$string['answer'] = 'Sample answer';
+$string['answer_help'] = 'A sample answer can be entered here and used for checking by the question author and optionally shown to students during review. It is also used by the bulk tester script.';
 $string['answerrequired'] = 'Please provide a non-empty answer';
 $string['atleastonetest'] = 'You must provide at least one test case for this question.';
 $string['ace-language'] = 'Ace language';
@@ -347,8 +349,6 @@ $string['resultcolumnsnotlist'] = 'Result columns field must a JSON-encoded list
 $string['resultcolumnspecbad'] = 'Invalid column specifier found: each one must be a list of two or more strings';
 $string['run_failed'] = 'Failed to run tests';
 
-$string['sampleanswer'] = 'Sample answer';
-$string['sampleanswer_help'] = 'A sample answer can be entered here and used for checking by the question author and optionally shown to students during review. It is also used by the bulk tester script.';
 $string['sandboxcontrols'] = 'Sandbox';
 $string['sandboxcontrols_help'] = '
 Select what sandbox you wish the student submissions to run in; choosing

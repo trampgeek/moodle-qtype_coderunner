@@ -124,12 +124,12 @@ class qtype_coderunner_edit_form extends question_edit_form {
      */
     protected function add_sample_answer_field($mform) {
         $mform->addElement('header', 'answerhdr',
-                    get_string('sampleanswer', 'qtype_coderunner'), '');
+                    get_string('answer', 'qtype_coderunner'), '');
         $mform->setExpanded('answerhdr', 1);
-        $mform->addElement('textarea', 'sampleanswer',
+        $mform->addElement('textarea', 'answer',
                 get_string('answer', 'qtype_coderunner'),
-                array('rows' => 15, 'class' => 'sampleanswer edit_code'));
-        $mform->addHelpButton('sampleanswer', 'sampleanswer', 'qtype_coderunner');
+                array('rows' => 15, 'class' => 'answer edit_code'));
+        $mform->addHelpButton('answer', 'answer', 'qtype_coderunner');
     }
 
     /**
