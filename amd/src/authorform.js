@@ -66,21 +66,26 @@ define(['jquery'], function($) {
             customisationFieldSet = $('#id_customisationheader'),
             advancedCustomisation = $('#id_advancedcustomisationheader'),
             isCustomised = customise.prop('checked'),
-            prototypeType = $("#id_prototypetype"),
+            prototypeType = $('#id_prototypetype'),
+            preloadHdr = $('#id_answerpreloadhdr'),
             typeName = $('#id_typename'),
             courseId = $('input[name="courseid"]').prop('value'),
             questiontypeHelpDiv = $('#qtype-help'),
             precheck = $('select#id_precheck'),
-            answerLang = '',
             testtypedivs = $('div[id^=fitem_id_testtype]');
 
         // Check if need to (re-)initialise Ace in a given textarea with a
         // given language.
         // Do this if the textarea or its Ace wrapper is visible and Ace is enabled.
         // If Ace is already enabled, a call to initAce will reload its contents.
+        // If lang is not supplied in the call, use aceLang if defined else
+        // the main template language.
         function checkAceStatus(textarea, lang) {
             var textareaVisible = $('#id_' + textarea).is(':visible') ||
                     $('#id_' + textarea + '_wrapper').is(':visible');
+            if (typeof(lang) === 'undefined') {
+                lang = acelang.prop('value') ? acelang.prop('value') : language.prop('value');
+            }
             if (useace.prop('checked') && textareaVisible) {
                 require(['qtype_coderunner/aceinterface'], function(AceInterface) {
                     AceInterface.initAce('id_' + textarea, lang.toLowerCase());
@@ -197,9 +202,8 @@ define(['jquery'], function($) {
             customise.prop('disabled', true);
         }
 
-        answerLang = acelang.prop('value') ? acelang.prop('value') : language.prop('value');
-        checkAceStatus('answer', answerLang);
-        checkAceStatus('answerpreload', answerLang);
+        checkAceStatus('answer');
+        checkAceStatus('answerpreload');
         setCustomisationVisibility(isCustomised);
         if (!isCustomised) {
             loadCustomisationFields();
@@ -226,9 +230,8 @@ define(['jquery'], function($) {
         });
 
         acelang.on('change', function() {
-            answerLang = acelang.prop('value') ? acelang.prop('value') : language.prop('value');
-            checkAceStatus('answer', answerLang);
-            checkAceStatus('answerpreload', answerLang);
+            checkAceStatus('answer');
+            checkAceStatus('answerpreload');
         });
 
 
@@ -241,11 +244,10 @@ define(['jquery'], function($) {
 
         useace.on('change', function() {
             var isTurningOn = useace.prop('checked');
-            answerLang = acelang.prop('value') ? acelang.prop('value') : language.prop('value');
             if (isTurningOn) {
                 checkAceStatus('template', language.prop('value'));
-                checkAceStatus('answer', answerLang);
-                checkAceStatus('answerpreload', answerLang);
+                checkAceStatus('answer');
+                checkAceStatus('answerpreload');
             } else {
                 require(['qtype_coderunner/aceinterface'], function(AceInterface) {
                     AceInterface.stopUsingAce();
@@ -255,14 +257,14 @@ define(['jquery'], function($) {
 
         precheck.on('change', set_testtype_visibilities);
 
-        /* TODO: find a way to hook into the opening of the answer preload
-         * section so I can have it off by default and turn on ACE only when
-         * it is opened.
-        answerpreloadhdr.on('click', function() {
-            answerLang = acelang.prop('value') ? acelang.prop('value') : language.prop('value');
-            checkAceStatus('answerpreload', answerLang);
+        // In order to initialise Ace when the answer preload section is
+        // expanded, we monitor attribute mutations in the Answer Preload
+        // header.
+        var observer = new MutationObserver( function () {
+            checkAceStatus('answerpreload');
         });
-        */
+
+        observer.observe(preloadHdr.get(0), {'attributes': true});
     }
 
     return {initEditForm: initEditForm};

@@ -38,7 +38,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
     const NUM_TESTCASES_START = 5;  // Num empty test cases with new questions.
     const NUM_TESTCASES_ADD = 3;    // Extra empty test cases to add.
     const DEFAULT_NUM_ROWS = 18;    // Answer box rows.
-    const DEFAULT_NUM_COLS = 100;   // Answer box rows.
+    const DEFAULT_NUM_COLS = 100;   // Answer box columns.
     const TEMPLATE_PARAM_SIZE = 80; // The size of the template parameter field.
     const RESULT_COLUMNS_SIZE = 80; // The size of the resultcolumns field.
 
@@ -128,7 +128,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->setExpanded('answerhdr', 1);
         $mform->addElement('textarea', 'answer',
                 get_string('answer', 'qtype_coderunner'),
-                array('rows' => 15, 'class' => 'answer edit_code'));
+                array('rows' => 9, 'class' => 'answer edit_code'));
         $mform->addHelpButton('answer', 'answer', 'qtype_coderunner');
     }
 
@@ -139,7 +139,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
     protected function add_preload_answer_field($mform) {
         $mform->addElement('header', 'answerpreloadhdr',
                     get_string('answerpreload', 'qtype_coderunner'), '');
-        $mform->setExpanded('answerpreloadhdr', 1);  // TODO - default to 0 with JavaScript to enable ACE
+        $mform->setExpanded('answerpreloadhdr', 0);
         $mform->addElement('textarea', 'answerpreload',
                 get_string('answerpreload', 'qtype_coderunner'),
                 array('rows' => 5, 'class' => 'preloadanswer edit_code'));
