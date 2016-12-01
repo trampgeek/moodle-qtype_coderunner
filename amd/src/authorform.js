@@ -72,6 +72,7 @@ define(['jquery'], function($) {
             questiontypeHelpDiv = $('#qtype-help'),
             precheck = $('select#id_precheck'),
             answerLang = '',
+            answerpreloadhdr = $('#id_answerpreloadhdr'),
             testtypedivs = $('div[id^=fitem_id_testtype]');
 
         // Check if need to (re-)initialise Ace in a given textarea with a
@@ -198,7 +199,8 @@ define(['jquery'], function($) {
         }
 
         answerLang = acelang.prop('value') ? acelang.prop('value') : language.prop('value');
-        checkAceStatus('answer', answerLang);
+        checkAceStatus('sampleanswer', answerLang);
+        checkAceStatus('answerpreload', answerLang);
         setCustomisationVisibility(isCustomised);
         if (!isCustomised) {
             loadCustomisationFields();
@@ -226,7 +228,8 @@ define(['jquery'], function($) {
 
         acelang.on('change', function() {
             answerLang = acelang.prop('value') ? acelang.prop('value') : language.prop('value');
-            checkAceStatus('answer', answerLang);
+            checkAceStatus('sampleanswer', answerLang);
+            checkAceStatus('answerpreload', answerLang);
         });
 
 
@@ -239,9 +242,11 @@ define(['jquery'], function($) {
 
         useace.on('change', function() {
             var isTurningOn = useace.prop('checked');
+            answerLang = acelang.prop('value') ? acelang.prop('value') : language.prop('value');
             if (isTurningOn) {
                 checkAceStatus('template', language.prop('value'));
-                checkAceStatus('answer', acelang.prop('value'));
+                checkAceStatus('sampleanswer', answerLang);
+                checkAceStatus('answerpreload', answerLang);
             } else {
                 require(['qtype_coderunner/aceinterface'], function(AceInterface) {
                     AceInterface.stopUsingAce();
@@ -250,6 +255,15 @@ define(['jquery'], function($) {
         });
 
         precheck.on('change', set_testtype_visibilities);
+
+        /* TODO: find a way to hook into the opening of the answer preload
+         * section so I can have it off by default and turn on ACE only when
+         * it is opened.
+        answerpreloadhdr.on('click', function() {
+            answerLang = acelang.prop('value') ? acelang.prop('value') : language.prop('value');
+            checkAceStatus('answerpreload', answerLang);
+        });
+        */
     }
 
     return {initEditForm: initEditForm};

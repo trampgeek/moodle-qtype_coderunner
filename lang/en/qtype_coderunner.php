@@ -42,6 +42,8 @@ $string['answerbox_group'] = 'Answer box';
 $string['answerboxcolumns'] = 'Columns';
 $string['answerboxlines'] = 'Rows';
 $string['answerbox_group_help'] = 'Set the number of rows and columns to allocate for the answer box. If the answer overflows the box vertically or horizontally, scrollbars will appear. If \'Use ace\' is checked, the ACE JavaScript code editor will manage the answer box.';
+$string['answerpreload'] = 'Answer box preload';
+$string['answerpreload_help'] = 'Text supplied here will be preloaded into the student\'s answer box.';
 $string['asolutionis'] = 'Question author\'s solution:';
 
 $string['badcputime'] = 'CPU time limit must be left blank or must be an integer greater than zero';
@@ -346,6 +348,7 @@ $string['resultcolumnspecbad'] = 'Invalid column specifier found: each one must 
 $string['run_failed'] = 'Failed to run tests';
 
 $string['sampleanswer'] = 'Sample answer';
+$string['sampleanswer_help'] = 'A sample answer can be entered here and used for checking by the question author and optionally shown to students during review. It is also used by the bulk tester script.';
 $string['sandboxcontrols'] = 'Sandbox';
 $string['sandboxcontrols_help'] = '
 Select what sandbox you wish the student submissions to run in; choosing

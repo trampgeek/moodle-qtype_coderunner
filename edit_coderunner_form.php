@@ -73,6 +73,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
     // section and before the footer stuff.
     public function definition_inner($mform) {
         $this->add_sample_answer_field($mform);
+        $this->add_preload_answer_field($mform);
 
         if (isset($this->question->options->testcases)) {
             $numtestcases = count($this->question->options->testcases);
@@ -125,9 +126,24 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->addElement('header', 'answerhdr',
                     get_string('sampleanswer', 'qtype_coderunner'), '');
         $mform->setExpanded('answerhdr', 1);
-        $mform->addElement('textarea', 'answer',
+        $mform->addElement('textarea', 'sampleanswer',
                 get_string('answer', 'qtype_coderunner'),
                 array('rows' => 15, 'class' => 'sampleanswer edit_code'));
+        $mform->addHelpButton('sampleanswer', 'sampleanswer', 'qtype_coderunner');
+    }
+
+    /**
+     * Add a field for a text to be preloaded into the answer box.
+     * @param object $mform the form being built
+     */
+    protected function add_preload_answer_field($mform) {
+        $mform->addElement('header', 'answerpreloadhdr',
+                    get_string('answerpreload', 'qtype_coderunner'), '');
+        $mform->setExpanded('answerpreloadhdr', 1);  // TODO - default to 0 with JavaScript to enable ACE
+        $mform->addElement('textarea', 'answerpreload',
+                get_string('answerpreload', 'qtype_coderunner'),
+                array('rows' => 5, 'class' => 'preloadanswer edit_code'));
+        $mform->addHelpButton('answerpreload', 'answerpreload', 'qtype_coderunner');
     }
 
     /*

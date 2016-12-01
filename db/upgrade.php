@@ -110,6 +110,53 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2016112107, 'qtype', 'coderunner');
     }
 
+    if ($oldversion < 2016120101) {
+
+        // Define field answerpreload to be added to question_coderunner_options.
+        $table = new xmldb_table('question_coderunner_options');
+        $field = new xmldb_field('answerpreload', XMLDB_TYPE_TEXT, null, null, null, null, null, 'answerboxcolumns');
+
+        // Conditionally launch add field answerpreload.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Drop all the obsolete "show <column>" fields.
+
+        $field_mark = new xmldb_field('showmark');
+        // Conditionally launch drop field showmark.
+        if ($dbman->field_exists($table, $field_mark)) {
+            $dbman->drop_field($table, $field_mark);
+        }
+
+        $field_output = new xmldb_field('showoutput');
+        // Conditionally launch drop field showoutput.
+        if ($dbman->field_exists($table, $field_output)) {
+            $dbman->drop_field($table, $field_output);
+        }
+
+        $field_test = new xmldb_field('showtest');
+        // Conditionally launch drop field showtest.
+        if ($dbman->field_exists($table, $field_test)) {
+            $dbman->drop_field($table, $field_test);
+        }
+
+        $field_stdin = new xmldb_field('showstdin');
+        // Conditionally launch drop field showstdin.
+        if ($dbman->field_exists($table, $field_stdin)) {
+            $dbman->drop_field($table, $field_stdin);
+        }
+
+        $field_expected = new xmldb_field('showexpected');
+        // Conditionally launch drop field showstdin.
+        if ($dbman->field_exists($table, $field_expected)) {
+            $dbman->drop_field($table, $field_expected);
+        }
+
+        // Coderunner savepoint reached.
+        upgrade_plugin_savepoint(true, 2016120101, 'qtype', 'coderunner');
+    }
+
     require_once(__DIR__ . '/upgradelib.php');
     update_question_types();
 

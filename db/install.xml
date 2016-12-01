@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="question/type/coderunner/db" VERSION="20161121" COMMENT="XMLDB file for Moodle question/type/coderunner"
+<XMLDB PATH="question/type/coderunner/db" VERSION="20161201" COMMENT="XMLDB file for Moodle question/type/coderunner"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../../lib/xmldb/xmldb.xsd"
 >
@@ -12,18 +12,14 @@
         <FIELD NAME="prototypetype" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="0 =&amp;gt; not a prototype, 1 =&amp;gt; built-in prototype, 2 =&amp;gt; user_defined prototype"/>
         <FIELD NAME="allornothing" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="True if answer must pass all test cases to earn any marks"/>
         <FIELD NAME="showsource" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="True to display full source code after template expansion, for debugging template."/>
-        <FIELD NAME="answerboxlines" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="18" SEQUENCE="false" COMMENT="The number of lines for the answer box"/>
         <FIELD NAME="precheck" TYPE="int" LENGTH="8" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Sets what test-set is used if pre-checking is available. 0 = 'disable': no pretest button available; 1 = 'empty' for no actual tests; 2 = 'examples' for all use-as-example tests; 3 = 'selected' for specific selected tests."/>
+        <FIELD NAME="answerboxlines" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="18" SEQUENCE="false" COMMENT="The number of lines for the answer box"/>
         <FIELD NAME="answerboxcolumns" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="100" SEQUENCE="false" COMMENT="Number of columns of answerbox."/>
+        <FIELD NAME="answerpreload" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Text to be preloaded into the question answer box."/>
         <FIELD NAME="useace" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="True to use the Ace code editor to control the student answer"/>
         <FIELD NAME="penaltyregime" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="A comma-separated list of percentage penalties to apply to each submission. If empty use default question penalty"/>
-        <FIELD NAME="showtest" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="1" SEQUENCE="false" COMMENT="True if the test column of the results table is to be displayed to students. DEFUNCT. See resultcolumns."/>
-        <FIELD NAME="showstdin" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="1" SEQUENCE="false" COMMENT="True if the stdin column of the results table is to be displayed to students.  DEFUNCT. See resultcolumns."/>
-        <FIELD NAME="showexpected" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="1" SEQUENCE="false" COMMENT="True if the expected column of the results table is to be displayed to students.  DEFUNCT. See resultcolumns."/>
-        <FIELD NAME="showoutput" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="1" SEQUENCE="false" COMMENT="True if the output column of the results table is to be displayed to students.  DEFUNCT. See resultcolumns."/>
         <FIELD NAME="answer" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="A solution to the problem. Should satisfy all the test cases (and may be used to generate solutions to them)."/>
         <FIELD NAME="enablecombinator" TYPE="int" LENGTH="1" NOTNULL="false" SEQUENCE="false" COMMENT="True if the combinator template may be used. True for most built-in questions (i.e. the prototypes) and false for most other customised questions."/>
-        <FIELD NAME="showmark" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="True if the mark column of the results table is to be displayed to students.  DEFUNCT. See resultcolumns."/>
         <FIELD NAME="resultcolumns" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="A JSON record defining which result fields to display in the results table and what column name to use."/>
         <FIELD NAME="template" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="The template for this question, expanded by Twig to yield the program to be executed."/>
         <FIELD NAME="iscombinatortemplate" TYPE="int" LENGTH="1" NOTNULL="false" SEQUENCE="false" COMMENT="True iff the template is a combinator template, i.e. takes a list of test cases rather than a single one."/>

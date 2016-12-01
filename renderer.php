@@ -71,6 +71,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
         $responsefieldid = 'id_' . $responsefieldname;
         $rows = isset($question->answerboxlines) ? $question->answerboxlines : 18;
         $cols = isset($question->answerboxcolumns) ? $question->answerboxcolumns : 100;
+        $preload = isset($question->answerpreload) ? $question->answerpreload : '';
         $taattributes = array(
             'class' => 'coderunner-answer edit_code',
             'name'  => $responsefieldname,
@@ -85,6 +86,9 @@ class qtype_coderunner_renderer extends qtype_renderer {
         }
 
         $currentanswer = $qa->get_last_qt_var('answer');
+        if (empty($currentanswer)) {
+            $currentanswer = $preload;
+        }
         $qtext .= html_writer::tag('textarea', s($currentanswer), $taattributes);
 
         if ($qa->get_state() == question_state::$invalid) {
@@ -107,7 +111,6 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
         return $qtext;
     }
-
 
 
     /**
