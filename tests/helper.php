@@ -73,18 +73,17 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $form = new stdClass();
 
         $form->coderunnertype = 'python3';
+        $form->customise = 0;
         $form->showsource = 0;
-        $form->answerboxlines = 18;
+        $form->answerboxlines = 5;
         $form->answerboxcolumns = 100;
         $form->useace = 1;
         $form->precheck = 0;
         $form->allornothing = 0;
-        $form->grader = 'EqualityGrader';
+        $form->penaltyregime = "";
+        $form->templateparams = "";
         $form->prototypetype = 0;
-        $form->sandbox = 'DEFAULT';
-        $form->language = 'python3';
-        $form->iscombinatortemplate = 0;
-        $form->testsplitterre = '|#<ab@17943918#@>#\n|ms';
+
         $form->name = 'Square function';
         $form->questiontext = array('text' => 'Write a function sqr(n) that returns n squared.', 'format' => FORMAT_HTML);
         $form->defaultmark = 31.0;

@@ -48,7 +48,7 @@ Feature: Preview the Python 3 sqr function CodeRunner question
     And I press "Start again with these options"
     And I set the field with xpath "//textarea[contains(@name, 'answer')]" to "def sqr(n); return n * n"
     And I press "Check"
-    Then I should see "Syntax Error(s)"
+    Then I should see "Testing was aborted due to error."
     And I should see "Marks for this submission: 0.00/31.00"
 
   Scenario: Preview the Python3 sqr function question and get it wrong
