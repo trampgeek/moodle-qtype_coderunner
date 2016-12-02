@@ -31,13 +31,15 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once($CFG->dirroot . '/question/engine/tests/helpers.php');
+require_once($CFG->dirroot . '/question/type/coderunner/tests/coderunnertestcase.php');
+require_once($CFG->dirroot . '/question/type/coderunner/question.php');
 
 class qtype_coderunner_walkthrough_extras_test extends qbehaviour_walkthrough_test_base {
 
     protected function setUp() {
         global $CFG;
         parent::setUp();
-        require($CFG->dirroot . '/question/type/coderunner/tests/config.php');
+        qtype_coderunner_testcase::setup_test_sandbox_configuration();
     }
 
     public function test_extra_testcase_field() {

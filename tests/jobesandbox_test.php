@@ -16,7 +16,9 @@
 
 /**
  * Unit tests for coderunner's jobe sandbox class.
- * This test requires that the jobe sandbox (configured in tests/config.php)
+ *
+ * This test requires that the jobe sandbox (configured in
+ * tests/fixtures/test-sandbox-config-dist.php)
  * be set to require an API-key and that the key "test-api-key" be set in
  * its database as a valid key that *does* enforce limits. Because the
  * Jobe sandbox maintains its own database of accesses, this test can only
@@ -24,8 +26,7 @@
  * is cleared between tests.
  *
  * @group qtype_coderunner
- * @package    qtype
- * @subpackage coderunner
+ * @package    qtype_coderunner
  * @copyright  2013, 2014, 2015 Richard Lobb, University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

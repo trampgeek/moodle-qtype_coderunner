@@ -35,13 +35,26 @@ class qtype_coderunner_testcase extends advanced_testcase {
     protected $hasfailed = false; // Set to true when a test fails.
 
     protected function setUp() {
-        global $CFG;
         parent::setUp();
-        require($CFG->dirroot . '/question/type/coderunner/tests/config.php');
+        self::setup_test_sandbox_configuration();
         $this->resetAfterTest();
         $this->setAdminUser();
         $generator = $this->getDataGenerator()->get_plugin_generator('core_question');
         $this->category = $generator->create_question_category(array());
+    }
+
+    /**
+     * Set up the the test sandbox configuratoin defined in the files
+     * tests/fixtures/test-sandbox-config-dist.php and
+     * tests/fixtures/test-sandbox-config.php.
+     */
+    public static function setup_test_sandbox_configuration() {
+        global $CFG;
+        require($CFG->dirroot . '/question/type/coderunner/tests/fixtures/test-sandbox-config-dist.php');
+        $localconfig = $CFG->dirroot . '/question/type/coderunner/tests/fixtures/test-sandbox-config.php';
+        if (is_readable($localconfig)) {
+            require($localconfig);
+        }
     }
 
     // Override base class method to set a flag, which can be tested
