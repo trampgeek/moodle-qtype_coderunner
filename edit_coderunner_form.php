@@ -460,6 +460,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
             constants::PRECHECK_EMPTY    => get_string('precheck_empty', 'qtype_coderunner'),
             constants::PRECHECK_EXAMPLES => get_string('precheck_examples', 'qtype_coderunner'),
             constants::PRECHECK_SELECTED => get_string('precheck_selected', 'qtype_coderunner'),
+            constants::PRECHECK_ALL      => get_string('precheck_all', 'qtype_coderunner')
         );
         $precheckelements[] = $mform->createElement('select', 'precheck', null, $precheckvalues);
         $mform->addElement('group', 'coderunner_precheck_group',

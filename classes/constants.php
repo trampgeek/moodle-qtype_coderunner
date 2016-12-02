@@ -32,6 +32,7 @@ class constants {
     const PRECHECK_EMPTY = 1;
     const PRECHECK_EXAMPLES = 2;
     const PRECHECK_SELECTED = 3;
+    const PRECHECK_ALL = 4;
 
     const TESTTYPE_NORMAL = 0;
     const TESTTYPE_PRECHECK = 1;

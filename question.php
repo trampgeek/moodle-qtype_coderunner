@@ -159,8 +159,8 @@ class qtype_coderunner_question extends question_graded_automatically {
 
     // Extract and return the appropriate subset of the set of question testcases
     // given $isprecheckrun (true iff this was a run initiated by clicking
-    // precheck) and the question's prechecksetting (0, 1, 2, 3 for Disable,
-    // Empty, Examples and Selected respectively).
+    // precheck) and the question's prechecksetting (0, 1, 2, 3, 4 for Disable,
+    // Empty, Examples, Selected and All respectively).
     protected function filter_testcases($isprecheckrun, $prechecksetting) {
         if (!$isprecheckrun) {
             if ($prechecksetting != constants::PRECHECK_SELECTED) {
@@ -175,6 +175,8 @@ class qtype_coderunner_question extends question_graded_automatically {
                 return $this->example_testcases();
             } else if ($prechecksetting == constants::PRECHECK_SELECTED) {
                 return $this->selected_testcases(true);
+            } else if ($prechecksetting == constants::PRECHECK_ALL) {
+                return $this->testcases;
             } else {
                 throw new coding_exception('Precheck clicked but no precheck button?!');
             }

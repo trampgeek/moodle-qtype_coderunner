@@ -200,7 +200,40 @@ EOTEMPLATE;
         $this->check_current_mark(0.8);
     }
 
+    // Test that a precheck run with precheck set to 4 (PRECHECK_ALL)
+    // runs all tests with the template parameter IS_PRECHECK set to true.
+    // Then do a normal 'Check' run and verify that IS_PRECHECK is false.
+    public function test_precheck_all() {
+        $q = $this->make_precheck_question();
+        $q->precheck = constants::PRECHECK_ALL;
+        $q->template = <<<EOTEMPLATE
+{{ STUDENT_ANSWER }} # Defines sqr2 not sqr
+{% if IS_PRECHECK %}
+def sqr(n): return 2 * sqr2(n)
+{% else %}
+def sqr(n): return sqr2(n)
+{% endif %}
+{{ TEST.testcode }}
+EOTEMPLATE;
+        $this->start_attempt_at_question($q, 'adaptive', 1, 1);
 
+        // Precheck with a right answer, but because IS_PRECHECK is true
+        // all answers should have been doubled.
+        $this->process_submission(array('-precheck' => 1, 'answer' => "def sqr2(n): return n * n\n"));
+        $this->check_output_contains("Pre-check only");
+        $this->check_output_contains('242');
+        $this->check_output_contains('288');
+        $this->check_output_contains('98');
+        $this->check_output_contains('50');
 
+        // Now check with a right answer
+        $this->process_submission(array('-submit' => 1, 'answer' => "def sqr2(n): return n * n\n"));
+        $this->check_output_contains('121');
+        $this->check_output_contains('144');
+        $this->check_output_contains('49');
+        $this->check_output_contains('25');
+        $this->check_current_mark(1.0);
+        $this->save_quba();
+    }
 }
 

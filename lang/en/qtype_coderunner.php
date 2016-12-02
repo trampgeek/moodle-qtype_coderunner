@@ -237,6 +237,7 @@ $string['precheck_disabled'] = 'Disabled';
 $string['precheck_empty'] = 'Empty';
 $string['precheck_examples'] = 'Examples';
 $string['precheck_selected'] = 'Selected';
+$string['precheck_all'] = 'All';
 $string['precheck_help'] = 'If Precheck is enabled, students will have an extra button to the left of the
 usual check button to give them a penalty-free run to check their code against
 a subset of the question test cases.
@@ -250,8 +251,12 @@ If \'Examples\' is selected, the code will
 be tested against all the tests for which \'use_as_example\' has been checked.
 
 If \'Selected\' is selected, an extra UI element is added to each test case
-to allow the author to select a specific subset of the tests. If required,
-the template can check whether or not the run is a precheck run using the
+to allow the author to select a specific subset of the tests.
+
+If \'All\' is selected, all test cases are run (although their behaviour might
+be different from the normal Check, if the template code so chooses).
+
+The template can check whether or not the run is a precheck run using the
 Twig parameter {{ IS_PRECHECK }}, which is true during precheck runs only.';
 $string['precheck_only'] = 'Pre-check only';
 $string['proceed_at_own_risk'] = 'Editing a built-in question prototype?! Proceed at your own risk!';
