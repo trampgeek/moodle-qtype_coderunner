@@ -1,8 +1,8 @@
 @qtype @qtype_coderunner @javascript @customisetests
-Feature: Per-test template used if the combinator template execution errors
+Feature: Combinator template is called test-by-test if a runtime error occurs
   In order to get feedback even when there are runtime errors
   As a student
-  I need the per-test template to be used if the combinator template gives a runtime error
+  I need the combinator template to be used test-by-test if my answer gives a runtime error
 
   Background:
     Given the following "users" exist:
@@ -34,18 +34,10 @@ Feature: Per-test template used if the combinator template execution errors
       | id_display_2      | Hide                    |
     When I click on "Edit" "link" in the "sqr acceptance question" "table_row"
     And I set the field "id_customise" to "1"
-    And I cancel any confirm dialogs
-    # Set up a per-test template with extra (junk) output
-    And I set the field "id_pertesttemplate" to:
-      """
-      {{STUDENT_ANSWER}}
-      print(str({{TEST.testcode}}) + 'UsingPerTestTemplate')
-      """
-    # Hack to scroll window into right place follows
-    And I set the field "Question name" to "sqr acceptance question"
-    And I click on "a[aria-controls='id_advancedcustomisationheader']" "css_element"
-    # Combinator template is correct
-    And I set the field "id_combinatortemplate" to:
+    And I set the field "id_iscombinatortemplate" to "1"
+
+    # Set up a standard combinator template
+    And I set the field "id_template" to:
       """
       {{ STUDENT_ANSWER }}
       SEPARATOR = '#<ab@17943918#@>#'
@@ -58,15 +50,14 @@ Feature: Per-test template used if the combinator template execution errors
       """
     And I press "id_submitbutton"
 
-  Scenario: As a teacher, I get marked right (using combinator template) if I submit a correct answer
+  Scenario: As a teacher, I get marked right if I submit a correct answer
     When I click on "Preview" "link" in the "sqr acceptance question" "table_row"
     And I switch to "questionpreview" window
-    And I set the field "How questions behave" to "Adaptive mode"
-    And I press "Start again with these options"
     And I set the field with xpath "//textarea[contains(@name, 'answer')]" to "def sqr(n): return n * n"
     And I press "Check"
     Then the following should exist in the "coderunner-test-results" table:
       | Test    |
+      | sqr(-7) |
       | sqr(-3) |
       | sqr(11) |
     And "sqr(11)" row "Expected" column of "coderunner-test-results" table should contain "121"
@@ -75,17 +66,18 @@ Feature: Per-test template used if the combinator template execution errors
     And I should not see "Show differences"
     And I should see "Marks for this submission: 1.00/1.00"
 
-  Scenario: As a teacher, I get marked wrong (using per-test template) if I submit an answer that gives a runtime error
+  Scenario: As a teacher, I should see all tests up to one that gives a runtime error then no more
     When I click on "Preview" "link" in the "sqr acceptance question" "table_row"
     And I switch to "questionpreview" window
-    And I set the field "How questions behave" to "Adaptive mode"
-    And I press "Start again with these options"
-    And I set the field with xpath "//textarea[contains(@name, 'answer')]" to "def sqr(n): return n * n if n != -3 else sqr(n)"
+    And I set the field with xpath "//textarea[contains(@name, 'answer')]" to "def sqr(n): return n * n if n != 11 else sqr(n)"
     And I press "Check"
     Then the following should exist in the "coderunner-test-results" table:
       | Test    |
-      | sqr(-3) |
       | sqr(11) |
     And "sqr(11)" row "Expected" column of "coderunner-test-results" table should contain "121"
-    And "sqr(11)" row "Got" column of "coderunner-test-results" table should contain "121UsingPerTestTemplate"
+    And "sqr(11)" row "Got" column of "coderunner-test-results" table should contain "***Runtime error***"
+    And the following should not exist in the "coderunner-test-results" table:
+      | sqr(-3) |
+    And I should see "Testing was aborted due to error."
+    And I should see "Show differences"
     And I should see "Marks for this submission: 0.00/1.00"
