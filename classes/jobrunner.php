@@ -68,7 +68,7 @@ class qtype_coderunner_jobrunner {
         $twigcore->setEscaper('python', 'qtype_coderunner_escapers::python');
         $twigcore->setEscaper('c',  'qtype_coderunner_escapers::java');
         $twigcore->setEscaper('java', 'qtype_coderunner_escapers::java');
-        $twigcore->setEscaper('ml', 'qtype_coderunner_escapers::java');
+        $twigcore->setEscaper('ml', 'qtype_coderunner_escapers::matlab');
         $twigcore->setEscaper('matlab', 'qtype_coderunner_escapers::matlab');
 
         $this->allruns = array();
@@ -141,7 +141,7 @@ class qtype_coderunner_jobrunner {
                     qtype_coderunner_testing_outcome::STATUS_SANDBOX_ERROR,
                     qtype_coderunner_sandbox::error_string($run->error));
         } else if ($this->grader->name() === 'TemplateGrader') {
-            $outcome = $this->do_combinator_grading($maxmark, $run);
+            $outcome = $this->do_combinator_grading($run);
         } else if ($run->result === qtype_coderunner_sandbox::RESULT_COMPILATION_ERROR) {
             $outcome->set_status(
                     qtype_coderunner_testing_outcome::STATUS_SYNTAX_ERROR,
@@ -227,34 +227,52 @@ class qtype_coderunner_jobrunner {
         return $this->grader->grade($output, $testcase, $isbad);
     }
 
-
-    private function do_combinator_grading($maxmark, $run) {
-        // Given the result of a sandbox run with the combinator template,
-        // build and return a testingOutcome object with a status of
-        // STATUS_COMBINATOR_TEMPLATE_GRADER and appropriate feedback_html.
+    /**
+     * Given the result of a sandbox run with the combinator template,
+     * build and return a testingOutcome object with a status of
+     * STATUS_COMBINATOR_TEMPLATE_GRADER and attributes of preludehtml and/or
+     * and/or testresults and/or feedbackhtml.
+     *
+     * @param int $maxmark The maximum mark for this question
+     * @param JSON $run The JSON-encoded output from the run.
+     * @return \qtype_coderunner_testing_outcome the outcome object ready
+     * for display by the renderer. This will have an actualmark and zero or more of
+     * preludehtml, testresults and feedbackhtml. The last three are: some
+     * html for display, an array of pseudo- test_result objects which defines
+     * a results table and some final feedbackhtml.
+     */
+    private function do_combinator_grading($run) {
+        $outcome = new qtype_coderunner_combinator_grader_outcome();
         if ($run->result !== qtype_coderunner_sandbox::RESULT_SUCCESS) {
-            $fract = 0;
-            $html = '<h2>BAD TEMPLATE RUN<h2><pre>' . $run->cmpinfo .
-                    $run->stderr . '</pre>';
+            $error = get_string('brokencombinatorgrader', 'qtype_coderunner',
+                    array('output' => $run->cmpinfo . "\n" . $run->stderr));
+            $outcome->set_status(qtype_coderunner_testing_outcome::STATUS_BAD_COMBINATOR, $error);
         } else {
             $result = json_decode($run->output);
-            if (isset($result->feedback_html)) {  // Legacy combinator grader?
-                $result->feedbackhtml = $result->feedback_html; // Change to modern version.
-            }
+
             if ($result === null || !isset($result->fraction) ||
-                    !is_numeric($result->fraction) ||
-                    !isset($result->feedbackhtml)) {
-                $fract = 0;
-                $html = "<h2>BAD TEMPLATE OUTPUT</h2><pre>{$run->output}</pre>";
+                    !is_numeric($result->fraction)) {
+                // Bad combinator output
+                $error = get_string('badjsonorfraction', 'qtype_coderunner',
+                    array('output' => $run->output));
+                $outcome->set_status(qtype_coderunner_testing_outcome::STATUS_BAD_COMBINATOR, $error);
             } else {
+
+                // A successful combinator run
                 $fract = $result->fraction;
-                $html = $result->feedbackhtml;
+                $feedback = array();
+                if (isset($result->feedback_html)) {  // Legacy combinator grader?
+                    $result->feedbackhtml = $result->feedback_html; // Change to modern version.
+                    unset($result->feedback_html);
+                }
+                foreach (array('preludehtml', 'testresults', 'feedbackhtml') as $key) {
+                    if(isset($result->$key)) {
+                        $feedback[$key] = $result->$key;
+                    }
+                }
+                $outcome->set_mark_and_feedback($fract, $feedback);
             }
         }
-        $outcome = new qtype_coderunner_testing_outcome($maxmark,
-                0, // No individual tests
-                qtype_coderunner_testing_outcome::STATUS_COMBINATOR_TEMPLATE_GRADER);
-        $outcome->set_mark_and_feedback($maxmark * $fract, $html);
         return $outcome;
     }
 

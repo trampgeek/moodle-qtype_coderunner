@@ -347,8 +347,8 @@ class qtype_coderunner_edit_form extends question_edit_form {
             $errors['templateparams'] = get_string('badtemplateparams', 'qtype_coderunner');
         }
 
-        if ($data['prototypetype'] == 0 && ($data['grader'] !== 'qtype_coderunner_template_grader'
-                || $data['iscombinator'] === false)) {
+        if ($data['prototypetype'] == 0 && ($data['grader'] !== 'TemplateGrader'
+                || $data['iscombinatortemplate'] === false)) {
             // Unless it's a prototype or uses a combinator-template grader,
             // it needs at least one testcase.
             $testcaseerrors = $this->validate_test_cases($data);

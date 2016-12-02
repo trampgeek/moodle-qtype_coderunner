@@ -140,7 +140,7 @@ class qtype_coderunner_question extends question_graded_automatically {
         $datatocache = array('_testoutcome' => $testoutcomeserial);
         if ($testoutcome->all_correct()) {
              return array(1, question_state::$gradedright, $datatocache);
-        } else if ($this->allornothing) {
+        } else if ($this->allornothing && $this->grader !== 'TemplateGrader') {
             return array(0, question_state::$gradedwrong, $datatocache);
         } else {
             return array($testoutcome->mark_as_fraction(),

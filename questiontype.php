@@ -159,8 +159,12 @@ class qtype_coderunner extends question_type {
     // Function to copy testcases from form fields into question->testcases.
     private function copy_testcases_from_form(&$question) {
         $testcases = array();
-        $numtests = count($question->testcode);
-        assert(count($question->expected) == $numtests);
+        if (empty($question->testcode)) {
+            $numtests = 0;  // Must be a combinator template grader with no tests
+        } else {
+            $numtests = count($question->testcode);
+            assert(count($question->expected) == $numtests);
+        }
         for ($i = 0; $i < $numtests; $i++) {
             $input = $this->filter_crs($question->testcode[$i]);
             $stdin = $this->filter_crs($question->stdin[$i]);
@@ -384,7 +388,7 @@ class qtype_coderunner extends question_type {
         if (!$question->options->testcases = $DB->get_records('question_coderunner_tests',
                 array('questionid' => $question->id), 'id ASC')) {
             if ($question->options->prototypetype == 0
-                    && $question->options->grader !== 'qtype_template_grader') {
+                    && $question->options->grader !== 'TemplateGrader') {
                 throw new qtype_coderunner_exception("Failed to load testcases for question id {$question->id}");
             } else {
                 // Question prototypes may not have testcases.

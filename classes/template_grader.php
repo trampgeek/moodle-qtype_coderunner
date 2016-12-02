@@ -43,7 +43,7 @@ class qtype_coderunner_template_grader extends qtype_coderunner_grader {
      *  Should not be called if the execution failed (syntax error, exception
      *  etc).
      *  Should also not be called if the template is a combinator template
-     *  as in that case an entire TestingOutcome needs to be build from the
+     *  as in that case an entire TestingOutcome needs to be built from the
      *  output rather than a single TestResult as for all normal graders.
      *  Construction of the TestingOutcome in the case of a combinator template
      *  grading is done by jobrunner.php.

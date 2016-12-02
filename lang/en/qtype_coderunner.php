@@ -50,6 +50,7 @@ $string['asolutionis'] = 'Question author\'s solution:';
 
 $string['badcputime'] = 'CPU time limit must be left blank or must be an integer greater than zero';
 $string['bad_dotdotdot'] = 'Misuse of \'...\'. Must be at end, after two increasing numeric penalties';
+$string['badjsonorfraction'] = 'Bad JSON or missing fraction in combinator grader output. Output was: {$a->output}';
 $string['badmemlimit'] = 'Memory limit must either be left blank or must be a non-negative integer';
 $string['bad_new_prototype_name'] = 'Illegal name for new prototype: already in use';
 $string['badpenalties'] = 'Penalty regime must be a comma separated list of numbers in the range [0, 100]';
@@ -57,6 +58,7 @@ $string['badquestion'] = 'Error in question';
 $string['badsandboxparams'] = '\'Other\' field (sandbox params) must be either blank or a valid JSON record';
 $string['badtemplateparams'] = 'Template parameters must be either blank or a valid JSON record';
 $string['brokencombinator'] = 'Expected {$a->numtests} test results, got {$a->numresults}. Please report this error to your tutor.';
+$string['brokencombinatorgrader'] = 'Bad output from grader: {$a->output}. Please report this error to your tutor.';
 $string['bulkquestiontester'] = 'The <a href="{$a->link}">bulk tester script</a> tests that the sample answers for all questions in the current context are marked right';
 $string['bulktestcontinuefromhere'] = 'Run again or resume, starting from here';
 $string['bulktestindextitle'] = 'CodeRunner bulk testing';
@@ -387,6 +389,7 @@ be displayed to students. Empty columns will be hidden regardless.
 The defaults are appropriate for most uses.';
 $string['showdifferences'] = 'Show differences';
 $string['showsource'] = 'Template debugging';
+$string['sourcecodeallruns'] = 'Debug: source code from all test runs';
 $string['stdin'] = 'Standard Input';
 $string['stdin_help'] = 'The standard input to the test, seen by the template as {{TEST.stdin}}';
 $string['supportscripts'] = 'Support scripts';

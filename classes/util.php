@@ -127,4 +127,50 @@ class qtype_coderunner_util {
             return self::snip($cleaneds);
         }
     }
+
+
+    // Sanitise with 's()' and add line breaks to a given string.
+    // TODO: expand tabs (which appear in Java traceback output).
+    public static function format_cell($cell) {
+        return str_replace("\n", "<br />", str_replace(' ', '&nbsp;', s($cell)));
+    }
+
+
+    // Clean the given html by wrapping it in <div> tags and parsing it with libxml
+    // and outputing the (supposedly) cleaned up HTML.
+    public static function clean_html($html) {
+        libxml_use_internal_errors(true);
+        $html = "<div>". $html . "</div>"; // Wrap it in a div (seems to help libxml).
+        $doc = new DOMDocument;
+        if ($doc->loadHTML($html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD)) {
+            return $doc->saveHTML();
+        } else {
+            $message = "Errors in HTML\n<br />";
+            foreach (libxml_get_errors() as $error) {
+                $message .= "Line {$error->line} column {$error->line}: {$error->code}\n<br />";
+            }
+            libxml_clear_errors();
+            $message .= "\n<br />" + $html;
+            return $message;
+        }
+    }
+
+    /**
+     * Convert a given list of lines to an HTML <p> element.
+     * @param type $lines
+     */
+    public static function make_html_para($lines) {
+        if (count($lines) > 0) {
+            $para = html_writer::start_tag('p');
+            $para .= $lines[0];
+            for ($i = 1; $i < count($lines); $i++) {
+                $para .= html_writer::empty_tag('br') . $lines[$i];;
+            }
+            $para .= html_writer::end_tag('p');
+        } else {
+            $para = '';
+        }
+        return $para;
+    }
+
 }
