@@ -79,7 +79,8 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $form->useace = 0;
         $form->precheck = 0;
         $form->allornothing = 0;
-        $form->grader = 'EqualityGrader';
+        $form->penaltyregime = "";
+        $form->templateparams = "";
         $form->prototypetype = 0;
         $form->sandbox = 'DEFAULT';
         $form->language = 'python3';

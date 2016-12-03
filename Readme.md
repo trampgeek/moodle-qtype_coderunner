@@ -231,9 +231,12 @@ to build a Jobe server, then use the
 Moodle administrator interface for the CodeRunner plug-in to define the Jobe
 host name and perhaps port number. Depending on how you've chosen to
 configure your Jobe server, you may also need to supply an API-Key through
-the same interface. If you intend running unit tests you
-will also need to edit `tests/config.php` to set the correct URL for
-the Jobe server.
+the same interface.
+
+If you intend running unit tests you
+will also need to copy the file `tests/fixtures/test-sandbox-config-dist.php`
+to 'tests/fixtures/test-sandbox-config.php', then edit it to set the correct
+host and any other necessary configuration for the Jobe server.
 
 Assuming you have built *Jobe* on a separate server, the JobeSandbox fully
 isolates student code from the Moodle server. However, Jobe *can* be installed
@@ -255,10 +258,11 @@ If your Moodle installation includes the
 CodeRunner installation. Most tests require that at least python2 and python3
 are installed.
 
-Before running any tests you first need to edit the file
-`<moodlehome>/question/type/coderunner/tests/config.php` to match
-whatever configuration of sandboxes you wish to test and to set the jobe
-server URL, if appropriate. You should then initialise
+Before running any tests you first need to copy the file
+`<moodlehome>/question/type/coderunner/tests/fixtures/test-sandbox-config-dist.php`
+to '<moodlehome>/question/type/coderunner/tests/fixtures/test-sandbox-config.php',
+then edit it to set whatever configuration of sandboxes you wish to test,
+and to set the jobe host, if appropriate. You should then initialise
 the phpunit environment with the commands
 
         cd <moodlehome>

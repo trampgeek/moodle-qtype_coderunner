@@ -43,7 +43,7 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         $table = new xmldb_table('question_coderunner_tests');
         $field = new xmldb_field('type', XMLDB_TYPE_INTEGER, '8', null, null, null, '0', 'questionid');
 
-        // Conditionally launch add field precheck.
+        // Conditionally launch add field type.
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }

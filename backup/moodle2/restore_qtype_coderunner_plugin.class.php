@@ -27,9 +27,7 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
 
 /**
- * restore plugin class for coderunner questions.
- *
- * TODO: fix me!
+ * Restore plugin class for coderunner questions.
  */
 class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
 

@@ -29,3 +29,18 @@ Feature: Import CodeRunner questions
     And I should see "12. There are three different Java question types built in to CodeRunner"
     And I press "Continue"
     And I should see "C sqr"
+
+  @javascript @_file_upload
+  Scenario: Import CodeRunner questions exported from V3.0.0.
+    When I navigate to "Import" node in "Course administration > Question bank"
+    And I set the field "id_format_xml" to "1"
+    And I upload "question/type/coderunner/tests/fixtures/simpledemoquestions_V3.0.0.xml" file to "Import" filemanager
+    And I press "id_submitbutton"
+    Then I should see "Parsing questions from import file."
+    And I should see "Importing 12 questions from file"
+    And I should see "1. Write a C function with signature"
+    And I should see "12. There are three different Java question types built in to CodeRunner"
+    And I press "Continue"
+    And I should see "C sqr"
+    And I click on "Edit" "link" in the "Java Demo Class Question" "table_row"
+    And I should see "public class __Tester__ {" in the "id_template" "field"
