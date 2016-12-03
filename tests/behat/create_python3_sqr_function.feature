@@ -21,9 +21,32 @@ Feature: Create a CoderRunner question (the sqr function example)
     When I add a "CodeRunner" question filling the form with:
       | id_coderunnertype | python3                 |
       | name              | sqr acceptance question |
+      | id_useace         |                         |
+      | id_answerboxlines | 3                       |
       | id_questiontext   | Write a sqr function    |
       | id_testcode_0     | print(sqr(-7))          |
       | id_expected_0     | 49                      |
+      | id_testcode_1     | print(sqr(11))          |
+      | id_expected_1     | 121                     |
     Then I should not see "Save changes"
+    And I should not see "Write a sqr function"
+    And I should see "sqr acceptance question"
+    When I click on "Edit" "link" in the "sqr acceptance question" "table_row"
+    And I set the field "id_customise" to "1"
+    And I set the field "id_iscombinatortemplate" to "1"
+
+    # Set up a standard combinator template
+    And I set the field "id_template" to:
+      """
+      {{ STUDENT_ANSWER }}
+      SEPARATOR = '#<ab@17943918#@>#'
+      {% for TEST in TESTCASES %}
+      {{TEST.testcode}}
+      {% if not loop.last %}
+      print(SEPARATOR)
+      {% endif %}
+      {% endfor %}
+      """
+    And I press "id_submitbutton"
     And I should not see "Write a sqr function"
     And I should see "sqr acceptance question"

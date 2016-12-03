@@ -21,7 +21,7 @@ Feature: Import CodeRunner questions
   Scenario: Import CodeRunner questions
     When I navigate to "Import" node in "Course administration > Question bank"
     And I set the field "id_format_xml" to "1"
-    And I upload "question/type/coderunner/db/simpledemoquestions.xml" file to "Import" filemanager
+    And I upload "question/type/coderunner/samples/simpledemoquestions.xml" file to "Import" filemanager
     And I press "id_submitbutton"
     Then I should see "Parsing questions from import file."
     And I should see "Importing 12 questions from file"

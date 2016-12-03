@@ -18,17 +18,15 @@ Feature: Preview the Python 3 sqr function CodeRunner question
       | contextlevel | reference | name           |
       | Course       | C1        | Test questions |
     And the following "questions" exist:
-      | questioncategory | qtype      | name            | template |
-      | Test questions   | coderunner | Square function | sqr      |
+      | questioncategory | qtype      | name            |
+      | Test questions   | coderunner | Square function |
     And I log in as "teacher1"
     And I follow "Course 1"
     And I follow "Question bank"
-
+    
   Scenario: Preview the Python3 sqr function question and get it right
     When I click on "Preview" "link" in the "Square function" "table_row"
     And I switch to "questionpreview" window
-    And I set the field "How questions behave" to "Adaptive mode"
-    And I press "Start again with these options"
     And I set the field with xpath "//textarea[contains(@name, 'answer')]" to "def sqr(n): return n * n"
     And I press "Check"
     Then the following should exist in the "coderunner-test-results" table:
@@ -44,8 +42,6 @@ Feature: Preview the Python 3 sqr function CodeRunner question
   Scenario: Preview the Python3 sqr function question and submit syntactically invalid answer
     When I click on "Preview" "link" in the "Square function" "table_row"
     And I switch to "questionpreview" window
-    And I set the field "How questions behave" to "Adaptive mode"
-    And I press "Start again with these options"
     And I set the field with xpath "//textarea[contains(@name, 'answer')]" to "def sqr(n); return n * n"
     And I press "Check"
     Then I should see "Syntax Error(s)"
@@ -54,8 +50,6 @@ Feature: Preview the Python 3 sqr function CodeRunner question
   Scenario: Preview the Python3 sqr function question and get it wrong
     When I click on "Preview" "link" in the "Square function" "table_row"
     And I switch to "questionpreview" window
-    And I set the field "How questions behave" to "Adaptive mode"
-    And I press "Start again with these options"
     And I set the field with xpath "//textarea[contains(@name, 'answer')]" to "def sqr(n): return n * n * n"
     And I press "Check"
     Then the following should exist in the "coderunner-test-results" table:

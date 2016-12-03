@@ -35,7 +35,8 @@ Feature: make_prototype
     And I ok any confirm dialogs
     And I set the field "id_customise" to "1"
     And I set CodeRunner behat testing flag
-    And I set the field "id_pertesttemplate" to:
+    And I set the field "id_iscombinatortemplate" to "0"
+    And I set the field "id_template" to:
       """
       {{STUDENT_ANSWER}}
 
