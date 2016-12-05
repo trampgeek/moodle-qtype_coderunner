@@ -970,9 +970,9 @@ def input(prompt=''):
 
 {% endif %}
 
-prelude = ''
+prologue = ''
 {% for imp in QUESTION.parameters.imports %}
-prelude += """import {{imp}}\n"""
+prologue += """import {{imp}}\n"""
 {% endfor %}
 
 {% for banned in QUESTION.parameters.proscribedfunctions %}
@@ -1060,11 +1060,11 @@ def local_checks_ok(code):
     return len(errors) == 0
 
 
-if (pylint_is_happy(prelude + __student_answer__) and local_checks_ok(__student_answer__)):
+if (pylint_is_happy(prologue + __student_answer__) and local_checks_ok(__student_answer__)):
     __SEPARATOR__ = "#<ab@17943918#@>#"
 
 {% for TEST in TESTCASES %}
-    codeToRun = prelude
+    codeToRun = prologue
 {% if not QUESTION.parameters.norun %}
     codeToRun += '\n' + __student_answer__ + '\n'
 {% endif %}
@@ -1101,9 +1101,9 @@ def {{banned}}(*args, **namedargs):
 
 {% endfor %}
 
-prelude = ''
+prologue = ''
 {% for imp in QUESTION.parameters.imports %}
-prelude += """import {{imp}}\n"""
+prologue += """import {{imp}}\n"""
 {% endfor %}
 
 def pylint_is_happy(s):
@@ -1184,9 +1184,9 @@ def local_checks_ok(code):
     return len(errors) == 0
 
 
-if (pylint_is_happy(prelude + __student_answer__) and
+if (pylint_is_happy(prologue + __student_answer__) and
     local_checks_ok(__student_answer__)):
-    codeToRun = prelude
+    codeToRun = prologue
 {% if not QUESTION.parameters.norun %}
     codeToRun += '\n' + __student_answer__ + '\n'
 {% endif %}

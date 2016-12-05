@@ -93,7 +93,7 @@ class qtype_coderunner_jobrunner {
         // a test result for each test case.
 
         if ($outcome == null) {
-            assert ($this->grader->name() != 'TemplateGrader');
+            assert (!($question->get_is_combinator() && $this->grader->name() == 'TemplateGrader'));
             $outcome = $this->run_tests_singly();
         }
 
@@ -230,16 +230,20 @@ class qtype_coderunner_jobrunner {
     /**
      * Given the result of a sandbox run with the combinator template,
      * build and return a testingOutcome object with a status of
-     * STATUS_COMBINATOR_TEMPLATE_GRADER and attributes of preludehtml and/or
-     * and/or testresults and/or feedbackhtml.
+     * STATUS_COMBINATOR_TEMPLATE_GRADER and attributes of prelude and/or
+     * and/or testresults and/or epilogue.
      *
      * @param int $maxmark The maximum mark for this question
      * @param JSON $run The JSON-encoded output from the run.
      * @return \qtype_coderunner_testing_outcome the outcome object ready
      * for display by the renderer. This will have an actualmark and zero or more of
-     * preludehtml, testresults and feedbackhtml. The last three are: some
-     * html for display, an array of pseudo- test_result objects which defines
-     * a results table and some final feedbackhtml.
+     * prologue, testresults and epilogue. The last three are: some
+     * text for display before the result table, the test results table (an
+     * array of pseudo- test_result objects) and some text for display after
+     * the result table. The prologue and epilogue are both passed through
+     * markdown prior to display. Since the output of markdown is HTML and
+     * markdown passes html tags through unchanged, the prologue and epilogue
+     * can contain or consist of html markup instead, if desired.
      */
     private function do_combinator_grading($run) {
         $outcome = new qtype_coderunner_combinator_grader_outcome();
@@ -265,9 +269,14 @@ class qtype_coderunner_jobrunner {
                     $result->feedbackhtml = $result->feedback_html; // Change to modern version.
                     unset($result->feedback_html);
                 }
-                foreach (array('preludehtml', 'testresults', 'feedbackhtml') as $key) {
+                foreach (array('prologue', 'testresults', 'epilogue', 'feedbackhtml') as $key) {
                     if(isset($result->$key)) {
-                        $feedback[$key] = $result->$key;
+                        if ($key === 'feedbackhtml' || $key === 'feedback_html') {
+                            // For compatibility with older combinator graders
+                            $feedback['epilogue'] = $result->$key;
+                        } else {
+                            $feedback[$key] = $result->$key;
+                        }
                     }
                 }
                 $outcome->set_mark_and_feedback($fract, $feedback);

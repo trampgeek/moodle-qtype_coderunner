@@ -50,7 +50,7 @@ class qtype_coderunner_test_result {
     // Return the value from this testresult as specified by the given
     // $fieldspecifier, which is either a fieldname within the test result
     // or an expression of the form diff(fieldspec1, fieldspec2). Both forms
-    // now return the same result, namely the fieldspecifier or fieldspec1
+    // now return the same result, namely the rtrimmed fieldspecifier or fieldspec1
     // in the diff case. The diff variant is obsolete - it was
     // used to provide a Show Differences button but that functionality is
     // now provided in JavaScript.
@@ -60,7 +60,7 @@ class qtype_coderunner_test_result {
             $fieldspecifier = $matches[1];
         }
         if (property_exists($this, $fieldspecifier)) {
-            $value = $this->$fieldspecifier;
+            $value = rtrim($this->$fieldspecifier);
         } else {
             $value = "Unknown field '$fieldspecifier'";
         }

@@ -124,9 +124,194 @@ class qtype_coderunner_renderer extends qtype_renderer {
             return '';
         }
 
-        $testoutcome = unserialize($toserialised);
-        $testoutcome->set_renderer($this);
-        return $testoutcome->html_feedback($qa);
+        $outcome = unserialize($toserialised);
+
+        $resultsclass = $this->results_class($outcome);
+        $isprecheck = $qa->get_last_behaviour_var('_precheck', 0);
+        if ($isprecheck) {
+            $resultsclass .= ' precheck';
+        }
+
+        $fb = '';
+        $q = $qa->get_question();
+
+        if ($q->showsource) {
+            $fb .= $this->make_source_code_div();
+        }
+
+        $fb .= html_writer::start_tag('div', array('class' => $resultsclass));
+        if ($outcome->run_failed()) {
+            $fb .= html_writer::tag('h3', get_string('run_failed', 'qtype_coderunner'));;
+            $fb .= html_writer::tag('p', s($outcome->errormessage),
+                    array('class' => 'run_failed_error'));
+        } else if ($outcome->has_syntax_error()) {
+            $fb .= html_writer::tag('h3', get_string('syntax_errors', 'qtype_coderunner'));
+            $fb .= html_writer::tag('pre', s($outcome->errormessage),
+                    array('class' => 'pre_syntax_error'));
+        } else if ($outcome->combinator_error()) {
+            $fb .= html_writer::tag('h3', get_string('badquestion', 'qtype_coderunner'));
+            $fb .= html_writer::tag('pre', s($outcome->errormessage),
+                    array('class' => 'pre_question_error'));
+
+        } else {
+
+            // The run was successful. Display results.
+            if ($isprecheck) {
+                $fb .= html_writer::tag('h3', get_string('precheck_only', 'qtype_coderunner'));
+            }
+
+            $fb .= $this->build_results_table($outcome, $q);
+        }
+
+        // Summarise the status of the response in a paragraph at the end.
+        // Suppress when previous errors have already said enough.
+        if (!$outcome->has_syntax_error() &&
+             !$outcome->is_ungradable() &&
+             !$outcome->run_failed()) {
+
+            $fb .= $this->build_feedback_summary($qa, $outcome);
+        }
+        $fb .= html_writer::end_tag('div');
+
+        return $fb;
+    }
+
+
+    // Generate the main feedback, consisting of (in order) any prologue,
+    // a table of results and any epilogue.
+    protected function build_results_table($outcome, qtype_coderunner_question $question) {
+        $fb = format_text($outcome->get_prologue(), FORMAT_MARKDOWN);
+        $testresults = $outcome->get_test_results($question);
+        if (count($testresults) > 0) {
+            $table = new html_table();
+            $table->attributes['class'] = 'coderunner-test-results';
+            $headers = $testresults[0];
+            foreach ($headers as $header) {
+                if (strtolower($header) != 'ishidden') {
+                    $table->head[] = strtolower($header) === 'iscorrect' ? '' : $header;
+                }
+            }
+
+            $rowclasses = array();
+            $tablerows = array();
+
+            for ($i = 1; $i < count($testresults); $i++) {
+                $cells = $testresults[$i];
+                $rowclass = $i % 2 == 0 ? 'r0' : 'r1';
+                $tablerow = array();
+                $j = 0;
+                foreach ($cells as $cell) {
+                    if (strtolower($headers[$j]) === 'iscorrect') {
+                        $markfrac = $cell;
+                        $tablerow[] = $this->feedback_image($markfrac);
+                    } else if (strtolower($headers[$j]) === 'ishidden') { // Control column
+                        if ($cell) { // Anything other than zero or false means hidden
+                            $rowclass .= ' hidden-test';
+                        }
+                    } else if ($cell instanceof qtype_coderunner_html_wrapper) {
+                        $tablerow[] = $cell->value();  // It's already HTML
+                    } else {
+                        $tablerow[] = qtype_coderunner_util::format_cell($cell);
+                    }
+                    $j++;
+                }
+                $tablerows[] = $tablerow;
+                $rowclasses[] = $rowclass;
+            }
+            $table->data = $tablerows;
+            $table->rowclasses = $rowclasses;
+            $fb .= html_writer::table($table);
+
+        }
+        $fb .= empty($outcome->epilogue) ? '' : format_text($outcome->epilogue, FORMAT_MARKDOWN);
+
+        return $fb;
+    }
+
+
+    // Compute the HTML feedback summary for this test outcome.
+    // Should not be called if there were any syntax or sandbox errors.
+    protected function build_feedback_summary(question_attempt $qa, qtype_coderunner_testing_outcome $outcome) {
+        if ($outcome->iscombinatorgrader()) {
+            // Simplified special case
+            return $this->build_combinator_grader_feedback_summary($qa, $outcome);
+        }
+        $question = $qa->get_question();
+        $isprecheck = $qa->get_last_behaviour_var('_precheck', 0);
+        $lines = array();  // List of lines of output.
+
+        $onlyhiddenfailed = false;
+        if ($outcome->was_aborted()) {
+            $lines[] = get_string('aborted', 'qtype_coderunner');
+        } else {
+            $hiddenerrors = $outcome->count_hidden_errors();
+            if ($outcome->get_error_count() > 0) {
+                if ($outcome->get_error_count() == $hiddenerrors) {
+                    $onlyhiddenfailed = true;
+                    $lines[] = get_string('failedhidden', 'qtype_coderunner');
+                } else if ($hiddenerrors > 0) {
+                    $lines[] = get_string('morehidden', 'qtype_coderunner');
+                }
+            }
+        }
+
+        if ($outcome->all_correct()) {
+            if (!$isprecheck) {
+                $lines[] = get_string('allok', 'qtype_coderunner') .
+                        "&nbsp;" . $this->feedback_image(1.0);
+            }
+        } else {
+            if ($question->allornothing && !$isprecheck) {
+                $lines[] = get_string('noerrorsallowed', 'qtype_coderunner');
+            }
+
+            // Provide a show differences button if answer wrong and equality grader used.
+            if ((empty($question->grader) ||
+                 $question->grader == 'EqualityGrader' ||
+                 $question->grader == 'NearEqualityGrader') &&
+                    !$onlyhiddenfailed) {
+                $lines[] = $this->diff_button($qa);
+            }
+        }
+
+        return qtype_coderunner_util::make_html_para($lines);
+    }
+
+
+    // A special case of the above method for use with combinator template graders
+    // only.
+    protected function build_combinator_grader_feedback_summary($qa, qtype_coderunner_combinator_grader_outcome $outcome) {
+        $isprecheck = $qa->get_last_behaviour_var('_precheck', 0);
+        $lines = array();  // List of lines of output.
+
+        if ($outcome->all_correct() && !$isprecheck) {
+            $lines[] = get_string('allok', 'qtype_coderunner') .
+                    "&nbsp;" . $this->feedback_image(1.0);
+        }
+
+        return qtype_coderunner_util::make_html_para($lines);
+    }
+
+
+    // Build and return an HTML div section containing a list of template
+    // outputs used as source code (which are recorded in the given $outcome).
+    protected function make_source_code_div($outcome) {
+        $html = '';
+        $sourcecodelist = $outcome->get_sourcecode_list();
+        if (count($sourcecodelist) > 0) {
+            $heading = get_string('sourcecodeallruns', 'qtype_coderunner');
+            $html = html_writer::start_tag('div', array('class' => 'debugging'));
+            $html .= html_writer::tag('h3', $heading);
+            $i = 1;
+            foreach ($sourcecodelist as $run) {
+                $html .= html_writer::tag('h4', "Run $i");
+                $i++;
+                $html .= html_writer::tag('pre', s($run));
+                $html .= html_writer::tag('hr', '');
+            }
+            $html .= html_writer::end_tag('div');
+        }
+        return $html;
     }
 
 
@@ -187,7 +372,11 @@ class qtype_coderunner_renderer extends qtype_renderer {
         return $text;
     }
 
-
+    /**
+     *
+     * @param array $examples The array of testcases tagged "use as example"
+     * @return string An HTML table element displaying all the testcases.
+     */
     private function format_examples_as_table($examples) {
         $table = new html_table();
         $table->attributes['class'] = 'coderunnerexamples';
@@ -241,10 +430,44 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
 
     /**
-     * Hook for testing_outcome to call back to get feedback image from
-     * base renderer class.
+     *
+     * @param qtype_coderunner_testing_outcome $outcome
+     * @return string the CSS class for the given testing outcome
      */
-    public function get_feedback_image($mark) {
-        return $this->feedback_image($mark);
+    protected function results_class($outcome) {
+        if ($outcome->all_correct()) {
+            $resultsclass = "coderunner-test-results good";
+        } else if ($outcome->mark_as_fraction() > 0) {
+            $resultsclass = 'coderunner-test-results partial';
+        } else {
+            $resultsclass = "coderunner-test-results bad";
+        }
+        return $resultsclass;
+    }
+
+
+    // Support method to generate the "Show differences" button.
+    // Returns the HTML for the button, and sets up the JavaScript handler
+    // for it.
+    protected static function diff_button($qa) {
+        global $PAGE;
+        $attributes = array(
+            'type' => 'button',
+            'id' => $qa->get_behaviour_field_name('button'),
+            'name' => $qa->get_behaviour_field_name('button'),
+            'value' => get_string('showdifferences', 'qtype_coderunner'),
+            'class' => 'btn',
+        );
+        $html = html_writer::empty_tag('input', $attributes);
+
+        $PAGE->requires->js_call_amd('qtype_coderunner/showdiff',
+            'initDiffButton',
+            array($attributes['id'],
+                get_string('showdifferences', 'qtype_coderunner'),
+                get_string('hidedifferences', 'qtype_coderunner')
+            )
+        );
+
+        return $html;
     }
 }

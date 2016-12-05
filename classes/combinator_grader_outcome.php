@@ -31,18 +31,18 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
 
     public function __construct() {
         parent::__construct(1, 0);
-        $this->feedbackhtml = null;
-        $this->preludehtml = null;
+        $this->epilogue = null;
+        $this->prologue = null;
         $this->testresults = null;
     }
 
 
     /**
-     * Method to set the mark and the various feedback values (preludehtml,
-     * testresults, feedbackhtml).
+     * Method to set the mark and the various feedback values (prologue,
+     * testresults, epilogue).
      * @param float $markfraction the mark in the range 0 - 1
      * @param array $feedback Associative array of attributes to add to the
-     * outcome object, usually zero or more of preludehtml, results, feedbackhtml.
+     * outcome object, usually zero or more of prologue, testresults and epilogue.
      */
     public function set_mark_and_feedback($markfraction, $feedback) {
         $this->actualmark = $markfraction;  // Combinators work in the range 0 - 1
@@ -51,63 +51,22 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
         }
     }
 
-
-    // Generate the main feedback, consisting of (in order) any prelude HTML,
-    // a table of results and any postlude html (called 'feedbackhtml' for
-    // historic reasons).
-    protected function build_results_table($question) {
-        $fb = empty($this->preludehtml) ? '' : $this->preludehtml;
-        if (!empty($this->testresults) && count($this->testresults) > 0) {
-            $table = new html_table();
-            $table->attributes['class'] = 'coderunner-test-results';
-            $headers = $this->testresults[0];
-            foreach ($headers as $header) {
-                $table->head[] = strtolower($header) === 'correct' ? '' : $header;
-            }
-
-            $rowclasses = array();
-            $tablerows = array();
-
-            for ($i = 1; $i < count($this->testresults); $i++) {
-                $cells = $this->testresults[$i];
-                $rowclasses[] = $i % 2 == 0 ? 'r0' : 'r1';
-                $tablerow = array();
-                $j = 0;
-                foreach ($cells as $cell) {
-                    if (strtolower($headers[$j]) === 'correct') {
-                        $markfrac = $cell ? 1.0 : 0.0;
-                        $tablerow[] = $this->renderer->get_feedback_image($markfrac);
-                    } else {
-                        $tablerow[] = qtype_coderunner_util::format_cell($cell);
-                    }
-                    $j++;
-                }
-                $tablerows[] = $tablerow;
-            }
-            $table->data = $tablerows;
-            $table->rowclasses = $rowclasses;
-            $fb .= html_writer::table($table);
-
-        }
-        if (!empty($this->feedbackhtml)) {
-            $fb .= $this->feedbackhtml;
-        }
-        return $fb;
+    public function iscombinatorgrader() {
+        return true;
     }
 
+    // Getter methods for use by renderer.
+    // ==================================.
 
-    // Compute the HTML feedback summary for this test outcome.
-    // Should not be called if there were any syntax or sandbox errors.
-    protected function build_feedback_summary($qa) {
-        $isprecheck = $qa->get_last_behaviour_var('_precheck', 0);
-        $lines = array();  // List of lines of output.
-
-        if ($this->all_correct() && !$isprecheck) {
-            $lines[] = get_string('allok', 'qtype_coderunner') .
-                    "&nbsp;" . $this->renderer->get_feedback_image(1.0);
-        }
-
-        return qtype_coderunner_util::make_html_para($lines);
+    public function get_test_results(qtype_coderunner_question $q) {
+        return $this->testresults;
     }
 
+    public function get_prologue() {
+        return $this->prologue;
+    }
+
+    public function get_epilogue() {
+        return $this->epilogue;
+    }
 }

@@ -333,7 +333,7 @@ EOTEMPLATE;
     }
 
 
-    // Test the new template grader testresults and preludehtml fields
+    // Test the new template grader testresults and prologue fields
     public function test_combinator_template_grading2() {
         $q = test_question_maker::make_question('coderunner', 'sqr');
         $q->template = <<<EOTEMPLATE
@@ -348,9 +348,9 @@ for n in n_vals:
     mark = 1 if got == n * n else 0
     total += mark
     results.append([n, n * n, got, mark, got == n * n])
-print(json.dumps({'preludehtml': "<h2>Prelude</h2>",
+print(json.dumps({'prologue': "<h2>Prologue</h2>",
                   'testresults': results,
-                  'feedbackhtml': "Wasn't that FUN!",
+                  'epilogue': "Wasn't that FUN!",
                   'fraction': total / len(n_vals)
 }))
 EOTEMPLATE;
@@ -364,7 +364,7 @@ EOTEMPLATE;
         $this->process_submission(array('-submit' => 1,
             'answer' => "def sqr(n): return n * n"));
         $this->check_current_mark(1.0);
-        $this->check_output_contains('Prelude');
+        $this->check_output_contains('Prologue');
         $this->check_output_contains('Expected');
         $this->check_output_contains('Got');
         $this->check_output_contains("Wasn't that FUN!");
@@ -374,7 +374,57 @@ EOTEMPLATE;
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
         $this->process_submission(array('-submit' => 1,
             'answer' => "def sqr(n): return n * n if n != -5 else 'Bin' + 'Go!'"));
-        $this->check_output_contains('Prelude');
+        $this->check_output_contains('Prologue');
+        $this->check_output_contains('Expected');
+        $this->check_output_contains('Got');
+        $this->check_output_contains("Wasn't that FUN!");
+        $this->check_output_contains("Marks for this submission: 0.80/1.00");
+        $this->check_output_contains("BinGo!");
+    }
+
+
+        // Test the new template grader testresults and prologue fields
+    public function test_combinator_template_grading_with_markdown() {
+        $q = test_question_maker::make_question('coderunner', 'sqr');
+        $q->template = <<<EOTEMPLATE
+import json
+{{ STUDENT_ANSWER }}
+
+n_vals = [3, -5, 11, 21, 200];
+results = [['n', 'Expected', 'Got', 'Mark', 'Correct']]
+total = 0
+for n in n_vals:
+    got = sqr(n)
+    mark = 1 if got == n * n else 0
+    total += mark
+    results.append([n, n * n, got, mark, got == n * n])
+print(json.dumps({'prologue': "#Prologue",
+                  'testresults': results,
+                  'epilogue': "##Wasn't that FUN!",
+                  'fraction': total / len(n_vals)
+}))
+EOTEMPLATE;
+        $q->iscombinatortemplate = true;
+        $q->allornothing = true;  // This should be ignored
+        $q->grader = 'TemplateGrader';
+        $q->unitpenalty = 0;
+
+        // Submit a right answer.
+        $this->start_attempt_at_question($q, 'adaptive', 1, 1);
+        $this->process_submission(array('-submit' => 1,
+            'answer' => "def sqr(n): return n * n"));
+        $this->check_current_mark(1.0);
+        $this->check_output_contains('<h1>Prologue</h1>');
+        $this->check_output_contains('Expected');
+        $this->check_output_contains('Got');
+        $this->check_output_contains("<h2>Wasn't that FUN!</h2>");
+        $this->check_output_contains("Passed all tests!");
+
+        // Submit a partially right  answer.
+        $this->start_attempt_at_question($q, 'adaptive', 1, 1);
+        $this->process_submission(array('-submit' => 1,
+            'answer' => "def sqr(n): return n * n if n != -5 else 'Bin' + 'Go!'"));
+        $this->check_output_contains('Prologue');
         $this->check_output_contains('Expected');
         $this->check_output_contains('Got');
         $this->check_output_contains("Wasn't that FUN!");
