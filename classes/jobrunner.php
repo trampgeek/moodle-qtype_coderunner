@@ -231,19 +231,16 @@ class qtype_coderunner_jobrunner {
      * Given the result of a sandbox run with the combinator template,
      * build and return a testingOutcome object with a status of
      * STATUS_COMBINATOR_TEMPLATE_GRADER and attributes of prelude and/or
-     * and/or testresults and/or epilogue.
+     * and/or testresults and/or epiloguehtml.
      *
      * @param int $maxmark The maximum mark for this question
      * @param JSON $run The JSON-encoded output from the run.
      * @return \qtype_coderunner_testing_outcome the outcome object ready
      * for display by the renderer. This will have an actualmark and zero or more of
-     * prologue, testresults and epilogue. The last three are: some
-     * text for display before the result table, the test results table (an
-     * array of pseudo- test_result objects) and some text for display after
-     * the result table. The prologue and epilogue are both passed through
-     * markdown prior to display. Since the output of markdown is HTML and
-     * markdown passes html tags through unchanged, the prologue and epilogue
-     * can contain or consist of html markup instead, if desired.
+     * prologuehtml, testresults and epiloguehtml. The last three are: some
+     * html for display before the result table, the test results table (an
+     * array of pseudo-test_result objects) and some html for display after
+     * the result table.
      */
     private function do_combinator_grading($run) {
         $outcome = new qtype_coderunner_combinator_grader_outcome();
@@ -269,11 +266,11 @@ class qtype_coderunner_jobrunner {
                     $result->feedbackhtml = $result->feedback_html; // Change to modern version.
                     unset($result->feedback_html);
                 }
-                foreach (array('prologue', 'testresults', 'epilogue', 'feedbackhtml') as $key) {
+                foreach (array('prologuehtml', 'testresults', 'epiloguehtml', 'feedbackhtml') as $key) {
                     if(isset($result->$key)) {
                         if ($key === 'feedbackhtml' || $key === 'feedback_html') {
                             // For compatibility with older combinator graders
-                            $feedback['epilogue'] = $result->$key;
+                            $feedback['epiloguehtml'] = $result->$key;
                         } else {
                             $feedback[$key] = $result->$key;
                         }

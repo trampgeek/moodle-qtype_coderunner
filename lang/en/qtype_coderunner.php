@@ -139,8 +139,10 @@ and DOTALL options.
 The \'template grader\' option assumes that the output
 from the program is actually a
 grading result, i.e. that the template not tests *and grades* the student answer.
-The only output from such a template program must be a JSON-encoded record containing
-at least a \'fraction\' field, which is multiplied by TEST.mark to decide how
+The only output from such a template program must be a JSON-encoded record.
+
+If the template is a per-test template (i.e., not a combinator), the JSON string must describe a row of the
+results table and should contain at least a \'fraction\' field, which is multiplied by TEST.mark to decide how
 many marks the test case is awarded. It should usually also contain a \'got\'
 field, which is the value displayed in the \'Got\' column of the results table.
 The other columns of the results table (testcode, stdin, expected) can also
@@ -149,7 +151,23 @@ the testcase. As an example, if the output of the program is the string
 `{"fraction":0.5, "got": "Half the answers were right!"}`, half marks would be
 given for that particular test case and the \'Got\' column would display the
 text "Half the answers were right!". Other columns can be added to the result
-table by adding extra attributes to the JSON record.';
+table by adding extra attributes to the JSON record and also to the question\'s
+Result Columns field.
+
+If the template is a combinator, the JSON string output by the template grader
+should again contain a \'fraction\' field, this time for the total mark,
+and may contain zero or more of \'prologuehtml\', \'testresults\' and \'epiloguehtml\'.
+The \'prologuehtml\' and \'epiloguehtml\' fields are html
+that is displayed respectively before and after the (optional) result table. The
+\'testresults\' field, if given, is a list of lists used to display some sort
+of result table. The first row is the column-header row and all other rows
+define the table body. Two special column header values exist: \'iscorrect\'
+and \'ishidden\'. The \'iscorrect\' column(s) are used to display ticks or
+crosses for 1 or 0 row values respectively. The \'ishidden\' column isn\'t
+actually displayed but 0 or 1 values in the column can be used to turn on and
+off row visibility. Students do not see hidden rows but markers and other
+staff do.
+';
 
 $string['hidden'] = 'Hidden';
 $string['hidedifferences'] = 'Hide differences';

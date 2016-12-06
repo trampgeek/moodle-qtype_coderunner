@@ -177,10 +177,10 @@ class qtype_coderunner_renderer extends qtype_renderer {
     }
 
 
-    // Generate the main feedback, consisting of (in order) any prologue,
-    // a table of results and any epilogue.
+    // Generate the main feedback, consisting of (in order) any prologuehtml,
+    // a table of results and any epiloguehtml.
     protected function build_results_table($outcome, qtype_coderunner_question $question) {
-        $fb = format_text($outcome->get_prologue(), FORMAT_MARKDOWN);
+        $fb = $outcome->get_prologue();
         $testresults = $outcome->get_test_results($question);
         if (count($testresults) > 0) {
             $table = new html_table();
@@ -202,7 +202,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
                 $j = 0;
                 foreach ($cells as $cell) {
                     if (strtolower($headers[$j]) === 'iscorrect') {
-                        $markfrac = $cell;
+                        $markfrac = (float) $cell;
                         $tablerow[] = $this->feedback_image($markfrac);
                     } else if (strtolower($headers[$j]) === 'ishidden') { // Control column
                         if ($cell) { // Anything other than zero or false means hidden
@@ -223,7 +223,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
             $fb .= html_writer::table($table);
 
         }
-        $fb .= empty($outcome->epilogue) ? '' : format_text($outcome->epilogue, FORMAT_MARKDOWN);
+        $fb .= empty($outcome->epiloguehtml) ? '' : $outcome->epiloguehtml;
 
         return $fb;
     }

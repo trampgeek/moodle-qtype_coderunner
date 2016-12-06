@@ -31,18 +31,18 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
 
     public function __construct() {
         parent::__construct(1, 0);
-        $this->epilogue = null;
-        $this->prologue = null;
+        $this->epiloguehtml = null;
+        $this->prologuehtml = null;
         $this->testresults = null;
     }
 
 
     /**
-     * Method to set the mark and the various feedback values (prologue,
-     * testresults, epilogue).
+     * Method to set the mark and the various feedback values (prologuehtml,
+     * testresults, epiloguehtml).
      * @param float $markfraction the mark in the range 0 - 1
      * @param array $feedback Associative array of attributes to add to the
-     * outcome object, usually zero or more of prologue, testresults and epilogue.
+     * outcome object, usually zero or more of prologuehtml, testresults and epiloguehtml.
      */
     public function set_mark_and_feedback($markfraction, $feedback) {
         $this->actualmark = $markfraction;  // Combinators work in the range 0 - 1
@@ -63,10 +63,10 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
     }
 
     public function get_prologue() {
-        return $this->prologue;
+        return empty($this->prologuehtml) ? '' : $this->prologuehtml;
     }
 
     public function get_epilogue() {
-        return $this->epilogue;
+        return empty($this->epiloguehtml) ? '' : $this->epiloguehtml;
     }
 }

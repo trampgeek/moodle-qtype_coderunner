@@ -1,8 +1,9 @@
 # CODE RUNNER
 
-Version: 3.0 January 2016
+Version: 3.1 January 2017
 
-Author: Richard Lobb, University of Canterbury, New Zealand.
+Authors: Richard Lobb, University of Canterbury, New Zealand.
+         Tim Hunt, The Open University, UK
 
 NOTE: this documentation is available in a more-easily browsed form,
 together with a sample quiz containing a few CodeRunner questions, at
@@ -10,17 +11,20 @@ together with a sample quiz containing a few CodeRunner questions, at
 
 ## Introduction
 
-CodeRunner is a Moodle question type that requests students to submit program code
-to some given specification. The submission is graded by running a series of tests on
-the code in a sandbox, comparing the output with the expected output.
-A trivial example might be a Python function *sqr(x)* that returns its
-parameter squared, but there is essentially no limit on the complexity of
-questions that can be asked.
+CodeRunner is a Moodle question type that allows teachers to run a program
+in order to grade a student's answer. By far the most common use of CodeRunner
+is in programming courses where students are asked to write program code to
+some specification and that code is then graded by running it in a series of
+tests. CodeRunner questions have also been used in other areas of
+computer science and engineering to grade questions in which many different
+correct answers are possible and a program must be used to assess correctness.
+However, the focus throughout most of this document will be on programming
+questions, where the students' code is being graded.
 
 Regardless of the behaviour chosen for a quiz, CodeRunner questions always
 run in an adaptive mode, in which students can click a *Check* button to see
-if their code passes the tests. If not, they can resubmit, typically for a 
-small penalty. In the typical
+if their code passes the tests defined in the question. If not, students can
+resubmit, typically for a  small penalty. In the typical
 'all-or-nothing' mode, all test cases must pass
 if the submission is to be awarded any marks. The mark for a set of questions
 in a quiz is then determined primarily by which questions the student is able
@@ -30,12 +34,12 @@ questions so that the mark is determined by how many of the tests
 the code successfully passes.
 
 CodeRunner and its predecessors *pycode* and *ccode* has been in use at the
-University of Canterbury for about five years, running over a million 
-student quiz submissions in Python, C , Octave and Matlab. Laboratory work,
-assignment work and mid-semester tests in the
+University of Canterbury for about six years, running over a million 
+student quiz question submissions in Python, C , JavaScript, PHP, Octave and Matlab.
+Laboratory work, assignment work and mid-semester tests in the
 introductory first year Python programming course (COSC121), which has around
-400 students
-in the first semester and 200 in the second, are all assessed using CodeRunner
+500 students
+in the first semester and 300 in the second, are all assessed using CodeRunner
 questions. The final exams for COSC121 have also been run
 using Moodle/CodeRunner since November 2014.
 
@@ -47,29 +51,27 @@ uses CodeRunner for all labs and for the mid-semester programming exam. Other
 courses using Moodle/CodeRunner include:
 
 1. EMTH171 Mathematical Modelling and Computation
+1. SENG02 Software Engineering I
 1. COSC261 Formal Languages and Compilers 
 1. COSC367 Computational Intelligence
 1. ENCE360 Operating Systems
 1. SENG365 Web Computing Architectures
 
 CodeRunner currently supports Python2 (considered obsolescent), Python3,
-C, Java, PHP5, JavaScript (NodeJS), Octave and Matlab. C++ questions are
-not built-in but can be easily supported by custom question types.
-The architecture allows
-easy extension to other languages.
+C, Java, PHP, JavaScript (NodeJS), Octave and Matlab. C++ questions are
+not built-in but can be easily supported by custom question types. 
+The architecture allows easy extension to other languages.
 
 For security and load reasons, it is recommended that CodeRunner be set up
 on a special quiz-server rather than on an institution-wide Moodle server.
-However, CodeRunner does allow use of a remote
-sandbox machine for running all student-submitted code so provided only
-that sandbox is enabled, as discussed below, this version should actually
-be safe to install
-on an institutional server.
+However, CodeRunner can safely be used on an institutional server, provided
+that the sandbox software in which code is run is installed on a separate
+machine with adequate security and firewalling.
 
-A single 4-core server can handle an average quiz question submission rate of
+A single 4-core Moodle server can handle an average quiz question submission rate of
 about 60 quiz questions per minute while maintaining a response time of less
 than about 3 - 4 seconds, assuming the student code itself runs in a
-fraction of a second. We have run CodeRunner-based exams with around 250 students
+fraction of a second. We have run CodeRunner-based exams with nearly 300 students
 and experienced only light to moderate load factors on an 8-core Moodle
 server. The Jobe server, which runs student submissions (see below),
 is even more lightly loaded during such an exam.
@@ -87,35 +89,62 @@ Moodle 3).
 
 If you are installing for the first time, jump straight to section 2.2.
 
-### Upgrading from an earlier version
+### Upgrading from a CodeRunner version earlier than 2.4.0
 
-IMPORTANT: this version of CodeRunner is incompatible with versions prior to
+The current version of CodeRunner is incompatible with versions prior to
 2.4.0. If you're attempting to upgrade from an earlier version, you should
 first upgrade to the most recent version 2 (checkout branch V2 in the repository).
+That will upgrade all questions in the database to a format that can be handled
+by current versions.
 
 If you are already running CodeRunner version 2.4.0 or later, you can upgrade
-simply by following the instructions in the next section.
+simply by following the instructions in the next two sections.
 
-Note that all existing questions in the system `CR_PROTOTYPES` category with names containing the
-string `PROTOTYPE_` are deleted by the installer, which then re-loads them
-from the file
+### Upgrading from CodeRunner versions between 2.4 and 3.0
+
+Upgrading to version 3.1 from version 2.4 through 3.0 should generally be
+straightforward though, as usual, you should make a database backup before
+upgrading. To upgrade, simply install the latest code and login to the web
+interface as an administrator. When Moodle detects the
+changed version number it will run upgrade code that updates all questions to
+the latest format.
+
+However, if you have written your own question types
+you should be aware that all existing questions in the system
+`CR_PROTOTYPES` category with names containing the
+string `PROTOTYPE_` are deleted by the installer/upgrader.
+The installer then re-loads them from the file
 
     db/questions-CR_PROTOTYPES.xml
 
 Hence if you have developed your own question prototypes and placed them in
-the system CR\_PROTOTYPES category you must export them in Moodle XML format before
-upgrading. You can if you wish place that exported file in the 'db' directory
-with a name ending in `_PROTOTYPES.xml`; they will then be automatically
-loaded by the installer. Alternatively you can import them at your leisure
-later on using the usual question-bank import function in the
-web interface.
+the system `CR_PROTOTYPES` category (not recommended) you must export them
+in Moodle XML format before upgrading. You can then re-import them after the
+upgrade is complete using the usual question-bank import function in the
+web interface. However, it is strongly recommended that you do not put your
+own question prototypes in the `CR_PROTOTYPES` category but create a new
+category for your own use.
+
+#### Note for enthusiasts only.
+
+Version 3.1 no-longer allows a question to have both a per-test template
+and a combinator template: questions must have one or the other. In upgrading
+from Version 3.0 and earlier, the combinator template is used if "Enable
+combinator" was set or a combinator template grader is being used, otherwise
+the per-test template is used. This should not change the behaviour of the
+question *provided* the two templates are consistent in the sense that running
+any test in the per-test template yields exactly the same result as running
+that same test all by itself in the combinator template. 
+
 
 ### Installing CodeRunner from scratch
 
-To conform to Moodle standards, the CodeRunner question type is now in two
+CodeRunner requires two separate plug-ins, one for the question type and one
+for the specialised adaptive behaviour. The plug-ins are in two
 different github repositories: github.com/trampgeek/moodle-qbehaviour_adaptive_adapted_for_coderunner
 and github.com/trampgeek/moodle-qtype_coderunner. Install the question behaviour
-first (see the instructions within that repository), then the question type second.
+first (see the instructions within that repository), then the question type second,
+as follows.
 
 To install the question type, either:
 
@@ -129,20 +158,11 @@ top level folder of your Moodle install:
 
         git clone git://github.com/trampgeek/moodle-qtype_coderunner.git question/type/coderunner
 
-Whichever of the two methods you used, you will also need to change the ownership
+Either way you may also need to change the ownership
 and access rights to ensure the directory and
 its contents are readable by the webserver.
 
-Having carried out one of the above methods,
-if you have local question prototypes to add to the built-in prototype set you
-should now
-copy them into the `<moodlehome>/question/type/coderunner/db` folder.
-They should be
-Moodle XML file(s) with names ending in `_PROTOTYPES.xml` (case-sensitive).
-[If you don't understand what this paragraph means, then it probably
-doesn't concern you ... move on.]
-
-After carrying out one of the above install methods, you can complete the
+You can then complete the
 installation by logging onto the server through the web interface as an
 administrator and following the prompts to upgrade the database as appropriate.
 
@@ -153,11 +173,11 @@ not intended for production use. Authentication and authorisation
 on that server is
 via an API-key and the default API-key given with CodeRunner imposes
 a limit of 100
-per hour over all clients using that key. If you decide that CodeRunner is
+per hour over all clients using that key, worldwide. If you decide that CodeRunner is
 useful to you, *please* set up your own Jobe sandbox as 
 described in *Sandbox configuration* below. Alternatively, if you wish to
-continue to use our Jobe server, you can apply to the
-[developer](mailto://trampgeek@gmail.org) for your own
+continue to use our Jobe server, you can apply to the main
+[developer](mailto://trampgeek@gmail.com) for your own
 API key, stating how long you will need to use the key and a reasonable
 upper bound on the number of jobs you will need to submit per hour. We
 will do our best to accommodate you if we have sufficient capacity.
@@ -204,13 +224,15 @@ incorrect answers.
 
 If you want a few more CodeRunner questions to play with, try importing the
 files
-`MoodleHome>/question/type/coderunner/db/simpledemoquestions.xml` and/or
-`MoodleHome>/question/type/coderunner/db/python3demoquestions.xml`
+`MoodleHome>/question/type/coderunner/samples/simpledemoquestions.xml` and/or
+`MoodleHome>/question/type/coderunner/samples/python3demoquestions.xml`. 
 These contains
-all the questions from the two tutorial quizzes on the
-[demo site](http://www.coderunner.org.nz). Note, though, that some of the
-questions from the `python3demoquestions` file make use of the University of
-Canterbury prototypes in `uoc_prototypes.xml`, so you'd need to import them, too.
+most of the questions from the two tutorial quizzes on the
+[demo site](http://www.coderunner.org.nz).
+If you wish to run the questions in the file `python3demoquestions.xml`,
+you will also need to import
+the file `MoodleHome>/question/type/coderunner/samples/uoc_prototypes.xml`
+or you will receive a "Missing prototype" error.
 
 ### Sandbox Configuration
 
@@ -225,10 +247,9 @@ configuration uses the Jobe server at the University of Canterbury. This is not
 suitable for production use. Please switch
 to using your own Jobe server as soon as possible.
 
-Follow the instructions at
-[https://github.com/trampgeek/jobe](https://github.com/trampgeek/jobe)
-to build a Jobe server, then use the
-Moodle administrator interface for the CodeRunner plug-in to define the Jobe
+To build a Jobe server, follow the instructions at
+[https://github.com/trampgeek/jobe](https://github.com/trampgeek/jobe). Then use the
+Moodle administrator interface for the CodeRunner plug-in to specify the Jobe
 host name and perhaps port number. Depending on how you've chosen to
 configure your Jobe server, you may also need to supply an API-Key through
 the same interface.
@@ -241,13 +262,14 @@ host and any other necessary configuration for the Jobe server.
 Assuming you have built *Jobe* on a separate server, the JobeSandbox fully
 isolates student code from the Moodle server. However, Jobe *can* be installed
 on the Moodle server itself, rather than on a 
-completely different machine. This works fine but is much less secure than running Jobe on
+completely different machine. This works fine,
+but is much less secure than running Jobe on
 a completely separate machine. If a student program manages to break out of
 the sandbox when it's running on a separate machine, the worst it can do is
 bring the sandbox server down, whereas a security breach on the Moodle server
 could be used to hack into the Moodle database, which contains student run results
 and marks. That said, our Computer Science department used an earlier even less
-secure Sandbox for some years without any ill effects; Moodle keeps extensive logs
+secure Sandbox for some years without any ill effects. Moodle keeps extensive logs
 of all activities, so a student deliberately breaching security is taking a
 huge risk.
 
@@ -279,12 +301,11 @@ or
 
 This will almost certainly show lots of skipped or failed tests relating
 to the various sandboxes and languages that you have not installed, e.g.
-the LiuSandbox,
-Matlab, Octave and Java. These can all be ignored unless you plan to use
+the LiuSandbox, Matlab, Octave and Java. These can all be ignored unless you plan to use
 those capabilities. The name of the failing tests should be sufficient to
 tell you if you need be at all worried.
 
-Feel free to [email me](mailto:richard.lobb@canterbury.ac.nz) if you have problems
+Feel free to [email the principal developer](mailto:richard.lobb@canterbury.ac.nz) if you have problems
 with the installation.
 
 ## The Architecture of CodeRunner
@@ -300,12 +321,13 @@ as a student submission is graded.
 
 Following through the grading process step by step:
 
-1. For each of the test cases, the [Twig template engine](http://twig.sensiolabs.org/) merges the student's submitted answer with
-the question's per-test-case template together with code for this particular test case to yield an executable program.
+1. For each of the test cases, the [Twig template engine](http://twig.sensiolabs.org/)
+merges the student's submitted answer with
+the question's template together with code for this particular test case to yield an executable program.
 By "executable", we mean a program that can be executed, possibly
 with a preliminary compilation step.
 1. The executable program is passed into whatever sandbox is configured
-   for this question (e.g. the Jobe sandbox). The sandbox compiles the program (if necessary) and runs it,
+   for this question (usually the Jobe sandbox). The sandbox compiles the program (if necessary) and runs it,
    using the standard input supplied by the testcase.
 1. The output from the run is passed into whatever Grader component is
    configured, as is the expected output specified for the test case. The most common grader is the
@@ -320,20 +342,32 @@ with a preliminary compilation step.
    Typically the whole table is coloured red if any tests fail or green
    if all tests pass.
        
-The above description is somewhat simplified. Firstly, it 
-ignores the existence of the "combinator template", which
-combines all the test cases into a single executable
-program. The per-test template is used only if there is no combinator
-template or if each test case has its own standard input stream or if an
-exception occurs during execution of the combined program.
-This will all be explained later, in the section on templates. 
+The above description is somewhat simplified. 
 
-Secondly, there are several more-advanced features that are ignored by the
-above, such as special customised grading templates, which generate an
-executable program that does the grading of the student code as well.
+Firstly, it is not necessary to
+run a different job in the sandbox for each test case. Instead, all tests can
+be combined into a single executable program. This is achieved by use of what is known as
+a "combinator template" rather than the simpler "per-test template" described
+above. Combinator templates are useful with questions of the *write-a-function*
+or *write-a-class* variety. They are not often used with *write-a-program* questions,
+which are usually tested with different standard inputs, so multiple
+execution runs are required. Furthermore, even with write-a-function questions,
+CodeRunner will revert to running tests one-at-a-time if the full combinator
+template run gives some form of runtime error, in order that students can be
+presented with all test results up until the one that failed.
+
+Combinator templates are explained in the *Templates*
+section.
+
+Secondly, the above description of the grading process ignores *template graders*,
+which do grading as well as testing. These support more advanced testing
+strategies, such as running thousands of tests or awarding marks in more complex
+ways than either "all-or-nothing" or linear summation of individual test marks.
+
 A per-test-case template grader can be used to define each
 row of the result table, or a combinator template grader can be used to
-defines the entire result table. See the section on grading templates for
+defines the entire feedback panel, with or without a result table.
+See the section on grading templates for
 more information.
 
 ## Question types
@@ -341,7 +375,7 @@ more information.
 CodeRunner support a wide variety of question types and can easily be
 extended to support others. A CodeRunner question type is defined by a
 *question prototype*, which specifies run time parameters like the execution
-language and sandbox and also the templates that define how a test program is built from the
+language and sandbox and also the template that define how a test program is built from the
 question's test-cases plus the student's submission. The prototype also
 defines whether the correctness of the student's submission is assessed by use
 of an *EqualityGrader*, a *NearEqualityGrader* or *RegexGrader*. The EqualityGrader expects
@@ -362,52 +396,46 @@ when the test program is run and the expected output from that run. The
 author can also add additional files to the execution environment.
 
 The test program is constructed from the test case information plus the
-student's submission using one of two *templates* defined by the prototype.
-The *per-test template* defines a different program for each test case.
-To achieve higher efficiency with most
-question types there is also a *combinator template* that defines a single
-program containing *all* the different tests. If this template is defined,
-and there is no standard input supplied,
-CodeRunner
-tries to use it first, but falls back to running the separate per-test-case
-programs if any runtime exceptions occur. Templates are discussed in more
-detail below.
+student's submission using the template defined by the prototype. The template
+can be either a *per-test template*, which defines a different program for
+each test case or a *combinator template*, which has the ability to define a program that combines
+multiple test cases into a single run. Templates are explained in the *Templates*
+section.
 
 ### An example question type
 
 The C-function question type expects students to submit a C function, plus possible
-additional support functions, to some specification. For example, the question
+additional support functions, to some specification. As a trivial example, the question
 might ask "Write a C function with signature `int sqr(int n)` that returns
 the square of its parameter *n*". The author will then provide some test
 cases of the form
 
-        printf("%d\n", sqr(-11));
+    printf("%d\n", sqr(-11));
 
-and give the expected output from this test. There is no standard input for
-this question type. The per-test template wraps the student's
+and give the expected output from this test.
+
+The template for the question type would then wrap the 
 submission and
 the test code into a single program like:
 
-        #include <stdio.h>
+    #include <stdio.h>
 
-        // --- Student's answer is inserted here ----
+    // --- Student's answer is inserted here ----
 
-        int main()
-        {
-            printf("%d\n", sqr(-11));
-            return 0;
-        }
+    int main()
+    {
+        printf("%d\n", sqr(-11));
+        return 0;
+    }
 
 which is compiled and run for each test case. The output from the run is
 then compared with
 the specified expected output (121) and the test case is marked right
 or wrong accordingly.
 
-That example ignores the use of the combinator template, which in
-the case of the built-in C function question type
-builds a program with multiple `printf` calls interleaved with
-printing of a special separator. The resulting output is then split
-back into individual test case results using the separator string as a splitter.
+That example assumes the use of a per-test template rather than the more complicated
+combinator template used by the built-in C function question type. See the section
+on *templates* for more.
 
 ### Built-in question types
 
@@ -415,9 +443,9 @@ The file `<moodlehome>/question/type/coderunner/db/builtin_PROTOTYPES.xml`
 is a moodle-xml export format file containing the definitions of all the
 built-in question types. During installation, and at the end of any version upgrade,
 the prototype questions from that file are all loaded into a category
-CR\_PROTOTYPES in the system context. A system administrator can edit
-those prototypes but this is not generally recommended as the modified versions
-will be lost on each upgrade. Instead, a category LOCAL\_PROTOTYPES
+`CR_PROTOTYPES` in the system context. A system administrator can edit
+those prototypes but this is not recommended as the modified versions
+will be lost on each upgrade. Instead, a category `LOCAL_PROTOTYPES`
 (or other such name of your choice) should be created and copies of any prototype
 questions that need editing should be stored there, with the question-type
 name modified accordingly. New prototype question types can also be created
@@ -436,19 +464,18 @@ example. The student supplies
  by the student code followed by a main function that executes the tests one by
  one.
 
- The manner in which a C program is executed is not part of the question
+ The manner in which a C (or any other) program is executed is not part of the question
  type definition: it is defined by the particular sandbox to which the
  execution is passed. The Jobe sandbox
- uses the gcc compiler with the language set to
+ uses the `gcc` compiler with the language set to
  accept C99 and with both *-Wall* and *-Werror* options set on the command line
  to issue all warnings and reject the code if there are any warnings.
-
 
  1. **python3**. Used for most Python3 questions. For each test case, the student
 code is run first, followed by the test code.
 
  1. **python3\_w\_input**. A variant of the *python3* question in which the
-*input* function is redefined at the start of the program so that the standard
+`input` function is redefined at the start of the program so that the standard
 input characters that it consumes are echoed to standard output as they are
 when typed on the keyboard during interactive testing. A slight downside of
 this question type compared to the *python3* type is that the student code
@@ -458,9 +485,8 @@ code.
 
  1. **python2**. Used for most Python2 questions. As for python3, the student
 code is run first, followed by the sequence of tests. This question type
-should be considered to be
-obsolescent due to the widespread move to Python3 through the education
-community.
+should be considered to be obsolescent due to the widespread move to Python3
+through the education community.
 
  1. **java\_method**. This is intended for early Java teaching where students are
 still learning to write individual methods. The student code is a single method,
@@ -498,13 +524,13 @@ As discussed later, this base set of question types can
 be customised or extended in various ways.
 
 C++ isn't available as a built-in type at present, as we don't teach it.
-However, as the Jobe server is by default configured to run C++ jobs (using
-the language ID 'cpp') you can easily make a custom C++ question
+However, the Jobe server is by default able to run C++ jobs, using
+the language ID 'cpp'. You can easily make a custom C++ question
 type by starting with the C question type, setting the language to *cpp*
 and changing the template to include
 *iostream* instead of, or as well as, *stdio.h*. The line
 
-        using namespace std;
+    using namespace std;
 
  may also be desirable.
 
@@ -523,55 +549,16 @@ the COSC121 course.  The student submission
 is first passed through the [pylint](http://www.logilab.org/857)
 source code analyser and the submission is rejected if pylint gives any errors.
 Otherwise testing proceeds as normal. Obviously, pylint needs to be installed
-on the sandbox server. This question type takes the following template
+on the sandbox server. This question type takes many different template
 parameters (see the section entitled *Template parameters* for an explanation
-of what these are) to allow it to be used for a wide range of different problems:
-
-    * isfunction: unless this is explicitly set to false, a dummy module docstring
-will be inserted at the start of the program unless there is one there already.
-Thus, if your question is of the "write a program" variety, you should set this
-to false. Otherwise omit it. This purpose is to stop pylint issuing a spurious
-missing module docstring message.
-
-    * pylintoptions: this should be a JSON list of strings. For example,
-the Template parameters string in the question authoring form might be set to
-{"isfunction": false, "pylintoptions":["--max-statements=20","--max-args=3"]}
-to suppress the insertion of a dummy module docstring at the start and to set
-the maximum number of statements and arguments for each function to 20 and 3
-respectively. See the pylint documentation for a list of its options.
-
-    * proscribedconstructs: this is a list of Python constructs
-(if, while, def, etc) that must not appear in the student's program.
-
-    * requiredconstructs: this is a list of Python constructs
-(if, while, def, etc) that must appear in the student's program.
-
-    * allowglobals: set this to true to allow global variables (i.e. to
-allow lowercase globals, not just ALL_CAPS "constants")
-
-    * maxnumconstants: the maximum number of constants (i.e. uppercase globals)
-allowed. An integer, defaulting to 4. Some such constraint is required when
-teaching pylint at early stages to stop students achieving pylint compliance
-with a global script simply by typing all identifiers in upper case.
-
-    * norun: if set to true, the normal execution of the student's code will
-not take place. Any test code provided will however still be run. This is
-intended for dummy questions that allow students to check if their code is
-pylint-compliant.
-
-    * stripmain: if set to True, the program is expected to contain a
-global invocation of the main function, which is a line starting "main()".
-All such calls to main are replaced by 'pass'. If no such line is not present
-a "Missing call to main" exception is raised. Stripping the main gives the
-question author the ability to test individual functions in the student submission
-as well as, or instead of, testing the program as a whole by explicitly
-calling *main()*.
-
-    * runextra: if set (to any value) the Extra Template Data is added to the
-program as test code before the usual testcode. This allows the question
-author to load extra test code through the Extra Template Data which the
-student does not get to see (usually because it would confuse them).
-
+of what these are) to allow it to be used for a wide range of different problems.
+For example, it can be figured to require or disallow specific language
+constructs (e.g. when requiring students to rewrite a *for* loop as a *while*
+loop), or to limit function size to a given value, or to strip the *main*
+function from the student's code so that the support functions can be tested
+in isolation. Details on how to use this question type, or any other, can
+be found by expanding the *Question Type Details* section in the question
+editing page.
 
  1. **matlab\_function**. Used for Matlab function questions. Student code must be a
 function declaration, which is tested with each testcase. The name is actually
@@ -592,18 +579,30 @@ is followed by the test code and the whole program is executed using *nodejs*.
 
 ## Templates
 
-Templates are the key to understanding how a submission is tested. There are in
-general two templates per question type (i.e. per prototype) - a *combinator\_template* and a
-*per\_test\_template*. We'll discuss the latter for a start.
+Templates are the key to understanding how a submission is tested. Every question
+has a template, either imported from the question type or explicitly customised,
+which defines how the executable program is constructed from the student's
+answer, the test code and other custom code within the template itself.
 
-The *per\_test\_template* for each question type defines how a program is built from the
-student's code and one particular testcase. That program is compiled (if necessary)
-and run with the standard input defined in that testcase, and the output must
-then match the expected output for the testcase (where 'match' is defined
-by the chosen validator: an exact match, a nearly exact match or a
-regular-expression match.
+A question's template can be either a *per-test template* or a *combinator
+template*. The first one is the simpler; it is applied once for every test
+in the question to yield an executable program which is sent to the sandbox.
+Each such execution defines one row of the result table. Combinator templates,
+as the name implies, are able to combine multiple test cases into a single
+execution, provided there is no standard input for any of the test cases. We
+will discuss the easier per-test template first.
 
-The question type template is processed by the
+### Per-test templates
+
+A *per\_test\_template* is essentially a program with "placeholders" into which
+are inserted the student's answer and the test code for the test case being run.
+The expanded template is then sent to the sandbox where it is compiled (if necessary)
+and run with the standard input defined in the testcase. The output returned
+from the sandbox is then matched against the expected output for the testcase,
+where a 'match' is defined by the chosen validator: an exact match,
+a nearly exact match or a regular-expression match.
+
+Expansion of the template is done by the
 [Twig](http://twig.sensiolabs.org/) template engine. The engine is given both
 the template and a variable called
 STUDENT\_ANSWER, which is the text that the student entered into the answer box,
@@ -612,12 +611,14 @@ that the question author has specified
 for the particular test. The TEST attributes most likely to be used within
 the template are TEST.testcode (the code to execute for the test), TEST.stdin
 (the standard input for the test -- not normally used within a template, but
-occasionally useful), TEST.extra (the extra template data provided in the
+occasionally useful) and TEST.extra (the extra template data provided in the
 question authoring form). The template will typically use just the TEST.testcode
-field, which is the "test" field of the testcase, and usually (but not always)
-is a bit of code to be run to test the student's answer. As an example,
+field, which is the "test" field of the testcase. It is usually (but not always)
+is a bit of code to be run to test the student's answer.
+
+As an example,
 the question type *c\_function*, which asks students to write a C function,
-has the following template:
+might have the following template (if it used a per-test template):
 
         #include <stdio.h>
         #include <stdlib.h>
@@ -637,7 +638,8 @@ returns the square of its parameter might be:
         printf("%d\n", sqr(-9))
 
 with the expected output of 81. The result of substituting both the student
-code and the test code into the template would then be a program like:
+code and the test code into the template might then be the following program
+(depending on the student's answer, of course):
 
         #include <stdio.h>
         #include <stdlib.h>
@@ -658,27 +660,97 @@ if you check the *Template debugging* checkbox you will get to see
 in the output web page each of the
 complete programs that gets run during a question submission.
 
-As mentioned earlier, there are actually two templates for each question
-type. For efficiency, CodeRunner first tries
-to combine all testcases into a single compile-and-execute run using the second
-template, called the `combinator_template`. There is a combinator
-template for most
-question types, except for questions that require students
-to write a whole program. However, the combinator template is not used during
-testing if standard input is supplied for any of the tests; each test
-is then assumed to be independent of the others, with its own input. Also,
-if an exception occurs at runtime when a combinator template is being used,
-the tester retries all test cases individually using the per-test-case
-template so that the student gets presented with all results up to the point
-at which the exception occurred.
+### Combinator templates
 
-As mentioned above, both the `per_test_template` and the `combinator_template`
-can be edited by the question
-author for special needs, e.g. if you wish to provide skeleton code to the
-students. As a simple example, if you wanted students to provide the missing
-line in a C function that returns the square of its parameter, and you
-also wished to hide the *printf* from the students, you could use
-a template like:
+The template for a question is by default defined by the code runner question
+type, which itself is defined by a special "prototype" question, to be explained later.
+You can inspect the template of any question by clicking the customise box in
+the question authoring form. You'll also find a checkbox labelled *Is combinator*.
+If this checkbox is checked the template is a combinator template. Such templates
+take the STUDENT\_ANSWER template variable as shown above, but rather than
+taking just a single TEST variable, they take a TESTCASES variable, which is
+is a list of all the individual TEST objects.
+
+The actual template used by the built-in C function question type is not actually
+a per-test template as suggested above, but is the following combinator template. 
+
+    #include <stdio.h>
+    #include <stdlib.h>
+    #include <ctype.h>
+    #include <string.h>
+    #include <stdbool.h>
+    #include <math.h>
+    #define SEPARATOR "#<ab@17943918#@>#"
+
+    {{ STUDENT_ANSWER }}
+
+    int main() {
+    {% for TEST in TESTCASES %}
+       {
+        {{ TEST.testcode }};
+       }
+        {% if not loop.last %}printf("%s\n", SEPARATOR);{% endif %}
+    {% endfor %}
+        return 0;
+    }
+
+The Twig template engine has control structures, which are wrapped in `{%`
+and `%}`. If a C-function question had two three test cases, the above template
+might expand to something like the following:
+
+    #include <stdio.h>
+    #include <stdlib.h>
+    #include <ctype.h>
+    #include <string.h>
+    #include <stdbool.h>
+    #include <math.h>
+    #define SEPARATOR "#<ab@17943918#@>#"
+
+    int sqr(int n) {
+        return n * n;
+    }
+
+    int main() {
+        printf("%d\n", sqr(-9));
+        printf("%s\n", SEPARATOR);
+        printf("%d\n", sqr(11));
+        printf("%s\n", SEPARATOR);
+        printf("%d\n", sqr(-13));
+        return 0;
+    }
+
+The output from the execution is then the outputs from the three tests
+separated by a special separator string (which can be customised for each
+question if desired). On receiving the output back from the sandbox, CodeRunner
+then splits the output using the separator into three separate test outputs,
+exactly as if a per-test template had been used on each test case separately.
+
+This strategy can't be used with questions that require standard input
+as there's no reliable way to reset the standard input for each test.
+The strategy also fails if the student's code causes a premature abort due
+to a run error, such as a segmentation fault or a CPU time limit exceeded. In
+such cases, CodeRunner uses the combinator template as a per-test template
+simply by passing it one test case at a time in the TESTCASES variable.
+
+### Customising templates
+
+As mentioned above, if a question author clicks in the *customise* checkbox,
+the question template is made visible and can be edited by the question author
+to modify the behaviour for that question.
+
+As a simple example, consider the following question:
+
+"What is the missing line in the *sqr* function shown below, which returns
+the square of its parameter *n*?"
+
+    int sqr(int n) {
+        // What code replaces this line?
+    }
+    
+Suppose further that you wished the test column of the result table to display
+just, say, `sqr(-11)` rather than `printf("%d, sqr(-11));`
+
+You could set such a question using a template like:
 
         #include <stdio.h>
         #include <stdlib.h>
@@ -693,23 +765,19 @@ a template like:
             return 0;
         }
 
-The testcode would then just be of the form `sqr(-11)`, and the question text
-would need to make it clear
-to students what context their code appears in. The authoring interface
+The authoring interface
 allows the author to set the size of the student's answer box, and in a
 case like the above you'd typically set it to just one or two lines in height
 and perhaps 30 columns in width.
 
-You will need to understand loops and selection in
-the Twig template engine if you wish to write your own combinator templates.
 For one-off question use, the combinator template doesn't normally offer
 sufficient additional benefit to warrant the complexity increase
 unless you have a
 large number of testcases or are using
 a slow-to-launch language like Matlab. However, if you are writing your
-own question prototypes you might wish to make use of it.
+own question prototypes (see later) you might wish to make use of it.
 
-## Advanced template use
+## Using the template as a script for more advanced questions
 
 It may not be obvious from the above that the template mechanism allows
 for almost any sort of question where the answer can be evaluated by a computer.
@@ -759,21 +827,27 @@ simplest form might be:
         exec(__student_answer__)
 
 The Twig syntax {{ STUDENT\_ANSWER | e('py') }} results in the student's submission
-being filtered by a Python escape function that escapes all
+being filtered by an escape function appropriate for the language Python, which escapes all
 double quote and backslash characters with an added backslash.
 
 Note that any output written to *stderr* is interpreted by CodeRunner as a
 runtime error, which aborts the test sequence, so the student sees the error
 output only on the first test case.
 
-The full `Python3_pylint` question type is a bit more complex than the
-above. It is given in full in the section on *template parameters*.
+The full `Python3_pylint` question type is much more complex than the
+above, because it includes many extra features, enabled by use of template
+parameters (see later).
 
 Some other more complex examples that we've used include:
 
  1. A Matlab question in which the template code (also Matlab) breaks down
     the student's code into functions, checking the length of each to make
     sure it's not too long, before proceeding with marking.
+
+ 1. Another advanced Matlab question in which the template code, written in
+    Python runs the student's Matlab code, then runs the sample answer supplied within
+    the question, extracts all the floating point numbers is both, and compares 
+    the numbers of equality to some given tolerance.
 
  1. A Python question where the student's code is actually a compiler for
     a simple language. The template code runs the student's compiler,
@@ -785,6 +859,16 @@ Some other more complex examples that we've used include:
     diagram; the template code evaluates the correctness of the supplied
     automaton.
 
+The second example above makes use of two additional CodeRunner features not mentioned
+so far:
+
+  - the ability to set the Ace code editor, which is used to provide syntax
+highlighting code-entry fields, to use a different language within the student
+answer box from that used to run the submission in the sandbox.
+
+  - the use of the QUESTION template variable, which contains all the
+attributes of the question including its questiontext, sample answer and
+template parameters (see below).
 
 ### Twig Escapers
 
@@ -819,16 +903,14 @@ that if you wish to alter the prototype you will also need to find
 and modify all the
 derived questions, too.
 
-In such cases a better approach may be to use template parameters.
-
-If the *+Show more* link on the CodeRunner question type panel in the question
-authoring form is clicked, some extra controls appear. One of these is
-*Template parameters*. This can be set to a JSON-encoded record containing
+In such cases a better approach may be to use template parameters, which can
+be defined by the question author in the "Template params" field of the question
+editing form. This field must be set to a JSON-encoded record containing
 definitions of variables that can be used by the template engine to perform
 local per-question customisation of the template. The template parameters
 are passed to the template engine as the object `QUESTION.parameters`.
 
-A more complete version of the Python3_pylint question type, which allows
+A more advanced version of the Python3_pylint question type, which allows
 customisation of the pylint options via template parameters and also allows
 for an optional insertion of a module docstring for "write a function"
 questions is then:
@@ -871,13 +953,10 @@ questions is then:
         __student_answer__ += '\n' + """{{ TEST.testcode | e('py') }}"""
         exec(__student_answer__)
 
-The `{% if` and 
-`{% for` are Twig control structures that conditionally insert extra data
-from the template parameters field of the author editing panel.
 
 ### The Twig QUESTION variable
-As may be deduced from the previous section, there is a Twig template variable
-called `QUESTION`, which is an object containing all the fields of the
+
+The template variable `QUESTION` is an object containing all the fields of the
 PHP question object. Some of the other
 QUESTION fields/attributes that might be of interest to authors include the
 following.
@@ -902,6 +981,11 @@ the previous section).
 form to select which columns to display, and how to display them (null
 unless explicitly set).
 
+Most of these are effectively read only - assigning a new value within the
+template to the cputimelimitsecs attribute does not alter the actual run time;
+the assignment statement is being executed in the sandbox after all resource
+limits have been set. The question author can however directly alter all
+the above question attributes directly in the question authoring form.
 
 ## Grading with templates
 Using just the template mechanism described above it is possible to write
@@ -913,25 +997,27 @@ you may wish to subject
 a student's code to a very large
 number of tests and award a mark according to how many of the test cases
 it can handle. The usual exact-match
-grader cannot handle these situations. For such cases one of the two
-template grading options can be used.
+grader cannot handle these situations. For such cases the *TemplateGrader* option
+can be selected in the *Grader* field of the question authoring form. The template
+code then has a somewhat different role: the output from running the expanded
+template program is required to be a JSON string that grades the question and
+provides appropriate feedback.
+
+A template grader
+behaves in two very different ways depending on whether the template is a
+per-test template or a combinator template.
 
 ### Per-test-case template grading
 
-When the 'Per-test-case template grader' is selected as the grader
-the per-test-case template
-changes its role to that of a grader for a particular test case.
-The combinator template is not used
-and the per-test-case template is applied to each test case in turn. The
-output of the run is not passed to the grader but is taken as the
-grading result for the corresponding row of the result table.
-The output from the template-generated program must now
-be a JSON-encoded object (such as a dictionary, in Python) containing
+When the template is a per-test template and a TemplateGrader is selected, the 
+output from the program must be a JSON string that defines one row of the
+test results table. [Remember that per-test templates are expanded and run
+once for each test case.] The JSON object must contain
 at least a 'fraction' field, which is multiplied by TEST.mark to decide how
 many marks the test case is awarded. It should usually also contain a 'got'
 field, which is the value displayed in the 'Got' column of the results table.
-The other columns of the results table (testcode, stdin, expected) can also
-be defined by the custom grader and will be used instead of the values from
+The other columns of the results table (testcode, stdin, expected) can, if desired, also
+be defined by the template grader and will be used instead of the values from
 the test case. As an example, if the output of the program is the string
 
     {"fraction":0.5, "got": "Half the answers were right!"}
@@ -952,6 +1038,14 @@ rather difficult as the generated program needs to be robust against errors
 in the submitted code. The template-grader should always return a JSON object
 and should not generate any stderr output.
 
+It is recommended that template graders be written in Python, regardless of
+the language in which the student answer is written, and that Python's subprocess
+module be used to execute the student code plus whatever test code is required.
+This ensures that errors in the syntax  or runtime errors in the student code
+do not break the template program itself, allowing it to output a JSON
+answer regardless. Some examples of per-test template graders are given in 
+a later section.
+
 Sometimes the author of a template grader wishes to abort the testing of the 
 program after a test case, usually the first, e.g. when pre-checks on the
 acceptability of a student submission fail. This can be achieved by defining
@@ -963,32 +1057,40 @@ test cases will be skipped. For example:
 
 `{"fraction":0.0, "got":"Invalid submission!", "abort":true}`
 
-Note to Python programmers: the Python literal is `True` rather than `true`,
-so if generating JSON with `json.dumps()`, you need to write
+Note to Python programmers: the Python boolean literals are `True` and `False` but the
+JSON boolean literals are `true` and `false`. The superficial similarity of JSON objects
+to Python dictionaries is also confusing. Usually, in Python, you will generate
+the JSON objects using the `dumps` function in the `json` module, passing it a
+Python dictionary, further adding to the confusion!
+ 
+For example, to generate the above JSON output (with lower case `t` in `true`)
+you would write
 
 `json.dumps({"fraction":0.0, "got":"Invalid submission!", "abort":True})`
 
+
 ### Combinator-template grading
 
-The ultimate in grading flexibility is achieved by use of the "Combinator
-template grading" option. In this mode the per-test template is not used. The
-combinator template is passed to the Twig template engine and the output
-program is executed in the usual way. Its output must now be a JSON-encoded
-object with two mandatory attributes: a *fraction* in the range 0 - 1,
-which specifies the fractional mark awarded to the question, and a
-*feedbackhtml* that fully defines the specific feedback to be presented
-to the student in place of the normal results table. It might still be a
-table, but any other HTML-supported output is possible such as paragraphs of
-text, canvases or SVG graphics. The *result_columns* field from the
-question editing form is ignored in this mode.
+The ultimate in grading flexibility is achieved by use of a "Combinator
+template grader", i.e. a TemplateGrader with the `Is combinator` checkbox checked.
+In this mode, the JSON string output by the template grader
+should again contain a 'fraction' field, this time for the total mark,
+and may contain zero or more of 'prologuehtml', 'testresults' and 'epiloguehtml'
+attributes.
+The 'prologuehtml' and 'epiloguehtml' fields are html
+that is displayed respectively before and after the (optional) result table. The
+'testresults' field, if given, is a list of lists used to display some sort
+of result table. The first row is the column-header row and all other rows
+define the table body. Two special column header values exist: 'iscorrect'
+and 'ishidden'. The \'iscorrect\' column(s) are used to display ticks or
+crosses for 1 or 0 row values respectively. The 'ishidden' column isn't
+actually displayed but 0 or 1 values in the column can be used to turn on and
+off row visibility. Students do not see hidden rows but markers and other
+staff do.
 
-Combinator-template grading is intended for use where a result table is just not
-appropriate, e.g. if the question does not involve programming at
-all. As an extreme example, imagine a question that asks the student to
-submit an English essay on some topic and an AI grading program is used
-to mark and to generate
-a report on the quality of the essay for feedback to the student.
-[Would that such AI existed!] 
+Combinator-template grading gives the user complete control of the feedback to 
+the student as well as of the grading process. The ability to include HTML
+in the feedback allows for complex output containing SVG or images. 
 
 The combinator-template grader has available to it the full list of all
 test cases and their attributes (testcode, stdin, expected, mark, display etc)
@@ -996,13 +1098,15 @@ for use in any way the question author sees fit. It is highly likely that
 many of them will be disregarded or alternatively have some meaning completely
 unlike their normal meaning in a programming environment. It is also
 possible that a question using a combinator template grader will not
-make use of test cases at all.
+make use of test cases at all. For example it might test the students code with
+thousands of random tests and display just a few of the failing cases using
+the result table.
 
 ## Template grader examples
 In this section we look at two uses of a per-test-case template grader,
 both implemented in Python3. The first example shows how we can grade a
 student submission that isn't actually code to be run but is some text to
-e graded by a program. The second example, which is a bit more complicated,
+be graded by a program. The second example, which is a bit more complicated,
 shows how we can test student code in a more complex manner than simply running
 tests and matching the output against the expected output.
 
@@ -1135,7 +1239,7 @@ The following figures show this question in action.
 ![Syntax error](http://coderunner.org.nz/pluginfile.php/56/mod_page/content/23/Selection_062.png)
 
 
-Obviously, writing questions using custom graders is much harder than
+Obviously, writing questions using tempalte graders is much harder than
 using the normal built-in equality based grader. It is usually possible to
 ask the question in a different way that avoids the need for a custom grader.
 In the above example, you would have to ask yourself if it mightn't have been
