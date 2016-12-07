@@ -174,7 +174,7 @@ define(['jquery'], function($) {
                         }
 
                     }
-                ).error(function () {
+                ).fail(function () {
                     // AJAX failed. We're dead, Fred.
                     window.alert(getString('error_loading_prototype'));
                     template.prop('value', getString('ajax_error'));
