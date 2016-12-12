@@ -104,6 +104,14 @@ $string['enable_diff_check_desc'] = 'Present students with a \'Show differences\
 $string['enable_sandbox_desc'] = 'Permit use of the specified sandbox for running student submissions';
 $string['equalitygrader'] = 'Exact match';
 $string['error_loading_prototype'] = 'Error loading prototype. Network problems or server down, perhaps?';
+$string['errorstring-ok'] = 'OK';
+$string['errorstring-autherror'] = 'Unauthorised to use sandbox';
+$string['errorstring-pastenotfound'] = 'Requesting status of non-existent job';
+$string['errorstring-wronglangid'] = 'Non-existent language requested';
+$string['errorstring-accessdenied'] = 'Access to sandbox defined';
+$string['errorstring-submissionlimitexceeded'] = 'Sandbox submission limit reached';
+$string['errorstring-submissionfailed'] = 'Submission to sandbox failed';
+$string['errorstring-unknown'] = 'Unexpected error while executing your code. Your code may be too slow, or the sandbox server may be down or overloaded';
 $string['expected'] = 'Expected output';
 $string['expectedcolhdr'] = 'Expected';
 $string['expected_help'] = 'The expected output from the test. Seen by the template as {{TEST.expected}}.';
@@ -379,6 +387,18 @@ resultcolumns is [["Test", "testcode"],["Input", "stdin"], ["Expected",
 $string['resultcolumnsnotjson'] = 'Result columns field is not a valid JSON string';
 $string['resultcolumnsnotlist'] = 'Result columns field must a JSON-encoded list of column specifiers';
 $string['resultcolumnspecbad'] = 'Invalid column specifier found: each one must be a list of two or more strings';
+$string['resultstring-norun'] = 'No run';
+$string['resultstring-compilationerror'] = 'Compilation error';
+$string['resultstring-runtimeerror'] = 'Runtime error';
+$string['resultstring-timelimit'] = 'Time limit exceeded';
+$string['resultstring-success'] = 'OK';
+$string['resultstring-memorylimit'] = 'Memory limit exceeded';
+$string['resultstring-illegalsyscall'] = 'Illegal function call';
+$string['resultstring-internalerror'] = 'CodeRunner error (IE): please tell a tutor';
+$string['resultstring-sandboxpending'] = 'CodeRunner error (PD): please tell a tutor';
+$string['resultstring-sandboxpolicy'] = 'CodeRunner error (BP): please tell a tutor';
+$string['resultstring-outputlimit'] = 'Excessive output';
+$string['resultstring-abnormaltermination'] = 'Abnormal termination';
 $string['run_failed'] = 'Failed to run tests';
 
 $string['sandboxcontrols'] = 'Sandbox';
@@ -405,6 +425,7 @@ example `{"compileargs":["-std=c89"]}` for a C question would force C89
 compliance and no other C options would be used. See the jobe documentation
 for details. Some sandboxes (e.g. Ideone) may silently ignore any or all of
 these settings.';
+$string['sandboxerror'] = 'Error from the sandbox [{$a->sandbox}]: {$a->message}';
 $string['sandboxparams'] = 'Parameters';
 $string['seethisquestioninthequestionbank'] = 'See this question in the question bank';
 $string['SHOW'] = 'Show';
