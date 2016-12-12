@@ -382,7 +382,7 @@ EOTEMPLATE;
         $this->check_output_contains("BinGo!");
     }
 
-    
+
     // Test that if the combinator output fails to yield the expected number
     // of test case outputs, we get an appropriate error message.
     public function test_bad_combinator_error() {
@@ -404,6 +404,18 @@ EOTEMPLATE;
         $this->check_current_mark(0.0);
         $this->check_output_contains('Error in question');
         $this->check_output_contains('Please report this error to your tutor');
+    }
+
+    // Check that if Template Debugging is enabled, the source code appears.
+    public function test_template_debugging() {
+        $q = test_question_maker::make_question('coderunner', 'sqr');
+        $q->showsource = 1;
+        $this->start_attempt_at_question($q, 'adaptive', 1, 1);
+        $this->process_submission(array('-submit' => 1,
+            'answer' => 'def sqr(n): return n * n'));
+        $this->check_output_contains('Debug: source code from all test runs');
+        $this->check_output_contains('Run 1');
+        $this->check_output_contains('SEPARATOR = &quot;#&lt;ab@17943918#@&gt;#&quot;');
     }
 }
 
