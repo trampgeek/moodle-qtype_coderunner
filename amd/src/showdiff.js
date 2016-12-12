@@ -235,6 +235,7 @@ define(['jquery'], function($) {
             });
         } else {
             diffButton.enabled = false;
+            diffButton.hide();
         }
     }
 
