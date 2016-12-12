@@ -136,7 +136,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
         $q = $qa->get_question();
 
         if ($q->showsource) {
-            $fb .= $this->make_source_code_div();
+            $fb .= $this->make_source_code_div($outcome);
         }
 
         $fb .= html_writer::start_tag('div', array('class' => $resultsclass));
