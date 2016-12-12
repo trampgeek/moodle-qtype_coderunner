@@ -12,7 +12,9 @@ moodlebook.zip
 
 /Preloading/selenium-server-standalone-2.53.0.jar
 /selenium-server-standalone-2.53.0.jar
+/selenium-server-standalone-3.0.1.jar
 striptrailingwhitespace.py
 composer.json
 composer.lock
 excludesfromstylechecker.txt
+miscsqlqueries
