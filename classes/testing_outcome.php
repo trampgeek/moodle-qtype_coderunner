@@ -163,6 +163,7 @@ class qtype_coderunner_testing_outcome {
 
         $columnheaders = array('iscorrect'); // First column is a tick or cross, like last column.
         $hiddencolumns = array();  // Array of true/false for each element of $colspec
+        $numvisiblecolumns = 0;
 
         foreach ($resultcolumns as $colspec) {
 
@@ -178,9 +179,12 @@ class qtype_coderunner_testing_outcome {
             } else {
                 $columnheaders[] = $header;
                 $hiddencolumns[] = false;
+                $numvisiblecolumns += 1;
             }
         }
-        $columnheaders[] = 'iscorrect';  // Tick or cross at the end
+        if ($numvisiblecolumns > 1) {
+            $columnheaders[] = 'iscorrect';  // Tick or cross at the end, unless <= 1 visible columns
+        }
         $columnheaders[] = 'ishidden';   // Last column controls if row hidden or not
 
         $table = array($columnheaders);
@@ -216,7 +220,9 @@ class qtype_coderunner_testing_outcome {
                     }
                     $icol += 1;
                 }
-                $tablerow[] = $fraction;
+                if ($numvisiblecolumns > 1) { // Suppress trailing tick or cross in degenerate case
+                    $tablerow[] = $fraction;
+                }
                 $tablerow[] = !$testisvisible;
             }
 
