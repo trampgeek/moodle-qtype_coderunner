@@ -115,7 +115,8 @@ abstract class qtype_coderunner_sandbox {
                     }
                 } else {
                     $errorstring = $sb->error_string($langs->error);
-                    throw new qtype_coderunner_exception("Sandbox $extname error: $errorstring");
+                    throw new qtype_coderunner_exception('sandboxerror',
+                            array('sandbox' => $extname, 'message' => $errorstring));
                 }
             }
         }
@@ -168,42 +169,42 @@ abstract class qtype_coderunner_sandbox {
     // Strings corresponding to the execute error codes defined above.
     public static function error_string($errorcode) {
         $errorstrings = array(
-            self::OK              => "OK",
-            self::AUTH_ERROR      => "Unauthorised to use sandbox",
-            self::PASTE_NOT_FOUND => "Requesting status of non-existent job",
-            self::WRONG_LANG_ID   => "Non-existent language requested",
-            self::ACCESS_DENIED   => "Access to sandbox defined",
-            self::SUBMISSION_LIMIT_EXCEEDED  => "Sandbox submission limit reached",
-            self::CREATE_SUBMISSION_FAILED  => "Submission to sandbox failed",
-            self::UNKNOWN_SERVER_ERROR  => "Unexpected error from sandbox (Jobe server down or excessive timeout, perhaps?)"
+            self::OK              => 'errorstring-ok',
+            self::AUTH_ERROR      => 'errorstring-autherror',
+            self::PASTE_NOT_FOUND => 'errorstring-pastenotfound',
+            self::WRONG_LANG_ID   => 'errorstring-wronglangid',
+            self::ACCESS_DENIED   => 'errorstring-accessdenied',
+            self::SUBMISSION_LIMIT_EXCEEDED  => 'errorstring-submissionlimitexceeded',
+            self::CREATE_SUBMISSION_FAILED  => 'errorstring-submissionfailed',
+            self::UNKNOWN_SERVER_ERROR  => 'errorstring-unknown',
         );
         if (!isset($errorstrings[$errorcode])) {
             throw new coding_exception("Bad call to sandbox.errorString");
         }
-        return $errorstrings[$errorcode];
+        return get_string($errorstrings[$errorcode], 'qtype_coderunner');
     }
 
 
     // Strings corresponding to the RESULT_* defines above.
     public static function result_string($resultcode) {
         $resultstrings = array(
-            self::RESULT_NO_RUN               => "No run",
-            self::RESULT_COMPILATION_ERROR    => "Compilation error",
-            self::RESULT_RUNTIME_ERROR        => "Runtime error",
-            self::RESULT_TIME_LIMIT           => "Time limit exceeded",
-            self::RESULT_SUCCESS              => "OK",
-            self::RESULT_MEMORY_LIMIT         => "Memory limit exceeded",
-            self::RESULT_ILLEGAL_SYSCALL      => "Illegal function call",
-            self::RESULT_INTERNAL_ERR         => "CodeRunner error (IE): please tell a tutor",
-            self::RESULT_SANDBOX_PENDING      => "CodeRunner error (PD): please tell a tutor",
-            self::RESULT_SANDBOX_POLICY       => "CodeRunner error (BP): please tell a tutor",
-            self::RESULT_OUTPUT_LIMIT         => "Excessive output",
-            self::RESULT_ABNORMAL_TERMINATION => "Abnormal termination"
+            self::RESULT_NO_RUN               => 'resultstring-norun',
+            self::RESULT_COMPILATION_ERROR    => 'resultstring-compilationerror',
+            self::RESULT_RUNTIME_ERROR        => 'resultstring-runtimeerror',
+            self::RESULT_TIME_LIMIT           => 'resultstring-timelimit',
+            self::RESULT_SUCCESS              => 'resultstring-success',
+            self::RESULT_MEMORY_LIMIT         => 'resultstring-memorylimit',
+            self::RESULT_ILLEGAL_SYSCALL      => 'resultstring-illegalsyscall',
+            self::RESULT_INTERNAL_ERR         => 'resultstring-internalerror',
+            self::RESULT_SANDBOX_PENDING      => 'resultstring-sandboxpending',
+            self::RESULT_SANDBOX_POLICY       => 'resultstring-sandboxpolicy',
+            self::RESULT_OUTPUT_LIMIT         => 'resultstring-outputlimit',
+            self::RESULT_ABNORMAL_TERMINATION => 'resultstring-abnormaltermination',
         );
         if (!isset($resultstrings[$resultcode])) {
             throw new coding_exception("Bad call to sandbox.resultString");
         }
-        return $resultstrings[$resultcode];
+        return get_string($resultstrings[$resultcode], 'qtype_coderunner');
     }
 
 

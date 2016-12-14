@@ -111,7 +111,7 @@ EOTEMPLATE;
         $this->check_output_contains('<div class="coderunner-test-results bad precheck">');
         $this->check_output_does_not_contain('Marks for this submission');
         $this->save_quba();
-        $this->check_current_mark(0.0);
+        $this->check_current_mark(null);
         $this->assertEquals("Prechecked: def sqr(n): return n\n", $qa->summarise_action($qa->get_last_step()));
 
         // Now re-precheck with a right answer
@@ -123,7 +123,7 @@ EOTEMPLATE;
         $this->check_output_does_not_contain('print(sqr(-5))');
         $this->check_output_contains('<div class="coderunner-test-results good precheck">');
         $this->check_output_does_not_contain('Marks for this submission');
-        $this->check_current_mark(0.0);
+        $this->check_current_mark(null);
         $this->save_quba();
 
         // Now click check with a wrong answer
@@ -168,7 +168,7 @@ EOTEMPLATE;
         $this->check_output_contains('<div class="coderunner-test-results bad precheck">');
         $this->check_output_does_not_contain('Marks for this submission');
         $this->save_quba();
-        $this->check_current_mark(0.0);
+        $this->check_current_mark(null);
 
         // Now re-precheck with a right answer
         $this->process_submission(array('-precheck' => 1, 'answer' => "def sqr(n): return n * n\n"));
@@ -178,7 +178,7 @@ EOTEMPLATE;
         $this->check_output_contains('print(sqr(-5))');
         $this->check_output_contains('<div class="coderunner-test-results good precheck">');
         $this->check_output_does_not_contain('Marks for this submission');
-        $this->check_current_mark(0.0);
+        $this->check_current_mark(null);
         $this->save_quba();
 
         // Now click check with a wrong answer
