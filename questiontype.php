@@ -202,82 +202,87 @@ class qtype_coderunner extends question_type {
 
     // Override save_question to record in $form if this is a new question or
     // not. Needed by save_question_options when saving prototypes.
+    // Note that the $form parameter to save_question is passed through
+    // to save_question_options as the $question parameter.
     public function save_question($question, $form) {
         $form->isnew = empty($question->id);
         return parent::save_question($question, $form);
     }
 
-    // This override of the base class method saves all the extra question data, including
+    // This override saves all the extra question data, including
     // the set of testcases and any datafiles to the database.
-    public function save_question_options($form) {
+
+    public function save_question_options($question) {
         global $DB, $USER;
-        assert(isset($form->coderunnertype));
+
+        assert(isset($question->coderunnertype));
         $fields = $this->extra_question_fields();
         array_shift($fields); // Discard table name.
-        $customised = !empty($form->customise);
-        $isprototype = $form->prototypetype != 0;
-        if ($customised && $form->prototypetype == 2 &&
-                $form->coderunnertype != $form->typename) {
+        $customised = isset($question->customise) && $question->customise;
+        $isprototype = $question->prototypetype != 0;
+        if ($customised && $question->prototypetype == 2 &&
+                $question->coderunnertype != $question->typename) {
             // Saving a new user-defined prototype.
             // Copy new type name into coderunnertype.
-            $form->coderunnertype = $form->typename;
+            $question->coderunnertype = $question->typename;
         }
 
         // If we're saving a new prototype, make sure its coderunnertype is
         // unique by appending a suitable suffix. This shouldn't happen via
         // question edit form, but could be a spurious import or a question
         // duplication mouse click.
-        if ($form->isnew && $isprototype) {
+        if ($question->isnew && $isprototype) {
             $suffix = '';
-            $type = $form->coderunnertype;
+            $type = $question->coderunnertype;
             while (true) {
                 try {
-                    $row = $this->get_prototype($type . $suffix, $form->context);
+                    $row = $this->get_prototype($type . $suffix, $question->context);
                     $suffix = $suffix == '' ? '-1' : $suffix - 1;
                 } catch (qtype_coderunner_exception $e) {
                     break;
                 }
             }
-            $form->coderunnertype = $type . $suffix;
+            $question->coderunnertype = $type . $suffix;
         }
 
         // Set all inherited fields to null if the corresponding form
         // field is blank or if it's being saved with customise explicitly
         // turned off and it's not a prototype.
-        $decustomise = isset($form->customise) && !$form->customise && !$isprototype;
+
+        $questioninherits = isset($question->customise) && !$question->customise && !$isprototype;
         foreach ($fields as $field) {
             $isinherited = !in_array($field, $this->noninherited_fields());
-            $isblankstring = !isset($form->$field) ||
-               (is_string($form->$field) && trim($form->$field) === '');
-            if ($isinherited && ($isblankstring || $decustomise)) {
-                $form->$field = null;
+            $isblankstring = !isset($question->$field) ||
+               (is_string($question->$field) && trim($question->$field) === '');
+            if ($isinherited && ($isblankstring || $questioninherits)) {
+                $question->$field = null;
             }
         }
 
-        if (trim($form->sandbox) === 'DEFAULT') {
-            $form->sandbox = null;
+        if (trim($question->sandbox) === 'DEFAULT') {
+            $question->sandbox = null;
         }
 
-        parent::save_question_options($form);
+        parent::save_question_options($question);
 
         $testcasetable = "question_coderunner_tests";
 
-        if (!isset($form->testcases)) {
-            $this->copy_testcases_from_form($form);
+        if (!isset($question->testcases)) {
+            $this->copy_testcases_from_form($question);
         }
 
         if (!$oldtestcases = $DB->get_records($testcasetable,
-                array('questionid' => $form->id), 'id ASC')) {
+                array('questionid' => $question->id), 'id ASC')) {
             $oldtestcases = array();
         }
 
-        foreach ($form->testcases as $tc) {
+        foreach ($question->testcases as $tc) {
             if (($oldtestcase = array_shift($oldtestcases))) { // Existing testcase, so reuse it.
                 $tc->id = $oldtestcase->id;
                 $DB->update_record($testcasetable, $tc);
             } else {
                 // A new testcase.
-                $tc->questionid = $form->id;
+                $tc->questionid = $question->id;
                 $id = $DB->insert_record($testcasetable, $tc);
             }
         }
@@ -288,8 +293,8 @@ class qtype_coderunner extends question_type {
         }
 
         // If this is a prototype, clear the caching of any child questions.
-        if ($form->prototypetype != 0) {
-            $typename = $form->coderunnertype;
+        if ($question->prototypetype != 0) {
+            $typename = $question->coderunnertype;
             $children = $DB->get_records('question_coderunner_options',
                     array('prototypetype' => 0,
                           'coderunnertype' => $typename)
@@ -301,10 +306,10 @@ class qtype_coderunner extends question_type {
 
         // Lastly, save any datafiles.
 
-        if ($USER->id && isset($form->datafiles)) {
+        if ($USER->id && isset($question->datafiles)) {
             // The id check is a hack to deal with phpunit initialisation, when no user exists.
-            file_save_draft_area_files($form->datafiles, $form->context->id,
-                'qtype_coderunner', 'datafile', (int) $form->id, $this->fileoptions);
+            file_save_draft_area_files($question->datafiles, $question->context->id,
+                'qtype_coderunner', 'datafile', (int) $question->id, $this->fileoptions);
         }
 
         return true;
@@ -352,7 +357,10 @@ class qtype_coderunner extends question_type {
             foreach ($row as $field => $value) {
                 $isinheritedfield = !in_array($field, $noninheritedfields);
                 if ($isinheritedfield) {
-                    if (!empty($question->options->$field) && $question->options->$field != $value) {
+                    if (isset($question->options->$field) &&
+                              $question->options->$field !== null &&
+                              $question->options->$field !== '' &&
+                              $question->options->$field != $value) {
                         $question->options->customise = true; // An inherited field has been changed.
                     } else {
                         $question->options->$field = $value;
