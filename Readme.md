@@ -7,7 +7,10 @@ Authors: Richard Lobb, University of Canterbury, New Zealand.
 
 NOTE: this documentation is available in a more-easily browsed form,
 together with a sample quiz containing a few CodeRunner questions, at
-[coderunner.org.nz](http://coderunner.org.nz).
+[coderunner.org.nz](http://coderunner.org.nz). Note, too, that there's
+a forum on that site, where you can post CodeRunner questions, such as
+requests for help if things go wrong, or are looking for ideas on how to write some
+unusual question type.
 
 ## Introduction
 

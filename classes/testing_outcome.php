@@ -35,8 +35,6 @@ class qtype_coderunner_testing_outcome {
 
     const TOLERANCE = 0.00001;       // Allowable difference between actual and max marks for a correct outcome.
 
-    const RESULT_COLUMNS = '[["Test", "testcode"], ["Input", "stdin"], ["Expected", "expected"], ["Got", "got"]]';
-
     public $status;                  // One of the STATUS_ constants above.
                                      // If this is not 1, subsequent fields may not be meaningful.
     public $errorcount;              // The number of failing test cases.
@@ -150,7 +148,14 @@ class qtype_coderunner_testing_outcome {
         if (isset($question->resultcolumns) && $question->resultcolumns) {
             $resultcolumns = json_decode($question->resultcolumns);
         } else {
-            $resultcolumns = json_decode(self::RESULT_COLUMNS);
+            // Use default column headers, equivalent to json_decode of (in English)
+            // '[["Test", "testcode"], ["Input", "stdin"], ["Expected", "expected"], ["Got", "got"]]'
+            $resultcolumns = array(
+                array(get_string('testcolhdr', 'qtype_coderunner'), 'testcode'),
+                array(get_string('inputcolhdr', 'qtype_coderunner'), 'stdin'),
+                array(get_string('expectedcolhdr', 'qtype_coderunner'), 'expected'),
+                array(get_string('gotcolhdr', 'qtype_coderunner'), 'got'),
+            );
         }
         if ($COURSE && $coursecontext = context_course::instance($COURSE->id)) {
             $canviewhidden = has_capability('moodle/grade:viewhidden', $coursecontext);
@@ -289,6 +294,14 @@ class qtype_coderunner_testing_outcome {
 
     public function get_test_results(qtype_coderunner_question $q) {
         return $this->build_results_table($q);
+    }
+
+    // Called only in case of precheck == 1, and no errors.
+    public function get_raw_output() {
+        assert(count($this->testresults) === 1);
+        $testresult = $this->testresults[0];
+        assert(empty($testresult->stderr));
+        return $testresult->got;
     }
 
     public function get_prologue() {

@@ -160,7 +160,11 @@ class qtype_coderunner_renderer extends qtype_renderer {
                 $fb .= html_writer::tag('h3', get_string('precheck_only', 'qtype_coderunner'));
             }
 
-            $fb .= $this->build_results_table($outcome, $q);
+            if ($isprecheck && $q->precheck == constants::PRECHECK_EMPTY && !$outcome->iscombinatorgrader()) {
+                $fb .= $this->empty_precheck_status($outcome);
+            } else {
+                $fb .= $this->build_results_table($outcome, $q);
+            }
         }
 
         // Summarise the status of the response in a paragraph at the end.
@@ -176,6 +180,25 @@ class qtype_coderunner_renderer extends qtype_renderer {
         return $fb;
     }
 
+    /**
+     * Return html to display the status of an empty precheck run.
+     * @param qtype_coderunner_testing_outcome $outcome the results from the test
+     * Must be a standard testing outcome, not a combinator grader outcome.
+     * @return html string describing the outcome
+     */
+    protected function empty_precheck_status($outcome) {
+        $output = $outcome->get_raw_output();
+        if (!empty($output)) {
+            $fb = html_writer::tag('p', get_string('bademptyprecheck', 'qtype_coderunner'));
+            $fb .= html_writer::tag('pre', qtype_coderunner_util::format_cell($output),
+                    array('class' => 'bad_empty_precheck'));
+        } else {
+            $fb = html_writer::tag('p', get_string('goodemptyprecheck', 'qtype_coderunner'),
+                    array('class' => 'good_empty_precheck'));
+        }
+        return $fb;
+
+    }
 
     // Generate the main feedback, consisting of (in order) any prologuehtml,
     // a table of results and any epiloguehtml.

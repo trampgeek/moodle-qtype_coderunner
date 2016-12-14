@@ -50,6 +50,7 @@ $string['asolutionis'] = 'Question author\'s solution:';
 
 $string['badcputime'] = 'CPU time limit must be left blank or must be an integer greater than zero';
 $string['bad_dotdotdot'] = 'Misuse of \'...\'. Must be at end, after two increasing numeric penalties';
+$string['bademptyprecheck'] = 'Precheck failed with the following unexpected output.';
 $string['badjsonorfraction'] = 'Bad JSON or missing fraction in combinator grader output. Output was: {$a->output}';
 $string['badmemlimit'] = 'Memory limit must either be left blank or must be a non-negative integer';
 $string['bad_new_prototype_name'] = 'Illegal name for new prototype: already in use';
@@ -104,6 +105,7 @@ $string['enable_sandbox_desc'] = 'Permit use of the specified sandbox for runnin
 $string['equalitygrader'] = 'Exact match';
 $string['error_loading_prototype'] = 'Error loading prototype. Network problems or server down, perhaps?';
 $string['expected'] = 'Expected output';
+$string['expectedcolhdr'] = 'Expected';
 $string['expected_help'] = 'The expected output from the test. Seen by the template as {{TEST.expected}}.';
 $string['exportthisquestion'] = 'Export this question';
 $string['exportthisquestion_help'] = 'This will create a Moodle XML export file containing just this one question. One example of when this is useful if you think this question demonstrates a bug in CodeRunner that you would like to report to the developers.';
@@ -116,6 +118,8 @@ $string['failedhidden'] = 'Your code failed one or more hidden tests.';
 $string['fileheader'] = 'Support files';
 $string['filloutoneanswer'] = 'You must enter source code that satisfies the specification. The code you enter will be executed to determine its correctness and a grade awarded accordingly.';
 
+$string['goodemptyprecheck'] = 'Passed';
+$string['gotcolhdr'] = 'Got';
 $string['grader'] = 'Grader';
 $string['grading'] = 'Grading';
 $string['gradingcontrols'] = 'Grading controls';
@@ -182,6 +186,7 @@ $string['ideone_user_desc'] = 'The login name to use when connecting to the Ideo
 $string['ideone_pass'] = 'Ideone server password';
 $string['ideone_pass_desc'] = 'The password to use when connecting to the Ideone server (if the ideone sandbox is enabled)';
 $string['info_unavailable'] = 'Question type information is not available for customised questions.';
+$string['inputcolhdr'] = 'Input';
 $string['is_prototype'] = 'Use as prototype';
 
 $string['jobe_apikey'] = 'Jobe API-key';
@@ -264,8 +269,10 @@ a subset of the question test cases.
 
 If \'Empty\' is selected, a single run
 will be done with the per-test template using a testcase in which all the
-fields (testcode, stdin, expected, etc) are the empty string. Use with caution:
-some templates will not handle this correctly.
+fields (testcode, stdin, expected, etc) are the empty string. Non-empty output
+is deemed to be a precheck failure. Use with caution:
+some question types will not handle this correctly, e.g. write-a-program questions
+that generate output.
 
 If \'Examples\' is selected, the code will
 be tested against all the tests for which \'use_as_example\' has been checked.
@@ -503,6 +510,7 @@ be hidden from the student, regardless of the setting of the \'Display\' combobo
 saved: testcases are ordered by this field.';
 $string['testcases'] = 'Test cases';
 $string['testcode'] = 'Test code';
+$string['testcolhdr'] = 'Test';
 $string['testingquestion'] = 'Testing question {$a}';
 $string['testsplitterre'] = 'Test splitter (regex)';
 $string['testcode_help'] = 'The code for the test, seen by the template as {{TEST.testcode}}';
