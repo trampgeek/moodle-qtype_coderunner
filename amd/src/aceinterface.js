@@ -44,7 +44,8 @@ define(['jquery'], function($) {
         // Warning: IDs from Moodle can contain colons - don't work with jQuery!
         var textarea =  $(document.getElementById(textareaId)),
             h = parseInt(textarea.css("height")),
-            w = parseInt(textarea.css("width"));
+            w = parseInt(textarea.css("width")),
+            focused = textarea[0] === document.activeElement;
 
         this.HANDLE_SIZE = 5;
         this.MIN_WIDTH = 300;
@@ -57,6 +58,8 @@ define(['jquery'], function($) {
         this.hLast = h - this.HANDLE_SIZE;
         this.wLast = w - this.HANDLE_SIZE;
         this.textarea = textarea;
+        this.capturingTab = true;
+        this.clickInProgress = false;
 
         this.wrapperNode.css({
             resize: 'both',
@@ -90,13 +93,33 @@ define(['jquery'], function($) {
         this.reload(mode);
 
         this.setEventHandlers(textarea);
+        this.captureTab();
 
         textarea.hide();
+        if (focused) {
+            this.editor.focus();
+            this.editor.navigateFileEnd();
+            // var session = this.editor.getSession(),
+            //     lines = session.getLength();
+            // this.editor.gotoLine(lines, session.getLine(lines - 1).length);
+        }
     }
 
+    AceInstance.prototype.captureTab = function () {
+        this.capturingTab = true;
+        this.editor.commands.bindKeys({'Tab': 'indent', 'Shift-Tab': 'outdent'});
+    };
+
+    AceInstance.prototype.releaseTab = function () {
+        this.capturingTab = false;
+        this.editor.commands.bindKeys({'Tab': null, 'Shift-Tab': null});
+    };
 
     AceInstance.prototype.setEventHandlers = function () {
         var parent = this.wrapperNode.parent();
+        var TAB = 9,
+            ESC = 27,
+            KEY_M = 77;
 
         this.editor.getSession().on('change', function() {
             this.textarea.val(this.editor.getSession().getValue());
@@ -125,13 +148,57 @@ define(['jquery'], function($) {
                 this.wLast = w;
             }
         }.bind(this);
+
+        var t = this;
+        this.editor.on('mousedown', function() {
+            // Event order seems to be (\ is where the mouse button is pressed, / released):
+            // Chrome: \ mousedown, mouseup, focusin / click.
+            // Firefox/IE: \ mousedown, focusin / mouseup, click.
+            t.clickInProgress = true;
+        });
+
+        this.editor.on('focus', function() {
+            if (t.clickInProgress) {
+                t.captureTab();
+            } else {
+                t.releaseTab();
+            }
+        });
+
+        this.editor.on('click', function() {
+            t.clickInProgress = false;
+        });
+
+        this.editor.container.addEventListener('keydown', function(e) {
+            if (e.which === undefined || e.which !== 0) { // Normal keypress?
+                if (e.keyCode === KEY_M && e.ctrlKey && !e.altKey) {
+                    if (t.capturingTab) {
+                        t.releaseTab();
+                    } else {
+                        t.captureTab();
+                    }
+                    e.preventDefault(); // Firefox uses this for mute audio in current browser tab.
+                }
+                else if (e.keyCode === ESC) {
+                    t.releaseTab();
+                }
+                else if (!(e.shiftKey || e.ctrlKey || e.altKey || e.keyCode == TAB)) {
+                    t.captureTab();
+                }
+            }
+        }, true);
     };
 
     AceInstance.prototype.close = function () {
+        var focused = this.editor.isFocused();
         this.textarea.val(this.editor.getSession().getValue()); // Copy data back
         this.editor.destroy();
         this.wrapperNode.remove();
         this.textarea.show();
+        if (focused) {
+            this.textarea.focus();
+            this.textarea[0].selectionStart = this.textarea[0].value.length;
+        }
     };
 
 
@@ -158,12 +225,23 @@ define(['jquery'], function($) {
     var AceInterface = function() {
         // Constructor for AceInterface class.
 
-        this.mode = null;
-        this.session = null;
-        this.textarea = null;
+        this.editableFields = {};
         this.activeEditors = {};
         this.modelist = window.ace.require('ace/ext/modelist');
         window.ace.require("ace/ext/language_tools");
+
+        var t = this;
+        $(document.body).on('keydown', function(e) {
+            var KEY_M = 77;
+
+            if (e.keyCode === KEY_M && e.ctrlKey && e.altKey) {
+                if (Object.keys(t.activeEditors).length === 0) {
+                    t.startUsingAce();
+                } else {
+                    t.stopUsingAce();
+                }
+            }
+        });
     };
 
 
@@ -205,13 +283,13 @@ define(['jquery'], function($) {
 
         var mode = this.findMode(lang);
 
+        this.editableFields[textareaId] = lang;
         if (this.activeEditors[textareaId]) {
             this.activeEditors[textareaId].reload(mode);
         } else {  // Otherwise create a new editor.
             this.activeEditors[textareaId] = new AceInstance(textareaId, mode);
         }
     };
-
 
     // Turn off all current Ace editors
     AceInterface.prototype.stopUsingAce = function () {
@@ -221,6 +299,12 @@ define(['jquery'], function($) {
         this.activeEditors = {};
     };
 
+    // Turn all editableFields into Ace editors
+    AceInterface.prototype.startUsingAce = function () {
+        for (var aceinstance in this.editableFields) {
+            this.initAce(aceinstance, this.editableFields[aceinstance]);
+        }
+    };
 
     return new AceInterface();
 });
