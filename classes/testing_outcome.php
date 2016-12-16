@@ -110,6 +110,40 @@ class qtype_coderunner_testing_outcome {
         }
     }
 
+    // Return a message summarising the nature of the error if this outcome
+    // is not all correct.
+    public function validation_error_message() {
+        if ($this->run_failed()) {
+            return get_string('run_failed', 'qtype_coderunner');
+        } else if ($this->has_syntax_error()) {
+            return get_string('syntax_errors', 'qtype_coderunner') . html_writer::tag('pre', $this->errormessage);
+        } else if ($this->combinator_error()) {
+            return get_string('badquestion', 'qtype_coderunner') . html_writer::tag('pre', $this->errormessage);
+        } else {
+            $numerrors = 0;
+            $firstfailure = '';
+            if (isset($this->testresults)) { // Combinator graders may not have test results
+                foreach ($this->testresults as $testresult) {
+                    if (!$testresult->iscorrect) {
+                        $numerrors += 1;
+                        if ($firstfailure === '' && isset($testresult->expected) && isset($testresult->got)) {
+                            $errorhtml = $this->make_error_html($testresult->expected, $testresult->got);
+                            $firstfailure = get_string('firstfailure', 'qtype_coderunner', $errorhtml);
+                        }
+                    }
+                }
+                $message = get_string('failedntests', 'qtype_coderunner', array(
+                    'numerrors' => $numerrors));
+                if ($firstfailure) {
+                    $message .= html_writer::empty_tag('br') . $firstfailure;
+                };
+            } else {
+                return  get_string('failedtesting', 'qtype_coderunner');
+            }
+            return $message;
+        }
+    }
+
     /**
      *
      * @global type $COURSE
@@ -286,6 +320,21 @@ class qtype_coderunner_testing_outcome {
             }
         }
         return $n;
+    }
+
+
+    /**
+     * Make an HTML table describing a single failing test case
+     * @param string $expected the expected output from the test
+     * @param string $got the actual output from the test
+     */
+    protected static function make_error_html($expected, $got) {
+        $table = new html_table();
+        $table->attributes['class'] = 'coderunner-test-results';
+        $table->head = array(get_string('expectedcolhdr', 'qtype_coderunner'),
+                             get_string('gotcolhdr', 'qtype_coderunner'));
+        $table->data = array(array($expected, $got));
+        return html_writer::table($table)  . get_string('howtogetmore', 'qtype_coderunner');
     }
 
 

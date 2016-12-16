@@ -27,6 +27,7 @@ defined('MOODLE_INTERNAL') || die();
  */
 
 require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
+require_once($CFG->dirroot . '/question/type/coderunner/question.php');
 
 use qtype_coderunner\constants;
 
@@ -129,6 +130,9 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->addElement('textarea', 'answer',
                 get_string('answer', 'qtype_coderunner'),
                 array('rows' => 9, 'class' => 'answer edit_code'));
+        $mform->addElement('checkbox', 'validateonsave', null,
+                get_string('validateonsave', 'qtype_coderunner'));
+        $mform->setDefault('validateonsave', true);
         $mform->addHelpButton('answer', 'answer', 'qtype_coderunner');
     }
 
@@ -252,7 +256,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
 
     public function data_preprocessing($question) {
-        // Load question data into form ($this). Called by set_data after
+        // Preprocess the question data to be loaded into the form. Called by set_data after
         // standard stuff all loaded.
         global $COURSE;
 
@@ -320,7 +324,6 @@ class qtype_coderunner_edit_form extends question_edit_form {
     private function newline_hack($s) {
         return "\n" . $s;
     }
-
 
 
     public function validation($data, $files) {
@@ -399,6 +402,13 @@ class qtype_coderunner_edit_form extends question_edit_form {
                         }
                     }
                 }
+            }
+        }
+
+        if (count($errors == 0) && !empty($data['validateonsave'])) {
+            $testresult = $this->validate_sample_answer($data);
+            if ($testresult) {
+                $errors['answer'] = $testresult;
             }
         }
 
@@ -694,5 +704,45 @@ class qtype_coderunner_edit_form extends question_edit_form {
             $errors["testcode[0]"] = get_string('allornone', 'qtype_coderunner');
         }
         return $errors;
+    }
+
+
+    // Check the sample answer (if there is one)
+    // Return an empty string if there is no sample answer or if the sample
+    // answer passes all the tests.
+    // Otherwise return a suitable error message for display in the form.
+    private function validate_sample_answer($data) {
+        global $DB, $USER;
+        $answer = trim($data['answer']);
+        if (empty($answer)) {
+            return '';
+        }
+
+        // Construct a question object containing all the fields from $data
+        $question = new qtype_coderunner_question();
+        foreach ($data as $key => $value) {
+            $question->$key = $value;
+        }
+        $question->isnew = true;
+
+        // Clean the question object, get inherited fields and run the sample answer.
+        $qtype = new qtype_coderunner();
+        $qtype->clean_question_form($question);
+        $questiontype = $question->coderunnertype;
+        list($category) = explode(',', $question->category);
+        $contextid = $DB->get_field('question_categories', 'contextid', array('id'=>$category));
+        $question->contextid = $contextid;
+        $context = context::instance_by_id($contextid, IGNORE_MISSING);
+        $qtype->set_inherited_fields($question, $questiontype, $context);
+        list($mark, $state, $cachedata) = $question->grade_response(array('answer' => $answer));
+
+        // Return either an empty string if run was good or an error message
+        if ($mark == 1.0) {
+            return '';
+        } else {
+            $outcome = unserialize($cachedata['_testoutcome']);
+            $error = $outcome->validation_error_message();
+            return $error;
+        }
     }
 }

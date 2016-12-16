@@ -34,7 +34,7 @@ The per-test-case marks can be specified only if the all-or-nothing checkbox is 
 
 If using a template grader that awards part marks to test cases, \'All-or-nothing\' should generally be unchecked.';
 $string['answer'] = 'Sample answer';
-$string['answer_help'] = 'A sample answer can be entered here and used for checking by the question author and optionally shown to students during review. It is also used by the bulk tester script.';
+$string['answer_help'] = 'A sample answer can be entered here and used for checking by the question author and optionally shown to students during review. It is also used by the bulk tester script. The correctness of a non-empty answer is checked when saving unless \'Validate on save\' is unchecked';
 $string['answerrequired'] = 'Please provide a non-empty answer';
 $string['atleastonetest'] = 'You must provide at least one test case for this question.';
 $string['ace-language'] = 'Ace language';
@@ -123,8 +123,11 @@ $string['extra_help'] = 'A sometimes-useful extra text field for use by the temp
 $string['fail'] = 'Fail';
 $string['fails'] = 'failures';
 $string['failedhidden'] = 'Your code failed one or more hidden tests.';
+$string['failedntests'] = 'Failed {$a->numerrors} test(s)';
+$string['failedtesting'] = 'Failed testing.';
 $string['fileheader'] = 'Support files';
 $string['filloutoneanswer'] = 'You must enter source code that satisfies the specification. The code you enter will be executed to determine its correctness and a grade awarded accordingly.';
+$string['firstfailure'] = 'First failing test case: {$a}';
 
 $string['goodemptyprecheck'] = 'Passed';
 $string['gotcolhdr'] = 'Got';
@@ -187,6 +190,7 @@ $string['HIDE'] = 'Hide';
 $string['HIDE_IF_FAIL'] = 'Hide if fail';
 $string['HIDE_IF_SUCCEED'] = 'Hide if succeed';
 $string['hiderestiffail'] = 'Hide rest if fail';
+$string['howtogetmore'] = 'For more detailed information, save the question with \'Validate on save\' unchecked and test manually';
 
 $string['iscombinatortemplate'] = 'Is combinator';
 $string['ideone_user'] = 'Ideone server user';
@@ -550,5 +554,7 @@ $string['typerequired'] = 'Please select the type of question (language, format,
 $string['unauthorisedbulktest'] = 'You do not have edit access to any CodeRunner questions';
 $string['useasexample'] = 'Use as example';
 $string['useace'] = 'Use ace';
+
+$string['validateonsave'] = 'Validate on save';
 
 $string['xmlcoderunnerformaterror'] = 'XML format error in coderunner question';

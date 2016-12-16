@@ -36,6 +36,8 @@ body#page-question-type-coderunner .ace_editor {
     padding: 0.5em;
 }
 
+#page-question-type-coderunner table.coderunner-test-results td,
+#page-question-type-coderunner table.coderunner-test-results th,
 .que.coderunner table.coderunner-test-results td,
 .que.coderunner table.coderunner-test-results th,
 .que.coderunner table.coderunnerexamples td,
@@ -44,6 +46,7 @@ body#page-question-type-coderunner .ace_editor {
     padding: 0.4em;
 }
 
+#page-question-type-coderunner table.coderunner-test-results .header,
 .que.coderunner table.coderunner-test-results .header,
 .que.coderunner table.coderunnerexamples .header {
     text-align: left;
@@ -54,11 +57,18 @@ body#page-question-type-coderunner .ace_editor {
     opacity: 0.5;
 }
 
+#page-question-type-coderunner table.coderunner-test-results {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
+
 .que.coderunner table.coderunner-test-results,
 .que.coderunner table.coderunnerexamples {
     margin-bottom: 1em;
 }
 
+#page-question-type-coderunner div.coderunner-test-results td:last-child,
+#page-question-type-coderunner div.coderunner-test-results td:first-child
 .que.coderunner div.coderunner-test-results td:last-child,
 .que.coderunner div.coderunner-test-results td:first-child {
     min-width: 16px;

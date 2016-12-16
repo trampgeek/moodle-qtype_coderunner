@@ -283,7 +283,9 @@ class qtype_coderunner_question extends question_graded_automatically {
     }
 
 
-    // Return all the datafiles to use for a run
+    // Return all the datafiles to use for a run, namely all the files
+    // uploaded with this question itself plus all the files uploaded with the
+    // prototype.
     public function get_files() {
         if ($this->prototypetype != 0) { // Is this a prototype question?
             $files = array(); // Don't load the files twice
