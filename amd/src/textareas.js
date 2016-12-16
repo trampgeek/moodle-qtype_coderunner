@@ -49,15 +49,36 @@ define(['jquery'], function($) {
      * the actual textarea is hidden by Ace.
      */
     function initTextArea() {
-        var ENTER = 13,
-            TAB = 9;
+        var TAB = 9,
+            ENTER = 13,
+            ESC = 27,
+            KEY_M = 77;
 
-        $(this).keydown(function(e) {
+        $(this).data('clickInProgress', false);
+        $(this).data('capturingTab', true);
+
+        $(this).on('mousedown', function() {
+            // Event order seems to be (\ is where the mouse button is pressed, / released):
+            // Chrome: \ mousedown, mouseup, focusin / click.
+            // Firefox/IE: \ mousedown, focusin / mouseup, click.
+            $(this).data('clickInProgress', true);
+        });
+
+        $(this).on('focusin', function() {
+            // At first, pressing TAB moves focus.
+            $(this).data('capturingTab', $(this).data('clickInProgress'));
+        });
+
+        $(this).on('click', function() {
+            $(this).data('clickInProgress', false);
+        });
+
+        $(this).on('keydown', function(e) {
             // Don't autoindent when behat testing in progress.
             if (window.hasOwnProperty('behattesting') && window.behattesting) { return; }
 
-            if(e.which === undefined || e.which !== 0) { // Normal keypress?
-                if (e.keyCode == TAB) {
+            if (e.which === undefined || e.which !== 0) { // Normal keypress?
+                if (e.keyCode == TAB && $(this).data('capturingTab')) {
                     // Ignore SHIFT/TAB. Insert 4 spaces on TAB.
                     if (e.shiftKey || insertString(this, "    ")) {
                         e.preventDefault();
@@ -75,6 +96,23 @@ define(['jquery'], function($) {
                     if (insertString(this, "\n" + indent)) {
                         e.preventDefault();
                     }
+                    // Once the user has started typing, TAB indents.
+                    $(this).data('capturingTab', true);
+                }
+                else if (e.keyCode === KEY_M && e.ctrlKey && !e.altKey) {
+                    // CTRL + M toggles TAB capturing mode.
+                    // This is the short-cut recommended by
+                    // https://www.w3.org/TR/wai-aria-practices/#richtext.
+                    $(this).data('capturingTab', !$(this).data('capturingTab'));
+                    e.preventDefault(); // Firefox uses this for mute audio in current browser tab.
+                }
+                else if (e.keyCode === ESC) {
+                    // ESC always stops capturing TAB.
+                    $(this).data('capturingTab', false);
+                }
+                else if (!(e.ctrlKey || e.altKey)) {
+                    // Once the user has started typing (not modifier keys) TAB indents.
+                    $(this).data('capturingTab', true);
                 }
             }
         });
