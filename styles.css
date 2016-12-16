@@ -59,7 +59,7 @@ body#page-question-type-coderunner .ace_editor {
 
 #page-question-type-coderunner table.coderunner-test-results {
     margin-top: 0.5em;
-    margin-bottom: 0.5em;
+    margin-bottom: 0 em;
 }
 
 .que.coderunner table.coderunner-test-results,

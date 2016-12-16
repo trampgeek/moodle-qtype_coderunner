@@ -120,27 +120,29 @@ class qtype_coderunner_testing_outcome {
         } else if ($this->combinator_error()) {
             return get_string('badquestion', 'qtype_coderunner') . html_writer::tag('pre', $this->errormessage);
         } else {
-            $numerrors = 0;
-            $firstfailure = '';
-            if (isset($this->testresults)) { // Combinator graders may not have test results
-                foreach ($this->testresults as $testresult) {
-                    if (!$testresult->iscorrect) {
-                        $numerrors += 1;
-                        if ($firstfailure === '' && isset($testresult->expected) && isset($testresult->got)) {
-                            $errorhtml = $this->make_error_html($testresult->expected, $testresult->got);
-                            $firstfailure = get_string('firstfailure', 'qtype_coderunner', $errorhtml);
+            if ($this->iscombinatorgrader()) {
+                $message = get_string('failedtesting', 'qtype_coderunner'); // Combinator graders are too hard! [TODO: can we do better?]
+            } else {
+                $numerrors = 0;
+                $firstfailure = '';
+                if (isset($this->testresults)) { // Combinator graders may not have test results
+                    foreach ($this->testresults as $testresult) {
+                        if (!$testresult->iscorrect) {
+                            $numerrors += 1;
+                            if ($firstfailure === '' && isset($testresult->expected) && isset($testresult->got)) {
+                                $errorhtml = $this->make_error_html($testresult->expected, $testresult->got);
+                                $firstfailure = get_string('firstfailure', 'qtype_coderunner', $errorhtml);
+                            }
                         }
                     }
+                    $message = get_string('failedntests', 'qtype_coderunner', array(
+                        'numerrors' => $numerrors));
+                    if ($firstfailure) {
+                        $message .= html_writer::empty_tag('br') . $firstfailure;
+                    };
                 }
-                $message = get_string('failedntests', 'qtype_coderunner', array(
-                    'numerrors' => $numerrors));
-                if ($firstfailure) {
-                    $message .= html_writer::empty_tag('br') . $firstfailure;
-                };
-            } else {
-                return  get_string('failedtesting', 'qtype_coderunner');
             }
-            return $message;
+            return $message . html_writer::empty_tag('br') . get_string('howtogetmore', 'qtype_coderunner');
         }
     }
 
@@ -334,7 +336,7 @@ class qtype_coderunner_testing_outcome {
         $table->head = array(get_string('expectedcolhdr', 'qtype_coderunner'),
                              get_string('gotcolhdr', 'qtype_coderunner'));
         $table->data = array(array(html_writer::tag('pre', $expected), html_writer::tag('pre', $got)));
-        return html_writer::table($table) . get_string('howtogetmore', 'qtype_coderunner');
+        return html_writer::table($table);
     }
 
 
