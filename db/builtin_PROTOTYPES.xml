@@ -14,10 +14,18 @@
       <text>BUILT_IN_PROTOTYPE_c_function</text>
     </name>
     <questiontext format="html">
-      <text>Used for C write-a-function questions but ONLY IF the function
-          should have no side-effects. Must not be used for C functions that
-          generate output or consume input or alter global state in any way, as it
-          attempts to wrap all tests into a single compile-and-run step</text>
+      <text>Used for C write-a-function questions. The student answer is expected
+      to be a complete C function, but it can optionally be preceded by other self-contained
+      C code such as preprocessor directives and support functions.
+      The test code is usually just single line of code that calls the primary student
+      function and prints the result, but multiple line test code is
+      possible, too, provided the code is suitable for wrapping inside
+      the automatically-generated main function.
+          
+      The following standard header files are included: stdlib.h, ctype.h,
+          string.h, stdbool.h, math.h.
+          
+      See the template for details.</text>
     </questiontext>
     <generalfeedback format="html">
       <text></text>
@@ -77,7 +85,10 @@ int main() {
     <questiontext format="moodle_auto_format">
       <text>Used for C write-a-program questions, where there is no
           per-test-case code, and the different tests just use different
-          stdin data.</text>
+          stdin data. The student answer is expected to be a complete
+          runnable program, which is run as-is, without modification
+          by CodeRunner.
+      </text>
     </questiontext>
     <generalfeedback format="moodle_auto_format">
       <text></text>
@@ -100,6 +111,126 @@ int main() {
     <answer></answer>
     <testsplitterre></testsplitterre>
     <language>C</language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader></grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams></templateparams>
+    <testcases>
+    </testcases>
+  </question>
+  
+  
+  <question type="coderunner">
+    <name>
+      <text>BUILT_IN_PROTOTYPE_cpp_function</text>
+    </name>
+    <questiontext format="html">
+      <text>Used for C++ write-a-function questions. The student answer is expected
+      to be a complete C++ function, but it can optionally be preceded by other self-contained
+      C code such as preprocessor directives and support functions.
+      The test code is usually just single line of code that calls the primary student
+      function and prints the result, but multiple line test code is
+      possible, too, provided the code is suitable for wrapping inside
+      the automatically-generated main function. When the combinator template
+      is used to wrap all the testcases into a single program, each
+      test case is isolated from the others by being placed in its own block.
+          
+      The following include files
+      are included in the program: iostream, fstream, string, math, vector and
+      algorithm. The user answer can include others if required.  
+          
+      See the template for details.</text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.3333333</penalty>
+    <hidden>0</hidden>
+    <coderunnertype>cpp_function</coderunnertype>
+    <prototypetype>1</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime></penaltyregime>
+    <precheck>0</precheck>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <useace>1</useace>
+    <resultcolumns></resultcolumns>
+    <template><![CDATA[#include <iostream>
+#include <fstream>
+#include <string>
+#include <cmath>
+#include <vector>
+#include <algorithm>
+        
+using namespace std;
+#define SEPARATOR "#<ab@17943918#@>#"
+
+{{ STUDENT_ANSWER }}
+
+int main() {
+{% for TEST in TESTCASES %}
+   {
+    {{ TEST.extra }};
+    {{ TEST.testcode }};
+   }
+    {% if not loop.last %}cout << SEPARATOR << endl;{% endif %}
+{% endfor %}
+    return 0;
+}]]></template>
+    <iscombinatortemplate>1</iscombinatortemplate>
+    <answer></answer>
+    <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
+    <language>cpp</language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader>EqualityGrader</grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams></templateparams>
+    <testcases>
+    </testcases>
+  </question>
+
+<!-- question: 23289  -->
+  <question type="coderunner">
+    <name>
+      <text>BUILT_IN_PROTOTYPE_cpp_program</text>
+    </name>
+    <questiontext format="moodle_auto_format">
+      <text>Used for C++ write-a-program questions, where there is no
+          per-test-case code, and the different tests just use different
+          stdin data. The student answer is expected to be a complete
+          runnable program, which is run as-is, without modification
+          by CodeRunner.
+      </text>
+    </questiontext>
+    <generalfeedback format="moodle_auto_format">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.3333333</penalty>
+    <hidden>0</hidden>
+    <coderunnertype>cpp_program</coderunnertype>
+    <prototypetype>1</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime></penaltyregime>
+    <precheck>0</precheck>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <useace>1</useace>
+    <resultcolumns></resultcolumns>
+    <template>{{ STUDENT_ANSWER }}</template>
+    <iscombinatortemplate>0</iscombinatortemplate>
+    <answer></answer>
+    <testsplitterre></testsplitterre>
+    <language>cpp</language>
     <acelang></acelang>
     <sandbox></sandbox>
     <grader></grader>
@@ -176,11 +307,15 @@ public class __Tester__ {
       <text>BUILT_IN_PROTOTYPE_java_method</text>
     </name>
     <questiontext format="moodle_auto_format">
-      <text>Used for Java write-a-method questions where the method is essentially
-          a stand-alone function, but ONLY IF the function should have no side-effects.
-          Must not be used for methods that generate or consume output or alter
-          global state in any way, as it attempts to wrap all tests into a single
-          compile-and-run step</text>
+      <text>Used for Java write-a-method questions where the student is asked
+      to write a method that is essentially a standalone function. The author-supplied
+      test is typically just one or two lines of code that (apparently) just call
+      the student supplied method. Under the hood, the template constructs a 
+      Main class containing the student-supplied method (and any other support
+      methods, if they choose to write them) plus a 'runTests' method that
+      wraps the testcase(s). The main function for the class constructs an
+      instance of Main and calls its runTests method.
+      </text>
     </questiontext>
     <generalfeedback format="moodle_auto_format">
       <text></text>
@@ -209,10 +344,12 @@ public class __Tester__ {
 
     public void runTests() {
 {% for testCase in TESTCASES %}
+    {
     {{ testCase.testcode }};
     {% if not loop.last %}
     System.out.println(SEPARATOR);
     {% endif %}
+    }
 {% endfor %}
     }
 }]]></template>

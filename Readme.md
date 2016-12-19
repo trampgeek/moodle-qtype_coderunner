@@ -61,8 +61,7 @@ courses using Moodle/CodeRunner include:
 1. SENG365 Web Computing Architectures
 
 CodeRunner currently supports Python2 (considered obsolescent), Python3,
-C, Java, PHP, JavaScript (NodeJS), Octave and Matlab. C++ questions are
-not built-in but can be easily supported by custom question types. 
+C, C++, Java, PHP, JavaScript (NodeJS), Octave and Matlab. 
 The architecture allows easy extension to other languages.
 
 For security and load reasons, it is recommended that CodeRunner be set up
@@ -474,6 +473,20 @@ example. The student supplies
  accept C99 and with both *-Wall* and *-Werror* options set on the command line
  to issue all warnings and reject the code if there are any warnings.
 
+ 1. **cpp\_function**. This is the C++ version of the previous question type.
+The student supplies just a function (plus possible support functions)
+and each test is (typically) of the form
+
+        cout << func(arg1, arg2, ..)
+
+ The template for this question type generates some standard includes, followed
+ by the line
+
+    using namespace std;
+
+followed by the student code followed by a main function that executes the tests one by
+ one.
+
  1. **python3**. Used for most Python3 questions. For each test case, the student
 code is run first, followed by the test code.
 
@@ -525,17 +538,6 @@ usual PHP output including all HTML content outside the php tags.
 
 As discussed later, this base set of question types can
 be customised or extended in various ways.
-
-C++ isn't available as a built-in type at present, as we don't teach it.
-However, the Jobe server is by default able to run C++ jobs, using
-the language ID 'cpp'. You can easily make a custom C++ question
-type by starting with the C question type, setting the language to *cpp*
-and changing the template to include
-*iostream* instead of, or as well as, *stdio.h*. The line
-
-    using namespace std;
-
- may also be desirable.
 
 ### Some more-specialised question types
 

@@ -47,8 +47,8 @@ class qtype_coderunner_test_helper extends question_test_helper {
             'studentanswervar', 'hello_python',
             'generic_python3', 'generic_c',
             'sqr_c', 'sqr_no_semicolons', 'sqr_customised',
-            'hello_prog_c',
-            'copy_stdin_c', 'str_to_upper',
+            'hello_prog_c', 'copy_stdin_c', 'str_to_upper',
+            'sqr_cpp', 'hello_prog_cpp', 'str_to_upper_cpp','copy_stdin_cpp',
             'string_delete',
             'sqrmatlab', 'teststudentanswermacro', 'sqroctave',
             'teststudentanswermacrooctave', 'sqrnodejs',
@@ -535,6 +535,97 @@ printf(\"%s\\n\", s);
 
         return $coderunner;
     }
+
+    /* Now the C++-question helper stuff
+       =============================== */
+
+    /**
+     * Makes a coderunner C++ question asking for a sqr() function.
+     * @return qtype_coderunner_question
+     */
+    public function make_coderunner_question_sqr_cpp() {
+        $coderunner = $this->make_coderunner_question(
+                'cpp_function',
+                'Function to square a number n',
+                'Write a function int sqr(int n) that returns n squared.',
+                array(
+                    array('testcode'       => 'cout << sqr(0);',
+                         'expected'        => '0'),
+                    array('testcode'       => 'cout << sqr(7);',
+                          'expected'       => '49'),
+                    array('testcode'       => 'cout << sqr(-11);',
+                          'expected'       => '121'),
+                    array('testcode'       => 'cout << sqr(-16);',
+                          'expected'       => '256')
+        ));
+
+        return $coderunner;
+    }
+
+
+
+    /**
+     * Makes a coderunner question to write a program that just print 'Hello ENCE260'
+     * @return qtype_coderunner_question
+     */
+    public function make_coderunner_question_hello_prog_cpp() {
+        $coderunner = $this->make_coderunner_question(
+                'cpp_program',
+                'Program to print "Hello ENCE260"',
+                'Write a program that prints "Hello ENCE260"',
+                array(
+                    array('testcode' => '',
+                          'expected' => 'Hello ENCE260')
+        ));
+
+        return $coderunner;
+    }
+
+    /**
+     * Makes a C++ coderunner question to write a program that reads n lines of stdin
+     * and writes them to stdout.
+     * @return qtype_coderunner_question
+     */
+    public function make_coderunner_question_copy_stdin_cpp() {
+        $coderunner = $this->make_coderunner_question(
+                'cpp_program',
+                'Program to copies stdin to stdout',
+                'Write a program that reads stdin to stdout',
+                array(
+                    array('stdin'    => '',
+                          'expected' => ''),
+                    array('stdin'    => "Line1\n",
+                          'expected' => "Line1\n"),
+                    array('stdin'    => "Line1\nLine2\n",
+                          'expected' => "Line1\nLine2\n")
+        ));
+
+        return $coderunner;
+    }
+
+
+    public function make_coderunner_question_str_to_upper_cpp() {
+        $coderunner = $this->make_coderunner_question(
+                'cpp_function',
+                'Function to convert string to uppercase',
+                'Write a function str_to_upper(string s) that converts s to uppercase'
+                . 'and returns the ',
+                array(
+                    array('testcode' => "
+string s = \"1@aBcdE;\";
+cout << str_to_upper(s);
+",
+                          'expected' => '1@ABCDE;'),
+                    array('testcode' => "
+string s = \"1@aBcDe;\";
+cout << str_to_upper(s);
+",
+                          'expected'    => '1@ABCDE;')
+        ));
+
+        return $coderunner;
+    }
+
 
     /* Now the matlab-question helper stuff.
      * =====================================*/
