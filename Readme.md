@@ -178,7 +178,7 @@ a limit of 100
 per hour over all clients using that key, worldwide. If you decide that CodeRunner is
 useful to you, *please* set up your own Jobe sandbox as 
 described in *Sandbox configuration* below. Alternatively, if you wish to
-continue to use our Jobe server, you can apply to the main
+continue to use our Jobe server, you can apply to the principal
 [developer](mailto://trampgeek@gmail.com) for your own
 API key, stating how long you will need to use the key and a reasonable
 upper bound on the number of jobs you will need to submit per hour. We
@@ -346,16 +346,18 @@ with a preliminary compilation step.
        
 The above description is somewhat simplified. 
 
-Firstly, it is not necessary to
-run a different job in the sandbox for each test case. Instead, all tests can
+Firstly, it is not always necessary to
+run a different job in the sandbox for each test case. Instead, all tests can often
 be combined into a single executable program. This is achieved by use of what is known as
 a "combinator template" rather than the simpler "per-test template" described
 above. Combinator templates are useful with questions of the *write-a-function*
 or *write-a-class* variety. They are not often used with *write-a-program* questions,
 which are usually tested with different standard inputs, so multiple
-execution runs are required. Furthermore, even with write-a-function questions,
-CodeRunner will revert to running tests one-at-a-time if the full combinator
-template run gives some form of runtime error, in order that students can be
+execution runs are required. Furthermore, even with write-a-function questions
+that do have a combinator template,
+CodeRunner will revert to running tests one-at-a-time (still using the combinator
+template) if running all tests in the one program gives some form of runtime error,
+in order that students can be
 presented with all test results up until the one that failed.
 
 Combinator templates are explained in the *Templates*
@@ -364,7 +366,8 @@ section.
 Secondly, the above description of the grading process ignores *template graders*,
 which do grading as well as testing. These support more advanced testing
 strategies, such as running thousands of tests or awarding marks in more complex
-ways than either "all-or-nothing" or linear summation of individual test marks.
+ways than is possible with the standard option of either "all-or-nothing" marking
+or linear summation of individual test marks.
 
 A per-test-case template grader can be used to define each
 row of the result table, or a combinator template grader can be used to
@@ -416,7 +419,7 @@ cases of the form
 
 and give the expected output from this test.
 
-The template for the question type would then wrap the 
+A per-test template for such a question type would then wrap the 
 submission and
 the test code into a single program like:
 
@@ -430,13 +433,14 @@ the test code into a single program like:
         return 0;
     }
 
-which is compiled and run for each test case. The output from the run is
-then compared with
-the specified expected output (121) and the test case is marked right
+which would be compiled and run for each test case. The output from the run would
+then be compared with
+the specified expected output (121) and the test case would be marked right
 or wrong accordingly.
 
 That example assumes the use of a per-test template rather than the more complicated
-combinator template used by the built-in C function question type. See the section
+combinator template that is actually used by the built-in C function question type.
+See the section
 on *templates* for more.
 
 ### Built-in question types
@@ -457,14 +461,15 @@ document.
 Built-in question types include the following:
 
  1. **c\_function**. This is the question type discussed in the above
-example. The student supplies
+example, except that it uses a combinator template. The student supplies
  just a function (plus possible support functions) and each test is (typically) of the form
 
         printf(format_string, func(arg1, arg2, ..))
 
  The template for this question type generates some standard includes, followed
  by the student code followed by a main function that executes the tests one by
- one.
+ one. However, if any of the test cases have any standard input defined, the
+ template is expanded and executed separately for each test case.
 
  The manner in which a C (or any other) program is executed is not part of the question
  type definition: it is defined by the particular sandbox to which the
@@ -486,6 +491,13 @@ and each test is (typically) of the form
 
 followed by the student code followed by a main function that executes the tests one by
  one.
+
+1. **c\_program** and **cpp\_program**. These two very simple question types
+require the student to supply
+a complete working program. For each test case the author usually provides 
+`stdin` and specifies the expected `stdout`. The program is compiled and run
+as-is, and in the default all-or-nothing grading mode, must produce the right
+output for all test cases to be marked correct. 
 
  1. **python3**. Used for most Python3 questions. For each test case, the student
 code is run first, followed by the test code.
@@ -536,6 +548,9 @@ matlab-like student submissions.
 file, with PHP code enclosed in <?php ... ?> tags and the output is the
 usual PHP output including all HTML content outside the php tags.
 
+Other less commonly used built-in question types are: *c\_full\_main\_tests*,
+*python3\_w\_input*, *nodejs*, *pascal\_program* and *pascal\_function*.
+
 As discussed later, this base set of question types can
 be customised or extended in various ways.
 
@@ -544,20 +559,20 @@ be customised or extended in various ways.
 The following question types used to exist as built-ins but have now been
 dropped from the main install as they are intended primarily for University
 of Canterbury (UOC) use only. They can be imported, if desired, from the file
-**uoc_prototypes.xml**, located in the CodeRunner/coderunner/db folder.
+`uoc_prototypes.xml`, located in the CodeRunner/coderunner/samples folder.
 
 The UOC question types include:
 
  1. **python3\_cosc121**. This is a complex Python3 question
 type that's used at the University of Canterbury for nearly all questions in
 the COSC121 course.  The student submission
-is first passed through the [pylint](http://www.logilab.org/857)
+is first passed through the [pylint](https://www.pylint.org/)
 source code analyser and the submission is rejected if pylint gives any errors.
-Otherwise testing proceeds as normal. Obviously, pylint needs to be installed
+Otherwise testing proceeds as normal. Obviously, *pylint* needs to be installed
 on the sandbox server. This question type takes many different template
 parameters (see the section entitled *Template parameters* for an explanation
 of what these are) to allow it to be used for a wide range of different problems.
-For example, it can be figured to require or disallow specific language
+For example, it can be configured to require or disallow specific language
 constructs (e.g. when requiring students to rewrite a *for* loop as a *while*
 loop), or to limit function size to a given value, or to strip the *main*
 function from the student's code so that the support functions can be tested
@@ -579,8 +594,6 @@ dependent on the context. Finally the code in Extra Template Data is run
 (if any). Octave's `disp` function is replaced with one that emulates 
 Matlab's more closely, but, as above: caveat emptor.
 
- 1. **nodejs**. A question type in which the student's JavaScript submission
-is followed by the test code and the whole program is executed using *nodejs*.
 
 ## Templates
 
@@ -618,8 +631,8 @@ the template are TEST.testcode (the code to execute for the test), TEST.stdin
 (the standard input for the test -- not normally used within a template, but
 occasionally useful) and TEST.extra (the extra template data provided in the
 question authoring form). The template will typically use just the TEST.testcode
-field, which is the "test" field of the testcase. It is usually (but not always)
-is a bit of code to be run to test the student's answer.
+field, which is the "test" field of the testcase. It is usually
+a bit of code to be run to test the student's answer.
 
 As an example,
 the question type *c\_function*, which asks students to write a C function,
@@ -699,7 +712,7 @@ a per-test template as suggested above, but is the following combinator template
         return 0;
     }
 
-The Twig template engine has control structures, which are wrapped in `{%`
+The Twig template language control structures are wrapped in `{%`
 and `%}`. If a C-function question had two three test cases, the above template
 might expand to something like the following:
 
@@ -775,12 +788,25 @@ allows the author to set the size of the student's answer box, and in a
 case like the above you'd typically set it to just one or two lines in height
 and perhaps 30 columns in width.
 
-For one-off question use, the combinator template doesn't normally offer
+The above example was chosen to illustrate how template editing works, but it's
+not a very compelling practical example. It would generally be easier for
+the author and less confusing for the student if the question were posed as
+a standard built-in write-a-function question, but using the *Preload* capability
+in the question authoring form to pre-load the student answer box with something
+like
+
+    // A function to return the square of its parameter n
+    int sqr(int n) {
+        // *** Replace this line with your code
+
+If you're customising templates, or developing your own question type (see later),
+the combinator template doesn't normally offer
 sufficient additional benefit to warrant the complexity increase
 unless you have a
 large number of testcases or are using
-a slow-to-launch language like Matlab. However, if you are writing your
-own question prototypes (see later) you might wish to make use of it.
+a slow-to-launch language like Matlab. It is recommended that you always start
+with a per-test template, and move to a combinator template only if you have
+an obvious performance issue.
 
 ## Using the template as a script for more advanced questions
 
@@ -794,8 +820,7 @@ question type mentioned earlier is a simple example: the template code first
 writes the student's code to a file and runs *pylint* on that file before
 proceeding with any tests.
 
-The per-test template for such a question type in its
-simplest form might be:
+The per-test template for a simple `pylint` question type might be:
 
     import subprocess
     import os
@@ -825,9 +850,8 @@ simplest form might be:
         else:
             return True
 
-
-    __student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
     if code_ok(__student_answer__):
+        __student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
         __student_answer__ += '\n' + """{{ TEST.testcode | e('py') }}"""
         exec(__student_answer__)
 
@@ -843,7 +867,7 @@ The full `Python3_pylint` question type is much more complex than the
 above, because it includes many extra features, enabled by use of template
 parameters (see later).
 
-Some other more complex examples that we've used include:
+Some other complex question types that we've used include:
 
  1. A Matlab question in which the template code (also Matlab) breaks down
     the student's code into functions, checking the length of each to make
@@ -872,7 +896,7 @@ highlighting code-entry fields, to use a different language within the student
 answer box from that used to run the submission in the sandbox.
 
   - the use of the QUESTION template variable, which contains all the
-attributes of the question including its questiontext, sample answer and
+attributes of the question including its question text, sample answer and
 template parameters (see below).
 
 ### Twig Escapers
@@ -908,14 +932,14 @@ that if you wish to alter the prototype you will also need to find
 and modify all the
 derived questions, too.
 
-In such cases a better approach may be to use template parameters, which can
+In such cases a better approach is to use template parameters, which can
 be defined by the question author in the "Template params" field of the question
 editing form. This field must be set to a JSON-encoded record containing
 definitions of variables that can be used by the template engine to perform
 local per-question customisation of the template. The template parameters
 are passed to the template engine as the object `QUESTION.parameters`.
 
-A more advanced version of the Python3_pylint question type, which allows
+A more advanced version of the *python3\_pylint* question type, which allows
 customisation of the pylint options via template parameters and also allows
 for an optional insertion of a module docstring for "write a function"
 questions is then:
@@ -966,28 +990,28 @@ PHP question object. Some of the other
 QUESTION fields/attributes that might be of interest to authors include the
 following.
 
- * QUESTION.questionid The unique internal ID of this question. 
- * QUESTION.questiontext The question text itself
- * QUESTION.answer The supplied sample answer (null if not explicitly set).
- * QUESTION.language The language being used to run the question in the sandbox,
+ * `QUESTION.questionid` The unique internal ID of this question. 
+ * `QUESTION.questiontext` The question text itself
+ * `QUESTION.answer` The supplied sample answer (null if not explicitly set).
+ * `QUESTION.language` The language being used to run the question in the sandbox,
 e.g. "Python3".
- * QUESTION.useace '1'/'0' if the ace editor is/is not in use.
- * QUESTION.sandbox The sandbox being used, e.g. "jobesandbox".
- * QUESTION.grader The PHP grader class being used, e.g. "EqualityGrader".
- * QUESTION.cputimelimitssecs The allowed CPU time (null unless explicitly set).
- * QUESTION.memlimitmb The allowed memory in MB (null unless explicitly set).
- * QUESTION.sandboxparams The JSON string used to specify the sandbox parameters
+ * `QUESTION.useace` '1'/'0' if the ace editor is/is not in use.
+ * `QUESTION.sandbox` The sandbox being used, e.g. "jobesandbox".
+ * `QUESTION.grader` The PHP grader class being used, e.g. "EqualityGrader".
+ * `QUESTION.cputimelimitsecs` The allowed CPU time (null unless explicitly set).
+ * `QUESTION.memlimitmb` The allowed memory in MB (null unless explicitly set).
+ * `QUESTION.sandboxparams` The JSON string used to specify the sandbox parameters
 in the question authoring form (null unless explicitly set).
- * QUESTION.templateparams The JSON string used to specify the template
+ * `QUESTION.templateparams` The JSON string used to specify the template
 parameters in the question authoring form. (Normally the question author
 will not use this but will instead access the specific parameters as in
 the previous section).
- * QUESTION.resultcolumns The JSON string used in the question authoring
+ * `QUESTION.resultcolumns` The JSON string used in the question authoring
 form to select which columns to display, and how to display them (null
 unless explicitly set).
 
 Most of these are effectively read only - assigning a new value within the
-template to the cputimelimitsecs attribute does not alter the actual run time;
+template to the `cputimelimitsecs` attribute does not alter the actual run time;
 the assignment statement is being executed in the sandbox after all resource
 limits have been set. The question author can however directly alter all
 the above question attributes directly in the question authoring form.
@@ -1005,7 +1029,8 @@ it can handle. The usual exact-match
 grader cannot handle these situations. For such cases the *TemplateGrader* option
 can be selected in the *Grader* field of the question authoring form. The template
 code then has a somewhat different role: the output from running the expanded
-template program is required to be a JSON string that grades the question and
+template program is required to be a JSON string that defines the mark allocated
+to the student's answer and
 provides appropriate feedback.
 
 A template grader
@@ -1022,7 +1047,7 @@ at least a 'fraction' field, which is multiplied by TEST.mark to decide how
 many marks the test case is awarded. It should usually also contain a 'got'
 field, which is the value displayed in the 'Got' column of the results table.
 The other columns of the results table (testcode, stdin, expected) can, if desired, also
-be defined by the template grader and will be used instead of the values from
+be defined by the template grader and will then be used instead of the values from
 the test case. As an example, if the output of the program is the string
 
     {"fraction":0.5, "got": "Half the answers were right!"}
@@ -1049,7 +1074,7 @@ module be used to execute the student code plus whatever test code is required.
 This ensures that errors in the syntax  or runtime errors in the student code
 do not break the template program itself, allowing it to output a JSON
 answer regardless. Some examples of per-test template graders are given in 
-a later section.
+the section *Template grader examples*.
 
 Sometimes the author of a template grader wishes to abort the testing of the 
 program after a test case, usually the first, e.g. when pre-checks on the
@@ -1167,7 +1192,7 @@ usual graders (e.g. exact or regular-expression matching of the program's
 output) are inadequate. 
 
 As a simple example, suppose the student has to write their own Python square
-root function (perhaps as an exercise in Newton Raphson iteration?), such
+root function (perhaps as an exercise in Newton-Raphson iteration?), such
 that their answer, when squared, is within an absolute tolerance of 0.000001
 of the correct answer. To prevent them from using the math module, any use
 of an import statement would need to be disallowed but we'll ignore that aspect
@@ -1185,7 +1210,7 @@ of the form
 
 where the expected output is "OK". However, if one wishes to test the student's
 code with a large number of values - say 100 or more - this approach becomes
-impracticable. For that, we need to right our own tester, which we can do
+impracticable. For that, we need to write our own tester, which we can do
 using a template grade.
 
 Template graders that run student-supplied code are somewhat tricky to write
@@ -1244,7 +1269,7 @@ The following figures show this question in action.
 ![Syntax error](http://coderunner.org.nz/pluginfile.php/56/mod_page/content/23/Selection_062.png)
 
 
-Obviously, writing questions using tempalte graders is much harder than
+Obviously, writing questions using template graders is much harder than
 using the normal built-in equality based grader. It is usually possible to
 ask the question in a different way that avoids the need for a custom grader.
 In the above example, you would have to ask yourself if it mightn't have been
@@ -1285,12 +1310,12 @@ Each column specifier is itself a list,
 typically with just two or three elements. The first element is the
 column header, the second element is usually the field from the TestResult
 object being displayed in the column (one of those values listed above) and the optional third
-element is an sprintf format string used to display the field.
-Custom-grader templates may add their
+element is an `sprintf` format string used to display the field.
+Per-test template graders can add their
 own fields, which can also be selected for display. It is also possible
 to combine multiple fields into a column by adding extra fields to the
-specifier: these must precede the sprintf format specifier, which then
-becomes mandatory. For example, to display a Mark Fraction column in the
+specifier: these must precede the `sprintf` format specifier, which then
+becomes mandatory. For example, to display a `Mark Fraction` column in the
 form `0.74 out of 1.00`, a column format specifier of `["Mark Fraction", "awarded",
 "mark", "%.2f out of %.2f"]` could be used. 
 
@@ -1301,10 +1326,9 @@ of `%h` means that the test result field should be taken as ready-to-output
 HTML and should not be subject to further processing; this can be useful
 with custom-grader templates that generate HTML output, such as
 SVG graphics, and we have also used it in questions where the output from
-the student's program was HTML. A third use is with the diff filter, explained
-in the following section.
+the student's program was HTML.
 
-NOTE: `%h` format required PHP >= 5.4.0 and Libxml >= 2.7.8 in order to
+NOTE: `%h` format requires PHP >= 5.4.0 and Libxml >= 2.7.8 in order to
 parse and clean the HTML output.
 
 ### Extended column specifier syntax (*obsolescent*)
@@ -1328,8 +1352,8 @@ highlight differences between the *Expected* and *Got* fields. However that
 functionality is now provided by JavaScript; the Show Differences button is
 automatically displayed if an answer is being marked wrong and if an 
 exact-match grader is being used. Hence the *diff* filter function
-is no longer functional but it remains supported syntactially to provide
-support or legacy questions that used it.
+is no longer functional but it remains supported syntactically to support
+legacy questions that use it.
 
 <img src="http://coderunner.org.nz/pluginfile.php/56/mod_page/content/24/Selection_074.png" />
 
@@ -1387,8 +1411,7 @@ To reduce the UI confusion, customisable fields are subdivided into the
 basic ones (per-test-template, grader, result-table column selectors etc) and
 "advanced"
 ones. The latter include the language, sandbox, timeout, memory limit and
-the "make this question a prototype" feature. The combinator
-template is also considered to be an advanced feature.
+the "make this question a prototype" feature.
 
 **WARNING #1:** if you define your own question type you'd better make sure
 when you export your question bank
