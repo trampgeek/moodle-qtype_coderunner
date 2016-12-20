@@ -405,7 +405,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
             }
         }
 
-        if (count($errors == 0) && !empty($data['validateonsave'])) {
+        if (count($errors) == 0 && !empty($data['validateonsave'])) {
             $testresult = $this->validate_sample_answer($data);
             if ($testresult) {
                 $errors['answer'] = $testresult;
