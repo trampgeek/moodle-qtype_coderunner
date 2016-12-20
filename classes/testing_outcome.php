@@ -44,14 +44,9 @@ class qtype_coderunner_testing_outcome {
     public $testresults;             // An array of TestResult objects.
     public $sourcecodelist;          // Array of all test runs.
 
-    public function __construct(
-            $maxpossmark,
-            $numtestsexpected,
-            $status = self::STATUS_VALID,
-            $errormessage = '') {
-
-        $this->status = $status;
-        $this->errormessage = $errormessage;
+    public function __construct($maxpossmark, $numtestsexpected) {
+        $this->status = self::STATUS_VALID;
+        $this->errormessage = '';
         $this->errorcount = 0;
         $this->actualmark = 0;
         $this->maxpossmark = $maxpossmark;
