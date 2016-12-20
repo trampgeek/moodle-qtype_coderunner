@@ -340,6 +340,10 @@ class qtype_coderunner_edit_form extends question_edit_form {
             $errors['sandboxcontrols'] = get_string('badmemlimit', 'qtype_coderunner');
         }
 
+        if ($data['precheck'] == constants::PRECHECK_EXAMPLES && $this->num_examples($data) === 0) {
+            $errors['coderunner_precheck_group'] = get_string('precheckingemptyset', 'qtype_coderunner');
+        }
+
         if ($data['sandboxparams'] != '' &&
                 json_decode($data['sandboxparams']) === null) {
             $errors['sandboxcontrols'] = get_string('badsandboxparams', 'qtype_coderunner');
@@ -638,6 +642,14 @@ class qtype_coderunner_edit_form extends question_edit_form {
         return !array_key_exists($typename, $types);
     }
 
+
+    /**
+     * Return a count of the number of test cases set as examples.
+     * @param array $data data from the form
+     */
+    private function num_examples($data) {
+        return isset($data['useasexample'])  ? count($data['useasexample']) : 0;
+    }
 
     private function get_languages_and_types() {
         // Return two arrays (language => language_upper_case) and (type => subtype) of

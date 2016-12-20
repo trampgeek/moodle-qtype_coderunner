@@ -298,6 +298,7 @@ be different from the normal Check, if the template code so chooses).
 The template can check whether or not the run is a precheck run using the
 Twig parameter {{ IS_PRECHECK }}, which is true during precheck runs only.';
 $string['precheck_only'] = 'Pre-check only';
+$string['precheckingemptyset'] = 'Prechecking examples, but there aren\'t any!';
 $string['proceed_at_own_risk'] = 'Editing a built-in question prototype?! Proceed at your own risk!';
 $string['prototypecontrols'] = 'Prototyping';
 $string['prototypecontrols_help'] = 'If \'Is prototype\' is true, this question becomes a prototype for other questions.
