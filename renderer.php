@@ -124,16 +124,15 @@ class qtype_coderunner_renderer extends qtype_renderer {
             return '';
         }
 
+        $q = $qa->get_question();
         $outcome = unserialize($toserialised);
-
-        $resultsclass = $this->results_class($outcome);
+        $resultsclass = $this->results_class($outcome, $q->allornothing);
         $isprecheck = $qa->get_last_behaviour_var('_precheck', 0);
         if ($isprecheck) {
             $resultsclass .= ' precheck';
         }
 
         $fb = '';
-        $q = $qa->get_question();
 
         if ($q->showsource) {
             $fb .= $this->make_source_code_div($outcome);
@@ -155,7 +154,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
         } else {
 
-            // The run was successful. Display results.
+            // The run was successful (i.e didn't crash, but may be wrong answer). Display results.
             if ($isprecheck) {
                 $fb .= html_writer::tag('h3', get_string('precheck_only', 'qtype_coderunner'));
             }
@@ -457,13 +456,13 @@ class qtype_coderunner_renderer extends qtype_renderer {
      * @param qtype_coderunner_testing_outcome $outcome
      * @return string the CSS class for the given testing outcome
      */
-    protected function results_class($outcome) {
+    protected function results_class($outcome, $isallornothing) {
         if ($outcome->all_correct()) {
             $resultsclass = "coderunner-test-results good";
-        } else if ($outcome->mark_as_fraction() > 0) {
-            $resultsclass = 'coderunner-test-results partial';
-        } else {
+        } else if ($isallornothing || $outcome->mark_as_fraction() == 0) {
             $resultsclass = "coderunner-test-results bad";
+        } else {
+            $resultsclass = 'coderunner-test-results partial';
         }
         return $resultsclass;
     }
