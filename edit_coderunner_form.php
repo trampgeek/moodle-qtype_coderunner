@@ -487,7 +487,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 get_string('marking', 'qtype_coderunner'),
                 get_string('allornothing', 'qtype_coderunner'));
         $markingelements[] = $mform->CreateElement('text', 'penaltyregime',
-            get_string('penaltyregime', 'qtype_coderunner'),
+            get_string('penaltyregimelabel', 'qtype_coderunner'),
             array('size' => 20));
         $mform->addElement('group', 'markinggroup', get_string('markinggroup', 'qtype_coderunner'),
                 $markingelements, null, false);

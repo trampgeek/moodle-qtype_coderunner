@@ -34,6 +34,7 @@ The per-test-case marks can be specified only if the all-or-nothing checkbox is 
 
 If using a template grader that awards part marks to test cases, \'All-or-nothing\' should generally be unchecked.';
 $string['answer'] = 'Sample answer';
+$string['answerprompt'] = 'Answer:';
 $string['answer_help'] = 'A sample answer can be entered here and used for checking by the question author and optionally shown to students during review. It is also used by the bulk tester script. The correctness of a non-empty answer is checked when saving unless \'Validate on save\' is unchecked';
 $string['answerrequired'] = 'Please provide a non-empty answer';
 $string['atleastonetest'] = 'You must provide at least one test case for this question.';
@@ -255,7 +256,8 @@ $string['ordering'] = 'Ordering';
 $string['overallresult'] = 'Overall result';
 
 $string['passes'] = 'passes';
-$string['penaltyregime'] = 'Penalty regime';
+$string['penaltyregime'] = '(penalty regime: {$a} %)';
+$string['penaltyregimelabel'] = 'Penalty regime:';
 
 
 $string['parameterise_template'] = 'Set template params';

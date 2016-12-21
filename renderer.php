@@ -62,8 +62,15 @@ class qtype_coderunner_renderer extends qtype_renderer {
         }
 
         $qtext .= html_writer::start_tag('div', array('class' => 'prompt'));
-        $answerprompt = get_string("answer", "quiz") . ': ';
-        $qtext .= $answerprompt;
+        $penalties = $question->penaltyregime ? $question->penaltyregime :
+            number_format($question->penalty * 100, 1);
+
+        $answerprompt = html_writer::tag('span',
+                get_string('answerprompt', 'qtype_coderunner'), array('class' => 'answerprompt'));
+        $penaltystring = html_writer::tag('span',
+            get_string('penaltyregime', 'qtype_coderunner', $penalties),
+            array('class' => 'penaltyregime'));
+        $qtext .= $answerprompt . $penaltystring;
         $qtext .= html_writer::end_tag('div');
 
         $responsefieldname = $qa->get_qt_field_name('answer');
@@ -95,13 +102,6 @@ class qtype_coderunner_renderer extends qtype_renderer {
                     $question->get_validation_error(array('answer' => $currentanswer)),
                     array('class' => 'validationerror'));
         }
-
-        $penalties = $question->penaltyregime ? $question->penaltyregime :
-            number_format($question->penalty * 100, 1);
-        $penaltypara =  html_writer::tag('p',
-            get_string('penaltyregime', 'qtype_coderunner') . ': ' . s($penalties) . ' %',
-            array('class' => 'penaltyregime'));
-        $qtext .= $penaltypara;
 
         // Initialise any program-editing JavaScript.
         // Thanks to Ulrich Dangel for the original implementation of the Ace code editor.

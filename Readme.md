@@ -1427,6 +1427,24 @@ user-defined question types are not for the faint of heart. Caveat emptor.
 **WARNING #2:** although you can define test cases in a question prototype
 these have no relevance and are silently ignored.
 
+## A note on accessibility
+
+To assist the use of screen readers for visually impaired students,
+text area inputs now have two modes:
+
+* When keyboard focus first enters them via Tab or Shift+TAb, they are
+  in 'non-capturing' mode, and pressing TAB or Shift+TAB moves to the
+  next or previous form control.
+
+* After you start typing, or if focus enters by way of a click, they go
+  into Tab-capturing mode, and then pressing Tab indents.
+
+* CTRL+M switches modes (as recommended by
+  https://www.w3.org/TR/wai-aria-practices/#richtext).
+
+* Esc always switches to non-capturing mode.
+
+
 ## APPENDIX: How programming quizzes should work
 
 Historical notes and a diatribe on the use of Adaptive Mode questions ...

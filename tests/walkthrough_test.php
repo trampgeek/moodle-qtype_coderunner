@@ -155,12 +155,12 @@ class qtype_coderunner_walkthrough_test extends qbehaviour_walkthrough_test_base
         $q->penaltyregime = '';
         $q->penalty = 0.18555555;
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
-        $this->check_output_contains('Penalty regime: 18.6 %');
+        $this->check_output_contains('penalty regime: 18.6 %');
                 $q = test_question_maker::make_question('coderunner', 'sqr');
         $q->penaltyregime = '0,11,33, ...';
         $q->penalty = 0.18555555;
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
-        $this->check_output_contains('Penalty regime: 0,11,33, ... %');
+        $this->check_output_contains('penalty regime: 0,11,33, ... %');
     }
 
 
