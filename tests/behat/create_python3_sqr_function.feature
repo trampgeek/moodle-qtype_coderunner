@@ -23,6 +23,7 @@ Feature: Create a CoderRunner question (the sqr function example)
       | name              | sqr acceptance question |
       | id_useace         |                         |
       | id_answer         | def sqr(n): return n    |
+      | id_validateonsave | 1                       |
       | id_answerboxlines | 3                       |
       | id_questiontext   | Write a sqr function    |
       | id_testcode_0     | print(sqr(-7))          |

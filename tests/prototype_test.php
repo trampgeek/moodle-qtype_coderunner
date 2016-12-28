@@ -91,6 +91,7 @@ class qtype_coderunner_prototype_test extends qtype_coderunner_testcase {
     <template></template>
     <iscombinatortemplate></iscombinatortemplate>
     <answer></answer>
+    <validateonsave>0</validateonsave>
     <testsplitterre></testsplitterre>
     <language></language>
     <acelang></acelang>

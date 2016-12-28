@@ -96,6 +96,7 @@ class qtype_coderunner extends question_type {
             'template',
             'iscombinatortemplate',
             'answer',
+            'validateonsave',
             'testsplitterre',
             'language',
             'acelang',
@@ -126,6 +127,7 @@ class qtype_coderunner extends question_type {
             'answerpreload',
             'useace',
             'answer',
+            'validateonsave',
             'templateparams'
             );
     }
@@ -608,6 +610,7 @@ class qtype_coderunner extends question_type {
             'precheck' => 0,
             'answerboxlines' => 15,
             'answerboxcolumns' => 90,
+            'validateonsave' => 0,
             'answerpreload' => '',
             'useace' => 1,
             'iscombinatortemplate' => null,

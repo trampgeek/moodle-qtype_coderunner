@@ -132,7 +132,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 array('rows' => 9, 'class' => 'answer edit_code'));
         $mform->addElement('checkbox', 'validateonsave', null,
                 get_string('validateonsave', 'qtype_coderunner'));
-        $mform->setDefault('validateonsave', true);
+        $mform->setDefault('validateonsave', false);
         $mform->addHelpButton('answer', 'answer', 'qtype_coderunner');
     }
 
