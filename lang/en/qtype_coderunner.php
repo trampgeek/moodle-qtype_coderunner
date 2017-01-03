@@ -298,7 +298,8 @@ If \'All\' is selected, all test cases are run (although their behaviour might
 be different from the normal Check, if the template code so chooses).
 
 The template can check whether or not the run is a precheck run using the
-Twig parameter {{ IS_PRECHECK }}, which is true during precheck runs only.';
+Twig parameter {{ IS_PRECHECK }}, which is "1" during precheck runs and
+"0" otherwise.';
 $string['precheck_only'] = 'Pre-check only';
 $string['precheckingemptyset'] = 'Prechecking examples, but there aren\'t any!';
 $string['proceed_at_own_risk'] = 'Editing a built-in question prototype?! Proceed at your own risk!';

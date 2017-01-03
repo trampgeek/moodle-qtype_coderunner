@@ -76,7 +76,7 @@ class qtype_coderunner_jobrunner {
             'STUDENT_ANSWER' => $code,
             'ESCAPED_STUDENT_ANSWER' => qtype_coderunner_escapers::python(null, $code, null),
             'MATLAB_ESCAPED_STUDENT_ANSWER' => qtype_coderunner_escapers::matlab(null, $code, null),
-            'IS_PRECHECK' => $isprecheck,
+            'IS_PRECHECK' => $isprecheck ? "1" : "0",
             'QUESTION' => $question
          );
 
