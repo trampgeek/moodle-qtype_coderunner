@@ -62,8 +62,19 @@ class qtype_coderunner_renderer extends qtype_renderer {
         }
 
         $qtext .= html_writer::start_tag('div', array('class' => 'prompt'));
-        $penalties = $question->penaltyregime ? $question->penaltyregime :
-            number_format($question->penalty * 100, 1);
+
+        if (empty($question->penaltyregime)) {
+            if (intval(100 * $question->penalty) == 100 * $question->penalty) {
+                $decdigits = 0;
+            } else {
+                $decdigits = 1;
+            }
+            $penaltypercent = number_format($question->penalty * 100, $decdigits);
+            $penaltypercent2 = number_format($question->penalty * 200, $decdigits);
+            $penalties = $penaltypercent . ', ' . $penaltypercent2 . ', ...';
+        } else {
+            $penalties = $question->penaltyregime;
+        }
 
         $answerprompt = html_writer::tag('span',
                 get_string('answerprompt', 'qtype_coderunner'), array('class' => 'answerprompt'));

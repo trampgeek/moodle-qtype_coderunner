@@ -1,4 +1,4 @@
-30 December 2016. Version 3.1.0. Another major refactoring with some
+6 January 2017. Version 3.1.0. Another major refactoring with some
 significant new features including:
     - A 'Precheck' capability, which presents students with an extra button
       (beside the 'Check' button) that gives a penalty-free submission with
@@ -21,10 +21,14 @@ significant new features including:
     - A bulk tester allows administrators and authors to check that all question
       sample answers pass all tests (copied, with modifications, from the 
       Stack question type).
+    - The 'Multiple tries' section of the authoring form has been removed and
+      a penalty regime is now mandatory. This eliminates the confusion between
+      the standard Moodle static question penalty (now hidden) and the formerly
+      optional penalty regime. The behaviour of legacy questions is unaffected.
 
 15 July 2016. Version 3.0.1. Minor bug fixes, including:
     - Use of Show Differences button with questions containing significant
-      while space output resulted in premature line truncation and/or
+      white space output resulted in premature line truncation and/or
       invalid html output
     - Ace editor was not doing syntax highlighting for nodejs questions
     - Several panels in question authoring form had monospace labels in

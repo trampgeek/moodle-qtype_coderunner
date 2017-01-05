@@ -5,7 +5,7 @@ Author: Richard Lobb, University of Canterbury, New Zealand.
 
 This document describes how to write quiz questions using the [CodeRunner
 plug-in](http://www.coderunner.org.nz) for Moodle. It begins with a QuickStart
-guide for first-time users. The rest of the document is a series of sections
+guide for first-time users. The rest of the document is (or will be) a series of sections
 building from writing simple questions using the built-in question types
 through to authoring of your own question types to handle your own
 languages and/or course-specific requirements. The document is targetted
@@ -100,10 +100,11 @@ Congratulations. You just wrote your first CodeRunner question.
    green (or red, if your answer is wrong), indicating that this is a hidden
    test case visible only to staff. Students will not see this line of the table.
 
-1. Back in the question bank, click the question's *Edit* icon.
+1. Back in the question bank, click the question's *Edit* icon. 
    In the authoring form, insert a wrong answer into the *Answer* box.
+   If "Validate on save" is unchecked, click it so it becomes checked.
    Click *Save* - observe that the question
-   is *not* saved because the question no longer validates. Scroll to inspect
+   is *not* saved because the question doesn't validate. Scroll to inspect
    the error message just above the question answer. Fix the error in the answer,
    and click *Save* again. It should work this time.
 

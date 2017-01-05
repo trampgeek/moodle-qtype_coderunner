@@ -114,9 +114,6 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 get_string('datafiles', 'qtype_coderunner'), null,
                 $options);
         $mform->addHelpButton('datafiles', 'datafiles', 'qtype_coderunner');
-
-        // Lastly add the standard moodle question stuff.
-        $this->add_interactive_settings();
     }
 
     /**
@@ -300,6 +297,26 @@ class qtype_coderunner_edit_form extends question_edit_form {
             if (isset($question->testsplitterre)) {
                 $question->testsplitterre = str_replace("\n", '\n', $question->testsplitterre);
             }
+
+            // Legacy questions may have a question.penalty but no penalty regime.
+            // Dummy up a penalty regime from the question.penalty in such cases.
+            if (empty($question->penaltyregime)) {
+                if (empty($question->penalty) || $question->penalty == 0) {
+                    $question->penaltyregime = '0';
+                } else {
+                    if (intval(100 * $question->penalty) == 100 * $question->penalty) {
+                        $decdigits = 0;
+                    } else {
+                        $decdigits = 1;  // For nasty fractions like 0.33333333
+                    }
+                    $penaltypercent = number_format($question->penalty * 100, $decdigits);
+                    $penaltypercent2 = number_format($question->penalty * 200, $decdigits);
+                    $question->penaltyregime = $penaltypercent . ', ' . $penaltypercent2 . ', ...';
+                }
+            }
+        } else {
+            // This is a new question
+            $question->penaltyregime = get_config('qtype_coderunner', 'default_penalty_regime');
         }
 
         $draftid = file_get_submitted_draft_itemid('datafiles');
@@ -373,7 +390,9 @@ class qtype_coderunner_edit_form extends question_edit_form {
             }
         }
 
-        if (trim($data['penaltyregime']) != '') {
+        if (trim($data['penaltyregime']) == '') {
+            $errors['markinggroup'] = get_string('emptypenaltyregime', 'qtype_coderunner');
+        } else {
             $bits = explode(',', $data['penaltyregime']);
             $n = count($bits);
             for ($i = 0; $i < $n; $i++) {

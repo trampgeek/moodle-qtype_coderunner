@@ -94,10 +94,15 @@ $string['customisation'] = 'Customisation';
 
 $string['datafiles'] = 'Run-time data';
 $string['datafiles_help'] = 'Any files uploaded here will be added to the working directory when the expanded template program is executed. This allows large data or support files to be conveniently added.';
+$string['default_penalty_regime'] = 'Default penalty regime';
+$string['default_penalty_regime_desc'] = 'The default penalty regime to apply to new questions, consisting of a comma separated list of penalty percentages, optionally ending in ", ..." to signify an on-going arithmetic progression.';
+
+
 $string['display'] = 'Display';
 
 $string['editingcoderunner'] = 'Editing a CodeRunner Question';
 $string['empty_new_prototype_name'] = 'New question type name cannot be empty';
+$string['emptypenaltyregime'] = 'Penalty regime must be defined (since version 3.1)';
 $string['enable'] = 'Enable';
 $string['enablecombinator'] = 'Enable combinator';
 $string['enable_diff_check'] = 'Enable \'Show differences\' button';
@@ -233,13 +238,17 @@ The per-test-case marks can be specified only if the all-or-nothing
 checkbox is unchecked. If using a template grader that awards
 part marks to test cases, \'All-or-nothing\' should generally be unchecked.
 
-The penalty regime is a comma-separated list of penalties (each a percent)
+The mandatory penalty regime is a comma-separated list of penalties (each a percent)
 to apply to successive submissions. These are absolute, not cumulative. As a
 special case the last penalty can be \'...\' to mean "extend the previous
 two penalties as an arithmetic progression up to 100". For example,
 `0,5,10,30,...` is equivalent to `0,5,10,30,50,70,90,100`.
-Leave blank for standard Moodle behaviour.
-If there are more submissions than defined penalties, the last value is used';
+If there are more submissions than defined penalties, the last value is used.
+
+The default penalty regime can be set site-wide by a system administrator using
+Site administration > Plugins > Question types > CodeRunner.
+
+Set the penalty regime to \'0\' for zero penalties on all submissions.';
 $string['memorylimit'] = 'MemLimit (MB)';
 $string['missinganswers'] = 'missing answers';
 $string['missingoutput'] = 'You must supply the expected output from this test case.';

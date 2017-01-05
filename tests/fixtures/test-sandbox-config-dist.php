@@ -34,6 +34,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+set_config('default_penalty_regime', '10, 20, ...', 'qtype_coderunner');
 set_config('ideonesandbox_enabled', 0, 'qtype_coderunner');
 set_config('jobesandbox_enabled', 1, 'qtype_coderunner');
 set_config('jobe_host', 'localhost', 'qtype_coderunner');
