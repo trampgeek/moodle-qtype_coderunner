@@ -1,0 +1,25 @@
+List all courses:
+SELECT crs.id as courseid, fullname, path, depth, ctx.contextlevel, ctx.id as ctxid
+FROM `mdl_context` as ctx
+JOIN mdl_course as crs ON ctx.instanceid = crs.id
+WHERE contextlevel=50
+
+List all CodeRunner questions in a course:
+SELECT q.name, cro.coderunnertype, crs.id as courseid, shortname, path, depth, ctx.contextlevel, ctx.id as ctxid
+FROM mdl_question_coderunner_options as cro
+JOIN mdl_question as q ON cro.questionid = q.id
+JOIN mdl_question_categories as cat ON q.category = cat.id
+JOIN `mdl_context` as ctx ON cat.contextid = ctx.id
+JOIN mdl_course as crs ON ctx.instanceid = crs.id
+WHERE contextlevel=50
+AND shortname like 'COSC121%'
+
+Turn on precheck (to 1) for all COSC121 questions:
+UPDATE mdl_question_coderunner_options as cro
+JOIN mdl_question as q ON cro.questionid = q.id
+JOIN mdl_question_categories as cat ON q.category = cat.id
+JOIN `mdl_context` as ctx ON cat.contextid = ctx.id
+JOIN mdl_course as crs ON ctx.instanceid = crs.id
+SET precheck = 1
+WHERE contextlevel=50
+AND shortname like 'COSC121%'

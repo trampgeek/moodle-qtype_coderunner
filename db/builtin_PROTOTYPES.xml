@@ -732,6 +732,7 @@ print(SEPARATOR)
     </testcases>
   </question>
   
+<<<<<<< HEAD
 <!-- question: 16909  -->
   <question type="coderunner">
     <name>
@@ -741,6 +742,15 @@ print(SEPARATOR)
       <text>A Pascal question type where the student is asked to write
       a procedure or function, which is then tested with a main program
       consisting of the CodeRunner 'testcode' wrapped in begin end.</text>
+=======
+<!-- question: 893  -->
+  <question type="coderunner">
+    <name>
+      <text>UOC_PROTOTYPE_nodejs</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<p>A generic nodejs question in which the student answer precedes the tests.</p>]]></text>
+>>>>>>> master
     </questiontext>
     <generalfeedback format="html">
       <text></text>
@@ -748,8 +758,13 @@ print(SEPARATOR)
     <defaultgrade>1.0000000</defaultgrade>
     <penalty>0.3333333</penalty>
     <hidden>0</hidden>
+<<<<<<< HEAD
     <coderunnertype>pascal_function</coderunnertype>
     <prototypetype>1</prototypetype>
+=======
+    <coderunnertype>nodejs</coderunnertype>
+    <prototypetype>2</prototypetype>
+>>>>>>> master
     <allornothing>1</allornothing>
     <penaltyregime></penaltyregime>
     <showsource>0</showsource>
@@ -758,6 +773,7 @@ print(SEPARATOR)
     <useace>1</useace>
     <resultcolumns></resultcolumns>
     <answer></answer>
+<<<<<<< HEAD
     <combinatortemplate></combinatortemplate>
     <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
     <enablecombinator>0</enablecombinator>
@@ -770,17 +786,40 @@ begin
 end.
 ]]></pertesttemplate>
     <language>pascal</language>
+=======
+    <combinatortemplate><![CDATA[{{ STUDENT_ANSWER }}
+
+SEPARATOR = "#<ab@17943918#@>#"
+
+{% for TEST in TESTCASES %}
+{{ TEST.testcode }}
+{% if not loop.last %}
+print(SEPARATOR)
+{% endif %}
+{% endfor %}]]></combinatortemplate>
+    <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
+    <enablecombinator>1</enablecombinator>
+    <pertesttemplate>{{STUDENT_ANSWER}}
+
+{{TEST.testcode}}</pertesttemplate>
+    <language>nodejs</language>
+>>>>>>> master
     <acelang></acelang>
     <sandbox></sandbox>
     <grader>EqualityGrader</grader>
     <cputimelimitsecs></cputimelimitsecs>
+<<<<<<< HEAD
     <memlimitmb></memlimitmb>
+=======
+    <memlimitmb>1000</memlimitmb>
+>>>>>>> master
     <sandboxparams></sandboxparams>
     <templateparams></templateparams>
     <testcases>
     </testcases>
   </question>
 
+<<<<<<< HEAD
 <!-- question: 16910  -->
   <question type="coderunner">
     <name>
@@ -822,5 +861,7 @@ end.
     <testcases>
     </testcases>
   </question>
+=======
+>>>>>>> master
 
 </quiz>
