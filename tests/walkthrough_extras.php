@@ -61,7 +61,6 @@ class qtype_coderunner_walkthrough_extras_test extends qbehaviour_walkthrough_te
 EOTEMPLATE;
         $q->allornothing = false;
         $q->iscombinatortemplate = false;
-        $q->unitpenalty = 0;
 
         // Submit a right answer.
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);

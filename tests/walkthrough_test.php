@@ -51,10 +51,6 @@ class qtype_coderunner_walkthrough_test extends qbehaviour_walkthrough_test_base
 
     public function test_adaptive() {
         $q = test_question_maker::make_question('coderunner', 'sqr');
-        $q->hints = array(
-            new question_hint(1, 'This is the first hint.', FORMAT_HTML),
-            new question_hint(2, 'This is the second hint.', FORMAT_HTML),
-        );
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
         $qa = $this->get_question_attempt();
 
@@ -102,7 +98,7 @@ class qtype_coderunner_walkthrough_test extends qbehaviour_walkthrough_test_base
 
         // Verify.
         $this->check_current_state(question_state::$complete);
-        $this->check_current_mark(0.6666666667);
+        $this->check_current_mark(0.9);
         $this->check_current_output(
                 $this->get_contains_correct_expectation(),
                 $this->get_does_not_contain_validation_error_expectation(),
@@ -128,7 +124,7 @@ class qtype_coderunner_walkthrough_test extends qbehaviour_walkthrough_test_base
 
         // Submit a partially right answer.
         $this->process_submission(array('-submit' => 1, 'answer' => 'def sqr(n): return n * n if n < 0 else -19'));
-        $this->check_current_mark(0.2666666667);
+        $this->check_current_mark(0.54);  // 4.5/7.5 * 90%
         $this->check_current_output(
                 new question_pattern_expectation('/' .
                         preg_quote(get_string('partiallycorrect', 'question') . '/'))
@@ -139,7 +135,7 @@ class qtype_coderunner_walkthrough_test extends qbehaviour_walkthrough_test_base
 
         // Verify.
         $this->check_current_state(question_state::$complete);
-        $this->check_current_mark(0.3333333333333);
+        $this->check_current_mark(0.8); // Full marks but 20% penalty after 2 wrong submissions
         $this->check_current_output(
                 $this->get_contains_correct_expectation(),
                 $this->get_does_not_contain_validation_error_expectation(),
@@ -149,13 +145,14 @@ class qtype_coderunner_walkthrough_test extends qbehaviour_walkthrough_test_base
 
 
     // Check that penalty regime is displayed with both the Moodle default
-    // penalty (if no explicit regime) or with CodeRunner's regime if set.
+    // penalty (if no explicit regime - legacy test) or with CodeRunner's regime
+    // if set.
     public function test_display_of_penalty_regime() {
         $q = test_question_maker::make_question('coderunner', 'sqr');
         $q->penaltyregime = '';
         $q->penalty = 0.18555555;
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
-        $this->check_output_contains('penalty regime: 18.6 %');
+        $this->check_output_contains('penalty regime: 18.6, 37.1, ... %');
                 $q = test_question_maker::make_question('coderunner', 'sqr');
         $q->penaltyregime = '0,11,33, ...';
         $q->penalty = 0.18555555;
@@ -200,7 +197,6 @@ EOTEMPLATE;
         $q->iscombinatortemplate = false;
         $q->allornothing = false;
         $q->grader = 'TemplateGrader';
-        $q->unitpenalty = 0;
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
 
          // Submit a totally wrong answer.
@@ -242,7 +238,6 @@ EOTEMPLATE;
         $q->iscombinatortemplate = false;
         $q->allornothing = false;
         $q->grader = 'TemplateGrader';
-        $q->unitpenalty = 0;
 
         // Submit a right answer. Because the template sets abort when it
         // gets to the sqr(11) case, marks should be awarded only for the three
@@ -276,7 +271,6 @@ EOTEMPLATE;
         $q->iscombinatortemplate = false;
         $q->allornothing = false;
         $q->grader = 'TemplateGrader';
-        $q->unitpenalty = 0;
         $q->resultcolumns = '[["Test", "testcode"], ["Expected", "expected_html", "%h"], ["Got", "got_html", "%h"]]';
 
         // Submit an answer that's right for all except one test case.
@@ -315,7 +309,6 @@ EOTEMPLATE;
         $q->iscombinatortemplate = true;
         $q->allornothing = false;
         $q->grader = 'TemplateGrader';
-        $q->unitpenalty = 0;
 
         // Submit a right answer.
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
@@ -357,7 +350,6 @@ EOTEMPLATE;
         $q->iscombinatortemplate = true;
         $q->allornothing = true;  // This should be ignored
         $q->grader = 'TemplateGrader';
-        $q->unitpenalty = 0;
 
         // Submit a right answer.
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);

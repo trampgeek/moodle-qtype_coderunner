@@ -36,7 +36,7 @@ Feature: Duplicate a course containing a CodeRunner question
       | Question text                  | Write a function sqr(n) that returns n squared. |
       | General feedback               | No feedback available for coderunner questions. |
       | Default mark                   | 31                                              |
-      | Penalty for each incorrect try | 33.33333%                                       |
+      | Penalty regime                 | 10, 20, ...                                     |
       | id_testcode_0                  | print(sqr(0))                                   |
       | id_expected_0                  | 0                                               |
       | id_display_0                   | Show                                            |

@@ -88,7 +88,6 @@ class qtype_coderunner_precheckwalkthrough_test extends qbehaviour_walkthrough_t
 EOTEMPLATE;
         $q->iscombinatortemplate = false;
         $q->precheck = constants::PRECHECK_EXAMPLES;
-        $q->unitpenalty = 0.5;
         $q->penaltyregime = "20, 40, ...";
         return $q;
     }

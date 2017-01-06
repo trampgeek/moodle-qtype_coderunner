@@ -79,7 +79,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $form->useace = 0;
         $form->precheck = 0;
         $form->allornothing = 0;
-        $form->penaltyregime = "";
+        $form->penaltyregime = "10, 20, ...";
         $form->templateparams = "";
         $form->prototypetype = 0;
         $form->sandbox = 'DEFAULT';
@@ -91,8 +91,6 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $form->questiontext = array('text' => 'Write a function sqr(n) that returns n squared.', 'format' => FORMAT_HTML);
         $form->defaultmark = 31.0;
         $form->generalfeedback = array('text' => 'No feedback available for coderunner questions.', 'format' => FORMAT_HTML);
-        $form->penalty = 0.3333333;
-
         $form->testcode = array('print(sqr(0))', 'print(sqr(1))', 'print(sqr(11))', 'print(sqr(-7))', 'print(sqr(-6))');
         $form->stdin = array('', '', '', '', '');
         $form->expected = array('0', '1', '121', '49', '36');
@@ -976,8 +974,7 @@ EOPROG;
         $coderunner->allornothing = true;
         $coderunner->showsource = false;
         $coderunner->generalfeedback = 'No feedback available for coderunner questions.';
-        $coderunner->unitpenalty = 0.2;
-        $coderunner->penaltyregime = '';
+        $coderunner->penaltyregime = '10, 20, ...';
         $coderunner->testcases = self::make_test_cases($testcases);
         $coderunner->options = array();
         $coderunner->isnew = true;  // Extra field normally added by save_question.
