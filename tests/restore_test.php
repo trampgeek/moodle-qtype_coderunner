@@ -114,7 +114,7 @@ class qtype_coderunner_restore_testcase extends advanced_testcase {
         $this->assertStringStartsWith('import subprocess', $options->template);
     }
 
-    public function test_restore_from_V3_0_0() {
+    public function test_restore_from_v3_0_0() {
         global $CFG;
 
         $this->restore_backup($CFG->dirroot .

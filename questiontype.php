@@ -162,7 +162,7 @@ class qtype_coderunner extends question_type {
     private function copy_testcases_from_form(&$question) {
         $testcases = array();
         if (empty($question->testcode)) {
-            $numtests = 0;  // Must be a combinator template grader with no tests
+            $numtests = 0;  // Must be a combinator template grader with no tests.
         } else {
             $numtests = count($question->testcode);
             assert(count($question->expected) == $numtests);
@@ -217,12 +217,12 @@ class qtype_coderunner extends question_type {
     public function save_question_options($question) {
         global $DB, $USER;
 
-        // Tidy the form, handle inheritance from prototype
+        // Tidy the form, handle inheritance from prototype.
         $this->clean_question_form($question);
 
         parent::save_question_options($question);
 
-        // Write test cases to DB, reusing old ones where possible
+        // Write test cases to DB, reusing old ones where possible.
         $testcasetable = "question_coderunner_tests";
         if (!$oldtestcases = $DB->get_records($testcasetable,
                 array('questionid' => $question->id), 'id ASC')) {
@@ -619,7 +619,7 @@ class qtype_coderunner extends question_type {
 
         foreach ($extraquestionfields as $field) {
             if ($field === 'template'  && isset($data['#']['pertesttemplate'])) {
-                // Import from pre-version 3.1
+                // Import from pre-version 3.1.
                 if ($format->getpath($data, array('#', 'enablecombinator', 0, '#'), 0) != 0) {
                     $qo->template = $format->getpath($data, array('#', 'combinatortemplate', 0, '#'), '');
                     $qo->iscombinatortemplate = 1;
@@ -629,7 +629,7 @@ class qtype_coderunner extends question_type {
                 }
             } else {
                 if ($field === 'iscombinatortemplate' && isset($qo->iscombinatortemplate)) {
-                    continue; // Already loaded in the case of a legacy question
+                    continue; // Already loaded in the case of a legacy question.
                 }
                 if (array_key_exists($field, $newdefaults)) {
                     $default = $newdefaults[$field];
@@ -743,7 +743,7 @@ class qtype_coderunner extends question_type {
             $testtype = isset($testcase->testtype) ? $testcase->testtype : 0;
             $mark = sprintf("%.7f", $testcase->mark);
             $expout .= "      <testcase testtype=\"$testtype\" useasexample=\"$useasexample\"";
-            $expout .=  " hiderestiffail=\"$hiderestiffail\" mark=\"$mark\" >\n";
+            $expout .= " hiderestiffail=\"$hiderestiffail\" mark=\"$mark\" >\n";
             foreach (array('testcode', 'stdin', 'expected', 'extra', 'display') as $field) {
                 $exportedvalue = $format->writetext($testcase->$field, 4);
                 $expout .= "      <{$field}>\n        {$exportedvalue}      </{$field}>\n";

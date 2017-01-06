@@ -53,7 +53,7 @@ class qtype_coderunner_template_grader extends qtype_coderunner_grader {
         if ($result === null || !isset($result->fraction) || !is_numeric($result->fraction)) {
             $errormessage = "Bad grading result from template:'" . $output . "'";
             $testresultobj = new qtype_coderunner_test_result($testcase, false, 0.0, $errormessage);
-         } else {
+        } else {
             $iscorrect = abs($result->fraction - 1.0) < 0.000001;
             $awarded = isset($result->awarded) ? $result->awarded : $testcase->mark * $result->fraction;
             $got = isset($result->got) ? $result->got : '';

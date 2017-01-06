@@ -96,7 +96,7 @@ $options->suppressruntestslink = true;
 
 // Test the question with its sample answer.
 $answer = $question->answer;
-$quba->process_action($slot, array('-submit'=>'Submit', 'answer'=>$answer));
+$quba->process_action($slot, array('-submit' => 'Submit', 'answer' => $answer));
 
 // Start output.
 echo $OUTPUT->header();

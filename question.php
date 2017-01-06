@@ -168,7 +168,7 @@ class qtype_coderunner_question extends question_graded_automatically {
             } else {
                 return $this->selected_testcases(false);
             }
-        } else { // This is a precheck run
+        } else { // This is a precheck run.
             if ($prechecksetting == constants::PRECHECK_EMPTY) {
                 return array($this->empty_testcase());
             } else if ($prechecksetting == constants::PRECHECK_EXAMPLES) {
@@ -216,34 +216,34 @@ class qtype_coderunner_question extends question_graded_automatically {
 
 
 
-    /******************************************************************
-     * Interface methods for use by jobrunner
+    /******************************************************************.
+     * Interface methods for use by jobrunner.
      ******************************************************************/
-    // Return the template
+    // Return the template.
     public function get_template() {
         return $this->template;
     }
 
 
-    // Return the programming language used to run the code
+    // Return the programming language used to run the code.
     public function get_language() {
         return $this->language;
     }
 
-    // Get the showsource boolean
+    // Get the showsource boolean.
     public function get_show_source() {
         return $this->showsource;
     }
 
 
     // Return the regular expression used to split the combinator template
-    // output into individual tests
+    // output into individual tests.
     public function get_test_splitter_re() {
         return $this->testsplitterre;
     }
 
 
-    // Return whether or not the template is a combinator
+    // Return whether or not the template is a combinator.
     public function get_is_combinator() {
         return $this->iscombinatortemplate;
     }
@@ -271,7 +271,7 @@ class qtype_coderunner_question extends question_graded_automatically {
     public function get_grader() {
         global $CFG;
         $grader = $this->grader == null ? constants::DEFAULT_GRADER : $this->grader;
-        if ($grader === 'CombinatorTemplateGrader') { // Legacy grader type
+        if ($grader === 'CombinatorTemplateGrader') { // Legacy grader type.
             $grader = 'TemplateGrader';
             assert($this->iscombinatortemplate);
         }
@@ -288,7 +288,7 @@ class qtype_coderunner_question extends question_graded_automatically {
     // prototype.
     public function get_files() {
         if ($this->prototypetype != 0) { // Is this a prototype question?
-            $files = array(); // Don't load the files twice
+            $files = array(); // Don't load the files twice.
         } else {
             // Load any files from the prototype.
             $context = qtype_coderunner::question_context($this);
@@ -300,7 +300,7 @@ class qtype_coderunner_question extends question_graded_automatically {
     }
 
 
-    // Get the sandbox parameters for a run
+    // Get the sandbox parameters for a run.
     public function get_sandbox_params() {
         if (isset($this->sandboxparams)) {
             $sandboxparams = json_decode($this->sandboxparams, true);

@@ -35,7 +35,7 @@ define(['jquery'], function($) {
         iscombinatortemplate:['#id_iscombinatortemplate', 'checked', '',
                                 function (value) {
                                     return value === '1' ? true : false;
-                                }],  // Need nice clean boolean for 'checked' attribute
+                                }],  // Need nice clean boolean for 'checked' attribute.
         cputimelimitsecs:    ['#id_cputimelimitsecs', 'value', ''],
         memlimitmb:          ['#id_memlimitmb', 'value', ''],
         sandbox:             ['#id_sandbox', 'value', 'DEFAULT'],
@@ -185,7 +185,7 @@ define(['jquery'], function($) {
         // Show/hide all testtype divs in the testcases according to the
         // 'Precheck' selector.
         function set_testtype_visibilities() {
-            if (precheck.val() === '3') { // Show only for case of 'Selected'
+            if (precheck.val() === '3') { // Show only for case of 'Selected'.
                 testtypedivs.show();
             } else {
                 testtypedivs.hide();
@@ -233,7 +233,6 @@ define(['jquery'], function($) {
             checkAceStatus('answer');
             checkAceStatus('answerpreload');
         });
-
 
         typeCombo.on('change', function() {
             if (!customise.prop('checked') ||

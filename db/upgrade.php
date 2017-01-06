@@ -20,6 +20,8 @@
  * @param $oldversion the version of this plugin we are upgrading from.
  * @return bool success/failure.
  */
+defined('MOODLE_INTERNAL') || die();
+
 function xmldb_qtype_coderunner_upgrade($oldversion) {
     global $CFG, $DB;
     $dbman = $DB->get_manager();
@@ -123,34 +125,34 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
 
         // Drop all the obsolete "show <column>" fields.
 
-        $field_mark = new xmldb_field('showmark');
+        $fieldmark = new xmldb_field('showmark');
         // Conditionally launch drop field showmark.
-        if ($dbman->field_exists($table, $field_mark)) {
-            $dbman->drop_field($table, $field_mark);
+        if ($dbman->field_exists($table, $fieldmark)) {
+            $dbman->drop_field($table, $fieldmark);
         }
 
-        $field_output = new xmldb_field('showoutput');
+        $fieldoutput = new xmldb_field('showoutput');
         // Conditionally launch drop field showoutput.
-        if ($dbman->field_exists($table, $field_output)) {
-            $dbman->drop_field($table, $field_output);
+        if ($dbman->field_exists($table, $fieldoutput)) {
+            $dbman->drop_field($table, $fieldoutput);
         }
 
-        $field_test = new xmldb_field('showtest');
+        $fieldtest = new xmldb_field('showtest');
         // Conditionally launch drop field showtest.
-        if ($dbman->field_exists($table, $field_test)) {
-            $dbman->drop_field($table, $field_test);
+        if ($dbman->field_exists($table, $fieldtest)) {
+            $dbman->drop_field($table, $fieldtest);
         }
 
-        $field_stdin = new xmldb_field('showstdin');
+        $fieldstdin = new xmldb_field('showstdin');
         // Conditionally launch drop field showstdin.
-        if ($dbman->field_exists($table, $field_stdin)) {
-            $dbman->drop_field($table, $field_stdin);
+        if ($dbman->field_exists($table, $fieldstdin)) {
+            $dbman->drop_field($table, $fieldstdin);
         }
 
-        $field_expected = new xmldb_field('showexpected');
+        $fieldexpected = new xmldb_field('showexpected');
         // Conditionally launch drop field showstdin.
-        if ($dbman->field_exists($table, $field_expected)) {
-            $dbman->drop_field($table, $field_expected);
+        if ($dbman->field_exists($table, $fieldexpected)) {
+            $dbman->drop_field($table, $fieldexpected);
         }
 
         // Coderunner savepoint reached.

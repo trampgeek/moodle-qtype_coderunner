@@ -116,11 +116,11 @@ class qtype_coderunner_testing_outcome {
             return get_string('badquestion', 'qtype_coderunner') . html_writer::tag('pre', $this->errormessage);
         } else {
             if ($this->iscombinatorgrader()) {
-                $message = get_string('failedtesting', 'qtype_coderunner'); // Combinator graders are too hard! [TODO: can we do better?]
+                $message = get_string('failedtesting', 'qtype_coderunner'); // Combinator graders are too hard!
             } else {
                 $numerrors = 0;
                 $firstfailure = '';
-                if (isset($this->testresults)) { // Combinator graders may not have test results
+                if (isset($this->testresults)) { // Combinator graders may not have test results.
                     foreach ($this->testresults as $testresult) {
                         if (!$testresult->iscorrect) {
                             $numerrors += 1;
@@ -179,8 +179,8 @@ class qtype_coderunner_testing_outcome {
         if (isset($question->resultcolumns) && $question->resultcolumns) {
             $resultcolumns = json_decode($question->resultcolumns);
         } else {
-            // Use default column headers, equivalent to json_decode of (in English)
-            // '[["Test", "testcode"], ["Input", "stdin"], ["Expected", "expected"], ["Got", "got"]]'
+            // Use default column headers, equivalent to json_decode of (in English):
+            // '[["Test", "testcode"], ["Input", "stdin"], ["Expected", "expected"], ["Got", "got"]]'.
             $resultcolumns = array(
                 array(get_string('testcolhdr', 'qtype_coderunner'), 'testcode'),
                 array(get_string('inputcolhdr', 'qtype_coderunner'), 'stdin'),
@@ -198,7 +198,7 @@ class qtype_coderunner_testing_outcome {
         // unless all rows in that column would be blank.
 
         $columnheaders = array('iscorrect'); // First column is a tick or cross, like last column.
-        $hiddencolumns = array();  // Array of true/false for each element of $colspec
+        $hiddencolumns = array();  // Array of true/false for each element of $colspec.
         $numvisiblecolumns = 0;
 
         foreach ($resultcolumns as $colspec) {
@@ -219,9 +219,9 @@ class qtype_coderunner_testing_outcome {
             }
         }
         if ($numvisiblecolumns > 1) {
-            $columnheaders[] = 'iscorrect';  // Tick or cross at the end, unless <= 1 visible columns
+            $columnheaders[] = 'iscorrect';  // Tick or cross at the end, unless <= 1 visible columns.
         }
-        $columnheaders[] = 'ishidden';   // Last column controls if row hidden or not
+        $columnheaders[] = 'ishidden';   // Last column controls if row hidden or not.
 
         $table = array($columnheaders);
 
@@ -231,7 +231,7 @@ class qtype_coderunner_testing_outcome {
             $testisvisible = $this->should_display_result($testresult) && !$hidingrest;
             if ($canviewhidden || $testisvisible) {
                 $fraction = $testresult->awarded / $testresult->mark;
-                $tablerow = array($fraction);   // Will be rendered as tick or cross
+                $tablerow = array($fraction);   // Will be rendered as tick or cross.
                 $icol = 0;
                 foreach ($resultcolumns as $colspec) {
                     $len = count($colspec);
@@ -241,7 +241,7 @@ class qtype_coderunner_testing_outcome {
                     if (!$hiddencolumns[$icol]) {
                         $len = count($colspec);
                         $format = $colspec[$len - 1];
-                        if ($format === '%h') {  // If it's an html format, use value wrapped in an HTML wrapper
+                        if ($format === '%h') {  // If it's an html format, use value wrapped in an HTML wrapper.
                             $value = $testresult->gettrimmedvalue($colspec[1]);
                             $tablerow[] = new qtype_coderunner_html_wrapper($value);
                         } else if ($format !== '') {  // Else if it's a non-null column.
@@ -256,7 +256,7 @@ class qtype_coderunner_testing_outcome {
                     }
                     $icol += 1;
                 }
-                if ($numvisiblecolumns > 1) { // Suppress trailing tick or cross in degenerate case
+                if ($numvisiblecolumns > 1) { // Suppress trailing tick or cross in degenerate case.
                     $tablerow[] = $fraction;
                 }
                 $tablerow[] = !$testisvisible;
@@ -297,7 +297,7 @@ class qtype_coderunner_testing_outcome {
 
     // True iff the given test result should be displayed.
     protected static function should_display_result($testresult) {
-        return !isset($testresult->display) ||  // e.g. broken combinator template
+        return !isset($testresult->display) ||  // E.g. broken combinator template?
              $testresult->display == 'SHOW' ||
             ($testresult->display == 'HIDE_IF_FAIL' && $testresult->iscorrect) ||
             ($testresult->display == 'HIDE_IF_SUCCEED' && !$testresult->iscorrect);

@@ -181,7 +181,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
             return (object) array('error' => $errorcode);
         } else {
             $stderr = $this->filter_file_path($this->response->stderr);
-            // Any stderr output is treated as a runtime error
+            // Any stderr output is treated as a runtime error.
             if (trim($stderr) !== '') {
                 $this->response->outcome = self::RESULT_RUNTIME_ERROR;
             }

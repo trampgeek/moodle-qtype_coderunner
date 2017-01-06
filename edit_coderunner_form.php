@@ -307,7 +307,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
                     if (intval(100 * $question->penalty) == 100 * $question->penalty) {
                         $decdigits = 0;
                     } else {
-                        $decdigits = 1;  // For nasty fractions like 0.33333333
+                        $decdigits = 1;  // For nasty fractions like 0.33333333.
                     }
                     $penaltypercent = number_format($question->penalty * 100, $decdigits);
                     $penaltypercent2 = number_format($question->penalty * 200, $decdigits);
@@ -315,7 +315,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 }
             }
         } else {
-            // This is a new question
+            // This is a new question.
             $question->penaltyregime = get_config('qtype_coderunner', 'default_penalty_regime');
         }
 
@@ -486,7 +486,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 $answerboxelements, null, false);
         $mform->addHelpButton('answerbox_group', 'answerbox_group', 'qtype_coderunner');
 
-        // Precheck control (currently a group with only one element)
+        // Precheck control (currently a group with only one element).
         $precheckelements = array();
         $precheckvalues = array(
             constants::PRECHECK_DISABLED => get_string('precheck_disabled', 'qtype_coderunner'),
@@ -667,7 +667,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
      * @param array $data data from the form
      */
     private function num_examples($data) {
-        return isset($data['useasexample'])  ? count($data['useasexample']) : 0;
+        return isset($data['useasexample']) ? count($data['useasexample']) : 0;
     }
 
     private function get_languages_and_types() {
@@ -749,7 +749,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
             return '';
         }
 
-        // Construct a question object containing all the fields from $data
+        // Construct a question object containing all the fields from $data.
         $question = new qtype_coderunner_question();
         foreach ($data as $key => $value) {
             $question->$key = $value;
@@ -761,13 +761,13 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $qtype->clean_question_form($question);
         $questiontype = $question->coderunnertype;
         list($category) = explode(',', $question->category);
-        $contextid = $DB->get_field('question_categories', 'contextid', array('id'=>$category));
+        $contextid = $DB->get_field('question_categories', 'contextid', array('id' => $category));
         $question->contextid = $contextid;
         $context = context::instance_by_id($contextid, IGNORE_MISSING);
         $qtype->set_inherited_fields($question, $questiontype, $context);
         list($mark, $state, $cachedata) = $question->grade_response(array('answer' => $answer));
 
-        // Return either an empty string if run was good or an error message
+        // Return either an empty string if run was good or an error message.
         if ($mark == 1.0) {
             return '';
         } else {

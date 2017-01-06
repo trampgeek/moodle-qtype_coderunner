@@ -34,7 +34,7 @@ $startfromcontextid = optional_param('startfromcontextid', 0, PARAM_INT);
 // Login.
 $context = context_system::instance();
 require_login();
-require_capability('moodle/site:config', $context);  // Administrators only
+require_capability('moodle/site:config', $context);  // Administrators only.
 $PAGE->set_url('/question/type/coderunner/bulktestall.php',
         array('startfromcontextid' => $startfromcontextid));
 $PAGE->set_context($context);

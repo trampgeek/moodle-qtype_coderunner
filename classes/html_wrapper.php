@@ -33,7 +33,7 @@ class qtype_coderunner_html_wrapper {
         $this->html = $html;
     }
 
-    // Access the wrapped html
+    // Access the wrapped html.
     public function value() {
         return $this->html;
     }

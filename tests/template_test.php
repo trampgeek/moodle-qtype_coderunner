@@ -62,15 +62,15 @@ EOTEMPLATE;
         $q->iscombinatortemplate = false;
         $q->allornothing = false;
         $q->testcases = array(
-           (object) array('testtype'         => 0,
-                         'testcode'      => 'print(sqr(-3))',
-                         'expected'      => "9\ntwiddle-twaddle",
-                         'stdin'         => '',
-                         'extra'         => '',
-                         'useasexample'  => 0,
-                         'display'       => 'SHOW',
-                         'mark'          => 1.0,
-                         'hiderestiffail'=> 0),
+           (object) array('testtype'      => 0,
+                         'testcode'       => 'print(sqr(-3))',
+                         'expected'       => "9\ntwiddle-twaddle",
+                         'stdin'          => '',
+                         'extra'          => '',
+                         'useasexample'   => 0,
+                         'display'        => 'SHOW',
+                         'mark'           => 1.0,
+                         'hiderestiffail' => 0),
         );
         $code = "def sqr(n): return n * n\n";
         $response = array('answer' => $code);

@@ -25,10 +25,10 @@
 
 class qtype_coderunner_bulk_tester  {
 
-    const pass = 0;
-    const missinganswer = 1;
-    const fail = 2;
-    const exception = 3;
+    const PASS = 0;
+    const MISSINGANSWER = 1;
+    const FAIL = 2;
+    const EXCEPTION = 3;
 
     /**
      * Get all the contexts that contain at least one CodeRunner question, with a
@@ -95,16 +95,16 @@ class qtype_coderunner_bulk_tester  {
                 $questionnamelink = html_writer::link($previewurl, $questionname, array('target' => '_blank'));
                 list($outcome, $message) = $this->load_and_test_question($questionid);
                 $html = "<li>$questionnamelink: $message</li>";
-                if ($outcome === self::pass) {
+                if ($outcome === self::PASS) {
                     $numpasses += 1;
-                } else if ($outcome === self::missinganswer) {
+                } else if ($outcome === self::MISSINGANSWER) {
                     $missinganswers[] = $questionnamelink;
                 } else {
                     $failingtests[] = "$questionnamelink: $message";
                 }
                 $html = "<li>$questionnamelink: $message";
                 echo $html;
-                flush(); // Force output to prevent timeouts and show progress
+                flush(); // Force output to prevent timeouts and show progress.
             }
             echo "</ul>\n";
         }
@@ -124,15 +124,15 @@ class qtype_coderunner_bulk_tester  {
             $question = question_bank::load_question($questionid);
             if (empty(trim($question->answer))) {
                 $message = 'No sample answer.';
-                $status = self::missinganswer;
+                $status = self::MISSINGANSWER;
             } else {
                 $ok = $this->test_question($question);
                 if ($ok) {
                     $message = get_string('pass', 'qtype_coderunner');
-                    $status = self::pass;
+                    $status = self::PASS;
                 } else {
                     $message = get_string('fail', 'qtype_coderunner');
-                    $status = self::fail;
+                    $status = self::FAIL;
                 }
             }
         } catch (qtype_coderunner_exception $e) {
@@ -143,7 +143,7 @@ class qtype_coderunner_bulk_tester  {
             }
             $message = '**** ' . get_string('questionloaderror', 'qtype_coderunner') .
                     ' ' . $questionname . ': ' . $e->getMessage() . ' ****';
-            $status = self::exception;
+            $status = self::EXCEPTION;
         }
         return array($status, $message);
     }

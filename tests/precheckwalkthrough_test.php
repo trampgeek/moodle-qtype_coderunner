@@ -24,7 +24,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
@@ -100,7 +99,7 @@ EOTEMPLATE;
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
         $qa = $this->get_question_attempt();
 
-        // Precheck with a wrong answer
+        // Precheck with a wrong answer.
         $this->process_submission(array('-precheck' => 1, 'answer' => "def sqr(n): return n\n"));
         $this->check_output_contains("Pre-check only");
         $this->check_output_contains('print(sqr(-11))');
@@ -113,7 +112,7 @@ EOTEMPLATE;
         $this->check_current_mark(null);
         $this->assertEquals("Prechecked: def sqr(n): return n\n", $qa->summarise_action($qa->get_last_step()));
 
-        // Now re-precheck with a right answer
+        // Now re-precheck with a right answer.
         $this->process_submission(array('-precheck' => 1, 'answer' => "def sqr(n): return n * n\n"));
         $this->check_output_contains("Pre-check only");
         $this->check_output_contains('print(sqr(-11))');
@@ -125,7 +124,7 @@ EOTEMPLATE;
         $this->check_current_mark(null);
         $this->save_quba();
 
-        // Now click check with a wrong answer
+        // Now click check with a wrong answer.
         $this->process_submission(array('-submit' => 1, 'answer' => "def sqr(n): return n\n"));
         $this->check_output_does_not_contain("Pre-check only");
         $this->check_output_contains('print(sqr(-11))');
@@ -136,7 +135,7 @@ EOTEMPLATE;
         $this->check_output_does_not_contain('Testing was aborted due to error');
         $this->check_current_mark(0.0);
 
-        // Lastly check with a right answer, verify that a single 20% penalty was incurred
+        // Lastly check with a right answer, verify that a single 20% penalty was incurred.
         $this->process_submission(array('-submit' => 1, 'answer' => "def sqr(n): return n * n\n"));
         $this->check_output_does_not_contain("Pre-check only");
         $this->check_output_contains('print(sqr(-11))');
@@ -157,7 +156,7 @@ EOTEMPLATE;
         $q->precheck = constants::PRECHECK_SELECTED;
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
 
-        // Precheck with a wrong answer
+        // Precheck with a wrong answer.
         $this->process_submission(array('-precheck' => 1, 'answer' => "def sqr(n): return n\n"));
         $this->check_output_contains("Pre-check only");
         $this->check_output_contains('print(sqr(-11))');
@@ -169,7 +168,7 @@ EOTEMPLATE;
         $this->save_quba();
         $this->check_current_mark(null);
 
-        // Now re-precheck with a right answer
+        // Now re-precheck with a right answer.
         $this->process_submission(array('-precheck' => 1, 'answer' => "def sqr(n): return n * n\n"));
         $this->check_output_contains('print(sqr(-11))');
         $this->check_output_contains('print(sqr(12))');
@@ -180,7 +179,7 @@ EOTEMPLATE;
         $this->check_current_mark(null);
         $this->save_quba();
 
-        // Now click check with a wrong answer
+        // Now click check with a wrong answer.
         $this->process_submission(array('-submit' => 1, 'answer' => "def sqr(n): return n\n"));
         $this->check_output_contains('print(sqr(-11))');
         $this->check_output_contains('print(sqr(12))');
@@ -190,7 +189,7 @@ EOTEMPLATE;
         $this->check_output_does_not_contain('Testing was aborted due to error.');
         $this->check_current_mark(0.0);
 
-        // Lastly check with a right answer, verify that a single 20% penalty was incurred
+        // Lastly check with a right answer, verify that a single 20% penalty was incurred.
         $this->process_submission(array('-submit' => 1, 'answer' => "def sqr(n): return n * n\n"));
         $this->check_output_contains('print(sqr(-11))');
         $this->check_output_contains('print(sqr(12))');
@@ -227,7 +226,7 @@ EOTEMPLATE;
         $this->check_output_contains('98');
         $this->check_output_contains('50');
 
-        // Now check with a right answer
+        // Now check with a right answer.
         $this->process_submission(array('-submit' => 1, 'answer' => "def sqr2(n): return n * n\n"));
         $this->check_output_contains('121');
         $this->check_output_contains('144');

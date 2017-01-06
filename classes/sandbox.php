@@ -124,7 +124,7 @@ abstract class qtype_coderunner_sandbox {
     }
 
 
-    // Factory method to return an instance of a sandbox of the specified type
+    // Factory method to return an instance of a sandbox of the specified type.
     public static function make_sandbox($sandbox) {
         global $CFG;
         $sandboxes = self::available_sandboxes();

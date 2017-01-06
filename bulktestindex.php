@@ -41,7 +41,7 @@ $bulktester = new qtype_coderunner_bulk_tester();
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('coderunnercontexts', 'qtype_coderunner'));
 
-// Find which contexts the user can edit questions in
+// Find in which contexts the user can edit questions.
 $questionsbycontext = $bulktester->get_coderunner_questions_by_context();
 $availablequestionsbycontext = array();
 foreach ($questionsbycontext as $contextid => $numcoderunnerquestions) {
@@ -51,7 +51,7 @@ foreach ($questionsbycontext as $contextid => $numcoderunnerquestions) {
     }
 }
 
-// List all contexts available to the user
+// List all contexts available to the user.
 if (count($availablequestionsbycontext) == 0) {
     echo html_writer::tag('p', get_string('unauthorisedbulktest', 'qtype_coderunner'));
 } else {

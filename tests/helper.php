@@ -23,7 +23,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
 defined('MOODLE_INTERNAL') || die();
 
 // Special class of exception thrown when the helper is asked to construct
@@ -48,7 +47,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
             'generic_python3', 'generic_c',
             'sqr_c', 'sqr_no_semicolons', 'sqr_customised',
             'hello_prog_c', 'copy_stdin_c', 'str_to_upper',
-            'sqr_cpp', 'hello_prog_cpp', 'str_to_upper_cpp','copy_stdin_cpp',
+            'sqr_cpp', 'hello_prog_cpp', 'str_to_upper_cpp', 'copy_stdin_cpp',
             'string_delete',
             'sqrmatlab', 'teststudentanswermacro', 'sqroctave',
             'teststudentanswermacrooctave', 'sqrnodejs',

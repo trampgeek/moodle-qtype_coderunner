@@ -89,7 +89,7 @@ class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
         $newquestionid   = $this->get_new_parentid('question');
         $questioncreated = $this->get_mappingid('question_created', $oldquestionid) ? true : false;
 
-        // If the question has been created by restore, insert the new testcase
+        // If the question has been created by restore, insert the new testcase.
         if ($questioncreated) {
             $data->questionid = $newquestionid;
             // Insert record.
@@ -113,7 +113,7 @@ class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
         $newquestionid   = $this->get_new_parentid('question');
         $questioncreated = $this->get_mappingid('question_created', $oldquestionid) ? true : false;
 
-        // If the question has been created by restore, we need to insert a new options record
+        // If the question has been created by restore, we need to insert a new options record.
         if ($questioncreated) {
             $data->questionid = $newquestionid;
 

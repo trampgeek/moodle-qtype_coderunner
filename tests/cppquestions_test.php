@@ -52,7 +52,8 @@ class qtype_coderunner_cpp_questions_test extends qtype_coderunner_testcase {
 
     public function test_good_hello_world() {
         $q = $this->make_question('hello_prog_cpp');
-        $response = array('answer' => "#include <iostream>\nusing namespace std;\nint main() { cout << \"Hello ENCE260\\n\";\nreturn 0;}\n");
+        $response = array('answer' => "#include <iostream>\nusing namespace std;\n" .
+            "int main() { cout << \"Hello ENCE260\\n\";\nreturn 0;}\n");
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(1, $mark);
         $this->assertEquals(question_state::$gradedright, $grade);
@@ -100,7 +101,7 @@ int main() {
     }
 
     public function test_cpp_strings() {
-        // Trivial test that the C++ string class is being included
+        // Trivial test that the C++ string class is being included.
         $q = $this->make_question('str_to_upper_cpp');
         $response = array('answer' => "string str_to_upper(string s) {
     string result;

@@ -124,7 +124,7 @@ class qtype_coderunner_walkthrough_test extends qbehaviour_walkthrough_test_base
 
         // Submit a partially right answer.
         $this->process_submission(array('-submit' => 1, 'answer' => 'def sqr(n): return n * n if n < 0 else -19'));
-        $this->check_current_mark(0.54);  // 4.5/7.5 * 90%
+        $this->check_current_mark(0.54);  // 4.5/7.5 * 90%.
         $this->check_current_output(
                 new question_pattern_expectation('/' .
                         preg_quote(get_string('partiallycorrect', 'question') . '/'))
@@ -135,7 +135,7 @@ class qtype_coderunner_walkthrough_test extends qbehaviour_walkthrough_test_base
 
         // Verify.
         $this->check_current_state(question_state::$complete);
-        $this->check_current_mark(0.8); // Full marks but 20% penalty after 2 wrong submissions
+        $this->check_current_mark(0.8); // Full marks but 20% penalty after 2 wrong submissions.
         $this->check_current_output(
                 $this->get_contains_correct_expectation(),
                 $this->get_does_not_contain_validation_error_expectation(),
@@ -168,7 +168,7 @@ class qtype_coderunner_walkthrough_test extends qbehaviour_walkthrough_test_base
         $q = test_question_maker::make_question('coderunner', 'sqr');
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
         $answer = "def sqr(n): return n * n if n != 11 else x * x\n";
-        $this->process_submission(array('-submit'=>1, 'answer'=>$answer));
+        $this->process_submission(array('-submit' => 1, 'answer' => $answer));
         $this->check_output_contains('print(sqr(0))');
         $this->check_output_contains('print(sqr(1))');
         $this->check_output_contains('print(sqr(11))');
@@ -326,7 +326,7 @@ EOTEMPLATE;
     }
 
 
-    // Test the new template grader testresults and prologuehtml fields
+    // Test the new template grader testresults and prologuehtml fields.
     public function test_combinator_template_grading2() {
         $q = test_question_maker::make_question('coderunner', 'sqr');
         $q->template = <<<EOTEMPLATE
@@ -348,7 +348,7 @@ print(json.dumps({'prologuehtml': "<h2>Prologue</h2>",
 }))
 EOTEMPLATE;
         $q->iscombinatortemplate = true;
-        $q->allornothing = true;  // This should be ignored
+        $q->allornothing = true;  // This should be ignored.
         $q->grader = 'TemplateGrader';
 
         // Submit a right answer.

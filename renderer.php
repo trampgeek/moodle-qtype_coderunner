@@ -237,12 +237,12 @@ class qtype_coderunner_renderer extends qtype_renderer {
                     if (strtolower($headers[$j]) === 'iscorrect') {
                         $markfrac = (float) $cell;
                         $tablerow[] = $this->feedback_image($markfrac);
-                    } else if (strtolower($headers[$j]) === 'ishidden') { // Control column
-                        if ($cell) { // Anything other than zero or false means hidden
+                    } else if (strtolower($headers[$j]) === 'ishidden') { // Control column.
+                        if ($cell) { // Anything other than zero or false means hidden.
                             $rowclass .= ' hidden-test';
                         }
                     } else if ($cell instanceof qtype_coderunner_html_wrapper) {
-                        $tablerow[] = $cell->value();  // It's already HTML
+                        $tablerow[] = $cell->value();  // It's already HTML.
                     } else {
                         $tablerow[] = qtype_coderunner_util::format_cell($cell);
                     }
@@ -266,7 +266,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
     // Should not be called if there were any syntax or sandbox errors.
     protected function build_feedback_summary(question_attempt $qa, qtype_coderunner_testing_outcome $outcome) {
         if ($outcome->iscombinatorgrader()) {
-            // Simplified special case
+            // Simplified special case.
             return $this->build_combinator_grader_feedback_summary($qa, $outcome);
         }
         $question = $qa->get_question();

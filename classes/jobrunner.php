@@ -20,6 +20,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+
+defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/question/type/coderunner/Twig/Autoloader.php');
 require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
 
@@ -27,14 +29,14 @@ require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
 // The qtype_coderunner_jobrunner class contains all code concerned with running a question
 // in the sandbox and grading the result.
 class qtype_coderunner_jobrunner {
-    private $grader = null;              // The grader instance, if it's NOT a custom one.
-    private $twig = null;                // The template processor environment.
-    private $sandbox = null;             // The sandbox we're using.
-    private $code = null;                // The code we're running
-    private $question = null;            // The question that we're running code for
-    private $testcases = null;           // The testcases (a subset of those in the question)
-    private $allruns = null;             // Array of the source code for all runs.
-    private $precheck = null;            // True if this is a precheck run
+    private $grader = null;          // The grader instance, if it's NOT a custom one.
+    private $twig = null;            // The template processor environment.
+    private $sandbox = null;         // The sandbox we're using.
+    private $code = null;            // The code we're running.
+    private $question = null;        // The question that we're running code for.
+    private $testcases = null;       // The testcases (a subset of those in the question).
+    private $allruns = null;         // Array of the source code for all runs.
+    private $precheck = null;        // True if this is a precheck run.
 
     // Check the correctness of a student's code as an answer to the given
     // question and and a given set of test cases (which may be empty or a
@@ -154,13 +156,13 @@ class qtype_coderunner_jobrunner {
                     $outcome->add_test_result($this->grade($outputs[$i], $testcase));
                     $i++;
                 }
-            } else {  // Error: wrong number of tests after splitting
+            } else {  // Error: wrong number of tests after splitting.
                 $error = get_string('brokencombinator', 'qtype_coderunner',
                         array('numtests' => $numtests, 'numresults' => count($outputs)));
                 $outcome->set_status(qtype_coderunner_testing_outcome::STATUS_BAD_COMBINATOR, $error);
             }
         } else {
-            $outcome = null; // Something broke badly
+            $outcome = null; // Something broke badly.
         }
         return $outcome;
     }
@@ -253,13 +255,13 @@ class qtype_coderunner_jobrunner {
 
             if ($result === null || !isset($result->fraction) ||
                     !is_numeric($result->fraction)) {
-                // Bad combinator output
+                // Bad combinator output.
                 $error = get_string('badjsonorfraction', 'qtype_coderunner',
                     array('output' => $run->output));
                 $outcome->set_status(qtype_coderunner_testing_outcome::STATUS_BAD_COMBINATOR, $error);
             } else {
 
-                // A successful combinator run
+                // A successful combinator run.
                 $fract = $result->fraction;
                 $feedback = array();
                 if (isset($result->feedback_html)) {  // Legacy combinator grader?
@@ -267,9 +269,9 @@ class qtype_coderunner_jobrunner {
                     unset($result->feedback_html);
                 }
                 foreach (array('prologuehtml', 'testresults', 'epiloguehtml', 'feedbackhtml') as $key) {
-                    if(isset($result->$key)) {
+                    if (isset($result->$key)) {
                         if ($key === 'feedbackhtml' || $key === 'feedback_html') {
-                            // For compatibility with older combinator graders
+                            // For compatibility with older combinator graders.
                             $feedback['epiloguehtml'] = $result->$key;
                         } else {
                             $feedback[$key] = $result->$key;
@@ -282,9 +284,9 @@ class qtype_coderunner_jobrunner {
         return $outcome;
     }
 
-    // Return a $sep-separated string of the non-empty elements
-    // of the array $strings. Similar to implode except empty strings
-    // are ignored.
+    /* Return a $sep-separated string of the non-empty elements
+       of the array $strings. Similar to implode except empty strings
+       are ignored. */
     private function merge($sep, $strings) {
         $s = '';
         foreach ($strings as $el) {
@@ -299,7 +301,7 @@ class qtype_coderunner_jobrunner {
     }
 
 
-    // Return the maximum possible mark from the set of testcases we're running
+    // Return the maximum possible mark from the set of testcases we're running.
     private function maximum_possible_mark() {
         $total = 0;
         foreach ($this->testcases as $testcase) {

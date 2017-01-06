@@ -45,7 +45,7 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
      * outcome object, usually zero or more of prologuehtml, testresults and epiloguehtml.
      */
     public function set_mark_and_feedback($markfraction, $feedback) {
-        $this->actualmark = $markfraction;  // Combinators work in the range 0 - 1
+        $this->actualmark = $markfraction;  // Combinators work in the range 0 - 1.
         foreach ($feedback as $key => $value) {
             $this->$key = $value;
         }
