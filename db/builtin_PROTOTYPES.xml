@@ -8,7 +8,7 @@
     </category>
   </question>
 
-<!-- question: 23288  -->
+<!-- question: 5736  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_c_function</text>
@@ -41,6 +41,7 @@
     <showsource>0</showsource>
     <answerboxlines>18</answerboxlines>
     <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
     <useace>1</useace>
     <resultcolumns></resultcolumns>
     <template><![CDATA[#include <stdio.h>
@@ -64,6 +65,7 @@ int main() {
 }]]></template>
     <iscombinatortemplate>1</iscombinatortemplate>
     <answer></answer>
+    <validateonsave>0</validateonsave>
     <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
     <language>C</language>
     <acelang></acelang>
@@ -77,7 +79,7 @@ int main() {
     </testcases>
   </question>
 
-<!-- question: 23289  -->
+<!-- question: 5737  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_c_program</text>
@@ -87,8 +89,7 @@ int main() {
           per-test-case code, and the different tests just use different
           stdin data. The student answer is expected to be a complete
           runnable program, which is run as-is, without modification
-          by CodeRunner.
-      </text>
+          by CodeRunner.</text>
     </questiontext>
     <generalfeedback format="moodle_auto_format">
       <text></text>
@@ -104,11 +105,13 @@ int main() {
     <showsource>0</showsource>
     <answerboxlines>18</answerboxlines>
     <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
     <useace>1</useace>
     <resultcolumns></resultcolumns>
     <template>{{ STUDENT_ANSWER }}</template>
     <iscombinatortemplate>0</iscombinatortemplate>
     <answer></answer>
+    <validateonsave>0</validateonsave>
     <testsplitterre></testsplitterre>
     <language>C</language>
     <acelang></acelang>
@@ -121,8 +124,8 @@ int main() {
     <testcases>
     </testcases>
   </question>
-  
-  
+
+<!-- question: 5738  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_cpp_function</text>
@@ -158,6 +161,7 @@ int main() {
     <showsource>0</showsource>
     <answerboxlines>18</answerboxlines>
     <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
     <useace>1</useace>
     <resultcolumns></resultcolumns>
     <template><![CDATA[#include <iostream>
@@ -184,6 +188,7 @@ int main() {
 }]]></template>
     <iscombinatortemplate>1</iscombinatortemplate>
     <answer></answer>
+    <validateonsave>0</validateonsave>
     <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
     <language>cpp</language>
     <acelang></acelang>
@@ -197,7 +202,7 @@ int main() {
     </testcases>
   </question>
 
-<!-- question: 23289  -->
+<!-- question: 5739  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_cpp_program</text>
@@ -207,8 +212,7 @@ int main() {
           per-test-case code, and the different tests just use different
           stdin data. The student answer is expected to be a complete
           runnable program, which is run as-is, without modification
-          by CodeRunner.
-      </text>
+          by CodeRunner.</text>
     </questiontext>
     <generalfeedback format="moodle_auto_format">
       <text></text>
@@ -224,11 +228,13 @@ int main() {
     <showsource>0</showsource>
     <answerboxlines>18</answerboxlines>
     <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
     <useace>1</useace>
     <resultcolumns></resultcolumns>
     <template>{{ STUDENT_ANSWER }}</template>
     <iscombinatortemplate>0</iscombinatortemplate>
     <answer></answer>
+    <validateonsave>0</validateonsave>
     <testsplitterre></testsplitterre>
     <language>cpp</language>
     <acelang></acelang>
@@ -242,7 +248,7 @@ int main() {
     </testcases>
   </question>
 
-<!-- question: 23290  -->
+<!-- question: 5740  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_java_class</text>
@@ -270,6 +276,7 @@ int main() {
     <showsource>0</showsource>
     <answerboxlines>18</answerboxlines>
     <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
     <useace>1</useace>
     <resultcolumns></resultcolumns>
     <template>{{ STUDENT_ANSWER | replace({'public class ': 'class '}) }}
@@ -288,6 +295,7 @@ public class __Tester__ {
 </template>
     <iscombinatortemplate>0</iscombinatortemplate>
     <answer></answer>
+    <validateonsave>0</validateonsave>
     <testsplitterre></testsplitterre>
     <language>Java</language>
     <acelang></acelang>
@@ -301,7 +309,7 @@ public class __Tester__ {
     </testcases>
   </question>
 
-<!-- question: 23291  -->
+<!-- question: 5741  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_java_method</text>
@@ -314,8 +322,7 @@ public class __Tester__ {
       Main class containing the student-supplied method (and any other support
       methods, if they choose to write them) plus a 'runTests' method that
       wraps the testcase(s). The main function for the class constructs an
-      instance of Main and calls its runTests method.
-      </text>
+      instance of Main and calls its runTests method.</text>
     </questiontext>
     <generalfeedback format="moodle_auto_format">
       <text></text>
@@ -331,6 +338,7 @@ public class __Tester__ {
     <showsource>0</showsource>
     <answerboxlines>18</answerboxlines>
     <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
     <useace>1</useace>
     <resultcolumns></resultcolumns>
     <template><![CDATA[public class Main {
@@ -355,6 +363,7 @@ public class __Tester__ {
 }]]></template>
     <iscombinatortemplate>1</iscombinatortemplate>
     <answer></answer>
+    <validateonsave>0</validateonsave>
     <testsplitterre><![CDATA[|#<ab@17943918#@>#
 |ms]]></testsplitterre>
     <language>Java</language>
@@ -369,7 +378,7 @@ public class __Tester__ {
     </testcases>
   </question>
 
-<!-- question: 23292  -->
+<!-- question: 5742  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_java_program</text>
@@ -394,11 +403,13 @@ public class __Tester__ {
     <showsource>0</showsource>
     <answerboxlines>18</answerboxlines>
     <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
     <useace>1</useace>
     <resultcolumns></resultcolumns>
     <template>{{ STUDENT_ANSWER }}</template>
     <iscombinatortemplate>0</iscombinatortemplate>
     <answer></answer>
+    <validateonsave>0</validateonsave>
     <testsplitterre></testsplitterre>
     <language>Java</language>
     <acelang></acelang>
@@ -412,7 +423,7 @@ public class __Tester__ {
     </testcases>
   </question>
 
-<!-- question: 23293  -->
+<!-- question: 5743  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_octave_function</text>
@@ -435,6 +446,7 @@ public class __Tester__ {
     <showsource>0</showsource>
     <answerboxlines>18</answerboxlines>
     <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
     <useace>1</useace>
     <resultcolumns></resultcolumns>
     <template><![CDATA[{{ STUDENT_ANSWER }}
@@ -450,6 +462,7 @@ disp('#<ab@17943918#@>#');
 ]]></template>
     <iscombinatortemplate>1</iscombinatortemplate>
     <answer></answer>
+    <validateonsave>0</validateonsave>
     <testsplitterre><![CDATA[|#<ab@17943918#@>#
 |ms]]></testsplitterre>
     <language>octave</language>
@@ -464,7 +477,102 @@ disp('#<ab@17943918#@>#');
     </testcases>
   </question>
 
-<!-- question: 23294  -->
+<!-- question: 5749  -->
+  <question type="coderunner">
+    <name>
+      <text>BUILT_IN_PROTOTYPE_pascal_function</text>
+    </name>
+    <questiontext format="html">
+      <text>A Pascal question type where the student is asked to write
+      a procedure or function, which is then tested with a main program
+      consisting of the CodeRunner 'testcode' wrapped in begin end.</text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.3333333</penalty>
+    <hidden>0</hidden>
+    <coderunnertype>pascal_function</coderunnertype>
+    <prototypetype>1</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime></penaltyregime>
+    <precheck>0</precheck>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
+    <useace>1</useace>
+    <resultcolumns></resultcolumns>
+    <template>
+
+{{ STUDENT_ANSWER }}
+
+begin
+    {{ TEST.testcode }};
+end.
+</template>
+    <iscombinatortemplate>0</iscombinatortemplate>
+    <answer></answer>
+    <validateonsave>0</validateonsave>
+    <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
+    <language>pascal</language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader>EqualityGrader</grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams></templateparams>
+    <testcases>
+    </testcases>
+  </question>
+
+<!-- question: 5750  -->
+  <question type="coderunner">
+    <name>
+      <text>BUILT_IN_PROTOTYPE_pascal_program</text>
+    </name>
+    <questiontext format="moodle_auto_format">
+      <text>Used for Pascal write-a-program questions, where there is no
+          per-test-case code, and the different tests just use different
+          stdin data.</text>
+    </questiontext>
+    <generalfeedback format="moodle_auto_format">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.3333333</penalty>
+    <hidden>0</hidden>
+    <coderunnertype>pascal_program</coderunnertype>
+    <prototypetype>1</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime></penaltyregime>
+    <precheck>0</precheck>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
+    <useace>1</useace>
+    <resultcolumns></resultcolumns>
+    <template>{{ STUDENT_ANSWER }}</template>
+    <iscombinatortemplate>0</iscombinatortemplate>
+    <answer></answer>
+    <validateonsave>0</validateonsave>
+    <testsplitterre></testsplitterre>
+    <language>pascal</language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader></grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams></templateparams>
+    <testcases>
+    </testcases>
+  </question>
+
+<!-- question: 5744  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_php</text>
@@ -489,6 +597,7 @@ the php tags.</p>]]></text>
     <showsource>0</showsource>
     <answerboxlines>18</answerboxlines>
     <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
     <useace>1</useace>
     <resultcolumns></resultcolumns>
     <template><![CDATA[{{ STUDENT_ANSWER }}
@@ -503,6 +612,7 @@ echo SEPARATOR;
 {% endfor %}]]></template>
     <iscombinatortemplate>1</iscombinatortemplate>
     <answer></answer>
+    <validateonsave>0</validateonsave>
     <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
     <language>php</language>
     <acelang></acelang>
@@ -516,7 +626,7 @@ echo SEPARATOR;
     </testcases>
   </question>
 
-<!-- question: 23295  -->
+<!-- question: 5745  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_python2</text>
@@ -539,6 +649,7 @@ echo SEPARATOR;
     <showsource>0</showsource>
     <answerboxlines>18</answerboxlines>
     <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
     <useace>1</useace>
     <resultcolumns></resultcolumns>
     <template><![CDATA[{{ STUDENT_ANSWER }}
@@ -555,6 +666,7 @@ print(SEPARATOR)
 {% endfor %}]]></template>
     <iscombinatortemplate>1</iscombinatortemplate>
     <answer></answer>
+    <validateonsave>0</validateonsave>
     <testsplitterre><![CDATA[|#<ab@17943918#@>#
 |ms]]></testsplitterre>
     <language>python2</language>
@@ -569,7 +681,7 @@ print(SEPARATOR)
     </testcases>
   </question>
 
-<!-- question: 23296  -->
+<!-- question: 5746  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_python3</text>
@@ -592,6 +704,7 @@ print(SEPARATOR)
     <showsource>0</showsource>
     <answerboxlines>18</answerboxlines>
     <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
     <useace>1</useace>
     <resultcolumns></resultcolumns>
     <template><![CDATA[{{ STUDENT_ANSWER }}
@@ -608,6 +721,7 @@ print(SEPARATOR)
 {% endfor %}]]></template>
     <iscombinatortemplate>1</iscombinatortemplate>
     <answer></answer>
+    <validateonsave>0</validateonsave>
     <testsplitterre><![CDATA[|#<ab@17943918#@>#
 |ms]]></testsplitterre>
     <language>python3</language>
@@ -622,7 +736,7 @@ print(SEPARATOR)
     </testcases>
   </question>
 
-<!-- question: 23298  -->
+<!-- question: 5747  -->
   <question type="coderunner">
     <name>
       <text>BUILTIN_PROTOTYPE_nodejs</text>
@@ -644,6 +758,7 @@ print(SEPARATOR)
     <showsource>0</showsource>
     <answerboxlines>18</answerboxlines>
     <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
     <useace>1</useace>
     <resultcolumns></resultcolumns>
     <template><![CDATA[{{ STUDENT_ANSWER }}
@@ -658,6 +773,7 @@ print(SEPARATOR)
 {% endfor %}]]></template>
     <iscombinatortemplate>1</iscombinatortemplate>
     <answer></answer>
+    <validateonsave>0</validateonsave>
     <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
     <language>nodejs</language>
     <acelang></acelang>
@@ -671,7 +787,7 @@ print(SEPARATOR)
     </testcases>
   </question>
 
-<!-- question: 23297  -->
+<!-- question: 5748  -->
   <question type="coderunner">
     <name>
       <text>BUILTIN_PROTOTYPE_Python3_w_input</text>
@@ -700,6 +816,7 @@ displayed in the ACE edit window.</p>]]></text>
     <showsource>0</showsource>
     <answerboxlines>18</answerboxlines>
     <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
     <useace>1</useace>
     <resultcolumns></resultcolumns>
     <template><![CDATA[__saved_input__ = input
@@ -719,6 +836,7 @@ print(SEPARATOR)
 {% endfor %}]]></template>
     <iscombinatortemplate>1</iscombinatortemplate>
     <answer></answer>
+    <validateonsave>0</validateonsave>
     <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
     <language>python3</language>
     <acelang></acelang>
@@ -731,137 +849,5 @@ print(SEPARATOR)
     <testcases>
     </testcases>
   </question>
-  
-<<<<<<< HEAD
-<!-- question: 16909  -->
-  <question type="coderunner">
-    <name>
-      <text>BUILT_IN_PROTOTYPE_pascal_function</text>
-    </name>
-    <questiontext format="html">
-      <text>A Pascal question type where the student is asked to write
-      a procedure or function, which is then tested with a main program
-      consisting of the CodeRunner 'testcode' wrapped in begin end.</text>
-=======
-<!-- question: 893  -->
-  <question type="coderunner">
-    <name>
-      <text>UOC_PROTOTYPE_nodejs</text>
-    </name>
-    <questiontext format="html">
-      <text><![CDATA[<p>A generic nodejs question in which the student answer precedes the tests.</p>]]></text>
->>>>>>> master
-    </questiontext>
-    <generalfeedback format="html">
-      <text></text>
-    </generalfeedback>
-    <defaultgrade>1.0000000</defaultgrade>
-    <penalty>0.3333333</penalty>
-    <hidden>0</hidden>
-<<<<<<< HEAD
-    <coderunnertype>pascal_function</coderunnertype>
-    <prototypetype>1</prototypetype>
-=======
-    <coderunnertype>nodejs</coderunnertype>
-    <prototypetype>2</prototypetype>
->>>>>>> master
-    <allornothing>1</allornothing>
-    <penaltyregime></penaltyregime>
-    <showsource>0</showsource>
-    <answerboxlines>18</answerboxlines>
-    <answerboxcolumns>100</answerboxcolumns>
-    <useace>1</useace>
-    <resultcolumns></resultcolumns>
-    <answer></answer>
-<<<<<<< HEAD
-    <combinatortemplate></combinatortemplate>
-    <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
-    <enablecombinator>0</enablecombinator>
-    <pertesttemplate><![CDATA[
-
-{{ STUDENT_ANSWER }}
-
-begin
-    {{ TEST.testcode }};
-end.
-]]></pertesttemplate>
-    <language>pascal</language>
-=======
-    <combinatortemplate><![CDATA[{{ STUDENT_ANSWER }}
-
-SEPARATOR = "#<ab@17943918#@>#"
-
-{% for TEST in TESTCASES %}
-{{ TEST.testcode }}
-{% if not loop.last %}
-print(SEPARATOR)
-{% endif %}
-{% endfor %}]]></combinatortemplate>
-    <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
-    <enablecombinator>1</enablecombinator>
-    <pertesttemplate>{{STUDENT_ANSWER}}
-
-{{TEST.testcode}}</pertesttemplate>
-    <language>nodejs</language>
->>>>>>> master
-    <acelang></acelang>
-    <sandbox></sandbox>
-    <grader>EqualityGrader</grader>
-    <cputimelimitsecs></cputimelimitsecs>
-<<<<<<< HEAD
-    <memlimitmb></memlimitmb>
-=======
-    <memlimitmb>1000</memlimitmb>
->>>>>>> master
-    <sandboxparams></sandboxparams>
-    <templateparams></templateparams>
-    <testcases>
-    </testcases>
-  </question>
-
-<<<<<<< HEAD
-<!-- question: 16910  -->
-  <question type="coderunner">
-    <name>
-      <text>BUILT_IN_PROTOTYPE_pascal_program</text>
-    </name>
-    <questiontext format="moodle_auto_format">
-      <text>Used for Pascal write-a-program questions, where there is no
-          per-test-case code, and the different tests just use different
-          stdin data.</text>
-    </questiontext>
-    <generalfeedback format="moodle_auto_format">
-      <text></text>
-    </generalfeedback>
-    <defaultgrade>1.0000000</defaultgrade>
-    <penalty>0.3333333</penalty>
-    <hidden>0</hidden>
-    <coderunnertype>pascal_program</coderunnertype>
-    <prototypetype>1</prototypetype>
-    <allornothing>1</allornothing>
-    <penaltyregime></penaltyregime>
-    <showsource>0</showsource>
-    <answerboxlines>18</answerboxlines>
-    <answerboxcolumns>100</answerboxcolumns>
-    <useace>1</useace>
-    <resultcolumns></resultcolumns>
-    <answer></answer>
-    <combinatortemplate></combinatortemplate>
-    <testsplitterre></testsplitterre>
-    <enablecombinator>0</enablecombinator>
-    <pertesttemplate>{{ STUDENT_ANSWER }}</pertesttemplate>
-    <language>pascal</language>
-    <acelang></acelang>
-    <sandbox></sandbox>
-    <grader></grader>
-    <cputimelimitsecs></cputimelimitsecs>
-    <memlimitmb></memlimitmb>
-    <sandboxparams></sandboxparams>
-    <templateparams></templateparams>
-    <testcases>
-    </testcases>
-  </question>
-=======
->>>>>>> master
 
 </quiz>
