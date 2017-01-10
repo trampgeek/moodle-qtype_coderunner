@@ -1,7 +1,7 @@
 # Authoring CodeRunner Questions
 
 Author: Richard Lobb, University of Canterbury, New Zealand.
-        20 December 2016.
+        9 January 2017.
 
 This document describes how to write quiz questions using the [CodeRunner
 plug-in](http://www.coderunner.org.nz) for Moodle. It begins with a QuickStart
@@ -116,6 +116,8 @@ Congratulations. You just wrote your first CodeRunner question.
    was checked. Fix your code, click *Precheck* again, then lastly *Check*.
    Note that no penalties were charged for prechecking.
 
+# The rest of this document ...
+... isn't written yet! Stay tuned.
 
 
 
