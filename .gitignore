@@ -18,3 +18,4 @@ composer.json
 composer.lock
 excludesfromstylechecker.txt
 miscsqlqueries
+dbquerieswhilefixingbug.sql
