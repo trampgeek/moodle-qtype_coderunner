@@ -307,6 +307,9 @@ class qtype_coderunner_jobrunner {
         foreach ($this->testcases as $testcase) {
             $total += $testcase->mark;
         }
+        if ($total == 0) {
+            $total = 1; // Something silly is happening. Probably running a prototype with no tests.
+        }
         return $total;
     }
 
