@@ -47,7 +47,7 @@ define(['jquery'], function($) {
             w = parseInt(textarea.css("width")),
             focused = textarea[0] === document.activeElement;
 
-        this.HANDLE_SIZE = 5;
+        this.HANDLE_SIZE = 6;
         this.MIN_WIDTH = 300;
         this.MIN_HEIGHT = 100;
 
