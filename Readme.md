@@ -204,11 +204,17 @@ Once you have installed the CodeRunner question type, you should be able to
 run CodeRunner questions using the University of Canterbury's Jobe Server
 as a sandbox. It is
 recommended that you do this before proceeding to install and configure your
-own sandbox. Using the standard Moodle web interface, either as a Moodle
+own sandbox.
+
+Using the standard Moodle web interface, either as a Moodle
 administrator or as a teacher in a course you have set up, go to the Question
 Bank and try creating a new CodeRunner question. A simple Python3 test question
 is: "Write a function *sqr(n)* that returns the square of its
-parameter *n*.". Test cases for this might be:
+parameter *n*.". The introductory quick-start guide in the incomplete
+[Question Authoring Guide](https://github.com/trampgeek/moodle-qtype_coderunner/blob/master/authorguide.md)
+gives step-by-step instructions for creating such a question. Alternatively
+you can just try to create a question using the on-line help in the question
+authoring form. Test cases for the question might be:
 
 <table>
 <tr><th>Test</th><th>Expected</th></tr>
