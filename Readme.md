@@ -143,22 +143,26 @@ that same test all by itself in the combinator template.
 
 CodeRunner requires two separate plug-ins, one for the question type and one
 for the specialised adaptive behaviour. The plug-ins are in two
-different github repositories: github.com/trampgeek/moodle-qbehaviour_adaptive_adapted_for_coderunner
-and github.com/trampgeek/moodle-qtype_coderunner. Install the question behaviour
-first (see the instructions within that repository), then the question type second,
-as follows.
+different github repositories: `github.com/trampgeek/moodle-qbehaviour_adaptive_adapted_for_coderunner`
+and `github.com/trampgeek/moodle-qtype_coderunner`. Install the two plugs 
+using one of the following two methods.
 
-To install the question type, either:
+EITHER:
 
-1. Download the zip file of the required branch from github,
+1. Download the zip file of the required branch from the [coderunner github repository](https://github.com/trampgeek/moodle-qtype_coderunner)
 unzip it into the directory `moodle/question/type` and change the name
 of the newly-created directory from `moodle-qtype_coderunner-<branchname>` to just
-`coderunner`.
+`coderunner`. Similarly download the zip file of the required question behaviour
+from the [behaviour github repository](https://github.com/trampgeek/moodle-qbehaviour_adaptive_adapted_for_coderunner),
+unzip it into the directory `moodle/question/behaviour` and change the
+newly-created directory name to `qbehaviour_adaptive_adapted_for_coderunner`.
+OR
 
 1. Get the code using git by running the following command in the
 top level folder of your Moodle install:
 
         git clone git://github.com/trampgeek/moodle-qtype_coderunner.git question/type/coderunner
+        git clone git://github.com/trampgeek/moodle-qbehaviour_adaptive_adapted_for_coderunner.git question/behaviour/adaptive_adapted_for_coderunner
 
 Either way you may also need to change the ownership
 and access rights to ensure the directory and
@@ -185,7 +189,7 @@ upper bound on the number of jobs you will need to submit per hour. We
 will do our best to accommodate you if we have sufficient capacity.
 
 WARNING: at least a couple of users have broken CodeRunner by duplicating
-the prototype questions in the System/CR_PROTOTYPES category. `Do not` touch
+the prototype questions in the System/CR\_PROTOTYPES category. `Do not` touch
 those special questions until you have read this entire manual and
 are familiar with the inner workings of CodeRunner. Even then, you should
 proceed with caution. These prototypes are not
