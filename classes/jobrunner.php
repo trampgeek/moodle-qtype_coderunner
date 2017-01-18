@@ -24,7 +24,7 @@
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/question/type/coderunner/Twig/Autoloader.php');
 require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
-
+require_once($CFG->dirroot . '/question/type/coderunner/classes/student.php');
 
 // The qtype_coderunner_jobrunner class contains all code concerned with running a question
 // in the sandbox and grading the result.
@@ -44,7 +44,7 @@ class qtype_coderunner_jobrunner {
     // this is a run triggered by the student clicking the Precheck button.
     // Returns a TestingOutcome object.
     public function run_tests($question, $code, $testcases, $isprecheck) {
-        global $CFG;
+        global $CFG,$USER;
 
         $this->question = $question;
         $this->code = $code;
@@ -79,7 +79,8 @@ class qtype_coderunner_jobrunner {
             'ESCAPED_STUDENT_ANSWER' => qtype_coderunner_escapers::python(null, $code, null),
             'MATLAB_ESCAPED_STUDENT_ANSWER' => qtype_coderunner_escapers::matlab(null, $code, null),
             'IS_PRECHECK' => $isprecheck ? "1" : "0",
-            'QUESTION' => $question
+            'QUESTION' => $question,
+            'STUDENT' => new qtype_coderunner_student($USER)
          );
 
         if ($question->get_is_combinator() and $this->has_no_stdins()) {
