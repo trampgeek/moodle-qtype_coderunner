@@ -95,6 +95,11 @@ define(['jquery'], function($) {
         this.setEventHandlers(textarea);
         this.captureTab();
 
+        // Try to tell Moodle about parts of the editor with z-index.
+        // It is hard to be sure if this is complete. ACE adds all its CSS using JavaScript.
+        // Here, we just deal with things that are known to cause a problem.
+        $('.ace_gutter').addClass('moodle-has-zindex');
+
         textarea.hide();
         if (focused) {
             this.editor.focus();
