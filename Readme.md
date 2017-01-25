@@ -158,7 +158,7 @@ unzip it into the directory `moodle/question/behaviour` and change the
 newly-created directory name to `qbehaviour_adaptive_adapted_for_coderunner`.
 OR
 
-1. Get the code using git by running the following command in the
+1. Get the code using git by running the following commands in the
 top level folder of your Moodle install:
 
         git clone git://github.com/trampgeek/moodle-qtype_coderunner.git question/type/coderunner
@@ -1025,6 +1025,19 @@ template to the `cputimelimitsecs` attribute does not alter the actual run time;
 the assignment statement is being executed in the sandbox after all resource
 limits have been set. The question author can however directly alter all
 the above question attributes directly in the question authoring form.
+
+
+### The Twig STUDENT variable
+
+The template variable `STUDENT` is an object containing a subset of the fields of the
+PHP user object. The fileds/attributes of STUDENT that might be of interest to authors include the
+following.
+
+ * `STUDENT.username` The unique internal username of the current user.
+ * `STUDENT.firstname` The first name of the current user.
+ * `STUDENT.lastname` The last name of the current user.
+ * `STUDENT.email` The email address of the current user.
+
 
 ## Grading with templates
 Using just the template mechanism described above it is possible to write
