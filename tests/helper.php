@@ -65,7 +65,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
 
     /**
      * Gets the form data that would come back when the editing form is saved,
-     * if you were creating the standard sql question.
+     * if you were creating the standard sqr question.
      * @return stdClass the form data.
      */
     public function get_coderunner_question_form_data_sqr() {
@@ -101,7 +101,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
         return $form;
     }
 
-    /**
+/**
      * Makes a coderunner python3-pylint-func question asking for a sqr() function
      * @return qtype_coderunner_question
      */
