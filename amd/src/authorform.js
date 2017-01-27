@@ -72,7 +72,7 @@ define(['jquery'], function($) {
             courseId = $('input[name="courseid"]').prop('value'),
             questiontypeHelpDiv = $('#qtype-help'),
             precheck = $('select#id_precheck'),
-            testtypedivs = $('div[id^=fitem_id_testtype]');
+            testtypedivs = $('div.testtype');
 
         // Check if need to (re-)initialise Ace in a given textarea with a
         // given language.
