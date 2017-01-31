@@ -42,7 +42,7 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('coderunnercontexts', 'qtype_coderunner'));
 
 // Find in which contexts the user can edit questions.
-$questionsbycontext = $bulktester->get_coderunner_questions_by_context();
+$questionsbycontext = $bulktester->get_num_coderunner_questions_by_context();
 $availablequestionsbycontext = array();
 foreach ($questionsbycontext as $contextid => $numcoderunnerquestions) {
     $context = context::instance_by_id($contextid);
@@ -79,5 +79,3 @@ if (count($availablequestionsbycontext) == 0) {
 }
 
 echo $OUTPUT->footer();
-
-
