@@ -47,7 +47,7 @@ define(['jquery'], function($) {
             w = parseInt(textarea.css("width")),
             focused = textarea[0] === document.activeElement;
 
-        this.HANDLE_SIZE = 5;
+        this.HANDLE_SIZE = 6;
         this.MIN_WIDTH = 300;
         this.MIN_HEIGHT = 100;
 
@@ -94,6 +94,11 @@ define(['jquery'], function($) {
 
         this.setEventHandlers(textarea);
         this.captureTab();
+
+        // Try to tell Moodle about parts of the editor with z-index.
+        // It is hard to be sure if this is complete. ACE adds all its CSS using JavaScript.
+        // Here, we just deal with things that are known to cause a problem.
+        $('.ace_gutter').addClass('moodle-has-zindex');
 
         textarea.hide();
         if (focused) {

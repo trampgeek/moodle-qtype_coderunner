@@ -252,6 +252,7 @@ Set the penalty regime to \'0\' for zero penalties on all submissions.';
 $string['memorylimit'] = 'MemLimit (MB)';
 $string['missinganswers'] = 'missing answers';
 $string['missingoutput'] = 'You must supply the expected output from this test case.';
+$string['missingprototypes'] = 'Missing prototypes';
 
 $string['nearequalitygrader'] = 'Nearly exact match';
 $string['noqtype'] = 'No question type selected';
@@ -313,6 +314,8 @@ $string['precheck_only'] = 'Pre-check only';
 $string['precheckingemptyset'] = 'Prechecking examples, but there aren\'t any!';
 $string['proceed_at_own_risk'] = 'Editing a built-in question prototype?! Proceed at your own risk!';
 $string['prototypecontrols'] = 'Prototyping';
+$string['prototypeusage'] = 'CodeRunner question prototype usage for course {$a}';
+$string['prototypeusageindex'] = 'Available courses';
 $string['prototypecontrols_help'] = 'If \'Is prototype\' is true, this question becomes a prototype for other questions.
 After saving, the specified question type name will appear in the dropdown list
 of question types. New questions based on this type will then by default inherit
@@ -564,7 +567,7 @@ $string['type_header'] = 'CodeRunner question type';
 $string['typename'] = 'Question type';
 $string['typerequired'] = 'Please select the type of question (language, format, etc)';
 
-$string['unauthorisedbulktest'] = 'You do not have edit access to any CodeRunner questions';
+$string['unauthorisedbulktest'] = 'You do not have suitable access to any CodeRunner questions';
 $string['useasexample'] = 'Use as example';
 $string['useace'] = 'Use ace';
 

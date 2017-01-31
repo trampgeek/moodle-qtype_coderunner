@@ -44,23 +44,28 @@ class qtype_coderunner_testcase extends advanced_testcase {
     }
 
     /**
-     * Set up the the test sandbox configuratoin defined in the files
+     * Set up the the test sandbox configuration defined in the files
      * tests/fixtures/test-sandbox-config-dist.php and
      * tests/fixtures/test-sandbox-config.php.
      */
     public static function setup_test_sandbox_configuration() {
-        global $CFG;
+        global $CFG, $USER;
         require($CFG->dirroot . '/question/type/coderunner/tests/fixtures/test-sandbox-config-dist.php');
         $localconfig = $CFG->dirroot . '/question/type/coderunner/tests/fixtures/test-sandbox-config.php';
         if (is_readable($localconfig)) {
             require($localconfig);
         }
+        $USER->username  = 'tester';
+        $USER->email     = 'tester@nowhere.com';
+        $USER->firstname = 'Test';
+        $USER->lastname  = 'User';
     }
 
     // Override base class method to set a flag, which can be tested
     // to conditionally skip later tests. See jobesendbox_test.
     // Name can't be made moodle-standards compliant as it's defined by phpunit.
-    protected function onNotSuccessfulTest(Exception $e) {
+    // $e is the exception to be thrown.
+    protected function onNotSuccessfulTest($e) {
         $this->hasfailed = true;
         throw $e;
     }

@@ -56,7 +56,7 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading($title, 1);
 
 // Run the tests.
-foreach ($bulktester->get_coderunner_questions_by_context() as $contextid => $numcoderunnerquestions) {
+foreach ($bulktester->get_num_coderunner_questions_by_context() as $contextid => $numcoderunnerquestions) {
     if ($skipping && $contextid != $startfromcontextid) {
         continue;
     }

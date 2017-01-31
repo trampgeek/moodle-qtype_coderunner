@@ -1,3 +1,10 @@
+26 January 2017. Version 3.1.2. Minor updates and bug fixes including:
+    - Fix broken layout of question authoring form with Boost theme (V3.1.1)
+    - Fix bugs in PHP and NodeJS question types
+    - Add Twig STUDENT variable (thanks David Bowes)
+    - Fix ACE editor gutter showing through Moodle help popups (thanks Tim Hunt)
+    - Various documentation updates.
+
 6 January 2017. Version 3.1.0. Another major refactoring with some
 significant new features including:
     - A 'Precheck' capability, which presents students with an extra button

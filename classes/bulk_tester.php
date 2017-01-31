@@ -31,12 +31,51 @@ class qtype_coderunner_bulk_tester  {
     const EXCEPTION = 3;
 
     /**
+     * Get all the courses and their contexts from the database
+     *
+     * @return array of course objects with id, contextid and name (short),
+     * indexed by id
+     */
+    public function get_all_courses() {
+        global $DB;
+
+        return $DB->get_records_sql("
+            SELECT crs.id, ctx.id as contextid, crs.shortname as name
+              FROM {course} crs
+              JOIN {context} ctx ON ctx.instanceid = crs.id
+            WHERE ctx.contextlevel = 50
+            ORDER BY name");
+    }
+
+
+    /**
+     * Get all available prototypes for the given course.
+     * @param $courseid the id of the course whose context is searched for prototypes
+     * @return stdClass[] question prototype rows from question joined to
+     * coderunner_options, keyed by coderunnertype
+     */
+    public static function get_all_prototypes($courseid) {
+        global $DB;
+        $coursecontext = context_course::instance($courseid);
+        list($contextcondition, $params) = $DB->get_in_or_equal($coursecontext->get_parent_context_ids(true));
+
+        $rows = $DB->get_records_sql("
+                SELECT qco.coderunnertype, q.name, qco.*
+                  FROM {question_coderunner_options} qco
+                  JOIN {question} q ON q.id = qco.questionid
+                  JOIN {question_categories} qc ON qc.id = q.category
+                  WHERE prototypetype != 0 AND qc.contextid $contextcondition
+                  ORDER BY coderunnertype", $params);
+        return $rows;
+    }
+
+    /**
      * Get all the contexts that contain at least one CodeRunner question, with a
      * count of the number of those questions.
      *
      * @return array context id => number of CodeRunner questions.
      */
-    public function get_coderunner_questions_by_context() {
+    public function get_num_coderunner_questions_by_context() {
         global $DB;
 
         return $DB->get_records_sql_menu("
@@ -48,6 +87,26 @@ class qtype_coderunner_bulk_tester  {
           GROUP BY ctx.id, ctx.path
           ORDER BY ctx.path
         ");
+    }
+
+    /**
+     * Get all the non-prototype coderunner questions in the given context.
+     *
+     * @param courseid
+     * @return array qid => question
+     */
+    public function get_all_coderunner_questions_in_context($contextid) {
+        global $DB;
+
+        return $DB->get_records_sql("
+            SELECT q.id, ctx.id as contextid, qc.id as category, q.*, opts.*
+              FROM {context} ctx
+              JOIN {question_categories} qc ON qc.contextid = ctx.id
+              JOIN {question} q ON q.category = qc.id
+              JOIN {question_coderunner_options} opts ON opts.questionid = q.id
+              WHERE prototypetype = 0
+              AND ctx.id = :contextid
+              ORDER BY name", array('contextid' => $contextid));
     }
 
     /**
@@ -201,5 +260,50 @@ class qtype_coderunner_bulk_tester  {
 
         echo html_writer::tag('p', html_writer::link(new moodle_url('/question/type/coderunner/bulktestindex.php'),
                 get_string('back')));
+    }
+
+
+    /**
+     *  Display the results of scanning all the CodeRunner questions to
+     *  find all prototype usages in a particular course
+     * @param $course an array of stdObj course objects
+     * @param $prototypes an associative array of coderunnertype => question
+     * @param $missingprototypes an array of questions for which no prototype
+     * could be found.
+     */
+    public static function display_prototypes($courseid, $prototypes, $missingprototypes) {
+        global $OUTPUT;
+
+        foreach ($prototypes as $prototypename => $prototype) {
+            if (isset($prototype->usages)) {
+                echo $OUTPUT->heading($prototypename, 4);
+                echo html_writer::start_tag('ul');
+                foreach($prototype->usages as $question) {
+                    $qbankparams = array('qperpage' => 1000); // Should match MAXIMUM_QUESTIONS_PER_PAGE but that constant is not easily accessible.
+                    $qbankparams['category'] = $question->category . ',' . $question->contextid;
+                    $qbankparams['lastchanged'] = $question->questionid;
+                    $qbankparams['courseid'] = $courseid;
+                    $qbankparams['showhidden'] = 1;
+                    $questionbanklink = new moodle_url('/question/edit.php', $qbankparams);
+                    echo html_writer::tag('li',
+                        html_writer::link($questionbanklink, $question->name, array('target' => '_blank'))
+                    );
+                }
+                echo html_writer::end_tag('ul');
+            }
+        }
+
+        if ($missingprototypes) {
+            echo $OUTPUT->heading(get_string('missingprototypes', 'qtype_coderunner'), 3);
+            echo html_writer::start_tag('ul');
+            foreach ($missingprototypes as $name => $questions) {
+                $item = html_writer::tag('em', $name) . ': ';
+                foreach ($questions as $question) {
+                    $item .= ' ' . $question->name;
+                }
+                echo html_writer::tag('li', $item);
+            }
+            echo html_writer::end_tag('ul');
+        }
     }
 }

@@ -95,7 +95,7 @@ body#page-question-type-coderunner .ace_editor {
 }
 
 .que.coderunner div.coderunner-test-results.good.precheck {
-    background: repeating-linear-gradient(0deg, #DDFFDD, #DDFFDD 8px, #EEFFEE 8px, #EEFFEE 16px);
+    background: repeating-linear-gradient(0deg, #FFFFFF, #FFFFFF 8px, #f8f1f9 8px, #f8f1f9 16px);
 }
 
 .que.coderunner div.coderunner-test-results.bad,
@@ -152,8 +152,12 @@ div.coderunner-test-results.partial {
 
 
 /* Editing form. */
-body#page-question-type-coderunner #id_custom_template {
+body#page-question-type-coderunner div.edit_code textarea {
     width: 100%;
+}
+
+body#page-question-type-coderunner .ace_wrapper {
+    border: 1px solid #bbb;
 }
 
 body#page-question-type-coderunner div[id^=fitem_id_],
@@ -226,6 +230,11 @@ body#page-question-type-coderunner input#id_memlimitmb {
 body#page-question-type-coderunner label+select,
 body#page-question-type-coderunner label+input {
     margin-right: 1em;
+}
+
+body#page-question-type-coderunner div.testcaseexpression {
+    padding-top: 10px;
+    border-top: 1px solid lightgrey;
 }
 
 /* Bulk tester */

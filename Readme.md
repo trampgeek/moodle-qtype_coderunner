@@ -144,22 +144,26 @@ that same test all by itself in the combinator template.
 
 CodeRunner requires two separate plug-ins, one for the question type and one
 for the specialised adaptive behaviour. The plug-ins are in two
-different github repositories: github.com/trampgeek/moodle-qbehaviour_adaptive_adapted_for_coderunner
-and github.com/trampgeek/moodle-qtype_coderunner. Install the question behaviour
-first (see the instructions within that repository), then the question type second,
-as follows.
+different github repositories: `github.com/trampgeek/moodle-qbehaviour_adaptive_adapted_for_coderunner`
+and `github.com/trampgeek/moodle-qtype_coderunner`. Install the two plugs 
+using one of the following two methods.
 
-To install the question type, either:
+EITHER:
 
-1. Download the zip file of the required branch from github,
+1. Download the zip file of the required branch from the [coderunner github repository](https://github.com/trampgeek/moodle-qtype_coderunner)
 unzip it into the directory `moodle/question/type` and change the name
 of the newly-created directory from `moodle-qtype_coderunner-<branchname>` to just
-`coderunner`.
+`coderunner`. Similarly download the zip file of the required question behaviour
+from the [behaviour github repository](https://github.com/trampgeek/moodle-qbehaviour_adaptive_adapted_for_coderunner),
+unzip it into the directory `moodle/question/behaviour` and change the
+newly-created directory name to `qbehaviour_adaptive_adapted_for_coderunner`.
+OR
 
-1. Get the code using git by running the following command in the
+1. Get the code using git by running the following commands in the
 top level folder of your Moodle install:
 
         git clone git://github.com/trampgeek/moodle-qtype_coderunner.git question/type/coderunner
+        git clone git://github.com/trampgeek/moodle-qbehaviour_adaptive_adapted_for_coderunner.git question/behaviour/adaptive_adapted_for_coderunner
 
 Either way you may also need to change the ownership
 and access rights to ensure the directory and
@@ -186,7 +190,7 @@ upper bound on the number of jobs you will need to submit per hour. We
 will do our best to accommodate you if we have sufficient capacity.
 
 WARNING: at least a couple of users have broken CodeRunner by duplicating
-the prototype questions in the System/CR_PROTOTYPES category. `Do not` touch
+the prototype questions in the System/CR\_PROTOTYPES category. `Do not` touch
 those special questions until you have read this entire manual and
 are familiar with the inner workings of CodeRunner. Even then, you should
 proceed with caution. These prototypes are not
@@ -201,11 +205,17 @@ Once you have installed the CodeRunner question type, you should be able to
 run CodeRunner questions using the University of Canterbury's Jobe Server
 as a sandbox. It is
 recommended that you do this before proceeding to install and configure your
-own sandbox. Using the standard Moodle web interface, either as a Moodle
+own sandbox.
+
+Using the standard Moodle web interface, either as a Moodle
 administrator or as a teacher in a course you have set up, go to the Question
 Bank and try creating a new CodeRunner question. A simple Python3 test question
 is: "Write a function *sqr(n)* that returns the square of its
-parameter *n*.". Test cases for this might be:
+parameter *n*.". The introductory quick-start guide in the incomplete
+[Question Authoring Guide](https://github.com/trampgeek/moodle-qtype_coderunner/blob/master/authorguide.md)
+gives step-by-step instructions for creating such a question. Alternatively
+you can just try to create a question using the on-line help in the question
+authoring form. Test cases for the question might be:
 
 <table>
 <tr><th>Test</th><th>Expected</th></tr>
@@ -1016,6 +1026,19 @@ template to the `cputimelimitsecs` attribute does not alter the actual run time;
 the assignment statement is being executed in the sandbox after all resource
 limits have been set. The question author can however directly alter all
 the above question attributes directly in the question authoring form.
+
+
+### The Twig STUDENT variable
+
+The template variable `STUDENT` is an object containing a subset of the fields of the
+PHP user object. The fileds/attributes of STUDENT that might be of interest to authors include the
+following.
+
+ * `STUDENT.username` The unique internal username of the current user.
+ * `STUDENT.firstname` The first name of the current user.
+ * `STUDENT.lastname` The last name of the current user.
+ * `STUDENT.email` The email address of the current user.
+
 
 ## Grading with templates
 Using just the template mechanism described above it is possible to write

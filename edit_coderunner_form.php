@@ -127,7 +127,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->addElement('textarea', 'answer',
                 get_string('answer', 'qtype_coderunner'),
                 array('rows' => 9, 'class' => 'answer edit_code'));
-        $mform->addElement('checkbox', 'validateonsave', null,
+        $mform->addElement('advcheckbox', 'validateonsave', null,
                 get_string('validateonsave', 'qtype_coderunner'));
         $mform->setDefault('validateonsave', false);
         $mform->addHelpButton('answer', 'answer', 'qtype_coderunner');
@@ -503,7 +503,6 @@ class qtype_coderunner_edit_form extends question_edit_form {
         // Marking controls.
         $markingelements = array();
         $markingelements[] = $mform->createElement('advcheckbox', 'allornothing',
-                get_string('marking', 'qtype_coderunner'),
                 get_string('allornothing', 'qtype_coderunner'));
         $markingelements[] = $mform->CreateElement('text', 'penaltyregime',
             get_string('penaltyregimelabel', 'qtype_coderunner'),

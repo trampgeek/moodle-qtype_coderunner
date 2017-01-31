@@ -14,22 +14,30 @@
 // You should have received a copy of the GNU General Public License
 // along with CodeRunner.  If not, see <http://www.gnu.org/licenses/>.
 
+
 /**
- * @package   qtype_coderunner
- * @copyright Richard Lobb, The University of Canterbury, New Zealand.
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * Student class to access user details without exposing all properties of global $USER.
+ *
+ * @package    qtype
+ * @subpackage coderunner
+ * @copyright  2017 David Bowes <d.h.bowes@herts.ac.uk>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+class qtype_coderunner_student {
 
-$plugin->version  = 2017010604;
-$plugin->requires = 2015051100;
-$plugin->cron = 0;
-$plugin->component = 'qtype_coderunner';
-$plugin->maturity = MATURITY_STABLE;
-$plugin->release = '3.1.2';
+    public $username;
+    public $email;
+    public $firstname; 
+    public $lastname;
 
-$plugin->dependencies = array(
-    'qbehaviour_adaptive_adapted_for_coderunner' => 2016122000
-);
+    public function __construct($user) {
+      $this->username  = $user->username;
+      $this->email     = $user->email;
+      $this->firstname = $user->firstname;
+      $this->lastname  = $user->lastname;
+    }
 
+}
+
+?>
