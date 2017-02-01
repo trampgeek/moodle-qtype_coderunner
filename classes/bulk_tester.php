@@ -279,15 +279,7 @@ class qtype_coderunner_bulk_tester  {
                 echo $OUTPUT->heading($prototypename, 4);
                 echo html_writer::start_tag('ul');
                 foreach($prototype->usages as $question) {
-                    $qbankparams = array('qperpage' => 1000); // Should match MAXIMUM_QUESTIONS_PER_PAGE but that constant is not easily accessible.
-                    $qbankparams['category'] = $question->category . ',' . $question->contextid;
-                    $qbankparams['lastchanged'] = $question->questionid;
-                    $qbankparams['courseid'] = $courseid;
-                    $qbankparams['showhidden'] = 1;
-                    $questionbanklink = new moodle_url('/question/edit.php', $qbankparams);
-                    echo html_writer::tag('li',
-                        html_writer::link($questionbanklink, $question->name, array('target' => '_blank'))
-                    );
+                    echo html_writer::tag('li', self::make_question_link($courseid, $question));
                 }
                 echo html_writer::end_tag('ul');
             }
@@ -297,13 +289,31 @@ class qtype_coderunner_bulk_tester  {
             echo $OUTPUT->heading(get_string('missingprototypes', 'qtype_coderunner'), 3);
             echo html_writer::start_tag('ul');
             foreach ($missingprototypes as $name => $questions) {
-                $item = html_writer::tag('em', $name) . ': ';
+                $links = array();
                 foreach ($questions as $question) {
-                    $item .= ' ' . $question->name;
+                    $links[] = self::make_question_link($courseid, $question);
                 }
-                echo html_writer::tag('li', $item);
+                $itemlist = html_writer::tag('em', $name) . ': ' . implode(', ', $links);
+                echo html_writer::tag('li', $itemlist);
             }
             echo html_writer::end_tag('ul');
         }
+    }
+
+
+    /**
+     * Return a link to the given question in the question bank.
+     * @param int $courseid the id of the course containing the question
+     * @param stdObj $question the question
+     * @return html link to the question in the quesiton bank
+     */
+    private static function make_question_link($courseid, $question) {
+        $qbankparams = array('qperpage' => 1000); // Should match MAXIMUM_QUESTIONS_PER_PAGE but that constant is not easily accessible.
+        $qbankparams['category'] = $question->category . ',' . $question->contextid;
+        $qbankparams['lastchanged'] = $question->questionid;
+        $qbankparams['courseid'] = $courseid;
+        $qbankparams['showhidden'] = 1;
+        $questionbanklink = new moodle_url('/question/edit.php', $qbankparams);
+        return html_writer::link($questionbanklink, $question->name, array('target' => '_blank'));
     }
 }

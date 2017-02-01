@@ -1448,8 +1448,9 @@ of the right name (preferably by importing the original correct prototype).
 To repeat:
 user-defined question types are not for the faint of heart. Caveat emptor.
 
-**WARNING #2:** although you can define test cases in a question prototype
-these have no relevance and are silently ignored.
+**WARNING #2:** although you can define test cases in a question prototype,
+e.g. for validation purposes, they are not inherited by the "children" of
+the prototype.
 
 ## A note on accessibility
 
