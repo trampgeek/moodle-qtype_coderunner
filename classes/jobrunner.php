@@ -171,6 +171,9 @@ class qtype_coderunner_jobrunner {
     // Run all tests one-by-one on the sandbox.
     private function run_tests_singly() {
         $maxmark = $this->maximum_possible_mark($this->testcases);
+        if ($maxmark == 0) {
+            $maxmark = 1; // Something silly is happening. Probably running a prototype with no tests.
+        }
         $numtests = count($this->testcases);
         $outcome = new qtype_coderunner_testing_outcome($maxmark, $numtests);
         foreach ($this->testcases as $testcase) {
