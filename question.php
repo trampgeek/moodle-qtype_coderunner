@@ -216,9 +216,10 @@ class qtype_coderunner_question extends question_graded_automatically {
 
 
 
-    /******************************************************************.
+    /* ================================================================
      * Interface methods for use by jobrunner.
-     ******************************************************************/
+       ================================================================*/
+
     // Return the template.
     public function get_template() {
         return $this->template;

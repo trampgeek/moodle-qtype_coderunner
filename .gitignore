@@ -18,4 +18,5 @@ composer.json
 composer.lock
 excludesfromstylechecker.txt
 miscsqlqueries
+moodleopenshift.md
 dbquerieswhilefixingbug.sql

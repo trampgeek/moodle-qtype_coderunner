@@ -101,7 +101,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
         return $form;
     }
 
-/**
+    /**
      * Makes a coderunner python3-pylint-func question asking for a sqr() function
      * @return qtype_coderunner_question
      */

@@ -1,3 +1,9 @@
+1 February 2017. Version 3.1.2+.
+    - A couple more tweaks to improve appearance with Boost theme 
+    - Add administrator script to analyse prototype usages in a course
+      (run script <moodlehome>/question/type/coderunner/prototypeusagesindex.php)
+    - Fix crash if user attempts to validate a new prototype question.
+
 26 January 2017. Version 3.1.2. Minor updates and bug fixes including:
     - Fix broken layout of question authoring form with Boost theme (V3.1.1)
     - Fix bugs in PHP and NodeJS question types

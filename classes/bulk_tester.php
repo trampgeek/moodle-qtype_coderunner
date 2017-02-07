@@ -278,7 +278,7 @@ class qtype_coderunner_bulk_tester  {
             if (isset($prototype->usages)) {
                 echo $OUTPUT->heading($prototypename, 4);
                 echo html_writer::start_tag('ul');
-                foreach($prototype->usages as $question) {
+                foreach ($prototype->usages as $question) {
                     echo html_writer::tag('li', self::make_question_link($courseid, $question));
                 }
                 echo html_writer::end_tag('ul');
@@ -308,7 +308,7 @@ class qtype_coderunner_bulk_tester  {
      * @return html link to the question in the quesiton bank
      */
     private static function make_question_link($courseid, $question) {
-        $qbankparams = array('qperpage' => 1000); // Should match MAXIMUM_QUESTIONS_PER_PAGE but that constant is not easily accessible.
+        $qbankparams = array('qperpage' => 1000); // Can't easily get the true value.
         $qbankparams['category'] = $question->category . ',' . $question->contextid;
         $qbankparams['lastchanged'] = $question->questionid;
         $qbankparams['courseid'] = $courseid;

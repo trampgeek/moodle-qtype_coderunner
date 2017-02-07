@@ -54,7 +54,7 @@ if (!has_capability('moodle/question:editall', $coursecontext)) {
     $questions = $bulktester->get_all_coderunner_questions_in_context($coursecontextid);
     $prototypes = $bulktester->get_all_prototypes($courseid);
 
-    // Analyse the prototype usage
+    // Analyse the prototype usage.
 
     $missing = array();
     foreach ($questions as $id => $question) {

@@ -24,20 +24,21 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+defined('MOODLE_INTERNAL') || die();
+
 class qtype_coderunner_student {
 
     public $username;
     public $email;
-    public $firstname; 
+    public $firstname;
     public $lastname;
 
     public function __construct($user) {
-      $this->username  = $user->username;
-      $this->email     = $user->email;
-      $this->firstname = $user->firstname;
-      $this->lastname  = $user->lastname;
+        $this->username  = $user->username;
+        $this->email     = $user->email;
+        $this->firstname = $user->firstname;
+        $this->lastname  = $user->lastname;
     }
 
 }
 
-?>
