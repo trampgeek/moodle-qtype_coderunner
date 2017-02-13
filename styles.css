@@ -154,6 +154,7 @@ div.coderunner-test-results.partial {
 /* Editing form. */
 body#page-question-type-coderunner div.edit_code textarea {
     width: 100%;
+    font-family: courier, monospace;
 }
 
 body#page-question-type-coderunner .ace_wrapper {
