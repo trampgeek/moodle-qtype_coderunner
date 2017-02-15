@@ -78,12 +78,12 @@ define(['jquery'], function($) {
         return result;
     }
 
-    /* Process the given token list and a subsequence of it, joining tokens
-     * with 'joiner' and wrapping all items not in the subsequence with
+    /* Process the given token list and a subsequence of it, concatenating
+     * tokens and wrapping all items not in the subsequence with
      * del tags (or whatever strings are specified by startDel, endDel).
      * Return (what is assumed to be) the html of all the joined tokens.
      */
-    function insertDels(tokens, subSeq, joiner, startDel, endDel) {
+    function insertDels(tokens, subSeq, startDel, endDel) {
         var html = "",
             deleting = false,
             i,
@@ -107,9 +107,7 @@ define(['jquery'], function($) {
                     deleting = true;
                 }
             }
-            if (i !== 0) {
-                html += joiner;
-            }
+
             html += tokens[i];
         }
         if (deleting) {
@@ -123,23 +121,47 @@ define(['jquery'], function($) {
         return elem.tagName.toLowerCase();
     }
 
-    /* Return a sequence of textual units of the type
-     * dictated by the given splitter. Extra 'leftward-arrow-with-hook'
-     * characters (\u21A9) are added at the ends of lines if showNls is true
+    /* Return the sequence of tokens from the given HTML element.
+     * A token is either a single character or an HTML entity (&.*;)
+     * Extra 'leftward-arrow-with-hook' characters (\u21A9) are added
+     * at the ends of lines.
      */
-    function getSequence(element, splitter, showNls) {
+    function getTokens(element) {
         var isPre = elType(element) === 'pre',
             text = element.innerHTML,
-            seq;
+            seq,
+            i = 0;
 
-        if (showNls) {
-            if (isPre) {
-                text = text.replace(/\n/g, NLCHAR + '\n');
+        function nextToken() {
+            // Extract and return the next token start at text[i]. Update i.
+            // Precondition: i < text.length
+            var token, match;
+            if (text[i] != '&') {
+                token = text[i];
+                i = i + 1;
+            } else {
+                match = text.substring(i, text.length).match(/(^&[a-zA-Z]+;)|(^&#[0-9]+;)|(^&#[xX][0-9a-fA-F]+;)/);
+                if (match === null) {
+                    token = text[i];
+                    i = i + 1;
+                } else {
+                    token = match[0];
+                    i = i + token.length;
+                }
             }
-            text = text.replace(/(<br ?.*?>)/g, NLCHAR + '$1');
+            return token;
         }
 
-        seq = text.split(splitter);
+        if (isPre) {
+            text = text.replace(/\n/g, NLCHAR + '\n');
+        }
+        text = text.replace(/(<br ?.*?>)/g, NLCHAR + '$1');
+        seq = [];
+        i = 0;
+        while (i < text.length) {
+            seq.push(nextToken());
+        }
+
         return seq;
     }
 
@@ -151,19 +173,17 @@ define(['jquery'], function($) {
      * can be highlighted.
      */
     function showDifferences(firstEl, secondEl) {
-        var splitter = '',
-            showNls = true,
-            openDelTag = '<del>',
+        var openDelTag = '<del>',
             closeDelTag = '</del>',
             seq1,
             seq2,
             css;
 
-        seq1 = getSequence(firstEl, splitter, showNls);
-        seq2 = getSequence(secondEl, splitter, showNls);
+        seq1 = getTokens(firstEl);
+        seq2 = getTokens(secondEl);
         css = lcss(seq1, seq2);
-        firstEl.innerHTML = insertDels(seq1, css, splitter, openDelTag, closeDelTag);
-        secondEl.innerHTML = insertDels(seq2, css, splitter, openDelTag, closeDelTag);
+        firstEl.innerHTML = insertDels(seq1, css, openDelTag, closeDelTag);
+        secondEl.innerHTML = insertDels(seq2, css, openDelTag, closeDelTag);
     }
 
     /* Given (references to) two DOM elements, delete all <del ...> and </del>
