@@ -126,7 +126,7 @@ EOTEMPLATE;
 
         // Now click check with a wrong answer.
         $this->process_submission(array('-submit' => 1, 'answer' => "def sqr(n): return n\n"));
-        $this->check_output_does_not_contain("Pre-check only");
+        $this->check_output_does_not_contain("Precheck only");
         $this->check_output_contains('print(sqr(-11))');
         $this->check_output_contains('print(sqr(12))');
         $this->check_output_contains('print(sqr(-7))');
@@ -137,7 +137,7 @@ EOTEMPLATE;
 
         // Lastly check with a right answer, verify that a single 20% penalty was incurred.
         $this->process_submission(array('-submit' => 1, 'answer' => "def sqr(n): return n * n\n"));
-        $this->check_output_does_not_contain("Pre-check only");
+        $this->check_output_does_not_contain("Precheck only");
         $this->check_output_contains('print(sqr(-11))');
         $this->check_output_contains('print(sqr(12))');
         $this->check_output_contains('print(sqr(-7))');
@@ -158,7 +158,7 @@ EOTEMPLATE;
 
         // Precheck with a wrong answer.
         $this->process_submission(array('-precheck' => 1, 'answer' => "def sqr(n): return n\n"));
-        $this->check_output_contains("Pre-check only");
+        $this->check_output_contains("Precheck only");
         $this->check_output_contains('print(sqr(-11))');
         $this->check_output_contains('print(sqr(12))');
         $this->check_output_does_not_contain('print(sqr(-7))');
@@ -220,7 +220,7 @@ EOTEMPLATE;
         // Precheck with a right answer, but because IS_PRECHECK is true
         // all answers should have been doubled.
         $this->process_submission(array('-precheck' => 1, 'answer' => "def sqr2(n): return n * n\n"));
-        $this->check_output_contains("Pre-check only");
+        $this->check_output_contains("Precheck only");
         $this->check_output_contains('242');
         $this->check_output_contains('288');
         $this->check_output_contains('98');
