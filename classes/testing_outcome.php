@@ -260,13 +260,13 @@ class qtype_coderunner_testing_outcome {
                     $tablerow[] = $fraction;
                 }
                 $tablerow[] = !$testisvisible;
+                $table[] = $tablerow;
             }
 
             if ($testresult->hiderestiffail && !$testresult->iscorrect) {
                 $hidingrest = true;
             }
 
-            $table[] = $tablerow;
         }
 
         return $table;
