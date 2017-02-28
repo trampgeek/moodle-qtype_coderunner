@@ -117,7 +117,7 @@ $string['errorstring-wronglangid'] = 'Non-existent language requested';
 $string['errorstring-accessdenied'] = 'Access to sandbox denied';
 $string['errorstring-submissionlimitexceeded'] = 'Sandbox submission limit reached';
 $string['errorstring-submissionfailed'] = 'Submission to sandbox failed';
-$string['errorstring-unknown'] = 'Unexpected error while executing your code. Your code may be too slow, or the sandbox server may be down or overloaded';
+$string['errorstring-unknown'] = 'Unexpected error while executing your code. The sandbox server may be down or overloaded. Perhaps try again shortly?';
 $string['expected'] = 'Expected output';
 $string['expectedcolhdr'] = 'Expected';
 $string['expected_help'] = 'The expected output from the test. Seen by the template as {{TEST.expected}}.';
@@ -310,7 +310,7 @@ be different from the normal Check, if the template code so chooses).
 The template can check whether or not the run is a precheck run using the
 Twig parameter {{ IS_PRECHECK }}, which is "1" during precheck runs and
 "0" otherwise.';
-$string['precheck_only'] = 'Pre-check only';
+$string['precheck_only'] = 'Precheck only';
 $string['precheckingemptyset'] = 'Prechecking examples, but there aren\'t any!';
 $string['proceed_at_own_risk'] = 'Editing a built-in question prototype?! Proceed at your own risk!';
 $string['prototypecontrols'] = 'Prototyping';
@@ -563,11 +563,13 @@ ignored.';
 $string['testtype_normal'] = 'Check only';
 $string['testtype_precheck'] = 'Precheck only';
 $string['testtype_both'] = 'Both';
+$string['tooshort'] = 'Answer is too short to be meaningful and has been ignored without penalty';
 $string['type_header'] = 'CodeRunner question type';
 $string['typename'] = 'Question type';
 $string['typerequired'] = 'Please select the type of question (language, format, etc)';
 
 $string['unauthorisedbulktest'] = 'You do not have suitable access to any CodeRunner questions';
+$string['unknownerror'] = 'An unexpected error occurred. The sandbox may be down. Try again shortly.';
 $string['useasexample'] = 'Use as example';
 $string['useace'] = 'Use ace';
 

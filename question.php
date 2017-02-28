@@ -73,7 +73,7 @@ class qtype_coderunner_question extends question_graded_automatically {
     public function is_gradable_response(array $response) {
         return array_key_exists('answer', $response) &&
                 !empty($response['answer']) &&
-                strlen($response['answer']) > constants::FUNC_MIN_LENGTH;
+                strlen($response['answer']) >= constants::FUNC_MIN_LENGTH;
     }
 
     public function is_complete_response(array $response) {
@@ -87,7 +87,14 @@ class qtype_coderunner_question extends question_graded_automatically {
      * @return string the message.
      */
     public function get_validation_error(array $response) {
-        return get_string('answerrequired', 'qtype_coderunner');
+        if (array_key_exists('answer', $response)) {
+            if (empty($response['answer'])) {
+                return get_string('answerrequired', 'qtype_coderunner');
+            } elseif (strlen($response['answer']) < constants::FUNC_MIN_LENGTH) {
+                return get_string('answertooshort', 'qtype_coderunner');
+            }
+        }
+        return get_string('unknownerror', 'qtype_coderunner');
     }
 
 
@@ -118,10 +125,24 @@ class qtype_coderunner_question extends question_graded_automatically {
         return isset($this->answer) ? array('answer' => $this->answer) : array();
     }
 
-    // Grade the given 'response'.
-    // This implementation assumes a modified behaviour that will accept a
-    // third array element in its response, containing data to be cached and
-    // served up again in the response on subsequent calls.
+
+    /**
+     * Grade the given student's response.
+     * This implementation assumes a modified behaviour that will accept a
+     * third array element in its response, containing data to be cached and
+     * served up again in the response on subsequent calls.
+     * @param array $response the qt_data for the current pending step. The
+     * two relevant keys are '_testoutcome', which is a cached copy of the
+     * grading outcome if this response has already been graded and 'answer'
+     * (the student's answer) otherwise.
+     * @param bool $isprecheck true iff this grading is occurring because the
+     * student clicked the precheck button
+     * @return 3-element array of the mark (0 - 1), the question_state (
+     * gradedright, gradedwrong, gradedpartial, invalid) and the full
+     * qtype_coderunner_testing_outcome object to be cached. The invalid
+     * state is used when a sandbox error occurs.
+     * @throws coding_exception
+     */
     public function grade_response(array $response, $isprecheck=false) {
         if ($isprecheck && empty($this->precheck)) {
             throw new coding_exception("Unexpected precheck");
@@ -138,7 +159,9 @@ class qtype_coderunner_question extends question_graded_automatically {
         }
 
         $datatocache = array('_testoutcome' => $testoutcomeserial);
-        if ($testoutcome->all_correct()) {
+        if ($testoutcome->run_failed()) {
+            return array(0, question_state::$invalid, $datatocache);
+        } else if ($testoutcome->all_correct()) {
              return array(1, question_state::$gradedright, $datatocache);
         } else if ($this->allornothing && $this->grader !== 'TemplateGrader') {
             return array(0, question_state::$gradedwrong, $datatocache);
