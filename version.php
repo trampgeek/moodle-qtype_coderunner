@@ -30,6 +30,6 @@ $plugin->maturity = MATURITY_STABLE;
 $plugin->release = '3.1.3';
 
 $plugin->dependencies = array(
-    'qbehaviour_adaptive_adapted_for_coderunner' => 2016122000
+    'qbehaviour_adaptive_adapted_for_coderunner' => 2017030200
 );
 
