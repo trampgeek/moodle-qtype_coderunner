@@ -101,7 +101,7 @@ EOTEMPLATE;
 
         // Precheck with a wrong answer.
         $this->process_submission(array('-precheck' => 1, 'answer' => "def sqr(n): return n\n"));
-        $this->check_output_contains("Pre-check only");
+        $this->check_output_contains("Precheck only");
         $this->check_output_contains('print(sqr(-11))');
         $this->check_output_contains('print(sqr(12))');
         $this->check_output_does_not_contain('print(sqr(-7))');
@@ -114,7 +114,7 @@ EOTEMPLATE;
 
         // Now re-precheck with a right answer.
         $this->process_submission(array('-precheck' => 1, 'answer' => "def sqr(n): return n * n\n"));
-        $this->check_output_contains("Pre-check only");
+        $this->check_output_contains("Precheck only");
         $this->check_output_contains('print(sqr(-11))');
         $this->check_output_contains('print(sqr(12))');
         $this->check_output_does_not_contain('print(sqr(-7))');
