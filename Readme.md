@@ -156,7 +156,7 @@ of the newly-created directory from `moodle-qtype_coderunner-<branchname>` to ju
 `coderunner`. Similarly download the zip file of the required question behaviour
 from the [behaviour github repository](https://github.com/trampgeek/moodle-qbehaviour_adaptive_adapted_for_coderunner),
 unzip it into the directory `moodle/question/behaviour` and change the
-newly-created directory name to `qbehaviour_adaptive_adapted_for_coderunner`.
+newly-created directory name to `adaptive_adapted_for_coderunner`.
 OR
 
 1. Get the code using git by running the following commands in the
