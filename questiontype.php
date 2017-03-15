@@ -734,7 +734,7 @@ class qtype_coderunner extends question_type {
             }
         }
 
-        $expout = parent::export_to_xml($questiontoexport, $format, $extra);;
+        $expout = parent::export_to_xml($questiontoexport, $format, $extra);
 
         $expout .= "    <testcases>\n";
 
