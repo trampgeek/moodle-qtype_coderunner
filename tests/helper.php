@@ -866,7 +866,7 @@ EOPROG;
                         'expected' => "a0\nb\t\nc\f\nd'This is a string'\n\"So is this\"")
                 ),
                 array('template' => $template,
-                      'iscombinator' => false)
+                      'iscombinatortemplate' => false)
         );
         return $q;
     }
