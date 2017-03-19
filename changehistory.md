@@ -1,5 +1,9 @@
 # CHANGE HISTORY
 
+### 19 March 2017. Version 3.1.4.
+
+* Fix broken code in some of the sample files, update others.
+
 ### 2 March 2017. Version 3.1.3
 
 * Fix occasional mishandling of whitespace by Show Differences button.
