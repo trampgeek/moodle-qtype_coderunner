@@ -210,7 +210,7 @@ $string['is_prototype'] = 'Use as prototype';
 $string['jobe_apikey'] = 'Jobe API-key';
 $string['jobe_apikey_desc'] = 'The API key to be included in all REST requests to the Jobe server (if required). Max 40 chars. Leave blank to omit the API Key from requests';
 $string['jobe_host'] = 'Jobe server';
-$string['jobe_host_desc'] = 'The host name of the Jobe server plus the port number if other than port 80, e.g. jobe.somewhere.edu:4010';
+$string['jobe_host_desc'] = 'The host name of the Jobe server plus the port number if other than port 80, e.g. jobe.somewhere.edu:4010. The URL for the Jobe request is obtained by prefixing this string with http:// and appending /jobe/index.php/restapi/<REST_METHOD>.';
 
 $string['language'] = 'Sandbox language';
 $string['languages'] = 'Languages';
