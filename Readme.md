@@ -306,13 +306,16 @@ the phpunit environment with the commands
 You can then run the full CodeRunner test suite with one of the following two commands,
 depending on which version of phpunit you're using:
 
-        sudo -u apache vendor/bin/phpunit --verbose --testsuite="qtype_coderunner test suite"
+        sudo -u www-data vendor/bin/phpunit --verbose --testsuite="qtype_coderunner test suite"
 
 or
 
-        sudo -u apache vendor/bin/phpunit --verbose --testsuite="qtype_coderunner_testsuite"
+        sudo -u www-data vendor/bin/phpunit --verbose --testsuite="qtype_coderunner_testsuite"
 
-This will almost certainly show lots of skipped or failed tests relating
+If you're on a Red Hat or similar system in which the web server runs as 
+*apache*, you should replace *www-data* with *apache.
+
+TThe unit tests will almost certainly show lots of skipped or failed tests relating
 to the various sandboxes and languages that you have not installed, e.g.
 the LiuSandbox, Matlab, Octave and Java. These can all be ignored unless you plan to use
 those capabilities. The name of the failing tests should be sufficient to
