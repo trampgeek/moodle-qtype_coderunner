@@ -105,7 +105,8 @@ class qtype_coderunner extends question_type {
             'cputimelimitsecs',
             'memlimitmb',
             'sandboxparams',
-            'templateparams'
+            'templateparams',
+            'uiplugin'
         );
     }
 

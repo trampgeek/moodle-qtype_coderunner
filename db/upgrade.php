@@ -174,6 +174,21 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2016123001, 'qtype', 'coderunner');
     }
 
+    if ($oldversion < 2017032600) {
+        // Define field uiplugin to be added to question_coderunner_options.
+        $table = new xmldb_table('question_coderunner_options');
+        $field = new xmldb_field('uiplugin', XMLDB_TYPE_TEXT, null, null, null, null, null, 'useace');
+
+        // Conditionally launch add field uiplugin.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Coderunner savepoint reached.
+        upgrade_plugin_savepoint(true, 2017032600, 'qtype', 'coderunner');
+
+    }
+
     require_once(__DIR__ . '/upgradelib.php');
     update_question_types();
 
