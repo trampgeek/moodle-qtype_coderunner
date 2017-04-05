@@ -48,6 +48,13 @@ class qtype_coderunner_util {
             $PAGE->requires->js_call_amd('qtype_coderunner/aceinterface', 'initAce', array($textareaid, $lang));
         }
     }
+    
+    public static function load_multichoice_if_required($question, $textareaid) {
+        global $CFG, $PAGE;
+//        if ($question->uiplugin == "multichoice") {
+        $PAGE->requires->js_call_amd('qtype_coderunner/multichoice', 'initQuestionTA', array($textareaid));
+//        }
+    }
 
 
     // Load the ace scripts.

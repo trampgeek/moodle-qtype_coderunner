@@ -482,10 +482,20 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $answerboxelements[] = $mform->createElement('advcheckbox', 'useace', null,
                 get_string('useace', 'qtype_coderunner'));
         $mform->setDefault('useace', true);
+        
+        $uitypes = [
+            "none" => "none",
+            "ace" => "ace",
+            "multichoice" => "multichoice",
+        ];
+        $answerboxelements[] = $mform->createElement('select', 'uiplugin',
+                get_string('uitype', 'qtype_coderunner'),
+                $uitypes);
+        $mform->setDefault('uitype', 'multichoice');
         $mform->addElement('group', 'answerbox_group', get_string('answerbox_group', 'qtype_coderunner'),
                 $answerboxelements, null, false);
         $mform->addHelpButton('answerbox_group', 'answerbox_group', 'qtype_coderunner');
-
+        
         // Precheck control (currently a group with only one element).
         $precheckelements = array();
         $precheckvalues = array(

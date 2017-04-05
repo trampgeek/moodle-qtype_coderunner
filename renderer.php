@@ -117,7 +117,10 @@ class qtype_coderunner_renderer extends qtype_renderer {
         // Initialise any program-editing JavaScript.
         // Thanks to Ulrich Dangel for the original implementation of the Ace code editor.
         qtype_coderunner_util::load_ace_if_required($question, $responsefieldid, constants::USER_LANGUAGE);
+        qtype_coderunner_util::load_multichoice_if_required($question, $responsefieldid);
         $PAGE->requires->js_call_amd('qtype_coderunner/textareas', 'initQuestionTA', array($responsefieldid));
+
+        
 
         return $qtext;
     }
