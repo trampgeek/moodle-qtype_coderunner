@@ -51,9 +51,9 @@ class qtype_coderunner_util {
     
     public static function load_multichoice_if_required($question, $textareaid) {
         global $CFG, $PAGE;
-//        if ($question->uiplugin == "multichoice") {
-        $PAGE->requires->js_call_amd('qtype_coderunner/multichoice', 'initQuestionTA', array($textareaid));
-//        }
+        if ($question->uiplugin == "multichoice") {
+            $PAGE->requires->js_call_amd('qtype_coderunner/multichoice', 'initQuestionTA', array($textareaid));
+        }
     }
 
 
