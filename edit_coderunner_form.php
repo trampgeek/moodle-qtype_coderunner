@@ -482,16 +482,6 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $answerboxelements[] = $mform->createElement('advcheckbox', 'useace', null,
                 get_string('useace', 'qtype_coderunner'));
         $mform->setDefault('useace', true);
-        
-        $uitypes = [
-            "none" => "none",
-            "ace" => "ace",
-            "multichoice" => "multichoice",
-        ];
-        $answerboxelements[] = $mform->createElement('select', 'uiplugin',
-                get_string('uitype', 'qtype_coderunner'),
-                $uitypes);
-        $mform->setDefault('uitype', 'multichoice');
         $mform->addElement('group', 'answerbox_group', get_string('answerbox_group', 'qtype_coderunner'),
                 $answerboxelements, null, false);
         $mform->addHelpButton('answerbox_group', 'answerbox_group', 'qtype_coderunner');
@@ -587,6 +577,19 @@ class qtype_coderunner_edit_form extends question_edit_form {
             array('size' => self::RESULT_COLUMNS_SIZE));
         $mform->setType('resultcolumns', PARAM_RAW);
         $mform->addHelpButton('resultcolumns', 'resultcolumns', 'qtype_coderunner');
+        
+        $uicontrols = array();    
+        $uitypes = [
+            "none" => "none",
+            "ace" => "ace",
+            "multichoice" => "multichoice",
+        ];
+        $uicontrols[] = $mform->createElement('select', 'uiplugin',
+                null, $uitypes);
+        $mform->setDefault('uiplugin', 'none');
+        $mform->addElement('group', 'uicontrols',
+                get_string('uitype', 'qtype_coderunner'), $uicontrols,
+                null, false);
 
         $mform->setExpanded('customisationheader');  // Although expanded it's hidden until JavaScript unhides it .
     }
