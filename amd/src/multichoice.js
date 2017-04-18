@@ -26,8 +26,9 @@
 define(['jquery'], function($) {
 
     function initTextArea() {
+        var textArea = $(this);
 
-        $(this).attr('readonly', 'readonly');
+        textArea.attr('readonly', 'readonly');
         var options = [];
 
         var buttonClicker = document.createElement("div");
@@ -35,7 +36,7 @@ define(['jquery'], function($) {
 
         var jsonData = {};
         // First we load jsonData with whatever is in the textArea
-        jsonData = JSON.parse($(this).val());
+        jsonData = JSON.parse(textArea.val());
 
         // Build the list of options based on the preloaded data
         for (var prop in jsonData) {
@@ -77,10 +78,10 @@ define(['jquery'], function($) {
             radios.forEach(function(radio) {
                 jsonData[radio.id] = radio.checked;
             });
-            $(this).val(JSON.stringify(jsonData));
+            textArea.val(JSON.stringify(jsonData));
         }
 
-        $(buttonClicker).insertBefore($(this));
+        $(buttonClicker).insertBefore(textArea);
 
     }
 
