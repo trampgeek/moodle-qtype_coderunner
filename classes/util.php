@@ -36,7 +36,7 @@ class qtype_coderunner_util {
      */
     public static function load_ace_if_required($question, $textareaid, $whichlang) {
         global $CFG, $PAGE;
-        if ($question->useace) {
+        if ($question->uiplugin == "ace") {
             if ($whichlang === constants::TEMPLATE_LANGUAGE ||
                    empty($question->acelang)) {
                 $lang = $question->language;
