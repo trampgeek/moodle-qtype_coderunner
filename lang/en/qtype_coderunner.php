@@ -568,7 +568,7 @@ $string['type_header'] = 'CodeRunner question type';
 $string['typename'] = 'Question type';
 $string['typerequired'] = 'Please select the type of question (language, format, etc)';
 
-$string['uitype'] = 'Select input UI';
+$string['uitype'] = 'Input UI';
 $string['unauthorisedbulktest'] = 'You do not have suitable access to any CodeRunner questions';
 $string['unknownerror'] = 'An unexpected error occurred. The sandbox may be down. Try again shortly.';
 $string['useasexample'] = 'Use as example';
