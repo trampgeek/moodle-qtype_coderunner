@@ -63,7 +63,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
         $qtext .= html_writer::start_tag('div', array('class' => 'prompt'));
 
-        if (empty($question->penaltyregime)) {
+        if (empty($question->penaltyregime) && $question->penaltyregime !== '0') {
             if (intval(100 * $question->penalty) == 100 * $question->penalty) {
                 $decdigits = 0;
             } else {
