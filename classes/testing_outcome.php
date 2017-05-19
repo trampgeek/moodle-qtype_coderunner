@@ -37,6 +37,7 @@ class qtype_coderunner_testing_outcome {
 
     public $status;                  // One of the STATUS_ constants above.
                                      // If this is not 1, subsequent fields may not be meaningful.
+    public $isprecheck;              // True if this was a precheck run
     public $errorcount;              // The number of failing test cases.
     public $errormessage;            // The error message to display if there are errors.
     public $maxpossmark;             // The maximum possible mark.
@@ -44,8 +45,9 @@ class qtype_coderunner_testing_outcome {
     public $testresults;             // An array of TestResult objects.
     public $sourcecodelist;          // Array of all test runs.
 
-    public function __construct($maxpossmark, $numtestsexpected) {
+    public function __construct($maxpossmark, $numtestsexpected, $isprecheck) {
         $this->status = self::STATUS_VALID;
+        $this->isprecheck = $isprecheck;
         $this->errormessage = '';
         $this->errorcount = 0;
         $this->actualmark = 0;
