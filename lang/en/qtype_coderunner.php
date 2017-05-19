@@ -60,7 +60,7 @@ $string['badquestion'] = 'Error in question';
 $string['badsandboxparams'] = '\'Other\' field (sandbox params) must be either blank or a valid JSON record';
 $string['badtemplateparams'] = 'Template parameters must be either blank or a valid JSON record';
 $string['brokencombinator'] = 'Broken combinator. Expected {$a->numtests} test results, got {$a->numresults}. Please report this error to your tutor.';
-$string['brokencombinatorgrader'] = 'Bad output from grader: {$a->output}. Please report this error to your tutor.';
+$string['brokentemplategrader'] = 'Bad output from grader: {$a->output}. Your program execution may have aborted (e.g. a timeout or memory limit exceeded).';
 $string['bulkquestiontester'] = 'The <a href="{$a->link}">bulk tester script</a> tests that the sample answers for all questions in the current context are marked right';
 $string['bulktestcontinuefromhere'] = 'Run again or resume, starting from here';
 $string['bulktestindextitle'] = 'CodeRunner bulk testing';
