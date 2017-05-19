@@ -614,8 +614,8 @@ class qtype_coderunner extends question_type {
             'validateonsave' => 0,
             'answerpreload' => '',
             'useace' => 1,
-            'iscombinatortemplate' => null,
-            'template' => null
+            'iscombinatortemplate' => null,  // Probably unnecessary?
+            'template' => null  // Probably unnecessary?
         );
 
         foreach ($extraquestionfields as $field) {
