@@ -147,7 +147,10 @@ class qtype_coderunner_question extends question_graded_automatically {
         if ($isprecheck && empty($this->precheck)) {
             throw new coding_exception("Unexpected precheck");
         }
-        if (empty($response['_testoutcome'])) {
+        if (empty($response['_testoutcome']) ||
+                $response['_testoutcome']->$isprecheck != $isprecheck) {
+            // We haven't already graded this question or we graded it with
+            // a different precheck setting
             $code = $response['answer'];
             $testcases = $this->filter_testcases($isprecheck, $this->precheck);
             $runner = new qtype_coderunner_jobrunner();
@@ -352,7 +355,7 @@ class qtype_coderunner_question extends question_graded_automatically {
      *  row) and the questionid from the mdl_questions table.
      */
     private static function get_data_files($question, $questionid) {
-        global $DB;
+        global $DB, $USER;
 
         // If not given in the question object get the contextid from the database.
         if (isset($question->contextid)) {
@@ -364,7 +367,16 @@ class qtype_coderunner_question extends question_graded_automatically {
 
         $fs = get_file_storage();
         $filemap = array();
-        $files = $fs->get_area_files($contextid, 'qtype_coderunner', 'datafile', $questionid);
+
+        if (isset($question->filemanagerdraftid)) {
+            // If we're just validating a question, get files from user draft area
+            $draftid = $question->filemanagerdraftid;
+            $context = context_user::instance($USER->id);
+            $files = $fs->get_area_files($context->id, 'user', 'draft', $draftid, '', false);
+        } else {
+            // Otherwise, get the stored files for this question
+            $files = $fs->get_area_files($contextid, 'qtype_coderunner', 'datafile', $questionid);
+        }
 
         foreach ($files as $f) {
             $name = $f->get_filename();

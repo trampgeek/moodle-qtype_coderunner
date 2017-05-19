@@ -29,8 +29,8 @@ use qtype_coderunner\constants;
 
 class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testing_outcome {
 
-    public function __construct() {
-        parent::__construct(1, 0);
+    public function __construct($isprecheck) {
+        parent::__construct(1, 0, $isprecheck);
         $this->epiloguehtml = null;
         $this->prologuehtml = null;
         $this->testresults = null;
