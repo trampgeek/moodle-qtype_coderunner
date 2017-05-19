@@ -90,6 +90,15 @@ body#page-question-type-coderunner .ace_editor {
     color: #333;
 }
 
+.que.coderunner pre.tablecell {
+    background-color: inherit;
+}
+
+.que.coderunner div.coderunner-test-results pre,
+.que.coderunner div.coderunner-examples pre {
+    margin-bottom: 0px;
+}
+
 .que.coderunner div.coderunner-test-results.good {
     background-color: #AAFFAA;
 }
