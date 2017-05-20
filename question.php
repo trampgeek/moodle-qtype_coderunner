@@ -147,18 +147,22 @@ class qtype_coderunner_question extends question_graded_automatically {
         if ($isprecheck && empty($this->precheck)) {
             throw new coding_exception("Unexpected precheck");
         }
-        if (empty($response['_testoutcome']) ||
-                $response['_testoutcome']->$isprecheck != $isprecheck) {
-            // We haven't already graded this question or we graded it with
+        $gradingreqd = true;
+        if (!empty($response['_testoutcome'])) {
+            $testoutcomeserial = $response['_testoutcome'];
+            $testoutcome = unserialize($testoutcomeserial);
+            if ($testoutcome->isprecheck == $isprecheck) {
+                $gradingreqd = false;  // Already graded and with same precheck state
+            }
+        }
+        if ($gradingreqd) {
+            // We haven't already graded this submission or we graded it with
             // a different precheck setting
             $code = $response['answer'];
             $testcases = $this->filter_testcases($isprecheck, $this->precheck);
             $runner = new qtype_coderunner_jobrunner();
             $testoutcome = $runner->run_tests($this, $code, $testcases, $isprecheck);
             $testoutcomeserial = serialize($testoutcome);
-        } else {
-            $testoutcomeserial = $response['_testoutcome'];
-            $testoutcome = unserialize($testoutcomeserial);
         }
 
         $datatocache = array('_testoutcome' => $testoutcomeserial);
