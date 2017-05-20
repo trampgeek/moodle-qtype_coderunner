@@ -250,7 +250,13 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
      * and the HTTP headers that should be used in the request.
      */
     private function get_jobe_connection_info($resource) {
-        $jobe = get_config('qtype_coderunner', 'jobe_host');
+        global $CFG;
+        // Hack to force use of a local jobe host when behat testing.
+        if ($CFG->prefix == "b_") {
+            $jobe = "localhost";
+        } else {
+            $jobe = get_config('qtype_coderunner', 'jobe_host');
+        }
         $url = "http://$jobe/jobe/index.php/restapi/$resource";
 
         $headers = array(
