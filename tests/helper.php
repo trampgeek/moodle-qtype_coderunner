@@ -76,7 +76,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $form->answerboxlines = 5;
         $form->answerboxcolumns = 100;
         $form->useace = 0;
-        $form->precheck = 0;
+        $form->precheck = 1;
         $form->allornothing = 0;
         $form->penaltyregime = "10, 20, ...";
         $form->templateparams = "";
@@ -172,7 +172,6 @@ class qtype_coderunner_test_helper extends question_test_helper {
      * Makes a coderunner question asking for a sqr() function.
      * This version uses testcases that don't print the result, for use in
      * testing custom grader templates.
-
      */
     public function make_coderunner_question_sqrnoprint() {
         $coderunner = $this->make_coderunner_question(
