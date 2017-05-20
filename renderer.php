@@ -138,7 +138,8 @@ class qtype_coderunner_renderer extends qtype_renderer {
         $q = $qa->get_question();
         $outcome = unserialize($toserialised);
         $resultsclass = $this->results_class($outcome, $q->allornothing);
-        $isprecheck = $qa->get_last_behaviour_var('_precheck', 0);
+        $isprecheck = !$qa->get_state()->is_finished() &&
+                $qa->get_last_behaviour_var('_precheck', 0);
         if ($isprecheck) {
             $resultsclass .= ' precheck';
         }
