@@ -58,7 +58,7 @@ class qtype_coderunner_question extends question_graded_automatically {
     }
 
     public function get_expected_data() {
-        return array('answer' => PARAM_RAW, 'rating' => PARAM_INT);
+        return array('answer' => PARAM_RAW);
     }
 
 
@@ -106,13 +106,8 @@ class qtype_coderunner_question extends question_graded_automatically {
      * @return boolean
      */
     public function is_same_response(array $prevresponse, array $newresponse) {
-        if (!question_utils::arrays_same_at_key_missing_is_blank(
-                $prevresponse, $newresponse, 'answer')
-            || !question_utils::arrays_same_at_key_integer(
-                $prevresponse, $newresponse, 'rating')) {
-            return false;
-        }
-        return true;
+        return question_utils::arrays_same_at_key_missing_is_blank(
+                $prevresponse, $newresponse, 'answer');
     }
 
     public function get_correct_response() {
