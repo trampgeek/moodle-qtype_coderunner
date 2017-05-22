@@ -1,5 +1,19 @@
 # CHANGE HISTORY
 
+23 May 2017. Version 3.1.5
+
+* Major bug fix: when grading of questions when precheck enabled, if a student's
+  last submission to a question prior to closing the quiz was a precheck that passed, 
+  the question would be marked correct.
+* Bug fix: sample answer and answer preload fields of author form were not
+  using the correct Ace language when the question type was first set.
+* Bug fix: validate on save not working with support files on the first
+  save of the question.
+* Bug fix: Show Differences button was not working in Edge browser.
+* Bug fix: questions with precheck=selected were not being correctly saved
+  in course backup.
+* Various documentation and error message tweaks + code tidying.
+
 ### 19 March 2017. Version 3.1.4.
 
 * Fix broken code in some of the sample files, update others.
