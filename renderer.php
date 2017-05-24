@@ -138,7 +138,8 @@ class qtype_coderunner_renderer extends qtype_renderer {
         $q = $qa->get_question();
         $outcome = unserialize($toserialised);
         $resultsclass = $this->results_class($outcome, $q->allornothing);
-        if ($outcome->isprecheck) {
+        $isprecheck = $outcome->is_precheck($qa);
+        if ($isprecheck) {
             $resultsclass .= ' precheck';
         }
 
@@ -165,12 +166,11 @@ class qtype_coderunner_renderer extends qtype_renderer {
         } else {
 
             // The run was successful (i.e didn't crash, but may be wrong answer). Display results.
-            if ($outcome->isprecheck) {
+            if ($isprecheck) {
                 $fb .= html_writer::tag('h3', get_string('precheck_only', 'qtype_coderunner'));
             }
 
-            if ($outcome->isprecheck && $q->precheck == constants::PRECHECK_EMPTY &&
-                    !$outcome->iscombinatorgrader()) {
+            if ($isprecheck && $q->precheck == constants::PRECHECK_EMPTY && !$outcome->iscombinatorgrader()) {
                 $fb .= $this->empty_precheck_status($outcome);
             } else {
                 $fb .= $this->build_results_table($outcome, $q);
@@ -270,6 +270,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
             return $this->build_combinator_grader_feedback_summary($qa, $outcome);
         }
         $question = $qa->get_question();
+        $isprecheck = $outcome->is_precheck($qa);
         $lines = array();  // List of lines of output.
 
         $onlyhiddenfailed = false;
@@ -288,12 +289,12 @@ class qtype_coderunner_renderer extends qtype_renderer {
         }
 
         if ($outcome->all_correct()) {
-            if (!$outcome->isprecheck) {
+            if (!$isprecheck) {
                 $lines[] = get_string('allok', 'qtype_coderunner') .
                         "&nbsp;" . $this->feedback_image(1.0);
             }
         } else {
-            if ($question->allornothing && !$outcome->isprecheck) {
+            if ($question->allornothing && !$isprecheck) {
                 $lines[] = get_string('noerrorsallowed', 'qtype_coderunner');
             }
 
@@ -313,9 +314,10 @@ class qtype_coderunner_renderer extends qtype_renderer {
     // A special case of the above method for use with combinator template graders
     // only.
     protected function build_combinator_grader_feedback_summary($qa, qtype_coderunner_combinator_grader_outcome $outcome) {
+        $isprecheck = $outcome->is_precheck($qa);
         $lines = array();  // List of lines of output.
 
-        if ($outcome->all_correct() && !$outcome->isprecheck) {
+        if ($outcome->all_correct() && !$isprecheck) {
             $lines[] = get_string('allok', 'qtype_coderunner') .
                     "&nbsp;" . $this->feedback_image(1.0);
         }
