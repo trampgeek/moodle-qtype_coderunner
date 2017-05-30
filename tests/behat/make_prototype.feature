@@ -18,7 +18,7 @@ Feature: make_prototype
       | contextlevel | reference | questioncategory | name          |
       | Course       | C1        | Top              | Behat Testing |
     And I log in as "teacher1"
-    And I follow "Course 1"
+    And I follow "C1"
     And I follow "Question bank"
     # Hack - add question first, then edit it, to avoid ace editor messing up
     # the setting of textareas. [I can't figure out how to fill them in if

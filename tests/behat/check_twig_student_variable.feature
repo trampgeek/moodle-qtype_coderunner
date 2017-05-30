@@ -19,7 +19,7 @@ Feature: Check the STUDENT Twig variable allows access to current username
       | contextlevel | reference | name           |
       | Course       | C1        | Test questions |
     And I log in as "teacher1"
-    And I follow "Course 1"
+    And I follow "C1"
     And I follow "Question bank"
     And I add a "CodeRunner" question filling the form with:
       | id_coderunnertype       | python3                                    |
