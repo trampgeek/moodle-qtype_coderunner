@@ -22,9 +22,9 @@ Feature: Check grading with the Python 3 sqr function CodeRunner question
       | Test questions   | coderunner | Square function |
     And I log in as "teacher1"
     And I follow "Course 1"
-    And I follow "Question bank"
+    And I navigate to "Question bank" node in "Course administration"
 
-  Scenario: Preview the Python3 sqr function question submit two different wrong answers then the right answer
+  Scenario: Preview the Python3 sqr function CodeRunner question submit two different wrong answers then the right answer
     When I click on "Preview" "link" in the "Square function" "table_row"
     And I switch to "questionpreview" window
     And I set the field with xpath "//textarea[contains(@name, 'answer')]" to "def sqr(n): return n"
@@ -36,7 +36,7 @@ Feature: Check grading with the Python 3 sqr function CodeRunner question
     Then I should see "Passed all tests!"
     And I should see "Mark 24.80 out of 31.00"
     
-  Scenario: Preview the Python3 sqr function question submit the same wrong answer twice then the right answer
+  Scenario: Preview the Python3 sqr function CodeRunner question submit the same wrong answer twice then the right answer
     When I click on "Preview" "link" in the "Square function" "table_row"
     And I switch to "questionpreview" window
     And I set the field with xpath "//textarea[contains(@name, 'answer')]" to "def sqr(n): return n"
@@ -47,7 +47,7 @@ Feature: Check grading with the Python 3 sqr function CodeRunner question
     Then I should see "Passed all tests!"
     And I should see "Mark 27.90 out of 31.00"
 
-  Scenario: Preview the Python3 sqr function question precheck, submit the same wrong answer twice, fix, precheck then check
+  Scenario: Preview the Python3 sqr function CodeRunner question precheck, submit the same wrong answer twice, fix, precheck then check
     When I click on "Preview" "link" in the "Square function" "table_row"
     And I switch to "questionpreview" window
     And I set the field with xpath "//textarea[contains(@name, 'answer')]" to "def sqr(n): return n"
@@ -59,7 +59,7 @@ Feature: Check grading with the Python 3 sqr function CodeRunner question
     Then I should see "Passed all tests!"
     And I should see "Mark 27.90 out of 31.00"
 
-  Scenario: Preview the Python3 sqr function question precheck, submit the same wrong answer twice, fix, then check
+  Scenario: Preview the Python3 sqr function CodeRunner question precheck, submit the same wrong answer twice, fix, then check
     When I click on "Preview" "link" in the "Square function" "table_row"
     And I switch to "questionpreview" window
     And I set the field with xpath "//textarea[contains(@name, 'answer')]" to "def sqr(n): return n"
@@ -70,7 +70,7 @@ Feature: Check grading with the Python 3 sqr function CodeRunner question
     Then I should see "Passed all tests!"
     And I should see "Mark 27.90 out of 31.00"
 
-  Scenario: Preview the Python3 sqr function question precheck a wrong answer then close and submit
+  Scenario: Preview the Python3 sqr function CodeRunner question precheck a wrong answer then close and submit
     When I click on "Preview" "link" in the "Square function" "table_row"
     And I switch to "questionpreview" window
     And I set the field with xpath "//textarea[contains(@name, 'answer')]" to "def sqr(n): return 0"

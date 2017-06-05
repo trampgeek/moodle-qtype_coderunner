@@ -19,7 +19,7 @@ Feature: make_prototype
       | Course       | C1        | Top              | Behat Testing |
     And I log in as "teacher1"
     And I follow "Course 1"
-    And I follow "Question bank"
+    And I navigate to "Question bank" node in "Course administration"
     # Hack - add question first, then edit it, to avoid ace editor messing up
     # the setting of textareas. [I can't figure out how to fill them in if
     # Ace is running.]
@@ -61,7 +61,7 @@ Feature: make_prototype
       | id_testcode_1     | sqr(9)                            |
       | id_expected_1     | 81                                |
 
-  Scenario: As a teacher, I get marked right (using combinator template) if I submit a correct answer
+  Scenario: As a teacher, I get marked right (using combinator template) if I submit a correct answer to a CodeRunner question
     When I click on "table#categoryquestions tr.r1 a[title='Preview']" "css_element"
     And I switch to "questionpreview" window
     And I set the field "id_behaviour" to "Adaptive mode"
