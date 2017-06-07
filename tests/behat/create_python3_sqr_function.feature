@@ -16,8 +16,9 @@ Feature: Create a CodeRunner question (the sqr function example)
       | teacher1 | C1     | editingteacher |
     And I log in as "teacher1"
     And I follow "Course 1"
+    And I navigate to "Question bank" node in "Course administration"
 
-  Scenario: As a teacher, I create a Python3 sqr(n) -> n**2 function
+  Scenario: As a teacher, I create a Python3 sqr(n) -> n**2 function CodeRunner question
     When I add a "CodeRunner" question filling the form with:
       | id_coderunnertype | python3                 |
       | name              | sqr acceptance question |

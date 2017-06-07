@@ -23,7 +23,7 @@ Feature: Export CodeRunner questions
     And I log in as "teacher1"
     And I follow "Course 1"
 
-  Scenario: Export a Short answer question
+  Scenario: Export a CodeRunner question
     When I navigate to "Export" node in "Course administration > Question bank"
     And I set the field "id_format_xml" to "1"
     And I press "Export questions to file"

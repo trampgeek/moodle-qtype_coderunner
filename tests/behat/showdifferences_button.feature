@@ -1,5 +1,5 @@
 @qtype @qtype_coderunner @javascript @showdifferences
-Feature: showdifferences_button
+Feature: Show differences in CodeRunner questions
   A failing question submission should contain a 'Show differences' button
   that highlights a differences between expected and actual answers when
   clicked.
@@ -19,7 +19,7 @@ Feature: showdifferences_button
       | Course       | C1        | Top              | Behat Testing |
     And I log in as "teacher1"
     And I follow "Course 1"
-    And I follow "Question bank"
+    And I navigate to "Question bank" node in "Course administration"
     And I add a "CodeRunner" question filling the form with:
       | id_coderunnertype | python3                 |
       | name              | sqr acceptance question |
@@ -34,7 +34,7 @@ Feature: showdifferences_button
       | id_expected_2     | 9                       |
       | id_display_2      | Hide                    |
 
-  Scenario: As a teacher submitting a wrong answer to a question preview, I should see the Show differences button and it should work
+  Scenario: As a teacher submitting a wrong answer to a CodeRunner question preview, the Show differences button should work
     When I click on "a[title='Preview']" "css_element"
     And I switch to "questionpreview" window
     And I set the field "id_behaviour" to "Adaptive mode"
@@ -59,7 +59,7 @@ Feature: showdifferences_button
     And I should not see highlighted "123"
     And I should not see highlighted "5"
 
-  Scenario: As a teacher submitting a wrong answer to a question preview, if my submission fails only hidden tests I should not see the Show differences button
+  Scenario: As a teacher submitting a wrong answer to a CodeRunner question preview and only hidden tests fail, I should not see the Show differences button
     When I click on "a[title='Preview']" "css_element"
     And I switch to "questionpreview" window
     And I set the field "id_behaviour" to "Adaptive mode"
