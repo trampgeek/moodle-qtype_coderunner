@@ -54,6 +54,7 @@ abstract class qtype_coderunner_sandbox {
     const SUBMISSION_LIMIT_EXCEEDED = 5; // Ideone or Jobe only.
     const CREATE_SUBMISSION_FAILED = 6; // Failed on call to CREATE_SUBMISSION.
     const UNKNOWN_SERVER_ERROR = 7;
+    const JOBE_400_ERROR    = 8;  // Jobe return an HTTP code of 400
 
 
     // Values of the result 'attribute' of the object returned by a call to
@@ -114,7 +115,9 @@ abstract class qtype_coderunner_sandbox {
                         }
                     }
                 } else {
-                    $errorstring = $sb->error_string($langs->error);
+                    $pseudorunobj = new stdObj();
+                    $pseudorunobj->error = $langs->error;
+                    $errorstring = $sb->error_string($pseudorunobj);
                     throw new qtype_coderunner_exception('sandboxerror',
                             array('sandbox' => $extname, 'message' => $errorstring));
                 }
@@ -166,8 +169,13 @@ abstract class qtype_coderunner_sandbox {
         $authenticationerror = false;
     }
 
-    // Strings corresponding to the execute error codes defined above.
-    public static function error_string($errorcode) {
+    /**
+     *
+     * @param type $runresult  (an object returned by a call to sandbox::execute).
+     * @return string a description of the particular runresult
+     * @throws coding_exception
+     */
+    public static function error_string($runresult) {
         $errorstrings = array(
             self::OK              => 'errorstring-ok',
             self::AUTH_ERROR      => 'errorstring-autherror',
@@ -177,11 +185,20 @@ abstract class qtype_coderunner_sandbox {
             self::SUBMISSION_LIMIT_EXCEEDED  => 'errorstring-submissionlimitexceeded',
             self::CREATE_SUBMISSION_FAILED  => 'errorstring-submissionfailed',
             self::UNKNOWN_SERVER_ERROR  => 'errorstring-unknown',
+            self::JOBE_400_ERROR  => 'errorstring-jobe400',
         );
+        $errorcode = $runresult->error;
         if (!isset($errorstrings[$errorcode])) {
             throw new coding_exception("Bad call to sandbox.errorString");
         }
-        return get_string($errorstrings[$errorcode], 'qtype_coderunner');
+        if ($errorcode != self::JOBE_400_ERROR || !isset($runresult->stderr)) {
+            return get_string($errorstrings[$errorcode], 'qtype_coderunner');
+        } else {
+            // Special case for JOBE_400 error. Include HTTP message in error.
+            $message = get_string('errorstring-jobe400', 'qtype_coderunner');
+            $message .= ': ' . $runresult->stderr . '. ';
+            $message .= get_string('errorstring-jobe400-contd', 'qtype_coderunner');
+        }
     }
 
 
@@ -238,7 +255,8 @@ abstract class qtype_coderunner_sandbox {
 
 
     /** Execute the given source code in the given language with the given
-     *  input and returns an object with fields error, result, signal, cmpinfo, stderr, output.
+     *  input and returns an object with fields error, result, signal, cmpinfo,
+     *  stderr, output.
      * @param string $sourcecode The source file to compile and run
      * @param string $language  One of the languages regognised by the sandbox
      * @param string $input A string to use as standard input during execution
@@ -251,8 +269,8 @@ abstract class qtype_coderunner_sandbox {
      *         filecontents.
      *         If the $params array is null, sandbox defaults are used.
      * @return an object with at least an attribute 'error'. This is one of the
-     *         values 0 through 8 (OK to UNKNOWN_SERVER_ERROR) as defined above. If
-     *         error is 0 (OK), the returned object has additional attributes
+     *         values 0 through 8 (OK to UNKNOWN_SERVER_ERROR) as defined above.
+     *         If error is 0 (OK), the returned object has additional attributes
      *         result, output, stderr, signal and cmpinfo as follows:
      *             result: one of the result_* constants defined above
      *             output: the stdout from the run
@@ -262,6 +280,8 @@ abstract class qtype_coderunner_sandbox {
      *                     used)
      *             cmpinfo: the output from the compilation run (usually empty
      *                     unless the result code is for a compilation error).
+     *          If error is anything other than OK, the returned object may
+     *          optionally include an error message in the stderr field.
      */
     abstract public function execute($sourcecode, $language, $input, $files=null, $params=null);
 

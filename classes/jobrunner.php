@@ -141,7 +141,7 @@ class qtype_coderunner_jobrunner {
         if ($run->error !== qtype_coderunner_sandbox::OK) {
             $outcome->set_status(
                     qtype_coderunner_testing_outcome::STATUS_SANDBOX_ERROR,
-                    qtype_coderunner_sandbox::error_string($run->error));
+                    qtype_coderunner_sandbox::error_string($run));
         } else if ($this->grader->name() === 'TemplateGrader') {
             $outcome = $this->do_combinator_grading($run, $isprecheck);
         } else if ($run->result === qtype_coderunner_sandbox::RESULT_COMPILATION_ERROR) {
@@ -198,7 +198,7 @@ class qtype_coderunner_jobrunner {
             if ($run->error !== qtype_coderunner_sandbox::OK) {
                 $outcome->set_status(
                     qtype_coderunner_testing_outcome::STATUS_SANDBOX_ERROR,
-                    qtype_coderunner_sandbox::error_string($run->error));
+                    qtype_coderunner_sandbox::error_string($run));
                 break;
             } else if ($run->result === qtype_coderunner_sandbox::RESULT_COMPILATION_ERROR) {
                 $outcome->set_status(

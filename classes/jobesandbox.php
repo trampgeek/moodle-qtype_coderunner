@@ -110,6 +110,9 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
      *                     used)
      *             cmpinfo: the output from the compilation run (usually empty
      *                     unless the result code is for a compilation error).
+     *         If error is anything other than OK, the attribute stderr will
+     *         contain the text of the actual HTTP response header, e.g
+     *         Bad Parameter if the response was 400 Bad Parameter.
      */
 
     public function execute($sourcecode, $language, $input, $files=null, $params=null) {
@@ -178,7 +181,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
                 || !isset($this->response->outcome)) {     // ... communication with server.
             $errorcode = $httpcode == 200 ? self::UNKNOWN_SERVER_ERROR : $this->get_error_code($httpcode);
             $this->currentjobid = null;
-            return (object) array('error' => $errorcode);
+            return (object) array('error' => $errorcode, 'stderr' => $this->response);
         } else {
             $stderr = $this->filter_file_path($this->response->stderr);
             // Any stderr output is treated as a runtime error.
@@ -204,6 +207,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
             '200' => self::OK,
             '202' => self::OK,
             '204' => self::OK,
+            '400' => self::JOBE_400_ERROR,
             '401' => self::SUBMISSION_LIMIT_EXCEEDED,
             '403' => self::AUTH_ERROR
         );
@@ -277,15 +281,16 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
     }
 
     // Submit the given job, which must be an associative array with at
-    // least a key 'run_spec'. Return value is the HTTP response code. If
-    // the return value is 200, the response is copied into $this->response.
+    // least a key 'run_spec'. Return value is the HTTP response code.
+    // The actual response is copied into $this->response.
+    // In cases where the response code is not 200, the response is typically
+    // the message associated with the response, e.g. Bad Parameter is the
+    // response was 400 Bad Parameter.
     // We don't at this stage deal with Jobe servers that may defer requests
     // i.e. that return 202 Accepted rather than 200 OK.
     private function submit($job) {
         list($returncode, $response) = $this->http_request('runs', self::HTTP_POST, $job);
-        if ($returncode == 200) {
-            $this->response = $response;
-        }
+        $this->response = $response;
         return $returncode;
 
     }

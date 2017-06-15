@@ -110,7 +110,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
         if ($qa->get_state() == question_state::$invalid) {
             $qtext .= html_writer::nonempty_tag('div',
-                    $question->get_validation_error(array('answer' => $currentanswer)),
+                    $question->get_validation_error($qa->get_last_qt_data()),
                     array('class' => 'validationerror'));
         }
 

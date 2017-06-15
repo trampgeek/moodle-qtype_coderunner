@@ -94,7 +94,12 @@ class qtype_coderunner_question extends question_graded_automatically {
                 return get_string('answertooshort', 'qtype_coderunner');
             }
         }
-        return get_string('unknownerror', 'qtype_coderunner');
+        if (array_key_exists('_testoutcome', $response)) {
+            $outcome = unserialize($response['_testoutcome']);
+            return $outcome->errormessage;
+        } else {
+            return get_string('unknownerror', 'qtype_coderunner');
+        }
     }
 
 
