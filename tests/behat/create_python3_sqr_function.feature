@@ -15,7 +15,7 @@ Feature: Create a CodeRunner question (the sqr function example)
       | user     | course | role           |
       | teacher1 | C1     | editingteacher |
     And I log in as "teacher1"
-    And I follow "Course 1"
+    And I follow "C1"
 
   Scenario: As a teacher, I create a Python3 sqr(n) -> n**2 function
     When I add a "CodeRunner" question filling the form with:
