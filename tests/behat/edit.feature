@@ -24,7 +24,7 @@ Feature: Test editing a CodeRunner question
     And I follow "C1"
     And I navigate to "Question bank" node in "Course administration"
 
-  Scenario: Edit a Short answer question
+  Scenario: Edit a CodeRunner question
     When I click on "Edit" "link" in the "Square function" "table_row"
     And I set the following fields to these values:
       | Question name | |
