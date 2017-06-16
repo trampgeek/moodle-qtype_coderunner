@@ -182,6 +182,8 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
             $errorcode = $httpcode == 200 ? self::UNKNOWN_SERVER_ERROR : $this->get_error_code($httpcode);
             $this->currentjobid = null;
             return (object) array('error' => $errorcode, 'stderr' => $this->response);
+        } else if ($this->response->outcome == self::RESULT_SERVER_OVERLOAD) {
+            return (object) array('error' => self::SERVER_OVERLOAD);
         } else {
             $stderr = $this->filter_file_path($this->response->stderr);
             // Any stderr output is treated as a runtime error.

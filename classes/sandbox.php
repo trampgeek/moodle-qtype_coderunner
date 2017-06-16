@@ -54,7 +54,8 @@ abstract class qtype_coderunner_sandbox {
     const SUBMISSION_LIMIT_EXCEEDED = 5; // Ideone or Jobe only.
     const CREATE_SUBMISSION_FAILED = 6; // Failed on call to CREATE_SUBMISSION.
     const UNKNOWN_SERVER_ERROR = 7;
-    const JOBE_400_ERROR    = 8;  // Jobe return an HTTP code of 400
+    const JOBE_400_ERROR    = 8;  // Jobe returned an HTTP code of 400
+    const SERVER_OVERLOAD   = 9;
 
 
     // Values of the result 'attribute' of the object returned by a call to
@@ -69,8 +70,7 @@ abstract class qtype_coderunner_sandbox {
     const RESULT_ILLEGAL_SYSCALL    = 19;
     const RESULT_INTERNAL_ERR       = 20;
 
-    const RESULT_SANDBOX_PENDING    = 21; // Liu sandbox PD error (defunct).
-    const RESULT_SANDBOX_POLICY     = 22; // Liu sandbox BP error (defunct).
+    const RESULT_SERVER_OVERLOAD    = 21;
     const RESULT_OUTPUT_LIMIT       = 30;
     const RESULT_ABNORMAL_TERMINATION = 31;
 
@@ -117,7 +117,7 @@ abstract class qtype_coderunner_sandbox {
                 } else {
                     $pseudorunobj = new stdObj();
                     $pseudorunobj->error = $langs->error;
-                    $errorstring = $sb->error_string($pseudorunobj);
+                    $errorstring = $sb->error_string($pseudorunobj);
                     throw new qtype_coderunner_exception('sandboxerror',
                             array('sandbox' => $extname, 'message' => $errorstring));
                 }
@@ -186,6 +186,7 @@ abstract class qtype_coderunner_sandbox {
             self::CREATE_SUBMISSION_FAILED  => 'errorstring-submissionfailed',
             self::UNKNOWN_SERVER_ERROR  => 'errorstring-unknown',
             self::JOBE_400_ERROR  => 'errorstring-jobe400',
+            self::SERVER_OVERLOAD => 'errorstring-overload',
         );
         $errorcode = $runresult->error;
         if (!isset($errorstrings[$errorcode])) {
@@ -194,10 +195,11 @@ abstract class qtype_coderunner_sandbox {
         if ($errorcode != self::JOBE_400_ERROR || !isset($runresult->stderr)) {
             return get_string($errorstrings[$errorcode], 'qtype_coderunner');
         } else {
-            // Special case for JOBE_400 error. Include HTTP message in error.
+            // Special case for JOBE_400 error. Include HTTP error message in
+            // the returned error.
             $message = get_string('errorstring-jobe400', 'qtype_coderunner');
-            $message .= ': ' . $runresult->stderr . '. ';
-            $message .= get_string('errorstring-jobe400-contd', 'qtype_coderunner');
+            $message .= $runresult->stderr;
+            return $message;
         }
     }
 
@@ -213,10 +215,9 @@ abstract class qtype_coderunner_sandbox {
             self::RESULT_MEMORY_LIMIT         => 'resultstring-memorylimit',
             self::RESULT_ILLEGAL_SYSCALL      => 'resultstring-illegalsyscall',
             self::RESULT_INTERNAL_ERR         => 'resultstring-internalerror',
-            self::RESULT_SANDBOX_PENDING      => 'resultstring-sandboxpending',
-            self::RESULT_SANDBOX_POLICY       => 'resultstring-sandboxpolicy',
             self::RESULT_OUTPUT_LIMIT         => 'resultstring-outputlimit',
             self::RESULT_ABNORMAL_TERMINATION => 'resultstring-abnormaltermination',
+            self::RESULT_SERVER_OVERLOAD      => 'resultstring-sandboxoverload',
         );
         if (!isset($resultstrings[$resultcode])) {
             throw new coding_exception("Bad call to sandbox.resultString");
