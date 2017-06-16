@@ -18,7 +18,7 @@ Feature: Show differences in CodeRunner questions
       | contextlevel | reference | questioncategory | name          |
       | Course       | C1        | Top              | Behat Testing |
     And I log in as "teacher1"
-    And I follow "Course 1"
+    And I follow "C1"
     And I navigate to "Question bank" node in "Course administration"
     And I add a "CodeRunner" question filling the form with:
       | id_coderunnertype | python3                 |

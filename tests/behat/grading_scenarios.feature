@@ -21,7 +21,7 @@ Feature: Check grading with the Python 3 sqr function CodeRunner question
       | questioncategory | qtype      | name            |
       | Test questions   | coderunner | Square function |
     And I log in as "teacher1"
-    And I follow "Course 1"
+    And I follow "C1"
     And I navigate to "Question bank" node in "Course administration"
 
   Scenario: Preview the Python3 sqr function CodeRunner question submit two different wrong answers then the right answer
