@@ -155,7 +155,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
             $fb .= html_writer::tag('p', s($outcome->errormessage),
                     array('class' => 'run_failed_error'));
         } else if ($outcome->has_syntax_error()) {
-            $fb .= html_writer::tag('h3', get_string('syntax_errors', 'qtype_coderunner'));
+            $fb .= html_writer::tag('h5', get_string('syntax_errors', 'qtype_coderunner'));
             $fb .= html_writer::tag('pre', s($outcome->errormessage),
                     array('class' => 'pre_syntax_error'));
         } else if ($outcome->combinator_error()) {
