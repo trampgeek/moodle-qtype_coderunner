@@ -355,7 +355,7 @@ class qtype_coderunner_testing_outcome {
         $table->attributes['class'] = 'coderunner-test-results';
         $table->head = array(get_string('expectedcolhdr', 'qtype_coderunner'),
                              get_string('gotcolhdr', 'qtype_coderunner'));
-        $table->data = array(array(html_writer::tag('pre', $expected), html_writer::tag('pre', $got)));
+        $table->data = array(array(html_writer::tag('pre', s($expected)), html_writer::tag('pre', s($got))));
         return html_writer::table($table);
     }
 
