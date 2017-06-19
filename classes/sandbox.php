@@ -91,13 +91,20 @@ abstract class qtype_coderunner_sandbox {
 
 
 
+    public function __construct($user=null, $pass=null) {
+        $this->user = $user;
+        $this->pass = $pass;
+        $authenticationerror = false;
+    }
+
+
     /** Find the 'best' sandbox for a given language, defined to be the
      * first one in the ordered list of sandboxes in sandbox_config.php
      * that has been enabled by the administrator (through the usual
      * plug-in setting controls) and that supports the given language.
      * It's public so the tester can call it (yuck, hacky).
      * @param type $language to run.
-     * @return the external name of the preferred sandbox for the given language
+     * @return an instance of the preferred sandbox for the given language
      * or null if no enabled sandboxes support this language.
      */
     public static function get_best_sandbox($language) {
@@ -111,11 +118,11 @@ abstract class qtype_coderunner_sandbox {
                 if ($langs->error == $sb::OK) {
                     foreach ($langs->languages as $lang) {
                         if (strtolower($lang) == strtolower($language)) {
-                            return $extname;
+                            return $sb;
                         }
                     }
                 } else {
-                    $pseudorunobj = new stdObj();
+                    $pseudorunobj = new stdClass();
                     $pseudorunobj->error = $langs->error;
                     $errorstring = $sb->error_string($pseudorunobj);
                     throw new qtype_coderunner_exception('sandboxerror',
@@ -124,16 +131,6 @@ abstract class qtype_coderunner_sandbox {
             }
         }
         return null;
-    }
-
-
-    // Factory method to return an instance of a sandbox of the specified type.
-    public static function make_sandbox($sandbox) {
-        global $CFG;
-        $sandboxes = self::available_sandboxes();
-        $sandboxclass = $sandboxes[$sandbox];
-        $filename = self::get_filename($sandbox);
-        return new $sandboxclass();
     }
 
 
@@ -160,13 +157,6 @@ abstract class qtype_coderunner_sandbox {
         $boxes = self::available_sandboxes();
         $classname = $boxes[$extsandboxname];
         return str_replace('_', '', str_replace('qtype_coderunner_', '', $classname)) . '.php';
-    }
-
-
-    public function __construct($user=null, $pass=null) {
-        $this->user = $user;
-        $this->pass = $pass;
-        $authenticationerror = false;
     }
 
     /**

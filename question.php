@@ -294,7 +294,7 @@ class qtype_coderunner_question extends question_graded_automatically {
             }
         }
 
-        return qtype_coderunner_sandbox::make_sandbox($sandbox);
+        return $sandbox;
     }
 
 
