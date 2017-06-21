@@ -36,8 +36,6 @@ use qtype_coderunner\constants;
 
 class qtype_coderunner_renderer extends qtype_renderer {
 
-    const FORCE_TABULAR_EXAMPLES = true;
-
     /**
      * Generate the display of the formulation part of the question. This is the
      * area that contains the question text, and the controls for students to
@@ -55,9 +53,11 @@ class qtype_coderunner_renderer extends qtype_renderer {
         $qtext = $question->format_questiontext($qa);
         $examples = $question->example_testcases();
         if (count($examples) > 0) {
-            $qtext .= html_writer::tag('p', 'For example:', array('class' => 'for-example-para'));
+            $forexample = get_string('forexample', 'qtype_coderunner');
+            $qtext .= html_writer::tag('p', $forexample . ':', array('class' => 'for-example-para'));
             $qtext .= html_writer::start_tag('div', array('class' => 'coderunner-examples'));
-            $qtext .= $this->format_examples($examples);
+            $resultcolumns = json_decode($question->resultcolumns);
+            $qtext .= $this->format_examples($examples, $resultcolumns);
             $qtext .= html_writer::end_tag('div');
         }
 
@@ -370,56 +370,26 @@ class qtype_coderunner_renderer extends qtype_renderer {
     }
 
 
-    // Format one or more examples.
-    protected function format_examples($examples) {
-        if ($this->all_single_line($examples) && ! self::FORCE_TABULAR_EXAMPLES) {
-            return $this->format_examples_one_per_line($examples);
-        } else {
-            return $this->format_examples_as_table($examples);
-        }
-    }
-
-
-    // Return true iff there is no standard input and all expectedoutput and shell
-    // input cases are single line only.
-    private function all_single_line($examples) {
-        foreach ($examples as $example) {
-            if (!empty($example->stdin) ||
-                strpos($example->testcode, "\n") !== false ||
-                strpos($example->expected, "\n") !== false) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-
-    // Return a '<br>' separated list of expression -> result examples.
-    // For use only where there is no stdin and shell input is one line only.
-    private function format_examples_one_per_line($examples) {
-        $text = '';
-        foreach ($examples as $example) {
-            $text .= $example->testcode . ' &rarr; ' . $example->expected;
-            $text .= html_writer::empty_tag('br');
-        }
-        return $text;
-    }
-
     /**
      *
      * @param array $examples The array of testcases tagged "use as example"
+     * @param array $resultcolumns the array of 2-element arrays specifying what
+     * columns should appear in the result table
      * @return string An HTML table element displaying all the testcases.
      */
-    private function format_examples_as_table($examples) {
+    private function format_examples($examples, $resultcolumns) {
         $table = new html_table();
         $table->attributes['class'] = 'coderunnerexamples';
-        list($numstd, $numshell) = $this->count_bits($examples);
+        list($numtests, $numstds, $numextras) = $this->count_bits($examples);
         $table->head = array();
-        if ($numshell) {
-            $table->head[] = 'Test';
+        if ($numtests && $this->show_column('testcode', $resultcolumns)) {
+            $table->head[] = $this->column_header('testcode', $resultcolumns);
         }
-        if ($numstd) {
-            $table->head[] = 'Input';
+        if ($numstds && $this->show_column('stdin', $resultcolumns)) {
+            $table->head[] = $this->column_header('stdin', $resultcolumns);
+        }
+        if ($numextras && $this->show_column('extra', $resultcolumns)) {
+            $table->head[] = $this->column_header('extra', $resultcolumns);
         }
         $table->head[] = 'Result';
 
@@ -429,11 +399,14 @@ class qtype_coderunner_renderer extends qtype_renderer {
         foreach ($examples as $example) {
             $row = array();
             $rowclasses[$i] = $i % 2 == 0 ? 'r0' : 'r1';
-            if ($numshell) {
+            if ($numtests) {
                 $row[] = qtype_coderunner_util::format_cell($example->testcode);
             }
-            if ($numstd) {
+            if ($numstds) {
                 $row[] = qtype_coderunner_util::format_cell($example->stdin);
+            }
+            if ($numextras) {
+                $row[] = qtype_coderunner_util::format_cell($example->extra);
             }
             $row[] = qtype_coderunner_util::format_cell($example->expected);
             $tablerows[] = $row;
@@ -445,20 +418,47 @@ class qtype_coderunner_renderer extends qtype_renderer {
     }
 
 
-    // Return a count of the number of non-empty stdins and non-empty shell
-    // inputs in the given list of test result objects.
+    // Return a count of the number of non-empty stdins, tests and extras
+    // in the given list of test result objects.
     private function count_bits($tests) {
         $numstds = 0;
-        $numshell = 0;
+        $numtests = 0;
+        $numextras = 0;
         foreach ($tests as $test) {
             if (trim($test->stdin) !== '') {
                 $numstds++;
             }
             if (trim($test->testcode) !== '') {
-                $numshell++;
+                $numtests++;
+            }
+            if (trim($test->extra) !== '') {
+                $numextras++;
             }
         }
-        return array($numstds, $numshell);
+        return array($numtests, $numstds, $numextras);
+    }
+
+    // True iff the given testcase field is specified by the given question
+    // resultcolumns field to be displayed
+    private function show_column($field, $resultcolumns) {
+        foreach ($resultcolumns as $columnspecifier) {
+            if ($columnspecifier[1] === $field) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    // Return the column header to be used for the given testcase field,
+    // as specified by the question's resultcolumns field.
+    private function column_header($field, $resultcolumns) {
+        foreach ($resultcolumns as $columnspecifier) {
+            if ($columnspecifier[1] === $field) {
+                return $columnspecifier[0];
+            }
+        }
+        return 'ERROR';
     }
 
 

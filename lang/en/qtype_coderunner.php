@@ -136,6 +136,7 @@ $string['failedtesting'] = 'Failed testing.';
 $string['fileheader'] = 'Support files';
 $string['filloutoneanswer'] = 'You must enter source code that satisfies the specification. The code you enter will be executed to determine its correctness and a grade awarded accordingly.';
 $string['firstfailure'] = 'First failing test case: {$a}';
+$string['forexample'] = 'For example';
 
 $string['goodemptyprecheck'] = 'Passed';
 $string['gotcolhdr'] = 'Got';
