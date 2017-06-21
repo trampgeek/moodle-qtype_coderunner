@@ -467,8 +467,9 @@ $string['syntax_errors'] = 'Syntax Error(s)';
 $string['template'] = 'Template';
 $string['template_changed'] = 'Per-test template changed - disable combinator? [\'Cancel\' leaves it enabled.]';
 $string['templatecontrols'] = 'Template controls';
-$string['templatecontrols_help'] = 'Checking the \'Is combinator\' checkbox specifies that the template is a combinator
-template, which combines the student answer plus all test cases into a single run. If this
+$string['templatecontrols_help'] = 'Checking the \'Is combinator\' checkbox
+specifies that the template is a combinator template, which combines (or attempts
+to combine) the student answer plus all test cases into a single run. If this
 checkbox is checked, you will also need to define the value of the test_splitter_re
 field, which is the PHP regular expression used to split the output from the
 program run back into a set of individual test runs. However, you do not need
@@ -477,19 +478,26 @@ template code is responsible for splitting the output itself, and grading it.
 
 Combinator templates do not get passed a TEST Twig variable. Instead they
 receive a variable TESTCASES, which is a list of all the tests in the
-question. The program produced by the template is assumed to combine the
-STUDENT_ANSWER and all the TESTCASES into a single program that, when runs
+question. The program produced by the template is generally assumed to combine the
+STUDENT_ANSWER and all the TESTCASES into a single program which, when it is run,
 outputs the test results from each test case, separated by a unique string.
 The separator string is defined by a regular expression given by the form
-field \'test_splitter_re\' below. Combinator templates should not generally
-be used with questions in which each test case has its own standard input,
-though this is possible with sufficient ingenuity.
+field \'test_splitter_re\' below.
+
+However, if testcases have standard input defined, combinator templates become
+problematic. If the template constructs a single program, what should the standard
+input be? There is no simple answer to that question so in this case coderunner
+runs the test cases one at a time, using the combinator template to build
+each program, passing it a TESTCASES variable containing just a single test.
+This \'trick\' allows the combinator template to serve a dual role: it behaves
+as a per-test-case template (with a 1-element TESTCASES array) when the question
+author supplies standard input but as a proper combinator (with an n-element
+TESTCASES array) otherwise.
 
 If a run of the combinator program results in any output to stderr, that
 is interpreted as a run error. To ensure the student gets credit for as many
-valid tests as possible, the system will fall back to running test cases
-one at a time by passing each test case in turn as a single-element list in the
-Twig variable TESTCASES.';
+valid tests as possible, the system behaves as it does when standard input
+is present, falling back to running each test separately.';
 $string['templateerror'] = 'TEMPLATE ERROR';
 $string['templategrader'] = 'Template grader';
 $string['template_help'] = 'The template defines the program(s) that run in the sandbox for a given
