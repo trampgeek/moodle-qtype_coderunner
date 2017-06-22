@@ -108,6 +108,11 @@ define(['jquery'], function($) {
             //     lines = session.getLength();
             // this.editor.gotoLine(lines, session.getLine(lines - 1).length);
         }
+        this.aceLabel = $('.answerprompt');
+        this.aceLabel.attr('for', 'ace_' + textareaId);
+
+        this.aceTextarea = $('.ace_text-input');
+        this.aceTextarea.attr('id', 'ace_' + textareaId);
     }
 
     AceInstance.prototype.captureTab = function () {
@@ -298,7 +303,9 @@ define(['jquery'], function($) {
 
     // Turn off all current Ace editors
     AceInterface.prototype.stopUsingAce = function () {
+        var label = $('.answerprompt');
         for (var aceinstance in this.activeEditors) {
+            label.attr('for', aceinstance);
             this.activeEditors[aceinstance].close();
         }
         this.activeEditors = {};
@@ -306,7 +313,9 @@ define(['jquery'], function($) {
 
     // Turn all editableFields into Ace editors
     AceInterface.prototype.startUsingAce = function () {
+        var aceLabel = $('.answerprompt');
         for (var aceinstance in this.editableFields) {
+            aceLabel.attr('for', aceinstance);
             this.initAce(aceinstance, this.editableFields[aceinstance]);
         }
     };
