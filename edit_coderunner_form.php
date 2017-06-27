@@ -583,6 +583,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
             "none" => "none",
             "ace" => "ace",
             "multichoice" => "multichoice",
+            "fsm" => "fsm",
         ];
         $uicontrols[] = $mform->createElement('select', 'uiplugin',
                 null, $uitypes);
