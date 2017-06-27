@@ -62,7 +62,57 @@ class qtype_coderunner_test_helper extends question_test_helper {
     public function make_coderunner_question_sqr() {
         return $this->make_coderunner_question_sqr_subtype('python3');
     }
+    
+    public function get_coderunner_question_data_sqr(){
+        $qdata = new stdClass();
+        test_question_maker::initialise_question_data($qdata);
 
+        $qdata->qtype = 'coderunner';
+        $qdata->name = 'Function to square a number n';
+        $qdata->questiontext = 'Write a function sqr(n) that returns n squared';
+
+        $qdata->options = new stdClass();
+        //$qdata->options->usecase = 0;
+        //$qdata->options->answers = array();
+        
+        $testcases = array(
+                    array('testcode' => 'print(sqr(0))',
+                          'expected' => '0',
+                          'mark'     => 1.0),
+                    array('testcode' => 'print(sqr(1))',
+                          'expected' => '1',
+                          'mark'     => 2.0),
+                    array('testcode' => 'print(sqr(11))',
+                          'expected' => '121',
+                          'mark'     => 4.0),
+                    array('testcode' => 'print(sqr(-7))',
+                          'expected' => '49',
+                          'mark'     => 8.0),
+                    array('testcode' => 'print(sqr(-6))',
+                          'expected' => '36',
+                          'display'  => 'HIDE', // The last testcase must be hidden.
+                          'mark'     => 16.0)
+            );
+        
+        $qdata->options->coderunnertype = 'python3';
+        $qdata->options->prototypetype = 0;
+        $qdata->options->useace = 1;
+        $qdata->options->precheck = 0;
+        $qdata->options->allornothing = 1;
+        $qdata->options->showsource = 0;
+        $qdata->options->penaltyregime = '10, 20, ...';
+        $qdata->options->testcases = self::make_test_cases($testcases);
+        $qdata->options->uiplugin = 'none';
+        //$qdata->options->isnew = true;  // Extra field normally added by save_question.
+        //$qdata->options->context = context_system::instance(); // Use system context for testing.
+        //$qdata->options->generalfeedback = 'No feedback available for coderunner questions.';
+
+        return $qdata;
+        
+               
+    }
+    
+    
     /**
      * Gets the form data that would come back when the editing form is saved,
      * if you were creating the standard sqr question.
@@ -97,7 +147,12 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $form->display = array('SHOW', 'SHOW', 'SHOW', 'SHOW', 'HIDE');
         $form->mark = array('1.0', '2.0', '4.0', '8.0', '16.0');
         $form->ordering = array('0', '10', '20', '30', '40');
-
+        $form->sandboxparams = '';
+        $form->grader = 'TemplateGrader';
+        $form->resultcolumns = '';
+        $form->cputimelimitsecs = '';
+        $form->memlimitmb = '';
+        $form->uiplugin = 'none';
         return $form;
     }
 

@@ -30,6 +30,9 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/question/engine/tests/helpers.php');
 require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
+require_once($CFG->dirroot . '/question/type/edit_question_form.php');
+require_once($CFG->dirroot . '/question/type/coderunner/edit_coderunner_form.php');
+
 
 
 /**
@@ -40,7 +43,7 @@ require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
  * @copyright  2012 Richard Lobb, The University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class qtype_coderunner_test extends basic_testcase {
+class qtype_coderunner_test extends advanced_testcase {
     protected $qtype;
 
     protected function setUp() {
@@ -71,5 +74,48 @@ class qtype_coderunner_test extends basic_testcase {
     public function test_get_possible_responses() {
         $q = $this->get_test_question_data();
         $this->assertEquals(array(), $this->qtype->get_possible_responses($q));
+    }
+    
+    public function test_question_saving_multichoice_ui() {
+        $this->resetAfterTest(true);
+        $this->setAdminUser();
+
+        $questiondata = test_question_maker::get_question_data('coderunner');
+        $formdata = test_question_maker::get_question_form_data('coderunner');
+
+        $generator = $this->getDataGenerator()->get_plugin_generator('core_question');
+        $cat = $generator->create_question_category(array());
+        
+        $formdata->category = "{$cat->id},{$cat->contextid}";
+        qtype_coderunner_edit_form::mock_submit((array)$formdata);
+
+        $form = qtype_coderunner_test_helper::get_question_editing_form($cat, $questiondata);
+
+        $this->assertTrue($form->is_validated());
+
+        $fromform = $form->get_data();
+        $fromform->uiplugin = 'multichoice';
+
+        $returnedfromsave = $this->qtype->save_question($questiondata, $fromform);
+        $actualquestionsdata = question_load_questions(array($returnedfromsave->id));
+        $actualquestiondata = end($actualquestionsdata);
+        
+        $this->assertAttributeEquals($questiondata->options->uiplugin, 'uiplugin', $actualquestiondata->options);
+        
+        foreach ($questiondata as $property => $value) {
+            if (!in_array($property, array('id', 'version', 'timemodified', 'timecreated', 'options'))) {
+                echo($property."\n");
+                $this->assertAttributeEquals($value, $property, $actualquestiondata);
+            }
+        }
+
+        
+        foreach ($questiondata->options as $optionname => $value) {
+            if ($optionname != 'answers') {
+                echo($optionname."\n");
+                $this->assertAttributeEquals($value, $optionname, $actualquestiondata->options);
+            }
+        }
+
     }
 }
