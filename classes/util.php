@@ -55,6 +55,13 @@ class qtype_coderunner_util {
             $PAGE->requires->js_call_amd('qtype_coderunner/multichoice', 'initQuestionTA', array($textareaid));
         }
     }
+    
+    public static function load_fsm_if_required($question, $textareaid) {
+        global $PAGE;
+        if ($question->uiplugin == "fsm") {
+            $PAGE->requires->js_call_amd('qtype_coderunner/finitestatemachine', 'initQuestionTA', array($textareaid));
+        }
+    }
 
 
     // Load the ace scripts.
