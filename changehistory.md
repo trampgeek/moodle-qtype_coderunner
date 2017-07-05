@@ -1,6 +1,15 @@
 # CHANGE HISTORY
 
-23 May 2017. Version 3.1.5
+### 5 July 2017. Version 3.1.5+
+
+* Fix bug in display of "For example" table when question has customised
+  columns/headers.
+* Improve various tests, e.g. fork bomb.
+* Change **Runtime Error** message to just **Error** since it's not always
+  clear what is runtime versus compile time.
+
+
+### 23 May 2017. Version 3.1.5
 
 * Major bug fix: when grading of questions when precheck enabled, if a student's
   last submission to a question prior to closing the quiz was a precheck that passed, 
