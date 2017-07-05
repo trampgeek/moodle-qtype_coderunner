@@ -56,7 +56,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
             $forexample = get_string('forexample', 'qtype_coderunner');
             $qtext .= html_writer::tag('p', $forexample . ':', array('class' => 'for-example-para'));
             $qtext .= html_writer::start_tag('div', array('class' => 'coderunner-examples'));
-            $resultcolumns = json_decode($question->resultcolumns);
+            $resultcolumns = $question->result_columns();
             $qtext .= $this->format_examples($examples, $resultcolumns);
             $qtext .= html_writer::end_tag('div');
         }
