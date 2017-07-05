@@ -382,14 +382,18 @@ class qtype_coderunner_renderer extends qtype_renderer {
         $table->attributes['class'] = 'coderunnerexamples';
         list($numtests, $numstds, $numextras) = $this->count_bits($examples);
         $table->head = array();
+        $showtests = $showstds = $showextras = false;
         if ($numtests && $this->show_column('testcode', $resultcolumns)) {
             $table->head[] = $this->column_header('testcode', $resultcolumns);
+            $showtests = true;
         }
         if ($numstds && $this->show_column('stdin', $resultcolumns)) {
             $table->head[] = $this->column_header('stdin', $resultcolumns);
+            $showstds = true;
         }
         if ($numextras && $this->show_column('extra', $resultcolumns)) {
             $table->head[] = $this->column_header('extra', $resultcolumns);
+            $showextras = true;
         }
         $table->head[] = 'Result';
 
@@ -399,13 +403,13 @@ class qtype_coderunner_renderer extends qtype_renderer {
         foreach ($examples as $example) {
             $row = array();
             $rowclasses[$i] = $i % 2 == 0 ? 'r0' : 'r1';
-            if ($numtests) {
+            if ($showtests) {
                 $row[] = qtype_coderunner_util::format_cell($example->testcode);
             }
-            if ($numstds) {
+            if ($showstds) {
                 $row[] = qtype_coderunner_util::format_cell($example->stdin);
             }
-            if ($numextras) {
+            if ($showextras) {
                 $row[] = qtype_coderunner_util::format_cell($example->extra);
             }
             $row[] = qtype_coderunner_util::format_cell($example->expected);
