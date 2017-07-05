@@ -151,7 +151,8 @@ class qtype_coderunner_question extends question_graded_automatically {
         if (!empty($response['_testoutcome'])) {
             $testoutcomeserial = $response['_testoutcome'];
             $testoutcome = unserialize($testoutcomeserial);
-            if ($testoutcome->isprecheck == $isprecheck) {
+            if ($testoutcome instanceof qtype_coderunner_testing_outcome  // Ignore legacy-format outcomes
+                    && $testoutcome->isprecheck == $isprecheck) {
                 $gradingreqd = false;  // Already graded and with same precheck state
             }
         }
@@ -176,6 +177,27 @@ class qtype_coderunner_question extends question_graded_automatically {
             return array($testoutcome->mark_as_fraction(),
                     question_state::$gradedpartial, $datatocache);
         }
+    }
+
+
+    /**
+     * @return an array of result column specifiers, each being a 2-element
+     *  array of a column header and the testcase field to be displayed
+     */
+    public function result_columns() {
+        if (isset($this->resultcolumns) && $this->resultcolumns) {
+            $resultcolumns = json_decode($this->resultcolumns);
+        } else {
+            // Use default column headers, equivalent to json_decode of (in English):
+            // '[["Test", "testcode"], ["Input", "stdin"], ["Expected", "expected"], ["Got", "got"]]'.
+            $resultcolumns = array(
+                array(get_string('testcolhdr', 'qtype_coderunner'), 'testcode'),
+                array(get_string('inputcolhdr', 'qtype_coderunner'), 'stdin'),
+                array(get_string('expectedcolhdr', 'qtype_coderunner'), 'expected'),
+                array(get_string('gotcolhdr', 'qtype_coderunner'), 'got'),
+            );
+        }
+        return $resultcolumns;
     }
 
 
@@ -284,17 +306,18 @@ class qtype_coderunner_question extends question_graded_automatically {
         global $CFG;
         $sandbox = $this->sandbox; // Get the specified sandbox (if question has one).
         if ($sandbox === null) {   // No sandbox specified. Use best we can find.
-            $sandbox = qtype_coderunner_sandbox::get_best_sandbox($this->language);
-            if ($sandbox === null) {
+            $sandboxinstance = qtype_coderunner_sandbox::get_best_sandbox($this->language);
+            if ($sandboxinstance === null) {
                 throw new qtype_coderunner_exception("Language {$this->language} is not available on this system");
             }
         } else {
-            if (!get_config('qtype_coderunner', strtolower($sandbox) . '_enabled')) {
-                throw new qtype_coderunner_exception("Question is configured to use a disabled sandbox ($sandbox)");
+            $sandboxinstance = qtype_coderunner_sandbox::get_instance($sandbox);
+            if ($sandboxinstance === null) {
+                throw new qtype_coderunner_exception("Question is configured to use a non-existent or disabled sandbox ($sandbox)");
             }
         }
 
-        return $sandbox;
+        return $sandboxinstance;
     }
 
 
