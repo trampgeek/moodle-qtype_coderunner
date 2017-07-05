@@ -1,6 +1,6 @@
 # CODE RUNNER
 
-Version: 3.1 January 2017
+Version: 3.1+ July 2017
 
 Authors: Richard Lobb, University of Canterbury, New Zealand.
          Tim Hunt, The Open University, UK
@@ -1454,6 +1454,30 @@ user-defined question types are not for the faint of heart. Caveat emptor.
 **WARNING #2:** although you can define test cases in a question prototype,
 e.g. for validation purposes, they are not inherited by the "children" of
 the prototype.
+
+## Administrator scripts
+
+There are currently two scripts available to bulk test CodeRunner questions
+and to summarise the usage of all prototype questions (i.e. CodeRunner
+question types). While initially intended only for administrator use, they
+are proving useful to teachers as well. Teachers are able to run the scripts
+only within courses they can normally access; they must be logged into such
+a course before attempting to run the scripts.
+
+The two scripts are:
+
+ 1. <moodle_home>/question/type/coderunner/bulktestindex.php
+    This script displays a list of all question categories accessible to the
+    user who is currently logged into Moodle on the machine running the script.
+    Each category is displayed as a clickable link that then runs a script that
+    tests the sample answers on all questions in that category, reporting
+    all successes and failures.
+
+ 1. <moodle_home>/question/type/coderunner/prototypeusageindex.php
+    This scripts displays an index like the one above except that the 
+    clickable links now run a script that reports on the question prototype
+    usage within that category.
+    questions in the runs the sample answer on all questions in a specif
 
 ## A note on accessibility
 
