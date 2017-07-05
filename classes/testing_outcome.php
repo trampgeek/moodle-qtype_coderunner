@@ -183,7 +183,8 @@ class qtype_coderunner_testing_outcome {
      * hidden from view unless the user has the grade:viewhidden capability.
      *
      * The set of columns to be displayed is specified by the question's
-     * resultcolumns variable. This is a JSON-encoded list of column specifiers.
+     * resultcolumns variable (which should be accessed via its result_columns
+     * method). The resultcolumns attribute is a JSON-encoded list of column specifiers.
      * A column specifier is itself a list, usually with 2 or 3 elements.
      * The first element is the column header the second is (usually) the test
      * result object field name whose value is to be displayed in the column
@@ -201,18 +202,7 @@ class qtype_coderunner_testing_outcome {
 
         global $COURSE;
 
-        if (isset($question->resultcolumns) && $question->resultcolumns) {
-            $resultcolumns = json_decode($question->resultcolumns);
-        } else {
-            // Use default column headers, equivalent to json_decode of (in English):
-            // '[["Test", "testcode"], ["Input", "stdin"], ["Expected", "expected"], ["Got", "got"]]'.
-            $resultcolumns = array(
-                array(get_string('testcolhdr', 'qtype_coderunner'), 'testcode'),
-                array(get_string('inputcolhdr', 'qtype_coderunner'), 'stdin'),
-                array(get_string('expectedcolhdr', 'qtype_coderunner'), 'expected'),
-                array(get_string('gotcolhdr', 'qtype_coderunner'), 'got'),
-            );
-        }
+        $resultcolumns = $question->result_columns();
         if ($COURSE && $coursecontext = context_course::instance($COURSE->id)) {
             $canviewhidden = has_capability('moodle/grade:viewhidden', $coursecontext);
         } else {
