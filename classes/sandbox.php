@@ -98,6 +98,28 @@ abstract class qtype_coderunner_sandbox {
     }
 
 
+    /**
+     *
+     * @param string $sandboxextname the external name of the sandbox required
+     * (e.g. 'jobesandbox')
+     * @return an instance of the specified sandbox or null if the specified
+     * sandbox doesn't exist or is not enabled.
+     */
+    public static function get_instance($sandboxextname) {
+        $boxes = self::available_sandboxes();
+        if (array_key_exists($sandboxextname, $boxes) &&
+                get_config('qtype_coderunner', $sandboxextname . '_enabled')) {
+            $classname = $boxes[$sandboxextname];
+            $filename = self::get_filename($sandboxextname);
+            require_once("$filename");
+            $sb = new $classname();
+            return $sb;
+        } else {
+            return null;
+        }
+    }
+
+
     /** Find the 'best' sandbox for a given language, defined to be the
      * first one in the ordered list of sandboxes in sandbox_config.php
      * that has been enabled by the administrator (through the usual
@@ -110,10 +132,8 @@ abstract class qtype_coderunner_sandbox {
     public static function get_best_sandbox($language) {
         $sandboxes = self::available_sandboxes();
         foreach ($sandboxes as $extname => $classname) {
-            if (get_config('qtype_coderunner', $extname . '_enabled')) {
-                $filename = self::get_filename($extname);
-                require_once("$filename");
-                $sb = new $classname();
+            $sb = self::get_instance($extname);
+            if ($sb) {
                 $langs = $sb->get_languages();
                 if ($langs->error == $sb::OK) {
                     foreach ($langs->languages as $lang) {
