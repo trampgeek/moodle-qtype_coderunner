@@ -308,6 +308,12 @@ class qtype_coderunner_question extends question_graded_automatically {
         return $this->iscombinatortemplate;
     }
 
+
+    // Return whether or not multiple stdins are allowed when using combiantor
+    public function allow_multiple_stdins() {
+        return $this->allowmultiplestdins;
+    }
+
     // Return an instance of the sandbox to be used to run code for this question.
     public function get_sandbox() {
         global $CFG;

@@ -552,6 +552,8 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $templatecontrols = array();
         $templatecontrols[] = $mform->createElement('advcheckbox', 'iscombinatortemplate', null,
                 get_string('iscombinatortemplate', 'qtype_coderunner'));
+        $templatecontrols[] = $mform->createElement('advcheckbox', 'allowmultiplestdins', null,
+                get_string('allowmultiplestdins', 'qtype_coderunner'));
 
         $templatecontrols[] = $mform->createElement('text', 'testsplitterre',
                 get_string('testsplitterre', 'qtype_coderunner'),
@@ -647,6 +649,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
         $mform->disabledIf('typename', 'prototypetype', 'neq', '2');
         $mform->disabledIf('testsplitterre', 'iscombinatortemplate', 'eq', 0);
+        $mform->disabledIf('allowmultiplestdins', 'iscombinatortemplate', 'eq', 0);
     }
 
     // UTILITY FUNCTIONS.

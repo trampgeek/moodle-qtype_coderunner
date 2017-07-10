@@ -86,7 +86,7 @@ EOTEMPLATE;
      *  or misconfigured" exception.
      *
      * @expectedException qtype_coderunner_exception
-     * @expectedExceptionMessageRegExp |.*jobesandbox is down or misconfigured.*|
+     * @expectedExceptionMessageRegExp |.*Error from the sandbox.*may be down or overloaded.*|
      * @retrun void
      */
     public function test_misconfigured_jobe() {
@@ -96,6 +96,29 @@ EOTEMPLATE;
         set_config('jobe_host', 'localhostxxx', 'qtype_coderunner');  // Broken jobe_host url.
         $q = test_question_maker::make_question('coderunner', 'sqr');
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
+        $this->process_submission(array('-submit' => 1, 'answer' => "def sqr(n): return n * n\n"));
     }
+
+    /** Check that a combinator template is run once per test case when stdin
+     *  is present and allowmultiplestdins is false, but run with all test
+     *  cases when allowmutliplestdins is true.
+     */
+    public function test_multiplestdins() {
+        $q = test_question_maker::make_question('coderunner', 'sqr');
+        $q->testcases[0]->stdin = 'A bit of standard input to trigger one-at-a-time mode';
+        $q->showsource = true;
+
+        // Submit a right answer.
+        $this->start_attempt_at_question($q, 'adaptive', 1, 1);
+        $this->process_submission(array('-submit' => 1, 'answer' => "def sqr(n): return n * n\n"));
+        $this->check_output_contains('Run 4');
+
+        // Now turn on allowmultiplestdins and try again
+        $q->allowmultiplestdins = true;
+        $this->start_attempt_at_question($q, 'adaptive', 1, 1);
+        $this->process_submission(array('-submit' => 1, 'answer' => "def sqr(n): return n * n\n"));
+        $this->check_output_does_not_contain('Run 4');
+    }
+
 }
 

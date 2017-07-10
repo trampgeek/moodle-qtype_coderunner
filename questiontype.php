@@ -95,6 +95,7 @@ class qtype_coderunner extends question_type {
             'resultcolumns',
             'template',
             'iscombinatortemplate',
+            'allowmultiplestdins',
             'answer',
             'validateonsave',
             'testsplitterre',

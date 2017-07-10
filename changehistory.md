@@ -1,5 +1,18 @@
 # CHANGE HISTORY
 
+### 11 July 2017. Version 3.2.0
+
+* Add allow_multiple_stdins option for advanced use of combinator templates.
+  This option disables the usual behaviour of running combinator templates
+  once for each test when any tests have standard input defined. When enabled
+  the combinator is given all testcases (as when standard input is not present)
+  and must itself manage the switching of standard inputs between tests.
+* Incorporate style changes from Open University (thanks Mahmoud Kassaei) for
+  improved accessibility of the Ace editor.
+* Disable the suppression of a regrade when the same answer is 
+  submitted twice in succession. The suppression was introduced in
+  version 3.1.5 but has proved confusing for question authors.
+
 ### 5 July 2017. Version 3.1.5+
 
 * Fix bug in display of "For example" table when question has customised

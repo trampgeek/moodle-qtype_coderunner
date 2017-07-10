@@ -33,6 +33,7 @@ $string['allornothing_help'] = 'If \'All-or-nothing\' is checked, all test cases
 The per-test-case marks can be specified only if the all-or-nothing checkbox is unchecked.
 
 If using a template grader that awards part marks to test cases, \'All-or-nothing\' should generally be unchecked.';
+$string['allowmultiplestdins'] = 'Allow multiple stdins';
 $string['answer'] = 'Sample answer';
 $string['answerprompt'] = 'Answer:';
 $string['answer_help'] = 'A sample answer can be entered here and used for checking by the question author and optionally shown to students during review. It is also used by the bulk tester script. The correctness of a non-empty answer is checked when saving unless \'Validate on save\' is unchecked';
@@ -487,13 +488,16 @@ field \'test_splitter_re\' below.
 
 However, if testcases have standard input defined, combinator templates become
 problematic. If the template constructs a single program, what should the standard
-input be? There is no simple answer to that question so in this case coderunner
-runs the test cases one at a time, using the combinator template to build
+input be? The simplest (and default) solution is to
+run the test cases one at a time, using the combinator template to build
 each program, passing it a TESTCASES variable containing just a single test.
 This \'trick\' allows the combinator template to serve a dual role: it behaves
 as a per-test-case template (with a 1-element TESTCASES array) when the question
 author supplies standard input but as a proper combinator (with an n-element
-TESTCASES array) otherwise.
+TESTCASES array) otherwise. To change this behaviour so that the combinator
+receives all testcases, even when stdin is present, check the \'Allow multiple
+stdins\' checkbox.
+
 
 If a run of the combinator program results in any output to stderr, that
 is interpreted as a run error. To ensure the student gets credit for as many

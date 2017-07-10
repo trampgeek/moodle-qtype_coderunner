@@ -82,7 +82,8 @@ class qtype_coderunner_jobrunner {
             'STUDENT' => new qtype_coderunner_student($USER)
          );
 
-        if ($question->get_is_combinator() and $this->has_no_stdins()) {
+        if ($question->get_is_combinator() and
+                ($this->has_no_stdins() || $question->allow_multiple_stdins())) {
             $outcome = $this->run_combinator($isprecheck);
         } else {
             $outcome = null;
@@ -95,7 +96,6 @@ class qtype_coderunner_jobrunner {
         // a test result for each test case.
 
         if ($outcome == null) {
-            assert (!($question->get_is_combinator() && $this->grader->name() == 'TemplateGrader'));
             $outcome = $this->run_tests_singly($isprecheck);
         }
 
