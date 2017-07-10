@@ -159,6 +159,53 @@ div.coderunner-test-results.partial {
     float: right;
 }
 
+.que.coderunner .ace_wrapper {
+    border: 1px solid #d9edf7;
+}
+
+.que.coderunner .ace_gutter-cell {
+    border-right: solid 1px #000000;
+}
+
+.que.coderunner .ace_fold-widget {
+    background-color: transparent;
+    background-image: none;
+    border: none;
+}
+
+.que.coderunner .ace_fold-widget:hover {
+    border: 1px solid gray;
+    margin-top: 1px;
+}
+
+/* expand */
+.que.coderunner .ace_fold-widget.ace_closed::before {
+    content: '►';
+    color: gray;
+    font-size: 80%;
+    margin: 0 2px;
+    margin-top: -4px;
+}
+
+/* collapse */
+.que.coderunner .ace_fold-widget.ace_open::before {
+    content: '▼';
+    color: gray;
+    font-size: 60%;
+    margin: 0 2px;
+}
+
+.que.coderunner .ace_line .ace_fold {
+    padding-right: 1px;
+    line-height: 9px;
+}
+
+.que.coderunner .ace_line .ace_fold::before {
+    background-image: none;
+    content: '←→';
+    float: right;
+    margin-top: -1px;
+}
 
 /* Editing form. */
 body#page-question-type-coderunner div.edit_code textarea {
