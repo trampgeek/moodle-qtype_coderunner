@@ -92,6 +92,8 @@ body#page-question-type-coderunner .ace_editor {
 
 .que.coderunner pre.tablecell {
     background-color: inherit;
+    border: none;
+    padding: 0px;
 }
 
 .que.coderunner div.coderunner-test-results pre,
