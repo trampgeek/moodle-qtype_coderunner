@@ -81,8 +81,8 @@ class qtype_coderunner_renderer extends qtype_renderer {
         $answerprompt = html_writer::tag('label',
                 get_string('answerprompt', 'qtype_coderunner'), array('class' => 'answerprompt', 'for' => $responsefieldid));
         $penaltystring = html_writer::tag('span',
-            get_string('penaltyregime', 'qtype_coderunner', $penalties),
-            array('class' => 'penaltyregime'));
+                get_string('penaltyregime', 'qtype_coderunner', $penalties),
+                array('class' => 'penaltyregime'));
         $qtext .= $answerprompt . $penaltystring;
         $qtext .= html_writer::end_tag('div');
 
@@ -90,12 +90,12 @@ class qtype_coderunner_renderer extends qtype_renderer {
         $cols = isset($question->answerboxcolumns) ? $question->answerboxcolumns : 100;
         $preload = isset($question->answerpreload) ? $question->answerpreload : '';
         $taattributes = array(
-            'class' => 'coderunner-answer edit_code',
-            'name'  => $responsefieldname,
-            'id'    => $responsefieldid,
-            'cols'      => $cols,
-            'spellcheck' => 'false',
-            'rows'      => $rows
+                'class' => 'coderunner-answer edit_code',
+                'name'  => $responsefieldname,
+                'id'    => $responsefieldid,
+                'cols'      => $cols,
+                'spellcheck' => 'false',
+                'rows'      => $rows
         );
 
         if ($options->readonly) {
