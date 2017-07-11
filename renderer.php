@@ -76,16 +76,16 @@ class qtype_coderunner_renderer extends qtype_renderer {
             $penalties = $question->penaltyregime;
         }
 
-        $answerprompt = html_writer::tag('span',
-                get_string('answerprompt', 'qtype_coderunner'), array('class' => 'answerprompt'));
+        $responsefieldname = $qa->get_qt_field_name('answer');
+        $responsefieldid = 'id_' . $responsefieldname;
+        $answerprompt = html_writer::tag('label',
+                get_string('answerprompt', 'qtype_coderunner'), array('class' => 'answerprompt', 'for' => $responsefieldid));
         $penaltystring = html_writer::tag('span',
             get_string('penaltyregime', 'qtype_coderunner', $penalties),
             array('class' => 'penaltyregime'));
         $qtext .= $answerprompt . $penaltystring;
         $qtext .= html_writer::end_tag('div');
 
-        $responsefieldname = $qa->get_qt_field_name('answer');
-        $responsefieldid = 'id_' . $responsefieldname;
         $rows = isset($question->answerboxlines) ? $question->answerboxlines : 18;
         $cols = isset($question->answerboxcolumns) ? $question->answerboxcolumns : 100;
         $preload = isset($question->answerpreload) ? $question->answerpreload : '';
@@ -151,15 +151,15 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
         $fb .= html_writer::start_tag('div', array('class' => $resultsclass));
         if ($outcome->run_failed()) {
-            $fb .= html_writer::tag('h3', get_string('run_failed', 'qtype_coderunner'));;
+            $fb .= html_writer::tag('h5', get_string('run_failed', 'qtype_coderunner'));;
             $fb .= html_writer::tag('p', s($outcome->errormessage),
                     array('class' => 'run_failed_error'));
         } else if ($outcome->has_syntax_error()) {
-            $fb .= html_writer::tag('h3', get_string('syntax_errors', 'qtype_coderunner'));
+            $fb .= html_writer::tag('h5', get_string('syntax_errors', 'qtype_coderunner'));
             $fb .= html_writer::tag('pre', s($outcome->errormessage),
                     array('class' => 'pre_syntax_error'));
         } else if ($outcome->combinator_error()) {
-            $fb .= html_writer::tag('h3', get_string('badquestion', 'qtype_coderunner'));
+            $fb .= html_writer::tag('h5', get_string('badquestion', 'qtype_coderunner'));
             $fb .= html_writer::tag('pre', s($outcome->errormessage),
                     array('class' => 'pre_question_error'));
 
