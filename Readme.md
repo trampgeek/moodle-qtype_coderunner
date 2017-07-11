@@ -752,17 +752,31 @@ might expand to something like the following:
     }
 
 The output from the execution is then the outputs from the three tests
-separated by a special separator string (which can be customised for each
-question if desired). On receiving the output back from the sandbox, CodeRunner
+separated by a special separator string, which can be customised for each
+question if desired. On receiving the output back from the sandbox, CodeRunner
 then splits the output using the separator into three separate test outputs,
 exactly as if a per-test template had been used on each test case separately.
 
-This strategy can't be used with questions that require standard input
-as there's no reliable way to reset the standard input for each test.
-The strategy also fails if the student's code causes a premature abort due
+The use of a combinator template is problematic with questions that require standard input;
+if each test has its own standard input, and all tests are combined into a 
+single program, what is the standard input for that program? The easiest
+resolution to this problem is simply to fall back to running each test
+separately. That is achieved by using the combinator template but feeding it
+a singleton list of testcases each time, i.e. the list [test[0]] on the first
+run, [test[1]] on the second and so on. The combinator template is then
+functioning just like a per-test template.
+
+However, advanced combinator templates can actually manage the multiple 
+runs themselves, e.g. using Python Subprocesses. To enable this, there
+is a checkbox "Allow multiple stdins" which, if checked, reverts to the usual
+combinator mode of passing all testcases to the combinator template in a
+single run.
+
+The use of a combinator also becomes problematic if the student's code causes
+a premature abort due
 to a run error, such as a segmentation fault or a CPU time limit exceeded. In
-such cases, CodeRunner uses the combinator template as a per-test template
-simply by passing it one test case at a time in the TESTCASES variable.
+such cases, CodeRunner reruns the tests, using the combinator template in
+a per-test mode, as described above.
 
 ### Customising templates
 
@@ -1132,7 +1146,8 @@ The ultimate in grading flexibility is achieved by use of a "Combinator
 template grader", i.e. a TemplateGrader with the `Is combinator` checkbox checked.
 In this mode, the JSON string output by the template grader
 should again contain a 'fraction' field, this time for the total mark,
-and may contain zero or more of 'prologuehtml', 'testresults' and 'epiloguehtml'
+and may contain zero or more of 'prologuehtml', 'testresults', 'epiloguehtml'
+and 'showdifferences'
 attributes.
 The 'prologuehtml' and 'epiloguehtml' fields are html
 that is displayed respectively before and after the (optional) result table. The
@@ -1144,6 +1159,11 @@ crosses for 1 or 0 row values respectively. The 'ishidden' column isn't
 actually displayed but 0 or 1 values in the column can be used to turn on and
 off row visibility. Students do not see hidden rows but markers and other
 staff do.
+
+The 'showdifferences' attribute can be added to the JSON outcome to render
+the standard 'Show differences' button after the result table; it is displayed
+only if there is actually a result table present and if full marks were not
+awarded to the question.
 
 Combinator-template grading gives the user complete control of the feedback to 
 the student as well as of the grading process. The ability to include HTML
