@@ -69,4 +69,9 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
     public function get_epilogue() {
         return empty($this->epiloguehtml) ? '' : $this->epiloguehtml;
     }
+
+    public function show_differences() {
+        return $this->actualmark != 1.0 && isset($this->showdifferences) &&
+               $this->showdifferences &&  isset($this->testresults);
+    }
 }

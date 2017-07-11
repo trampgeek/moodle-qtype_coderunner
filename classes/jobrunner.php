@@ -271,7 +271,8 @@ class qtype_coderunner_jobrunner {
                     $result->feedbackhtml = $result->feedback_html; // Change to modern version.
                     unset($result->feedback_html);
                 }
-                foreach (array('prologuehtml', 'testresults', 'epiloguehtml', 'feedbackhtml') as $key) {
+                foreach (array('prologuehtml', 'testresults', 'epiloguehtml',
+                    'feedbackhtml', 'showdifferences') as $key) {
                     if (isset($result->$key)) {
                         if ($key === 'feedbackhtml' || $key === 'feedback_html') {
                             // For compatibility with older combinator graders.

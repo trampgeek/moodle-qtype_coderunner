@@ -322,6 +322,10 @@ class qtype_coderunner_renderer extends qtype_renderer {
                     "&nbsp;" . $this->feedback_image(1.0);
         }
 
+        if ($outcome->show_differences()) {
+             $lines[] = $this->diff_button($qa);
+        }
+
         return qtype_coderunner_util::make_html_para($lines);
     }
 
