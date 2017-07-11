@@ -60,7 +60,7 @@ $string['badpenalties'] = 'Penalty regime must be a comma separated list of numb
 $string['badquestion'] = 'Error in question';
 $string['badsandboxparams'] = '\'Other\' field (sandbox params) must be either blank or a valid JSON record';
 $string['badtemplateparams'] = 'Template parameters must be either blank or a valid JSON record';
-$string['brokencombinator'] = 'Broken combinator. Expected {$a->numtests} test results, got {$a->numresults}. Please report this error to your tutor.';
+$string['brokencombinator'] = 'Expected {$a->numtests} test results, got {$a->numresults}. Perhaps excessive output or error in question?';
 $string['brokentemplategrader'] = 'Bad output from grader: {$a->output}. Your program execution may have aborted (e.g. a timeout or memory limit exceeded).';
 $string['bulkquestiontester'] = 'The <a href="{$a->link}">bulk tester script</a> tests that the sample answers for all questions in the current context are marked right';
 $string['bulktestcontinuefromhere'] = 'Run again or resume, starting from here';
@@ -181,7 +181,8 @@ Result Columns field.
 
 If the template is a combinator, the JSON string output by the template grader
 should again contain a \'fraction\' field, this time for the total mark,
-and may contain zero or more of \'prologuehtml\', \'testresults\' and \'epiloguehtml\'.
+and may contain zero or more of \'prologuehtml\', \'testresults\',
+\'epiloguehtml\' and \'showdifferences\'.
 The \'prologuehtml\' and \'epiloguehtml\' fields are html
 that is displayed respectively before and after the (optional) result table. The
 \'testresults\' field, if given, is a list of lists used to display some sort
@@ -191,7 +192,8 @@ and \'ishidden\'. The \'iscorrect\' column(s) are used to display ticks or
 crosses for 1 or 0 row values respectively. The \'ishidden\' column isn\'t
 actually displayed but 0 or 1 values in the column can be used to turn on and
 off row visibility. Students do not see hidden rows but markers and other
-staff do.
+staff do. The \'showdifferences\' field turns on display of a \'Show Differences\'
+button after the results table if the awarded mark fraction is not 1.0.
 ';
 
 $string['hidden'] = 'Hidden';
@@ -498,11 +500,12 @@ TESTCASES array) otherwise. To change this behaviour so that the combinator
 receives all testcases, even when stdin is present, check the \'Allow multiple
 stdins\' checkbox.
 
-
 If a run of the combinator program results in any output to stderr, that
 is interpreted as a run error. To ensure the student gets credit for as many
 valid tests as possible, the system behaves as it does when standard input
-is present, falling back to running each test separately.';
+is present, falling back to running each test separately. This does not
+apply to combinator graders, however, which are required to deal with all
+runtime errors themselves and must always return a valid JSON outcome.';
 $string['templateerror'] = 'TEMPLATE ERROR';
 $string['templategrader'] = 'Template grader';
 $string['template_help'] = 'The template defines the program(s) that run in the sandbox for a given
