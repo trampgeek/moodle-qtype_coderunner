@@ -139,31 +139,29 @@ class qtype_coderunner_testing_outcome {
             return get_string('syntax_errors', 'qtype_coderunner') . html_writer::tag('pre', $this->errormessage);
         } else if ($this->combinator_error()) {
             return get_string('badquestion', 'qtype_coderunner') . html_writer::tag('pre', $this->errormessage);
-        } else {
-            if ($this->iscombinatorgrader()) {
-                $message = get_string('failedtesting', 'qtype_coderunner'); // Combinator graders are too hard!
-            } else {
-                $numerrors = 0;
-                $firstfailure = '';
-                if (isset($this->testresults)) { // Combinator graders may not have test results.
-                    foreach ($this->testresults as $testresult) {
-                        if (!$testresult->iscorrect) {
-                            $numerrors += 1;
-                            if ($firstfailure === '' && isset($testresult->expected) && isset($testresult->got)) {
-                                $errorhtml = $this->make_error_html($testresult->expected, $testresult->got);
-                                $firstfailure = get_string('firstfailure', 'qtype_coderunner', $errorhtml);
-                            }
-                        }
+        } else if (!empty($this->testresults)) { // Combinator graders may not have test results.
+            $numerrors = 0;
+            $firstfailure = '';
+            foreach ($this->testresults as $testresult) {
+                if (!$testresult->iscorrect) {
+                    $numerrors += 1;
+                    if ($firstfailure === '' && isset($testresult->expected) && isset($testresult->got)) {
+                        $errorhtml = $this->make_error_html($testresult->expected, $testresult->got);
+                        $firstfailure = get_string('firstfailure', 'qtype_coderunner', $errorhtml);
                     }
-                    $message = get_string('failedntests', 'qtype_coderunner', array(
-                        'numerrors' => $numerrors));
-                    if ($firstfailure) {
-                        $message .= html_writer::empty_tag('br') . $firstfailure;
-                    };
                 }
             }
-            return $message . html_writer::empty_tag('br') . get_string('howtogetmore', 'qtype_coderunner');
+            $message = get_string('failedntests', 'qtype_coderunner', array(
+                'numerrors' => $numerrors));
+            if ($firstfailure) {
+                $message .= html_writer::empty_tag('br') . $firstfailure;
+            } else {
+                $message .= get_string('failedtesting', 'qtype_coderunner');
+            }
+        } else {
+            $message = get_string('failedtesting', 'qtype_coderunner');
         }
+        return $message . html_writer::empty_tag('br') . get_string('howtogetmore', 'qtype_coderunner');
     }
 
     /**

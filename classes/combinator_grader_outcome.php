@@ -55,6 +55,14 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
         return true;
     }
 
+    public function validation_error_message() {
+        if (!empty($this->prologuehtml)) {
+            return $this->prologuehtml . "\n" . parent::validation_error_message();
+        } else {
+            return parent::validation_error_message();
+        }
+    }
+
     // Getter methods for use by renderer.
     // ==================================.
 
