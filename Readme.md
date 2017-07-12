@@ -1048,8 +1048,7 @@ the above question attributes directly in the question authoring form.
 ### The Twig STUDENT variable
 
 The template variable `STUDENT` is an object containing a subset of the fields of the
-PHP user object. The fileds/attributes of STUDENT that might be of interest to authors include the
-following.
+PHP user object. The fields/attributes of STUDENT are:
 
  * `STUDENT.username` The unique internal username of the current user.
  * `STUDENT.firstname` The first name of the current user.
