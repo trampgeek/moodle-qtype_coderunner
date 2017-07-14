@@ -115,11 +115,9 @@ class qtype_coderunner_question extends question_graded_automatically {
      * @return boolean
      */
     public function is_same_response(array $prevresponse, array $newresponse) {
-        /*
+
         return question_utils::arrays_same_at_key_missing_is_blank(
                 $prevresponse, $newresponse, 'answer');
-         */
-        return false;
     }
 
     public function get_correct_response() {
