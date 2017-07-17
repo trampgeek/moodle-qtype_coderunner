@@ -68,12 +68,11 @@ class qtype_coderunner_test_helper extends question_test_helper {
         test_question_maker::initialise_question_data($qdata);
 
         $qdata->qtype = 'coderunner';
-        $qdata->name = 'Function to square a number n';
+        $qdata->name = 'BLAH Function to square a number n';
         $qdata->questiontext = 'Write a function sqr(n) that returns n squared';
+        $qdata->generalfeedback = 'No feedback available for coderunner questions.';
 
         $qdata->options = new stdClass();
-        //$qdata->options->usecase = 0;
-        //$qdata->options->answers = array();
         
         $testcases = array(
                     array('testcode' => 'print(sqr(0))',
@@ -96,16 +95,20 @@ class qtype_coderunner_test_helper extends question_test_helper {
         
         $qdata->options->coderunnertype = 'python3';
         $qdata->options->prototypetype = 0;
-        $qdata->options->useace = 1;
-        $qdata->options->precheck = 0;
-        $qdata->options->allornothing = 1;
+        $qdata->options->allornothing = 0;
         $qdata->options->showsource = 0;
+        $qdata->options->precheck = 0;
+        $qdata->options->answerboxlines = 5;
+        $qdata->options->answerboxcolumns = 100;
+        // exclude precheck as it defaults to null       
+        $qdata->options->useace = 0;
         $qdata->options->penaltyregime = '10, 20, ...';
-        $qdata->options->testcases = self::make_test_cases($testcases);
-        $qdata->options->uiplugin = 'none';
-        //$qdata->options->isnew = true;  // Extra field normally added by save_question.
-        //$qdata->options->context = context_system::instance(); // Use system context for testing.
-        //$qdata->options->generalfeedback = 'No feedback available for coderunner questions.';
+        //exclude answer, defaults to null
+        $qdata->options->validateonsave = 0;
+        //ignore a bunch because they default to null
+        $qdata->options->uiplugin = 'multichoice';
+        $qdata->testcases = self::make_test_cases($testcases);
+        
 
         return $qdata;
         
@@ -152,7 +155,8 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $form->resultcolumns = '';
         $form->cputimelimitsecs = '';
         $form->memlimitmb = '';
-        $form->uiplugin = 'none';
+        $form->customise = 1;
+        $form->uiplugin = 'multichoice';
         return $form;
     }
 
