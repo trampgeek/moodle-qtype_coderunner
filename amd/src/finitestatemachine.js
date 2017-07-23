@@ -767,12 +767,13 @@ define(['jquery'], function($) {
     }
 
     function restoreBackup() {
-        if(!localStorage || !JSON) {
+        if(!JSON) {
             return;
         }
 
         try {
-            var backup = JSON.parse(localStorage['fsm']);
+            // load up the student's previous answer
+            var backup = JSON.parse(textArea.val());
 
             for(var i = 0; i < backup.nodes.length; i++) {
                 var backupNode = backup.nodes[i];
@@ -805,12 +806,53 @@ define(['jquery'], function($) {
                 }
             }
         } catch(e) {
-            localStorage['fsm'] = '';
+            // error loading previous answer
         }
+    }
+    
+    function saveDFABackup(backup) {
+        //todo: handle the case where the node at index 0 is not the start node
+        backup.transition_table = [];
+        
+        for (i = 0; i < backup.nodes.length; i++) {
+            backup.transition_table.push([null, null]);
+        }
+        
+        backup.links.forEach(function(link) {
+            
+            if (link.type === "Link") {
+                var from_node = link.nodeA;
+                var to_node = link.nodeB;
+
+                var numbers = link.text.split("|");
+
+                numbers.forEach(function(number) {
+                   if (!isNaN(number)) {
+                       var transition_letter = +number;
+                       backup.transition_table[from_node][transition_letter] = to_node;
+                   }
+                });
+            }
+            
+            if (link.type === "SelfLink") {
+                var node = link.node;
+                
+                var numbers = link.text.split("|");
+                
+                numbers.forEach(function(number) {
+                   if (!isNaN(number)) {
+                       var transition_letter = +number;
+                       backup.transition_table[node][transition_letter] = node;
+                   }
+                });
+            }
+            
+        });
+        
     }
 
     function saveBackup() {
-        if(!localStorage || !JSON) {
+        if(!JSON) {
             return;
         }
 
@@ -818,6 +860,9 @@ define(['jquery'], function($) {
             'nodes': [],
             'links': [],
         };
+        
+        backup.accept_states = [];
+        
         for(var i = 0; i < nodes.length; i++) {
             var node = nodes[i];
             var backupNode = {
@@ -827,6 +872,9 @@ define(['jquery'], function($) {
                     'isAcceptState': node.isAcceptState,
             };
             backup.nodes.push(backupNode);
+            if (node.isAcceptState) {
+                backup.accept_states.push(i);
+            }
         }
         for(var i = 0; i < links.length; i++) {
             var link = links[i];
@@ -861,12 +909,14 @@ define(['jquery'], function($) {
                 backup.links.push(backupLink);
             }
         }
-
-        localStorage['fsm'] = JSON.stringify(backup);
+        
+        saveDFABackup(backup);
+        
+        backup.submission = "(" + JSON.stringify(backup.transition_table) + "," + JSON.stringify(backup.accept_states) + ")";
         textArea.val(JSON.stringify(backup));
     }
-
-
+      
+   
     function initQuestionTA(taId) {
         $(document.getElementById(taId)).each(init);
     }
