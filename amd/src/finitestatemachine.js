@@ -105,52 +105,52 @@ define(['jquery'], function($) {
     };
 
     Link.prototype.draw = function(c) {
-        var stuff = this.getEndPointsAndCircle();
+        var linkInfo = this.getEndPointsAndCircle();
         // draw arc
         c.beginPath();
-        if(stuff.hasCircle) {
-            c.arc(stuff.circleX, stuff.circleY, stuff.circleRadius, stuff.startAngle, stuff.endAngle, stuff.isReversed);
+        if(linkInfo.hasCircle) {
+            c.arc(linkInfo.circleX, linkInfo.circleY, linkInfo.circleRadius, linkInfo.startAngle, linkInfo.endAngle, linkInfo.isReversed);
         } else {
-            c.moveTo(stuff.startX, stuff.startY);
-            c.lineTo(stuff.endX, stuff.endY);
+            c.moveTo(linkInfo.startX, linkInfo.startY);
+            c.lineTo(linkInfo.endX, linkInfo.endY);
         }
         c.stroke();
         // draw the head of the arrow
-        if(stuff.hasCircle) {
-            drawArrow(c, stuff.endX, stuff.endY, stuff.endAngle - stuff.reverseScale * (Math.PI / 2));
+        if(linkInfo.hasCircle) {
+            drawArrow(c, linkInfo.endX, linkInfo.endY, linkInfo.endAngle - linkInfo.reverseScale * (Math.PI / 2));
         } else {
-            drawArrow(c, stuff.endX, stuff.endY, Math.atan2(stuff.endY - stuff.startY, stuff.endX - stuff.startX));
+            drawArrow(c, linkInfo.endX, linkInfo.endY, Math.atan2(linkInfo.endY - linkInfo.startY, linkInfo.endX - linkInfo.startX));
         }
         // draw the text
-        if(stuff.hasCircle) {
-            var startAngle = stuff.startAngle;
-            var endAngle = stuff.endAngle;
+        if(linkInfo.hasCircle) {
+            var startAngle = linkInfo.startAngle;
+            var endAngle = linkInfo.endAngle;
             if(endAngle < startAngle) {
                 endAngle += Math.PI * 2;
             }
-            var textAngle = (startAngle + endAngle) / 2 + stuff.isReversed * Math.PI;
-            var textX = stuff.circleX + stuff.circleRadius * Math.cos(textAngle);
-            var textY = stuff.circleY + stuff.circleRadius * Math.sin(textAngle);
+            var textAngle = (startAngle + endAngle) / 2 + linkInfo.isReversed * Math.PI;
+            var textX = linkInfo.circleX + linkInfo.circleRadius * Math.cos(textAngle);
+            var textY = linkInfo.circleY + linkInfo.circleRadius * Math.sin(textAngle);
             drawText(c, this.text, textX, textY, textAngle, selectedObject === this);
         } else {
-            var textX = (stuff.startX + stuff.endX) / 2;
-            var textY = (stuff.startY + stuff.endY) / 2;
-            var textAngle = Math.atan2(stuff.endX - stuff.startX, stuff.startY - stuff.endY);
+            var textX = (linkInfo.startX + linkInfo.endX) / 2;
+            var textY = (linkInfo.startY + linkInfo.endY) / 2;
+            var textAngle = Math.atan2(linkInfo.endX - linkInfo.startX, linkInfo.startY - linkInfo.endY);
             drawText(c, this.text, textX, textY, textAngle + this.lineAngleAdjust, selectedObject === this);
         }
     };
 
     Link.prototype.containsPoint = function(x, y) {
-        var stuff = this.getEndPointsAndCircle();
-        if(stuff.hasCircle) {
-            var dx = x - stuff.circleX;
-            var dy = y - stuff.circleY;
-            var distance = Math.sqrt(dx*dx + dy*dy) - stuff.circleRadius;
+        var linkInfo = this.getEndPointsAndCircle();
+        if(linkInfo.hasCircle) {
+            var dx = x - linkInfo.circleX;
+            var dy = y - linkInfo.circleY;
+            var distance = Math.sqrt(dx*dx + dy*dy) - linkInfo.circleRadius;
             if(Math.abs(distance) < hitTargetPadding) {
                 var angle = Math.atan2(dy, dx);
-                var startAngle = stuff.startAngle;
-                var endAngle = stuff.endAngle;
-                if(stuff.isReversed) {
+                var startAngle = linkInfo.startAngle;
+                var endAngle = linkInfo.endAngle;
+                if(linkInfo.isReversed) {
                     var temp = startAngle;
                     startAngle = endAngle;
                     endAngle = temp;
@@ -166,11 +166,11 @@ define(['jquery'], function($) {
                 return (angle > startAngle && angle < endAngle);
             }
         } else {
-            var dx = stuff.endX - stuff.startX;
-            var dy = stuff.endY - stuff.startY;
+            var dx = linkInfo.endX - linkInfo.startX;
+            var dy = linkInfo.endY - linkInfo.startY;
             var length = Math.sqrt(dx*dx + dy*dy);
-            var percent = (dx * (x - stuff.startX) + dy * (y - stuff.startY)) / (length * length);
-            var distance = (dx * (y - stuff.startY) - dy * (x - stuff.startX)) / length;
+            var percent = (dx * (x - linkInfo.startX) + dy * (y - linkInfo.startY)) / (length * length);
+            var distance = (dx * (y - linkInfo.startY) - dy * (x - linkInfo.startX)) / length;
             return (percent > 0 && percent < 1 && Math.abs(distance) < hitTargetPadding);
         }
         return false;
@@ -282,24 +282,24 @@ define(['jquery'], function($) {
     };
 
     SelfLink.prototype.draw = function(c) {
-        var stuff = this.getEndPointsAndCircle();
+        var linkInfo = this.getEndPointsAndCircle();
         // draw arc
         c.beginPath();
-        c.arc(stuff.circleX, stuff.circleY, stuff.circleRadius, stuff.startAngle, stuff.endAngle, false);
+        c.arc(linkInfo.circleX, linkInfo.circleY, linkInfo.circleRadius, linkInfo.startAngle, linkInfo.endAngle, false);
         c.stroke();
         // draw the text on the loop farthest from the node
-        var textX = stuff.circleX + stuff.circleRadius * Math.cos(this.anchorAngle);
-        var textY = stuff.circleY + stuff.circleRadius * Math.sin(this.anchorAngle);
+        var textX = linkInfo.circleX + linkInfo.circleRadius * Math.cos(this.anchorAngle);
+        var textY = linkInfo.circleY + linkInfo.circleRadius * Math.sin(this.anchorAngle);
         drawText(c, this.text, textX, textY, this.anchorAngle, selectedObject === this);
         // draw the head of the arrow
-        drawArrow(c, stuff.endX, stuff.endY, stuff.endAngle + Math.PI * 0.4);
+        drawArrow(c, linkInfo.endX, linkInfo.endY, linkInfo.endAngle + Math.PI * 0.4);
     };
 
     SelfLink.prototype.containsPoint = function(x, y) {
-        var stuff = this.getEndPointsAndCircle();
-        var dx = x - stuff.circleX;
-        var dy = y - stuff.circleY;
-        var distance = Math.sqrt(dx*dx + dy*dy) - stuff.circleRadius;
+        var linkInfo = this.getEndPointsAndCircle();
+        var dx = x - linkInfo.circleX;
+        var dy = y - linkInfo.circleY;
+        var distance = Math.sqrt(dx*dx + dy*dy) - linkInfo.circleRadius;
         return (Math.abs(distance) < hitTargetPadding);
     };
 
@@ -340,29 +340,29 @@ define(['jquery'], function($) {
     };
 
     StartLink.prototype.draw = function(c) {
-        var stuff = this.getEndPoints();
+        var endPoints = this.getEndPoints();
 
         // draw the line
         c.beginPath();
-        c.moveTo(stuff.startX, stuff.startY);
-        c.lineTo(stuff.endX, stuff.endY);
+        c.moveTo(endPoints.startX, endPoints.startY);
+        c.lineTo(endPoints.endX, endPoints.endY);
         c.stroke();
 
         // draw the text at the end without the arrow
-        var textAngle = Math.atan2(stuff.startY - stuff.endY, stuff.startX - stuff.endX);
-        drawText(c, this.text, stuff.startX, stuff.startY, textAngle, selectedObject === this);
+        var textAngle = Math.atan2(endPoints.startY - endPoints.endY, endPoints.startX - endPoints.endX);
+        drawText(c, this.text, endPoints.startX, endPoints.startY, textAngle, selectedObject === this);
 
         // draw the head of the arrow
-        drawArrow(c, stuff.endX, stuff.endY, Math.atan2(-this.deltaY, -this.deltaX));
+        drawArrow(c, endPoints.endX, endPoints.endY, Math.atan2(-this.deltaY, -this.deltaX));
     };
 
     StartLink.prototype.containsPoint = function(x, y) {
-        var stuff = this.getEndPoints();
-        var dx = stuff.endX - stuff.startX;
-        var dy = stuff.endY - stuff.startY;
+        var endPoints = this.getEndPoints();
+        var dx = endPoints.endX - endPoints.startX;
+        var dy = endPoints.endY - endPoints.startY;
         var length = Math.sqrt(dx*dx + dy*dy);
-        var percent = (dx * (x - stuff.startX) + dy * (y - stuff.startY)) / (length * length);
-        var distance = (dx * (y - stuff.startY) - dy * (x - stuff.startX)) / length;
+        var percent = (dx * (x - endPoints.startX) + dy * (y - endPoints.startY)) / (length * length);
+        var distance = (dx * (y - endPoints.startY) - dy * (x - endPoints.startX)) / length;
         return (percent > 0 && percent < 1 && Math.abs(distance) < hitTargetPadding);
     };
 
@@ -823,7 +823,7 @@ define(['jquery'], function($) {
             if (link.type === "Link") {
                 var from_node = link.nodeA;
                 var to_node = link.nodeB;
-
+                
                 var numbers = link.text.split("|");
 
                 numbers.forEach(function(number) {
