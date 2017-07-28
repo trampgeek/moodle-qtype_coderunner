@@ -1,5 +1,10 @@
 # CHANGE HISTORY
 
+### 28 July 2017. Version 3.2.0+
+
+* Change DB type of templateparams to text (was char(255)) to allow for
+  more elaborate template parameters.
+
 ### 11 July 2017. Version 3.2.0
 
 * Add allow_multiple_stdins option for advanced use of combinator templates.
