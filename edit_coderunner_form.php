@@ -40,7 +40,8 @@ class qtype_coderunner_edit_form extends question_edit_form {
     const NUM_TESTCASES_ADD = 3;    // Extra empty test cases to add.
     const DEFAULT_NUM_ROWS = 18;    // Answer box rows.
     const DEFAULT_NUM_COLS = 100;   // Answer box columns.
-    const TEMPLATE_PARAM_SIZE = 80; // The size of the template parameter field.
+    const TEMPLATE_PARAM_ROWS = 5;  // The number of rows of the template parameter field.
+    const TEMPLATE_PARAM_COLS = 60; // THe number of columns for the template parameter field.
     const RESULT_COLUMNS_SIZE = 80; // The size of the resultcolumns field.
 
     public function qtype() {
@@ -514,9 +515,9 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->addHelpButton('markinggroup', 'markinggroup', 'qtype_coderunner');
 
         // Template params.
-        $mform->addElement('text', 'templateparams',
+        $mform->addElement('textarea', 'templateparams',
             get_string('templateparams', 'qtype_coderunner'),
-            array('size' => self::TEMPLATE_PARAM_SIZE));
+            array('rows' => self::TEMPLATE_PARAM_ROWS, 'cols' => self::TEMPLATE_PARAM_COLS));
         $mform->setType('templateparams', PARAM_RAW);
         $mform->addHelpButton('templateparams', 'templateparams', 'qtype_coderunner');
     }
