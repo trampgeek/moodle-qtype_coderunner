@@ -129,14 +129,13 @@ class qtype_coderunner_util {
     }
 
 
-    // Sanitise with 's()' and add line breaks to a given string.
+    // Sanitise given text with 's()' and wrap in a <pre> element.
     // TODO: expand tabs (which appear in Java traceback output).
-    // Experimental change: use <pre> instead of non-breaking spaces
-    // because edge browser converts &nbsb; to extended-ASCII chr(160),
-    // not chr(32) like most other browser.
     public static function format_cell($cell) {
-        //return str_replace("\n", "<br />", str_replace(' ', '&nbsp;', s($cell)));
-        return '<pre class="tablecell">' . s($cell) . '</pre>';
+        if (substr($cell, 0, 1) === "\n") {
+            $cell = "\n" . $cell;  // Fix <pre> quirk that ignores leading \n
+        }
+        return '<pre class="tablecell">' . $cell . '</pre>';
     }
 
 
