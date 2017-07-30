@@ -29,6 +29,8 @@
 */
 define(['jquery'], function($) {
     var textArea;
+    
+    var currentIndex = 0;
 
     function Link(a, b) {
         this.nodeA = a;
@@ -182,7 +184,10 @@ define(['jquery'], function($) {
         this.mouseOffsetX = 0;
         this.mouseOffsetY = 0;
         this.isAcceptState = false;
-        this.text = '';
+        //this.text = '';
+        this.index = currentIndex;
+        currentIndex += 1;
+        this.text = "S_" + this.index;
     }
 
     Node.prototype.setMouseStart = function(x, y) {
@@ -501,6 +506,15 @@ define(['jquery'], function($) {
 
     function draw() {
         drawUsing(canvas.getContext('2d'));
+        
+        // this part keeps the node's index up to date with its text
+        for(var i = 0; i < nodes.length; i++) {
+            var node = nodes[i];
+            var stateNumber = node.text.split("_").slice(-1)[0];
+            var index = parseInt(stateNumber);
+            node.index = index;
+        }
+        
         saveBackup();
     }
 
@@ -644,6 +658,19 @@ define(['jquery'], function($) {
     }
 
     var shift = false;
+    
+    function updateIndices(removedIndex) {
+        for(var i = 0; i < nodes.length; i++) {
+            var node = nodes[i];
+            if (node.index > removedIndex) {
+                node.index = node.index-1;
+                node.text = "S_" + node.index;
+            }
+        }
+        currentIndex = currentIndex - 1;
+        
+    }
+   
 
     document.onkeydown = function(e) {
         var key = crossBrowserKey(e);
@@ -667,6 +694,7 @@ define(['jquery'], function($) {
                 for(var i = 0; i < nodes.length; i++) {
                     if(nodes[i] === selectedObject) {
                         nodes.splice(i--, 1);
+                        updateIndices(selectedObject.index);
                     }
                 }
                 for(var i = 0; i < links.length; i++) {
@@ -770,16 +798,17 @@ define(['jquery'], function($) {
         if(!JSON) {
             return;
         }
-
+        
         try {
             // load up the student's previous answer
             var backup = JSON.parse(textArea.val());
-
+            
             for(var i = 0; i < backup.nodes.length; i++) {
                 var backupNode = backup.nodes[i];
                 var node = new Node(backupNode.x, backupNode.y);
                 node.isAcceptState = backupNode.isAcceptState;
                 node.text = backupNode.text;
+                node.index = backupNode.index;
                 nodes.push(node);
             }
             for(var i = 0; i < backup.links.length; i++) {
@@ -807,29 +836,31 @@ define(['jquery'], function($) {
             }
         } catch(e) {
             // error loading previous answer
+            console.error(e);
         }
     }
     
-    function saveDFABackup(backup) {
+
+    function createTransitionTable(backup) {
         //todo: handle the case where the node at index 0 is not the start node
-        backup.transition_table = [];
-        
+        transitionTable = [];
+                       
         for (i = 0; i < backup.nodes.length; i++) {
-            backup.transition_table.push([null, null]);
+            transitionTable.push([null, null]);
         }
         
         backup.links.forEach(function(link) {
             
             if (link.type === "Link") {
-                var from_node = link.nodeA;
-                var to_node = link.nodeB;
+                var fromNode = link.nodeA;
+                var toNode = link.nodeB;
                 
-                var numbers = link.text.split("|");
+                var transitions = link.text.split("|");
 
-                numbers.forEach(function(number) {
-                   if (!isNaN(number)) {
-                       var transition_letter = +number;
-                       backup.transition_table[from_node][transition_letter] = to_node;
+                transitions.forEach(function(transition) {
+                    if (/^\d+$/.test(transition)) {
+                        var transition_letter = +transition;
+                        transitionTable[fromNode][transition_letter] = toNode;
                    }
                 });
             }
@@ -837,18 +868,18 @@ define(['jquery'], function($) {
             if (link.type === "SelfLink") {
                 var node = link.node;
                 
-                var numbers = link.text.split("|");
+                var transitions = link.text.split("|");
                 
-                numbers.forEach(function(number) {
-                   if (!isNaN(number)) {
-                       var transition_letter = +number;
-                       backup.transition_table[node][transition_letter] = node;
+                transitions.forEach(function(transition) {
+                    if (/^\d+$/.test(transition)) {
+                        var transition_letter = +transition;
+                        transitionTable[+node][transition_letter] = node;
                    }
                 });
             }
             
         });
-        
+        return transitionTable;
     }
 
     function saveBackup() {
@@ -861,8 +892,8 @@ define(['jquery'], function($) {
             'links': [],
         };
         
-        backup.accept_states = [];
-        
+        var acceptStates = [];
+                
         for(var i = 0; i < nodes.length; i++) {
             var node = nodes[i];
             var backupNode = {
@@ -870,10 +901,11 @@ define(['jquery'], function($) {
                     'y': node.y,
                     'text': node.text,
                     'isAcceptState': node.isAcceptState,
+                    'index': node.index,
             };
             backup.nodes.push(backupNode);
             if (node.isAcceptState) {
-                backup.accept_states.push(i);
+                acceptStates.push(i);
             }
         }
         for(var i = 0; i < links.length; i++) {
@@ -882,14 +914,14 @@ define(['jquery'], function($) {
             if(link instanceof SelfLink) {
                 backupLink = {
                     'type': 'SelfLink',
-                    'node': nodes.indexOf(link.node),
+                    'node': link.node.index,
                     'text': link.text,
                     'anchorAngle': link.anchorAngle,
                 };
             } else if(link instanceof StartLink) {
                 backupLink = {
                     'type': 'StartLink',
-                    'node': nodes.indexOf(link.node),
+                    'node': link.node.index,
                     'text': link.text,
                     'deltaX': link.deltaX,
                     'deltaY': link.deltaY,
@@ -897,8 +929,8 @@ define(['jquery'], function($) {
             } else if(link instanceof Link) {
                 backupLink = {
                     'type': 'Link',
-                    'nodeA': nodes.indexOf(link.nodeA),
-                    'nodeB': nodes.indexOf(link.nodeB),
+                    'nodeA': link.nodeA.index,
+                    'nodeB': link.nodeB.index,
                     'text': link.text,
                     'lineAngleAdjust': link.lineAngleAdjust,
                     'parallelPart': link.parallelPart,
@@ -910,9 +942,9 @@ define(['jquery'], function($) {
             }
         }
         
-        saveDFABackup(backup);
-        
-        backup.submission = "(" + JSON.stringify(backup.transition_table) + "," + JSON.stringify(backup.accept_states) + ")";
+        var transitionTable = createTransitionTable(backup);
+
+        backup.submission = "(" + JSON.stringify(transitionTable) + "," + JSON.stringify(acceptStates) + ")";
         textArea.val(JSON.stringify(backup));
     }
       
