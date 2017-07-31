@@ -1,31 +1,25 @@
 # CHANGE HISTORY
 
-### 28 July 2017. Version 3.2.0+
-
-* Change DB type of templateparams to text (was char(255)) to allow for
-  more elaborate template parameters.
-
-### 11 July 2017. Version 3.2.0
+### 31 July 2017. Version 3.2.0
 
 * Add allow_multiple_stdins option for advanced use of combinator templates.
   This option disables the usual behaviour of running combinator templates
-  once for each test when any tests have standard input defined. When enabled
+  once for each test when any tests have standard input defined. When enabled,
   the combinator is given all testcases (as when standard input is not present)
   and must itself manage the switching of standard inputs between tests.
+* Change DB type of templateparams to text (was char(255)) to allow for
+  more elaborate template parameters.
+* Use text area for template params rather than a one-line entry field in 
+  order to cater for longer multi-line template parameters
+* Update the uocprototypes.xml file in the samples directory to the latest
+  version.
 * Incorporate style changes from Open University (thanks Mahmoud Kassaei) for
   improved accessibility of the Ace editor.
-* Disable the suppression of a regrade when the same answer is 
-  submitted twice in succession. The suppression was introduced in
-  version 3.1.5 but has proved confusing for question authors.
-
-### 5 July 2017. Version 3.1.5+
-
 * Fix bug in display of "For example" table when question has customised
   columns/headers.
 * Improve various tests, e.g. fork bomb.
 * Change **Runtime Error** message to just **Error** since it's not always
   clear what is runtime versus compile time.
-
 
 ### 23 May 2017. Version 3.1.5
 
