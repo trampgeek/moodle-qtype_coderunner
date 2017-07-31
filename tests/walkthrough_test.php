@@ -394,8 +394,7 @@ EOTEMPLATE;
         $this->process_submission(array('-submit' => 1,
             'answer' => 'def sqr(n): return n * n'));
         $this->check_current_mark(0.0);
-        $this->check_output_contains('Error in question');
-        $this->check_output_contains('Please report this error to your tutor');
+        $this->check_output_contains('Perhaps excessive output or error in question?');
     }
 
     // Check that if Template Debugging is enabled, the source code appears.
