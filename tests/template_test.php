@@ -107,6 +107,10 @@ EOTEMPLATE;
         $result = $q->grade_response($response);
         list($mark, $grade, $cache) = $result;
         $this->assertTrue(abs($mark - 24.0 / 31.0) < 0.000001);
+        $q->allornothing = true;
+        $result = $q->grade_response($response);
+        list($mark, $grade, $cache) = $result;
+        $this->assertTrue($mark == 0.0);
     }
 
     public function test_template_params() {

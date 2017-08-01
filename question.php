@@ -176,9 +176,11 @@ class qtype_coderunner_question extends question_graded_automatically {
             return array(0, question_state::$invalid, $datatocache);
         } else if ($testoutcome->all_correct()) {
              return array(1, question_state::$gradedright, $datatocache);
-        } else if ($this->allornothing && $this->grader !== 'TemplateGrader') {
+        } else if ($this->allornothing &&
+                !($this->grader === 'TemplateGrader' && $this->iscombinatortemplate)) {
             return array(0, question_state::$gradedwrong, $datatocache);
         } else {
+            // Allow partial marks if not allornothing or if it's a combinator template grader
             return array($testoutcome->mark_as_fraction(),
                     question_state::$gradedpartial, $datatocache);
         }
