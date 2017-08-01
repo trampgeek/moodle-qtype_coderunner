@@ -7,6 +7,11 @@
   once for each test when any tests have standard input defined. When enabled,
   the combinator is given all testcases (as when standard input is not present)
   and must itself manage the switching of standard inputs between tests.
+* Bug fix: All-or-nothing checkbox was not labelled when using Clean theme
+* Bug fix: All-or-nothing grading was not working with per-test-case template
+  graders - students were getting partial marks.
+* Change **Runtime Error** message to just **Error** since it's not always
+  clear what is runtime versus compile time.
 * Change DB type of templateparams to text (was char(255)) to allow for
   more elaborate template parameters.
 * Use text area for template params rather than a one-line entry field in 
@@ -18,8 +23,8 @@
 * Fix bug in display of "For example" table when question has customised
   columns/headers.
 * Improve various tests, e.g. fork bomb.
-* Change **Runtime Error** message to just **Error** since it's not always
-  clear what is runtime versus compile time.
+* Some documentation updates.
+
 
 ### 23 May 2017. Version 3.1.5
 
