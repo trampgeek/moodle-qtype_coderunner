@@ -1,6 +1,6 @@
 # CODE RUNNER
 
-Version: 3.1+ July 2017
+Version: 3.2 July 2017
 
 Authors: Richard Lobb, University of Canterbury, New Zealand.
          Tim Hunt, The Open University, UK
@@ -130,9 +130,9 @@ category for your own use.
 
 #### Note for enthusiasts only.
 
-Version 3.1 no-longer allows a question to have both a per-test template
-and a combinator template: questions must have one or the other. In upgrading
-from Version 3.0 and earlier, the combinator template is used if "Enable
+Versions from 3.1 onwards no-longer allows a question to have both a per-test
+template and a combinator template: questions must have one or the other. In
+upgrading from Version 3.0 and earlier, the combinator template is used if "Enable
 combinator" was set or a combinator template grader is being used, otherwise
 the per-test template is used. This should not change the behaviour of the
 question *provided* the two templates are consistent in the sense that running
@@ -1473,6 +1473,21 @@ user-defined question types are not for the faint of heart. Caveat emptor.
 **WARNING #2:** although you can define test cases in a question prototype,
 e.g. for validation purposes, they are not inherited by the "children" of
 the prototype.
+
+## Supporting or implementing new languages
+
+Most authors seem to assume that if they wish to write CodeRunner questions
+that use a language not directly supported by the Jobe sandbox, they must
+first modify Jobe to support the new language. That is not the case. A much 
+easier, more convenient and more maintainable approach is to use a Python
+question type that compiles (if necessary) and runs the student code in
+a Python subprocess. Indeed, in recent years at the University of Canterbury
+nearly all new question types have been scripted in Python, even those using
+languages built into Jobe. For
+example, the question type we now use for all question in the C programming
+course is a Python3 question type parses the student's C program and performs
+lots of checks on things like function length and use of various C constructs
+before compiling and running the submitted code.
 
 ## Administrator scripts
 
