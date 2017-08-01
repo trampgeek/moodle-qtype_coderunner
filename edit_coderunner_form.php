@@ -503,7 +503,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
         // Marking controls.
         $markingelements = array();
-        $markingelements[] = $mform->createElement('advcheckbox', 'allornothing',
+        $markingelements[] = $mform->createElement('advcheckbox', 'allornothing', null,
                 get_string('allornothing', 'qtype_coderunner'));
         $markingelements[] = $mform->CreateElement('text', 'penaltyregime',
             get_string('penaltyregimelabel', 'qtype_coderunner'),
