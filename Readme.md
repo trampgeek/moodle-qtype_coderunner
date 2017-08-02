@@ -247,6 +247,15 @@ you will also need to import
 the file `MoodleHome>/question/type/coderunner/samples/uoc_prototypes.xml`
 or you will receive a "Missing prototype" error.
 
+Also included in the *samples* folder is a prototype question,
+`prototype\_c\_via\_python.xml`
+ that defines a new question type, equivalent to the built-in *c\_program*
+type, by scripting in Python the process of compiling and running the student
+code. This is a useful template for authors who wish to implement their own 
+question types or who need to support non-built-in languages. It is discussed
+in detail in the section "Supporting or implementing new languages".
+
+
 ### Sandbox Configuration
 
 Although CodeRunner has a flexible architecture that supports various different
@@ -1459,6 +1468,9 @@ basic ones (per-test-template, grader, result-table column selectors etc) and
 ones. The latter include the language, sandbox, timeout, memory limit and
 the "make this question a prototype" feature.
 
+The following section on supporting or implementing new languages shows in
+detail the process for creating a new question type.
+
 **WARNING #1:** if you define your own question type you'd better make sure
 when you export your question bank
 that you include the prototype, or all of its children will die on being imported
@@ -1488,6 +1500,83 @@ example, the question type we now use for all question in the C programming
 course is a Python3 question type parses the student's C program and performs
 lots of checks on things like function length and use of various C constructs
 before compiling and running the submitted code.
+
+The template code below shows a simple example in which a Python question
+prototype is used to define a new question type *c\_via\_python* that mimics
+the built-in *c\_program* question type but provides more flexibility. To create
+the new question type using this template:
+
+ 1. Create a new CodeRunner question.
+ 1. Choose the question type *python3*
+ 1. Click *Customise*
+ 1. Replace the contents of the *Template* text area with the template code below.
+ 1. Enter DEMO\_PROTOTYPE\_C\_using\_python as the question name
+ 1. Enter whatever text you wish to use to describe the question type in the
+    Question text area. This text will be displayed to any authors using this
+    new question type if they open the *Question type details* section of the
+    question authoring form.
+ 1. Open Advanced Customisation
+ 1. Set *Is prototype?* to *Yes (user defined)*
+ 1. Set *Question type* to *c\_via\_python*.
+ 1. Set *Ace language* to *c*, so that the students' code will be edited as C
+    even though the prototype is in Python.
+ 1. Save the question.
+
+You should now find the new question type *c\_via\_python* appearing in the
+*Question type* dropdown of the author edit form for a new CodeRunner
+question. This new question type should behave like the built-in c\_program
+question type but is more flexible; for example, it can easily be extended to perform
+checks on the submitted C code prior to compilation.
+
+The full
+question prototype for the *c\_via\_python* question type
+is included in the *samples* folder of the CodeRunner
+distribution.
+
+    """ The template for a question type that compiles and runs a student-submitted
+        C program. 
+    """
+
+    import subprocess
+
+    # Write the student code to a file prog.c
+    student_answer = """{{ STUDENT_ANSWER | e('py') }}"""
+    with open("prog.c", "w") as src:
+        print(student_answer, file=src)
+
+    # Compile
+    {% if QUESTION.parameters.cflags is defined %}
+    cflags = """{{ QUESTION.parameters.cflags | e('py') }}"""
+    {% else %}
+    cflags = "-std=c99 -Wall -Werror"
+    {% endif %}
+    return_code = subprocess.call("gcc {0} -o prog prog.c".format(cflags).split())
+    if return_code != 0:
+        print("** Compilation failed. Testing aborted **", file=sys.stderr)
+        
+    # If compile succeeded, run the code. Since this is a per-test template,
+    # stdin is already set up for the stdin text specified in the test case,
+    # so we can run the compiled program directly.
+    if return_code == 0:
+        try:
+            # Send stderr to stdout in order to prevent any stderr
+            # output being interpreted as a runtime error
+            output = subprocess.check_output(["./prog"], universal_newlines=True)
+            print(output)
+        except subprocess.CalledProcessError as e:
+            if e.returncode > 0:
+                # Ignore non-zero positive return codes
+                if e.output:
+                    print(e.output)
+            else:
+                # But negative return codes are signals - abort
+                if e.output:
+                    print(e.output, file=sys.stderr)
+                if e.returncode < 0:
+                    print("Task failed with signal", -e.returncode, file=sys.stderr)
+                print("** Further testing aborted **", file=sys.stderr)
+
+
 
 ## Administrator scripts
 
