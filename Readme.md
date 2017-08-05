@@ -1559,8 +1559,6 @@ distribution.
     # so we can run the compiled program directly.
     if return_code == 0:
         try:
-            # Send stderr to stdout in order to prevent any stderr
-            # output being interpreted as a runtime error
             output = subprocess.check_output(["./prog"], universal_newlines=True)
             print(output)
         except subprocess.CalledProcessError as e:
