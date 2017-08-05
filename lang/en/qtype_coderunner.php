@@ -447,7 +447,7 @@ The \'Parameters\' entry
 is used to pass further sandbox-specific data, such as compile options and
 API-keys. It should generally be left blank but if non-blank it must be a valid
 JSON record. In the case of the jobe sandbox, available attributes include
-disklimit, streamsize, numprocs, compileargs and interpreterargs. For
+disklimit, streamsize, numprocs, compileargs, linkargs and interpreterargs. For
 example `{"compileargs":["-std=c89"]}` for a C question would force C89
 compliance and no other C options would be used. See the jobe documentation
 for details. Some sandboxes (e.g. Ideone) may silently ignore any or all of
