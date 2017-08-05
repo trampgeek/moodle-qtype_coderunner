@@ -139,7 +139,7 @@ class qtype_coderunner_testing_outcome {
             return get_string('syntax_errors', 'qtype_coderunner') . html_writer::tag('pre', $this->errormessage);
         } else if ($this->combinator_error()) {
             return get_string('badquestion', 'qtype_coderunner') . html_writer::tag('pre', $this->errormessage);
-        } else if (!empty($this->testresults)) { // Combinator graders may not have test results.
+        } else if (!$this->iscombinatorgrader()) {  // Combinator grader results table can't be used
             $numerrors = 0;
             $firstfailure = '';
             foreach ($this->testresults as $testresult) {

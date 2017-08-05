@@ -1,6 +1,6 @@
 # CHANGE HISTORY
 
-### 31 July 2017. Version 3.2.0
+### 6 August 2017. Version 3.2.0
 
 * Add allow_multiple_stdins option for advanced use of combinator templates.
   This option disables the usual behaviour of running combinator templates
@@ -10,6 +10,8 @@
 * Bug fix: All-or-nothing checkbox was not labelled when using Clean theme
 * Bug fix: All-or-nothing grading was not working with per-test-case template
   graders - students were getting partial marks.
+* Generate a validate-on-save error message when using a combinator template
+  grader that has a test-results table.
 * Change **Runtime Error** message to just **Error** since it's not always
   clear what is runtime versus compile time.
 * Change DB type of templateparams to text (was char(255)) to allow for

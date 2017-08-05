@@ -55,12 +55,38 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
         return true;
     }
 
+    /**
+     * Construct a customised error message for combinator grading outcomes if
+     * practicable. Use the prologuehtml field (if given) followed by the first
+     * wrong row of the result table if this table has been defined and if it
+     * contains an 'iscorrect' column.
+     * @return type
+     */
     public function validation_error_message() {
+        $error = '';
         if (!empty($this->prologuehtml)) {
-            return $this->prologuehtml . "\n" . parent::validation_error_message();
-        } else {
-            return parent::validation_error_message();
+            $error = $this->prologuehtml . "<br>";
         }
+        if (!empty($this->testresults)) {
+            $headerrow = $this->testresults[0];
+            $iscorrectcol = array_search('iscorrect', $headerrow);
+            if ($iscorrectcol !== false) {
+                // Table has the optional 'iscorrect' column so find first fail.
+                foreach(array_slice($this->testresults, 1) as $row) {
+                    if (!$row[$iscorrectcol]) {
+                        $error .= "First failing test:<br>";
+                        for($i = 0; $i < count($row); $i++) {
+                            if ($headerrow[$i] != 'iscorrect' &&
+                                    $headerrow[$i] != 'ishidden') {
+                                $error .= "{$headerrow[$i]}: <pre>{$row[$i]}</pre>";
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        return $error . parent::validation_error_message();
     }
 
     // Getter methods for use by renderer.
