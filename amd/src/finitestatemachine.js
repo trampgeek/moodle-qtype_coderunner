@@ -30,8 +30,6 @@
 define(['jquery'], function($) {
     var textArea;
     
-    var currentIndex = 0;
-
     function Link(a, b) {
         this.nodeA = a;
         this.nodeB = b;
@@ -184,10 +182,7 @@ define(['jquery'], function($) {
         this.mouseOffsetX = 0;
         this.mouseOffsetY = 0;
         this.isAcceptState = false;
-        //this.text = '';
-        this.index = currentIndex;
-        currentIndex += 1;
-        this.text = "S_" + this.index;
+        this.text = '';
     }
 
     Node.prototype.setMouseStart = function(x, y) {
@@ -505,16 +500,7 @@ define(['jquery'], function($) {
     }
 
     function draw() {
-        drawUsing(canvas.getContext('2d'));
-        
-        // this part keeps the node's index up to date with its text
-        for(var i = 0; i < nodes.length; i++) {
-            var node = nodes[i];
-            var stateNumber = node.text.split("_").slice(-1)[0];
-            var index = parseInt(stateNumber);
-            node.index = index;
-        }
-        
+        drawUsing(canvas.getContext('2d'));       
         saveBackup();
     }
 
@@ -657,20 +643,7 @@ define(['jquery'], function($) {
         };
     }
 
-    var shift = false;
-    
-    function updateIndices(removedIndex) {
-        for(var i = 0; i < nodes.length; i++) {
-            var node = nodes[i];
-            if (node.index > removedIndex) {
-                node.index = node.index-1;
-                node.text = "S_" + node.index;
-            }
-        }
-        currentIndex = currentIndex - 1;
-        
-    }
-   
+    var shift = false; 
 
     document.onkeydown = function(e) {
         var key = crossBrowserKey(e);
@@ -694,7 +667,6 @@ define(['jquery'], function($) {
                 for(var i = 0; i < nodes.length; i++) {
                     if(nodes[i] === selectedObject) {
                         nodes.splice(i--, 1);
-                        updateIndices(selectedObject.index);
                     }
                 }
                 for(var i = 0; i < links.length; i++) {
@@ -805,30 +777,32 @@ define(['jquery'], function($) {
             
             for(var i = 0; i < backup.nodes.length; i++) {
                 var backupNode = backup.nodes[i];
-                var node = new Node(backupNode.x, backupNode.y);
+                var backupNodeLayout = backup.nodeGeometry[i];
+                var node = new Node(backupNodeLayout.x, backupNodeLayout.y);
                 node.isAcceptState = backupNode.isAcceptState;
-                node.text = backupNode.text;
-                node.index = backupNode.index;
+                node.text = backupNode.label;
                 nodes.push(node);
             }
+            
             for(var i = 0; i < backup.links.length; i++) {
-                var backupLink = backup.links[i];
+                var backupLink = backup.edges[i];
+                var backupLinkLayout = backup.edgeGeometry[i];
                 var link = null;
                 if(backupLink.type === 'SelfLink') {
-                    link = new SelfLink(nodes[backupLink.node]);
-                    link.anchorAngle = backupLink.anchorAngle;
+                    link = new SelfLink(nodes[backupLink.fromNode]);
+                    link.anchorAngle = backupLinkLayout.anchorAngle;
                     link.text = backupLink.text;
                 } else if(backupLink.type === 'StartLink') {
-                    link = new StartLink(nodes[backupLink.node]);
-                    link.deltaX = backupLink.deltaX;
-                    link.deltaY = backupLink.deltaY;
+                    link = new StartLink(nodes[backupLink.fromNode]);
+                    link.deltaX = backupLinkLayout.deltaX;
+                    link.deltaY = backupLinkLayout.deltaY;
                     link.text = backupLink.text;
                 } else if(backupLink.type === 'Link') {
-                    link = new Link(nodes[backupLink.nodeA], nodes[backupLink.nodeB]);
-                    link.parallelPart = backupLink.parallelPart;
-                    link.perpendicularPart = backupLink.perpendicularPart;
+                    link = new Link(nodes[backupLink.fromNode], nodes[backupLink.toNode]);
+                    link.parallelPart = backupLinkLayout.parallelPart;
+                    link.perpendicularPart = backupLinkLayout.perpendicularPart;
                     link.text = backupLink.text;
-                    link.lineAngleAdjust = backupLink.lineAngleAdjust;
+                    link.lineAngleAdjust = backupLinkLayout.lineAngleAdjust;
                 }
                 if(link !== null) {
                     links.push(link);
@@ -840,112 +814,81 @@ define(['jquery'], function($) {
         }
     }
     
-
-    function createTransitionTable(backup) {
-        //todo: handle the case where the node at index 0 is not the start node
-        transitionTable = [];
-                       
-        for (i = 0; i < backup.nodes.length; i++) {
-            transitionTable.push([null, null]);
-        }
-        
-        backup.links.forEach(function(link) {
-            
-            if (link.type === "Link") {
-                var fromNode = link.nodeA;
-                var toNode = link.nodeB;
-                
-                var transitions = link.text.split("|");
-
-                transitions.forEach(function(transition) {
-                    if (/^\d+$/.test(transition)) {
-                        var transition_letter = +transition;
-                        transitionTable[fromNode][transition_letter] = toNode;
-                   }
-                });
-            }
-            
-            if (link.type === "SelfLink") {
-                var node = link.node;
-                
-                var transitions = link.text.split("|");
-                
-                transitions.forEach(function(transition) {
-                    if (/^\d+$/.test(transition)) {
-                        var transition_letter = +transition;
-                        transitionTable[+node][transition_letter] = node;
-                   }
-                });
-            }
-            
-        });
-        return transitionTable;
-    }
-
     function saveBackup() {
         if(!JSON) {
             return;
         }
-
+        
         var backup = {
+            'edgeGeometry': [],
+            'nodeGeometry': [],
             'nodes': [],
-            'links': [],
+            'edges': [],
         };
         
-        var acceptStates = [];
-                
         for(var i = 0; i < nodes.length; i++) {
             var node = nodes[i];
-            var backupNode = {
-                    'x': node.x,
-                    'y': node.y,
-                    'text': node.text,
-                    'isAcceptState': node.isAcceptState,
-                    'index': node.index,
+            
+            var nodeData = {
+                'label': node.text,
+                'isAcceptState': node.isAcceptState,
             };
-            backup.nodes.push(backupNode);
-            if (node.isAcceptState) {
-                acceptStates.push(i);
-            }
+            var nodeLayout = {
+                'x': node.x,
+                'y': node.y,
+            };
+            
+            backup.nodeGeometry.push(nodeLayout);
+            backup.nodes.push(nodeData);
         }
+        
         for(var i = 0; i < links.length; i++) {
             var link = links[i];
-            var backupLink = null;
+            var linkData = null;
+            var linkLayout = null;
+            
             if(link instanceof SelfLink) {
-                backupLink = {
-                    'type': 'SelfLink',
-                    'node': link.node.index,
-                    'text': link.text,
+                linkLayout = {
                     'anchorAngle': link.anchorAngle,
                 };
+                linkData = {
+                    'fromNode': nodes.indexOf(link.node),
+                    'toNode': nodes.indexOf(link.node),
+                    'label': link.text,
+                    'type': 'SelfLink',
+                };
             } else if(link instanceof StartLink) {
-                backupLink = {
-                    'type': 'StartLink',
-                    'node': link.node.index,
-                    'text': link.text,
+                linkLayout = {
                     'deltaX': link.deltaX,
                     'deltaY': link.deltaY,
                 };
+                linkData = {
+                    'fromNode': nodes.indexOf(link.node),
+                    'toNode': nodes.indexOf(link.node),
+                    'label': link.text,
+                    'type': 'StartLink',
+                };
+                
             } else if(link instanceof Link) {
-                backupLink = {
-                    'type': 'Link',
-                    'nodeA': link.nodeA.index,
-                    'nodeB': link.nodeB.index,
-                    'text': link.text,
+                linkLayout = {
                     'lineAngleAdjust': link.lineAngleAdjust,
                     'parallelPart': link.parallelPart,
                     'perpendicularPart': link.perpendicularPart,
                 };
+                linkData = {
+                    'fromNode': nodes.indexOf(link.nodeA),
+                    'toNode': nodes.indexOf(link.nodeB),
+                    'label': link.text,
+                    'type': 'Link',
+                };
             }
-            if(backupLink !== null) {
-                backup.links.push(backupLink);
-            }
+            if(linkData !== null && linkLayout !== null) {
+                backup.edges.push(linkData);
+                backup.edgeGeometry.push(linkLayout);
+            } 
         }
-        
-        var transitionTable = createTransitionTable(backup);
-
-        backup.submission = "(" + JSON.stringify(transitionTable) + "," + JSON.stringify(acceptStates) + ")";
         textArea.val(JSON.stringify(backup));
+        
     }
       
    
