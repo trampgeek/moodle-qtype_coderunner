@@ -784,7 +784,7 @@ define(['jquery'], function($) {
                 nodes.push(node);
             }
             
-            for(var i = 0; i < backup.links.length; i++) {
+            for(var i = 0; i < backup.edges.length; i++) {
                 var backupLink = backup.edges[i];
                 var backupLinkLayout = backup.edgeGeometry[i];
                 var link = null;
