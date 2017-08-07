@@ -80,53 +80,38 @@ class qtype_coderunner_test extends advanced_testcase {
         $this->resetAfterTest(true);
         $this->setAdminUser();
 
-        // gets the data from helper.php method get_coderunner_question_data_sqr
-        $questiondata = test_question_maker::get_question_data('coderunner');
-        
-        // gets the data from helper.php method get_coderunner_question_form_data_sqr
+        $questiondata = test_question_maker::get_question_data('coderunner');  
         $formdata = test_question_maker::get_question_form_data('coderunner');
 
         $generator = $this->getDataGenerator()->get_plugin_generator('core_question');
         $cat = $generator->create_question_category(array());
         
-        // Mock submit a form, with the form data (NOT the question data)
+        // Mock submit a form with form data
         $formdata->category = "{$cat->id},{$cat->contextid}";
         qtype_coderunner_edit_form::mock_submit((array)$formdata);
 
-        // Returns an instance of the qtype_coderunner_edit_form class?
         $form = qtype_coderunner_test_helper::get_question_editing_form($cat, $questiondata);
-
         $this->assertTrue($form->is_validated());
         
         $fromform = $form->get_data();
-        
-       
-        // this part saves a coderunner question using the data from the form, and the question data (???)
         $returnedfromsave = $this->qtype->save_question($questiondata, $fromform);
-        print_r($returnedfromsave);
-        // returnedfromsave has some of the data from the FORM data
         
-        // so something goes funky in here
         $actualquestionsdata = question_load_questions(array($returnedfromsave->id));
         $actualquestiondata = end($actualquestionsdata);
                     
         foreach ($questiondata as $property => $value) {
             if (!in_array($property, array('id', 'version', 'timemodified', 'timecreated', 'options', 'testcases'))) {
                 $this->assertAttributeEquals($value, $property, $actualquestiondata);
-                echo($property."\n");
             }
         }
         
-        echo("======\n");
-        //print_r($questiondata);
         foreach ($questiondata->options as $optionname => $value) {
             if ($optionname != 'testcases') {
-                echo($optionname."\n");
                 $this->assertAttributeEquals($value, $optionname, $actualquestiondata->options);
             }
         }
         
-        //test that the testcases match - still todo
+        //TODO: Validate the test cases
 
     }
 }
