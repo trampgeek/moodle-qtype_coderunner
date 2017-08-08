@@ -791,17 +791,17 @@ define(['jquery'], function($) {
                 if(backupLink.type === 'SelfLink') {
                     link = new SelfLink(nodes[backupLink.fromNode]);
                     link.anchorAngle = backupLinkLayout.anchorAngle;
-                    link.text = backupLink.text;
+                    link.text = backupLink.label;
                 } else if(backupLink.type === 'StartLink') {
                     link = new StartLink(nodes[backupLink.fromNode]);
                     link.deltaX = backupLinkLayout.deltaX;
                     link.deltaY = backupLinkLayout.deltaY;
-                    link.text = backupLink.text;
+                    link.text = backupLink.label;
                 } else if(backupLink.type === 'Link') {
                     link = new Link(nodes[backupLink.fromNode], nodes[backupLink.toNode]);
                     link.parallelPart = backupLinkLayout.parallelPart;
                     link.perpendicularPart = backupLinkLayout.perpendicularPart;
-                    link.text = backupLink.text;
+                    link.text = backupLink.label;
                     link.lineAngleAdjust = backupLinkLayout.lineAngleAdjust;
                 }
                 if(link !== null) {
