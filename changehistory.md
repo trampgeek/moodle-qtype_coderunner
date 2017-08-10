@@ -1,5 +1,10 @@
 # CHANGE HISTORY
 
+### 10 August 2017. 3.2.0+
+
+* Bug fix: combinator template grader result tables were not hiding hidden
+  rows from students but merely colouring them darker.
+
 ### 6 August 2017. Version 3.2.0
 
 * Add allow_multiple_stdins option for advanced use of combinator templates.
