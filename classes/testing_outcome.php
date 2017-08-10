@@ -197,15 +197,8 @@ class qtype_coderunner_testing_outcome {
      * treated as ready-to-output html. Empty columns are suppressed.
      */
     protected function build_results_table(qtype_coderunner_question $question) {
-
-        global $COURSE;
-
         $resultcolumns = $question->result_columns();
-        if ($COURSE && $coursecontext = context_course::instance($COURSE->id)) {
-            $canviewhidden = has_capability('moodle/grade:viewhidden', $coursecontext);
-        } else {
-            $canviewhidden = false;
-        }
+        $canviewhidden = $this->can_view_hidden();
 
         // Build the table header, containing all the specified field headers,
         // unless all rows in that column would be blank.
@@ -345,6 +338,24 @@ class qtype_coderunner_testing_outcome {
                              get_string('gotcolhdr', 'qtype_coderunner'));
         $table->data = array(array(html_writer::tag('pre', s($expected)), html_writer::tag('pre', s($got))));
         return html_writer::table($table);
+    }
+
+
+    /**
+     *
+     * @global type $COURSE the current course (if there is one)
+     * @return boolean true iff the current user has permissions to view hidden rows
+     */
+    protected static function can_view_hidden() {
+        global $COURSE;
+
+        if ($COURSE && $coursecontext = context_course::instance($COURSE->id)) {
+            $canviewhidden = has_capability('moodle/grade:viewhidden', $coursecontext);
+        } else {
+            $canviewhidden = false;
+        }
+
+        return $canviewhidden;
     }
 
 
