@@ -778,9 +778,9 @@ define(['jquery'], function($) {
             for(var i = 0; i < backup.nodes.length; i++) {
                 var backupNode = backup.nodes[i];
                 var backupNodeLayout = backup.nodeGeometry[i];
-                var node = new Node(backupNodeLayout.x, backupNodeLayout.y);
-                node.isAcceptState = backupNode.isAcceptState;
-                node.text = backupNode.label;
+                var node = new Node(backupNodeLayout[0], backupNodeLayout[1]);
+                node.isAcceptState = backupNode[1];
+                node.text = backupNode[0];
                 nodes.push(node);
             }
             
@@ -788,20 +788,21 @@ define(['jquery'], function($) {
                 var backupLink = backup.edges[i];
                 var backupLinkLayout = backup.edgeGeometry[i];
                 var link = null;
-                if(backupLink.type === 'SelfLink') {
-                    link = new SelfLink(nodes[backupLink.fromNode]);
+                if(backupLink[0] === backupLink[1]) {
+                    // self link has two identical nodes
+                    link = new SelfLink(nodes[backupLink[0]]);
                     link.anchorAngle = backupLinkLayout.anchorAngle;
-                    link.text = backupLink.label;
-                } else if(backupLink.type === 'StartLink') {
-                    link = new StartLink(nodes[backupLink.fromNode]);
+                    link.text = backupLink[2];
+                } else if(backupLink[0] === -1) {
+                    link = new StartLink(nodes[backupLink[1]]);
                     link.deltaX = backupLinkLayout.deltaX;
                     link.deltaY = backupLinkLayout.deltaY;
-                    link.text = backupLink.label;
-                } else if(backupLink.type === 'Link') {
-                    link = new Link(nodes[backupLink.fromNode], nodes[backupLink.toNode]);
+                    link.text = backupLink[2];
+                } else {
+                    link = new Link(nodes[backupLink[0]], nodes[backupLink[1]]);
                     link.parallelPart = backupLinkLayout.parallelPart;
                     link.perpendicularPart = backupLinkLayout.perpendicularPart;
-                    link.text = backupLink.label;
+                    link.text = backupLink[2];
                     link.lineAngleAdjust = backupLinkLayout.lineAngleAdjust;
                 }
                 if(link !== null) {
@@ -829,14 +830,8 @@ define(['jquery'], function($) {
         for(var i = 0; i < nodes.length; i++) {
             var node = nodes[i];
             
-            var nodeData = {
-                'label': node.text,
-                'isAcceptState': node.isAcceptState,
-            };
-            var nodeLayout = {
-                'x': node.x,
-                'y': node.y,
-            };
+            var nodeData = [node.text, node.isAcceptState];
+            var nodeLayout = [node.x, node.y];
             
             backup.nodeGeometry.push(nodeLayout);
             backup.nodes.push(nodeData);
@@ -851,36 +846,20 @@ define(['jquery'], function($) {
                 linkLayout = {
                     'anchorAngle': link.anchorAngle,
                 };
-                linkData = {
-                    'fromNode': nodes.indexOf(link.node),
-                    'toNode': nodes.indexOf(link.node),
-                    'label': link.text,
-                    'type': 'SelfLink',
-                };
+                linkData = [nodes.indexOf(link.node), nodes.indexOf(link.node), link.text];
             } else if(link instanceof StartLink) {
                 linkLayout = {
                     'deltaX': link.deltaX,
                     'deltaY': link.deltaY,
                 };
-                linkData = {
-                    'fromNode': nodes.indexOf(link.node),
-                    'toNode': nodes.indexOf(link.node),
-                    'label': link.text,
-                    'type': 'StartLink',
-                };
-                
+                linkData = [-1, nodes.indexOf(link.node), link.text];
             } else if(link instanceof Link) {
                 linkLayout = {
                     'lineAngleAdjust': link.lineAngleAdjust,
                     'parallelPart': link.parallelPart,
                     'perpendicularPart': link.perpendicularPart,
                 };
-                linkData = {
-                    'fromNode': nodes.indexOf(link.nodeA),
-                    'toNode': nodes.indexOf(link.nodeB),
-                    'label': link.text,
-                    'type': 'Link',
-                };
+                linkData = [nodes.indexOf(link.nodeA), nodes.indexOf(link.nodeB), link.text];
             }
             if(linkData !== null && linkLayout !== null) {
                 backup.edges.push(linkData);
