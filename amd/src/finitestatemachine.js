@@ -542,8 +542,18 @@ define(['jquery'], function($) {
         canvas.setAttribute("height", "600");
         canvas.setAttribute("style", "background-color: white");
         $(canvas).insertBefore(textArea);
+        $(textArea).hide();
         restoreBackup();
         draw();
+        
+        $(document.body).on('keydown', function(e) {
+            var KEY_M = 77;
+
+            if (e.keyCode === KEY_M && e.ctrlKey && e.altKey) {
+                $(canvas).toggle();
+                $(textArea).toggle();
+            }
+        });
 
         canvas.onmousedown = function(e) {
             var mouse = crossBrowserRelativeMousePos(e);
