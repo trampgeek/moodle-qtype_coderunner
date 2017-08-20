@@ -534,125 +534,6 @@ define(['jquery'], function($) {
         }
     }
 
-    function init() {
-        textArea = $(this);
-        canvas = document.createElement("canvas");
-        canvas.setAttribute("id", "canvas");
-        canvas.setAttribute("width", "800");
-        canvas.setAttribute("height", "600");
-        canvas.setAttribute("style", "background-color: white");
-        $(canvas).insertBefore(textArea);
-        $(textArea).hide();
-        restoreBackup();
-        draw();
-        
-        $(document.body).on('keydown', function(e) {
-            var KEY_M = 77;
-
-            if (e.keyCode === KEY_M && e.ctrlKey && e.altKey) {
-                $(canvas).toggle();
-                $(textArea).toggle();
-            }
-        });
-
-        canvas.onmousedown = function(e) {
-            var mouse = crossBrowserRelativeMousePos(e);
-            selectedObject = selectObject(mouse.x, mouse.y);
-            movingObject = false;
-            originalClick = mouse;
-
-            if(selectedObject !== null) {
-                if(shift && selectedObject instanceof Node) {
-                    currentLink = new SelfLink(selectedObject, mouse);
-                } else {
-                    movingObject = true;
-                    if(selectedObject.setMouseStart) {
-                        selectedObject.setMouseStart(mouse.x, mouse.y);
-                    }
-                }
-                resetCaret();
-            } else if(shift) {
-                currentLink = new TemporaryLink(mouse, mouse);
-            }
-
-            draw();
-
-            if(canvasHasFocus()) {
-                // disable drag-and-drop only if the canvas is already focused
-                return false;
-            } else {
-                // otherwise, let the browser switch the focus away from wherever it was
-                resetCaret();
-                return true;
-            }
-        };
-
-        canvas.ondblclick = function(e) {
-            var mouse = crossBrowserRelativeMousePos(e);
-            selectedObject = selectObject(mouse.x, mouse.y);
-
-            if(selectedObject === null) {
-                selectedObject = new Node(mouse.x, mouse.y);
-                nodes.push(selectedObject);
-                resetCaret();
-                draw();
-            } else if(selectedObject instanceof Node) {
-                selectedObject.isAcceptState = !selectedObject.isAcceptState;
-                draw();
-            }
-        };
-
-        canvas.onmousemove = function(e) {
-            var mouse = crossBrowserRelativeMousePos(e);
-
-            if(currentLink !== null) {
-                var targetNode = selectObject(mouse.x, mouse.y);
-                if(!(targetNode instanceof Node)) {
-                    targetNode = null;
-                }
-
-                if(selectedObject === null) {
-                    if(targetNode !== null) {
-                        currentLink = new StartLink(targetNode, originalClick);
-                    } else {
-                        currentLink = new TemporaryLink(originalClick, mouse);
-                    }
-                } else {
-                    if(targetNode === selectedObject) {
-                        currentLink = new SelfLink(selectedObject, mouse);
-                    } else if(targetNode !== null) {
-                        currentLink = new Link(selectedObject, targetNode);
-                    } else {
-                        currentLink = new TemporaryLink(selectedObject.closestPointOnCircle(mouse.x, mouse.y), mouse);
-                    }
-                }
-                draw();
-            }
-
-            if(movingObject) {
-                selectedObject.setAnchorPoint(mouse.x, mouse.y);
-                if(selectedObject instanceof Node) {
-                    snapNode(selectedObject);
-                }
-                draw();
-            }
-        };
-
-        canvas.onmouseup = function() {
-            movingObject = false;
-
-            if(currentLink !== null) {
-                if(!(currentLink instanceof TemporaryLink)) {
-                    selectedObject = currentLink;
-                    links.push(currentLink);
-                    resetCaret();
-                }
-                currentLink = null;
-                draw();
-            }
-        };
-    }
-
     var shift = false; 
 
     document.onkeydown = function(e) {
@@ -879,14 +760,137 @@ define(['jquery'], function($) {
         textArea.val(JSON.stringify(backup));
         
     }
-      
-   
-    function initQuestionTA(taId) {
-        $(document.getElementById(taId)).each(init);
-    }
+    
+    
+    var FsmInterface = function() {        
+        $(document.body).on('keydown', function(e) {
+            var KEY_M = 77;
 
-    return {
-        init: init,
-        initQuestionTA : initQuestionTA
+            if (e.keyCode === KEY_M && e.ctrlKey && e.altKey) {
+                $(canvas).toggle();
+                $(textArea).toggle();
+            }
+        });
     };
+    
+    // turn off the FSM editor
+    FsmInterface.prototype.stop = function(taId) {
+        canvas = document.getElementById("canvas");
+        canvas.parentNode.removeChild(canvas);
+        
+        
+    };
+      
+
+    FsmInterface.prototype.init = function(taId) {
+        textArea = $(document.getElementById(taId));
+        canvas = document.createElement("canvas");
+        canvas.setAttribute("id", "canvas");
+        canvas.setAttribute("width", "800");
+        canvas.setAttribute("height", "600");
+        canvas.setAttribute("style", "background-color: white");
+        $(canvas).insertBefore(textArea);
+        $(textArea).hide();
+        restoreBackup();
+        draw();
+
+        canvas.onmousedown = function(e) {
+            var mouse = crossBrowserRelativeMousePos(e);
+            selectedObject = selectObject(mouse.x, mouse.y);
+            movingObject = false;
+            originalClick = mouse;
+
+            if(selectedObject !== null) {
+                if(shift && selectedObject instanceof Node) {
+                    currentLink = new SelfLink(selectedObject, mouse);
+                } else {
+                    movingObject = true;
+                    if(selectedObject.setMouseStart) {
+                        selectedObject.setMouseStart(mouse.x, mouse.y);
+                    }
+                }
+                resetCaret();
+            } else if(shift) {
+                currentLink = new TemporaryLink(mouse, mouse);
+            }
+
+            draw();
+
+            if(canvasHasFocus()) {
+                // disable drag-and-drop only if the canvas is already focused
+                return false;
+            } else {
+                // otherwise, let the browser switch the focus away from wherever it was
+                resetCaret();
+                return true;
+            }
+        };
+
+        canvas.ondblclick = function(e) {
+            var mouse = crossBrowserRelativeMousePos(e);
+            selectedObject = selectObject(mouse.x, mouse.y);
+
+            if(selectedObject === null) {
+                selectedObject = new Node(mouse.x, mouse.y);
+                nodes.push(selectedObject);
+                resetCaret();
+                draw();
+            } else if(selectedObject instanceof Node) {
+                selectedObject.isAcceptState = !selectedObject.isAcceptState;
+                draw();
+            }
+        };
+
+        canvas.onmousemove = function(e) {
+            var mouse = crossBrowserRelativeMousePos(e);
+
+            if(currentLink !== null) {
+                var targetNode = selectObject(mouse.x, mouse.y);
+                if(!(targetNode instanceof Node)) {
+                    targetNode = null;
+                }
+
+                if(selectedObject === null) {
+                    if(targetNode !== null) {
+                        currentLink = new StartLink(targetNode, originalClick);
+                    } else {
+                        currentLink = new TemporaryLink(originalClick, mouse);
+                    }
+                } else {
+                    if(targetNode === selectedObject) {
+                        currentLink = new SelfLink(selectedObject, mouse);
+                    } else if(targetNode !== null) {
+                        currentLink = new Link(selectedObject, targetNode);
+                    } else {
+                        currentLink = new TemporaryLink(selectedObject.closestPointOnCircle(mouse.x, mouse.y), mouse);
+                    }
+                }
+                draw();
+            }
+
+            if(movingObject) {
+                selectedObject.setAnchorPoint(mouse.x, mouse.y);
+                if(selectedObject instanceof Node) {
+                    snapNode(selectedObject);
+                }
+                draw();
+            }
+        };
+
+        canvas.onmouseup = function() {
+            movingObject = false;
+
+            if(currentLink !== null) {
+                if(!(currentLink instanceof TemporaryLink)) {
+                    selectedObject = currentLink;
+                    links.push(currentLink);
+                    resetCaret();
+                }
+                currentLink = null;
+                draw();
+            }
+        };
+    };
+
+    return new FsmInterface();
 });
