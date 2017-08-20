@@ -285,7 +285,6 @@ define(['jquery'], function($) {
         // Keep track of all active editors on this page; a call to initAce
         // on an existing textarea is converted to a reload call to
         // refresh the editor contents from the textarea.
-
         var mode = this.findMode(lang);
 
         this.editableFields[textareaId] = lang;
@@ -293,6 +292,14 @@ define(['jquery'], function($) {
             this.activeEditors[textareaId].reload(mode);
         } else {  // Otherwise create a new editor.
             this.activeEditors[textareaId] = new AceInstance(textareaId, mode);
+        }
+    };
+    
+    // Turn off a single Ace editor associated with the given text area ID
+    AceInterface.prototype.destroyAce = function (textareaId) {
+        if (this.activeEditors[textareaId]) {
+            this.activeEditors[textareaId].close();
+            delete this.activeEditors[textareaId];
         }
     };
 
