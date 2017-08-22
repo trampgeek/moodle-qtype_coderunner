@@ -1,7 +1,8 @@
 # CHANGE HISTORY
 
-### 10 August 2017. 3.2.0+
+### 22 August 2017. 3.2.1
 
+* Bug fix: result table cells not being sanitised since commit of 19/5/17
 * Bug fix: combinator template grader result tables were not hiding hidden
   rows from students but merely colouring them darker.
 
