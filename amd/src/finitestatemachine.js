@@ -458,8 +458,10 @@ define(['jquery'], function($) {
 
     function resetCaret() {
         clearInterval(caretTimer);
-        //The following line breaks things for some reason
-        //caretTimer = setInterval('caretVisible = !caretVisible; draw()', 500);
+        caretTimer = setInterval(function() {
+            caretVisible = !caretVisible;
+            draw();
+        }, 500);
         caretVisible = true;
     }
 
