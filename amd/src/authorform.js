@@ -87,13 +87,18 @@ define(['jquery'], function($) {
             if (typeof(lang) === 'undefined') {
                 lang = acelang.prop('value') ? acelang.prop('value') : language.prop('value');
             }
-            if (useace.prop('checked') && textareaVisible) {
+            if (textarea === 'template' && useace.prop('checked') && textareaVisible) {
+                require(['qtype_coderunner/aceinterface'], function(AceInterface) {
+                    AceInterface.initAce('id_' + textarea, lang.toLowerCase());
+                });
+            }
+            if (textarea !== 'template' && uiplugin.val() === 'ace' && textareaVisible) {
                 require(['qtype_coderunner/aceinterface'], function(AceInterface) {
                     AceInterface.initAce('id_' + textarea, lang.toLowerCase());
                 });
             }
         }
-
+        
         function setCustomisationVisibility(isVisible) {
             var display = isVisible ? 'block' : 'none';
             customisationFieldSet.css('display', display);
@@ -281,8 +286,8 @@ define(['jquery'], function($) {
 
             } else if (previousValue === 'fsm') {
                 // remove FSM
-                textArea = $(document.getElementById('id_answer'));
-                $(textArea).show();
+                $(document.getElementById('id_answer')).show();                
+                
                 require(['qtype_coderunner/finitestatemachine'], function(FsmInterface) {
                     FsmInterface.stop('id_answer');
                 });
