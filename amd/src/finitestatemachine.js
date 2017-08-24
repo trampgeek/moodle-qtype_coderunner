@@ -571,6 +571,12 @@ define(['jquery'], function($) {
                 selectedObject = null;
                 draw();
             }
+        } else if(key === 13) { //enter key
+            if(selectedObject !== null) {
+                // deselect the object
+                selectedObject = null;
+                draw();
+            }
         }
     };
 
