@@ -29,7 +29,7 @@
 */
 define(['jquery'], function($) {
     var textArea;
-    
+
     function Link(a, b) {
         this.nodeA = a;
         this.nodeB = b;
@@ -109,7 +109,12 @@ define(['jquery'], function($) {
         // draw arc
         c.beginPath();
         if(linkInfo.hasCircle) {
-            c.arc(linkInfo.circleX, linkInfo.circleY, linkInfo.circleRadius, linkInfo.startAngle, linkInfo.endAngle, linkInfo.isReversed);
+            c.arc(linkInfo.circleX,
+                  linkInfo.circleY,
+                  linkInfo.circleRadius,
+                  linkInfo.startAngle,
+                  linkInfo.endAngle,
+                  linkInfo.isReversed);
         } else {
             c.moveTo(linkInfo.startX, linkInfo.startY);
             c.lineTo(linkInfo.endX, linkInfo.endY);
@@ -117,9 +122,15 @@ define(['jquery'], function($) {
         c.stroke();
         // draw the head of the arrow
         if(linkInfo.hasCircle) {
-            drawArrow(c, linkInfo.endX, linkInfo.endY, linkInfo.endAngle - linkInfo.reverseScale * (Math.PI / 2));
+            drawArrow(c,
+                      linkInfo.endX,
+                      linkInfo.endY,
+                      linkInfo.endAngle - linkInfo.reverseScale * (Math.PI / 2));
         } else {
-            drawArrow(c, linkInfo.endX, linkInfo.endY, Math.atan2(linkInfo.endY - linkInfo.startY, linkInfo.endX - linkInfo.startX));
+            drawArrow(c,
+                      linkInfo.endX,
+                      linkInfo.endY,
+                      Math.atan2(linkInfo.endY - linkInfo.startY, linkInfo.endX - linkInfo.startX));
         }
         // draw the text
         if(linkInfo.hasCircle) {
@@ -502,7 +513,7 @@ define(['jquery'], function($) {
     }
 
     function draw() {
-        drawUsing(canvas.getContext('2d'));       
+        drawUsing(canvas.getContext('2d'));
         saveBackup();
     }
 
@@ -536,7 +547,7 @@ define(['jquery'], function($) {
         }
     }
 
-    var shift = false; 
+    var shift = false;
 
     document.onkeydown = function(e) {
         var key = crossBrowserKey(e);
@@ -669,11 +680,11 @@ define(['jquery'], function($) {
         if(!JSON) {
             return;
         }
-        
+
         try {
             // load up the student's previous answer
             var backup = JSON.parse(textArea.val());
-            
+
             for(var i = 0; i < backup.nodes.length; i++) {
                 var backupNode = backup.nodes[i];
                 var backupNodeLayout = backup.nodeGeometry[i];
@@ -682,7 +693,7 @@ define(['jquery'], function($) {
                 node.text = backupNode[0];
                 nodes.push(node);
             }
-            
+
             for(var i = 0; i < backup.edges.length; i++) {
                 var backupLink = backup.edges[i];
                 var backupLinkLayout = backup.edgeGeometry[i];
@@ -710,37 +721,36 @@ define(['jquery'], function($) {
             }
         } catch(e) {
             // error loading previous answer
-            console.error(e);
         }
     }
-    
+
     function saveBackup() {
         if(!JSON) {
             return;
         }
-        
+
         var backup = {
             'edgeGeometry': [],
             'nodeGeometry': [],
             'nodes': [],
             'edges': [],
         };
-        
+
         for(var i = 0; i < nodes.length; i++) {
             var node = nodes[i];
-            
+
             var nodeData = [node.text, node.isAcceptState];
             var nodeLayout = [node.x, node.y];
-            
+
             backup.nodeGeometry.push(nodeLayout);
             backup.nodes.push(nodeData);
         }
-        
+
         for(var i = 0; i < links.length; i++) {
             var link = links[i];
             var linkData = null;
             var linkLayout = null;
-            
+
             if(link instanceof SelfLink) {
                 linkLayout = {
                     'anchorAngle': link.anchorAngle,
@@ -763,14 +773,13 @@ define(['jquery'], function($) {
             if(linkData !== null && linkLayout !== null) {
                 backup.edges.push(linkData);
                 backup.edgeGeometry.push(linkLayout);
-            } 
+            }
         }
         textArea.val(JSON.stringify(backup));
-        
     }
-    
-    
-    var FsmInterface = function() {        
+
+
+    var FsmInterface = function() {
         $(document.body).on('keydown', function(e) {
             var KEY_M = 77;
 
@@ -780,15 +789,13 @@ define(['jquery'], function($) {
             }
         });
     };
-    
+
     // turn off the FSM editor
-    FsmInterface.prototype.stop = function(taId) {
+    FsmInterface.prototype.stop = function() {
         canvas = document.getElementById("canvas");
         canvas.parentNode.removeChild(canvas);
-        
-        
     };
-      
+
 
     FsmInterface.prototype.init = function(taId) {
         textArea = $(document.getElementById(taId));

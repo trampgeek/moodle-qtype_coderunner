@@ -294,7 +294,7 @@ define(['jquery'], function($) {
             this.activeEditors[textareaId] = new AceInstance(textareaId, mode);
         }
     };
-    
+
     // Turn off a single Ace editor associated with the given text area ID
     AceInterface.prototype.destroyAce = function (textareaId) {
         if (this.activeEditors[textareaId]) {
