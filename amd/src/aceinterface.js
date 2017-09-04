@@ -42,7 +42,7 @@ define(['jquery'], function($) {
      ***********************************************************************/
     function AceInstance(textareaId, mode) {
         // Warning: IDs from Moodle can contain colons - don't work with jQuery!
-        var textarea =  $(document.getElementById(textareaId)),
+        var textarea = $(document.getElementById(textareaId)),
             h = parseInt(textarea.css("height")),
             w = parseInt(textarea.css("width")),
             focused = textarea[0] === document.activeElement;
@@ -104,9 +104,11 @@ define(['jquery'], function($) {
         if (focused) {
             this.editor.focus();
             this.editor.navigateFileEnd();
-            // var session = this.editor.getSession(),
-            //     lines = session.getLength();
-            // this.editor.gotoLine(lines, session.getLine(lines - 1).length);
+            /*
+            var session = this.editor.getSession(),
+                lines = session.getLength();
+            this.editor.gotoLine(lines, session.getLine(lines - 1).length);
+            */
         }
         this.aceLabel = $('.answerprompt');
         this.aceLabel.attr('for', 'ace_' + textareaId);
@@ -211,7 +213,6 @@ define(['jquery'], function($) {
         }
     };
 
-
     /**
      * Restore an existing session (e.g. after it has been unhidden) and
      * set the mode to the given value.
@@ -254,7 +255,6 @@ define(['jquery'], function($) {
         });
     };
 
-
     // Try to find the correct ace language mode.
     AceInterface.prototype.findMode = function (language) {
         var candidate,
@@ -283,7 +283,6 @@ define(['jquery'], function($) {
         }
         return undefined;
     };
-
 
     AceInterface.prototype.initAce = function (textareaId, lang) {
         // Initialise an Ace editor for a textarea (given its ID) and language.

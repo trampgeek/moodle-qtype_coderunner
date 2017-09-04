@@ -213,7 +213,7 @@ define(['jquery'], function($) {
         uiplugin.data("previous-value", uiplugin.val());
 
         if (uiplugin.val() === 'ace') {
-            //template is controlled by useace, not uiplugin
+            // Template is controlled by useace, not uiplugin
             checkAceStatus('answer');
             checkAceStatus('answerpreload');
         }
@@ -275,7 +275,6 @@ define(['jquery'], function($) {
             }
         });
 
-
         uiplugin.on('change', function() {
             var previousValue = uiplugin.data("previous-value");
 
@@ -296,14 +295,12 @@ define(['jquery'], function($) {
 
             uiplugin.data("previous-value", uiplugin.val());
             if (uiplugin.val() === 'fsm') {
-            // turn the FSM on
+                // turn the FSM on
                 require(['qtype_coderunner/finitestatemachine'], function(FsmInterface) {
                     FsmInterface.init('id_answer');
                 });
             }
             if (uiplugin.val() === 'ace') {
-                //template is controlled by useace, not uiplugin
-                //checkAceStatus('template', language.prop('value'));
                 checkAceStatus('answer');
                 checkAceStatus('answerpreload');
             }

@@ -156,7 +156,7 @@ define(['jquery'], function($) {
         if(linkInfo.hasCircle) {
             var dx = x - linkInfo.circleX;
             var dy = y - linkInfo.circleY;
-            var distance = Math.sqrt(dx*dx + dy*dy) - linkInfo.circleRadius;
+            var distance = Math.sqrt(dx * dx + dy * dy) - linkInfo.circleRadius;
             if(Math.abs(distance) < hitTargetPadding) {
                 var angle = Math.atan2(dy, dx);
                 var startAngle = linkInfo.startAngle;
@@ -179,7 +179,7 @@ define(['jquery'], function($) {
         } else {
             var dx = linkInfo.endX - linkInfo.startX;
             var dy = linkInfo.endY - linkInfo.startY;
-            var length = Math.sqrt(dx*dx + dy*dy);
+            var length = Math.sqrt(dx * dx + dy * dy);
             var percent = (dx * (x - linkInfo.startX) + dy * (y - linkInfo.startY)) / (length * length);
             var distance = (dx * (y - linkInfo.startY) - dy * (x - linkInfo.startX)) / length;
             return (percent > 0 && percent < 1 && Math.abs(distance) < hitTargetPadding);
@@ -234,7 +234,7 @@ define(['jquery'], function($) {
     };
 
     Node.prototype.containsPoint = function(x, y) {
-        return (x - this.x)*(x - this.x) + (y - this.y)*(y - this.y) < nodeRadius*nodeRadius;
+        return (x - this.x) * (x - this.x) + (y - this.y) * (y - this.y) < nodeRadius * nodeRadius;
     };
 
     function SelfLink(node, mouse) {
@@ -310,7 +310,7 @@ define(['jquery'], function($) {
         var linkInfo = this.getEndPointsAndCircle();
         var dx = x - linkInfo.circleX;
         var dy = y - linkInfo.circleY;
-        var distance = Math.sqrt(dx*dx + dy*dy) - linkInfo.circleRadius;
+        var distance = Math.sqrt(dx * dx + dy * dy) - linkInfo.circleRadius;
         return (Math.abs(distance) < hitTargetPadding);
     };
 
@@ -371,7 +371,7 @@ define(['jquery'], function($) {
         var endPoints = this.getEndPoints();
         var dx = endPoints.endX - endPoints.startX;
         var dy = endPoints.endY - endPoints.startY;
-        var length = Math.sqrt(dx*dx + dy*dy);
+        var length = Math.sqrt(dx * dx + dy * dy);
         var percent = (dx * (x - endPoints.startX) + dy * (y - endPoints.startY)) / (length * length);
         var distance = (dx * (y - endPoints.startY) - dy * (x - endPoints.startX)) / length;
         return (percent > 0 && percent < 1 && Math.abs(distance) < hitTargetPadding);
@@ -584,7 +584,7 @@ define(['jquery'], function($) {
                 selectedObject = null;
                 draw();
             }
-        } else if(key === 13) { //enter key
+        } else if(key === 13) { // enter key
             if(selectedObject !== null) {
                 // deselect the object
                 selectedObject = null;
@@ -661,18 +661,18 @@ define(['jquery'], function($) {
     }
 
     function det(a, b, c, d, e, f, g, h, i) {
-        return a*e*i + b*f*g + c*d*h - a*f*h - b*d*i - c*e*g;
+        return a * e * i + b * f * g + c * d * h - a * f * h - b * d * i - c * e * g;
     }
 
     function circleFromThreePoints(x1, y1, x2, y2, x3, y3) {
         var a = det(x1, y1, 1, x2, y2, 1, x3, y3, 1);
-        var bx = -det(x1*x1 + y1*y1, y1, 1, x2*x2 + y2*y2, y2, 1, x3*x3 + y3*y3, y3, 1);
-        var by = det(x1*x1 + y1*y1, x1, 1, x2*x2 + y2*y2, x2, 1, x3*x3 + y3*y3, x3, 1);
-        var c = -det(x1*x1 + y1*y1, x1, y1, x2*x2 + y2*y2, x2, y2, x3*x3 + y3*y3, x3, y3);
+        var bx = -det(x1 * x1 + y1 * y1, y1, 1, x2 * x2 + y2 * y2, y2, 1, x3 * x3 + y3 * y3, y3, 1);
+        var by = det(x1 * x1 + y1 * y1, x1, 1, x2 * x2 + y2 * y2, x2, 1, x3 * x3 + y3 * y3, x3, 1);
+        var c = -det(x1 * x1 + y1 * y1, x1, y1, x2 * x2 + y2 * y2, x2, y2, x3 * x3 + y3 * y3, x3, y3);
         return {
-            'x': -bx / (2*a),
-            'y': -by / (2*a),
-            'radius': Math.sqrt(bx*bx + by*by - 4*a*c) / (2*Math.abs(a))
+            'x': -bx / (2 * a),
+            'y': -by / (2 * a),
+            'radius': Math.sqrt(bx * bx + by * by - 4 * a * c) / (2 * Math.abs(a))
         };
     }
 
@@ -778,7 +778,6 @@ define(['jquery'], function($) {
         textArea.val(JSON.stringify(backup));
     }
 
-
     var FsmInterface = function() {
         $(document.body).on('keydown', function(e) {
             var KEY_M = 77;
@@ -795,7 +794,6 @@ define(['jquery'], function($) {
         canvas = document.getElementById("canvas");
         canvas.parentNode.removeChild(canvas);
     };
-
 
     FsmInterface.prototype.init = function(taId) {
         textArea = $(document.getElementById(taId));

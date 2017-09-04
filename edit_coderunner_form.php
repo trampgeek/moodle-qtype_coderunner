@@ -486,7 +486,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->addElement('group', 'answerbox_group', get_string('answerbox_group', 'qtype_coderunner'),
                 $answerboxelements, null, false);
         $mform->addHelpButton('answerbox_group', 'answerbox_group', 'qtype_coderunner');
-        
+
         // Precheck control (currently a group with only one element).
         $precheckelements = array();
         $precheckvalues = array(
@@ -580,8 +580,8 @@ class qtype_coderunner_edit_form extends question_edit_form {
             array('size' => self::RESULT_COLUMNS_SIZE));
         $mform->setType('resultcolumns', PARAM_RAW);
         $mform->addHelpButton('resultcolumns', 'resultcolumns', 'qtype_coderunner');
-        
-        $uicontrols = array();    
+
+        $uicontrols = array();
         $uitypes = [
             "none" => "none",
             "ace" => "ace",

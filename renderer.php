@@ -121,8 +121,6 @@ class qtype_coderunner_renderer extends qtype_renderer {
         qtype_coderunner_util::load_fsm_if_required($question, $responsefieldid);
         $PAGE->requires->js_call_amd('qtype_coderunner/textareas', 'initQuestionTA', array($responsefieldid));
 
-        
-
         return $qtext;
     }
 

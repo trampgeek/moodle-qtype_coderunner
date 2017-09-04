@@ -62,8 +62,8 @@ class qtype_coderunner_test_helper extends question_test_helper {
     public function make_coderunner_question_sqr() {
         return $this->make_coderunner_question_sqr_subtype('python3');
     }
-    
-    public function get_coderunner_question_data_sqr(){
+
+    public function get_coderunner_question_data_sqr() {
         $qdata = new stdClass();
         test_question_maker::initialise_question_data($qdata);
 
@@ -73,7 +73,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $qdata->generalfeedback = 'No feedback available for coderunner questions.';
 
         $qdata->options = new stdClass();
-        
+
         $testcases = array(
                     array('testcode' => 'print(sqr(0))',
                           'expected' => '0',
@@ -92,7 +92,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
                           'display'  => 'HIDE', // The last testcase must be hidden.
                           'mark'     => 16.0)
             );
-        
+
         $qdata->options->coderunnertype = 'python3';
         $qdata->options->prototypetype = 0;
         $qdata->options->allornothing = 0;
@@ -100,22 +100,19 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $qdata->options->precheck = 0;
         $qdata->options->answerboxlines = 5;
         $qdata->options->answerboxcolumns = 100;
-        // exclude precheck as it defaults to null       
+        // exclude precheck as it defaults to null
         $qdata->options->useace = 0;
         $qdata->options->penaltyregime = '10, 20, ...';
-        //exclude answer, defaults to null
+        // exclude answer, defaults to null
         $qdata->options->validateonsave = 0;
-        //ignore a bunch because they default to null
+        // ignore a bunch because they default to null
         $qdata->options->uiplugin = 'multichoice';
         $qdata->testcases = self::make_test_cases($testcases);
-        
 
         return $qdata;
-        
-               
     }
-    
-    
+
+
     /**
      * Gets the form data that would come back when the editing form is saved,
      * if you were creating the standard sqr question.
@@ -498,7 +495,7 @@ except ValueError:
         return $coderunner;
     }
 
-   /**
+    /**
      * Makes a coderunner question asking for a sqr() function but without
      * semicolons on the ends of all the printf testcases.
      * @return qtype_coderunner_question
