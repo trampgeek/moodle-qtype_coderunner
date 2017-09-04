@@ -1,6 +1,6 @@
 # CODE RUNNER
 
-Version: 3.1 January 2017
+Version: 3.2 July 2017
 
 Authors: Richard Lobb, University of Canterbury, New Zealand.
          Tim Hunt, The Open University, UK
@@ -130,9 +130,9 @@ category for your own use.
 
 #### Note for enthusiasts only.
 
-Version 3.1 no-longer allows a question to have both a per-test template
-and a combinator template: questions must have one or the other. In upgrading
-from Version 3.0 and earlier, the combinator template is used if "Enable
+Versions from 3.1 onwards no-longer allows a question to have both a per-test
+template and a combinator template: questions must have one or the other. In
+upgrading from Version 3.0 and earlier, the combinator template is used if "Enable
 combinator" was set or a combinator template grader is being used, otherwise
 the per-test template is used. This should not change the behaviour of the
 question *provided* the two templates are consistent in the sense that running
@@ -156,7 +156,7 @@ of the newly-created directory from `moodle-qtype_coderunner-<branchname>` to ju
 `coderunner`. Similarly download the zip file of the required question behaviour
 from the [behaviour github repository](https://github.com/trampgeek/moodle-qbehaviour_adaptive_adapted_for_coderunner),
 unzip it into the directory `moodle/question/behaviour` and change the
-newly-created directory name to `qbehaviour_adaptive_adapted_for_coderunner`.
+newly-created directory name to `adaptive_adapted_for_coderunner`.
 OR
 
 1. Get the code using git by running the following commands in the
@@ -247,6 +247,15 @@ you will also need to import
 the file `MoodleHome>/question/type/coderunner/samples/uoc_prototypes.xml`
 or you will receive a "Missing prototype" error.
 
+Also included in the *samples* folder is a prototype question,
+`prototype\_c\_via\_python.xml`
+ that defines a new question type, equivalent to the built-in *c\_program*
+type, by scripting in Python the process of compiling and running the student
+code. This is a useful template for authors who wish to implement their own 
+question types or who need to support non-built-in languages. It is discussed
+in detail in the section "Supporting or implementing new languages".
+
+
 ### Sandbox Configuration
 
 Although CodeRunner has a flexible architecture that supports various different
@@ -306,13 +315,16 @@ the phpunit environment with the commands
 You can then run the full CodeRunner test suite with one of the following two commands,
 depending on which version of phpunit you're using:
 
-        sudo -u apache vendor/bin/phpunit --verbose --testsuite="qtype_coderunner test suite"
+        sudo -u www-data vendor/bin/phpunit --verbose --testsuite="qtype_coderunner test suite"
 
 or
 
-        sudo -u apache vendor/bin/phpunit --verbose --testsuite="qtype_coderunner_testsuite"
+        sudo -u www-data vendor/bin/phpunit --verbose --testsuite="qtype_coderunner_testsuite"
 
-This will almost certainly show lots of skipped or failed tests relating
+If you're on a Red Hat or similar system in which the web server runs as 
+*apache*, you should replace *www-data* with *apache.
+
+TThe unit tests will almost certainly show lots of skipped or failed tests relating
 to the various sandboxes and languages that you have not installed, e.g.
 the LiuSandbox, Matlab, Octave and Java. These can all be ignored unless you plan to use
 those capabilities. The name of the failing tests should be sufficient to
@@ -749,17 +761,31 @@ might expand to something like the following:
     }
 
 The output from the execution is then the outputs from the three tests
-separated by a special separator string (which can be customised for each
-question if desired). On receiving the output back from the sandbox, CodeRunner
+separated by a special separator string, which can be customised for each
+question if desired. On receiving the output back from the sandbox, CodeRunner
 then splits the output using the separator into three separate test outputs,
 exactly as if a per-test template had been used on each test case separately.
 
-This strategy can't be used with questions that require standard input
-as there's no reliable way to reset the standard input for each test.
-The strategy also fails if the student's code causes a premature abort due
+The use of a combinator template is problematic with questions that require standard input;
+if each test has its own standard input, and all tests are combined into a 
+single program, what is the standard input for that program? The easiest
+resolution to this problem is simply to fall back to running each test
+separately. That is achieved by using the combinator template but feeding it
+a singleton list of testcases each time, i.e. the list [test[0]] on the first
+run, [test[1]] on the second and so on. The combinator template is then
+functioning just like a per-test template.
+
+However, advanced combinator templates can actually manage the multiple 
+runs themselves, e.g. using Python Subprocesses. To enable this, there
+is a checkbox "Allow multiple stdins" which, if checked, reverts to the usual
+combinator mode of passing all testcases to the combinator template in a
+single run.
+
+The use of a combinator also becomes problematic if the student's code causes
+a premature abort due
 to a run error, such as a segmentation fault or a CPU time limit exceeded. In
-such cases, CodeRunner uses the combinator template as a per-test template
-simply by passing it one test case at a time in the TESTCASES variable.
+such cases, CodeRunner reruns the tests, using the combinator template in
+a per-test mode, as described above.
 
 ### Customising templates
 
@@ -1031,8 +1057,7 @@ the above question attributes directly in the question authoring form.
 ### The Twig STUDENT variable
 
 The template variable `STUDENT` is an object containing a subset of the fields of the
-PHP user object. The fileds/attributes of STUDENT that might be of interest to authors include the
-following.
+PHP user object. The fields/attributes of STUDENT are:
 
  * `STUDENT.username` The unique internal username of the current user.
  * `STUDENT.firstname` The first name of the current user.
@@ -1129,7 +1154,8 @@ The ultimate in grading flexibility is achieved by use of a "Combinator
 template grader", i.e. a TemplateGrader with the `Is combinator` checkbox checked.
 In this mode, the JSON string output by the template grader
 should again contain a 'fraction' field, this time for the total mark,
-and may contain zero or more of 'prologuehtml', 'testresults' and 'epiloguehtml'
+and may contain zero or more of 'prologuehtml', 'testresults', 'epiloguehtml'
+and 'showdifferences'
 attributes.
 The 'prologuehtml' and 'epiloguehtml' fields are html
 that is displayed respectively before and after the (optional) result table. The
@@ -1141,6 +1167,11 @@ crosses for 1 or 0 row values respectively. The 'ishidden' column isn't
 actually displayed but 0 or 1 values in the column can be used to turn on and
 off row visibility. Students do not see hidden rows but markers and other
 staff do.
+
+The 'showdifferences' attribute can be added to the JSON outcome to render
+the standard 'Show differences' button after the result table; it is displayed
+only if there is actually a result table present and if full marks were not
+awarded to the question.
 
 Combinator-template grading gives the user complete control of the feedback to 
 the student as well as of the grading process. The ability to include HTML
@@ -1437,6 +1468,9 @@ basic ones (per-test-template, grader, result-table column selectors etc) and
 ones. The latter include the language, sandbox, timeout, memory limit and
 the "make this question a prototype" feature.
 
+The following section on supporting or implementing new languages shows in
+detail the process for creating a new question type.
+
 **WARNING #1:** if you define your own question type you'd better make sure
 when you export your question bank
 that you include the prototype, or all of its children will die on being imported
@@ -1451,6 +1485,120 @@ user-defined question types are not for the faint of heart. Caveat emptor.
 **WARNING #2:** although you can define test cases in a question prototype,
 e.g. for validation purposes, they are not inherited by the "children" of
 the prototype.
+
+## Supporting or implementing new languages
+
+Most authors seem to assume that if they wish to write CodeRunner questions
+that use a language not directly supported by the Jobe sandbox, they must
+first modify Jobe to support the new language. That is not the case. A much 
+easier, more convenient and more maintainable approach is to use a Python
+question type that compiles (if necessary) and runs the student code in
+a Python subprocess. Indeed, in recent years at the University of Canterbury
+nearly all new question types have been scripted in Python, even those using
+languages built into Jobe. For
+example, the question type we now use for all question in the C programming
+course is a Python3 question type parses the student's C program and performs
+lots of checks on things like function length and use of various C constructs
+before compiling and running the submitted code.
+
+The template code below shows a simple example in which a Python question
+prototype is used to define a new question type *c\_via\_python* that mimics
+the built-in *c\_program* question type but provides more flexibility. To create
+the new question type using this template:
+
+ 1. Create a new CodeRunner question.
+ 1. Choose the question type *python3*
+ 1. Click *Customise*
+ 1. Replace the contents of the *Template* text area with the template code below.
+ 1. Enter DEMO\_PROTOTYPE\_C\_using\_python as the question name
+ 1. Enter whatever text you wish to use to describe the question type in the
+    Question text area. This text will be displayed to any authors using this
+    new question type if they open the *Question type details* section of the
+    question authoring form.
+ 1. Open Advanced Customisation
+ 1. Set *Is prototype?* to *Yes (user defined)*
+ 1. Set *Question type* to *c\_via\_python*.
+ 1. Set *Ace language* to *c*, so that the students' code will be edited as C
+    even though the prototype is in Python.
+ 1. Save the question.
+
+You should now find the new question type *c\_via\_python* appearing in the
+*Question type* dropdown of the author edit form for a new CodeRunner
+question. This new question type should behave like the built-in c\_program
+question type but is more flexible; for example, it can easily be extended to perform
+checks on the submitted C code prior to compilation.
+
+The full
+question prototype for the *c\_via\_python* question type
+is included in the *samples* folder of the CodeRunner
+distribution.
+
+    """ The template for a question type that compiles and runs a student-submitted
+        C program. 
+    """
+
+    import subprocess
+
+    # Write the student code to a file prog.c
+    student_answer = """{{ STUDENT_ANSWER | e('py') }}"""
+    with open("prog.c", "w") as src:
+        print(student_answer, file=src)
+
+    # Compile
+    {% if QUESTION.parameters.cflags is defined %}
+    cflags = """{{ QUESTION.parameters.cflags | e('py') }}"""
+    {% else %}
+    cflags = "-std=c99 -Wall -Werror"
+    {% endif %}
+    return_code = subprocess.call("gcc {0} -o prog prog.c".format(cflags).split())
+    if return_code != 0:
+        print("** Compilation failed. Testing aborted **", file=sys.stderr)
+        
+    # If compile succeeded, run the code. Since this is a per-test template,
+    # stdin is already set up for the stdin text specified in the test case,
+    # so we can run the compiled program directly.
+    if return_code == 0:
+        try:
+            output = subprocess.check_output(["./prog"], universal_newlines=True)
+            print(output)
+        except subprocess.CalledProcessError as e:
+            if e.returncode > 0:
+                # Ignore non-zero positive return codes
+                if e.output:
+                    print(e.output)
+            else:
+                # But negative return codes are signals - abort
+                if e.output:
+                    print(e.output, file=sys.stderr)
+                if e.returncode < 0:
+                    print("Task failed with signal", -e.returncode, file=sys.stderr)
+                print("** Further testing aborted **", file=sys.stderr)
+
+
+
+## Administrator scripts
+
+There are currently two scripts available to bulk test CodeRunner questions
+and to summarise the usage of all prototype questions (i.e. CodeRunner
+question types). While initially intended only for administrator use, they
+are proving useful to teachers as well. Teachers are able to run the scripts
+only within courses they can normally access; they must be logged into such
+a course before attempting to run the scripts.
+
+The two scripts are:
+
+ 1. <moodle_home>/question/type/coderunner/bulktestindex.php
+    This script displays a list of all question categories accessible to the
+    user who is currently logged into Moodle on the machine running the script.
+    Each category is displayed as a clickable link that then runs a script that
+    tests the sample answers on all questions in that category, reporting
+    all successes and failures.
+
+ 1. <moodle_home>/question/type/coderunner/prototypeusageindex.php
+    This scripts displays an index like the one above except that the 
+    clickable links now run a script that reports on the question prototype
+    usage within that category.
+    questions in the runs the sample answer on all questions in a specif
 
 ## A note on accessibility
 

@@ -58,7 +58,7 @@ class qtype_coderunner_question extends question_graded_automatically {
     }
 
     public function get_expected_data() {
-        return array('answer' => PARAM_RAW, 'rating' => PARAM_INT);
+        return array('answer' => PARAM_RAW);
     }
 
 
@@ -94,25 +94,30 @@ class qtype_coderunner_question extends question_graded_automatically {
                 return get_string('answertooshort', 'qtype_coderunner');
             }
         }
-        return get_string('unknownerror', 'qtype_coderunner');
+        if (array_key_exists('_testoutcome', $response)) {
+            $outcome = unserialize($response['_testoutcome']);
+            return $outcome->errormessage;
+        } else {
+            return get_string('unknownerror', 'qtype_coderunner');
+        }
     }
 
 
     /** This function is used by the question engine to prevent regrading of
-     *  unchanged submissions.
+     *  unchanged submissions. This has been disabled (it always returns false)
+     *  to avoid confusion by authors and students when changing templates
+     *  or other question data. It seems that this is more of a problem for
+     *  CodeRunner than normal question types. The slight downside is that
+     *  students pay a penalty for submitting the same code twice.
      *
      * @param array $prevresponse
      * @param array $newresponse
      * @return boolean
      */
     public function is_same_response(array $prevresponse, array $newresponse) {
-        if (!question_utils::arrays_same_at_key_missing_is_blank(
-                $prevresponse, $newresponse, 'answer')
-            || !question_utils::arrays_same_at_key_integer(
-                $prevresponse, $newresponse, 'rating')) {
-            return false;
-        }
-        return true;
+
+        return question_utils::arrays_same_at_key_missing_is_blank(
+                $prevresponse, $newresponse, 'answer');
     }
 
     public function get_correct_response() {
@@ -147,15 +152,23 @@ class qtype_coderunner_question extends question_graded_automatically {
         if ($isprecheck && empty($this->precheck)) {
             throw new coding_exception("Unexpected precheck");
         }
-        if (empty($response['_testoutcome'])) {
+        $gradingreqd = true;
+        if (!empty($response['_testoutcome'])) {
+            $testoutcomeserial = $response['_testoutcome'];
+            $testoutcome = unserialize($testoutcomeserial);
+            if ($testoutcome instanceof qtype_coderunner_testing_outcome  // Ignore legacy-format outcomes
+                    && $testoutcome->isprecheck == $isprecheck) {
+                $gradingreqd = false;  // Already graded and with same precheck state
+            }
+        }
+        if ($gradingreqd) {
+            // We haven't already graded this submission or we graded it with
+            // a different precheck setting
             $code = $response['answer'];
             $testcases = $this->filter_testcases($isprecheck, $this->precheck);
             $runner = new qtype_coderunner_jobrunner();
             $testoutcome = $runner->run_tests($this, $code, $testcases, $isprecheck);
             $testoutcomeserial = serialize($testoutcome);
-        } else {
-            $testoutcomeserial = $response['_testoutcome'];
-            $testoutcome = unserialize($testoutcomeserial);
         }
 
         $datatocache = array('_testoutcome' => $testoutcomeserial);
@@ -163,12 +176,35 @@ class qtype_coderunner_question extends question_graded_automatically {
             return array(0, question_state::$invalid, $datatocache);
         } else if ($testoutcome->all_correct()) {
              return array(1, question_state::$gradedright, $datatocache);
-        } else if ($this->allornothing && $this->grader !== 'TemplateGrader') {
+        } else if ($this->allornothing &&
+                !($this->grader === 'TemplateGrader' && $this->iscombinatortemplate)) {
             return array(0, question_state::$gradedwrong, $datatocache);
         } else {
+            // Allow partial marks if not allornothing or if it's a combinator template grader
             return array($testoutcome->mark_as_fraction(),
                     question_state::$gradedpartial, $datatocache);
         }
+    }
+
+
+    /**
+     * @return an array of result column specifiers, each being a 2-element
+     *  array of a column header and the testcase field to be displayed
+     */
+    public function result_columns() {
+        if (isset($this->resultcolumns) && $this->resultcolumns) {
+            $resultcolumns = json_decode($this->resultcolumns);
+        } else {
+            // Use default column headers, equivalent to json_decode of (in English):
+            // '[["Test", "testcode"], ["Input", "stdin"], ["Expected", "expected"], ["Got", "got"]]'.
+            $resultcolumns = array(
+                array(get_string('testcolhdr', 'qtype_coderunner'), 'testcode'),
+                array(get_string('inputcolhdr', 'qtype_coderunner'), 'stdin'),
+                array(get_string('expectedcolhdr', 'qtype_coderunner'), 'expected'),
+                array(get_string('gotcolhdr', 'qtype_coderunner'), 'got'),
+            );
+        }
+        return $resultcolumns;
     }
 
 
@@ -272,22 +308,29 @@ class qtype_coderunner_question extends question_graded_automatically {
         return $this->iscombinatortemplate;
     }
 
+
+    // Return whether or not multiple stdins are allowed when using combiantor
+    public function allow_multiple_stdins() {
+        return $this->allowmultiplestdins;
+    }
+
     // Return an instance of the sandbox to be used to run code for this question.
     public function get_sandbox() {
         global $CFG;
         $sandbox = $this->sandbox; // Get the specified sandbox (if question has one).
         if ($sandbox === null) {   // No sandbox specified. Use best we can find.
-            $sandbox = qtype_coderunner_sandbox::get_best_sandbox($this->language);
-            if ($sandbox === null) {
+            $sandboxinstance = qtype_coderunner_sandbox::get_best_sandbox($this->language);
+            if ($sandboxinstance === null) {
                 throw new qtype_coderunner_exception("Language {$this->language} is not available on this system");
             }
         } else {
-            if (!get_config('qtype_coderunner', strtolower($sandbox) . '_enabled')) {
-                throw new qtype_coderunner_exception("Question is configured to use a disabled sandbox ($sandbox)");
+            $sandboxinstance = qtype_coderunner_sandbox::get_instance($sandbox);
+            if ($sandboxinstance === null) {
+                throw new qtype_coderunner_exception("Question is configured to use a non-existent or disabled sandbox ($sandbox)");
             }
         }
 
-        return qtype_coderunner_sandbox::make_sandbox($sandbox);
+        return $sandboxinstance;
     }
 
 
@@ -352,7 +395,7 @@ class qtype_coderunner_question extends question_graded_automatically {
      *  row) and the questionid from the mdl_questions table.
      */
     private static function get_data_files($question, $questionid) {
-        global $DB;
+        global $DB, $USER;
 
         // If not given in the question object get the contextid from the database.
         if (isset($question->contextid)) {
@@ -364,7 +407,16 @@ class qtype_coderunner_question extends question_graded_automatically {
 
         $fs = get_file_storage();
         $filemap = array();
-        $files = $fs->get_area_files($contextid, 'qtype_coderunner', 'datafile', $questionid);
+
+        if (isset($question->filemanagerdraftid)) {
+            // If we're just validating a question, get files from user draft area
+            $draftid = $question->filemanagerdraftid;
+            $context = context_user::instance($USER->id);
+            $files = $fs->get_area_files($context->id, 'user', 'draft', $draftid, '', false);
+        } else {
+            // Otherwise, get the stored files for this question
+            $files = $fs->get_area_files($contextid, 'qtype_coderunner', 'datafile', $questionid);
+        }
 
         foreach ($files as $f) {
             $name = $f->get_filename();

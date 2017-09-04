@@ -174,6 +174,8 @@ define(['jquery'], function($) {
                     function (outcome) {
                         if (outcome.success) {
                             copyFieldsFromQuestionType(newType, outcome);
+                            checkAceStatus('answer');
+                            checkAceStatus('answerpreload');
                         }
                         else {
                             reportError(newType, outcome.error);

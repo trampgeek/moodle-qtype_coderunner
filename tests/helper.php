@@ -45,7 +45,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
             'sqr_part_marks', 'sqrnoprint',
             'studentanswervar', 'hello_python',
             'generic_python3', 'generic_c',
-            'sqr_c', 'sqr_no_semicolons', 'sqr_customised',
+            'sqr_c', 'sqr_c_single_test', 'sqr_no_semicolons', 'sqr_customised',
             'hello_prog_c', 'copy_stdin_c', 'str_to_upper',
             'sqr_cpp', 'hello_prog_cpp', 'str_to_upper_cpp', 'copy_stdin_cpp',
             'string_delete',
@@ -129,7 +129,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $form->answerboxlines = 5;
         $form->answerboxcolumns = 100;
         $form->useace = 0;
-        $form->precheck = 0;
+        $form->precheck = 1;
         $form->allornothing = 0;
         $form->penaltyregime = "10, 20, ...";
         $form->templateparams = "";
@@ -231,7 +231,6 @@ class qtype_coderunner_test_helper extends question_test_helper {
      * Makes a coderunner question asking for a sqr() function.
      * This version uses testcases that don't print the result, for use in
      * testing custom grader templates.
-
      */
     public function make_coderunner_question_sqrnoprint() {
         $coderunner = $this->make_coderunner_question(
@@ -479,6 +478,27 @@ except ValueError:
     }
 
     /**
+     * A variant of sqr_c with just a single test. Required for use with
+     * the forkbomb test. [Reason is subtle: when running under runguard,
+     * output is connected to a pipe, which buffers data in userspace. Forking
+     * the process when it has already output some data, results in replicating
+     * the buffered data, which is output when the children get closed.
+     * @return qtype_coderunner_question
+     */
+    public function make_coderunner_question_sqr_c_single_test() {
+        $coderunner = $this->make_coderunner_question(
+                'c_function',
+                'Function to square a number n',
+                'Write a function int sqr(int n) that returns n squared.',
+                array(
+                    array('testcode'       => 'printf("%d", sqr(-11)); fflush(stdout);',
+                          'expected'       => '121')
+        ));
+
+        return $coderunner;
+    }
+
+   /**
      * Makes a coderunner question asking for a sqr() function but without
      * semicolons on the ends of all the printf testcases.
      * @return qtype_coderunner_question
@@ -925,7 +945,7 @@ EOPROG;
                         'expected' => "a0\nb\t\nc\f\nd'This is a string'\n\"So is this\"")
                 ),
                 array('template' => $template,
-                      'iscombinator' => false)
+                      'iscombinatortemplate' => false)
         );
         return $q;
     }

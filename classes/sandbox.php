@@ -54,6 +54,8 @@ abstract class qtype_coderunner_sandbox {
     const SUBMISSION_LIMIT_EXCEEDED = 5; // Ideone or Jobe only.
     const CREATE_SUBMISSION_FAILED = 6; // Failed on call to CREATE_SUBMISSION.
     const UNKNOWN_SERVER_ERROR = 7;
+    const JOBE_400_ERROR    = 8;  // Jobe returned an HTTP code of 400
+    const SERVER_OVERLOAD   = 9;
 
 
     // Values of the result 'attribute' of the object returned by a call to
@@ -68,8 +70,7 @@ abstract class qtype_coderunner_sandbox {
     const RESULT_ILLEGAL_SYSCALL    = 19;
     const RESULT_INTERNAL_ERR       = 20;
 
-    const RESULT_SANDBOX_PENDING    = 21; // Liu sandbox PD error (defunct).
-    const RESULT_SANDBOX_POLICY     = 22; // Liu sandbox BP error (defunct).
+    const RESULT_SERVER_OVERLOAD    = 21;
     const RESULT_OUTPUT_LIMIT       = 30;
     const RESULT_ABNORMAL_TERMINATION = 31;
 
@@ -90,47 +91,66 @@ abstract class qtype_coderunner_sandbox {
 
 
 
+    public function __construct($user=null, $pass=null) {
+        $this->user = $user;
+        $this->pass = $pass;
+        $authenticationerror = false;
+    }
+
+
+    /**
+     *
+     * @param string $sandboxextname the external name of the sandbox required
+     * (e.g. 'jobesandbox')
+     * @return an instance of the specified sandbox or null if the specified
+     * sandbox doesn't exist or is not enabled.
+     */
+    public static function get_instance($sandboxextname) {
+        $boxes = self::available_sandboxes();
+        if (array_key_exists($sandboxextname, $boxes) &&
+                get_config('qtype_coderunner', $sandboxextname . '_enabled')) {
+            $classname = $boxes[$sandboxextname];
+            $filename = self::get_filename($sandboxextname);
+            require_once("$filename");
+            $sb = new $classname();
+            return $sb;
+        } else {
+            return null;
+        }
+    }
+
+
     /** Find the 'best' sandbox for a given language, defined to be the
      * first one in the ordered list of sandboxes in sandbox_config.php
      * that has been enabled by the administrator (through the usual
      * plug-in setting controls) and that supports the given language.
      * It's public so the tester can call it (yuck, hacky).
      * @param type $language to run.
-     * @return the external name of the preferred sandbox for the given language
+     * @return an instance of the preferred sandbox for the given language
      * or null if no enabled sandboxes support this language.
      */
     public static function get_best_sandbox($language) {
         $sandboxes = self::available_sandboxes();
         foreach ($sandboxes as $extname => $classname) {
-            if (get_config('qtype_coderunner', $extname . '_enabled')) {
-                $filename = self::get_filename($extname);
-                require_once("$filename");
-                $sb = new $classname();
+            $sb = self::get_instance($extname);
+            if ($sb) {
                 $langs = $sb->get_languages();
                 if ($langs->error == $sb::OK) {
                     foreach ($langs->languages as $lang) {
                         if (strtolower($lang) == strtolower($language)) {
-                            return $extname;
+                            return $sb;
                         }
                     }
                 } else {
-                    $errorstring = $sb->error_string($langs->error);
+                    $pseudorunobj = new stdClass();
+                    $pseudorunobj->error = $langs->error;
+                    $errorstring = $sb->error_string($pseudorunobj);
                     throw new qtype_coderunner_exception('sandboxerror',
                             array('sandbox' => $extname, 'message' => $errorstring));
                 }
             }
         }
         return null;
-    }
-
-
-    // Factory method to return an instance of a sandbox of the specified type.
-    public static function make_sandbox($sandbox) {
-        global $CFG;
-        $sandboxes = self::available_sandboxes();
-        $sandboxclass = $sandboxes[$sandbox];
-        $filename = self::get_filename($sandbox);
-        return new $sandboxclass();
     }
 
 
@@ -159,15 +179,13 @@ abstract class qtype_coderunner_sandbox {
         return str_replace('_', '', str_replace('qtype_coderunner_', '', $classname)) . '.php';
     }
 
-
-    public function __construct($user=null, $pass=null) {
-        $this->user = $user;
-        $this->pass = $pass;
-        $authenticationerror = false;
-    }
-
-    // Strings corresponding to the execute error codes defined above.
-    public static function error_string($errorcode) {
+    /**
+     *
+     * @param type $runresult  (an object returned by a call to sandbox::execute).
+     * @return string a description of the particular runresult
+     * @throws coding_exception
+     */
+    public static function error_string($runresult) {
         $errorstrings = array(
             self::OK              => 'errorstring-ok',
             self::AUTH_ERROR      => 'errorstring-autherror',
@@ -177,11 +195,22 @@ abstract class qtype_coderunner_sandbox {
             self::SUBMISSION_LIMIT_EXCEEDED  => 'errorstring-submissionlimitexceeded',
             self::CREATE_SUBMISSION_FAILED  => 'errorstring-submissionfailed',
             self::UNKNOWN_SERVER_ERROR  => 'errorstring-unknown',
+            self::JOBE_400_ERROR  => 'errorstring-jobe400',
+            self::SERVER_OVERLOAD => 'errorstring-overload',
         );
+        $errorcode = $runresult->error;
         if (!isset($errorstrings[$errorcode])) {
             throw new coding_exception("Bad call to sandbox.errorString");
         }
-        return get_string($errorstrings[$errorcode], 'qtype_coderunner');
+        if ($errorcode != self::JOBE_400_ERROR || !isset($runresult->stderr)) {
+            return get_string($errorstrings[$errorcode], 'qtype_coderunner');
+        } else {
+            // Special case for JOBE_400 error. Include HTTP error message in
+            // the returned error.
+            $message = get_string('errorstring-jobe400', 'qtype_coderunner');
+            $message .= $runresult->stderr;
+            return $message;
+        }
     }
 
 
@@ -196,10 +225,9 @@ abstract class qtype_coderunner_sandbox {
             self::RESULT_MEMORY_LIMIT         => 'resultstring-memorylimit',
             self::RESULT_ILLEGAL_SYSCALL      => 'resultstring-illegalsyscall',
             self::RESULT_INTERNAL_ERR         => 'resultstring-internalerror',
-            self::RESULT_SANDBOX_PENDING      => 'resultstring-sandboxpending',
-            self::RESULT_SANDBOX_POLICY       => 'resultstring-sandboxpolicy',
             self::RESULT_OUTPUT_LIMIT         => 'resultstring-outputlimit',
             self::RESULT_ABNORMAL_TERMINATION => 'resultstring-abnormaltermination',
+            self::RESULT_SERVER_OVERLOAD      => 'resultstring-sandboxoverload',
         );
         if (!isset($resultstrings[$resultcode])) {
             throw new coding_exception("Bad call to sandbox.resultString");
@@ -238,7 +266,8 @@ abstract class qtype_coderunner_sandbox {
 
 
     /** Execute the given source code in the given language with the given
-     *  input and returns an object with fields error, result, signal, cmpinfo, stderr, output.
+     *  input and returns an object with fields error, result, signal, cmpinfo,
+     *  stderr, output.
      * @param string $sourcecode The source file to compile and run
      * @param string $language  One of the languages regognised by the sandbox
      * @param string $input A string to use as standard input during execution
@@ -251,8 +280,8 @@ abstract class qtype_coderunner_sandbox {
      *         filecontents.
      *         If the $params array is null, sandbox defaults are used.
      * @return an object with at least an attribute 'error'. This is one of the
-     *         values 0 through 8 (OK to UNKNOWN_SERVER_ERROR) as defined above. If
-     *         error is 0 (OK), the returned object has additional attributes
+     *         values 0 through 8 (OK to UNKNOWN_SERVER_ERROR) as defined above.
+     *         If error is 0 (OK), the returned object has additional attributes
      *         result, output, stderr, signal and cmpinfo as follows:
      *             result: one of the result_* constants defined above
      *             output: the stdout from the run
@@ -262,6 +291,8 @@ abstract class qtype_coderunner_sandbox {
      *                     used)
      *             cmpinfo: the output from the compilation run (usually empty
      *                     unless the result code is for a compilation error).
+     *          If error is anything other than OK, the returned object may
+     *          optionally include an error message in the stderr field.
      */
     abstract public function execute($sourcecode, $language, $input, $files=null, $params=null);
 

@@ -249,6 +249,21 @@ EOTEMPLATE;
         $this->check_current_output( new question_pattern_expectation('/Twiddlydum/') );
     }
 
+    /**
+     *  Test that HTML in result table cells is appropriately sanitised
+     */
+    public function test_result_table_sanitising() {
+        $q = test_question_maker::make_question('coderunner', 'sqr');
+        $this->start_attempt_at_question($q, 'adaptive', 1, 1);
+        $qa = $this->get_question_attempt();
+
+        // Submit an answer with a <b> tag in it and make sure it's suitably
+        // escaped so it appears in the output
+        $this->process_submission(array('-submit' => 1,
+            'answer' => "def sqr(n):\n    print('<b>')\n    return n * n"));
+        $this->check_output_does_not_contain('<b>');
+    }
+
     public function test_grading_template_html_output() {
         /* Test a grading template that supplies a JSON record with a got_html
            attribute. For a per-test template this is used in the results
@@ -394,8 +409,7 @@ EOTEMPLATE;
         $this->process_submission(array('-submit' => 1,
             'answer' => 'def sqr(n): return n * n'));
         $this->check_current_mark(0.0);
-        $this->check_output_contains('Error in question');
-        $this->check_output_contains('Please report this error to your tutor');
+        $this->check_output_contains('Perhaps excessive output or error in question?');
     }
 
     // Check that if Template Debugging is enabled, the source code appears.

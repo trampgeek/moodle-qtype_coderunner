@@ -95,6 +95,7 @@ class qtype_coderunner extends question_type {
             'resultcolumns',
             'template',
             'iscombinatortemplate',
+            'allowmultiplestdins',
             'answer',
             'validateonsave',
             'testsplitterre',
@@ -615,8 +616,8 @@ class qtype_coderunner extends question_type {
             'validateonsave' => 0,
             'answerpreload' => '',
             'useace' => 1,
-            'iscombinatortemplate' => null,
-            'template' => null
+            'iscombinatortemplate' => null,  // Probably unnecessary?
+            'template' => null  // Probably unnecessary?
         );
 
         foreach ($extraquestionfields as $field) {
@@ -735,7 +736,7 @@ class qtype_coderunner extends question_type {
             }
         }
 
-        $expout = parent::export_to_xml($questiontoexport, $format, $extra);;
+        $expout = parent::export_to_xml($questiontoexport, $format, $extra);
 
         $expout .= "    <testcases>\n";
 

@@ -143,10 +143,13 @@ class qtype_coderunner_util {
     }
 
 
-    // Sanitise with 's()' and add line breaks to a given string.
+    // Sanitise given text with 's()' and wrap in a <pre> element.
     // TODO: expand tabs (which appear in Java traceback output).
     public static function format_cell($cell) {
-        return str_replace("\n", "<br />", str_replace(' ', '&nbsp;', s($cell)));
+        if (substr($cell, 0, 1) === "\n") {
+            $cell = "\n" . $cell;  // Fix <pre> quirk that ignores leading \n
+        }
+        return '<pre class="tablecell">' . s($cell) . '</pre>';
     }
 
 

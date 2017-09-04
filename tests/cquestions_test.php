@@ -143,7 +143,7 @@ class qtype_coderunner_c_questions_test extends qtype_coderunner_testcase {
         $this->assertFalse($testoutcome->has_syntax_error());
         $this->assertEquals(1, count($testoutcome->testresults));
         $this->assertFalse($testoutcome->all_correct());
-        $this->assertTrue(strpos($testoutcome->testresults[0]->got, '***Runtime error***') === 0);
+        $this->assertTrue(strpos($testoutcome->testresults[0]->got, '***Error***') === 0);
     }
 
     public function test_timelimit_exceeded() {
@@ -194,17 +194,20 @@ class qtype_coderunner_c_questions_test extends qtype_coderunner_testcase {
 
     public function test_simple_fork_bomb() {
         // Check that sandbox can handle a fork-bomb.
-        $q = $this->make_question('sqr_c');
+        $q = $this->make_question('sqr_c_single_test');
         $response = array('answer' => <<< EOANS
 #include <linux/unistd.h>
 #include <unistd.h>
 int sqr(int n) {
-    if (n == 0) return 0;
-    else {
-        int i = 0;
-        for (i = 0; i < 2000; i++)
-            fork();
-        return n * n;
+    int i = 0;
+    int ppid = getpid();       // Parent process id
+    for (i = 0; i < 20; i++) { // 2^20 children
+        fork();
+    }
+    if (getpid() == ppid) {
+        return n * n;         // Only the original process returns
+    } else {
+        exit(-1);             // The rest all die
     }
 }
 EOANS
@@ -214,7 +217,7 @@ EOANS
         $this->assertTrue(isset($cache['_testoutcome']));
         $testoutcome = unserialize($cache['_testoutcome']);
         $this->assertTrue(
-                strpos($testoutcome->testresults[1]->got,
+                strpos($testoutcome->testresults[0]->got,
                     "***Illegal function call***") !== false ||
                 $grade == question_state::$gradedright
                 );

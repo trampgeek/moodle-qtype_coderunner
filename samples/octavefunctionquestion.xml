@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <quiz>
+<!-- question: 0  -->
+  <question type="category">
+    <category>
+        <text>$course$/Exports</text>
 
+    </category>
+  </question>
+
+<!-- question: 2935  -->
   <question type="coderunner">
     <name>
       <text>Demo simple Octave function</text>
@@ -12,24 +20,26 @@
       <text></text>
     </generalfeedback>
     <defaultgrade>1.0000000</defaultgrade>
-    <penalty>0.3333333</penalty>
+    <penalty>0.0000000</penalty>
     <hidden>0</hidden>
     <coderunnertype>octave_function</coderunnertype>
     <prototypetype>0</prototypetype>
     <allornothing>1</allornothing>
-    <penaltyregime></penaltyregime>
+    <penaltyregime>33.3, 66.7, ...</penaltyregime>
+    <precheck>0</precheck>
     <showsource>0</showsource>
     <answerboxlines>8</answerboxlines>
     <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
     <useace>1</useace>
     <resultcolumns></resultcolumns>
+    <template></template>
+    <iscombinatortemplate></iscombinatortemplate>
     <answer>function square = sqr(x)
     square = x * x;
 end</answer>
-    <combinatortemplate></combinatortemplate>
+    <validateonsave>1</validateonsave>
     <testsplitterre></testsplitterre>
-    <enablecombinator></enablecombinator>
-    <pertesttemplate></pertesttemplate>
     <language></language>
     <acelang></acelang>
     <sandbox></sandbox>
@@ -39,7 +49,7 @@ end</answer>
     <sandboxparams></sandboxparams>
     <templateparams></templateparams>
     <testcases>
-      <testcase useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
       <testcode>
                 <text>disp(sqr(7))</text>
       </testcode>
@@ -56,7 +66,7 @@ end</answer>
                 <text>SHOW</text>
       </display>
     </testcase>
-      <testcase useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
       <testcode>
                 <text>disp(sqr(-11))</text>
       </testcode>
@@ -73,7 +83,7 @@ end</answer>
                 <text>SHOW</text>
       </display>
     </testcase>
-      <testcase useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
       <testcode>
                 <text>disp(sqr(0))</text>
       </testcode>
@@ -90,7 +100,7 @@ end</answer>
                 <text>SHOW</text>
       </display>
     </testcase>
-      <testcase useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
       <testcode>
                 <text>disp(sqr(-101))</text>
       </testcode>
@@ -107,7 +117,7 @@ end</answer>
                 <text>SHOW</text>
       </display>
     </testcase>
-      <testcase useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
       <testcode>
                 <text>disp(sqr(20))</text>
       </testcode>
