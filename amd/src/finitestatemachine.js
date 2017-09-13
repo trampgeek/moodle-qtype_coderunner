@@ -487,11 +487,28 @@ define(['jquery'], function($) {
     var currentLink = null; // a Link
     var movingObject = false;
     var originalClick;
+    
+    function drawHelpBox(c) {
+        c.beginPath();
+        c.fillStyle = 'rgba(119,136,153,0.5)';
+        c.fillRect(750,0,50,25);
+        c.lineWidth = 2;
+        c.strokeStyle = '#000000'; 
+        c.stroke();
+        c.closePath();
+        
+        c.font = '12pt "Times New Roman", serif';
+        c.fillStyle = '#000000';
+        c.textAlign="center"; 
+        c.fillText('Help', 775, 17);
+    }
 
     function drawUsing(c) {
         c.clearRect(0, 0, canvas.width, canvas.height);
         c.save();
         c.translate(0.5, 0.5);
+        
+        drawHelpBox(c);
 
         for(var i = 0; i < nodes.length; i++) {
             c.lineWidth = 1;
@@ -788,6 +805,10 @@ define(['jquery'], function($) {
             }
         });
     };
+    
+    var isInside = function(pos, rect){
+        return pos.x > rect.x && pos.x < rect.x+rect.width && pos.y < rect.y+rect.height && pos.y > rect.y
+    }
 
     // turn off the FSM editor
     FsmInterface.prototype.stop = function() {
@@ -804,14 +825,36 @@ define(['jquery'], function($) {
         canvas.setAttribute("style", "background-color: white");
         $(canvas).insertBefore(textArea);
         $(textArea).hide();
-        restoreBackup();
+        restoreBackup();        
         draw();
+        
+        var helpBox = {
+          x:750,
+          y:0,
+          width: 50,
+          height: 25
+        };
+        
+        var helpInstructions = 
+                "-Double click at a blank space to create a new node/state\n" +
+                "-Double click an existing node to make it an accept state. Double click again to remove the accept state.\n" +
+                "-Click and drag to move a state\n" +
+                "-Shift click inside one node and drag to another to create a link\n" +
+                "-Shift click on a blank space, drag to a node to create a start link\n" +
+                "-Click and drag a link to alter its curve\n" +
+                "-Click on a link/node to edit its text\n" +
+                "-Typing _ followed by a character makes that character a subscript\n" +
+                "-Typing \\epsilon creates an epsilon character";
 
         canvas.onmousedown = function(e) {
             var mouse = crossBrowserRelativeMousePos(e);
             selectedObject = selectObject(mouse.x, mouse.y);
             movingObject = false;
             originalClick = mouse;
+            
+            if (isInside(mouse, helpBox)) {
+                alert(helpInstructions);
+            }
 
             if(selectedObject !== null) {
                 if(shift && selectedObject instanceof Node) {
