@@ -244,7 +244,7 @@ define(['jquery'], function($) {
         this.text = '';
 
         if(mouse) {
-                this.setAnchorPoint(mouse.x, mouse.y);
+            this.setAnchorPoint(mouse.x, mouse.y);
         }
     }
 
@@ -815,7 +815,7 @@ define(['jquery'], function($) {
         canvas = document.getElementById("canvas");
         canvas.parentNode.removeChild(canvas);
     };
-
+    
     FsmInterface.prototype.init = function(taId) {
         textArea = $(document.getElementById(taId));
         canvas = document.createElement("canvas");
@@ -835,17 +835,6 @@ define(['jquery'], function($) {
           height: 25
         };
         
-        var helpInstructions = 
-                "-Double click at a blank space to create a new node/state\n" +
-                "-Double click an existing node to make it an accept state. Double click again to remove the accept state.\n" +
-                "-Click and drag to move a state\n" +
-                "-Shift click inside one node and drag to another to create a link\n" +
-                "-Shift click on a blank space, drag to a node to create a start link\n" +
-                "-Click and drag a link to alter its curve\n" +
-                "-Click on a link/node to edit its text\n" +
-                "-Typing _ followed by a character makes that character a subscript\n" +
-                "-Typing \\epsilon creates an epsilon character";
-
         canvas.onmousedown = function(e) {
             var mouse = crossBrowserRelativeMousePos(e);
             selectedObject = selectObject(mouse.x, mouse.y);
@@ -853,7 +842,8 @@ define(['jquery'], function($) {
             originalClick = mouse;
             
             if (isInside(mouse, helpBox)) {
-                alert(helpInstructions);
+                var helptext = M.util.get_string('fsmhelp', 'qtype_coderunner');
+                alert(helptext);
             }
 
             if(selectedObject !== null) {

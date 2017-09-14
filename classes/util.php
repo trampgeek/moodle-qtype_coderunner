@@ -58,6 +58,8 @@ class qtype_coderunner_util {
 
     public static function load_fsm_if_required($question, $textareaid) {
         global $PAGE;
+        $keys = array('fsmhelp');
+        $PAGE->requires->strings_for_js($keys, 'qtype_coderunner');
         if ($question->uiplugin == "fsm") {
             $PAGE->requires->js_call_amd('qtype_coderunner/finitestatemachine', 'init', array($textareaid));
         }
