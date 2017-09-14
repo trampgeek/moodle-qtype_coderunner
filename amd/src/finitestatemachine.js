@@ -501,7 +501,7 @@ define(['jquery'], function($) {
         c.fillStyle = '#000000';
         c.textAlign="center"; 
         c.fillText('Help', 775, 17);
-        c.textAlign = "left"
+        c.textAlign = "left";
     }
 
     function drawUsing(c) {
