@@ -145,7 +145,7 @@ $string['fsmhelp'] = '-Double click at a blank space to create a new node/state
 -Shift click on a blank space, drag to a node to create a start link
 -Click and drag a link to alter its curve
 -Click on a link/node to edit its text
--Typing _ followed by a character makes that character a subscript
+-Typing _ followed by a digit makes that digit a subscript
 -Typing \\epsilon creates an epsilon character';
 
 $string['goodemptyprecheck'] = 'Passed';
