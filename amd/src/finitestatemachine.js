@@ -318,7 +318,6 @@ define(['jquery'], function($) {
         this.node = node;
         this.deltaX = 0;
         this.deltaY = 0;
-        //this.text = '';
 
         if(start) {
             this.setAnchorPoint(start.x, start.y);
@@ -358,10 +357,6 @@ define(['jquery'], function($) {
         c.moveTo(endPoints.startX, endPoints.startY);
         c.lineTo(endPoints.endX, endPoints.endY);
         c.stroke();
-
-        // draw the text at the end without the arrow
-        //var textAngle = Math.atan2(endPoints.startY - endPoints.endY, endPoints.startX - endPoints.endX);
-        //drawText(c, this.text, endPoints.startX, endPoints.startY, textAngle, selectedObject === this);
 
         // draw the head of the arrow
         drawArrow(c, endPoints.endX, endPoints.endY, Math.atan2(-this.deltaY, -this.deltaX));
@@ -487,19 +482,19 @@ define(['jquery'], function($) {
     var currentLink = null; // a Link
     var movingObject = false;
     var originalClick;
-    
+
     function drawHelpBox(c) {
         c.beginPath();
         c.fillStyle = 'rgba(119,136,153,0.5)';
         c.fillRect(750,0,50,25);
         c.lineWidth = 2;
-        c.strokeStyle = '#000000'; 
+        c.strokeStyle = '#000000';
         c.stroke();
         c.closePath();
-        
+
         c.font = '12pt "Times New Roman", serif';
         c.fillStyle = '#000000';
-        c.textAlign="center"; 
+        c.textAlign = "center";
         c.fillText('Help', 775, 17);
         c.textAlign = "left";
     }
@@ -508,7 +503,7 @@ define(['jquery'], function($) {
         c.clearRect(0, 0, canvas.width, canvas.height);
         c.save();
         c.translate(0.5, 0.5);
-        
+
         drawHelpBox(c);
 
         for(var i = 0; i < nodes.length; i++) {
@@ -805,17 +800,17 @@ define(['jquery'], function($) {
             }
         });
     };
-    
+
     var isInside = function(pos, rect){
-        return pos.x > rect.x && pos.x < rect.x+rect.width && pos.y < rect.y+rect.height && pos.y > rect.y
-    }
+        return pos.x > rect.x && pos.x < rect.x + rect.width && pos.y < rect.y + rect.height && pos.y > rect.y;
+    };
 
     // turn off the FSM editor
     FsmInterface.prototype.stop = function() {
         canvas = document.getElementById("canvas");
         canvas.parentNode.removeChild(canvas);
     };
-    
+
     FsmInterface.prototype.init = function(taId) {
         textArea = $(document.getElementById(taId));
         canvas = document.createElement("canvas");
@@ -825,22 +820,22 @@ define(['jquery'], function($) {
         canvas.setAttribute("style", "background-color: white");
         $(canvas).insertBefore(textArea);
         $(textArea).hide();
-        restoreBackup();        
+        restoreBackup();
         draw();
-        
+
         var helpBox = {
-          x:750,
-          y:0,
-          width: 50,
-          height: 25
+            x:750,
+            y:0,
+            width: 50,
+            height: 25
         };
-        
+
         canvas.onmousedown = function(e) {
             var mouse = crossBrowserRelativeMousePos(e);
             selectedObject = selectObject(mouse.x, mouse.y);
             movingObject = false;
             originalClick = mouse;
-            
+
             if (isInside(mouse, helpBox)) {
                 var helptext = M.util.get_string('fsmhelp', 'qtype_coderunner');
                 alert(helptext);
