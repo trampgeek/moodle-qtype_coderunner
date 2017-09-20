@@ -318,7 +318,7 @@ define(['jquery'], function($) {
         this.node = node;
         this.deltaX = 0;
         this.deltaY = 0;
-        this.text = '';
+        //this.text = '';
 
         if(start) {
             this.setAnchorPoint(start.x, start.y);
@@ -360,8 +360,8 @@ define(['jquery'], function($) {
         c.stroke();
 
         // draw the text at the end without the arrow
-        var textAngle = Math.atan2(endPoints.startY - endPoints.endY, endPoints.startX - endPoints.endX);
-        drawText(c, this.text, endPoints.startX, endPoints.startY, textAngle, selectedObject === this);
+        //var textAngle = Math.atan2(endPoints.startY - endPoints.endY, endPoints.startX - endPoints.endX);
+        //drawText(c, this.text, endPoints.startX, endPoints.startY, textAngle, selectedObject === this);
 
         // draw the head of the arrow
         drawArrow(c, endPoints.endX, endPoints.endY, Math.atan2(-this.deltaY, -this.deltaX));
@@ -725,7 +725,6 @@ define(['jquery'], function($) {
                     link = new StartLink(nodes[backupLink[1]]);
                     link.deltaX = backupLinkLayout.deltaX;
                     link.deltaY = backupLinkLayout.deltaY;
-                    link.text = backupLink[2];
                 } else {
                     link = new Link(nodes[backupLink[0]], nodes[backupLink[1]]);
                     link.parallelPart = backupLinkLayout.parallelPart;
@@ -779,7 +778,7 @@ define(['jquery'], function($) {
                     'deltaX': link.deltaX,
                     'deltaY': link.deltaY,
                 };
-                linkData = [-1, nodes.indexOf(link.node), link.text];
+                linkData = [-1, nodes.indexOf(link.node), ""];
             } else if(link instanceof Link) {
                 linkLayout = {
                     'lineAngleAdjust': link.lineAngleAdjust,
