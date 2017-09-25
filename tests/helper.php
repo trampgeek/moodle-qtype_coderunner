@@ -97,7 +97,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $qdata->options->prototypetype = 0;
         $qdata->options->allornothing = 0;
         $qdata->options->showsource = 0;
-        $qdata->options->precheck = 0;
+        $qdata->options->precheck = 1;
         $qdata->options->answerboxlines = 5;
         $qdata->options->answerboxcolumns = 100;
         // exclude precheck as it defaults to null
