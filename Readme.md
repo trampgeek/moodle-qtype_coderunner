@@ -1510,6 +1510,7 @@ the new question type using this template:
  1. Choose the question type *python3*
  1. Click *Customise*
  1. Replace the contents of the *Template* text area with the template code below.
+ 1. Uncheck the *Is combinator* checkbox
  1. Enter DEMO\_PROTOTYPE\_C\_using\_python as the question name
  1. Enter whatever text you wish to use to describe the question type in the
     Question text area. This text will be displayed to any authors using this
