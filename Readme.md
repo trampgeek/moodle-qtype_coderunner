@@ -1537,7 +1537,7 @@ distribution.
         C program. 
     """
 
-    import subprocess
+    import subprocess, sys
 
     # Write the student code to a file prog.c
     student_answer = """{{ STUDENT_ANSWER | e('py') }}"""
