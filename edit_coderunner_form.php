@@ -748,8 +748,8 @@ class qtype_coderunner_edit_form extends question_edit_form {
     private function validate_sample_answer($data) {
         global $DB, $USER;
         $answer = trim($data['answer']);
-        if (empty($answer)) {
-            return '';
+        if ($answer === '') {
+            return $answer;
         }
 
         // Construct a question object containing all the fields from $data.

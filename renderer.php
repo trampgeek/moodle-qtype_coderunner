@@ -103,7 +103,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
         }
 
         $currentanswer = $qa->get_last_qt_var('answer');
-        if (empty($currentanswer)) {
+        if ($currentanswer === '') {
             $currentanswer = $preload;
         }
         $qtext .= html_writer::tag('textarea', s($currentanswer), $taattributes);

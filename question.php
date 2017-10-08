@@ -72,7 +72,7 @@ class qtype_coderunner_question extends question_graded_automatically {
 
     public function is_gradable_response(array $response) {
         return array_key_exists('answer', $response) &&
-                !empty($response['answer']) &&
+                $response['answer'] !== '' &&
                 strlen($response['answer']) >= constants::FUNC_MIN_LENGTH;
     }
 
@@ -88,7 +88,7 @@ class qtype_coderunner_question extends question_graded_automatically {
      */
     public function get_validation_error(array $response) {
         if (array_key_exists('answer', $response)) {
-            if (empty($response['answer'])) {
+            if ($response['answer'] === '') {
                 return get_string('answerrequired', 'qtype_coderunner');
             } elseif (strlen($response['answer']) < constants::FUNC_MIN_LENGTH) {
                 return get_string('answertooshort', 'qtype_coderunner');

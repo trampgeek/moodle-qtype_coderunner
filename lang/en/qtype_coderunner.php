@@ -100,6 +100,7 @@ $string['default_penalty_regime_desc'] = 'The default penalty regime to apply to
 
 
 $string['display'] = 'Display';
+$string['downloadquizattempts'] = 'Download quiz attempts';
 
 $string['editingcoderunner'] = 'Editing a CodeRunner Question';
 $string['empty_new_prototype_name'] = 'New question type name cannot be empty';
