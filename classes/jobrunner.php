@@ -47,7 +47,7 @@ class qtype_coderunner_jobrunner {
 
         $this->question = $question;
         $this->code = $code;
-        $this->testcases = $testcases;
+        $this->testcases = array_values($testcases);
         $this->isprecheck = $isprecheck;
         $this->grader = $question->get_grader();
         $this->sandbox = $question->get_sandbox();
@@ -63,6 +63,7 @@ class qtype_coderunner_jobrunner {
             'autoescape' => false,
             'optimizations' => 0
         ));
+        $this->twig->addExtension(new Twig_Extension_Debug());
 
         $twigcore = $this->twig->getExtension('core');
         $twigcore->setEscaper('py', 'qtype_coderunner_escapers::python');
