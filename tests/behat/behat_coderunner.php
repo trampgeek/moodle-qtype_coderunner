@@ -105,4 +105,14 @@ class behat_coderunner extends behat_base {
     public function i_set_the_field_to_pystring($fieldlocator, Behat\Gherkin\Node\PyStringNode $value) {
         $this->execute('behat_forms::i_set_the_field_to', array($fieldlocator, $this->escape($value)));
     }
+    /**
+     * @Then /^I should see a canvas/
+     */
+    public function i_see_a_canvas() {
+        $xpath = "//canvas";
+        $driver = $this->getSession()->getDriver();
+        if (! $driver->find($xpath)) {
+            throw new ExpectationException("Couldn't find canvas",  $this->getSession());
+        }
+    }
 }
