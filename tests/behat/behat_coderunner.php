@@ -115,4 +115,13 @@ class behat_coderunner extends behat_base {
             throw new ExpectationException("Couldn't find canvas",  $this->getSession());
         }
     }
+    
+     /**
+     * @Given /^I fill in my template/
+     */
+    public function i_fill_in_my_template() {
+        $dfatemplate = file_get_contents("dfa_template.txt", FILE_USE_INCLUDE_PATH);
+        $this->getSession()->getPage()->fillField('id_template', $dfatemplate);
+        
+    }
 }
