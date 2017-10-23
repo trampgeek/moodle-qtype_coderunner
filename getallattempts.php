@@ -29,34 +29,40 @@
 require_once(__DIR__.'/../../../config.php');
 require_once($CFG->libdir . '/questionlib.php');
 require_once($CFG->libdir.'/tablelib.php');
+require_once($CFG->libdir.'/../mod/quiz/accessmanager.php');
 
 // Get the quiz-id and format parameters from the URL.
 $quizid = required_param('quizid', PARAM_INT);
 $format = required_param('format', PARAM_RAW);  // csv or excel
 
 // Login and check permissions.
-$context = context_system::instance();
 require_login();
+
+$quiz = quiz_access_manager::load_quiz_and_settings($quizid);
+$course = $DB->get_record('course', array('id' => $quiz->course), '*', MUST_EXIST);
+$coursecontext = context_course::instance($course->id);
 
 // I'm not sure if the next three lines are ever relevant but ... what's to lose?
 $PAGE->set_url('/question/type/coderunner/getallattempts.php');
-$PAGE->set_context($context);
+$PAGE->set_context($coursecontext);
 $PAGE->set_title('Get all quiz attempts');  // TODO: use get_string
 
-$coursecontext = context_course::instance($COURSE->id);
 if (!has_capability('moodle/grade:viewall', $coursecontext)) {
     //echo html::tag('p', get_string('unauthoriseddbaccess', 'qtype_coderunner'));
-    echo html::tag('p', 'UNAUTHORISED TO USE THIS SCRIPT'); // TODO use get_string
+    echo "<p>UNAUTHORISED TO USE THIS SCRIPT</p>"; // TODO use get_string
 } else {
     $table = new table_sql(uniqid());
     $fields = "concat(quiza.uniqueid, qasd.attemptstepid, qasd.id) as uniquekey,
-        quiza.uniqueid as attemptid,
+        quiza.uniqueid as quizattemptid,
+        timestart,
+        timefinish,
         u.firstname,
         u.lastname,
         u.email,
         qatt.slot,
         qatt.questionid,
         quest.name as qname,
+        slot.maxmark as mark,
         qattsteps.timecreated as timestamp,
         FROM_UNIXTIME(qattsteps.timecreated,'%Y/%m/%d %H:%i:%s') as datetime,
         qattsteps.fraction,
@@ -68,14 +74,16 @@ if (!has_capability('moodle/grade:viewall', $coursecontext)) {
     $from = "{user} u
     JOIN {quiz_attempts} quiza ON quiza.userid = u.id AND quiza.quiz = :quizid
     JOIN {question_attempts} qatt ON qatt.questionusageid = quiza.uniqueid
-    JOIN {question_attempt_steps} qattsteps ON qattsteps.questionattemptid = qatt.id
-    JOIN {question_attempt_step_data} qasd on qasd.attemptstepid = qattsteps.id
-    JOIN {question} quest ON quest.id = qatt.questionid";
+    LEFT JOIN {question_attempt_steps} qattsteps ON qattsteps.questionattemptid = qatt.id
+    LEFT JOIN {question_attempt_step_data} qasd on qasd.attemptstepid = qattsteps.id
+    JOIN {question} quest ON quest.id = qatt.questionid
+    JOIN {quiz_slots} slot ON qatt.questionid = slot.questionid AND slot.quizid = quiza.quiz";
 
     $where = "quiza.preview = 0
-    AND qasd.name NOT RLIKE '-_.*'
-    AND qasd.name NOT RLIKE '_.*'
-    ORDER BY attemptid, slot, attemptstepid";
+    AND (qasd.name NOT RLIKE '^-_' OR qasd.name = '-_rawfraction')
+    AND qasd.name NOT RLIKE '^_'
+    AND quest.length > 0
+    ORDER BY quiza.uniqueid, timestamp";
 
     $params = array('quizid' => $quizid);
     $table->define_baseurl($PAGE->url);

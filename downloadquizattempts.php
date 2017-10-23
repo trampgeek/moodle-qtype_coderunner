@@ -19,6 +19,10 @@
  * user is currently browsing and provides buttons for downloading each script
  * as either a csv (flakey at handling program code) or Excel spreadsheet.
  *
+ * This script should be regarded as experimental - the output format may
+ * change in the future. And some of the code, particularly the JavaScript
+ * and jQuery for handling hiding of quiz tables, is downright nasty.
+ *
  * @package   qtype_coderunner
  * @copyright 2017 Richard Lobb, The University of Canterbury
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -46,15 +50,19 @@ $courses = $bulktester->get_all_courses();
 // Start display.
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('downloadquizattempts', 'qtype_coderunner'));
-echo html_writer::tag('p', 'Click the appropriate course and download button for the course and quiz you wish to download');
+echo html_writer::tag('p', "Click the appropriate course and/or download button
+        for the course and quiz you wish to download. Numbers in parentheses
+        after courses are the number of quizzes in the course with at least
+        two submissions. The numbers in parentheses after the quiz name
+        are the numbers of submissions.");
 
 $coursequizzes = array();
 
 $i = 0;
 if (count($courses) > 2) {
-    $initialcontentstate = 'display:none';
+    $initialcontentstate = 'display:none; margin:20px';
 } else {
-    $initialcontentstate = '';
+    $initialcontentstate = 'margin:20px';
 }
 
 foreach ($courses as $course) {
@@ -84,13 +92,13 @@ foreach ($courses as $course) {
 
         echo html_writer::tag('h6',
                 html_writer::tag('a', "{$course->name} ($numquizzes)",
-                array('class'=>'expander',
+                array('class'=>'expander sectionname',
                       'id'   => 'expander-' . $i,
                       'href' => '#')
                       )
                 );
         echo html_writer::start_tag('div',
-                array('class'=>'content' . $i, 'style'=>$initialcontentstate));
+                array('class'=>'content' . $i . ' container-fluid', 'style'=>$initialcontentstate));
 
         $rows = array();
         foreach ($quizzes as $quiz) {
@@ -99,8 +107,8 @@ foreach ($courses as $course) {
                     array('quizid' => $quiz->id, 'format' => 'csv'));
             $excelurl = new moodle_url('/question/type/coderunner/getallattempts.php',
                     array('quizid' => $quiz->id, 'format' => 'excel'));
-            $rows[] = array($quizname, html_writer::link($csvurl, 'csv', array('class'=>'btn')),
-                                       html_writer::link($excelurl, 'excel', array('class'=>'btn')));
+            $rows[] = array($quizname, html_writer::link($csvurl, 'csv', array('class'=>'btn-sm')),
+                                       html_writer::link($excelurl, 'excel', array('class'=>'btn-sm')));
 
         }
         //echo html_writer::end_tag('ul');
