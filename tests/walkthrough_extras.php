@@ -34,6 +34,8 @@ require_once($CFG->dirroot . '/question/engine/tests/helpers.php');
 require_once($CFG->dirroot . '/question/type/coderunner/tests/coderunnertestcase.php');
 require_once($CFG->dirroot . '/question/type/coderunner/question.php');
 
+define('PRELOAD_TEST', "# TEST COMMENT TO CHECK PRELOAD IS WORKING\n");
+
 class qtype_coderunner_walkthrough_extras_test extends qbehaviour_walkthrough_test_base {
 
     protected function setUp() {
@@ -61,9 +63,11 @@ class qtype_coderunner_walkthrough_extras_test extends qbehaviour_walkthrough_te
 EOTEMPLATE;
         $q->allornothing = false;
         $q->iscombinatortemplate = false;
+        $q->answerpreload = PRELOAD_TEST;
 
         // Submit a right answer.
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
+        $this->check_current_output( new question_pattern_expectation('/' . PRELOAD_TEST . '/') );
         $this->process_submission(array('-submit' => 1, 'answer' => "def sqr(n): return n * n\n"));
         $this->check_current_mark(1.0);
     }
