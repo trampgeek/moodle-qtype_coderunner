@@ -1,5 +1,24 @@
 # CHANGE HISTORY
 
+### November 2017. 3.2.2
+
+* Added an experimental script <coderunnerhome>/question/type/coderunner/downloadquizattempts.php
+to dump the database info on all student quiz activity to a spreadsheet. 
+The data includes the submitted answers to both prechecks and checks, with
+timestamps. The export format is experimental and may change in the future.
+A Python module *quizattempts.py* is included too and is the recommended way
+to deal with the quiz attempt download spreadsheet.
+
+* Bug fix: a submitted answer of '0' (an edge case that might be possible
+when student answer is not code) was being rejected as an empty response, due
+to the use of PHP's *empty* function. Thanks to David Bowes for the fixes here.
+
+* Added SQL prototype and 2 simple samples (experimental).
+
+* Bug fix: testsplitterre and allowmultiplestdin fields of author form were not
+  being correctly initialised when a new combinator question type was downloaded
+  with AJAX.
+
 ### 22 August 2017. 3.2.1
 
 * Bug fix: result table cells not being sanitised since commit of 19/5/17
