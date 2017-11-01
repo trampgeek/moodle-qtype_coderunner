@@ -123,7 +123,7 @@ define(['jquery'], function($) {
 
         // Copy fields from the AJAX "get question type" response into the form.
         function copyFieldsFromQuestionType(newType, response) {
-            var formspecifier, attrval, filter, isCombinator;
+            var formspecifier, attrval, filter;
             for (var key in JSON_TO_FORM_MAP) {
                 formspecifier = JSON_TO_FORM_MAP[key];
                 attrval = response[key] ? response[key] : formspecifier[2];
