@@ -61,7 +61,9 @@ Feature: make_prototype
       | id_testcode_1     | sqr(9)                            |
       | id_expected_1     | 81                                |
 
-  Scenario: As a teacher, I get marked right (using combinator template) if I submit a correct answer to a CodeRunner question
+  Scenario: As a teacher, I get marked right (using per-test-case template) if I submit a correct answer to a CodeRunner question
+    # HACK ALERT: following line selects row 1 because question name (Prototype tester)
+    # comes after the prototype on row 0.
     When I click on "table#categoryquestions tr.r1 a[title='Preview']" "css_element"
     And I switch to "questionpreview" window
     And I set the field "id_behaviour" to "Adaptive mode"
