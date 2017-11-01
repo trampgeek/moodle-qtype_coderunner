@@ -380,6 +380,10 @@ class qtype_coderunner_edit_form extends question_edit_form {
             $errors = array_merge($errors, $testcaseerrors);
         }
 
+        if ($data['iscombinatortemplate'] && empty($data['testsplitterre'])) {
+            $errors['templatecontrols'] = get_string('bad_empty_splitter', 'qtype_coderunner');
+        }
+
         if ($data['prototypetype'] == 2 && ($data['saved_prototype_type'] != 2 ||
                    $data['typename'] != $data['coderunnertype'])) {
             // User-defined prototype, either newly created or undergoing a name change.
@@ -648,6 +652,11 @@ class qtype_coderunner_edit_form extends question_edit_form {
             $languages, null, false);
         $mform->addHelpButton('languages', 'languages', 'qtype_coderunner');
 
+        // IMPORTANT: authorform.js has to set the initial enabled/disabled
+        // status of the testsplitterre and allowmultiplestdins elements
+        // after loading a new question type as the following code apparently
+        // sets up event handlers only for clicks on the iscombinatortemplate
+        // checkbox.
         $mform->disabledIf('typename', 'prototypetype', 'neq', '2');
         $mform->disabledIf('testsplitterre', 'iscombinatortemplate', 'eq', 0);
         $mform->disabledIf('allowmultiplestdins', 'iscombinatortemplate', 'eq', 0);
