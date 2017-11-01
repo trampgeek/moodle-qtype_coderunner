@@ -53,6 +53,7 @@ $string['asolutionis'] = 'Question author\'s solution:';
 $string['badcputime'] = 'CPU time limit must be left blank or must be an integer greater than zero';
 $string['bad_dotdotdot'] = 'Misuse of \'...\'. Must be at end, after two increasing numeric penalties';
 $string['bademptyprecheck'] = 'Precheck failed with the following unexpected output.';
+$string['bad_empty_splitter'] = 'Test splitter cannot be empty when using a combinator template';
 $string['badjsonorfraction'] = 'Bad JSON or missing fraction in combinator grader output. Output was: {$a->output}';
 $string['badmemlimit'] = 'Memory limit must either be left blank or must be a non-negative integer';
 $string['bad_new_prototype_name'] = 'Illegal name for new prototype: already in use';
