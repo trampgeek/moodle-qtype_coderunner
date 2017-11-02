@@ -684,7 +684,7 @@ cout << str_to_upper(s);
         $options['template'] = <<<EOT
 function tester()
   ESCAPED_STUDENT_ANSWER =  sprintf('{{MATLAB_ESCAPED_STUDENT_ANSWER}}');
-  {{TEST.testcode}};quit();
+  {{TEST.testcode}};
 end
 
 {{STUDENT_ANSWER}}
