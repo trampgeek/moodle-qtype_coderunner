@@ -74,10 +74,10 @@ if (!has_capability('moodle/grade:viewall', $coursecontext)) {
     $from = "{user} u
     JOIN {quiz_attempts} quiza ON quiza.userid = u.id AND quiza.quiz = :quizid
     JOIN {question_attempts} qatt ON qatt.questionusageid = quiza.uniqueid
-    LEFT JOIN {question_attempt_steps} qattsteps ON qattsteps.questionattemptid = qatt.id
-    LEFT JOIN {question_attempt_step_data} qasd on qasd.attemptstepid = qattsteps.id
+    JOIN {question_attempt_steps} qattsteps ON qattsteps.questionattemptid = qatt.id
+    JOIN {question_attempt_step_data} qasd on qasd.attemptstepid = qattsteps.id
     JOIN {question} quest ON quest.id = qatt.questionid
-    JOIN {quiz_slots} slot ON qatt.questionid = slot.questionid AND slot.quizid = quiza.quiz";
+    JOIN {quiz_slots} slot ON qatt.slot = slot.slot AND slot.quizid = quiza.quiz";
 
     $where = "quiza.preview = 0
     AND (qasd.name NOT RLIKE '^-_' OR qasd.name = '-_rawfraction')
