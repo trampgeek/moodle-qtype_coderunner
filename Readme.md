@@ -1579,27 +1579,110 @@ distribution.
 
 ## Administrator scripts
 
-There are currently two scripts available to bulk test CodeRunner questions
-and to summarise the usage of all prototype questions (i.e. CodeRunner
-question types). While initially intended only for administrator use, they
-are proving useful to teachers as well. Teachers are able to run the scripts
+There are currently three CodeRunner-related utility scripts available.
+While initially intended only for administrator use, they
+are proving useful to teachers as well, particularly the third one.
+Teachers are able to run the scripts
 only within courses they can normally access; they must be logged into such
 a course before attempting to run the scripts.
 
-The two scripts are:
+The three scripts are:
 
- 1. <moodle_home>/question/type/coderunner/bulktestindex.php
+ 1. &lt;moodle_home&gt;/question/type/coderunner/bulktestindex.php
     This script displays a list of all question categories accessible to the
     user who is currently logged into Moodle on the machine running the script.
     Each category is displayed as a clickable link that then runs a script that
     tests the sample answers on all questions in that category, reporting
     all successes and failures.
 
- 1. <moodle_home>/question/type/coderunner/prototypeusageindex.php
+ 1. &lt;moodle_home&gt;/question/type/coderunner/prototypeusageindex.php
     This scripts displays an index like the one above except that the 
     clickable links now run a script that reports on the question prototype
     usage within that category.
-    questions in the runs the sample answer on all questions in a specif
+
+ 1. &lt;moodle_home&gt;/question/type/coderunner/downloadquizattempts.php
+    This script, which is still experimental,
+    displays a list of all quizzes available to the logged in user,
+    allowing them to download a spreadsheet of all submissions to a selected quiz
+    by all students. The downloaded spreadsheet is suitable for off-line analysis,
+    and includes information not available in the exported Moodle responses
+    file, such as all intermediate submisssions and prechecks and the time of
+    each such action.
+ 
+    The download can be in either csv or excel format; the
+    latter is recommended for most cases because a long-standing bug in PHP's 
+    `fputcsv` function can cause corrupted csv output files. The exported
+    Excel spreadsheet can then be opened in Excel or Open Office and saved as
+    csv.
+
+    The download format is complicated and requires a good understanding of
+    Moodle's database scheme. The following query is used, with each row of the
+    result being output as a single spreadsheet row.
+
+        SELECT
+            concat(quiza.uniqueid, qasd.attemptstepid, qasd.id) as uniquekey,
+            quiza.uniqueid as quizattemptid,
+            timestart,
+            timefinish,
+            u.firstname,
+            u.lastname,
+            u.email,
+            qatt.slot,
+            qatt.questionid,
+            quest.name as qname,
+            slot.maxmark as mark,
+            qattsteps.timecreated as timestamp,
+            FROM_UNIXTIME(qattsteps.timecreated,'%Y/%m/%d %H:%i:%s') as datetime,
+            qattsteps.fraction,
+            qattsteps.state,
+            qasd.attemptstepid,
+            qasd.name as qasdname,
+            qasd.value as value
+
+        FROM {user} u
+        JOIN {quiz_attempts} quiza ON quiza.userid = u.id AND quiza.quiz = :quizid
+        JOIN {question_attempts} qatt ON qatt.questionusageid = quiza.uniqueid
+        JOIN {question_attempt_steps} qattsteps ON qattsteps.questionattemptid = qatt.id
+        JOIN {question_attempt_step_data} qasd on qasd.attemptstepid = qattsteps.id
+        JOIN {question} quest ON quest.id = qatt.questionid
+        JOIN {quiz_slots} slot ON qatt.slot = slot.slot AND slot.quizid = quiza.quiz
+
+        WHERE quiza.preview = 0
+        AND (qasd.name NOT RLIKE '^-_' OR qasd.name = '-_rawfraction')
+        AND qasd.name NOT RLIKE '^_'
+        AND quest.length > 0
+        ORDER BY quiza.uniqueid, timestamp;
+
+    This query gives rise to multiple near-identical rows for a single student
+    action (e.g. answer submission), with different (qasdname, value) pairs.
+    ['qasdname' is
+    the `name` column of the question-attempt-step-data table and `value` is
+    the value associated with that name. The set of such (key, value) pairs
+    depends on the question type and the particular user action being recorded.]
+    Currently, so-called "behaviour variables" - those containing an underscore - are
+    not included in the export, except for the '-_rawfraction' variable. This
+    is to restrict the volume of data, but the decision may change in the future. 
+
+    Processing of the raw spreadsheet is somewhat complicated. The file
+    `quizsubmissions.py` included in the git repository defines Python classes to
+    simplify the process. The statements
+
+        from quizsubmissions import QuizSubmissions
+        submission_data = QuizSubmissions(csvfilename)
+
+    import the exported spreadsheet and gives easy access to data about any
+    particular student and their activities in the quiz.
+
+    For example
+
+        submission-data['rjl83'].submissions[2].get_answer()
+
+    returns the final answer submitted by student `rjl83` to question 2.
+  
+    Lots of other information, such as the student's name, all intermediate
+    submissions and prechecks and their times etc is available.
+    See `quizsubmissions.py` for  more information.    
+
 
 ## A note on accessibility
 

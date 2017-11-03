@@ -5,18 +5,23 @@
    with a username or an email gives a QuizAttempt object for the specified
    student. For example
 
-   >>> submissions = QuizSubmissions('lab4download.csv')
-   >>> submissions['zba25']   # Get the QuizAttempt for zba25@uclive.ac.nz
+   >>> quiz_data = QuizSubmissions('lab4download.csv')
+   >>> quiz_attempt = quiz_data['zba25']   # Get the QuizAttempt for zba25@uclive.ac.nz
 
    A QuizAttempt object contains information about the user, when the
    quiz was started, when it was finished and the mark obtained. It also
    contains a list of the submissions made for each question in the form of
    a dictionary mapping from question number to a QuestionAttempt object.
+   For example:
+
+   >>> quiz_attempt.lastname        # The last name of the student
+   >>> quiz_attempt.totalmark       # The total mark obtained
+   >>> quiz_attempt.submissions[2]  # The student's QuestionAttempt for Q2
 
    A QuestionAttempt object contains the name of the question, the quiz slot,
    the mark obtained and a list of all the submissions and actions of the
    student in obtaining that mark in the form of a list of QuestionAttemptStep
-   objects. A QuestionAttempt object provides a get_answer() method to obtain
+   objects. A get_answer() method is also provided to obtain
    the last answer submitted by the student (default), or any of the earlier ones
    (if a specific one is requested). There is also a get_first_right_answer(threshold)
    method that returns the first answer the student submitted that exceeded the
@@ -25,6 +30,15 @@
    A QuestionAttemptStep object contains a time stamp, the action of the
    student ('precheck', 'submit', 'finished') and the answer submitted by
    the student.
+
+   For example:
+
+   >>> question_attempt = quiz_attempt.submissions[2]
+   >>> question_attempt.name   # The name of the question
+   >>> question_attempt.steps  # The set of steps taken by the student
+   >>> question_attempt.get_answer()  # The student's final answer
+   >>> question_attempt.steps[0].time  # The unix timestamp for step 0
+   >>> question_attempt.steps[0].format_time('%Y/%M/%D %h:%m')
 
 
    @author Richard Lobb

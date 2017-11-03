@@ -48,8 +48,7 @@ $PAGE->set_context($coursecontext);
 $PAGE->set_title('Get all quiz attempts');  // TODO: use get_string
 
 if (!has_capability('moodle/grade:viewall', $coursecontext)) {
-    //echo html::tag('p', get_string('unauthoriseddbaccess', 'qtype_coderunner'));
-    echo "<p>UNAUTHORISED TO USE THIS SCRIPT</p>"; // TODO use get_string
+    echo '<p>' . get_string('unauthoriseddbaccess', 'qtype_coderunner') . '</p>';
 } else {
     $table = new table_sql(uniqid());
     $fields = "concat(quiza.uniqueid, qasd.attemptstepid, qasd.id) as uniquekey,

@@ -50,11 +50,7 @@ $courses = $bulktester->get_all_courses();
 // Start display.
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('downloadquizattempts', 'qtype_coderunner'));
-echo html_writer::tag('p', "Click the appropriate course and/or download button
-        for the course and quiz you wish to download. Numbers in parentheses
-        after courses are the number of quizzes in the course with at least
-        two submissions. The numbers in parentheses after the quiz name
-        are the numbers of submissions.");
+echo html_writer::tag('p', get_string('downloadquizattemptshelp', 'qtype_coderunner'));
 
 $coursequizzes = array();
 
@@ -78,13 +74,14 @@ foreach ($courses as $course) {
             numattempts
         FROM {quiz}
         JOIN (
-            SELECT count(*) numattempts, quiz as quizid
+            SELECT count(*) as numattempts, quiz as quizid
             FROM {quiz_attempts}
+            WHERE state='finished'
             GROUP BY quizid
         ) sub
         ON sub.quizid = {quiz}.id
         WHERE course=:courseid
-        AND sub.numattempts > 1
+        AND sub.numattempts > 0
         ORDER BY name", array('courseid'=>$courseid));
 
     if (!empty($quizzes)) {

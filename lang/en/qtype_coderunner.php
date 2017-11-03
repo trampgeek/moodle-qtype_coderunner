@@ -102,7 +102,11 @@ $string['default_penalty_regime_desc'] = 'The default penalty regime to apply to
 
 $string['display'] = 'Display';
 $string['downloadquizattempts'] = 'Download quiz attempts';
-
+$string['downloadquizattemptshelp'] = 'Click the appropriate course and/or download button
+        for the course and quiz you wish to download. Numbers in parentheses
+        after courses are the number of quizzes in the course with at least
+        one submission. The numbers in parentheses after the quiz name
+        are the numbers of submissions.';
 $string['editingcoderunner'] = 'Editing a CodeRunner Question';
 $string['empty_new_prototype_name'] = 'New question type name cannot be empty';
 $string['emptypenaltyregime'] = 'Penalty regime must be defined (since version 3.1)';
@@ -590,6 +594,7 @@ $string['typename'] = 'Question type';
 $string['typerequired'] = 'Please select the type of question (language, format, etc)';
 
 $string['unauthorisedbulktest'] = 'You do not have suitable access to any CodeRunner questions';
+$string['unauthoriseddbaccess'] = 'You are not authorised to use this script';
 $string['unknownerror'] = 'An unexpected error occurred. The sandbox may be down. Try again shortly.';
 $string['useasexample'] = 'Use as example';
 $string['useace'] = 'Use ace';
