@@ -113,7 +113,7 @@ define(['jquery'], function($) {
         // enable or disable both the testsplitterre and the allow multiple
         // stdins field. These are subsequently enabled/disabled via event handlers
         // set up by code in edit_coderunner_form.php (q.v.) but those event
-        // handlers do handle the freshly downloaded state.
+        // handlers do not handle the freshly downloaded state.
         function enableTemplateSupportFields() {
             var isCombinatorEnabled = isCombinator.prop('checked');
 
