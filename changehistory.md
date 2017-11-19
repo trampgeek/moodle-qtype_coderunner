@@ -1,6 +1,6 @@
 # CHANGE HISTORY
 
-### 14 November 2017. 3.2.2
+### 18 November 2017. 3.2.2
 
 * Added an experimental script <coderunnerhome>/question/type/coderunner/downloadquizattempts.php
 to dump the database info on all student quiz activity to a spreadsheet. 
