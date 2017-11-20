@@ -595,3 +595,4 @@ $string['useace'] = 'Use ace';
 $string['validateonsave'] = 'Validate on save';
 
 $string['xmlcoderunnerformaterror'] = 'XML format error in coderunner question';
+$string['replaceexpectedwithgot'] = 'Click on the &lt;&lt; button to replace the expected output of this testcase with actual output.';
