@@ -269,13 +269,11 @@ define(['jquery'], function($) {
 
         // insert buttons that allow users to replace the expected output 
         // with output got from testing the answer program
-        $('<button type="button">&lt;&lt;</button>').click(
-            function() {
-                var gotPre = $(this).prev('[id^="id_got_"]');
-                var testCaseId = gotPre.attr('id').replace('id_got_', '');
-                $('#id_expected_' + testCaseId).val(gotPre.text())
-            }
-        ).insertAfter('[id^="id_got_"]')
+        $('button.replaceexpectedwithgot').click(function() {
+            var gotPre = $(this).prev('pre[id^="id_got_"]');
+            var testCaseId = gotPre.attr('id').replace('id_got_', '');
+            $('#id_expected_' + testCaseId).val(gotPre.text())
+        })
     }
 
     return {initEditForm: initEditForm};
