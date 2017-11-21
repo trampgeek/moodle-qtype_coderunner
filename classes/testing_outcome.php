@@ -155,7 +155,7 @@ class qtype_coderunner_testing_outcome {
                         $failures->data[] = array(
                             html_writer::link('#id_testcode_'.$i, get_string('testcase', 'qtype_coderunner', $i+1) . html_writer::empty_tag('br') . s($testresult->testcode)),
                             html_writer::link('#id_expected_'.$i, html_writer::tag('pre', s($testresult->expected))), 
-                            html_writer::tag('pre', s($testresult->got), array('id' => 'id_got_'.$i)) . html_writer::tag('button', '&lt;&lt;', array('class' => 'replaceexpectedwithgot')),
+                            html_writer::tag('pre', s($testresult->got), array('id' => 'id_got_'.$i)) . html_writer::tag('button', '&lt;&lt;', array('type' => 'button', 'class' => 'replaceexpectedwithgot')),
                         );
                     }
                 }
