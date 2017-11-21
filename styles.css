@@ -103,7 +103,8 @@ body#page-question-type-coderunner .ace_editor {
     margin-bottom: 0px;
 }
 
-.que.coderunner div.coderunner-test-results.good {
+.que.coderunner div.coderunner-test-results.good,
+#page-question-type-coderunner tr.coderunner-failed-test.fixed {
     background-color: #AAFFAA;
 }
 

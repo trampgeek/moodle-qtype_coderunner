@@ -287,13 +287,16 @@ define(['jquery'], function($) {
 
         observer.observe(preloadHdr.get(0), {'attributes': true});
 
-        // insert buttons that allow users to replace the expected output 
-        // with output got from testing the answer program
+        // Setup click handler for the buttons that allow users to replace the
+        // expected output  with the output got from testing the answer program.
         $('button.replaceexpectedwithgot').click(function() {
             var gotPre = $(this).prev('pre[id^="id_got_"]');
             var testCaseId = gotPre.attr('id').replace('id_got_', '');
-            $('#id_expected_' + testCaseId).val(gotPre.text())
-        })
+            $('#id_expected_' + testCaseId).val(gotPre.text());
+            $('#id_fail_expected_' + testCaseId).html(gotPre.text());
+            $('.failrow_' + testCaseId).addClass('fixed');  // Fixed row
+            $(this).prop('disabled', true);
+        });
     }
 
     return {initEditForm: initEditForm};

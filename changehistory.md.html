@@ -1,0 +1,252 @@
+<h1>CHANGE HISTORY</h1>
+
+<h3>18 November 2017. 3.2.2</h3>
+
+<ul>
+<li><p>Added an experimental script <coderunnerhome>/question/type/coderunner/downloadquizattempts.php
+to dump the database info on all student quiz activity to a spreadsheet. 
+The data includes the submitted answers to both prechecks and checks, with
+timestamps. The export format is experimental and may change in the future.
+A Python module <em>quizattempts.py</em> is included too and is the recommended way
+to deal with the quiz attempt download spreadsheet.</p></li>
+<li><p>Bug fix: a submitted answer of '0' (an edge case that might be possible
+when student answer is not code) was being rejected as an empty response, due
+to the use of PHP's <em>empty</em> function. Thanks to David Bowes for the fixes here.</p></li>
+<li><p>Added SQL prototype and 2 simple samples (experimental).</p></li>
+<li><p>Bug fix: testsplitterre and allowmultiplestdin fields of author form were not
+being correctly initialised when a new combinator question type was downloaded
+with AJAX.</p></li>
+</ul>
+
+<h3>22 August 2017. 3.2.1</h3>
+
+<ul>
+<li>Bug fix: result table cells not being sanitised since commit of 19/5/17</li>
+<li>Bug fix: combinator template grader result tables were not hiding hidden
+rows from students but merely colouring them darker.</li>
+</ul>
+
+<h3>6 August 2017. Version 3.2.0</h3>
+
+<ul>
+<li>Add allow<em>multiple</em>stdins option for advanced use of combinator templates.
+This option disables the usual behaviour of running combinator templates
+once for each test when any tests have standard input defined. When enabled,
+the combinator is given all testcases (as when standard input is not present)
+and must itself manage the switching of standard inputs between tests.</li>
+<li>Bug fix: All-or-nothing checkbox was not labelled when using Clean theme</li>
+<li>Bug fix: All-or-nothing grading was not working with per-test-case template
+graders - students were getting partial marks.</li>
+<li>Generate a validate-on-save error message when using a combinator template
+grader that has a test-results table.</li>
+<li>Change <strong>Runtime Error</strong> message to just <strong>Error</strong> since it's not always
+clear what is runtime versus compile time.</li>
+<li>Change DB type of templateparams to text (was char(255)) to allow for
+more elaborate template parameters.</li>
+<li>Use text area for template params rather than a one-line entry field in 
+order to cater for longer multi-line template parameters</li>
+<li>Update the uocprototypes.xml file in the samples directory to the latest
+version.</li>
+<li>Incorporate style changes from Open University (thanks Mahmoud Kassaei) for
+improved accessibility of the Ace editor.</li>
+<li>Fix bug in display of "For example" table when question has customised
+columns/headers.</li>
+<li>Improve various tests, e.g. fork bomb.</li>
+<li>Some documentation updates.</li>
+</ul>
+
+<h3>23 May 2017. Version 3.1.5</h3>
+
+<ul>
+<li>Major bug fix: when grading of questions when precheck enabled, if a student's
+last submission to a question prior to closing the quiz was a precheck that passed, 
+the question would be marked correct.</li>
+<li>Bug fix: sample answer and answer preload fields of author form were not
+using the correct Ace language when the question type was first set.</li>
+<li>Bug fix: validate on save not working with support files on the first
+save of the question.</li>
+<li>Bug fix: Show Differences button was not working in Edge browser.</li>
+<li>Bug fix: questions with precheck=selected were not being correctly saved
+in course backup.</li>
+<li>Various documentation and error message tweaks + code tidying.</li>
+</ul>
+
+<h3>19 March 2017. Version 3.1.4.</h3>
+
+<ul>
+<li>Fix broken code in some of the sample files, update others.</li>
+</ul>
+
+<h3>2 March 2017. Version 3.1.3</h3>
+
+<ul>
+<li>Fix occasional mishandling of whitespace by Show Differences button.</li>
+<li>Fix bug (introduced in 3.1) in display of hidden test cases to students
+  (rather than being suppressed, the hidden test cases were being displayed
+  as repeated versions of the preceding visible test).</li>
+<li>Refine handling of Jobe sandbox errors: improve error messages and ensure
+  no penalty is applied.</li>
+<li>Replace term "Pre-check" with "Precheck" throughout.</li>
+</ul>
+
+<h3>1 February 2017. Version 3.1.2+.</h3>
+
+<ul>
+<li>A couple more tweaks to improve appearance with Boost theme </li>
+<li>Add administrator script to analyse prototype usages in a course
+  (run script <moodlehome>/question/type/coderunner/prototypeusagesindex.php)</li>
+<li>Fix crash if user attempts to validate a new prototype question.</li>
+</ul>
+
+<h3>26 January 2017. Version 3.1.2.</h3>
+
+<p>Minor updates and bug fixes including:</p>
+
+<ul>
+<li>Fix broken layout of question authoring form with Boost theme (V3.1.1)</li>
+<li>Fix bugs in PHP and NodeJS question types</li>
+<li>Add Twig STUDENT variable (thanks David Bowes)</li>
+<li>Fix ACE editor gutter showing through Moodle help popups (thanks Tim Hunt)</li>
+<li>Various documentation updates.</li>
+</ul>
+
+<h3>6 January 2017. Version 3.1.0.</h3>
+
+<p>Another major refactoring with some significant new features including:</p>
+
+<ul>
+<li>A 'Precheck' capability, which presents students with an extra button
+  (beside the 'Check' button) that gives a penalty-free submission with
+  limited checking as defined by the question author.</li>
+<li>An answerbox preload capability, allowing the question author to define
+  some initial text to appear in the question answer box.</li>
+<li>Question authors can request that the sample answer be validated whenever
+  a question is saved.</li>
+<li>Simplification of the template mechanism, combining the combinator template
+  and the pre-test template into a single template plus an 'iscombinator'
+  boolean.</li>
+<li>Reworking of the Show differences button, so it's now implemented entirely
+  in JavaScript, removing the complication of having to specify it via
+  the column header.</li>
+<li>Addition of C++ 'write-a-function' and 'write-a-program' question types</li>
+<li>Improved accessibility for visually-impaired students (thanks to Tim Hunt).
+  The tab key now moves focus through all fields in the question-answering
+  form until the student types or clicks in a field. The Ace editor can be
+  switched off with CTRL/M.</li>
+<li>A bulk tester allows administrators and authors to check that all question
+  sample answers pass all tests (copied, with modifications, from the 
+  Stack question type).</li>
+<li>The 'Multiple tries' section of the authoring form has been removed and
+  a penalty regime is now mandatory. This eliminates the confusion between
+  the standard Moodle static question penalty (now hidden) and the formerly
+  optional penalty regime. The behaviour of legacy questions is unaffected.</li>
+</ul>
+
+<h3>6 January 2017. Version 3.0.2.</h3>
+
+<ul>
+<li>Add nodejs question type to built-ins.</li>
+<li>Fix bug in regular-expression grader when Expected has trailing new lines.</li>
+</ul>
+
+<h3>15 July 2016. Version 3.0.1.</h3>
+
+<p>Minor bug fixes, including:</p>
+
+<ul>
+<li>Use of Show Differences button with questions containing significant
+  white space output resulted in premature line truncation and/or
+  invalid html output</li>
+<li>Ace editor was not doing syntax highlighting for nodejs questions</li>
+<li>Several panels in question authoring form had monospace labels in
+  Moodle 3.1</li>
+</ul>
+
+<p>Also, the documentation for custom template grading has been rewritten.</p>
+
+<h3>8 February 2016. Version 3.0.0.</h3>
+
+<p>A restructured version of the code to conform to Moodle standards. The question behaviour has been deleted from
+this project, and is now a separate github project
+moodle-qbehaviour<em>adaptive</em>adapted<em>for</em>coderunner. The 
+moodle-qtype_coderunner project now contains
+just the question type code, which has been moved up the file hierarchy to the
+top level.</p>
+
+<p>Discontinued features:</p>
+
+<ul>
+<li>The runguard sandbox and the Liu sandbox have both been dropped from
+  this version. Only the Jobe sandbox is officially supported. The
+  ideone sandbox remains as a proof of concept, only. It has never been
+  officially supported.</li>
+<li>Support for upgrading from CodeRunner versions prior to 2.4 has been
+  dropped.</li>
+</ul>
+
+<p>New features:</p>
+
+<ul>
+<li>Built-in difference-checker to allow students to see how their output
+  differs from the expected output (experimental feature)</li>
+<li>Updated documentation.</li>
+</ul>
+
+<h3>23 October 2015. Version 2.5.0.</h3>
+
+<p>Added a feature to display help on the
+selected CodeRunner question type to the question author in an unfoldable
+section on the question author form. The displayed help information is the
+question text from the prototype question that defines the question text.</p>
+
+<p>Also added a feature that allows the author of a question using a template
+grader to abort the test process, e.g. if a pre-run check on the student's
+submission failed.</p>
+
+<h3>15 September 2015. Version 2.4.2.</h3>
+
+<p>Various bug fixes, most notably to fix broken
+export of custom question prototypes. Other minor changes and bug fixes include:</p>
+
+<ul>
+<li>Minor documentation tweaks, e.g. a warning on the perils of duplicating
+  question prototypes and correction to regular expression grader help.</li>
+<li>Fix broken styling of result table with Moodle 2.9 (odd/even row
+  colours weren't happening).</li>
+<li>Improve the error message issued if a prototype fetch fails.</li>
+<li>Fix bug that caused datafiles to get lost when a question was moved to
+  from the special "Default fo quiz" category.</li>
+<li>Improve error message from JobeSandbox e.g. from network failures.</li>
+<li>Fix incompatibility with older (pre 5.4) versions of PHP</li>
+<li>Fix wrong error message issued on inconsistent test cases.</li>
+<li>Fix bug in initialisation of 'ordering' form fields with >15 test cases.</li>
+<li>Remove some obsolete question types.</li>
+<li>Add some new question types to built-ins and to U of Canterbury set.</li>
+<li>Add some demo questions for new users.</li>
+<li>Fix PostgreSQL incompatibility (thanks Arnaud Trouvé)</li>
+<li>Fix bug in question export when multiple prototypes with the same type
+  name exist in different contexts.</li>
+</ul>
+
+<h3>29/1/15. Version 2.4.1.</h3>
+
+<ul>
+<li>Added code to support use of an API-key when accessing a
+jobe server. Fixed bug in advanced question authoring interface - combinator
+template was no longer being disabled when per-test template was edited.</li>
+</ul>
+
+<h3>Dec 2014/Jan 2015. Version 2.4.0.</h3>
+
+<p>Refactored code to conform to Moodle style
+guidelines. Added functionality:</p>
+
+<ul>
+<li>Files can now be attached to prototypes</li>
+<li>An 'ordering' field associated with each test case allows easy reordering
+  of test cases</li>
+<li>Use of Ace code editor for template editing</li>
+<li>Prompt for disabling combinator template when per-test-case template
+  altered</li>
+<li>Improved ability to pass compile and run parameters to Jobe sandbox</li>
+</ul>
