@@ -141,20 +141,29 @@ class qtype_coderunner_testing_outcome {
             return get_string('badquestion', 'qtype_coderunner') . html_writer::tag('pre', $this->errormessage);
         } else if (!$this->iscombinatorgrader()) {  // Combinator grader results table can't be used
             $numerrors = 0;
-            $firstfailure = '';
-            foreach ($this->testresults as $testresult) {
+            $failures = new html_table();
+            $failures->attributes['class'] = 'coderunner-test-results';
+            $failures->head = array(get_string('name'),
+                get_string('expectedcolhdr', 'qtype_coderunner'),
+                get_string('gotcolhdr', 'qtype_coderunner'));
+            $failures->data = array();
+
+            foreach ($this->testresults as $i => $testresult) {
                 if (!$testresult->iscorrect) {
                     $numerrors += 1;
-                    if ($firstfailure === '' && isset($testresult->expected) && isset($testresult->got)) {
-                        $errorhtml = $this->make_error_html($testresult->expected, $testresult->got);
-                        $firstfailure = get_string('firstfailure', 'qtype_coderunner', $errorhtml);
+                    if (isset($testresult->expected) && isset($testresult->got)) {
+                        $failures->data[] = array(
+                            html_writer::link('#id_testcode_'.$i, get_string('testcase', 'qtype_coderunner', $i+1) . html_writer::empty_tag('br') . s($testresult->testcode)),
+                            html_writer::link('#id_expected_'.$i, html_writer::tag('pre', s($testresult->expected))), 
+                            html_writer::tag('pre', s($testresult->got), array('id' => 'id_got_'.$i)) . html_writer::tag('button', '&lt;&lt;', array('type' => 'button', 'class' => 'replaceexpectedwithgot')),
+                        );
                     }
                 }
             }
             $message = get_string('failedntests', 'qtype_coderunner', array(
                 'numerrors' => $numerrors));
-            if ($firstfailure) {
-                $message .= html_writer::empty_tag('br') . $firstfailure;
+            if ($failures->data) {
+                $message .= html_writer::table($failures) . get_string('replaceexpectedwithgot', 'qtype_coderunner');
             } else {
                 $message .= get_string('failedtesting', 'qtype_coderunner');
             }
