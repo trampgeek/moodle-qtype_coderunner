@@ -44,6 +44,10 @@ define(['jquery'], function($) {
                                 function (splitter) {
                                     return splitter.replace('\n', '\\n');
                                 }],
+        allowmultiplestdins: ['#id_allowmultiplestdins', 'checked', '',
+                                function (value) {
+                                    return value === '1' ? true : false;
+                                }],
         grader:              ['#id_grader', 'value', 'EqualityGrader'],
         resultcolumns:       ['#id_resultcolumns', 'value', ''],
         language:            ['#id_language', 'value', ''],
@@ -63,6 +67,9 @@ define(['jquery'], function($) {
             language = $('#id_language'),
             acelang = $('#id_acelang'),
             customise = $('#id_customise'),
+            isCombinator = $('#id_iscombinatortemplate'),
+            testSplitterRe = $('#id_testsplitterre'),
+            allowMultipleStdins = $('#id_allowmultiplestdins'),
             customisationFieldSet = $('#id_customisationheader'),
             advancedCustomisation = $('#id_advancedcustomisationheader'),
             isCustomised = customise.prop('checked'),
@@ -102,6 +109,18 @@ define(['jquery'], function($) {
             }
         }
 
+        // After loading the form with new question type data we have to
+        // enable or disable both the testsplitterre and the allow multiple
+        // stdins field. These are subsequently enabled/disabled via event handlers
+        // set up by code in edit_coderunner_form.php (q.v.) but those event
+        // handlers do not handle the freshly downloaded state.
+        function enableTemplateSupportFields() {
+            var isCombinatorEnabled = isCombinator.prop('checked');
+
+            testSplitterRe.prop('disabled', !isCombinatorEnabled);
+            allowMultipleStdins.prop('disabled', !isCombinatorEnabled);
+        }
+
         // Copy fields from the AJAX "get question type" response into the form.
         function copyFieldsFromQuestionType(newType, response) {
             var formspecifier, attrval, filter;
@@ -119,6 +138,7 @@ define(['jquery'], function($) {
             customise.prop('checked', false);
             questiontypeHelpDiv.html(detailsHtml(newType, response.questiontext));
             setCustomisationVisibility(false);
+            enableTemplateSupportFields();
         }
 
         // A JSON request for a question type returned a 'failure' response - probably a
@@ -168,6 +188,8 @@ define(['jquery'], function($) {
                     function (outcome) {
                         if (outcome.success) {
                             copyFieldsFromQuestionType(newType, outcome);
+                            checkAceStatus('answer');
+                            checkAceStatus('answerpreload');
                         }
                         else {
                             reportError(newType, outcome.error);
@@ -264,6 +286,17 @@ define(['jquery'], function($) {
         });
 
         observer.observe(preloadHdr.get(0), {'attributes': true});
+
+        // Setup click handler for the buttons that allow users to replace the
+        // expected output  with the output got from testing the answer program.
+        $('button.replaceexpectedwithgot').click(function() {
+            var gotPre = $(this).prev('pre[id^="id_got_"]');
+            var testCaseId = gotPre.attr('id').replace('id_got_', '');
+            $('#id_expected_' + testCaseId).val(gotPre.text());
+            $('#id_fail_expected_' + testCaseId).html(gotPre.text());
+            $('.failrow_' + testCaseId).addClass('fixed');  // Fixed row
+            $(this).prop('disabled', true);
+        });
     }
 
     return {initEditForm: initEditForm};

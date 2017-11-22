@@ -34,6 +34,7 @@ import sys
 import shelve
 import random
 
+SERVER = 'https://quiz2017.cosc.canterbury.ac.nz/login/index.php?theme=clean'
 COURSE = 'LoadTesting'
 LANGUAGE = 'PYTHON3'
 NUM_QUESTIONS = 4
@@ -51,57 +52,67 @@ quiz_answers = {
 
 # ==== C ====
 'C': ['''
-float addMul(float a, float b, float c) {
+float addMul(float a, float b, float c)
+{
     return (a + b) * c;
 }
 ''',
 
 '''
-float approx_const(float x) {
-    long long xScaled = x * 1000 + 0.5;
+float approx_const(float xxx)
+{
+    long long xScaled = xxx * 1000 + 0.5;
     return xScaled / 1000.0;
 }
 ''',
 
 '''
-float c_to_f(float c) {
-   return 32.0 + c * 9.0 / 5.0;
+float c_to_f(float ccc)
+{
+    return 32.0 + ccc * 9.0 / 5.0;
 }
 ''',
 
 '''
 #include <stdio.h>
 
-int main() {
-   int n;
-   int i;
-   scanf("%d", &n);
-   for (i = 1; i <= n; i++) {
-       printf("%d", i);
-   }
-   puts("");
-   return 0;
+int main()
+{
+    int n;
+    int i;
+    scanf("%d", &n);
+    for (i = 1; i <= n; i++) {
+        printf("%d", i);
+    }
+    puts("");
+    return 0;
 }
 '''],
 
 # ==== PYTHON3 ====
 
 'PYTHON3': [
-'''def addMul(a, b, c): return (a + b) * c
+'''
+def add_mul(aaa, bbb, ccc):
+    """Return (aaa + bbb) * ccc"""
+    return (aaa + bbb) * ccc
 ''',
 
 '''
-def approx_const(x):
-    xScaled = x * 1000 + 0.5
-    return int(xScaled) / 1000.0
+def approx_const(xxx):
+    """Return xxx rounded to 3 decimal places"""
+    x_scaled = xxx * 1000 + 0.5
+    return int(x_scaled) / 1000.0
 ''',
 
 '''
-def c_to_f(c):
-   return 32.0 + c * 9.0 / 5.0
+def c_to_f(degs_c):
+    """Degs_c converted to degs_f"""
+    return 32.0 + degs_c * 9.0 / 5.0
 ''',
 
 '''
+"""Read n from stdin, print 1 to n without spaces"""
 n = int(input())
 for i in range(1, n+1):
    print(str(i) + ' ', end='')
@@ -152,6 +163,15 @@ end
 """.split(';')
 }
 
+def randomise(answer, language):
+    """Randomise the answer for the given language by inserting a random comment"""
+    comments = {
+        'C': '// ',
+        'MATLAB' : '% ',
+        'PYTHON3' : '# '
+    }
+    comment_line = '\n' + comments[language] + str(random.random()) + '\n'
+    return answer + comment_line
 
 
 def debug(student_num, message):
@@ -173,6 +193,7 @@ def loop_doing_questions(browser, student_num, sim_gap, duration, result_q):
     else:
         lamb = 1.0 / sim_gap
     time_end = time.time() + duration
+    err_outfile = open("loadtesterrors.txt", 'a')
 
     while time.time() < time_end:
         for question in range(FIRST_QUESTION, LAST_QUESTION + 1):
@@ -190,14 +211,14 @@ def loop_doing_questions(browser, student_num, sim_gap, duration, result_q):
             textarea = main_form.controls[4]
 
             debug(student_num, 'Entering code into textarea')
-            quiz_answer = quiz_answers[LANGUAGE][question]
+            quiz_answer = randomise(quiz_answers[LANGUAGE][question], LANGUAGE)
             textarea._value = quiz_answer
 
             br.form = main_form
 
             debug(student_num, 'submit %s code' % LANGUAGE)
             start = time.time()
-            err = 'Wrong answer'
+
 
             br.submit()
             res = br.response()
@@ -211,15 +232,22 @@ def loop_doing_questions(browser, student_num, sim_gap, duration, result_q):
 
                 else:
                     debug(student_num, '***Failed***! Test results returned in %.3f secs' % dt)
+                    err = 'Wrong answer'
 
-                result_q.put((student_num, question, dt, err))
             else:
-                print '****Something went wrong****'
-                print data
+                err = '****Serious error****'
+
+            if err:
+                err_outfile.write(err + "\n" + data + "\n\n")
+
+            result_q.put((student_num, question, dt, err))
+
+
 
             if sim_gap != 0:
                 time.sleep(random.expovariate(lamb))
 
+    err_outfile.close()
 
 
 def quiz_runner(student_num, sim_gap, duration, result_q):
@@ -229,7 +257,7 @@ def quiz_runner(student_num, sim_gap, duration, result_q):
        a result tuple (student, question, time, error) is written to result_q'''
     try:
         print 'Student{} logging in ...'.format(student_num)
-        login = 'https://quiz.cosc.canterbury.ac.nz/login/index.php'
+        login = SERVER
         br = mech.Browser()
         br.set_handle_robots(False)
         br.open(login)

@@ -33,6 +33,7 @@ $string['allornothing_help'] = 'If \'All-or-nothing\' is checked, all test cases
 The per-test-case marks can be specified only if the all-or-nothing checkbox is unchecked.
 
 If using a template grader that awards part marks to test cases, \'All-or-nothing\' should generally be unchecked.';
+$string['allowmultiplestdins'] = 'Allow multiple stdins';
 $string['answer'] = 'Sample answer';
 $string['answerprompt'] = 'Answer:';
 $string['answer_help'] = 'A sample answer can be entered here and used for checking by the question author and optionally shown to students during review. It is also used by the bulk tester script. The correctness of a non-empty answer is checked when saving unless \'Validate on save\' is unchecked';
@@ -52,6 +53,7 @@ $string['asolutionis'] = 'Question author\'s solution:';
 $string['badcputime'] = 'CPU time limit must be left blank or must be an integer greater than zero';
 $string['bad_dotdotdot'] = 'Misuse of \'...\'. Must be at end, after two increasing numeric penalties';
 $string['bademptyprecheck'] = 'Precheck failed with the following unexpected output.';
+$string['bad_empty_splitter'] = 'Test splitter cannot be empty when using a combinator template';
 $string['badjsonorfraction'] = 'Bad JSON or missing fraction in combinator grader output. Output was: {$a->output}';
 $string['badmemlimit'] = 'Memory limit must either be left blank or must be a non-negative integer';
 $string['bad_new_prototype_name'] = 'Illegal name for new prototype: already in use';
@@ -59,8 +61,8 @@ $string['badpenalties'] = 'Penalty regime must be a comma separated list of numb
 $string['badquestion'] = 'Error in question';
 $string['badsandboxparams'] = '\'Other\' field (sandbox params) must be either blank or a valid JSON record';
 $string['badtemplateparams'] = 'Template parameters must be either blank or a valid JSON record';
-$string['brokencombinator'] = 'Broken combinator. Expected {$a->numtests} test results, got {$a->numresults}. Please report this error to your tutor.';
-$string['brokencombinatorgrader'] = 'Bad output from grader: {$a->output}. Please report this error to your tutor.';
+$string['brokencombinator'] = 'Expected {$a->numtests} test results, got {$a->numresults}. Perhaps excessive output or error in question?';
+$string['brokentemplategrader'] = 'Bad output from grader: {$a->output}. Your program execution may have aborted (e.g. a timeout or memory limit exceeded).';
 $string['bulkquestiontester'] = 'The <a href="{$a->link}">bulk tester script</a> tests that the sample answers for all questions in the current context are marked right';
 $string['bulktestcontinuefromhere'] = 'Run again or resume, starting from here';
 $string['bulktestindextitle'] = 'CodeRunner bulk testing';
@@ -99,7 +101,12 @@ $string['default_penalty_regime_desc'] = 'The default penalty regime to apply to
 
 
 $string['display'] = 'Display';
-
+$string['downloadquizattempts'] = 'Download quiz attempts';
+$string['downloadquizattemptshelp'] = 'Click the appropriate course and/or download button
+        for the course and quiz you wish to download. Numbers in parentheses
+        after courses are the number of quizzes in the course with at least
+        one submission. The numbers in parentheses after the quiz name
+        are the numbers of submissions.';
 $string['editingcoderunner'] = 'Editing a CodeRunner Question';
 $string['empty_new_prototype_name'] = 'New question type name cannot be empty';
 $string['emptypenaltyregime'] = 'Penalty regime must be defined (since version 3.1)';
@@ -112,6 +119,8 @@ $string['equalitygrader'] = 'Exact match';
 $string['error_loading_prototype'] = 'Error loading prototype. Network problems or server down, perhaps?';
 $string['errorstring-ok'] = 'OK';
 $string['errorstring-autherror'] = 'Unauthorised to use sandbox';
+$string['errorstring-jobe400'] = 'Error from Jobe sandbox server: ';
+$string['errorstring-overload'] = 'Job could not be run due to server overload. Perhaps try again shortly?';
 $string['errorstring-pastenotfound'] = 'Requesting status of non-existent job';
 $string['errorstring-wronglangid'] = 'Non-existent language requested';
 $string['errorstring-accessdenied'] = 'Access to sandbox denied';
@@ -134,6 +143,7 @@ $string['failedtesting'] = 'Failed testing.';
 $string['fileheader'] = 'Support files';
 $string['filloutoneanswer'] = 'You must enter source code that satisfies the specification. The code you enter will be executed to determine its correctness and a grade awarded accordingly.';
 $string['firstfailure'] = 'First failing test case: {$a}';
+$string['forexample'] = 'For example';
 
 $string['goodemptyprecheck'] = 'Passed';
 $string['gotcolhdr'] = 'Got';
@@ -177,7 +187,8 @@ Result Columns field.
 
 If the template is a combinator, the JSON string output by the template grader
 should again contain a \'fraction\' field, this time for the total mark,
-and may contain zero or more of \'prologuehtml\', \'testresults\' and \'epiloguehtml\'.
+and may contain zero or more of \'prologuehtml\', \'testresults\',
+\'epiloguehtml\' and \'showdifferences\'.
 The \'prologuehtml\' and \'epiloguehtml\' fields are html
 that is displayed respectively before and after the (optional) result table. The
 \'testresults\' field, if given, is a list of lists used to display some sort
@@ -187,7 +198,8 @@ and \'ishidden\'. The \'iscorrect\' column(s) are used to display ticks or
 crosses for 1 or 0 row values respectively. The \'ishidden\' column isn\'t
 actually displayed but 0 or 1 values in the column can be used to turn on and
 off row visibility. Students do not see hidden rows but markers and other
-staff do.
+staff do. The \'showdifferences\' field turns on display of a \'Show Differences\'
+button after the results table if the awarded mark fraction is not 1.0.
 ';
 
 $string['hidden'] = 'Hidden';
@@ -210,7 +222,7 @@ $string['is_prototype'] = 'Use as prototype';
 $string['jobe_apikey'] = 'Jobe API-key';
 $string['jobe_apikey_desc'] = 'The API key to be included in all REST requests to the Jobe server (if required). Max 40 chars. Leave blank to omit the API Key from requests';
 $string['jobe_host'] = 'Jobe server';
-$string['jobe_host_desc'] = 'The host name of the Jobe server plus the port number if other than port 80, e.g. jobe.somewhere.edu:4010';
+$string['jobe_host_desc'] = 'The host name of the Jobe server plus the port number if other than port 80, e.g. jobe.somewhere.edu:4010. The URL for the Jobe request is obtained by prefixing this string with http:// and appending /jobe/index.php/restapi/<REST_METHOD>.';
 
 $string['language'] = 'Sandbox language';
 $string['languages'] = 'Languages';
@@ -409,7 +421,7 @@ $string['resultcolumnsnotlist'] = 'Result columns field must a JSON-encoded list
 $string['resultcolumnspecbad'] = 'Invalid column specifier found: each one must be a list of two or more strings';
 $string['resultstring-norun'] = 'No run';
 $string['resultstring-compilationerror'] = 'Compilation error';
-$string['resultstring-runtimeerror'] = 'Runtime error';
+$string['resultstring-runtimeerror'] = 'Error';
 $string['resultstring-timelimit'] = 'Time limit exceeded';
 $string['resultstring-success'] = 'OK';
 $string['resultstring-memorylimit'] = 'Memory limit exceeded';
@@ -417,6 +429,7 @@ $string['resultstring-illegalsyscall'] = 'Illegal function call';
 $string['resultstring-internalerror'] = 'CodeRunner error (IE): please tell a tutor';
 $string['resultstring-sandboxpending'] = 'CodeRunner error (PD): please tell a tutor';
 $string['resultstring-sandboxpolicy'] = 'CodeRunner error (BP): please tell a tutor';
+$string['resultstring-sandboxoverload'] = 'Sandbox server overload. Perhaps try again soon?';
 $string['resultstring-outputlimit'] = 'Excessive output';
 $string['resultstring-abnormaltermination'] = 'Abnormal termination';
 $string['run_failed'] = 'Failed to run tests';
@@ -440,7 +453,7 @@ The \'Parameters\' entry
 is used to pass further sandbox-specific data, such as compile options and
 API-keys. It should generally be left blank but if non-blank it must be a valid
 JSON record. In the case of the jobe sandbox, available attributes include
-disklimit, streamsize, numprocs, compileargs and interpreterargs. For
+disklimit, streamsize, numprocs, compileargs, linkargs and interpreterargs. For
 example `{"compileargs":["-std=c89"]}` for a C question would force C89
 compliance and no other C options would be used. See the jobe documentation
 for details. Some sandboxes (e.g. Ideone) may silently ignore any or all of
@@ -464,8 +477,9 @@ $string['syntax_errors'] = 'Syntax Error(s)';
 $string['template'] = 'Template';
 $string['template_changed'] = 'Per-test template changed - disable combinator? [\'Cancel\' leaves it enabled.]';
 $string['templatecontrols'] = 'Template controls';
-$string['templatecontrols_help'] = 'Checking the \'Is combinator\' checkbox specifies that the template is a combinator
-template, which combines the student answer plus all test cases into a single run. If this
+$string['templatecontrols_help'] = 'Checking the \'Is combinator\' checkbox
+specifies that the template is a combinator template, which combines (or attempts
+to combine) the student answer plus all test cases into a single run. If this
 checkbox is checked, you will also need to define the value of the test_splitter_re
 field, which is the PHP regular expression used to split the output from the
 program run back into a set of individual test runs. However, you do not need
@@ -474,19 +488,30 @@ template code is responsible for splitting the output itself, and grading it.
 
 Combinator templates do not get passed a TEST Twig variable. Instead they
 receive a variable TESTCASES, which is a list of all the tests in the
-question. The program produced by the template is assumed to combine the
-STUDENT_ANSWER and all the TESTCASES into a single program that, when runs
+question. The program produced by the template is generally assumed to combine the
+STUDENT_ANSWER and all the TESTCASES into a single program which, when it is run,
 outputs the test results from each test case, separated by a unique string.
 The separator string is defined by a regular expression given by the form
-field \'test_splitter_re\' below. Combinator templates should not generally
-be used with questions in which each test case has its own standard input,
-though this is possible with sufficient ingenuity.
+field \'test_splitter_re\' below.
+
+However, if testcases have standard input defined, combinator templates become
+problematic. If the template constructs a single program, what should the standard
+input be? The simplest (and default) solution is to
+run the test cases one at a time, using the combinator template to build
+each program, passing it a TESTCASES variable containing just a single test.
+This \'trick\' allows the combinator template to serve a dual role: it behaves
+as a per-test-case template (with a 1-element TESTCASES array) when the question
+author supplies standard input but as a proper combinator (with an n-element
+TESTCASES array) otherwise. To change this behaviour so that the combinator
+receives all testcases, even when stdin is present, check the \'Allow multiple
+stdins\' checkbox.
 
 If a run of the combinator program results in any output to stderr, that
 is interpreted as a run error. To ensure the student gets credit for as many
-valid tests as possible, the system will fall back to running test cases
-one at a time by passing each test case in turn as a single-element list in the
-Twig variable TESTCASES.';
+valid tests as possible, the system behaves as it does when standard input
+is present, falling back to running each test separately. This does not
+apply to combinator graders, however, which are required to deal with all
+runtime errors themselves and must always return a valid JSON outcome.';
 $string['templateerror'] = 'TEMPLATE ERROR';
 $string['templategrader'] = 'Template grader';
 $string['template_help'] = 'The template defines the program(s) that run in the sandbox for a given
@@ -570,6 +595,7 @@ $string['typerequired'] = 'Please select the type of question (language, format,
 
 $string['uitype'] = 'Input UI';
 $string['unauthorisedbulktest'] = 'You do not have suitable access to any CodeRunner questions';
+$string['unauthoriseddbaccess'] = 'You are not authorised to use this script';
 $string['unknownerror'] = 'An unexpected error occurred. The sandbox may be down. Try again shortly.';
 $string['useasexample'] = 'Use as example';
 $string['useace'] = 'Use ace';
@@ -577,3 +603,4 @@ $string['useace'] = 'Use ace';
 $string['validateonsave'] = 'Validate on save';
 
 $string['xmlcoderunnerformaterror'] = 'XML format error in coderunner question';
+$string['replaceexpectedwithgot'] = 'Click on the &lt;&lt; button to replace the expected output of this testcase with actual output.';

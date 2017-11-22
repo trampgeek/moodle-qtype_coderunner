@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="question/type/coderunner/db" VERSION="20170326" COMMENT="XMLDB file for Moodle question/type/coderunner"
+<XMLDB PATH="question/type/coderunner/db" VERSION="20170728" COMMENT="XMLDB file for Moodle question/type/coderunner"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../../lib/xmldb/xmldb.xsd"
 >
@@ -25,9 +25,10 @@
         <FIELD NAME="template" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="The template for this question, expanded by Twig to yield the program to be executed."/>
         <FIELD NAME="iscombinatortemplate" TYPE="int" LENGTH="1" NOTNULL="false" SEQUENCE="false" COMMENT="True iff the template is a combinator template, i.e. takes a list of test cases rather than a single one."/>
         <FIELD NAME="combinatortemplate" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="DEFUNCT: An optional template to be used to combine all tests into a single run"/>
+        <FIELD NAME="allowmultiplestdins" TYPE="int" LENGTH="1" NOTNULL="false" SEQUENCE="false" COMMENT="Normally, if tests each have their own stdin, the combinator is run once for each testcase (as it's then difficult to combine all tests into a single program). Setting this field to true results in the combinator being called once with all test cases present, as happens when there is no stdin."/>
         <FIELD NAME="testsplitterre" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="The regular expression argument to preg_split to split output from the combinator run into the basic tests again. Meaningful only if combinator template provided"/>
         <FIELD NAME="pertesttemplate" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="DEFUNCT: A template to build a test run for each test case. Required."/>
-        <FIELD NAME="templateparams" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="A json-encoded record of extra parameters to pass to the template engine when building the source code to be executed."/>
+        <FIELD NAME="templateparams" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="A json-encoded record of extra parameters to pass to the template engine when building the source code to be executed."/>
         <FIELD NAME="language" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="The programming language, to be passed to the sandbox"/>
         <FIELD NAME="acelang" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="The language to configure the ace editor (if used). Required only if that language is different from the template language, which is what's used by default."/>
         <FIELD NAME="sandbox" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="The PHP class name of a specific sandbox to use. If null, a default one for the language is used."/>

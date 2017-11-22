@@ -21,10 +21,10 @@ Feature: Test editing a CodeRunner question
       | questioncategory | qtype      | name            | template |
       | Test questions   | coderunner | Square function | sqr      |
     And I log in as "teacher1"
-    And I follow "Course 1"
+    And I follow "C1"
     And I navigate to "Question bank" node in "Course administration"
 
-  Scenario: Edit a Short answer question
+  Scenario: Edit a CodeRunner question
     When I click on "Edit" "link" in the "Square function" "table_row"
     And I set the following fields to these values:
       | Question name | |

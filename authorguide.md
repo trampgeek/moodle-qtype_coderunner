@@ -116,6 +116,145 @@ Congratulations. You just wrote your first CodeRunner question.
    was checked. Fix your code, click *Precheck* again, then lastly *Check*.
    Note that no penalties were charged for prechecking.
 
+# Question authoring using the built-in question types
+
+CodeRunner comes with a set of around 13 built-in question types to handle
+simple write-a-program or write-a-function question in
+the most common languages (C, C++, Python, Java, Pascal, PHP and
+Octave). Although experience suggests that most question authors move fairly
+rapidly to write their own question types, familiarity with how the
+built-in question types worth is a necessary first step.
+
+The steps involved in writing a CodeRunner question using one of the built-in
+question types are:
+
+1. Choose your CodeRunner question type.
+
+1. Specify in the question text the code that you wish the student to write.
+
+1. Write a set of tests to check the code the student submits.
+
+1. Write a sample answer.
+
+1. Select any other options, such as the desired penalty regime, precheck
+behaviour and answer box preload.
+
+1. Save your question type and check your sample answer.
+
+Let's look at those steps in more detail.
+
+## Choose your CodeRunner question type.
+
+CodeRunner question authoring form 
+
+The following built-in question types are currently available within CodeRunner:
+
+1. `c_program`
+1. `c_function`
+1. `cpp_program` (C++ program)
+1. `cpp_function` (C++ function)
+1. `python2`
+1. `python3`
+1. `java_program`
+1. `java_class`
+1. `java_method`
+1. `pascal_program`
+1. `pascal_function`
+1. `octave_function`
+1. `php`
+
+By convention, the first part of the name specifies the language in which the
+student answer
+must be written and the rest of the name (if present) indicates the type
+of code unit the student is being asked to write.
+
+Thus for example the question type `cpp_program`
+is used for questions where the student is expected to write an entire stand-alone
+program. The program is tested (usually) by running it with
+given standard input and/or given files.
+
+`cpp_function` instead requires the
+student to write a single function with a specified signature. The student's
+code is then tested by combining it with a *main* function,
+constructed from a given set of tests (each being a fragment of C++ code), 
+so that when the composite program is run, the student's code gets called
+once for each test.
+
+Scripting languages like python and PHP
+generally don't need to distinguish between write-a-function and write-a-program
+questions for reasons that should soon become clear.
+
+The key to understanding CodeRunner question types is the *template* that
+the question type uses to construct the test program from the student code
+plus all the tests that the question author specifies. The `c_function`
+question type, for example, has the following template:
+
+        #include <stdio.h>
+        #include <stdlib.h>
+        #include <ctype.h>
+        #include <string.h>
+        #include <stdbool.h>
+        #include <math.h>
+        #define SEPARATOR "#<ab@17943918#@>#"
+
+        {{ STUDENT_ANSWER }}
+
+        int main() {
+        {% for TEST in TESTCASES %}
+           {
+            {{ TEST.testcode }};
+           }
+            {% if not loop.last %}printf("%s\n", SEPARATOR);{% endif %}
+        {% endfor %}
+            return 0;
+        }
+
+This is a [Twig](http://http://twig.sensiolabs.org/) template that is
+expanded by replacing `{{ STUDENT_ANSWER }}` with the student-supplied
+code and inserting the various tests into the *main* function, 
+repeatedly replacing
+`{{ TEST.testcode }}` with the test code fragment for each test. As a concrete
+example, if the questions asks the student to write a function with signature
+
+`int sqr(int n)`
+
+that returns the square of its parameter *n*, and there are a couple of tests
+specified, say
+
+    printf("%d\n", sqr(-11))
+
+and
+
+    printf("%d\n", sqr(9))
+
+then the result of expanding the template, given a correct student answer,
+would be something like
+
+        #include <stdio.h>
+        #include <stdlib.h>
+        #include <ctype.h>
+        #include <string.h>
+        #include <stdbool.h>
+        #include <math.h>
+        #define SEPARATOR "#<ab@17943918#@>#"
+
+        int sqr(int n) {
+            return n * n;
+        }
+
+        int main() {
+           {
+            printf("%d\n", sqr(-11));
+           }
+            printf("%s\n", SEPARATOR);
+           {
+            printf("%d\n", sqr(9));
+           }
+            return 0;
+        }
+
+
+
 # The rest of this document ...
 ... isn't written yet! Stay tuned.
 

@@ -29,8 +29,8 @@ use qtype_coderunner\constants;
 
 class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testing_outcome {
 
-    public function __construct() {
-        parent::__construct(1, 0);
+    public function __construct($isprecheck) {
+        parent::__construct(1, 0, $isprecheck);
         $this->epiloguehtml = null;
         $this->prologuehtml = null;
         $this->testresults = null;
@@ -55,11 +55,61 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
         return true;
     }
 
+    /**
+     * Construct a customised error message for combinator grading outcomes if
+     * practicable. Use the prologuehtml field (if given) followed by the first
+     * wrong row of the result table if this table has been defined and if it
+     * contains an 'iscorrect' column.
+     * @return type
+     */
+    public function validation_error_message() {
+        $error = '';
+        if (!empty($this->prologuehtml)) {
+            $error = $this->prologuehtml . "<br>";
+        }
+        if (!empty($this->testresults)) {
+            $headerrow = $this->testresults[0];
+            $iscorrectcol = array_search('iscorrect', $headerrow);
+            if ($iscorrectcol !== false) {
+                // Table has the optional 'iscorrect' column so find first fail.
+                foreach(array_slice($this->testresults, 1) as $row) {
+                    if (!$row[$iscorrectcol]) {
+                        $error .= "First failing test:<br>";
+                        for($i = 0; $i < count($row); $i++) {
+                            if ($headerrow[$i] != 'iscorrect' &&
+                                    $headerrow[$i] != 'ishidden') {
+                                $error .= "{$headerrow[$i]}: <pre>{$row[$i]}</pre>";
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        return $error . parent::validation_error_message();
+    }
+
     // Getter methods for use by renderer.
     // ==================================.
 
+    /**
+     * A specialised version of get_test_results. With combinator template
+     * grades the template may or may not choose to return a testresults table.
+     * If there is one, it may or may not have an 'ishidden' column. If it has
+     * one, and if the current user is a student, only the non-hidden rows
+     * of the table should be returned. Otherwise all are returned.
+     * There is no concept of 'hide-rest-if-fail' for combinator template
+     * graders which must do all such logic themselves.
+     * @global type $COURSE the current COURSE (if there is one)
+     * @param qtype_coderunner_question $q The question being rendered (ignored)
+     * @return A table of test results. See the parent class for details.
+     */
     public function get_test_results(qtype_coderunner_question $q) {
-        return $this->testresults;
+        if (empty($this->testresults) || $this->can_view_hidden()) {
+            return $this->testresults;
+        } else {
+            return $this->visible_rows($this->testresults);
+        }
     }
 
     public function get_prologue() {
@@ -68,5 +118,37 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
 
     public function get_epilogue() {
         return empty($this->epiloguehtml) ? '' : $this->epiloguehtml;
+    }
+
+    public function show_differences() {
+        return $this->actualmark != 1.0 && isset($this->showdifferences) &&
+               $this->showdifferences &&  isset($this->testresults);
+    }
+
+
+    // Private method to filter result table so only visible rows are shown
+    // to students. Only called if the user is not allowed to see hidden rows
+    // And if there is a non-null non-empty resulttable.
+    private static function visible_rows($resulttable) {
+        $header = $resulttable[0];
+        $ishiddencolumn = -1;
+        for ($i = 0; $i < count($header); $i++) {
+            if (strtolower($header[$i]) === 'ishidden') {
+                $ishiddencolumn = $i;
+            }
+        }
+        if ($ishiddencolumn === -1) {
+            return $resulttable;  // No ishidden column so all rows visible
+        } else {
+            $rows = array($header);
+            for ($i = 1; $i < count($resulttable); $i++) {
+                $row = $resulttable[$i];
+                if (!$row[$ishiddencolumn]) {
+                    $rows[] = $row;
+                }
+            }
+            return $rows;
+        }
+
     }
 }

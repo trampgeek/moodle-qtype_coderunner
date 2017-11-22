@@ -40,7 +40,8 @@ class qtype_coderunner_edit_form extends question_edit_form {
     const NUM_TESTCASES_ADD = 3;    // Extra empty test cases to add.
     const DEFAULT_NUM_ROWS = 18;    // Answer box rows.
     const DEFAULT_NUM_COLS = 100;   // Answer box columns.
-    const TEMPLATE_PARAM_SIZE = 80; // The size of the template parameter field.
+    const TEMPLATE_PARAM_ROWS = 5;  // The number of rows of the template parameter field.
+    const TEMPLATE_PARAM_COLS = 60; // THe number of columns for the template parameter field.
     const RESULT_COLUMNS_SIZE = 80; // The size of the resultcolumns field.
 
     public function qtype() {
@@ -379,6 +380,10 @@ class qtype_coderunner_edit_form extends question_edit_form {
             $errors = array_merge($errors, $testcaseerrors);
         }
 
+        if ($data['iscombinatortemplate'] && empty($data['testsplitterre'])) {
+            $errors['templatecontrols'] = get_string('bad_empty_splitter', 'qtype_coderunner');
+        }
+
         if ($data['prototypetype'] == 2 && ($data['saved_prototype_type'] != 2 ||
                    $data['typename'] != $data['coderunnertype'])) {
             // User-defined prototype, either newly created or undergoing a name change.
@@ -502,7 +507,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
         // Marking controls.
         $markingelements = array();
-        $markingelements[] = $mform->createElement('advcheckbox', 'allornothing',
+        $markingelements[] = $mform->createElement('advcheckbox', 'allornothing', null,
                 get_string('allornothing', 'qtype_coderunner'));
         $markingelements[] = $mform->CreateElement('text', 'penaltyregime',
             get_string('penaltyregimelabel', 'qtype_coderunner'),
@@ -514,9 +519,9 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->addHelpButton('markinggroup', 'markinggroup', 'qtype_coderunner');
 
         // Template params.
-        $mform->addElement('text', 'templateparams',
+        $mform->addElement('textarea', 'templateparams',
             get_string('templateparams', 'qtype_coderunner'),
-            array('size' => self::TEMPLATE_PARAM_SIZE));
+            array('rows' => self::TEMPLATE_PARAM_ROWS, 'cols' => self::TEMPLATE_PARAM_COLS));
         $mform->setType('templateparams', PARAM_RAW);
         $mform->addHelpButton('templateparams', 'templateparams', 'qtype_coderunner');
     }
@@ -552,6 +557,8 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $templatecontrols = array();
         $templatecontrols[] = $mform->createElement('advcheckbox', 'iscombinatortemplate', null,
                 get_string('iscombinatortemplate', 'qtype_coderunner'));
+        $templatecontrols[] = $mform->createElement('advcheckbox', 'allowmultiplestdins', null,
+                get_string('allowmultiplestdins', 'qtype_coderunner'));
 
         $templatecontrols[] = $mform->createElement('text', 'testsplitterre',
                 get_string('testsplitterre', 'qtype_coderunner'),
@@ -659,8 +666,14 @@ class qtype_coderunner_edit_form extends question_edit_form {
             $languages, null, false);
         $mform->addHelpButton('languages', 'languages', 'qtype_coderunner');
 
+        // IMPORTANT: authorform.js has to set the initial enabled/disabled
+        // status of the testsplitterre and allowmultiplestdins elements
+        // after loading a new question type as the following code apparently
+        // sets up event handlers only for clicks on the iscombinatortemplate
+        // checkbox.
         $mform->disabledIf('typename', 'prototypetype', 'neq', '2');
         $mform->disabledIf('testsplitterre', 'iscombinatortemplate', 'eq', 0);
+        $mform->disabledIf('allowmultiplestdins', 'iscombinatortemplate', 'eq', 0);
     }
 
     // UTILITY FUNCTIONS.
@@ -758,8 +771,8 @@ class qtype_coderunner_edit_form extends question_edit_form {
     private function validate_sample_answer($data) {
         global $DB, $USER;
         $answer = trim($data['answer']);
-        if (empty($answer)) {
-            return '';
+        if ($answer === '') {
+            return $answer;
         }
 
         // Construct a question object containing all the fields from $data.
@@ -768,6 +781,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
             $question->$key = $value;
         }
         $question->isnew = true;
+        $question->filemanagerdraftid = $this->get_file_manager();
 
         // Clean the question object, get inherited fields and run the sample answer.
         $qtype = new qtype_coderunner();
@@ -789,4 +803,19 @@ class qtype_coderunner_edit_form extends question_edit_form {
             return $error;
         }
     }
+
+
+    // Find the filemanager element draftid
+    private function get_file_manager() {
+        $mform = $this->_form;
+        $draftid = null;
+        foreach ($mform->_elements as $element) {
+            if ($element->_type == 'filemanager') {
+                $draftid = (int)$element->getValue();
+                break;
+            }
+        }
+        return $draftid;
+    }
+
 }

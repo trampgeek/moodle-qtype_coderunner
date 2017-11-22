@@ -1,8 +1,8 @@
 @qtype @qtype_coderunner @javascript @prototypetests
-Feature: make_prototype
-  In order to to create more sophisticated CodeRunner questions
+Feature: make_combinator_prototype
+  In order to to create even more sophisticated CodeRunner questions
   As a teacher
-  I must be able to create new question templates
+  I must be able to create new combinator templates
 
   Background:
     Given the following "users" exist:
@@ -20,40 +20,34 @@ Feature: make_prototype
     And I log in as "teacher1"
     And I follow "C1"
     And I navigate to "Question bank" node in "Course administration"
-    # Hack - add question first, then edit it, to avoid ace editor messing up
-    # the setting of textareas. [I can't figure out how to fill them in if
-    # Ace is running.]
-    # Also, have to set a global variable behattesting to suppress normal
-    # module.js autoindent.
-    And I add a "CodeRunner" question filling the form with:
-      | id_coderunnertype | python3                  |
-      | name              | PROTOTYPE_test_prototype |
-      | id_questiontext   | Dummy question text      |
-      | id_useace         |                          |
-      | id_testcode_0     | Dummy test code          |
-    And I click on "a[title='Edit']" "css_element"
-    And I ok any confirm dialogs
+    And I press "Create a new question ..."
+    And I click on "input#item_qtype_coderunner" "css_element" 
+    And I press "Add"
+    And I set the field "id_coderunnertype" to "python3"
+    And I set the field "name" to "PROTOTYPE_test_combinator_prototype"
+    And I set the field "id_questiontext" to "Dummy question text"
+    And I set the field "id_useace" to "0"
     And I set the field "id_customise" to "1"
-    And I set CodeRunner behat testing flag
-    And I set the field "id_iscombinatortemplate" to "0"
     And I set the field "id_template" to:
       """
-      {{STUDENT_ANSWER}}
-
-      print({{TEST.testcode}})
+      {{ STUDENT_ANSWER }}
+      {% for TEST in TESTCASES %}
+      print({{ TEST.testcode }})
+      {% if not loop.last %}
+      print('#<ab@17943918#@>#')
+      {% endif %}
+      {% endfor %}
       """
-    # Hack to scroll window into right place follows
-    And I set the field "Question name" to "prototype acceptance question"
 
     And I click on "a[aria-controls='id_advancedcustomisationheader']" "css_element"
     And I set the field "prototypetype" to "Yes (user defined)"
-    And I set the field "typename" to "python3_test_prototype"
+    And I set the field "typename" to "python3_test_combinator_prototype"
     And I press "id_submitbutton"
 
-    # Now try to add a new question of type python3_test_prototype
+    # Now try to add a new question of type python3_test_combinator_prototype
     And I add a "CodeRunner" question filling the form with:
-      | id_coderunnertype | python3_test_prototype            |
-      | name              | Prototype tester                  |
+      | id_coderunnertype | python3_test_combinator_prototype |
+      | name              | Combinator prototype tester       |
       | id_questiontext   | Write the inevitable sqr function |
       | id_useace         |                                   |
       | id_testcode_0     | sqr(-11)                          |
@@ -61,10 +55,10 @@ Feature: make_prototype
       | id_testcode_1     | sqr(9)                            |
       | id_expected_1     | 81                                |
 
-  Scenario: As a teacher, I get marked right (using per-test-case template) if I submit a correct answer to a CodeRunner question
-    # HACK ALERT: following line selects row 1 because question name (Prototype tester)
-    # comes after the prototype on row 0.
-    When I click on "table#categoryquestions tr.r1 a[title='Preview']" "css_element"
+  Scenario: As a teacher, I get marked right (using combinator template) if I submit a correct answer to a CodeRunner question
+    # HACK ALERT: following line selects row 0 because question name (Combinator prototype tester)
+    # comes before the prototype.
+    When I click on "table#categoryquestions tr.r0 a[title='Preview']" "css_element"
     And I switch to "questionpreview" window
     And I set the field "id_behaviour" to "Adaptive mode"
     And I press "Start again with these options"

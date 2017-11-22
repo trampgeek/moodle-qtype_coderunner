@@ -213,8 +213,8 @@ define(['jquery'], function($) {
         for (var i = 0; i < tableRows.length; i++) {
             row = tableRows[i];
             cells = row.getElementsByTagName('td');
-            expected = cells[expectedCol];
-            got = cells[gotCol];
+            expected = cells[expectedCol].children[0];
+            got = cells[gotCol].children[0];
             f(expected, got);
         }
     }

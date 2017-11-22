@@ -47,7 +47,7 @@ class qtype_coderunner_jobrunner {
 
         $this->question = $question;
         $this->code = $code;
-        $this->testcases = $testcases;
+        $this->testcases = array_values($testcases);
         $this->isprecheck = $isprecheck;
         $this->grader = $question->get_grader();
         $this->sandbox = $question->get_sandbox();
@@ -63,6 +63,7 @@ class qtype_coderunner_jobrunner {
             'autoescape' => false,
             'optimizations' => 0
         ));
+        $this->twig->addExtension(new Twig_Extension_Debug());
 
         $twigcore = $this->twig->getExtension('core');
         $twigcore->setEscaper('py', 'qtype_coderunner_escapers::python');
@@ -82,8 +83,9 @@ class qtype_coderunner_jobrunner {
             'STUDENT' => new qtype_coderunner_student($USER)
          );
 
-        if ($question->get_is_combinator() and $this->has_no_stdins()) {
-            $outcome = $this->run_combinator();
+        if ($question->get_is_combinator() and
+                ($this->has_no_stdins() || $question->allow_multiple_stdins())) {
+            $outcome = $this->run_combinator($isprecheck);
         } else {
             $outcome = null;
         }
@@ -95,8 +97,7 @@ class qtype_coderunner_jobrunner {
         // a test result for each test case.
 
         if ($outcome == null) {
-            assert (!($question->get_is_combinator() && $this->grader->name() == 'TemplateGrader'));
-            $outcome = $this->run_tests_singly();
+            $outcome = $this->run_tests_singly($isprecheck);
         }
 
         $this->sandbox->close();
@@ -114,11 +115,11 @@ class qtype_coderunner_jobrunner {
     // IS_PRECHECK, which is true if this is a precheck run, TESTCASES,
     // a list of all the test cases and QUESTION, the original question object.
     // Return the testing outcome object if successful else null.
-    private function run_combinator() {
+    private function run_combinator($isprecheck) {
         $numtests = count($this->testcases);
         $this->templateparams['TESTCASES'] = $this->testcases;
         $maxmark = $this->maximum_possible_mark();
-        $outcome = new qtype_coderunner_testing_outcome($maxmark, $numtests);
+        $outcome = new qtype_coderunner_testing_outcome($maxmark, $numtests, $isprecheck);
         try {
             $testprog = $this->twig->render($this->template, $this->templateparams);
         } catch (Exception $e) {
@@ -141,9 +142,9 @@ class qtype_coderunner_jobrunner {
         if ($run->error !== qtype_coderunner_sandbox::OK) {
             $outcome->set_status(
                     qtype_coderunner_testing_outcome::STATUS_SANDBOX_ERROR,
-                    qtype_coderunner_sandbox::error_string($run->error));
+                    qtype_coderunner_sandbox::error_string($run));
         } else if ($this->grader->name() === 'TemplateGrader') {
-            $outcome = $this->do_combinator_grading($run);
+            $outcome = $this->do_combinator_grading($run, $isprecheck);
         } else if ($run->result === qtype_coderunner_sandbox::RESULT_COMPILATION_ERROR) {
             $outcome->set_status(
                     qtype_coderunner_testing_outcome::STATUS_SYNTAX_ERROR,
@@ -169,13 +170,13 @@ class qtype_coderunner_jobrunner {
 
 
     // Run all tests one-by-one on the sandbox.
-    private function run_tests_singly() {
+    private function run_tests_singly($isprecheck) {
         $maxmark = $this->maximum_possible_mark($this->testcases);
         if ($maxmark == 0) {
             $maxmark = 1; // Something silly is happening. Probably running a prototype with no tests.
         }
         $numtests = count($this->testcases);
-        $outcome = new qtype_coderunner_testing_outcome($maxmark, $numtests);
+        $outcome = new qtype_coderunner_testing_outcome($maxmark, $numtests, $isprecheck);
         foreach ($this->testcases as $testcase) {
             if ($this->question->iscombinatortemplate) {
                 $this->templateparams['TESTCASES'] = array($testcase);
@@ -198,7 +199,7 @@ class qtype_coderunner_jobrunner {
             if ($run->error !== qtype_coderunner_sandbox::OK) {
                 $outcome->set_status(
                     qtype_coderunner_testing_outcome::STATUS_SANDBOX_ERROR,
-                    qtype_coderunner_sandbox::error_string($run->error));
+                    qtype_coderunner_sandbox::error_string($run));
                 break;
             } else if ($run->result === qtype_coderunner_sandbox::RESULT_COMPILATION_ERROR) {
                 $outcome->set_status(
@@ -247,10 +248,10 @@ class qtype_coderunner_jobrunner {
      * array of pseudo-test_result objects) and some html for display after
      * the result table.
      */
-    private function do_combinator_grading($run) {
-        $outcome = new qtype_coderunner_combinator_grader_outcome();
+    private function do_combinator_grading($run, $isprecheck) {
+        $outcome = new qtype_coderunner_combinator_grader_outcome($isprecheck);
         if ($run->result !== qtype_coderunner_sandbox::RESULT_SUCCESS) {
-            $error = get_string('brokencombinatorgrader', 'qtype_coderunner',
+            $error = get_string('brokentemplategrader', 'qtype_coderunner',
                     array('output' => $run->cmpinfo . "\n" . $run->stderr));
             $outcome->set_status(qtype_coderunner_testing_outcome::STATUS_BAD_COMBINATOR, $error);
         } else {
@@ -271,7 +272,8 @@ class qtype_coderunner_jobrunner {
                     $result->feedbackhtml = $result->feedback_html; // Change to modern version.
                     unset($result->feedback_html);
                 }
-                foreach (array('prologuehtml', 'testresults', 'epiloguehtml', 'feedbackhtml') as $key) {
+                foreach (array('prologuehtml', 'testresults', 'epiloguehtml',
+                    'feedbackhtml', 'showdifferences') as $key) {
                     if (isset($result->$key)) {
                         if ($key === 'feedbackhtml' || $key === 'feedback_html') {
                             // For compatibility with older combinator graders.

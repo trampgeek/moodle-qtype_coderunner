@@ -186,7 +186,37 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
 
         // Coderunner savepoint reached.
         upgrade_plugin_savepoint(true, 2017032600, 'qtype', 'coderunner');
+    }
 
+
+    if ($oldversion < 2017071100) {
+
+        // Define field allowmultiplestdins to be added to question_coderunner_options.
+        $table = new xmldb_table('question_coderunner_options');
+        $field = new xmldb_field('allowmultiplestdins', XMLDB_TYPE_INTEGER, '1', null, null, null, null, 'combinatortemplate');
+
+        // Conditionally launch add field allowmultiplestdins.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Coderunner savepoint reached.
+        upgrade_plugin_savepoint(true, 2017071100, 'qtype', 'coderunner');
+    
+    }
+
+
+    if ($oldversion < 2017072800) {
+
+        // Changing type of field templateparams on table question_coderunner_options to text.
+        $table = new xmldb_table('question_coderunner_options');
+        $field = new xmldb_field('templateparams', XMLDB_TYPE_TEXT, null, null, null, null, null, 'pertesttemplate');
+
+        // Launch change of type for field templateparams.
+        $dbman->change_field_type($table, $field);
+
+        // Coderunner savepoint reached.
+        upgrade_plugin_savepoint(true, 2017072800, 'qtype', 'coderunner');
     }
 
     require_once(__DIR__ . '/upgradelib.php');

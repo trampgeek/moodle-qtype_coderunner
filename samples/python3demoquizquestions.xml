@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <quiz>
+<!-- question: 0  -->
+  <question type="category">
+    <category>
+        <text>Python Full Demo Quiz</text>
+
+    </category>
+  </question>
 
 <!-- question: 912  -->
   <question type="coderunner">
@@ -7,13 +14,7 @@
       <text>Car</text>
     </name>
     <questiontext format="html">
-      <text><![CDATA[<p>The following question asks the students to write a
-Python3 class to a given specification. This can be done with any standard
-Python3 question type in which the student's code is followed by the
-per-test-case code. This particular example uses our COSC121 question
-type, which enforces pylint compatibility.</p><p>For those unfamiliar
-with Python classes, a possible solution is hidden in the following white
-panel - click and drag over it to see the code.</p><pre style="color:white; background-color:white">class Car:
+      <text><![CDATA[<p>The following question asks the students to write a Python3 class to a given specification. This can be done with any standard Python3 question type in which the student's code is followed by the per-test-case code. This particular example uses our COSC121 question type, which enforces pylint compatibility.</p><p>For those unfamiliar with Python classes, a possible solution is hidden in the following white panel - click and drag over it to see the code.</p><pre style="color:white; background-color:white">class Car:
     """A class that represents a car with a model, a year
        and a speed, plus accelerate and brake methods to
        alter the speed, plus a honk_horn method.
@@ -60,17 +61,21 @@ panel - click and drag over it to see the code.</p><pre style="color:white; back
       <text></text>
     </generalfeedback>
     <defaultgrade>0.0000000</defaultgrade>
-    <penalty>0.1000000</penalty>
+    <penalty>0.0000000</penalty>
     <hidden>0</hidden>
     <coderunnertype>python3_cosc121</coderunnertype>
     <prototypetype>0</prototypetype>
     <allornothing>1</allornothing>
     <penaltyregime>10, 20, ...</penaltyregime>
+    <precheck>1</precheck>
     <showsource>0</showsource>
     <answerboxlines>18</answerboxlines>
     <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
     <useace>1</useace>
     <resultcolumns></resultcolumns>
+    <template></template>
+    <iscombinatortemplate></iscombinatortemplate>
     <answer><![CDATA[class Car:
     """A class that represents a car with a model, a year
        and a speed, plus accelerate and brake methods to
@@ -93,10 +98,8 @@ panel - click and drag over it to see the code.</p><pre style="color:white; back
     def honk_horn(self):
         """Print a beep-beep message"""
         print("{} goes 'beep beep'".format(self.model))]]></answer>
-    <combinatortemplate></combinatortemplate>
+    <validateonsave>1</validateonsave>
     <testsplitterre></testsplitterre>
-    <enablecombinator></enablecombinator>
-    <pertesttemplate></pertesttemplate>
     <language></language>
     <acelang></acelang>
     <sandbox></sandbox>
@@ -106,7 +109,7 @@ panel - click and drag over it to see the code.</p><pre style="color:white; back
     <sandboxparams></sandboxparams>
     <templateparams></templateparams>
     <testcases>
-      <testcase useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
       <testcode>
                 <text><![CDATA[my_car = Car("Toyota", 1975)
 print(my_car.speed)]]></text>
@@ -124,7 +127,7 @@ print(my_car.speed)]]></text>
                 <text>SHOW</text>
       </display>
     </testcase>
-      <testcase useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
       <testcode>
                 <text><![CDATA[my_car = Car("Zastava", 2001, 30)
 my_car.accelerate()
@@ -145,7 +148,7 @@ print(my_car.speed)]]></text>
                 <text>SHOW</text>
       </display>
     </testcase>
-      <testcase useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
       <testcode>
                 <text><![CDATA[my_car = Car("Ford", 1993)
 my_car.accelerate()
@@ -169,7 +172,7 @@ print(my_car.speed)]]></text>
                 <text>SHOW</text>
       </display>
     </testcase>
-      <testcase useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
       <testcode>
                 <text><![CDATA[my_car = Car("Toyota", 2004, 50)
 my_car.accelerate()
@@ -189,7 +192,7 @@ print(my_car.speed)]]></text>
                 <text>SHOW</text>
       </display>
     </testcase>
-      <testcase useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
       <testcode>
                 <text><![CDATA[my_car = Car("Rust bucket", 1987)
 my_car.honk_horn()]]></text>
@@ -207,7 +210,7 @@ my_car.honk_horn()]]></text>
                 <text>SHOW</text>
       </display>
     </testcase>
-      <testcase useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
       <testcode>
                 <text><![CDATA[my_car = Car("Ford", 2001, 5)
 my_car.accelerate()
@@ -243,9 +246,9 @@ print(my_car.speed)]]></text>
 <p><b>The question</b></p>
 <p>Rewrite the following code, which uses <span style="font-family: 'courier new', courier, monospace;">for</span> loops, so that it uses <span style="font-family: 'courier new', courier, monospace;">while</span> loops instead. Your function must not use <i>any</i> for loops and must remain pylint compliant.</p>
 <pre>def print_names(people):
-    """A function to print a list of people's names. The parameter
-        people is a list that represents a person as a list of their
-        name.
+    """ A function to print a list of people's names. The parameter
+        'people' is a list of people, where each person is represented
+        as a list of their names.
     """         
     for person in people:
         to_print = ""
@@ -258,17 +261,21 @@ print(my_car.speed)]]></text>
       <text></text>
     </generalfeedback>
     <defaultgrade>1.0000000</defaultgrade>
-    <penalty>0.1000000</penalty>
+    <penalty>0.0000000</penalty>
     <hidden>0</hidden>
     <coderunnertype>python3_cosc121</coderunnertype>
     <prototypetype>0</prototypetype>
     <allornothing>1</allornothing>
     <penaltyregime>10,20,...</penaltyregime>
+    <precheck>1</precheck>
     <showsource>0</showsource>
     <answerboxlines>18</answerboxlines>
     <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
     <useace>1</useace>
     <resultcolumns></resultcolumns>
+    <template></template>
+    <iscombinatortemplate></iscombinatortemplate>
     <answer><![CDATA[def print_names(people):
     """A function to print a list of people's names. The parameter
         people is a list that represents a person as a list of their
@@ -285,10 +292,8 @@ print(my_car.speed)]]></text>
             j += 1
         print(to_print)
         i += 1]]></answer>
-    <combinatortemplate></combinatortemplate>
+    <validateonsave>1</validateonsave>
     <testsplitterre></testsplitterre>
-    <enablecombinator></enablecombinator>
-    <pertesttemplate></pertesttemplate>
     <language></language>
     <acelang></acelang>
     <sandbox></sandbox>
@@ -298,7 +303,7 @@ print(my_car.speed)]]></text>
     <sandboxparams></sandboxparams>
     <templateparams><![CDATA[{"requiredconstructs":["while"], "proscribedconstructs":["for"]}]]></templateparams>
     <testcases>
-      <testcase useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
       <testcode>
                 <text>print_names([
    ['John', 'Smith'],
@@ -322,7 +327,7 @@ Angus</text>
                 <text>SHOW</text>
       </display>
     </testcase>
-      <testcase useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
       <testcode>
                 <text>print_names([
     ['Bilbo', 'Baggins'],
@@ -347,7 +352,7 @@ Aragorn </text>
                 <text>SHOW</text>
       </display>
     </testcase>
-      <testcase useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
       <testcode>
                 <text>print_names([])</text>
       </testcode>
@@ -504,11 +509,15 @@ main()
     <prototypetype>0</prototypetype>
     <allornothing>1</allornothing>
     <penaltyregime>0</penaltyregime>
+    <precheck>0</precheck>
     <showsource>0</showsource>
     <answerboxlines>18</answerboxlines>
     <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
     <useace>1</useace>
     <resultcolumns></resultcolumns>
+    <template></template>
+    <iscombinatortemplate></iscombinatortemplate>
     <answer><![CDATA['''A GUI-based currency converter program'''
 
 from tkinter import *
@@ -571,10 +580,8 @@ def main():
 
 main()
 ]]></answer>
-    <combinatortemplate></combinatortemplate>
+    <validateonsave>1</validateonsave>
     <testsplitterre></testsplitterre>
-    <enablecombinator></enablecombinator>
-    <pertesttemplate></pertesttemplate>
     <language></language>
     <acelang></acelang>
     <sandbox></sandbox>
@@ -584,7 +591,7 @@ main()
     <sandboxparams></sandboxparams>
     <templateparams></templateparams>
     <testcases>
-      <testcase useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
       <testcode>
                 <text>Check that the initial state contains
 labels 'Currency Converter', 'NZD amount',
@@ -603,7 +610,7 @@ labels 'Currency Converter', 'NZD amount',
                 <text>SHOW</text>
       </display>
     </testcase>
-      <testcase useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
       <testcode>
                 <text>Check that changing the NZD amount to 12.60
 results in the line
@@ -623,7 +630,7 @@ getTk().display()</text>
                 <text>SHOW</text>
       </display>
     </testcase>
-      <testcase useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
       <testcode>
                 <text>Check that changing the NZD amount to 12.60
 and then the combo box to Norwegian Krone
@@ -649,182 +656,37 @@ getTk().display()</text>
     </testcases>
   </question>
 
-<!-- question: 885  -->
-  <question type="coderunner">
-    <name>
-      <text>print squares</text>
-    </name>
-    <questiontext format="html">
-      <text><![CDATA[<h4 style="margin-bottom: 0cm;">A function that prints</h4><p><br></p><p>A common problem for students learning Python is the distinction between functions that return a value ("true" functions) and functions that print output and (preferably) don't return a value ("procedures"). This is an example of the latter.</p><p style="margin-bottom: 0cm;">Write a a function <span style="font-family: 'courier new', 'courier', monospace;">print_sqrs_1_to_n(n)</span>&nbsp;that takes <span style="font-style: normal;">a single positive integer and <strong>prints</strong> a table of all integers and their squares from 1 up to and including <span style="font-family: 'courier new', 'courier', monospace;">n</span>, formatted as below.
-<p>The penalty regime for this question is 5, 15, 25, ... i.e., there is a 5% penalty for the first wrong submission but the penalty thereafter rises by 10% for each wrong submission.]]></text>
-    </questiontext>
-    <generalfeedback format="html">
-      <text></text>
-    </generalfeedback>
-    <defaultgrade>1.0000000</defaultgrade>
-    <penalty>0.1000000</penalty>
-    <hidden>0</hidden>
-    <coderunnertype>python3</coderunnertype>
-    <prototypetype>0</prototypetype>
-    <allornothing>1</allornothing>
-    <penaltyregime>5, 10, 20, ...</penaltyregime>
-    <showsource>0</showsource>
-    <answerboxlines>18</answerboxlines>
-    <answerboxcolumns>100</answerboxcolumns>
-    <useace>1</useace>
-    <resultcolumns></resultcolumns>
-    <answer><![CDATA[def print_sqrs_1_to_n(n):
-    """ Print a display of the squares of all numbers from 1 to
-        the given parameter n.
-    """
-    for i in range(1, n + 1):
-        print("{0} * {0} = {1}".format(i, i * i))]]></answer>
-    <combinatortemplate></combinatortemplate>
-    <testsplitterre></testsplitterre>
-    <enablecombinator></enablecombinator>
-    <pertesttemplate></pertesttemplate>
-    <language></language>
-    <acelang></acelang>
-    <sandbox></sandbox>
-    <grader></grader>
-    <cputimelimitsecs></cputimelimitsecs>
-    <memlimitmb></memlimitmb>
-    <sandboxparams></sandboxparams>
-    <templateparams></templateparams>
-    <testcases>
-      <testcase useasexample="1" hiderestiffail="0" mark="1.0000000" >
-      <testcode>
-                <text>print_sqrs_1_to_n(5)</text>
-      </testcode>
-      <stdin>
-                <text></text>
-      </stdin>
-      <expected>
-                <text>1 * 1 = 1
-2 * 2 = 4
-3 * 3 = 9
-4 * 4 = 16
-5 * 5 = 25</text>
-      </expected>
-      <extra>
-                <text></text>
-      </extra>
-      <display>
-                <text>SHOW</text>
-      </display>
-    </testcase>
-      <testcase useasexample="1" hiderestiffail="0" mark="1.0000000" >
-      <testcode>
-                <text>print_sqrs_1_to_n(3)</text>
-      </testcode>
-      <stdin>
-                <text></text>
-      </stdin>
-      <expected>
-                <text>1 * 1 = 1
-2 * 2 = 4
-3 * 3 = 9</text>
-      </expected>
-      <extra>
-                <text></text>
-      </extra>
-      <display>
-                <text>SHOW</text>
-      </display>
-    </testcase>
-      <testcase useasexample="0" hiderestiffail="0" mark="1.0000000" >
-      <testcode>
-                <text>print_sqrs_1_to_n(1)</text>
-      </testcode>
-      <stdin>
-                <text></text>
-      </stdin>
-      <expected>
-                <text>1 * 1 = 1</text>
-      </expected>
-      <extra>
-                <text></text>
-      </extra>
-      <display>
-                <text>SHOW</text>
-      </display>
-    </testcase>
-      <testcase useasexample="0" hiderestiffail="0" mark="1.0000000" >
-      <testcode>
-                <text>print_sqrs_1_to_n(10)</text>
-      </testcode>
-      <stdin>
-                <text></text>
-      </stdin>
-      <expected>
-                <text>1 * 1 = 1
-2 * 2 = 4
-3 * 3 = 9
-4 * 4 = 16
-5 * 5 = 25
-6 * 6 = 36
-7 * 7 = 49
-8 * 8 = 64
-9 * 9 = 81
-10 * 10 = 100</text>
-      </expected>
-      <extra>
-                <text></text>
-      </extra>
-      <display>
-                <text>SHOW</text>
-      </display>
-    </testcase>
-    </testcases>
-  </question>
-
 <!-- question: 888  -->
   <question type="coderunner">
     <name>
       <text>Process name</text>
     </name>
     <questiontext format="html">
-      <text><![CDATA[<p>The following illustrates a trivial "write a program" question. This question does not use the <i>pylint</i>&nbsp;style checker, so a standard "script" approach, with global code is acceptable. A simple solution might:<br></p><pre>name = input("What is your name? ")
+      <text><![CDATA[<p>The following illustrates a trivial "write a program" question. This question does not use the <i>pylint</i>&nbsp;style checker, so a standard "script" approach, with global code is acceptable. A simple solution might be:<br></p><pre>name = input("What is your name? ")
 print("Welcome to CodeRunner, " + name + ".")
 print("May the force be with you.")
 </pre>
 <hr>
-<p>Write a python3 program that uses the <i>input()</i>&nbsp;function (with a prompt string as shown in the example below) to read a person's name from "standard input" (e.g. the keyboard), and then prints a two-line "Welcome to CodeRunner" message incorporating that name as shown in the example table below. Don't forget to include the period at the end of the message and make sure you have exactly one space after the comma. [This question uses exact matching, so white space matters.]</p>]]></text>
+<p>Write a python3 program that uses the <i>input()</i>&nbsp;function (with a prompt string as shown in the example below) to read a person's name from "standard input" (e.g. the keyboard), and then prints a two-line "Welcome to CodeRunner" message incorporating that name as shown in the example table below. Don't forget to include the periods at the end of the message lines and make sure you have exactly one space after the comma.&nbsp;</p><p>This question uses exact matching, so white space matters. If you can't see why your answer is being marked wrong, click the <i>Show differences</i>&nbsp;button.</p>]]></text>
     </questiontext>
     <generalfeedback format="html">
       <text></text>
     </generalfeedback>
     <defaultgrade>1.0000000</defaultgrade>
-    <penalty>0.3333333</penalty>
+    <penalty>0.0000000</penalty>
     <hidden>0</hidden>
     <coderunnertype>python3</coderunnertype>
     <prototypetype>0</prototypetype>
     <allornothing>1</allornothing>
     <penaltyregime>0, 10, 20, ...</penaltyregime>
+    <precheck>0</precheck>
     <showsource>0</showsource>
     <answerboxlines>8</answerboxlines>
     <answerboxcolumns>70</answerboxcolumns>
+    <answerpreload></answerpreload>
     <useace>1</useace>
     <resultcolumns></resultcolumns>
-    <answer><![CDATA[name = input("What is your name? ")
-print("Welcome to CodeRunner, " + name + ".")
-print("May the force be with you.")
-]]></answer>
-    <combinatortemplate><![CDATA[{{ STUDENT_ANSWER }}
-
-__student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
-
-SEPARATOR = "#<ab@17943918#@>#"
-
-{% for TEST in TESTCASES %}
-{{ TEST.testcode }}
-{% if not loop.last %}
-print(SEPARATOR)
-{% endif %}
-{% endfor %}]]></combinatortemplate>
-    <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
-    <enablecombinator>0</enablecombinator>
-    <pertesttemplate>__saved_input__ = input
+    <template>__saved_input__ = input
 def input(prompt=''):
     s = __saved_input__(prompt)
     print(s)
@@ -833,7 +695,14 @@ def input(prompt=''):
 {{STUDENT_ANSWER}}
 
 
-{{TEST.testcode}}</pertesttemplate>
+{{TEST.testcode}}</template>
+    <iscombinatortemplate>0</iscombinatortemplate>
+    <answer><![CDATA[name = input("What is your name? ")
+print("Welcome to CodeRunner, " + name + ".")
+print("May the force be with you.")
+]]></answer>
+    <validateonsave>1</validateonsave>
+    <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
     <language></language>
     <acelang></acelang>
     <sandbox></sandbox>
@@ -843,7 +712,7 @@ def input(prompt=''):
     <sandboxparams></sandboxparams>
     <templateparams></templateparams>
     <testcases>
-      <testcase useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
       <testcode>
                 <text></text>
       </testcode>
@@ -862,7 +731,7 @@ May the force be with you.</text>
                 <text>SHOW</text>
       </display>
     </testcase>
-      <testcase useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
       <testcode>
                 <text></text>
       </testcode>
@@ -881,7 +750,7 @@ May the force be with you.</text>
                 <text>SHOW</text>
       </display>
     </testcase>
-      <testcase useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
       <testcode>
                 <text></text>
       </testcode>
@@ -910,7 +779,7 @@ May the force be with you.</text>
     </name>
     <questiontext format="html">
       <text><![CDATA[<p></p>
-<h4>Enforcing <i>pylint</i>&nbsp;compliance</h4><p>In our introductory programming course, we usually run student-submitted code through the <i>pylint</i>&nbsp;style checker (see&nbsp;<a href="http://www.pylint.org/">http://www.pylint.org/</a>) before running it. To achieve this we use special extended question types that enforce pylint compliance and various other constraints, such as a limit on how many global constants can be used. Here is the previous question again, but this time requiring a pylint-compliant solution. The penalty regime for this question is 0 to help reduce your frustration. Even so, if you're not familiar with pylint's rules, you'll probably want to give up after a try or two.</p><p>A possible solution to the question is hidden in the following white box; click and drag over it to see the hidden text.</p><pre style="color:white; background-color:white;">'''This solution is pylint compliant'''
+<h4>Enforcing <i>pylint</i>&nbsp;compliance</h4><p>In our introductory programming course, we usually run student-submitted code through the <i>pylint</i>&nbsp;style checker (see&nbsp;<a href="http://www.pylint.org/">http://www.pylint.org/</a>) before running it. To achieve this we use special extended question types that enforce pylint compliance and various other constraints, such as a limit on how many global constants can be used. Here is the previous question again, but this time requiring a pylint-compliant solution. You'll see that there's now a <i>Precheck</i>&nbsp;button, which gives you an unlimited number of penalty-free submissions to pylint before you click <i>Check</i>&nbsp;to see if your code passes the runtime checks.</p><p>A possible solution to the question is hidden in the following white box; click and drag over it to see the hidden text.</p><pre style="color:white; background-color:white;">'''This solution is pylint compliant'''
 def main():
     '''The main function'''
     name = input("What is your name? ")
@@ -925,17 +794,21 @@ main()</pre>
       <text></text>
     </generalfeedback>
     <defaultgrade>1.0000000</defaultgrade>
-    <penalty>0.3333333</penalty>
+    <penalty>0.0000000</penalty>
     <hidden>0</hidden>
     <coderunnertype>python3_cosc121</coderunnertype>
     <prototypetype>0</prototypetype>
     <allornothing>1</allornothing>
     <penaltyregime>0, 10, 20, ...</penaltyregime>
+    <precheck>1</precheck>
     <showsource>0</showsource>
     <answerboxlines>8</answerboxlines>
     <answerboxcolumns>70</answerboxcolumns>
+    <answerpreload></answerpreload>
     <useace>1</useace>
     <resultcolumns></resultcolumns>
+    <template></template>
+    <iscombinatortemplate></iscombinatortemplate>
     <answer><![CDATA['''This solution is pylint compliant'''
 def main():
     '''The main function'''
@@ -945,10 +818,8 @@ def main():
     
 
 main()]]></answer>
-    <combinatortemplate></combinatortemplate>
+    <validateonsave>1</validateonsave>
     <testsplitterre></testsplitterre>
-    <enablecombinator></enablecombinator>
-    <pertesttemplate></pertesttemplate>
     <language></language>
     <acelang></acelang>
     <sandbox></sandbox>
@@ -958,7 +829,7 @@ main()]]></answer>
     <sandboxparams></sandboxparams>
     <templateparams><![CDATA[{"maxnumconstants": 0}]]></templateparams>
     <testcases>
-      <testcase useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
       <testcode>
                 <text></text>
       </testcode>
@@ -977,7 +848,7 @@ May the force be with you.</text>
                 <text>SHOW</text>
       </display>
     </testcase>
-      <testcase useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
       <testcode>
                 <text></text>
       </testcode>
@@ -996,7 +867,7 @@ May the force be with you.</text>
                 <text>SHOW</text>
       </display>
     </testcase>
-      <testcase useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
       <testcode>
                 <text></text>
       </testcode>
@@ -1007,6 +878,136 @@ May the force be with you.</text>
                 <text>What is your name? Rumplestiltskin
 Welcome to CodeRunner, Rumplestiltskin.
 May the force be with you.</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+    </testcases>
+  </question>
+
+<!-- question: 885  -->
+  <question type="coderunner">
+    <name>
+      <text>Python function that prints: print_squares</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<h4 style="margin-bottom: 0cm;">A function that prints</h4><p><br></p><p>A common problem for students learning Python is the distinction between functions that return a value ("true" functions) and functions that print output and (preferably) don't return a value ("procedures"). This is an example of the latter.</p><p style="margin-bottom: 0cm;">Write a Python3 function <span style="font-family: 'courier new', 'courier', monospace;">print_sqrs_1_to_n(n)</span>&nbsp;that takes <span style="font-style: normal;">a single positive integer as a parameter and <strong>prints</strong> a table of all integers and their squares from 1 up to and including <span style="font-family: 'courier new', 'courier', monospace;">n</span>, formatted as below. The output from your function, when called with the code in the Test column, should be exactly as shown in the Result column.</span></p><p>The penalty regime for this question is 5, 15, 25, ... i.e., there is a 5% penalty for the first wrong submission but the penalty thereafter rises by 10% for each wrong submission.</p>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.0000000</penalty>
+    <hidden>0</hidden>
+    <coderunnertype>python3</coderunnertype>
+    <prototypetype>0</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime>5, 10, 20, ...</penaltyregime>
+    <precheck>0</precheck>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
+    <useace>1</useace>
+    <resultcolumns></resultcolumns>
+    <template></template>
+    <iscombinatortemplate></iscombinatortemplate>
+    <answer><![CDATA[def print_sqrs_1_to_n(n):
+    """ Print a display of the squares of all numbers from 1 to
+        the given parameter n.
+    """
+    for i in range(1, n + 1):
+        print("{0} * {0} = {1}".format(i, i * i))]]></answer>
+    <validateonsave>1</validateonsave>
+    <testsplitterre></testsplitterre>
+    <language></language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader></grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams></templateparams>
+    <testcases>
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text>print_sqrs_1_to_n(5)</text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>1 * 1 = 1
+2 * 2 = 4
+3 * 3 = 9
+4 * 4 = 16
+5 * 5 = 25</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text>print_sqrs_1_to_n(3)</text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>1 * 1 = 1
+2 * 2 = 4
+3 * 3 = 9</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text>print_sqrs_1_to_n(1)</text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>1 * 1 = 1</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text>print_sqrs_1_to_n(10)</text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>1 * 1 = 1
+2 * 2 = 4
+3 * 3 = 9
+4 * 4 = 16
+5 * 5 = 25
+6 * 6 = 36
+7 * 7 = 49
+8 * 8 = 64
+9 * 9 = 81
+10 * 10 = 100</text>
       </expected>
       <extra>
                 <text></text>
@@ -1030,17 +1031,21 @@ May the force be with you.</text>
       <text></text>
     </generalfeedback>
     <defaultgrade>1.0000000</defaultgrade>
-    <penalty>0.1000000</penalty>
+    <penalty>0.0000000</penalty>
     <hidden>0</hidden>
     <coderunnertype>python3</coderunnertype>
     <prototypetype>0</prototypetype>
     <allornothing>1</allornothing>
-    <penaltyregime></penaltyregime>
+    <penaltyregime>10, 20, ...</penaltyregime>
+    <precheck>0</precheck>
     <showsource>0</showsource>
     <answerboxlines>18</answerboxlines>
     <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
     <useace>1</useace>
     <resultcolumns></resultcolumns>
+    <template></template>
+    <iscombinatortemplate></iscombinatortemplate>
     <answer><![CDATA[def run_length_encode(nums):
     """Return the run-length-encoded representation of the
        list of ints in 'nums'.
@@ -1059,10 +1064,8 @@ May the force be with you.</text>
     if current is not None:
         result.append((current, count))
     return result]]></answer>
-    <combinatortemplate></combinatortemplate>
+    <validateonsave>1</validateonsave>
     <testsplitterre></testsplitterre>
-    <enablecombinator></enablecombinator>
-    <pertesttemplate></pertesttemplate>
     <language></language>
     <acelang></acelang>
     <sandbox></sandbox>
@@ -1072,7 +1075,7 @@ May the force be with you.</text>
     <sandboxparams></sandboxparams>
     <templateparams></templateparams>
     <testcases>
-      <testcase useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
       <testcode>
                 <text>data = [5,5,5,10,10]
 print(run_length_encode(data))</text>
@@ -1090,7 +1093,7 @@ print(run_length_encode(data))</text>
                 <text>SHOW</text>
       </display>
     </testcase>
-      <testcase useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
       <testcode>
                 <text>data = [10, 20, 30, 30, 30, 30]
 print(run_length_encode(data))</text>
@@ -1108,7 +1111,7 @@ print(run_length_encode(data))</text>
                 <text>SHOW</text>
       </display>
     </testcase>
-      <testcase useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
       <testcode>
                 <text>print(run_length_encode([1]))</text>
       </testcode>
@@ -1125,7 +1128,7 @@ print(run_length_encode(data))</text>
                 <text>SHOW</text>
       </display>
     </testcase>
-      <testcase useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
       <testcode>
                 <text>print(run_length_encode([]))</text>
       </testcode>
@@ -1142,7 +1145,7 @@ print(run_length_encode(data))</text>
                 <text>SHOW</text>
       </display>
     </testcase>
-      <testcase useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
       <testcode>
                 <text>data = [-1, -1, -2, -2, -2, -3, -3, -3, -3]
 print(run_length_encode(data))</text>
@@ -1160,7 +1163,7 @@ print(run_length_encode(data))</text>
                 <text>SHOW</text>
       </display>
     </testcase>
-      <testcase useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
       <testcode>
                 <text>data = [-1, -1, -2, -2, -2, -3, -3, -3]
 print(run_length_encode(data))</text>
@@ -1219,17 +1222,31 @@ print(run_length_encode(data))</text>
       <text></text>
     </generalfeedback>
     <defaultgrade>1.0000000</defaultgrade>
-    <penalty>0.1000000</penalty>
+    <penalty>0.0000000</penalty>
     <hidden>0</hidden>
     <coderunnertype>python3</coderunnertype>
     <prototypetype>0</prototypetype>
     <allornothing>1</allornothing>
     <penaltyregime>10,20,...</penaltyregime>
+    <precheck>0</precheck>
     <showsource>0</showsource>
     <answerboxlines>40</answerboxlines>
     <answerboxcolumns>90</answerboxcolumns>
+    <answerpreload></answerpreload>
     <useace>1</useace>
     <resultcolumns></resultcolumns>
+    <template><![CDATA[__saved_input__ = input
+def input(prompt=""):
+    result = __saved_input__(prompt)
+    print(result)
+    return result
+
+{{STUDENT_ANSWER}}
+
+__student_answer__ = """{{ ESCAPED_STUDENT_ANSWER }}"""
+
+{{TEST.testcode}}]]></template>
+    <iscombinatortemplate>0</iscombinatortemplate>
     <answer><![CDATA["""A possible solution to Skool-is-Kool"""
 
 def get_word(prompt, valid_responses):
@@ -1288,31 +1305,8 @@ def draw_shape():
     
 draw_shape()
 ]]></answer>
-    <combinatortemplate><![CDATA[{{ STUDENT_ANSWER }}
-
-__student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
-
-SEPARATOR = "#<ab@17943918#@>#"
-
-{% for TEST in TESTCASES %}
-{{ TEST.testcode }}
-{% if not loop.last %}
-print(SEPARATOR)
-{% endif %}
-{% endfor %}]]></combinatortemplate>
+    <validateonsave>1</validateonsave>
     <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
-    <enablecombinator>0</enablecombinator>
-    <pertesttemplate><![CDATA[__saved_input__ = input
-def input(prompt=""):
-    result = __saved_input__(prompt)
-    print(result)
-    return result
-
-{{STUDENT_ANSWER}}
-
-__student_answer__ = """{{ ESCAPED_STUDENT_ANSWER }}"""
-
-{{TEST.testcode}}]]></pertesttemplate>
     <language></language>
     <acelang></acelang>
     <sandbox></sandbox>
@@ -1322,7 +1316,7 @@ __student_answer__ = """{{ ESCAPED_STUDENT_ANSWER }}"""
     <sandboxparams></sandboxparams>
     <templateparams></templateparams>
     <testcases>
-      <testcase useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
       <testcode>
                 <text></text>
       </testcode>
@@ -1350,7 +1344,7 @@ Size: 5
                 <text>SHOW</text>
       </display>
     </testcase>
-      <testcase useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
       <testcode>
                 <text></text>
       </testcode>
@@ -1376,7 +1370,7 @@ Size: 4
                 <text>SHOW</text>
       </display>
     </testcase>
-      <testcase useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
       <testcode>
                 <text></text>
       </testcode>
@@ -1403,7 +1397,7 @@ Size: 5
                 <text>SHOW</text>
       </display>
     </testcase>
-      <testcase useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
       <testcode>
                 <text></text>
       </testcode>
@@ -1438,7 +1432,7 @@ Size: 1
                 <text>SHOW</text>
       </display>
     </testcase>
-      <testcase useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
       <testcode>
                 <text></text>
       </testcode>
@@ -1461,7 +1455,7 @@ Size: 1
                 <text>SHOW</text>
       </display>
     </testcase>
-      <testcase useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
       <testcode>
                 <text></text>
       </testcode>
@@ -1484,7 +1478,7 @@ Size: 1
                 <text>SHOW</text>
       </display>
     </testcase>
-      <testcase useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
       <testcode>
                 <text></text>
       </testcode>
@@ -1507,7 +1501,7 @@ Size: 1
                 <text>SHOW</text>
       </display>
     </testcase>
-      <testcase useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
       <testcode>
                 <text></text>
       </testcode>
@@ -1531,7 +1525,7 @@ Size: 2
                 <text>SHOW</text>
       </display>
     </testcase>
-      <testcase useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
       <testcode>
                 <text></text>
       </testcode>
@@ -1555,7 +1549,7 @@ Size: 2
                 <text>SHOW</text>
       </display>
     </testcase>
-      <testcase useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
       <testcode>
                 <text></text>
       </testcode>
@@ -1579,7 +1573,7 @@ Size: 2
                 <text>SHOW</text>
       </display>
     </testcase>
-      <testcase useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
       <testcode>
                 <text></text>
       </testcode>
@@ -1603,7 +1597,7 @@ Size: 2
                 <text>SHOW</text>
       </display>
     </testcase>
-      <testcase useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
       <testcode>
                 <text></text>
       </testcode>
@@ -1709,17 +1703,21 @@ main()</pre>
       <text></text>
     </generalfeedback>
     <defaultgrade>1.0000000</defaultgrade>
-    <penalty>0.1000000</penalty>
+    <penalty>0.0000000</penalty>
     <hidden>0</hidden>
     <coderunnertype>python3_cosc121</coderunnertype>
     <prototypetype>0</prototypetype>
     <allornothing>1</allornothing>
     <penaltyregime>10,20,...</penaltyregime>
+    <precheck>0</precheck>
     <showsource>0</showsource>
     <answerboxlines>40</answerboxlines>
     <answerboxcolumns>90</answerboxcolumns>
+    <answerpreload></answerpreload>
     <useace>1</useace>
     <resultcolumns></resultcolumns>
+    <template></template>
+    <iscombinatortemplate></iscombinatortemplate>
     <answer><![CDATA["""A possible solution to Skool-is-Kool"""
 
 def get_word(prompt, valid_responses):
@@ -1775,13 +1773,14 @@ def draw_shape():
     else:
         assert False
     
+def main():
+    """Call the shape drawing function"""
+    draw_shape()
     
-draw_shape()
+main()
 ]]></answer>
-    <combinatortemplate></combinatortemplate>
+    <validateonsave>1</validateonsave>
     <testsplitterre></testsplitterre>
-    <enablecombinator></enablecombinator>
-    <pertesttemplate></pertesttemplate>
     <language></language>
     <acelang></acelang>
     <sandbox></sandbox>
@@ -1789,9 +1788,9 @@ draw_shape()
     <cputimelimitsecs></cputimelimitsecs>
     <memlimitmb></memlimitmb>
     <sandboxparams></sandboxparams>
-    <templateparams><![CDATA[{"stripmain":True, "runextra":True}]]></templateparams>
+    <templateparams><![CDATA[{"stripmain":true, "runextra":true}]]></templateparams>
     <testcases>
-      <testcase useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
       <testcode>
                 <text># Testing your program
 # as a whole</text>
@@ -1820,7 +1819,7 @@ Size: 5
                 <text>SHOW</text>
       </display>
     </testcase>
-      <testcase useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
       <testcode>
                 <text># Testing your program
 # as a whole</text>
@@ -1848,7 +1847,7 @@ Size: 5
                 <text>HIDE_IF_SUCCEED</text>
       </display>
     </testcase>
-      <testcase useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
       <testcode>
                 <text># Testing your program
 # as a whole</text>
@@ -1884,7 +1883,7 @@ Size: 1
                 <text>SHOW</text>
       </display>
     </testcase>
-      <testcase useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
       <testcode>
                 <text># Testing your program
 # as a whole</text>
@@ -1912,7 +1911,7 @@ Size: 5
                 <text>SHOW</text>
       </display>
     </testcase>
-      <testcase useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
       <testcode>
                 <text># Testing your program
 # as a whole</text>
@@ -1939,7 +1938,7 @@ Size: 4
                 <text>SHOW</text>
       </display>
     </testcase>
-      <testcase useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
       <testcode>
                 <text># Testing your program
 # as a whole</text>
@@ -1963,7 +1962,7 @@ Size: 1
                 <text>HIDE_IF_SUCCEED</text>
       </display>
     </testcase>
-      <testcase useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
       <testcode>
                 <text># Testing your program
 # as a whole</text>
@@ -1987,7 +1986,7 @@ Size: 1
                 <text>HIDE_IF_SUCCEED</text>
       </display>
     </testcase>
-      <testcase useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
       <testcode>
                 <text># Testing your program
 # as a whole</text>
@@ -2011,7 +2010,7 @@ Size: 1
                 <text>HIDE_IF_SUCCEED</text>
       </display>
     </testcase>
-      <testcase useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
       <testcode>
                 <text># Testing your program
 # as a whole</text>
@@ -2036,7 +2035,7 @@ Size: 2
                 <text>HIDE_IF_SUCCEED</text>
       </display>
     </testcase>
-      <testcase useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
       <testcode>
                 <text># Testing your program
 # as a whole</text>
@@ -2061,7 +2060,7 @@ Size: 2
                 <text>HIDE_IF_SUCCEED</text>
       </display>
     </testcase>
-      <testcase useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
       <testcode>
                 <text># Testing your program
 # as a whole</text>
@@ -2086,7 +2085,7 @@ Size: 2
                 <text>HIDE_IF_SUCCEED</text>
       </display>
     </testcase>
-      <testcase useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
       <testcode>
                 <text># Testing your program
 # as a whole</text>
@@ -2111,7 +2110,7 @@ Size: 2
                 <text>HIDE_IF_SUCCEED</text>
       </display>
     </testcase>
-      <testcase useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
       <testcode>
                 <text><![CDATA[# Testing your getWord function
 # Your call to main() is ignored here.
@@ -2146,7 +2145,7 @@ You said ok</text>
                 <text>HIDE_IF_SUCCEED</text>
       </display>
     </testcase>
-      <testcase useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
       <testcode>
                 <text># Testing your draw_square function
 # Your call to main() is ignored here.
@@ -2169,7 +2168,7 @@ draw_square(5, 'unfilled')</text>
                 <text>HIDE_IF_SUCCEED</text>
       </display>
     </testcase>
-      <testcase useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
       <testcode>
                 <text># Testing your draw_triangle function
 # Your call to main() is ignored here.
@@ -2209,24 +2208,26 @@ draw_triangle(5, 'unfilled')</text>
       <text></text>
     </generalfeedback>
     <defaultgrade>1.0000000</defaultgrade>
-    <penalty>0.3333333</penalty>
+    <penalty>0.0000000</penalty>
     <hidden>0</hidden>
     <coderunnertype>python3</coderunnertype>
     <prototypetype>0</prototypetype>
     <allornothing>1</allornothing>
     <penaltyregime>0, 10, 20, ...</penaltyregime>
+    <precheck>0</precheck>
     <showsource>0</showsource>
     <answerboxlines>5</answerboxlines>
     <answerboxcolumns>70</answerboxcolumns>
+    <answerpreload></answerpreload>
     <useace>1</useace>
     <resultcolumns></resultcolumns>
+    <template></template>
+    <iscombinatortemplate></iscombinatortemplate>
     <answer>def sqr(n):
     '''The generic sqr function'''
     return n * n</answer>
-    <combinatortemplate></combinatortemplate>
+    <validateonsave>1</validateonsave>
     <testsplitterre></testsplitterre>
-    <enablecombinator></enablecombinator>
-    <pertesttemplate></pertesttemplate>
     <language></language>
     <acelang></acelang>
     <sandbox></sandbox>
@@ -2236,7 +2237,7 @@ draw_triangle(5, 'unfilled')</text>
     <sandboxparams></sandboxparams>
     <templateparams></templateparams>
     <testcases>
-      <testcase useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
       <testcode>
                 <text>print(sqr(-3))</text>
       </testcode>
@@ -2253,7 +2254,7 @@ draw_triangle(5, 'unfilled')</text>
                 <text>SHOW</text>
       </display>
     </testcase>
-      <testcase useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
       <testcode>
                 <text>print(sqr(11))</text>
       </testcode>
@@ -2270,7 +2271,7 @@ draw_triangle(5, 'unfilled')</text>
                 <text>SHOW</text>
       </display>
     </testcase>
-      <testcase useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
       <testcode>
                 <text>print(sqr(-4))</text>
       </testcode>
@@ -2287,7 +2288,7 @@ draw_triangle(5, 'unfilled')</text>
                 <text>SHOW</text>
       </display>
     </testcase>
-      <testcase useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
       <testcode>
                 <text>print(sqr(0))</text>
       </testcode>
@@ -2304,7 +2305,7 @@ draw_triangle(5, 'unfilled')</text>
                 <text>SHOW</text>
       </display>
     </testcase>
-      <testcase useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
       <testcode>
                 <text>print(sqr(-100))</text>
       </testcode>
@@ -2338,21 +2339,20 @@ draw_triangle(5, 'unfilled')</text>
       <text></text>
     </generalfeedback>
     <defaultgrade>1.0000000</defaultgrade>
-    <penalty>0.3333333</penalty>
+    <penalty>0.0000000</penalty>
     <hidden>0</hidden>
     <coderunnertype>python3</coderunnertype>
     <prototypetype>0</prototypetype>
     <allornothing>1</allornothing>
     <penaltyregime>0, 10, 20, ...</penaltyregime>
+    <precheck>0</precheck>
     <showsource>0</showsource>
     <answerboxlines>5</answerboxlines>
     <answerboxcolumns>70</answerboxcolumns>
+    <answerpreload></answerpreload>
     <useace>1</useace>
     <resultcolumns></resultcolumns>
-    <answer>def sqr(n):
-    '''The generic sqr function'''
-    return n * n</answer>
-    <combinatortemplate><![CDATA[{{ STUDENT_ANSWER }}
+    <template><![CDATA[{{ STUDENT_ANSWER }}
 
 __student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
 
@@ -2363,14 +2363,13 @@ print(repr({{ TEST.testcode }}))
 {% if not loop.last %}
 print(SEPARATOR)
 {% endif %}
-{% endfor %}]]></combinatortemplate>
+{% endfor %}]]></template>
+    <iscombinatortemplate></iscombinatortemplate>
+    <answer>def sqr(n):
+    '''The generic sqr function'''
+    return n * n</answer>
+    <validateonsave>1</validateonsave>
     <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
-    <enablecombinator></enablecombinator>
-    <pertesttemplate><![CDATA[{{STUDENT_ANSWER}}
-
-__student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
-
-print(repr({{TEST.testcode}}))]]></pertesttemplate>
     <language></language>
     <acelang></acelang>
     <sandbox></sandbox>
@@ -2380,7 +2379,7 @@ print(repr({{TEST.testcode}}))]]></pertesttemplate>
     <sandboxparams></sandboxparams>
     <templateparams></templateparams>
     <testcases>
-      <testcase useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
       <testcode>
                 <text>sqr(-3)</text>
       </testcode>
@@ -2397,7 +2396,7 @@ print(repr({{TEST.testcode}}))]]></pertesttemplate>
                 <text>SHOW</text>
       </display>
     </testcase>
-      <testcase useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
       <testcode>
                 <text>sqr(11)</text>
       </testcode>
@@ -2414,7 +2413,7 @@ print(repr({{TEST.testcode}}))]]></pertesttemplate>
                 <text>SHOW</text>
       </display>
     </testcase>
-      <testcase useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
       <testcode>
                 <text>sqr(-4)</text>
       </testcode>
@@ -2431,7 +2430,7 @@ print(repr({{TEST.testcode}}))]]></pertesttemplate>
                 <text>SHOW</text>
       </display>
     </testcase>
-      <testcase useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
       <testcode>
                 <text>sqr(0)</text>
       </testcode>
@@ -2448,7 +2447,7 @@ print(repr({{TEST.testcode}}))]]></pertesttemplate>
                 <text>SHOW</text>
       </display>
     </testcase>
-      <testcase useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
       <testcode>
                 <text>sqr(-100)</text>
       </testcode>
@@ -2490,7 +2489,23 @@ print(repr({{TEST.testcode}}))]]></pertesttemplate>
       <text>Introduction</text>
     </name>
     <questiontext format="html">
-      <text><![CDATA[<h4>Welcome to the CodeRunner Demo Quiz</h4><p>This quiz is a tutorial introduction to CodeRunner questions from simple write-a-function or write-a-program questions through assignment level questions into advanced customised questions to deal with special situations like GUI programming.</p><p>Python3 is used throughout this quiz. If you're not a Python3 programmer you can still look through the range of questions that can be asked. With few exceptions, similar questions can be asked in all supported languages (Python3, Python2, Java, C, C++, PHP, JavaScript, Octave, Pascal) though you might have to write your own prototypes for many of those.</p><p>You can do this quiz as many times as you like. When you submit the whole quiz at the end, you can review your answers and see the author's sample solutions. This is a standard Moodle feature; the quiz administrator can choose whether or not to display so-called "right answers", and various other information at various phases during the quiz.</p><p>We start with <i>write-a-function</i>&nbsp;questions, for which the student must submit a function satisfying the given specs. Since the student's code is run before the test code is run, the student's submission can always include additional support functions if necessary, so the specified function can be almost arbitrarily demanding, such "write a function that compiles a given source file in language X".</p><p>[Note: this quiz is work-in-progress. If new questions get added, all existing submissions will have to be deleted, so you won't necessarily be able to return to the site at a later date and see your answers. If you want to keep them, copy them to your own machine.]</p>]]></text>
+      <text><![CDATA[<h3>Welcome to the CodeRunner Demo Quiz</h3><p>This quiz is a tutorial introduction to CodeRunner questions from simple write-a-function or write-a-program questions through assignment level questions into advanced customised questions to deal with special situations like GUI programming.</p><p>Python3 is used throughout this quiz. If you're not a Python3 programmer you can still look through the range of questions that can be asked. With few exceptions, similar questions can be asked in all supported languages (Python3, Python2, Java, C, C++, PHP, JavaScript, Octave, Pascal) though you might have to write your own prototypes for many of those.</p><p>You can do this quiz as many times as you like. When you submit the whole quiz at the end, you can review your answers and see the author's sample solutions. This is a standard Moodle feature; the quiz administrator can choose whether or not to display so-called "right answers", and various other information at various phases during the quiz.</p><p>We start with <i>write-a-function</i>&nbsp;questions, for which the student must submit a function satisfying the given specs. Since the student's code is run before the test code is run, the student's submission can always include additional support functions if necessary, so the specified function can be almost arbitrarily demanding, such "write a function that compiles a given source file in language X".</p><p>All the questions in this quiz are included in the CodeRunner repository at <a href="https://github.com/trampgeek/CodeRunner">https://github.com/trampgeek/CodeRunner</a>.</p><p>[Note: this quiz is work-in-progress. If new questions get added, all existing submissions will have to be deleted, so you won't necessarily be able to return to the site at a later date and see your answers. If you want to keep them, copy them to your own machine.]</p>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>0.0000000</defaultgrade>
+    <penalty>0.0000000</penalty>
+    <hidden>0</hidden>
+  </question>
+
+<!-- question: 1027  -->
+  <question type="description">
+    <name>
+      <text>Other question types (intro)</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<h4>Other question types</h4><p>The above questions have asked students to write a function (possibly with additional support functions) or to write a whole program. The remaining questions show a few other forms of question. Essentially you can ask&nbsp;<i>any</i>&nbsp;question you like subject to two requirements:</p><p><ol><li>The student submission is a single piece of text (usually, but not necessarily, program code)<br></li><li>You, the question author, are able to write a program that can assess the correctness of that submission.</li></ol></p>]]></text>
     </questiontext>
     <generalfeedback format="html">
       <text></text>
@@ -2506,7 +2521,7 @@ print(repr({{TEST.testcode}}))]]></pertesttemplate>
       <text>Skool-z-kool discussion</text>
     </name>
     <questiontext format="html">
-      <text><![CDATA[<h4>A note on templates</h4><p>The preceding <i>Skool-z-Kool</i>&nbsp;question used the basic Python3 question type, but with the built-in <i>input</i>&nbsp;function replaced by one that echoes the characters read from standard input. This is achieved by customising the question's template in the question-authoring interface. The template is a way to specify how the student's submission, the pre-test-case code and any other testing code are combined to define the program to be run in the sandbox. For the above question, the template was just</p>
+      <text><![CDATA[<h4>A note on templates</h4><p>The preceding <i>Skool-z-Kool</i>&nbsp;question used the basic Python3 question type, but with the built-in <i>input</i>&nbsp;function replaced by one that echoes the characters read from standard input. This is achieved by customising the question's template in the question-authoring interface. The template is a way to specify how the student's submission, the per-test-case code and any other testing code are combined to define the program to be run in the sandbox. For the above question, the template was just</p>
 <pre>__saved_input__ = input
 def input(prompt=""):
     result = __saved_input__(prompt)
