@@ -48,18 +48,20 @@ class qtype_coderunner_util {
             $PAGE->requires->js_call_amd('qtype_coderunner/aceinterface', 'initAce', array($textareaid, $lang));
         }
     }
-    
+
     public static function load_multichoice_if_required($question, $textareaid) {
         global $CFG, $PAGE;
         if ($question->uiplugin == "multichoice") {
             $PAGE->requires->js_call_amd('qtype_coderunner/multichoice', 'initQuestionTA', array($textareaid));
         }
     }
-    
+
     public static function load_fsm_if_required($question, $textareaid) {
         global $PAGE;
+        $keys = array('fsmhelp');
+        $PAGE->requires->strings_for_js($keys, 'qtype_coderunner');
         if ($question->uiplugin == "fsm") {
-            $PAGE->requires->js_call_amd('qtype_coderunner/finitestatemachine', 'initQuestionTA', array($textareaid));
+            $PAGE->requires->js_call_amd('qtype_coderunner/finitestatemachine', 'init', array($textareaid));
         }
     }
 

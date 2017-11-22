@@ -79,7 +79,8 @@ define(['jquery'], function($) {
             courseId = $('input[name="courseid"]').prop('value'),
             questiontypeHelpDiv = $('#qtype-help'),
             precheck = $('select#id_precheck'),
-            testtypedivs = $('div.testtype');
+            testtypedivs = $('div.testtype'),
+            uiplugin = $('#id_uiplugin');
 
         // Check if need to (re-)initialise Ace in a given textarea with a
         // given language.
@@ -93,7 +94,12 @@ define(['jquery'], function($) {
             if (typeof(lang) === 'undefined') {
                 lang = acelang.prop('value') ? acelang.prop('value') : language.prop('value');
             }
-            if (useace.prop('checked') && textareaVisible) {
+            if (textarea === 'template' && useace.prop('checked') && textareaVisible) {
+                require(['qtype_coderunner/aceinterface'], function(AceInterface) {
+                    AceInterface.initAce('id_' + textarea, lang.toLowerCase());
+                });
+            }
+            if (textarea !== 'template' && uiplugin.val() === 'ace' && textareaVisible) {
                 require(['qtype_coderunner/aceinterface'], function(AceInterface) {
                     AceInterface.initAce('id_' + textarea, lang.toLowerCase());
                 });
@@ -224,8 +230,21 @@ define(['jquery'], function($) {
             customise.prop('disabled', true);
         }
 
-        checkAceStatus('answer');
-        checkAceStatus('answerpreload');
+        uiplugin.data("previous-value", uiplugin.val());
+
+        if (uiplugin.val() === 'ace') {
+            // Template is controlled by useace, not uiplugin
+            checkAceStatus('answer');
+            checkAceStatus('answerpreload');
+        }
+
+        if (uiplugin.val() === 'fsm') {
+            // turn the FSM on
+            require(['qtype_coderunner/finitestatemachine'], function(FsmInterface) {
+                FsmInterface.init('id_answer');
+            });
+        }
+
         setCustomisationVisibility(isCustomised);
         if (!isCustomised) {
             loadCustomisationFields();
@@ -252,8 +271,10 @@ define(['jquery'], function($) {
         });
 
         acelang.on('change', function() {
-            checkAceStatus('answer');
-            checkAceStatus('answerpreload');
+            if (uiplugin.val() === 'ace'){
+                checkAceStatus('answer');
+                checkAceStatus('answerpreload');
+            }
         });
 
         typeCombo.on('change', function() {
@@ -267,13 +288,43 @@ define(['jquery'], function($) {
             var isTurningOn = useace.prop('checked');
             if (isTurningOn) {
                 checkAceStatus('template', language.prop('value'));
-                checkAceStatus('answer');
-                checkAceStatus('answerpreload');
             } else {
                 require(['qtype_coderunner/aceinterface'], function(AceInterface) {
                     AceInterface.stopUsingAce();
                 });
             }
+        });
+
+        uiplugin.on('change', function() {
+            var previousValue = uiplugin.data("previous-value");
+
+            if (previousValue === 'ace') {
+                require(['qtype_coderunner/aceinterface'], function(AceInterface) {
+                    // we just want to hide ace in the answer and preload area
+                    AceInterface.destroyAce('id_answer');
+                    AceInterface.destroyAce('id_answerpreload');
+                });
+
+            } else if (previousValue === 'fsm') {
+                // remove FSM
+                $(document.getElementById('id_answer')).show();
+                require(['qtype_coderunner/finitestatemachine'], function(FsmInterface) {
+                    FsmInterface.stop();
+                });
+            }
+
+            uiplugin.data("previous-value", uiplugin.val());
+            if (uiplugin.val() === 'fsm') {
+                // turn the FSM on
+                require(['qtype_coderunner/finitestatemachine'], function(FsmInterface) {
+                    FsmInterface.init('id_answer');
+                });
+            }
+            if (uiplugin.val() === 'ace') {
+                checkAceStatus('answer');
+                checkAceStatus('answerpreload');
+            }
+
         });
 
         precheck.on('change', set_testtype_visibilities);

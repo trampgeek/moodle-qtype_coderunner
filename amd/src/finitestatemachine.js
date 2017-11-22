@@ -29,7 +29,7 @@
 */
 define(['jquery'], function($) {
     var textArea;
-    
+
     function Link(a, b) {
         this.nodeA = a;
         this.nodeB = b;
@@ -109,7 +109,12 @@ define(['jquery'], function($) {
         // draw arc
         c.beginPath();
         if(linkInfo.hasCircle) {
-            c.arc(linkInfo.circleX, linkInfo.circleY, linkInfo.circleRadius, linkInfo.startAngle, linkInfo.endAngle, linkInfo.isReversed);
+            c.arc(linkInfo.circleX,
+                  linkInfo.circleY,
+                  linkInfo.circleRadius,
+                  linkInfo.startAngle,
+                  linkInfo.endAngle,
+                  linkInfo.isReversed);
         } else {
             c.moveTo(linkInfo.startX, linkInfo.startY);
             c.lineTo(linkInfo.endX, linkInfo.endY);
@@ -117,9 +122,15 @@ define(['jquery'], function($) {
         c.stroke();
         // draw the head of the arrow
         if(linkInfo.hasCircle) {
-            drawArrow(c, linkInfo.endX, linkInfo.endY, linkInfo.endAngle - linkInfo.reverseScale * (Math.PI / 2));
+            drawArrow(c,
+                      linkInfo.endX,
+                      linkInfo.endY,
+                      linkInfo.endAngle - linkInfo.reverseScale * (Math.PI / 2));
         } else {
-            drawArrow(c, linkInfo.endX, linkInfo.endY, Math.atan2(linkInfo.endY - linkInfo.startY, linkInfo.endX - linkInfo.startX));
+            drawArrow(c,
+                      linkInfo.endX,
+                      linkInfo.endY,
+                      Math.atan2(linkInfo.endY - linkInfo.startY, linkInfo.endX - linkInfo.startX));
         }
         // draw the text
         if(linkInfo.hasCircle) {
@@ -145,7 +156,7 @@ define(['jquery'], function($) {
         if(linkInfo.hasCircle) {
             var dx = x - linkInfo.circleX;
             var dy = y - linkInfo.circleY;
-            var distance = Math.sqrt(dx*dx + dy*dy) - linkInfo.circleRadius;
+            var distance = Math.sqrt(dx * dx + dy * dy) - linkInfo.circleRadius;
             if(Math.abs(distance) < hitTargetPadding) {
                 var angle = Math.atan2(dy, dx);
                 var startAngle = linkInfo.startAngle;
@@ -168,7 +179,7 @@ define(['jquery'], function($) {
         } else {
             var dx = linkInfo.endX - linkInfo.startX;
             var dy = linkInfo.endY - linkInfo.startY;
-            var length = Math.sqrt(dx*dx + dy*dy);
+            var length = Math.sqrt(dx * dx + dy * dy);
             var percent = (dx * (x - linkInfo.startX) + dy * (y - linkInfo.startY)) / (length * length);
             var distance = (dx * (y - linkInfo.startY) - dy * (x - linkInfo.startX)) / length;
             return (percent > 0 && percent < 1 && Math.abs(distance) < hitTargetPadding);
@@ -223,7 +234,7 @@ define(['jquery'], function($) {
     };
 
     Node.prototype.containsPoint = function(x, y) {
-        return (x - this.x)*(x - this.x) + (y - this.y)*(y - this.y) < nodeRadius*nodeRadius;
+        return (x - this.x) * (x - this.x) + (y - this.y) * (y - this.y) < nodeRadius * nodeRadius;
     };
 
     function SelfLink(node, mouse) {
@@ -233,7 +244,7 @@ define(['jquery'], function($) {
         this.text = '';
 
         if(mouse) {
-                this.setAnchorPoint(mouse.x, mouse.y);
+            this.setAnchorPoint(mouse.x, mouse.y);
         }
     }
 
@@ -299,7 +310,7 @@ define(['jquery'], function($) {
         var linkInfo = this.getEndPointsAndCircle();
         var dx = x - linkInfo.circleX;
         var dy = y - linkInfo.circleY;
-        var distance = Math.sqrt(dx*dx + dy*dy) - linkInfo.circleRadius;
+        var distance = Math.sqrt(dx * dx + dy * dy) - linkInfo.circleRadius;
         return (Math.abs(distance) < hitTargetPadding);
     };
 
@@ -307,7 +318,6 @@ define(['jquery'], function($) {
         this.node = node;
         this.deltaX = 0;
         this.deltaY = 0;
-        this.text = '';
 
         if(start) {
             this.setAnchorPoint(start.x, start.y);
@@ -348,10 +358,6 @@ define(['jquery'], function($) {
         c.lineTo(endPoints.endX, endPoints.endY);
         c.stroke();
 
-        // draw the text at the end without the arrow
-        var textAngle = Math.atan2(endPoints.startY - endPoints.endY, endPoints.startX - endPoints.endX);
-        drawText(c, this.text, endPoints.startX, endPoints.startY, textAngle, selectedObject === this);
-
         // draw the head of the arrow
         drawArrow(c, endPoints.endX, endPoints.endY, Math.atan2(-this.deltaY, -this.deltaX));
     };
@@ -360,7 +366,7 @@ define(['jquery'], function($) {
         var endPoints = this.getEndPoints();
         var dx = endPoints.endX - endPoints.startX;
         var dy = endPoints.endY - endPoints.startY;
-        var length = Math.sqrt(dx*dx + dy*dy);
+        var length = Math.sqrt(dx * dx + dy * dy);
         var percent = (dx * (x - endPoints.startX) + dy * (y - endPoints.startY)) / (length * length);
         var distance = (dx * (y - endPoints.startY) - dy * (x - endPoints.startX)) / length;
         return (percent > 0 && percent < 1 && Math.abs(distance) < hitTargetPadding);
@@ -458,8 +464,10 @@ define(['jquery'], function($) {
 
     function resetCaret() {
         clearInterval(caretTimer);
-        //The following line breaks things for some reason
-        //caretTimer = setInterval('caretVisible = !caretVisible; draw()', 500);
+        caretTimer = setInterval(function() {
+            caretVisible = !caretVisible;
+            draw();
+        }, 500);
         caretVisible = true;
     }
 
@@ -475,10 +483,28 @@ define(['jquery'], function($) {
     var movingObject = false;
     var originalClick;
 
+    function drawHelpBox(c) {
+        c.beginPath();
+        c.fillStyle = 'rgba(119,136,153,0.5)';
+        c.fillRect(750,0,50,25);
+        c.lineWidth = 2;
+        c.strokeStyle = '#000000';
+        c.stroke();
+        c.closePath();
+
+        c.font = '12pt "Times New Roman", serif';
+        c.fillStyle = '#000000';
+        c.textAlign = "center";
+        c.fillText('Help', 775, 17);
+        c.textAlign = "left";
+    }
+
     function drawUsing(c) {
         c.clearRect(0, 0, canvas.width, canvas.height);
         c.save();
         c.translate(0.5, 0.5);
+
+        drawHelpBox(c);
 
         for(var i = 0; i < nodes.length; i++) {
             c.lineWidth = 1;
@@ -500,7 +526,7 @@ define(['jquery'], function($) {
     }
 
     function draw() {
-        drawUsing(canvas.getContext('2d'));       
+        drawUsing(canvas.getContext('2d'));
         saveBackup();
     }
 
@@ -534,22 +560,286 @@ define(['jquery'], function($) {
         }
     }
 
-    function init() {
-        textArea = $(this);
+    var shift = false;
+
+    document.onkeydown = function(e) {
+        var key = crossBrowserKey(e);
+
+        if(key === 16) {
+            shift = true;
+        } else if(!canvasHasFocus()) {
+            // don't read keystrokes when other things have focus
+            return true;
+        } else if(key === 8) { // backspace key
+            if(selectedObject !== null && 'text' in selectedObject) {
+                selectedObject.text = selectedObject.text.substr(0, selectedObject.text.length - 1);
+                resetCaret();
+                draw();
+            }
+
+            // backspace is a shortcut for the back button, but do NOT want to change pages
+            return false;
+        } else if(key === 46) { // delete key
+            if(selectedObject !== null) {
+                for(var i = 0; i < nodes.length; i++) {
+                    if(nodes[i] === selectedObject) {
+                        nodes.splice(i--, 1);
+                    }
+                }
+                for(var i = 0; i < links.length; i++) {
+                    if(links[i] === selectedObject ||
+                       links[i].node === selectedObject ||
+                       links[i].nodeA === selectedObject ||
+                       links[i].nodeB === selectedObject) {
+                        links.splice(i--, 1);
+                    }
+                }
+                selectedObject = null;
+                draw();
+            }
+        } else if(key === 13) { // enter key
+            if(selectedObject !== null) {
+                // deselect the object
+                selectedObject = null;
+                draw();
+            }
+        }
+    };
+
+    document.onkeyup = function(e) {
+        var key = crossBrowserKey(e);
+
+        if(key === 16) {
+            shift = false;
+        }
+    };
+
+    document.onkeypress = function(e) {
+        // don't read keystrokes when other things have focus
+        var key = crossBrowserKey(e);
+        if(!canvasHasFocus()) {
+            // don't read keystrokes when other things have focus
+            return true;
+        } else if(key >= 0x20 &&
+                  key <= 0x7E &&
+                  !e.metaKey &&
+                  !e.altKey &&
+                  !e.ctrlKey &&
+                  selectedObject !== null &&
+                  'text' in selectedObject) {
+            selectedObject.text += String.fromCharCode(key);
+            resetCaret();
+            draw();
+
+            // don't let keys do their actions (like space scrolls down the page)
+            return false;
+        } else if(key === 8) {
+            // backspace is a shortcut for the back button, but do NOT want to change pages
+            return false;
+        }
+    };
+
+    function crossBrowserKey(e) {
+        e = e || window.event;
+        return e.which || e.keyCode;
+    }
+
+    function crossBrowserElementPos(e) {
+        e = e || window.event;
+        var obj = e.target || e.srcElement;
+        var x = 0, y = 0;
+        while(obj.offsetParent) {
+            x += obj.offsetLeft;
+            y += obj.offsetTop;
+            obj = obj.offsetParent;
+        }
+        return { 'x': x, 'y': y };
+    }
+
+    function crossBrowserMousePos(e) {
+        e = e || window.event;
+        return {
+            'x': e.pageX || e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft,
+            'y': e.pageY || e.clientY + document.body.scrollTop + document.documentElement.scrollTop,
+        };
+    }
+
+    function crossBrowserRelativeMousePos(e) {
+        var element = crossBrowserElementPos(e);
+        var mouse = crossBrowserMousePos(e);
+        return {
+            'x': mouse.x - element.x,
+            'y': mouse.y - element.y
+        };
+    }
+
+    function det(a, b, c, d, e, f, g, h, i) {
+        return a * e * i + b * f * g + c * d * h - a * f * h - b * d * i - c * e * g;
+    }
+
+    function circleFromThreePoints(x1, y1, x2, y2, x3, y3) {
+        var a = det(x1, y1, 1, x2, y2, 1, x3, y3, 1);
+        var bx = -det(x1 * x1 + y1 * y1, y1, 1, x2 * x2 + y2 * y2, y2, 1, x3 * x3 + y3 * y3, y3, 1);
+        var by = det(x1 * x1 + y1 * y1, x1, 1, x2 * x2 + y2 * y2, x2, 1, x3 * x3 + y3 * y3, x3, 1);
+        var c = -det(x1 * x1 + y1 * y1, x1, y1, x2 * x2 + y2 * y2, x2, y2, x3 * x3 + y3 * y3, x3, y3);
+        return {
+            'x': -bx / (2 * a),
+            'y': -by / (2 * a),
+            'radius': Math.sqrt(bx * bx + by * by - 4 * a * c) / (2 * Math.abs(a))
+        };
+    }
+
+    function restoreBackup() {
+        if(!JSON) {
+            return;
+        }
+
+        try {
+            // load up the student's previous answer
+            var backup = JSON.parse(textArea.val());
+
+            for(var i = 0; i < backup.nodes.length; i++) {
+                var backupNode = backup.nodes[i];
+                var backupNodeLayout = backup.nodeGeometry[i];
+                var node = new Node(backupNodeLayout[0], backupNodeLayout[1]);
+                node.isAcceptState = backupNode[1];
+                node.text = backupNode[0];
+                nodes.push(node);
+            }
+
+            for(var i = 0; i < backup.edges.length; i++) {
+                var backupLink = backup.edges[i];
+                var backupLinkLayout = backup.edgeGeometry[i];
+                var link = null;
+                if(backupLink[0] === backupLink[1]) {
+                    // self link has two identical nodes
+                    link = new SelfLink(nodes[backupLink[0]]);
+                    link.anchorAngle = backupLinkLayout.anchorAngle;
+                    link.text = backupLink[2];
+                } else if(backupLink[0] === -1) {
+                    link = new StartLink(nodes[backupLink[1]]);
+                    link.deltaX = backupLinkLayout.deltaX;
+                    link.deltaY = backupLinkLayout.deltaY;
+                } else {
+                    link = new Link(nodes[backupLink[0]], nodes[backupLink[1]]);
+                    link.parallelPart = backupLinkLayout.parallelPart;
+                    link.perpendicularPart = backupLinkLayout.perpendicularPart;
+                    link.text = backupLink[2];
+                    link.lineAngleAdjust = backupLinkLayout.lineAngleAdjust;
+                }
+                if(link !== null) {
+                    links.push(link);
+                }
+            }
+        } catch(e) {
+            // error loading previous answer
+        }
+    }
+
+    function saveBackup() {
+        if(!JSON) {
+            return;
+        }
+
+        var backup = {
+            'edgeGeometry': [],
+            'nodeGeometry': [],
+            'nodes': [],
+            'edges': [],
+        };
+
+        for(var i = 0; i < nodes.length; i++) {
+            var node = nodes[i];
+
+            var nodeData = [node.text, node.isAcceptState];
+            var nodeLayout = [node.x, node.y];
+
+            backup.nodeGeometry.push(nodeLayout);
+            backup.nodes.push(nodeData);
+        }
+
+        for(var i = 0; i < links.length; i++) {
+            var link = links[i];
+            var linkData = null;
+            var linkLayout = null;
+
+            if(link instanceof SelfLink) {
+                linkLayout = {
+                    'anchorAngle': link.anchorAngle,
+                };
+                linkData = [nodes.indexOf(link.node), nodes.indexOf(link.node), link.text];
+            } else if(link instanceof StartLink) {
+                linkLayout = {
+                    'deltaX': link.deltaX,
+                    'deltaY': link.deltaY,
+                };
+                linkData = [-1, nodes.indexOf(link.node), ""];
+            } else if(link instanceof Link) {
+                linkLayout = {
+                    'lineAngleAdjust': link.lineAngleAdjust,
+                    'parallelPart': link.parallelPart,
+                    'perpendicularPart': link.perpendicularPart,
+                };
+                linkData = [nodes.indexOf(link.nodeA), nodes.indexOf(link.nodeB), link.text];
+            }
+            if(linkData !== null && linkLayout !== null) {
+                backup.edges.push(linkData);
+                backup.edgeGeometry.push(linkLayout);
+            }
+        }
+        textArea.val(JSON.stringify(backup));
+    }
+
+    var FsmInterface = function() {
+        $(document.body).on('keydown', function(e) {
+            var KEY_M = 77;
+
+            if (e.keyCode === KEY_M && e.ctrlKey && e.altKey) {
+                $(canvas).toggle();
+                $(textArea).toggle();
+            }
+        });
+    };
+
+    var isInside = function(pos, rect){
+        return pos.x > rect.x && pos.x < rect.x + rect.width && pos.y < rect.y + rect.height && pos.y > rect.y;
+    };
+
+    // turn off the FSM editor
+    FsmInterface.prototype.stop = function() {
+        canvas = document.getElementById("canvas");
+        canvas.parentNode.removeChild(canvas);
+    };
+
+    FsmInterface.prototype.init = function(taId) {
+        textArea = $(document.getElementById(taId));
         canvas = document.createElement("canvas");
         canvas.setAttribute("id", "canvas");
         canvas.setAttribute("width", "800");
         canvas.setAttribute("height", "600");
         canvas.setAttribute("style", "background-color: white");
         $(canvas).insertBefore(textArea);
+        $(textArea).hide();
         restoreBackup();
         draw();
+
+        var helpBox = {
+            x:750,
+            y:0,
+            width: 50,
+            height: 25
+        };
 
         canvas.onmousedown = function(e) {
             var mouse = crossBrowserRelativeMousePos(e);
             selectedObject = selectObject(mouse.x, mouse.y);
             movingObject = false;
             originalClick = mouse;
+
+            if (isInside(mouse, helpBox)) {
+                var helptext = M.util.get_string('fsmhelp', 'qtype_coderunner');
+                alert(helptext);
+            }
 
             if(selectedObject !== null) {
                 if(shift && selectedObject instanceof Node) {
@@ -641,263 +931,7 @@ define(['jquery'], function($) {
                 draw();
             }
         };
-    }
-
-    var shift = false; 
-
-    document.onkeydown = function(e) {
-        var key = crossBrowserKey(e);
-
-        if(key === 16) {
-            shift = true;
-        } else if(!canvasHasFocus()) {
-            // don't read keystrokes when other things have focus
-            return true;
-        } else if(key === 8) { // backspace key
-            if(selectedObject !== null && 'text' in selectedObject) {
-                selectedObject.text = selectedObject.text.substr(0, selectedObject.text.length - 1);
-                resetCaret();
-                draw();
-            }
-
-            // backspace is a shortcut for the back button, but do NOT want to change pages
-            return false;
-        } else if(key === 46) { // delete key
-            if(selectedObject !== null) {
-                for(var i = 0; i < nodes.length; i++) {
-                    if(nodes[i] === selectedObject) {
-                        nodes.splice(i--, 1);
-                    }
-                }
-                for(var i = 0; i < links.length; i++) {
-                    if(links[i] === selectedObject ||
-                       links[i].node === selectedObject ||
-                       links[i].nodeA === selectedObject ||
-                       links[i].nodeB === selectedObject) {
-                        links.splice(i--, 1);
-                    }
-                }
-                selectedObject = null;
-                draw();
-            }
-        }
     };
 
-    document.onkeyup = function(e) {
-        var key = crossBrowserKey(e);
-
-        if(key === 16) {
-            shift = false;
-        }
-    };
-
-    document.onkeypress = function(e) {
-        // don't read keystrokes when other things have focus
-        var key = crossBrowserKey(e);
-        if(!canvasHasFocus()) {
-            // don't read keystrokes when other things have focus
-            return true;
-        } else if(key >= 0x20 &&
-                  key <= 0x7E &&
-                  !e.metaKey &&
-                  !e.altKey &&
-                  !e.ctrlKey &&
-                  selectedObject !== null &&
-                  'text' in selectedObject) {
-            selectedObject.text += String.fromCharCode(key);
-            resetCaret();
-            draw();
-
-            // don't let keys do their actions (like space scrolls down the page)
-            return false;
-        } else if(key === 8) {
-            // backspace is a shortcut for the back button, but do NOT want to change pages
-            return false;
-        }
-    };
-
-    function crossBrowserKey(e) {
-        e = e || window.event;
-        return e.which || e.keyCode;
-    }
-
-    function crossBrowserElementPos(e) {
-        e = e || window.event;
-        var obj = e.target || e.srcElement;
-        var x = 0, y = 0;
-        while(obj.offsetParent) {
-            x += obj.offsetLeft;
-            y += obj.offsetTop;
-            obj = obj.offsetParent;
-        }
-        return { 'x': x, 'y': y };
-    }
-
-    function crossBrowserMousePos(e) {
-        e = e || window.event;
-        return {
-            'x': e.pageX || e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft,
-            'y': e.pageY || e.clientY + document.body.scrollTop + document.documentElement.scrollTop,
-        };
-    }
-
-    function crossBrowserRelativeMousePos(e) {
-        var element = crossBrowserElementPos(e);
-        var mouse = crossBrowserMousePos(e);
-        return {
-            'x': mouse.x - element.x,
-            'y': mouse.y - element.y
-        };
-    }
-
-    function det(a, b, c, d, e, f, g, h, i) {
-        return a*e*i + b*f*g + c*d*h - a*f*h - b*d*i - c*e*g;
-    }
-
-    function circleFromThreePoints(x1, y1, x2, y2, x3, y3) {
-        var a = det(x1, y1, 1, x2, y2, 1, x3, y3, 1);
-        var bx = -det(x1*x1 + y1*y1, y1, 1, x2*x2 + y2*y2, y2, 1, x3*x3 + y3*y3, y3, 1);
-        var by = det(x1*x1 + y1*y1, x1, 1, x2*x2 + y2*y2, x2, 1, x3*x3 + y3*y3, x3, 1);
-        var c = -det(x1*x1 + y1*y1, x1, y1, x2*x2 + y2*y2, x2, y2, x3*x3 + y3*y3, x3, y3);
-        return {
-            'x': -bx / (2*a),
-            'y': -by / (2*a),
-            'radius': Math.sqrt(bx*bx + by*by - 4*a*c) / (2*Math.abs(a))
-        };
-    }
-
-    function restoreBackup() {
-        if(!JSON) {
-            return;
-        }
-        
-        try {
-            // load up the student's previous answer
-            var backup = JSON.parse(textArea.val());
-            
-            for(var i = 0; i < backup.nodes.length; i++) {
-                var backupNode = backup.nodes[i];
-                var backupNodeLayout = backup.nodeGeometry[i];
-                var node = new Node(backupNodeLayout.x, backupNodeLayout.y);
-                node.isAcceptState = backupNode.isAcceptState;
-                node.text = backupNode.label;
-                nodes.push(node);
-            }
-            
-            for(var i = 0; i < backup.edges.length; i++) {
-                var backupLink = backup.edges[i];
-                var backupLinkLayout = backup.edgeGeometry[i];
-                var link = null;
-                if(backupLink.type === 'SelfLink') {
-                    link = new SelfLink(nodes[backupLink.fromNode]);
-                    link.anchorAngle = backupLinkLayout.anchorAngle;
-                    link.text = backupLink.label;
-                } else if(backupLink.type === 'StartLink') {
-                    link = new StartLink(nodes[backupLink.fromNode]);
-                    link.deltaX = backupLinkLayout.deltaX;
-                    link.deltaY = backupLinkLayout.deltaY;
-                    link.text = backupLink.label;
-                } else if(backupLink.type === 'Link') {
-                    link = new Link(nodes[backupLink.fromNode], nodes[backupLink.toNode]);
-                    link.parallelPart = backupLinkLayout.parallelPart;
-                    link.perpendicularPart = backupLinkLayout.perpendicularPart;
-                    link.text = backupLink.label;
-                    link.lineAngleAdjust = backupLinkLayout.lineAngleAdjust;
-                }
-                if(link !== null) {
-                    links.push(link);
-                }
-            }
-        } catch(e) {
-            // error loading previous answer
-            console.error(e);
-        }
-    }
-    
-    function saveBackup() {
-        if(!JSON) {
-            return;
-        }
-        
-        var backup = {
-            'edgeGeometry': [],
-            'nodeGeometry': [],
-            'nodes': [],
-            'edges': [],
-        };
-        
-        for(var i = 0; i < nodes.length; i++) {
-            var node = nodes[i];
-            
-            var nodeData = {
-                'label': node.text,
-                'isAcceptState': node.isAcceptState,
-            };
-            var nodeLayout = {
-                'x': node.x,
-                'y': node.y,
-            };
-            
-            backup.nodeGeometry.push(nodeLayout);
-            backup.nodes.push(nodeData);
-        }
-        
-        for(var i = 0; i < links.length; i++) {
-            var link = links[i];
-            var linkData = null;
-            var linkLayout = null;
-            
-            if(link instanceof SelfLink) {
-                linkLayout = {
-                    'anchorAngle': link.anchorAngle,
-                };
-                linkData = {
-                    'fromNode': nodes.indexOf(link.node),
-                    'toNode': nodes.indexOf(link.node),
-                    'label': link.text,
-                    'type': 'SelfLink',
-                };
-            } else if(link instanceof StartLink) {
-                linkLayout = {
-                    'deltaX': link.deltaX,
-                    'deltaY': link.deltaY,
-                };
-                linkData = {
-                    'fromNode': nodes.indexOf(link.node),
-                    'toNode': nodes.indexOf(link.node),
-                    'label': link.text,
-                    'type': 'StartLink',
-                };
-                
-            } else if(link instanceof Link) {
-                linkLayout = {
-                    'lineAngleAdjust': link.lineAngleAdjust,
-                    'parallelPart': link.parallelPart,
-                    'perpendicularPart': link.perpendicularPart,
-                };
-                linkData = {
-                    'fromNode': nodes.indexOf(link.nodeA),
-                    'toNode': nodes.indexOf(link.nodeB),
-                    'label': link.text,
-                    'type': 'Link',
-                };
-            }
-            if(linkData !== null && linkLayout !== null) {
-                backup.edges.push(linkData);
-                backup.edgeGeometry.push(linkLayout);
-            } 
-        }
-        textArea.val(JSON.stringify(backup));
-        
-    }
-      
-   
-    function initQuestionTA(taId) {
-        $(document.getElementById(taId)).each(init);
-    }
-
-    return {
-        init: init,
-        initQuestionTA : initQuestionTA
-    };
+    return new FsmInterface();
 });

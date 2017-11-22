@@ -62,7 +62,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $keys = array('coderunner_question_type', 'confirm_proceed', 'template_changed',
             'info_unavailable', 'proceed_at_own_risk', 'error_loading_prototype',
             'ajax_error', 'prototype_load_failure', 'prototype_error',
-            'coderunner_question_type', 'question_type_changed');
+            'coderunner_question_type', 'question_type_changed', 'fsmhelp');
         $PAGE->requires->strings_for_js($keys, 'qtype_coderunner');
         $PAGE->requires->js_call_amd('qtype_coderunner/textareas', 'setupAllTAs');
         $PAGE->requires->js_call_amd('qtype_coderunner/authorform', 'initEditForm');
@@ -490,7 +490,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->addElement('group', 'answerbox_group', get_string('answerbox_group', 'qtype_coderunner'),
                 $answerboxelements, null, false);
         $mform->addHelpButton('answerbox_group', 'answerbox_group', 'qtype_coderunner');
-        
+
         // Precheck control (currently a group with only one element).
         $precheckelements = array();
         $precheckvalues = array(
@@ -584,8 +584,8 @@ class qtype_coderunner_edit_form extends question_edit_form {
             array('size' => self::RESULT_COLUMNS_SIZE));
         $mform->setType('resultcolumns', PARAM_RAW);
         $mform->addHelpButton('resultcolumns', 'resultcolumns', 'qtype_coderunner');
-        
-        $uicontrols = array();    
+
+        $uicontrols = array();
         $uitypes = [
             "none" => "none",
             "ace" => "ace",

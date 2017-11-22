@@ -1,4 +1,4 @@
-@qtype @qtype_coderunner @javascript @setuiplugintest @emily
+@qtype @qtype_coderunner @javascript @setuiplugintest 
 Feature: Check that a selected UI plugin is saved
   To check that a selected UI Plugin is saved
   As a teacher
@@ -22,19 +22,31 @@ Feature: Check that a selected UI plugin is saved
       | Test questions   | coderunner | Square function | sqr      |
     And I log in as "teacher1"
     And I follow "Course 1"
-    And I follow "Question bank"
     And I navigate to "Question bank" node in "Course administration"
 
-  Scenario: Edit a coderunner UI plugin
+  Scenario: UI plugin is updated for Author
     When I click on "Edit" "link" in the "Square function" "table_row"
     And I set the following fields to these values:
       | customise | 1   |
       | uiplugin  | fsm |
-    And I press "id_updatebutton"
-    Then I should see "fsm"
-    And I press "id_submitbutton"
+    Then I should see a canvas
 
-  Scenario: UI plugin state is saved
+  Scenario: UI plugin state is saved for Author
     When I click on "Edit" "link" in the "Square function" "table_row"
-    Then I should see "fsm"
-   
+    And I click on "a[aria-controls='id_answerhdr']" "css_element"
+    And I set the following fields to these values:
+      | customise | 1   |
+      | uiplugin  | fsm |
+    And I press "id_submitbutton"
+    And I click on "Edit" "link" in the "Square function" "table_row"
+    Then I should see a canvas
+  
+Scenario: UI plugin state is saved for student
+When I click on "Edit" "link" in the "Square function" "table_row"
+    And I set the following fields to these values:
+      | customise | 1   |
+      | uiplugin  | fsm |
+    And I press "id_submitbutton"
+    When I click on "Preview" "link" in the "Square function" "table_row"
+    And I switch to "questionpreview" window
+    Then I should see a canvas

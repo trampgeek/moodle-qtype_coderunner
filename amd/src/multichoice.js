@@ -33,7 +33,6 @@ define(['jquery'], function($) {
 
         var buttonClicker = document.createElement("div");
 
-
         var jsonData = {};
         // First we load jsonData with whatever is in the textArea
         jsonData = JSON.parse(textArea.val());
@@ -42,7 +41,6 @@ define(['jquery'], function($) {
         for (var prop in jsonData) {
             options.push(prop);
         }
-
 
         // Create all the radio buttons
         options.forEach(function(option) {
@@ -57,8 +55,7 @@ define(['jquery'], function($) {
 
             /*creating label for Text to Radio button*/
             var optionLabel = document.createElement("label");
-            optionLabel.style.display =  "inline-block";
-
+            optionLabel.style.display = "inline-block";
 
             /*create text node for label Text which display for Radio button*/
             var optionText = document.createTextNode(option);
@@ -71,7 +68,6 @@ define(['jquery'], function($) {
             buttonClicker.appendChild(optionLabel);
             buttonClicker.appendChild(document.createElement("br"));
         });
-
 
         function updateJson() {
             var radios = document.getElementsByName("multichoice");
@@ -88,7 +84,6 @@ define(['jquery'], function($) {
     function initQuestionTA(taId) {
         $(document.getElementById(taId)).each(initTextArea);
     }
-
 
     return {
         initTextArea: initTextArea,

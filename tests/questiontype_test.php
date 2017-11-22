@@ -80,38 +80,37 @@ class qtype_coderunner_test extends advanced_testcase {
         $this->resetAfterTest(true);
         $this->setAdminUser();
 
-        $questiondata = test_question_maker::get_question_data('coderunner');  
+        $questiondata = test_question_maker::get_question_data('coderunner');
         $formdata = test_question_maker::get_question_form_data('coderunner');
 
         $generator = $this->getDataGenerator()->get_plugin_generator('core_question');
         $cat = $generator->create_question_category(array());
-        
+
         // Mock submit a form with form data
         $formdata->category = "{$cat->id},{$cat->contextid}";
         qtype_coderunner_edit_form::mock_submit((array)$formdata);
 
         $form = qtype_coderunner_test_helper::get_question_editing_form($cat, $questiondata);
         $this->assertTrue($form->is_validated());
-        
+
         $fromform = $form->get_data();
         $returnedfromsave = $this->qtype->save_question($questiondata, $fromform);
-        
+
         $actualquestionsdata = question_load_questions(array($returnedfromsave->id));
         $actualquestiondata = end($actualquestionsdata);
-                    
+
         foreach ($questiondata as $property => $value) {
             if (!in_array($property, array('id', 'version', 'timemodified', 'timecreated', 'options', 'testcases'))) {
                 $this->assertAttributeEquals($value, $property, $actualquestiondata);
             }
         }
-        
+
         foreach ($questiondata->options as $optionname => $value) {
             if ($optionname != 'testcases') {
                 $this->assertAttributeEquals($value, $optionname, $actualquestiondata->options);
             }
         }
-        
-        //TODO: Validate the test cases
 
+        // TODO: Validate the test cases
     }
 }

@@ -186,9 +186,7 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
 
-        // Coderunner savepoint reached.
         upgrade_plugin_savepoint(true, 2017071100, 'qtype', 'coderunner');
-
     }
 
 
