@@ -143,7 +143,7 @@ class qtype_coderunner_testing_outcome {
             $numerrors = 0;
             $failures = new html_table();
             $failures->attributes['class'] = 'coderunner-test-results';
-            $failures->head = array(get_string('name'),
+            $failures->head = array(get_string('testcolhdr', 'qtype_coderunner'),
                 get_string('expectedcolhdr', 'qtype_coderunner'),
                 get_string('gotcolhdr', 'qtype_coderunner'));
             $failures->data = array();
@@ -154,7 +154,9 @@ class qtype_coderunner_testing_outcome {
                     $numerrors += 1;
                     if (isset($testresult->expected) && isset($testresult->got)) {
                         $failures->data[] = array(
-                            html_writer::link('#id_testcode_' . $i, get_string('testcase', 'qtype_coderunner', $i + 1)),
+                            html_writer::link('#id_testcode_' . $i,
+                                    get_string('testcase', 'qtype_coderunner', $i + 1) .
+                                        html_writer::empty_tag('br') . s($testresult->testcode)),
                             html_writer::link('#id_expected_' . $i, html_writer::tag('pre', s($testresult->expected),
                                     array('id' => 'id_fail_expected_' . $i))),
                             html_writer::tag('pre', s($testresult->got), array('id' => 'id_got_' . $i)) .
