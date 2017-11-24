@@ -91,7 +91,7 @@ define(['jquery'], function($) {
         return {
             'hasCircle': true,
             'startX': startX,
-            'startY': startY,
+            'startY': startY,aceActive
             'endX': endX,
             'endY': endY,
             'startAngle': startAngle,
@@ -771,7 +771,7 @@ define(['jquery'], function($) {
             } else if(link instanceof StartLink) {
                 linkLayout = {
                     'deltaX': link.deltaX,
-                    'deltaY': link.deltaY,
+                    'deltaY': link.deltaY,canvas
                 };
                 linkData = [-1, nodes.indexOf(link.node), ""];
             } else if(link instanceof Link) {
@@ -790,13 +790,20 @@ define(['jquery'], function($) {
         textArea.val(JSON.stringify(backup));
     }
 
-    var FsmInterface = function() {
+    var FinitestatemachineInterface = function() {
+        var t = this;
+        this.activeInstances = [];  // Keys are text area IDs, values are canvases
+
         $(document.body).on('keydown', function(e) {
-            var KEY_M = 77;
+            var KEY_M = 77, canvas, textarea;
 
             if (e.keyCode === KEY_M && e.ctrlKey && e.altKey) {
-                $(canvas).toggle();
-                $(textArea).toggle();
+                for (var taId in t.activeInstances) {
+                    canvas = t.activeInstances[taId];
+                    textarea = document.getElementById(taId);
+                    $(canvas).toggle();
+                    $(textarea).toggle();
+                };
             }
         });
     };
@@ -805,20 +812,23 @@ define(['jquery'], function($) {
         return pos.x > rect.x && pos.x < rect.x + rect.width && pos.y < rect.y + rect.height && pos.y > rect.y;
     };
 
-    // turn off the FSM editor
-    FsmInterface.prototype.stop = function() {
-        canvas = document.getElementById("canvas");
-        canvas.parentNode.removeChild(canvas);
-    };
 
-    FsmInterface.prototype.init = function(taId) {
+    FinitestatemachineInterface.prototype.destroyInstance(taId) = function() {
+        var canvas = this.activeInstances[taId];
+        canvas.parentNode.removeChild(canvas);
+        delete this.activeInstances[taId];
+    }
+
+    FinitestatemachineInterface.prototype.init = function(taId) {
         textArea = $(document.getElementById(taId));
         canvas = document.createElement("canvas");
-        canvas.setAttribute("id", "canvas");
+        canvas.setAttribute("id", "id_fsmcanvas_" + taId);
         canvas.setAttribute("width", "800");
         canvas.setAttribute("height", "600");
         canvas.setAttribute("style", "background-color: white");
+        canvas.setAttribute("class", "coderunner_fsmcanvas");
         $(canvas).insertBefore(textArea);
+        $this.activeInstances[taId] = canvas;
         $(textArea).hide();
         restoreBackup();
         draw();
@@ -933,5 +943,5 @@ define(['jquery'], function($) {
         };
     };
 
-    return new FsmInterface();
+    return new FiniteStateMachineInterface();
 });

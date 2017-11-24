@@ -229,15 +229,18 @@ define(['jquery'], function($) {
 
     /****************************************************************
      *
-     * Now the external interface class
+     * Now the external interface class. A single instance of this
+     * class is created for a page, and its init method is then called
+     * for each textarea that is to be managed as an Ace editor window.
      *
      ****************************************************************/
 
     var AceInterface = function() {
-        // Constructor for AceInterface class.
+        // Constructor for AceInterface object.
 
         this.editableFields = {};
         this.activeEditors = {};
+        this.disabled = false;
         this.modelist = window.ace.require('ace/ext/modelist');
         window.ace.require("ace/ext/language_tools");
 
@@ -246,10 +249,12 @@ define(['jquery'], function($) {
             var KEY_M = 77;
 
             if (e.keyCode === KEY_M && e.ctrlKey && e.altKey) {
-                if (Object.keys(t.activeEditors).length === 0) {
-                    t.startUsingAce();
+                if (t.disabled) {
+                    t.restartAll();
+                    t.disabled = false;
                 } else {
-                    t.stopUsingAce();
+                    t.stopAll();
+                    t.disabled = true;
                 }
             }
         });
@@ -284,9 +289,9 @@ define(['jquery'], function($) {
         return undefined;
     };
 
-    AceInterface.prototype.initAce = function (textareaId, lang) {
+    AceInterface.prototype.init = function (textareaId, lang) {
         // Initialise an Ace editor for a textarea (given its ID) and language.
-        // Keep track of all active editors on this page; a call to initAce
+        // Keep track of all active editors on this page; a call to init
         // on an existing textarea is converted to a reload call to
         // refresh the editor contents from the textarea.
         var mode = this.findMode(lang);
@@ -299,8 +304,10 @@ define(['jquery'], function($) {
         }
     };
 
-    // Turn off a single Ace editor associated with the given text area ID
-    AceInterface.prototype.destroyAce = function (textareaId) {
+    // Turn off a single Ace editor associated with the given text area ID.
+    // The contents of the editor are copied into the original textarea
+    // and the Ace editor itself is destroyed.
+    AceInterface.prototype.destroyInstance = function (textareaId) {
         if (this.activeEditors[textareaId]) {
             this.activeEditors[textareaId].close();
             delete this.activeEditors[textareaId];
@@ -308,7 +315,7 @@ define(['jquery'], function($) {
     };
 
     // Turn off all current Ace editors
-    AceInterface.prototype.stopUsingAce = function () {
+    AceInterface.prototype.stopAll = function () {
         var label = $('.answerprompt');
         for (var aceinstance in this.activeEditors) {
             label.attr('for', aceinstance);
@@ -317,8 +324,8 @@ define(['jquery'], function($) {
         this.activeEditors = {};
     };
 
-    // Turn all editableFields into Ace editors
-    AceInterface.prototype.startUsingAce = function () {
+    //Re-enable all Ace editors that were zapped by stopAll
+    AceInterface.prototype.restartAll = function () {
         var aceLabel = $('.answerprompt');
         for (var aceinstance in this.editableFields) {
             aceLabel.attr('for', aceinstance);

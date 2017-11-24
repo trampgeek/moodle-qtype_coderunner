@@ -82,26 +82,26 @@ define(['jquery'], function($) {
             testtypedivs = $('div.testtype'),
             uiplugin = $('#id_uiplugin');
 
-        // Check if need to (re-)initialise Ace in a given textarea with a
+        // Check if we need to (re-)initialise Ace in a given textarea with a
         // given language.
         // Do this if the textarea or its Ace wrapper is visible and Ace is enabled.
-        // If Ace is already enabled, a call to initAce will reload its contents.
+        // If Ace is already enabled, a call to the interface's init method will
+        // reload its contents.
         // If lang is not supplied in the call, use aceLang if defined else
         // the main template language.
         function checkAceStatus(textarea, lang) {
             var textareaVisible = $('#id_' + textarea).is(':visible') ||
-                    $('#id_' + textarea + '_wrapper').is(':visible');
-            if (typeof(lang) === 'undefined') {
-                lang = acelang.prop('value') ? acelang.prop('value') : language.prop('value');
-            }
-            if (textarea === 'template' && useace.prop('checked') && textareaVisible) {
-                require(['qtype_coderunner/aceinterface'], function(AceInterface) {
-                    AceInterface.initAce('id_' + textarea, lang.toLowerCase());
-                });
-            }
-            if (textarea !== 'template' && uiplugin.val() === 'ace' && textareaVisible) {
-                require(['qtype_coderunner/aceinterface'], function(AceInterface) {
-                    AceInterface.initAce('id_' + textarea, lang.toLowerCase());
+                    $('#id_' + textarea + '_wrapper').is(':visible'),
+                areReqd;
+
+            areReqd = (textarea === 'template' && useace.prop('checked')) ||
+                        (textarea !== 'template' && uiplugin.val() === 'ace');
+            if (areReqd && textareaVisible) {  // Do we need to init Ace?
+                if (typeof(lang) === 'undefined') {
+                    lang = acelang.prop('value') ? acelang.prop('value') : language.prop('value');
+                }
+                require(['qtype_coderunner/ui_ace'], function(AceInterface) {
+                    AceInterface.init('id_' + textarea, lang.toLowerCase());
                 });
             }
         }
@@ -240,8 +240,8 @@ define(['jquery'], function($) {
 
         if (uiplugin.val() === 'fsm') {
             // turn the FSM on
-            require(['qtype_coderunner/finitestatemachine'], function(FsmInterface) {
-                FsmInterface.init('id_answer');
+            require(['qtype_coderunner/finitestatemachine'], function(FinitestatemachineInterface) {
+                FinitestatemachineInterface.init('id_answer');
             });
         }
 
@@ -289,7 +289,7 @@ define(['jquery'], function($) {
             if (isTurningOn) {
                 checkAceStatus('template', language.prop('value'));
             } else {
-                require(['qtype_coderunner/aceinterface'], function(AceInterface) {
+                require(['qtype_coderunner/ui_ace'], function(AceInterface) {
                     AceInterface.stopUsingAce();
                 });
             }
@@ -299,25 +299,25 @@ define(['jquery'], function($) {
             var previousValue = uiplugin.data("previous-value");
 
             if (previousValue === 'ace') {
-                require(['qtype_coderunner/aceinterface'], function(AceInterface) {
+                require(['qtype_coderunner/ui_ace'], function(AceInterface) {
                     // we just want to hide ace in the answer and preload area
-                    AceInterface.destroyAce('id_answer');
-                    AceInterface.destroyAce('id_answerpreload');
+                    AceInterface.destroyInstance('id_answer');
+                    AceInterface.destroyInstance('id_answerpreload');
                 });
 
             } else if (previousValue === 'fsm') {
                 // remove FSM
                 $(document.getElementById('id_answer')).show();
-                require(['qtype_coderunner/finitestatemachine'], function(FsmInterface) {
-                    FsmInterface.stop();
+                require(['qtype_coderunner/finitestatemachine'], function(FinitestatemachineInterface) {
+                    FinitestatemachineInterface.destroyAll();
                 });
             }
 
             uiplugin.data("previous-value", uiplugin.val());
             if (uiplugin.val() === 'fsm') {
                 // turn the FSM on
-                require(['qtype_coderunner/finitestatemachine'], function(FsmInterface) {
-                    FsmInterface.init('id_answer');
+                require(['qtype_coderunner/finitestatemachine'], function(FinitestatemachineInterface) {
+                    FinitestatemachineInterface.init('id_answer');
                 });
             }
             if (uiplugin.val() === 'ace') {

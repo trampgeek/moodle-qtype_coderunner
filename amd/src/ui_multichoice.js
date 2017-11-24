@@ -81,12 +81,12 @@ define(['jquery'], function($) {
 
     }
 
-    function initQuestionTA(taId) {
+    function init(taId) {
         $(document.getElementById(taId)).each(initTextArea);
     }
 
     return {
         initTextArea: initTextArea,
-        initQuestionTA : initQuestionTA
+        init : init
     };
 });
