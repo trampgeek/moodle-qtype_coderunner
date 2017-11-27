@@ -20,52 +20,38 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+
+
 global $CFG;
 
 use qtype_coderunner\constants;
 
 class qtype_coderunner_util {
     /*
-     * Configure the ace editor for use with the given textarea (specified by its
-     * id) if question is set to use Ace. Language is specified either as
-     * TEMPLATE_LANGUAGE (the language used in the sandbox) or USER_LANGUAGE.
-     * They are the same unless a different language has been explicitly specified
-     * by the acelang field in the question authoring form, in which case the
-     * acelang field is used for the USER and the $question->language for the
-     * template.
+     * Load/initialise the specified UI JavaScipt plugin  for the given question.
+     * $testareaid is the id of the textarea that the UI plugin is to manage.
      */
-    public static function load_ace_if_required($question, $textareaid, $whichlang) {
+    public static function load_uiplugin_js($question, $testareaid) {
         global $CFG, $PAGE;
-        if ($question->uiplugin == "ace") {
-            if ($whichlang === constants::TEMPLATE_LANGUAGE ||
-                   empty($question->acelang)) {
-                $lang = $question->language;
-            } else {
-                $lang = $question->acelang;
+        $uiplugin = $question->uiplugin;
+        if ($uiplugin) {
+            $PAGE->requires->strings_for_js(constants::ui_plugin_keys(), 'qtype_coderunner');
+            $params = array($textareaid); // Params to plugin's init function.
+            if ($uiplugin === 'ace') {
+                self::load_ace(); // Special case - Ace has a language and support stuff to load too.
+                if (empty($question->acelang)) {
+                    $lang = $question->language;
+                } else {
+                    $lang = $question->acelang;
+                }
+                $lang = ucwords($lang);
+                $params[] = $lang;
             }
-            $lang = ucwords($lang);
-            self::load_ace();
-            $PAGE->requires->js_call_amd('qtype_coderunner/aceinterface', 'initAce', array($textareaid, $lang));
+            $PAGE->requires->js_call_amd('qtype_coderunner/' . $uiplugin, 'init', $params);
         }
     }
 
-    public static function load_multichoice_if_required($question, $textareaid) {
-        global $CFG, $PAGE;
-        if ($question->uiplugin == "multichoice") {
-            $PAGE->requires->js_call_amd('qtype_coderunner/multichoice', 'initQuestionTA', array($textareaid));
-        }
-    }
-
-    public static function load_fsm_if_required($question, $textareaid) {
-        global $PAGE;
-        $keys = array('fsmhelp');
-        $PAGE->requires->strings_for_js($keys, 'qtype_coderunner');
-        if ($question->uiplugin == "fsm") {
-            $PAGE->requires->js_call_amd('qtype_coderunner/finitestatemachine', 'init', array($textareaid));
-        }
-    }
-
-
+  
     // Load the ace scripts.
     public static function load_ace() {
         global $PAGE;

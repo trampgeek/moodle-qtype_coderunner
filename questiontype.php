@@ -127,7 +127,6 @@ class qtype_coderunner extends question_type {
             'answerboxlines',
             'answerboxcolumns',
             'answerpreload',
-            'useace',
             'answer',
             'validateonsave',
             'templateparams'

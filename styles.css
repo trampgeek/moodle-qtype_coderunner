@@ -30,6 +30,11 @@ body#page-question-type-coderunner .ace_editor {
     line-height: 18px;
 }
 
+.que.coderunner .coderunner_fsmcanvas,
+#page-question-type-coderunner .coderunner_fsmcanvas {
+    border: 1px solid grey;
+}
+
 .que.coderunner p.for-example-para {
     font-weight: bold;
 }

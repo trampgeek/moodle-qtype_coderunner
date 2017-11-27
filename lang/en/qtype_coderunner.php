@@ -45,7 +45,7 @@ $string['answer'] = 'Answer';
 $string['answerbox_group'] = 'Answer box';
 $string['answerboxcolumns'] = 'Columns';
 $string['answerboxlines'] = 'Rows';
-$string['answerbox_group_help'] = 'Set the number of rows and columns to allocate for the answer box. If the answer overflows the box vertically or horizontally, scrollbars will appear. If \'Use ace\' is checked, the ACE JavaScript code editor will manage the answer box.';
+$string['answerbox_group_help'] = 'Set the number of rows and columns to allocate for the answer box. If the answer overflows the box vertically or horizontally, scrollbars will appear.';
 $string['answerpreload'] = 'Answer box preload';
 $string['answerpreload_help'] = 'Text supplied here will be preloaded into the student\'s answer box.';
 $string['asolutionis'] = 'Question author\'s solution:';
@@ -480,6 +480,7 @@ $string['showsource'] = 'Template debugging';
 $string['sourcecodeallruns'] = 'Debug: source code from all test runs';
 $string['stdin'] = 'Standard Input';
 $string['stdin_help'] = 'The standard input to the test, seen by the template as {{TEST.stdin}}';
+$string['student_answer'] = 'Student answer';
 $string['supportscripts'] = 'Support scripts';
 $string['syntax_errors'] = 'Syntax Error(s)';
 
@@ -602,12 +603,30 @@ $string['type_header'] = 'CodeRunner question type';
 $string['typename'] = 'Question type';
 $string['typerequired'] = 'Please select the type of question (language, format, etc)';
 
-$string['uitype'] = 'Input UI';
+$string['uicontrols'] = 'Input UIs';
+$string['uicontrols_help'] = 'Select the User Interface controllers for the student answer and
+the question author\'s template.
+
+The Student Answer dropdown displays a list
+of available plugins. For coding questions, the Ace editor is usually used.
+Students with poor eyesight can themselves disable Ace by typing Ctrl-Alt-M.
+A value of \'None\' can be used to provide just a raw text box. Other options,
+such as Digraph (Directed Graph) are at this stage still experimental.
+
+Whatever value is selected for the student answer will also be used within
+the editor form for the Sample Answer and the Answer Preload fields.
+
+If \'Template uses ace\' is checked,
+the ACE JavaScript code editor will manage the answer box. Otherwise a raw
+text box will be used.';
+
+
+
 $string['unauthorisedbulktest'] = 'You do not have suitable access to any CodeRunner questions';
 $string['unauthoriseddbaccess'] = 'You are not authorised to use this script';
 $string['unknownerror'] = 'An unexpected error occurred. The sandbox may be down. Try again shortly.';
 $string['useasexample'] = 'Use as example';
-$string['useace'] = 'Use ace';
+$string['useace'] = 'Template uses ace';
 
 $string['validateonsave'] = 'Validate on save';
 

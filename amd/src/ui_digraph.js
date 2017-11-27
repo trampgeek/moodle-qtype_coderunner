@@ -1,10 +1,13 @@
 /*
- Finite State Machine Designer (http://madebyevan.com/fsm/)
+
+ Directed Graph Drawing Package.
+ Based on: Finite State Machine Designer (http://madebyevan.com/fsm/)
  License: MIT License (see below)
 
  Copyright (c) 2010 Evan Wallace
 
  Modified 16 May 2017 by Emily Price, University of Canterbury
+ Further modified November/December 2017 by Richard Lobb, Univ of Canterbury
 
  Permission is hereby granted, free of charge, to any person
  obtaining a copy of this software and associated documentation
@@ -91,7 +94,7 @@ define(['jquery'], function($) {
         return {
             'hasCircle': true,
             'startX': startX,
-            'startY': startY,aceActive
+            'startY': startY,
             'endX': endX,
             'endY': endY,
             'startAngle': startAngle,
@@ -771,7 +774,7 @@ define(['jquery'], function($) {
             } else if(link instanceof StartLink) {
                 linkLayout = {
                     'deltaX': link.deltaX,
-                    'deltaY': link.deltaY,canvas
+                    'deltaY': link.deltaY
                 };
                 linkData = [-1, nodes.indexOf(link.node), ""];
             } else if(link instanceof Link) {
@@ -790,7 +793,7 @@ define(['jquery'], function($) {
         textArea.val(JSON.stringify(backup));
     }
 
-    var FinitestatemachineInterface = function() {
+    var DigraphInterface = function() {
         var t = this;
         this.activeInstances = [];  // Keys are text area IDs, values are canvases
 
@@ -803,7 +806,7 @@ define(['jquery'], function($) {
                     textarea = document.getElementById(taId);
                     $(canvas).toggle();
                     $(textarea).toggle();
-                };
+                }
             }
         });
     };
@@ -813,13 +816,13 @@ define(['jquery'], function($) {
     };
 
 
-    FinitestatemachineInterface.prototype.destroyInstance(taId) = function() {
+    DigraphInterface.prototype.destroyInstance = function(taId) {
         var canvas = this.activeInstances[taId];
         canvas.parentNode.removeChild(canvas);
         delete this.activeInstances[taId];
-    }
+    };
 
-    FinitestatemachineInterface.prototype.init = function(taId) {
+    DigraphInterface.prototype.init = function(taId) {
         textArea = $(document.getElementById(taId));
         canvas = document.createElement("canvas");
         canvas.setAttribute("id", "id_fsmcanvas_" + taId);
@@ -828,7 +831,7 @@ define(['jquery'], function($) {
         canvas.setAttribute("style", "background-color: white");
         canvas.setAttribute("class", "coderunner_fsmcanvas");
         $(canvas).insertBefore(textArea);
-        $this.activeInstances[taId] = canvas;
+        this.activeInstances[taId] = canvas;
         $(textArea).hide();
         restoreBackup();
         draw();
@@ -943,5 +946,5 @@ define(['jquery'], function($) {
         };
     };
 
-    return new FiniteStateMachineInterface();
+    return new DigraphInterface();
 });

@@ -484,9 +484,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 array('size' => 3, 'class' => 'coderunner_answerbox_size'));
         $mform->setType('answerboxcolumns', PARAM_INT);
         $mform->setDefault('answerboxcolumns', self::DEFAULT_NUM_COLS);
-        $answerboxelements[] = $mform->createElement('advcheckbox', 'useace', null,
-                get_string('useace', 'qtype_coderunner'));
-        $mform->setDefault('useace', true);
+
         $mform->addElement('group', 'answerbox_group', get_string('answerbox_group', 'qtype_coderunner'),
                 $answerboxelements, null, false);
         $mform->addHelpButton('answerbox_group', 'answerbox_group', 'qtype_coderunner');
@@ -586,20 +584,38 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->addHelpButton('resultcolumns', 'resultcolumns', 'qtype_coderunner');
 
         $uicontrols = array();
-        $uitypes = [
-            "none" => "none",
-            "ace" => "ace",
-            "multichoice" => "multichoice",
-            "fsm" => "fsm",
-        ];
+        $uitypes = $this->getUiPlugins();
+
         $uicontrols[] = $mform->createElement('select', 'uiplugin',
-                null, $uitypes);
-        $mform->setDefault('uiplugin', 'none');
+                get_string('student_answer', 'qtype_coderunner'), $uitypes);
+        $mform->setDefault('uiplugin', 'ace');
+        $uicontrols[] = $mform->createElement('advcheckbox', 'useace', null,
+                get_string('useace', 'qtype_coderunner'));
+        $mform->setDefault('useace', true);
         $mform->addElement('group', 'uicontrols',
-                get_string('uitype', 'qtype_coderunner'), $uicontrols,
+                get_string('uicontrols', 'qtype_coderunner'), $uicontrols,
                 null, false);
+        $mform->addHelpButton('uicontrols', 'uicontrols', 'qtype_coderunner');
 
         $mform->setExpanded('customisationheader');  // Although expanded it's hidden until JavaScript unhides it .
+    }
+
+
+    // Get a list of all available UI plugins, namely all files of the form
+    // ui_pluginname.js in the amd/src directory.
+    // Returns an associative array with a uiname => uiname entry for each
+    // available ui plugin.
+    private function getUiPlugins() {
+        global $CFG;
+        $uiplugins = array('None' => 'None');
+        $files = scandir($CFG->dirroot . '/question/type/coderunner/amd/src');
+        foreach ($files as $file) {
+            if (substr($file, 0, 3) === 'ui_' && substr($file, -3) === '.js') {
+                $uiname = substr($file, 3, -3);
+                $uiplugins[$uiname] = $uiname;
+            }
+        }
+        return $uiplugins;
     }
 
 

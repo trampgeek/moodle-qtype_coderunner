@@ -15,27 +15,46 @@
 
 /**
  * JavaScript for implementing multichoice input for student answers.
+ * This is just a demo ui plugin.
  *
  * @package    qtype
  * @subpackage coderunner
- * @copyright  Emily Price, 2017, The University of Canterbury
+ * @copyright  Emily Price, Richard Lobb, 2017, The University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 
 define(['jquery'], function($) {
 
-    function initTextArea() {
-        var textArea = $(this);
+    function MultichoiceInterface() { // Constructor for multichoice interface.
+        var t = this;
+
+        this.activeInstances = [];  // Map from taId to GUI div
+        $(document.body).on('keydown', function(e) {
+            var KEY_M = 77, buttonClicker, textarea;
+
+            if (e.keyCode === KEY_M && e.ctrlKey && e.altKey) {
+                for (var taId in t.activeInstances) {
+                    buttonClicker = t.activeInstances[taId];
+                    textarea = document.getElementById(taId);
+                    $(buttonClicker).toggle();
+                    $(textarea).toggle();
+                }
+            }
+        });
+    }
+
+    MultichoiceInterface.prototype.init = function (taId) {
+        var textArea = $(document.getElementById(taId)),
+            options = [],
+            buttonClicker = document.createElement("div"),
+            jsonData = {};
 
         textArea.attr('readonly', 'readonly');
-        var options = [];
+        this.activeInstances[taId] = buttonClicker;
 
-        var buttonClicker = document.createElement("div");
-
-        var jsonData = {};
         // First we load jsonData with whatever is in the textArea
-        jsonData = JSON.parse(textArea.val());
+        jsonData = window.JSON.parse(textArea.val());
 
         // Build the list of options based on the preloaded data
         for (var prop in jsonData) {
@@ -44,7 +63,10 @@ define(['jquery'], function($) {
 
         // Create all the radio buttons
         options.forEach(function(option) {
-            var radioOption = document.createElement("input");
+            var radioOption = document.createElement("input"),
+                optionLabel = document.createElement("label"),
+                optionText;
+
             radioOption.setAttribute("type", "radio");
             radioOption.setAttribute("name", "multichoice");
             radioOption.setAttribute("id", option);
@@ -52,13 +74,10 @@ define(['jquery'], function($) {
                 radioOption.setAttribute("checked", "checked");
             }
             radioOption.onclick = updateJson;
-
-            /*creating label for Text to Radio button*/
-            var optionLabel = document.createElement("label");
             optionLabel.style.display = "inline-block";
 
             /*create text node for label Text which display for Radio button*/
-            var optionText = document.createTextNode(option);
+            optionText = document.createTextNode(option);
 
             /*add text to new create lable*/
             optionLabel.appendChild(radioOption);
@@ -78,15 +97,13 @@ define(['jquery'], function($) {
         }
 
         $(buttonClicker).insertBefore(textArea);
-
-    }
-
-    function init(taId) {
-        $(document.getElementById(taId)).each(initTextArea);
-    }
-
-    return {
-        initTextArea: initTextArea,
-        init : init
     };
+
+    MultichoiceInterface.prototype.destroyInstance = function(taId) {
+        var buttonClicker = this.activeInstances[taId];
+        buttonClicker.parentNode.removeChild(buttonClicker); // Yuck, but remove() not well supported
+        delete this.activeInstances[taId];
+        $(document.getElementById(taId)).show();
+    };
+
 });
