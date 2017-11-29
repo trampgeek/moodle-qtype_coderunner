@@ -612,7 +612,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         foreach ($files as $file) {
             if (substr($file, 0, 3) === 'ui_' && substr($file, -3) === '.js') {
                 $uiname = substr($file, 3, -3);
-                $uiplugins[$uiname] = $uiname;
+                $uiplugins[$uiname] = ucfirst($uiname);
             }
         }
         return $uiplugins;

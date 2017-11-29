@@ -87,12 +87,9 @@ define(['jquery'], function($) {
         // Set up the UI controller for the textarea whose name is
         // given as the first parameter (one of template, answer or answerpreload)
         // to the given UI controller (which may be "None" or, equivalently, empty).
-        // Do set up only if the given textarea is currently visible, or if
-        // it has a wrapper that's visible (which will be the case for Ace).
         function setUi(taName, uiname) {
             var taId = 'id_' + taName,
                 ta = $('#' + taId),  // The jquery text area element(s)
-                taVisible = ta.is(':visible') || $('#id_' + taName + '_wrapper').is(':visible'),
                 currentUi,
                 lang;
 
@@ -101,7 +98,7 @@ define(['jquery'], function($) {
                 uiname = '';
             }
 
-            if (taVisible) {
+            if (ta) {
                 currentUi = ta.data('current-ui'); // Currently-active UI on this ta
                 if (currentUi && currentUi !== uiname) {
                     require(['qtype_coderunner/ui_' + currentUi], function(interface) {

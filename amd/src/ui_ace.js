@@ -240,7 +240,6 @@ define(['jquery'], function($) {
 
         this.editableFields = {};
         this.activeEditors = {};
-        this.disabled = false;
         this.modelist = window.ace.require('ace/ext/modelist');
         window.ace.require("ace/ext/language_tools");
 
@@ -249,12 +248,10 @@ define(['jquery'], function($) {
             var KEY_M = 77;
 
             if (e.keyCode === KEY_M && e.ctrlKey && e.altKey) {
-                if (t.disabled) {
+                if (Object.keys(t.activeEditors).length === 0) {
                     t.restartAll();
-                    t.disabled = false;
                 } else {
                     t.stopAll();
-                    t.disabled = true;
                 }
             }
         });
@@ -311,10 +308,12 @@ define(['jquery'], function($) {
         if (this.activeEditors[textareaId]) {
             this.activeEditors[textareaId].close();
             delete this.activeEditors[textareaId];
+            delete this.editableFields[textareaId];
         }
     };
 
-    // Turn off all current Ace editors
+    // Turn off all current Ace editors, but leave the editableFields entry
+    // intact so that restartAll can turn them all on again.
     AceInterface.prototype.stopAll = function () {
         var label = $('.answerprompt');
         for (var aceinstance in this.activeEditors) {
@@ -329,7 +328,7 @@ define(['jquery'], function($) {
         var aceLabel = $('.answerprompt');
         for (var aceinstance in this.editableFields) {
             aceLabel.attr('for', aceinstance);
-            this.initAce(aceinstance, this.editableFields[aceinstance]);
+            this.init(aceinstance, this.editableFields[aceinstance]);
         }
     };
 
