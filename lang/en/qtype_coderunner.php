@@ -144,15 +144,17 @@ $string['fileheader'] = 'Support files';
 $string['filloutoneanswer'] = 'You must enter source code that satisfies the specification. The code you enter will be executed to determine its correctness and a grade awarded accordingly.';
 $string['firstfailure'] = 'First failing test case: {$a}';
 $string['forexample'] = 'For example';
-$string['fsmhelp'] = '-Double click at a blank space to create a new node/state
--Double click an existing node to make it an accept state. Double click again to remove the accept state
--Click and drag to move a state
--Shift click inside one node and drag to another to create a link
--Shift click on a blank space, drag to a node to create a start link
--Click and drag a link to alter its curve
--Click on a link/node to edit its text
--Typing _ followed by a digit makes that digit a subscript
--Typing \\epsilon creates an epsilon character';
+$string['graphhelp'] = '- Double click at a blank space to create a new node/state.
+- Double click an existing node to "mark" it e.g. as an accept state for Finite
+  state machines (FSMs). Double click again to unmark it.
+- Click and drag to move a node.
+- Shift click inside one node and drag to another to create a link.
+- Shift click on a blank space, drag to a node to create a start link (FSMs only).
+- Click and drag a link to alter its curve.
+- Click on a link/node to edit its text.
+- Typing _ followed by a digit makes that digit a subscript.
+- Typing \\epsilon creates an epsilon character (and similarly for \\alpha,
+  \\beta etc)';
 
 $string['goodemptyprecheck'] = 'Passed';
 $string['gotcolhdr'] = 'Got';

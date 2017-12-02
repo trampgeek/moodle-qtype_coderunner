@@ -29,16 +29,22 @@ use qtype_coderunner\constants;
 class qtype_coderunner_util {
     /*
      * Load/initialise the specified UI JavaScipt plugin  for the given question.
-     * $testareaid is the id of the textarea that the UI plugin is to manage.
+     * $textareaid is the id of the textarea that the UI plugin is to manage.
      */
-    public static function load_uiplugin_js($question, $testareaid) {
+    public static function load_uiplugin_js($question, $textareaid, $loadAce=true) {
         global $CFG, $PAGE;
-        $uiplugin = $question->uiplugin;
-        if ($uiplugin) {
+
+        if ($loadAce) {
+            self::load_ace(); // Ace isn't an AMD module. Load all it's modules.
+        }
+        $uiplugin = strtolower($question->uiplugin);
+        if ($uiplugin && $uiplugin !== 'none') {
             $PAGE->requires->strings_for_js(constants::ui_plugin_keys(), 'qtype_coderunner');
-            $params = array($textareaid); // Params to plugin's init function.
+            $params = array($uiplugin, $textareaid, $question->templateparams); // Params to plugin's init function.
             if ($uiplugin === 'ace') {
-                self::load_ace(); // Special case - Ace has a language and support stuff to load too.
+                if (!$loadAce) {  // Shouldn't happen, but better safe than sorry
+                    self::load_ace();
+                }
                 if (empty($question->acelang)) {
                     $lang = $question->language;
                 } else {
@@ -47,11 +53,11 @@ class qtype_coderunner_util {
                 $lang = ucwords($lang);
                 $params[] = $lang;
             }
-            $PAGE->requires->js_call_amd('qtype_coderunner/' . $uiplugin, 'init', $params);
+            $PAGE->requires->js_call_amd('qtype_coderunner/userinterfacewrapper', 'newUiWrapper', $params);
         }
     }
 
-  
+
     // Load the ace scripts.
     public static function load_ace() {
         global $PAGE;

@@ -16,15 +16,16 @@
 /**
  * JavaScript to interface to the Ace editor, which is used both in
  * the author editing page and by the student question submission page.
+ * The class defined in this module is a plugin for the InterfaceWrapper class
+ * declared in userinterfacewrapper.js. See that file for an explanation of
+ * the interface to this module.
  *
  * @package    qtype
  * @subpackage coderunner
- * @copyright  Richard Lobb, 2015, The University of Canterbury
+ * @copyright  Richard Lobb, 2015, 2017, The University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-// The interface 'glue code' between the other AMD modules in CodeRunner
-// and the Ace editor.
 
 // Thanks to Ulrich Dangel for the initial implementation of Ace within
 // CodeRunner.
@@ -34,50 +35,32 @@
 
 define(['jquery'], function($) {
 
-    /***********************************************************************
-     *  First, a class to wrap a specific instance of an AceEditor managing
-     *  a particular text area with a particular Ace mode.
-     *  A div with a roll-your-own resize handle is wrapped around the
-     *  Ace editor node so that users can resize the editor panel.
-     ***********************************************************************/
-    function AceInstance(textareaId, mode) {
-        // Warning: IDs from Moodle can contain colons - don't work with jQuery!
-        var textarea = $(document.getElementById(textareaId)),
-            h = parseInt(textarea.css("height")),
-            w = parseInt(textarea.css("width")),
-            focused = textarea[0] === document.activeElement;
+    function AceWrapper(textareaId, w, h, templateParams, lang) {
+        // Constructor for the Ace interface object
 
-        this.HANDLE_SIZE = 6;
+        var textarea = $(document.getElementById(textareaId)),
+            focused = textarea[0] === document.activeElement,
+            session;
+
         this.MIN_WIDTH = 300;
         this.MIN_HEIGHT = 100;
 
-        this.editNode = $("<div></div>"); // Ace editor manages this
-        this.wrapperNode = $("<div id='" + textareaId + "_wrapper' class='ace_wrapper'></div>"); // Outer div with resize handle
-        this.editor = null;
-        this.contents_changed = false;
-        this.hLast = h - this.HANDLE_SIZE;
-        this.wLast = w - this.HANDLE_SIZE;
+        window.ace.require("ace/ext/language_tools");
+        this.modelist = window.ace.require('ace/ext/modelist');
+
         this.textarea = textarea;
-        this.capturingTab = true;
+        this.enabled = false;
+        this.contents_changed = false;
+        this.capturingTab = false;
         this.clickInProgress = false;
 
-        this.wrapperNode.css({
-            resize: 'both',
-            overflow: 'hidden',
-            height: h,
-            width: w,
-            minWidth: this.MIN_WIDTH,
-            minHeight: this.MIN_HEIGHT
-        });
 
+        this.editNode = $("<div></div>"); // Ace editor manages this
         this.editNode.css({
             resize: 'none', // Chrome wrongly inherits this.
             height: h - this.HANDLE_SIZE,
             width: w - this.HANDLE_SIZE
         });
-
-        textarea.after(this.wrapperNode);
-        this.wrapperNode.append(this.editNode);
 
         this.editor = window.ace.edit(this.editNode.get(0));
         if (textarea.prop('readonly')) {
@@ -89,8 +72,10 @@ define(['jquery'], function($) {
             newLineMode: "unix",
         });
         this.editor.$blockScrolling = Infinity;
-
-        this.reload(mode);
+        this.mode = this.findMode(lang);
+        session = this.editor.getSession();
+        session.setValue(this.textarea.val());
+        session.setMode(this.mode.mode);
 
         this.setEventHandlers(textarea);
         this.captureTab();
@@ -117,18 +102,29 @@ define(['jquery'], function($) {
         this.aceTextarea.attr('id', 'ace_' + textareaId);
     }
 
-    AceInstance.prototype.captureTab = function () {
+
+    AceWrapper.prototype.getMinSize = function() {
+        return {
+            minWidth: this.MIN_WIDTH,
+            minHeight: this.MIN_HEIGHT
+        };
+    };
+
+    AceWrapper.prototype.getElement = function() {
+        return this.editNode;
+    };
+
+    AceWrapper.prototype.captureTab = function () {
         this.capturingTab = true;
         this.editor.commands.bindKeys({'Tab': 'indent', 'Shift-Tab': 'outdent'});
     };
 
-    AceInstance.prototype.releaseTab = function () {
+    AceWrapper.prototype.releaseTab = function () {
         this.capturingTab = false;
         this.editor.commands.bindKeys({'Tab': null, 'Shift-Tab': null});
     };
 
-    AceInstance.prototype.setEventHandlers = function () {
-        var parent = this.wrapperNode.parent();
+    AceWrapper.prototype.setEventHandlers = function () {
         var TAB = 9,
             ESC = 27,
             KEY_M = 77;
@@ -143,23 +139,6 @@ define(['jquery'], function($) {
                 this.textarea.trigger('change');
             }
         }.bind(this));
-
-        // Chrome doesn't generate mutation events when a user resizes a
-        // resizable div, so we use mouse motion events to monitor the size.
-        // We use the DOM event rather than its jQuery wrapper so that 'this'
-        // can be bound to the AceInstance rather than the object on which the
-        // event occurred.
-        parent.get(0).onmousemove = function () {
-            var h = this.wrapperNode.outerHeight(),
-                w = this.wrapperNode.outerWidth();
-            if (h != this.hLast || w != this.wLast) {
-                this.editNode.outerHeight(h - this.HANDLE_SIZE);
-                this.editNode.outerWidth(w - this.HANDLE_SIZE);
-                this.editor.resize();
-                this.hLast = h;
-                this.wLast = w;
-            }
-        }.bind(this);
 
         var t = this;
         this.editor.on('mousedown', function() {
@@ -201,64 +180,21 @@ define(['jquery'], function($) {
         }, true);
     };
 
-    AceInstance.prototype.close = function () {
+    AceWrapper.prototype.destroy = function () {
         var focused = this.editor.isFocused();
         this.textarea.val(this.editor.getSession().getValue()); // Copy data back
         this.editor.destroy();
-        this.wrapperNode.remove();
-        this.textarea.show();
         if (focused) {
             this.textarea.focus();
             this.textarea[0].selectionStart = this.textarea[0].value.length;
         }
     };
 
-    /**
-     * Restore an existing session (e.g. after it has been unhidden) and
-     * set the mode to the given value.
-     * @param Ace-editor-mode mode
-     * @returns {undefined}
-     */
-    AceInstance.prototype.reload = function (mode) {
-        var session = this.editor.getSession();
-        session.setValue(this.textarea.val());
-        if (mode) {
-            session.setMode(mode.mode);
-        }
+    AceWrapper.prototype.hasFocus = function() {
+        return this.editor.isFocused();
     };
 
-    /****************************************************************
-     *
-     * Now the external interface class. A single instance of this
-     * class is created for a page, and its init method is then called
-     * for each textarea that is to be managed as an Ace editor window.
-     *
-     ****************************************************************/
-
-    var AceInterface = function() {
-        // Constructor for AceInterface object.
-
-        this.editableFields = {};
-        this.activeEditors = {};
-        this.modelist = window.ace.require('ace/ext/modelist');
-        window.ace.require("ace/ext/language_tools");
-
-        var t = this;
-        $(document.body).on('keydown', function(e) {
-            var KEY_M = 77;
-
-            if (e.keyCode === KEY_M && e.ctrlKey && e.altKey) {
-                if (Object.keys(t.activeEditors).length === 0) {
-                    t.restartAll();
-                } else {
-                    t.stopAll();
-                }
-            }
-        });
-    };
-
-    // Try to find the correct ace language mode.
-    AceInterface.prototype.findMode = function (language) {
+    AceWrapper.prototype.findMode = function (language) {
         var candidate,
             filename,
             result,
@@ -286,51 +222,13 @@ define(['jquery'], function($) {
         return undefined;
     };
 
-    AceInterface.prototype.init = function (textareaId, lang) {
-        // Initialise an Ace editor for a textarea (given its ID) and language.
-        // Keep track of all active editors on this page; a call to init
-        // on an existing textarea is converted to a reload call to
-        // refresh the editor contents from the textarea.
-        var mode = this.findMode(lang);
-
-        this.editableFields[textareaId] = lang;
-        if (this.activeEditors[textareaId]) {
-            this.activeEditors[textareaId].reload(mode);
-        } else {  // Otherwise create a new editor.
-            this.activeEditors[textareaId] = new AceInstance(textareaId, mode);
-        }
+    AceWrapper.prototype.resize = function(w, h) {
+        this.editNode.outerHeight(h);
+        this.editNode.outerWidth(w);
+        this.editor.resize();
     };
 
-    // Turn off a single Ace editor associated with the given text area ID.
-    // The contents of the editor are copied into the original textarea
-    // and the Ace editor itself is destroyed.
-    AceInterface.prototype.destroyInstance = function (textareaId) {
-        if (this.activeEditors[textareaId]) {
-            this.activeEditors[textareaId].close();
-            delete this.activeEditors[textareaId];
-            delete this.editableFields[textareaId];
-        }
+     return {
+        Constructor: AceWrapper
     };
-
-    // Turn off all current Ace editors, but leave the editableFields entry
-    // intact so that restartAll can turn them all on again.
-    AceInterface.prototype.stopAll = function () {
-        var label = $('.answerprompt');
-        for (var aceinstance in this.activeEditors) {
-            label.attr('for', aceinstance);
-            this.activeEditors[aceinstance].close();
-        }
-        this.activeEditors = {};
-    };
-
-    //Re-enable all Ace editors that were zapped by stopAll
-    AceInterface.prototype.restartAll = function () {
-        var aceLabel = $('.answerprompt');
-        for (var aceinstance in this.editableFields) {
-            aceLabel.attr('for', aceinstance);
-            this.init(aceinstance, this.editableFields[aceinstance]);
-        }
-    };
-
-    return new AceInterface();
 });

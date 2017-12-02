@@ -20,19 +20,16 @@
     padding-bottom: 10px;
 }
 
-.que.coderunner .ace_wrapper {
+#page-question-type-coderunner div.ui_wrapper,
+.que.coderunner div.ui_wrapper {
     max-width: 100%;
+    background-color: #F0F0F0;
 }
 
 .que.coderunner .ace_editor,
 body#page-question-type-coderunner .ace_editor {
     font-size: 100%;
     line-height: 18px;
-}
-
-.que.coderunner .coderunner_fsmcanvas,
-#page-question-type-coderunner .coderunner_fsmcanvas {
-    border: 1px solid grey;
 }
 
 .que.coderunner p.for-example-para {

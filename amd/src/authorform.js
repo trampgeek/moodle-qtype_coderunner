@@ -22,7 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['jquery'], function($) {
+define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
 
     // Define a mapping from the fields of the JSON object returned by an AJAX
     // 'get question type' request to the form elements. Keys are JSON field
@@ -81,15 +81,15 @@ define(['jquery'], function($) {
             questiontypeHelpDiv = $('#qtype-help'),
             precheck = $('select#id_precheck'),
             testtypedivs = $('div.testtype'),
+            templateParams = $('#id_templateparams').val(),
             uiplugin = $('#id_uiplugin');
 
 
         // Set up the UI controller for the textarea whose name is
         // given as the first parameter (one of template, answer or answerpreload)
         // to the given UI controller (which may be "None" or, equivalently, empty).
-        function setUi(taName, uiname) {
-            var taId = 'id_' + taName,
-                ta = $('#' + taId),  // The jquery text area element(s)
+        function setUi(taId, uiname) {
+            var ta = $(document.getElementById(taId)),  // The jquery text area element(s)
                 currentUi,
                 lang;
 
@@ -100,11 +100,9 @@ define(['jquery'], function($) {
 
             if (ta) {
                 currentUi = ta.data('current-ui'); // Currently-active UI on this ta
-                if (currentUi && currentUi !== uiname) {
-                    require(['qtype_coderunner/ui_' + currentUi], function(interface) {
-                        interface.destroyInstance(taId); // Stop the current UI
-                    });
-                    ta.data('current-ui', '');
+                if (currentUi) {
+                    currentUi.destroy(); // Stop the current UI
+                    currentUi = null;
                 }
 
                 if (uiname === "ace") {
@@ -112,19 +110,15 @@ define(['jquery'], function($) {
                     // for all fields other than the template, if the value is defined,
                     // or the value in 'language' in all other cases.
                     lang = language.prop('value');
-                    if (taName !== "template" && acelang.prop('value')) {
+                    if (taId !== "id_template" && acelang.prop('value')) {
                         lang =  acelang.prop('value');
                     }
-                    require(['qtype_coderunner/ui_ace'], function(aceInterface) {
-                        aceInterface.init(taId, lang);
-                    });
-                } else if (uiname && uiname !== currentUi) {
-                    require(['qtype_coderunner/ui_' + uiname], function(aceInterface) {
-                        aceInterface.init(taId);
-                    });
+                    currentUi = ui.newUiWrapper(uiname, taId, templateParams, lang);
+                } else if (uiname !== '') {
+                    currentUi = ui.newUiWrapper(uiname, taId, templateParams);
                 }
 
-                ta.data('current-ui', uiname);
+                ta.data('current-ui', currentUi);
             }
         }
 
@@ -132,8 +126,8 @@ define(['jquery'], function($) {
         function setUis() {
             var uiname = uiplugin.val();
 
-            setUi('answer', uiname);
-            setUi('answerpreload', uiname);
+            setUi('id_answer', uiname);
+            setUi('id_answerpreload', uiname);
         }
 
 
@@ -144,7 +138,7 @@ define(['jquery'], function($) {
             customisationFieldSet.css('display', display);
             advancedCustomisation.css('display', display);
             if (isVisible && useace.prop('checked')) {
-                setUi('template', 'ace');
+                setUi('id_template', 'ace');
             }
         }
 
