@@ -381,7 +381,7 @@ $string['qWrongBehaviour'] = 'Please use Adaptive Behaviour for all CodeRunner q
 
 $string['regexgrader'] = 'Regular expression';
 $string['replacedollarscount'] = 'This category contains {$a} CodeRunner questions.';
-$string['resultcolumns'] = 'Result columns';
+$string['replaceexpectedwithgot'] = 'Click on the &lt;&lt; button to replace the expected output of this testcase with actual output.';$string['resultcolumns'] = 'Result columns';
 $string['resultcolumns_help'] = 'By default the result table displays the testcode, stdin, expected and got
 columns, provided the columns are not empty. You can change the default, and/or
 the column headers by entering a value for the resultcolumns (leave blank for
@@ -602,4 +602,3 @@ $string['useace'] = 'Use ace';
 $string['validateonsave'] = 'Validate on save';
 
 $string['xmlcoderunnerformaterror'] = 'XML format error in coderunner question';
-$string['replaceexpectedwithgot'] = 'Click on the &lt;&lt; button to replace the expected output of this testcase with actual output.';
