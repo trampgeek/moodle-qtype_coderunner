@@ -1418,6 +1418,82 @@ The default value of *result_columns*  is:
 
 `[["Test", "testcode"], ["Input", "stdin"], ["Expected", "expected"], ["Got", "got"]]`.
 
+## User-interface selection
+
+For normal programming questions, the Ace editor is used both for
+author editing of the templates and for the student answer. Ace provides
+syntax colouring, bracket matching, auto indent and many other programmer-oriented
+capabilities to make editing of the underlying pure text more user-friendly.
+
+Sometimes question authors ask questions in which the answer is not in fact
+program code. For example, it might be a textual representation of an FSM 
+(finite state machine). In such questions the Ace editor is often not
+appropriate. Prior to version 3.3, authors could turn off the Ace editor by
+unchecking a *Use Ace* checkbox, but this disabled it both for student answers
+and for the author's template.
+
+Since version 3.3.0, CodeRunner now supports pluggable user interfaces, 
+although an administrator has to install the plugin. The two user interfaces
+currently built in to CodeRunner are Ace and Graph. The question author selects the required
+user interface via a dropdown menu in the customisation section of the question
+author form. The selection controls editing of the sample answer and answer
+preload fields of the authoring form and the student's answer in the live
+quiz. The Ace editor is always used for editing the template itself, unless
+turned off with the *Template uses ace* checkbox in the authoring
+form.
+
+### The Graph UI
+
+The Graph UI plugin, which should be regarded as experimental at this point,
+provides simple graph-drawing capabilities to support
+questions where the student is asked to draw or edit a graph. By default the
+Graph UI, which was developed for Finite State Machines, draws directed graphs,
+allows nodes to be marked as *Accept* states and allows incoming start edges.
+For example:
+
+<img src="http://coderunner.org.nz/draftfile.php/5/user/draft/510777708/Selection_309.png" />
+
+Clicking the Help button on the graph canvas displays information on how to 
+draw graphs.
+
+Some limited control of the Graph UI is available to the question author
+via template parameters as follows:
+
+  1. isdirected - defaults to true. Set it to false for a non-directed graph.
+
+  1. isfsm - defaults to true. Set it to false to prevent edges the enter the
+graph from space, i.e., without a start node.
+
+  1. noderadius - defaults to 26. The radius of nodes, in pixels.
+
+For example, for a non-directed non-fsm graph set the template parameters field to
+
+        {"isdirected": false, "isfsm": false}
+
+or merge those values into any other template parameters required by the
+question.
+
+Other template parameters may be added as required.
+
+Many thanks to Emily Price for the original implementation of the Graph UI.
+
+All active CodeRunner user interface plugins in both the question authoring
+form and the student's quiz page can be toggled off and on with a
+CTRL-ALT-M keypress, alternately exposing and hiding the underlying textarea element.
+
+### Other UI plugins
+
+Question authors can write their own user-interface plugins; an JavaScript
+file with a name of the form `ui_something.js` in the
+folder
+
+        &lt;moodlehome&gt;/question/type/coderunner/amd/src
+
+is assumed to be a user interface plugin and is automatically added to
+the drop-down menu of available plugins. Such plugin files must be AMD modules
+and must implement the interface defined in the file 
+
+        &lt;moodlehome&gt;/question/type/coderunner/amd/src/userinterfacewrapper.js
 
 ## User-defined question types
 
