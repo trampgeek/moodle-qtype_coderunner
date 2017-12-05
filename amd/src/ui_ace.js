@@ -58,8 +58,8 @@ define(['jquery'], function($) {
         this.editNode = $("<div></div>"); // Ace editor manages this
         this.editNode.css({
             resize: 'none', // Chrome wrongly inherits this.
-            height: h - this.HANDLE_SIZE,
-            width: w - this.HANDLE_SIZE
+            height: h,
+            width: "100%"
         });
 
         this.editor = window.ace.edit(this.editNode.get(0));
@@ -75,7 +75,9 @@ define(['jquery'], function($) {
         this.mode = this.findMode(lang);
         session = this.editor.getSession();
         session.setValue(this.textarea.val());
-        session.setMode(this.mode.mode);
+        if (this.mode) {
+            session.setMode(this.mode.mode);
+        }
 
         this.setEventHandlers(textarea);
         this.captureTab();
@@ -127,20 +129,20 @@ define(['jquery'], function($) {
     AceWrapper.prototype.setEventHandlers = function () {
         var TAB = 9,
             ESC = 27,
-            KEY_M = 77;
+            KEY_M = 77,
+            t = this;
 
         this.editor.getSession().on('change', function() {
-            this.textarea.val(this.editor.getSession().getValue());
-            this.contents_changed = true;
-        }.bind(this));
+            t.textarea.val(t.editor.getSession().getValue());
+            t.contents_changed = true;
+        });
 
         this.editor.on('blur', function() {
-            if (this.contents_changed) {
-                this.textarea.trigger('change');
+            if (t.contents_changed) {
+                t.textarea.trigger('change');
             }
-        }.bind(this));
+        });
 
-        var t = this;
         this.editor.on('mousedown', function() {
             // Event order seems to be (\ is where the mouse button is pressed, / released):
             // Chrome: \ mousedown, mouseup, focusin / click.
@@ -184,6 +186,7 @@ define(['jquery'], function($) {
         var focused = this.editor.isFocused();
         this.textarea.val(this.editor.getSession().getValue()); // Copy data back
         this.editor.destroy();
+        $(this.editNode).remove();
         if (focused) {
             this.textarea.focus();
             this.textarea[0].selectionStart = this.textarea[0].value.length;
@@ -198,12 +201,15 @@ define(['jquery'], function($) {
         var candidate,
             filename,
             result,
-            candidates = []; // List of candidate modes.
+            candidates = [], // List of candidate modes.
+            nameMap = {
+                'octave': 'matlab',
+                'nodejs': 'javascript',
+                'c#': 'cs'
+            };
 
-        if (language.toLowerCase() === 'octave') {
-            language = 'matlab';
-        } else if (language.toLowerCase() === 'nodejs') {
-            language = 'javascript';
+        if (language.toLowerCase() in nameMap) {
+            language = nameMap[language.toLowerCase()];
         }
 
         candidates = [language, language.replace(/\d*$/, "")];

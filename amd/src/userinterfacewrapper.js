@@ -22,19 +22,26 @@
  * The InterfaceWrapper provides:
  *
  * 1. A constructor InterfaceWrapper(uiname, textareaId, templateParamsJson) which
- *  hides the given text area, replaces it with a wrapper div (resizable in
- *  height by the user but with width resizing managed by changes in window
- *  width), created an instance of nameInstance as defined in the file
- *  ui_name.js (see below). templateParamsJson is the json-encoded template
- *  parameters value from the original question.
+ *    hides the given text area, replaces it with a wrapper div (resizable in
+ *    height by the user but with width resizing managed by changes in window
+ *    width), created an instance of nameInstance as defined in the file
+ *    ui_name.js (see below). templateParamsJson is the json-encoded template
+ *    parameters value from the original question.
  *
- * 2. A destroy() method that destroys the embedded UI and hides itself.
+ * 2. A stop() method that destroys the embedded UI and hides the wrapper.
  *
- * 3. Regular checking for any resizing of the wrapper, which are passed on to
- * the embedded UI element's resize() method.
+ * 3. A restart() method that shows the wrapper again and re-creates an
+ *    embedded UI component within it.
  *
- * 4. Monitoring of alt-ctrl-M key presses which toggle the visibility of the
- * wrapper plus UI element and the syncronised textArea.
+ * 4. A loadUi(uiname, lang) method that kills any currently running UI element
+ *    (if there is one) and (re)loads the specified one.
+ *
+ * 5. Regular checking for any resizing of the wrapper, which are passed on to
+ *    the embedded UI element's resize() method.
+ *
+ * 6. Monitoring of alt-ctrl-M key presses which toggle the visibility of the
+ *    wrapper plus UI element and the syncronised textArea by calls to stop()
+ *    and restart
  *
  * =========================================================================
  *
@@ -49,7 +56,7 @@
  *    or destroy methods are called. templateParams is a JavaScript object,
  *    decoded from the JSON-version stored in the question.
  *
- * 2. A getUiElement() method that returns the HTML element that the
+ * 2. A getElement() method that returns the HTML element that the
  *    InterfaceWrapper is to insert into the document tree.
  *
  * 3. A getMinSize() method that should return a record with minWidth and
@@ -96,27 +103,36 @@ define(['jquery'], function($) {
         // from the question
         // lang, which is unnecessary unless uiname == 'ace', is the language
         // for ace.
-        var textArea = $(document.getElementById(textareaId)),
-            t = this; // For use by embedded functions.
+        var  h,
+             t = this; // For use by embedded functions.
 
         this.MIN_WIDTH = 400;
         this.MIN_HEIGHT = 100;
         this.GUTTER = 14;  // Size of gutter at base of wrapper Node (pixels)
 
         this.taId = textareaId;
-        this.readOnly = textArea.prop('readonly');  // *** TO DO for ui_graph ****
-        this.uiname = uiname;
-        this.lang = lang;
-        this.textArea = textArea;
+        this.textArea = $(document.getElementById(textareaId));
+        this.readOnly = this.textArea.prop('readonly');
 
-        this.uiInstance = null;
         if (templateParamsJson) {
             this.templateParams = window.JSON.parse(templateParamsJson);
         } else {
             this.templateParams = {};
         }
 
-        this.buildGui();
+        h = parseInt(this.textArea.css("height"));
+
+        this.wrapperNode = $("<div id='" + this.taId + "_wrapper' class='ui_wrapper'></div>");
+        this.wrapperNode.css({
+            resize: 'vertical',
+            overflow: 'hidden',
+            height: h,
+            width: "100%",
+            border: "1px solid darkgrey"
+        });
+
+        this.uiInstance = null;  // Defined by loadUi asynchronously
+        this.loadUi(uiname, lang);  // Load the required UI element
 
         // Add event handlers
 
@@ -133,7 +149,7 @@ define(['jquery'], function($) {
 
             if (e.keyCode === KEY_M && e.ctrlKey && e.altKey) {
                 if (t.uiInstance !== null) {
-                    t.destroy();
+                    t.stop();
                 } else {
                     t.restart();        // Reactivate
                 }
@@ -142,44 +158,48 @@ define(['jquery'], function($) {
     }
 
 
-    InterfaceWrapper.prototype.buildGui = function() {
-        // Make the outer div with a resize handle
-        var t = this,  // For embedded 'require' function
-            h = parseInt(this.textArea.css("height")),
-            hInner = h - this.GUTTER, // UI object within wrapper has a gutter at the bottom
-            w = parseInt(this.textArea.css("width"));
+    InterfaceWrapper.prototype.loadUi = function(uiname, lang) {
+        // Load the specified UI element (which in the case of Ace will need
+        // to know the language, lang, as well).
+        // When ui is up and running, this.uiInstance will reference it.
+        var t = this;
 
-        this.wrapperNode = $("<div id='" + this.taId + "_wrapper' class='ui_wrapper'></div>");
-        this.wrapperNode.css({
-            resize: 'vertical',
-            overflow: 'hidden',
-            height: h,
-            width: "100%",
-            border: "1px solid darkgrey"
-        });
+        this.stop();  // Kill any active UI first
+        this.uiname = uiname;
+        this.lang = lang;
 
-        require(['qtype_coderunner/ui_' + this.uiname],
-            function(ui) {
-                var minSize;
+        if (this.uiname === '' || this.uiname === 'none') {
+            this.uiInstance = null;
+        } else {
+            require(['qtype_coderunner/ui_' + this.uiname],
+                function(ui) {
+                    var minSize, uiInstance, h, hInner, w;
 
-                t.uiInstance = new ui.Constructor(t.taId, w, hInner, t.templateParams, t.lang);
-                t.textArea.after(t.wrapperNode);
-                minSize = t.uiInstance.getMinSize();
-                t.wrapperNode.css({
-                    minWidth: minSize.minWidth,
-                    minHeight: minSize.minHeight + t.GUTTER
+                    h = t.wrapperNode.outerHeight();
+                    hInner = h - t.GUTTER;
+                    w = t.wrapperNode.outerWidth();
+                    uiInstance = new ui.Constructor(t.taId, w, hInner, t.templateParams, t.lang);
+                    t.textArea.after(t.wrapperNode);
+                    minSize = uiInstance.getMinSize();
+                    t.wrapperNode.css({
+                        minWidth: minSize.minWidth,
+                        minHeight: minSize.minHeight + t.GUTTER
+                    });
+                    t.hLast = h;
+                    t.wLast = w;
+                    t.wrapperNode.append(uiInstance.getElement());
+                    t.textArea.hide();
+                    t.wrapperNode.show();
+                    t.checkForResize();
+                    t.uiInstance = uiInstance;
                 });
-                t.hLast = h;
-                t.wLast = w;
-                t.wrapperNode.append(t.uiInstance.getElement());
-            });
-
-        this.textArea.hide();
+        }
     };
 
 
-    InterfaceWrapper.prototype.destroy = function() {
-        // Disable (shutdown) the ui component.
+    InterfaceWrapper.prototype.stop = function() {
+        // Disable (shutdown) the embedded ui component.
+        // The wrapper remains active for ctrl-alt-M events, but is hidden.
         if (this.uiInstance !== null) {
             this.textArea.show();
             if (this.uiInstance.hasFocus()) {
@@ -188,7 +208,7 @@ define(['jquery'], function($) {
             }
             this.uiInstance.destroy();
             this.uiInstance = null;
-            this.wrapperNode.remove();
+            this.wrapperNode.hide();
         }
     };
 
@@ -196,11 +216,11 @@ define(['jquery'], function($) {
     InterfaceWrapper.prototype.restart = function() {
         // Re-enable the ui element (e.g. after alt-cntrl-M). This is
         // a full re-initialisation of the ui element.
-
         if (this.uiInstance === null) {
             // Restart the UI component in the textarea
-            this.buildGui();
+            this.loadUi(this.uiname, this.lang);
         }
+        this.wrapperNode.show();
     };
 
 

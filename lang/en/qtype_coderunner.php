@@ -145,16 +145,15 @@ $string['filloutoneanswer'] = 'You must enter source code that satisfies the spe
 $string['firstfailure'] = 'First failing test case: {$a}';
 $string['forexample'] = 'For example';
 $string['graphhelp'] = '- Double click at a blank space to create a new node/state.
-- Double click an existing node to "mark" it e.g. as an accept state for Finite
-  state machines (FSMs). Double click again to unmark it.
+- Double click an existing node to "mark" it e.g. as an accept state for Finite State Machines
+  (FSMs). Double click again to unmark it.
 - Click and drag to move a node.
 - Shift click inside one node and drag to another to create a link.
 - Shift click on a blank space, drag to a node to create a start link (FSMs only).
 - Click and drag a link to alter its curve.
 - Click on a link/node to edit its text.
 - Typing _ followed by a digit makes that digit a subscript.
-- Typing \\epsilon creates an epsilon character (and similarly for \\alpha,
-  \\beta etc)';
+- Typing \\epsilon creates an epsilon character (and similarly for \\alpha, \\beta etc)';
 
 $string['goodemptyprecheck'] = 'Passed';
 $string['gotcolhdr'] = 'Got';

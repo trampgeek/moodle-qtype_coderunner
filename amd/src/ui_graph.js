@@ -35,47 +35,51 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
      *
      ************************************************************************/
 
-    function GraphCanvas(parent, textareaId, w, h) {
-        // Constructor, given the Graph that owns this canvas, plus
-        // the height and width of the wrapper that encloses the Canvas.
+    function GraphCanvas(parent, canvasId, w, h) {
+        // Constructor, given the Graph that owns this canvas, the
+        // required canvasId and the height and width of the wrapper that
+        // encloses the Canvas.
+
         this.HANDLE_SIZE = 10;
 
         this.parent = parent;
-        this.canvas = document.createElement("canvas");
-        this.canvas.setAttribute("id", "id_graphcanvas_" + textareaId);
-        this.canvas.setAttribute("style", "background-color: white");
-        this.canvas.setAttribute("class", "coderunner_graphcanvas");
-        this.canvas.setAttribute("tabindex", "1");  // So canvas can get focus
+        this.canvas = $(document.createElement("canvas"));
+        this.canvas.attr({
+            id:         canvasId,
+            class:      "coderunner_graphcanvas",
+            tabindex:   1 // So canvas can get focus
+        });
+        this.canvas.css({'background-color': 'white'});
 
-        this.canvas.onmousedown = function(e) {
+        this.canvas.on('mousedown', function(e) {
             return parent.mousedown(e);
-        };
+        });
 
-        this.canvas.onmouseup = function(e) {
+        this.canvas.on('mouseup', function(e) {
             return parent.mouseup(e);
-        };
+        });
 
-        this.canvas.ondblclick = function(e) {
+        this.canvas.on('dblclick', function(e) {
             return parent.dblclick(e);
-        };
+        });
 
-        this.canvas.onkeydown = function(e) {
+        this.canvas.on('keydown', function(e) {
             return parent.keydown(e);
-        };
+        });
 
-        this.canvas.onmousemove = function(e) {
+        this.canvas.on('mousemove', function(e) {
             return parent.mousemove(e);
-        };
+        });
 
-        this.canvas.onkeypress = function(e) {
+        this.canvas.on('keypress', function(e) {
             return parent.keypress(e);
-        };
+        });
 
         this.resize = function(w, h) {
             // Resize to given dimensions.
-            this.canvas.setAttribute("width", w);
-            this.canvas.setAttribute("height", h);
-            $(this.canvas).css({
+            this.canvas.attr("width", w);
+            this.canvas.attr("height", h);
+            this.canvas.css({
                 height: h,
                 width: w
             });
@@ -96,13 +100,15 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
 
         this.SNAP_TO_PADDING = 6;
         this.HIT_TARGET_PADDING = 6; // pixels
-        this.DEFAULT_NODE_RADIUS = 20;  // Pixels. Template parameter noderadius can override this
+        this.DEFAULT_NODE_RADIUS = 26;  // Pixels. Template parameter noderadius can override this
         this.MIN_WIDTH = 400;
         this.MIN_HEIGHT = 400;
 
+        this.canvasId = 'graphcanvas_' + textareaId;
         this.textArea = $(document.getElementById(textareaId));
+        this.readOnly = this.textArea.prop('readonly');
         this.templateParams = templateParams;
-        this.graphCanvas = new GraphCanvas(this, textareaId, width, height);
+        this.graphCanvas = new GraphCanvas(this,  this.canvasId, width, height);
         this.caretVisible = true;
         this.caretTimer = 0;  // Need global so we can kill a running timer
         this.originalClick = null;
@@ -136,7 +142,8 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
 
 
     Graph.prototype.getCanvas = function() {
-        return this.graphCanvas.canvas;
+        var canvas = this.graphCanvas.canvas[0];
+        return canvas;
     };
 
 
@@ -161,6 +168,10 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
     Graph.prototype.keypress = function(e) {
         var key = util.crossBrowserKey(e);
 
+        if (this.readOnly) {
+            return;
+        }
+
         if(key >= 0x20 &&
                   key <= 0x7E &&
                   !e.metaKey &&
@@ -175,8 +186,8 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
 
             // don't let keys do their actions (like space scrolls down the page)
             return false;
-        } else if(key === 8) {
-            // backspace is a shortcut for the back button, but do NOT want to change pages
+        } else if(key === 8 || key === 0x20 || key === 9) {
+            // Disable scrolling on backspace, tab and space
             return false;
         }
     };
@@ -184,6 +195,10 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
 
     Graph.prototype.mousedown = function(e) {
         var mouse = util.crossBrowserRelativeMousePos(e);
+
+        if (this.readOnly) {
+            return;
+        }
 
         this.selectedObject = this.selectObject(mouse.x, mouse.y);
         this.movingObject = false;
@@ -218,6 +233,10 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
 
     Graph.prototype.keydown = function(e) {
         var key = util.crossBrowserKey(e);
+
+        if (this.readOnly) {
+            return;
+        }
 
         if(key === 8) { // backspace key
             if(this.selectedObject !== null && 'text' in this.selectedObject) {
@@ -259,6 +278,10 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
     Graph.prototype.dblclick = function(e) {
         var mouse = util.crossBrowserRelativeMousePos(e);
 
+        if (this.readOnly) {
+            return;
+        }
+
         this.selectedObject = this.selectObject(mouse.x, mouse.y);
 
         if(this.selectedObject === null) {
@@ -285,6 +308,10 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         var mouse = util.crossBrowserRelativeMousePos(e),
             closestPoint,
             mouseInHelpBox = this.helpBox.containsPoint(mouse.x, mouse.y);
+
+        if (this.readOnly) {
+            return;
+        }
 
        if (mouseInHelpBox != this.helpBoxHighlighted) {
            this.helpBoxHighlighted = mouseInHelpBox;
@@ -328,6 +355,11 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
 
 
     Graph.prototype.mouseup = function() {
+
+        if (this.readOnly) {
+            return;
+        }
+
         this.movingObject = false;
 
         if(this.currentLink !== null) {
@@ -379,63 +411,63 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
 
 
     Graph.prototype.reload = function() {
-        if(!JSON) {
-            return;
-        }
+        var content = $(this.textArea).val();
+        if (content) {
+            try {
+                // load up the student's previous answer if non-empty
+                var backup = JSON.parse(content);
 
-        try {
-            // load up the student's previous answer
-            var backup = JSON.parse($(this.textArea).val());
-
-            for(var i = 0; i < backup.nodes.length; i++) {
-                var backupNode = backup.nodes[i];
-                var backupNodeLayout = backup.nodeGeometry[i];
-                var node = new elements.Node(this, backupNodeLayout[0], backupNodeLayout[1]);
-                node.isAcceptState = backupNode[1];
-                node.text = backupNode[0];
-                this.nodes.push(node);
-            }
-
-            for(var i = 0; i < backup.edges.length; i++) {
-                var backupLink = backup.edges[i];
-                var backupLinkLayout = backup.edgeGeometry[i];
-                var link = null;
-                if(backupLink[0] === backupLink[1]) {
-                    // self link has two identical nodes
-                    link = new elements.SelfLink(this, this.nodes[backupLink[0]]);
-                    link.anchorAngle = backupLinkLayout.anchorAngle;
-                    link.text = backupLink[2];
-                } else if(backupLink[0] === -1) {
-                    link = new elements.StartLink(this, this.nodes[backupLink[1]]);
-                    link.deltaX = backupLinkLayout.deltaX;
-                    link.deltaY = backupLinkLayout.deltaY;
-                } else {
-                    link = new elements.Link(this, this.nodes[backupLink[0]], this.nodes[backupLink[1]]);
-                    link.parallelPart = backupLinkLayout.parallelPart;
-                    link.perpendicularPart = backupLinkLayout.perpendicularPart;
-                    link.text = backupLink[2];
-                    link.lineAngleAdjust = backupLinkLayout.lineAngleAdjust;
+                for(var i = 0; i < backup.nodes.length; i++) {
+                    var backupNode = backup.nodes[i];
+                    var backupNodeLayout = backup.nodeGeometry[i];
+                    var node = new elements.Node(this, backupNodeLayout[0], backupNodeLayout[1]);
+                    node.isAcceptState = backupNode[1];
+                    node.text = backupNode[0];
+                    this.nodes.push(node);
                 }
-                if(link !== null) {
-                    this.links.push(link);
+
+                for(var i = 0; i < backup.edges.length; i++) {
+                    var backupLink = backup.edges[i];
+                    var backupLinkLayout = backup.edgeGeometry[i];
+                    var link = null;
+                    if(backupLink[0] === backupLink[1]) {
+                        // self link has two identical nodes
+                        link = new elements.SelfLink(this, this.nodes[backupLink[0]]);
+                        link.anchorAngle = backupLinkLayout.anchorAngle;
+                        link.text = backupLink[2];
+                    } else if(backupLink[0] === -1) {
+                        link = new elements.StartLink(this, this.nodes[backupLink[1]]);
+                        link.deltaX = backupLinkLayout.deltaX;
+                        link.deltaY = backupLinkLayout.deltaY;
+                    } else {
+                        link = new elements.Link(this, this.nodes[backupLink[0]], this.nodes[backupLink[1]]);
+                        link.parallelPart = backupLinkLayout.parallelPart;
+                        link.perpendicularPart = backupLinkLayout.perpendicularPart;
+                        link.text = backupLink[2];
+                        link.lineAngleAdjust = backupLinkLayout.lineAngleAdjust;
+                    }
+                    if(link !== null) {
+                        this.links.push(link);
+                    }
                 }
+            } catch(e) {
+                alert("TextArea contents are not a valid graph."); // error loading previous answer
             }
-        } catch(e) {
-            // error loading previous answer
         }
     };
 
     Graph.prototype.save = function() {
-        if(!JSON) {
-            return;
-        }
 
         var backup = {
             'edgeGeometry': [],
             'nodeGeometry': [],
             'nodes': [],
             'edges': [],
-        };
+            };
+
+        if(!JSON || (this.textArea.val().trim() === '' && this.nodes.length === 0)) {
+            return;  // Don't save if we have an empty textbox and no graphic content
+        }
 
         for(var i = 0; i < this.nodes.length; i++) {
             var node = this.nodes[i];
@@ -476,12 +508,13 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
                 backup.edgeGeometry.push(linkLayout);
             }
         }
-        $(this.textArea).val(JSON.stringify(backup));
+        this.textArea.val(JSON.stringify(backup));
     };
 
 
     Graph.prototype.destroy = function () {
-        this.getCanvas().remove();
+        this.graphCanvas.canvas.off(); // Stop all events
+        this.graphCanvas.canvas.remove();
     };
 
 
@@ -498,7 +531,8 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
 
 
     Graph.prototype.draw = function () {
-        var c = this.getCanvas().getContext('2d');
+        var canvas = this.getCanvas(),
+            c = canvas.getContext('2d');
 
         c.clearRect(0, 0, this.getCanvas().width, this.getCanvas().height);
         c.save();

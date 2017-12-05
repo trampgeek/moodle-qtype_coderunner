@@ -29,16 +29,17 @@ use qtype_coderunner\constants;
 class qtype_coderunner_util {
     /*
      * Load/initialise the specified UI JavaScipt plugin  for the given question.
+     * A null plugin loads Ace.
      * $textareaid is the id of the textarea that the UI plugin is to manage.
      */
     public static function load_uiplugin_js($question, $textareaid, $loadAce=true) {
         global $CFG, $PAGE;
 
         if ($loadAce) {
-            self::load_ace(); // Ace isn't an AMD module. Load all it's modules.
+            self::load_ace(); // Ace isn't an AMD module. Load all its modules.
         }
-        $uiplugin = strtolower($question->uiplugin);
-        if ($uiplugin && $uiplugin !== 'none') {
+        $uiplugin = $question->uiplugin === null ? 'ace' : strtolower($question->uiplugin);
+        if ($uiplugin !== '' && $uiplugin !== 'none') {
             $PAGE->requires->strings_for_js(constants::ui_plugin_keys(), 'qtype_coderunner');
             $params = array($uiplugin, $textareaid, $question->templateparams); // Params to plugin's init function.
             if ($uiplugin === 'ace') {

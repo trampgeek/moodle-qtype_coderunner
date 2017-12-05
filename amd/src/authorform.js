@@ -90,36 +90,38 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
         // to the given UI controller (which may be "None" or, equivalently, empty).
         function setUi(taId, uiname) {
             var ta = $(document.getElementById(taId)),  // The jquery text area element(s)
-                currentUi,
-                lang;
+                uiWrapper,
+                lang = null;
 
             uiname = uiname.toLowerCase();
             if (uiname === 'none') {
                 uiname = '';
             }
 
-            if (ta) {
-                currentUi = ta.data('current-ui'); // Currently-active UI on this ta
-                if (currentUi) {
-                    currentUi.destroy(); // Stop the current UI
-                    currentUi = null;
-                }
+            uiWrapper = ta.data('current-ui-wrapper'); // Currently-active UI wrapper on this ta
 
-                if (uiname === "ace") {
-                    // The Ace UI needs a language. Use the value specified in 'acelang'
-                    // for all fields other than the template, if the value is defined,
-                    // or the value in 'language' in all other cases.
-                    lang = language.prop('value');
-                    if (taId !== "id_template" && acelang.prop('value')) {
-                        lang =  acelang.prop('value');
-                    }
-                    currentUi = ui.newUiWrapper(uiname, taId, templateParams, lang);
-                } else if (uiname !== '') {
-                    currentUi = ui.newUiWrapper(uiname, taId, templateParams);
-                }
-
-                ta.data('current-ui', currentUi);
+            if (uiWrapper && uiWrapper.uiname === uiname) {
+                return; // We already have what we want - give up
             }
+
+            if (uiname === "ace") {
+                // The Ace UI needs a language. Use the value specified in 'acelang'
+                // for all fields other than the template, if the value is defined,
+                // or the value in 'language' in all other cases.
+                lang = language.prop('value');
+                if (taId !== "id_template" && acelang.prop('value')) {
+                    lang =  acelang.prop('value');
+                }
+            }
+
+            if (!uiWrapper) {
+               uiWrapper = ui.newUiWrapper(uiname, taId, templateParams, lang);
+            } else if (uiname !== '') {
+                uiWrapper.loadUi(uiname, lang);
+            }
+
+            ta.data('current-ui-wrapper', uiWrapper);
+
         }
 
         // Set the correct Ui controller on both the sample answer and the answer preload
