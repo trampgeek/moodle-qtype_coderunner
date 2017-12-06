@@ -116,7 +116,8 @@ EOTEMPLATE;
     public function test_template_params() {
         // Test that a templateparams field in the question is expanded
         // from a JSON string and available to the template engine.
-        $q = $this->make_question('sqr');$q = $this->make_question('sqr');
+
+        $q = $this->make_question('sqr');
         $q->templateparams = '{"age":23, "string":"blah"}';
         $q->template = <<<EOTEMPLATE
 {{ STUDENT_ANSWER }}
