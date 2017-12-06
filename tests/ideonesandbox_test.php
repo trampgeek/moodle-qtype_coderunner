@@ -135,25 +135,6 @@ class qtype_coderunner_ideonesandbox_test extends qtype_coderunner_testcase {
         $this->assertEquals('', $result->cmpinfo);
         $sandbox->close();
     }
-
-
-    // Test the Ideone sandbox will not allow opening, writing and reading in /tmp.
-    public function test_ideone_sandbox_fileio_bad() {
-        $this->check_sandbox_enabled('ideonesandbox');
-        $sandbox = new qtype_coderunner_ideonesandbox();
-        $code = <<< EOCODE
-import os
-f = open('/tmp/junk', 'w')
-f.write('stuff')
-f.close()
-f = open('/tmp/junk')
-print(f.read())
-f.close()
-EOCODE;
-        $result = $sandbox->execute($code, 'python3', null);
-        $this->assertEquals(qtype_coderunner_sandbox::RESULT_RUNTIME_ERROR, $result->result);
-        $sandbox->close();
-    }
 }
 
 
