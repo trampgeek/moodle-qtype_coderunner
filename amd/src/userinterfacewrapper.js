@@ -49,7 +49,7 @@
  * of the form ui_name.js which must define a class nameInstance with
  * the following functionality:
  *
- * 1. A constructor AnyName(textareaId, width, height, templateParams) that
+ * 1. A constructor SomeUiName(textareaId, width, height, templateParams) that
  *    builds an HTML component of the given width and height. textareaId is the
  *    ID of the textArea from which the UI element should obtain its initial
  *    serialisation and to which it should write the serialisation when its save
@@ -59,20 +59,31 @@
  * 2. A getElement() method that returns the HTML element that the
  *    InterfaceWrapper is to insert into the document tree.
  *
- * 3. A getMinSize() method that should return a record with minWidth and
+ * 3. A method failed() that should return true unless the constructor
+ *    failed (e.g. because it was not able to de-serialise the text area's
+ *    contents). The wrapper will call destroy() on the object if failed()
+ *    returns true and abort the use of the UI element. THe element should
+ *    issue its own alert if it fails.
+ *
+ * 4. A getMinSize() method that should return a record with minWidth and
  *    minHeight values. These will be used to control the minimum size of the
  *    userinterface wrapper.
  *
- * 4. A destroy() method that should save the contents to the text area then
+ * 5. A destroy() method that should save the contents to the text area then
  *    destroy any HTML elements or other created content.
  *
- * 5. A resize(width, height) method that should resize the entire UI element
+ * 6. A resize(width, height) method that should resize the entire UI element
  *    to the given dimensions.
  *
- * 6. A hasFocus() method that returns true if the UI element has focus.
+ * 7. A hasFocus() method that returns true if the UI element has focus.
  *
  * The return value from the module define is a record with a single field
  * 'Constructor' that references the constructor (e.g. Graph, AceWrapper etc)
+ *
+ * If the module needs any strings from one of the language files, it should
+ * access them via a call like M.util.get_string('graphfail', 'qtype_coderunner').
+ * Any such strings must be defined explicitly in the function
+ * constants::ui_plugin_keys().
  *
  *****************************************************************************/
 
@@ -179,19 +190,26 @@ define(['jquery'], function($) {
                     hInner = h - t.GUTTER;
                     w = t.wrapperNode.outerWidth();
                     uiInstance = new ui.Constructor(t.taId, w, hInner, t.templateParams, t.lang);
-                    t.textArea.after(t.wrapperNode);
-                    minSize = uiInstance.getMinSize();
-                    t.wrapperNode.css({
-                        minWidth: minSize.minWidth,
-                        minHeight: minSize.minHeight + t.GUTTER
-                    });
-                    t.hLast = h;
-                    t.wLast = w;
-                    t.wrapperNode.append(uiInstance.getElement());
-                    t.textArea.hide();
-                    t.wrapperNode.show();
-                    t.checkForResize();
-                    t.uiInstance = uiInstance;
+                    if (uiInstance.fail()) {
+                        // Constructor failed. Abort.
+                        uiInstance.destroy();
+                        t.wrapperNode.hide();
+                        t.uiInstance = null;  //
+                    } else {
+                        t.textArea.after(t.wrapperNode);
+                        minSize = uiInstance.getMinSize();
+                        t.wrapperNode.css({
+                            minWidth: minSize.minWidth,
+                            minHeight: minSize.minHeight + t.GUTTER
+                        });
+                        t.hLast = h;
+                        t.wLast = w;
+                        t.wrapperNode.append(uiInstance.getElement());
+                        t.textArea.hide();
+                        t.wrapperNode.show();
+                        t.checkForResize();
+                        t.uiInstance = uiInstance;
+                    }
                 });
         }
     };

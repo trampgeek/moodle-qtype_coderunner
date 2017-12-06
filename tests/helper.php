@@ -432,9 +432,9 @@ except ValueError:
     }
 
     /**
-     * Makes a coderunner question of type 'sqr_user_prototype' to check out
-     * inheritance. The prototype must have been created before this method
-     * can be called.
+     * Makes a coderunner question of type 'sqr_user_prototype_child' to check out
+     * inheritance. The prototype (sqr_user_prototype) must have been created
+     * before this method can be called.
      */
     public function make_coderunner_question_sqr_user_prototype_child() {
         $coderunner = $this->make_coderunner_question(
@@ -443,7 +443,8 @@ except ValueError:
                 'Answer should (somehow) produce the expected answer below',
                 array(
                     array('expected'   => "This is data\nLine 2")
-                )
+                ),
+                array('templateparams' => '{"xxx":1, "zzz": 2}')
         );
         return $coderunner;
     }
@@ -955,6 +956,7 @@ EOPROG;
      * get_question_options method, as we'd like to, because it requires
      * a form rather than a question and may have a files area with files
      * to upload - too hard to set up :-(
+     * However, we use most of the same code by calling set_inherited_fields.
      * The normal get_options method returns all the options in
      * the 'options' field of the object, but CodeRunner then subsequently
      * flattens the options into the question itself. This implementation does
@@ -967,7 +969,7 @@ EOPROG;
         global $CFG, $DB;
 
         $type = $question->coderunnertype;
-
+        $questiontype = new qtype_coderunner();
         if (!$row = $DB->get_record_select(
                    'question_coderunner_options',
                    "coderunnertype = '$type' and prototypetype != 0")) {
@@ -975,16 +977,8 @@ EOPROG;
                throw new qtype_coderunner_missing_question_type($error);
         }
 
-        $noninherited = qtype_coderunner::noninherited_fields();
-        foreach ($row as $field => $value) {
-            if (!in_array($field, $noninherited)) {
-                $question->$field = $value;
-            }
-        }
-
-        foreach ($question->options as $key => $value) {
-            $question->$key = $value;
-        }
+        $question->questionid = $row->questionid;
+        $questiontype->set_inherited_fields($question, $row);
 
         // What follows is a rather horrible hack to support question export
         // testing. Having built the flattened question, we now "unflatten"
@@ -1002,9 +996,6 @@ EOPROG;
         $question->options->answers = array();  // For compatability with questiontype base.
         $question->options->testcases = $question->testcases;
 
-        if (!isset($question->grader)) {
-            $question->grader = 'EqualityGrader';
-        }
     }
 
     // Given an array of tests in which each element has just the bare minimum
@@ -1041,6 +1032,7 @@ EOPROG;
         test_question_maker::initialise_a_question($coderunner);
         $coderunner->qtype = question_bank::get_qtype('coderunner');
         $coderunner->coderunnertype = $type;
+        $coderunner->templateparams = '';
         $coderunner->prototypetype = 0;
         $coderunner->name = $name;
         $coderunner->useace = true;
@@ -1055,6 +1047,7 @@ EOPROG;
         $coderunner->isnew = true;  // Extra field normally added by save_question.
         $coderunner->context = context_system::instance(); // Use system context for testing.
         foreach ($otheroptions as $key => $value) {
+            $coderunner->$key = $value;
             $coderunner->options[$key] = $value;
         }
         $this->get_options($coderunner);

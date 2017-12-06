@@ -807,7 +807,8 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $contextid = $DB->get_field('question_categories', 'contextid', array('id' => $category));
         $question->contextid = $contextid;
         $context = context::instance_by_id($contextid, IGNORE_MISSING);
-        $qtype->set_inherited_fields($question, $questiontype, $context);
+        $prototype = $this->get_prototype($questiontype, $context);
+        $qtype->set_inherited_fields($question, $prototype);
         list($mark, $state, $cachedata) = $question->grade_response(array('answer' => $answer));
 
         // Return either an empty string if run was good or an error message.

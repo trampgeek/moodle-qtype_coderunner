@@ -144,6 +144,7 @@ $string['fileheader'] = 'Support files';
 $string['filloutoneanswer'] = 'You must enter source code that satisfies the specification. The code you enter will be executed to determine its correctness and a grade awarded accordingly.';
 $string['firstfailure'] = 'First failing test case: {$a}';
 $string['forexample'] = 'For example';
+$string['graphfail'] = "TextArea contents are not a valid graph. Aborting.";
 $string['graphhelp'] = '- Double click at a blank space to create a new node/state.
 - Double click an existing node to "mark" it e.g. as an accept state for Finite State Machines
   (FSMs). Double click again to unmark it.

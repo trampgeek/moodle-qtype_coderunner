@@ -105,6 +105,11 @@ define(['jquery'], function($) {
     }
 
 
+    AceWrapper.prototype.failed = function() {
+        return true;
+    };
+
+
     AceWrapper.prototype.getMinSize = function() {
         return {
             minWidth: this.MIN_WIDTH,
@@ -212,7 +217,7 @@ define(['jquery'], function($) {
             language = nameMap[language.toLowerCase()];
         }
 
-        candidates = [language, language.replace(/\d*$/, "")];
+        candidates = [language, language.replace(/\d+$/, "")];
         for (var i = 0; i < candidates.length; i++) {
             candidate = candidates[i];
             filename = "input." + candidate;

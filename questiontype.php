@@ -357,7 +357,8 @@ class qtype_coderunner extends question_type {
         } else {
             $qtype = $question->options->coderunnertype;
             $context = $this->question_context($question);
-            $this->set_inherited_fields($question->options, $qtype, $context);
+            $prototype = $this->get_prototype($questiontype, $context);
+            $this->set_inherited_fields($question->options, $prototype);
         }
 
         // Add in any testcases (expect none for built-in prototypes and
@@ -382,6 +383,7 @@ class qtype_coderunner extends question_type {
      * If any of the inherited fields are modified (i.e. any of the extra fields not
      * in the noninheritedFields list), the 'customise' field is set.
      * This is used only to display the customisation panel during authoring.
+     * Also merge question->templateparams (if any) from prototype into $target
      * @param object $target the target object whose fields are being set. It should
      * be either a qtype_coderunner_question object or its options field ($question->options).
      * @param string $questiontype the coderunner type (e.g. 'c_function'). This
@@ -389,13 +391,12 @@ class qtype_coderunner extends question_type {
      * @param context $context the context for this question. This defines the
      * search path for the required prototype.
      */
-    public function set_inherited_fields($target, $questiontype, $context) {
-        $row = $this->get_prototype($questiontype, $context);
-        unset($row->id);
-        unset($row->questionid);
+    public function set_inherited_fields($target, $prototype) {
+        unset($prototype->id);
+        unset($prototype->questionid);
         $target->customise = false; // Starting assumption.
         $noninheritedfields = $this->noninherited_fields();
-        foreach ($row as $field => $value) {
+        foreach ($prototype as $field => $value) {
             $isinheritedfield = !in_array($field, $noninheritedfields);
             if ($isinheritedfield) {
                 if (isset($target->$field) &&
@@ -406,6 +407,14 @@ class qtype_coderunner extends question_type {
                 } else {
                     $target->$field = $value;
                 }
+            }
+        }
+
+        if (!empty($prototype->templateparams)) {
+            if (empty($target->templateparams)) {
+                $target->templateparams = $prototype->templateparams;
+            } else {
+                $target->templateparams = $this->mergejson($prototype->templateparams, $target->templateparams);
             }
         }
 
@@ -772,6 +781,24 @@ class qtype_coderunner extends question_type {
             $s = substr($s, 0, strlen($s) - 1);
         }
         return $s;
+    }
+
+    /** Support function to merge the JSON template parameters from the
+     *  the prototype with the child's template params. The prototype can
+     *  be overridden by the child.
+     */
+    private function mergejson($prototypejson, $childjson) {
+        $result = new stdClass();
+
+        foreach (json_decode($prototypejson) as $attr => $field) {
+            $result->$attr = $field;
+        }
+
+        foreach (json_decode($childjson) as $attr => $field) {
+            $result->$attr = $field;
+        }
+
+        return json_encode($result);
     }
 }
 

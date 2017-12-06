@@ -119,14 +119,23 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         this.selectedObject = null; // either a elements.Link or a elements.Node
         this.currentLink = null; // a elements.Link
         this.movingObject = false;
-
+        this.failed = false;  // Will be set true if reload fails (can't deserialise)
         this.reload();
-        this.draw();
+        if (!this.failed) {
+            this.draw();
+        }
     }
+
+
+    Graph.prototype.failed = function() {
+        return this.failed;
+    };
+
 
     Graph.prototype.getElement = function() {
         return this.getCanvas();
     };
+
 
     Graph.prototype.getMinSize = function() {
         return {
@@ -411,7 +420,8 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
 
 
     Graph.prototype.reload = function() {
-        var content = $(this.textArea).val();
+        var content = $(this.textArea).val(),
+            failMessage = M.util.get_string('graphfail', 'qtype_coderunner');
         if (content) {
             try {
                 // load up the student's previous answer if non-empty
@@ -451,7 +461,8 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
                     }
                 }
             } catch(e) {
-                alert("TextArea contents are not a valid graph."); // error loading previous answer
+                alert(failMessage); // error loading previous answer
+                this.failed = true;
             }
         }
     };
