@@ -260,15 +260,18 @@ define(['jquery'], function($) {
         var candidate,
             filename,
             result,
-            candidates = []; // List of candidate modes.
+            candidates = [], // List of candidate modes.
+            nameMap = {
+                'octave': 'matlab',
+                'nodejs': 'javascript',
+                'c#': 'cs'
+            };
 
-        if (language.toLowerCase() === 'octave') {
-            language = 'matlab';
-        } else if (language.toLowerCase() === 'nodejs') {
-            language = 'javascript';
+        if (language.toLowerCase() in nameMap) {
+            language = nameMap[language.toLowerCase()];
         }
 
-        candidates = [language, language.replace(/\d*$/, "")];
+        candidates = [language, language.replace(/\d+$/, "")];
         for (var i = 0; i < candidates.length; i++) {
             candidate = candidates[i];
             filename = "input." + candidate;
