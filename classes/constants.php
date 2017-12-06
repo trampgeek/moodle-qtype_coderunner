@@ -45,6 +45,6 @@ class constants {
     const MAX_NUM_LINES = 200;       // Maximum number of lines of text to be displayed a result table cell.
 
     static function ui_plugin_keys() {
-        return array('graphhelp');  // All qtype_coderunner lang string names reqd by any plugins go here.
+        return array('graphhelp', 'graphfail');  // All qtype_coderunner lang string names reqd by any plugins go here.
     }
 }
