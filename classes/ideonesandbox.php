@@ -56,20 +56,29 @@ class qtype_coderunner_ideonesandbox extends qtype_coderunner_sandbox {
         // A map from Ideone language names (regular expressions) to their
         // local short name, where appropriate.
 
-        $aliases = array('C99 strict.*'             => 'c',
+        $aliases = array('C99 .*'                   => 'c',
                      '.*python *2\.[789]\.[0-9].*'  => 'python2',
-                     'Python 3.*python-3\.*'        => 'python3',
+                     'Python *3 *\(python.*'        => 'python3',
                      'Java.*sun-jdk.*'              => 'java');
 
         $this->client = $client = new SoapClient("http://ideone.com/api/1/service.wsdl");
         $this->langmap = array();  // Construct a map from language name to id.
 
+        // Build a table mapping from language name to Ideone language ID.
+        // Names are the Ideone names up to but not including the ' (',
+        // converted to lower case. Only the first occurrence of a name is
+        // recorded. Also, the aliases c, python2, python3 and java are as
+        // above.
         $response = $this->client->getLanguages($user, $pass);
         $this->langserror = $response['error'];
 
         if ($this->langserror == self::OK) {
             foreach ($response['languages'] as $id => $lang) {
-                $this->langmap[$lang] = $id;
+                $endofname = strpos($lang, ' (');
+                $shortlangname = strtolower(trim(substr($lang, 0, $endofname)));
+                if (empty($this->langmap[$shortlangname])) {
+                    $this->langmap[$shortlangname] = $id;
+                }
                 foreach ($aliases as $pattern => $alias) {
                     if (preg_match('/' . $pattern . '/', $lang)) {
                         $this->langmap[$alias] = $id;
@@ -79,7 +88,6 @@ class qtype_coderunner_ideonesandbox extends qtype_coderunner_sandbox {
         } else {
             $this->langmap = array();
         }
-
     }
 
 
