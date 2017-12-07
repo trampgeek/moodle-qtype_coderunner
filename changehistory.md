@@ -1,5 +1,9 @@
 # CHANGE HISTORY
 
+### 7 December 2017. 3.2.2+
+* Update ideonesandbox code for compatibility with latest language strings in
+  Ideone server. [But IdeoneSandbox is not supported.]
+
 ### 3 December 2017. 3.2.2
 * Incorporate changes from abautu (Andrei Bautu) to allow question authors
 to update test case 'expected' fields directly from a table of
