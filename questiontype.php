@@ -160,7 +160,10 @@ class qtype_coderunner extends question_type {
 
 
     // Function to copy testcases from form fields into question->testcases.
-    private function copy_testcases_from_form(&$question) {
+    // Don't sort the testcases by 'ordering' if this is a validation run
+    // because we need to keep rows in $question->testcases one-for-one
+    // with rows in form.
+    private function copy_testcases_from_form(&$question, $isvalidation) {
         $testcases = array();
         if (empty($question->testcode)) {
             $numtests = 0;  // Must be a combinator template grader with no tests.
@@ -169,17 +172,17 @@ class qtype_coderunner extends question_type {
             assert(count($question->expected) == $numtests);
         }
         for ($i = 0; $i < $numtests; $i++) {
-            $input = $this->filter_crs($question->testcode[$i]);
+            $testcode = $this->filter_crs($question->testcode[$i]);
             $stdin = $this->filter_crs($question->stdin[$i]);
             $expected = $this->filter_crs($question->expected[$i]);
             $extra = $this->filter_crs($question->extra[$i]);
-            if ($input === '' && $stdin === '' && $expected === '' && $extra === '') {
+            if ($testcode === '' && $stdin === '' && $expected === '' && $extra === '' &&!$isvalidation) {
                 continue;
             }
             $testcase = new stdClass;
             $testcase->questionid = isset($question->id) ? $question->id : 0;
             $testcase->testtype = isset($question->testtype[$i]) ? $question->testtype[$i] : 0;
-            $testcase->testcode = $input;
+            $testcase->testcode = $testcode;
             $testcase->stdin = $stdin;
             $testcase->expected = $expected;
             $testcase->extra = $extra;
@@ -191,13 +194,15 @@ class qtype_coderunner extends question_type {
             $testcases[] = $testcase;
         }
 
-        usort($testcases, function ($tc1, $tc2) {
-            if ($tc1->ordering === $tc2->ordering) {
-                return 0;
-            } else {
-                return $tc1->ordering < $tc2->ordering ? -1 : 1;
-            }
-        });  // Sort by ordering field.
+        if (!$isvalidation) {
+            usort($testcases, function ($tc1, $tc2) {
+                if ($tc1->ordering === $tc2->ordering) {
+                    return 0;
+                } else {
+                    return $tc1->ordering < $tc2->ordering ? -1 : 1;
+                }
+            });  // Sort by ordering field.
+        }
 
         $question->testcases = $testcases;
     }
@@ -272,6 +277,7 @@ class qtype_coderunner extends question_type {
     /**
      * Clean up the "question" (which is actually the question editing form)
      * ready for saving or for testing before saving ($isvalidation == true).
+     * Don't sort the testcases if it's for validation.
      * @param $question the question editing form
      * @param $isvalidation true if we're cleaning for validation rather than saving.
      */
@@ -323,7 +329,7 @@ class qtype_coderunner extends question_type {
         }
 
         if (!isset($question->testcases)) {
-            $this->copy_testcases_from_form($question);
+            $this->copy_testcases_from_form($question, $isvalidation);
         }
     }
 
@@ -357,7 +363,7 @@ class qtype_coderunner extends question_type {
         } else {
             $qtype = $question->options->coderunnertype;
             $context = $this->question_context($question);
-            $prototype = $this->get_prototype($questiontype, $context);
+            $prototype = $this->get_prototype($qtype, $context);
             $this->set_inherited_fields($question->options, $prototype);
         }
 
