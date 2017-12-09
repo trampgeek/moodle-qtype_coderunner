@@ -116,7 +116,7 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
 
             if (!uiWrapper) {
                uiWrapper = ui.newUiWrapper(uiname, taId, templateParams, lang);
-            } else if (uiname !== '') {
+            } else {
                 uiWrapper.loadUi(uiname, lang);
             }
 
@@ -305,9 +305,9 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
         useace.on('change', function() {
             var isTurningOn = useace.prop('checked');
             if (isTurningOn) {
-                setUi('template', 'ace');
+                setUi('id_template', 'ace');
             } else {
-                setUi('template', '');
+                setUi('id_template', '');
             }
         });
 

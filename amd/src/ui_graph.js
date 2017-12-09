@@ -119,7 +119,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         this.selectedObject = null; // either a elements.Link or a elements.Node
         this.currentLink = null; // a elements.Link
         this.movingObject = false;
-        this.failed = false;  // Will be set true if reload fails (can't deserialise)
+        this.fail = false;  // Will be set true if reload fails (can't deserialise)
         this.reload();
         if (!this.failed) {
             this.draw();
@@ -128,7 +128,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
 
 
     Graph.prototype.failed = function() {
-        return this.failed;
+        return this.fail;
     };
 
 
@@ -462,7 +462,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
                 }
             } catch(e) {
                 alert(failMessage); // error loading previous answer
-                this.failed = true;
+                this.fail = true;
             }
         }
     };
@@ -524,8 +524,10 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
 
 
     Graph.prototype.destroy = function () {
+        clearInterval(this.caretTimer); // Stop the caret timer
         this.graphCanvas.canvas.off(); // Stop all events
         this.graphCanvas.canvas.remove();
+
     };
 
 

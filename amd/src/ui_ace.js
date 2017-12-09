@@ -106,7 +106,7 @@ define(['jquery'], function($) {
 
 
     AceWrapper.prototype.failed = function() {
-        return true;
+        return false;
     };
 
 

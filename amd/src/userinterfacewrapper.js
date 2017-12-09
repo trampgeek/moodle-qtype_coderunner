@@ -190,7 +190,7 @@ define(['jquery'], function($) {
                     hInner = h - t.GUTTER;
                     w = t.wrapperNode.outerWidth();
                     uiInstance = new ui.Constructor(t.taId, w, hInner, t.templateParams, t.lang);
-                    if (uiInstance.fail()) {
+                    if (uiInstance.failed()) {
                         // Constructor failed. Abort.
                         uiInstance.destroy();
                         t.wrapperNode.hide();
@@ -202,13 +202,13 @@ define(['jquery'], function($) {
                             minWidth: minSize.minWidth,
                             minHeight: minSize.minHeight + t.GUTTER
                         });
-                        t.hLast = h;
-                        t.wLast = w;
+                        t.hLast = 0;  // Force resize (and hence redraw)
+                        t.wLast = 0;  // ... on first call to checkForResize
                         t.wrapperNode.append(uiInstance.getElement());
                         t.textArea.hide();
                         t.wrapperNode.show();
-                        t.checkForResize();
                         t.uiInstance = uiInstance;
+                        t.checkForResize();
                     }
                 });
         }
