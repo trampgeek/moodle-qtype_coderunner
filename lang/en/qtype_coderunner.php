@@ -212,9 +212,9 @@ $string['howtogetmore'] = 'For more detailed information, save the question with
 
 $string['iscombinatortemplate'] = 'Is combinator';
 $string['ideone_user'] = 'Ideone server user';
-$string['ideone_user_desc'] = 'The login name to use when connecting to the Ideone server (if the ideone sandbox is enabled)';
+$string['ideone_user_desc'] = 'The login name to use when connecting to the deprecated Ideone server (if enabled)';
 $string['ideone_pass'] = 'Ideone server password';
-$string['ideone_pass_desc'] = 'The password to use when connecting to the Ideone server (if the ideone sandbox is enabled)';
+$string['ideone_pass_desc'] = 'The password to use when connecting to the deprecated Ideone server (if enabled)';
 $string['info_unavailable'] = 'Question type information is not available for customised questions.';
 $string['inputcolhdr'] = 'Input';
 $string['is_prototype'] = 'Use as prototype';

@@ -1,8 +1,15 @@
 # CHANGE HISTORY
 
-### 7 December 2017. 3.2.2+
+### 9 December 2017. 3.2.3
+* Merge a questions template parameters with those of the question
+  prototype, if defined. Prototype template parameters were ignored in
+  the past.
+* Some code cleaning.
+* Bug fix: auto-correct of failing test cases during validation was
+  "fixing" the wrong row if the author had set the 'ordering' values to
+  be not monotonically increasing.
 * Update ideonesandbox code for compatibility with latest language strings in
-  Ideone server. [But IdeoneSandbox is not supported.]
+  Ideone server. [But IdeoneSandbox is deprecated.]
 
 ### 3 December 2017. 3.2.2
 * Incorporate changes from abautu (Andrei Bautu) to allow question authors
