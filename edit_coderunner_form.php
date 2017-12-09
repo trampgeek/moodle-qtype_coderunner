@@ -62,7 +62,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $keys = array('coderunner_question_type', 'confirm_proceed', 'template_changed',
             'info_unavailable', 'proceed_at_own_risk', 'error_loading_prototype',
             'ajax_error', 'prototype_load_failure', 'prototype_error',
-            'coderunner_question_type', 'question_type_changed');
+            'coderunner_question_type', 'question_type_changed', 'graphhelp');
         $PAGE->requires->strings_for_js($keys, 'qtype_coderunner');
         $PAGE->requires->js_call_amd('qtype_coderunner/textareas', 'setupAllTAs');
         $PAGE->requires->js_call_amd('qtype_coderunner/authorform', 'initEditForm');
@@ -484,9 +484,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 array('size' => 3, 'class' => 'coderunner_answerbox_size'));
         $mform->setType('answerboxcolumns', PARAM_INT);
         $mform->setDefault('answerboxcolumns', self::DEFAULT_NUM_COLS);
-        $answerboxelements[] = $mform->createElement('advcheckbox', 'useace', null,
-                get_string('useace', 'qtype_coderunner'));
-        $mform->setDefault('useace', true);
+
         $mform->addElement('group', 'answerbox_group', get_string('answerbox_group', 'qtype_coderunner'),
                 $answerboxelements, null, false);
         $mform->addHelpButton('answerbox_group', 'answerbox_group', 'qtype_coderunner');
@@ -585,7 +583,39 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->setType('resultcolumns', PARAM_RAW);
         $mform->addHelpButton('resultcolumns', 'resultcolumns', 'qtype_coderunner');
 
+        $uicontrols = array();
+        $uitypes = $this->getUiPlugins();
+
+        $uicontrols[] = $mform->createElement('select', 'uiplugin',
+                get_string('student_answer', 'qtype_coderunner'), $uitypes);
+        $mform->setDefault('uiplugin', 'ace');
+        $uicontrols[] = $mform->createElement('advcheckbox', 'useace', null,
+                get_string('useace', 'qtype_coderunner'));
+        $mform->setDefault('useace', true);
+        $mform->addElement('group', 'uicontrols',
+                get_string('uicontrols', 'qtype_coderunner'), $uicontrols,
+                null, false);
+        $mform->addHelpButton('uicontrols', 'uicontrols', 'qtype_coderunner');
+
         $mform->setExpanded('customisationheader');  // Although expanded it's hidden until JavaScript unhides it .
+    }
+
+
+    // Get a list of all available UI plugins, namely all files of the form
+    // ui_pluginname.js in the amd/src directory.
+    // Returns an associative array with a uiname => uiname entry for each
+    // available ui plugin.
+    private function getUiPlugins() {
+        global $CFG;
+        $uiplugins = array('None' => 'None');
+        $files = scandir($CFG->dirroot . '/question/type/coderunner/amd/src');
+        foreach ($files as $file) {
+            if (substr($file, 0, 3) === 'ui_' && substr($file, -3) === '.js') {
+                $uiname = substr($file, 3, -3);
+                $uiplugins[$uiname] = ucfirst($uiname);
+            }
+        }
+        return $uiplugins;
     }
 
 
@@ -777,7 +807,8 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $contextid = $DB->get_field('question_categories', 'contextid', array('id' => $category));
         $question->contextid = $contextid;
         $context = context::instance_by_id($contextid, IGNORE_MISSING);
-        $qtype->set_inherited_fields($question, $questiontype, $context);
+        $prototype = $qtype->get_prototype($questiontype, $context);
+        $qtype->set_inherited_fields($question, $prototype);
         list($mark, $state, $cachedata) = $question->grade_response(array('answer' => $answer));
 
         // Return either an empty string if run was good or an error message.

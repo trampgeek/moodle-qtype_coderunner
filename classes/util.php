@@ -20,32 +20,41 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+
+
 global $CFG;
 
 use qtype_coderunner\constants;
 
 class qtype_coderunner_util {
     /*
-     * Configure the ace editor for use with the given textarea (specified by its
-     * id) if question is set to use Ace. Language is specified either as
-     * TEMPLATE_LANGUAGE (the language used in the sandbox) or USER_LANGUAGE.
-     * They are the same unless a different language has been explicitly specified
-     * by the acelang field in the question authoring form, in which case the
-     * acelang field is used for the USER and the $question->language for the
-     * template.
+     * Load/initialise the specified UI JavaScipt plugin  for the given question.
+     * A null plugin loads Ace.
+     * $textareaid is the id of the textarea that the UI plugin is to manage.
      */
-    public static function load_ace_if_required($question, $textareaid, $whichlang) {
+    public static function load_uiplugin_js($question, $textareaid, $loadAce=true) {
         global $CFG, $PAGE;
-        if ($question->useace) {
-            if ($whichlang === constants::TEMPLATE_LANGUAGE ||
-                   empty($question->acelang)) {
-                $lang = $question->language;
-            } else {
-                $lang = $question->acelang;
+
+        if ($loadAce) {
+            self::load_ace(); // Ace isn't an AMD module. Load all its modules.
+        }
+        $uiplugin = $question->uiplugin === null ? 'ace' : strtolower($question->uiplugin);
+        if ($uiplugin !== '' && $uiplugin !== 'none') {
+            $PAGE->requires->strings_for_js(constants::ui_plugin_keys(), 'qtype_coderunner');
+            $params = array($uiplugin, $textareaid, $question->templateparams); // Params to plugin's init function.
+            if ($uiplugin === 'ace') {
+                if (!$loadAce) {  // Shouldn't happen, but better safe than sorry
+                    self::load_ace();
+                }
+                if (empty($question->acelang)) {
+                    $lang = $question->language;
+                } else {
+                    $lang = $question->acelang;
+                }
+                $lang = ucwords($lang);
+                $params[] = $lang;
             }
-            $lang = ucwords($lang);
-            self::load_ace();
-            $PAGE->requires->js_call_amd('qtype_coderunner/aceinterface', 'initAce', array($textareaid, $lang));
+            $PAGE->requires->js_call_amd('qtype_coderunner/userinterfacewrapper', 'newUiWrapper', $params);
         }
     }
 

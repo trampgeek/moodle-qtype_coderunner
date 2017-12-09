@@ -45,7 +45,7 @@ $string['answer'] = 'Answer';
 $string['answerbox_group'] = 'Answer box';
 $string['answerboxcolumns'] = 'Columns';
 $string['answerboxlines'] = 'Rows';
-$string['answerbox_group_help'] = 'Set the number of rows and columns to allocate for the answer box. If the answer overflows the box vertically or horizontally, scrollbars will appear. If \'Use ace\' is checked, the ACE JavaScript code editor will manage the answer box.';
+$string['answerbox_group_help'] = 'Set the number of rows and columns to allocate for the answer box. If the answer overflows the box vertically or horizontally, scrollbars will appear. Since V3.2.2, \'columns\' is ignored except when a raw text box is used for the answer.';
 $string['answerpreload'] = 'Answer box preload';
 $string['answerpreload_help'] = 'Text supplied here will be preloaded into the student\'s answer box.';
 $string['asolutionis'] = 'Question author\'s solution:';
@@ -144,6 +144,17 @@ $string['fileheader'] = 'Support files';
 $string['filloutoneanswer'] = 'You must enter source code that satisfies the specification. The code you enter will be executed to determine its correctness and a grade awarded accordingly.';
 $string['firstfailure'] = 'First failing test case: {$a}';
 $string['forexample'] = 'For example';
+$string['graphfail'] = "TextArea contents are not a valid graph. Aborting.";
+$string['graphhelp'] = '- Double click at a blank space to create a new node/state.
+- Double click an existing node to "mark" it e.g. as an accept state for Finite State Machines
+  (FSMs). Double click again to unmark it.
+- Click and drag to move a node.
+- Shift click inside one node and drag to another to create a link.
+- Shift click on a blank space, drag to a node to create a start link (FSMs only).
+- Click and drag a link to alter its curve.
+- Click on a link/node to edit its text.
+- Typing _ followed by a digit makes that digit a subscript.
+- Typing \\epsilon creates an epsilon character (and similarly for \\alpha, \\beta etc)';
 
 $string['goodemptyprecheck'] = 'Passed';
 $string['gotcolhdr'] = 'Got';
@@ -212,9 +223,9 @@ $string['howtogetmore'] = 'For more detailed information, save the question with
 
 $string['iscombinatortemplate'] = 'Is combinator';
 $string['ideone_user'] = 'Ideone server user';
-$string['ideone_user_desc'] = 'The login name to use when connecting to the Ideone server (if the ideone sandbox is enabled)';
+$string['ideone_user_desc'] = 'The login name to use when connecting to the deprecated Ideone server (if the ideone sandbox is enabled)';
 $string['ideone_pass'] = 'Ideone server password';
-$string['ideone_pass_desc'] = 'The password to use when connecting to the Ideone server (if the ideone sandbox is enabled)';
+$string['ideone_pass_desc'] = 'The password to use when connecting to the deprecated Ideone server (if the ideone sandbox is enabled)';
 $string['info_unavailable'] = 'Question type information is not available for customised questions.';
 $string['inputcolhdr'] = 'Input';
 $string['is_prototype'] = 'Use as prototype';
@@ -456,7 +467,7 @@ JSON record. In the case of the jobe sandbox, available attributes include
 disklimit, streamsize, numprocs, compileargs, linkargs and interpreterargs. For
 example `{"compileargs":["-std=c89"]}` for a C question would force C89
 compliance and no other C options would be used. See the jobe documentation
-for details. Some sandboxes (e.g. Ideone) may silently ignore any or all of
+for details. Some sandboxes (e.g. the deprecated Ideone sandbox) may silently ignore any or all of
 these settings.';
 $string['sandboxerror'] = 'Error from the sandbox [{$a->sandbox}]: {$a->message}';
 $string['sandboxparams'] = 'Parameters';
@@ -471,6 +482,7 @@ $string['showsource'] = 'Template debugging';
 $string['sourcecodeallruns'] = 'Debug: source code from all test runs';
 $string['stdin'] = 'Standard Input';
 $string['stdin_help'] = 'The standard input to the test, seen by the template as {{TEST.stdin}}';
+$string['student_answer'] = 'Student answer';
 $string['supportscripts'] = 'Support scripts';
 $string['syntax_errors'] = 'Syntax Error(s)';
 
@@ -593,11 +605,45 @@ $string['type_header'] = 'CodeRunner question type';
 $string['typename'] = 'Question type';
 $string['typerequired'] = 'Please select the type of question (language, format, etc)';
 
+$string['uicontrols'] = 'Input UIs';
+$string['uicontrols_help'] = 'Select the User Interface controllers for the student answer and
+the question author\'s template.
+
+The Student Answer dropdown displays a list
+of available plugins. For coding questions, the Ace editor is usually used.
+A value of \'None\' can be used to provide just a raw text box. The value
+\'Graph\' provides the user with a simple graph-drawing user-interface for use
+with questions that ask the student to draw a graph to some specification; such
+questions will usually have a single test case, graded with a template
+that analyses the serialised
+representation of the graph and prints a message like "OK" if the answer is
+correct or a suitably informative error message otherwise.
+Template parameters can be set in either the prototype or the
+actual question to modify the behaviour of the Graph plugin as follows:
+{"isdirected": false} for non-directed graphs, {"isfsm": false} to disallow
+incoming edges without a start node (required by Finite State Machine graphs, FSMs),
+{"noderadius": 30}, say, to set a different noderadius in pixels.
+The template parameters
+from the actual question are merged with, and override, those from the
+prototype (since CodeRunner V3.2.2).
+
+Students with poor eyesight, or authors wishing to inspect serialisations
+(say to understand the representation used by the Graph UI),
+can toggle the use of all UI plugins on the current page by typing
+Ctrl-Alt-M.
+
+Whatever value is selected for the student answer will also be used within
+the editor form for the Sample Answer and the Answer Preload fields.
+
+If \'Template uses ace\' is checked,
+the AceJavaScript code editor will manage the answer box. Otherwise a raw
+text box will be used.';
+
 $string['unauthorisedbulktest'] = 'You do not have suitable access to any CodeRunner questions';
 $string['unauthoriseddbaccess'] = 'You are not authorised to use this script';
 $string['unknownerror'] = 'An unexpected error occurred. The sandbox may be down. Try again shortly.';
 $string['useasexample'] = 'Use as example';
-$string['useace'] = 'Use ace';
+$string['useace'] = 'Template uses ace';
 
 $string['validateonsave'] = 'Validate on save';
 

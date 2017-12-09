@@ -1,5 +1,21 @@
 # CHANGE HISTORY
 
+### 9 December 2017. 3.2.3
+
+* Implement UI plugin architecture to allow different JavaScript plugins
+  to manage the question answer textarea and related textareas in the
+  question authoring form.
+* Incorporate the GraphUI plugin from Emily Price into the new plugin architecture
+  (thanks Emily!).
+* Add directed and undirected graph prototypes to the built-in prototype set.
+* Fix bug with the auto-correcting of test cases that fail during validation.
+  If the author changed the ordering of testcases via the "ordering" field, the
+  wrong test case was getting updated. Resolved by preventing re-ordering during
+  validation, deferring it until question is finally saved.
+* Fixed bug in IdeoneSandbox - language name strings were no longer appropriate.
+  However, this sandbox should be regarded as deprecated and will be removed
+  some time in the future.
+
 ### 3 December 2017. 3.2.2
 * Incorporate changes from abautu (Andrei Bautu) to allow question authors
 to update test case 'expected' fields directly from a table of

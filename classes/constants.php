@@ -43,4 +43,8 @@ class constants {
     const MAX_STRING_LENGTH = 8000;  // Maximum length of a string for display in the result table.
     const MAX_LINE_LENGTH = 100;     // Maximum length of a string for display in the result table.
     const MAX_NUM_LINES = 200;       // Maximum number of lines of text to be displayed a result table cell.
+
+    static function ui_plugin_keys() {
+        return array('graphhelp', 'graphfail');  // All qtype_coderunner lang string names reqd by any plugins go here.
+    }
 }

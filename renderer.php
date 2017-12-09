@@ -114,10 +114,15 @@ class qtype_coderunner_renderer extends qtype_renderer {
                     array('class' => 'validationerror'));
         }
 
-        // Initialise any program-editing JavaScript.
+        // Initialise any JavaScript UI. Default is Ace unless uiplugin is explicitly
+        // set and is neither the empty string nor the value 'none'.
         // Thanks to Ulrich Dangel for the original implementation of the Ace code editor.
-        qtype_coderunner_util::load_ace_if_required($question, $responsefieldid, constants::USER_LANGUAGE);
-        $PAGE->requires->js_call_amd('qtype_coderunner/textareas', 'initQuestionTA', array($responsefieldid));
+        $uiplugin = $question->uiplugin === null ? 'ace' : strtolower($question->uiplugin);
+        if ($uiplugin !== '' && $uiplugin !== 'none') {
+            qtype_coderunner_util::load_uiplugin_js($question, $responsefieldid);
+        } else {
+            $PAGE->requires->js_call_amd('qtype_coderunner/textareas', 'initQuestionTA', array($responsefieldid));
+        }
 
         return $qtext;
     }
