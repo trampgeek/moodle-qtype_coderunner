@@ -138,6 +138,17 @@ class behat_coderunner extends behat_base {
         }
     }
 
+    /**
+     * @Then /^I should not see a canvas/
+     */
+    public function i_should_not_see_a_canvas() {
+        $xpath = "//canvas";
+        $driver = $this->getSession()->getDriver();
+        if ($driver->find($xpath)) {
+            throw new ExpectationException("Found a canvas",  $this->getSession());
+        }
+    }
+
      /**
      * @Given /^I fill in my template/
      */
