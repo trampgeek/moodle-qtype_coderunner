@@ -21,23 +21,23 @@ Feature: Check that a selected UI plugin is saved
       | questioncategory | qtype      | name            | template |
       | Test questions   | coderunner | Square function | sqr      |
     And I log in as "teacher1"
-    And I follow "Course 1"
+    And I follow "C1"
     And I navigate to "Question bank" node in "Course administration"
     And I enable UI plugins
 
-  Scenario: UI plugin is updated for Author
+  Scenario: Selecting the Graph UI plugin results in a canvas being displayed
     When I click on "Edit" "link" in the "Square function" "table_row"
     And I set the following fields to these values:
-      | customise | 1   |
-      | uiplugin  | graph |
+      | id_customise | 1     |
+      | id_uiplugin  | graph |
     Then I should see a canvas
 
-  Scenario: UI plugin state is saved for Author
+  Scenario: UI plugin state is saved when question is saved
     When I click on "Edit" "link" in the "Square function" "table_row"
     And I click on "a[aria-controls='id_answerhdr']" "css_element"
     And I set the following fields to these values:
-      | customise | 1   |
-      | uiplugin  | fsm |
+      | id_customise | 1     |
+      | id_uiplugin  | graph |
     And I press "id_submitbutton"
     And I click on "Edit" "link" in the "Square function" "table_row"
     Then I should see a canvas
@@ -45,8 +45,8 @@ Feature: Check that a selected UI plugin is saved
 Scenario: UI plugin state is saved for student
 When I click on "Edit" "link" in the "Square function" "table_row"
     And I set the following fields to these values:
-      | customise | 1   |
-      | uiplugin  | fsm |
+      | id_customise | 1     |
+      | id_uiplugin  | graph |
     And I press "id_submitbutton"
     When I click on "Preview" "link" in the "Square function" "table_row"
     And I switch to "questionpreview" window
