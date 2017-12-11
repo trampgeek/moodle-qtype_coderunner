@@ -75,13 +75,15 @@ class qtype_coderunner_test extends advanced_testcase {
         $q = $this->get_test_question_data();
         $this->assertEquals(array(), $this->qtype->get_possible_responses($q));
     }
-    
+
     public function test_question_saving_multichoice_ui() {
         $this->resetAfterTest(true);
         $this->setAdminUser();
 
         $questiondata = test_question_maker::get_question_data('coderunner');
+        $questiondata->uiplugin = 'multichoice';
         $formdata = test_question_maker::get_question_form_data('coderunner');
+        $formdata->uiplugin = 'multichoice';
 
         $generator = $this->getDataGenerator()->get_plugin_generator('core_question');
         $cat = $generator->create_question_category(array());

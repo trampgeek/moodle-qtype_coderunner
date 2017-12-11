@@ -1,6 +1,6 @@
 @qtype @qtype_coderunner @javascript @fsm
 Feature: Check that the given answer to a DFA question is marked as correct
-  To check that my answer to a DFAwquestion is correct
+  To check that my answer to a DFA question is correct
   As a teacher
   I should be able to submit my answer and have it marked as correct
 
@@ -20,17 +20,16 @@ Feature: Check that the given answer to a DFA question is marked as correct
     And I log in as "teacher1"
     And I follow "C1"
     And I navigate to "Question bank" node in "Course administration"
+    And I disable UI plugins
     And I add a "CodeRunner" question filling the form with:
       | id_coderunnertype | python3                  |
       | name              | PROTOTYPE_dfa            |
       | id_questiontext   | Dummy question text      |
-      | id_useace         |                          |
       | id_testcode_0     | Dummy test code          |
-      | customise         | 1                        |
+      | id_customise      | 1                        |
     And I click on "a[title='Edit']" "css_element"
     And I ok any confirm dialogs
-    And I set the field "uiplugin" to "fsm"
-    And I set the field "id_customise" to "1"
+
     And I set CodeRunner behat testing flag
     And I set the field "id_iscombinatortemplate" to "0"
     And I fill in my template

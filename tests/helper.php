@@ -106,7 +106,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
         // exclude answer, defaults to null
         $qdata->options->validateonsave = 0;
         // ignore a bunch because they default to null
-        $qdata->options->uiplugin = 'multichoice';
+        $qdata->options->uiplugin = 'None';
         $qdata->testcases = self::make_test_cases($testcases);
 
         return $qdata;
@@ -148,12 +148,12 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $form->mark = array('1.0', '2.0', '4.0', '8.0', '16.0');
         $form->ordering = array('0', '10', '20', '30', '40');
         $form->sandboxparams = '';
-        $form->grader = 'TemplateGrader';
+        $form->grader = 'EqualityGrader';
         $form->resultcolumns = '';
         $form->cputimelimitsecs = '';
         $form->memlimitmb = '';
         $form->customise = 1;
-        $form->uiplugin = 'multichoice';
+        $form->uiplugin = 'None';
         return $form;
     }
 

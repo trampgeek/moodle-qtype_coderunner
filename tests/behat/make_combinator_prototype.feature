@@ -26,8 +26,9 @@ Feature: make_combinator_prototype
     And I set the field "id_coderunnertype" to "python3"
     And I set the field "name" to "PROTOTYPE_test_combinator_prototype"
     And I set the field "id_questiontext" to "Dummy question text"
-    And I set the field "id_useace" to "0"
     And I set the field "id_customise" to "1"
+    And I set the field "id_useace" to "0"
+    And I set the field "id_uiplugin" to "None"
     And I set the field "id_template" to:
       """
       {{ STUDENT_ANSWER }}
@@ -38,7 +39,7 @@ Feature: make_combinator_prototype
       {% endif %}
       {% endfor %}
       """
-
+    And I set the field "id_iscombinatortemplate" to "1"
     And I click on "a[aria-controls='id_advancedcustomisationheader']" "css_element"
     And I set the field "prototypetype" to "Yes (user defined)"
     And I set the field "typename" to "python3_test_combinator_prototype"
@@ -49,7 +50,6 @@ Feature: make_combinator_prototype
       | id_coderunnertype | python3_test_combinator_prototype |
       | name              | Combinator prototype tester       |
       | id_questiontext   | Write the inevitable sqr function |
-      | id_useace         |                                   |
       | id_testcode_0     | sqr(-11)                          |
       | id_expected_0     | 121                               |
       | id_testcode_1     | sqr(9)                            |

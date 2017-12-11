@@ -24,7 +24,6 @@ Feature: Show differences in CodeRunner questions
       | id_coderunnertype | python3                 |
       | name              | sqr acceptance question |
       | id_questiontext   | Write a sqr function    |
-      | id_useace         |                         |
       | id_testcode_0     | print(sqr(-7))          |
       | id_expected_0     | 49                      |
       | id_testcode_1     | print(sqr(11))          |

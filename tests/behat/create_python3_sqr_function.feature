@@ -19,10 +19,10 @@ Feature: Create a CodeRunner question (the sqr function example)
     And I navigate to "Question bank" node in "Course administration"
 
   Scenario: As a teacher, I create a Python3 sqr(n) -> n**2 function CodeRunner question
-    When I add a "CodeRunner" question filling the form with:
+    When I disable UI plugins
+    And I add a "CodeRunner" question filling the form with:
       | id_coderunnertype | python3                 |
       | name              | sqr acceptance question |
-      | id_useace         |                         |
       | id_answer         | def sqr(n): return n * n    |
       | id_validateonsave | 1                       |
       | id_answerboxlines | 3                       |

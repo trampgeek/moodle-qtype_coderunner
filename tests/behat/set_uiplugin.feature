@@ -23,12 +23,13 @@ Feature: Check that a selected UI plugin is saved
     And I log in as "teacher1"
     And I follow "Course 1"
     And I navigate to "Question bank" node in "Course administration"
+    And I enable UI plugins
 
   Scenario: UI plugin is updated for Author
     When I click on "Edit" "link" in the "Square function" "table_row"
     And I set the following fields to these values:
       | customise | 1   |
-      | uiplugin  | fsm |
+      | uiplugin  | graph |
     Then I should see a canvas
 
   Scenario: UI plugin state is saved for Author

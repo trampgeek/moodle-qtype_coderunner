@@ -43,5 +43,4 @@ Feature: Import CodeRunner questions
     And I press "Continue"
     And I should see "C sqr"
     And I click on "Edit" "link" in the "Java Demo Class Question" "table_row"
-    And I set the field "useace" to ""
     And I should see "public class __Tester__ {" in the "id_template" "field"

@@ -173,13 +173,14 @@ define(['jquery'], function($) {
         // Load the specified UI element (which in the case of Ace will need
         // to know the language, lang, as well).
         // When ui is up and running, this.uiInstance will reference it.
+        //
         var t = this;
 
         this.stop();  // Kill any active UI first
         this.uiname = uiname;
         this.lang = lang;
 
-        if (this.uiname === '' || this.uiname === 'none') {
+        if (this.uiname === '' || this.uiname === 'none' || sessionStorage.getItem('disableUis')) {
             this.uiInstance = null;
         } else {
             require(['qtype_coderunner/ui_' + this.uiname],
