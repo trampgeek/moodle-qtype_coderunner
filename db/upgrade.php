@@ -204,7 +204,7 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
     }
 
 
-    if ($oldversion < 2017112201) {
+    if ($oldversion < 2017121101) {
         // Define field uiplugin to be added to question_coderunner_options.
         $table = new xmldb_table('question_coderunner_options');
         $field = new xmldb_field('uiplugin', XMLDB_TYPE_TEXT, null, null, null, null, null, 'useace');
@@ -214,11 +214,6 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
 
-        // Coderunner savepoint reached.
-        upgrade_plugin_savepoint(true, 2017112201, 'qtype', 'coderunner');
-    }
-
-    if ($oldversion < 2017112901) {
         // Changing attributes of field useace in table question_coderunner_options to isnull.
         $table = new xmldb_table('question_coderunner_options');
         $field = new xmldb_field('useace', XMLDB_TYPE_INTEGER, '1', null, null, null, null, 'answerpreload');
@@ -227,7 +222,7 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         $dbman->change_field_type($table, $field);
 
         // Coderunner savepoint reached.
-        upgrade_plugin_savepoint(true, 2017112901, 'qtype', 'coderunner');
+        upgrade_plugin_savepoint(true, 2017121101, 'qtype', 'coderunner');
     }
 
     require_once(__DIR__ . '/upgradelib.php');

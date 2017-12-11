@@ -1,6 +1,6 @@
 # CODE RUNNER
 
-Version: 3.2 July 2017
+Version: 3.2.3 January 2018
 
 Authors: Richard Lobb, University of Canterbury, New Zealand.
          Tim Hunt, The Open University, UK
