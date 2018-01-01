@@ -456,8 +456,7 @@ public class __Tester__ {
     <allowmultiplestdins></allowmultiplestdins>
     <answer></answer>
     <validateonsave>0</validateonsave>
-    <testsplitterre><![CDATA[|#<ab@17943918#@>#
-|ms]]></testsplitterre>
+    <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
     <language>Java</language>
     <acelang></acelang>
     <sandbox></sandbox>
@@ -559,8 +558,7 @@ disp('#<ab@17943918#@>#');
     <allowmultiplestdins></allowmultiplestdins>
     <answer></answer>
     <validateonsave>0</validateonsave>
-    <testsplitterre><![CDATA[|#<ab@17943918#@>#
-|ms]]></testsplitterre>
+    <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
     <language>octave</language>
     <acelang></acelang>
     <sandbox></sandbox>
@@ -771,8 +769,7 @@ print(SEPARATOR)
     <allowmultiplestdins></allowmultiplestdins>
     <answer></answer>
     <validateonsave>0</validateonsave>
-    <testsplitterre><![CDATA[|#<ab@17943918#@>#
-|ms]]></testsplitterre>
+    <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
     <language>python2</language>
     <acelang></acelang>
     <sandbox></sandbox>
@@ -828,8 +825,7 @@ print(SEPARATOR)
     <allowmultiplestdins></allowmultiplestdins>
     <answer></answer>
     <validateonsave>0</validateonsave>
-    <testsplitterre><![CDATA[|#<ab@17943918#@>#
-|ms]]></testsplitterre>
+    <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
     <language>python3</language>
     <acelang></acelang>
     <sandbox></sandbox>
