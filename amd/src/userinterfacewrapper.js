@@ -195,7 +195,7 @@ define(['jquery'], function($) {
                         uiInstance.destroy();
                         t.wrapperNode.hide();
                         t.uiInstance = null;
-                        // TODO: set UI dropdown selector to None here??
+                        // TODO: should set UI dropdown selector to None here, but tricky as it's async
                     } else {
                         minSize = uiInstance.getMinSize();
                         t.wrapperNode.css({
