@@ -124,7 +124,6 @@ define(['jquery'], function($) {
         this.taId = textareaId;
         this.textArea = $(document.getElementById(textareaId));
         this.readOnly = this.textArea.prop('readonly');
-
         if (templateParamsJson) {
             this.templateParams = window.JSON.parse(templateParamsJson);
         } else {
@@ -133,31 +132,32 @@ define(['jquery'], function($) {
 
         h = parseInt(this.textArea.css("height"));
 
+        // Construct an empty hidden wrapper div, inserted directly after the
+        // textArea, ready to contain the actual UI.
         this.wrapperNode = $("<div id='" + this.taId + "_wrapper' class='ui_wrapper'></div>");
+        this.textArea.after(this.wrapperNode);
+        this.wrapperNode.hide();
         this.wrapperNode.css({
             resize: 'vertical',
             overflow: 'hidden',
             height: h,
-            width: "100%",
+            width: "auto",
             border: "1px solid darkgrey"
         });
 
+        // Load the UI into the wrapper (aysnchronous).
         this.uiInstance = null;  // Defined by loadUi asynchronously
         this.loadUi(uiname, lang);  // Load the required UI element
 
         // Add event handlers
-
         $(document).mousemove(function() {
             t.checkForResize();
         });
-
         $(window).resize(function() {
             t.checkForResize();
         });
-
         $(document.body).on('keydown', function(e) {
             var KEY_M = 77;
-
             if (e.keyCode === KEY_M && e.ctrlKey && e.altKey) {
                 if (t.uiInstance !== null) {
                     t.stop();
@@ -185,19 +185,18 @@ define(['jquery'], function($) {
         } else {
             require(['qtype_coderunner/ui_' + this.uiname],
                 function(ui) {
-                    var minSize, uiInstance, h, hInner, w;
+                    var minSize, uiInstance, h, w;
 
-                    h = t.wrapperNode.outerHeight();
-                    hInner = h - t.GUTTER;
-                    w = t.wrapperNode.outerWidth();
-                    uiInstance = new ui.Constructor(t.taId, w, hInner, t.templateParams, t.lang);
+                    h = t.wrapperNode.innerHeight() - t.GUTTER;
+                    w = t.wrapperNode.innerWidth();
+                    uiInstance = new ui.Constructor(t.taId, w, h, t.templateParams, t.lang);
                     if (uiInstance.failed()) {
                         // Constructor failed. Abort.
                         uiInstance.destroy();
                         t.wrapperNode.hide();
-                        t.uiInstance = null;  //
+                        t.uiInstance = null;
+                        // TODO: set UI dropdown selector to None here??
                     } else {
-                        t.textArea.after(t.wrapperNode);
                         minSize = uiInstance.getMinSize();
                         t.wrapperNode.css({
                             minWidth: minSize.minWidth,
@@ -239,26 +238,28 @@ define(['jquery'], function($) {
             // Restart the UI component in the textarea
             this.loadUi(this.uiname, this.lang);
         }
-        this.wrapperNode.show();
     };
 
 
 
     InterfaceWrapper.prototype.checkForResize = function() {
         // Check for wrapper resize - propagate to ui element.
-        var h, w;
+        var h, hAdjusted, w, wAdjusted, xLeft, maxWidth;
+        var SIZE_HACK = 25;  // Horrible but best I can do. TODO: FIXME
 
         if (this.uiInstance) {
-            h = this.wrapperNode.outerHeight();
-            w = this.wrapperNode.outerWidth();
+            h = this.wrapperNode.innerHeight();
+            w = this.wrapperNode.innerWidth();
+            xLeft = this.wrapperNode.offset().left;
+            maxWidth = $(window).innerWidth() - xLeft - SIZE_HACK;
 
-            h = Math.max(this.MIN_HEIGHT, h);
-            w = Math.max(this.MIN_WIDTH, w);
+            hAdjusted = Math.max(this.MIN_HEIGHT, h) - this.GUTTER;
+            wAdjusted = Math.max(this.MIN_WIDTH, Math.min(maxWidth, w));
 
-            if (h !== this.hLast || w !== this.wLast && this.uiInstance) {
-                this.uiInstance.resize(w,  h - this.GUTTER);
-                this.hLast = h;
-                this.wLast = w;
+            if (hAdjusted !== this.hLast || wAdjusted !== this.wLast && this.uiInstance) {
+                this.uiInstance.resize(wAdjusted,  hAdjusted);
+                this.hLast = hAdjusted;
+                this.wLast = wAdjusted;
             }
         }
     };
