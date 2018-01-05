@@ -79,10 +79,6 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
             // Resize to given dimensions.
             this.canvas.attr("width", w);
             this.canvas.attr("height", h);
-            this.canvas.css({
-                height: h,
-                width: w
-            });
         };
 
         this.resize(w, h);
