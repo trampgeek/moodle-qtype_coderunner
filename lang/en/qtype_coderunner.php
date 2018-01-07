@@ -447,9 +447,12 @@ $string['run_failed'] = 'Failed to run tests';
 
 $string['sandboxcontrols'] = 'Sandbox';
 $string['sandboxcontrols_help'] = '
-Select what sandbox you wish the student submissions to run in; choosing
-DEFAULT will use the highest priority sandbox available for the chosen language
-(recommended unless the question has special needs).
+Select what sandbox to use for running the student submissions.
+DEFAULT uses the highest priority sandbox available for the chosen language.
+Since Jobe has replaced all sandbox
+types except the deprecated \'ideonesandbox\',
+the value \'jobesandbox\' is recommended for normal use, and results in better
+error messages that DEFAULT if the Jobe server is down.
 
 You can also set the
 maximum CPU time in seconds  allowed for each testcase run and the maximum
@@ -468,7 +471,17 @@ disklimit, streamsize, numprocs, compileargs, linkargs and interpreterargs. For
 example `{"compileargs":["-std=c89"]}` for a C question would force C89
 compliance and no other C options would be used. See the jobe documentation
 for details. Some sandboxes (e.g. the deprecated Ideone sandbox) may silently ignore any or all of
-these settings.';
+these settings.
+
+If the sandbox is set to \'jobesandbox\', the jobe host to use for testing the
+question is
+usually as specified via the administrator settings for the CodeRunner plugin.
+However, it is possible to select a different jobeserver by defining a \'jobeserver\'
+parameter and also, optionally, a \'jobeapikey\' parameter. For example, if the
+\'Parameters\' field is set to `{"jobeserver": "myspecialjobe.com"}, the run
+will instead by submitted to the server "myspecialjobe.com". Warning: this
+feature is still experimental and may change in the future.
+';
 $string['sandboxerror'] = 'Error from the sandbox [{$a->sandbox}]: {$a->message}';
 $string['sandboxparams'] = 'Parameters';
 $string['seethisquestioninthequestionbank'] = 'See this question in the question bank';
