@@ -199,7 +199,7 @@ Result Columns field.
 If the template is a combinator, the JSON string output by the template grader
 should again contain a \'fraction\' field, this time for the total mark,
 and may contain zero or more of \'prologuehtml\', \'testresults\',
-\'epiloguehtml\' and \'showdifferences\'.
+\'epiloguehtml\', \'testresultscolumnformats\' and \'showdifferences\'.
 The \'prologuehtml\' and \'epiloguehtml\' fields are html
 that is displayed respectively before and after the (optional) result table. The
 \'testresults\' field, if given, is a list of lists used to display some sort
@@ -209,7 +209,14 @@ and \'ishidden\'. The \'iscorrect\' column(s) are used to display ticks or
 crosses for 1 or 0 row values respectively. The \'ishidden\' column isn\'t
 actually displayed but 0 or 1 values in the column can be used to turn on and
 off row visibility. Students do not see hidden rows but markers and other
-staff do. The \'showdifferences\' field turns on display of a \'Show Differences\'
+staff do. If a \'testresults\' table is supplied an optional
+\'testresultscolumnformats\' field can also be supplied. This should be a list
+of strings, one per column excluding the \'iscorrect\' and the \'ishidden\'
+columns. The strings specify the format to be used to display the cell values;
+currently the only supported formats are \'%s\' for a normal string display
+(which is sanitised and wrapped in a \'pre\' element) and \'%h\' for an html
+value that should not be further processed before display.
+The \'showdifferences\' field turns on display of a \'Show Differences\'
 button after the results table if the awarded mark fraction is not 1.0.
 ';
 
@@ -227,6 +234,7 @@ $string['ideone_user_desc'] = 'The login name to use when connecting to the depr
 $string['ideone_pass'] = 'Ideone server password';
 $string['ideone_pass_desc'] = 'The password to use when connecting to the deprecated Ideone server (if the ideone sandbox is enabled)';
 $string['info_unavailable'] = 'Question type information is not available for customised questions.';
+$string['illegalformat'] = 'Illegal format ({$a->format}) in testresultscolumnformats';
 $string['inputcolhdr'] = 'Input';
 $string['is_prototype'] = 'Use as prototype';
 
@@ -411,7 +419,7 @@ testcode, stdin, expected and extra are the fields from the testcase while got
 is the actual output generated and awarded and mark are the actual awarded mark
 and the maximum mark for the testcase respsectively.
 
-Custom-grader templates may
+Per-test template-graders may
 add their own fields, which can also be selected for display. It is also
 possible to combine multiple fields into a column by adding extra fields to the
 specifier: these must precede the sprintf format specifier, which then becomes
@@ -426,7 +434,11 @@ that generate HTML output, such as SVG graphics.
 
 The default value of
 resultcolumns is [["Test", "testcode"],["Input", "stdin"], ["Expected",
-"expected"], ["Got", "got"]].';
+"expected"], ["Got", "got"]].
+
+The setting of the resultcolumns field has no effect if a combinator template
+grader is being used. The \'resulttablecolumnformats\' attribute of the
+combinator template grader return value should be used instead.';
 $string['resultcolumnsnotjson'] = 'Result columns field is not a valid JSON string';
 $string['resultcolumnsnotlist'] = 'Result columns field must a JSON-encoded list of column specifiers';
 $string['resultcolumnspecbad'] = 'Invalid column specifier found: each one must be a list of two or more strings';
@@ -655,9 +667,12 @@ text box will be used.';
 $string['unauthorisedbulktest'] = 'You do not have suitable access to any CodeRunner questions';
 $string['unauthoriseddbaccess'] = 'You are not authorised to use this script';
 $string['unknownerror'] = 'An unexpected error occurred. The sandbox may be down. Try again shortly.';
+$string['unknowncombinatorgraderfield'] = 'Unknown field name ({$a->fieldname}) in combinator grader output';
 $string['useasexample'] = 'Use as example';
 $string['useace'] = 'Template uses ace';
 
 $string['validateonsave'] = 'Validate on save';
+
+$string['wrongnumberofformats'] = 'Wrong number of test results column formats. Expected {$a->expected}, got {$a->got}';
 
 $string['xmlcoderunnerformaterror'] = 'XML format error in coderunner question';

@@ -265,25 +265,29 @@ class qtype_coderunner_jobrunner {
                 $outcome->set_status(qtype_coderunner_testing_outcome::STATUS_BAD_COMBINATOR, $error);
             } else {
 
-                // A successful combinator run.
+                // A successful combinator run (so far).
                 $fract = $result->fraction;
                 $feedback = array();
                 if (isset($result->feedback_html)) {  // Legacy combinator grader?
                     $result->feedbackhtml = $result->feedback_html; // Change to modern version.
                     unset($result->feedback_html);
                 }
-                foreach (array('prologuehtml', 'testresults', 'epiloguehtml',
-                    'feedbackhtml', 'showdifferences') as $key) {
-                    if (isset($result->$key)) {
+                foreach ($result as $key=>$value) {
+                    if (!in_array($key, $outcome->ALLOWED_FIELDS)) {
+                        $error = get_string('unknowncombinatorgraderfield', 'qtype_coderunner',
+                            array('fieldname' => $key));
+                        $outcome->set_status(qtype_coderunner_testing_outcome::STATUS_BAD_COMBINATOR, $error);
+                        break;
+                    } else {
                         if ($key === 'feedbackhtml' || $key === 'feedback_html') {
                             // For compatibility with older combinator graders.
                             $feedback['epiloguehtml'] = $result->$key;
                         } else {
-                            $feedback[$key] = $result->$key;
+                            $feedback[$key] = $value;
                         }
                     }
                 }
-                $outcome->set_mark_and_feedback($fract, $feedback);
+                $outcome->set_mark_and_feedback($fract, $feedback);  // Further valididty checks done in here
             }
         }
         return $outcome;
