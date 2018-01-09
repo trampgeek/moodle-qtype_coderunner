@@ -341,7 +341,7 @@ EOTEMPLATE;
     }
 
 
-    // Test the new template grader testresults, prologuehtml and testresultscolumnformats fields.
+    // Test the new template grader testresults, prologuehtml and columnformats fields.
     public function test_combinator_template_grading2() {
         $q = test_question_maker::make_question('coderunner', 'sqr');
         $q->template = <<<EOTEMPLATE
@@ -360,7 +360,7 @@ print(json.dumps({'prologuehtml': "<h2>Prologue</h2>",
                   'testresults': results,
                   'epiloguehtml': "Wasn't that FUN!",
                   'fraction': total / len(n_vals),
-                  'testresultscolumnformats': ['%s', '%s', '%s', '%s', '%s', '%h']
+                  'columnformats': ['%s', '%s', '%s', '%s', '%s', '%h']
 }))
 EOTEMPLATE;
         $q->iscombinatortemplate = true;
@@ -427,7 +427,7 @@ EOTEMPLATE;
     }
 
 
-    // Test that if the combinator grader output has a testresultscolumnformats with
+    // Test that if the combinator grader output has a columnformats with
     // the wrong number of values, an appropriate error is issued.
     public function test_bad_combinator_grader_error() {
         $q = test_question_maker::make_question('coderunner', 'sqr');
@@ -447,7 +447,7 @@ print(json.dumps({'prologuehtml': "<h2>Prologue</h2>",
                   'testresults': results,
                   'epiloguehtml': "Wasn't that FUN!",
                   'fraction': total / len(n_vals),
-                  'testresultscolumnformats': ['%s', '%s', '%s', '%s', '%s', '%h', '%s']
+                  'columnformats': ['%s', '%s', '%s', '%s', '%s', '%h', '%s']
 }))
 EOTEMPLATE;
         $q->iscombinatortemplate = true;
@@ -461,7 +461,7 @@ EOTEMPLATE;
     }
 
 
-    // Test that if the combinator output has a misspelled testresultscolumnformats
+    // Test that if the combinator output has a misspelled columnformats
     // field, an appropriate error is issued.
     public function test_bad_combinator_grader_error2() {
         $q = test_question_maker::make_question('coderunner', 'sqr');
@@ -481,7 +481,7 @@ print(json.dumps({'prologuehtml': "<h2>Prologue</h2>",
                   'testresults': results,
                   'epiloguehtml': "Wasn't that FUN!",
                   'fraction': total / len(n_vals),
-                  'testresultcolumnformats': ['%s', '%s', '%s', '%s', '%s', '%h', '%s']
+                  'columnformatt': ['%s', '%s', '%s', '%s', '%s', '%h', '%s']
 }))
 EOTEMPLATE;
         $q->iscombinatortemplate = true;
@@ -491,11 +491,11 @@ EOTEMPLATE;
         $this->process_submission(array('-submit' => 1,
             'answer' => 'def sqr(n): return n * n'));
         $this->check_current_mark(0.0);
-        $this->check_output_contains('Unknown field name (testresultcolumnformats) in combinator grader output');
+        $this->check_output_contains('Unknown field name (columnformatt) in combinator grader output');
     }
 
 
-    // Test that if the combinator output has a bad value in the testresultscolumnformats
+    // Test that if the combinator output has a bad value in the columnformats
     // field, an appropriate error is issued.
     public function test_bad_combinator_grader_error3() {
         $q = test_question_maker::make_question('coderunner', 'sqr');
@@ -515,7 +515,7 @@ print(json.dumps({'prologuehtml': "<h2>Prologue</h2>",
                   'testresults': results,
                   'epiloguehtml': "Wasn't that FUN!",
                   'fraction': total / len(n_vals),
-                  'testresultscolumnformats': ['%s', '%s', '%s', '%s', '%x', '%h']
+                  'columnformats': ['%s', '%s', '%s', '%s', '%x', '%h']
 }))
 EOTEMPLATE;
         $q->iscombinatortemplate = true;
@@ -525,7 +525,7 @@ EOTEMPLATE;
         $this->process_submission(array('-submit' => 1,
             'answer' => 'def sqr(n): return n * n'));
         $this->check_current_mark(0.0);
-        $this->check_output_contains('Illegal format (%x) in testresultscolumnformats');
+        $this->check_output_contains('Illegal format (%x) in columnformats');
     }
 
 }

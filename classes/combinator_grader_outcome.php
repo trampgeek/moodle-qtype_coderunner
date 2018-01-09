@@ -31,24 +31,24 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
 
     // A list of the allowed attributes in the combinator template grader return value
     public $ALLOWED_FIELDS = array('fraction', 'prologuehtml', 'testresults', 'epiloguehtml',
-                    'feedbackhtml', 'testresultscolumnformats', 'showdifferences');
+                    'feedbackhtml', 'columnformats', 'showdifferences');
 
     public function __construct($isprecheck) {
         parent::__construct(1, 0, $isprecheck);
         $this->epiloguehtml = null;
         $this->prologuehtml = null;
         $this->testresults = null;
-        $this->testresultscolumnformats = null;
+        $this->columnformats = null;
     }
 
 
     /**
      * Method to set the mark and the various feedback values (prologuehtml,
-     * testresults, testresultscolumnformats, epiloguehtml).
+     * testresults, columnformats, epiloguehtml).
      * @param float $markfraction the mark in the range 0 - 1
      * @param array $feedback Associative array of attributes to add to the
      * outcome object, usually zero or more of prologuehtml, testresults,
-     * testresultscolumnformats and epiloguehtml.
+     * columnformats and epiloguehtml.
      */
     public function set_mark_and_feedback($markfraction, $feedback) {
         $this->actualmark = $markfraction;  // Combinators work in the range 0 - 1.
@@ -110,7 +110,7 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
      * Usually table elements are just strings to be sanitised and wrapped in
      * pre elements for display. However the question author can also supply
      * in the combinator template grader return value a field
-     * 'testresultscolumnformats'. This should have one format specifier per
+     * 'columnformats'. This should have one format specifier per
      * table column and each format specifier should either be '%s', in which
      * case all formatting is left to the renderer or '%h' in which case the
      * table cell is wrapped in an html_wrapper object to prevent further
@@ -127,15 +127,15 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
         }
     }
 
-    // Function to apply the formatting specified in $this->testresultscolumnformats
+    // Function to apply the formatting specified in $this->columnformats
     // to the given table. This simply wraps cells in columns with a '%h' format
     // specifier in html_wrapper objects leaving other cells unchanged.
     // ishidden and iscorrect columns are copied across unchanged.
     private function format_table($table) {
-        if (!$this->testresultscolumnformats) {
+        if (!$this->columnformats) {
             $newtable = $table;
         } else {
-            $formats = $this->testresultscolumnformats;
+            $formats = $this->columnformats;
             $columnheaders = $table[0];
             $newtable = array($columnheaders);
             for ($i = 1; $i < count($table); $i++) {
@@ -175,11 +175,11 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
     }
 
 
-    // Check that if a testresultscolumnformats field is supplied
+    // Check that if a columnformats field is supplied
     // the number of entries is correct and that each entry is either '%s'
     // or '%h'. If not, an appropriate status error message is set.
     private function validate_table_formats() {
-        if ($this->testresultscolumnformats && $this->testresults) {
+        if ($this->columnformats && $this->testresults) {
             $numcols = 0;
             foreach ($this->testresults[0] as $colhdr) {
                 // Count columns in header, excluding iscorrect and ishidden
@@ -187,13 +187,13 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
                     $numcols += 1;
                 }
             }
-            $blah = count($this->testresultscolumnformats);
-            if (count($this->testresultscolumnformats) !== $numcols) {
+            $blah = count($this->columnformats);
+            if (count($this->columnformats) !== $numcols) {
                 $error = get_string('wrongnumberofformats', 'qtype_coderunner',
-                        array('expected'=> $numcols, 'got'=>count($this->testresultscolumnformats)));
+                        array('expected'=> $numcols, 'got'=>count($this->columnformats)));
                 $this->set_status(SELF::STATUS_BAD_COMBINATOR, $error);
             } else {
-                foreach($this->testresultscolumnformats as $format) {
+                foreach($this->columnformats as $format) {
                     if ($format !== '%s' && $format !== '%h') {
                         $error = get_string('illegalformat', 'qtype_coderunner',
                             array('format'=> $format));

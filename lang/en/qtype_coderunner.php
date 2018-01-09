@@ -199,7 +199,7 @@ Result Columns field.
 If the template is a combinator, the JSON string output by the template grader
 should again contain a \'fraction\' field, this time for the total mark,
 and may contain zero or more of \'prologuehtml\', \'testresults\',
-\'epiloguehtml\', \'testresultscolumnformats\' and \'showdifferences\'.
+\'epiloguehtml\', \'columnformats\' and \'showdifferences\'.
 The \'prologuehtml\' and \'epiloguehtml\' fields are html
 that is displayed respectively before and after the (optional) result table. The
 \'testresults\' field, if given, is a list of lists used to display some sort
@@ -210,7 +210,7 @@ crosses for 1 or 0 row values respectively. The \'ishidden\' column isn\'t
 actually displayed but 0 or 1 values in the column can be used to turn on and
 off row visibility. Students do not see hidden rows but markers and other
 staff do. If a \'testresults\' table is supplied an optional
-\'testresultscolumnformats\' field can also be supplied. This should be a list
+\'columnformats\' field can also be supplied. This should be a list
 of strings, one per column excluding the \'iscorrect\' and the \'ishidden\'
 columns. The strings specify the format to be used to display the cell values;
 currently the only supported formats are \'%s\' for a normal string display
@@ -234,7 +234,7 @@ $string['ideone_user_desc'] = 'The login name to use when connecting to the depr
 $string['ideone_pass'] = 'Ideone server password';
 $string['ideone_pass_desc'] = 'The password to use when connecting to the deprecated Ideone server (if the ideone sandbox is enabled)';
 $string['info_unavailable'] = 'Question type information is not available for customised questions.';
-$string['illegalformat'] = 'Illegal format ({$a->format}) in testresultscolumnformats';
+$string['illegalformat'] = 'Illegal format ({$a->format}) in columnformats';
 $string['inputcolhdr'] = 'Input';
 $string['is_prototype'] = 'Use as prototype';
 
