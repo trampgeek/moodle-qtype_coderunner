@@ -69,16 +69,91 @@ class qtype_coderunner_util {
     }
 
 
+    // A utility method used for iterating over multibyte (utf-8) strings
+    // in php. Taken from https://stackoverflow.com/questions/3666306/how-to-iterate-utf-8-string-in-php
+    // We can't simply use mb_substr to extract the ith characters from a multibyte
+    // string as it has to search from the start, resulting in
+    // quadratic complexity for a simple char-by-char iteration.
+    private static function next_char($string, &$pointer){
+        if(!isset($string[$pointer])) return false;
+        $char = ord($string[$pointer]);
+        if($char < 128){
+            return $string[$pointer++];
+        }else{
+            if($char < 224){
+                $bytes = 2;
+            }elseif($char < 240){
+                $bytes = 3;
+            }elseif($char < 248){
+                $bytes = 4;
+            }elseif($char == 252){
+                $bytes = 5;
+            }else{
+                $bytes = 6;
+            }
+            $str =  substr($string, $pointer, $bytes);
+            $pointer += $bytes;
+            return $str;
+        }
+    }
     // Return a copy of $s with trailing blank lines removed and trailing white
     // space from each line removed. Also sanitised by replacing all control
     // chars except newlines with hex equivalents.
     // A newline terminator is added at the end unless the string to be
     // returned is otherwise empty.
     // Used e.g. by the equality grader subclass.
-    // This implementation is a bit algorithmically complex because the
+    // The two implementations are a bit algorithmically complex because the
     // original implemention, breaking the string into lines using explode,
     // was a hideous memory hog.
     public static function clean(&$s) {
+        if (!mb_check_encoding($s, 'UTF-8')) {
+            return self::clean_ascii($s);
+        } else {
+            return self::clean_utf8($s);
+        }
+    }
+
+
+    // This is the UTF-8 version of the clean function, used if
+    // the string is found (by mb_check_encoding) to be valid utf-8.
+    // UTF-8 character handling is rudimentary - only standard ASCII
+    // control characters, whitespace etc are processed.
+    public static function clean_utf8(&$s) {
+        $nls = '';     // Unused line breaks.
+        $output = '';  // Output string.
+        $spaces = '';  // Unused space characters.
+        $pointer = 0;
+        $c = self::next_char($s, $pointer);
+        while ( $c !== false) {
+            if ($c === ' ') {
+                $spaces .= $c;
+            } else if ($c === "\n") {
+                $spaces = ''; // Discard spaces before a newline.
+                $nls .= $c;
+            } else {
+                if ($c === "\r") {
+                    $c = '\\r';
+                } else if ($c === "\t") {
+                    $c = '\\t';
+                } else if ($c < " ") {
+                    $c = '\\x' . sprintf("%02x", ord($c));
+                }
+                $output .= $nls . $spaces . $c;
+                $spaces = '';
+                $nls = '';
+            }
+            $c = self::next_char($s, $pointer);
+        }
+        if ($output !== '') {
+            $output .= "\n";
+        }
+        return $output;
+    }
+
+    // This is the byte-oriented (ASCII) version of the clean function, used if
+    // the string doesn't appear to be valid utf-8. Escapes chars > '\x7E' as
+    // well as control chars < '\x20'.
+    public static function clean_ascii(&$s) {
         $nls = '';     // Unused line breaks.
         $output = '';  // Output string.
         $spaces = '';  // Unused space characters.

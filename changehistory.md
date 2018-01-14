@@ -1,7 +1,8 @@
 # CHANGE HISTORY
 
-### 9 December 2017. 3.2.3
+### 14 January 2018. 3.3.0
 
+* Allow UTF-8 output from programs (if Jobe server is explicitly configured to allow this).
 * Implement UI plugin architecture to allow different JavaScript plugins
   to manage the question answer textarea and related textareas in the
   question authoring form.
