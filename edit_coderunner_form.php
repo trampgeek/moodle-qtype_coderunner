@@ -637,9 +637,9 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 get_string('prototypecontrols', 'qtype_coderunner'),
                 $prototypecontrols, null, false);
         $mform->setDefault('is_prototype', false);
-        $mform->setType('typename', PARAM_RAW);
+        $mform->setType('typename', PARAM_ALPHANUMEXT);
         $mform->addElement('hidden', 'saved_prototype_type');
-        $mform->setType('saved_prototype_type', PARAM_RAW);
+        $mform->setType('saved_prototype_type', PARAM_ALPHANUMEXT);
         $mform->addHelpButton('prototypecontrols', 'prototypecontrols', 'qtype_coderunner');
 
         $sandboxcontrols = array();
