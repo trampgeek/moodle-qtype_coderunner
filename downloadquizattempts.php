@@ -36,7 +36,7 @@ require_once($CFG->libdir . '/questionlib.php');
 $context = context_system::instance();
 require_login();
 
-$PAGE->set_url('/question/type/coderunner/prototypeusageindex.php');
+$PAGE->set_url('/question/type/coderunner/downloadquizattempts.php');
 $PAGE->set_context($context);
 $PAGE->set_title(get_string('downloadquizattempts', 'qtype_coderunner'));
 $PAGE->requires->jquery();
