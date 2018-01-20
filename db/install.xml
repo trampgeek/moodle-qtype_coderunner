@@ -14,7 +14,7 @@
         <FIELD NAME="showsource" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="True to display full source code after template expansion, for debugging template."/>
         <FIELD NAME="precheck" TYPE="int" LENGTH="8" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Sets what test-set is used if pre-checking is available. 0 = 'disable': no pretest button available; 1 = 'empty' for no actual tests; 2 = 'examples' for all use-as-example tests; 3 = 'selected' for specific selected tests, 4 = 'all' for all tests."/>
         <FIELD NAME="answerboxlines" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="18" SEQUENCE="false" COMMENT="The number of lines for the answer box"/>
-        <FIELD NAME="answerboxcolumns" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="100" SEQUENCE="false" COMMENT="Number of columns of answerbox."/>
+        <FIELD NAME="answerboxcolumns" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="100" SEQUENCE="false" COMMENT="Number of columns of answerbox. DEFUNCT."/>
         <FIELD NAME="answerpreload" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Text to be preloaded into the question answer box."/>
         <FIELD NAME="useace" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="1" SEQUENCE="false" COMMENT="True to use the Ace code editor for the template code."/>
         <FIELD NAME="penaltyregime" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="A comma-separated list of percentage penalties to apply to each submission. If empty use default question penalty"/>
