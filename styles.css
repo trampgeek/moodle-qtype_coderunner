@@ -16,6 +16,10 @@
     vertical-align: top;
 }
 
+.que.coderunner textarea.edit_code {
+    width: 100%;
+}
+
 .que.coderunner div.coderunnerexamples {
     padding-bottom: 10px;
 }
@@ -38,6 +42,15 @@ body#page-question-type-coderunner .ace_editor {
 
 .que.coderunner div.coderunner-test-results {
     padding: 0.5em;
+}
+
+.que.coderunner span.coderunner-lang-select-span {
+    float: right;
+}
+
+.que.coderunner select.coderunner-lang-select {
+    margin-left: 10px;
+    padding: 0px 8px 0px 8px;
 }
 
 #page-question-type-coderunner table.coderunner-test-results td,
