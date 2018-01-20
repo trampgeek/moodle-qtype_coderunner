@@ -58,7 +58,8 @@ class qtype_coderunner_question extends question_graded_automatically {
     }
 
     public function get_expected_data() {
-        return array('answer' => PARAM_RAW);
+        return array('answer' => PARAM_RAW,
+                     'language' => PARAM_NOTAGS);
     }
 
 
@@ -117,7 +118,9 @@ class qtype_coderunner_question extends question_graded_automatically {
     public function is_same_response(array $prevresponse, array $newresponse) {
 
         return question_utils::arrays_same_at_key_missing_is_blank(
-                $prevresponse, $newresponse, 'answer');
+                        $prevresponse, $newresponse, 'answer') &&
+                question_utils::arrays_same_at_key_missing_is_blank(
+                        $prevresponse, $newresponse, 'language');
     }
 
     public function get_correct_response() {
@@ -152,6 +155,7 @@ class qtype_coderunner_question extends question_graded_automatically {
         if ($isprecheck && empty($this->precheck)) {
             throw new coding_exception("Unexpected precheck");
         }
+        $language = empty($response['language']) ? '' : $response['language'];
         $gradingreqd = true;
         if (!empty($response['_testoutcome'])) {
             $testoutcomeserial = $response['_testoutcome'];
@@ -167,7 +171,7 @@ class qtype_coderunner_question extends question_graded_automatically {
             $code = $response['answer'];
             $testcases = $this->filter_testcases($isprecheck, $this->precheck);
             $runner = new qtype_coderunner_jobrunner();
-            $testoutcome = $runner->run_tests($this, $code, $testcases, $isprecheck);
+            $testoutcome = $runner->run_tests($this, $code, $testcases, $isprecheck, $language);
             $testoutcomeserial = serialize($testoutcome);
         }
 

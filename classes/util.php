@@ -260,4 +260,37 @@ class qtype_coderunner_util {
         return $para;
     }
 
+
+    /**
+     * Parse the ace-language field to obtain the list of languages to be
+     * accepted and the default language to use.
+     * @param string $acelangstring the contents of the 'Ace language' field
+     *  in the authoring form
+     * @return a 2-element array consisting of the list of languages and the
+     *  default language (if given) or an empty string (otherwise).
+     * If more than one language is specified as a default, i.e. has a trailing
+     * '*' appended, the function returns FALSE.
+     */
+    public static function extract_languages($acelangstring) {
+        $langs = preg_split('/ *, */', $acelangstring);
+        $filteredlangs = array();
+        $defaultlang = '';
+        foreach ($langs as $lang) {
+            $lang = trim($lang);
+            if ($lang === '') {
+                continue;
+            }
+            if ($lang[strlen($lang) - 1] === '*') {
+                $lang = substr($lang, 0, strlen($lang) - 1);
+                if ($defaultlang !== '') {
+                    return false;
+                } else {
+                    $defaultlang = $lang;
+                }
+            }
+            $filteredlangs[] = $lang;
+        }
+        return array($filteredlangs, $defaultlang);
+    }
+
 }

@@ -41,8 +41,10 @@ class qtype_coderunner_jobrunner {
     // question and and a given set of test cases (which may be empty or a
     // subset of the question's set of testcases. $isprecheck is true if
     // this is a run triggered by the student clicking the Precheck button.
+    // $answerlanguage will be the empty string except for multilanguage questions,
+    // when it is the language selected in the language drop-down menu.
     // Returns a TestingOutcome object.
-    public function run_tests($question, $code, $testcases, $isprecheck) {
+    public function run_tests($question, $code, $testcases, $isprecheck, $answerlanguage) {
         global $CFG, $USER;
 
         $this->question = $question;
@@ -76,10 +78,11 @@ class qtype_coderunner_jobrunner {
         $this->allruns = array();
         $this->templateparams = array(
             'STUDENT_ANSWER' => $code,
-            'ESCAPED_STUDENT_ANSWER' => qtype_coderunner_escapers::python(null, $code, null),
-            'MATLAB_ESCAPED_STUDENT_ANSWER' => qtype_coderunner_escapers::matlab(null, $code, null),
+            'ESCAPED_STUDENT_ANSWER' => qtype_coderunner_escapers::python(null, $code, null), // LEGACY SUPPORT
+            'MATLAB_ESCAPED_STUDENT_ANSWER' => qtype_coderunner_escapers::matlab(null, $code, null), // LEGACY SUPPORT
             'IS_PRECHECK' => $isprecheck ? "1" : "0",
             'QUESTION' => $question,
+            'ANSWER_LANGUAGE' => $answerlanguage,
             'STUDENT' => new qtype_coderunner_student($USER)
          );
 

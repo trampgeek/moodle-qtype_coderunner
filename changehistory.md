@@ -2,12 +2,13 @@
 
 ### 14 January 2018. 3.3.0
 
-* Allow UTF-8 output from programs (if Jobe server is explicitly configured to allow this).
+* Allow UTF-8 output from programs, if Jobe server is configured to
+allow this.
 * Implement UI plugin architecture to allow different JavaScript plugins
   to manage the question answer textarea and related textareas in the
   question authoring form.
 * Incorporate the GraphUI plugin from Emily Price into the new plugin architecture
-  (thanks Emily!).
+  (thanks Emily).
 * Add directed and undirected graph prototypes to the built-in prototype set.
 * Fix bug with the auto-correcting of test cases that fail during validation.
   If the author changed the ordering of testcases via the "ordering" field, the

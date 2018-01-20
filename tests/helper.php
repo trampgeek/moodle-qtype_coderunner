@@ -132,6 +132,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $form->prototypetype = 0;
         $form->sandbox = 'DEFAULT';
         $form->language = 'python3';
+        $form->acelang = '';
         $form->iscombinatortemplate = 0;
         $form->testsplitterre = '|#<ab@17943918#@>#\n|ms';
         $form->template = "{{ STUDENT_ANSWER }}\n{{ TEST.testcode }}\n";

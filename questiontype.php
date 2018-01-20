@@ -89,7 +89,7 @@ class qtype_coderunner extends question_type {
             'precheck',
             'showsource',
             'answerboxlines',
-            'answerboxcolumns',
+            'answerboxcolumns',  // Defunct
             'answerpreload',
             'useace',
             'resultcolumns',

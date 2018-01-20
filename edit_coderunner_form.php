@@ -437,6 +437,16 @@ class qtype_coderunner_edit_form extends question_edit_form {
             }
         }
 
+        $acelangs = trim($data['acelang']);
+        if ($acelangs !== '' && strpos($acelangs, ',') !== false) {
+            $parsedlangs = qtype_coderunner_util::extract_languages($acelangs);
+            if ($parsedlangs === false) {
+                $errors['languages'] = get_string('multipledefaults', 'qtype_coderunner');
+            } else if (count($parsedlangs[0]) === 0) {
+                $errors['languages'] = get_string('badacelangstring', 'qtype_coderunner');
+            }
+        }
+
         return $errors;
     }
 
@@ -476,12 +486,6 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 array('size' => 3, 'class' => 'coderunner_answerbox_size'));
         $mform->setType('answerboxlines', PARAM_INT);
         $mform->setDefault('answerboxlines', self::DEFAULT_NUM_ROWS);
-        $answerboxelements[] = $mform->createElement('text', 'answerboxcolumns',
-                get_string('answerboxcolumns', 'qtype_coderunner'),
-                array('size' => 3, 'class' => 'coderunner_answerbox_size'));
-        $mform->setType('answerboxcolumns', PARAM_INT);
-        $mform->setDefault('answerboxcolumns', self::DEFAULT_NUM_COLS);
-
         $mform->addElement('group', 'answerbox_group', get_string('answerbox_group', 'qtype_coderunner'),
                 $answerboxelements, null, false);
         $mform->addHelpButton('answerbox_group', 'answerbox_group', 'qtype_coderunner');
@@ -637,9 +641,9 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 get_string('prototypecontrols', 'qtype_coderunner'),
                 $prototypecontrols, null, false);
         $mform->setDefault('is_prototype', false);
-        $mform->setType('typename', PARAM_ALPHANUMEXT);
+        $mform->setType('typename', PARAM_RAW_TRIMMED);
         $mform->addElement('hidden', 'saved_prototype_type');
-        $mform->setType('saved_prototype_type', PARAM_ALPHANUMEXT);
+        $mform->setType('saved_prototype_type', PARAM_RAW_TRIMMED);
         $mform->addHelpButton('prototypecontrols', 'prototypecontrols', 'qtype_coderunner');
 
         $sandboxcontrols = array();
@@ -669,11 +673,11 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $languages[]  = $mform->createElement('text', 'language',
             get_string('language', 'qtype_coderunner'),
             array('size' => 10));
-        $mform->setType('language', PARAM_RAW);
+        $mform->setType('language', PARAM_RAW_TRIMMED);
         $languages[]  = $mform->createElement('text', 'acelang',
             get_string('ace-language', 'qtype_coderunner'),
-            array('size' => 10));
-        $mform->setType('acelang', PARAM_RAW);
+            array('size' => 20));
+        $mform->setType('acelang', PARAM_RAW_TRIMMED);
         $mform->addElement('group', 'languages',
             get_string('languages', 'qtype_coderunner'),
             $languages, null, false);
@@ -788,6 +792,16 @@ class qtype_coderunner_edit_form extends question_edit_form {
             return $answer;
         }
 
+        // Check if it's a multilanguage question; if so need to determine
+        // what language (either the default or the first).
+        $acelangs = trim($data['acelang']);
+        if ($acelangs !== '' && strpos($acelangs, ',') !== false) {
+            list($languages, $defaultlang) = qtype_coderunner_util::extract_languages($acelangs);
+            if ($defaultlang === '') {
+                $defaultlang = $languages[0];
+            }
+        }
+
         // Construct a question object containing all the fields from $data.
         $question = new qtype_coderunner_question();
         foreach ($data as $key => $value) {
@@ -806,7 +820,11 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $context = context::instance_by_id($contextid, IGNORE_MISSING);
         $prototype = $qtype->get_prototype($questiontype, $context);
         $qtype->set_inherited_fields($question, $prototype);
-        list($mark, $state, $cachedata) = $question->grade_response(array('answer' => $answer));
+        $response = array('answer' => $answer);
+        if (!empty($defaultlang)) {
+            $response['language'] = $defaultlang;
+        }
+        list($mark, $state, $cachedata) = $question->grade_response($response);
 
         // Return either an empty string if run was good or an error message.
         if ($mark == 1.0) {

@@ -84,16 +84,44 @@ class qtype_coderunner_renderer extends qtype_renderer {
                 get_string('penaltyregime', 'qtype_coderunner', $penalties),
                 array('class' => 'penaltyregime'));
         $qtext .= $answerprompt . $penaltystring;
+
+        if (!empty($question->acelang) && strpos($question->acelang, ',') !== false) {
+            list($languages, $default) = qtype_coderunner_util::extract_languages($question->acelang);
+            $selectname = $qa->get_qt_field_name('language');
+            $selectid = 'id_' . $selectname;
+            $currentlanguage = $qa->get_last_qt_var('language');
+            if (empty($currentlanguage) && $default !== '') {
+                $currentlanguage = $default;
+            }
+            $qtext .= html_writer::start_tag('span', array('class' => 'coderunner-lang-select-span'));
+            $qtext .= html_writer::tag('label',
+                    get_string('languageselectlabel', 'qtype_coderunner'),
+                    array('for' => $selectid));
+            $qtext .= html_writer::start_tag('select',
+                    array('id' => $selectid, 'name' => $selectname,
+                          'class' => 'coderunner-lang-select', 'required' => ''));
+            if (empty($currentlanguage)) {
+                $qtext .= html_writer::tag('option', '', array('value'=>''));
+            }
+            foreach ($languages as $lang) {
+                $attributes = array('value' => $lang);
+                if ($lang === $currentlanguage) {
+                    $attributes['selected'] = 'selected';
+                }
+                $qtext .= html_writer::tag('option', $lang, $attributes);
+            }
+            $qtext .= html_writer::end_tag('select');
+            $qtext .= html_writer::end_tag('span');
+        }
+
         $qtext .= html_writer::end_tag('div');
 
         $rows = isset($question->answerboxlines) ? $question->answerboxlines : 18;
-        $cols = isset($question->answerboxcolumns) ? $question->answerboxcolumns : 100;
         $preload = isset($question->answerpreload) ? $question->answerpreload : '';
         $taattributes = array(
                 'class' => 'coderunner-answer edit_code',
                 'name'  => $responsefieldname,
                 'id'    => $responsefieldid,
-                'cols'      => $cols,
                 'spellcheck' => 'false',
                 'rows'      => $rows
         );

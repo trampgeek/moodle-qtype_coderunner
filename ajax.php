@@ -39,7 +39,7 @@ require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
 require_login();
 require_sesskey();
 
-$qtype  = required_param('qtype', PARAM_ALPHANUMEXT);
+$qtype  = required_param('qtype', PARAM_RAW_TRIMMED);
 $courseid = required_param('courseid', PARAM_INT);
 
 header('Content-type: application/json; charset=utf-8');
