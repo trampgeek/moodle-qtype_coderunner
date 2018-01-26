@@ -21,20 +21,24 @@
  *
  * The InterfaceWrapper provides:
  *
- * 1. A constructor InterfaceWrapper(uiname, textareaId, templateParamsJson) which
+ * 1. A constructor InterfaceWrapper(uiname, textareaId, params) which
  *    hides the given text area, replaces it with a wrapper div (resizable in
  *    height by the user but with width resizing managed by changes in window
  *    width), created an instance of nameInstance as defined in the file
- *    ui_name.js (see below). templateParamsJson is the json-encoded template
- *    parameters value from the original question.
+ *    ui_name.js (see below). params is a record containing the decoded value of
+ *    the question's templateParams, possibly enhanced by additional
+ *    data such as a 'lang' value for the Ace editor.
  *
  * 2. A stop() method that destroys the embedded UI and hides the wrapper.
  *
- * 3. A restart() method that shows the wrapper again and re-creates an
+ * 3. A restart() method that shows the wrapper again and re-creates the prior
  *    embedded UI component within it.
  *
- * 4. A loadUi(uiname, lang) method that kills any currently running UI element
- *    (if there is one) and (re)loads the specified one.
+ * 4. A loadUi(uiname, params) method that kills any currently running UI element
+ *    (if there is one) and (re)loads the specified one. The params parameter
+ *    is a record that allows additional parameters to be passed in, such as
+ *    those from the question's templateParams field and, in the case of the
+ *    Ace UI, the 'lang' (language) that the editor is editing.
  *
  * 5. Regular checking for any resizing of the wrapper, which are passed on to
  *    the embedded UI element's resize() method.
@@ -49,12 +53,13 @@
  * of the form ui_name.js which must define a class nameInstance with
  * the following functionality:
  *
- * 1. A constructor SomeUiName(textareaId, width, height, templateParams) that
+ * 1. A constructor SomeUiName(textareaId, width, height, params) that
  *    builds an HTML component of the given width and height. textareaId is the
  *    ID of the textArea from which the UI element should obtain its initial
  *    serialisation and to which it should write the serialisation when its save
- *    or destroy methods are called. templateParams is a JavaScript object,
- *    decoded from the JSON-version stored in the question.
+ *    or destroy methods are called. params is a JavaScript object,
+ *    decoded from the JSON templateParams defined by the question plus any
+ *    additional data required, such as the 'lang' in the case of Ace.
  *
  * 2. A getElement() method that returns the HTML element that the
  *    InterfaceWrapper is to insert into the document tree.
@@ -105,15 +110,21 @@
 
 define(['jquery'], function($) {
 
-    function InterfaceWrapper(uiname, textareaId, templateParamsJson, lang) {
+    function InterfaceWrapper(uiname, textareaId, params) {
         // Constructor for a new user interface.
         // uiname is the name of the interface element (e.g. ace, graph, etc)
         // which should be in file ui_ace.js, ui_graph.js etc.
         // textareaId is the id of the text area that the UI is to manage
-        // templateParamsJson is the json-encoded set of template parameters
-        // from the question
-        // lang, which is unnecessary unless uiname == 'ace', is the language
-        // for ace.
+        // params is a record containing whatever additional parameters might
+        // be needed by the User interface. As a minimum it should contain all
+        // the template params from the JSON-encode template-params field of
+        // the question so that question authors can pass in additional data
+        // such as whether graph edges are bidirectional or not in the case of
+        // the graph UI. Additionally the Ace editor requires a 'lang' field
+        // to specify what language the editor is editing.
+        // When the wrapper has been set up on a text area, the text area's
+        // data attribute contains an entry for 'current-ui-wrapper' that is
+        // a reference to the wrapper ('this').
         var  h,
              t = this; // For use by embedded functions.
 
@@ -124,11 +135,6 @@ define(['jquery'], function($) {
         this.taId = textareaId;
         this.textArea = $(document.getElementById(textareaId));
         this.readOnly = this.textArea.prop('readonly');
-        if (templateParamsJson) {
-            this.templateParams = window.JSON.parse(templateParamsJson);
-        } else {
-            this.templateParams = {};
-        }
 
         h = parseInt(this.textArea.css("height"));
 
@@ -145,9 +151,14 @@ define(['jquery'], function($) {
             border: "1px solid darkgrey"
         });
 
+        // Record a reference to this wrapper in the text area's data attribute
+        // for use by external javascript that needs to interact with the
+        // wrapper, e.g. the multilanguage.js module.
+        this.textArea.data('current-ui-wrapper', this);
+
         // Load the UI into the wrapper (aysnchronous).
         this.uiInstance = null;  // Defined by loadUi asynchronously
-        this.loadUi(uiname, lang);  // Load the required UI element
+        this.loadUi(uiname, params);  // Load the required UI element
 
         // Add event handlers
         $(document).mousemove(function() {
@@ -169,16 +180,18 @@ define(['jquery'], function($) {
     }
 
 
-    InterfaceWrapper.prototype.loadUi = function(uiname, lang) {
+    InterfaceWrapper.prototype.loadUi = function(uiname, params) {
         // Load the specified UI element (which in the case of Ace will need
-        // to know the language, lang, as well).
+        // to know the language, lang, as well - this must be supplied as
+        // a 'lang' attribute of the record params.
         // When ui is up and running, this.uiInstance will reference it.
         //
         var t = this;
 
+        this.params = params;  // Save in case need to restart
+
         this.stop();  // Kill any active UI first
         this.uiname = uiname;
-        this.lang = lang;
 
         if (this.uiname === '' || this.uiname === 'none' || sessionStorage.getItem('disableUis')) {
             this.uiInstance = null;
@@ -189,7 +202,7 @@ define(['jquery'], function($) {
 
                     h = t.wrapperNode.innerHeight() - t.GUTTER;
                     w = t.wrapperNode.innerWidth();
-                    uiInstance = new ui.Constructor(t.taId, w, h, t.templateParams, t.lang);
+                    uiInstance = new ui.Constructor(t.taId, w, h, params);
                     if (uiInstance.failed()) {
                         // Constructor failed. Abort.
                         uiInstance.destroy();
@@ -236,7 +249,7 @@ define(['jquery'], function($) {
         // a full re-initialisation of the ui element.
         if (this.uiInstance === null) {
             // Restart the UI component in the textarea
-            this.loadUi(this.uiname, this.lang);
+            this.loadUi(this.uiname, this.params);
         }
     };
 
@@ -264,14 +277,34 @@ define(['jquery'], function($) {
         }
     };
 
-
+    /**
+     *  The external entry point from the PHP.
+     * @param string uiname, e.g. 'ace'
+     * @param string textareaId
+     * @param string templateParamsJson - the JSON-encoded template params
+     * @param string lang (relevant only to Ace) - the language to be edited
+     * @returns {userinterfacewrapperL#111.InterfaceWrapper}
+     */
     function newUiWrapper(uiname, textareaId, templateParamsJson, lang) {
-        // Need this because php call doesn't allow 'new'
-        return new InterfaceWrapper(uiname, textareaId, templateParamsJson, lang);
+        var params;
+        try {
+            params = window.JSON.parse(templateParamsJson);
+        } catch(e) {
+            params = {};
+        }
+        if (lang) {
+            params.lang = lang;
+        }
+        if (uiname) {
+            return new InterfaceWrapper(uiname, textareaId, params);
+        } else {
+            return null;
+        }
     }
 
 
     return {
-        newUiWrapper: newUiWrapper
+        newUiWrapper: newUiWrapper,
+        InterfaceWrapper: InterfaceWrapper
     };
 });

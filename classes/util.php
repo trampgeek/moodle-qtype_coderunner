@@ -49,7 +49,16 @@ class qtype_coderunner_util {
                 if (empty($question->acelang)) {
                     $lang = $question->language;
                 } else {
-                    $lang = $question->acelang;
+                    // If an ace language is given, it might be a multilanguage
+                    // question. Set the language to the specified default, if supplied,
+                    // or the first language otherwise (which also works for
+                    // non-multilanguage questions).
+                    list($langs, $default) = self::extract_languages($question->acelang);
+                    if (!empty($default)) {
+                        $lang = $default;
+                    } else {
+                        $lang = $langs[0];
+                    }
                 }
                 $lang = ucwords($lang);
                 $params[] = $lang;

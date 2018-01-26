@@ -148,6 +148,11 @@ class qtype_coderunner_renderer extends qtype_renderer {
         $uiplugin = $question->uiplugin === null ? 'ace' : strtolower($question->uiplugin);
         if ($uiplugin !== '' && $uiplugin !== 'none') {
             qtype_coderunner_util::load_uiplugin_js($question, $responsefieldid);
+            if (!empty($question->acelang) && strpos($question->acelang, ',') != false) {
+                // For multilanguage questions, add javascript to switch the
+                // Ace language when the user changes the selected language.
+                $PAGE->requires->js_call_amd('qtype_coderunner/multilanguagequestion', 'initLangSelector', array($responsefieldid));
+            }
         } else {
             $PAGE->requires->js_call_amd('qtype_coderunner/textareas', 'initQuestionTA', array($responsefieldid));
         }

@@ -20,6 +20,11 @@
  * declared in userinterfacewrapper.js. See that file for an explanation of
  * the interface to this module.
  *
+ * A special case behaviour of the AceWrapper is that it needs to know
+ * the Programming language that is being edited. This MUST be provided in
+ * the constructor templateParams parameter (an associative array) as a string
+ * with key 'lang'.
+ *
  * @package    qtype
  * @subpackage coderunner
  * @copyright  Richard Lobb, 2015, 2017, The University of Canterbury
@@ -35,11 +40,12 @@
 
 define(['jquery'], function($) {
 
-    function AceWrapper(textareaId, w, h, templateParams, lang) {
+    function AceWrapper(textareaId, w, h, params) {
         // Constructor for the Ace interface object
 
         var textarea = $(document.getElementById(textareaId)),
             focused = textarea[0] === document.activeElement,
+            lang = params.lang,
             session;
 
         this.MIN_WIDTH = 300;

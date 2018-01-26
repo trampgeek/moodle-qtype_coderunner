@@ -52,7 +52,8 @@ class qtype_coderunner_test_helper extends question_test_helper {
             'sqrmatlab', 'teststudentanswermacro', 'sqroctave',
             'teststudentanswermacrooctave', 'sqrnodejs',
             'sqrjava', 'nameclass', 'printsquares', 'printstr',
-            'sqr_user_prototype_child');
+            'sqr_user_prototype_child',
+            'multilang_echo_stdin');
     }
 
     /**
@@ -912,6 +913,22 @@ EOT
     }
 
     /**
+     *  Make a multilanguage question that echos stdin to stdout.
+     */
+    public function make_coderunner_question_multilang_echo_stdin() {
+        return $this->make_coderunner_question(
+                'multilanguage',
+                'Multilang Echo',
+                'Write a program in your language of choice to echo stdin to stdout',
+                array(
+                    array(
+                        'stdin'     => "Line1\nLine2",
+                        'expected'  => "Line1\nLine2")
+                    )
+                );
+    }
+
+    /**
      * Makes a coderunner question in which the testcode is just a Java literal
      * string and the template makes a program to use that value and print it.
      * The output should then be identical to the input string.
@@ -1035,7 +1052,7 @@ EOPROG;
         $coderunner->templateparams = '';
         $coderunner->prototypetype = 0;
         $coderunner->name = $name;
-        $coderunner->useace = true;
+        //$coderunner->useace = true;
         $coderunner->precheck = 0;
         $coderunner->questiontext = $questiontext;
         $coderunner->allornothing = true;

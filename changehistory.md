@@ -1,7 +1,8 @@
 # CHANGE HISTORY
 
-### 14 January 2018. 3.3.0
-
+### 26 January 2018. 3.3.0
+* Add multilanguage program question type to base set, plus various changes
+  to UI-handling code to allow student to select a language in such questions.
 * Allow UTF-8 output from programs, if Jobe server is configured to
 allow this.
 * Implement UI plugin architecture to allow different JavaScript plugins

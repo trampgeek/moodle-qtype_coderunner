@@ -91,7 +91,8 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
         function setUi(taId, uiname) {
             var ta = $(document.getElementById(taId)),  // The jquery text area element(s)
                 uiWrapper,
-                lang = null;
+                params,
+                lang;
 
             uiname = uiname.toLowerCase();
             if (uiname === 'none') {
@@ -100,8 +101,10 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
 
             uiWrapper = ta.data('current-ui-wrapper'); // Currently-active UI wrapper on this ta
 
-            if (uiWrapper && uiWrapper.uiname === uiname) {
-                return; // We already have what we want - give up
+            try {
+                params = window.JSON.parse(templateParams);
+            } catch(e) {
+                params = {};
             }
 
             if (uiname === "ace") {
@@ -110,17 +113,21 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
                 // or the value in 'language' in all other cases.
                 lang = language.prop('value');
                 if (taId !== "id_template" && acelang.prop('value')) {
-                    lang =  acelang.prop('value');
+                    lang =  preferredAceLang(acelang.prop('value'));
                 }
+                params.lang = lang;
+            }
+
+            if (uiWrapper && uiWrapper.uiname === uiname && uiWrapper.params === params) {
+                return; // We already have what we want - give up
             }
 
             if (!uiWrapper) {
-               uiWrapper = ui.newUiWrapper(uiname, taId, templateParams, lang);
+               uiWrapper = new ui.InterfaceWrapper(uiname, taId, params);
             } else {
-                uiWrapper.loadUi(uiname, lang);
+                // Wrapper has already been set up - just reload the reqd UI
+                uiWrapper.loadUi(uiname, params);
             }
-
-            ta.data('current-ui-wrapper', uiWrapper);
 
         }
 
@@ -128,8 +135,10 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
         function setUis() {
             var uiname = uiplugin.val();
 
-            setUi('id_answer', uiname);
-            setUi('id_answerpreload', uiname);
+            if (uiname) {
+                setUi('id_answer', uiname);
+                setUi('id_answerpreload', uiname);
+            }
         }
 
 
@@ -204,6 +213,25 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
             return M.util.get_string(key, 'qtype_coderunner');
         }
 
+        // Get the "preferred language" from the AceLang string supplied.
+        // For multilanguage questions, this is either the default (i.e.,
+        // the language with a '*' suffix), or the first language. Otherwise
+        // it is simply the entire AceLang string
+        function preferredAceLang(acelang) {
+            var langs, i;
+            if (acelang.indexOf(',') < 0) {
+                return acelang;
+            } else {
+                langs = acelang.split(',');
+                for (i = 0; i < langs.length; i++) {
+                    if (langs[i].endsWith('*')) {
+                        return langs[i].substr(0, langs[i].length - 1);
+                    }
+                }
+                return langs.length > 0 ? langs[0] : '';
+            }
+        }
+
         // Load the various customisation fields into the form from the
         // CodeRunner question type currently selected by the combobox.
         function loadCustomisationFields() {
@@ -248,6 +276,23 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
             }
         }
 
+        // Check that the Ace language is correctly set for the answer and
+        // answer preload fields.
+        function check_ace_lang() {
+            if (uiplugin.val() === 'ace'){
+                setUis();
+            }
+        }
+
+        // Check that the Ace language is correctly set for the template,
+        // if template_uses_ace is checked.
+        function check_template_lang() {
+            if (useace.prop('checked')) {
+                setUi('id_template', 'ace');
+            }
+        }
+
+
         /*************************************************************
          *
          * Body of initEditFormWhenReady starts here.
@@ -289,10 +334,10 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
             }
         });
 
-        acelang.on('change', function() {
-            if (uiplugin.val() === 'ace'){
-                setUis();
-            }
+        acelang.on('change', check_ace_lang);
+        language.on('change', function() {
+            check_template_lang();
+            check_ace_lang();
         });
 
         typeCombo.on('change', function() {

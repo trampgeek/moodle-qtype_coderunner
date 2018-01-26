@@ -3,12 +3,12 @@
 <!-- question: 0  -->
   <question type="category">
     <category>
-        <text>CR_PROTOTYPES</text>
+        <text>$system$/CR_PROTOTYPES</text>
 
     </category>
   </question>
 
-<!-- question: 17273  -->
+<!-- question: 17308  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_c_function</text>
@@ -81,7 +81,7 @@ int main() {
     </testcases>
   </question>
 
-<!-- question: 17274  -->
+<!-- question: 17309  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_c_program</text>
@@ -129,7 +129,7 @@ int main() {
     </testcases>
   </question>
 
-<!-- question: 17275  -->
+<!-- question: 17310  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_cpp_function</text>
@@ -208,7 +208,7 @@ int main() {
     </testcases>
   </question>
 
-<!-- question: 17276  -->
+<!-- question: 17311  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_cpp_program</text>
@@ -256,7 +256,7 @@ int main() {
     </testcases>
   </question>
 
-<!-- question: 17292  -->
+<!-- question: 17312  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_directed_graph</text>
@@ -337,7 +337,7 @@ print(SEPARATOR)
     </testcases>
   </question>
 
-<!-- question: 17277  -->
+<!-- question: 17313  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_java_class</text>
@@ -400,7 +400,7 @@ public class __Tester__ {
     </testcases>
   </question>
 
-<!-- question: 17278  -->
+<!-- question: 17314  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_java_method</text>
@@ -456,7 +456,8 @@ public class __Tester__ {
     <allowmultiplestdins></allowmultiplestdins>
     <answer></answer>
     <validateonsave>0</validateonsave>
-    <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
+    <testsplitterre><![CDATA[|#<ab@17943918#@>#
+|ms]]></testsplitterre>
     <language>Java</language>
     <acelang></acelang>
     <sandbox></sandbox>
@@ -470,7 +471,7 @@ public class __Tester__ {
     </testcases>
   </question>
 
-<!-- question: 17279  -->
+<!-- question: 17315  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_java_program</text>
@@ -517,7 +518,7 @@ public class __Tester__ {
     </testcases>
   </question>
 
-<!-- question: 17280  -->
+<!-- question: 17316  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_octave_function</text>
@@ -558,7 +559,8 @@ disp('#<ab@17943918#@>#');
     <allowmultiplestdins></allowmultiplestdins>
     <answer></answer>
     <validateonsave>0</validateonsave>
-    <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
+    <testsplitterre><![CDATA[|#<ab@17943918#@>#
+|ms]]></testsplitterre>
     <language>octave</language>
     <acelang></acelang>
     <sandbox></sandbox>
@@ -572,7 +574,7 @@ disp('#<ab@17943918#@>#');
     </testcases>
   </question>
 
-<!-- question: 17281  -->
+<!-- question: 17317  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_pascal_function</text>
@@ -625,7 +627,7 @@ end.
     </testcases>
   </question>
 
-<!-- question: 17282  -->
+<!-- question: 17318  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_pascal_program</text>
@@ -671,7 +673,7 @@ end.
     </testcases>
   </question>
 
-<!-- question: 17283  -->
+<!-- question: 17319  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_php</text>
@@ -727,7 +729,7 @@ echo SEPARATOR;
     </testcases>
   </question>
 
-<!-- question: 17284  -->
+<!-- question: 17320  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_python2</text>
@@ -769,7 +771,8 @@ print(SEPARATOR)
     <allowmultiplestdins></allowmultiplestdins>
     <answer></answer>
     <validateonsave>0</validateonsave>
-    <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
+    <testsplitterre><![CDATA[|#<ab@17943918#@>#
+|ms]]></testsplitterre>
     <language>python2</language>
     <acelang></acelang>
     <sandbox></sandbox>
@@ -783,7 +786,7 @@ print(SEPARATOR)
     </testcases>
   </question>
 
-<!-- question: 17285  -->
+<!-- question: 17321  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_python3</text>
@@ -825,7 +828,8 @@ print(SEPARATOR)
     <allowmultiplestdins></allowmultiplestdins>
     <answer></answer>
     <validateonsave>0</validateonsave>
-    <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
+    <testsplitterre><![CDATA[|#<ab@17943918#@>#
+|ms]]></testsplitterre>
     <language>python3</language>
     <acelang></acelang>
     <sandbox></sandbox>
@@ -839,7 +843,7 @@ print(SEPARATOR)
     </testcases>
   </question>
 
-<!-- question: 17290  -->
+<!-- question: 17322  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_undirected_graph</text>
@@ -922,7 +926,7 @@ print(SEPARATOR)
     </testcases>
   </question>
 
-<!-- question: 17286  -->
+<!-- question: 17323  -->
   <question type="coderunner">
     <name>
       <text>BUILTIN_PROTOTYPE_nodejs</text>
@@ -975,7 +979,7 @@ print(SEPARATOR)
     </testcases>
   </question>
 
-<!-- question: 17287  -->
+<!-- question: 17324  -->
   <question type="coderunner">
     <name>
       <text>BUILTIN_PROTOTYPE_Python3_w_input</text>
@@ -1036,6 +1040,119 @@ print(SEPARATOR)
     <sandboxparams></sandboxparams>
     <templateparams></templateparams>
     <uiplugin></uiplugin>
+    <testcases>
+    </testcases>
+  </question>
+
+<!-- question: 17334  -->
+  <question type="coderunner">
+    <name>
+      <text>BULT_IN_PROTOTYPE_multilanguage</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<p>The prototype for a "write a program" style of question in which the student can submit an answer in any of the languages: C, C++, Java, Python3. This list of allowed languages is defined by the prototype's <i>AceLang</i>&nbsp;field as a comma-separated list. The student answer has a language-select dropdown menu containing those languages.</p>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.0000000</penalty>
+    <hidden>0</hidden>
+    <coderunnertype>multilanguage</coderunnertype>
+    <prototypetype>2</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime>10, 20, ...</penaltyregime>
+    <precheck>0</precheck>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
+    <useace>1</useace>
+    <resultcolumns></resultcolumns>
+    <template><![CDATA[""" The template for a "write a program" question type that accepts answers
+    in C, C++, Java or Python3 according to the value in the language select
+    dropdown menu.
+"""
+
+import subprocess
+import re
+student_answer = """{{ STUDENT_ANSWER | e('py') }}"""
+language = """{{ ANSWER_LANGUAGE | e('py') }}""".lower()
+language_extension_map = {'c':'c', 'cpp':'cpp', 'java':'java', 'python3':'py'}
+
+if language not in language_extension_map.keys():
+    raise Exception('Error in question. Unknown/unexpected language ({})'.format(language))
+
+if language == 'java':
+    # Need to determine public class name in order to name output file. Sigh.
+    # The best I can be bothered to do is to use a regular expression match.
+    match = re.search(r'public\s+class\s+([_a-zA-Z][_a-zA-Z0-9]*)', student_answer, re.DOTALL | re.MULTILINE)
+    if match is None:
+        raise Exception("Unable to determine class name. Does the file include 'public class name'?")
+    classname = match.group(1)
+    filename = classname + '.java'
+else:    
+    filename = 'prog.' + language_extension_map[language]
+
+# Write the student code to a file
+
+with open(filename, "w") as src:
+    print(student_answer, file=src)
+
+# Compile C, C++ and Java
+if language == 'c':
+    cflags = "-std=c99 -Wall -Werror"
+    return_code = subprocess.call("gcc {0} -o prog prog.c".format(cflags).split())
+    if return_code != 0:
+        raise Exception("** Compilation failed. Testing aborted **")
+    exec_command = ["./prog"]
+elif language == 'cpp':
+    cppflags = "-Wall -Werror"
+    return_code = subprocess.call("g++ {0} -o prog prog.cpp".format(cppflags).split())
+    if return_code != 0:
+        raise Exception("** Compilation failed. Testing aborted **")
+    exec_command = ["./prog"]
+elif language == 'java':
+    return_code = subprocess.call(['javac', filename])
+    if return_code != 0:
+        raise Exception("** Compilation failed. Testing aborted **")
+    exec_command = ["java", classname]
+else: # Python doesn't need a compile phase
+    exec_command = ["python3", "./prog.py"]
+    
+# Now run the code. Since this is a per-test template,
+# stdin is already set up for the stdin text specified in the test case,
+# so we can run the compiled program directly.
+
+try:
+    output = subprocess.check_output(exec_command, universal_newlines=True)
+    print(output)
+except subprocess.CalledProcessError as e:
+    if e.returncode > 0:
+        # Ignore non-zero positive return codes
+        if e.output:
+            print(e.output)
+    else:
+        # But negative return codes are signals - abort
+        if e.output:
+            print(e.output, file=sys.stderr)
+        if e.returncode < 0:
+            print("Task failed with signal", -e.returncode, file=sys.stderr)
+        print("** Further testing aborted **", file=sys.stderr)]]></template>
+    <iscombinatortemplate>0</iscombinatortemplate>
+    <allowmultiplestdins>0</allowmultiplestdins>
+    <answer></answer>
+    <validateonsave>0</validateonsave>
+    <testsplitterre></testsplitterre>
+    <language>python3</language>
+    <acelang>c,cpp,java,python3</acelang>
+    <sandbox></sandbox>
+    <grader>EqualityGrader</grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb>8000</memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams></templateparams>
+    <uiplugin>ace</uiplugin>
     <testcases>
     </testcases>
   </question>
