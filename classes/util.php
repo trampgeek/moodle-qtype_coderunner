@@ -111,23 +111,9 @@ class qtype_coderunner_util {
     // A newline terminator is added at the end unless the string to be
     // returned is otherwise empty.
     // Used e.g. by the equality grader subclass.
-    // The two implementations are a bit algorithmically complex because the
-    // original implemention, breaking the string into lines using explode,
-    // was a hideous memory hog.
-    public static function clean(&$s) {
-        if (!mb_check_encoding($s, 'UTF-8')) {
-            return self::clean_ascii($s);
-        } else {
-            return self::clean_utf8($s);
-        }
-    }
-
-
-    // This is the UTF-8 version of the clean function, used if
-    // the string is found (by mb_check_encoding) to be valid utf-8.
     // UTF-8 character handling is rudimentary - only standard ASCII
     // control characters, whitespace etc are processed.
-    public static function clean_utf8(&$s) {
+    public static function clean(&$s) {
         $nls = '';     // Unused line breaks.
         $output = '';  // Output string.
         $spaces = '';  // Unused space characters.
@@ -159,44 +145,11 @@ class qtype_coderunner_util {
         return $output;
     }
 
-    // This is the byte-oriented (ASCII) version of the clean function, used if
-    // the string doesn't appear to be valid utf-8. Escapes chars > '\x7E' as
-    // well as control chars < '\x20'.
-    public static function clean_ascii(&$s) {
-        $nls = '';     // Unused line breaks.
-        $output = '';  // Output string.
-        $spaces = '';  // Unused space characters.
-        $n = strlen($s);
-        for ($i = 0; $i < $n; $i++) {
-            $c = $s[$i];
-            if ($c === ' ') {
-                $spaces .= $c;
-            } else if ($c === "\n") {
-                $spaces = ''; // Discard spaces before a newline.
-                $nls .= $c;
-            } else {
-                if ($c === "\r") {
-                    $c = '\\r';
-                } else if ($c === "\t") {
-                    $c = '\\t';
-                } else if ($c < " " || $c > "\x7E") {
-                    $c = '\\x' . sprintf("%02x", ord($c));
-                }
-                $output .= $nls . $spaces . $c;
-                $spaces = '';
-                $nls = '';
-            }
-        }
-        if ($output !== '') {
-            $output .= "\n";
-        }
-        return $output;
-    }
-
 
     // Limit the length of the given string to MAX_STRING_LENGTH by
     // removing the centre of the string, inserting the substring
     // [... snip ... ] in its place.
+    // FIXME: can mess up UTF-8 multibyte strings.
     public static function snip(&$s) {
         $snipinsert = ' ...snip... ';
         $len = strlen($s);
