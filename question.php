@@ -130,7 +130,18 @@ class qtype_coderunner_question extends question_graded_automatically {
 
     public function get_correct_answer() {
         // Return the sample answer, if supplied.
-        return isset($this->answer) ? array('answer' => $this->answer) : array();
+        if (!isset($this->answer)) {
+            return null;
+        } else {
+            $answer = array('answer' => $this->answer);
+            // For multilanguage questions we also need to specify the language.
+            if (!empty($this->acelang) && strpos($this->acelang, ',') !== false) {
+                list($langs, $defaultlang) = qtype_coderunner_util::extract_languages($this->acelang);
+                $default = empty($defaultlang) ? $langs[0] : $defaultlang;
+                $answer['language'] = $default;
+            }
+            return $answer;
+        }
     }
 
 
