@@ -85,33 +85,39 @@ class qtype_coderunner_renderer extends qtype_renderer {
                 array('class' => 'penaltyregime'));
         $qtext .= $answerprompt . $penaltystring;
 
-        if (!empty($question->acelang) && strpos($question->acelang, ',') !== false) {
-            list($languages, $default) = qtype_coderunner_util::extract_languages($question->acelang);
-            $selectname = $qa->get_qt_field_name('language');
-            $selectid = 'id_' . $selectname;
-            $currentlanguage = $qa->get_last_qt_var('language');
-            if (empty($currentlanguage) && $default !== '') {
-                $currentlanguage = $default;
-            }
-            $qtext .= html_writer::start_tag('span', array('class' => 'coderunner-lang-select-span'));
-            $qtext .= html_writer::tag('label',
-                    get_string('languageselectlabel', 'qtype_coderunner'),
-                    array('for' => $selectid));
-            $qtext .= html_writer::start_tag('select',
-                    array('id' => $selectid, 'name' => $selectname,
-                          'class' => 'coderunner-lang-select', 'required' => ''));
-            if (empty($currentlanguage)) {
-                $qtext .= html_writer::tag('option', '', array('value'=>''));
-            }
-            foreach ($languages as $lang) {
-                $attributes = array('value' => $lang);
-                if ($lang === $currentlanguage) {
-                    $attributes['selected'] = 'selected';
+        if (empty($question->acelang)) {
+            $currentlanguage = $question->language;
+        } else {
+            $currentlanguage = $question->acelang;
+            if (strpos($question->acelang, ',') !== false) {
+                // Case of a multilanguage question. Add language selector dropdown.
+                list($languages, $default) = qtype_coderunner_util::extract_languages($question->acelang);
+                $selectname = $qa->get_qt_field_name('language');
+                $selectid = 'id_' . $selectname;
+                $currentlanguage = $qa->get_last_qt_var('language');
+                if (empty($currentlanguage) && $default !== '') {
+                    $currentlanguage = $default;
                 }
-                $qtext .= html_writer::tag('option', $lang, $attributes);
+                $qtext .= html_writer::start_tag('div', array('class' => 'coderunner-lang-select-div'));
+                $qtext .= html_writer::tag('label',
+                        get_string('languageselectlabel', 'qtype_coderunner'),
+                        array('for' => $selectid));
+                $qtext .= html_writer::start_tag('select',
+                        array('id' => $selectid, 'name' => $selectname,
+                              'class' => 'coderunner-lang-select', 'required' => ''));
+                if (empty($currentlanguage)) {
+                    $qtext .= html_writer::tag('option', '', array('value'=>''));
+                }
+                foreach ($languages as $lang) {
+                    $attributes = array('value' => $lang);
+                    if ($lang === $currentlanguage) {
+                        $attributes['selected'] = 'selected';
+                    }
+                    $qtext .= html_writer::tag('option', $lang, $attributes);
+                }
+                $qtext .= html_writer::end_tag('select');
+                $qtext .= html_writer::end_tag('div');
             }
-            $qtext .= html_writer::end_tag('select');
-            $qtext .= html_writer::end_tag('span');
         }
 
         $qtext .= html_writer::end_tag('div');
@@ -147,7 +153,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
         // Thanks to Ulrich Dangel for the original implementation of the Ace code editor.
         $uiplugin = $question->uiplugin === null ? 'ace' : strtolower($question->uiplugin);
         if ($uiplugin !== '' && $uiplugin !== 'none') {
-            qtype_coderunner_util::load_uiplugin_js($question, $responsefieldid);
+            qtype_coderunner_util::load_uiplugin_js($question, $responsefieldid, $currentlanguage);
             if (!empty($question->acelang) && strpos($question->acelang, ',') != false) {
                 // For multilanguage questions, add javascript to switch the
                 // Ace language when the user changes the selected language.

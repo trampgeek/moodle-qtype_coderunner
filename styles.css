@@ -44,13 +44,19 @@ body#page-question-type-coderunner .ace_editor {
     padding: 0.5em;
 }
 
-.que.coderunner span.coderunner-lang-select-span {
-    float: right;
+.que.coderunner label.answerprompt {
+    font-weight: bold;
+    padding-top: 10px;
+}
+
+.que.coderunner div.coderunner-lang-select-div {
+    padding-top: 10px;
+    padding-bottom: 3px;
 }
 
 .que.coderunner select.coderunner-lang-select {
-    margin-left: 10px;
-    padding: 0px 8px 0px 8px;
+    margin: 0px 0px 0px 10px;
+    padding: 1px 5px 1px 5px;
 }
 
 #page-question-type-coderunner table.coderunner-test-results td,

@@ -10,7 +10,7 @@
  * @copyright  Richard Lobb, 2018, The University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
- * TODO: is there a race prolemn here??
+ * TODO: is there a race problem here??
  */
 
 define(['jquery'], function($) {
@@ -23,17 +23,18 @@ define(['jquery'], function($) {
 
     function initLangSelectorWhenReady(taId) {
         var ta = $(document.getElementById(taId)),  // The jquery text area element(s)
-            selector = $(".coderunner-lang-select"),
-            lang;
+            selector = $(".coderunner-lang-select");
 
-        selector.on('change', function() {
-            var uiWrapper = ta.data('current-ui-wrapper'); // Currently-active UI wrapper on this ta
+        function setAceLang() {
+            var lang = selector.val(),
+                uiWrapper = ta.data('current-ui-wrapper'); // Currently-active UI wrapper on reqd ta
 
             if (uiWrapper) {
-                lang = selector.val();
                 uiWrapper.loadUi("ace", {'lang': lang});
             }
-        });
+        }
+
+        selector.on('change', setAceLang);
     }
 
     return {'initLangSelector' : initLangSelector};

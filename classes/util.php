@@ -31,36 +31,19 @@ class qtype_coderunner_util {
      * Load/initialise the specified UI JavaScipt plugin  for the given question.
      * A null plugin loads Ace.
      * $textareaid is the id of the textarea that the UI plugin is to manage.
+     * $acelang (relevant only if the plugin is ace) is the language to set the
+     * ace editor to.
      */
-    public static function load_uiplugin_js($question, $textareaid, $loadAce=true) {
+    public static function load_uiplugin_js($question, $textareaid, $acelang) {
         global $CFG, $PAGE;
 
-        if ($loadAce) {
-            self::load_ace(); // Ace isn't an AMD module. Load all its modules.
-        }
         $uiplugin = $question->uiplugin === null ? 'ace' : strtolower($question->uiplugin);
         if ($uiplugin !== '' && $uiplugin !== 'none') {
             $PAGE->requires->strings_for_js(constants::ui_plugin_keys(), 'qtype_coderunner');
             $params = array($uiplugin, $textareaid, $question->templateparams); // Params to plugin's init function.
             if ($uiplugin === 'ace') {
-                if (!$loadAce) {  // Shouldn't happen, but better safe than sorry
-                    self::load_ace();
-                }
-                if (empty($question->acelang)) {
-                    $lang = $question->language;
-                } else {
-                    // If an ace language is given, it might be a multilanguage
-                    // question. Set the language to the specified default, if supplied,
-                    // or the first language otherwise (which also works for
-                    // non-multilanguage questions).
-                    list($langs, $default) = self::extract_languages($question->acelang);
-                    if (!empty($default)) {
-                        $lang = $default;
-                    } else {
-                        $lang = $langs[0];
-                    }
-                }
-                $lang = ucwords($lang);
+                self::load_ace();
+                $lang = ucwords($acelang);
                 $params[] = $lang;
             }
             $PAGE->requires->js_call_amd('qtype_coderunner/userinterfacewrapper', 'newUiWrapper', $params);
