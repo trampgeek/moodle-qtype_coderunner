@@ -445,7 +445,7 @@ except ValueError:
                 array(
                     array('expected'   => "This is data\nLine 2")
                 ),
-                array('templateparams' => '{"xxx":1, "zzz": 2}')
+                array('templateparams' => '{"xxx":1, "zzz":2}')
         );
         return $coderunner;
     }

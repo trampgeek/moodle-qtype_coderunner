@@ -416,13 +416,9 @@ class qtype_coderunner extends question_type {
             }
         }
 
-        if (!empty($prototype->templateparams)) {
-            if (empty($target->templateparams)) {
-                $target->templateparams = $prototype->templateparams;
-            } else {
-                $target->templateparams = $this->mergejson($prototype->templateparams, $target->templateparams);
-            }
-        }
+        // Save prototype template params in the target, to be merged with
+        // the question template params if the target is actually run.
+        $target->prototypetemplateparams = $prototype->templateparams;
 
         if (!isset($target->sandbox)) {
             $target->sandbox = null;
@@ -787,24 +783,6 @@ class qtype_coderunner extends question_type {
             $s = substr($s, 0, strlen($s) - 1);
         }
         return $s;
-    }
-
-    /** Support function to merge the JSON template parameters from the
-     *  the prototype with the child's template params. The prototype can
-     *  be overridden by the child.
-     */
-    private function mergejson($prototypejson, $childjson) {
-        $result = new stdClass();
-
-        foreach (json_decode($prototypejson) as $attr => $field) {
-            $result->$attr = $field;
-        }
-
-        foreach (json_decode($childjson) as $attr => $field) {
-            $result->$attr = $field;
-        }
-
-        return json_encode($result);
     }
 }
 

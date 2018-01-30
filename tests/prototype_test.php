@@ -59,8 +59,6 @@ class qtype_coderunner_prototype_test extends qtype_coderunner_testcase {
     // inherited by the child but can be overridden by it.
     // xxx and yyy are both defined by the parent prototype and the
     // child overrides xxx and adds zzz.
-    // [Actually the test_export function should also show if the
-    // template params are being appropriately imported but ... belts and braces?]
     public function test_params_inherited() {
         $q = $this->make_parent_and_child();
         $q->template = <<<EOTEMPLATE
@@ -135,7 +133,7 @@ EOTEMPLATE;
     <cputimelimitsecs></cputimelimitsecs>
     <memlimitmb></memlimitmb>
     <sandboxparams></sandboxparams>
-    <templateparams><![CDATA[{"xxx":1,"yyy":200,"zzz":2}]]></templateparams>
+    <templateparams><![CDATA[{"xxx":1, "zzz":2}]]></templateparams>
     <uiplugin></uiplugin>
     <testcases>
       <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >

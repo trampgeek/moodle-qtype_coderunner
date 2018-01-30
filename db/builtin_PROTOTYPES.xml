@@ -8,7 +8,7 @@
     </category>
   </question>
 
-<!-- question: 17308  -->
+<!-- question: 17335  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_c_function</text>
@@ -81,7 +81,7 @@ int main() {
     </testcases>
   </question>
 
-<!-- question: 17309  -->
+<!-- question: 17336  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_c_program</text>
@@ -129,7 +129,7 @@ int main() {
     </testcases>
   </question>
 
-<!-- question: 17310  -->
+<!-- question: 17337  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_cpp_function</text>
@@ -208,7 +208,7 @@ int main() {
     </testcases>
   </question>
 
-<!-- question: 17311  -->
+<!-- question: 17338  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_cpp_program</text>
@@ -256,7 +256,7 @@ int main() {
     </testcases>
   </question>
 
-<!-- question: 17312  -->
+<!-- question: 17339  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_directed_graph</text>
@@ -337,7 +337,7 @@ print(SEPARATOR)
     </testcases>
   </question>
 
-<!-- question: 17313  -->
+<!-- question: 17340  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_java_class</text>
@@ -400,7 +400,7 @@ public class __Tester__ {
     </testcases>
   </question>
 
-<!-- question: 17314  -->
+<!-- question: 17341  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_java_method</text>
@@ -471,7 +471,7 @@ public class __Tester__ {
     </testcases>
   </question>
 
-<!-- question: 17315  -->
+<!-- question: 17342  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_java_program</text>
@@ -518,7 +518,7 @@ public class __Tester__ {
     </testcases>
   </question>
 
-<!-- question: 17316  -->
+<!-- question: 17343  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_octave_function</text>
@@ -574,7 +574,7 @@ disp('#<ab@17943918#@>#');
     </testcases>
   </question>
 
-<!-- question: 17317  -->
+<!-- question: 17344  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_pascal_function</text>
@@ -627,7 +627,7 @@ end.
     </testcases>
   </question>
 
-<!-- question: 17318  -->
+<!-- question: 17345  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_pascal_program</text>
@@ -673,7 +673,7 @@ end.
     </testcases>
   </question>
 
-<!-- question: 17319  -->
+<!-- question: 17346  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_php</text>
@@ -729,7 +729,7 @@ echo SEPARATOR;
     </testcases>
   </question>
 
-<!-- question: 17320  -->
+<!-- question: 17347  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_python2</text>
@@ -786,7 +786,7 @@ print(SEPARATOR)
     </testcases>
   </question>
 
-<!-- question: 17321  -->
+<!-- question: 17348  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_python3</text>
@@ -843,7 +843,7 @@ print(SEPARATOR)
     </testcases>
   </question>
 
-<!-- question: 17322  -->
+<!-- question: 17349  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_undirected_graph</text>
@@ -883,7 +883,7 @@ try:
     graph_rep = json.loads(student_answer)
     node_id_to_name_map = {}
     for i, node in enumerate(graph_rep['nodes']):
-        node_id_to_name_map[i] = node[0] if node[0] != '' else '#' + tr(i)
+        node_id_to_name_map[i] = node[0] if node[0] != '' else ('#' + str(i))
     #print("Nodes:", nodes)
     edges = graph_rep['edges']
     #print("Edges:", edges)
@@ -926,7 +926,7 @@ print(SEPARATOR)
     </testcases>
   </question>
 
-<!-- question: 17323  -->
+<!-- question: 17350  -->
   <question type="coderunner">
     <name>
       <text>BUILTIN_PROTOTYPE_nodejs</text>
@@ -979,7 +979,7 @@ print(SEPARATOR)
     </testcases>
   </question>
 
-<!-- question: 17324  -->
+<!-- question: 17351  -->
   <question type="coderunner">
     <name>
       <text>BUILTIN_PROTOTYPE_Python3_w_input</text>
@@ -1044,7 +1044,7 @@ print(SEPARATOR)
     </testcases>
   </question>
 
-<!-- question: 17334  -->
+<!-- question: 17352  -->
   <question type="coderunner">
     <name>
       <text>BULT_IN_PROTOTYPE_multilanguage</text>

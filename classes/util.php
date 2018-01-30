@@ -238,4 +238,27 @@ class qtype_coderunner_util {
         return array($filteredlangs, $defaultlang);
     }
 
+
+    /** Function to merge the JSON template parameters from the
+     *  the prototype with the child's template params. The prototype can
+     *  be overridden by the child.
+     */
+    public static function merge_json($prototypejson, $childjson) {
+        $result = new stdClass();
+
+        if (!empty($prototypejson)) {
+            foreach (json_decode($prototypejson) as $attr => $field) {
+                $result->$attr = $field;
+            }
+        }
+
+        if (!empty($childjson)) {
+            foreach (json_decode($childjson) as $attr => $field) {
+                $result->$attr = $field;
+            }
+        }
+
+        return json_encode($result);
+    }
+
 }

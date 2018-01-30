@@ -182,6 +182,8 @@ class qtype_coderunner_question extends question_graded_automatically {
             $code = $response['answer'];
             $testcases = $this->filter_testcases($isprecheck, $this->precheck);
             $runner = new qtype_coderunner_jobrunner();
+            $this->templateparams = qtype_coderunner_util::merge_json(
+                    $this->prototypetemplateparams, $this->templateparams);
             $testoutcome = $runner->run_tests($this, $code, $testcases, $isprecheck, $language);
             $testoutcomeserial = serialize($testoutcome);
         }

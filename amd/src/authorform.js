@@ -307,12 +307,12 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
             customise.prop('disabled', true);
         }
 
-        setUis();  // Set up UI controllers on answer and answerpreload
-
         setCustomisationVisibility(isCustomised);
         if (!isCustomised) {
-            loadCustomisationFields();
+            // Not customised so have to load fields from prototype
+            loadCustomisationFields();  // setUis is called when this completes
         } else {
+            setUis();  // Set up UI controllers on answer and answerpreload
             questiontypeHelpDiv.html("<p>" + getString('info_unavailable') + "</p>");
         }
 

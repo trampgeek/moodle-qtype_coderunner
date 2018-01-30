@@ -619,7 +619,12 @@ QUESTION.parameters.&lt;&lt;param&gt;&gt;. For example, if template params is
         {"age": 23}
 
 the value 23 would be substituted into the template in place of the
-template variable `{{ QUESTION.parameters.age }}`.';
+template variable `{{ QUESTION.parameters.age }}`.
+
+The set of template parameters passed to the template consists of any template
+parameters defined in the prototype with the question template parameters
+merged in. Question parameters can thus override prototype parameters, but not
+delete them.';
 $string['testcase'] = 'Test case {$a}';
 $string['testcasecontrols'] = 'Test properties:';
 $string['testcasecontrols_help'] = 'If \'Use as example\' is checked, this test will be automatically included in the

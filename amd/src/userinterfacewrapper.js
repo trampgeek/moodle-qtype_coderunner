@@ -135,6 +135,7 @@ define(['jquery'], function($) {
         this.taId = textareaId;
         this.textArea = $(document.getElementById(textareaId));
         this.readOnly = this.textArea.prop('readonly');
+        this.isLoading = false;  // True if we're busy loading a UI element
 
         h = parseInt(this.textArea.css("height"));
 
@@ -185,8 +186,17 @@ define(['jquery'], function($) {
         // to know the language, lang, as well - this must be supplied as
         // a 'lang' attribute of the record params.
         // When ui is up and running, this.uiInstance will reference it.
+        // To avoid a potential race problem, if this method is already busy
+        // with a load, try again in 50 msecs.
         //
         var t = this;
+
+        if (this.isLoading) {  // Oops, we're loading a UI element already
+            setTimeout(function() {
+                this.prototype.loadUi(uiname, params);
+            }, 50); // Try again in 50 msecs
+            return;
+        }
 
         this.params = params;  // Save in case need to restart
 
@@ -196,6 +206,7 @@ define(['jquery'], function($) {
         if (this.uiname === '' || this.uiname === 'none' || sessionStorage.getItem('disableUis')) {
             this.uiInstance = null;
         } else {
+            this.isLoading = true;
             require(['qtype_coderunner/ui_' + this.uiname],
                 function(ui) {
                     var minSize, uiInstance, h, w;
@@ -223,6 +234,7 @@ define(['jquery'], function($) {
                         t.uiInstance = uiInstance;
                         t.checkForResize();
                     }
+                    t.isLoading = false;
                 });
         }
     };
