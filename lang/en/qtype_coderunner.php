@@ -48,6 +48,8 @@ $string['answerbox_group_help'] = 'Set the number of rows to allocate for the an
 $string['answerpreload'] = 'Answer box preload';
 $string['answerpreload_help'] = 'Text supplied here will be preloaded into the student\'s answer box.';
 $string['asolutionis'] = 'Question author\'s solution:';
+$string['autotagbycategorytitle'] = 'CodeRunner autotag by category';
+$string['autotagbycategoryindextitle'] = 'CodeRunner question autotagger';
 
 $string['badacelangstring'] = 'Bad Ace-language string';
 $string['badcputime'] = 'CPU time limit must be left blank or must be an integer greater than zero';
@@ -69,6 +71,7 @@ $string['bulktestindextitle'] = 'CodeRunner bulk testing';
 $string['bulktestrun'] = 'Run all the question tests for all the questions in the system (slow, admin only)';
 $string['bulktesttitle'] = 'Running all the question tests in {$a}';
 
+$string['coderunnercategories'] = 'Categories with CodeRunner questions';
 $string['coderunnercontexts'] = 'Contexts with CodeRunner questions';
 $string['coderunner'] = 'Program Code';
 
