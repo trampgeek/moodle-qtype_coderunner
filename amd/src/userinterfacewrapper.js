@@ -136,6 +136,7 @@ define(['jquery'], function($) {
         this.textArea = $(document.getElementById(textareaId));
         this.readOnly = this.textArea.prop('readonly');
         this.isLoading = false;  // True if we're busy loading a UI element
+        this.retries = 0;        // Number of failed attempts to load a UI component
 
         h = parseInt(this.textArea.css("height"));
 
@@ -187,17 +188,24 @@ define(['jquery'], function($) {
         // a 'lang' attribute of the record params.
         // When ui is up and running, this.uiInstance will reference it.
         // To avoid a potential race problem, if this method is already busy
-        // with a load, try again in 50 msecs.
+        // with a load, try again in 200 msecs.
         //
         var t = this;
 
         if (this.isLoading) {  // Oops, we're loading a UI element already
-            setTimeout(function() {
-                this.prototype.loadUi(uiname, params);
-            }, 50); // Try again in 50 msecs
+            this.retries += 1;
+            if (this.retries > 20) {
+                alert("Failed to load UI component. If this error persists, please report it to the forum on coderunner.org.nz");
+                this.retries = 0;
+                this.loading = 0;
+            } else {
+                setTimeout(function() {
+                    t.loadUi(uiname, params);
+                }, 200); // Try again in 200 msecs
+            }
             return;
         }
-
+        this.retries = 0;
         this.params = params;  // Save in case need to restart
 
         this.stop();  // Kill any active UI first
