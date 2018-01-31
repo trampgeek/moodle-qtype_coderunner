@@ -46,7 +46,11 @@ body#page-question-type-coderunner .ace_editor {
 
 .que.coderunner label.answerprompt {
     font-weight: bold;
-    padding-top: 10px;
+}
+
+.que.coderunner div.prompt {
+    margin-top: 20px;
+    margin-bottom: 7px;
 }
 
 .que.coderunner div.coderunner-lang-select-div {
