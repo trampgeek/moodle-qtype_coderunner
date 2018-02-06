@@ -345,8 +345,18 @@ class qtype_coderunner_bulk_tester  {
         core_php_time_limit::raise(60); // Prevent PHP timeouts.
         gc_collect_cycles(); // Because PHP's default memory management is rubbish.
         $answer = $question->answer;
+        $response = array('answer' => $answer);
+        // Check if it's a multilanguage question; if so need to determine
+        // what language (either the default or the first).
+        if (!empty($question->acelang) && strpos($question->acelang, ',') !== false) {
+            list($languages, $defaultlang) = qtype_coderunner_util::extract_languages($question->acelang);
+            if ($defaultlang === '') {
+                $defaultlang = $languages[0];
+            }
+            $response['language'] = $defaultlang;
+        }
         try {
-            list($fraction, $state) = $question->grade_response(array('answer' => $answer), false);
+            list($fraction, $state) = $question->grade_response($response, false);
             $ok = $state == question_state::$gradedright;
         } catch (qtype_coderunner_exception $e) {
             $ok = false; // If user clicks link to see why, they'll get the same exception.
