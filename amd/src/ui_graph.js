@@ -428,7 +428,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
                     var backupNodeLayout = backup.nodeGeometry[i];
                     var node = new elements.Node(this, backupNodeLayout[0], backupNodeLayout[1]);
                     node.isAcceptState = backupNode[1];
-                    node.text = backupNode[0];
+                    node.text = backupNode[0].toString();
                     this.nodes.push(node);
                 }
 
@@ -440,7 +440,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
                         // self link has two identical nodes
                         link = new elements.SelfLink(this, this.nodes[backupLink[0]]);
                         link.anchorAngle = backupLinkLayout.anchorAngle;
-                        link.text = backupLink[2];
+                        link.text = backupLink[2].toString();
                     } else if(backupLink[0] === -1) {
                         link = new elements.StartLink(this, this.nodes[backupLink[1]]);
                         link.deltaX = backupLinkLayout.deltaX;
@@ -449,7 +449,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
                         link = new elements.Link(this, this.nodes[backupLink[0]], this.nodes[backupLink[1]]);
                         link.parallelPart = backupLinkLayout.parallelPart;
                         link.perpendicularPart = backupLinkLayout.perpendicularPart;
-                        link.text = backupLink[2];
+                        link.text = backupLink[2].toString();
                         link.lineAngleAdjust = backupLinkLayout.lineAngleAdjust;
                     }
                     if(link !== null) {
