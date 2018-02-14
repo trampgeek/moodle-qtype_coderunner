@@ -219,6 +219,9 @@ define(['jquery'], function($) {
                 'c#': 'cs'
             };
 
+        if (typeof language !== 'string') {
+            return undefined;
+        }
         if (language.toLowerCase() in nameMap) {
             language = nameMap[language.toLowerCase()];
         }
