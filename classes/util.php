@@ -245,20 +245,21 @@ class qtype_coderunner_util {
      */
     public static function merge_json($prototypejson, $childjson) {
         $result = new stdClass();
-
-        if (!empty($prototypejson)) {
-            foreach (json_decode($prototypejson) as $attr => $field) {
-                $result->$attr = $field;
-            }
+        foreach(self::template_params($prototypejson) as $attr => $field) {
+            $result->$attr = $field;
         }
 
-        if (!empty($childjson)) {
-            foreach (json_decode($childjson) as $attr => $field) {
-                $result->$attr = $field;
-            }
+        foreach(self::template_params($childjson) as $attr => $field) {
+            $result->$attr = $field;
         }
 
         return json_encode($result);
     }
 
+    // Decode given json-encoded template parameters, returning an associative
+    // array. Return an empty array if jsonparams is empty or invalid.
+    public static function template_params($jsonparams) {
+        $params = json_decode($jsonparams, true);
+        return $params === null ? array() : $params;
+    }
 }
