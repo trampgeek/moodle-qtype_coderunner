@@ -43,7 +43,7 @@ define(function() {
         for(var i = 0; i < 10; i++) {
             text = text.replace(new RegExp('_' + i, 'g'), String.fromCharCode(8320 + i));
         }
-
+        text = text.replace(new RegExp('_a', 'g'), String.fromCharCode(8336));
         return text;
     };
 
