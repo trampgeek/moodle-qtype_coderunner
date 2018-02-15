@@ -117,7 +117,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         this.movingObject = false;
         this.fail = false;  // Will be set true if reload fails (can't deserialise)
         this.reload();
-        if (!this.failed) {
+        if (!this.fail) {
             this.draw();
         }
     }

@@ -51,68 +51,84 @@ define(['jquery'], function($) {
         this.MIN_WIDTH = 300;
         this.MIN_HEIGHT = 100;
 
-        window.ace.require("ace/ext/language_tools");
-        this.modelist = window.ace.require('ace/ext/modelist');
+        try {
+            window.ace.require("ace/ext/language_tools");
+            this.modelist = window.ace.require('ace/ext/modelist');
 
-        this.textarea = textarea;
-        this.enabled = false;
-        this.contents_changed = false;
-        this.capturingTab = false;
-        this.clickInProgress = false;
+            this.textarea = textarea;
+            this.enabled = false;
+            this.contents_changed = false;
+            this.capturingTab = false;
+            this.clickInProgress = false;
 
 
-        this.editNode = $("<div></div>"); // Ace editor manages this
-        this.editNode.css({
-            resize: 'none', // Chrome wrongly inherits this.
-            height: h,
-            width: "100%"
-        });
+            this.editNode = $("<div></div>"); // Ace editor manages this
+            this.editNode.css({
+                resize: 'none', // Chrome wrongly inherits this.
+                height: h,
+                width: "100%"
+            });
 
-        this.editor = window.ace.edit(this.editNode.get(0));
-        if (textarea.prop('readonly')) {
-            this.editor.setReadOnly(true);
+            this.editor = window.ace.edit(this.editNode.get(0));
+            if (textarea.prop('readonly')) {
+                this.editor.setReadOnly(true);
+            }
+
+            this.editor.setOptions({
+                enableBasicAutocompletion: true,
+                newLineMode: "unix",
+            });
+            this.editor.$blockScrolling = Infinity;
+
+            session = this.editor.getSession();
+            session.setValue(this.textarea.val());
+
+            this.setLanguage(lang);
+
+            this.setEventHandlers(textarea);
+            this.captureTab();
+
+            // Try to tell Moodle about parts of the editor with z-index.
+            // It is hard to be sure if this is complete. ACE adds all its CSS using JavaScript.
+            // Here, we just deal with things that are known to cause a problem.
+            $('.ace_gutter').addClass('moodle-has-zindex');
+
+            textarea.hide();
+            if (focused) {
+                this.editor.focus();
+                this.editor.navigateFileEnd();
+                /*
+                var session = this.editor.getSession(),
+                    lines = session.getLength();
+                this.editor.gotoLine(lines, session.getLine(lines - 1).length);
+                */
+            }
+            this.aceLabel = $('.answerprompt');
+            this.aceLabel.attr('for', 'ace_' + textareaId);
+
+            this.aceTextarea = $('.ace_text-input');
+            this.aceTextarea.attr('id', 'ace_' + textareaId);
+            this.fail = false;
         }
-
-        this.editor.setOptions({
-            enableBasicAutocompletion: true,
-            newLineMode: "unix",
-        });
-        this.editor.$blockScrolling = Infinity;
-        this.mode = this.findMode(lang);
-        session = this.editor.getSession();
-        session.setValue(this.textarea.val());
-        if (this.mode) {
-            session.setMode(this.mode.mode);
+        catch(err) {
+            // Something ugly happened. Probably ace editor hasn't been loaded
+            alert("Failed to set up Ace editor");
+            this.fail = true;
         }
-
-        this.setEventHandlers(textarea);
-        this.captureTab();
-
-        // Try to tell Moodle about parts of the editor with z-index.
-        // It is hard to be sure if this is complete. ACE adds all its CSS using JavaScript.
-        // Here, we just deal with things that are known to cause a problem.
-        $('.ace_gutter').addClass('moodle-has-zindex');
-
-        textarea.hide();
-        if (focused) {
-            this.editor.focus();
-            this.editor.navigateFileEnd();
-            /*
-            var session = this.editor.getSession(),
-                lines = session.getLength();
-            this.editor.gotoLine(lines, session.getLine(lines - 1).length);
-            */
-        }
-        this.aceLabel = $('.answerprompt');
-        this.aceLabel.attr('for', 'ace_' + textareaId);
-
-        this.aceTextarea = $('.ace_text-input');
-        this.aceTextarea.attr('id', 'ace_' + textareaId);
     }
 
 
     AceWrapper.prototype.failed = function() {
-        return false;
+        return this.fail;
+    };
+
+
+    AceWrapper.prototype.setLanguage = function(language) {
+        var session = this.editor.getSession(),
+            mode = this.findMode(language);
+        if (mode) {
+            session.setMode(mode.mode);
+        }
     };
 
 
@@ -194,13 +210,17 @@ define(['jquery'], function($) {
     };
 
     AceWrapper.prototype.destroy = function () {
-        var focused = this.editor.isFocused();
-        this.textarea.val(this.editor.getSession().getValue()); // Copy data back
-        this.editor.destroy();
-        $(this.editNode).remove();
-        if (focused) {
-            this.textarea.focus();
-            this.textarea[0].selectionStart = this.textarea[0].value.length;
+        var focused;
+        if (!this.fail) {
+            // Proceed only if this wrapper was correctly constructed
+            focused = this.editor.isFocused();
+            this.textarea.val(this.editor.getSession().getValue()); // Copy data back
+            this.editor.destroy();
+            $(this.editNode).remove();
+            if (focused) {
+                this.textarea.focus();
+                this.textarea[0].selectionStart = this.textarea[0].value.length;
+            }
         }
     };
 
