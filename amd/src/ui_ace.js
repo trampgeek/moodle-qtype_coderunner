@@ -112,7 +112,6 @@ define(['jquery'], function($) {
         }
         catch(err) {
             // Something ugly happened. Probably ace editor hasn't been loaded
-            alert("Failed to set up Ace editor");
             this.fail = true;
         }
     }
