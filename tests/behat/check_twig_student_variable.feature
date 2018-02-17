@@ -20,12 +20,12 @@ Feature: Check the STUDENT Twig variable allows access to current username in Co
     And I log in as "teacher1"
     And I follow "C1"
     And I navigate to "Question bank" node in "Course administration"
+    And I disable UI plugins
     And I add a "CodeRunner" question filling the form with:
       | id_coderunnertype       | python3                                    |
       | id_customise            | 1                                          |
       | id_name                 | STUDENT variable                           |
       | id_questiontext         | Student answer is actually ignored!        |
-      | id_useace               |                                            |
       | id_answerboxlines       | 5                                          |
       | id_validateonsave       | 0                                          |
       | id_template             | print("{{STUDENT.username}}" == "teacher1")|

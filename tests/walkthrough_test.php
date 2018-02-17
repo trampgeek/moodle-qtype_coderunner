@@ -341,7 +341,7 @@ EOTEMPLATE;
     }
 
 
-    // Test the new template grader testresults and prologuehtml fields.
+    // Test the new template grader testresults, prologuehtml and columnformats fields.
     public function test_combinator_template_grading2() {
         $q = test_question_maker::make_question('coderunner', 'sqr');
         $q->template = <<<EOTEMPLATE
@@ -349,17 +349,18 @@ import json
 {{ STUDENT_ANSWER }}
 
 n_vals = [3, -5, 11, 21, 200];
-results = [['n', 'Expected', 'Got', 'Mark', 'Correct']]
+results = [['n', 'Expected', 'Got', 'Mark', 'Correct', 'Comment', 'ishidden', 'iscorrect']]
 total = 0
 for n in n_vals:
     got = sqr(n)
     mark = 1 if got == n * n else 0
     total += mark
-    results.append([n, n * n, got, mark, got == n * n])
+    results.append([n, n * n, got, mark, got == n * n, '<p class="blah">Test value ' + str(n) + '</p>', 0, got == n * n])
 print(json.dumps({'prologuehtml': "<h2>Prologue</h2>",
                   'testresults': results,
                   'epiloguehtml': "Wasn't that FUN!",
-                  'fraction': total / len(n_vals)
+                  'fraction': total / len(n_vals),
+                  'columnformats': ['%s', '%s', '%s', '%s', '%s', '%h']
 }))
 EOTEMPLATE;
         $q->iscombinatortemplate = true;
@@ -376,6 +377,7 @@ EOTEMPLATE;
         $this->check_output_contains('Got');
         $this->check_output_contains("Wasn't that FUN!");
         $this->check_output_contains("Passed all tests!");
+        $this->check_output_does_not_contain("Blah"); // HTML field should be rendered directly so class not visible
 
         // Submit a partially right  answer.
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
@@ -423,5 +425,107 @@ EOTEMPLATE;
         $this->check_output_contains('Run 1');
         $this->check_output_contains('SEPARATOR = &quot;#&lt;ab@17943918#@&gt;#&quot;');
     }
-}
 
+
+    // Test that if the combinator grader output has a columnformats with
+    // the wrong number of values, an appropriate error is issued.
+    public function test_bad_combinator_grader_error() {
+        $q = test_question_maker::make_question('coderunner', 'sqr');
+        $q->template = <<<EOTEMPLATE
+import json
+{{ STUDENT_ANSWER }}
+
+n_vals = [3, -5, 11, 21, 200];
+results = [['n', 'Expected', 'Got', 'Mark', 'Correct', 'Comment', 'ishidden', 'iscorrect']]
+total = 0
+for n in n_vals:
+    got = sqr(n)
+    mark = 1 if got == n * n else 0
+    total += mark
+    results.append([n, n * n, got, mark, got == n * n, '<p class="blah">Test value ' + str(n) + '</p>', 0, got == n * n])
+print(json.dumps({'prologuehtml': "<h2>Prologue</h2>",
+                  'testresults': results,
+                  'epiloguehtml': "Wasn't that FUN!",
+                  'fraction': total / len(n_vals),
+                  'columnformats': ['%s', '%s', '%s', '%s', '%s', '%h', '%s']
+}))
+EOTEMPLATE;
+        $q->iscombinatortemplate = true;
+        $q->grader = 'TemplateGrader';
+        // Submit a right answer.
+        $this->start_attempt_at_question($q, 'adaptive', 1, 1);
+        $this->process_submission(array('-submit' => 1,
+            'answer' => 'def sqr(n): return n * n'));
+        $this->check_current_mark(0.0);
+        $this->check_output_contains('Wrong number of test results column formats. Expected 6, got 7');
+    }
+
+
+    // Test that if the combinator output has a misspelled columnformats
+    // field, an appropriate error is issued.
+    public function test_bad_combinator_grader_error2() {
+        $q = test_question_maker::make_question('coderunner', 'sqr');
+        $q->template = <<<EOTEMPLATE
+import json
+{{ STUDENT_ANSWER }}
+
+n_vals = [3, -5, 11, 21, 200];
+results = [['n', 'Expected', 'Got', 'Mark', 'Correct', 'Comment', 'ishidden', 'iscorrect']]
+total = 0
+for n in n_vals:
+    got = sqr(n)
+    mark = 1 if got == n * n else 0
+    total += mark
+    results.append([n, n * n, got, mark, got == n * n, '<p class="blah">Test value ' + str(n) + '</p>', 0, got == n * n])
+print(json.dumps({'prologuehtml': "<h2>Prologue</h2>",
+                  'testresults': results,
+                  'epiloguehtml': "Wasn't that FUN!",
+                  'fraction': total / len(n_vals),
+                  'columnformatt': ['%s', '%s', '%s', '%s', '%s', '%h', '%s']
+}))
+EOTEMPLATE;
+        $q->iscombinatortemplate = true;
+        $q->grader = 'TemplateGrader';
+        // Submit a right answer.
+        $this->start_attempt_at_question($q, 'adaptive', 1, 1);
+        $this->process_submission(array('-submit' => 1,
+            'answer' => 'def sqr(n): return n * n'));
+        $this->check_current_mark(0.0);
+        $this->check_output_contains('Unknown field name (columnformatt) in combinator grader output');
+    }
+
+
+    // Test that if the combinator output has a bad value in the columnformats
+    // field, an appropriate error is issued.
+    public function test_bad_combinator_grader_error3() {
+        $q = test_question_maker::make_question('coderunner', 'sqr');
+        $q->template = <<<EOTEMPLATE
+import json
+{{ STUDENT_ANSWER }}
+
+n_vals = [3, -5, 11, 21, 200];
+results = [['n', 'Expected', 'Got', 'Mark', 'Correct', 'Comment', 'ishidden', 'iscorrect']]
+total = 0
+for n in n_vals:
+    got = sqr(n)
+    mark = 1 if got == n * n else 0
+    total += mark
+    results.append([n, n * n, got, mark, got == n * n, '<p class="blah">Test value ' + str(n) + '</p>', 0, got == n * n])
+print(json.dumps({'prologuehtml': "<h2>Prologue</h2>",
+                  'testresults': results,
+                  'epiloguehtml': "Wasn't that FUN!",
+                  'fraction': total / len(n_vals),
+                  'columnformats': ['%s', '%s', '%s', '%s', '%x', '%h']
+}))
+EOTEMPLATE;
+        $q->iscombinatortemplate = true;
+        $q->grader = 'TemplateGrader';
+        // Submit a right answer.
+        $this->start_attempt_at_question($q, 'adaptive', 1, 1);
+        $this->process_submission(array('-submit' => 1,
+            'answer' => 'def sqr(n): return n * n'));
+        $this->check_current_mark(0.0);
+        $this->check_output_contains('Illegal format (%x) in columnformats');
+    }
+
+}

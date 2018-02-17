@@ -62,6 +62,9 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
     // are left in $httpcode and $response resp.
     public function __construct() {
         qtype_coderunner_sandbox::__construct();
+        $this->jobeserver = get_config('qtype_coderunner', 'jobe_host');
+        $this->apikey = get_config('qtype_coderunner', 'jobe_apikey');
+
         list($this->httpcode, $this->response) = $this->http_request(
                 'languages', self::HTTP_GET);
 
@@ -155,6 +158,12 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
             }
             if (isset($params['sourcefilename'])) {
                 $runspec['sourcefilename'] = $params['sourcefilename'];
+            }
+            if (isset($params['jobeserver'])) {
+                $this->jobeserver = $params['jobeserver'];
+            }
+            if (isset($params['jobeapikey'])) {
+                $this->jobeapikey = $params['jobeapikey'];
             }
         }
 
@@ -251,8 +260,8 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
      * Determine the URL for a particular API call, and
      * also get the HTTP headers that should be sent.
      *
-     * @param strimg $resource specific REST API call to add to the URL.
-     * @return array with two elemenst, the URL for the given resource,
+     * @param string $resource specific REST API call to add to the URL.
+     * @return array with two elements, the URL for the given resource,
      * and the HTTP headers that should be used in the request.
      */
     private function get_jobe_connection_info($resource) {
@@ -261,7 +270,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
         if ($CFG->prefix == "b_") {
             $jobe = "localhost";
         } else {
-            $jobe = get_config('qtype_coderunner', 'jobe_host');
+            $jobe = $this->jobeserver;
         }
         $url = "http://$jobe/jobe/index.php/restapi/$resource";
 
@@ -271,9 +280,8 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
                 'Accept-Charset: utf-8',
                 'Accept: application/json',
         );
-        $apikey = get_config('qtype_coderunner', 'jobe_apikey');
-        if (!empty($apikey)) {
-            $headers[] = "X-API-KEY: $apikey";
+        if (!empty($this->apikey)) {
+            $headers[] = "X-API-KEY: $this->apikey";
         }
         if (!empty($this->currentjobid)) {
             $headers[] = "X-CodeRunner-Job-Id: $this->currentjobid";

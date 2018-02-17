@@ -41,8 +41,10 @@ class qtype_coderunner_jobrunner {
     // question and and a given set of test cases (which may be empty or a
     // subset of the question's set of testcases. $isprecheck is true if
     // this is a run triggered by the student clicking the Precheck button.
+    // $answerlanguage will be the empty string except for multilanguage questions,
+    // when it is the language selected in the language drop-down menu.
     // Returns a TestingOutcome object.
-    public function run_tests($question, $code, $testcases, $isprecheck) {
+    public function run_tests($question, $code, $testcases, $isprecheck, $answerlanguage) {
         global $CFG, $USER;
 
         $this->question = $question;
@@ -76,10 +78,11 @@ class qtype_coderunner_jobrunner {
         $this->allruns = array();
         $this->templateparams = array(
             'STUDENT_ANSWER' => $code,
-            'ESCAPED_STUDENT_ANSWER' => qtype_coderunner_escapers::python(null, $code, null),
-            'MATLAB_ESCAPED_STUDENT_ANSWER' => qtype_coderunner_escapers::matlab(null, $code, null),
+            'ESCAPED_STUDENT_ANSWER' => qtype_coderunner_escapers::python(null, $code, null), // LEGACY SUPPORT
+            'MATLAB_ESCAPED_STUDENT_ANSWER' => qtype_coderunner_escapers::matlab(null, $code, null), // LEGACY SUPPORT
             'IS_PRECHECK' => $isprecheck ? "1" : "0",
             'QUESTION' => $question,
+            'ANSWER_LANGUAGE' => $answerlanguage,
             'STUDENT' => new qtype_coderunner_student($USER)
          );
 
@@ -265,25 +268,29 @@ class qtype_coderunner_jobrunner {
                 $outcome->set_status(qtype_coderunner_testing_outcome::STATUS_BAD_COMBINATOR, $error);
             } else {
 
-                // A successful combinator run.
+                // A successful combinator run (so far).
                 $fract = $result->fraction;
                 $feedback = array();
                 if (isset($result->feedback_html)) {  // Legacy combinator grader?
                     $result->feedbackhtml = $result->feedback_html; // Change to modern version.
                     unset($result->feedback_html);
                 }
-                foreach (array('prologuehtml', 'testresults', 'epiloguehtml',
-                    'feedbackhtml', 'showdifferences') as $key) {
-                    if (isset($result->$key)) {
+                foreach ($result as $key=>$value) {
+                    if (!in_array($key, $outcome->ALLOWED_FIELDS)) {
+                        $error = get_string('unknowncombinatorgraderfield', 'qtype_coderunner',
+                            array('fieldname' => $key));
+                        $outcome->set_status(qtype_coderunner_testing_outcome::STATUS_BAD_COMBINATOR, $error);
+                        break;
+                    } else {
                         if ($key === 'feedbackhtml' || $key === 'feedback_html') {
                             // For compatibility with older combinator graders.
                             $feedback['epiloguehtml'] = $result->$key;
                         } else {
-                            $feedback[$key] = $result->$key;
+                            $feedback[$key] = $value;
                         }
                     }
                 }
-                $outcome->set_mark_and_feedback($fract, $feedback);
+                $outcome->set_mark_and_feedback($fract, $feedback);  // Further valididty checks done in here
             }
         }
         return $outcome;

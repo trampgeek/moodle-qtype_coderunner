@@ -106,9 +106,13 @@ class qtype_coderunner_testing_outcome {
     }
 
     public function mark_as_fraction() {
-        // Need to return exactly 1.0 for a right answer.
-        $fraction = $this->actualmark / $this->maxpossmark;
-        return abs($fraction - 1.0) < self::TOLERANCE ? 1.0 : $fraction;
+        if ($this->status === self::STATUS_VALID) {
+            // Need to return exactly 1.0 for a right answer.
+            $fraction = $this->actualmark / $this->maxpossmark;
+            return abs($fraction - 1.0) < self::TOLERANCE ? 1.0 : $fraction;
+        } else {
+            return 0;
+        }
     }
 
     public function all_correct() {

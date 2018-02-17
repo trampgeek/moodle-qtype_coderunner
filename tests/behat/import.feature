@@ -18,10 +18,10 @@ Feature: Import CodeRunner questions
     And I follow "C1"
 
   @javascript @_file_upload
-  Scenario: Import CodeRunner questions
+  Scenario: Import questions exported from CodeRunner V2.
     When I navigate to "Import" node in "Course administration > Question bank"
     And I set the field "id_format_xml" to "1"
-    And I upload "question/type/coderunner/samples/simpledemoquestions.xml" file to "Import" filemanager
+    And I upload "question/type/coderunner/tests/fixtures/simpledemoquestions.V2.xml" file to "Import" filemanager
     And I press "id_submitbutton"
     Then I should see "Parsing questions from import file."
     And I should see "Importing 9 questions from file"
@@ -31,17 +31,19 @@ Feature: Import CodeRunner questions
     And I should see "C function: sqr"
 
   @javascript @_file_upload
-  Scenario: Import CodeRunner questions exported from V3.0.0.
+  Scenario: Import CodeRunner questions exported from V3
     When I navigate to "Import" node in "Course administration > Question bank"
     And I set the field "id_format_xml" to "1"
-    And I upload "question/type/coderunner/tests/fixtures/simpledemoquestions_V3.0.0.xml" file to "Import" filemanager
+    And I upload "question/type/coderunner/samples/simpledemoquestions.xml" file to "Import" filemanager
     And I press "id_submitbutton"
     Then I should see "Parsing questions from import file."
-    And I should see "Importing 12 questions from file"
+    And I should see "Importing 15 questions from file"
     And I should see "1. Write a C function with signature"
-    And I should see "12. There are three different Java question types built in to CodeRunner"
+    And I should see "13. Given a database with (at least) a table"
+    And I should see "15. Draw a graph with two nodes A and B"
     And I press "Continue"
-    And I should see "C sqr"
-    And I click on "Edit" "link" in the "Java Demo Class Question" "table_row"
-    And I set the field "useace" to ""
+    And I should see "C function: sqr"
+    And I click on "Edit" "link" in the "Java Class: bod" "table_row"
+    And I set the field "id_customise" to "1"
+    And I set the field "id_useace" to "0"
     And I should see "public class __Tester__ {" in the "id_template" "field"

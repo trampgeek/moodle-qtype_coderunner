@@ -40,8 +40,8 @@ class qtype_coderunner_prototype_test extends qtype_coderunner_testcase {
     public function test_inheritance_from_prototype() {
         $this->make_sqr_user_type_prototype();
         $q2 = $this->make_question('sqr_user_prototype_child');  // Make a derived question.
-        $this->assertEquals('combinatortemplatevalue', $q2->template);
-        $this->assertEquals(179, $q2->cputimelimitsecs);
+        $this->assertEquals('{{ STUDENT_ANSWER }}', $q2->template);
+        $this->assertEquals(29, $q2->cputimelimitsecs);
     }
 
     // Test any prototype files are also used by child.
@@ -52,7 +52,38 @@ class qtype_coderunner_prototype_test extends qtype_coderunner_testcase {
         $result = $q->grade_response($response);
         list($mark, $grade, $cache) = $result;
         $testoutcome = unserialize($cache['_testoutcome']);
+        $this->assertTrue($testoutcome->all_correct());
+    }
 
+    // Test that any template parameters defined in the prototype are
+    // inherited by the child but can be overridden by it.
+    // xxx and yyy are both defined by the parent prototype and the
+    // child overrides xxx and adds zzz.
+    public function test_params_inherited() {
+        $q = $this->make_parent_and_child();
+        $q->template = <<<EOTEMPLATE
+print( {{QUESTION.parameters.xxx}}, {{QUESTION.parameters.yyy}}, {{QUESTION.parameters.zzz}})
+EOTEMPLATE;
+        $q->allornothing = false;
+        $q->iscombinatortemplate = false;
+        $q->testcases = array(
+                       (object) array('type' => 0,
+                         'testcode'       => '',
+                         'expected'       => "1 200 2",
+                         'stdin'          => '',
+                         'extra'          => '',
+                         'useasexample'   => 0,
+                         'display'        => 'SHOW',
+                         'mark'           => 1.0,
+                         'hiderestiffail' => 0),
+        );
+        $q->allornothing = false;
+        $q->iscombinatortemplate = false;
+        $code = "";
+        $response = array('answer' => $code);
+        $result = $q->grade_response($response);
+        list($mark, $grade, $cache) = $result;
+        $testoutcome = unserialize($cache['_testoutcome']);
         $this->assertTrue($testoutcome->all_correct());
     }
 
@@ -81,17 +112,19 @@ class qtype_coderunner_prototype_test extends qtype_coderunner_testcase {
     <coderunnertype>sqr_user_prototype</coderunnertype>
     <prototypetype>0</prototypetype>
     <allornothing>1</allornothing>
-    <penaltyregime></penaltyregime>
+    <penaltyregime>10, 20, ...</penaltyregime>
     <precheck>0</precheck>
     <showsource></showsource>
     <answerboxlines></answerboxlines>
     <answerboxcolumns></answerboxcolumns>
-    <useace>1</useace>
+    <answerpreload></answerpreload>
+    <useace></useace>
     <resultcolumns></resultcolumns>
     <template></template>
     <iscombinatortemplate></iscombinatortemplate>
+    <allowmultiplestdins></allowmultiplestdins>
     <answer></answer>
-    <validateonsave>0</validateonsave>
+    <validateonsave></validateonsave>
     <testsplitterre></testsplitterre>
     <language></language>
     <acelang></acelang>
@@ -100,7 +133,8 @@ class qtype_coderunner_prototype_test extends qtype_coderunner_testcase {
     <cputimelimitsecs></cputimelimitsecs>
     <memlimitmb></memlimitmb>
     <sandboxparams></sandboxparams>
-    <templateparams></templateparams>
+    <templateparams><![CDATA[{"xxx":1, "zzz":2}]]></templateparams>
+    <uiplugin></uiplugin>
     <testcases>
       <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
       <testcode>
@@ -158,6 +192,8 @@ Line 2</text>
     }
 
     // Support function to make and save a prototype question.
+    // The prototype question includes template parameters xxx and yyy for
+    // testing inheritance of template parameters.
     // Optionally, prototype has a file attached for testing file inheritance.
     // Returns prototype question id.
 
@@ -166,10 +202,11 @@ Line 2</text>
         $q = $this->make_question('sqr');
         $q->test_cases = array();  // No testcases in a prototype.
         $q->prototypetype = 2;
-        $q->typename = "sqr_user_prototype";
-        $q->cputimelimitsecs = 179; // Silly test value.
-        $q->template = 'combinatortemplatevalue';
-        $q->isprototypetemplate = true;
+        $q->coderunnertype = "sqr_user_prototype";
+        $q->cputimelimitsecs = 29; // Arbitrary test value.
+        $q->template = '{{ STUDENT_ANSWER }}';
+        $q->iscombinatortemplate = true;
+        $q->templateparams = '{"xxx": 100, "yyy": 200}';
 
         // Save the prototype to the DB so it has an accessible context for
         // retrieving associated files. All we need is its id and

@@ -23,6 +23,7 @@ Feature: Check grading with the Python 3 sqr function CodeRunner question
     And I log in as "teacher1"
     And I follow "C1"
     And I navigate to "Question bank" node in "Course administration"
+    And I disable UI plugins
 
   Scenario: Preview the Python3 sqr function CodeRunner question submit two different wrong answers then the right answer
     When I click on "Preview" "link" in the "Square function" "table_row"

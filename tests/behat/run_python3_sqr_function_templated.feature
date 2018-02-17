@@ -20,11 +20,11 @@ Feature: Combinator template is called test-by-test if a runtime error occurs wh
     And I log in as "teacher1"
     And I follow "C1"
     And I navigate to "Question bank" node in "Course administration"
+    And I disable UI plugins
     And I add a "CodeRunner" question filling the form with:
       | id_coderunnertype | python3                 |
       | name              | sqr acceptance question |
       | id_questiontext   | Write a sqr function    |
-      | id_useace         |                         |
       | id_answerboxlines | 5                       |
       | id_testcode_0     | sqr(-7)                 |
       | id_expected_0     | 49                      |

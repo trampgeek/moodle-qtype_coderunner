@@ -1,6 +1,18 @@
 # CHANGE HISTORY
 
-### 18 February 2018. 3.3.0
+<<<<<<< HEAD
+### 9 December 2017. 3.2.3
+* Merge a questions template parameters with those of the question
+  prototype, if defined. Prototype template parameters were ignored in
+  the past.
+* Some code cleaning.
+* Bug fix: auto-correct of failing test cases during validation was
+  "fixing" the wrong row if the author had set the 'ordering' values to
+  be not monotonically increasing.
+* Update ideonesandbox code for compatibility with latest language strings in
+  Ideone server. [But IdeoneSandbox is deprecated.]
+=======
+### 26 January 2018. 3.3.0
 * Add multilanguage program question type to base set, plus various changes
   to UI-handling code to allow student to select a language in such questions.
 * Allow UTF-8 output from programs, if Jobe server is configured to
@@ -18,6 +30,7 @@ allow this.
 * Fixed bug in IdeoneSandbox - language name strings were no longer appropriate.
   However, this sandbox should be regarded as deprecated and will be removed
   some time in the future.
+>>>>>>> development
 
 ### 3 December 2017. 3.2.2
 * Incorporate changes from abautu (Andrei Bautu) to allow question authors

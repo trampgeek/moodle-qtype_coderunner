@@ -8,7 +8,7 @@
     </category>
   </question>
 
-<!-- question: 5736  -->
+<!-- question: 17335  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_c_function</text>
@@ -64,6 +64,7 @@ int main() {
     return 0;
 }]]></template>
     <iscombinatortemplate>1</iscombinatortemplate>
+    <allowmultiplestdins></allowmultiplestdins>
     <answer></answer>
     <validateonsave>0</validateonsave>
     <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
@@ -75,11 +76,12 @@ int main() {
     <memlimitmb></memlimitmb>
     <sandboxparams></sandboxparams>
     <templateparams></templateparams>
+    <uiplugin></uiplugin>
     <testcases>
     </testcases>
   </question>
 
-<!-- question: 5737  -->
+<!-- question: 17336  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_c_program</text>
@@ -110,6 +112,7 @@ int main() {
     <resultcolumns></resultcolumns>
     <template>{{ STUDENT_ANSWER }}</template>
     <iscombinatortemplate>0</iscombinatortemplate>
+    <allowmultiplestdins></allowmultiplestdins>
     <answer></answer>
     <validateonsave>0</validateonsave>
     <testsplitterre></testsplitterre>
@@ -121,11 +124,12 @@ int main() {
     <memlimitmb></memlimitmb>
     <sandboxparams></sandboxparams>
     <templateparams></templateparams>
+    <uiplugin></uiplugin>
     <testcases>
     </testcases>
   </question>
 
-<!-- question: 5738  -->
+<!-- question: 17337  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_cpp_function</text>
@@ -187,6 +191,7 @@ int main() {
     return 0;
 }]]></template>
     <iscombinatortemplate>1</iscombinatortemplate>
+    <allowmultiplestdins></allowmultiplestdins>
     <answer></answer>
     <validateonsave>0</validateonsave>
     <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
@@ -198,11 +203,12 @@ int main() {
     <memlimitmb></memlimitmb>
     <sandboxparams></sandboxparams>
     <templateparams></templateparams>
+    <uiplugin></uiplugin>
     <testcases>
     </testcases>
   </question>
 
-<!-- question: 5739  -->
+<!-- question: 17338  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_cpp_program</text>
@@ -233,6 +239,7 @@ int main() {
     <resultcolumns></resultcolumns>
     <template>{{ STUDENT_ANSWER }}</template>
     <iscombinatortemplate>0</iscombinatortemplate>
+    <allowmultiplestdins></allowmultiplestdins>
     <answer></answer>
     <validateonsave>0</validateonsave>
     <testsplitterre></testsplitterre>
@@ -244,11 +251,93 @@ int main() {
     <memlimitmb></memlimitmb>
     <sandboxparams></sandboxparams>
     <templateparams></templateparams>
+    <uiplugin></uiplugin>
     <testcases>
     </testcases>
   </question>
 
-<!-- question: 5740  -->
+<!-- question: 17339  -->
+  <question type="coderunner">
+    <name>
+      <text>BUILT_IN_PROTOTYPE_directed_graph</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<p>This is the prototype for a question that asks the student to draw a directed graph to satisfy some specification.</p><p>The template for this prototype does some preliminary analysis on the serialisation, extracting its topology in the form of an adjacency dictionary&nbsp;<i>graph</i>. Keys in the dictionary are node names if given or arbitrary node identifying labels of the form #1, #2 etc otherwise. Values in the dictionary are lists of outgoing edges, sorted by neighbour node name or identifier, each edge being a tuple (neighbourId, edgeLabel).</p><p>Each entry in the adjacency list is of the form (nodeNameOrId, neighbours) where neighbours is a list of tuples (neighbourNodeNameOrId, edgeLabel). If nodes are given names, those are used as node identifiers, otherwise the names #1, #2 etc are used. The adjacency list and the neighbour list are both sorted in order of node name or identifier.</p><p>The template is a combinator one: the <i>testcode</i>&nbsp;and <i>extra</i>&nbsp;code are both executed for each test case.</p>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.0000000</penalty>
+    <hidden>0</hidden>
+    <coderunnertype>directed_graph</coderunnertype>
+    <prototypetype>1</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime>10, 20, ...</penaltyregime>
+    <precheck>0</precheck>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
+    <useace>1</useace>
+    <resultcolumns></resultcolumns>
+    <template><![CDATA[import json
+
+student_answer = """{{ STUDENT_ANSWER | e('py') }}"""
+SEPARATOR = "#<ab@17943918#@>#"
+
+error_count = 0
+def error(s):
+    global error_count
+    print(s)
+    error_count += 1
+
+try:
+    graph_rep = json.loads(student_answer)
+    node_id_to_name_map = {}
+    for i, node in enumerate(graph_rep['nodes']):
+        node_id_to_name_map[i] = node[0] if node[0] != '' else ('#' + str(i))
+    #print("Nodes:", nodes)
+    edges = graph_rep['edges']
+    #print("Edges:", edges)
+    graph = {}
+    for node_id, node_name in sorted(node_id_to_name_map.items()):
+        edges = []
+        for id0, id1, edge_label in graph_rep['edges']:
+            if id0 == node_id:
+                edges.append((node_id_to_name_map[id1], edge_label))
+        edges.sort()
+        graph[node_name] = edges
+
+except json.JSONDecodeError as e:
+    raise Exception("Oops. Illegal graph received (exception {}). Please report (unless you did something silly yourself)".format(e))
+    
+{% for TEST in TESTCASES %}
+{{ TEST.testcode }}
+{{ TEST.extra }}
+{% if not loop.last %}
+print(SEPARATOR)
+{% endif %}
+{% endfor %}]]></template>
+    <iscombinatortemplate>1</iscombinatortemplate>
+    <allowmultiplestdins>0</allowmultiplestdins>
+    <answer></answer>
+    <validateonsave>0</validateonsave>
+    <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
+    <language>python3</language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader>EqualityGrader</grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams><![CDATA[{"isdirected": true, "isfsm": false}]]></templateparams>
+    <uiplugin>graph</uiplugin>
+    <testcases>
+    </testcases>
+  </question>
+
+<!-- question: 17340  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_java_class</text>
@@ -294,6 +383,7 @@ public class __Tester__ {
 }
 </template>
     <iscombinatortemplate>0</iscombinatortemplate>
+    <allowmultiplestdins></allowmultiplestdins>
     <answer></answer>
     <validateonsave>0</validateonsave>
     <testsplitterre></testsplitterre>
@@ -305,11 +395,12 @@ public class __Tester__ {
     <memlimitmb>2000</memlimitmb>
     <sandboxparams></sandboxparams>
     <templateparams></templateparams>
+    <uiplugin></uiplugin>
     <testcases>
     </testcases>
   </question>
 
-<!-- question: 5741  -->
+<!-- question: 17341  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_java_method</text>
@@ -362,6 +453,7 @@ public class __Tester__ {
     }
 }]]></template>
     <iscombinatortemplate>1</iscombinatortemplate>
+    <allowmultiplestdins></allowmultiplestdins>
     <answer></answer>
     <validateonsave>0</validateonsave>
     <testsplitterre><![CDATA[|#<ab@17943918#@>#
@@ -374,11 +466,12 @@ public class __Tester__ {
     <memlimitmb>2000</memlimitmb>
     <sandboxparams></sandboxparams>
     <templateparams></templateparams>
+    <uiplugin></uiplugin>
     <testcases>
     </testcases>
   </question>
 
-<!-- question: 5742  -->
+<!-- question: 17342  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_java_program</text>
@@ -408,6 +501,7 @@ public class __Tester__ {
     <resultcolumns></resultcolumns>
     <template>{{ STUDENT_ANSWER }}</template>
     <iscombinatortemplate>0</iscombinatortemplate>
+    <allowmultiplestdins></allowmultiplestdins>
     <answer></answer>
     <validateonsave>0</validateonsave>
     <testsplitterre></testsplitterre>
@@ -419,11 +513,12 @@ public class __Tester__ {
     <memlimitmb>2000</memlimitmb>
     <sandboxparams></sandboxparams>
     <templateparams></templateparams>
+    <uiplugin></uiplugin>
     <testcases>
     </testcases>
   </question>
 
-<!-- question: 5743  -->
+<!-- question: 17343  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_octave_function</text>
@@ -461,6 +556,7 @@ disp('#<ab@17943918#@>#');
 {% endfor %}
 ]]></template>
     <iscombinatortemplate>1</iscombinatortemplate>
+    <allowmultiplestdins></allowmultiplestdins>
     <answer></answer>
     <validateonsave>0</validateonsave>
     <testsplitterre><![CDATA[|#<ab@17943918#@>#
@@ -473,11 +569,12 @@ disp('#<ab@17943918#@>#');
     <memlimitmb>1000</memlimitmb>
     <sandboxparams></sandboxparams>
     <templateparams></templateparams>
+    <uiplugin></uiplugin>
     <testcases>
     </testcases>
   </question>
 
-<!-- question: 5749  -->
+<!-- question: 17344  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_pascal_function</text>
@@ -513,6 +610,7 @@ begin
 end.
 </template>
     <iscombinatortemplate>0</iscombinatortemplate>
+    <allowmultiplestdins></allowmultiplestdins>
     <answer></answer>
     <validateonsave>0</validateonsave>
     <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
@@ -524,11 +622,12 @@ end.
     <memlimitmb></memlimitmb>
     <sandboxparams></sandboxparams>
     <templateparams></templateparams>
+    <uiplugin></uiplugin>
     <testcases>
     </testcases>
   </question>
 
-<!-- question: 5750  -->
+<!-- question: 17345  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_pascal_program</text>
@@ -557,6 +656,7 @@ end.
     <resultcolumns></resultcolumns>
     <template>{{ STUDENT_ANSWER }}</template>
     <iscombinatortemplate>0</iscombinatortemplate>
+    <allowmultiplestdins></allowmultiplestdins>
     <answer></answer>
     <validateonsave>0</validateonsave>
     <testsplitterre></testsplitterre>
@@ -568,11 +668,12 @@ end.
     <memlimitmb></memlimitmb>
     <sandboxparams></sandboxparams>
     <templateparams></templateparams>
+    <uiplugin></uiplugin>
     <testcases>
     </testcases>
   </question>
 
-<!-- question: 5744  -->
+<!-- question: 17346  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_php</text>
@@ -590,7 +691,7 @@ the php tags.</p>]]></text>
     <penalty>0.3333333</penalty>
     <hidden>0</hidden>
     <coderunnertype>php</coderunnertype>
-    <prototypetype>2</prototypetype>
+    <prototypetype>1</prototypetype>
     <allornothing>1</allornothing>
     <penaltyregime></penaltyregime>
     <precheck>0</precheck>
@@ -611,6 +712,7 @@ echo SEPARATOR;
 {% endif %}
 {% endfor %}]]></template>
     <iscombinatortemplate>1</iscombinatortemplate>
+    <allowmultiplestdins></allowmultiplestdins>
     <answer></answer>
     <validateonsave>0</validateonsave>
     <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
@@ -622,11 +724,12 @@ echo SEPARATOR;
     <memlimitmb>500000</memlimitmb>
     <sandboxparams></sandboxparams>
     <templateparams></templateparams>
+    <uiplugin></uiplugin>
     <testcases>
     </testcases>
   </question>
 
-<!-- question: 5745  -->
+<!-- question: 17347  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_python2</text>
@@ -665,6 +768,7 @@ print(SEPARATOR)
 {% endif %}
 {% endfor %}]]></template>
     <iscombinatortemplate>1</iscombinatortemplate>
+    <allowmultiplestdins></allowmultiplestdins>
     <answer></answer>
     <validateonsave>0</validateonsave>
     <testsplitterre><![CDATA[|#<ab@17943918#@>#
@@ -677,11 +781,12 @@ print(SEPARATOR)
     <memlimitmb></memlimitmb>
     <sandboxparams></sandboxparams>
     <templateparams></templateparams>
+    <uiplugin></uiplugin>
     <testcases>
     </testcases>
   </question>
 
-<!-- question: 5746  -->
+<!-- question: 17348  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_python3</text>
@@ -720,6 +825,7 @@ print(SEPARATOR)
 {% endif %}
 {% endfor %}]]></template>
     <iscombinatortemplate>1</iscombinatortemplate>
+    <allowmultiplestdins></allowmultiplestdins>
     <answer></answer>
     <validateonsave>0</validateonsave>
     <testsplitterre><![CDATA[|#<ab@17943918#@>#
@@ -732,11 +838,95 @@ print(SEPARATOR)
     <memlimitmb></memlimitmb>
     <sandboxparams></sandboxparams>
     <templateparams></templateparams>
+    <uiplugin></uiplugin>
     <testcases>
     </testcases>
   </question>
 
-<!-- question: 5747  -->
+<!-- question: 17349  -->
+  <question type="coderunner">
+    <name>
+      <text>BUILT_IN_PROTOTYPE_undirected_graph</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<p>This is the prototype for a question that asks the student to draw an undirected graph to satisfy some specification.</p><p>The template for this prototype does some preliminary analysis on the serialisation, extracting its topology in the form of an adjacency dictionary&nbsp;<i>graph</i>. Keys in the dictionary are node names if given or names like #0, #1 etc otherwise. Values in the dictionary are lists of outgoing edges, sorted by neighbour node name or identifier, each edge being a tuple (neighbourId, edgeLabel).</p><p>Each entry in the adjacency list is of the form (nodeNameOrId, neighbours) where neighbours is a list of tuples (neighbourNodeNameOrId, edgeLabel). If nodes are given names, those are used as node identifiers, otherwise names like #0, #1 etc are used. The adjacency list and the neighbour list are both sorted in order of node name or identifier. Since this is an undirected graph, edges appear twice - once for each node they connect.</p><p>The template is a combinator one: the <i>testcode</i>&nbsp;and <i>extra</i>&nbsp;code are both executed for each test case.</p>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.0000000</penalty>
+    <hidden>0</hidden>
+    <coderunnertype>undirected_graph</coderunnertype>
+    <prototypetype>1</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime>10, 20, ...</penaltyregime>
+    <precheck>0</precheck>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
+    <useace>1</useace>
+    <resultcolumns></resultcolumns>
+    <template><![CDATA[import json
+
+student_answer = """{{ STUDENT_ANSWER | e('py') }}"""
+SEPARATOR = "#<ab@17943918#@>#"
+
+error_count = 0
+def error(s):
+    global error_count
+    print(s)
+    error_count += 1
+
+try:
+    graph_rep = json.loads(student_answer)
+    node_id_to_name_map = {}
+    for i, node in enumerate(graph_rep['nodes']):
+        node_id_to_name_map[i] = node[0] if node[0] != '' else ('#' + str(i))
+    #print("Nodes:", nodes)
+    edges = graph_rep['edges']
+    #print("Edges:", edges)
+    graph = {}
+    for node_id, node_name in sorted(node_id_to_name_map.items()):
+        edges = []
+        for id0, id1, edge_label in graph_rep['edges']:
+            if id0 == node_id:
+                edges.append((node_id_to_name_map[id1], edge_label))
+            elif id1 == node_id:
+                edges.append((node_id_to_name_map[id0], edge_label))
+        edges.sort()
+        graph[node_name] = edges
+
+except json.JSONDecodeError as e:
+    raise Exception("Oops. Illegal graph received (exception {}). Please report (unless you did something silly yourself)".format(e))
+    
+{% for TEST in TESTCASES %}
+{{ TEST.testcode }}
+{{ TEST.extra }}
+{% if not loop.last %}
+print(SEPARATOR)
+{% endif %}
+{% endfor %}]]></template>
+    <iscombinatortemplate>1</iscombinatortemplate>
+    <allowmultiplestdins>0</allowmultiplestdins>
+    <answer></answer>
+    <validateonsave>0</validateonsave>
+    <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
+    <language>python3</language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader>EqualityGrader</grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams><![CDATA[{"isdirected": false, "isfsm": false}]]></templateparams>
+    <uiplugin>graph</uiplugin>
+    <testcases>
+    </testcases>
+  </question>
+
+<!-- question: 17350  -->
   <question type="coderunner">
     <name>
       <text>BUILTIN_PROTOTYPE_nodejs</text>
@@ -751,7 +941,7 @@ print(SEPARATOR)
     <penalty>0.3333333</penalty>
     <hidden>0</hidden>
     <coderunnertype>nodejs-2</coderunnertype>
-    <prototypetype>2</prototypetype>
+    <prototypetype>1</prototypetype>
     <allornothing>1</allornothing>
     <penaltyregime></penaltyregime>
     <precheck>0</precheck>
@@ -772,6 +962,7 @@ print(SEPARATOR)
 {% endif %}
 {% endfor %}]]></template>
     <iscombinatortemplate>1</iscombinatortemplate>
+    <allowmultiplestdins></allowmultiplestdins>
     <answer></answer>
     <validateonsave>0</validateonsave>
     <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
@@ -783,11 +974,12 @@ print(SEPARATOR)
     <memlimitmb>1000</memlimitmb>
     <sandboxparams></sandboxparams>
     <templateparams></templateparams>
+    <uiplugin></uiplugin>
     <testcases>
     </testcases>
   </question>
 
-<!-- question: 5748  -->
+<!-- question: 17351  -->
   <question type="coderunner">
     <name>
       <text>BUILTIN_PROTOTYPE_Python3_w_input</text>
@@ -809,7 +1001,7 @@ displayed in the ACE edit window.</p>]]></text>
     <penalty>0.3333333</penalty>
     <hidden>0</hidden>
     <coderunnertype>python3_w_input</coderunnertype>
-    <prototypetype>2</prototypetype>
+    <prototypetype>1</prototypetype>
     <allornothing>1</allornothing>
     <penaltyregime></penaltyregime>
     <precheck>0</precheck>
@@ -835,6 +1027,7 @@ print(SEPARATOR)
 {% endif %}
 {% endfor %}]]></template>
     <iscombinatortemplate>1</iscombinatortemplate>
+    <allowmultiplestdins></allowmultiplestdins>
     <answer></answer>
     <validateonsave>0</validateonsave>
     <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
@@ -846,6 +1039,120 @@ print(SEPARATOR)
     <memlimitmb></memlimitmb>
     <sandboxparams></sandboxparams>
     <templateparams></templateparams>
+    <uiplugin></uiplugin>
+    <testcases>
+    </testcases>
+  </question>
+
+<!-- question: 17352  -->
+  <question type="coderunner">
+    <name>
+      <text>BULT_IN_PROTOTYPE_multilanguage</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<p>The prototype for a "write a program" style of question in which the student can submit an answer in any of the languages: C, C++, Java, Python3. This list of allowed languages is defined by the prototype's <i>AceLang</i>&nbsp;field as a comma-separated list. The student answer has a language-select dropdown menu containing those languages.</p>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.0000000</penalty>
+    <hidden>0</hidden>
+    <coderunnertype>multilanguage</coderunnertype>
+    <prototypetype>2</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime>10, 20, ...</penaltyregime>
+    <precheck>0</precheck>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
+    <useace>1</useace>
+    <resultcolumns></resultcolumns>
+    <template><![CDATA[""" The template for a "write a program" question type that accepts answers
+    in C, C++, Java or Python3 according to the value in the language select
+    dropdown menu.
+"""
+
+import subprocess
+import re
+student_answer = """{{ STUDENT_ANSWER | e('py') }}"""
+language = """{{ ANSWER_LANGUAGE | e('py') }}""".lower()
+language_extension_map = {'c':'c', 'cpp':'cpp', 'java':'java', 'python3':'py'}
+
+if language not in language_extension_map.keys():
+    raise Exception('Error in question. Unknown/unexpected language ({})'.format(language))
+
+if language == 'java':
+    # Need to determine public class name in order to name output file. Sigh.
+    # The best I can be bothered to do is to use a regular expression match.
+    match = re.search(r'public\s+class\s+([_a-zA-Z][_a-zA-Z0-9]*)', student_answer, re.DOTALL | re.MULTILINE)
+    if match is None:
+        raise Exception("Unable to determine class name. Does the file include 'public class name'?")
+    classname = match.group(1)
+    filename = classname + '.java'
+else:    
+    filename = 'prog.' + language_extension_map[language]
+
+# Write the student code to a file
+
+with open(filename, "w") as src:
+    print(student_answer, file=src)
+
+# Compile C, C++ and Java
+if language == 'c':
+    cflags = "-std=c99 -Wall -Werror"
+    return_code = subprocess.call("gcc {0} -o prog prog.c".format(cflags).split())
+    if return_code != 0:
+        raise Exception("** Compilation failed. Testing aborted **")
+    exec_command = ["./prog"]
+elif language == 'cpp':
+    cppflags = "-Wall -Werror"
+    return_code = subprocess.call("g++ {0} -o prog prog.cpp".format(cppflags).split())
+    if return_code != 0:
+        raise Exception("** Compilation failed. Testing aborted **")
+    exec_command = ["./prog"]
+elif language == 'java':
+    return_code = subprocess.call(['javac', filename])
+    if return_code != 0:
+        raise Exception("** Compilation failed. Testing aborted **")
+    exec_command = ["java", classname]
+else: # Python doesn't need a compile phase
+    exec_command = ["python3", "./prog.py"]
+    
+# Now run the code. Since this is a per-test template,
+# stdin is already set up for the stdin text specified in the test case,
+# so we can run the compiled program directly.
+
+try:
+    output = subprocess.check_output(exec_command, universal_newlines=True)
+    print(output)
+except subprocess.CalledProcessError as e:
+    if e.returncode > 0:
+        # Ignore non-zero positive return codes
+        if e.output:
+            print(e.output)
+    else:
+        # But negative return codes are signals - abort
+        if e.output:
+            print(e.output, file=sys.stderr)
+        if e.returncode < 0:
+            print("Task failed with signal", -e.returncode, file=sys.stderr)
+        print("** Further testing aborted **", file=sys.stderr)]]></template>
+    <iscombinatortemplate>0</iscombinatortemplate>
+    <allowmultiplestdins>0</allowmultiplestdins>
+    <answer></answer>
+    <validateonsave>0</validateonsave>
+    <testsplitterre></testsplitterre>
+    <language>python3</language>
+    <acelang>c,cpp,java,python3</acelang>
+    <sandbox></sandbox>
+    <grader>EqualityGrader</grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb>8000</memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams></templateparams>
+    <uiplugin>ace</uiplugin>
     <testcases>
     </testcases>
   </question>

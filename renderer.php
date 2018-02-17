@@ -84,16 +84,50 @@ class qtype_coderunner_renderer extends qtype_renderer {
                 get_string('penaltyregime', 'qtype_coderunner', $penalties),
                 array('class' => 'penaltyregime'));
         $qtext .= $answerprompt . $penaltystring;
+
+        if (empty($question->acelang)) {
+            $currentlanguage = $question->language;
+        } else {
+            $currentlanguage = $question->acelang;
+            if (strpos($question->acelang, ',') !== false) {
+                // Case of a multilanguage question. Add language selector dropdown.
+                list($languages, $default) = qtype_coderunner_util::extract_languages($question->acelang);
+                $selectname = $qa->get_qt_field_name('language');
+                $selectid = 'id_' . $selectname;
+                $currentlanguage = $qa->get_last_qt_var('language');
+                if (empty($currentlanguage) && $default !== '') {
+                    $currentlanguage = $default;
+                }
+                $qtext .= html_writer::start_tag('div', array('class' => 'coderunner-lang-select-div'));
+                $qtext .= html_writer::tag('label',
+                        get_string('languageselectlabel', 'qtype_coderunner'),
+                        array('for' => $selectid));
+                $qtext .= html_writer::start_tag('select',
+                        array('id' => $selectid, 'name' => $selectname,
+                              'class' => 'coderunner-lang-select', 'required' => ''));
+                if (empty($currentlanguage)) {
+                    $qtext .= html_writer::tag('option', '', array('value'=>''));
+                }
+                foreach ($languages as $lang) {
+                    $attributes = array('value' => $lang);
+                    if ($lang === $currentlanguage) {
+                        $attributes['selected'] = 'selected';
+                    }
+                    $qtext .= html_writer::tag('option', $lang, $attributes);
+                }
+                $qtext .= html_writer::end_tag('select');
+                $qtext .= html_writer::end_tag('div');
+            }
+        }
+
         $qtext .= html_writer::end_tag('div');
 
         $rows = isset($question->answerboxlines) ? $question->answerboxlines : 18;
-        $cols = isset($question->answerboxcolumns) ? $question->answerboxcolumns : 100;
         $preload = isset($question->answerpreload) ? $question->answerpreload : '';
         $taattributes = array(
                 'class' => 'coderunner-answer edit_code',
                 'name'  => $responsefieldname,
                 'id'    => $responsefieldid,
-                'cols'      => $cols,
                 'spellcheck' => 'false',
                 'rows'      => $rows
         );
@@ -114,10 +148,20 @@ class qtype_coderunner_renderer extends qtype_renderer {
                     array('class' => 'validationerror'));
         }
 
-        // Initialise any program-editing JavaScript.
+        // Initialise any JavaScript UI. Default is Ace unless uiplugin is explicitly
+        // set and is neither the empty string nor the value 'none'.
         // Thanks to Ulrich Dangel for the original implementation of the Ace code editor.
-        qtype_coderunner_util::load_ace_if_required($question, $responsefieldid, constants::USER_LANGUAGE);
-        $PAGE->requires->js_call_amd('qtype_coderunner/textareas', 'initQuestionTA', array($responsefieldid));
+        $uiplugin = $question->uiplugin === null ? 'ace' : strtolower($question->uiplugin);
+        if ($uiplugin !== '' && $uiplugin !== 'none') {
+            qtype_coderunner_util::load_uiplugin_js($question, $responsefieldid, $currentlanguage);
+            if (!empty($question->acelang) && strpos($question->acelang, ',') != false) {
+                // For multilanguage questions, add javascript to switch the
+                // Ace language when the user changes the selected language.
+                $PAGE->requires->js_call_amd('qtype_coderunner/multilanguagequestion', 'initLangSelector', array($responsefieldid));
+            }
+        } else {
+            $PAGE->requires->js_call_amd('qtype_coderunner/textareas', 'initQuestionTA', array($responsefieldid));
+        }
 
         return $qtext;
     }

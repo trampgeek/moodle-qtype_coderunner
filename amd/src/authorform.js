@@ -22,7 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['jquery'], function($) {
+define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
 
     // Define a mapping from the fields of the JSON object returned by an AJAX
     // 'get question type' request to the form elements. Keys are JSON field
@@ -51,7 +51,8 @@ define(['jquery'], function($) {
         grader:              ['#id_grader', 'value', 'EqualityGrader'],
         resultcolumns:       ['#id_resultcolumns', 'value', ''],
         language:            ['#id_language', 'value', ''],
-        acelang:             ['#id_acelang', 'value', '']
+        acelang:             ['#id_acelang', 'value', ''],
+        uiplugin:            ['#id_uiplugin', 'value', 'ace']
     };
 
     // Postpone initialisation until document ready, because strings_for_js
@@ -79,33 +80,76 @@ define(['jquery'], function($) {
             courseId = $('input[name="courseid"]').prop('value'),
             questiontypeHelpDiv = $('#qtype-help'),
             precheck = $('select#id_precheck'),
-            testtypedivs = $('div.testtype');
+            testtypedivs = $('div.testtype'),
+            templateParams = $('#id_templateparams').val(),
+            uiplugin = $('#id_uiplugin');
 
-        // Check if need to (re-)initialise Ace in a given textarea with a
-        // given language.
-        // Do this if the textarea or its Ace wrapper is visible and Ace is enabled.
-        // If Ace is already enabled, a call to initAce will reload its contents.
-        // If lang is not supplied in the call, use aceLang if defined else
-        // the main template language.
-        function checkAceStatus(textarea, lang) {
-            var textareaVisible = $('#id_' + textarea).is(':visible') ||
-                    $('#id_' + textarea + '_wrapper').is(':visible');
-            if (typeof(lang) === 'undefined') {
-                lang = acelang.prop('value') ? acelang.prop('value') : language.prop('value');
+
+        // Set up the UI controller for the textarea whose name is
+        // given as the first parameter (one of template, answer or answerpreload)
+        // to the given UI controller (which may be "None" or, equivalently, empty).
+        function setUi(taId, uiname) {
+            var ta = $(document.getElementById(taId)),  // The jquery text area element(s)
+                uiWrapper,
+                params,
+                lang;
+
+            uiname = uiname.toLowerCase();
+            if (uiname === 'none') {
+                uiname = '';
             }
-            if (useace.prop('checked') && textareaVisible) {
-                require(['qtype_coderunner/aceinterface'], function(AceInterface) {
-                    AceInterface.initAce('id_' + textarea, lang.toLowerCase());
-                });
+
+            uiWrapper = ta.data('current-ui-wrapper'); // Currently-active UI wrapper on this ta
+
+            try {
+                params = window.JSON.parse(templateParams);
+            } catch(e) {
+                params = {};
+            }
+
+            if (uiname === "ace") {
+                // The Ace UI needs a language. Use the value specified in 'acelang'
+                // for all fields other than the template, if the value is defined,
+                // or the value in 'language' in all other cases.
+                lang = language.prop('value');
+                if (taId !== "id_template" && acelang.prop('value')) {
+                    lang =  preferredAceLang(acelang.prop('value'));
+                }
+                params.lang = lang;
+            }
+
+            if (uiWrapper && uiWrapper.uiname === uiname && uiWrapper.params === params) {
+                return; // We already have what we want - give up
+            }
+
+            if (!uiWrapper) {
+               uiWrapper = new ui.InterfaceWrapper(uiname, taId, params);
+            } else {
+                // Wrapper has already been set up - just reload the reqd UI
+                uiWrapper.loadUi(uiname, params);
+            }
+
+        }
+
+        // Set the correct Ui controller on both the sample answer and the answer preload
+        function setUis() {
+            var uiname = uiplugin.val();
+
+            if (uiname) {
+                setUi('id_answer', uiname);
+                setUi('id_answerpreload', uiname);
             }
         }
 
+
+        // Display or Hide all customisation parts of the form according
+        // to whether isVisible is true or false respectively.
         function setCustomisationVisibility(isVisible) {
             var display = isVisible ? 'block' : 'none';
             customisationFieldSet.css('display', display);
             advancedCustomisation.css('display', display);
-            if (isVisible) {
-                checkAceStatus('template', language.prop('value'));
+            if (isVisible && useace.prop('checked')) {
+                setUi('id_template', 'ace');
             }
         }
 
@@ -169,6 +213,25 @@ define(['jquery'], function($) {
             return M.util.get_string(key, 'qtype_coderunner');
         }
 
+        // Get the "preferred language" from the AceLang string supplied.
+        // For multilanguage questions, this is either the default (i.e.,
+        // the language with a '*' suffix), or the first language. Otherwise
+        // it is simply the entire AceLang string
+        function preferredAceLang(acelang) {
+            var langs, i;
+            if (acelang.indexOf(',') < 0) {
+                return acelang;
+            } else {
+                langs = acelang.split(',');
+                for (i = 0; i < langs.length; i++) {
+                    if (langs[i].endsWith('*')) {
+                        return langs[i].substr(0, langs[i].length - 1);
+                    }
+                }
+                return langs.length > 0 ? langs[0] : '';
+            }
+        }
+
         // Load the various customisation fields into the form from the
         // CodeRunner question type currently selected by the combobox.
         function loadCustomisationFields() {
@@ -188,8 +251,7 @@ define(['jquery'], function($) {
                     function (outcome) {
                         if (outcome.success) {
                             copyFieldsFromQuestionType(newType, outcome);
-                            checkAceStatus('answer');
-                            checkAceStatus('answerpreload');
+                            setUis();
                         }
                         else {
                             reportError(newType, outcome.error);
@@ -214,7 +276,28 @@ define(['jquery'], function($) {
             }
         }
 
-        // Body of initEditFormWhenReady starts here.
+        // Check that the Ace language is correctly set for the answer and
+        // answer preload fields.
+        function check_ace_lang() {
+            if (uiplugin.val() === 'ace'){
+                setUis();
+            }
+        }
+
+        // Check that the Ace language is correctly set for the template,
+        // if template_uses_ace is checked.
+        function check_template_lang() {
+            if (useace.prop('checked')) {
+                setUi('id_template', 'ace');
+            }
+        }
+
+
+        /*************************************************************
+         *
+         * Body of initEditFormWhenReady starts here.
+         *
+         *************************************************************/
 
         if (prototypeType.prop('value') == 1) {
             // Editing a built-in question type: Dangerous!
@@ -224,12 +307,12 @@ define(['jquery'], function($) {
             customise.prop('disabled', true);
         }
 
-        checkAceStatus('answer');
-        checkAceStatus('answerpreload');
         setCustomisationVisibility(isCustomised);
         if (!isCustomised) {
-            loadCustomisationFields();
+            // Not customised so have to load fields from prototype
+            loadCustomisationFields();  // setUis is called when this completes
         } else {
+            setUis();  // Set up UI controllers on answer and answerpreload
             questiontypeHelpDiv.html("<p>" + getString('info_unavailable') + "</p>");
         }
 
@@ -251,9 +334,10 @@ define(['jquery'], function($) {
             }
         });
 
-        acelang.on('change', function() {
-            checkAceStatus('answer');
-            checkAceStatus('answerpreload');
+        acelang.on('change', check_ace_lang);
+        language.on('change', function() {
+            check_template_lang();
+            check_ace_lang();
         });
 
         typeCombo.on('change', function() {
@@ -266,25 +350,22 @@ define(['jquery'], function($) {
         useace.on('change', function() {
             var isTurningOn = useace.prop('checked');
             if (isTurningOn) {
-                checkAceStatus('template', language.prop('value'));
-                checkAceStatus('answer');
-                checkAceStatus('answerpreload');
+                setUi('id_template', 'ace');
             } else {
-                require(['qtype_coderunner/aceinterface'], function(AceInterface) {
-                    AceInterface.stopUsingAce();
-                });
+                setUi('id_template', '');
             }
         });
 
+        uiplugin.on('change', setUis);
+
         precheck.on('change', set_testtype_visibilities);
 
-        // In order to initialise Ace when the answer preload section is
+        // In order to initialise the Ui plugin when the answer preload section is
         // expanded, we monitor attribute mutations in the Answer Preload
         // header.
         var observer = new MutationObserver( function () {
-            checkAceStatus('answerpreload');
+            setUis();
         });
-
         observer.observe(preloadHdr.get(0), {'attributes': true});
 
         // Setup click handler for the buttons that allow users to replace the

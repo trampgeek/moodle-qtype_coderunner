@@ -18,10 +18,14 @@
  * This script provides a class with support methods for running question tests in bulk.
  * It is taken from the qtype_stack plugin with slight modifications.
  *
+ * Modified to provide services for the prototype usage script and the
+ * autotagger script.
+ *
  * @package   qtype_coderunner
- * @copyright 2016 Richard Lobb, The University of Canterbury
+ * @copyright 2016, 2018 Richard Lobb, The University of Canterbury
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 
 class qtype_coderunner_bulk_tester  {
 
@@ -88,6 +92,130 @@ class qtype_coderunner_bulk_tester  {
           ORDER BY ctx.path
         ");
     }
+
+
+    /**
+     * Get a list of all the categories within the supplied contextid.
+     * @return an associative array mapping from category id to an object
+     * with name and count fields for all question categories in the given context.
+     * The 'count' field is the number of coderunner questions in the given
+     * category.
+     */
+    public function get_categories_for_context($contextid) {
+        global $DB;
+
+        return $DB->get_records_sql("
+                SELECT qc.id, qc.parent, qc.name as name,
+                       (SELECT count(1)
+                        FROM {question} q
+                        WHERE qc.id = q.category AND q.qtype='coderunner') AS count
+                FROM {question_categories} qc
+                WHERE qc.contextid = :contextid
+                ORDER BY qc.id",
+            array('contextid' => $contextid));
+    }
+
+
+    /**
+     * Categories are tree structured, with each category containing a link
+     * to its parent node. Thus any given category can be defined by a path-
+     * like variable consisting of a '/'-separated list of all the names
+     * on the path from the root to the nominated category node.
+     * Given a category id, return that path.
+     * @global type $DB
+     * @param type $categoryid
+     */
+    public function category_path($categoryid) {
+        global $DB;
+
+        $path = '';
+        $catid = $categoryid;
+        while ($catid != 0) {
+            $node = $DB->get_record_sql("
+                SELECT id, name, parent FROM {question_categories}
+                WHERE id=$catid
+            ");
+            $path = $node->name . '/' . $path;
+            $catid = $node->parent;
+        }
+        return $path;
+    }
+
+
+    /**
+     * Add the given tag to all questions in the given categoryid
+     * @param int $contextid  The current context. Not sure why this is needed.
+     * @param int $categoryid The category in which questions are to be tagged
+     * @param string $tag The tag to add
+     */
+    public function tag_by_category($contextid, $categoryid, $tag) {
+        global $DB;
+
+        $context = context::instance_by_id($contextid);
+        $questionids = $DB->get_records_sql(
+                "SELECT q.id FROM {question} q WHERE q.category = :catid",
+                array('catid' => $categoryid));
+        foreach (array_keys($questionids) as $questionid) {
+            $name = $DB->get_field_sql('SELECT name FROM {question} q where q.id = :questionid',
+                    array('questionid' => $questionid));
+            echo "Added tag <em>$tag</em> to question $questionid, '$name'<br>";
+            core_tag_tag::add_item_tag('core_question', 'question', $questionid, $context, $tag);
+            question_bank::notify_question_edited($questionid);
+        }
+    }
+
+
+    /**
+     * Add the given tag to all questions in the given quiz (specified by id).
+     * @param int $contextid  The current context. Not sure why this is needed.
+     * @param int $quizid The id of the quiz in which questions are to be tagged
+     * @param string $tag The tag to add
+     */
+    public function tag_by_quiz($contextid, $quizid, $tag) {
+        global $DB;
+
+        $context = context::instance_by_id($contextid);
+        $questionids = $DB->get_records_sql(
+                "SELECT q.id
+                 FROM mdl_question q JOIN mdl_quiz_slots slt
+                 ON q.id = slt.questionid
+                 WHERE slt.quizid = :quizid AND q.qtype='coderunner'",
+                array('quizid' => $quizid));
+        foreach (array_keys($questionids) as $questionid) {
+            $name = $DB->get_field_sql('SELECT name FROM {question} q where q.id = :questionid',
+                    array('questionid' => $questionid));
+            echo "Added tag <em>$tag</em> to question $questionid, '$name'<br>";
+            core_tag_tag::add_item_tag('core_question', 'question', $questionid, $context, $tag);
+            question_bank::notify_question_edited($questionid);
+        }
+    }
+
+    /**
+     * Return all the quizzes in the given context
+     * @param int $contextid the course context
+     * @return associative array with keys being quizid and value being an
+     * object with a name field (the quiz name) and a count field (the number
+     * of CodeRunner questions in the quiz).
+     */
+    public function get_quizzes_for_context($contextid) {
+        global $DB;
+
+        return $DB->get_records_sql("
+            SELECT qz.id as quizid, qz.name as name,
+                (SELECT count(1)
+                 FROM mdl_question q JOIN mdl_quiz_slots slt
+                 ON q.id = slt.questionid
+                 WHERE slt.quizid = qz.id AND q.qtype='coderunner'
+                ) AS count
+            FROM `mdl_quiz` qz
+            JOIN mdl_course crs on qz.course = crs.id
+            JOIN mdl_context ctx on ctx.instanceid = crs.id
+            WHERE ctx.id = :contextid
+            ORDER BY name",
+                array('contextid' => $contextid)
+        );
+    }
+
 
     /**
      * Get all the non-prototype coderunner questions in the given context.
@@ -217,8 +345,18 @@ class qtype_coderunner_bulk_tester  {
         core_php_time_limit::raise(60); // Prevent PHP timeouts.
         gc_collect_cycles(); // Because PHP's default memory management is rubbish.
         $answer = $question->answer;
+        $response = array('answer' => $answer);
+        // Check if it's a multilanguage question; if so need to determine
+        // what language (either the default or the first).
+        if (!empty($question->acelang) && strpos($question->acelang, ',') !== false) {
+            list($languages, $defaultlang) = qtype_coderunner_util::extract_languages($question->acelang);
+            if ($defaultlang === '') {
+                $defaultlang = $languages[0];
+            }
+            $response['language'] = $defaultlang;
+        }
         try {
-            list($fraction, $state) = $question->grade_response(array('answer' => $answer), false);
+            list($fraction, $state) = $question->grade_response($response, false);
             $ok = $state == question_state::$gradedright;
         } catch (qtype_coderunner_exception $e) {
             $ok = false; // If user clicks link to see why, they'll get the same exception.

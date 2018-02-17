@@ -43,13 +43,15 @@ $string['ace-language'] = 'Ace language';
 $string['advanced_customisation'] = 'Advanced customisation';
 $string['answer'] = 'Answer';
 $string['answerbox_group'] = 'Answer box';
-$string['answerboxcolumns'] = 'Columns';
 $string['answerboxlines'] = 'Rows';
-$string['answerbox_group_help'] = 'Set the number of rows and columns to allocate for the answer box. If the answer overflows the box vertically or horizontally, scrollbars will appear. If \'Use ace\' is checked, the ACE JavaScript code editor will manage the answer box.';
+$string['answerbox_group_help'] = 'Set the number of rows to allocate for the answer box. The width is set to fit the window. If the answer overflows the box vertically or horizontally, scrollbars will appear.';
 $string['answerpreload'] = 'Answer box preload';
 $string['answerpreload_help'] = 'Text supplied here will be preloaded into the student\'s answer box.';
 $string['asolutionis'] = 'Question author\'s solution:';
+$string['autotagbycategorytitle'] = 'CodeRunner autotag by category';
+$string['autotagbycategoryindextitle'] = 'CodeRunner question autotagger';
 
+$string['badacelangstring'] = 'Bad Ace-language string';
 $string['badcputime'] = 'CPU time limit must be left blank or must be an integer greater than zero';
 $string['bad_dotdotdot'] = 'Misuse of \'...\'. Must be at end, after two increasing numeric penalties';
 $string['bademptyprecheck'] = 'Precheck failed with the following unexpected output.';
@@ -69,6 +71,7 @@ $string['bulktestindextitle'] = 'CodeRunner bulk testing';
 $string['bulktestrun'] = 'Run all the question tests for all the questions in the system (slow, admin only)';
 $string['bulktesttitle'] = 'Running all the question tests in {$a}';
 
+$string['coderunnercategories'] = 'Categories with CodeRunner questions';
 $string['coderunnercontexts'] = 'Contexts with CodeRunner questions';
 $string['coderunner'] = 'Program Code';
 
@@ -144,6 +147,18 @@ $string['fileheader'] = 'Support files';
 $string['filloutoneanswer'] = 'You must enter source code that satisfies the specification. The code you enter will be executed to determine its correctness and a grade awarded accordingly.';
 $string['firstfailure'] = 'First failing test case: {$a}';
 $string['forexample'] = 'For example';
+$string['graphfail'] = 'TextArea contents are not a valid graph. Aborting.';
+$string['graphhelp'] = '- Double click at a blank space to create a new node/state.
+- Double click an existing node to "mark" it e.g. as an accept state for Finite State Machines
+  (FSMs). Double click again to unmark it.
+- Click and drag to move a node.
+- Shift click inside one node and drag to another to create a link.
+- Shift click on a blank space, drag to a node to create a start link (FSMs only).
+- Click and drag a link to alter its curve.
+- Click on a link/node to edit its text.
+- Typing _ followed by a digit makes that digit a subscript.
+- Typing \\epsilon creates an epsilon character (and similarly for \\alpha, \\beta etc).
+- Click on a link/node then press the Delete key to remove it.';
 
 $string['goodemptyprecheck'] = 'Passed';
 $string['gotcolhdr'] = 'Got';
@@ -188,7 +203,7 @@ Result Columns field.
 If the template is a combinator, the JSON string output by the template grader
 should again contain a \'fraction\' field, this time for the total mark,
 and may contain zero or more of \'prologuehtml\', \'testresults\',
-\'epiloguehtml\' and \'showdifferences\'.
+\'epiloguehtml\', \'columnformats\' and \'showdifferences\'.
 The \'prologuehtml\' and \'epiloguehtml\' fields are html
 that is displayed respectively before and after the (optional) result table. The
 \'testresults\' field, if given, is a list of lists used to display some sort
@@ -198,7 +213,14 @@ and \'ishidden\'. The \'iscorrect\' column(s) are used to display ticks or
 crosses for 1 or 0 row values respectively. The \'ishidden\' column isn\'t
 actually displayed but 0 or 1 values in the column can be used to turn on and
 off row visibility. Students do not see hidden rows but markers and other
-staff do. The \'showdifferences\' field turns on display of a \'Show Differences\'
+staff do. If a \'testresults\' table is supplied an optional
+\'columnformats\' field can also be supplied. This should be a list
+of strings, one per column excluding the \'iscorrect\' and the \'ishidden\'
+columns. The strings specify the format to be used to display the cell values;
+currently the only supported formats are \'%s\' for a normal string display
+(which is sanitised and wrapped in a \'pre\' element) and \'%h\' for an html
+value that should not be further processed before display.
+The \'showdifferences\' field turns on display of a \'Show Differences\'
 button after the results table if the awarded mark fraction is not 1.0.
 ';
 
@@ -212,10 +234,11 @@ $string['howtogetmore'] = 'For more detailed information, save the question with
 
 $string['iscombinatortemplate'] = 'Is combinator';
 $string['ideone_user'] = 'Ideone server user';
-$string['ideone_user_desc'] = 'The login name to use when connecting to the deprecated Ideone server (if enabled)';
+$string['ideone_user_desc'] = 'The login name to use when connecting to the deprecated Ideone server (if the ideone sandbox is enabled)';
 $string['ideone_pass'] = 'Ideone server password';
-$string['ideone_pass_desc'] = 'The password to use when connecting to the deprecated Ideone server (if enabled)';
+$string['ideone_pass_desc'] = 'The password to use when connecting to the deprecated Ideone server (if the ideone sandbox is enabled)';
 $string['info_unavailable'] = 'Question type information is not available for customised questions.';
+$string['illegalformat'] = 'Illegal format ({$a->format}) in columnformats';
 $string['inputcolhdr'] = 'Input';
 $string['is_prototype'] = 'Use as prototype';
 
@@ -228,8 +251,9 @@ $string['language'] = 'Sandbox language';
 $string['languages'] = 'Languages';
 $string['languages_help'] = 'The sandbox language is the computer language used
 to run the submission.
-Must be known to the chosen sandbox (if a specific one has been
-selected) or to at least one of the enabled sandboxes (otherwise). This should not usually need altering from the value in the
+It must be known to the chosen sandbox (if a specific one has been
+selected) or to at least one of the enabled sandboxes (otherwise).
+This should not usually need altering from the value in the
 parent template; tweak it at your peril.
 
 Ace-language is the
@@ -237,8 +261,28 @@ language used by the Ace code editor (if enabled) for the student\'s answer.
 By default this is the same as the sandbox language; enter a different
 value here only if the template language is different from the language
 that the student is expected to write (e.g. if a Python preprocessor is
-used to validate a student\'s C program prior to running it).';
+used to validate a student\'s C program prior to running it).
 
+Multi-language questions, that is questions that students can answer in
+more than language, are enabled by setting the Ace-language to a comma-separated
+list of languages. Students are then presented with a drop-down menu to select
+the language in which their answer is written. If exactly one of the languages
+has an asterisk (\'*\') prepended, that language is chosen as the default language,
+which is selected as the initial state of the drop-down menu. For example,
+an Ace-language value of "C,C++,Java*,Python3" would allow student to submit in
+C, C++, Java or Python3 but the drop-down menu would initially show Java which
+would be the default. If no default is specified the
+initial state of the drop-down is empty and the student must choose a language.
+Multilanguage questions require a special template that uses the {{LANGUAGE}}
+template variable to control how to execute the student code. See the built-in
+sample multilanguage question type. The {{LANGUAGE}} variable is defined
+<i>only</i> for multilanguage questions.
+
+If the author wishes to supply a sample answer to a multilanguage question,
+they must write it in either the default language, if specified, or the
+first of the allowed languages otherwise.';
+
+$string['languageselectlabel'] = 'Language';
 $string['mark'] = 'Mark';
 $string['marking'] = 'Mark allocation';
 $string['markinggroup'] = 'Marking';
@@ -265,6 +309,7 @@ $string['memorylimit'] = 'MemLimit (MB)';
 $string['missinganswers'] = 'missing answers';
 $string['missingoutput'] = 'You must supply the expected output from this test case.';
 $string['missingprototypes'] = 'Missing prototypes';
+$string['multipledefaults'] = 'At most one language can be selected as default';
 
 $string['nearequalitygrader'] = 'Nearly exact match';
 $string['noqtype'] = 'No question type selected';
@@ -400,7 +445,7 @@ testcode, stdin, expected and extra are the fields from the testcase while got
 is the actual output generated and awarded and mark are the actual awarded mark
 and the maximum mark for the testcase respsectively.
 
-Custom-grader templates may
+Per-test template-graders may
 add their own fields, which can also be selected for display. It is also
 possible to combine multiple fields into a column by adding extra fields to the
 specifier: these must precede the sprintf format specifier, which then becomes
@@ -415,7 +460,11 @@ that generate HTML output, such as SVG graphics.
 
 The default value of
 resultcolumns is [["Test", "testcode"],["Input", "stdin"], ["Expected",
-"expected"], ["Got", "got"]].';
+"expected"], ["Got", "got"]].
+
+The setting of the resultcolumns field has no effect if a combinator template
+grader is being used. The \'resulttablecolumnformats\' attribute of the
+combinator template grader return value should be used instead.';
 $string['resultcolumnsnotjson'] = 'Result columns field is not a valid JSON string';
 $string['resultcolumnsnotlist'] = 'Result columns field must a JSON-encoded list of column specifiers';
 $string['resultcolumnspecbad'] = 'Invalid column specifier found: each one must be a list of two or more strings';
@@ -436,9 +485,12 @@ $string['run_failed'] = 'Failed to run tests';
 
 $string['sandboxcontrols'] = 'Sandbox';
 $string['sandboxcontrols_help'] = '
-Select what sandbox you wish the student submissions to run in; choosing
-DEFAULT will use the highest priority sandbox available for the chosen language
-(recommended unless the question has special needs).
+Select what sandbox to use for running the student submissions.
+DEFAULT uses the highest priority sandbox available for the chosen language.
+Since Jobe has replaced all sandbox
+types except the deprecated \'ideonesandbox\',
+the value \'jobesandbox\' is recommended for normal use, and results in better
+error messages that DEFAULT if the Jobe server is down.
 
 You can also set the
 maximum CPU time in seconds  allowed for each testcase run and the maximum
@@ -456,8 +508,18 @@ JSON record. In the case of the jobe sandbox, available attributes include
 disklimit, streamsize, numprocs, compileargs, linkargs and interpreterargs. For
 example `{"compileargs":["-std=c89"]}` for a C question would force C89
 compliance and no other C options would be used. See the jobe documentation
-for details. Some sandboxes (e.g. Ideone) may silently ignore any or all of
-these settings.';
+for details. Some sandboxes (e.g. the deprecated Ideone sandbox) may silently ignore any or all of
+these settings.
+
+If the sandbox is set to \'jobesandbox\', the jobe host to use for testing the
+question is
+usually as specified via the administrator settings for the CodeRunner plugin.
+However, it is possible to select a different jobeserver by defining a \'jobeserver\'
+parameter and also, optionally, a \'jobeapikey\' parameter. For example, if the
+\'Parameters\' field is set to `{"jobeserver": "myspecialjobe.com"}, the run
+will instead by submitted to the server "myspecialjobe.com". Warning: this
+feature is still experimental and may change in the future.
+';
 $string['sandboxerror'] = 'Error from the sandbox [{$a->sandbox}]: {$a->message}';
 $string['sandboxparams'] = 'Parameters';
 $string['seethisquestioninthequestionbank'] = 'See this question in the question bank';
@@ -471,6 +533,7 @@ $string['showsource'] = 'Template debugging';
 $string['sourcecodeallruns'] = 'Debug: source code from all test runs';
 $string['stdin'] = 'Standard Input';
 $string['stdin_help'] = 'The standard input to the test, seen by the template as {{TEST.stdin}}';
+$string['student_answer'] = 'Student answer';
 $string['supportscripts'] = 'Support scripts';
 $string['syntax_errors'] = 'Syntax Error(s)';
 
@@ -557,7 +620,12 @@ QUESTION.parameters.&lt;&lt;param&gt;&gt;. For example, if template params is
         {"age": 23}
 
 the value 23 would be substituted into the template in place of the
-template variable `{{ QUESTION.parameters.age }}`.';
+template variable `{{ QUESTION.parameters.age }}`.
+
+The set of template parameters passed to the template consists of any template
+parameters defined in the prototype with the question template parameters
+merged in. Question parameters can thus override prototype parameters, but not
+delete them.';
 $string['testcase'] = 'Test case {$a}';
 $string['testcasecontrols'] = 'Test properties:';
 $string['testcasecontrols_help'] = 'If \'Use as example\' is checked, this test will be automatically included in the
@@ -593,12 +661,49 @@ $string['type_header'] = 'CodeRunner question type';
 $string['typename'] = 'Question type';
 $string['typerequired'] = 'Please select the type of question (language, format, etc)';
 
+$string['uicontrols'] = 'Input UIs';
+$string['uicontrols_help'] = 'Select the User Interface controllers for the student answer and
+the question author\'s template.
+
+The Student Answer dropdown displays a list
+of available plugins. For coding questions, the Ace editor is usually used.
+A value of \'None\' can be used to provide just a raw text box. The value
+\'Graph\' provides the user with a simple graph-drawing user-interface for use
+with questions that ask the student to draw a graph to some specification; such
+questions will usually have a single test case, graded with a template
+that analyses the serialised
+representation of the graph and prints a message like "OK" if the answer is
+correct or a suitably informative error message otherwise.
+Template parameters can be set in either the prototype or the
+actual question to modify the behaviour of the Graph plugin as follows:
+{"isdirected": false} for non-directed graphs, {"isfsm": false} to disallow
+incoming edges without a start node (required by Finite State Machine graphs, FSMs),
+{"noderadius": 30}, say, to set a different noderadius in pixels.
+The template parameters
+from the actual question are merged with, and override, those from the
+prototype (since CodeRunner V3.2.2).
+
+Students with poor eyesight, or authors wishing to inspect serialisations
+(say to understand the representation used by the Graph UI),
+can toggle the use of all UI plugins on the current page by typing
+Ctrl-Alt-M.
+
+Whatever value is selected for the student answer will also be used within
+the editor form for the Sample Answer and the Answer Preload fields.
+
+If \'Template uses ace\' is checked,
+the AceJavaScript code editor will manage the answer box. Otherwise a raw
+text box will be used.';
+
 $string['unauthorisedbulktest'] = 'You do not have suitable access to any CodeRunner questions';
 $string['unauthoriseddbaccess'] = 'You are not authorised to use this script';
 $string['unknownerror'] = 'An unexpected error occurred. The sandbox may be down. Try again shortly.';
+$string['unknowncombinatorgraderfield'] = 'Unknown field name ({$a->fieldname}) in combinator grader output';
 $string['useasexample'] = 'Use as example';
-$string['useace'] = 'Use ace';
+$string['useace'] = 'Template uses ace';
 
 $string['validateonsave'] = 'Validate on save';
+
+$string['wrongnumberofformats'] = 'Wrong number of test results column formats. Expected {$a->expected}, got {$a->got}';
 
 $string['xmlcoderunnerformaterror'] = 'XML format error in coderunner question';

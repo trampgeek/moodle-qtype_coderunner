@@ -52,7 +52,8 @@ class qtype_coderunner_test_helper extends question_test_helper {
             'sqrmatlab', 'teststudentanswermacro', 'sqroctave',
             'teststudentanswermacrooctave', 'sqrnodejs',
             'sqrjava', 'nameclass', 'printsquares', 'printstr',
-            'sqr_user_prototype_child');
+            'sqr_user_prototype_child',
+            'multilang_echo_stdin');
     }
 
     /**
@@ -62,6 +63,55 @@ class qtype_coderunner_test_helper extends question_test_helper {
     public function make_coderunner_question_sqr() {
         return $this->make_coderunner_question_sqr_subtype('python3');
     }
+
+    public function get_coderunner_question_data_sqr() {
+        $qdata = new stdClass();
+        test_question_maker::initialise_question_data($qdata);
+
+        $qdata->qtype = 'coderunner';
+        $qdata->name = 'BLAH Function to square a number n';
+        $qdata->questiontext = 'Write a function sqr(n) that returns n squared';
+        $qdata->generalfeedback = 'No feedback available for coderunner questions.';
+
+        $qdata->options = new stdClass();
+
+        $testcases = array(
+                    array('testcode' => 'print(sqr(0))',
+                          'expected' => '0',
+                          'mark'     => 1.0),
+                    array('testcode' => 'print(sqr(1))',
+                          'expected' => '1',
+                          'mark'     => 2.0),
+                    array('testcode' => 'print(sqr(11))',
+                          'expected' => '121',
+                          'mark'     => 4.0),
+                    array('testcode' => 'print(sqr(-7))',
+                          'expected' => '49',
+                          'mark'     => 8.0),
+                    array('testcode' => 'print(sqr(-6))',
+                          'expected' => '36',
+                          'display'  => 'HIDE', // The last testcase must be hidden.
+                          'mark'     => 16.0)
+            );
+
+        $qdata->options->coderunnertype = 'python3';
+        $qdata->options->prototypetype = 0;
+        $qdata->options->allornothing = 0;
+        $qdata->options->showsource = 0;
+        $qdata->options->precheck = 1;
+        $qdata->options->answerboxlines = 5;
+        // exclude precheck as it defaults to null
+        $qdata->options->useace = 0;
+        $qdata->options->penaltyregime = '10, 20, ...';
+        // exclude answer, defaults to null
+        $qdata->options->validateonsave = 0;
+        // ignore a bunch because they default to null
+        $qdata->options->uiplugin = 'None';
+        $qdata->testcases = self::make_test_cases($testcases);
+
+        return $qdata;
+    }
+
 
     /**
      * Gets the form data that would come back when the editing form is saved,
@@ -83,6 +133,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $form->prototypetype = 0;
         $form->sandbox = 'DEFAULT';
         $form->language = 'python3';
+        $form->acelang = '';
         $form->iscombinatortemplate = 0;
         $form->testsplitterre = '|#<ab@17943918#@>#\n|ms';
         $form->template = "{{ STUDENT_ANSWER }}\n{{ TEST.testcode }}\n";
@@ -97,7 +148,13 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $form->display = array('SHOW', 'SHOW', 'SHOW', 'SHOW', 'HIDE');
         $form->mark = array('1.0', '2.0', '4.0', '8.0', '16.0');
         $form->ordering = array('0', '10', '20', '30', '40');
-
+        $form->sandboxparams = '';
+        $form->grader = 'EqualityGrader';
+        $form->resultcolumns = '';
+        $form->cputimelimitsecs = '';
+        $form->memlimitmb = '';
+        $form->customise = 1;
+        $form->uiplugin = 'None';
         return $form;
     }
 
@@ -376,9 +433,9 @@ except ValueError:
     }
 
     /**
-     * Makes a coderunner question of type 'sqr_user_prototype' to check out
-     * inheritance. The prototype must have been created before this method
-     * can be called.
+     * Makes a coderunner question of type 'sqr_user_prototype_child' to check out
+     * inheritance. The prototype (sqr_user_prototype) must have been created
+     * before this method can be called.
      */
     public function make_coderunner_question_sqr_user_prototype_child() {
         $coderunner = $this->make_coderunner_question(
@@ -387,7 +444,8 @@ except ValueError:
                 'Answer should (somehow) produce the expected answer below',
                 array(
                     array('expected'   => "This is data\nLine 2")
-                )
+                ),
+                array('templateparams' => '{"xxx":1, "zzz":2}')
         );
         return $coderunner;
     }
@@ -439,7 +497,7 @@ except ValueError:
         return $coderunner;
     }
 
-   /**
+    /**
      * Makes a coderunner question asking for a sqr() function but without
      * semicolons on the ends of all the printf testcases.
      * @return qtype_coderunner_question
@@ -855,6 +913,22 @@ EOT
     }
 
     /**
+     *  Make a multilanguage question that echos stdin to stdout.
+     */
+    public function make_coderunner_question_multilang_echo_stdin() {
+        return $this->make_coderunner_question(
+                'multilanguage',
+                'Multilang Echo',
+                'Write a program in your language of choice to echo stdin to stdout',
+                array(
+                    array(
+                        'stdin'     => "Line1\nLine2",
+                        'expected'  => "Line1\nLine2")
+                    )
+                );
+    }
+
+    /**
      * Makes a coderunner question in which the testcode is just a Java literal
      * string and the template makes a program to use that value and print it.
      * The output should then be identical to the input string.
@@ -899,6 +973,7 @@ EOPROG;
      * get_question_options method, as we'd like to, because it requires
      * a form rather than a question and may have a files area with files
      * to upload - too hard to set up :-(
+     * However, we use most of the same code by calling set_inherited_fields.
      * The normal get_options method returns all the options in
      * the 'options' field of the object, but CodeRunner then subsequently
      * flattens the options into the question itself. This implementation does
@@ -911,7 +986,7 @@ EOPROG;
         global $CFG, $DB;
 
         $type = $question->coderunnertype;
-
+        $questiontype = new qtype_coderunner();
         if (!$row = $DB->get_record_select(
                    'question_coderunner_options',
                    "coderunnertype = '$type' and prototypetype != 0")) {
@@ -919,16 +994,8 @@ EOPROG;
                throw new qtype_coderunner_missing_question_type($error);
         }
 
-        $noninherited = qtype_coderunner::noninherited_fields();
-        foreach ($row as $field => $value) {
-            if (!in_array($field, $noninherited)) {
-                $question->$field = $value;
-            }
-        }
-
-        foreach ($question->options as $key => $value) {
-            $question->$key = $value;
-        }
+        $question->questionid = $row->questionid;
+        $questiontype->set_inherited_fields($question, $row);
 
         // What follows is a rather horrible hack to support question export
         // testing. Having built the flattened question, we now "unflatten"
@@ -946,9 +1013,6 @@ EOPROG;
         $question->options->answers = array();  // For compatability with questiontype base.
         $question->options->testcases = $question->testcases;
 
-        if (!isset($question->grader)) {
-            $question->grader = 'EqualityGrader';
-        }
     }
 
     // Given an array of tests in which each element has just the bare minimum
@@ -985,9 +1049,10 @@ EOPROG;
         test_question_maker::initialise_a_question($coderunner);
         $coderunner->qtype = question_bank::get_qtype('coderunner');
         $coderunner->coderunnertype = $type;
+        $coderunner->templateparams = '';
         $coderunner->prototypetype = 0;
         $coderunner->name = $name;
-        $coderunner->useace = true;
+        //$coderunner->useace = true;
         $coderunner->precheck = 0;
         $coderunner->questiontext = $questiontext;
         $coderunner->allornothing = true;
@@ -999,6 +1064,7 @@ EOPROG;
         $coderunner->isnew = true;  // Extra field normally added by save_question.
         $coderunner->context = context_system::instance(); // Use system context for testing.
         foreach ($otheroptions as $key => $value) {
+            $coderunner->$key = $value;
             $coderunner->options[$key] = $value;
         }
         $this->get_options($coderunner);

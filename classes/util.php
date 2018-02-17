@@ -20,32 +20,33 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+
+
 global $CFG;
 
 use qtype_coderunner\constants;
 
 class qtype_coderunner_util {
     /*
-     * Configure the ace editor for use with the given textarea (specified by its
-     * id) if question is set to use Ace. Language is specified either as
-     * TEMPLATE_LANGUAGE (the language used in the sandbox) or USER_LANGUAGE.
-     * They are the same unless a different language has been explicitly specified
-     * by the acelang field in the question authoring form, in which case the
-     * acelang field is used for the USER and the $question->language for the
-     * template.
+     * Load/initialise the specified UI JavaScipt plugin  for the given question.
+     * A null plugin loads Ace.
+     * $textareaid is the id of the textarea that the UI plugin is to manage.
+     * $acelang (relevant only if the plugin is ace) is the language to set the
+     * ace editor to.
      */
-    public static function load_ace_if_required($question, $textareaid, $whichlang) {
+    public static function load_uiplugin_js($question, $textareaid, $acelang) {
         global $CFG, $PAGE;
-        if ($question->useace) {
-            if ($whichlang === constants::TEMPLATE_LANGUAGE ||
-                   empty($question->acelang)) {
-                $lang = $question->language;
-            } else {
-                $lang = $question->acelang;
+
+        $uiplugin = $question->uiplugin === null ? 'ace' : strtolower($question->uiplugin);
+        if ($uiplugin !== '' && $uiplugin !== 'none') {
+            $PAGE->requires->strings_for_js(constants::ui_plugin_keys(), 'qtype_coderunner');
+            $params = array($uiplugin, $textareaid, $question->templateparams); // Params to plugin's init function.
+            if ($uiplugin === 'ace') {
+                self::load_ace();
+                $lang = ucwords($acelang);
+                $params[] = $lang;
             }
-            $lang = ucwords($lang);
-            self::load_ace();
-            $PAGE->requires->js_call_amd('qtype_coderunner/aceinterface', 'initAce', array($textareaid, $lang));
+            $PAGE->requires->js_call_amd('qtype_coderunner/userinterfacewrapper', 'newUiWrapper', $params);
         }
     }
 
@@ -60,22 +61,48 @@ class qtype_coderunner_util {
     }
 
 
+    // A utility method used for iterating over multibyte (utf-8) strings
+    // in php. Taken from https://stackoverflow.com/questions/3666306/how-to-iterate-utf-8-string-in-php
+    // We can't simply use mb_substr to extract the ith characters from a multibyte
+    // string as it has to search from the start, resulting in
+    // quadratic complexity for a simple char-by-char iteration.
+    private static function next_char($string, &$pointer){
+        if(!isset($string[$pointer])) return false;
+        $char = ord($string[$pointer]);
+        if($char < 128){
+            return $string[$pointer++];
+        }else{
+            if($char < 224){
+                $bytes = 2;
+            }elseif($char < 240){
+                $bytes = 3;
+            }elseif($char < 248){
+                $bytes = 4;
+            }elseif($char == 252){
+                $bytes = 5;
+            }else{
+                $bytes = 6;
+            }
+            $str =  substr($string, $pointer, $bytes);
+            $pointer += $bytes;
+            return $str;
+        }
+    }
     // Return a copy of $s with trailing blank lines removed and trailing white
     // space from each line removed. Also sanitised by replacing all control
     // chars except newlines with hex equivalents.
     // A newline terminator is added at the end unless the string to be
     // returned is otherwise empty.
     // Used e.g. by the equality grader subclass.
-    // This implementation is a bit algorithmically complex because the
-    // original implemention, breaking the string into lines using explode,
-    // was a hideous memory hog.
+    // UTF-8 character handling is rudimentary - only standard ASCII
+    // control characters, whitespace etc are processed.
     public static function clean(&$s) {
         $nls = '';     // Unused line breaks.
         $output = '';  // Output string.
         $spaces = '';  // Unused space characters.
-        $n = strlen($s);
-        for ($i = 0; $i < $n; $i++) {
-            $c = $s[$i];
+        $pointer = 0;
+        $c = self::next_char($s, $pointer);
+        while ( $c !== false) {
             if ($c === ' ') {
                 $spaces .= $c;
             } else if ($c === "\n") {
@@ -86,13 +113,14 @@ class qtype_coderunner_util {
                     $c = '\\r';
                 } else if ($c === "\t") {
                     $c = '\\t';
-                } else if ($c < " " || $c > "\x7E") {
+                } else if ($c < " ") {
                     $c = '\\x' . sprintf("%02x", ord($c));
                 }
                 $output .= $nls . $spaces . $c;
                 $spaces = '';
                 $nls = '';
             }
+            $c = self::next_char($s, $pointer);
         }
         if ($output !== '') {
             $output .= "\n";
@@ -104,6 +132,7 @@ class qtype_coderunner_util {
     // Limit the length of the given string to MAX_STRING_LENGTH by
     // removing the centre of the string, inserting the substring
     // [... snip ... ] in its place.
+    // FIXME: can mess up UTF-8 multibyte strings.
     public static function snip(&$s) {
         $snipinsert = ' ...snip... ';
         $len = strlen($s);
@@ -176,4 +205,61 @@ class qtype_coderunner_util {
         return $para;
     }
 
+
+    /**
+     * Parse the ace-language field to obtain the list of languages to be
+     * accepted and the default language to use.
+     * @param string $acelangstring the contents of the 'Ace language' field
+     *  in the authoring form
+     * @return a 2-element array consisting of the list of languages and the
+     *  default language (if given) or an empty string (otherwise).
+     * If more than one language is specified as a default, i.e. has a trailing
+     * '*' appended, the function returns FALSE.
+     */
+    public static function extract_languages($acelangstring) {
+        $langs = preg_split('/ *, */', $acelangstring);
+        $filteredlangs = array();
+        $defaultlang = '';
+        foreach ($langs as $lang) {
+            $lang = trim($lang);
+            if ($lang === '') {
+                continue;
+            }
+            if ($lang[strlen($lang) - 1] === '*') {
+                $lang = substr($lang, 0, strlen($lang) - 1);
+                if ($defaultlang !== '') {
+                    return false;
+                } else {
+                    $defaultlang = $lang;
+                }
+            }
+            $filteredlangs[] = $lang;
+        }
+        return array($filteredlangs, $defaultlang);
+    }
+
+
+    /** Function to merge the JSON template parameters from the
+     *  the prototype with the child's template params. The prototype can
+     *  be overridden by the child.
+     */
+    public static function merge_json($prototypejson, $childjson) {
+        $result = new stdClass();
+        foreach(self::template_params($prototypejson) as $attr => $field) {
+            $result->$attr = $field;
+        }
+
+        foreach(self::template_params($childjson) as $attr => $field) {
+            $result->$attr = $field;
+        }
+
+        return json_encode($result);
+    }
+
+    // Decode given json-encoded template parameters, returning an associative
+    // array. Return an empty array if jsonparams is empty or invalid.
+    public static function template_params($jsonparams) {
+        $params = json_decode($jsonparams, true);
+        return $params === null ? array() : $params;
+    }
 }
