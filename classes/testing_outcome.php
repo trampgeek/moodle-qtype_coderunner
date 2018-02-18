@@ -156,19 +156,20 @@ class qtype_coderunner_testing_outcome {
             foreach ($this->testresults as $i => $testresult) {
                 if (!$testresult->iscorrect) {
                     $numerrors += 1;
+                    $rownum = isset($testresult->rownum) ? intval($testresult->rownum) : $i;
                     if (isset($testresult->expected) && isset($testresult->got)) {
                         $failures->data[] = array(
-                            html_writer::link('#id_testcode_' . $i,
-                                    get_string('testcase', 'qtype_coderunner', $i + 1) .
+                            html_writer::link('#id_testcode_' . $rownum,
+                                    get_string('testcase', 'qtype_coderunner', $rownum + 1) .
                                         html_writer::empty_tag('br') . s($testresult->testcode)),
-                            html_writer::link('#id_expected_' . $i, html_writer::tag('pre', s($testresult->expected),
-                                    array('id' => 'id_fail_expected_' . $i))),
-                            html_writer::tag('pre', s($testresult->got), array('id' => 'id_got_' . $i)) .
+                            html_writer::link('#id_expected_' . $rownum, html_writer::tag('pre', s($testresult->expected),
+                                    array('id' => 'id_fail_expected_' . $rownum))),
+                            html_writer::tag('pre', s($testresult->got), array('id' => 'id_got_' . $rownum)) .
                                 html_writer::tag('button', '&lt;&lt;', array(
                                     'type' => 'button',  // To suppress form submission
                                     'class' => 'replaceexpectedwithgot')),
                         );
-                        $failures->rowclasses[] = 'coderunner-failed-test failrow_' . $i;
+                        $failures->rowclasses[] = 'coderunner-failed-test failrow_' . $rownum;
                     }
                 }
             }
