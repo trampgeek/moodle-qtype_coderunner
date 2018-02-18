@@ -176,8 +176,9 @@ class qtype_coderunner extends question_type {
             $stdin = $this->filter_crs($question->stdin[$i]);
             $expected = $this->filter_crs($question->expected[$i]);
             $extra = $this->filter_crs($question->extra[$i]);
-            if ($testcode === '' && $stdin === '' && $expected === '' && $extra === '') {
-                continue;
+            if (trim($testcode) === '' && trim($stdin) === '' &&
+                    trim($expected) === '' && trim($extra) === '') {
+                continue; // Ignore testcases with only whitespace in them.
             }
             $testcase = new stdClass;
             if ($validation) {
