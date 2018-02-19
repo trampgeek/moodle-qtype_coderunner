@@ -228,11 +228,16 @@ define(['jquery'], function($) {
      */
     function initDiffButton(buttonId, showValue, hideValue) {
         var diffButton = $('[id="' + buttonId + '"]'),
-            tableRows = $('table.coderunner-test-results tbody tr'),
-            thEls = $('table.coderunner-test-results th'),
+            table,
+            tableRows,
+            thEls,
             columnCount = 0,
             gotCol,
             expectedCol;
+
+        table = diffButton.closest('div.coderunner-test-results');
+        thEls = table.find('th');
+        tableRows = table.find('tbody tr');
 
         thEls.each(function() {
             if ($(this).html() === 'Got') {
