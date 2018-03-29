@@ -105,11 +105,7 @@ class qtype_coderunner_question extends question_graded_automatically {
 
 
     /** This function is used by the question engine to prevent regrading of
-     *  unchanged submissions. This has been disabled (it always returns false)
-     *  to avoid confusion by authors and students when changing templates
-     *  or other question data. It seems that this is more of a problem for
-     *  CodeRunner than normal question types. The slight downside is that
-     *  students pay a penalty for submitting the same code twice.
+     *  unchanged submissions.
      *
      * @param array $prevresponse
      * @param array $newresponse
