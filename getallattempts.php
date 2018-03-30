@@ -80,7 +80,7 @@ if (!has_capability('moodle/grade:viewall', $coursecontext)) {
 
     $where = "quiza.preview = 0
     AND (qasd.name NOT RLIKE '^-_' OR qasd.name = '-_rawfraction')
-    AND qasd.name NOT RLIKE '^_'
+    AND (qasd.name NOT RLIKE '^_' OR qasd.name = '_testoutcome')
     AND quest.length > 0
     ORDER BY quiza.uniqueid, timestamp";
 
