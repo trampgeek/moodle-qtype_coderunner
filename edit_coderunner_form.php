@@ -465,7 +465,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $typeselectorelements[] = $mform->createElement('select', 'coderunnertype',
                 null, $expandedtypes);
         $mform->addElement('group', 'coderunner_type_group',
-                get_string('questiontype', 'qtype_coderunner'), $typeselectorelements, null, false);
+                get_string('coderunnertype', 'qtype_coderunner'), $typeselectorelements, null, false);
         $mform->addHelpButton('coderunner_type_group', 'coderunnertype', 'qtype_coderunner');
 
         // Customisation checkboxes.
