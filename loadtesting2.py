@@ -34,9 +34,9 @@ import sys
 import shelve
 import random
 
-SERVER = 'https://quiz2017.cosc.canterbury.ac.nz/login/index.php?theme=clean'
+SERVER = 'https://quiz2018.csse.canterbury.ac.nz/login/index.php?theme=clean'
 COURSE = 'LoadTesting'
-LANGUAGE = 'PYTHON3'
+LANGUAGE = 'PYTHON'
 NUM_QUESTIONS = 4
 FIRST_QUESTION = 0
 LAST_QUESTION = FIRST_QUESTION + NUM_QUESTIONS - 1
