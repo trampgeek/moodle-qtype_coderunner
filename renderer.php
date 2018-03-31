@@ -139,6 +139,12 @@ class qtype_coderunner_renderer extends qtype_renderer {
         $currentanswer = $qa->get_last_qt_var('answer');
         if ($currentanswer === null || $currentanswer === '') {
             $currentanswer = $preload;
+        } else {
+            // Horrible horrible hack for horrible horrible browser feature
+            // of ignoring a leading newline in a textarea. So we inject an
+            // extra one to ensure that if the answer beings with a newline it
+            // is preserved.
+            $currentanswer = "\n" . $currentanswer;
         }
         $qtext .= html_writer::tag('textarea', s($currentanswer), $taattributes);
 
