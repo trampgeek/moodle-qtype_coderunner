@@ -312,10 +312,12 @@ $string['missingprototypes'] = 'Missing prototypes';
 $string['multipledefaults'] = 'At most one language can be selected as default';
 
 $string['nearequalitygrader'] = 'Nearly exact match';
+$string['nodetailsavailable'] = 'Select a question type to see detailed help.';
 $string['noqtype'] = 'No question type selected';
 $string['morehidden'] = 'Some hidden test cases failed, too.';
 $string['noerrorsallowed'] = 'Your code must pass all tests to earn any marks. Try again.';
 $string['nonnumericmark'] = 'Non-numeric mark';
+$string['nosampleanswer'] = 'No sample answer';
 $string['negativeorzeromark'] = 'Mark must be greater than zero';
 
 $string['options'] = 'Options';
@@ -699,6 +701,7 @@ $string['unauthorisedbulktest'] = 'You do not have suitable access to any CodeRu
 $string['unauthoriseddbaccess'] = 'You are not authorised to use this script';
 $string['unknownerror'] = 'An unexpected error occurred. The sandbox may be down. Try again shortly.';
 $string['unknowncombinatorgraderfield'] = 'Unknown field name ({$a->fieldname}) in combinator grader output';
+$string['unknownquestion'] = 'Unknown question';
 $string['useasexample'] = 'Use as example';
 $string['useace'] = 'Template uses ace';
 

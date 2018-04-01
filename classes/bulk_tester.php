@@ -311,7 +311,7 @@ class qtype_coderunner_bulk_tester {
         try {
             $question = question_bank::load_question($questionid);
             if (empty(trim($question->answer))) {
-                $message = 'No sample answer.';
+                $message = get_string('nosampleanswer', 'qtype_coderunner');
                 $status = self::MISSINGANSWER;
             } else {
                 $ok = $this->test_question($question);
@@ -327,7 +327,7 @@ class qtype_coderunner_bulk_tester {
             if (isset($question)) {
                 $questionname = format_string($question->name);
             } else {
-                $questionname = 'Unknown question';
+                $questionname = get_string('unknownquestion', 'qtype_coderunner');
             }
             $message = '**** ' . get_string('questionloaderror', 'qtype_coderunner') .
                     ' ' . $questionname . ': ' . $e->getMessage() . ' ****';
