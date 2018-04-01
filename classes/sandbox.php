@@ -54,7 +54,7 @@ abstract class qtype_coderunner_sandbox {
     const SUBMISSION_LIMIT_EXCEEDED = 5; // Ideone or Jobe only.
     const CREATE_SUBMISSION_FAILED = 6; // Failed on call to CREATE_SUBMISSION.
     const UNKNOWN_SERVER_ERROR = 7;
-    const JOBE_400_ERROR    = 8;  // Jobe returned an HTTP code of 400
+    const JOBE_400_ERROR    = 8;  // Jobe returned an HTTP code of 400.
     const SERVER_OVERLOAD   = 9;
 
 

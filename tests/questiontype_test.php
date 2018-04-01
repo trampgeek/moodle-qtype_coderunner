@@ -88,7 +88,7 @@ class qtype_coderunner_test extends advanced_testcase {
         $generator = $this->getDataGenerator()->get_plugin_generator('core_question');
         $cat = $generator->create_question_category(array());
 
-        // Mock submit a form with form data
+        // Mock submit a form with form data.
         $formdata->category = "{$cat->id},{$cat->contextid}";
         qtype_coderunner_edit_form::mock_submit((array)$formdata);
 
@@ -113,6 +113,6 @@ class qtype_coderunner_test extends advanced_testcase {
             }
         }
 
-        // TODO: Validate the test cases
+        // TODO: Validate the test cases.
     }
 }

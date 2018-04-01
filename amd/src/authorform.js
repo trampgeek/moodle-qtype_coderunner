@@ -84,12 +84,11 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
             templateParams = $('#id_templateparams').val(),
             uiplugin = $('#id_uiplugin');
 
-
         // Set up the UI controller for the textarea whose name is
         // given as the first parameter (one of template, answer or answerpreload)
         // to the given UI controller (which may be "None" or, equivalently, empty).
         function setUi(taId, uiname) {
-            var ta = $(document.getElementById(taId)),  // The jquery text area element(s)
+            var ta = $(document.getElementById(taId)),  // The jquery text area element(s).
                 uiWrapper,
                 params,
                 lang;
@@ -99,7 +98,7 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
                 uiname = '';
             }
 
-            uiWrapper = ta.data('current-ui-wrapper'); // Currently-active UI wrapper on this ta
+            uiWrapper = ta.data('current-ui-wrapper'); // Currently-active UI wrapper on this ta.
 
             try {
                 params = window.JSON.parse(templateParams);
@@ -113,25 +112,25 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
                 // or the value in 'language' in all other cases.
                 lang = language.prop('value');
                 if (taId !== "id_template" && acelang.prop('value')) {
-                    lang =  preferredAceLang(acelang.prop('value'));
+                    lang = preferredAceLang(acelang.prop('value'));
                 }
                 params.lang = lang;
             }
 
             if (uiWrapper && uiWrapper.uiname === uiname && uiWrapper.params === params) {
-                return; // We already have what we want - give up
+                return; // We already have what we want - give up.
             }
 
             if (!uiWrapper) {
-               uiWrapper = new ui.InterfaceWrapper(uiname, taId, params);
+                uiWrapper = new ui.InterfaceWrapper(uiname, taId, params);
             } else {
-                // Wrapper has already been set up - just reload the reqd UI
+                // Wrapper has already been set up - just reload the reqd UI.
                 uiWrapper.loadUi(uiname, params);
             }
 
         }
 
-        // Set the correct Ui controller on both the sample answer and the answer preload
+        // Set the correct Ui controller on both the sample answer and the answer preload.
         function setUis() {
             var uiname = uiplugin.val();
 
@@ -140,7 +139,6 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
                 setUi('id_answerpreload', uiname);
             }
         }
-
 
         // Display or Hide all customisation parts of the form according
         // to whether isVisible is true or false respectively.
@@ -216,7 +214,7 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
         // Get the "preferred language" from the AceLang string supplied.
         // For multilanguage questions, this is either the default (i.e.,
         // the language with a '*' suffix), or the first language. Otherwise
-        // it is simply the entire AceLang string
+        // it is simply the entire AceLang string.
         function preferredAceLang(acelang) {
             var langs, i;
             if (acelang.indexOf(',') < 0) {
@@ -292,7 +290,6 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
             }
         }
 
-
         /*************************************************************
          *
          * Body of initEditFormWhenReady starts here.
@@ -309,10 +306,10 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
 
         setCustomisationVisibility(isCustomised);
         if (!isCustomised) {
-            // Not customised so have to load fields from prototype
-            loadCustomisationFields();  // setUis is called when this completes
+            // Not customised so have to load fields from prototype.
+            loadCustomisationFields();  // setUis is called when this completes.
         } else {
-            setUis();  // Set up UI controllers on answer and answerpreload
+            setUis();  // Set up UI controllers on answer and answerpreload.
             questiontypeHelpDiv.html("<p>" + getString('info_unavailable') + "</p>");
         }
 
@@ -375,7 +372,7 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
             var testCaseId = gotPre.attr('id').replace('id_got_', '');
             $('#id_expected_' + testCaseId).val(gotPre.text());
             $('#id_fail_expected_' + testCaseId).html(gotPre.text());
-            $('.failrow_' + testCaseId).addClass('fixed');  // Fixed row
+            $('.failrow_' + testCaseId).addClass('fixed');  // Fixed row.
             $(this).prop('disabled', true);
         });
     }

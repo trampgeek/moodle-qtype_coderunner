@@ -44,14 +44,14 @@ class constants {
     const MAX_LINE_LENGTH = 100;     // Maximum length of a string for display in the result table.
     const MAX_NUM_LINES = 200;       // Maximum number of lines of text to be displayed a result table cell.
 
-    static function author_edit_keys() {
+    public static function author_edit_keys() {
         return array('coderunner_question_type', 'confirm_proceed', 'template_changed',
             'info_unavailable', 'proceed_at_own_risk', 'error_loading_prototype',
             'ajax_error', 'prototype_load_failure', 'prototype_error',
             'coderunner_question_type', 'question_type_changed');
     }
 
-    static function ui_plugin_keys() {
+    public static function ui_plugin_keys() {
         return array('graphhelp', 'graphfail');  // All qtype_coderunner lang string names reqd by any plugins go here.
     }
 }

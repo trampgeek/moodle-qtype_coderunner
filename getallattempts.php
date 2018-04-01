@@ -33,7 +33,7 @@ require_once($CFG->libdir.'/../mod/quiz/accessmanager.php');
 
 // Get the quiz-id and format parameters from the URL.
 $quizid = required_param('quizid', PARAM_INT);
-$format = required_param('format', PARAM_RAW);  // csv or excel
+$format = required_param('format', PARAM_RAW);  // Csv or excel.
 
 // Login and check permissions.
 require_login();
@@ -45,7 +45,7 @@ $coursecontext = context_course::instance($course->id);
 // I'm not sure if the next three lines are ever relevant but ... what's to lose?
 $PAGE->set_url('/question/type/coderunner/getallattempts.php');
 $PAGE->set_context($coursecontext);
-$PAGE->set_title('Get all quiz attempts');  // TODO: use get_string
+$PAGE->set_title('Get all quiz attempts');  // TODO: use get_string.
 
 if (!has_capability('moodle/grade:viewall', $coursecontext)) {
     echo '<p>' . get_string('unauthoriseddbaccess', 'qtype_coderunner') . '</p>';
@@ -90,6 +90,6 @@ if (!has_capability('moodle/grade:viewall', $coursecontext)) {
     $table->is_downloading($format, "allattemptson$quizid", "All quiz attempts $quizid");
     $pagesize = 100; // Surely this is irrelevant for a download?
     raise_memory_limit(MEMORY_EXTRA);
-    $table->out($pagesize, false); // And out it goes
+    $table->out($pagesize, false); // And out it goes.
 }
 

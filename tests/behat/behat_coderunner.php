@@ -101,7 +101,8 @@ class behat_coderunner extends behat_base {
      * loading of the usual Ace (or Graph etc) UI plugin.
      *
      * @When /^I disable UI plugins/
-     */    public function i_disable_ui_plugins() {
+     */
+    public function i_disable_ui_plugins() {
         $javascript = "sessionStorage.setItem('disableUis', true);";
         $this->getSession()->executeScript($javascript);
     }
@@ -111,11 +112,11 @@ class behat_coderunner extends behat_base {
      * to re-enable loading of the usual Ace (or Graph etc) UI plugins.
      *
      * @When /^I enable UI plugins/
-     */    public function i_enable_u_plugins() {
+     */
+    public function i_enable_u_plugins() {
         $javascript = "sessionStorage.removeItem('disableUis');";
         $this->getSession()->executeScript($javascript);
     }
-
 
     /**
      * Sets the contents of a field with multi-line input.
@@ -127,6 +128,7 @@ class behat_coderunner extends behat_base {
     public function i_set_the_field_to_pystring($fieldlocator, Behat\Gherkin\Node\PyStringNode $value) {
         $this->execute('behat_forms::i_set_the_field_to', array($fieldlocator, $this->escape($value)));
     }
+
     /**
      * @Then /^I should see a canvas/
      */
@@ -150,8 +152,8 @@ class behat_coderunner extends behat_base {
     }
 
      /**
-     * @Given /^I fill in my template/
-     */
+      * @Given /^I fill in my template/
+      */
     public function i_fill_in_my_template() {
         $dfatemplate = file_get_contents("dfa_template.txt", FILE_USE_INCLUDE_PATH);
         $this->getSession()->getPage()->fillField('id_template', $dfatemplate);

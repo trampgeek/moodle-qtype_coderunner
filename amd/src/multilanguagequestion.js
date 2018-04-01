@@ -22,19 +22,17 @@ define(['jquery'], function($) {
     }
 
     function initLangSelectorWhenReady(taId) {
-        var ta = $(document.getElementById(taId)),  // The jquery text area element(s)
+        var ta = $(document.getElementById(taId)),  // The jquery text area element(s).
             selector = $(".coderunner-lang-select");
-
-
 
         function setAceLang() {
             // Set the language for the Ace plugin (or any other plugin if it
             // has a setLanguage method).
             var lang = selector.val(),
-                uiWrapper = ta.data('current-ui-wrapper'); // Currently-active UI wrapper on reqd ta
+                uiWrapper = ta.data('current-ui-wrapper'); // Currently-active UI wrapper on reqd ta.
 
             if (uiWrapper && uiWrapper.uiInstance && typeof uiWrapper.uiInstance.setLanguage === 'function') {
-                // TODO: define setLanguage as a required method of all UI plugins
+                // TODO: define setLanguage as a required method of all UI plugins.
                 uiWrapper.uiInstance.setLanguage(lang);
             }
         }

@@ -100,12 +100,12 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $qdata->options->showsource = 0;
         $qdata->options->precheck = 1;
         $qdata->options->answerboxlines = 5;
-        // exclude precheck as it defaults to null
+        // Exclude precheck as it defaults to null.
         $qdata->options->useace = 0;
         $qdata->options->penaltyregime = '10, 20, ...';
-        // exclude answer, defaults to null
+        // Exclude answer, defaults to null.
         $qdata->options->validateonsave = 0;
-        // ignore a bunch because they default to null
+        // Ignore a bunch because they default to null.
         $qdata->options->uiplugin = 'None';
         $qdata->testcases = self::make_test_cases($testcases);
 
@@ -1052,7 +1052,6 @@ EOPROG;
         $coderunner->templateparams = '';
         $coderunner->prototypetype = 0;
         $coderunner->name = $name;
-        //$coderunner->useace = true;
         $coderunner->precheck = 0;
         $coderunner->questiontext = $questiontext;
         $coderunner->allornothing = true;

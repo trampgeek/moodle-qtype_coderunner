@@ -74,7 +74,7 @@ if (empty($tag)) {
     echo "<input id='tagvalue' type='text' name='tag' />";
     echo "<br><input type='submit' name='submit' value='Submit'/>";
 } else {
-    // Do the tagging
+    // Do the tagging.
     $tag = str_replace(',', '', $tag);
     $bulktester->tag_by_quiz($contextid, $quizid, $tag);
 

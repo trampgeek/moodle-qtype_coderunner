@@ -89,7 +89,7 @@ class qtype_coderunner extends question_type {
             'precheck',
             'showsource',
             'answerboxlines',
-            'answerboxcolumns',  // Defunct
+            'answerboxcolumns',  // Defunct.
             'answerpreload',
             'useace',
             'resultcolumns',
@@ -182,7 +182,7 @@ class qtype_coderunner extends question_type {
             }
             $testcase = new stdClass;
             if ($validation) {
-                $testcase->rownum = $i;  // The row number in the edit form - relevant only when validating
+                $testcase->rownum = $i;  // The row number in the edit form - relevant only when validating.
             }
             $testcase->questionid = isset($question->id) ? $question->id : 0;
             $testcase->testtype = isset($question->testtype[$i]) ? $question->testtype[$i] : 0;
@@ -197,7 +197,6 @@ class qtype_coderunner extends question_type {
             $testcase->ordering = intval($question->ordering[$i]);
             $testcases[] = $testcase;
         }
-
 
         usort($testcases, function ($tc1, $tc2) {
             if ($tc1->ordering === $tc2->ordering) {

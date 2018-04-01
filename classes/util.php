@@ -66,24 +66,26 @@ class qtype_coderunner_util {
     // We can't simply use mb_substr to extract the ith characters from a multibyte
     // string as it has to search from the start, resulting in
     // quadratic complexity for a simple char-by-char iteration.
-    private static function next_char($string, &$pointer){
-        if(!isset($string[$pointer])) return false;
+    private static function next_char($string, &$pointer) {
+        if (!isset($string[$pointer])) {
+            return false;
+        }
         $char = ord($string[$pointer]);
-        if($char < 128){
+        if ($char < 128) {
             return $string[$pointer++];
-        }else{
-            if($char < 224){
+        } else {
+            if ($char < 224) {
                 $bytes = 2;
-            }elseif($char < 240){
+            } else if ($char < 240) {
                 $bytes = 3;
-            }elseif($char < 248){
+            } else if ($char < 248) {
                 $bytes = 4;
-            }elseif($char == 252){
+            } else if ($char == 252) {
                 $bytes = 5;
-            }else{
+            } else {
                 $bytes = 6;
             }
-            $str =  substr($string, $pointer, $bytes);
+            $str = substr($string, $pointer, $bytes);
             $pointer += $bytes;
             return $str;
         }
@@ -162,7 +164,7 @@ class qtype_coderunner_util {
     // TODO: expand tabs (which appear in Java traceback output).
     public static function format_cell($cell) {
         if (substr($cell, 0, 1) === "\n") {
-            $cell = "\n" . $cell;  // Fix <pre> quirk that ignores leading \n
+            $cell = "\n" . $cell;  // Fix <pre> quirk that ignores leading \n.
         }
         return '<pre class="tablecell">' . s($cell) . '</pre>';
     }
@@ -245,11 +247,11 @@ class qtype_coderunner_util {
      */
     public static function merge_json($prototypejson, $childjson) {
         $result = new stdClass();
-        foreach(self::template_params($prototypejson) as $attr => $field) {
+        foreach (self::template_params($prototypejson) as $attr => $field) {
             $result->$attr = $field;
         }
 
-        foreach(self::template_params($childjson) as $attr => $field) {
+        foreach (self::template_params($childjson) as $attr => $field) {
             $result->$attr = $field;
         }
 

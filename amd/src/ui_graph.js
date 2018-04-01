@@ -1,5 +1,30 @@
 // This file is part of Moodle - http://moodle.org/
 //
+// Much of this code is from Finite State Machine Designer:
+/*
+ Finite State Machine Designer (http://madebyevan.com/fsm/)
+ License: MIT License (see below)
+ Copyright (c) 2010 Evan Wallace
+ Permission is hereby granted, free of charge, to any person
+ obtaining a copy of this software and associated documentation
+ files (the "Software"), to deal in the Software without
+ restriction, including without limitation the rights to use,
+ copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the
+ Software is furnished to do so, subject to the following
+ conditions:
+ The above copyright notice and this permission notice shall be
+ included in all copies or substantial portions of the Software.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ OTHER DEALINGS IN THE SOFTWARE.
+*/
+//
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
@@ -25,8 +50,7 @@
 
 
 
-define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'],
-  function($, util, elements) {
+define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'], function($, util, elements) {
 
     /***********************************************************************
      *
@@ -47,7 +71,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         this.canvas.attr({
             id:         canvasId,
             class:      "coderunner_graphcanvas",
-            tabindex:   1 // So canvas can get focus
+            tabindex:   1 // So canvas can get focus.
         });
         this.canvas.css({'background-color': 'white'});
 
@@ -84,7 +108,6 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         this.resize(w, h);
     }
 
-
     /***********************************************************************
      *
      *  This is the ui component for a graph-drawing coderunner question.
@@ -92,11 +115,11 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
      ***********************************************************************/
 
     function Graph(textareaId, width, height, templateParams) {
-        // Constructor
+        // Constructor.
 
         this.SNAP_TO_PADDING = 6;
-        this.HIT_TARGET_PADDING = 6; // pixels
-        this.DEFAULT_NODE_RADIUS = 26;  // Pixels. Template parameter noderadius can override this
+        this.HIT_TARGET_PADDING = 6;    // Pixels.
+        this.DEFAULT_NODE_RADIUS = 26;  // Pixels. Template parameter noderadius can override this.
         this.MIN_WIDTH = 400;
         this.MIN_HEIGHT = 400;
 
@@ -106,32 +129,29 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         this.templateParams = templateParams;
         this.graphCanvas = new GraphCanvas(this,  this.canvasId, width, height);
         this.caretVisible = true;
-        this.caretTimer = 0;  // Need global so we can kill a running timer
+        this.caretTimer = 0;  // Need global so we can kill a running timer.
         this.originalClick = null;
         this.nodes = [];
         this.links = [];
         this.helpBox = new elements.HelpBox(this, 0, 0);
         this.helpBoxHighlighted = false;
-        this.selectedObject = null; // either a elements.Link or a elements.Node
-        this.currentLink = null; // a elements.Link
+        this.selectedObject = null; // Either a elements.Link or a elements.Node.
+        this.currentLink = null;
         this.movingObject = false;
-        this.fail = false;  // Will be set true if reload fails (can't deserialise)
+        this.fail = false;  // Will be set true if reload fails (can't deserialise).
         this.reload();
         if (!this.fail) {
             this.draw();
         }
     }
 
-
     Graph.prototype.failed = function() {
         return this.fail;
     };
 
-
     Graph.prototype.getElement = function() {
         return this.getCanvas();
     };
-
 
     Graph.prototype.getMinSize = function() {
         return {
@@ -140,27 +160,22 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         };
     };
 
-
     Graph.prototype.hasFocus = function() {
         return document.activeElement == this.getCanvas();
     };
-
 
     Graph.prototype.getCanvas = function() {
         var canvas = this.graphCanvas.canvas[0];
         return canvas;
     };
 
-
     Graph.prototype.nodeRadius = function() {
         return this.templateParams.noderadius ? this.templateParams.noderadius : this.DEFAULT_NODE_RADIUS;
     };
 
-
     Graph.prototype.isFsm = function() {
         return this.templateParams.isfsm !== undefined ? this.templateParams.isfsm : true;
     };
-
 
     // Draw an arrow head if this is a directed graph. Otherwise do nothing.
     Graph.prototype.arrowIfReqd = function(c, x, y, angle) {
@@ -168,7 +183,6 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
             util.drawArrow(c, x, y, angle);
         }
     };
-
 
     Graph.prototype.keypress = function(e) {
         var key = util.crossBrowserKey(e);
@@ -189,14 +203,13 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
             this.resetCaret();
             this.draw();
 
-            // don't let keys do their actions (like space scrolls down the page)
+            // Don't let keys do their actions (like space scrolls down the page).
             return false;
         } else if(key === 8 || key === 0x20 || key === 9) {
-            // Disable scrolling on backspace, tab and space
+            // Disable scrolling on backspace, tab and space.
             return false;
         }
     };
-
 
     Graph.prototype.mousedown = function(e) {
         var mouse = util.crossBrowserRelativeMousePos(e);
@@ -226,15 +239,14 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         this.draw();
 
         if(this.hasFocus()) {
-            // disable drag-and-drop only if the canvas is already focused
+            // Disable drag-and-drop only if the canvas is already focused.
             return false;
         } else {
-            // otherwise, let the browser switch the focus away from wherever it was
+            // Otherwise, let the browser switch the focus away from wherever it was.
             this.resetCaret();
             return true;
         }
     };
-
 
     Graph.prototype.keydown = function(e) {
         var key = util.crossBrowserKey(e);
@@ -243,16 +255,16 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
             return;
         }
 
-        if(key === 8) { // backspace key
+        if(key === 8) { // Backspace key.
             if(this.selectedObject !== null && 'text' in this.selectedObject) {
                 this.selectedObject.text = this.selectedObject.text.substr(0, this.selectedObject.text.length - 1);
                 this.resetCaret();
                 this.draw();
             }
 
-            // backspace is a shortcut for the back button, but do NOT want to change pages
+            // Backspace is a shortcut for the back button, but do NOT want to change pages.
             return false;
-        } else if(key === 46) { // delete key
+        } else if(key === 46) { // Delete key.
             if(this.selectedObject !== null) {
                 for(var i = 0; i < this.nodes.length; i++) {
                     if(this.nodes[i] === this.selectedObject) {
@@ -261,24 +273,23 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
                 }
                 for(var i = 0; i < this.links.length; i++) {
                     if(this.links[i] === this.selectedObject ||
-                       this.links[i].node === this.selectedObject ||
-                       this.links[i].nodeA === this.selectedObject ||
-                       this.links[i].nodeB === this.selectedObject) {
-                       this.links.splice(i--, 1);
+                           this.links[i].node === this.selectedObject ||
+                           this.links[i].nodeA === this.selectedObject ||
+                           this.links[i].nodeB === this.selectedObject) {
+                        this.links.splice(i--, 1);
                     }
                 }
                 this.selectedObject = null;
                 this.draw();
             }
-        } else if(key === 13) { // enter key
+        } else if(key === 13) { // Enter key.
             if(this.selectedObject !== null) {
-                // deselect the object
+                // Deselect the object.
                 this.selectedObject = null;
                 this.draw();
             }
         }
     };
-
 
     Graph.prototype.dblclick = function(e) {
         var mouse = util.crossBrowserRelativeMousePos(e);
@@ -302,12 +313,10 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         }
     };
 
-
     Graph.prototype.resize = function(w, h) {
         this.graphCanvas.resize(w, h);
         this.draw();
     };
-
 
     Graph.prototype.mousemove = function(e) {
         var mouse = util.crossBrowserRelativeMousePos(e),
@@ -318,11 +327,10 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
             return;
         }
 
-       if (mouseInHelpBox != this.helpBoxHighlighted) {
-           this.helpBoxHighlighted = mouseInHelpBox;
-           this.draw();
-       }
-
+        if (mouseInHelpBox != this.helpBoxHighlighted) {
+            this.helpBoxHighlighted = mouseInHelpBox;
+            this.draw();
+        }
 
         if(this.currentLink !== null) {
             var targetNode = this.selectObject(mouse.x, mouse.y);
@@ -358,7 +366,6 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         }
     };
 
-
     Graph.prototype.mouseup = function() {
 
         if (this.readOnly) {
@@ -380,7 +387,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
 
     Graph.prototype.selectObject = function(x, y) {
         if (this.helpBox.containsPoint(x, y) && this.selectedObject != this.helpBox) {
-            // Clicking the help box menu item toggles its select state
+            // Clicking the help box menu item toggles its select state.
             return this.helpBox;
         }
 
@@ -396,7 +403,6 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         }
         return null;
     };
-
 
     Graph.prototype.snapNode = function(node) {
         for(var i = 0; i < this.nodes.length; i++) {
@@ -414,13 +420,12 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         }
     };
 
-
     Graph.prototype.reload = function() {
         var content = $(this.textArea).val(),
             failMessage = M.util.get_string('graphfail', 'qtype_coderunner');
         if (content) {
             try {
-                // load up the student's previous answer if non-empty
+                // Load up the student's previous answer if non-empty.
                 var backup = JSON.parse(content);
 
                 for(var i = 0; i < backup.nodes.length; i++) {
@@ -437,7 +442,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
                     var backupLinkLayout = backup.edgeGeometry[i];
                     var link = null;
                     if(backupLink[0] === backupLink[1]) {
-                        // self link has two identical nodes
+                        // Self link has two identical nodes.
                         link = new elements.SelfLink(this, this.nodes[backupLink[0]]);
                         link.anchorAngle = backupLinkLayout.anchorAngle;
                         link.text = backupLink[2].toString();
@@ -457,7 +462,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
                     }
                 }
             } catch(e) {
-                alert(failMessage); // error loading previous answer
+                alert(failMessage); // Error loading previous answer.
                 this.fail = true;
             }
         }
@@ -470,10 +475,10 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
             'nodeGeometry': [],
             'nodes': [],
             'edges': [],
-            };
+        };
 
         if(!JSON || (this.textArea.val().trim() === '' && this.nodes.length === 0)) {
-            return;  // Don't save if we have an empty textbox and no graphic content
+            return;  // Don't save if we have an empty textbox and no graphic content.
         }
 
         for(var i = 0; i < this.nodes.length; i++) {
@@ -518,17 +523,15 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         this.textArea.val(JSON.stringify(backup));
     };
 
-
     Graph.prototype.destroy = function () {
-        clearInterval(this.caretTimer); // Stop the caret timer
-        this.graphCanvas.canvas.off(); // Stop all events
+        clearInterval(this.caretTimer); // Stop the caret timer.
+        this.graphCanvas.canvas.off();  // Stop all events.
         this.graphCanvas.canvas.remove();
 
     };
 
-
     Graph.prototype.resetCaret = function () {
-        var t = this; // For embedded function to access this
+        var t = this; // For embedded function to access this.
 
         clearInterval(this.caretTimer);
         this.caretTimer = setInterval(function() {
@@ -537,7 +540,6 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         }, 500);
         this.caretVisible = true;
     };
-
 
     Graph.prototype.draw = function () {
         var canvas = this.getCanvas(),
@@ -548,7 +550,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         c.translate(0.5, 0.5);
 
         this.helpBox.draw(c, this.selectedObject == this.helpBox, this.helpBoxHighlighted);
-        if (this.selectedObject != this.helpBox) {  // Only proceed if help info not showing
+        if (this.selectedObject != this.helpBox) {  // Only proceed if help info not showing.
 
             for(var i = 0; i < this.nodes.length; i++) {
                 c.lineWidth = 1;
@@ -571,19 +573,18 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         this.save();
     };
 
-
     Graph.prototype.drawText = function(originalText, x, y, angleOrNull, theObject) {
         var c = this.getCanvas().getContext('2d'),
             text = util.convertLatexShortcuts(originalText),
             width;
 
         c.font = '20px Arial';
-        width =  c.measureText(text).width;
+        width = c.measureText(text).width;
 
-        // center the text
+        // Center the text.
         x -= width / 2;
 
-        // position the text intelligently if given an angle
+        // Position the text intelligently if given an angle.
         if(angleOrNull !== null) {
             var cos = Math.cos(angleOrNull);
             var sin = Math.sin(angleOrNull);
@@ -594,7 +595,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
             y += cornerPointY + cos * slide;
         }
 
-        // draw text and caret (round the coordinates so the caret falls on a pixel)
+        // Draw text and caret (round the coordinates so the caret falls on a pixel).
         if('advancedFillText' in c) {
             c.advancedFillText(text, originalText, x + width / 2, y, angleOrNull);
         } else {
@@ -610,7 +611,6 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
             }
         }
     };
-
 
     return {
         Constructor: Graph

@@ -106,7 +106,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
                         array('id' => $selectid, 'name' => $selectname,
                               'class' => 'coderunner-lang-select', 'required' => ''));
                 if (empty($currentlanguage)) {
-                    $qtext .= html_writer::tag('option', '', array('value'=>''));
+                    $qtext .= html_writer::tag('option', '', array('value' => ''));
                 }
                 foreach ($languages as $lang) {
                     $attributes = array('value' => $lang);
@@ -497,7 +497,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
     }
 
     // True iff the given testcase field is specified by the given question
-    // resultcolumns field to be displayed
+    // resultcolumns field to be displayed.
     private function show_column($field, $resultcolumns) {
         foreach ($resultcolumns as $columnspecifier) {
             if ($columnspecifier[1] === $field) {

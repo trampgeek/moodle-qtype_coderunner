@@ -117,7 +117,7 @@ EOTEMPLATE;
         $this->process_submission(array('-submit' => 1, 'answer' => "def sqr(n): return n * n\n"));
         $this->check_output_contains('Run 4');
 
-        // Now turn on allowmultiplestdins and try again
+        // Now turn on allowmultiplestdins and try again.
         $q->allowmultiplestdins = true;
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
         $this->process_submission(array('-submit' => 1, 'answer' => "def sqr(n): return n * n\n"));

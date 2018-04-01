@@ -134,7 +134,7 @@ define(['jquery'], function($) {
 
         function nextToken() {
             // Extract and return the next token start at text[i]. Update i.
-            // Precondition: i < text.length
+            // Precondition: i < text.length.
             var token, match;
             if (text[i] != '&') {
                 token = text[i];

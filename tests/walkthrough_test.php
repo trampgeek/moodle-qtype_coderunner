@@ -258,7 +258,7 @@ EOTEMPLATE;
         $qa = $this->get_question_attempt();
 
         // Submit an answer with a <b> tag in it and make sure it's suitably
-        // escaped so it appears in the output
+        // escaped so it appears in the output.
         $this->process_submission(array('-submit' => 1,
             'answer' => "def sqr(n):\n    print('<b>')\n    return n * n"));
         $this->check_output_does_not_contain('<b>');
@@ -377,7 +377,7 @@ EOTEMPLATE;
         $this->check_output_contains('Got');
         $this->check_output_contains("Wasn't that FUN!");
         $this->check_output_contains("Passed all tests!");
-        $this->check_output_does_not_contain("Blah"); // HTML field should be rendered directly so class not visible
+        $this->check_output_does_not_contain("Blah"); // HTML field should be rendered directly so class not visible.
 
         // Submit a partially right  answer.
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);

@@ -3,6 +3,30 @@
  * Utility functions/data/constants for the ui_graph module.
  *
  ***********************************************************************/
+// Most of this code is taken from Finite State Machine Designer:
+/*
+ Finite State Machine Designer (http://madebyevan.com/fsm/)
+ License: MIT License (see below)
+ Copyright (c) 2010 Evan Wallace
+ Permission is hereby granted, free of charge, to any person
+ obtaining a copy of this software and associated documentation
+ files (the "Software"), to deal in the Software without
+ restriction, including without limitation the rights to use,
+ copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the
+ Software is furnished to do so, subject to the following
+ conditions:
+ The above copyright notice and this permission notice shall be
+ included in all copies or substantial portions of the Software.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ OTHER DEALINGS IN THE SOFTWARE.
+*/
 
 // This file is part of Moodle - http://moodle.org/
 //
@@ -32,14 +56,14 @@ define(function() {
     }
 
     Util.prototype.convertLatexShortcuts = function(text) {
-        // html greek characters
+        // Html greek characters.
         for(var i = 0; i < this.greekLetterNames.length; i++) {
             var name = this.greekLetterNames[i];
             text = text.replace(new RegExp('\\\\' + name, 'g'), String.fromCharCode(913 + i + (i > 16)));
             text = text.replace(new RegExp('\\\\' + name.toLowerCase(), 'g'), String.fromCharCode(945 + i + (i > 16)));
         }
 
-        // subscripts
+        // Subscripts.
         for(var i = 0; i < 10; i++) {
             text = text.replace(new RegExp('_' + i, 'g'), String.fromCharCode(8320 + i));
         }
@@ -48,7 +72,7 @@ define(function() {
     };
 
     Util.prototype.drawArrow = function(c, x, y, angle) {
-        // Draw an arrow head on the graphics context c at (x, y) with given angle
+        // Draw an arrow head on the graphics context c at (x, y) with given angle.
 
         var dx = Math.cos(angle);
         var dy = Math.sin(angle);
@@ -60,13 +84,12 @@ define(function() {
     };
 
     Util.prototype.det = function(a, b, c, d, e, f, g, h, i) {
-        // Determinant of given matrix elements
+        // Determinant of given matrix elements.
         return a * e * i + b * f * g + c * d * h - a * f * h - b * d * i - c * e * g;
     };
 
-
     Util.prototype.circleFromThreePoints = function(x1, y1, x2, y2, x3, y3) {
-        // Return {x, y, radius} of circle through (x1, y1), (x2, y2), (x3, y3)
+        // Return {x, y, radius} of circle through (x1, y1), (x2, y2), (x3, y3).
         var a = this.det(x1, y1, 1, x2, y2, 1, x3, y3, 1);
         var bx = -this.det(x1 * x1 + y1 * y1, y1, 1, x2 * x2 + y2 * y2, y2, 1, x3 * x3 + y3 * y3, y3, 1);
         var by = this.det(x1 * x1 + y1 * y1, x1, 1, x2 * x2 + y2 * y2, x2, 1, x3 * x3 + y3 * y3, x3, 1);
@@ -83,16 +106,14 @@ define(function() {
         return pos.x > rect.x && pos.x < rect.x + rect.width && pos.y < rect.y + rect.height && pos.y > rect.y;
     };
 
-
     Util.prototype.crossBrowserKey = function(e) {
-        // Return which key was pressed, given the event, in a browser-independent way
+        // Return which key was pressed, given the event, in a browser-independent way.
         e = e || window.event;
         return e.which || e.keyCode;
     };
 
-
     Util.prototype.crossBrowserElementPos = function(e) {
-        // Return the {x, y} location of the element in which event e occurred
+        // Return the {x, y} location of the element in which event e occurred.
         e = e || window.event;
         var obj = e.target || e.srcElement;
         var x = 0, y = 0;
@@ -104,16 +125,14 @@ define(function() {
         return { 'x': x, 'y': y };
     };
 
-
     Util.prototype.crossBrowserMousePos = function(e) {
-        // Return the {x, y} page coords (?) of the mouse position associated with event e
+        // Return the {x, y} page coords (?) of the mouse position associated with event e.
         e = e || window.event;
         return {
             'x': e.pageX || e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft,
             'y': e.pageY || e.clientY + document.body.scrollTop + document.documentElement.scrollTop
         };
     };
-
 
     Util.prototype.crossBrowserRelativeMousePos = function(e) {
         // Return the {x, y} location relative to the element within which the

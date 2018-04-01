@@ -91,7 +91,7 @@ class qtype_coderunner_question extends question_graded_automatically {
         if (array_key_exists('answer', $response)) {
             if ($response['answer'] === '') {
                 return get_string('answerrequired', 'qtype_coderunner');
-            } elseif (strlen($response['answer']) < constants::FUNC_MIN_LENGTH) {
+            } else if (strlen($response['answer']) < constants::FUNC_MIN_LENGTH) {
                 return get_string('answertooshort', 'qtype_coderunner');
             }
         }
@@ -167,14 +167,14 @@ class qtype_coderunner_question extends question_graded_automatically {
         if (!empty($response['_testoutcome'])) {
             $testoutcomeserial = $response['_testoutcome'];
             $testoutcome = unserialize($testoutcomeserial);
-            if ($testoutcome instanceof qtype_coderunner_testing_outcome  // Ignore legacy-format outcomes
+            if ($testoutcome instanceof qtype_coderunner_testing_outcome  // Ignore legacy-format outcomes.
                     && $testoutcome->isprecheck == $isprecheck) {
-                $gradingreqd = false;  // Already graded and with same precheck state
+                $gradingreqd = false;  // Already graded and with same precheck state.
             }
         }
         if ($gradingreqd) {
             // We haven't already graded this submission or we graded it with
-            // a different precheck setting
+            // a different precheck setting.
             $code = $response['answer'];
             $testcases = $this->filter_testcases($isprecheck, $this->precheck);
             $runner = new qtype_coderunner_jobrunner();
@@ -193,7 +193,7 @@ class qtype_coderunner_question extends question_graded_automatically {
                 !($this->grader === 'TemplateGrader' && $this->iscombinatortemplate)) {
             return array(0, question_state::$gradedwrong, $datatocache);
         } else {
-            // Allow partial marks if not allornothing or if it's a combinator template grader
+            // Allow partial marks if not allornothing or if it's a combinator template grader.
             return array($testoutcome->mark_as_fraction(),
                     question_state::$gradedpartial, $datatocache);
         }
@@ -322,7 +322,7 @@ class qtype_coderunner_question extends question_graded_automatically {
     }
 
 
-    // Return whether or not multiple stdins are allowed when using combiantor
+    // Return whether or not multiple stdins are allowed when using combinator.
     public function allow_multiple_stdins() {
         return $this->allowmultiplestdins;
     }
@@ -422,12 +422,12 @@ class qtype_coderunner_question extends question_graded_automatically {
         $filemap = array();
 
         if (isset($question->filemanagerdraftid)) {
-            // If we're just validating a question, get files from user draft area
+            // If we're just validating a question, get files from user draft area.
             $draftid = $question->filemanagerdraftid;
             $context = context_user::instance($USER->id);
             $files = $fs->get_area_files($context->id, 'user', 'draft', $draftid, '', false);
         } else {
-            // Otherwise, get the stored files for this question
+            // Otherwise, get the stored files for this question.
             $files = $fs->get_area_files($contextid, 'qtype_coderunner', 'datafile', $questionid);
         }
 

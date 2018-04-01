@@ -174,7 +174,6 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2016123001, 'qtype', 'coderunner');
     }
 
-
     if ($oldversion < 2017071100) {
 
         // Define field allowmultiplestdins to be added to question_coderunner_options.
@@ -189,7 +188,6 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2017071100, 'qtype', 'coderunner');
     }
 
-
     if ($oldversion < 2017072800) {
 
         // Changing type of field templateparams on table question_coderunner_options to text.
@@ -202,7 +200,6 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         // Coderunner savepoint reached.
         upgrade_plugin_savepoint(true, 2017072800, 'qtype', 'coderunner');
     }
-
 
     if ($oldversion < 2017121101) {
         // Define field uiplugin to be added to question_coderunner_options.

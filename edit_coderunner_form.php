@@ -585,7 +585,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->addHelpButton('resultcolumns', 'resultcolumns', 'qtype_coderunner');
 
         $uicontrols = array();
-        $uitypes = $this->getUiPlugins();
+        $uitypes = $this->get_ui_plugins();
 
         $uicontrols[] = $mform->createElement('select', 'uiplugin',
                 get_string('student_answer', 'qtype_coderunner'), $uitypes);
@@ -606,7 +606,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
     // ui_pluginname.js in the amd/src directory.
     // Returns an associative array with a uiname => uiname entry for each
     // available ui plugin.
-    private function getUiPlugins() {
+    private function get_ui_plugins() {
         global $CFG;
         $uiplugins = array('None' => 'None');
         $files = scandir($CFG->dirroot . '/question/type/coderunner/amd/src');
@@ -837,7 +837,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
     }
 
 
-    // Find the filemanager element draftid
+    // Find the filemanager element draftid.
     private function get_file_manager() {
         $mform = $this->_form;
         $draftid = null;

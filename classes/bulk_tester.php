@@ -26,8 +26,9 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+defined('MOODLE_INTERNAL') || die();
 
-class qtype_coderunner_bulk_tester  {
+class qtype_coderunner_bulk_tester {
 
     const PASS = 0;
     const MISSINGANSWER = 1;
@@ -207,7 +208,7 @@ class qtype_coderunner_bulk_tester  {
                  ON q.id = slt.questionid
                  WHERE slt.quizid = qz.id AND q.qtype='coderunner'
                 ) AS count
-            FROM `mdl_quiz` qz
+            FROM mdl_quiz qz
             JOIN mdl_course crs on qz.course = crs.id
             JOIN mdl_context ctx on ctx.instanceid = crs.id
             WHERE ctx.id = :contextid

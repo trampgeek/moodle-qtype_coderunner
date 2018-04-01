@@ -78,8 +78,8 @@ class qtype_coderunner_jobrunner {
         $this->allruns = array();
         $this->templateparams = array(
             'STUDENT_ANSWER' => $code,
-            'ESCAPED_STUDENT_ANSWER' => qtype_coderunner_escapers::python(null, $code, null), // LEGACY SUPPORT
-            'MATLAB_ESCAPED_STUDENT_ANSWER' => qtype_coderunner_escapers::matlab(null, $code, null), // LEGACY SUPPORT
+            'ESCAPED_STUDENT_ANSWER' => qtype_coderunner_escapers::python(null, $code, null), // LEGACY SUPPORT.
+            'MATLAB_ESCAPED_STUDENT_ANSWER' => qtype_coderunner_escapers::matlab(null, $code, null), // LEGACY SUPPORT.
             'IS_PRECHECK' => $isprecheck ? "1" : "0",
             'QUESTION' => $question,
             'ANSWER_LANGUAGE' => $answerlanguage,
@@ -275,8 +275,8 @@ class qtype_coderunner_jobrunner {
                     $result->feedbackhtml = $result->feedback_html; // Change to modern version.
                     unset($result->feedback_html);
                 }
-                foreach ($result as $key=>$value) {
-                    if (!in_array($key, $outcome->ALLOWED_FIELDS)) {
+                foreach ($result as $key => $value) {
+                    if (!in_array($key, $outcome->allowedfields)) {
                         $error = get_string('unknowncombinatorgraderfield', 'qtype_coderunner',
                             array('fieldname' => $key));
                         $outcome->set_status(qtype_coderunner_testing_outcome::STATUS_BAD_COMBINATOR, $error);
@@ -290,7 +290,7 @@ class qtype_coderunner_jobrunner {
                         }
                     }
                 }
-                $outcome->set_mark_and_feedback($fract, $feedback);  // Further valididty checks done in here
+                $outcome->set_mark_and_feedback($fract, $feedback);  // Further valididty checks done in here.
             }
         }
         return $outcome;

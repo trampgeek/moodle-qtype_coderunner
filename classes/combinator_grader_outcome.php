@@ -29,8 +29,8 @@ use qtype_coderunner\constants;
 
 class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testing_outcome {
 
-    // A list of the allowed attributes in the combinator template grader return value
-    public $ALLOWED_FIELDS = array('fraction', 'prologuehtml', 'testresults', 'epiloguehtml',
+    // A list of the allowed attributes in the combinator template grader return value.
+    public $allowedfields = array('fraction', 'prologuehtml', 'testresults', 'epiloguehtml',
                     'feedbackhtml', 'columnformats', 'showdifferences');
 
     public function __construct($isprecheck) {
@@ -79,10 +79,10 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
             $iscorrectcol = array_search('iscorrect', $headerrow);
             if ($iscorrectcol !== false) {
                 // Table has the optional 'iscorrect' column so find first fail.
-                foreach(array_slice($this->testresults, 1) as $row) {
+                foreach (array_slice($this->testresults, 1) as $row) {
                     if (!$row[$iscorrectcol]) {
                         $error .= "First failing test:<br>";
-                        for($i = 0; $i < count($row); $i++) {
+                        for ($i = 0; $i < count($row); $i++) {
                             if ($headerrow[$i] != 'iscorrect' &&
                                     $headerrow[$i] != 'ishidden') {
                                 $error .= "{$headerrow[$i]}: <pre>{$row[$i]}</pre>";
@@ -142,12 +142,12 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
                 $row = $table[$i];
                 $newrow = array();
                 $formatindex = 0;
-                for($col = 0; $col < count($row); $col++) {
+                for ($col = 0; $col < count($row); $col++) {
                     $cell = $row[$col];
                     if (in_array($columnheaders[$col], array('ishidden', 'iscorrect'))) {
-                        $newrow[] = $cell;  // Copy control column values directly
+                        $newrow[] = $cell;  // Copy control column values directly.
                     } else {
-                        // Non-control columns are either '%s' or '%h' format
+                        // Non-control columns are either '%s' or '%h' format.
                         if ($formats[$formatindex++] === '%h') {
                             $newrow[] = new qtype_coderunner_html_wrapper($cell);
                         } else {
@@ -182,7 +182,7 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
         if ($this->columnformats && $this->testresults) {
             $numcols = 0;
             foreach ($this->testresults[0] as $colhdr) {
-                // Count columns in header, excluding iscorrect and ishidden
+                // Count columns in header, excluding iscorrect and ishidden.
                 if ($colhdr !== 'iscorrect' && $colhdr !== 'ishidden') {
                     $numcols += 1;
                 }
@@ -190,14 +190,14 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
             $blah = count($this->columnformats);
             if (count($this->columnformats) !== $numcols) {
                 $error = get_string('wrongnumberofformats', 'qtype_coderunner',
-                        array('expected'=> $numcols, 'got'=>count($this->columnformats)));
-                $this->set_status(SELF::STATUS_BAD_COMBINATOR, $error);
+                        array('expected' => $numcols, 'got' => count($this->columnformats)));
+                $this->set_status(self::STATUS_BAD_COMBINATOR, $error);
             } else {
-                foreach($this->columnformats as $format) {
+                foreach ($this->columnformats as $format) {
                     if ($format !== '%s' && $format !== '%h') {
                         $error = get_string('illegalformat', 'qtype_coderunner',
-                            array('format'=> $format));
-                        $this->set_status(SELF::STATUS_BAD_COMBINATOR, $error);
+                            array('format' => $format));
+                        $this->set_status(self::STATUS_BAD_COMBINATOR, $error);
                         break;
                     }
                 }
@@ -218,7 +218,7 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
             }
         }
         if ($ishiddencolumn === -1) {
-            return $resulttable;  // No ishidden column so all rows visible
+            return $resulttable;  // No ishidden column so all rows visible.
         } else {
             $rows = array($header);
             for ($i = 1; $i < count($resulttable); $i++) {

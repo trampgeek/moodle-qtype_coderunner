@@ -64,7 +64,7 @@ public class InOut {
         );
         $q = test_question_maker::make_question('coderunner', 'multilang_echo_stdin');
 
-        // Submit a right answer in all languages
+        // Submit a right answer in all languages.
         foreach ($answers as $lang => $answer) {
             $this->start_attempt_at_question($q, 'adaptive', 1, 1);
             $this->process_submission(

@@ -82,20 +82,21 @@ foreach ($courses as $course) {
         ON sub.quizid = {quiz}.id
         WHERE course=:courseid
         AND sub.numattempts > 0
-        ORDER BY name", array('courseid'=>$courseid));
+        ORDER BY name", array('courseid' => $courseid));
 
     if (!empty($quizzes)) {
         $numquizzes = count($quizzes);
 
         echo html_writer::tag('h6',
                 html_writer::tag('a', "{$course->name} ($numquizzes)",
-                array('class'=>'expander sectionname',
-                      'id'   => 'expander-' . $i,
-                      'href' => '#')
+                array('class' => 'expander sectionname',
+                      'id'    => 'expander-' . $i,
+                      'href'  => '#')
                       )
                 );
         echo html_writer::start_tag('div',
-                array('class'=>'content' . $i . ' container-fluid', 'style'=>$initialcontentstate));
+                array('class' => 'content' . $i . ' container-fluid',
+                      'style' => $initialcontentstate));
 
         $rows = array();
         foreach ($quizzes as $quiz) {
@@ -104,11 +105,13 @@ foreach ($courses as $course) {
                     array('quizid' => $quiz->id, 'format' => 'csv'));
             $excelurl = new moodle_url('/question/type/coderunner/getallattempts.php',
                     array('quizid' => $quiz->id, 'format' => 'excel'));
-            $rows[] = array($quizname, html_writer::link($csvurl, 'csv', array('class'=>'btn-sm')),
-                                       html_writer::link($excelurl, 'excel', array('class'=>'btn-sm')));
+            $rows[] = array($quizname,
+                    html_writer::link($csvurl, 'csv', array('class' => 'btn-sm')),
+                    html_writer::link($excelurl, 'excel', array('class' => 'btn-sm'))
+            );
 
         }
-        //echo html_writer::end_tag('ul');
+
         $table = new html_table();
         $table->data = $rows;
         $table->attributes['class'] = 'table-bordered';

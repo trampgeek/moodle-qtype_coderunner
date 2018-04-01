@@ -4,7 +4,31 @@
  * StartLink and TemporaryLink
  *
  ******************************************************************************/
-
+// This code is a modified version of Finite State Machine Designer
+// (http://madebyevan.com/fsm/)
+/*
+ Finite State Machine Designer (http://madebyevan.com/fsm/)
+ License: MIT License (see below)
+ Copyright (c) 2010 Evan Wallace
+ Permission is hereby granted, free of charge, to any person
+ obtaining a copy of this software and associated documentation
+ files (the "Software"), to deal in the Software without
+ restriction, including without limitation the rights to use,
+ copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the
+ Software is furnished to do so, subject to the following
+ conditions:
+ The above copyright notice and this permission notice shall be
+ included in all copies or substantial portions of the Software.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ OTHER DEALINGS IN THE SOFTWARE.
+*/
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -23,14 +47,14 @@
 
 define(['qtype_coderunner/graphutil'], function(util) {
 
-  /***********************************************************************
+    /***********************************************************************
      *
      * Define a class Node that represents a node in a graph
      *
      ***********************************************************************/
 
     function Node(parent, x, y) {
-        this.parent = parent;  // The ui_graph instance
+        this.parent = parent;  // The ui_graph instance.
         this.x = x;
         this.y = y;
         this.mouseOffsetX = 0;
@@ -38,7 +62,6 @@ define(['qtype_coderunner/graphutil'], function(util) {
         this.isAcceptState = false;
         this.text = '';
     }
-
 
     Node.prototype.setMouseStart = function(x, y) {
         this.mouseOffsetX = this.x - x;
@@ -51,15 +74,15 @@ define(['qtype_coderunner/graphutil'], function(util) {
     };
 
     Node.prototype.draw = function(c) {
-        // draw the circle
+        // Draw the circle.
         c.beginPath();
         c.arc(this.x, this.y, this.parent.nodeRadius(), 0, 2 * Math.PI, false);
         c.stroke();
 
-        // draw the text
+        // Draw the text.
         this.parent.drawText(this.text, this.x, this.y, null, this);
 
-        // draw a double circle for an accept state
+        // Draw a double circle for an accept state.
         if(this.isAcceptState) {
             c.beginPath();
             c.arc(this.x, this.y, this.parent.nodeRadius() - 6, 0, 2 * Math.PI, false);
@@ -81,25 +104,22 @@ define(['qtype_coderunner/graphutil'], function(util) {
         return (x - this.x) * (x - this.x) + (y - this.y) * (y - this.y) < this.parent.nodeRadius() * this.parent.nodeRadius();
     };
 
-
     /***********************************************************************
      *
-     * Define a class Link that represents a connection between two nodes
+     * Define a class Link that represents a connection between two nodes.
      *
      ***********************************************************************/
     function Link(parent, a, b) {
-        this.parent = parent;  // The parent ui_digraph isntance
+        this.parent = parent;  // The parent ui_digraph instance.
         this.nodeA = a;
         this.nodeB = b;
         this.text = '';
-        this.lineAngleAdjust = 0; // value to add to textAngle when link is straight line
+        this.lineAngleAdjust = 0; // Value to add to textAngle when link is straight line.
 
-        // make anchor point relative to the locations of nodeA and nodeB
-        this.parallelPart = 0.5; // percentage from nodeA to nodeB
-        this.perpendicularPart = 0; // pixels from line between nodeA and nodeB
+        // Make anchor point relative to the locations of nodeA and nodeB.
+        this.parallelPart = 0.5;    // Percentage from nodeA to nodeB.
+        this.perpendicularPart = 0; // Pixels from line between nodeA and nodeB.
     }
-
-
 
     Link.prototype.getAnchorPoint = function() {
         var dx = this.nodeB.x - this.nodeA.x;
@@ -111,20 +131,18 @@ define(['qtype_coderunner/graphutil'], function(util) {
         };
     };
 
-
     Link.prototype.setAnchorPoint = function(x, y) {
         var dx = this.nodeB.x - this.nodeA.x;
         var dy = this.nodeB.y - this.nodeA.y;
         var scale = Math.sqrt(dx * dx + dy * dy);
         this.parallelPart = (dx * (x - this.nodeA.x) + dy * (y - this.nodeA.y)) / (scale * scale);
         this.perpendicularPart = (dx * (y - this.nodeA.y) - dy * (x - this.nodeA.x)) / scale;
-        // snap to a straight line
+        // Snap to a straight line.
         if(this.parallelPart > 0 && this.parallelPart < 1 && Math.abs(this.perpendicularPart) < this.parent.SNAP_TO_PADDING) {
             this.lineAngleAdjust = (this.perpendicularPart < 0) * Math.PI;
             this.perpendicularPart = 0;
         }
     };
-
 
     Link.prototype.getEndPointsAndCircle = function() {
         if(this.perpendicularPart === 0) {
@@ -167,10 +185,9 @@ define(['qtype_coderunner/graphutil'], function(util) {
         };
     };
 
-
     Link.prototype.draw = function(c) {
         var linkInfo = this.getEndPointsAndCircle();
-        // draw arc
+        // Draw arc.
         c.beginPath();
         if(linkInfo.hasCircle) {
             c.arc(linkInfo.circleX,
@@ -184,7 +201,7 @@ define(['qtype_coderunner/graphutil'], function(util) {
             c.lineTo(linkInfo.endX, linkInfo.endY);
         }
         c.stroke();
-        // draw the head of the arrow
+        // Draw the head of the arrow.
         if(linkInfo.hasCircle) {
             this.parent.arrowIfReqd(c,
                       linkInfo.endX,
@@ -196,7 +213,7 @@ define(['qtype_coderunner/graphutil'], function(util) {
                       linkInfo.endY,
                       Math.atan2(linkInfo.endY - linkInfo.startY, linkInfo.endX - linkInfo.startX));
         }
-        // draw the text
+        // Draw the text.
         if(linkInfo.hasCircle) {
             var startAngle = linkInfo.startAngle;
             var endAngle = linkInfo.endAngle;
@@ -214,7 +231,6 @@ define(['qtype_coderunner/graphutil'], function(util) {
             this.parent.drawText(this.text, textX, textY, textAngle + this.lineAngleAdjust, this);
         }
     };
-
 
     Link.prototype.containsPoint = function(x, y) {
         var linkInfo = this.getEndPointsAndCircle();
@@ -259,7 +275,7 @@ define(['qtype_coderunner/graphutil'], function(util) {
      *
      ***********************************************************************/
 
-   function SelfLink(parent, node, mouse) {
+    function SelfLink(parent, node, mouse) {
         this.parent = parent;
         this.node = node;
         this.anchorAngle = 0;
@@ -271,20 +287,18 @@ define(['qtype_coderunner/graphutil'], function(util) {
         }
     }
 
-
     SelfLink.prototype.setMouseStart = function(x, y) {
         this.mouseOffsetAngle = this.anchorAngle - Math.atan2(y - this.node.y, x - this.node.x);
     };
 
-
     SelfLink.prototype.setAnchorPoint = function(x, y) {
         this.anchorAngle = Math.atan2(y - this.node.y, x - this.node.x) + this.mouseOffsetAngle;
-        // snap to 90 degrees
+        // Snap to 90 degrees.
         var snap = Math.round(this.anchorAngle / (Math.PI / 2)) * (Math.PI / 2);
         if(Math.abs(this.anchorAngle - snap) < 0.1) {
             this.anchorAngle = snap;
         }
-        // keep in the range -pi to pi so our containsPoint() function always works
+        // Keep in the range -pi to pi so our containsPoint() function always works.
         if(this.anchorAngle < -Math.PI) {
             this.anchorAngle += 2 * Math.PI;
         }
@@ -292,7 +306,6 @@ define(['qtype_coderunner/graphutil'], function(util) {
             this.anchorAngle -= 2 * Math.PI;
         }
     };
-
 
     SelfLink.prototype.getEndPointsAndCircle = function() {
         var circleX = this.node.x + 1.5 * this.parent.nodeRadius() * Math.cos(this.anchorAngle);
@@ -318,21 +331,19 @@ define(['qtype_coderunner/graphutil'], function(util) {
         };
     };
 
-
     SelfLink.prototype.draw = function(c) {
         var linkInfo = this.getEndPointsAndCircle();
-        // draw arc
+        // Draw arc.
         c.beginPath();
         c.arc(linkInfo.circleX, linkInfo.circleY, linkInfo.circleRadius, linkInfo.startAngle, linkInfo.endAngle, false);
         c.stroke();
-        // draw the text on the loop farthest from the node
+        // Draw the text on the loop farthest from the node.
         var textX = linkInfo.circleX + linkInfo.circleRadius * Math.cos(this.anchorAngle);
         var textY = linkInfo.circleY + linkInfo.circleRadius * Math.sin(this.anchorAngle);
         this.parent.drawText(this.text, textX, textY, this.anchorAngle, this);
-        // draw the head of the arrow
+        // Draw the head of the arrow.
         this.parent.arrowIfReqd(c, linkInfo.endX, linkInfo.endY, linkInfo.endAngle + Math.PI * 0.4);
     };
-
 
     SelfLink.prototype.containsPoint = function(x, y) {
         var linkInfo = this.getEndPointsAndCircle();
@@ -359,7 +370,6 @@ define(['qtype_coderunner/graphutil'], function(util) {
         }
     }
 
-
     StartLink.prototype.setAnchorPoint = function(x, y) {
         this.deltaX = x - this.node.x;
         this.deltaY = y - this.node.y;
@@ -373,7 +383,6 @@ define(['qtype_coderunner/graphutil'], function(util) {
         }
     };
 
-
     StartLink.prototype.getEndPoints = function() {
         var startX = this.node.x + this.deltaX;
         var startY = this.node.y + this.deltaY;
@@ -386,20 +395,18 @@ define(['qtype_coderunner/graphutil'], function(util) {
         };
     };
 
-
     StartLink.prototype.draw = function(c) {
         var endPoints = this.getEndPoints();
 
-        // draw the line
+        // Draw the line.
         c.beginPath();
         c.moveTo(endPoints.startX, endPoints.startY);
         c.lineTo(endPoints.endX, endPoints.endY);
         c.stroke();
 
-        // draw the head of the arrow
+        // Draw the head of the arrow.
         this.parent.arrowIfReqd(c, endPoints.endX, endPoints.endY, Math.atan2(-this.deltaY, -this.deltaX));
     };
-
 
     StartLink.prototype.containsPoint = function(x, y) {
         var endPoints = this.getEndPoints();
@@ -410,7 +417,6 @@ define(['qtype_coderunner/graphutil'], function(util) {
         var distance = (dx * (y - endPoints.startY) - dy * (x - endPoints.startX)) / length;
         return (percent > 0 && percent < 1 && Math.abs(distance) < this.parent.HIT_TARGET_PADDING);
     };
-
 
     /***********************************************************************
      *
@@ -425,18 +431,16 @@ define(['qtype_coderunner/graphutil'], function(util) {
         this.to = to;
     }
 
-
     TemporaryLink.prototype.draw = function(c) {
-        // draw the line
+        // Draw the line.
         c.beginPath();
         c.moveTo(this.to.x, this.to.y);
         c.lineTo(this.from.x, this.from.y);
         c.stroke();
 
-        // draw the head of the arrow
+        // Draw the head of the arrow.
         this.parent.arrowIfReqd(c, this.to.x, this.to.y, Math.atan2(this.to.y - this.from.y, this.to.x - this.from.x));
     };
-
 
     /***********************************************************************
      *
@@ -456,7 +460,6 @@ define(['qtype_coderunner/graphutil'], function(util) {
         this.parent = parent;
         this.helpText = M.util.get_string('graphhelp', 'qtype_coderunner');
     }
-
 
     HelpBox.prototype.containsPoint = function(x, y) {
         return x >= this.topX && y >= this.topY &&
@@ -494,7 +497,6 @@ define(['qtype_coderunner/graphutil'], function(util) {
             }
         }
     };
-
 
     return {
         Node: Node,

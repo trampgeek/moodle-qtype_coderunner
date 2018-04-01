@@ -63,7 +63,9 @@ if (count($availablequestionsbycontext) == 0) {
     foreach ($availablequestionsbycontext as $contextid => $numcoderunnerquestions) {
         $context = context::instance_by_id($contextid);
         $name = $context->get_context_name(true, true);
-        if (strpos($name, 'Course:') === FALSE) continue;
+        if (strpos($name, 'Course:') === false) {
+            continue;
+        }
         $class = 'autotag coderunner context course';
 
         echo html_writer::tag('li',
@@ -72,19 +74,19 @@ if (count($availablequestionsbycontext) == 0) {
         echo html_writer::start_tag('ul');
         $keyedquizzes = array();
         foreach ($quizzes as $quizid => $row) {
-            if ($row->count > 0) {  // Check at least 1 question in category
+            if ($row->count > 0) {  // Check at least 1 question in category.
                 $keyedquizzes[$row->name] = array($quizid, $row->count);
             }
         }
         ksort($keyedquizzes);
-        foreach($keyedquizzes as $name => $idandcount) {
+        foreach ($keyedquizzes as $name => $idandcount) {
             echo html_writer::tag('li', html_writer::link(
                     new moodle_url('/question/type/coderunner/autotagbyquiz.php',
                             array('contextid' => $contextid,
                                   'quizid' => $idandcount[0],
                                   'quizname' => $name)),
                     $name . ' (' . $idandcount[1] . ')',
-                    array('target'=>'_blank')));
+                    array('target' => '_blank')));
         }
         echo html_writer::end_tag('ul');
     }
