@@ -531,8 +531,8 @@ class qtype_coderunner_edit_form extends question_edit_form {
     private function make_questiontype_help_panel($mform) {
         $mform->addElement('header', 'questiontypehelpheader',
                 get_string('questiontypedetails', 'qtype_coderunner'));
-        $mform->addElement('html',
-                '<span id="qtype-help">Select a question type to see detailed help.</span>');
+        $nodetailsavailable = '<span id="qtype-help">' . get_string('nodetailsavailable', 'qtype_coderunner') . '</span>';
+        $mform->addElement('html', $nodetailsavailable);
     }
 
     // Add to the supplied $mform the Customisation Panel
