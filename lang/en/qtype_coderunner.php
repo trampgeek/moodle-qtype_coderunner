@@ -308,8 +308,10 @@ Set the penalty regime to \'0\' for zero penalties on all submissions.';
 $string['memorylimit'] = 'MemLimit (MB)';
 $string['missinganswers'] = 'missing answers';
 $string['missingoutput'] = 'You must supply the expected output from this test case.';
+$string['missingprototype'] = 'Prototype for question type \'{$a->crtype}\' does not exist or is unavailable in this context';
 $string['missingprototypes'] = 'Missing prototypes';
 $string['multipledefaults'] = 'At most one language can be selected as default';
+$string['multipleprototypes'] = 'Multiple prototypes found for \'{$a->crtype}\'';
 
 $string['nearequalitygrader'] = 'Nearly exact match';
 $string['nodetailsavailable'] = 'Select a question type to see detailed help.';
@@ -336,7 +338,7 @@ $string['pluginnameadding'] = 'Adding a CodeRunner question';
 $string['pluginnameediting'] = 'Editing a CodeRunner question';
 $string['pluginnamesummary'] = 'CodeRunner: runs student-submitted code in a sandbox';
 $string['pluginname_help'] = 'Use the \'Question type\' combo box to select the
-computer language that will be used to run the student\'s submission.
+computer language and question type that will be used to run the student\'s submission.
 Specify the problem that the student must write code for, then define
 a set of tests to be run on the student\'s submission';
 $string['pluginname_link'] = 'question/type/coderunner';
@@ -396,7 +398,7 @@ $string['prototype_load_failure'] = 'Error loading prototype: ';
 $string['prototypeQ'] = 'Is prototype?';
 
 $string['qtypehelp'] = 'Help with q-type';
-$string['questioncheckboxes'] = 'Customisation:';
+$string['questioncheckboxes'] = 'Customisation';
 $string['questioncheckboxes_help'] = 'To customise the question type, e.g. to edit the question templates or
 sandbox parameters, click the \'Customise\'
 checkbox and read the help available on the newly-visible form elements for
@@ -701,7 +703,6 @@ $string['unauthorisedbulktest'] = 'You do not have suitable access to any CodeRu
 $string['unauthoriseddbaccess'] = 'You are not authorised to use this script';
 $string['unknownerror'] = 'An unexpected error occurred. The sandbox may be down. Try again shortly.';
 $string['unknowncombinatorgraderfield'] = 'Unknown field name ({$a->fieldname}) in combinator grader output';
-$string['unknownquestion'] = 'Unknown question';
 $string['useasexample'] = 'Use as example';
 $string['useace'] = 'Template uses ace';
 

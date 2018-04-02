@@ -325,12 +325,12 @@ class qtype_coderunner_bulk_tester {
             }
         } catch (qtype_coderunner_exception $e) {
             if (isset($question)) {
-                $questionname = format_string($question->name);
+                $questionname = ' ' . format_string($question->name);
             } else {
-                $questionname = get_string('unknownquestion', 'qtype_coderunner');
+                $questionname = '';
             }
             $message = '**** ' . get_string('questionloaderror', 'qtype_coderunner') .
-                    ' ' . $questionname . ': ' . $e->getMessage() . ' ****';
+                    $questionname . '. ' . $e->getMessage() . ' ****';
             $status = self::EXCEPTION;
         }
         return array($status, $message);

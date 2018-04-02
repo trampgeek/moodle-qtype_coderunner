@@ -479,10 +479,9 @@ class qtype_coderunner extends question_type {
 
         $validprotos = $DB->get_records_sql($sql, $params);
         if (count($validprotos) == 0) {
-            throw new qtype_coderunner_exception("Prototype $coderunnertype is unavailable ".
-                    "in this context, or does not exist.");
+            throw new qtype_coderunner_exception('missingprototype', array('crtype' => $coderunnertype));
         } else if (count($validprotos) != 1) {
-            throw new qtype_coderunner_exception("Multiple prototypes found for $coderunnertype");
+            throw new qtype_coderunner_exception('multipleprototypes', array('crtype' => $coderunnertype));
         }
         return reset($validprotos);
     }
