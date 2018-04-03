@@ -364,9 +364,9 @@ class qtype_coderunner_edit_form extends question_edit_form {
             $errors['sandboxcontrols'] = get_string('badsandboxparams', 'qtype_coderunner');
         }
 
-        if ($data['templateparams'] != '' &&
-                json_decode($data['templateparams']) === null) {
-            $errors['templateparams'] = get_string('badtemplateparams', 'qtype_coderunner');
+        $errormessage = $this->validate_template_params($data);
+        if ($errormessage) {
+            $errors['templateparams'] = $errormessage;
         }
 
         if ($data['prototypetype'] == 0 && ($data['grader'] !== 'TemplateGrader'
@@ -781,15 +781,36 @@ class qtype_coderunner_edit_form extends question_edit_form {
     }
 
 
+    // Check the templateparameters value, if given.
+    private function validate_template_params($data) {
+        $errormessage = '';
+        if ($data['templateparams'] != '') {
+            if (json_decode($data['templateparams']) === null)  {
+                $errormessage = get_string('badtemplateparams', 'qtype_coderunner');
+            } else {
+                // Try evaluating the template params to make sure they parse
+                try {
+                    $params = $data['templateparams'];
+                    $evaluator = new qtype_coderunner_json_evaluator($params);
+
+                } catch (qtype_coderunner_json_evaluate_error $ex) {
+                    $errormessage = $ex->getMessage();
+                }
+            }
+        }
+        return $errormessage;
+    }
+
+
     // Check the sample answer (if there is one)
     // Return an empty string if there is no sample answer or if the sample
     // answer passes all the tests.
     // Otherwise return a suitable error message for display in the form.
     private function validate_sample_answer($data) {
         global $DB, $USER;
-        $answer = trim($data['answer']);
-        if ($answer === '') {
-            return $answer;
+
+        if (trim($data['answer']) === '') {
+            return '';
         }
 
         // Check if it's a multilanguage question; if so need to determine
@@ -805,7 +826,12 @@ class qtype_coderunner_edit_form extends question_edit_form {
         // Construct a question object containing all the fields from $data.
         $question = new qtype_coderunner_question();
         foreach ($data as $key => $value) {
-            $question->$key = $value;
+            if ($key === 'questiontext') {
+                // For some reason, question text is an associative array.
+                $question->$key = $value['text'];
+            } else {
+                $question->$key = $value;
+            }
         }
         $question->isnew = true;
         $question->filemanagerdraftid = $this->get_file_manager();
@@ -820,10 +846,12 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $context = context::instance_by_id($contextid, IGNORE_MISSING);
         $prototype = $qtype->get_prototype($questiontype, $context);
         $qtype->set_inherited_fields($question, $prototype);
-        $response = array('answer' => $answer);
+        $question->start_attempt();
+        $response = array('answer' => $question->answer);
         if (!empty($defaultlang)) {
             $response['language'] = $defaultlang;
         }
+
         list($mark, $state, $cachedata) = $question->grade_response($response);
 
         // Return either an empty string if run was good or an error message.

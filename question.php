@@ -61,17 +61,22 @@ class qtype_coderunner_question extends question_graded_automatically {
      * the question_attempt_step.
      *
      * @param question_attempt_step The first step of the {@link question_attempt}
-     *      being started. Can be used to store state.
+     *      being started. Can be used to store state. Is set to null during
+     *      question validation, and must then be ignored.
      * @param int $varant which variant of this question to start. Will be between
      *      1 and {@link get_num_variants()} inclusive.
      */
-    public function start_attempt(question_attempt_step $step, $variant) {
-        parent::start_attempt($step, $variant);
+    public function start_attempt(question_attempt_step $step=null, $variant=null) {
+        if ($step !== null) {
+            parent::start_attempt($step, $variant);
+        }
         if ($this->templateparams) {
             $jsonevaluator = new qtype_coderunner_json_evaluator($this->templateparams);
             if ($jsonevaluator->has_randomisation()) {
                 $templateparams = $jsonevaluator->get_instance();
-                $step->set_qt_var('_templateparamsinstance', $templateparams);
+                if ($step !== null) {
+                    $step->set_qt_var('_templateparamsinstance', $templateparams);
+                }
                 $this->templateparams = $templateparams;
                 $this->twig_all();
             };
@@ -332,6 +337,12 @@ class qtype_coderunner_question extends question_graded_automatically {
         $twigcore->setEscaper('java', 'qtype_coderunner_escapers::java');
         $twigcore->setEscaper('ml', 'qtype_coderunner_escapers::matlab');
         $twigcore->setEscaper('matlab', 'qtype_coderunner_escapers::matlab');
+
+        if (isset($this->templateparams) && $this->templateparams != '') {
+            $this->parameters = json_decode($this->templateparams);
+        } else {
+            $this->parameters = array();
+        }
     }
 
 

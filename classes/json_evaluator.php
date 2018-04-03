@@ -34,7 +34,10 @@
 defined('MOODLE_INTERNAL') || die();
 
 // Exception to throw when JSON evaluation fails.
-class qtype_coderunner_json_evaluate_error extends Exception {
+class qtype_coderunner_json_evaluate_error extends moodle_exception {
+    public function __construct($message, $a=null) {
+        parent::__construct($message, 'qtype_coderunner', null, $a);
+    }
 
 }
 
@@ -54,7 +57,6 @@ class qtype_coderunner_json_evaluator {
         $newjsonobj = $this->evaluate_json($this->jsonobj);
         if ($this->has_randomisation()) {
             $this->newjson = json_encode($newjsonobj);
-            debugging("New json is" . print_r($this->newjson, true));
         }
     }
 
@@ -106,6 +108,9 @@ class qtype_coderunner_json_evaluator {
                 $this->randomised = true;
                 return $this->evaluate_json_value($options[$i]);
             }
+        } else if (array_keys($value)[0][0] === '@') {
+            $bad_func = array_keys($value)[0];
+            throw new qtype_coderunner_json_evaluate_error('badjsonfunc', array('func' => $bad_func));
         } else {
             return $this->evaluate_json($value);
         }
