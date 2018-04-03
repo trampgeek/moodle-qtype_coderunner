@@ -42,6 +42,54 @@ use qtype_coderunner\constants;
 class qtype_coderunner_question extends question_graded_automatically {
 
     public $testcases; // Array of testcases.
+    public $twig;
+
+    public function __construct() {
+        parent::__construct();
+        $this->testcases = null;
+        $this->twig = null;
+    }
+
+
+    /**
+     * Start a new attempt at this question, storing any information that will
+     * be needed later in the step. It is retrieved and applied by
+     * apply_attempt_state.
+     *
+     * For CodeRunner questions we pre-process the template parameters for any
+     * randomisation required, storing the processed template parameters in
+     * the question_attempt_step.
+     *
+     * @param question_attempt_step The first step of the {@link question_attempt}
+     *      being started. Can be used to store state.
+     * @param int $varant which variant of this question to start. Will be between
+     *      1 and {@link get_num_variants()} inclusive.
+     */
+    public function start_attempt(question_attempt_step $step, $variant) {
+        parent::start_attempt($step, $variant);
+        if ($this->templateparams) {
+            $jsonevaluator = new qtype_coderunner_json_evaluator($this->templateparams);
+            if ($jsonevaluator->has_randomisation()) {
+                $templateparams = $jsonevaluator->get_instance();
+                $step->set_qt_var('_templateparamsinstance', $templateparams);
+                $this->templateparams = $templateparams;
+                $this->twig_all();
+            };
+        }
+    }
+
+    // Check if randomisation was specified within the template params field.
+    // If so, retrieve the saved instance of the evaluate JSON template params,
+    // store it within the question, and Twig-expand all text fields of the
+    // question except the template itself.
+    public function apply_attempt_state(question_attempt_step $step) {
+        parent::apply_attempt_state($step);
+        $templateparams = $step->get_qt_var('_templateparamsinstance');
+        if ($templateparams) {
+            $this->templateparams = $templateparams;
+            $this->twig_all();
+        }
+    }
 
     /**
      * Override default behaviour so that we can use a specialised behaviour
@@ -226,6 +274,64 @@ class qtype_coderunner_question extends question_graded_automatically {
         return array_filter($this->testcases, function($tc) {
                     return $tc->useasexample;
         });
+    }
+
+
+    // Twig expand all text fields of the question except the template itself.
+    // Done only if randomisation is specified within the template params.
+    private function twig_all() {
+        $this->questiontext = $this->twig_expand($this->questiontext);
+        $this->answer = $this->twig_expand($this->answer);
+        $this->answerpreload = $this->twig_expand($this->answerpreload);
+        foreach ($this->testcases as $key => $test) {
+            foreach (['testcode', 'stdin', 'expected', 'extra'] as $field) {
+                $text = $this->testcases[$key]->$field;
+                $this->testcases[$key]->$field = $this->twig_expand($text);
+            }
+        }
+    }
+
+    /**
+     * Return Twig-expanded version of the given text. The
+     * Twig environment includes the question itself (this) and the template
+     * parameters. Additional twig environment parameters are passed in via
+     * $twigparams.
+     * @param string $text Text to be twig expanded.
+     * @param associative array $twigparams Extra twig environment parameters
+     */
+    public function twig_expand($text, $twigparams=null) {
+        global $USER;
+
+        if ($this->twig == null) {
+            $this->init_twig();
+        }
+        if ($twigparams === null) {
+            $twigparams = array();
+        }
+        $twigparams['QUESTION'] = $this;
+        $twigparams['STUDENT'] = new qtype_coderunner_student($USER); // FIXME
+        return $this->twig->render($text, $twigparams);
+    }
+
+
+    // Initialise the twig environment, for use when twig_expand is called.
+    public function init_twig() {
+        Twig_Autoloader::register();
+        $loader = new Twig_Loader_String();
+        $this->twig = new Twig_Environment($loader, array(
+            'debug' => true,
+            'autoescape' => false,
+            'optimizations' => 0
+        ));
+        $this->twig->addExtension(new Twig_Extension_Debug());
+
+        $twigcore = $this->twig->getExtension('core');
+        $twigcore->setEscaper('py', 'qtype_coderunner_escapers::python');
+        $twigcore->setEscaper('python', 'qtype_coderunner_escapers::python');
+        $twigcore->setEscaper('c',  'qtype_coderunner_escapers::java');
+        $twigcore->setEscaper('java', 'qtype_coderunner_escapers::java');
+        $twigcore->setEscaper('ml', 'qtype_coderunner_escapers::matlab');
+        $twigcore->setEscaper('matlab', 'qtype_coderunner_escapers::matlab');
     }
 
 
