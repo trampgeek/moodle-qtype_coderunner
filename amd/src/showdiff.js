@@ -36,11 +36,21 @@ define(['jquery'], function($) {
          */
         var n1 = items1.length,
             n2 = items2.length,
-            lengths, i, j;
+            lengths, i, j,
+            has_fill = typeof [1].fill === 'function';
 
         lengths = [];
+
         for (i = 0; i <= n1; i += 1) {
-            lengths[i] = new Array(n2 + 1).fill(0);
+            lengths[i] = new Array(n2 + 1);
+            if (has_fill) {
+                   lengths[i].fill(0);
+            } else {
+                // Bloody IE
+                for (j = 0; j < n2 + 1; j++) {
+                    lengths[i][j] = 0;
+                }
+            }
         }
         for (i = 0; i < n1; i += 1) {
             for (j = 0; j < n2; j += 1) {
