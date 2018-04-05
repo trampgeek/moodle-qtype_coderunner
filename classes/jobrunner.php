@@ -61,7 +61,7 @@ class qtype_coderunner_jobrunner {
             'ESCAPED_STUDENT_ANSWER' => qtype_coderunner_escapers::python(null, $code, null), // LEGACY SUPPORT.
             'MATLAB_ESCAPED_STUDENT_ANSWER' => qtype_coderunner_escapers::matlab(null, $code, null), // LEGACY SUPPORT.
             'IS_PRECHECK' => $isprecheck ? "1" : "0",
-            'ANSWER_LANGUAGE' => $answerlanguage,
+            'ANSWER_LANGUAGE' => $answerlanguage
          );
 
         if ($question->get_is_combinator() and

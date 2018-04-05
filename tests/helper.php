@@ -19,7 +19,7 @@
  *
  * @package    qtype
  * @subpackage coderunner
- * @copyright  2012 Richard Lobb, University of Canterbury
+ * @copyright  2012 .. 2018 Richard Lobb, University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -130,6 +130,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $form->allornothing = 0;
         $form->penaltyregime = "10, 20, ...";
         $form->templateparams = "";
+        $form->hoisttemplateparams = 1;
         $form->prototypetype = 0;
         $form->sandbox = 'DEFAULT';
         $form->language = 'python3';
@@ -1050,6 +1051,7 @@ EOPROG;
         $coderunner->qtype = question_bank::get_qtype('coderunner');
         $coderunner->coderunnertype = $type;
         $coderunner->templateparams = '';
+        $coderunner->hoisttemplateparams = 0;
         $coderunner->prototypetype = 0;
         $coderunner->name = $name;
         $coderunner->precheck = 0;

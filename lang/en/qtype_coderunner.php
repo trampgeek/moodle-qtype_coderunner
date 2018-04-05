@@ -233,6 +233,10 @@ $string['HIDE'] = 'Hide';
 $string['HIDE_IF_FAIL'] = 'Hide if fail';
 $string['HIDE_IF_SUCCEED'] = 'Hide if succeed';
 $string['hiderestiffail'] = 'Hide rest if fail';
+$string['hoisttemplateparams'] = 'Hoist template parameters';
+$string['hoisttemplateparamshelp'] = 'Template parameters are normally referred to during Twig expansion in the form {{QUESTION.parameter.someparam}}.'
+        . 'However, if the Hoist Template Parameters checkbox is checked, the parameters are hoisted into the Twig global name space and can '
+        . 'be referenced simply as {{someparam}}';
 $string['howtogetmore'] = 'For more detailed information, save the question with \'Validate on save\' unchecked and test manually';
 
 $string['iscombinatortemplate'] = 'Is combinator';
@@ -664,6 +668,8 @@ $string['testtype_normal'] = 'Check only';
 $string['testtype_precheck'] = 'Precheck only';
 $string['testtype_both'] = 'Both';
 $string['tooshort'] = 'Answer is too short to be meaningful and has been ignored without penalty';
+$string['twigerror'] = 'Twig error';
+$string['twigerrorintest'] = 'Twig error when processing this test';
 $string['type_header'] = 'CodeRunner question type';
 $string['typename'] = 'Question type';
 $string['typerequired'] = 'Please select the type of question (language, format, etc)';

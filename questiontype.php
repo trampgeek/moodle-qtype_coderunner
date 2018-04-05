@@ -107,6 +107,7 @@ class qtype_coderunner extends question_type {
             'memlimitmb',
             'sandboxparams',
             'templateparams',
+            'hoisttemplateparams',
             'uiplugin'
         );
     }
@@ -129,7 +130,8 @@ class qtype_coderunner extends question_type {
             'answerpreload',
             'answer',
             'validateonsave',
-            'templateparams'
+            'templateparams',
+            'hoisttemplateparams',
             );
     }
 

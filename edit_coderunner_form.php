@@ -364,9 +364,9 @@ class qtype_coderunner_edit_form extends question_edit_form {
             $errors['sandboxcontrols'] = get_string('badsandboxparams', 'qtype_coderunner');
         }
 
-        $errormessage = $this->validate_template_params($data);
-        if ($errormessage) {
-            $errors['templateparams'] = $errormessage;
+        $template_status = $this->validate_template_params($data);
+        if ($template_status['error']) {
+            $errors['templateparams'] = $template_status['error'];
         }
 
         if ($data['prototypetype'] == 0 && ($data['grader'] !== 'TemplateGrader'
@@ -428,6 +428,10 @@ class qtype_coderunner_edit_form extends question_edit_form {
                     }
                 }
             }
+        }
+
+        if (count($errors) == 0 && $template_status['istwigged']) {
+            $errors = $this->validate_twigables($data, $template_status['renderedparams']);
         }
 
         if (count($errors) == 0 && !empty($data['validateonsave'])) {
@@ -523,6 +527,9 @@ class qtype_coderunner_edit_form extends question_edit_form {
             array('rows' => self::TEMPLATE_PARAM_ROWS, 'cols' => self::TEMPLATE_PARAM_COLS));
         $mform->setType('templateparams', PARAM_RAW);
         $mform->addHelpButton('templateparams', 'templateparams', 'qtype_coderunner');
+        $mform->addElement('advcheckbox', 'hoisttemplateparams', null,
+                get_string('hoisttemplateparams', 'qtype_coderunner'));
+        $mform->setDefault('hoisttemplateparams', false);
     }
 
 
@@ -781,24 +788,84 @@ class qtype_coderunner_edit_form extends question_edit_form {
     }
 
 
-    // Check the templateparameters value, if given.
+    // Check the templateparameters value, if given. Return value is
+    // an associative array with an error message 'error', a boolean
+    // 'istwigged' and a string 'renderedparams'.
+    // Error is the empty string if the template parameters are
+    // OK. istwigged is true if twigging the template parameters changed them.
+    // 'renderedparams' is the result of twig expanding the params.
     private function validate_template_params($data) {
         $errormessage = '';
+        $istwiggedparams = false;
+        $renderedparams = '';
         if ($data['templateparams'] != '') {
-            if (json_decode($data['templateparams']) === null)  {
-                $errormessage = get_string('badtemplateparams', 'qtype_coderunner');
-            } else {
-                // Try evaluating the template params to make sure they parse
-                try {
-                    $params = $data['templateparams'];
-                    $evaluator = new qtype_coderunner_json_evaluator($params);
+            // Try Twigging the template params to make sure they parse
+            $ok = true;
+            try {
+                $twig = qtype_coderunner_twig::get_twig_environment(array('strict_variables' => true));
+                $twigparams = array('STUDENT' => 'Question author');
+                $renderedparams = $twig->render($data['templateparams'], $twigparams);
+                if ($renderedparams !== $data['templateparams']) {
+                    $istwiggedparams = true;
+                }
+            } catch (Exception $ex) {
+                $errormessage = $ex->getMessage();
+                $ok = false;
+            }
+            if ($ok) {
+                $decoded = json_decode($renderedparams);
+                if ($decoded === null) {
+                    $errormessage = get_string('badtemplateparams', 'qtype_coderunner');
+                }
+            }
 
-                } catch (qtype_coderunner_json_evaluate_error $ex) {
-                    $errormessage = $ex->getMessage();
+        }
+        return array('error' => $errormessage,
+                    'istwigged' => $istwiggedparams,
+                    'renderedparams' => $renderedparams);
+    }
+
+    // If the template parameters contain twig code, in which case the
+    // other question fields will need twig expansion, check for twig errors
+    // in all other fields. Return value is an associative array mapping from
+    // form fields to error messages.
+    private function validate_twigables($data, $renderedparams) {
+        $errors = array();
+        if (!empty($this->templateparams)) {
+            $parameters = json_decode($renderedparams);
+        } else {
+            $parameters = array();
+        }
+        $twig = qtype_coderunner_twig::get_twig_environment();
+
+        // Try twig expanding everything (see question::twig_all).
+        foreach (['questiontext', 'answer', 'answerpreload'] as $field) {
+            $text = $data[$field];
+            if (is_array($text)) {
+                $text = $text['text'];
+            }
+            try {
+                $twig->render($text, $parameters);
+            } catch (Exception $ex) {
+                $errors[$field] = get_string('twigerror', 'qtype_coderunner');
+            }
+        }
+
+        // Now all test cases
+        $num = max(count($data['testcode']), count($data['stdin']),
+                count($data['expected']), count($data['extra']));
+
+        for ($i = 0; $i < $num; $i++) {
+            foreach (['testcode', 'stdin', 'expected', 'extra'] as $fieldname) {
+                $text = $data[$fieldname][$i];
+                try {
+                    $twig->render($text, $parameters);
+                } catch (Exception $ex) {
+                    $errors["testcode[$i]"] = get_string('twigerrorintest', 'qtype_coderunner');
                 }
             }
         }
-        return $errormessage;
+        return $errors;
     }
 
 
