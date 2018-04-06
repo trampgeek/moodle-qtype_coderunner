@@ -1056,7 +1056,10 @@ EOPROG;
         $coderunner->name = $name;
         $coderunner->precheck = 0;
         $coderunner->questiontext = $questiontext;
+        $coderunner->answer = '';
+        $coderunner->answerpreload = '';
         $coderunner->allornothing = true;
+        $coderunner->student = '';  // Would normally be filled in by question->start_attempt
         $coderunner->showsource = false;
         $coderunner->generalfeedback = 'No feedback available for coderunner questions.';
         $coderunner->penaltyregime = '10, 20, ...';

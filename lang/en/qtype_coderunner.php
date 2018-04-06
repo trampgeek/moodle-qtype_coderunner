@@ -65,7 +65,7 @@ $string['badquestion'] = 'Error in question';
 $string['badrandomintarg'] = 'Bad argument to JSON @randomint function';
 $string['badrandompickarg'] = 'Bad argument to JSON @randompic function';
 $string['badsandboxparams'] = '\'Other\' field (sandbox params) must be either blank or a valid JSON record';
-$string['badtemplateparams'] = 'Template parameters must be either blank or a valid JSON record';
+$string['badtemplateparams'] = 'Template parameters (after possible Twig processing) must be either blank or a valid JSON record';
 $string['brokencombinator'] = 'Expected {$a->numtests} test results, got {$a->numresults}. Perhaps excessive output or error in question?';
 $string['brokentemplategrader'] = 'Bad output from grader: {$a->output}. Your program execution may have aborted (e.g. a timeout or memory limit exceeded).';
 $string['bulkquestiontester'] = 'The <a href="{$a->link}">bulk tester script</a> tests that the sample answers for all questions in the current context are marked right';
@@ -337,8 +337,6 @@ $string['passes'] = 'passes';
 $string['penaltyregime'] = '(penalty regime: {$a} %)';
 $string['penaltyregimelabel'] = 'Penalty regime:';
 
-
-$string['parameterise_template'] = 'Set template params';
 $string['pass'] = 'Pass';
 $string['pluginname'] = 'CodeRunner';
 $string['pluginnameadding'] = 'Adding a CodeRunner question';
@@ -636,7 +634,17 @@ template variable `{{ QUESTION.parameters.age }}`.
 The set of template parameters passed to the template consists of any template
 parameters defined in the prototype with the question template parameters
 merged in. Question parameters can thus override prototype parameters, but not
-delete them.';
+delete them.
+
+Template parameters can also be used to provide randomisation within a question.
+When the question is first instantiated the template parameters are passed
+through the Twig template engine to yield the final JSON version. If this differs
+from the original, all other fields of the question (question text, test cases,
+sample answer, etc) are also processed by Twig with the template parameter
+values being passed in as variables. Twig\'s "random" function can
+be used to assign random values to template parameters, resulting in different
+students seeing different random variants of the question. See the documentation
+for details.';
 $string['testcase'] = 'Test case {$a}';
 $string['testcasecontrols'] = 'Test properties:';
 $string['testcasecontrols_help'] = 'If \'Use as example\' is checked, this test will be automatically included in the
@@ -668,8 +676,8 @@ $string['testtype_normal'] = 'Check only';
 $string['testtype_precheck'] = 'Precheck only';
 $string['testtype_both'] = 'Both';
 $string['tooshort'] = 'Answer is too short to be meaningful and has been ignored without penalty';
-$string['twigerror'] = 'Twig error';
-$string['twigerrorintest'] = 'Twig error when processing this test';
+$string['twigerror'] = 'Twig error {$a}';
+$string['twigerrorintest'] = 'Twig error when processing this test {$a}';
 $string['type_header'] = 'CodeRunner question type';
 $string['typename'] = 'Question type';
 $string['typerequired'] = 'Please select the type of question (language, format, etc)';

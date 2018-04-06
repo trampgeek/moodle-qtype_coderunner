@@ -34,10 +34,12 @@ class qtype_coderunner_student {
     public $lastname;
 
     public function __construct($user) {
-        $this->username  = $user->username;
-        $this->email     = $user->email;
-        $this->firstname = $user->firstname;
-        $this->lastname  = $user->lastname;
+        if ($user) {
+            $this->username  = $user->username;
+            $this->email     = $user->email;
+            $this->firstname = $user->firstname;
+            $this->lastname  = $user->lastname;
+        }
     }
 
 }

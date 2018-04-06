@@ -1,6 +1,6 @@
 # CODE RUNNER
 
-Version: 3.3.0 February 2018
+Version: 3.4.0 April 2018
 
 Authors: Richard Lobb, University of Canterbury, New Zealand.
          Tim Hunt, The Open University, UK
@@ -652,12 +652,14 @@ that the question author has specified
 for the particular test. The TEST attributes most likely to be used within
 the template are TEST.testcode (the code to execute for the test), TEST.stdin
 (the standard input for the test -- not normally used within a template, but
-occasionally useful) and TEST.extra (the extra template data provided in the
+occasionally useful) and TEST.extra (the extra test data provided in the
 question authoring form). The template will typically use just the TEST.testcode
 field, which is the "test" field of the testcase. It is usually
 a bit of code to be run to test the student's answer.
 
-As an example,
+When Twig processes the template, it replaces any occurrences of
+strings of the form `{{ TWIG\_VARIABLE }}` with the value of the given 
+TWIG_VARIABLE (e.g. STUDENT\_ANSWER). As an example,
 the question type *c\_function*, which asks students to write a C function,
 might have the following template (if it used a per-test template):
 
@@ -1060,10 +1062,119 @@ The template variable `STUDENT` is an object containing a subset of the fields o
 PHP user object. The fields/attributes of STUDENT are:
 
  * `STUDENT.username` The unique internal username of the current user.
- * `STUDENT.firstname` The first name of the current user.
+ * `STUDENT.firstname` The first name of the cuRandomisrrent user.
  * `STUDENT.lastname` The last name of the current user.
  * `STUDENT.email` The email address of the current user.
 
+
+## Randomising questions
+
+Sometimes one wants a question that presents different variations of itself
+to each student. As a trivial example, a generalisation of a `Hello world`
+program might ask students to write a program that prints `Hello <name>`,
+where there are many different values for `name`.
+
+By way of introduction, a Python version of the above example above is easily achieved,
+albeit with only four different names, as follows:
+
+ 1. Set the `template parameters` field of the question authoring form to
+```
+    { "name": "{{ random(["Bob", "Carol", "Ted", "Alice" }}" }
+```
+ 1. Set the question text to *Write a program that prints `Hello {{ name }}`*
+ 1. Set the expected output of the first test case to `Hello {{ name }}`
+ 1. Set the sample answer to `print("Hello {{name}}")`
+
+The underlying mechanism will now be explained in more detail. It assumes
+the reader already understands the basic workings of CodeRunner, in particular
+how the [Twig template engine](http://twig.sensiolabs.org/) is used to
+convert the question's template into an executable program and how that
+process can be parameterised by use of CodeRunners *template parameters*
+
+### How it works
+
+When a student starts a quiz, an instance of each quiz question is generated.
+As each quiz question is instantiated, certain variables need to be defined,
+such as the order in which shuffled options will be presented in a multichoice
+question. These variables are "frozen" throughout the lifetime of that particular
+question instance, including when it is subsequently reviewed or regraded.
+
+When a CodeRunner question is instantiated, the template parameters field is
+processed by the Twig template engine. Usually this will have no effect, but
+if the template does actually include embedded Twig code, the output from
+Twig will be different from the input. Usually any embedded Twig code will make
+at least one call to the Twig *random* function, resulting in one or more
+template parameters having randomised values. The above example shows a case
+in which the template parameter "name" is assigned a randomly-chosen value
+from a list of options. Another common variant is
+
+    { "number": {{ 5 + random(7) }} }
+
+which will result in the template parameter *number* having a uniformly 
+distributed integer value in the
+range 5 to 12 inclusive.
+
+If the Twigging of the template parameter field results in any changes to it,
+the changed version is used throughout the lifetime of the question instance.
+Furthermore, all other text fields of the question, except for the template
+itself, are processed by Twig at this time, to yield new values that are used
+throughout the question's lifetime.
+
+### Hoisting the template parameters
+
+Prior to the implementation of randomisation, template parameters were used
+only within the template, where it was standard practice to
+refer to template parameters with the syntax {{QUESTION.parameters.x}} where
+*x* is a parameter. However, that syntax becomes very clumsy when the same
+parameters is being used in lots of different places within the question.
+There is now a checkbox *Hoist template parameters*, which copies the
+template parameters into the Twig global name space, where STUDENT_ANSWER,
+TEST etc reside. The variable *x* can then be inserted into the text simply
+by writing `{{ x }}`.
+
+C++ programmers might wish to think of this as similar to
+the line
+
+    using namespace std;
+
+Hoisting was not done automatically because it might have broken existing
+questions if the Twig code were using similar variables globally. Hence, when
+upgrading an older version of CodeRunner to one that has randomisation, the
+*Hoist template parameters* checkbox is set to false. However, it is set
+to true on newly created questions.
+
+### Miscellaneous tips
+
+1. Read the Twig documentation!
+
+1. Sometimes you need a set of random variables to be "coupled". For example
+    you might want an `animal` to be one of `dog`, `cat`, `cow` and an associated
+    variable `sound` to be respectively `woof`, `miaow`, `moo`. Two ways of achieving
+    this are:
+    1. Create a single random `index` variable and use that to index into
+       separate animal and sound lists. For example:
+
+            { 
+                {% set index = random(3) %}
+                "animal": "{{ ["Dog", "Cat", "Cow"][index] }}",
+                "sound":  "{{ ["Woof", "Miaow", "Moo"][index] }}"
+
+    1. Select an animal at random from a list of Twig 'hash' objects, then plug
+       the animal attributes into the JSON record. For example:
+
+            { 
+                {% set obj = random([
+                    {'name': 'Dog', 'sound': 'Woof'},
+                    {'name': 'Cat', 'sound': 'Miaow'},
+                    {'name': 'Cow', 'sound': 'Moo'}
+                ]) %}
+                "animal": "{{ obj.name }}",
+                "sound":  "{{ obj.sound }}"
+             }
+
+    The former is easier for short lists but the latter scales better.
+
+1. Further tips may appear as discovered.
 
 ## Grading with templates
 Using just the template mechanism described above it is possible to write

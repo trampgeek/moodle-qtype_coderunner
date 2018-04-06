@@ -529,7 +529,11 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->addHelpButton('templateparams', 'templateparams', 'qtype_coderunner');
         $mform->addElement('advcheckbox', 'hoisttemplateparams', null,
                 get_string('hoisttemplateparams', 'qtype_coderunner'));
-        $mform->setDefault('hoisttemplateparams', false);
+        // Although hoisttemplateparams defaults to false in the database, it
+        // defaults to true in this form. This ensures that legacy questions are
+        // not affected by the hoist, while new questions default to true.
+        // The checkbox will likely be removed altogether in the future.
+        $mform->setDefault('hoisttemplateparams', true);
     }
 
 
@@ -831,12 +835,12 @@ class qtype_coderunner_edit_form extends question_edit_form {
     // form fields to error messages.
     private function validate_twigables($data, $renderedparams) {
         $errors = array();
-        if (!empty($this->templateparams)) {
-            $parameters = json_decode($renderedparams);
+        if (!empty($renderedparams)) {
+            $parameters = json_decode($renderedparams, true);
         } else {
             $parameters = array();
         }
-        $twig = qtype_coderunner_twig::get_twig_environment();
+        $twig = qtype_coderunner_twig::get_twig_environment(array('strict_variables' => true));
 
         // Try twig expanding everything (see question::twig_all).
         foreach (['questiontext', 'answer', 'answerpreload'] as $field) {
@@ -846,8 +850,9 @@ class qtype_coderunner_edit_form extends question_edit_form {
             }
             try {
                 $twig->render($text, $parameters);
-            } catch (Exception $ex) {
-                $errors[$field] = get_string('twigerror', 'qtype_coderunner');
+            } catch (Twig_Error $ex) {
+                $errors[$field] = get_string('twigerror', 'qtype_coderunner',
+                        $ex->getMessage());
             }
         }
 
@@ -860,8 +865,9 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 $text = $data[$fieldname][$i];
                 try {
                     $twig->render($text, $parameters);
-                } catch (Exception $ex) {
-                    $errors["testcode[$i]"] = get_string('twigerrorintest', 'qtype_coderunner');
+                } catch (Twig_Error $ex) {
+                    $errors["testcode[$i]"] = get_string('twigerrorintest',
+                            'qtype_coderunner', $ex->getMessage());
                 }
             }
         }
