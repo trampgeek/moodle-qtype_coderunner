@@ -1077,11 +1077,11 @@ where there are many different values for `name`.
 By way of introduction, a Python version of the above example above is easily achieved,
 albeit with only four different names, as follows:
 
- 1. Set the `template parameters` field of the question authoring form to
+1. Set the `template parameters` field of the question authoring form to
         { "name": "{{ random(["Bob", "Carol", "Ted", "Alice" }}" }
- 1. Set the question text to *Write a program that prints `Hello {{ name }}`*
- 1. Set the expected output of the first test case to `Hello {{ name }}`
- 1. Set the sample answer to `print("Hello {{name}}")`
+1. Set the question text to *Write a program that prints `Hello {{ name }}`*
+1. Set the expected output of the first test case to `Hello {{ name }}`
+1. Set the sample answer to `print("Hello {{name}}")`
 
 The underlying mechanism will now be explained in more detail. It assumes
 the reader already understands the basic workings of CodeRunner, in particular
