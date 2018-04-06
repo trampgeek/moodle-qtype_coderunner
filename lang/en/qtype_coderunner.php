@@ -234,9 +234,7 @@ $string['HIDE_IF_FAIL'] = 'Hide if fail';
 $string['HIDE_IF_SUCCEED'] = 'Hide if succeed';
 $string['hiderestiffail'] = 'Hide rest if fail';
 $string['hoisttemplateparams'] = 'Hoist template parameters';
-$string['hoisttemplateparamshelp'] = 'Template parameters are normally referred to during Twig expansion in the form {{QUESTION.parameter.someparam}}.'
-        . 'However, if the Hoist Template Parameters checkbox is checked, the parameters are hoisted into the Twig global name space and can '
-        . 'be referenced simply as {{someparam}}';
+
 $string['howtogetmore'] = 'For more detailed information, save the question with \'Validate on save\' unchecked and test manually';
 
 $string['iscombinatortemplate'] = 'Is combinator';
@@ -635,6 +633,11 @@ The set of template parameters passed to the template consists of any template
 parameters defined in the prototype with the question template parameters
 merged in. Question parameters can thus override prototype parameters, but not
 delete them.
+
+Template parameters are normally referred to during Twig expansion in the form
+{{QUESTION.parameters.someparam}} However, if the Hoist Template Parameters
+checkbox is checked, the parameters are hoisted into the Twig global name space
+and can be referenced simply as {{someparam}}
 
 Template parameters can also be used to provide randomisation within a question.
 When the question is first instantiated the template parameters are passed

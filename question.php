@@ -287,7 +287,6 @@ class qtype_coderunner_question extends question_graded_automatically {
     private function twig_all() {
         // Before twig expanding all fields, copy the template parameters
         // into $this->parameters.
-        debugging("Twigging all");
         if (!empty($this->templateparams)) {
             $this->parameters = json_decode($this->templateparams);
         } else {
