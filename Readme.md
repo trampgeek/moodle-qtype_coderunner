@@ -1078,9 +1078,7 @@ By way of introduction, a Python version of the above example above is easily ac
 albeit with only four different names, as follows:
 
  1. Set the `template parameters` field of the question authoring form to
-```
-    { "name": "{{ random(["Bob", "Carol", "Ted", "Alice" }}" }
-```
+        { "name": "{{ random(["Bob", "Carol", "Ted", "Alice" }}" }
  1. Set the question text to *Write a program that prints `Hello {{ name }}`*
  1. Set the expected output of the first test case to `Hello {{ name }}`
  1. Set the sample answer to `print("Hello {{name}}")`
