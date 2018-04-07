@@ -243,6 +243,10 @@ body#page-question-type-coderunner div.edit_code textarea {
     font-family: courier, monospace;
 }
 
+body#page-question-type-coderunner textarea#id_templateparams {
+    resize: both;
+}
+
 body#page-question-type-coderunner .ace_wrapper {
     border: 1px solid #bbb;
 }
