@@ -63,6 +63,10 @@ body#page-question-type-coderunner .ace_editor {
     padding: 1px 5px 1px 5px;
 }
 
+.que.coderunner input.answer_reset_btn {
+    margin-bottom: 5px;
+}
+
 #page-question-type-coderunner table.coderunner-test-results td,
 #page-question-type-coderunner table.coderunner-test-results th,
 .que.coderunner table.coderunner-test-results td,

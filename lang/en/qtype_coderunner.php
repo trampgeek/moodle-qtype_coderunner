@@ -95,6 +95,7 @@ $string['columncontrols'] = 'Result table';
 $string['columncontrols_help'] = 'The checkboxes select which columns of the results table should be displayed to the student after submission';
 
 $string['confirm_proceed'] = 'If you save this question with \'Customise\' unchecked, any customisations made will be lost. Proceed?';
+$string['confirmreset'] = 'Discard all your work on this question and reset answer box to original preloaded value?';
 $string['cputime'] = 'TimeLimit (secs)';
 $string['customisationcontrols'] = 'Customisation';
 $string['customise'] = 'Customise';
@@ -433,7 +434,10 @@ $string['qWrongBehaviour'] = 'Please use Adaptive Behaviour for all CodeRunner q
 
 $string['regexgrader'] = 'Regular expression';
 $string['replacedollarscount'] = 'This category contains {$a} CodeRunner questions.';
-$string['replaceexpectedwithgot'] = 'Click on the &lt;&lt; button to replace the expected output of this testcase with actual output.';$string['resultcolumns'] = 'Result columns';
+$string['replaceexpectedwithgot'] = 'Click on the &lt;&lt; button to replace the expected output of this testcase with actual output.';
+$string['resultcolumns'] = 'Result columns';
+$string['reset'] = 'Reset answer';
+$string['resethover'] = 'Discard changes and reset answer to original preloaded value';
 $string['resultcolumns_help'] = 'By default the result table displays the testcode, stdin, expected and got
 columns, provided the columns are not empty. You can change the default, and/or
 the column headers by entering a value for the resultcolumns (leave blank for

@@ -1174,12 +1174,41 @@ to true on newly created questions.
 
     The former is easier for short lists but the latter scales better.
 
-1. Further tips may appear as discovered.
+1. Since the Twig output must be JSON, and newlines aren't allowed in JSON
+   strings, you may find the Twig whitespace control modifiers (`{{-` and `-}}`)
+   useful in more complex Twig programs. As an example, the following Twig
+   code uses a recursive macro plus whitespace control modifiers to
+   generate a JSON structure that defines a value `expression`, which
+   is a random fully-parenthesised infix expression.
+
+        {% macro randomexpr(depth) %}
+        {% from _self import randomexpr as expr %}
+        {% if depth >= 5 %}
+            {{- random(["a", "b", "c", "d"]) -}}
+        {% else %}{# Output ( expr op expr ) #}
+            {{- '(' -}}
+            {{- expr(depth + 1 + random(3)) -}}
+            {{- random(['*', '/', '+', '-']) -}}
+            {{- expr(depth + 1 + random(3)) -}}
+            {{- ')' -}}
+        {% endif %}
+        {% endmacro %}
+
+        {% import _self as exp %}
+        { "expression": "{{ exp.randomexpr(0) }}"}
+
+
+ This generates expressions like
+
+        (((c+b)+d)-(a*((c-a)-d)))
+
+ and 
+
+        (((a/(a-d))-(c/b))+(d+(((d/c)/d)*(c+a))))
 
 ## Grading with templates
-Using just the template mechanism described above it is possible to write
-almost arbitrarily complex questions. Grading of student submissions can,
-however, be problematic in some situations. For example, you may need to
+Grading of student submissions can be problematic in some situations.
+For example, you may need to
 ask a question where many different valid program outputs are possible, and the
 correctness can only be assessed by a special testing program. Or
 you may wish to subject
