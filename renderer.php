@@ -587,9 +587,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
             'id' => $buttonid,
             'name' => $buttonid,
             'value' => get_string('reset', 'qtype_coderunner'),
-            'class' => 'answer_reset_btn',
-            //'title' => get_string('resethover', 'qtype_coderunner')
-        );
+            'class' => 'answer_reset_btn');
         $html = html_writer::empty_tag('input', $attributes);
 
         $PAGE->requires->js_call_amd('qtype_coderunner/resetbutton',
@@ -597,8 +595,8 @@ class qtype_coderunner_renderer extends qtype_renderer {
             array($buttonid,
                   $responsefieldid,
                   $preload,
-                  get_string('confirmreset', 'qtype_coderunner'),
-                )
+                  get_string('confirmreset', 'qtype_coderunner')
+            )
         );
 
         return $html;
