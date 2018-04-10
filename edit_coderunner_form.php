@@ -819,7 +819,13 @@ class qtype_coderunner_edit_form extends question_edit_form {
             if ($ok) {
                 $decoded = json_decode($renderedparams);
                 if ($decoded === null) {
-                    $errormessage = get_string('badtemplateparams', 'qtype_coderunner');
+                    if ($istwiggedparams) {
+                        $badjsonhtml = str_replace("\n", '<br>', $renderedparams);
+                        $errormessage = get_string('badtemplateparamsaftertwig',
+                                'qtype_coderunner', $badjsonhtml);
+                    } else {
+                        $errormessage = get_string('badtemplateparams', 'qtype_coderunner');
+                    }
                 }
             }
 
