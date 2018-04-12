@@ -315,6 +315,17 @@ body#page-question-type-coderunner textarea.edit_code {
     font-family: courier, monospace;
 }
 
+@keyframes question-type-coderunner_animateBorder {
+  0% { border-color: orange;}
+  50% { border-color: red;}
+  100% { border-color: orange;}
+}
+
+body#page-question-type-coderunner textarea.uiloadfailed {
+    border: 6px solid orange;
+    animation: 1s question-type-coderunner_animateBorder infinite;
+}
+
 body#page-question-type-coderunner input.testcasemark,
 body#page-question-type-coderunner input.coderunner_answerbox_size,
 body#page-question-type-coderunner input#id_cputimelimitsecs,

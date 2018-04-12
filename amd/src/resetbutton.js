@@ -40,7 +40,8 @@ define(['jquery'], function($) {
         resetButton.on("click", function() {
             if (window.confirm(confirmText)) {
                 uiWrapper = studentAnswer.data('current-ui-wrapper');
-                if (uiWrapper) {
+                if (uiWrapper && uiWrapper.uiInstance) {
+                    // If the textarea has a UI wrapper, and it's active
                     uiWrapper.stop();
                     studentAnswer.val(reloadText);
                     uiWrapper.restart();

@@ -66,30 +66,33 @@ class qtype_coderunner_question extends question_graded_automatically {
             $step->set_qt_var('_STUDENT', serialize($user));
         }
 
-        if ($this->templateparams) {
-            $twig = qtype_coderunner_twig::get_twig_environment();
-            $twigparams = array('STUDENT' => new qtype_coderunner_student($user));
-            $newtemplateparams = $twig->render($this->templateparams, $twigparams);
-            if ($newtemplateparams != $this->templateparams) {
-                if ($step !== null) {
-                    $step->set_qt_var('_templateparamsinstance', $newtemplateparams);
-                }
-                $this->templateparams = $newtemplateparams;
-                $this->twig_all();
-            };
+        $twig = qtype_coderunner_twig::get_twig_environment();
+        $twigparams = array('STUDENT' => new qtype_coderunner_student($user));
+        $ournewtemplateparams = $twig->render($this->templateparams, $twigparams);
+        $prototypenewtemplateparams = $twig->render($this->prototypetemplateparams, $twigparams);
+        $newtemplateparams = qtype_coderunner_util::merge_json($prototypenewtemplateparams, $ournewtemplateparams);
+        $oldtemplateparams = qtype_coderunner_util::merge_json($this->prototypetemplateparams, $this->templateparams);
+        $twigall = $newtemplateparams != $oldtemplateparams;
+        $this->templateparams =  $newtemplateparams;
+        if ($twigall) {
+            $this->twig_all();
+        }
+        if ($step !== null) {
+            $step->set_qt_var('_templateparamsinstance', $newtemplateparams);
+            $step->set_qt_var('_twigall', $twigall);
         }
     }
 
-    // Check if twig was used within the template params field.
-    // If so, retrieve the saved instance of the evaluate JSON template params,
-    // store it within the question, and Twig-expand all text fields of the
+    // Retrieve the saved instance of the evaluate JSON template params and
+    // store it within the question.
+    // Also, if Twig-expansion changed the template parameters when the question
+    // was initialised, Twig-expand all text fields of the
     // question except the template itself.
     public function apply_attempt_state(question_attempt_step $step) {
         parent::apply_attempt_state($step);
         $this->student = unserialize($step->get_qt_var('_STUDENT'));
-        $templateparams = $step->get_qt_var('_templateparamsinstance');
-        if ($templateparams) {
-            $this->templateparams = $templateparams;
+        $this->templateparams = $step->get_qt_var('_templateparamsinstance');
+        if ($step->get_qt_var('_twigall')) {
             $this->twig_all();
         }
     }
@@ -229,8 +232,6 @@ class qtype_coderunner_question extends question_graded_automatically {
             $code = $response['answer'];
             $testcases = $this->filter_testcases($isprecheck, $this->precheck);
             $runner = new qtype_coderunner_jobrunner();
-            $this->templateparams = qtype_coderunner_util::merge_json(
-                    $this->prototypetemplateparams, $this->templateparams);
             $testoutcome = $runner->run_tests($this, $code, $testcases, $isprecheck, $language);
             $testoutcomeserial = serialize($testoutcome);
         }
@@ -472,9 +473,8 @@ class qtype_coderunner_question extends question_graded_automatically {
             $files = array(); // Don't load the files twice.
         } else {
             // Load any files from the prototype.
-            $context = qtype_coderunner::question_context($this);
-            $prototype = qtype_coderunner::get_prototype($this->coderunnertype, $context);
-            $files = $this->get_data_files($prototype, $prototype->questionid);
+            $this->get_prototype();
+            $files = $this->get_data_files($this->prototype, $this->prototype->questionid);
         }
         $files += $this->get_data_files($this, $this->id);  // Add in files for this question.
         return $files;
@@ -499,6 +499,17 @@ class qtype_coderunner_question extends question_graded_automatically {
             $this->parameters = json_decode($this->templateparams);
         }
         return $sandboxparams;
+    }
+
+
+    /**
+     * Load the prototype for this question and store in $this->prototype
+     */
+    public function get_prototype() {
+        if (!isset($this->prototype)) {
+            $context = qtype_coderunner::question_context($this);
+            $this->prototype = qtype_coderunner::get_prototype($this->coderunnertype, $context);
+        }
     }
 
 

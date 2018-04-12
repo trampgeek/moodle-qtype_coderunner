@@ -980,7 +980,7 @@ EOPROG;
      * flattens the options into the question itself. This implementation does
      * both - defining the options object and the flattened version - so the
      * resulting question can be used in the usual CodeRunner context but
-     * also in contexts like the question-export tes (which expects the options
+     * also in contexts like the question-export test (which expects the options
      * field).
      */
     private function get_options(&$question) {
@@ -1013,6 +1013,12 @@ EOPROG;
 
         $question->options->answers = array();  // For compatability with questiontype base.
         $question->options->testcases = $question->testcases;
+
+        // Lastly, add in the merged template params (wouldn't it be nice if
+        // I could figure out how to use the actual get_options function :-/).
+        $question->get_prototype();
+        $question->options->mergedtemplateparams = qtype_coderunner_util::merge_json(
+                $question->prototype->templateparams, $question->options->templateparams);
 
     }
 

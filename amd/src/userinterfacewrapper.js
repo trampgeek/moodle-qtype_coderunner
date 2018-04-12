@@ -67,8 +67,9 @@
  * 3. A method failed() that should return true unless the constructor
  *    failed (e.g. because it was not able to de-serialise the text area's
  *    contents). The wrapper will call destroy() on the object if failed()
- *    returns true and abort the use of the UI element. THe element should
- *    issue its own alert if it fails.
+ *    returns true and abort the use of the UI element. The text area will
+ *    have the uiloadfailed class added, which CSS will display in some
+ *    error mode (e.g. a red border).
  *
  * 4. A getMinSize() method that should return a record with minWidth and
  *    minHeight values. These will be used to control the minimum size of the
@@ -136,6 +137,7 @@ define(['jquery'], function($) {
         this.textArea = $(document.getElementById(textareaId));
         this.readOnly = this.textArea.prop('readonly');
         this.isLoading = false;  // True if we're busy loading a UI element
+        this.loadFailed = false;  // True if UI couldn't deserialise TA contents
         this.retries = 0;        // Number of failed attempts to load a UI component
 
         h = parseInt(this.textArea.css("height"));
@@ -172,7 +174,7 @@ define(['jquery'], function($) {
         $(document.body).on('keydown', function(e) {
             var KEY_M = 77;
             if (e.keyCode === KEY_M && e.ctrlKey && e.altKey) {
-                if (t.uiInstance !== null) {
+                if (t.uiInstance !== null || t.loadFailed) {
                     t.stop();
                 } else {
                     t.restart();        // Reactivate
@@ -223,11 +225,13 @@ define(['jquery'], function($) {
                     w = t.wrapperNode.innerWidth();
                     uiInstance = new ui.Constructor(t.taId, w, h, params);
                     if (uiInstance.failed()) {
-                        // Constructor failed. Abort.
-                        uiInstance.destroy();
+                        // Constructor failed to load serialisation.
+                        // Set uiloadfailed class on text area.
                         t.wrapperNode.hide();
+                        uiInstance.destroy();
                         t.uiInstance = null;
-                        // TODO: should set UI dropdown selector to None here, but tricky as it's async
+                        t.loadFailed = true;
+                        t.textArea.addClass('uiloadfailed');
                     } else {
                         minSize = uiInstance.getMinSize();
                         t.wrapperNode.css({
@@ -237,9 +241,11 @@ define(['jquery'], function($) {
                         t.hLast = 0;  // Force resize (and hence redraw)
                         t.wLast = 0;  // ... on first call to checkForResize
                         t.wrapperNode.append(uiInstance.getElement());
+                        t.textArea.removeClass('uiloadfailed'); // Just in case it failed before
                         t.textArea.hide();
                         t.wrapperNode.show();
                         t.uiInstance = uiInstance;
+                        t.loadFailed = false;
                         t.checkForResize();
                     }
                     t.isLoading = false;
@@ -261,6 +267,8 @@ define(['jquery'], function($) {
             this.uiInstance = null;
             this.wrapperNode.hide();
         }
+        this.loadFailed = false;
+        this.textArea.removeClass('uiloadfailed'); // Just in case it failed before
     };
 
 

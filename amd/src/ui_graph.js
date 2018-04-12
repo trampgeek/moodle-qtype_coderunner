@@ -421,8 +421,8 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
     };
 
     Graph.prototype.reload = function() {
-        var content = $(this.textArea).val(),
-            failMessage = M.util.get_string('graphfail', 'qtype_coderunner');
+        var content = $(this.textArea).val();
+            // failMessage = M.util.get_string('graphfail', 'qtype_coderunner');
         if (content) {
             try {
                 // Load up the student's previous answer if non-empty.
@@ -462,7 +462,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
                     }
                 }
             } catch(e) {
-                alert(failMessage); // Error loading previous answer.
+                //alert(failMessage); // Error loading previous answer.
                 this.fail = true;
             }
         }

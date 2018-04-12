@@ -57,11 +57,16 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
 
     // Postpone initialisation until document ready, because strings_for_js
     // strings aren't defined at the time this is called.
-    function initEditForm() {
-        $().ready(initEditFormWhenReady);
+    function initEditForm(templateParams) {
+        $().ready(function () {
+            initEditFormWhenReady(templateParams);
+        });
     }
 
-    function initEditFormWhenReady() {
+    // Set up the author edit form UI plugins and event handlers.
+    // The templateParams, passed as a parameter, are needed by the
+    // UI plugins.
+    function initEditFormWhenReady(templateParams) {
         var typeCombo = $('#id_coderunnertype'),
             template = $('#id_template'),
             useace = $('#id_useace'),
@@ -81,7 +86,6 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
             questiontypeHelpDiv = $('#qtype-help'),
             precheck = $('select#id_precheck'),
             testtypedivs = $('div.testtype'),
-            templateParams = $('#id_templateparams').val(),
             uiplugin = $('#id_uiplugin');
 
         // Set up the UI controller for the textarea whose name is

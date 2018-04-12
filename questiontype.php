@@ -356,6 +356,12 @@ class qtype_coderunner extends question_type {
     // testcases) from the database into the question.
     // The various fields are initialised from the prototype, then overridden
     // by any non-null values in the specific question.
+    //
+    // As a special case, required by edit_coderunner_form, an option
+    // 'mergedtemplateparams' is set by merging the prototype question's
+    // template parameters with the given question's template parameters,
+    // with the caveat that if template parameters with embedded twig code that
+    // aren't valid JSON are ignored.
     public function get_question_options($question) {
         global $CFG, $DB, $OUTPUT;
         parent::get_question_options($question);
@@ -367,7 +373,10 @@ class qtype_coderunner extends question_type {
             $qtype = $question->options->coderunnertype;
             $context = $this->question_context($question);
             $prototype = $this->get_prototype($qtype, $context);
-            $this->set_inherited_fields($question->options, $prototype);
+            $options = $question->options;
+            $this->set_inherited_fields($options, $prototype);
+            $options->mergedtemplateparams = qtype_coderunner_util::merge_json(
+                    $prototype->templateparams, $options->templateparams);
         }
 
         // Add in any testcases (expect none for built-in prototypes and

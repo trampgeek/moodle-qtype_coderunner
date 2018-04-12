@@ -81,6 +81,7 @@ EOTEMPLATE;
         $q->iscombinatortemplate = false;
         $code = "";
         $response = array('answer' => $code);
+        $q->start_attempt(null);
         $result = $q->grade_response($response);
         list($mark, $grade, $cache) = $result;
         $testoutcome = unserialize($cache['_testoutcome']);
