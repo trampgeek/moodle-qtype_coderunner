@@ -315,15 +315,16 @@ define(['jquery'], function($) {
      */
     function newUiWrapper(uiname, textareaId, templateParamsJson, lang) {
         var params;
-        try {
-            params = window.JSON.parse(templateParamsJson);
-        } catch(e) {
-            params = {};
-        }
-        if (lang) {
-            params.lang = lang;
-        }
+
         if (uiname) {
+            try {
+                params = window.JSON.parse(templateParamsJson);
+            } catch(e) {
+                params = {};
+            }
+            if (lang) {
+                params.lang = lang;
+            }
             return new InterfaceWrapper(uiname, textareaId, params);
         } else {
             return null;

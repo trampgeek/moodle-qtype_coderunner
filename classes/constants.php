@@ -48,7 +48,7 @@ class constants {
         return array('coderunner_question_type', 'confirm_proceed', 'template_changed',
             'info_unavailable', 'proceed_at_own_risk', 'error_loading_prototype',
             'ajax_error', 'prototype_load_failure', 'prototype_error',
-            'coderunner_question_type', 'question_type_changed');
+            'question_type_changed');
     }
 
     public static function ui_plugin_keys() {

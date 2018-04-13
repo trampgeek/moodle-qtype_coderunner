@@ -63,13 +63,19 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $PAGE->requires->strings_for_js($keys, 'qtype_coderunner');
         $PAGE->requires->js_call_amd('qtype_coderunner/textareas', 'setupAllTAs');
 
+        // Define the parameters required by the JS initEditForm amd module
+        $strings = array();
+        foreach (constants::author_edit_keys() as $key) {
+            $strings[$key] = get_string($key, 'qtype_coderunner');
+        }
         if (!empty($this->question->options->mergedtemplateparams)) {
             $mergedtemplateparams = $this->question->options->mergedtemplateparams;
         } else {
             $mergedtemplateparams = '';
         }
+
         $PAGE->requires->js_call_amd('qtype_coderunner/authorform', 'initEditForm',
-                array($mergedtemplateparams));
+                array($strings, $mergedtemplateparams));
 
         parent::definition($mform);  // The superclass adds the "General" stuff.
     }

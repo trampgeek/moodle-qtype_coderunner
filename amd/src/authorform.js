@@ -55,18 +55,13 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
         uiplugin:            ['#id_uiplugin', 'value', 'ace']
     };
 
-    // Postpone initialisation until document ready, because strings_for_js
-    // strings aren't defined at the time this is called.
-    function initEditForm(templateParams) {
-        $().ready(function () {
-            initEditFormWhenReady(templateParams);
-        });
-    }
-
     // Set up the author edit form UI plugins and event handlers.
+    // The strings parameter is an associative array containing a subset of
+    // the strings extracted from lang/xx/qtype_coderunner.php. The particular
+    // subset is specified by constants::author_edit_keys()
     // The templateParams, passed as a parameter, are needed by the
     // UI plugins.
-    function initEditFormWhenReady(templateParams) {
+    function initEditForm(strings, templateParams) {
         var typeCombo = $('#id_coderunnertype'),
             template = $('#id_template'),
             useace = $('#id_useace'),
@@ -210,9 +205,9 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
 
         }
 
-        // Compact call to M.util.get_string.
+        // Get the required string from the strings parameter.
         function getString(key) {
-            return M.util.get_string(key, 'qtype_coderunner');
+            return strings[key];
         }
 
         // Get the "preferred language" from the AceLang string supplied.
