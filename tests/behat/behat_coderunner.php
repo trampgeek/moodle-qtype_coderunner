@@ -63,26 +63,6 @@ class behat_coderunner extends behat_base {
         throw new ExpectationException($msg, $this->getSession());
     }
 
-     /**
-      * Step to ok any confirm dialogs.
-      *
-      * @When /^I ok any confirm dialogs/
-      */
-    public function i_ok_any_confirm_dialogs() {
-        $javascript = "window.confirm = function() { return true};";
-        $this->getSession()->executeScript($javascript);
-    }
-
-     /**
-      * Step to cancel any confirm dialogs.
-      *
-      * @When /^I cancel any confirm dialogs/
-      */
-    public function i_cancel_any_confirm_dialogs() {
-        $javascript = "window.confirm = function() { return false};";
-        $this->getSession()->executeScript($javascript);
-    }
-
     /**
      * Step to set a global variable 'behattesting' to true to prevent
      * textarea autoindent, which messes up behat's setting of the textarea
