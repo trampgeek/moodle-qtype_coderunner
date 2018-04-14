@@ -317,7 +317,12 @@ body#page-question-type-coderunner textarea.edit_code {
 
 body#page-question-type-coderunner textarea.uiloadfailed {
     border: 6px solid orange;
-    animation: 1s question-type-coderunner_animateBorder infinite;
+}
+
+body#page-question-type-coderunner div.uiloadfailed {
+    background-color: orange;
+    padding-after: 0px;
+    padding-left: 10px;
 }
 
 body#page-question-type-coderunner input.testcasemark,
