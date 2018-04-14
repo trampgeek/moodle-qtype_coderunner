@@ -65,7 +65,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
         // Define the parameters required by the JS initEditForm amd module
         $strings = array();
-        foreach (constants::author_edit_keys() as $key) {
+        foreach ($keys as $key) {
             $strings[$key] = get_string($key, 'qtype_coderunner');
         }
         if (!empty($this->question->options->mergedtemplateparams)) {

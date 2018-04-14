@@ -121,7 +121,7 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
             }
 
             if (!uiWrapper) {
-                uiWrapper = new ui.InterfaceWrapper(uiname, taId, params);
+                uiWrapper = new ui.InterfaceWrapper(uiname, taId, strings, params);
             } else {
                 // Wrapper has already been set up - just reload the reqd UI.
                 uiWrapper.loadUi(uiname, params);

@@ -21,11 +21,13 @@
  *
  * The InterfaceWrapper provides:
  *
- * 1. A constructor InterfaceWrapper(uiname, textareaId, params) which
+ * 1. A constructor InterfaceWrapper(uiname, textareaId, strings, params) which
  *    hides the given text area, replaces it with a wrapper div (resizable in
  *    height by the user but with width resizing managed by changes in window
  *    width), created an instance of nameInstance as defined in the file
- *    ui_name.js (see below). params is a record containing the decoded value of
+ *    ui_name.js (see below). strings is an associative array mapping string
+ *    name (from lang/en) to string.
+ *    params is a record containing the decoded value of
  *    the question's templateParams, possibly enhanced by additional
  *    data such as a 'lang' value for the Ace editor.
  *
@@ -111,11 +113,13 @@
 
 define(['jquery'], function($) {
 
-    function InterfaceWrapper(uiname, textareaId, params) {
+    function InterfaceWrapper(uiname, textareaId, strings, params) {
         // Constructor for a new user interface.
         // uiname is the name of the interface element (e.g. ace, graph, etc)
         // which should be in file ui_ace.js, ui_graph.js etc.
         // textareaId is the id of the text area that the UI is to manage
+        // strings is an associative array of language strings, namely
+        // all those specified by constants::ui_plugin_keys.
         // params is a record containing whatever additional parameters might
         // be needed by the User interface. As a minimum it should contain all
         // the template params from the JSON-encode template-params field of
@@ -134,10 +138,12 @@ define(['jquery'], function($) {
         this.GUTTER = 14;  // Size of gutter at base of wrapper Node (pixels)
 
         this.taId = textareaId;
+        this.loadFailId = textareaId + '_loadfailerr';
         this.textArea = $(document.getElementById(textareaId));
         this.readOnly = this.textArea.prop('readonly');
         this.isLoading = false;  // True if we're busy loading a UI element
         this.loadFailed = false;  // True if UI couldn't deserialise TA contents
+        this.loadFailMessage = strings['uiloadfail'];
         this.retries = 0;        // Number of failed attempts to load a UI component
 
         h = parseInt(this.textArea.css("height"));
@@ -219,7 +225,7 @@ define(['jquery'], function($) {
             this.isLoading = true;
             require(['qtype_coderunner/ui_' + this.uiname],
                 function(ui) {
-                    var minSize, uiInstance, h, w;
+                    var minSize, uiInstance,loadFailWarn, h, w;
 
                     h = t.wrapperNode.innerHeight() - t.GUTTER;
                     w = t.wrapperNode.innerWidth();
@@ -232,6 +238,8 @@ define(['jquery'], function($) {
                         t.uiInstance = null;
                         t.loadFailed = true;
                         t.textArea.addClass('uiloadfailed');
+                        loadFailWarn = '<div id="' + t.loadFailId + '"class="uiloadfailed">' + t.loadFailMessage + '</div>';
+                        $(loadFailWarn).insertBefore(t.textArea);
                     } else {
                         minSize = uiInstance.getMinSize();
                         t.wrapperNode.css({
@@ -241,7 +249,6 @@ define(['jquery'], function($) {
                         t.hLast = 0;  // Force resize (and hence redraw)
                         t.wLast = 0;  // ... on first call to checkForResize
                         t.wrapperNode.append(uiInstance.getElement());
-                        t.textArea.removeClass('uiloadfailed'); // Just in case it failed before
                         t.textArea.hide();
                         t.wrapperNode.show();
                         t.uiInstance = uiInstance;
@@ -269,6 +276,7 @@ define(['jquery'], function($) {
         }
         this.loadFailed = false;
         this.textArea.removeClass('uiloadfailed'); // Just in case it failed before
+        $(document.getElementById(this.loadFailId)).remove();
     };
 
 
@@ -309,11 +317,12 @@ define(['jquery'], function($) {
      *  The external entry point from the PHP.
      * @param string uiname, e.g. 'ace'
      * @param string textareaId
+     * @param associative array strings language strings required by any plugins
      * @param string templateParamsJson - the JSON-encoded template params
      * @param string lang (relevant only to Ace) - the language to be edited
      * @returns {userinterfacewrapperL#111.InterfaceWrapper}
      */
-    function newUiWrapper(uiname, textareaId, templateParamsJson, lang) {
+    function newUiWrapper(uiname, textareaId, strings, templateParamsJson, lang) {
         var params;
 
         if (uiname) {
@@ -325,7 +334,7 @@ define(['jquery'], function($) {
             if (lang) {
                 params.lang = lang;
             }
-            return new InterfaceWrapper(uiname, textareaId, params);
+            return new InterfaceWrapper(uiname, textareaId, strings, params);
         } else {
             return null;
         }

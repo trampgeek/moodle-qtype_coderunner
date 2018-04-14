@@ -152,7 +152,7 @@ $string['fileheader'] = 'Support files';
 $string['filloutoneanswer'] = 'You must enter source code that satisfies the specification. The code you enter will be executed to determine its correctness and a grade awarded accordingly.';
 $string['firstfailure'] = 'First failing test case: {$a}';
 $string['forexample'] = 'For example';
-$string['graphfail'] = 'TextArea contents are not a valid graph. Aborting.';
+
 $string['graphhelp'] = '- Double click at a blank space to create a new node/state.
 - Double click an existing node to "mark" it e.g. as an accept state for Finite State Machines
   (FSMs). Double click again to unmark it.
@@ -723,7 +723,7 @@ the editor form for the Sample Answer and the Answer Preload fields.
 If \'Template uses ace\' is checked,
 the AceJavaScript code editor will manage the answer box. Otherwise a raw
 text box will be used.';
-
+$string['uiloadfail'] = 'UI plugin disabled as textarea contents are invalid';
 $string['unauthorisedbulktest'] = 'You do not have suitable access to any CodeRunner questions';
 $string['unauthoriseddbaccess'] = 'You are not authorised to use this script';
 $string['unknownerror'] = 'An unexpected error occurred. The sandbox may be down. Try again shortly.';
