@@ -91,7 +91,16 @@ class qtype_coderunner_question extends question_graded_automatically {
     public function apply_attempt_state(question_attempt_step $step) {
         parent::apply_attempt_state($step);
         $this->student = unserialize($step->get_qt_var('_STUDENT'));
-        $this->templateparams = $step->get_qt_var('_templateparamsinstance');
+        $templateparams = $step->get_qt_var('_templateparamsinstance');
+        if ($templateparams) {
+            $this->templateparams = $templateparams;
+        } else {
+            // Rendering a question that was begun before the templateparamsinstance
+                // was introduced into the code
+            $this->templateparams = qtype_coderunner_util::merge_json(
+                    $this->prototypetemplateparams, $this->templateparams);
+        }
+
         if ($step->get_qt_var('_twigall')) {
             $this->twig_all();
         }

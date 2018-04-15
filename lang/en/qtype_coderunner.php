@@ -723,7 +723,7 @@ the editor form for the Sample Answer and the Answer Preload fields.
 If \'Template uses ace\' is checked,
 the AceJavaScript code editor will manage the answer box. Otherwise a raw
 text box will be used.';
-$string['uiloadfail'] = 'UI plugin disabled as textarea contents are invalid';
+$string['uiloadfail'] = 'UI plugin load failed.';
 $string['unauthorisedbulktest'] = 'You do not have suitable access to any CodeRunner questions';
 $string['unauthoriseddbaccess'] = 'You are not authorised to use this script';
 $string['unknownerror'] = 'An unexpected error occurred. The sandbox may be down. Try again shortly.';
