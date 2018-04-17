@@ -63,6 +63,7 @@ class qtype_coderunner_walkthrough_randomisation_test extends qbehaviour_walkthr
     private function add_fields($q) {
         $q->templateparams = '{"func": "{{ random(["sqr", "mysqr"]) }}", "n": {{ 111 + random(1) }} }';
         $q->hoisttemplateparams = 1;
+        $q->twigall = 1;
         $q->questiontext = 'Write a function {{ func }}';
         $q->template = "{{ STUDENT_ANSWER }}\n{{ TEST.testcode }}\n{{ TEST.extra }}\n";
         $q->iscombinatortemplate = false;

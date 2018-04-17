@@ -108,6 +108,7 @@ class qtype_coderunner extends question_type {
             'sandboxparams',
             'templateparams',
             'hoisttemplateparams',
+            'twigall',
             'uiplugin'
         );
     }
@@ -132,6 +133,7 @@ class qtype_coderunner extends question_type {
             'validateonsave',
             'templateparams',
             'hoisttemplateparams',
+            'twigall',
             );
     }
 

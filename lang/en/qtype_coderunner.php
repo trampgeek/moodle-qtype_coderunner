@@ -639,11 +639,6 @@ parameters defined in the prototype with the question template parameters
 merged in. Question parameters can thus override prototype parameters, but not
 delete them.
 
-Template parameters are normally referred to during Twig expansion in the form
-{{QUESTION.parameters.someparam}} However, if the Hoist Template Parameters
-checkbox is checked, the parameters are hoisted into the Twig global name space
-and can be referenced simply as {{someparam}}
-
 Template parameters can also be used to provide randomisation within a question.
 When the question is first instantiated the template parameters are passed
 through the Twig template engine to yield the final JSON version. If this differs
@@ -684,6 +679,17 @@ $string['testtype_normal'] = 'Check only';
 $string['testtype_precheck'] = 'Precheck only';
 $string['testtype_both'] = 'Both';
 $string['tooshort'] = 'Answer is too short to be meaningful and has been ignored without penalty';
+$string['twigall'] = 'Twig all';
+$string['twigcontrols'] = 'Twig controls';
+$string['twigcontrols_help'] = 'Template parameters are normally referred to during Twig expansion in the form
+{{QUESTION.parameters.someparam}} However, if the Hoist Template Parameters
+checkbox is checked, the parameters are hoisted into the Twig global name space
+and can be referenced simply as {{someparam}}.
+
+The Twig macro processor was traditionally applied only to the template. It is now
+applied to the template parameters as well and, if Twig All is checked, to the
+question text, sample answer, answer preload and all test case fields, using
+the Twig-expanded template parameters as an environment.';
 $string['twigerror'] = 'Twig error {$a}';
 $string['twigerrorintest'] = 'Twig error when processing this test {$a}';
 $string['type_header'] = 'CodeRunner question type';

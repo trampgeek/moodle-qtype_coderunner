@@ -540,13 +540,21 @@ class qtype_coderunner_edit_form extends question_edit_form {
             array('rows' => self::TEMPLATE_PARAM_ROWS, 'cols' => self::TEMPLATE_PARAM_COLS));
         $mform->setType('templateparams', PARAM_RAW);
         $mform->addHelpButton('templateparams', 'templateparams', 'qtype_coderunner');
-        $mform->addElement('advcheckbox', 'hoisttemplateparams', null,
+
+        // Twig controls
+        $twigelements = array();
+        $twigelements[] = $mform->createElement('advcheckbox', 'hoisttemplateparams', null,
                 get_string('hoisttemplateparams', 'qtype_coderunner'));
-        // Although hoisttemplateparams defaults to false in the database, it
-        // defaults to true in this form. This ensures that legacy questions are
-        // not affected by the hoist, while new questions default to true.
-        // The checkbox will likely be removed altogether in the future.
+        $twigelements[] = $mform->createElement('advcheckbox', 'twigall', null,
+                get_string('twigall', 'qtype_coderunner'));
+        $mform->addElement('group', 'twigcontrols', get_string('twigcontrols', 'qtype_coderunner'),
+                $twigelements, null, false);
+        // Although hoisttemplateparams and twigall both default to false in the database,
+        // they default to true in this form. This ensures that legacy questions are
+        // not affected, while new questions default to true.
         $mform->setDefault('hoisttemplateparams', true);
+        $mform->setDefault('twigall', true);
+        $mform->addHelpButton('twigcontrols', 'twigcontrols', 'qtype_coderunner');
     }
 
 

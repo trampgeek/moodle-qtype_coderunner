@@ -66,42 +66,31 @@ class qtype_coderunner_question extends question_graded_automatically {
             $step->set_qt_var('_STUDENT', serialize($user));
         }
 
-        $twig = qtype_coderunner_twig::get_twig_environment();
-        $twigparams = array('STUDENT' => new qtype_coderunner_student($user));
-        $ournewtemplateparams = $twig->render($this->templateparams, $twigparams);
-        $prototypenewtemplateparams = $twig->render($this->prototypetemplateparams, $twigparams);
-        $newtemplateparams = qtype_coderunner_util::merge_json($prototypenewtemplateparams, $ournewtemplateparams);
-        $oldtemplateparams = qtype_coderunner_util::merge_json($this->prototypetemplateparams, $this->templateparams);
-        $twigall = $newtemplateparams != $oldtemplateparams;
-        $this->templateparams =  $newtemplateparams;
-        if ($twigall) {
+        $seed = mt_rand();
+        $this->setup_template_params($seed);
+        if ($this->twigall) {
             $this->twig_all();
         }
         if ($step !== null) {
-            $step->set_qt_var('_templateparamsinstance', $newtemplateparams);
-            $step->set_qt_var('_twigall', $twigall);
+            $step->set_qt_var('_mtrandseed', $seed);
         }
     }
 
-    // Retrieve the saved instance of the evaluate JSON template params and
-    // store it within the question.
-    // Also, if Twig-expansion changed the template parameters when the question
-    // was initialised, Twig-expand all text fields of the
-    // question except the template itself.
+    // Retrieve the saved random number seed and reconstruct the template
+    // parameters to the state they were left after start_attempt was called.
+    // Also twig expand the rest of the question fields if $this->twigall is true.
     public function apply_attempt_state(question_attempt_step $step) {
         parent::apply_attempt_state($step);
         $this->student = unserialize($step->get_qt_var('_STUDENT'));
-        $templateparams = $step->get_qt_var('_templateparamsinstance');
-        if ($templateparams) {
-            $this->templateparams = $templateparams;
-        } else {
-            // Rendering a question that was begun before the templateparamsinstance
-                // was introduced into the code
-            $this->templateparams = qtype_coderunner_util::merge_json(
-                    $this->prototypetemplateparams, $this->templateparams);
+        $seed = $step->get_qt_var('_mtrandseed');
+        if ($seed === null) {
+            // Rendering a question that was begun before randomisation
+            // was introduced into the code
+           $seed = mt_rand();
         }
+        $this->setup_template_params($seed);
 
-        if ($step->get_qt_var('_twigall')) {
+        if ($this->twigall) {
             $this->twig_all();
         }
     }
@@ -337,6 +326,21 @@ class qtype_coderunner_question extends question_graded_automatically {
         }
         $twigparams['STUDENT'] = new qtype_coderunner_student($this->student);
         return $twig->render($text, $twigparams);
+    }
+
+    /**
+     * Define the template parameters for this question by Twig-expanding
+     * both our own template params and our prototype template params and
+     * merging the two.
+     * @param type $seed The random number seed to set for Twig randomisation
+     */
+    private function setup_template_params($seed) {
+        mt_srand($seed);
+        $twig = qtype_coderunner_twig::get_twig_environment();
+        $twigparams = array('STUDENT' => new qtype_coderunner_student($this->student));
+        $ournewtemplateparams = $twig->render($this->templateparams, $twigparams);
+        $prototypenewtemplateparams = $twig->render($this->prototypetemplateparams, $twigparams);
+        $this->templateparams = qtype_coderunner_util::merge_json($prototypenewtemplateparams, $ournewtemplateparams);
     }
 
 
