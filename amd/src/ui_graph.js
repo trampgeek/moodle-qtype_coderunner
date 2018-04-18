@@ -120,6 +120,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         this.SNAP_TO_PADDING = 6;
         this.HIT_TARGET_PADDING = 6;    // Pixels.
         this.DEFAULT_NODE_RADIUS = 26;  // Pixels. Template parameter noderadius can override this.
+        this.DEFAULT_FONT_SIZE = 20;    // px. Template parameter fontsize can override this.
         this.MIN_WIDTH = 400;
         this.MIN_HEIGHT = 400;
 
@@ -171,6 +172,10 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
 
     Graph.prototype.nodeRadius = function() {
         return this.templateParams.noderadius ? this.templateParams.noderadius : this.DEFAULT_NODE_RADIUS;
+    };
+
+    Graph.prototype.fontSize = function() {
+        return this.templateParams.fontsize ? this.templateParams.fontsize : this.DEFAULT_FONT_SIZE;
     };
 
     Graph.prototype.isFsm = function() {
@@ -576,9 +581,10 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
     Graph.prototype.drawText = function(originalText, x, y, angleOrNull, theObject) {
         var c = this.getCanvas().getContext('2d'),
             text = util.convertLatexShortcuts(originalText),
-            width;
+            width,
+            dy;
 
-        c.font = '20px Arial';
+        c.font = this.fontSize() + 'px Arial';
         width = c.measureText(text).width;
 
         // Center the text.
@@ -601,12 +607,14 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         } else {
             x = Math.round(x);
             y = Math.round(y);
-            c.fillText(text, x, y + 6);
+            dy = Math.round(this.fontSize() / 3); // Don't understand this
+            c.fillText(text, x, y + dy);
             if(theObject == this.selectedObject && this.caretVisible && this.hasFocus() && document.hasFocus()) {
                 x += width;
+                dy = Math.round(this.fontSize() / 2);
                 c.beginPath();
-                c.moveTo(x, y - 10);
-                c.lineTo(x, y + 10);
+                c.moveTo(x, y - dy);
+                c.lineTo(x, y + dy);
                 c.stroke();
             }
         }

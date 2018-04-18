@@ -1603,10 +1603,12 @@ via template parameters as follows:
 
   1. isdirected - defaults to true. Set it to false for a non-directed graph.
 
-  1. isfsm - defaults to true. Set it to false to prevent edges the enter the
+  1. isfsm - defaults to true. Set it to false to prevent edges that enter the
 graph from space, i.e., without a start node.
 
   1. noderadius - defaults to 26. The radius of nodes, in pixels.
+
+  1. fontsize - defaults to 20. The size of the Arial font, in px.
 
 For example, for a non-directed non-fsm graph set the template parameters field to
 
