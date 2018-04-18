@@ -820,6 +820,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
     // OK. istwigged is true if twigging the template parameters changed them.
     // 'renderedparams' is the result of twig expanding the params.
     private function validate_template_params($data) {
+        global $USER;
         $errormessage = '';
         $istwiggedparams = false;
         $renderedparams = '';
@@ -828,7 +829,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
             $ok = true;
             try {
                 $twig = qtype_coderunner_twig::get_twig_environment(array('strict_variables' => true));
-                $twigparams = array('STUDENT' => 'Question author');
+                $twigparams = array('STUDENT' => new qtype_coderunner_student($USER));
                 $renderedparams = $twig->render($data['templateparams'], $twigparams);
                 if ($renderedparams !== $data['templateparams']) {
                     $istwiggedparams = true;
