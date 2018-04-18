@@ -1081,6 +1081,8 @@ albeit with only four different names, as follows:
     ```
     { "name": "{{ random(["Bob", "Carol", "Ted", "Alice" }}" }
     ```
+1. Turn on the *Twig All* checkbox, so that all fields of the question will
+   get processed by Twig, once the template parameters have been set up.
 1. Set the question text to *Write a program that prints `Hello {{ name }}`*
 1. Set the expected output of the first test case to `Hello {{ name }}`
 1. Set the sample answer to `print("Hello {{name}}")`
@@ -1114,11 +1116,11 @@ which will result in the template parameter *number* having a uniformly
 distributed integer value in the
 range 5 to 12 inclusive.
 
-If the Twigging of the template parameter field results in any changes to it,
-the changed version is used throughout the lifetime of the question instance.
-Furthermore, all other text fields of the question, except for the template
+If the *Twig All* checkbox for the question is checked, 
+all other text fields of the question, except for the template
 itself, are processed by Twig at this time, to yield new values that are used
-throughout the question's lifetime.
+throughout the question's lifetime. The environment used for all these 
+other fields is that defined by the template parameters.
 
 ### Hoisting the template parameters
 

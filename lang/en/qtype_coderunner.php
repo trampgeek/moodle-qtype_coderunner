@@ -641,11 +641,12 @@ delete them.
 
 Template parameters can also be used to provide randomisation within a question.
 When the question is first instantiated the template parameters are passed
-through the Twig template engine to yield the final JSON version. If this differs
-from the original, all other fields of the question (question text, test cases,
-sample answer, etc) are also processed by Twig with the template parameter
-values being passed in as variables. Twig\'s "random" function can
-be used to assign random values to template parameters, resulting in different
+through the Twig template engine to yield the final JSON version.
+Twig\'s "random" function can
+be used to assign random values to template parameters. If the "Twig All" checkbox
+is checked, all other fields of the question (question text, answer, test cases
+etc) are the also processed by Twig, with the template parameters as an
+environment. This can result in different
 students seeing different random variants of the question. See the documentation
 for details.';
 $string['testcase'] = 'Test case {$a}';
@@ -689,7 +690,8 @@ and can be referenced simply as {{someparam}}.
 The Twig macro processor was traditionally applied only to the template. It is now
 applied to the template parameters as well and, if Twig All is checked, to the
 question text, sample answer, answer preload and all test case fields, using
-the Twig-expanded template parameters as an environment.';
+the Twig-expanded template parameters as an environment. You will usually
+need to turn on TwigAll if using randomisation within the template parameters';
 $string['twigerror'] = 'Twig error {$a}';
 $string['twigerrorintest'] = 'Twig error when processing this test {$a}';
 $string['type_header'] = 'CodeRunner question type';
