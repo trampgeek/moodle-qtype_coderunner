@@ -21,6 +21,9 @@
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/question/type/coderunner/Twig/Autoloader.php');
+require_once($CFG->dirroot . '/question/type/coderunner/Twig/ExtensionInterface.php');
+require_once($CFG->dirroot . '/question/type/coderunner/Twig/Extension.php');
+
 
 // Class that provides a singleton instance of the twig environment.
 class qtype_coderunner_twig {
@@ -55,6 +58,8 @@ class qtype_coderunner_twig {
             $twigcore->setEscaper('ml', 'qtype_coderunner_escapers::matlab');
             $twigcore->setEscaper('matlab', 'qtype_coderunner_escapers::matlab');
 
+            $twig->addExtension(new qtype_coderunner_RandomExtension);
+
             if (empty($twigoptions)) {
                 self::$twigenvironment = $twig;
             }
@@ -62,3 +67,84 @@ class qtype_coderunner_twig {
         return $twig;
     }
 }
+
+/** Define a Twig extension that overrides the built-in random function
+ *  with one that uses mt_rand everywhere. The built-in version mostly
+ *  uses mt_rand but switches to PHP's array_rand function when selecting
+ *  from an array. array_rand does not allow setting of a seed, which is
+ *  required by CodeRunner.
+ */
+
+class qtype_coderunner_RandomExtension extends Twig_Extension
+{
+    public function getFunctions() {
+        return array(new Twig_SimpleFunction('random', 'qtype_coderunner_random',
+                array('needs_environment' => true)));
+    }
+};
+
+
+
+/**
+ * HACKED VERSION OF THE BUILT-IN RANDOM (see above).
+ * Returns a random value depending on the supplied parameter type:
+ * - a random item from a Traversable or array
+ * - a random character from a string
+ * - a random integer between 0 and the integer parameter.
+ *
+ * @param Twig_Environment                   $env
+ * @param Traversable|array|int|float|string $values The values to pick a random item from
+ *
+ * @throws Twig_Error_Runtime When $values is an empty array (does not apply to an empty string which is returned as is).
+ *
+ * @return mixed A random value from the given sequence
+ */
+function qtype_coderunner_random(Twig_Environment $env, $values = null)
+{
+    if (null === $values) {
+        return mt_rand();
+    }
+
+    if (is_int($values) || is_float($values)) {
+        return $values < 0 ? mt_rand($values, 0) : mt_rand(0, $values);
+    }
+
+    if ($values instanceof Traversable) {
+        $values = iterator_to_array($values);
+    } elseif (is_string($values)) {
+        if ('' === $values) {
+            return '';
+        }
+        if (null !== $charset = $env->getCharset()) {
+            if ('UTF-8' !== $charset) {
+                $values = twig_convert_encoding($values, 'UTF-8', $charset);
+            }
+
+            // unicode version of str_split()
+            // split at all positions, but not after the start and not before the end
+            $values = preg_split('/(?<!^)(?!$)/u', $values);
+
+            if ('UTF-8' !== $charset) {
+                foreach ($values as $i => $value) {
+                    $values[$i] = twig_convert_encoding($value, $charset, 'UTF-8');
+                }
+            }
+        } else {
+            return $values[mt_rand(0, strlen($values) - 1)];
+        }
+    }
+
+    if (!is_array($values)) {
+        return $values;
+    }
+
+    if (0 === count($values)) {
+        throw new Twig_Error_Runtime('The random function cannot pick from an empty array.');
+    }
+
+    // The original version did: return $values[array_rand($values, 1)];
+    $keys = array_keys($values);
+    $key = $keys[mt_rand(0, count($keys) - 1)];
+    return $values[$key];
+}
+
