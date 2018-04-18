@@ -67,12 +67,12 @@ class qtype_coderunner_question extends question_graded_automatically {
         }
 
         $seed = mt_rand();
+        if ($step !== null) {
+            $step->set_qt_var('_mtrandseed', $seed);
+        }
         $this->setup_template_params($seed);
         if ($this->twigall) {
             $this->twig_all();
-        }
-        if ($step !== null) {
-            $step->set_qt_var('_mtrandseed', $seed);
         }
     }
 
@@ -82,13 +82,25 @@ class qtype_coderunner_question extends question_graded_automatically {
     public function apply_attempt_state(question_attempt_step $step) {
         parent::apply_attempt_state($step);
         $this->student = unserialize($step->get_qt_var('_STUDENT'));
-        $seed = $step->get_qt_var('_mtrandseed');
-        if ($seed === null) {
-            // Rendering a question that was begun before randomisation
-            // was introduced into the code
-           $seed = mt_rand();
+
+        // Short-lived legacy code, for use at U of C only
+        $templateparams = $step->get_qt_var('_templateparamsinstance');
+        if ($templateparams !== null) {
+
+            $this->templateparams = $templateparams;
+            if ($step->get_qt_var('_twigall')) {
+                $this->twigall = true;
+            }
+        } else {
+            // Non-legacy code lands here
+            $seed = $step->get_qt_var('_mtrandseed');
+            if ($seed === null) {
+                // Rendering a question that was begun before randomisation
+                // was introduced into the code
+               $seed = mt_rand();
+            }
+            $this->setup_template_params($seed);
         }
-        $this->setup_template_params($seed);
 
         if ($this->twigall) {
             $this->twig_all();
@@ -335,9 +347,9 @@ class qtype_coderunner_question extends question_graded_automatically {
      * @param type $seed The random number seed to set for Twig randomisation
      */
     private function setup_template_params($seed) {
-        mt_srand($seed);
         $twig = qtype_coderunner_twig::get_twig_environment();
         $twigparams = array('STUDENT' => new qtype_coderunner_student($this->student));
+        mt_srand($seed);
         $ournewtemplateparams = $twig->render($this->templateparams, $twigparams);
         $prototypenewtemplateparams = $twig->render($this->prototypetemplateparams, $twigparams);
         $this->templateparams = qtype_coderunner_util::merge_json($prototypenewtemplateparams, $ournewtemplateparams);
