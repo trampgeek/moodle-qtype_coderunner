@@ -106,12 +106,18 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
             }
 
             if (uiname === "ace") {
-                // The Ace UI needs a language. Use the value specified in 'acelang'
+                // The Ace UI needs a language. For the templateparams, don't
+                // use any language as it's Twigged JavaScript that can't be
+                // usefully coloured. Use the value specified in 'acelang'
                 // for all fields other than the template, if the value is defined,
                 // or the value in 'language' in all other cases.
-                lang = language.prop('value');
-                if (taId !== "id_template" && acelang.prop('value')) {
-                    lang = preferredAceLang(acelang.prop('value'));
+                if (taId == 'id_templateparams') {
+                    lang = '';
+                } else {
+                    lang = language.prop('value');
+                    if (taId !== "id_template" && acelang.prop('value')) {
+                        lang = preferredAceLang(acelang.prop('value'));
+                    }
                 }
                 params.lang = lang;
             }
@@ -314,6 +320,10 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
 
         set_testtype_visibilities();
 
+        if (useace.prop('checked')) {
+            setUi('id_templateparams', 'ace');
+        }
+
         // Set up event Handlers.
 
         customise.on('change', function() {
@@ -347,8 +357,10 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
             var isTurningOn = useace.prop('checked');
             if (isTurningOn) {
                 setUi('id_template', 'ace');
+                setUi('id_templateparams', 'ace');
             } else {
                 setUi('id_template', '');
+                setUi('id_templateparams', '');
             }
         });
 
