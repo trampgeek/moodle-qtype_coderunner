@@ -1062,7 +1062,7 @@ The template variable `STUDENT` is an object containing a subset of the fields o
 PHP user object. The fields/attributes of STUDENT are:
 
  * `STUDENT.username` The unique internal username of the current user.
- * `STUDENT.firstname` The first name of the cuRandomisrrent user.
+ * `STUDENT.firstname` The first name of the current user.
  * `STUDENT.lastname` The last name of the current user.
  * `STUDENT.email` The email address of the current user.
 
@@ -1095,15 +1095,17 @@ process can be parameterised by use of CodeRunners *template parameters*
 
 ### How it works
 
-When a student starts a quiz, an instance of each quiz question is generated.
+When a student starts a Moodle quiz, an instance of each quiz question is generated.
 As each quiz question is instantiated, certain variables need to be defined,
 such as the order in which shuffled options will be presented in a multichoice
-question. These variables are "frozen" throughout the lifetime of that particular
+question. These variables are essentially "frozen" throughout the lifetime of that particular
 question instance, including when it is subsequently reviewed or regraded.
 
 When a CodeRunner question is instantiated, the template parameters field is
-processed by the Twig template engine. Usually this will have no effect, but
-if the template does actually include embedded Twig code, the output from
+processed by the Twig template engine. If there's no embedded Twig within the
+template, the template parameters field will not change. However, if the
+template does actually
+include embedded Twig code, the output from
 Twig will be different from the input. Usually any embedded Twig code will make
 at least one call to the Twig *random* function, resulting in one or more
 template parameters having randomised values. The above example shows a case
@@ -1116,11 +1118,47 @@ which will result in the template parameter *number* having a uniformly
 distributed integer value in the
 range 5 to 12 inclusive.
 
-If the *Twig All* checkbox for the question is checked, 
+If the *Twig All* checkbox for the question is checked,
 all other text fields of the question, except for the template
-itself, are processed by Twig at this time, to yield new values that are used
-throughout the question's lifetime. The environment used for all these 
-other fields is that defined by the template parameters.
+itself, are processed by Twig directly after the template parameters field
+has been Twigged. This yield new values for the question text, test cases etc,
+which are used
+throughout the question's lifetime. The Twig environment used when processing
+all these 
+other fields is that defined by the Twigged template parameters field.
+
+It is usual to click the *Twig All* checkbox with randomised questions, as otherwise only
+the template will be subject to randomisation, which isn't usually appropriate.
+
+### A important warning about editing template parameters
+
+The above description is a slight simplification. It implies that all the
+Twig-expanded template parameters are recorded within the question instance and
+frozen throughout the question lifetime. Such an approach, while technically
+"correct", creates problems for question authors who, after a quiz has gone
+live, discover they need to make changes to the *non-randomised* template
+parameters. For example, a template parameter that sets a limit on the allowed
+number of lines of code might turn out to be too restrictive. The
+author might wish to raise the limit and 
+regrade existing submissions with the changed parameters.
+If the parameters were strictly frozen, this 
+wouldn't be possible. So instead the implementation records only the random number
+seed, and rebuilds the set of template parameters whenever the question is
+reloaded from the database.
+
+However, it is *vital* that question authors do not make any changes that might
+alter the randomised template parameters once a quiz has gone live. For example,
+re-ordering the randomised parameters will result in their being given
+different values when the question is reloaded. The student will then see
+a different question, to which their answer is no longer correct. Regrading
+would then result in their getting zero marks for a question they have already
+passed. Even if they've submitted and closed the quiz, they will find, if they
+subsequently review it, that their answer doesn't match the question.
+
+To recap: *once a quiz has gone live, you must ensure that any editing of
+the template parameters does not alter the randomisation behaviour*.
+
+Caveat Emptor.
 
 ### Hoisting the template parameters
 
@@ -1130,7 +1168,7 @@ refer to template parameters with the syntax {{QUESTION.parameters.x}} where
 *x* is a parameter. However, that syntax becomes very clumsy when the same
 parameters is being used in lots of different places within the question.
 There is now a checkbox *Hoist template parameters*, which copies the
-template parameters into the Twig global name space, where STUDENT_ANSWER,
+template parameters into the Twig global name space, where STUDENT_ANSWER,of
 TEST etc reside. The variable *x* can then be inserted into the text simply
 by writing `{{ x }}`.
 
@@ -1149,6 +1187,9 @@ to true on newly created questions.
 
 1. Read the Twig documentation!
 
+1. Check out the sample questions in the question export file
+   `randomisationexamples.xml` in the CodeRunner *samples* folder.
+
 1. Sometimes you need a set of random variables to be "coupled". For example
     you might want an `animal` to be one of `dog`, `cat`, `cow` and an associated
     variable `sound` to be respectively `woof`, `miaow`, `moo`. Two ways of achieving
@@ -1157,7 +1198,7 @@ to true on newly created questions.
        separate animal and sound lists. For example:
 
             { 
-                {% set index = random(3) %}
+                {% set index = random(2) %}
                 "animal": "{{ ["Dog", "Cat", "Cow"][index] }}",
                 "sound":  "{{ ["Woof", "Miaow", "Moo"][index] }}"
 
@@ -1185,9 +1226,9 @@ to true on newly created questions.
 
         {% macro randomexpr(depth) %}
         {% from _self import randomexpr as expr %}
-        {% if depth >= 5 %}
+        {% if depth >= 5 %}{# Leaf nodes are random operands #}
             {{- random(["a", "b", "c", "d"]) -}}
-        {% else %}{# Output ( expr op expr ) #}
+        {% else %}{# Internal nodes are of the form ( expr op expr ) #}
             {{- '(' -}}
             {{- expr(depth + 1 + random(3)) -}}
             {{- random(['*', '/', '+', '-']) -}}
@@ -1208,7 +1249,16 @@ to true on newly created questions.
 
         (((a/(a-d))-(c/b))+(d+(((d/c)/d)*(c+a))))
 
+1. The [TwigFiddle web site](http://twigfiddle.com) is useful for debugging Twig code
+   in your template parameters.
+   You can enter your template parameter field, click Run, and see the resulting
+   JSON. Alternatively, you can set up a trivial question that simply prints
+   the values of the QUESTION.parameters Twig variable. For example (in Python)
+
+        print("""{{QUESTION.parameters}}""")
+
 ## Grading with templates
+
 Grading of student submissions can be problematic in some situations.
 For example, you may need to
 ask a question where many different valid program outputs are possible, and the
