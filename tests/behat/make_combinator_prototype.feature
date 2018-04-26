@@ -18,7 +18,7 @@ Feature: make_combinator_prototype
       | contextlevel | reference | questioncategory | name          |
       | Course       | C1        | Top              | Behat Testing |
     And I log in as "teacher1"
-    And I follow "C1"
+    And I am on "Course 1" course homepage
     And I navigate to "Question bank" node in "Course administration"
     And I press "Create a new question ..."
     And I click on "input#item_qtype_coderunner" "css_element" 

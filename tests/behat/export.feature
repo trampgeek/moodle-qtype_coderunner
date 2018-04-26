@@ -21,7 +21,7 @@ Feature: Export CodeRunner questions
       | questioncategory | qtype      | name            | template |
       | Test questions   | coderunner | Square function | sqr      |
     And I log in as "teacher1"
-    And I follow "C1"
+    And I am on "Course 1" course homepage
 
   Scenario: Export a CodeRunner question
     When I navigate to "Export" node in "Course administration > Question bank"

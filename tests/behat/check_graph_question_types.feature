@@ -18,10 +18,9 @@ Feature: Check that the directed and undirected graph question types work.
       | contextlevel | reference | name           |
       | Course       | C1        | Test questions |
     And I log in as "teacher1"
-    And I follow "C1"
+    And I am on "Course 1" course homepage
     And I navigate to "Question bank" node in "Course administration"
 
-   
   Scenario: Preview a coderunner directed graph question
     When I disable UI plugins
     And I add a "CodeRunner" question filling the form with:
@@ -38,7 +37,6 @@ Feature: Check that the directed and undirected graph question types work.
     And I press "Fill in correct responses"
     And I press "Check"
     Then I should see "Passed all tests!"
-
 
   Scenario: Preview a coderunner undirected graph question
     When I disable UI plugins
