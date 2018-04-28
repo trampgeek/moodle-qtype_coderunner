@@ -125,6 +125,7 @@ body#page-question-type-coderunner .ace_editor {
     background-color: inherit;
     border: none;
     padding: 0px;
+    white-space: pre;
 }
 
 .que.coderunner div.coderunner-test-results pre,
