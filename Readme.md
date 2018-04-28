@@ -5,9 +5,8 @@ Version: 3.4.0 April 2018
 Authors: Richard Lobb, University of Canterbury, New Zealand.
          Tim Hunt, The Open University, UK
 
-NOTE: a more-easily browsed version of this documentation,
-together with a few sample quizzes containing example CodeRunner questions, 
-is available at [coderunner.org.nz](http://coderunner.org.nz). Also, there's
+NOTE: A few sample quizzes containing example CodeRunner questions 
+are available at [coderunner.org.nz](http://coderunner.org.nz). There's also
 [a forum](http://coderunner.org.nz/mod/forum/view.php?id=51) there, where you
 can post CodeRunner questions, such as
 requests for help if things go wrong, or are looking for ideas on how to write some
@@ -41,7 +40,7 @@ unusual question type.
       * [Randomising questions](#randomising-questions)
          * [How it works](#how-it-works)
          * [Randomising per-student rather than per-question-attempt](#randomising-per-student-rather-than-per-question-attempt)
-         * [A important warning about editing template parameters](#a-important-warning-about-editing-template-parameters)
+         * [An important warning about editing template parameters](#a-important-warning-about-editing-template-parameters)
          * [Hoisting the template parameters](#hoisting-the-template-parameters)
          * [Miscellaneous tips](#miscellaneous-tips)
       * [Grading with templates](#grading-with-templates)
@@ -1205,7 +1204,7 @@ with the line
 
     {{- set_random_seed(STUDENT.id) -}}
 
-### A important warning about editing template parameters
+### An important warning about editing template parameters
 
 The above description is a slight simplification. It implies that all the
 Twig-expanded template parameters are recorded within the question instance and
