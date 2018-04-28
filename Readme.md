@@ -5,12 +5,68 @@ Version: 3.4.0 April 2018
 Authors: Richard Lobb, University of Canterbury, New Zealand.
          Tim Hunt, The Open University, UK
 
-NOTE: this documentation is available in a more-easily browsed form,
-together with a sample quiz containing a few CodeRunner questions, at
-[coderunner.org.nz](http://coderunner.org.nz). Note, too, that there's
-a forum on that site, where you can post CodeRunner questions, such as
+NOTE: a more-easily browsed version of this documentation,
+together with a few sample quizzes containing example CodeRunner questions, 
+is available at [coderunner.org.nz](http://coderunner.org.nz). Also, there's
+[a forum](http://coderunner.org.nz/mod/forum/view.php?id=51) there, where you
+can post CodeRunner questions, such as
 requests for help if things go wrong, or are looking for ideas on how to write some
 unusual question type.
+
+<!--ts-->
+   * [CODE RUNNER](#code-runner)
+      * [Introduction](#introduction)
+      * [Installation](#installation)
+         * [Upgrading from a CodeRunner version earlier than 2.4.0](#upgrading-from-a-coderunner-version-earlier-than-240)
+         * [Upgrading from CodeRunner versions between 2.4 and 3.0](#upgrading-from-coderunner-versions-between-24-and-30)
+            * [Note for enthusiasts only.](#note-for-enthusiasts-only)
+         * [Installing CodeRunner from scratch](#installing-coderunner-from-scratch)
+         * [Preliminary testing of the CodeRunner question type](#preliminary-testing-of-the-coderunner-question-type)
+         * [Sandbox Configuration](#sandbox-configuration)
+         * [Running the unit tests](#running-the-unit-tests)
+      * [The Architecture of CodeRunner](#the-architecture-of-coderunner)
+      * [Question types](#question-types)
+         * [An example question type](#an-example-question-type)
+         * [Built-in question types](#built-in-question-types)
+         * [Some more-specialised question types](#some-more-specialised-question-types)
+      * [Templates](#templates)
+         * [Per-test templates](#per-test-templates)
+         * [Combinator templates](#combinator-templates)
+         * [Customising templates](#customising-templates)
+      * [Using the template as a script for more advanced questions](#using-the-template-as-a-script-for-more-advanced-questions)
+         * [Twig Escapers](#twig-escapers)
+      * [Template parameters](#template-parameters)
+         * [The Twig QUESTION variable](#the-twig-question-variable)
+         * [The Twig STUDENT variable](#the-twig-student-variable)
+      * [Randomising questions](#randomising-questions)
+         * [How it works](#how-it-works)
+         * [Randomising per-student rather than per-question-attempt](#randomising-per-student-rather-than-per-question-attempt)
+         * [A important warning about editing template parameters](#a-important-warning-about-editing-template-parameters)
+         * [Hoisting the template parameters](#hoisting-the-template-parameters)
+         * [Miscellaneous tips](#miscellaneous-tips)
+      * [Grading with templates](#grading-with-templates)
+         * [Per-test-case template grading](#per-test-case-template-grading)
+         * [Combinator-template grading](#combinator-template-grading)
+      * [Template grader examples](#template-grader-examples)
+         * [A simple grading-template example](#a-simple-grading-template-example)
+         * [A more advanced grading-template example](#a-more-advanced-grading-template-example)
+      * [Customising the result table](#customising-the-result-table)
+         * [Column specifiers](#column-specifiers)
+         * [HTML formatted columns](#html-formatted-columns)
+         * [Extended column specifier syntax (<em>obsolescent</em>)](#extended-column-specifier-syntax-obsolescent)
+         * [Default result columns](#default-result-columns)
+      * [User-interface selection](#user-interface-selection)
+         * [The Graph UI](#the-graph-ui)
+         * [Other UI plugins](#other-ui-plugins)
+      * [User-defined question types](#user-defined-question-types)
+      * [Supporting or implementing new languages](#supporting-or-implementing-new-languages)
+      * [Administrator scripts](#administrator-scripts)
+      * [A note on accessibility](#a-note-on-accessibility)
+      * [APPENDIX: How programming quizzes should work](#appendix-how-programming-quizzes-should-work)
+
+<!-- Added by: rjl83, at: 2018-04-28T18:05+12:00 -->
+
+<!--te-->
 
 ## Introduction
 
