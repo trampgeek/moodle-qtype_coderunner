@@ -1139,6 +1139,8 @@ albeit with only four different names, as follows:
     ```
 1. Turn on the *Twig All* checkbox, so that all fields of the question will
    get processed by Twig, once the template parameters have been set up.
+1. Turn on the *Hoist template parameters* checkbox if necessary. It's on by
+   default for new questions but off for old questions.
 1. Set the question text to *Write a program that prints `Hello {{ name }}`*
 1. Set the expected output of the first test case to `Hello {{ name }}`
 1. Set the sample answer to `print("Hello {{name}}")`
@@ -1203,6 +1205,10 @@ attempt a question. A typical use might be to begin the template parameters
 with the line
 
     {{- set_random_seed(STUDENT.id) -}}
+
+Tip: don't add this line until you've checked out several variants of the
+question, because once you've added it, you'll only ever see the one variant
+yourself.
 
 ### An important warning about editing template parameters
 
