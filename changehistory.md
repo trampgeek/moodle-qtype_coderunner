@@ -1,5 +1,28 @@
 # CHANGE HISTORY
 
+### 28 April 2018. 3.4.0
+* Add randomisation capabilities so that students can be presented with
+  a randomly generated question variant when they start a question in a quiz.
+  Randomisation is achieved by the use of Twig expansion of the template
+  parameters field (assumed to include at least one call to the Twig *random*
+  function) followed by Twig expansion of all other question fields using
+  the expanded template parameters as a Twig environment.
+* Add a *Reset answer* button to the student question answer page if the answer
+  box contains preloaded content.
+* Add function *set_random_seed* to Twig for use with the question randomisation, e.g. to ensure
+  that a student always sees the same variant of a question no matter how often
+  they attempt it.
+* Add *id* field to the Twig STUDENT variable, e.g. for use with the above.
+* Use Ace editor for template-parameters field.
+* Add *Twig All* and *Hoist template parameters* checkboxes to the authoring interface for
+  use with randomisation and to simplify template authoring in general.
+* Add *fontsize* parameter to the GraphUI plugin.
+* Fix a long-standing bug that caused questions to be flagged as incomplete after
+  earlier having been marked correct even though the answer had not been altered.
+  This turned out to occur if the student's answer began with a blank line.
+* Improve question author feedback in the event of Twig errors.
+* Miscellaneous code-cleaning and minor bug fixes.
+
 ### 18 February 2018. 3.3.0
 * Add multilanguage program question type to base set, plus various changes
   to UI-handling code to allow student to select a language in such questions.
