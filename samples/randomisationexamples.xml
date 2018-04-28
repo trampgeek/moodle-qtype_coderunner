@@ -1,0 +1,759 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<quiz>
+<!-- question: 18842  -->
+  <question type="coderunner">
+    <name>
+      <text>Generate a random graph (incomplete)</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<p></p><p>The sample answer shows a random directed graph with edge weights. Find the shortest path (or&nbsp;<i>a</i>&nbsp;shortest path, if there are multiple possibilities) from node A to node D and mark all edges on that shortest path by appending an asterisk to the weight.</p><p>If there is no path possible between the two nodes, simply submit the graph without changing it.</p><p>The tester for this class has not been written - a special template is needed.</p><p></p>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.0000000</penalty>
+    <hidden>0</hidden>
+    <coderunnertype>undirected_graph</coderunnertype>
+    <prototypetype>0</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime>10, 20, ...</penaltyregime>
+    <precheck>0</precheck>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload><![CDATA[{"edgeGeometry":[{%for edge in edges %}
+{"lineAngleAdjust":0,"parallelPart":0.5,"perpendicularPart":0}{% if not loop.last %},
+{% endif %} 
+{% endfor %}
+],
+ "nodeGeometry":[[381,40],[500,131],[500,279],[323,337],[200,235],[223,89]],
+ "nodes":[["A",false],["B",false],["C",false],["D",false],["E",false],["F",false]],
+ "edges":[{%for edge in edges %}
+{% set src = edge[0] %}
+{% set dest = edge[1] %}
+{% set wt = edge[2] %}
+[{{src}}, {{dest}}, "{{wt}}"]{% if not loop.last %},
+{% endif %}
+{% endfor %}   
+]}]]></answerpreload>
+    <useace></useace>
+    <resultcolumns></resultcolumns>
+    <template></template>
+    <iscombinatortemplate></iscombinatortemplate>
+    <allowmultiplestdins></allowmultiplestdins>
+    <answer></answer>
+    <validateonsave>0</validateonsave>
+    <testsplitterre></testsplitterre>
+    <language></language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader></grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams><![CDATA[{
+ "isdirected": false,
+ "noderadius": 18,
+ "fontsize": 14,
+ "edges": [
+{% set outedges = 0 %}
+{% for i in [0, 1, 2, 3, 4, 5] %}
+{% for j in [0, 1, 2, 3, 4, 5] %}
+{% if (j > i) and not (i == 0 and j == 3) %}
+{% if random(10) >= 4 %}
+{% if outedges != 0 %}
+{{- ', ' -}}
+{% endif %}
+{% set outedges = outedges + 1 %}
+{{- '[' -}} {{i}}, {{j}}, {{1 + random(10) }} {{- ']' -}}
+{% endif %}
+{% endif %}
+{% endfor %}
+{% endfor %}
+{{- '] }' -}}
+
+
+]]></templateparams>
+    <hoisttemplateparams>1</hoisttemplateparams>
+    <twigall>1</twigall>
+    <uiplugin></uiplugin>
+    <testcases>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>OK</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+    </testcases>
+  </question>
+
+<!-- question: 18798  -->
+  <question type="coderunner">
+    <name>
+      <text>Grow older by random n</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<p>Write a function growOlderBy{{i}}(age_now) that takes a persons age as an int and returns their age in {{i}} years' time.</p>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.0000000</penalty>
+    <hidden>0</hidden>
+    <coderunnertype>python3</coderunnertype>
+    <prototypetype>0</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime>10, 20, ...</penaltyregime>
+    <precheck>0</precheck>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
+    <useace></useace>
+    <resultcolumns></resultcolumns>
+    <template></template>
+    <iscombinatortemplate></iscombinatortemplate>
+    <allowmultiplestdins></allowmultiplestdins>
+    <answer>def growOlderBy{{i}}(age_now):
+    return age_now + {{i}}</answer>
+    <validateonsave>1</validateonsave>
+    <testsplitterre></testsplitterre>
+    <language></language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader></grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams><![CDATA[{  "i" :{{ 1 + random(19)}} }]]></templateparams>
+    <hoisttemplateparams>1</hoisttemplateparams>
+    <twigall>1</twigall>
+    <uiplugin></uiplugin>
+    <testcases>
+      <testcase testtype="0" useasexample="1" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text>new_age = growOlderBy{{i}}(17)
+print(new_age)</text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>{{17 + i}}</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text>new_age = growOlderBy{{i}}(3)
+print(new_age)</text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>{{3 + i}}</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>HIDE_IF_SUCCEED</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text>new_age = growOlderBy{{i}}(97)
+print(new_age)</text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>{{97 + i}}</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>HIDE</text>
+      </display>
+    </testcase>
+    </testcases>
+  </question>
+
+<!-- question: 18821  -->
+  <question type="coderunner">
+    <name>
+      <text>Random {{animal}} goes {{noise}}</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<p>Write a program that prints {{animal}}s go '{{sound}}'!</p>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.0000000</penalty>
+    <hidden>0</hidden>
+    <coderunnertype>python3</coderunnertype>
+    <prototypetype>0</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime>10, 20, ...</penaltyregime>
+    <precheck>0</precheck>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
+    <useace></useace>
+    <resultcolumns></resultcolumns>
+    <template></template>
+    <iscombinatortemplate></iscombinatortemplate>
+    <allowmultiplestdins></allowmultiplestdins>
+    <answer><![CDATA[print("{{animal}}s go '{{sound}}'!")]]></answer>
+    <validateonsave>1</validateonsave>
+    <testsplitterre></testsplitterre>
+    <language></language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader></grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams><![CDATA[{ 
+    {% set index = random(2) %}
+    "animal": "{{ ["Dog", "Cat", "Cow"][index] }}",
+    "sound":  "{{ ["Woof", "Miaow", "Moo"][index] }}"
+}]]></templateparams>
+    <hoisttemplateparams>1</hoisttemplateparams>
+    <twigall>1</twigall>
+    <uiplugin></uiplugin>
+    <testcases>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>{{animal}}s go '{{sound}}'!</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+    </testcases>
+  </question>
+
+<!-- question: 18822  -->
+  <question type="coderunner">
+    <name>
+      <text>Random {{animal}} goes {{noise}}, version 2.</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<p>Write a program that prints {{animal}}s go '{{sound}}'!</p>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.0000000</penalty>
+    <hidden>0</hidden>
+    <coderunnertype>python3</coderunnertype>
+    <prototypetype>0</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime>10, 20, ...</penaltyregime>
+    <precheck>0</precheck>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
+    <useace></useace>
+    <resultcolumns></resultcolumns>
+    <template></template>
+    <iscombinatortemplate></iscombinatortemplate>
+    <allowmultiplestdins></allowmultiplestdins>
+    <answer><![CDATA[print("{{animal}}s go '{{sound}}'!")]]></answer>
+    <validateonsave>1</validateonsave>
+    <testsplitterre></testsplitterre>
+    <language></language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader></grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams><![CDATA[{ 
+    {% set obj = random([
+        {'name': 'Dog', 'sound': 'Woof'},
+        {'name': 'Cat', 'sound': 'Miaow'},
+        {'name': 'Cow', 'sound': 'Moo'}
+    ]) %}
+    "animal": "{{ obj.name }}",
+    "sound":  "{{ obj.sound }}"
+}]]></templateparams>
+    <hoisttemplateparams>1</hoisttemplateparams>
+    <twigall>1</twigall>
+    <uiplugin></uiplugin>
+    <testcases>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>{{animal}}s go '{{sound}}'!</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+    </testcases>
+  </question>
+
+<!-- question: 18866  -->
+  <question type="coderunner">
+    <name>
+      <text>Select last {{n}} items from a list.</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<p>Write a function <i>last{{n}}(items)</i>&nbsp;that takes a list of items and returns a list containing the last {{n}} elements of <i>items</i>. You may assume that <i>items</i>&nbsp;has at least {{n}} elements.</p>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.0000000</penalty>
+    <hidden>0</hidden>
+    <coderunnertype>python3</coderunnertype>
+    <prototypetype>0</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime>10, 20, ...</penaltyregime>
+    <precheck>0</precheck>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
+    <useace></useace>
+    <resultcolumns></resultcolumns>
+    <template><![CDATA[{{ STUDENT_ANSWER }}
+
+__student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
+
+SEPARATOR = "#<ab@17943918#@>#"
+
+{% for TEST in TESTCASES %}
+{{ TEST.testcode }}
+{% if not loop.last %}
+print(SEPARATOR)
+{% endif %}
+{% endfor %}]]></template>
+    <iscombinatortemplate></iscombinatortemplate>
+    <allowmultiplestdins>0</allowmultiplestdins>
+    <answer><![CDATA[def last{{n}}(items):
+    """Return the last {{n}} elements of items"""
+    return items[-{{n}}:]]]></answer>
+    <validateonsave>1</validateonsave>
+    <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
+    <language></language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader>EqualityGrader</grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams><![CDATA[{
+{% set n = 2 + random(2) %}
+    "n": {{ n }},
+{% set numtests = 5 %}
+{% for i in 1..numtests %}
+{%     set list = [] %}
+{%     for j in 1 .. (n + random(6)) %}
+{%         set list = list | merge([-100 + random(100)]) %}
+{%     endfor %}
+    "testlist{{i}}": "{{ list | json_encode }}",
+    "expected{{i}}": "{{ '[' ~ list | slice((list | length) - n, n) | join(', ') ~ ']' }}",
+{% endfor %}
+    "blah": 0
+}]]></templateparams>
+    <hoisttemplateparams>1</hoisttemplateparams>
+    <twigall>1</twigall>
+    <uiplugin>ace</uiplugin>
+    <testcases>
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text>print(last{{n}}({{testlist1}}))</text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>{{expected1}}</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text>print(last{{n}}({{testlist2}}))</text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>{{expected2}}</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text>print(last{{n}}({{testlist3}}))</text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>{{expected3}}</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text>print(last{{n}}({{testlist4}}))</text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>{{expected4}}</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text>print(last{{n}}({{testlist5}}))</text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>{{expected5}}</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+    </testcases>
+  </question>
+
+<!-- question: 18797  -->
+  <question type="coderunner">
+    <name>
+      <text>Simple Hello RandomName question</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<p>Write a program that prints<br></p><pre>Hello {{name}}. I see you are {{ age }} years old.
+</pre>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.0000000</penalty>
+    <hidden>0</hidden>
+    <coderunnertype>python3</coderunnertype>
+    <prototypetype>0</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime>10, 20, ...</penaltyregime>
+    <precheck>0</precheck>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
+    <useace></useace>
+    <resultcolumns></resultcolumns>
+    <template></template>
+    <iscombinatortemplate></iscombinatortemplate>
+    <allowmultiplestdins></allowmultiplestdins>
+    <answer><![CDATA[print("Hello {{name}}. I see you are {{age}} years old.")]]></answer>
+    <validateonsave>1</validateonsave>
+    <testsplitterre></testsplitterre>
+    <language></language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader></grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams><![CDATA[{
+    "maxnumconstants": 5,
+    "name": "{{ random(["Bob", "Carol", "Ted", "Alice", "Fred", "Angel", "ChinMay", "Howard"]) }}",
+    "age": {{ 1 + random(30)}}
+}]]></templateparams>
+    <hoisttemplateparams>1</hoisttemplateparams>
+    <twigall>1</twigall>
+    <uiplugin></uiplugin>
+    <testcases>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>Hello {{name}}. I see you are {{age}} years old.</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+    </testcases>
+  </question>
+
+<!-- question: 18820  -->
+  <question type="coderunner">
+    <name>
+      <text>Write a (randomised) animal class version 2</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<p>Write a class {{ animal }} that has:</p><p></p><ul><li>An initialiser that takes the animal's integer {{ attribute }} as a parameter</li><li>A <code>__str__</code> method that behaves as shown in the example below</li><li>A <code>get_{{ attribute }}</code> method that returns the animal's {{ attribute }}
+</li><li>A <code>set_{{ attribute }}</code> method that takes an int parameter and sets the animal's {{ attribute }}</li><li>A&nbsp;<code>speak</code>&nbsp;method that behaves as shown in the example below</li></ul>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.0000000</penalty>
+    <hidden>0</hidden>
+    <coderunnertype>python3</coderunnertype>
+    <prototypetype>0</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime>10, 20, ...</penaltyregime>
+    <precheck>0</precheck>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
+    <useace></useace>
+    <resultcolumns></resultcolumns>
+    <template></template>
+    <iscombinatortemplate></iscombinatortemplate>
+    <allowmultiplestdins></allowmultiplestdins>
+    <answer><![CDATA[class  {{ animal }}:
+    """A class representing a {{ animal }}"""
+    def __init__(self, attribute):
+        self.attribute = attribute
+        
+    def __str__(self):
+        return "I am a {{ animal }}. My {{ attribute}} is {}".format(self.attribute)
+        
+    def get_{{ attribute }}(self):
+        return self.attribute
+        
+    def set_{{ attribute }}(self, value):
+        self.attribute = value
+        
+    def speak(self, times=1):
+        print(times * "{{ sound }} ")]]></answer>
+    <validateonsave>1</validateonsave>
+    <testsplitterre></testsplitterre>
+    <language></language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader></grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams><![CDATA[{
+{% set obj = random([
+        {'name': 'Goat', 'sound': 'Baaa'},
+        {'name': 'Horse', 'sound': 'Neigh'},
+        {'name': 'Dog', 'sound': 'Woof'},
+        {'name': 'Pig', 'sound': 'Oink'},
+        {'name': 'Cat', 'sound': 'Miaow'}]) %}    
+    "animal": "{{ obj.name }}",
+    "sound":  "{{ obj.sound }}",
+    "attribute": "{{ random(["weight", "height", "age"]) }}",
+    "value1": {{ 1 + random(49) }},
+    "value2": {{ 50 + random(10)}}
+}]]></templateparams>
+    <hoisttemplateparams>1</hoisttemplateparams>
+    <twigall>1</twigall>
+    <uiplugin></uiplugin>
+    <testcases>
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text><![CDATA[animal = {{ animal}}({{ value1}})
+print(animal)
+animal.set_{{ attribute}}({{ value2}})
+print("Now my {{ attribute }} is", animal.get_{{ attribute}}())
+animal.speak()
+animal.speak(5)]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>I am a {{ animal}}. My {{ attribute }} is {{ value1 }}
+Now my {{ attribute }} is {{ value2}}
+{{ sound }}
+{{ sound }} {{ sound }} {{ sound }} {{ sound }} {{ sound }}</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+    </testcases>
+  </question>
+
+<!-- question: 18818  -->
+  <question type="coderunner">
+    <name>
+      <text>Write a (randomised) animal class.</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<p>Write a class {{ animal }} that has:</p><p></p><ul><li>An initialiser that takes the animal's integer {{ attribute }} as a parameter</li><li>A <code>__str__</code> method that behaves as shown in the example below</li><li>A <code>get_{{ attribute }}</code> method that returns the animal's {{ attribute }}
+</li><li>A <code>set_{{ attribute }}</code> method that takes an int parameter and sets the animal's {{ attribute }}</li><li>A&nbsp;<code>speak</code>&nbsp;method that behaves as shown in the example below</li></ul>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.0000000</penalty>
+    <hidden>0</hidden>
+    <coderunnertype>python3</coderunnertype>
+    <prototypetype>0</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime>10, 20, ...</penaltyregime>
+    <precheck>0</precheck>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
+    <useace></useace>
+    <resultcolumns></resultcolumns>
+    <template></template>
+    <iscombinatortemplate></iscombinatortemplate>
+    <allowmultiplestdins></allowmultiplestdins>
+    <answer><![CDATA[class  {{ animal }}:
+    """A class representing a {{ animal }}"""
+    def __init__(self, attribute):
+        self.attribute = attribute
+        
+    def __str__(self):
+        return "I am a {{ animal }}. My {{ attribute}} is {}".format(self.attribute)
+        
+    def get_{{ attribute }}(self):
+        return self.attribute
+        
+    def set_{{ attribute }}(self, value):
+        self.attribute = value
+        
+    def speak(self, times=1):
+        print(times * "{{ sound }} ")]]></answer>
+    <validateonsave>1</validateonsave>
+    <testsplitterre></testsplitterre>
+    <language></language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader></grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams><![CDATA[{
+    {% set ix = random(4) %}
+    "animal": "{{ ["Goat", "Horse", "Dog", "Pig", "Cat"][ix] }}",
+    "sound":  "{{ ["Baaa", "Neigh", "Woof", "Oink", "Miaow"][ix] }}",
+    "attribute": "{{ random(["weight", "height", "age"]) }}",
+    "value1": {{ 1 + random(49) }},
+    "value2": {{ 50 + random(10)}}
+}]]></templateparams>
+    <hoisttemplateparams>1</hoisttemplateparams>
+    <twigall>1</twigall>
+    <uiplugin></uiplugin>
+    <testcases>
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text><![CDATA[animal = {{ animal}}({{ value1}})
+print(animal)
+animal.set_{{ attribute}}({{ value2}})
+print("Now my {{ attribute }} is", animal.get_{{ attribute}}())
+animal.speak()
+animal.speak(5)]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>I am a {{ animal}}. My {{ attribute }} is {{ value1 }}
+Now my {{ attribute }} is {{ value2}}
+{{ sound }}
+{{ sound }} {{ sound }} {{ sound }} {{ sound }} {{ sound }}</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+    </testcases>
+  </question>
+
+</quiz>
