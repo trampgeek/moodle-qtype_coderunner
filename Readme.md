@@ -1061,6 +1061,7 @@ the above question attributes directly in the question authoring form.
 The template variable `STUDENT` is an object containing a subset of the fields of the
 PHP user object. The fields/attributes of STUDENT are:
 
+ * `STUDENT.id` The unique internal id of the current user (an integer).
  * `STUDENT.username` The unique internal username of the current user.
  * `STUDENT.firstname` The first name of the current user.
  * `STUDENT.lastname` The last name of the current user.
@@ -1092,6 +1093,7 @@ the reader already understands the basic workings of CodeRunner, in particular
 how the [Twig template engine](http://twig.sensiolabs.org/) is used to
 convert the question's template into an executable program and how that
 process can be parameterised by use of CodeRunners *template parameters*
+
 
 ### How it works
 
@@ -1129,6 +1131,23 @@ other fields is that defined by the Twigged template parameters field.
 
 It is usual to click the *Twig All* checkbox with randomised questions, as otherwise only
 the template will be subject to randomisation, which isn't usually appropriate.
+
+### Randomising per-student rather than per-question-attempt
+
+CodeRunner adds a new function *set_random_seed(seedvalue)* to Twig. This
+is a call through to the underlying PHP *mt_srand* function to define the
+state of the pseudo random number generator. The return value is the empty string.
+If a call to this function is
+made from within the Twigged template parameters before any calls are made
+to the *random* function, the same sequence of randomisations will be
+performed every time the question is attempted. If the *id* field of the
+Twig STUDENT variable
+is used as the seed value, the effect is then that a particular
+student only ever sees one variant of the question, no matter how often they
+attempt a question. A typical use might be to begin the template parameters
+with the line
+
+    {{- set_random_seed(STUDENT.id) -}}
 
 ### A important warning about editing template parameters
 
@@ -1168,7 +1187,7 @@ refer to template parameters with the syntax {{QUESTION.parameters.x}} where
 *x* is a parameter. However, that syntax becomes very clumsy when the same
 parameters is being used in lots of different places within the question.
 There is now a checkbox *Hoist template parameters*, which copies the
-template parameters into the Twig global name space, where STUDENT_ANSWER,of
+template parameters into the Twig global name space, where STUDENT_ANSWER,
 TEST etc reside. The variable *x* can then be inserted into the text simply
 by writing `{{ x }}`.
 
@@ -1192,7 +1211,7 @@ to true on newly created questions.
 
 1. Sometimes you need a set of random variables to be "coupled". For example
     you might want an `animal` to be one of `dog`, `cat`, `cow` and an associated
-    variable `sound` to be respectively `woof`, `miaow`, `moo`. Two ways of achieving
+    variable `sound` to be respectively `woof`, `miaow`, `moo`. Three ways of achieving
     this are:
     1. Create a single random `index` variable and use that to index into
        separate animal and sound lists. For example:
@@ -1203,7 +1222,7 @@ to true on newly created questions.
                 "sound":  "{{ ["Woof", "Miaow", "Moo"][index] }}"
 
     1. Select an animal at random from a list of Twig 'hash' objects, then plug
-       the animal attributes into the JSON record. For example:
+       each of the animal attributes into the JSON record. For example:
 
             { 
                 {% set obj = random([
@@ -1215,7 +1234,21 @@ to true on newly created questions.
                 "sound":  "{{ obj.sound }}"
              }
 
-    The former is easier for short lists but the latter scales better.
+    1. Select an animal at random from a list of Twig 'hash' objects as above,
+       but then json_encode the entire object as a single template parameter.
+       For example
+
+            { 
+                {% set animal = random([
+                    {'name': 'Dog', 'sound': 'Woof'},
+                    {'name': 'Cat', 'sound': 'Miaow'},
+                    {'name': 'Cow', 'sound': 'Moo'}
+                ]) %}
+                "animal": {{ animal | json_encode }}
+             }
+
+    In the last case, the template parameters will need to be referred to as
+    {{ animal.name }} and {{ animal.sound }} instead of {{ animal }} and {{ sound }}.
 
 1. Since the Twig output must be JSON, and newlines aren't allowed in JSON
    strings, you may find the Twig whitespace control modifiers (`{{-` and `-}}`)
