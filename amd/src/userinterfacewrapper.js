@@ -21,11 +21,13 @@
  *
  * The InterfaceWrapper provides:
  *
- * 1. A constructor InterfaceWrapper(uiname, textareaId, params) which
+ * 1. A constructor InterfaceWrapper(uiname, textareaId, strings, params) which
  *    hides the given text area, replaces it with a wrapper div (resizable in
  *    height by the user but with width resizing managed by changes in window
  *    width), created an instance of nameInstance as defined in the file
- *    ui_name.js (see below). params is a record containing the decoded value of
+ *    ui_name.js (see below). strings is an associative array mapping string
+ *    name (from lang/en) to string.
+ *    params is a record containing the decoded value of
  *    the question's templateParams, possibly enhanced by additional
  *    data such as a 'lang' value for the Ace editor.
  *
@@ -67,8 +69,9 @@
  * 3. A method failed() that should return true unless the constructor
  *    failed (e.g. because it was not able to de-serialise the text area's
  *    contents). The wrapper will call destroy() on the object if failed()
- *    returns true and abort the use of the UI element. THe element should
- *    issue its own alert if it fails.
+ *    returns true and abort the use of the UI element. The text area will
+ *    have the uiloadfailed class added, which CSS will display in some
+ *    error mode (e.g. a red border).
  *
  * 4. A getMinSize() method that should return a record with minWidth and
  *    minHeight values. These will be used to control the minimum size of the
@@ -110,11 +113,13 @@
 
 define(['jquery'], function($) {
 
-    function InterfaceWrapper(uiname, textareaId, params) {
+    function InterfaceWrapper(uiname, textareaId, strings, params) {
         // Constructor for a new user interface.
         // uiname is the name of the interface element (e.g. ace, graph, etc)
         // which should be in file ui_ace.js, ui_graph.js etc.
         // textareaId is the id of the text area that the UI is to manage
+        // strings is an associative array of language strings, namely
+        // all those specified by constants::ui_plugin_keys.
         // params is a record containing whatever additional parameters might
         // be needed by the User interface. As a minimum it should contain all
         // the template params from the JSON-encode template-params field of
@@ -133,9 +138,12 @@ define(['jquery'], function($) {
         this.GUTTER = 14;  // Size of gutter at base of wrapper Node (pixels)
 
         this.taId = textareaId;
+        this.loadFailId = textareaId + '_loadfailerr';
         this.textArea = $(document.getElementById(textareaId));
         this.readOnly = this.textArea.prop('readonly');
         this.isLoading = false;  // True if we're busy loading a UI element
+        this.loadFailed = false;  // True if UI couldn't deserialise TA contents
+        this.loadFailMessage = strings['uiloadfail'];
         this.retries = 0;        // Number of failed attempts to load a UI component
 
         h = parseInt(this.textArea.css("height"));
@@ -172,7 +180,7 @@ define(['jquery'], function($) {
         $(document.body).on('keydown', function(e) {
             var KEY_M = 77;
             if (e.keyCode === KEY_M && e.ctrlKey && e.altKey) {
-                if (t.uiInstance !== null) {
+                if (t.uiInstance !== null || t.loadFailed) {
                     t.stop();
                 } else {
                     t.restart();        // Reactivate
@@ -217,17 +225,21 @@ define(['jquery'], function($) {
             this.isLoading = true;
             require(['qtype_coderunner/ui_' + this.uiname],
                 function(ui) {
-                    var minSize, uiInstance, h, w;
+                    var minSize, uiInstance,loadFailWarn, h, w;
 
                     h = t.wrapperNode.innerHeight() - t.GUTTER;
                     w = t.wrapperNode.innerWidth();
                     uiInstance = new ui.Constructor(t.taId, w, h, params);
                     if (uiInstance.failed()) {
-                        // Constructor failed. Abort.
-                        uiInstance.destroy();
+                        // Constructor failed to load serialisation.
+                        // Set uiloadfailed class on text area.
                         t.wrapperNode.hide();
+                        uiInstance.destroy();
                         t.uiInstance = null;
-                        // TODO: should set UI dropdown selector to None here, but tricky as it's async
+                        t.loadFailed = true;
+                        t.textArea.addClass('uiloadfailed');
+                        loadFailWarn = '<div id="' + t.loadFailId + '"class="uiloadfailed">' + t.loadFailMessage + '</div>';
+                        $(loadFailWarn).insertBefore(t.textArea);
                     } else {
                         minSize = uiInstance.getMinSize();
                         t.wrapperNode.css({
@@ -240,6 +252,7 @@ define(['jquery'], function($) {
                         t.textArea.hide();
                         t.wrapperNode.show();
                         t.uiInstance = uiInstance;
+                        t.loadFailed = false;
                         t.checkForResize();
                     }
                     t.isLoading = false;
@@ -261,6 +274,9 @@ define(['jquery'], function($) {
             this.uiInstance = null;
             this.wrapperNode.hide();
         }
+        this.loadFailed = false;
+        this.textArea.removeClass('uiloadfailed'); // Just in case it failed before
+        $(document.getElementById(this.loadFailId)).remove();
     };
 
 
@@ -301,22 +317,24 @@ define(['jquery'], function($) {
      *  The external entry point from the PHP.
      * @param string uiname, e.g. 'ace'
      * @param string textareaId
+     * @param associative array strings language strings required by any plugins
      * @param string templateParamsJson - the JSON-encoded template params
      * @param string lang (relevant only to Ace) - the language to be edited
      * @returns {userinterfacewrapperL#111.InterfaceWrapper}
      */
-    function newUiWrapper(uiname, textareaId, templateParamsJson, lang) {
+    function newUiWrapper(uiname, textareaId, strings, templateParamsJson, lang) {
         var params;
-        try {
-            params = window.JSON.parse(templateParamsJson);
-        } catch(e) {
-            params = {};
-        }
-        if (lang) {
-            params.lang = lang;
-        }
+
         if (uiname) {
-            return new InterfaceWrapper(uiname, textareaId, params);
+            try {
+                params = window.JSON.parse(templateParamsJson);
+            } catch(e) {
+                params = {};
+            }
+            if (lang) {
+                params.lang = lang;
+            }
+            return new InterfaceWrapper(uiname, textareaId, strings, params);
         } else {
             return null;
         }

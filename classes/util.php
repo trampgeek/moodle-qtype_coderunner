@@ -40,7 +40,11 @@ class qtype_coderunner_util {
         $uiplugin = $question->uiplugin === null ? 'ace' : strtolower($question->uiplugin);
         if ($uiplugin !== '' && $uiplugin !== 'none') {
             $PAGE->requires->strings_for_js(constants::ui_plugin_keys(), 'qtype_coderunner');
-            $params = array($uiplugin, $textareaid, $question->templateparams); // Params to plugin's init function.
+            $strings = array();
+            foreach (constants::ui_plugin_keys() as $key) {
+                $strings[$key] = get_string($key, 'qtype_coderunner');
+            }
+            $params = array($uiplugin, $textareaid, $strings, $question->templateparams); // Params to plugin's init function.
             if ($uiplugin === 'ace') {
                 self::load_ace();
                 $lang = ucwords($acelang);

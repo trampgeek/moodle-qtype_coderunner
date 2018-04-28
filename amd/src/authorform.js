@@ -55,13 +55,13 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
         uiplugin:            ['#id_uiplugin', 'value', 'ace']
     };
 
-    // Postpone initialisation until document ready, because strings_for_js
-    // strings aren't defined at the time this is called.
-    function initEditForm() {
-        $().ready(initEditFormWhenReady);
-    }
-
-    function initEditFormWhenReady() {
+    // Set up the author edit form UI plugins and event handlers.
+    // The strings parameter is an associative array containing a subset of
+    // the strings extracted from lang/xx/qtype_coderunner.php. The particular
+    // subset is specified by constants::author_edit_keys()
+    // The templateParams, passed as a parameter, are needed by the
+    // UI plugins.
+    function initEditForm(strings, templateParams) {
         var typeCombo = $('#id_coderunnertype'),
             template = $('#id_template'),
             useace = $('#id_useace'),
@@ -81,7 +81,6 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
             questiontypeHelpDiv = $('#qtype-help'),
             precheck = $('select#id_precheck'),
             testtypedivs = $('div.testtype'),
-            templateParams = $('#id_templateparams').val(),
             uiplugin = $('#id_uiplugin');
 
         // Set up the UI controller for the textarea whose name is
@@ -107,12 +106,18 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
             }
 
             if (uiname === "ace") {
-                // The Ace UI needs a language. Use the value specified in 'acelang'
+                // The Ace UI needs a language. For the templateparams, don't
+                // use any language as it's Twigged JavaScript that can't be
+                // usefully coloured. Use the value specified in 'acelang'
                 // for all fields other than the template, if the value is defined,
                 // or the value in 'language' in all other cases.
-                lang = language.prop('value');
-                if (taId !== "id_template" && acelang.prop('value')) {
-                    lang = preferredAceLang(acelang.prop('value'));
+                if (taId == 'id_templateparams') {
+                    lang = '';
+                } else {
+                    lang = language.prop('value');
+                    if (taId !== "id_template" && acelang.prop('value')) {
+                        lang = preferredAceLang(acelang.prop('value'));
+                    }
                 }
                 params.lang = lang;
             }
@@ -122,7 +127,7 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
             }
 
             if (!uiWrapper) {
-                uiWrapper = new ui.InterfaceWrapper(uiname, taId, params);
+                uiWrapper = new ui.InterfaceWrapper(uiname, taId, strings, params);
             } else {
                 // Wrapper has already been set up - just reload the reqd UI.
                 uiWrapper.loadUi(uiname, params);
@@ -206,9 +211,9 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
 
         }
 
-        // Compact call to M.util.get_string.
+        // Get the required string from the strings parameter.
         function getString(key) {
-            return M.util.get_string(key, 'qtype_coderunner');
+            return strings[key];
         }
 
         // Get the "preferred language" from the AceLang string supplied.
@@ -315,6 +320,10 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
 
         set_testtype_visibilities();
 
+        if (useace.prop('checked')) {
+            setUi('id_templateparams', 'ace');
+        }
+
         // Set up event Handlers.
 
         customise.on('change', function() {
@@ -348,8 +357,10 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
             var isTurningOn = useace.prop('checked');
             if (isTurningOn) {
                 setUi('id_template', 'ace');
+                setUi('id_templateparams', 'ace');
             } else {
                 setUi('id_template', '');
+                setUi('id_templateparams', '');
             }
         });
 

@@ -30,9 +30,7 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/question/behaviour/adaptive/behaviour.php');
 require_once($CFG->dirroot . '/question/engine/questionattemptstep.php');
 require_once($CFG->dirroot . '/question/behaviour/adaptive_adapted_for_coderunner/behaviour.php');
-require_once($CFG->dirroot . '/question/type/coderunner/Twig/Autoloader.php');
 require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
-
 
 use qtype_coderunner\constants;
 
@@ -41,7 +39,73 @@ use qtype_coderunner\constants;
  */
 class qtype_coderunner_question extends question_graded_automatically {
 
-    public $testcases; // Array of testcases.
+    public $testcases = null; // Array of testcases.
+
+    /**
+     * Start a new attempt at this question, storing any information that will
+     * be needed later in the step. It is retrieved and applied by
+     * apply_attempt_state.
+     *
+     * For CodeRunner questions we pre-process the template parameters for any
+     * randomisation required, storing the processed template parameters in
+     * the question_attempt_step.
+     *
+     * @param question_attempt_step The first step of the {@link question_attempt}
+     *      being started. Can be used to store state. Is set to null during
+     *      question validation, and must then be ignored.
+     * @param int $varant which variant of this question to start. Will be between
+     *      1 and {@link get_num_variants()} inclusive.
+     */
+    public function start_attempt(question_attempt_step $step=null, $variant=null) {
+        global $USER;
+
+        $user = $USER;
+        $this->student = $user;
+        if ($step !== null) {
+            parent::start_attempt($step, $variant);
+            $step->set_qt_var('_STUDENT', serialize($user));
+        }
+
+        $seed = mt_rand();
+        if ($step !== null) {
+            $step->set_qt_var('_mtrandseed', $seed);
+        }
+        $this->setup_template_params($seed);
+        if ($this->twigall) {
+            $this->twig_all();
+        }
+    }
+
+    // Retrieve the saved random number seed and reconstruct the template
+    // parameters to the state they were left after start_attempt was called.
+    // Also twig expand the rest of the question fields if $this->twigall is true.
+    public function apply_attempt_state(question_attempt_step $step) {
+        parent::apply_attempt_state($step);
+        $this->student = unserialize($step->get_qt_var('_STUDENT'));
+
+        // Short-lived legacy code, for use at U of C only
+        $templateparams = $step->get_qt_var('_templateparamsinstance');
+        if ($templateparams !== null) {
+
+            $this->templateparams = $templateparams;
+            if ($step->get_qt_var('_twigall')) {
+                $this->twigall = true;
+            }
+        } else {
+            // Non-legacy code lands here
+            $seed = $step->get_qt_var('_mtrandseed');
+            if ($seed === null) {
+                // Rendering a question that was begun before randomisation
+                // was introduced into the code
+               $seed = mt_rand();
+            }
+            $this->setup_template_params($seed);
+        }
+
+        if ($this->twigall) {
+            $this->twig_all();
+        }
+    }
 
     /**
      * Override default behaviour so that we can use a specialised behaviour
@@ -178,8 +242,6 @@ class qtype_coderunner_question extends question_graded_automatically {
             $code = $response['answer'];
             $testcases = $this->filter_testcases($isprecheck, $this->precheck);
             $runner = new qtype_coderunner_jobrunner();
-            $this->templateparams = qtype_coderunner_util::merge_json(
-                    $this->prototypetemplateparams, $this->templateparams);
             $testoutcome = $runner->run_tests($this, $code, $testcases, $isprecheck, $language);
             $testoutcomeserial = serialize($testoutcome);
         }
@@ -226,6 +288,71 @@ class qtype_coderunner_question extends question_graded_automatically {
         return array_filter($this->testcases, function($tc) {
                     return $tc->useasexample;
         });
+    }
+
+
+    // Twig expand all text fields of the question except the templateparam field
+    // (which should have been expanded when the question was started) and
+    // the template itself.
+    // Done only if randomisation is specified within the template params.
+    private function twig_all() {
+        // Before twig expanding all fields, copy the template parameters
+        // into $this->parameters.
+        if (!empty($this->templateparams)) {
+            $this->parameters = json_decode($this->templateparams);
+        } else {
+            $this->parameters = array();
+        }
+
+        // Twig expand everything in a context that includes the template
+        // parameters and the STUDENT and QUESTION objects. The only thing
+        // guaranteed about the QUESTION object is the parameters field - use
+        // other fields at your peril (since the order in which they are
+        // expanded might vary in the future).
+        $this->questiontext = $this->twig_expand($this->questiontext);
+        $this->answer = $this->twig_expand($this->answer);
+        $this->answerpreload = $this->twig_expand($this->answerpreload);
+        foreach ($this->testcases as $key => $test) {
+            foreach (['testcode', 'stdin', 'expected', 'extra'] as $field) {
+                $text = $this->testcases[$key]->$field;
+                $this->testcases[$key]->$field = $this->twig_expand($text);
+            }
+        }
+    }
+
+    /**
+     * Return Twig-expanded version of the given text. The
+     * Twig environment includes the question itself (this) and the template
+     * parameters. Additional twig environment parameters are passed in via
+     * $twigparams. Template parameters are hoisted if required.
+     * @param string $text Text to be twig expanded.
+     * @param associative array $twigparams Extra twig environment parameters
+     */
+    public function twig_expand($text, $twigparams=array()) {
+        $twig = qtype_coderunner_twig::get_twig_environment();
+        $twigparams['QUESTION'] = $this;
+        if ($this->hoisttemplateparams) {
+            foreach ($this->parameters as $key => $value) {
+                $twigparams[$key] = $value;
+            }
+        }
+        $twigparams['STUDENT'] = new qtype_coderunner_student($this->student);
+        return $twig->render($text, $twigparams);
+    }
+
+    /**
+     * Define the template parameters for this question by Twig-expanding
+     * both our own template params and our prototype template params and
+     * merging the two.
+     * @param type $seed The random number seed to set for Twig randomisation
+     */
+    private function setup_template_params($seed) {
+        $twig = qtype_coderunner_twig::get_twig_environment();
+        $twigparams = array('STUDENT' => new qtype_coderunner_student($this->student));
+        mt_srand($seed);
+        $ournewtemplateparams = $twig->render($this->templateparams, $twigparams);
+        $prototypenewtemplateparams = $twig->render($this->prototypetemplateparams, $twigparams);
+        $this->templateparams = qtype_coderunner_util::merge_json($prototypenewtemplateparams, $ournewtemplateparams);
     }
 
 
@@ -371,9 +498,8 @@ class qtype_coderunner_question extends question_graded_automatically {
             $files = array(); // Don't load the files twice.
         } else {
             // Load any files from the prototype.
-            $context = qtype_coderunner::question_context($this);
-            $prototype = qtype_coderunner::get_prototype($this->coderunnertype, $context);
-            $files = $this->get_data_files($prototype, $prototype->questionid);
+            $this->get_prototype();
+            $files = $this->get_data_files($this->prototype, $this->prototype->questionid);
         }
         $files += $this->get_data_files($this, $this->id);  // Add in files for this question.
         return $files;
@@ -398,6 +524,17 @@ class qtype_coderunner_question extends question_graded_automatically {
             $this->parameters = json_decode($this->templateparams);
         }
         return $sandboxparams;
+    }
+
+
+    /**
+     * Load the prototype for this question and store in $this->prototype
+     */
+    public function get_prototype() {
+        if (!isset($this->prototype)) {
+            $context = qtype_coderunner::question_context($this);
+            $this->prototype = qtype_coderunner::get_prototype($this->coderunnertype, $context);
+        }
     }
 
 

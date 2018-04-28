@@ -56,13 +56,17 @@ $string['badcputime'] = 'CPU time limit must be left blank or must be an integer
 $string['bad_dotdotdot'] = 'Misuse of \'...\'. Must be at end, after two increasing numeric penalties';
 $string['bademptyprecheck'] = 'Precheck failed with the following unexpected output.';
 $string['bad_empty_splitter'] = 'Test splitter cannot be empty when using a combinator template';
+$string['badjsonfunc'] = 'Unknown JSON embedded func ({$a->func})';
 $string['badjsonorfraction'] = 'Bad JSON or missing fraction in combinator grader output. Output was: {$a->output}';
 $string['badmemlimit'] = 'Memory limit must either be left blank or must be a non-negative integer';
 $string['bad_new_prototype_name'] = 'Illegal name for new prototype: already in use';
 $string['badpenalties'] = 'Penalty regime must be a comma separated list of numbers in the range [0, 100]';
 $string['badquestion'] = 'Error in question';
+$string['badrandomintarg'] = 'Bad argument to JSON @randomint function';
+$string['badrandompickarg'] = 'Bad argument to JSON @randompic function';
 $string['badsandboxparams'] = '\'Other\' field (sandbox params) must be either blank or a valid JSON record';
 $string['badtemplateparams'] = 'Template parameters must be either blank or a valid JSON record';
+$string['badtemplateparamsaftertwig'] = 'Twigging of template parameters yielded invalid JSON: <pre>{$a}</pre>';
 $string['brokencombinator'] = 'Expected {$a->numtests} test results, got {$a->numresults}. Perhaps excessive output or error in question?';
 $string['brokentemplategrader'] = 'Bad output from grader: {$a->output}. Your program execution may have aborted (e.g. a timeout or memory limit exceeded).';
 $string['bulkquestiontester'] = 'The <a href="{$a->link}">bulk tester script</a> tests that the sample answers for all questions in the current context are marked right';
@@ -92,6 +96,7 @@ $string['columncontrols'] = 'Result table';
 $string['columncontrols_help'] = 'The checkboxes select which columns of the results table should be displayed to the student after submission';
 
 $string['confirm_proceed'] = 'If you save this question with \'Customise\' unchecked, any customisations made will be lost. Proceed?';
+$string['confirmreset'] = 'Discard all your work on this question and reset answer box to original preloaded value?';
 $string['cputime'] = 'TimeLimit (secs)';
 $string['customisationcontrols'] = 'Customisation';
 $string['customise'] = 'Customise';
@@ -147,7 +152,7 @@ $string['fileheader'] = 'Support files';
 $string['filloutoneanswer'] = 'You must enter source code that satisfies the specification. The code you enter will be executed to determine its correctness and a grade awarded accordingly.';
 $string['firstfailure'] = 'First failing test case: {$a}';
 $string['forexample'] = 'For example';
-$string['graphfail'] = 'TextArea contents are not a valid graph. Aborting.';
+
 $string['graphhelp'] = '- Double click at a blank space to create a new node/state.
 - Double click an existing node to "mark" it e.g. as an accept state for Finite State Machines
   (FSMs). Double click again to unmark it.
@@ -158,7 +163,7 @@ $string['graphhelp'] = '- Double click at a blank space to create a new node/sta
 - Click on a link/node to edit its text.
 - Typing _ followed by a digit makes that digit a subscript.
 - Typing \\epsilon creates an epsilon character (and similarly for \\alpha, \\beta etc).
-- Click on a link/node then press the Delete key to remove it.';
+- Click on a link/node then press the Delete key to remove it (or function-delete on a Mac).';
 
 $string['goodemptyprecheck'] = 'Passed';
 $string['gotcolhdr'] = 'Got';
@@ -230,6 +235,8 @@ $string['HIDE'] = 'Hide';
 $string['HIDE_IF_FAIL'] = 'Hide if fail';
 $string['HIDE_IF_SUCCEED'] = 'Hide if succeed';
 $string['hiderestiffail'] = 'Hide rest if fail';
+$string['hoisttemplateparams'] = 'Hoist template parameters';
+
 $string['howtogetmore'] = 'For more detailed information, save the question with \'Validate on save\' unchecked and test manually';
 
 $string['iscombinatortemplate'] = 'Is combinator';
@@ -330,8 +337,6 @@ $string['passes'] = 'passes';
 $string['penaltyregime'] = '(penalty regime: {$a} %)';
 $string['penaltyregimelabel'] = 'Penalty regime:';
 
-
-$string['parameterise_template'] = 'Set template params';
 $string['pass'] = 'Pass';
 $string['pluginname'] = 'CodeRunner';
 $string['pluginnameadding'] = 'Adding a CodeRunner question';
@@ -430,7 +435,10 @@ $string['qWrongBehaviour'] = 'Please use Adaptive Behaviour for all CodeRunner q
 
 $string['regexgrader'] = 'Regular expression';
 $string['replacedollarscount'] = 'This category contains {$a} CodeRunner questions.';
-$string['replaceexpectedwithgot'] = 'Click on the &lt;&lt; button to replace the expected output of this testcase with actual output.';$string['resultcolumns'] = 'Result columns';
+$string['replaceexpectedwithgot'] = 'Click on the &lt;&lt; button to replace the expected output of this testcase with actual output.';
+$string['resultcolumns'] = 'Result columns';
+$string['reset'] = 'Reset answer';
+$string['resethover'] = 'Discard changes and reset answer to original preloaded value';
 $string['resultcolumns_help'] = 'By default the result table displays the testcode, stdin, expected and got
 columns, provided the columns are not empty. You can change the default, and/or
 the column headers by entering a value for the resultcolumns (leave blank for
@@ -629,7 +637,18 @@ template variable `{{ QUESTION.parameters.age }}`.
 The set of template parameters passed to the template consists of any template
 parameters defined in the prototype with the question template parameters
 merged in. Question parameters can thus override prototype parameters, but not
-delete them.';
+delete them.
+
+Template parameters can also be used to provide randomisation within a question.
+When the question is first instantiated the template parameters are passed
+through the Twig template engine to yield the final JSON version.
+Twig\'s "random" function can
+be used to assign random values to template parameters. If the "Twig All" checkbox
+is checked, all other fields of the question (question text, answer, test cases
+etc) are the also processed by Twig, with the template parameters as an
+environment. This can result in different
+students seeing different random variants of the question. See the documentation
+for details.';
 $string['testcase'] = 'Test case {$a}';
 $string['testcasecontrols'] = 'Test properties:';
 $string['testcasecontrols_help'] = 'If \'Use as example\' is checked, this test will be automatically included in the
@@ -661,6 +680,20 @@ $string['testtype_normal'] = 'Check only';
 $string['testtype_precheck'] = 'Precheck only';
 $string['testtype_both'] = 'Both';
 $string['tooshort'] = 'Answer is too short to be meaningful and has been ignored without penalty';
+$string['twigall'] = 'Twig all';
+$string['twigcontrols'] = 'Twig controls';
+$string['twigcontrols_help'] = 'Template parameters are normally referred to during Twig expansion in the form
+{{QUESTION.parameters.someparam}} However, if the Hoist Template Parameters
+checkbox is checked, the parameters are hoisted into the Twig global name space
+and can be referenced simply as {{someparam}}.
+
+The Twig macro processor was traditionally applied only to the template. It is now
+applied to the template parameters as well and, if Twig All is checked, to the
+question text, sample answer, answer preload and all test case fields, using
+the Twig-expanded template parameters as an environment. You will usually
+need to turn on TwigAll if using randomisation within the template parameters';
+$string['twigerror'] = 'Twig error {$a}';
+$string['twigerrorintest'] = 'Twig error when processing this test {$a}';
 $string['type_header'] = 'CodeRunner question type';
 $string['typename'] = 'Question type';
 $string['typerequired'] = 'Please select the type of question (language, format, etc)';
@@ -696,9 +729,9 @@ Whatever value is selected for the student answer will also be used within
 the editor form for the Sample Answer and the Answer Preload fields.
 
 If \'Template uses ace\' is checked,
-the AceJavaScript code editor will manage the answer box. Otherwise a raw
-text box will be used.';
-
+the Ace code editor will manage both the template and the template parameters
+boxes. Otherwise a raw text box will be used.';
+$string['uiloadfail'] = 'UI plugin load failed.';
 $string['unauthorisedbulktest'] = 'You do not have suitable access to any CodeRunner questions';
 $string['unauthoriseddbaccess'] = 'You are not authorised to use this script';
 $string['unknownerror'] = 'An unexpected error occurred. The sandbox may be down. Try again shortly.';

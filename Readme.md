@@ -1,6 +1,6 @@
 # CODE RUNNER
 
-Version: 3.3.0 February 2018
+Version: 3.4.0 April 2018
 
 Authors: Richard Lobb, University of Canterbury, New Zealand.
          Tim Hunt, The Open University, UK
@@ -652,12 +652,14 @@ that the question author has specified
 for the particular test. The TEST attributes most likely to be used within
 the template are TEST.testcode (the code to execute for the test), TEST.stdin
 (the standard input for the test -- not normally used within a template, but
-occasionally useful) and TEST.extra (the extra template data provided in the
+occasionally useful) and TEST.extra (the extra test data provided in the
 question authoring form). The template will typically use just the TEST.testcode
 field, which is the "test" field of the testcase. It is usually
 a bit of code to be run to test the student's answer.
 
-As an example,
+When Twig processes the template, it replaces any occurrences of
+strings of the form `{{ TWIG\_VARIABLE }}` with the value of the given 
+TWIG_VARIABLE (e.g. STUDENT\_ANSWER). As an example,
 the question type *c\_function*, which asks students to write a C function,
 might have the following template (if it used a per-test template):
 
@@ -1059,16 +1061,239 @@ the above question attributes directly in the question authoring form.
 The template variable `STUDENT` is an object containing a subset of the fields of the
 PHP user object. The fields/attributes of STUDENT are:
 
+ * `STUDENT.id` The unique internal id of the current user (an integer).
  * `STUDENT.username` The unique internal username of the current user.
  * `STUDENT.firstname` The first name of the current user.
  * `STUDENT.lastname` The last name of the current user.
  * `STUDENT.email` The email address of the current user.
 
 
+## Randomising questions
+
+Sometimes one wants a question that presents different variations of itself
+to each student. As a trivial example, a generalisation of a `Hello world`
+program might ask students to write a program that prints `Hello <name>`,
+where there are many different values for `name`.
+
+By way of introduction, a Python version of the above example above is easily achieved,
+albeit with only four different names, as follows:
+
+1. Set the template parameters field of the question authoring form to
+    ```
+    { "name": "{{ random(["Bob", "Carol", "Ted", "Alice" }}" }
+    ```
+1. Turn on the *Twig All* checkbox, so that all fields of the question will
+   get processed by Twig, once the template parameters have been set up.
+1. Set the question text to *Write a program that prints `Hello {{ name }}`*
+1. Set the expected output of the first test case to `Hello {{ name }}`
+1. Set the sample answer to `print("Hello {{name}}")`
+
+The underlying mechanism will now be explained in more detail. It assumes
+the reader already understands the basic workings of CodeRunner, in particular
+how the [Twig template engine](http://twig.sensiolabs.org/) is used to
+convert the question's template into an executable program and how that
+process can be parameterised by use of CodeRunners *template parameters*
+
+
+### How it works
+
+When a student starts a Moodle quiz, an instance of each quiz question is generated.
+As each quiz question is instantiated, certain variables need to be defined,
+such as the order in which shuffled options will be presented in a multichoice
+question. These variables are essentially "frozen" throughout the lifetime of that particular
+question instance, including when it is subsequently reviewed or regraded.
+
+When a CodeRunner question is instantiated, the template parameters field is
+processed by the Twig template engine. If there's no embedded Twig within the
+template, the template parameters field will not change. However, if the
+template does actually
+include embedded Twig code, the output from
+Twig will be different from the input. Usually any embedded Twig code will make
+at least one call to the Twig *random* function, resulting in one or more
+template parameters having randomised values. The above example shows a case
+in which the template parameter "name" is assigned a randomly-chosen value
+from a list of options. Another common variant is
+
+    { "number": {{ 5 + random(7) }} }
+
+which will result in the template parameter *number* having a uniformly 
+distributed integer value in the
+range 5 to 12 inclusive.
+
+If the *Twig All* checkbox for the question is checked,
+all other text fields of the question, except for the template
+itself, are processed by Twig directly after the template parameters field
+has been Twigged. This yield new values for the question text, test cases etc,
+which are used
+throughout the question's lifetime. The Twig environment used when processing
+all these 
+other fields is that defined by the Twigged template parameters field.
+
+It is usual to click the *Twig All* checkbox with randomised questions, as otherwise only
+the template will be subject to randomisation, which isn't usually appropriate.
+
+### Randomising per-student rather than per-question-attempt
+
+CodeRunner adds a new function *set_random_seed(seedvalue)* to Twig. This
+is a call through to the underlying PHP *mt_srand* function to define the
+state of the pseudo random number generator. The return value is the empty string.
+If a call to this function is
+made from within the Twigged template parameters before any calls are made
+to the *random* function, the same sequence of randomisations will be
+performed every time the question is attempted. If the *id* field of the
+Twig STUDENT variable
+is used as the seed value, the effect is then that a particular
+student only ever sees one variant of the question, no matter how often they
+attempt a question. A typical use might be to begin the template parameters
+with the line
+
+    {{- set_random_seed(STUDENT.id) -}}
+
+### A important warning about editing template parameters
+
+The above description is a slight simplification. It implies that all the
+Twig-expanded template parameters are recorded within the question instance and
+frozen throughout the question lifetime. Such an approach, while technically
+"correct", creates problems for question authors who, after a quiz has gone
+live, discover they need to make changes to the *non-randomised* template
+parameters. For example, a template parameter that sets a limit on the allowed
+number of lines of code might turn out to be too restrictive. The
+author might wish to raise the limit and 
+regrade existing submissions with the changed parameters.
+If the parameters were strictly frozen, this 
+wouldn't be possible. So instead the implementation records only the random number
+seed, and rebuilds the set of template parameters whenever the question is
+reloaded from the database.
+
+However, it is *vital* that question authors do not make any changes that might
+alter the randomised template parameters once a quiz has gone live. For example,
+re-ordering the randomised parameters will result in their being given
+different values when the question is reloaded. The student will then see
+a different question, to which their answer is no longer correct. Regrading
+would then result in their getting zero marks for a question they have already
+passed. Even if they've submitted and closed the quiz, they will find, if they
+subsequently review it, that their answer doesn't match the question.
+
+To recap: *once a quiz has gone live, you must ensure that any editing of
+the template parameters does not alter the randomisation behaviour*.
+
+Caveat Emptor.
+
+### Hoisting the template parameters
+
+Prior to the implementation of randomisation, template parameters were used
+only within the template, where it was standard practice to
+refer to template parameters with the syntax {{QUESTION.parameters.x}} where
+*x* is a parameter. However, that syntax becomes very clumsy when the same
+parameters is being used in lots of different places within the question.
+There is now a checkbox *Hoist template parameters*, which copies the
+template parameters into the Twig global name space, where STUDENT_ANSWER,
+TEST etc reside. The variable *x* can then be inserted into the text simply
+by writing `{{ x }}`.
+
+C++ programmers might wish to think of this as similar to
+the line
+
+    using namespace std;
+
+Hoisting was not done automatically because it might have broken existing
+questions if the Twig code were using similar variables globally. Hence, when
+upgrading an older version of CodeRunner to one that has randomisation, the
+*Hoist template parameters* checkbox is set to false. However, it is set
+to true on newly created questions.
+
+### Miscellaneous tips
+
+1. Read the Twig documentation!
+
+1. Check out the sample questions in the question export file
+   `randomisationexamples.xml` in the CodeRunner *samples* folder.
+
+1. Sometimes you need a set of random variables to be "coupled". For example
+    you might want an `animal` to be one of `dog`, `cat`, `cow` and an associated
+    variable `sound` to be respectively `woof`, `miaow`, `moo`. Three ways of achieving
+    this are:
+    1. Create a single random `index` variable and use that to index into
+       separate animal and sound lists. For example:
+
+            { 
+                {% set index = random(2) %}
+                "animal": "{{ ["Dog", "Cat", "Cow"][index] }}",
+                "sound":  "{{ ["Woof", "Miaow", "Moo"][index] }}"
+
+    1. Select an animal at random from a list of Twig 'hash' objects, then plug
+       each of the animal attributes into the JSON record. For example:
+
+            { 
+                {% set obj = random([
+                    {'name': 'Dog', 'sound': 'Woof'},
+                    {'name': 'Cat', 'sound': 'Miaow'},
+                    {'name': 'Cow', 'sound': 'Moo'}
+                ]) %}
+                "animal": "{{ obj.name }}",
+                "sound":  "{{ obj.sound }}"
+             }
+
+    1. Select an animal at random from a list of Twig 'hash' objects as above,
+       but then json_encode the entire object as a single template parameter.
+       For example
+
+            { 
+                {% set animal = random([
+                    {'name': 'Dog', 'sound': 'Woof'},
+                    {'name': 'Cat', 'sound': 'Miaow'},
+                    {'name': 'Cow', 'sound': 'Moo'}
+                ]) %}
+                "animal": {{ animal | json_encode }}
+             }
+
+    In the last case, the template parameters will need to be referred to as
+    {{ animal.name }} and {{ animal.sound }} instead of {{ animal }} and {{ sound }}.
+
+1. Since the Twig output must be JSON, and newlines aren't allowed in JSON
+   strings, you may find the Twig whitespace control modifiers (`{{-` and `-}}`)
+   useful in more complex Twig programs. As an example, the following Twig
+   code uses a recursive macro plus whitespace control modifiers to
+   generate a JSON structure that defines a value `expression`, which
+   is a random fully-parenthesised infix expression.
+
+        {% macro randomexpr(depth) %}
+        {% from _self import randomexpr as expr %}
+        {% if depth >= 5 %}{# Leaf nodes are random operands #}
+            {{- random(["a", "b", "c", "d"]) -}}
+        {% else %}{# Internal nodes are of the form ( expr op expr ) #}
+            {{- '(' -}}
+            {{- expr(depth + 1 + random(3)) -}}
+            {{- random(['*', '/', '+', '-']) -}}
+            {{- expr(depth + 1 + random(3)) -}}
+            {{- ')' -}}
+        {% endif %}
+        {% endmacro %}
+
+        {% import _self as exp %}
+        { "expression": "{{ exp.randomexpr(0) }}"}
+
+
+ This generates expressions like
+
+        (((c+b)+d)-(a*((c-a)-d)))
+
+ and 
+
+        (((a/(a-d))-(c/b))+(d+(((d/c)/d)*(c+a))))
+
+1. The [TwigFiddle web site](http://twigfiddle.com) is useful for debugging Twig code
+   in your template parameters.
+   You can enter your template parameter field, click Run, and see the resulting
+   JSON. Alternatively, you can set up a trivial question that simply prints
+   the values of the QUESTION.parameters Twig variable. For example (in Python)
+
+        print("""{{QUESTION.parameters}}""")
+
 ## Grading with templates
-Using just the template mechanism described above it is possible to write
-almost arbitrarily complex questions. Grading of student submissions can,
-however, be problematic in some situations. For example, you may need to
+
+Grading of student submissions can be problematic in some situations.
+For example, you may need to
 ask a question where many different valid program outputs are possible, and the
 correctness can only be assessed by a special testing program. Or
 you may wish to subject
@@ -1461,10 +1686,12 @@ via template parameters as follows:
 
   1. isdirected - defaults to true. Set it to false for a non-directed graph.
 
-  1. isfsm - defaults to true. Set it to false to prevent edges the enter the
+  1. isfsm - defaults to true. Set it to false to prevent edges that enter the
 graph from space, i.e., without a start node.
 
   1. noderadius - defaults to 26. The radius of nodes, in pixels.
+
+  1. fontsize - defaults to 20. The size of the Arial font, in px.
 
 For example, for a non-directed non-fsm graph set the template parameters field to
 

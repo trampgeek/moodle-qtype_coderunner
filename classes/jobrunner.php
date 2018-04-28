@@ -22,14 +22,12 @@
 
 
 defined('MOODLE_INTERNAL') || die();
-require_once($CFG->dirroot . '/question/type/coderunner/Twig/Autoloader.php');
 require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
 
 // The qtype_coderunner_jobrunner class contains all code concerned with running a question
 // in the sandbox and grading the result.
 class qtype_coderunner_jobrunner {
     private $grader = null;          // The grader instance, if it's NOT a custom one.
-    private $twig = null;            // The template processor environment.
     private $sandbox = null;         // The sandbox we're using.
     private $code = null;            // The code we're running.
     private $question = null;        // The question that we're running code for.
@@ -45,7 +43,7 @@ class qtype_coderunner_jobrunner {
     // when it is the language selected in the language drop-down menu.
     // Returns a TestingOutcome object.
     public function run_tests($question, $code, $testcases, $isprecheck, $answerlanguage) {
-        global $CFG, $USER;
+        global $CFG;
 
         $this->question = $question;
         $this->code = $code;
@@ -53,27 +51,9 @@ class qtype_coderunner_jobrunner {
         $this->isprecheck = $isprecheck;
         $this->grader = $question->get_grader();
         $this->sandbox = $question->get_sandbox();
-        $this->template = $question->get_template();
         $this->files = $question->get_files();
         $this->sandboxparams = $question->get_sandbox_params();
         $this->language = $question->get_language();
-
-        Twig_Autoloader::register();
-        $loader = new Twig_Loader_String();
-        $this->twig = new Twig_Environment($loader, array(
-            'debug' => true,
-            'autoescape' => false,
-            'optimizations' => 0
-        ));
-        $this->twig->addExtension(new Twig_Extension_Debug());
-
-        $twigcore = $this->twig->getExtension('core');
-        $twigcore->setEscaper('py', 'qtype_coderunner_escapers::python');
-        $twigcore->setEscaper('python', 'qtype_coderunner_escapers::python');
-        $twigcore->setEscaper('c',  'qtype_coderunner_escapers::java');
-        $twigcore->setEscaper('java', 'qtype_coderunner_escapers::java');
-        $twigcore->setEscaper('ml', 'qtype_coderunner_escapers::matlab');
-        $twigcore->setEscaper('matlab', 'qtype_coderunner_escapers::matlab');
 
         $this->allruns = array();
         $this->templateparams = array(
@@ -81,9 +61,7 @@ class qtype_coderunner_jobrunner {
             'ESCAPED_STUDENT_ANSWER' => qtype_coderunner_escapers::python(null, $code, null), // LEGACY SUPPORT.
             'MATLAB_ESCAPED_STUDENT_ANSWER' => qtype_coderunner_escapers::matlab(null, $code, null), // LEGACY SUPPORT.
             'IS_PRECHECK' => $isprecheck ? "1" : "0",
-            'QUESTION' => $question,
-            'ANSWER_LANGUAGE' => $answerlanguage,
-            'STUDENT' => new qtype_coderunner_student($USER)
+            'ANSWER_LANGUAGE' => $answerlanguage
          );
 
         if ($question->get_is_combinator() and
@@ -123,8 +101,9 @@ class qtype_coderunner_jobrunner {
         $this->templateparams['TESTCASES'] = $this->testcases;
         $maxmark = $this->maximum_possible_mark();
         $outcome = new qtype_coderunner_testing_outcome($maxmark, $numtests, $isprecheck);
+        $question = $this->question;
         try {
-            $testprog = $this->twig->render($this->template, $this->templateparams);
+            $testprog = $question->twig_expand($question->template, $this->templateparams);
         } catch (Exception $e) {
             $outcome->set_status(
                     qtype_coderunner_testing_outcome::STATUS_SYNTAX_ERROR,
@@ -180,6 +159,7 @@ class qtype_coderunner_jobrunner {
         }
         $numtests = count($this->testcases);
         $outcome = new qtype_coderunner_testing_outcome($maxmark, $numtests, $isprecheck);
+        $question = $this->question;
         foreach ($this->testcases as $testcase) {
             if ($this->question->iscombinatortemplate) {
                 $this->templateparams['TESTCASES'] = array($testcase);
@@ -187,7 +167,7 @@ class qtype_coderunner_jobrunner {
                 $this->templateparams['TEST'] = $testcase;
             }
             try {
-                $testprog = $this->twig->render($this->template, $this->templateparams);
+                $testprog = $question->twig_expand($question->template, $this->templateparams);
             } catch (Exception $e) {
                 $outcome->set_status(
                         qtype_coderunner_testing_outcome::STATUS_SYNTAX_ERROR,

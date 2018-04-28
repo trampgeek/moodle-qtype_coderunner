@@ -122,8 +122,12 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
         $qtext .= html_writer::end_tag('div');
 
-        $rows = isset($question->answerboxlines) ? $question->answerboxlines : 18;
         $preload = isset($question->answerpreload) ? $question->answerpreload : '';
+        if ($preload) {  // Add a reset button if preloaded text is non-empty
+            $qtext .= self::reset_button($qa, $responsefieldid, $preload);
+        }
+
+        $rows = isset($question->answerboxlines) ? $question->answerboxlines : 18;
         $taattributes = array(
                 'class' => 'coderunner-answer edit_code',
                 'name'  => $responsefieldname,
@@ -542,10 +546,11 @@ class qtype_coderunner_renderer extends qtype_renderer {
     // for it.
     protected static function diff_button($qa) {
         global $PAGE;
+        $buttonid = $qa->get_behaviour_field_name('diffbutton');
         $attributes = array(
             'type' => 'button',
-            'id' => $qa->get_behaviour_field_name('button'),
-            'name' => $qa->get_behaviour_field_name('button'),
+            'id' => $buttonid,
+            'name' => $buttonid,
             'value' => get_string('showdifferences', 'qtype_coderunner'),
             'class' => 'btn',
         );
@@ -556,6 +561,41 @@ class qtype_coderunner_renderer extends qtype_renderer {
             array($attributes['id'],
                 get_string('showdifferences', 'qtype_coderunner'),
                 get_string('hidedifferences', 'qtype_coderunner')
+            )
+        );
+
+        return $html;
+    }
+
+
+    /**
+     * Support method to generate the "Reset" button, which resets the student
+     * answer to the preloaded value.
+     *
+     * Returns the HTML for the button, and sets up the JavaScript handler
+     * for it.
+     * @param question_attempt $qa The current question attempt object
+     * @param string $responsefieldid The id of the student answer field
+     * @param string $preload The text to be plugged into the answer if reset
+     * @return string html string for the button
+     */
+    protected static function reset_button($qa, $responsefieldid, $preload) {
+        global $PAGE;
+        $buttonid = $qa->get_behaviour_field_name('resetbutton');
+        $attributes = array(
+            'type' => 'button',
+            'id' => $buttonid,
+            'name' => $buttonid,
+            'value' => get_string('reset', 'qtype_coderunner'),
+            'class' => 'answer_reset_btn');
+        $html = html_writer::empty_tag('input', $attributes);
+
+        $PAGE->requires->js_call_amd('qtype_coderunner/resetbutton',
+            'initResetButton',
+            array($buttonid,
+                  $responsefieldid,
+                  $preload,
+                  get_string('confirmreset', 'qtype_coderunner')
             )
         );
 

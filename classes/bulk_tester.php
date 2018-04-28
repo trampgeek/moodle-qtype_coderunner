@@ -345,6 +345,7 @@ class qtype_coderunner_bulk_tester {
     private function test_question($question) {
         core_php_time_limit::raise(60); // Prevent PHP timeouts.
         gc_collect_cycles(); // Because PHP's default memory management is rubbish.
+        $question->start_attempt(null);
         $answer = $question->answer;
         $response = array('answer' => $answer);
         // Check if it's a multilanguage question; if so need to determine

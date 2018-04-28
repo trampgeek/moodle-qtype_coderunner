@@ -81,6 +81,7 @@ EOTEMPLATE;
         $q->iscombinatortemplate = false;
         $code = "";
         $response = array('answer' => $code);
+        $q->start_attempt(null);
         $result = $q->grade_response($response);
         list($mark, $grade, $cache) = $result;
         $testoutcome = unserialize($cache['_testoutcome']);
@@ -134,6 +135,8 @@ EOTEMPLATE;
     <memlimitmb></memlimitmb>
     <sandboxparams></sandboxparams>
     <templateparams><![CDATA[{"xxx":1, "zzz":2}]]></templateparams>
+    <hoisttemplateparams>0</hoisttemplateparams>
+    <twigall>0</twigall>
     <uiplugin></uiplugin>
     <testcases>
       <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >

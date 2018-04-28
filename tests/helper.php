@@ -19,7 +19,7 @@
  *
  * @package    qtype
  * @subpackage coderunner
- * @copyright  2012 Richard Lobb, University of Canterbury
+ * @copyright  2012 .. 2018 Richard Lobb, University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -130,6 +130,8 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $form->allornothing = 0;
         $form->penaltyregime = "10, 20, ...";
         $form->templateparams = "";
+        $form->hoisttemplateparams = 1;
+        $form->twigall = 0;
         $form->prototypetype = 0;
         $form->sandbox = 'DEFAULT';
         $form->language = 'python3';
@@ -979,7 +981,7 @@ EOPROG;
      * flattens the options into the question itself. This implementation does
      * both - defining the options object and the flattened version - so the
      * resulting question can be used in the usual CodeRunner context but
-     * also in contexts like the question-export tes (which expects the options
+     * also in contexts like the question-export test (which expects the options
      * field).
      */
     private function get_options(&$question) {
@@ -1012,6 +1014,12 @@ EOPROG;
 
         $question->options->answers = array();  // For compatability with questiontype base.
         $question->options->testcases = $question->testcases;
+
+        // Lastly, add in the merged template params (wouldn't it be nice if
+        // I could figure out how to use the actual get_options function :-/).
+        $question->get_prototype();
+        $question->options->mergedtemplateparams = qtype_coderunner_util::merge_json(
+                $question->prototype->templateparams, $question->options->templateparams);
 
     }
 
@@ -1050,11 +1058,16 @@ EOPROG;
         $coderunner->qtype = question_bank::get_qtype('coderunner');
         $coderunner->coderunnertype = $type;
         $coderunner->templateparams = '';
+        $coderunner->hoisttemplateparams = 0;
+        $coderunner->twigall = 0;
         $coderunner->prototypetype = 0;
         $coderunner->name = $name;
         $coderunner->precheck = 0;
         $coderunner->questiontext = $questiontext;
+        $coderunner->answer = '';
+        $coderunner->answerpreload = '';
         $coderunner->allornothing = true;
+        $coderunner->student = '';  // Would normally be filled in by question->start_attempt
         $coderunner->showsource = false;
         $coderunner->generalfeedback = 'No feedback available for coderunner questions.';
         $coderunner->penaltyregime = '10, 20, ...';
