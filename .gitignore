@@ -3,11 +3,12 @@ TopLogs
 .html
 loadtestingresults.ods
 /MoodleBook/makemoodlebook.py
+gh-md-toc
 moodlebook.zip
 /makemoodlebook.py
 /MoodleBook/
 /Screendumps/
-/README.md.html
+Readme.md.*
 /tests/fixtures/test-sandbox-config.php
 
 /Preloading/selenium-server-standalone-2.53.0.jar
