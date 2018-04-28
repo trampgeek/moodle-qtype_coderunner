@@ -78,11 +78,14 @@ class qtype_coderunner_twig {
 class qtype_coderunner_RandomExtension extends Twig_Extension
 {
     public function getFunctions() {
-        return array(new Twig_SimpleFunction('random', 'qtype_coderunner_random',
-                array('needs_environment' => true)));
+        return array(
+            new Twig_SimpleFunction('random', 'qtype_coderunner_random',
+                array('needs_environment' => true)),
+            new Twig_SimpleFunction('set_random_seed', 'qtype_coderunner_set_random_seed',
+                array('needs_environment' => true))
+            );
     }
 };
-
 
 
 /**
@@ -148,3 +151,13 @@ function qtype_coderunner_random(Twig_Environment $env, $values = null)
     return $values[$key];
 }
 
+/**
+ *  A hook into PHP's mt_srand function, to set the MT random number generator
+ *  seed to the given value.
+ *  @return '' The empty string
+ */
+function qtype_coderunner_set_random_seed(Twig_Environment $env, $seed)
+{
+    mt_srand($seed);
+    return '';
+}
