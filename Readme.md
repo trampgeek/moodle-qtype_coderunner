@@ -1180,7 +1180,7 @@ range 5 to 12 inclusive.
 If the *Twig All* checkbox for the question is checked,
 all other text fields of the question, except for the template
 itself, are processed by Twig directly after the template parameters field
-has been Twigged. This yield new values for the question text, test cases etc,
+has been Twigged. This yields new values for the question text, test cases etc,
 which are used
 throughout the question's lifetime. The Twig environment used when processing
 all these 
