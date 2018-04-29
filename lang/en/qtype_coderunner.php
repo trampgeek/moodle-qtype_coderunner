@@ -234,7 +234,7 @@ $string['hidedifferences'] = 'Hide differences';
 $string['HIDE'] = 'Hide';
 $string['HIDE_IF_FAIL'] = 'Hide if fail';
 $string['HIDE_IF_SUCCEED'] = 'Hide if succeed';
-$string['hiderestiffail'] = 'Hide rest if fail';
+$string['hiderestiffail'] = 'Hide rest if fail. ';
 $string['hoisttemplateparams'] = 'Hoist template parameters';
 
 $string['howtogetmore'] = 'For more detailed information, save the question with \'Validate on save\' unchecked and test manually';
@@ -736,7 +736,7 @@ $string['unauthorisedbulktest'] = 'You do not have suitable access to any CodeRu
 $string['unauthoriseddbaccess'] = 'You are not authorised to use this script';
 $string['unknownerror'] = 'An unexpected error occurred. The sandbox may be down. Try again shortly.';
 $string['unknowncombinatorgraderfield'] = 'Unknown field name ({$a->fieldname}) in combinator grader output';
-$string['useasexample'] = 'Use as example';
+$string['useasexample'] = 'Use as example. ';
 $string['useace'] = 'Template uses ace';
 
 $string['validateonsave'] = 'Validate on save';
