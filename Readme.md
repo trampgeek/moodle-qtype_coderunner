@@ -1349,7 +1349,7 @@ to true on newly created questions.
    JSON. Alternatively, you can set up a trivial question that simply prints
    the values of the QUESTION.parameters Twig variable. For example (in Python)
 
-        print("""{{QUESTION.parameters}}""")
+        print("""{{QUESTION.parameters | json_encode}}""")
 
 ## Grading with templates
 
