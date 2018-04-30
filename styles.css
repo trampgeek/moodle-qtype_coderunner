@@ -269,6 +269,14 @@ body#page-question-type-coderunner div[id^=fgroup_id_] {
     overflow: visible;
 }
 
+body#page-question-type-coderunner label[for^=id_useasexample],
+body#page-question-type-coderunner label[for^=id_hiderestiffail],
+body#page-question-type-coderunner label.form-check
+{
+    padding: 5px;
+    border: 1px solid lightgray;
+}
+
 body#page-question-type-coderunner p.question-type-details-header {
     font-size: 130%;
     padding-botton: 10px;
