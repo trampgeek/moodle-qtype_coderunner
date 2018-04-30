@@ -21,7 +21,7 @@ Feature: Check that a selected UI plugin is saved
       | questioncategory | qtype      | name            | template |
       | Test questions   | coderunner | Square function | sqr      |
     And I log in as "teacher1"
-    And I follow "C1"
+    And I am on "Course 1" course homepage
     And I navigate to "Question bank" node in "Course administration"
     And I enable UI plugins
 

@@ -21,7 +21,7 @@ Feature: Show differences in CodeRunner questions
       | questioncategory | qtype      | name            |
       | Test questions   | coderunner | Square function |
     And I log in as "teacher1"
-    And I follow "C1"
+    And I am on "Course 1" course homepage
     And I navigate to "Question bank" node in "Course administration"
     
   Scenario: As a teacher submitting a wrong answer to a CodeRunner question preview, the Show differences button should work
