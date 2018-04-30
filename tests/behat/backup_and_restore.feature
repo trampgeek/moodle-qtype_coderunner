@@ -20,8 +20,7 @@ Feature: Duplicate a course containing a CodeRunner question
     And quiz "Test quiz" contains the following questions:
       | Square function | 1 |
     And I log in as "admin"
-    And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
 
   @javascript
   Scenario: Backup and restore a course containing a CodeRunner question

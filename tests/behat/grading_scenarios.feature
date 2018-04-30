@@ -21,7 +21,7 @@ Feature: Check grading with the Python 3 sqr function CodeRunner question
       | questioncategory | qtype      | name            |
       | Test questions   | coderunner | Square function |
     And I log in as "teacher1"
-    And I follow "C1"
+    And I am on "Course 1" course homepage
     And I navigate to "Question bank" node in "Course administration"
     And I disable UI plugins
 
