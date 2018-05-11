@@ -406,7 +406,7 @@ class qtype_coderunner_question extends question_graded_automatically {
             'stdin'    => '',
             'expected' => '',
             'extra'    => '',
-            'display'  => 0,
+            'display'  => 'HIDE',
             'useasexample' => 0,
             'hiderestiffail' => 0,
             'mark'     => 1
