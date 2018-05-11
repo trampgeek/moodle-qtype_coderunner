@@ -560,7 +560,10 @@ class qtype_coderunner_renderer extends qtype_renderer {
             'initDiffButton',
             array($attributes['id'],
                 get_string('showdifferences', 'qtype_coderunner'),
-                get_string('hidedifferences', 'qtype_coderunner')
+                get_string('hidedifferences', 'qtype_coderunner'),
+                get_string('expectedcolhdr', 'qtype_coderunner'),
+                get_string('gotcolhdr', 'qtype_coderunner')
+
             )
         );
 
