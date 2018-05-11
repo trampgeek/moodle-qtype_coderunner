@@ -107,7 +107,7 @@ class qtype_coderunner_jobrunner {
         } catch (Exception $e) {
             $outcome->set_status(
                     qtype_coderunner_testing_outcome::STATUS_SYNTAX_ERROR,
-                    get_string('templateerror', 'qtype_coderunner') . $e->getMessage());
+                    get_string('templateerror', 'qtype_coderunner') . ': ' . $e->getMessage());
             return $outcome;
         }
 
