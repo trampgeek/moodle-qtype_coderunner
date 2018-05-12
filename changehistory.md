@@ -1,5 +1,12 @@
 # CHANGE HISTORY
 
+### ?? 3.4.1
+This is a maintenance release.
+* Bug fix: Show Differences button was not displayed on non-English-language
+  sites.
+* Minor tweaks and documentation updates.
+
+
 ### 28 April 2018. 3.4.0
 * Add randomisation capabilities so that students can be presented with
   a randomly generated question variant when they start a question in a quiz.
