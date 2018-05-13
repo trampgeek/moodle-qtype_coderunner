@@ -78,7 +78,8 @@
  *    userinterface wrapper.
  *
  * 5. A destroy() method that should save the contents to the text area then
- *    destroy any HTML elements or other created content.
+ *    destroy any HTML elements or other created content. This method is called
+ *    when the form is submitted, and also when CTRL-ALT-M is typed by the user.
  *
  * 6. A resize(width, height) method that should resize the entire UI element
  *    to the given dimensions.
@@ -176,6 +177,11 @@ define(['jquery'], function($) {
         });
         $(window).resize(function() {
             t.checkForResize();
+        });
+        this.textArea.closest('form').submit(function() {
+            if (t.uiInstance !== null || t.loadFailed) {
+                t.stop();
+            }
         });
         $(document.body).on('keydown', function(e) {
             var KEY_M = 77;
