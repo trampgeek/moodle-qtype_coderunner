@@ -121,8 +121,6 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         this.HIT_TARGET_PADDING = 6;    // Pixels.
         this.DEFAULT_NODE_RADIUS = 26;  // Pixels. Template parameter noderadius can override this.
         this.DEFAULT_FONT_SIZE = 20;    // px. Template parameter fontsize can override this.
-        this.MIN_WIDTH = 400;
-        this.MIN_HEIGHT = 400;
 
         this.canvasId = 'graphcanvas_' + textareaId;
         this.textArea = $(document.getElementById(textareaId));
@@ -152,13 +150,6 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
 
     Graph.prototype.getElement = function() {
         return this.getCanvas();
-    };
-
-    Graph.prototype.getMinSize = function() {
-        return {
-            minWidth: this.MIN_WIDTH,
-            minHeight: this.MIN_HEIGHT
-        };
     };
 
     Graph.prototype.hasFocus = function() {

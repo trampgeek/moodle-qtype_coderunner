@@ -49,10 +49,8 @@ define(['jquery'], function($) {
         this.readOnly = this.textArea.prop('readonly');
         this.templateParams = templateParams;
         this.fail = false;
-        this.htmlDiv = "";
+        this.htmlDiv = null;
         this.fields = null;
-        this.minWidth = templateParams['htmlminwidth'] ? templateParams['htmlminwidth'] : 200;
-        this.minHeight = templateParams['htmlminheight'] ? templateParams['htmlminheight'] : 300;
         this.reload();
     }
 
@@ -62,10 +60,6 @@ define(['jquery'], function($) {
 
     HtmlUi.prototype.getElement = function() {
         return this.htmlDiv;
-    };
-
-    HtmlUi.prototype.getMinSize = function() {
-        return { minWidth: this.minWidth, minHeight: this.minHeight };
     };
 
     HtmlUi.prototype.getFields = function() {
@@ -81,7 +75,7 @@ define(['jquery'], function($) {
             fieldValues,
             name;
 
-        this.htmlDiv = $("<div>" + this.html + "</div>");
+        this.htmlDiv = $("<div style='height:fit-content'>" + this.html + "</div>");
         if (content) {
             try {
                 fieldValues = JSON.parse(content);
@@ -115,15 +109,24 @@ define(['jquery'], function($) {
         var
             serialisation = {},
             name,
-            t = this;
+            empty = true;
 
         this.getFields().each(function() {
+            var value;
             name = $(this).attr('name');
-            serialisation[name] = $(this).val();
-            t.textArea.val(JSON.stringify(serialisation));
+            value = $(this).val();
+            if (value !== '' && name !== '') {
+                serialisation[name] = value;
+                empty = false;
+            }
         });
+        if (empty) {
+            this.textArea.val('');
+        } else {
+            this.textArea.val(JSON.stringify(serialisation));
+        }
         $(this.htmlDiv).remove();
-        this.htmlDiv = '';
+        this.htmlDiv = null;
     };
 
     return {

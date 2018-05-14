@@ -73,18 +73,14 @@
  *    have the uiloadfailed class added, which CSS will display in some
  *    error mode (e.g. a red border).
  *
- * 4. A getMinSize() method that should return a record with minWidth and
- *    minHeight values. These will be used to control the minimum size of the
- *    userinterface wrapper.
- *
- * 5. A destroy() method that should save the contents to the text area then
+ * 4. A destroy() method that should save the contents to the text area then
  *    destroy any HTML elements or other created content. This method is called
  *    when the form is submitted, and also when CTRL-ALT-M is typed by the user.
  *
- * 6. A resize(width, height) method that should resize the entire UI element
+ * 5. A resize(width, height) method that should resize the entire UI element
  *    to the given dimensions.
  *
- * 7. A hasFocus() method that returns true if the UI element has focus.
+ * 6. A hasFocus() method that returns true if the UI element has focus.
  *
  * The return value from the module define is a record with a single field
  * 'Constructor' that references the constructor (e.g. Graph, AceWrapper etc)
@@ -134,8 +130,6 @@ define(['jquery'], function($) {
         var  h,
              t = this; // For use by embedded functions.
 
-        this.MIN_WIDTH = 400;
-        this.MIN_HEIGHT = 100;
         this.GUTTER = 14;  // Size of gutter at base of wrapper Node (pixels)
 
         this.taId = textareaId;
@@ -157,7 +151,7 @@ define(['jquery'], function($) {
         this.wrapperNode.css({
             resize: 'vertical',
             overflow: 'hidden',
-            height: h,
+            minHeight: h,
             width: "auto",
             border: "1px solid darkgrey"
         });
@@ -231,7 +225,7 @@ define(['jquery'], function($) {
             this.isLoading = true;
             require(['qtype_coderunner/ui_' + this.uiname],
                 function(ui) {
-                    var minSize, uiInstance,loadFailWarn, h, w;
+                    var uiInstance,loadFailWarn, h, w;
 
                     h = t.wrapperNode.innerHeight() - t.GUTTER;
                     w = t.wrapperNode.innerWidth();
@@ -247,16 +241,11 @@ define(['jquery'], function($) {
                         loadFailWarn = '<div id="' + t.loadFailId + '"class="uiloadfailed">' + t.loadFailMessage + '</div>';
                         $(loadFailWarn).insertBefore(t.textArea);
                     } else {
-                        minSize = uiInstance.getMinSize();
-                        t.wrapperNode.css({
-                            minWidth: minSize.minWidth,
-                            minHeight: minSize.minHeight + t.GUTTER
-                        });
                         t.hLast = 0;  // Force resize (and hence redraw)
                         t.wLast = 0;  // ... on first call to checkForResize
-                        t.wrapperNode.append(uiInstance.getElement());
                         t.textArea.hide();
                         t.wrapperNode.show();
+                        t.wrapperNode.append(uiInstance.getElement());
                         t.uiInstance = uiInstance;
                         t.loadFailed = false;
                         t.checkForResize();
@@ -308,8 +297,8 @@ define(['jquery'], function($) {
             xLeft = this.wrapperNode.offset().left;
             maxWidth = $(window).innerWidth() - xLeft - SIZE_HACK;
 
-            hAdjusted = Math.max(this.MIN_HEIGHT, h) - this.GUTTER;
-            wAdjusted = Math.max(this.MIN_WIDTH, Math.min(maxWidth, w));
+            hAdjusted = h - this.GUTTER;
+            wAdjusted = Math.min(maxWidth, w);
 
             if (hAdjusted !== this.hLast || wAdjusted !== this.wLast && this.uiInstance) {
                 this.uiInstance.resize(wAdjusted,  hAdjusted);
