@@ -1769,9 +1769,45 @@ All active CodeRunner user interface plugins in both the question authoring
 form and the student's quiz page can be toggled off and on with a
 CTRL-ALT-M keypress, alternately exposing and hiding the underlying textarea element.
 
+### The HTML UI plugin
+
+This plugin replaces the usual textarea answer element with a div
+containing the author-supplied HTML. The serialisation of that HTML,
+which is what is essentially copied back into the textarea for submissions
+as the answer, is a JSON object. The fields of that object are the names
+of all author-supplied HTML elements with a class 'coderunner-ui-element';
+all such objects are expected to have a 'name' attribute as well. The
+associated field values are lists. Each list contains all the values, in
+document order, of the results of calling the jquery val() method in turn
+on each of the UI elements with that name.
+This means that at least input, select and textarea
+elements are supported. The author is responsible for checking the
+compatibility of other elements with jquery's val() method.
+
+The HTML to use in the answer area must be specified in a field 'html' in the
+template parameters.
+
+If any fields of the answer html are to be preloaded, these should be specified
+in the answer preload with json of the form '{"<fieldName>": "<fieldValueList>",...}'
+where fieldValueList is a list of all the values to be assigned to the fields
+with the given name, in document order.
+
+To accommodate the possibility of dynamic HTML, any leftover preload values,
+that is, values that cannot be positioned within the HTML either because
+there is no field of the required name or because, in the case of a list,
+there are insufficient elements, are assigned to the data['leftovers']
+attribute of the outer html div, as a sub-object of the original object.
+This outer div can be located as the 'closest' (in a jQuery sense)
+div.qtype-coderunner-html-outer-div. The author-supplied HTML must include
+JavaScript to make use of the 'leftovers'.
+
+As a special case of the serialisation, if all values in the serialisation
+are either empty strings or a list of empty strings, the serialisation is
+itself the empty string. 
+
 ### Other UI plugins
 
-Question authors can write their own user-interface plugins; an JavaScript
+Question authors can write their own user-interface plugins; a JavaScript
 file with a name of the form `ui_something.js` in the
 folder
 

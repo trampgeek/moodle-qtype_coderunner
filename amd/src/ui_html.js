@@ -23,17 +23,34 @@
  * as the answer, is a JSON object. The fields of that object are the names
  * of all author-supplied HTML elements with a class 'coderunner-ui-element';
  * all such objects are expected to have a 'name' attribute as well. The
- * associated field values are the results of calling the jquery val() method
- * on the UI elements. This means that at least input, select and textarea
+ * associated field values are lists. Each list contains all the values, in
+ * document order, of the results of calling the jquery val() method in turn
+ * on each of the UI elements with that name.
+ * This means that at least input, select and textarea
  * elements are supported. The author is responsible for checking the
  * compatibility of other elements with jquery's val() method.
  *
  * The HTML to use in the answer area must be specified in a field 'html' in the
- * template parameters. Additionally the author can specify htmlminwidth
- * and htmlminheight template parameters; defaults are 200 and 300 respectively.
+ * template parameters.
  *
  * If any fields of the answer html are to be preloaded, these should be specified
- * in the answer preload with json of the form '{"<fieldName>": "<fieldValue>", ...}'
+ * in the answer preload with json of the form '{"<fieldName>": "<fieldValueList>",...}'
+ * where fieldValueList is a list of all the values to be assigned to the fields
+ * with the given name, in document order.
+ *
+ *
+ * To accommodate the possibility of dynamic HTML, any leftover preload values,
+ * that is, values that cannot be positioned within the HTML either because
+ * there is no field of the required name or because, in the case of a list,
+ * there are insufficient elements, are assigned to the data['leftovers']
+ * attribute of the outer html div, as a sub-object of the original object.
+ * This outer div can be located as the 'closest' (in a jQuery sense)
+ * div.qtype-coderunner-html-outer-div. The author-supplied HTML must include
+ * JavaScript to make use of the 'leftovers'.
+ *
+ * As a special case of the serialisation, if all values in the serialisation
+ * are either empty strings or a list of empty strings, the serialisation is
+ * itself the empty string.
  *
  * @package    qtype
  * @subpackage coderunner
@@ -50,7 +67,6 @@ define(['jquery'], function($) {
         this.templateParams = templateParams;
         this.fail = false;
         this.htmlDiv = null;
-        this.fields = null;
         this.reload();
     }
 
@@ -63,28 +79,43 @@ define(['jquery'], function($) {
     };
 
     HtmlUi.prototype.getFields = function() {
-        if (this.fields === null) {
-            this.fields = $(this.htmlDiv).find('.coderunner-ui-element');
-        }
-        return this.fields;
+        return $(this.htmlDiv).find('.coderunner-ui-element');
     };
 
     HtmlUi.prototype.reload = function() {
         var
             content = $(this.textArea).val(), // JSON-encoded HTML element settings
-            fieldValues,
-            name;
+            valuesToLoad,
+            values,
+            i,
+            fields,
+            leftOvers,
+            outerDiv = "<div style='height:fit-content' class='qtype-coderunner-html-outer-div'>";
 
-        this.htmlDiv = $("<div style='height:fit-content'>" + this.html + "</div>");
+        this.htmlDiv = $(outerDiv + this.html + "</div>");
         if (content) {
             try {
-                fieldValues = JSON.parse(content);
-                this.getFields().each(function() {
-                    name = $(this).attr('name');
-                    if (fieldValues.hasOwnProperty(name)) {
-                        $(this).val(fieldValues[name]);
+                valuesToLoad = JSON.parse(content);
+                leftOvers = {};
+                for (var name in valuesToLoad) {
+                    values = valuesToLoad[name];
+                    fields = this.getFields().filter("[name='" + name + "']");
+                    leftOvers[name] = [];
+                    for (i = 0; i < values.length; i++) {
+                        if (i < fields.length) {
+                            $(fields[i]).val(values[i]);
+                        } else {
+                            leftOvers[name].push(values[i]);
+                        }
                     }
-                });
+                    if (leftOvers[name].length === 0) {
+                        delete leftOvers[name];
+                    }
+                }
+
+                if (!$.isEmptyObject(leftOvers)) {
+                    this.htmlDiv.data('leftovers', leftOvers);
+                }
 
             } catch(e) {
                 alert('Failed to initialise HTML UI');
@@ -105,6 +136,7 @@ define(['jquery'], function($) {
         return focused;
     };
 
+    // Destroy the HTML UI and serialise the result into the original text area.
     HtmlUi.prototype.destroy = function() {
         var
             serialisation = {},
@@ -115,8 +147,12 @@ define(['jquery'], function($) {
             var value;
             name = $(this).attr('name');
             value = $(this).val();
-            if (value !== '' && name !== '') {
-                serialisation[name] = value;
+            if (serialisation.hasOwnProperty(name)) {
+                serialisation[name].push(value);
+            } else {
+                serialisation[name] = [value];
+            }
+            if (value !== '') {
                 empty = false;
             }
         });
