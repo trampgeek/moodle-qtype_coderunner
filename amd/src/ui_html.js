@@ -82,6 +82,18 @@ define(['jquery'], function($) {
         return $(this.htmlDiv).find('.coderunner-ui-element');
     };
 
+    // Set the value of the jQuery field to the given value.
+    // If the field is a radio button or a checkbox and its name matches
+    // the given value, the checked attribute is set. Otherwise the field's
+    // val() function is called to set the value
+    HtmlUi.prototype.setField = function(field, value) {
+        if (field.attr('type') === 'checkbox' || field.attr('type') === 'radio') {
+            field.prop('checked', field.val() === value);  
+        } else {
+            field.val(value);
+        }
+    };
+
     HtmlUi.prototype.reload = function() {
         var
             content = $(this.textArea).val(), // JSON-encoded HTML element settings
@@ -103,7 +115,7 @@ define(['jquery'], function($) {
                     leftOvers[name] = [];
                     for (i = 0; i < values.length; i++) {
                         if (i < fields.length) {
-                            $(fields[i]).val(values[i]);
+                            this.setField($(fields[i]), values[i]);
                         } else {
                             leftOvers[name].push(values[i]);
                         }
@@ -144,9 +156,14 @@ define(['jquery'], function($) {
             empty = true;
 
         this.getFields().each(function() {
-            var value;
+            var value, type;
+            type = $(this).attr('type');
             name = $(this).attr('name');
-            value = $(this).val();
+            if ((type === 'checkbox' || type === 'radio') && !($(this).is(':checked'))) {
+                value = '';
+            } else {
+                value = $(this).val();
+            }
             if (serialisation.hasOwnProperty(name)) {
                 serialisation[name].push(value);
             } else {
