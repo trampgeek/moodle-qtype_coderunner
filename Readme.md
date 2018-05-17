@@ -1771,39 +1771,78 @@ CTRL-ALT-M keypress, alternately exposing and hiding the underlying textarea ele
 
 ### The HTML UI plugin
 
-This plugin replaces the usual textarea answer element with a div
-containing the author-supplied HTML. The serialisation of that HTML,
-which is what is essentially copied back into the textarea for submissions
-as the answer, is a JSON object. The fields of that object are the names
-of all author-supplied HTML elements with a class 'coderunner-ui-element';
+*Warning:* This difficult-to-use plugin is 
+intended only for use by experienced CodeRunner authors who wish to
+implementing new user-defined question types (q.v.) in which
+the student answer box is replaced by an HTML form of some sort, possibly
+with associated JavaScript to support specialised user interface requirements.
+
+The plugin replaces the usual textarea answer element with a div
+containing the author-supplied HTML, which will usually various input elements, such as
+text boxes, <select> elements, checkboxes and possibly one or more <script>
+elements.
+
+The student will use the input elements to answer the question, then click the
+usual *Check* button. The plugin then extracts the state of the various user
+interface elements as a JSON object and copies that into the original (hidden)
+answer box textarea as the student answer. We call that the "serialisation" of
+the HTML. The properties of that JSON object are the names
+of all author-supplied HTML input elements with a class 'coderunner-ui-element';
 all such objects are expected to have a 'name' attribute as well. The
-associated field values are lists. Each list contains all the values, in
-document order, of the results of calling the jquery val() method in turn
-on each of the UI elements with that name.
-This means that at least input, select and textarea
-elements are supported. The author is responsible for checking the
-compatibility of other elements with jquery's val() method.
+associated property values are lists ('arrays' in JavaScript notation).
+Each list contains all the values, in
+document order, of the UI elements with that name. The value is defined as
+follows:
+
+1. For <input type='checkbox'> and <input type='radio'> elements, the value is 
+   the value of the element, as specified by its 'value' attribute, if the
+   item is "checked", or the empty string otherwise.
+2. For all other elements the value is that returned by a call to the jQuery
+   val() method of the element.
+
+The second option means that at least <select>, <input type='text'> and <textarea>
+elements are
+supported. Other elements may or may not work correctly with jQuery's val()
+method - caveat emptor.
 
 The HTML to use in the answer area must be specified in a field 'html' in the
-template parameters.
+template parameters. Since the template parameters are JSON-encoded, the actual
+html string must also be json-encoded *prior to pasting into the question author form*
+using a function like Python's json.dumps(s). It will be a long hard-to-read 
+one-line string. For editing purposes you might wish to turn off the
+Ace editor in the question authoring form by typing Ctrl-Alt-M.
 
 If any fields of the answer html are to be preloaded, these should be specified
-in the answer preload with json of the form '{"<fieldName>": "<fieldValueList>",...}'
-where fieldValueList is a list of all the values to be assigned to the fields
-with the given name, in document order.
+in the answer preload with a serialisation as defined above. This will have
+the form
 
-To accommodate the possibility of dynamic HTML, any leftover preload values,
+    { "<fieldName>": ["fieldValue1","fieldValue2",...], ... }
+
+
+When preloading an answer box, or restoring it with saved serialised data (e.g. following
+a question submission), the data is plugged back into the HTML,
+reversing the serialisation algorithm explained above.
+The
+field values are inserted into the elements with the given field name, in
+document order. Checkboxes and radio buttons are treated
+as indicated above, but of course setting the values rather than extracting
+them.
+
+To accommodate the possibility of dynamic HTML, any leftover values,
 that is, values that cannot be positioned within the HTML either because
 there is no field of the required name or because, in the case of a list,
-there are insufficient elements, are assigned to the data['leftovers']
+there are insufficient elements of the required name, are assigned to the data['leftovers']
 attribute of the outer html div, as a sub-object of the original object.
 This outer div can be located as the 'closest' (in a jQuery sense)
 div.qtype-coderunner-html-outer-div. The author-supplied HTML must include
 JavaScript to make use of the 'leftovers'.
 
 As a special case of the serialisation, if all values in the serialisation
-are either empty strings or a list of empty strings, the serialisation is
-itself the empty string. 
+are empty strings, the serialisation is
+itself the empty string.
+
+A complex example of the use of this UI type can be seen in the 
+*python3_program_testing* prototype in the *samples* folder.
 
 ### Other UI plugins
 

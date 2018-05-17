@@ -720,6 +720,10 @@ The template parameters
 from the actual question are merged with, and override, those from the
 prototype (since CodeRunner V3.2.2).
 
+There is also an \'Html\' user interface element but this is not intended for
+general use - it invokes a specialist UI plugin that can be used for advanced
+question type authoring. See the main CodeRunner documentation for details.
+
 Students with poor eyesight, or authors wishing to inspect serialisations
 (say to understand the representation used by the Graph UI),
 can toggle the use of all UI plugins on the current page by typing
