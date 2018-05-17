@@ -203,7 +203,7 @@ define(['jquery'], function($) {
         if (this.isLoading) {  // Oops, we're loading a UI element already
             this.retries += 1;
             if (this.retries > 20) {
-                alert("Failed to load UI component. If this error persists, please report it to the forum on coderunner.org.nz");
+                alert("Failed to load " + uiname + " UI component. If this error persists, please report it to the forum on coderunner.org.nz");
                 this.retries = 0;
                 this.loading = 0;
             } else {
