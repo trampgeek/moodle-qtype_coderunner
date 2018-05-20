@@ -19,7 +19,7 @@
  * [A modified version of the script in qtype_stack with the same name.]
  *
  * @package   qtype_coderunner
- * @copyright 2016 Richard Lobb, The University of Canterbury
+ * @copyright 2016, 2017 Richard Lobb, The University of Canterbury
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -56,6 +56,8 @@ if (count($availablequestionsbycontext) == 0) {
     echo html_writer::tag('p', get_string('unauthorisedbulktest', 'qtype_coderunner'));
 } else {
     echo html_writer::start_tag('ul');
+    $buttonstyle = 'border: 1px solid gray; padding: 2px 2px 0px 2px;';
+    $buttonstyle = 'border: 1px solid #F0F0F0; background-color: #FFFFC0; padding: 2px 2px 0px 2px;border: 4px solid white';
     foreach ($availablequestionsbycontext as $contextid => $numcoderunnerquestions) {
         $context = context::instance_by_id($contextid);
         $name = $context->get_context_name(true, true);
@@ -65,9 +67,34 @@ if (count($availablequestionsbycontext) == 0) {
             $class = 'bulktest coderunner context normal';
         }
 
-        echo html_writer::tag('li', html_writer::link(
-            new moodle_url('/question/type/coderunner/bulktest.php', array('contextid' => $contextid)),
-            $name . ' (' . $numcoderunnerquestions . ')'), array('class' => $class));
+        $testallurl = new moodle_url('/question/type/coderunner/bulktest.php', array('contextid' => $contextid));
+        $testalllink = html_writer::link($testallurl,
+                get_string('bulktestallincontext', 'qtype_coderunner'),
+                array('title'=>get_string('testalltitle', 'qtype_coderunner'),
+                       'style'=>$buttonstyle));
+        $expandlink = html_writer::link('#expand',
+                get_string('expand', 'qtype_coderunner'),
+                array('class'=>'expander',
+                      'title'=>get_string('expandtitle', 'qtype_coderunner'),
+                      'style'=> $buttonstyle));
+        $li_text =  $name . ' (' . $numcoderunnerquestions . ') ' . $testalllink . ' ' . $expandlink;
+        echo html_writer::start_tag('li', array('class' => $class));
+        echo $li_text;
+
+        $categories = $bulktester->get_categories_for_context($contextid);
+        echo html_writer::start_tag('ul', array('class'=>'expandable'));
+        foreach ($categories as $cat) {
+            if ($cat->count > 0) {
+                $url = new moodle_url('/question/type/coderunner/bulktest.php',
+                                    array('contextid' => $contextid, 'categoryid' => $cat->id));
+                $linktext = $cat->name . ' (' . $cat->count . ')';
+                $link = html_writer::link($url, $linktext, array('style'=>$buttonstyle));
+                echo html_writer::tag('li', $link,
+                        array('title'=>get_string('testallincategory', 'qtype_coderunner')));
+            }
+        }
+        echo html_writer::end_tag('ul');
+        echo html_writer::end_tag('li');
     }
 
     echo html_writer::end_tag('ul');
@@ -77,5 +104,19 @@ if (count($availablequestionsbycontext) == 0) {
                 new moodle_url('/question/type/coderunner/bulktestall.php'), get_string('bulktestrun', 'qtype_coderunner')));
     }
 }
+
+echo <<<SCRIPT_END
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script>
+jQuery(document).ready(function ($) {
+    $("ul.expandable").css("display", "none");
+
+    $(".expander").click(function(e) {
+        e.preventDefault();
+        $(this).next("UL").toggle();
+    });
+});
+</script>
+SCRIPT_END;
 
 echo $OUTPUT->footer();

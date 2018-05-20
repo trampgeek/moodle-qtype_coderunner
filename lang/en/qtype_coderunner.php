@@ -70,10 +70,11 @@ $string['badtemplateparamsaftertwig'] = 'Twigging of template parameters yielded
 $string['brokencombinator'] = 'Expected {$a->numtests} test results, got {$a->numresults}. Perhaps excessive output or error in question?';
 $string['brokentemplategrader'] = 'Bad output from grader: {$a->output}. Your program execution may have aborted (e.g. a timeout or memory limit exceeded).';
 $string['bulkquestiontester'] = 'The <a href="{$a->link}">bulk tester script</a> tests that the sample answers for all questions in the current context are marked right';
+$string['bulktestallincontext'] = 'Test all';
 $string['bulktestcontinuefromhere'] = 'Run again or resume, starting from here';
 $string['bulktestindextitle'] = 'CodeRunner bulk testing';
 $string['bulktestrun'] = 'Run all the question tests for all the questions in the system (slow, admin only)';
-$string['bulktesttitle'] = 'Running all the question tests in {$a}';
+$string['bulktesttitle'] = 'Testing questions in {$a}';
 
 $string['coderunnercategories'] = 'Categories with CodeRunner questions';
 $string['coderunnercontexts'] = 'Contexts with CodeRunner questions';
@@ -135,6 +136,8 @@ $string['errorstring-accessdenied'] = 'Access to sandbox denied';
 $string['errorstring-submissionlimitexceeded'] = 'Sandbox submission limit reached';
 $string['errorstring-submissionfailed'] = 'Submission to sandbox failed';
 $string['errorstring-unknown'] = 'Unexpected error while executing your code. The sandbox server may be down or overloaded. Perhaps try again shortly?';
+$string['expand'] = 'Expand';
+$string['expandtitle'] = 'Show question categories';
 $string['expected'] = 'Expected output';
 $string['expectedcolhdr'] = 'Expected';
 $string['expected_help'] = 'The expected output from the test. Seen by the template as {{TEST.expected}}.';
@@ -649,6 +652,8 @@ etc) are the also processed by Twig, with the template parameters as an
 environment. This can result in different
 students seeing different random variants of the question. See the documentation
 for details.';
+$string['testalltitle'] = 'Test all questions in this context';
+$string['testallincategory'] = 'Test all questions in this category';
 $string['testcase'] = 'Test case {$a}';
 $string['testcasecontrols'] = 'Test properties:';
 $string['testcasecontrols_help'] = 'If \'Use as example\' is checked, this test will be automatically included in the

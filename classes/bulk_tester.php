@@ -112,7 +112,7 @@ class qtype_coderunner_bulk_tester {
                         WHERE qc.id = q.category AND q.qtype='coderunner') AS count
                 FROM {question_categories} qc
                 WHERE qc.contextid = :contextid
-                ORDER BY qc.id",
+                ORDER BY qc.name",
             array('contextid' => $contextid));
     }
 
@@ -240,17 +240,19 @@ class qtype_coderunner_bulk_tester {
 
     /**
      * Run the sample answer for all questions belonging to
-     * a given context that have a sample answer.
+     * a given context that have a sample answer. Optionally restrict to a
+     * specified question category.
      *
      * Do output as we go along.
      *
      * @param context $context the context to run the tests for.
+     * @param int $categoryid test only questions in this category. Default to all.
      * @return array with three elements:
      *              int a count of how many tests passed
      *              array of messages relating to the questions with failures
      *              array of messages relating to the questions without sample answers
      */
-    public function run_all_tests_for_context(context $context) {
+    public function run_all_tests_for_context(context $context, $categoryid=null) {
         global $DB, $OUTPUT;
 
         // Load the necessary data.
@@ -268,6 +270,9 @@ class qtype_coderunner_bulk_tester {
         $missinganswers = array();
 
         foreach ($categories as $category) {
+            if ($categoryid !== null && $category->id != $categoryid) {
+                continue;
+            }
             $questionids = $DB->get_records_menu('question',
                     array('category' => $category->id, 'qtype' => 'coderunner'), 'name', 'id,name');
             if (!$questionids) {
