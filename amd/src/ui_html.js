@@ -88,7 +88,7 @@ define(['jquery'], function($) {
     // val() function is called to set the value
     HtmlUi.prototype.setField = function(field, value) {
         if (field.attr('type') === 'checkbox' || field.attr('type') === 'radio') {
-            field.prop('checked', field.val() === value);  
+            field.prop('checked', field.val() === value);
         } else {
             field.val(value);
         }
