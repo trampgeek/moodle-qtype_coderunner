@@ -131,6 +131,7 @@ define(['jquery'], function($) {
              t = this; // For use by embedded functions.
 
         this.GUTTER = 14;  // Size of gutter at base of wrapper Node (pixels)
+        this.MIN_WRAPPER_HEIGHT = 100;
 
         this.taId = textareaId;
         this.loadFailId = textareaId + '_loadfailerr';
@@ -141,7 +142,7 @@ define(['jquery'], function($) {
         this.loadFailMessage = strings['uiloadfail'];
         this.retries = 0;        // Number of failed attempts to load a UI component
 
-        h = parseInt(this.textArea.css("height"));
+        h = Math.max(parseInt(this.textArea.css("height")), this.MIN_WRAPPER_HEIGHT);
 
         // Construct an empty hidden wrapper div, inserted directly after the
         // textArea, ready to contain the actual UI.
@@ -198,12 +199,14 @@ define(['jquery'], function($) {
         // To avoid a potential race problem, if this method is already busy
         // with a load, try again in 200 msecs.
         //
-        var t = this;
+        var t = this,
+            errPart1 = 'Failed to load ',
+            errPart2 = ' UI component. If this error persists, please report it to the forum on coderunner.org.nz';
 
         if (this.isLoading) {  // Oops, we're loading a UI element already
             this.retries += 1;
             if (this.retries > 20) {
-                alert("Failed to load " + uiname + " UI component. If this error persists, please report it to the forum on coderunner.org.nz");
+                alert(errPart1 + uiname + errPart2);
                 this.retries = 0;
                 this.loading = 0;
             } else {
