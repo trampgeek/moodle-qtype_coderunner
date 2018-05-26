@@ -74,6 +74,39 @@ define(['jquery'], function($) {
         return this.fail;
     };
 
+
+   // Copy the serialised version of the HTML UI area to the TextArea.
+    HtmlUi.prototype.sync = function() {
+        var
+            serialisation = {},
+            name,
+            empty = true;
+
+        this.getFields().each(function() {
+            var value, type;
+            type = $(this).attr('type');
+            name = $(this).attr('name');
+            if ((type === 'checkbox' || type === 'radio') && !($(this).is(':checked'))) {
+                value = '';
+            } else {
+                value = $(this).val();
+            }
+            if (serialisation.hasOwnProperty(name)) {
+                serialisation[name].push(value);
+            } else {
+                serialisation[name] = [value];
+            }
+            if (value !== '') {
+                empty = false;
+            }
+        });
+        if (empty) {
+            this.textArea.val('');
+        } else {
+            this.textArea.val(JSON.stringify(serialisation));
+        }
+    };
+
     HtmlUi.prototype.getElement = function() {
         return this.htmlDiv;
     };
@@ -150,34 +183,7 @@ define(['jquery'], function($) {
 
     // Destroy the HTML UI and serialise the result into the original text area.
     HtmlUi.prototype.destroy = function() {
-        var
-            serialisation = {},
-            name,
-            empty = true;
-
-        this.getFields().each(function() {
-            var value, type;
-            type = $(this).attr('type');
-            name = $(this).attr('name');
-            if ((type === 'checkbox' || type === 'radio') && !($(this).is(':checked'))) {
-                value = '';
-            } else {
-                value = $(this).val();
-            }
-            if (serialisation.hasOwnProperty(name)) {
-                serialisation[name].push(value);
-            } else {
-                serialisation[name] = [value];
-            }
-            if (value !== '') {
-                empty = false;
-            }
-        });
-        if (empty) {
-            this.textArea.val('');
-        } else {
-            this.textArea.val(JSON.stringify(serialisation));
-        }
+        this.sync();
         $(this.htmlDiv).remove();
         this.htmlDiv = null;
     };

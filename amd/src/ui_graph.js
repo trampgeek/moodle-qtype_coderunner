@@ -180,6 +180,12 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         }
     };
 
+    // Copy the serialised version of the graph to the TextArea.
+    Graph.prototype.sync = function() {
+        // Nothing to do ... always sync'd
+    };
+
+
     Graph.prototype.keypress = function(e) {
         var key = util.crossBrowserKey(e);
 

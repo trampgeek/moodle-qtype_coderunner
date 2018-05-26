@@ -73,14 +73,17 @@
  *    have the uiloadfailed class added, which CSS will display in some
  *    error mode (e.g. a red border).
  *
- * 4. A destroy() method that should save the contents to the text area then
- *    destroy any HTML elements or other created content. This method is called
- *    when the form is submitted, and also when CTRL-ALT-M is typed by the user.
+ * 4. A sync() method that copies the serialised represention of the UI plugin's
+ *    data to the related TextArea. This is used when submit is clicked.
  *
- * 5. A resize(width, height) method that should resize the entire UI element
+ * 5. A destroy() method that should sync the contents to the text area then
+ *    destroy any HTML elements or other created content. This method is called
+ *    when CTRL-ALT-M is typed by the user to turn off all UI plugins
+ *
+ * 6. A resize(width, height) method that should resize the entire UI element
  *    to the given dimensions.
  *
- * 6. A hasFocus() method that returns true if the UI element has focus.
+ * 7. A hasFocus() method that returns true if the UI element has focus.
  *
  * The return value from the module define is a record with a single field
  * 'Constructor' that references the constructor (e.g. Graph, AceWrapper etc)
@@ -174,8 +177,8 @@ define(['jquery'], function($) {
             t.checkForResize();
         });
         this.textArea.closest('form').submit(function() {
-            if (t.uiInstance !== null || t.loadFailed) {
-                t.stop();
+            if (t.uiInstance !== null) {
+                t.uiInstance.sync();
             }
         });
         $(document.body).on('keydown', function(e) {

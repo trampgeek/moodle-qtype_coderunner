@@ -118,6 +118,12 @@ define(['jquery'], function($) {
     };
 
 
+    // Sync to TextArea
+    AceWrapper.prototype.sync = function() {
+        // Nothing to do ... always sync'd
+    };
+
+
     AceWrapper.prototype.setLanguage = function(language) {
         var session = this.editor.getSession(),
             mode = this.findMode(language);
