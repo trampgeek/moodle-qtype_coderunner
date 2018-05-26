@@ -111,7 +111,7 @@ public class PrintNames {
         int upTo = in.nextInt();
         String separator = "";
         for (int i = 1; i <= upTo; i++) {
-           System.out.print(separator +  (new Integer(i * i).toString()));
+           System.out.print(separator +  (Integer.valueOf(i * i).toString()));
            separator = " ";
         }
     }
