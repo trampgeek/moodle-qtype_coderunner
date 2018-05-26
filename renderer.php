@@ -269,7 +269,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
     protected function build_results_table($outcome, qtype_coderunner_question $question) {
         $fb = $outcome->get_prologue();
         $testresults = $outcome->get_test_results($question);
-        if (count($testresults) > 0) {
+        if (is_array($testresults) && count($testresults) > 0) {
             $table = new html_table();
             $table->attributes['class'] = 'coderunner-test-results';
             $headers = $testresults[0];
