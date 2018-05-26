@@ -21,10 +21,10 @@
       function and prints the result, but multiple line test code is
       possible, too, provided the code is suitable for wrapping inside
       the automatically-generated main function.
-          
+
       The following standard header files are included: stdlib.h, ctype.h,
           string.h, stdbool.h, math.h.
-          
+
       See the template for details.</text>
     </questiontext>
     <generalfeedback format="html">
@@ -144,11 +144,11 @@ int main() {
       the automatically-generated main function. When the combinator template
       is used to wrap all the testcases into a single program, each
       test case is isolated from the others by being placed in its own block.
-          
+
       The following include files
       are included in the program: iostream, fstream, string, math, vector and
-      algorithm. The user answer can include others if required.  
-          
+      algorithm. The user answer can include others if required.
+
       See the template for details.</text>
     </questiontext>
     <generalfeedback format="html">
@@ -174,7 +174,7 @@ int main() {
 #include <cmath>
 #include <vector>
 #include <algorithm>
-        
+
 using namespace std;
 #define SEPARATOR "#<ab@17943918#@>#"
 
@@ -311,7 +311,7 @@ try:
 
 except json.JSONDecodeError as e:
     raise Exception("Oops. Illegal graph received (exception {}). Please report (unless you did something silly yourself)".format(e))
-    
+
 {% for TEST in TESTCASES %}
 {{ TEST.testcode }}
 {{ TEST.extra }}
@@ -348,7 +348,7 @@ print(SEPARATOR)
           will typically instantiate an object of the class and perform
           some tests on it, no attempt is made to combine the different test
           cases into a single executable. Each test case code is assumed to be
-          a set of statements to be wrapped into the static void main 
+          a set of statements to be wrapped into the static void main
           method of a separate Main class.</text>
     </questiontext>
     <generalfeedback format="moodle_auto_format">
@@ -409,7 +409,7 @@ public class __Tester__ {
       <text>Used for Java write-a-method questions where the student is asked
       to write a method that is essentially a standalone function. The author-supplied
       test is typically just one or two lines of code that (apparently) just call
-      the student supplied method. Under the hood, the template constructs a 
+      the student supplied method. Under the hood, the template constructs a
       Main class containing the student-supplied method (and any other support
       methods, if they choose to write them) plus a 'runTests' method that
       wraps the testcase(s). The main function for the class constructs an
@@ -456,8 +456,7 @@ public class __Tester__ {
     <allowmultiplestdins></allowmultiplestdins>
     <answer></answer>
     <validateonsave>0</validateonsave>
-    <testsplitterre><![CDATA[|#<ab@17943918#@>#
-|ms]]></testsplitterre>
+    <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
     <language>Java</language>
     <acelang></acelang>
     <sandbox></sandbox>
@@ -547,7 +546,7 @@ public class __Tester__ {
     <template><![CDATA[{{ STUDENT_ANSWER }}
 
 format free
-        
+
 {% for TEST in TESTCASES %}
 {{ TEST.testcode }};
 {% if not loop.last %}
@@ -559,8 +558,7 @@ disp('#<ab@17943918#@>#');
     <allowmultiplestdins></allowmultiplestdins>
     <answer></answer>
     <validateonsave>0</validateonsave>
-    <testsplitterre><![CDATA[|#<ab@17943918#@>#
-|ms]]></testsplitterre>
+    <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
     <language>octave</language>
     <acelang></acelang>
     <sandbox></sandbox>
@@ -771,8 +769,7 @@ print(SEPARATOR)
     <allowmultiplestdins></allowmultiplestdins>
     <answer></answer>
     <validateonsave>0</validateonsave>
-    <testsplitterre><![CDATA[|#<ab@17943918#@>#
-|ms]]></testsplitterre>
+    <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
     <language>python2</language>
     <acelang></acelang>
     <sandbox></sandbox>
@@ -828,8 +825,7 @@ print(SEPARATOR)
     <allowmultiplestdins></allowmultiplestdins>
     <answer></answer>
     <validateonsave>0</validateonsave>
-    <testsplitterre><![CDATA[|#<ab@17943918#@>#
-|ms]]></testsplitterre>
+    <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
     <language>python3</language>
     <acelang></acelang>
     <sandbox></sandbox>
@@ -900,7 +896,7 @@ try:
 
 except json.JSONDecodeError as e:
     raise Exception("Oops. Illegal graph received (exception {}). Please report (unless you did something silly yourself)".format(e))
-    
+
 {% for TEST in TESTCASES %}
 {{ TEST.testcode }}
 {{ TEST.extra }}
@@ -1091,7 +1087,7 @@ if language == 'java':
         raise Exception("Unable to determine class name. Does the file include 'public class name'?")
     classname = match.group(1)
     filename = classname + '.java'
-else:    
+else:
     filename = 'prog.' + language_extension_map[language]
 
 # Write the student code to a file
@@ -1119,7 +1115,7 @@ elif language == 'java':
     exec_command = ["java", classname]
 else: # Python doesn't need a compile phase
     exec_command = ["python3", "./prog.py"]
-    
+
 # Now run the code. Since this is a per-test template,
 # stdin is already set up for the stdin text specified in the test case,
 # so we can run the compiled program directly.
