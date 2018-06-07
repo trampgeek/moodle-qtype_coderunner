@@ -154,7 +154,7 @@ define(['jquery'], function($) {
             resize: 'vertical',
             overflow: 'hidden',
             minHeight: h,
-            width: "auto",
+            width: "100%",
             border: "1px solid darkgrey"
         });
 
