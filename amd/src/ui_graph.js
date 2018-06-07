@@ -138,6 +138,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         this.currentLink = null;
         this.movingObject = false;
         this.fail = false;  // Will be set true if reload fails (can't deserialise).
+        this.failString = null;  // Language string key for fail error message
         this.reload();
         if (!this.fail) {
             this.draw();
@@ -147,6 +148,10 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
     Graph.prototype.failed = function() {
         return this.fail;
     };
+
+    Graph.prototype.failMessage = function() {
+        return this.failString;
+    }
 
     Graph.prototype.getElement = function() {
         return this.getCanvas();
@@ -424,7 +429,6 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
 
     Graph.prototype.reload = function() {
         var content = $(this.textArea).val();
-            // failMessage = M.util.get_string('graphfail', 'qtype_coderunner');
         if (content) {
             try {
                 // Load up the student's previous answer if non-empty.
@@ -464,8 +468,8 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
                     }
                 }
             } catch(e) {
-                //alert(failMessage); // Error loading previous answer.
                 this.fail = true;
+                this.failString = 'graph_ui_invalidserialisation';
             }
         }
     };

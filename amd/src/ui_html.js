@@ -138,6 +138,7 @@ define(['jquery'], function($) {
             outerDiv = "<div style='height:fit-content' class='qtype-coderunner-html-outer-div'>";
 
         this.htmlDiv = $(outerDiv + this.html + "</div>");
+        this.htmlDiv.data('templateparams', this.templateParams); // For use by  scripts embedded in html.
         if (content) {
             try {
                 valuesToLoad = JSON.parse(content);

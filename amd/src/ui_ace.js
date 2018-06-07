@@ -60,7 +60,7 @@ define(['jquery'], function($) {
 
             this.editNode = $("<div></div>"); // Ace editor manages this
             this.editNode.css({
-                resize: 'none', // Chrome wrongly inherits this.
+                resize: 'none',
                 height: h,
                 width: "100%"
             });
@@ -109,6 +109,7 @@ define(['jquery'], function($) {
         catch(err) {
             // Something ugly happened. Probably ace editor hasn't been loaded
             this.fail = true;
+            this.failMessage = 'ace_ui_notready';
         }
     }
 

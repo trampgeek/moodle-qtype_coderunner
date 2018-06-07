@@ -885,17 +885,19 @@ class qtype_coderunner_edit_form extends question_edit_form {
         }
 
         // Now all test cases
-        $num = max(count($data['testcode']), count($data['stdin']),
-                count($data['expected']), count($data['extra']));
+        if (!empty($data['testcode'])) {
+            $num = max(count($data['testcode']), count($data['stdin']),
+                    count($data['expected']), count($data['extra']));
 
-        for ($i = 0; $i < $num; $i++) {
-            foreach (['testcode', 'stdin', 'expected', 'extra'] as $fieldname) {
-                $text = $data[$fieldname][$i];
-                try {
-                    $twig->render($text, $parameters);
-                } catch (Twig_Error $ex) {
-                    $errors["testcode[$i]"] = get_string('twigerrorintest',
-                            'qtype_coderunner', $ex->getMessage());
+            for ($i = 0; $i < $num; $i++) {
+                foreach (['testcode', 'stdin', 'expected', 'extra'] as $fieldname) {
+                    $text = $data[$fieldname][$i];
+                    try {
+                        $twig->render($text, $parameters);
+                    } catch (Twig_Error $ex) {
+                        $errors["testcode[$i]"] = get_string('twigerrorintest',
+                                'qtype_coderunner', $ex->getMessage());
+                    }
                 }
             }
         }

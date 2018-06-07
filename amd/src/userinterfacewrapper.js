@@ -73,25 +73,23 @@
  *    have the uiloadfailed class added, which CSS will display in some
  *    error mode (e.g. a red border).
  *
- * 4. A sync() method that copies the serialised represention of the UI plugin's
+ * 4. A method failMessage() that will be called only when failed() returns
+ *    True. It should be a defined CodeRunner language string key.
+ *
+ * 5. A sync() method that copies the serialised represention of the UI plugin's
  *    data to the related TextArea. This is used when submit is clicked.
  *
- * 5. A destroy() method that should sync the contents to the text area then
+ * 6. A destroy() method that should sync the contents to the text area then
  *    destroy any HTML elements or other created content. This method is called
  *    when CTRL-ALT-M is typed by the user to turn off all UI plugins
  *
- * 6. A resize(width, height) method that should resize the entire UI element
+ * 7. A resize(width, height) method that should resize the entire UI element
  *    to the given dimensions.
  *
- * 7. A hasFocus() method that returns true if the UI element has focus.
+ * 8. A hasFocus() method that returns true if the UI element has focus.
  *
  * The return value from the module define is a record with a single field
  * 'Constructor' that references the constructor (e.g. Graph, AceWrapper etc)
- *
- * If the module needs any strings from one of the language files, it should
- * access them via a call like M.util.get_string('graphfail', 'qtype_coderunner').
- * Any such strings must be defined explicitly in the function
- * constants::ui_plugin_keys().
  *
  *****************************************************************************/
 
@@ -141,9 +139,9 @@ define(['jquery'], function($) {
         this.textArea = $(document.getElementById(textareaId));
         this.readOnly = this.textArea.prop('readonly');
         this.isLoading = false;  // True if we're busy loading a UI element
-        this.loadFailed = false;  // True if UI couldn't deserialise TA contents
-        this.loadFailMessage = strings['uiloadfail'];
+        this.loadFailed = false;  // True if UI failed to initialise properly
         this.retries = 0;        // Number of failed attempts to load a UI component
+        this.strings = strings;
 
         h = Math.max(parseInt(this.textArea.css("height")), this.MIN_WRAPPER_HEIGHT);
 
@@ -231,7 +229,7 @@ define(['jquery'], function($) {
             this.isLoading = true;
             require(['qtype_coderunner/ui_' + this.uiname],
                 function(ui) {
-                    var uiInstance,loadFailWarn, h, w;
+                    var uiInstance,loadFailWarn, h, w, loadFailMessage;
 
                     h = t.wrapperNode.innerHeight() - t.GUTTER;
                     w = t.wrapperNode.innerWidth();
@@ -239,12 +237,13 @@ define(['jquery'], function($) {
                     if (uiInstance.failed()) {
                         // Constructor failed to load serialisation.
                         // Set uiloadfailed class on text area.
+                        t.loadFailed = true;
+                        loadFailMessage = t.strings[uiInstance.failMessage()] + '<br>' + t.strings['ui_fallback'];
                         t.wrapperNode.hide();
                         uiInstance.destroy();
                         t.uiInstance = null;
-                        t.loadFailed = true;
                         t.textArea.addClass('uiloadfailed');
-                        loadFailWarn = '<div id="' + t.loadFailId + '"class="uiloadfailed">' + t.loadFailMessage + '</div>';
+                        loadFailWarn = '<div id="' + t.loadFailId + '"class="uiloadfailed">' + loadFailMessage + '</div>';
                         $(loadFailWarn).insertBefore(t.textArea);
                     } else {
                         t.hLast = 0;  // Force resize (and hence redraw)

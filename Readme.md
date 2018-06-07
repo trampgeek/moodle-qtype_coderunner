@@ -5,7 +5,7 @@ Version: 3.4.0 April 2018
 Authors: Richard Lobb, University of Canterbury, New Zealand.
          Tim Hunt, The Open University, UK
 
-NOTE: A few sample quizzes containing example CodeRunner questions 
+NOTE: A few sample quizzes containing example CodeRunner questions
 are available at [coderunner.org.nz](http://coderunner.org.nz). There's also
 [a forum](http://coderunner.org.nz/mod/forum/view.php?id=51) there, where you
 can post CodeRunner questions, such as
@@ -92,7 +92,7 @@ questions so that the mark is determined by how many of the tests
 the code successfully passes.
 
 CodeRunner and its predecessors *pycode* and *ccode* has been in use at the
-University of Canterbury for about six years, running over a million 
+University of Canterbury for about six years, running over a million
 student quiz question submissions in Python, C , JavaScript, PHP, Octave and Matlab.
 Laboratory work, assignment work and mid-semester tests in the
 introductory first year Python programming course (COSC121), which has around
@@ -110,13 +110,13 @@ courses using Moodle/CodeRunner include:
 
 1. EMTH171 Mathematical Modelling and Computation
 1. SENG02 Software Engineering I
-1. COSC261 Formal Languages and Compilers 
+1. COSC261 Formal Languages and Compilers
 1. COSC367 Computational Intelligence
 1. ENCE360 Operating Systems
 1. SENG365 Web Computing Architectures
 
 CodeRunner currently supports Python2 (considered obsolescent), Python3,
-C, C++, Java, PHP, JavaScript (NodeJS), Octave and Matlab. 
+C, C++, Java, PHP, JavaScript (NodeJS), Octave and Matlab.
 The architecture allows easy extension to other languages.
 
 CodeRunner can safely be used on an institutional Moodle server, provided
@@ -192,7 +192,7 @@ combinator" was set or a combinator template grader is being used, otherwise
 the per-test template is used. This should not change the behaviour of the
 question *provided* the two templates are consistent in the sense that running
 any test in the per-test template yields exactly the same result as running
-that same test all by itself in the combinator template. 
+that same test all by itself in the combinator template.
 
 
 ### Installing CodeRunner from scratch
@@ -200,7 +200,7 @@ that same test all by itself in the combinator template.
 CodeRunner requires two separate plug-ins, one for the question type and one
 for the specialised adaptive behaviour. The plug-ins are in two
 different github repositories: `github.com/trampgeek/moodle-qbehaviour_adaptive_adapted_for_coderunner`
-and `github.com/trampgeek/moodle-qtype_coderunner`. Install the two plugs 
+and `github.com/trampgeek/moodle-qtype_coderunner`. Install the two plugs
 using one of the following two methods.
 
 EITHER:
@@ -236,7 +236,7 @@ on that server is
 via an API-key and the default API-key given with CodeRunner imposes
 a limit of 100
 per hour over all clients using that key, worldwide. If you decide that CodeRunner is
-useful to you, *please* set up your own Jobe sandbox as 
+useful to you, *please* set up your own Jobe sandbox as
 described in *Sandbox configuration* below. Alternatively, if you wish to
 continue to use our Jobe server, you can apply to the principal
 [developer](mailto://trampgeek@gmail.com) for your own
@@ -293,7 +293,7 @@ incorrect answers.
 If you want a few more CodeRunner questions to play with, try importing the
 files
 `MoodleHome>/question/type/coderunner/samples/simpledemoquestions.xml` and/or
-`MoodleHome>/question/type/coderunner/samples/python3demoquestions.xml`. 
+`MoodleHome>/question/type/coderunner/samples/python3demoquestions.xml`.
 These contains
 most of the questions from the two tutorial quizzes on the
 [demo site](http://www.coderunner.org.nz).
@@ -306,7 +306,7 @@ Also included in the *samples* folder is a prototype question,
 `prototype\_c\_via\_python.xml`
  that defines a new question type, equivalent to the built-in *c\_program*
 type, by scripting in Python the process of compiling and running the student
-code. This is a useful template for authors who wish to implement their own 
+code. This is a useful template for authors who wish to implement their own
 question types or who need to support non-built-in languages. It is discussed
 in detail in the section "Supporting or implementing new languages".
 
@@ -316,7 +316,7 @@ in detail in the section "Supporting or implementing new languages".
 Although CodeRunner has a flexible architecture that supports various different
 ways of running student task in a protected ("sandboxed") environment, only
 one sandbox - the Jobe sandbox - is supported by the current version. This
-sandbox makes use of a 
+sandbox makes use of a
 separate server, developed specifically for use by CodeRunner, called *Jobe*.
 As explained
 at the end of the section on installing CodeRunner from scratch, the initial
@@ -338,7 +338,7 @@ host and any other necessary configuration for the Jobe server.
 
 Assuming you have built *Jobe* on a separate server, the JobeSandbox fully
 isolates student code from the Moodle server. However, Jobe *can* be installed
-on the Moodle server itself, rather than on a 
+on the Moodle server itself, rather than on a
 completely different machine. This works fine,
 but is much less secure than running Jobe on
 a completely separate machine. If a student program manages to break out of
@@ -376,7 +376,7 @@ or
 
         sudo -u www-data vendor/bin/phpunit --verbose --testsuite="qtype_coderunner_testsuite"
 
-If you're on a Red Hat or similar system in which the web server runs as 
+If you're on a Red Hat or similar system in which the web server runs as
 *apache*, you should replace *www-data* with *apache.
 
 TThe unit tests will almost certainly show lots of skipped or failed tests relating
@@ -421,8 +421,8 @@ with a preliminary compilation step.
    are shown with a green tick and failing ones shown with a red cross.
    Typically the whole table is coloured red if any tests fail or green
    if all tests pass.
-       
-The above description is somewhat simplified. 
+
+The above description is somewhat simplified.
 
 Firstly, it is not always necessary to
 run a different job in the sandbox for each test case. Instead, all tests can often
@@ -497,7 +497,7 @@ cases of the form
 
 and give the expected output from this test.
 
-A per-test template for such a question type would then wrap the 
+A per-test template for such a question type would then wrap the
 submission and
 the test code into a single program like:
 
@@ -572,10 +572,10 @@ followed by the student code followed by a main function that executes the tests
 
 1. **c\_program** and **cpp\_program**. These two very simple question types
 require the student to supply
-a complete working program. For each test case the author usually provides 
+a complete working program. For each test case the author usually provides
 `stdin` and specifies the expected `stdout`. The program is compiled and run
 as-is, and in the default all-or-nothing grading mode, must produce the right
-output for all test cases to be marked correct. 
+output for all test cases to be marked correct.
 
  1. **python3**. Used for most Python3 questions. For each test case, the student
 code is run first, followed by the test code.
@@ -669,7 +669,7 @@ from Matlab and some problems are inevitable. Caveat emptor.
 uses Octave. It runs the test code first (which usually sets up a context)
 and then runs the student's code, which may or may not generate output
 dependent on the context. Finally the code in Extra Template Data is run
-(if any). Octave's `disp` function is replaced with one that emulates 
+(if any). Octave's `disp` function is replaced with one that emulates
 Matlab's more closely, but, as above: caveat emptor.
 
 
@@ -713,7 +713,7 @@ field, which is the "test" field of the testcase. It is usually
 a bit of code to be run to test the student's answer.
 
 When Twig processes the template, it replaces any occurrences of
-strings of the form `{{ TWIG\_VARIABLE }}` with the value of the given 
+strings of the form `{{ TWIG\_VARIABLE }}` with the value of the given
 TWIG_VARIABLE (e.g. STUDENT\_ANSWER). As an example,
 the question type *c\_function*, which asks students to write a C function,
 might have the following template (if it used a per-test template):
@@ -770,7 +770,7 @@ taking just a single TEST variable, they take a TESTCASES variable, which is
 is a list of all the individual TEST objects.
 
 The actual template used by the built-in C function question type is not actually
-a per-test template as suggested above, but is the following combinator template. 
+a per-test template as suggested above, but is the following combinator template.
 
     #include <stdio.h>
     #include <stdlib.h>
@@ -824,7 +824,7 @@ then splits the output using the separator into three separate test outputs,
 exactly as if a per-test template had been used on each test case separately.
 
 The use of a combinator template is problematic with questions that require standard input;
-if each test has its own standard input, and all tests are combined into a 
+if each test has its own standard input, and all tests are combined into a
 single program, what is the standard input for that program? The easiest
 resolution to this problem is simply to fall back to running each test
 separately. That is achieved by using the combinator template but feeding it
@@ -832,7 +832,7 @@ a singleton list of testcases each time, i.e. the list [test[0]] on the first
 run, [test[1]] on the second and so on. The combinator template is then
 functioning just like a per-test template.
 
-However, advanced combinator templates can actually manage the multiple 
+However, advanced combinator templates can actually manage the multiple
 runs themselves, e.g. using Python Subprocesses. To enable this, there
 is a checkbox "Allow multiple stdins" which, if checked, reverts to the usual
 combinator mode of passing all testcases to the combinator template in a
@@ -858,7 +858,7 @@ the square of its parameter *n*?"
     int sqr(int n) {
         // What code replaces this line?
     }
-    
+
 Suppose further that you wished the test column of the result table to display
 just, say, `sqr(-11)` rather than `printf("%d, sqr(-11));`
 
@@ -931,7 +931,7 @@ The per-test template for a simple `pylint` question type might be:
             env = os.environ.copy()
             env['HOME'] = os.getcwd()
             cmd = ['pylint', 'source.py']
-            result = subprocess.check_output(cmd, 
+            result = subprocess.check_output(cmd,
                 universal_newlines=True, stderr=subprocess.STDOUT, env=env)
         except Exception as e:
             result = e.output
@@ -969,7 +969,7 @@ Some other complex question types that we've used include:
 
  1. Another advanced Matlab question in which the template code, written in
     Python runs the student's Matlab code, then runs the sample answer supplied within
-    the question, extracts all the floating point numbers is both, and compares 
+    the question, extracts all the floating point numbers is both, and compares
     the numbers of equality to some given tolerance.
 
  1. A Python question where the student's code is actually a compiler for
@@ -1057,7 +1057,7 @@ questions is then:
             pylint_opts.append('{{option}}')
     {% endfor %}
             cmd = ['pylint', 'source.py'] + pylint_opts
-            result = subprocess.check_output(cmd, 
+            result = subprocess.check_output(cmd,
                 universal_newlines=True, stderr=subprocess.STDOUT, env=env)
         except Exception as e:
             result = e.output
@@ -1084,7 +1084,7 @@ PHP question object. Some of the other
 QUESTION fields/attributes that might be of interest to authors include the
 following.
 
- * `QUESTION.questionid` The unique internal ID of this question. 
+ * `QUESTION.questionid` The unique internal ID of this question.
  * `QUESTION.questiontext` The question text itself
  * `QUESTION.answer` The supplied sample answer (null if not explicitly set).
  * `QUESTION.language` The language being used to run the question in the sandbox,
@@ -1173,7 +1173,7 @@ from a list of options. Another common variant is
 
     { "number": {{ 5 + random(7) }} }
 
-which will result in the template parameter *number* having a uniformly 
+which will result in the template parameter *number* having a uniformly
 distributed integer value in the
 range 5 to 12 inclusive.
 
@@ -1183,7 +1183,7 @@ itself, are processed by Twig directly after the template parameters field
 has been Twigged. This yields new values for the question text, test cases etc,
 which are used
 throughout the question's lifetime. The Twig environment used when processing
-all these 
+all these
 other fields is that defined by the Twigged template parameters field.
 
 It is usual to click the *Twig All* checkbox with randomised questions, as otherwise only
@@ -1219,9 +1219,9 @@ frozen throughout the question lifetime. Such an approach, while technically
 live, discover they need to make changes to the *non-randomised* template
 parameters. For example, a template parameter that sets a limit on the allowed
 number of lines of code might turn out to be too restrictive. The
-author might wish to raise the limit and 
+author might wish to raise the limit and
 regrade existing submissions with the changed parameters.
-If the parameters were strictly frozen, this 
+If the parameters were strictly frozen, this
 wouldn't be possible. So instead the implementation records only the random number
 seed, and rebuilds the set of template parameters whenever the question is
 reloaded from the database.
@@ -1277,7 +1277,7 @@ to true on newly created questions.
     1. Create a single random `index` variable and use that to index into
        separate animal and sound lists. For example:
 
-            { 
+            {
                 {% set index = random(2) %}
                 "animal": "{{ ["Dog", "Cat", "Cow"][index] }}",
                 "sound":  "{{ ["Woof", "Miaow", "Moo"][index] }}"
@@ -1285,7 +1285,7 @@ to true on newly created questions.
     1. Select an animal at random from a list of Twig 'hash' objects, then plug
        each of the animal attributes into the JSON record. For example:
 
-            { 
+            {
                 {% set obj = random([
                     {'name': 'Dog', 'sound': 'Woof'},
                     {'name': 'Cat', 'sound': 'Miaow'},
@@ -1299,7 +1299,7 @@ to true on newly created questions.
        but then json_encode the entire object as a single template parameter.
        For example
 
-            { 
+            {
                 {% set animal = random([
                     {'name': 'Dog', 'sound': 'Woof'},
                     {'name': 'Cat', 'sound': 'Miaow'},
@@ -1339,7 +1339,7 @@ to true on newly created questions.
 
         (((c+b)+d)-(a*((c-a)-d)))
 
- and 
+ and
 
         (((a/(a-d))-(c/b))+(d+(((d/c)/d)*(c+a))))
 
@@ -1374,7 +1374,7 @@ per-test template or a combinator template.
 
 ### Per-test-case template grading
 
-When the template is a per-test template and a TemplateGrader is selected, the 
+When the template is a per-test template and a TemplateGrader is selected, the
 output from the program must be a JSON string that defines one row of the
 test results table. [Remember that per-test templates are expanded and run
 once for each test case.] The JSON object must contain
@@ -1408,10 +1408,10 @@ the language in which the student answer is written, and that Python's subproces
 module be used to execute the student code plus whatever test code is required.
 This ensures that errors in the syntax  or runtime errors in the student code
 do not break the template program itself, allowing it to output a JSON
-answer regardless. Some examples of per-test template graders are given in 
+answer regardless. Some examples of per-test template graders are given in
 the section *Template grader examples*.
 
-Sometimes the author of a template grader wishes to abort the testing of the 
+Sometimes the author of a template grader wishes to abort the testing of the
 program after a test case, usually the first, e.g. when pre-checks on the
 acceptability of a student submission fail. This can be achieved by defining
 in the output JSON object an extra attribute `abort`, giving it the boolean
@@ -1427,7 +1427,7 @@ JSON boolean literals are `true` and `false`. The superficial similarity of JSON
 to Python dictionaries is also confusing. Usually, in Python, you will generate
 the JSON objects using the `dumps` function in the `json` module, passing it a
 Python dictionary, further adding to the confusion!
- 
+
 For example, to generate the above JSON output (with lower case `t` in `true`)
 you would write
 
@@ -1459,9 +1459,9 @@ the standard 'Show differences' button after the result table; it is displayed
 only if there is actually a result table present and if full marks were not
 awarded to the question.
 
-Combinator-template grading gives the user complete control of the feedback to 
+Combinator-template grading gives the user complete control of the feedback to
 the student as well as of the grading process. The ability to include HTML
-in the feedback allows for complex output containing SVG or images. 
+in the feedback allows for complex output containing SVG or images.
 
 The combinator-template grader has available to it the full list of all
 test cases and their attributes (testcode, stdin, expected, mark, display etc)
@@ -1514,7 +1514,7 @@ A template grader for this situation might be the following
 
         print(json.dumps({'got': got, 'comment': comment, 'fraction': mark / 5}))
 
-In order to display the *comment* in the output JSON, the 
+In order to display the *comment* in the output JSON, the
 the 'Result columns' field of the question (in the 'customisation' part of
 the question authoring form) should include that field and its column header, e.g.
 
@@ -1530,7 +1530,7 @@ a fully correct answer and a partially correct answer, respectively.
 ### A more advanced grading-template example
 A template-grader can also be used to grade programming questions when the
 usual graders (e.g. exact or regular-expression matching of the program's
-output) are inadequate. 
+output) are inadequate.
 
 As a simple example, suppose the student has to write their own Python square
 root function (perhaps as an exercise in Newton-Raphson iteration?), such
@@ -1594,7 +1594,7 @@ the student's *student_sqrt* function with 1000 random numbers in the range
         try:
             with open('code.py', 'w') as fout:
                 fout.write(test_program)
-            output = subprocess.check_output(['python3', 'code.py'], 
+            output = subprocess.check_output(['python3', 'code.py'],
                 stderr=subprocess.STDOUT, universal_newlines=True)
         except subprocess.CalledProcessError as e:
             output = e.output
@@ -1602,7 +1602,7 @@ the student's *student_sqrt* function with 1000 random numbers in the range
         mark = 1 if output.strip() == 'All good!' else 0
         result = {'got': output, 'fraction': mark}
         print(json.dumps(result))
-        
+
 The following figures show this question in action.
 
 ![right answer](http://coderunner.org.nz/pluginfile.php/56/mod_page/content/23/Selection_061.png)
@@ -1615,7 +1615,7 @@ using the normal built-in equality based grader. It is usually possible to
 ask the question in a different way that avoids the need for a custom grader.
 In the above example, you would have to ask yourself if it mightn't have been
 sufficient to test the function with 10 fixed numbers in the range 0 to 1000
-using ten different test cases of the type suggested in the third 
+using ten different test cases of the type suggested in the third
 paragraph of this section.
 
 ## Customising the result table
@@ -1658,7 +1658,7 @@ to combine multiple fields into a column by adding extra fields to the
 specifier: these must precede the `sprintf` format specifier, which then
 becomes mandatory. For example, to display a `Mark Fraction` column in the
 form `0.74 out of 1.00`, a column format specifier of `["Mark Fraction", "awarded",
-"mark", "%.2f out of %.2f"]` could be used. 
+"mark", "%.2f out of %.2f"]` could be used.
 
 ### HTML formatted columns
 
@@ -1675,14 +1675,14 @@ parse and clean the HTML output.
 ### Extended column specifier syntax (*obsolescent*)
 
 It was stated above that the values to be formatted by the format string (if
-given) were fields from the TestResult object. This is a slight simplification. 
+given) were fields from the TestResult object. This is a slight simplification.
 The syntax actually allows for expressions of the form:
 
         filter(testResultField [,testResultField]... )
 
 where `filter` is the name of a built-in filter function that filters the
 given testResult field(s) in some way. Currently the only such built-in
-filter function is `diff`. This is (or was) a function 
+filter function is `diff`. This is (or was) a function
 taking two test result fields as parameters and
 returning an HTML string that representing the first test field with embedded
 HTML &lt;ins&gt; and &lt;del&gt; elements that show the insertions and deletions
@@ -1691,7 +1691,7 @@ to convert the first field into the second. This was used to provide support
 for the Show Differences button, which the user could click in order to
 highlight differences between the *Expected* and *Got* fields. However that
 functionality is now provided by JavaScript; the Show Differences button is
-automatically displayed if an answer is being marked wrong and if an 
+automatically displayed if an answer is being marked wrong and if an
 exact-match grader is being used. Hence the *diff* filter function
 is no longer functional but it remains supported syntactically to support
 legacy questions that use it.
@@ -1712,13 +1712,13 @@ syntax colouring, bracket matching, auto indent and many other programmer-orient
 capabilities to make editing of the underlying pure text more user-friendly.
 
 Sometimes question authors ask questions in which the answer is not in fact
-program code. For example, it might be a textual representation of an FSM 
+program code. For example, it might be a textual representation of an FSM
 (finite state machine). In such questions the Ace editor is often not
 appropriate. Prior to version 3.3, authors could turn off the Ace editor by
 unchecking a *Use Ace* checkbox, but this disabled it both for student answers
 and for the author's template.
 
-Since version 3.3.0, CodeRunner now supports pluggable user interfaces, 
+Since version 3.3.0, CodeRunner now supports pluggable user interfaces,
 although an administrator has to install the plugin. The two user interfaces
 currently built in to CodeRunner are Ace and Graph. The question author selects the required
 user interface via a dropdown menu in the customisation section of the question
@@ -1739,7 +1739,7 @@ For example:
 
 <img src="http://coderunner.org.nz/draftfile.php/5/user/draft/510777708/Selection_309.png" />
 
-Clicking the Help button on the graph canvas displays information on how to 
+Clicking the Help button on the graph canvas displays information on how to
 draw graphs.
 
 Some limited control of the Graph UI is available to the question author
@@ -1771,9 +1771,9 @@ CTRL-ALT-M keypress, alternately exposing and hiding the underlying textarea ele
 
 ### The HTML UI plugin
 
-*Warning:* This difficult-to-use plugin is 
+*Warning:* This difficult-to-use plugin is
 intended only for use by experienced CodeRunner authors who wish to
-implementing new user-defined question types (q.v.) in which
+implement new user-defined question types (q.v.) in which
 the student answer box is replaced by an HTML form of some sort, possibly
 with associated JavaScript to support specialised user interface requirements.
 
@@ -1794,7 +1794,7 @@ Each list contains all the values, in
 document order, of the UI elements with that name. The value is defined as
 follows:
 
-1. For <input type='checkbox'> and <input type='radio'> elements, the value is 
+1. For <input type='checkbox'> and <input type='radio'> elements, the value is
    the value of the element, as specified by its 'value' attribute, if the
    item is "checked", or the empty string otherwise.
 2. For all other elements the value is that returned by a call to the jQuery
@@ -1808,7 +1808,7 @@ method - caveat emptor.
 The HTML to use in the answer area must be specified in a field 'html' in the
 template parameters. Since the template parameters are JSON-encoded, the actual
 html string must also be json-encoded *prior to pasting into the question author form*
-using a function like Python's json.dumps(s). It will be a long hard-to-read 
+using a function like Python's json.dumps(s). It will be a long hard-to-read
 one-line string. For editing purposes you might wish to turn off the
 Ace editor in the question authoring form by typing Ctrl-Alt-M.
 
@@ -1841,7 +1841,7 @@ As a special case of the serialisation, if all values in the serialisation
 are empty strings, the serialisation is
 itself the empty string.
 
-A complex example of the use of this UI type can be seen in the 
+A complex example of the use of this UI type can be seen in the
 *python3_program_testing* prototype in the *samples* folder.
 
 ### Other UI plugins
@@ -1854,7 +1854,7 @@ folder
 
 is assumed to be a user interface plugin and is automatically added to
 the drop-down menu of available plugins. Such plugin files must be AMD modules
-and must implement the interface defined in the file 
+and must implement the interface defined in the file
 
         &lt;moodlehome&gt;/question/type/coderunner/amd/src/userinterfacewrapper.js
 
@@ -1881,7 +1881,7 @@ question type name you use should be unique, at least within the context of the 
 in which the prototype question is being used.
 
 The question text of a prototype question is displayed in the 'Question type
-details' panel in the question authoring form. 
+details' panel in the question authoring form.
 
 CodeRunner searches for prototype questions
 just in the current course context. The search includes parent
@@ -1913,7 +1913,7 @@ detail the process for creating a new question type.
 **WARNING #1:** if you define your own question type you'd better make sure
 when you export your question bank
 that you include the prototype, or all of its children will die on being imported
-anywhere else! 
+anywhere else!
 Similarly, if you delete a prototype question that's actually
 in use, all the children will break, giving runtime errors. To recover
 from such screw ups you will need to create a new prototype
@@ -1929,7 +1929,7 @@ the prototype.
 
 Most authors seem to assume that if they wish to write CodeRunner questions
 that use a language not directly supported by the Jobe sandbox, they must
-first modify Jobe to support the new language. That is not the case. A much 
+first modify Jobe to support the new language. That is not the case. A much
 easier, more convenient and more maintainable approach is to use a Python
 question type that compiles (if necessary) and runs the student code in
 a Python subprocess. Indeed, in recent years at the University of Canterbury
@@ -1974,7 +1974,7 @@ is included in the *samples* folder of the CodeRunner
 distribution.
 
     """ The template for a question type that compiles and runs a student-submitted
-        C program. 
+        C program.
     """
 
     import subprocess, sys
@@ -1993,7 +1993,7 @@ distribution.
     return_code = subprocess.call("gcc {0} -o prog prog.c".format(cflags).split())
     if return_code != 0:
         print("** Compilation failed. Testing aborted **", file=sys.stderr)
-        
+
     # If compile succeeded, run the code. Since this is a per-test template,
     # stdin is already set up for the stdin text specified in the test case,
     # so we can run the compiled program directly.
@@ -2035,7 +2035,7 @@ The three scripts are:
     all successes and failures.
 
  1. &lt;moodle_home&gt;/question/type/coderunner/prototypeusageindex.php
-    This scripts displays an index like the one above except that the 
+    This scripts displays an index like the one above except that the
     clickable links now run a script that reports on the question prototype
     usage within that category.
 
@@ -2047,9 +2047,9 @@ The three scripts are:
     and includes information not available in the exported Moodle responses
     file, such as all intermediate submisssions and prechecks and the time of
     each such action.
- 
+
     The download can be in either csv or excel format; the
-    latter is recommended for most cases because a long-standing bug in PHP's 
+    latter is recommended for most cases because a long-standing bug in PHP's
     `fputcsv` function can cause corrupted csv output files. The exported
     Excel spreadsheet can then be opened in Excel or Open Office and saved as
     csv.
@@ -2100,7 +2100,7 @@ The three scripts are:
     depends on the question type and the particular user action being recorded.]
     Currently, so-called "behaviour variables" - those containing an underscore - are
     not included in the export, except for the '-_rawfraction' variable. This
-    is to restrict the volume of data, but the decision may change in the future. 
+    is to restrict the volume of data, but the decision may change in the future.
 
     Processing of the raw spreadsheet is somewhat complicated. The file
     `quizsubmissions.py` included in the git repository defines Python classes to
@@ -2117,10 +2117,10 @@ The three scripts are:
         submission-data['rjl83'].submissions[2].get_answer()
 
     returns the final answer submitted by student `rjl83` to question 2.
-  
+
     Lots of other information, such as the student's name, all intermediate
     submissions and prechecks and their times etc is available.
-    See `quizsubmissions.py` for  more information.    
+    See `quizsubmissions.py` for  more information.
 
 
 ## A note on accessibility
@@ -2195,7 +2195,7 @@ such flaws.
 Accordingly, CodeRunner questions always use Moodle's adaptive behaviour,
 regardless of the behaviour set for the quiz in which the questions are being
 run. Students can check their code for correctness as soon as it has been
-entered and, if their answer is wrong, can resubmit, usually for a 
+entered and, if their answer is wrong, can resubmit, usually for a
 small penalty. The mark obtained in a
 programming-style quiz is thus determined primarily by how many of the problems the
 student can solve in the given time, and secondarily by how many submissions the student

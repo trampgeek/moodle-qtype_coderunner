@@ -23,6 +23,7 @@
  */
 
 $string['aborted'] = 'Testing was aborted due to error.';
+$string['ace_ui_notready'] = 'Ace editor not ready. Perhaps reload page?';
 $string['addingcoderunner'] = 'Adding a new CodeRunner Question';
 $string['ajax_error'] = '*** AJAX ERROR. DON\'T SAVE THIS! ***';
 $string['allok'] = 'Passed all tests! ';
@@ -231,7 +232,7 @@ value that should not be further processed before display.
 The \'showdifferences\' field turns on display of a \'Show Differences\'
 button after the results table if the awarded mark fraction is not 1.0.
 ';
-
+$string['graph_ui_invalidserialisation'] = 'GraphUI: invalid serialisation';
 $string['hidden'] = 'Hidden';
 $string['hidedifferences'] = 'Hide differences';
 $string['HIDE'] = 'Hide';
@@ -552,6 +553,10 @@ $string['student_answer'] = 'Student answer';
 $string['supportscripts'] = 'Support scripts';
 $string['syntax_errors'] = 'Syntax Error(s)';
 
+$string['table_ui_invalidjson'] = 'Table UI: invalid JSON serialisation.';
+$string['table_ui_invalidserialisation'] = 'Table UI: invalid serialisation.';
+$string['table_ui_missingparams'] = 'Table UI needs template parameters table_num_columns,
+table_num_rows and table_column_headers.';
 $string['template'] = 'Template';
 $string['template_changed'] = 'Per-test template changed - disable combinator? [\'Cancel\' leaves it enabled.]';
 $string['templatecontrols'] = 'Template controls';
@@ -740,7 +745,7 @@ the editor form for the Sample Answer and the Answer Preload fields.
 If \'Template uses ace\' is checked,
 the Ace code editor will manage both the template and the template parameters
 boxes. Otherwise a raw text box will be used.';
-$string['uiloadfail'] = 'UI plugin load failed.';
+$string['ui_fallback'] = 'Falling back to raw text area.';
 $string['unauthorisedbulktest'] = 'You do not have suitable access to any CodeRunner questions';
 $string['unauthoriseddbaccess'] = 'You are not authorised to use this script';
 $string['unknownerror'] = 'An unexpected error occurred. The sandbox may be down. Try again shortly.';
