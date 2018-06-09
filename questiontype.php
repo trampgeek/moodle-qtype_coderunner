@@ -362,20 +362,20 @@ class qtype_coderunner extends question_type {
     // As a special case, required by edit_coderunner_form, an option
     // 'mergedtemplateparams' is set by merging the prototype question's
     // template parameters with the given question's template parameters,
-    // with the caveat that if template parameters with embedded twig code that
+    // with the caveat that template parameters with embedded twig code that
     // aren't valid JSON are ignored.
     public function get_question_options($question) {
         global $CFG, $DB, $OUTPUT;
         parent::get_question_options($question);
-
-        if ($question->options->prototypetype != 0) { // Question prototype?
+        $options =& $question->options;
+        if ($options->prototypetype != 0) { // Question prototype?
             // Yes. It's 100% customised with nothing to inherit.
-            $question->options->customise = true;
+            $options->customise = true;
+            $options->mergedtemplateparams = $options->templateparams;
         } else {
-            $qtype = $question->options->coderunnertype;
+            $qtype = $options->coderunnertype;
             $context = $this->question_context($question);
             $prototype = $this->get_prototype($qtype, $context);
-            $options = $question->options;
             $this->set_inherited_fields($options, $prototype);
             $options->mergedtemplateparams = qtype_coderunner_util::merge_json(
                     $prototype->templateparams, $options->templateparams);
@@ -383,14 +383,14 @@ class qtype_coderunner extends question_type {
 
         // Add in any testcases (expect none for built-in prototypes and
         // template graders may have none, too).
-        if (!$question->options->testcases = $DB->get_records('question_coderunner_tests',
+        if (!$options->testcases = $DB->get_records('question_coderunner_tests',
                 array('questionid' => $question->id), 'id ASC')) {
-            if ($question->options->prototypetype == 0
-                    && $question->options->grader !== 'TemplateGrader') {
+            if ($options->prototypetype == 0
+                    && $options->grader !== 'TemplateGrader') {
                 throw new qtype_coderunner_exception("Failed to load testcases for question id {$question->id}");
             } else {
                 // Question prototypes may not have testcases.
-                $question->options->testcases = array();
+                $options->testcases = array();
             }
         }
 
