@@ -626,8 +626,8 @@ matlab-like student submissions.
 file, with PHP code enclosed in <?php ... ?> tags and the output is the
 usual PHP output including all HTML content outside the php tags.
 
-Other less commonly used built-in question types are: *c\_full\_main\_tests*,
-*python3\_w\_input*, *nodejs*, *pascal\_program* and *pascal\_function*.
+Other less commonly used built-in question types are:
+*c\_full\_main\_tests*, *nodejs*, *pascal\_program* and *pascal\_function*.
 
 As discussed later, this base set of question types can
 be customised or extended in various ways.
@@ -1737,7 +1737,7 @@ Graph UI, which was developed for Finite State Machines, draws directed graphs,
 allows nodes to be marked as *Accept* states and allows incoming start edges.
 For example:
 
-<img src="http://coderunner.org.nz/draftfile.php/5/user/draft/510777708/Selection_309.png" />
+<img src="http://coderunner.org.nz/pluginfile.php/56/mod_page/content/30/Selection_309.png" />
 
 Clicking the Help button on the graph canvas displays information on how to
 draw graphs.
