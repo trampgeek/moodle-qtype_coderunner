@@ -382,6 +382,7 @@ Twig parameter {{ IS_PRECHECK }}, which is "1" during precheck runs and
 "0" otherwise.';
 $string['precheck_only'] = 'Precheck only';
 $string['precheckingemptyset'] = 'Prechecking examples, but there aren\'t any!';
+$string['privacy:metadata'] = 'The CodeRunner question type plugin does not store any personal data.';
 $string['proceed_at_own_risk'] = 'Editing a built-in question prototype?! Proceed at your own risk!';
 $string['prototypecontrols'] = 'Prototyping';
 $string['prototypeusage'] = 'CodeRunner question prototype usage for course {$a}';
