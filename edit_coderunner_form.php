@@ -831,7 +831,9 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 $twig = qtype_coderunner_twig::get_twig_environment(array('strict_variables' => true));
                 $twigparams = array('STUDENT' => new qtype_coderunner_student($USER));
                 $renderedparams = $twig->render($data['templateparams'], $twigparams);
-                if ($renderedparams !== $data['templateparams']) {
+                if (str_replace($renderedparams, "\r", '') !==
+                        str_replace($data['templateparams'], "\r", '')) {
+                    // Twig loses '\r' chars, so must strip them before checking.
                     $istwiggedparams = true;
                 }
             } catch (Exception $ex) {
@@ -862,6 +864,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
     // in all other fields. Return value is an associative array mapping from
     // form fields to error messages.
     private function validate_twigables($data, $renderedparams) {
+        debugging("validating twigables");
         $errors = array();
         if (!empty($renderedparams)) {
             $parameters = json_decode($renderedparams, true);
