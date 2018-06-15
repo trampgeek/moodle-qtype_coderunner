@@ -109,13 +109,16 @@ define(['jquery'], function($) {
         catch(err) {
             // Something ugly happened. Probably ace editor hasn't been loaded
             this.fail = true;
-            this.failMessage = 'ace_ui_notready';
         }
     }
 
 
     AceWrapper.prototype.failed = function() {
         return this.fail;
+    };
+
+    AceWrapper.prototype.failMessage = function() {
+        return 'ace_ui_notready';
     };
 
 
