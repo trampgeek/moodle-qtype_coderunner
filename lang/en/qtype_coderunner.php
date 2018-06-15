@@ -444,6 +444,7 @@ $string['replaceexpectedwithgot'] = 'Click on the &lt;&lt; button to replace the
 $string['resultcolumns'] = 'Result columns';
 $string['reset'] = 'Reset answer';
 $string['resethover'] = 'Discard changes and reset answer to original preloaded value';
+$string['resultcolumnheader'] = 'Result';
 $string['resultcolumns_help'] = 'By default the result table displays the testcode, stdin, expected and got
 columns, provided the columns are not empty. You can change the default, and/or
 the column headers by entering a value for the resultcolumns (leave blank for

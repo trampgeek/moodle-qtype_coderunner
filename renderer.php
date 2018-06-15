@@ -453,7 +453,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
             $table->head[] = $this->column_header('extra', $resultcolumns);
             $showextras = true;
         }
-        $table->head[] = 'Result';
+        $table->head[] = get_string('resultcolumnheader', 'qtype_coderunner');
 
         $tablerows = array();
         $rowclasses = array();
