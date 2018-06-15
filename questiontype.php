@@ -381,17 +381,10 @@ class qtype_coderunner extends question_type {
                     $prototype->templateparams, $options->templateparams);
         }
 
-        // Add in any testcases (expect none for built-in prototypes and
-        // template graders may have none, too).
+        // Add in any testcases.
         if (!$options->testcases = $DB->get_records('question_coderunner_tests',
                 array('questionid' => $question->id), 'id ASC')) {
-            if ($options->prototypetype == 0
-                    && $options->grader !== 'TemplateGrader') {
-                throw new qtype_coderunner_exception("Failed to load testcases for question id {$question->id}");
-            } else {
-                // Question prototypes may not have testcases.
-                $options->testcases = array();
-            }
+            $options->testcases = array();
         }
 
         return true;
