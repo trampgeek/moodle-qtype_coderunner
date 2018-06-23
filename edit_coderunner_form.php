@@ -98,7 +98,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         // thing happens with $repeatedoptions['mark']['default'] = 1.000 in
         // get_per_testcase_fields (q.v.).
         // I don't understand this (but see 'Evil hack alert' in the baseclass).
-        // MY EVIL HACK ALERT -- setting just $numTestcases default values
+        // MY EVIL HACK ALERT (OLD: probably out of date ) -- setting just $numTestcases default values
         // fails when more test cases are added on the fly. So I've set up
         // enough defaults to handle 5 successive adding of more test cases.
         // I believe this is a bug in the underlying Moodle question type, not
@@ -267,7 +267,18 @@ class qtype_coderunner_edit_form extends question_edit_form {
         // standard stuff all loaded.
         global $COURSE;
 
+        $question->missingprototypemessage = ''; // The optimistic assumption
         if (isset($question->options->testcases)) { // Reloading a saved question?
+
+            // Firstly check if we're editing a question with a missing prototype
+            // Set missing_prototype if so.
+            $q = $this->make_question_from_form_data($question);
+            if ($q->prototype === null) {
+                $question->missingprototypemessage = get_string(
+                        'missingprototype', 'qtype_coderunner', array('crtype' => $question->coderunnertype));
+            }
+
+            // Next flatten all the question->options down into the question itself.
             $question->testcode = array();
             $question->expected = array();
             $question->useasexample = array();
@@ -474,6 +485,11 @@ class qtype_coderunner_edit_form extends question_edit_form {
         list($languages, $types) = $this->get_languages_and_types();
 
         $mform->addElement('header', 'questiontypeheader', get_string('type_header', 'qtype_coderunner'));
+        // Insert the (possible) missing prototype message as a hidden field. JavaScript
+        // will be used to show it if non-empty
+        $mform->addElement('hidden', 'missingprototypemessage', '',
+                array('id' => 'id_missing_prototype', 'class'=>'missingprototypeerror'));
+        $mform->setType('missingprototypemessage', PARAM_RAW);
 
         // The Question Type controls (a group with just a single member).
         $typeselectorelements = array();
@@ -864,7 +880,6 @@ class qtype_coderunner_edit_form extends question_edit_form {
     // in all other fields. Return value is an associative array mapping from
     // form fields to error messages.
     private function validate_twigables($data, $renderedparams) {
-        debugging("validating twigables");
         $errors = array();
         if (!empty($renderedparams)) {
             $parameters = json_decode($renderedparams, true);
@@ -908,32 +923,13 @@ class qtype_coderunner_edit_form extends question_edit_form {
     }
 
 
-    // Check the sample answer (if there is one)
-    // Return an empty string if there is no sample answer or if the sample
-    // answer passes all the tests.
-    // Otherwise return a suitable error message for display in the form.
-    private function validate_sample_answer($data) {
-        global $DB, $USER;
-
-        if (trim($data['answer']) === '') {
-            return '';
-        }
-
-        // Check if it's a multilanguage question; if so need to determine
-        // what language (either the default or the first).
-        $acelangs = trim($data['acelang']);
-        if ($acelangs !== '' && strpos($acelangs, ',') !== false) {
-            list($languages, $defaultlang) = qtype_coderunner_util::extract_languages($acelangs);
-            if ($defaultlang === '') {
-                $defaultlang = $languages[0];
-            }
-        }
-
+    private function make_question_from_form_data($data) {
         // Construct a question object containing all the fields from $data.
+        global $DB;
         $question = new qtype_coderunner_question();
         foreach ($data as $key => $value) {
             if ($key === 'questiontext') {
-                // For some reason, question text is an associative array.
+                // Question text is an associative array.
                 $question->$key = $value['text'];
             } else {
                 $question->$key = $value;
@@ -950,8 +946,32 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $contextid = $DB->get_field('question_categories', 'contextid', array('id' => $category));
         $question->contextid = $contextid;
         $context = context::instance_by_id($contextid, IGNORE_MISSING);
-        $prototype = $qtype->get_prototype($questiontype, $context);
-        $qtype->set_inherited_fields($question, $prototype);
+        $question->prototype = $qtype->get_prototype($questiontype, $context);
+        $qtype->set_inherited_fields($question, $question->prototype);
+        return $question;
+    }
+
+    // Check the sample answer (if there is one)
+    // Return an empty string if there is no sample answer or if the sample
+    // answer passes all the tests.
+    // Otherwise return a suitable error message for display in the form.
+    private function validate_sample_answer($data) {
+
+        if (trim($data['answer']) === '') {
+            return '';
+        }
+
+        // Check if it's a multilanguage question; if so need to determine
+        // what language (either the default or the first).
+        $acelangs = trim($data['acelang']);
+        if ($acelangs !== '' && strpos($acelangs, ',') !== false) {
+            list($languages, $defaultlang) = qtype_coderunner_util::extract_languages($acelangs);
+            if ($defaultlang === '') {
+                $defaultlang = $languages[0];
+            }
+        }
+
+        $question = $this->make_question_from_form_data($data);
         $question->start_attempt();
         $response = array('answer' => $question->answer);
         if (!empty($defaultlang)) {

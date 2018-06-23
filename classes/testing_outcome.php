@@ -32,6 +32,7 @@ class qtype_coderunner_testing_outcome {
     const STATUS_SYNTAX_ERROR = 2;  // The code (on any one test) didn't compile.
     const STATUS_BAD_COMBINATOR = 3; // A combinator template yielded an invalid result
     const STATUS_SANDBOX_ERROR = 4;  // The run failed altogether.
+    const STATUS_MISSING_PROTOTYPE = 5;  // Can't even start - no prototype
 
     const TOLERANCE = 0.00001;       // Allowable difference between actual and max marks for a correct outcome.
 
@@ -90,7 +91,8 @@ class qtype_coderunner_testing_outcome {
     }
 
     public function run_failed() {
-        return $this->status === self::STATUS_SANDBOX_ERROR;
+        return ($this->status === self::STATUS_SANDBOX_ERROR) ||
+               ($this->status === self::STATUS_MISSING_PROTOTYPE);
     }
 
     public function has_syntax_error() {

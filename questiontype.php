@@ -306,11 +306,13 @@ class qtype_coderunner extends question_type {
             $suffix = '';
             $type = $question->coderunnertype;
             while (true) {
-                try {
-                    $row = $this->get_prototype($type . $suffix, $question->context);
-                    $suffix = $suffix == '' ? '-1' : $suffix - 1;
-                } catch (qtype_coderunner_exception $e) {
+                $row = $this->get_prototype($type . $suffix, $question->context);
+                if ($row === null) {
                     break;
+                }
+                $suffix = $suffix == '' ? '-1' : $suffix - 1;
+                if ($suffix == '-9') {
+                    throw new qtype_coderunner_exception('Too many templates with almost identical names');
                 }
             }
             $question->coderunnertype = $type . $suffix;
@@ -377,8 +379,12 @@ class qtype_coderunner extends question_type {
             $context = $this->question_context($question);
             $prototype = $this->get_prototype($qtype, $context);
             $this->set_inherited_fields($options, $prototype);
-            $options->mergedtemplateparams = qtype_coderunner_util::merge_json(
+            if ($prototype !== null) {
+                $options->mergedtemplateparams = qtype_coderunner_util::merge_json(
                     $prototype->templateparams, $options->templateparams);
+            } else { // Missing prototype!
+                $options->mergedtemplateparams = $options->templateparams;
+            }
         }
 
         // Add in any testcases.
@@ -393,24 +399,25 @@ class qtype_coderunner extends question_type {
     /**
      * Add to the given target object all the inherited fields from the question's prototype
      * record that have not been overridden (i.e. that are null).
+     * If the given prototype is null (a broken question) nothing happens.
      * If any of the inherited fields are modified (i.e. any of the extra fields not
      * in the noninheritedFields list), the 'customise' field is set.
      * This is used only to display the customisation panel during authoring.
      * @param object $target the target object whose fields are being set. It should
      * be either a qtype_coderunner_question object or its options field ($question->options).
-     * @param string $questiontype the coderunner type (e.g. 'c_function'). This
-     * specifies the prototype required.
-     * @param context $context the context for this question. This defines the
-     * search path for the required prototype.
+     * @param string $prototype the prototype question. Null if non-existent (a broken question).
      */
     public function set_inherited_fields($target, $prototype) {
-        unset($prototype->id);
-        unset($prototype->questionid);
         $target->customise = false; // Starting assumption.
+
+        if ($prototype === null) {
+            return;
+        }
+
         $noninheritedfields = $this->noninherited_fields();
         foreach ($prototype as $field => $value) {
             $isinheritedfield = !in_array($field, $noninheritedfields);
-            if ($isinheritedfield) {
+            if ($isinheritedfield && $field != 'id' && $field != 'questionid') {
                 if (isset($target->$field) &&
                           $target->$field !== null &&
                           $target->$field !== '' &&
@@ -468,7 +475,8 @@ class qtype_coderunner extends question_type {
      * @param string $coderunnertype prototype name.
      * @param context $context a context.
      * @return stdClass prototype row from question_coderunner_options, with the
-     * addition of the question text (for use in the edit-form question-type help button).
+     * addition of the question text (for use in the edit-form question-type help button)
+     * or null if no prototype can be found or if more than one prototype is found.
      */
     public static function get_prototype($coderunnertype, $context) {
         global $DB;
@@ -484,12 +492,12 @@ class qtype_coderunner extends question_type {
                    AND qco.coderunnertype = ?";
 
         $validprotos = $DB->get_records_sql($sql, $params);
-        if (count($validprotos) == 0) {
-            throw new qtype_coderunner_exception('missingprototype', array('crtype' => $coderunnertype));
-        } else if (count($validprotos) != 1) {
-            throw new qtype_coderunner_exception('multipleprototypes', array('crtype' => $coderunnertype));
+        if (count($validprotos) !== 1) {
+            return null;  // Exactly one prototype should be found
+        } else {
+            $prototype = reset($validprotos);
+            return $prototype;
         }
-        return reset($validprotos);
     }
 
     /**
@@ -523,14 +531,14 @@ class qtype_coderunner extends question_type {
     public static function question_contextid($question) {
         global $DB;
 
-        if (!isset($question->contextid)) {
+        if (isset($question->contextid)) {
+            return $question->contextid;
+        } else {
             $questionid = isset($question->questionid) ? $question->questionid : $question->id;
             $sql = "SELECT contextid FROM {question_categories}, {question}
                      WHERE {question}.id = ?
                        AND {question}.category = {question_categories}.id";
             return $DB->get_field_sql($sql, array($questionid), MUST_EXIST);
-        } else {
-            return $question->contextid;
         }
     }
 
