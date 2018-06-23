@@ -26,7 +26,7 @@
 
 
    @author Richard Lobb
-   @version 18 November 2017
+   @version 24 June 2018
 """
 import csv
 from collections import defaultdict
@@ -42,15 +42,14 @@ class QuestionAttemptStep:
         assert len(rows), "Empty row list passed to QuestionAttemptStep constructor"
         self.time = int(rows[0]['timestamp'])  # Unix timestamp
         self.state = rows[0]['state']
-        self.fraction = 0
         self.rawfraction = None
-        try:
-            self.fraction = float(rows[0]['fraction'])
-        except ValueError:
-            pass
         self.action = None
         self.answer = None
         self.attributes = {}  # Other attributes from the database we don't handle
+        try:
+            self.fraction = float(rows[0]['fraction'])
+        except ValueError:
+            self.fraction = 0
 
         for row in rows:
             name = row['qasdname']
@@ -123,6 +122,7 @@ class QuestionAttempt:
 
     @property
     def mark(self):
+        assert self.fraction is not None and self.mark_out_of is not None
         return self.fraction * self.mark_out_of
 
 
