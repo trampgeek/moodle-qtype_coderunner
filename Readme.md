@@ -237,12 +237,7 @@ via an API-key and the default API-key given with CodeRunner imposes
 a limit of 100
 per hour over all clients using that key, worldwide. If you decide that CodeRunner is
 useful to you, *please* set up your own Jobe sandbox as
-described in *Sandbox configuration* below. Alternatively, if you wish to
-continue to use our Jobe server, you can apply to the principal
-[developer](mailto://trampgeek@gmail.com) for your own
-API key, stating how long you will need to use the key and a reasonable
-upper bound on the number of jobs you will need to submit per hour. We
-will do our best to accommodate you if we have sufficient capacity.
+described in *Sandbox configuration* below. 
 
 WARNING: at least a couple of users have broken CodeRunner by duplicating
 the prototype questions in the System/CR\_PROTOTYPES category. `Do not` touch
