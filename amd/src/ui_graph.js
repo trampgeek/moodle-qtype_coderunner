@@ -151,7 +151,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
 
     Graph.prototype.failMessage = function() {
         return this.failString;
-    }
+    };
 
     Graph.prototype.getElement = function() {
         return this.getCanvas();

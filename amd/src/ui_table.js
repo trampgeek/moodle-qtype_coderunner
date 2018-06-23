@@ -56,7 +56,7 @@ define(['jquery'], function($) {
             !templateParams.table_num_rows ||
             !templateParams.table_column_headers) {
             this.fail = true;
-            this.failString = 'table_ui_missingparams'
+            this.failString = 'table_ui_missingparams';
         } else {
             this.reload();
         }
@@ -72,7 +72,7 @@ define(['jquery'], function($) {
 
     TableUi.prototype.failMessage = function() {
         return this.failString;
-    }
+    };
 
 
    // Copy the serialised version of the Table UI area to the TextArea.
@@ -119,7 +119,7 @@ define(['jquery'], function($) {
                 preload = JSON.parse(preloadJson);
             } catch(error)  {
                 this.fail = true;
-                this.failString = 'table_ui_invalidjson'
+                this.failString = 'table_ui_invalidjson';
                 return;
             }
         }
