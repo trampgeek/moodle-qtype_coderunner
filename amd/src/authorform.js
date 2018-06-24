@@ -300,13 +300,10 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
         // given message as an error at the top of the question
         function checkForMissingPrototype() {
             var missingPrototypeMessage = missingPrototype.prop('value'),
-                messageDiv = null;
+                messagePara = null;
             if (missingPrototypeMessage !== '') {
-                messageDiv = $('<div/>', {
-                    'class': 'qtype_coderunner_error_message',
-                    'html': '<p>' + missingPrototype.prop('value') + '</p>'
-                });
-                $('#fgroup_id_coderunner_type_group').before(messageDiv);
+                messagePara = $('<p>' + missingPrototype.prop('value') + '</p>');
+                $('#id_qtype_coderunner_error_div').append(messagePara);
             }
         }
 

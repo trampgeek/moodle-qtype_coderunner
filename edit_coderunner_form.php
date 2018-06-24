@@ -52,6 +52,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         global $PAGE;
 
         $mform = $this->_form;
+        $this->make_error_div($mform);
         $this->make_questiontype_panel($mform);
         $this->make_questiontype_help_panel($mform);
         $this->make_customisation_panel($mform);
@@ -479,6 +480,12 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
     // FUNCTIONS TO BUILD PARTS OF THE MAIN FORM
     // =========================================.
+
+    // Create an empty div with id id_qtype_coderunner_error_div for use by
+    // JavaScript error handling code.
+    private function make_error_div($mform) {
+        $mform->addElement('html', "<div id='id_qtype_coderunner_error_div' class='qtype_coderunner_error_message'></div>");
+    }
 
     // Add to the supplied $mform the panel "Coderunner question type".
     private function make_questiontype_panel($mform) {

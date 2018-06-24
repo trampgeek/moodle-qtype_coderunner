@@ -56,6 +56,7 @@ unusual question type.
          * [Default result columns](#default-result-columns)
       * [User-interface selection](#user-interface-selection)
          * [The Graph UI](#the-graph-ui)
+         * [The Table UI](#the-table-ui)
          * [Other UI plugins](#other-ui-plugins)
       * [User-defined question types](#user-defined-question-types)
       * [Supporting or implementing new languages](#supporting-or-implementing-new-languages)
@@ -237,7 +238,7 @@ via an API-key and the default API-key given with CodeRunner imposes
 a limit of 100
 per hour over all clients using that key, worldwide. If you decide that CodeRunner is
 useful to you, *please* set up your own Jobe sandbox as
-described in *Sandbox configuration* below. 
+described in *Sandbox configuration* below.
 
 WARNING: at least a couple of users have broken CodeRunner by duplicating
 the prototype questions in the System/CR\_PROTOTYPES category. `Do not` touch
@@ -1764,79 +1765,43 @@ All active CodeRunner user interface plugins in both the question authoring
 form and the student's quiz page can be toggled off and on with a
 CTRL-ALT-M keypress, alternately exposing and hiding the underlying textarea element.
 
-### The HTML UI plugin
+### The Table UI
 
-*Warning:* This difficult-to-use plugin is
-intended only for use by experienced CodeRunner authors who wish to
-implement new user-defined question types (q.v.) in which
-the student answer box is replaced by an HTML form of some sort, possibly
-with associated JavaScript to support specialised user interface requirements.
+*Warning:* This UI plug-in is still experimental, and may change in the future.
+It was written only to support the new python3\_program\_testing question type,
+which is itself only experimental.
 
-The plugin replaces the usual textarea answer element with a div
-containing the author-supplied HTML, which will usually various input elements, such as
-text boxes, <select> elements, checkboxes and possibly one or more <script>
-elements.
+The plug-in replaces the usual textarea answer element with an HTML table,
+into which the student must enter text data. All cells in the table are
+HTML *textarea* elements. The question author can enable *Add row* and
+*Delete row* buttons that allow the student to add or delete rows. The configuration
+of the table is set by the following template parameters:
 
-The student will use the input elements to answer the question, then click the
-usual *Check* button. The plugin then extracts the state of the various user
-interface elements as a JSON object and copies that into the original (hidden)
-answer box textarea as the student answer. We call that the "serialisation" of
-the HTML. The properties of that JSON object are the names
-of all author-supplied HTML input elements with a class 'coderunner-ui-element';
-all such objects are expected to have a 'name' attribute as well. The
-associated property values are lists ('arrays' in JavaScript notation).
-Each list contains all the values, in
-document order, of the UI elements with that name. The value is defined as
-follows:
+ o `table_num_rows` sets the (initial) number of table rows, excluding the header
+ o `table_num_columns` set the number of table columns
+ o `table_column_headers` is a list of strings used for column headers
+ o `table_dynamic_rows` should be set `true` to enable the addition of *Add row*
+   and *Delete row* buttons through which the student can alter the number of
+   rows. The number of rows can never be less than the initial `table_num_rows` value.
 
-1. For <input type='checkbox'> and <input type='radio'> elements, the value is
-   the value of the element, as specified by its 'value' attribute, if the
-   item is "checked", or the empty string otherwise.
-2. For all other elements the value is that returned by a call to the jQuery
-   val() method of the element.
+For example, the `python3\_program\_testing` question type uses the following
+template parameter setting:
 
-The second option means that at least <select>, <input type='text'> and <textarea>
-elements are
-supported. Other elements may or may not work correctly with jQuery's val()
-method - caveat emptor.
+    {
+        "table_num_rows": 3,
+        "table_num_columns": 2,
+        "table_column_headers": ["Test", "Result"],
+        "table_dynamic_rows": true
+    }
 
-The HTML to use in the answer area must be specified in a field 'html' in the
-template parameters. Since the template parameters are JSON-encoded, the actual
-html string must also be json-encoded *prior to pasting into the question author form*
-using a function like Python's json.dumps(s). It will be a long hard-to-read
-one-line string. For editing purposes you might wish to turn off the
-Ace editor in the question authoring form by typing Ctrl-Alt-M.
-
-If any fields of the answer html are to be preloaded, these should be specified
-in the answer preload with a serialisation as defined above. This will have
-the form
-
-    { "<fieldName>": ["fieldValue1","fieldValue2",...], ... }
-
-
-When preloading an answer box, or restoring it with saved serialised data (e.g. following
-a question submission), the data is plugged back into the HTML,
-reversing the serialisation algorithm explained above.
-The
-field values are inserted into the elements with the given field name, in
-document order. Checkboxes and radio buttons are treated
-as indicated above, but of course setting the values rather than extracting
-them.
-
-To accommodate the possibility of dynamic HTML, any leftover values,
-that is, values that cannot be positioned within the HTML either because
-there is no field of the required name or because, in the case of a list,
-there are insufficient elements of the required name, are assigned to the data['leftovers']
-attribute of the outer html div, as a sub-object of the original object.
-This outer div can be located as the 'closest' (in a jQuery sense)
-div.qtype-coderunner-html-outer-div. The author-supplied HTML must include
-JavaScript to make use of the 'leftovers'.
+ The table serialisation is simply a JSON array of arrays containing all the
+table cells excluding the header row.
 
 As a special case of the serialisation, if all values in the serialisation
 are empty strings, the serialisation is
 itself the empty string.
 
-A complex example of the use of this UI type can be seen in the
+An example of the use of this UI type can be seen in the
 *python3_program_testing* prototype in the *samples* folder.
 
 ### Other UI plugins
@@ -1910,7 +1875,7 @@ when you export your question bank
 that you include the prototype, or all of its children will die on being imported
 anywhere else!
 Similarly, if you delete a prototype question that's actually
-in use, all the children will break, giving runtime errors. To recover
+in use, all the children will break, giving "missing prototype" errors. To recover
 from such screw ups you will need to create a new prototype
 of the right name (preferably by importing the original correct prototype).
 To repeat:
