@@ -169,7 +169,7 @@ define(['jquery'], function($) {
 
         // Add event handlers
         $(document).mousemove(function() {
-            // t.checkForResize();  // TODO: is this still necessary??
+            t.checkForResize();
         });
         $(window).resize(function() {
             t.checkForResize();
