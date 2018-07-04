@@ -169,7 +169,7 @@ define(['jquery'], function($) {
 
         // Add event handlers
         $(document).mousemove(function() {
-            t.checkForResize();
+            // t.checkForResize();  // TODO: is this still necessary??
         });
         $(window).resize(function() {
             t.checkForResize();
@@ -299,16 +299,14 @@ define(['jquery'], function($) {
         if (this.uiInstance) {
             h = this.wrapperNode.innerHeight();
             w = this.wrapperNode.innerWidth();
-            xLeft = this.wrapperNode.offset().left;
-            maxWidth = $(window).innerWidth() - xLeft - SIZE_HACK;
-
-            hAdjusted = h - this.GUTTER;
-            wAdjusted = Math.min(maxWidth, w);
-
-            if (hAdjusted !== this.hLast || wAdjusted !== this.wLast && this.uiInstance) {
+            if (h != this.hLast || w != this.wLast) {
+                xLeft = this.wrapperNode.offset().left;
+                maxWidth = $(window).innerWidth() - xLeft - SIZE_HACK;
+                hAdjusted = h - this.GUTTER;
+                wAdjusted = Math.min(maxWidth, w);
                 this.uiInstance.resize(wAdjusted,  hAdjusted);
-                this.hLast = hAdjusted;
-                this.wLast = wAdjusted;
+                this.hLast = this.wrapperNode.innerHeight();
+                this.wLast = this.wrapperNode.innerWidth();
             }
         }
     };
