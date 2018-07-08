@@ -327,6 +327,10 @@ host name and perhaps port number. Depending on how you've chosen to
 configure your Jobe server, you may also need to supply an API-Key through
 the same interface.
 
+A video walkthrough of the process of setting up a Jobe server
+on a DigitalOcean droplet, and connecting an existing CodeRunner plugin to it, is
+available [here](https://www.youtube.com/watch?v=dGpnQpLnERw).
+
 If you intend running unit tests you
 will also need to copy the file `tests/fixtures/test-sandbox-config-dist.php`
 to 'tests/fixtures/test-sandbox-config.php', then edit it to set the correct
