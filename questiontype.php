@@ -291,7 +291,7 @@ class qtype_coderunner extends question_type {
         array_shift($fields); // Discard table name.
         $customised = isset($question->customise) && $question->customise;
         $isprototype = $question->prototypetype != 0;
-        if ($customised && $question->prototypetype == 2 && !$isvalidation &&
+        if ($customised && $question->prototypetype > 0 && !$isvalidation &&
                 $question->coderunnertype != $question->typename) {
             // Saving a new user-defined prototype.
             // Copy new type name into coderunnertype.
@@ -496,6 +496,7 @@ class qtype_coderunner extends question_type {
             return null;  // Exactly one prototype should be found
         } else {
             $prototype = reset($validprotos);
+            self::twig_expand_question_text($prototype);  // Twig expand language strings
             return $prototype;
         }
     }
@@ -540,6 +541,16 @@ class qtype_coderunner extends question_type {
                        AND {question}.category = {question_categories}.id";
             return $DB->get_field_sql($sql, array($questionid), MUST_EXIST);
         }
+    }
+
+    // For prototype questions, the question text, which is used as the
+    // in-line help for question authors, is subject to Twig expansion, using
+    // as environment all CodeRunner strings in the current language.
+    protected static function twig_expand_question_text($prototype) {
+        $stringmanager = get_string_manager();
+        $strings = $stringmanager->load_component_strings('qtype_coderunner', current_language());
+        $twig = qtype_coderunner_twig::get_twig_environment();
+        $prototype->questiontext = $twig->render($prototype->questiontext, $strings);
     }
 
     // Initialise the question_definition object from the questiondata
