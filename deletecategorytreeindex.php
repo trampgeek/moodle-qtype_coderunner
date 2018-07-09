@@ -15,10 +15,9 @@
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This version tags all questions in a selected category. A different file
- * (autotagbyquizindex.php) handles autotagging of all questions in a
- * given quiz.
- * Both scripts are derived from bulktestindex.php, which provides bulk testing of questions.
+ * This script allows a suitably-authorised user to delete all categories
+ * in a selected question category tree, provided all those categories
+ * are empty.
  *
  * @package   qtype_coderunner
  * @copyright 2018 Richard Lobb, The University of Canterbury
@@ -32,56 +31,56 @@ require_once($CFG->libdir . '/questionlib.php');
 $context = context_system::instance();
 require_login();
 
-$PAGE->set_url('/question/type/coderunner/autotaggerindex.php');
+$PAGE->set_url('/question/type/coderunner/deletecategorytreeindex.php');
 $PAGE->set_context($context);
-$PAGE->set_title(get_string('autotagbycategoryindextitle', 'qtype_coderunner'));
+$PAGE->set_title('Delete category tree');
 
 // Create the helper class.
 $bulktester = new qtype_coderunner_bulk_tester();
 
 // Display.
 echo $OUTPUT->header();
-echo $OUTPUT->heading(get_string('coderunnercategories', 'qtype_coderunner'));
+echo html_writer::tag('h2', 'DANGER! EXPERIMENTAL SCRIPT. USE AT YOUR OWN RISK!');
+echo $OUTPUT->heading('Question Categories');
+echo html_writer::tag('p', 'Click a link to delete the entire question category tree'
+        . ' rooted at that point. If the tree contains any questions the deletion '
+        . 'will not take place.');
 
-// Find in which contexts the user can edit questions.
-$questionsbycontext = $bulktester->get_num_coderunner_questions_by_context();
-$availablequestionsbycontext = array();
-foreach ($questionsbycontext as $contextid => $numcoderunnerquestions) {
-    $context = context::instance_by_id($contextid);
-    if (has_capability('moodle/question:editall', $context)) {
-        $availablequestionsbycontext[$contextid] = $numcoderunnerquestions;
+// Find in which contexts the user can manage categories.
+$courses = $bulktester->get_all_courses();
+$availablecontexids = array();
+foreach ($courses as $course) {
+    $context = context::instance_by_id($course->contextid);
+    if (has_capability('moodle/question:managecategory', $context)) {
+        $availablecontextids[] = $course->contextid;
     }
 }
 
+
 // List all contexts available to the user.
 // Within each context, list the question categories.
-if (count($availablequestionsbycontext) == 0) {
-    echo html_writer::tag('p', get_string('unauthoriseddbaccess', 'qtype_coderunner'));
+if (count($availablecontextids) == 0) {
+    echo html_writer::tag('p', 'Unauthorised DB access');
 } else {
     echo html_writer::start_tag('ul');
-    foreach ($availablequestionsbycontext as $contextid => $numcoderunnerquestions) {
+    foreach ($availablecontextids as $contextid) {
         $context = context::instance_by_id($contextid);
         $name = $context->get_context_name(true, true);
-        if (strpos($name, 'Course:') === false) {
-            continue;
-        }
-        $class = 'autotag coderunner context course';
+        $class = 'context course';
 
         echo html_writer::tag('li',
-                $name . " ContextId $contextid" . ' (' . $numcoderunnerquestions . ')', array('class' => $class));
-        $categories = $bulktester->get_categories_for_context($contextid);
+                $name . " ContextId $contextid", array('class' => $class));
+        $categories = $bulktester->get_all_categories_for_context($contextid);
         echo html_writer::start_tag('ul');
         $keyedcategories = array();
         foreach ($categories as $catid => $row) {
-            if ($row->count > 0) {  // Check at least 1 question in category.
-                $categorypath = $bulktester->category_path($catid);
-                $keyedcategories[$categorypath] = array($catid, $row->count);
-            }
+            $categorypath = $bulktester->category_path($catid);
+            $keyedcategories[$categorypath] = array($catid, $row->count);
         }
         ksort($keyedcategories);
         foreach ($keyedcategories as $path => $idandcount) {
             echo html_writer::tag('li', html_writer::link(
-                    new moodle_url('/question/type/coderunner/autotagbycategory.php',
+                    new moodle_url('/question/type/coderunner/deletecategorytree.php',
                             array('contextid' => $contextid,
                                   'categoryid' => $idandcount[0],
                                   'categoryname' => $path)),

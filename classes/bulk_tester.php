@@ -96,6 +96,58 @@ class qtype_coderunner_bulk_tester {
 
 
     /**
+     *
+     * @param type $categoryid the id of a question category of interest
+     * @return a count of the number of questions in the given category.
+     */
+    public function count_questions_in_category($categoryid) {
+        global $DB;
+        $rec = $DB->get_record_sql("
+            SELECT count(q.id) as count
+            FROM {question} q
+            WHERE q.category=:categoryid",
+                array('categoryid'=>$categoryid));
+        return $rec->count;
+    }
+
+
+    /**
+     *
+     * @param type $categoryid the id of a question category of interest
+     * @return an array of the categoryid of all child categories
+     */
+    public function child_categories($categoryid) {
+        global $DB;
+        $rows = $DB->get_records_sql("
+            SELECT id
+            FROM {question_categories} qc
+            WHERE qc.parent=:categoryid",
+                array('categoryid'=>$categoryid));
+        $children = array();
+        foreach ($rows as $row) {
+            $children[] = $row->id;
+        }
+        return $children;
+    }
+
+    // Return the name of the given category id.
+    public function category_name($categoryid) {
+        global $DB;
+        $row = $DB->get_record_sql("
+            SELECT name
+            FROM {question_categories} qc
+            WHERE qc.id=:categoryid",
+                array('categoryid'=>$categoryid));
+        return $row->name;
+    }
+
+    // Delete the given question category id.
+    public function delete_category($categoryid) {
+        global $DB;
+        $DB->delete_records("question_categories", array("id" => $categoryid));
+    }
+
+    /**
      * Get a list of all the categories within the supplied contextid.
      * @return an associative array mapping from category id to an object
      * with name and count fields for all question categories in the given context.
@@ -116,6 +168,27 @@ class qtype_coderunner_bulk_tester {
             array('contextid' => $contextid));
     }
 
+
+    /**
+     * Get a list of all the categories within the supplied contextid.
+     * @return an associative array mapping from category id to an object
+     * with name and count fields for all question categories in the given context.
+     * The 'count' field is the number of all questions in the given
+     * category.
+     */
+    public function get_all_categories_for_context($contextid) {
+        global $DB;
+
+        return $DB->get_records_sql("
+                SELECT qc.id, qc.parent, qc.name as name,
+                       (SELECT count(1)
+                        FROM {question} q
+                        WHERE qc.id = q.category) AS count
+                FROM {question_categories} qc
+                WHERE qc.contextid = :contextid
+                ORDER BY qc.name",
+            array('contextid' => $contextid));
+    }
 
     /**
      * Categories are tree structured, with each category containing a link
