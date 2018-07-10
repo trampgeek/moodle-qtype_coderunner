@@ -521,6 +521,137 @@ can contain an incoming edge from nowhere (the start edge). Default: false.</li>
 <li>fontsize. The font size used for node and edge labels. Default: 20 points.</li>
 </ul></p>';
 
+$string['qtype_java_class'] = '<p>A Java write-a-class question, where the student submits a
+complete class as their answer. Each test will  typically instantiate an object of the specified
+class and perform one or more tests on it. It is not a combinator question type, meaning that
+each test case runs as a separate sandbox program.
+</p><p>The program generated for each test case consists of the student answer, with
+the <i>public</i>&nbsp;attribute stripped if present. That (now local)
+class definition is followed by a public <i>__Tester__&nbsp;</i>&nbsp;class that
+has a <i>main</i>&nbsp;method that instantiates the Tester class and calls its
+<i>runTests</i>&nbsp;method. The <i>runTests</i>&nbsp;method simply contains the
+test case code. See the template for clarification.</p><p>It should be noted that
+the algorithm used to strip the public attribute from the student-supplied class
+is simplistic; it only works if the words <i>public class</i>&nbsp;exist exactly
+once in the student code, separated by a single space.</p>
+<p>The test case extra field is ignored.</p>
+<p>This question type is inefficient if there are many test, as a separate
+compile-and-execute job is sent to the sandbox for each test case. This could be
+resolved by writing a combinator-style question type. See the coderunner
+documentation (coderunner.org.nz) for more information.</p>';
+
+$string['qtype_java_method'] = '<p>Used for Java write-a-method questions where the
+student is asked to write a method that is essentially a standalone function.
+The author-supplied test is typically just one or two lines of code that
+(apparently) just call the student supplied method, as in C. Under the hood, the
+template constructs a Main class containing the student-supplied method
+(and any other support methods, if they choose to write them) plus a \'runTests\'
+method that wraps the testcase(s). The main function for the class constructs an
+instance of Main and calls its runTests method. See the template code for details.';
+
+$string['qtype_java_program'] = '<p>A Java write-a-program question where the student
+submits a complete program as their answer. The program is compiled and executed for each
+test case. There is no test code, just stdin test data, though this isn\'t
+actually checked: caveat emptor. The extra fields of the test cases are likewise
+ignored.</p>
+<p>This question type becomes very inefficient if there are many test cases, since
+each one necessitates a full compile-and-execute cycle on the Jobe server. It is
+possible to wrap all tests into a single Python job that is sent to the sandbox
+server and compiles the program just once, then runs it on each test case.
+For details of this approach, see the question author forum on
+coderunner.org.nz.</p>';
+
+$string['qtype_multilanguage'] = '<p>A "write a program" style
+of question in which the student can submit an answer in any of the
+following languages: C, C++, Java, Python3. The student\'s question answer
+box has a drop-down menu at the top, with which the student must select
+the language in which their answer is written.</p>
+<p>Further languages can be added, if supported on the Jobe server, by
+adding the language name to the <i>AceLang</i> field of the question edit
+form and then extending the template (q.v.) to handle the new language.</p>
+<p>The submitted program code is run as-is for each test case. The testcode
+and extra fields of each test case are ignored.</p>';
+
+$string['qtype_nodejs-2'] = '<p>A JavaScript question type, run using nodejs. The
+test program to be executed starts with the student answer. That is followed
+by each of the test case codes in turn, with a separator string being printed
+between them. However, if there is any standard input present for any of the
+test cases, a separate test run will be done for each test case.</p><p>
+If there is a risk of side-effects from a test case affecting later test cases
+you can add standard input to any one of the test cases to force the one-run-per-test-case
+mode. [The question type name is <i>nodejs-2</i> rather than just <i>nodejs</i>
+for historical reasons.]</p>';
+
+$string['qtype_octave_function'] = '<p>A question type that specifies an
+Octave function, which the student has to submit in its entirety. Each test
+case will typically call the student function with test arguments and print
+the result or some value derived from it. If there is no standard input present
+in any of the questions, the program consists of the student answer, the
+statement <code>format free</code> and the test code from each test case,
+plus an extra <i>disp</i> statement to print a separator string between
+test case outputs.</p><p>If there is any standard input present, each test
+case is instead run separately.</p>';
+
+$string['qtype_pascal_function'] = '<p>A Pascal question type where the student
+ is asked to write a procedure or function. The program to be run consists of
+ the student answer followed by the CodeRunner <i>testcode</i> wrapped
+ in <code>begin ... end.</code>.<br>
+ This is not a combinator question type, so a separate jobe run will be done
+ for each test case.</p>';
+
+$string['qtype_pascal_program'] = '<p>A Pascal question type where the student
+ answer is a complete Pascal program. The program is compiled and run once for
+ each test case, using the standard input provided in the test case and
+ ignoring the <i>testcode</i> and <i>extra</i> fields.</p>';
+
+$string['qtype_php'] = '<p>A php question in which the student submission is
+php code. In the simplest case, the student code will start with</p><pre>
+&lt;?php
+</pre>but <i>will not close the PHP tag</i>. The reason for the non-closure
+can be seen by inspecting the template: the student answer is followed by each
+of the test case test codes. If instead you wish the student code to end by
+closing the PHP tag, you should edit the template to re-open the PHP tag before
+the sequence of tests.
+</p><p>The output from each test case, which should match the test case
+<i>expected</i> field, will be the output from the student\'s PHP code
+(including any content outside the scope of &lt;?php...?&gt; tags) plus the
+output from the test code.</p><p>Inspect the template code (by clicking
+<i>Customise</i>) to understand this.</p>';
+
+$string['qtype_python2'] = '<p>A Python2 question type, which can handle
+write-a-function, write-a-class or write-a-program question types. For each
+test case, the student-answer code is executed followed by the test code.
+Thus, for example, if the student is asked to write a function definition,
+their definition will be executed first, followed by the author-supplied
+test code, which will typically call the function and print the result or
+some value derived from it.</p>
+<p>If there are no standard inputs defined for all test cases, the question
+actually wraps all the tests
+into a single run, printing a separator string between each test case output.
+Please be aware that this isn\'t necessarily the same as running each test
+case separately. For example, if there are any global variables defined by
+the student code, these will hold their values across the multiple runs.
+If this is likely to prove a problem, the easiest work-around is to define
+one of the test case standard input fields to be a non-empty value - this
+forces CodeRunner into a fallback mode of running each test case separately.</p>';
+
+$string['qtype_python3'] = '<p>A Python3 question type, which can handle
+write-a-function, write-a-class or write-a-program question types. For each
+test case, the student-answer code is executed followed by the test code.
+Thus, for example, if the student is asked to write a function definition,
+their definition will be executed first, followed by the author-supplied
+test code, which will typically call the function and print the result or
+some value derived from it.</p>
+<p>If there are no standard inputs defined for all test cases, the question
+actually wraps all the tests
+into a single run, printing a separator string between each test case output.
+Please be aware that this isn\'t necessarily the same as running each test
+case separately. For example, if there are any global variables defined by
+the student code, these will hold their values across the multiple runs.
+If this is likely to prove a problem, the easiest work-around is to define
+one of the test case standard input fields to be a non-empty value - this
+forces CodeRunner into a fallback mode of running each test case separately.</p>';
+
 $string['qtype_undirected_graph'] = '<p>A python3 question type that asks the student to draw
 an undirected graph to satisfy some specification. The question author has to write
 Python3 code to check the resulting graph.</p><p>Note that it is not actually
@@ -570,126 +701,6 @@ can contain an incoming edge from nowhere (the start edge). Default: false.</li>
 <li>noderadius. The radius of a node, in pixels. Default: 26.</li>
 <li>fontsize. The font size used for node and edge labels. Default: 20 points.</li>
 </ul></p>';
-
-$string['qtype_java_class'] = '<p>A Java write-a-class question, where the student submits a
-complete class as their answer. Each test will  typically instantiate an object of the specified
-class and perform one or more tests on it. It is not a combinator question type, meaning that
-each test case runs as a separate sandbox program.
-</p><p>The program generated for each test case consists of the student answer, with
-the <i>public</i>&nbsp;attribute stripped if present. That (now local)
-class definition is followed by a public <i>__Tester__&nbsp;</i>&nbsp;class that
-has a <i>main</i>&nbsp;method that instantiates the Tester class and calls its
-<i>runTests</i>&nbsp;method. The <i>runTests</i>&nbsp;method simply contains the
-test case code. See the template for clarification.</p><p>It should be noted that
-the algorithm used to strip the public attribute from the student-supplied class
-is simplistic; it only works if the words <i>public class</i>&nbsp;exist exactly
-once in the student code, separated by a single space.</p>
-<p>The test case extra field is ignored.</p>
-<p>This question type is inefficient if there are many test, as a separate
-compile-and-execute job is sent to the sandbox for each test case. This could be
-resolved by writing a combinator-style question type. See the coderunner
-documentation (coderunner.org.nz) for more information.</p>';
-
-$string['qtype_java_method'] = '<p>Used for Java write-a-method questions where the
-student is asked to write a method that is essentially a standalone function.
-The author-supplied test is typically just one or two lines of code that
-(apparently) just call the student supplied method, as in C. Under the hood, the
-template constructs a Main class containing the student-supplied method
-(and any other support methods, if they choose to write them) plus a \'runTests\'
-method that wraps the testcase(s). The main function for the class constructs an
-instance of Main and calls its runTests method. See the template code for details.';
-
-$string['qtype_java_program'] = '<p>A Java write-a-program question where the student
-submits a complete program as their answer. The program is compiled and executed for each
-test case. There is no test code, just stdin test data, though this isn\'t
-actually checked: caveat emptor. The extra fields of the test cases are likewise
-ignored.</p>
-<p>This question type becomes very inefficient if there are many test cases, since
-each one necessitates a full compile-and-execute cycle on the Jobe server. It is
-possible to wrap all tests into a single Python job that is sent to the sandbox
-server and compiles the program just once, then runs it on each test case.
-For details of this approach, see the question author forum on
-coderunner.org.nz.';
-
-$string['qtype_multilanguage'] = '<p>A "write a program" style
-of question in which the student can submit an answer in any of the
-following languages: C, C++, Java, Python3. The student\'s question answer
-box has a drop-down menu at the top, with which the student must select
-the language in which their answer is written.</p>
-<p>Further languages can be added, if supported on the Jobe server, by
-adding the language name to the <i>AceLang</i> field of the question edit
-form and then extending the template (q.v.) to handle the new language.</p>
-<p>The submitted program code is run as-is for each test case. The testcode
-and extra fields of each test case are ignored.</p>';
-
-$string['qtype_nodejs'] = '<p>A JavaScript question type, run using nodejs. The
-test program to be executed starts with the student answer. That is followed
-by each of the test case codes in turn, with a separator string being printed
-between them. However, if there is any standard input present for any of the
-test cases, a separate test run will be done for each test case.</p><p>
-If there is a risk of side-effects from a test case affecting later test cases
-you can add standard input to any one of the test cases to force the one-run-per-test-case
-mode. [The question type name is <i>nodejs-2</i> rather than <i>nodejs</i>
-for historical reasons.]
-';
-
-$string['qtype_octave_function'] = '<p>A question type that specifies an
-Octave function, which the student has to submit in its entirety. Each test
-case will typically call the student function with test arguments and print
-the result or some value derived from it. If there is no standard input present
-in any of the questions, the program consists of the student answer, the
-statement <code>format free</code> and the test code from each test case,
-plus an extra <i>disp</i> statement to print a separator string between
-test case outputs.</p><p>If there is any standard input present, each test
-case is instead run separately.</p>';
-
-$string['qtype_php'] = '<p>A php question in which the student submission is
-php code. In the simplest case, the student code will start with</p><pre>
-&lt;?php
-</pre>but <i>will not close the PHP tag</i>. The reason for the non-closure
-can be seen by inspecting the template: the student answer is followed by each
-of the test case test codes. If instead you wish the student code to end by
-closing the PHP tag, you should edit the template to re-open the PHP tag before
-the sequence of tests.
-</p><p>The output from each test case, which should match the test case
-<i>expected</i> field, will be the output from the student\'s PHP code
-(including any content outside the scope of &lt;?php...?&gt; tags) plus the
-output from the test code.</p><p>Inspect the template code (by clicking
-<i>Customise</i>) to understand this.</p>';
-
-$string['qtype_python2'] = '<p>A Python2 question type, which can handle
-write-a-function, write-a-class or write-a-program question types. For each
-test case, the student-answer code is executed followed by the test code.
-Thus, for example, if the student is asked to write a function definition,
-their definition will be executed first, followed by the author-supplied
-test code, which will typically call the function and print the result or
-some value derived from it.</p>
-<p>If there are no standard inputs defined for all test cases, the question
-actually wraps all the tests
-into a single run, printing a separator string between each test case output.
-Please be aware that this isn\'t necessarily the same as running each test
-case separately. For example, if there are any global variables defined by
-the student code, these will hold their values across the multiple runs.
-If this is likely to prove a problem, the easiest work-around is to define
-one of the test case standard input fields to be a non-empty value - this
-forces CodeRunner into a fallback mode of running each test case separately.</p>';
-
-$string['qtype_python3'] = '<p>A Python3 question type, which can handle
-write-a-function, write-a-class or write-a-program question types. For each
-test case, the student-answer code is executed followed by the test code.
-Thus, for example, if the student is asked to write a function definition,
-their definition will be executed first, followed by the author-supplied
-test code, which will typically call the function and print the result or
-some value derived from it.</p>
-<p>If there are no standard inputs defined for all test cases, the question
-actually wraps all the tests
-into a single run, printing a separator string between each test case output.
-Please be aware that this isn\'t necessarily the same as running each test
-case separately. For example, if there are any global variables defined by
-the student code, these will hold their values across the multiple runs.
-If this is likely to prove a problem, the easiest work-around is to define
-one of the test case standard input fields to be a non-empty value - this
-forces CodeRunner into a fallback mode of running each test case separately.</p>';
 
 $string['qtype_python3_w_input'] = '<p>A Python3 question type, which can handle
 write-a-function, write-a-class or write-a-program question types. It differs
