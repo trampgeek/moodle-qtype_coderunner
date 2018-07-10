@@ -47,9 +47,6 @@ define(['jquery'], function($) {
             lang = params.lang,
             session;
 
-        this.MIN_WIDTH = 300;
-        this.MIN_HEIGHT = 100;
-
         try {
             window.ace.require("ace/ext/language_tools");
             this.modelist = window.ace.require('ace/ext/modelist');
@@ -63,7 +60,7 @@ define(['jquery'], function($) {
 
             this.editNode = $("<div></div>"); // Ace editor manages this
             this.editNode.css({
-                resize: 'none', // Chrome wrongly inherits this.
+                resize: 'none',
                 height: h,
                 width: "100%"
             });
@@ -120,6 +117,16 @@ define(['jquery'], function($) {
         return this.fail;
     };
 
+    AceWrapper.prototype.failMessage = function() {
+        return 'ace_ui_notready';
+    };
+
+
+    // Sync to TextArea
+    AceWrapper.prototype.sync = function() {
+        // Nothing to do ... always sync'd
+    };
+
 
     AceWrapper.prototype.setLanguage = function(language) {
         var session = this.editor.getSession(),
@@ -127,14 +134,6 @@ define(['jquery'], function($) {
         if (mode) {
             session.setMode(mode.mode);
         }
-    };
-
-
-    AceWrapper.prototype.getMinSize = function() {
-        return {
-            minWidth: this.MIN_WIDTH,
-            minHeight: this.MIN_HEIGHT
-        };
     };
 
     AceWrapper.prototype.getElement = function() {

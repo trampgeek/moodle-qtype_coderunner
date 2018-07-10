@@ -121,8 +121,6 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         this.HIT_TARGET_PADDING = 6;    // Pixels.
         this.DEFAULT_NODE_RADIUS = 26;  // Pixels. Template parameter noderadius can override this.
         this.DEFAULT_FONT_SIZE = 20;    // px. Template parameter fontsize can override this.
-        this.MIN_WIDTH = 400;
-        this.MIN_HEIGHT = 400;
 
         this.canvasId = 'graphcanvas_' + textareaId;
         this.textArea = $(document.getElementById(textareaId));
@@ -140,6 +138,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         this.currentLink = null;
         this.movingObject = false;
         this.fail = false;  // Will be set true if reload fails (can't deserialise).
+        this.failString = null;  // Language string key for fail error message
         this.reload();
         if (!this.fail) {
             this.draw();
@@ -150,15 +149,12 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         return this.fail;
     };
 
-    Graph.prototype.getElement = function() {
-        return this.getCanvas();
+    Graph.prototype.failMessage = function() {
+        return this.failString;
     };
 
-    Graph.prototype.getMinSize = function() {
-        return {
-            minWidth: this.MIN_WIDTH,
-            minHeight: this.MIN_HEIGHT
-        };
+    Graph.prototype.getElement = function() {
+        return this.getCanvas();
     };
 
     Graph.prototype.hasFocus = function() {
@@ -188,6 +184,12 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
             util.drawArrow(c, x, y, angle);
         }
     };
+
+    // Copy the serialised version of the graph to the TextArea.
+    Graph.prototype.sync = function() {
+        // Nothing to do ... always sync'd
+    };
+
 
     Graph.prototype.keypress = function(e) {
         var key = util.crossBrowserKey(e);
@@ -427,7 +429,6 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
 
     Graph.prototype.reload = function() {
         var content = $(this.textArea).val();
-            // failMessage = M.util.get_string('graphfail', 'qtype_coderunner');
         if (content) {
             try {
                 // Load up the student's previous answer if non-empty.
@@ -467,8 +468,8 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
                     }
                 }
             } catch(e) {
-                //alert(failMessage); // Error loading previous answer.
                 this.fail = true;
+                this.failString = 'graph_ui_invalidserialisation';
             }
         }
     };

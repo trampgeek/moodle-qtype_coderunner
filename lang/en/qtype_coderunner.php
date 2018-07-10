@@ -23,6 +23,7 @@
  */
 
 $string['aborted'] = 'Testing was aborted due to error.';
+$string['ace_ui_notready'] = 'Ace editor not ready. Perhaps reload page?';
 $string['addingcoderunner'] = 'Adding a new CodeRunner Question';
 $string['ajax_error'] = '*** AJAX ERROR. DON\'T SAVE THIS! ***';
 $string['allok'] = 'Passed all tests! ';
@@ -44,7 +45,7 @@ $string['advanced_customisation'] = 'Advanced customisation';
 $string['answer'] = 'Answer';
 $string['answerbox_group'] = 'Answer box';
 $string['answerboxlines'] = 'Rows';
-$string['answerbox_group_help'] = 'Set the number of rows to allocate for the answer box. The width is set to fit the window. If the answer overflows the box vertically or horizontally, scrollbars will appear.';
+$string['answerbox_group_help'] = 'Set the number of rows to allocate for the answer box. This sets the minimum height of the User Interface element (e.g. Ace) that controls the answer box. The width is set to fit the window. If the answer overflows the box vertically or horizontally, scrollbars will appear.';
 $string['answerpreload'] = 'Answer box preload';
 $string['answerpreload_help'] = 'Text supplied here will be preloaded into the student\'s answer box.';
 $string['asolutionis'] = 'Question author\'s solution:';
@@ -70,10 +71,11 @@ $string['badtemplateparamsaftertwig'] = 'Twigging of template parameters yielded
 $string['brokencombinator'] = 'Expected {$a->numtests} test results, got {$a->numresults}. Perhaps excessive output or error in question?';
 $string['brokentemplategrader'] = 'Bad output from grader: {$a->output}. Your program execution may have aborted (e.g. a timeout or memory limit exceeded).';
 $string['bulkquestiontester'] = 'The <a href="{$a->link}">bulk tester script</a> tests that the sample answers for all questions in the current context are marked right';
+$string['bulktestallincontext'] = 'Test all';
 $string['bulktestcontinuefromhere'] = 'Run again or resume, starting from here';
 $string['bulktestindextitle'] = 'CodeRunner bulk testing';
 $string['bulktestrun'] = 'Run all the question tests for all the questions in the system (slow, admin only)';
-$string['bulktesttitle'] = 'Running all the question tests in {$a}';
+$string['bulktesttitle'] = 'Testing questions in {$a}';
 
 $string['coderunnercategories'] = 'Categories with CodeRunner questions';
 $string['coderunnercontexts'] = 'Contexts with CodeRunner questions';
@@ -135,6 +137,8 @@ $string['errorstring-accessdenied'] = 'Access to sandbox denied';
 $string['errorstring-submissionlimitexceeded'] = 'Sandbox submission limit reached';
 $string['errorstring-submissionfailed'] = 'Submission to sandbox failed';
 $string['errorstring-unknown'] = 'Unexpected error while executing your code. The sandbox server may be down or overloaded. Perhaps try again shortly?';
+$string['expand'] = 'Expand';
+$string['expandtitle'] = 'Show question categories';
 $string['expected'] = 'Expected output';
 $string['expectedcolhdr'] = 'Expected';
 $string['expected_help'] = 'The expected output from the test. Seen by the template as {{TEST.expected}}.';
@@ -228,7 +232,7 @@ value that should not be further processed before display.
 The \'showdifferences\' field turns on display of a \'Show Differences\'
 button after the results table if the awarded mark fraction is not 1.0.
 ';
-
+$string['graph_ui_invalidserialisation'] = 'GraphUI: invalid serialisation';
 $string['hidden'] = 'Hidden';
 $string['hidedifferences'] = 'Hide differences';
 $string['HIDE'] = 'Hide';
@@ -315,8 +319,10 @@ Set the penalty regime to \'0\' for zero penalties on all submissions.';
 $string['memorylimit'] = 'MemLimit (MB)';
 $string['missinganswers'] = 'missing answers';
 $string['missingoutput'] = 'You must supply the expected output from this test case.';
-$string['missingprototype'] = 'Prototype for question type \'{$a->crtype}\' does not exist or is unavailable in this context';
+$string['missingprototype'] = 'This question was defined to be of type \'{$a->crtype}\' but the prototype does not exist or is unavailable in this context. You should Cancel and try to (re)install the prototype.
+Proceed to edit only if you know what you are doing!';
 $string['missingprototypes'] = 'Missing prototypes';
+$string['missingprototypewhenrunning'] = 'Broken question (missing prototype \'{$a->crtype}\'). Cannot be run.';
 $string['multipledefaults'] = 'At most one language can be selected as default';
 $string['multipleprototypes'] = 'Multiple prototypes found for \'{$a->crtype}\'';
 
@@ -378,6 +384,7 @@ Twig parameter {{ IS_PRECHECK }}, which is "1" during precheck runs and
 "0" otherwise.';
 $string['precheck_only'] = 'Precheck only';
 $string['precheckingemptyset'] = 'Prechecking examples, but there aren\'t any!';
+$string['privacy:metadata'] = 'The CodeRunner question type plugin does not store any personal data.';
 $string['proceed_at_own_risk'] = 'Editing a built-in question prototype?! Proceed at your own risk!';
 $string['prototypecontrols'] = 'Prototyping';
 $string['prototypeusage'] = 'CodeRunner question prototype usage for course {$a}';
@@ -401,6 +408,346 @@ to make subsequentmaintenance easier.';
 $string['prototype_error'] = '*** PROTOTYPE LOAD FAILURE. DON\'T SAVE THIS! ***';
 $string['prototype_load_failure'] = 'Error loading prototype: ';
 $string['prototypeQ'] = 'Is prototype?';
+
+$string['qtype_c_function'] = '<p>A question type for C write-a-function questions.
+The student answer is expected to be a complete C function, but it can optionally
+be preceded by other self-contained C code such as preprocessor directives and
+support functions.</p>
+<p>The test code for such questions typically calls the student function with
+some test arguments and prints the result, such as
+<pre>printf("%d\n", someIntFunction(blah1, blah2))</pre>
+The test case\'s <i>Expected</i> field is the expected output from the test.
+<p>
+If there is no standard input supplied for any of the test cases, a single
+test program is constructed, consisting of:</p>
+<ol>
+<li>The following standard #includes: stdlib.h, ctype.h, string.h, stdbool.h, math.h</li>
+<li>The student answer.</li>
+<li>A sequence of blocks wrapped in braces for each of the given test cases.
+Each block contains just the test case\'s test code. There is also a <i>printf</i>
+statement added between code blocks to print a special separator that is used
+to split the output back into individual test case outputs.</li>
+</ol>
+<p>However, if any of the test cases has non-empty standard input, multiple test
+programs are run, one for each test case.
+</p><p>The test case\'s <i>extra</i> field is ignored.</p>';
+
+$string['qtype_cpp_function'] = '<p>A question type for C++ write-a-function questions.
+The student answer is expected to be a complete C++ function, but it can optionally
+be preceded by other self-contained C++ code such as preprocessor directives and
+support functions.</p>
+<p>In each test case, the test code for such questions typically calls the student function with
+some test arguments and prints the result, such as
+<pre>cout << someIntFunction(blah1, blah2))</pre>
+The test case\'s <i>Expected</i> field is the expected output from the test.
+<p>
+If there is no standard input supplied for any of the test cases, a single
+test program is constructed, consisting of:</p>
+<ol>
+<li>The following standard #includes: iostream, fstream, string, math, vector and algorithm</li>
+<li><code>using namespace std;</code></li>
+<li>The student answer</li>
+<li>A sequence of blocks wrapped in braces for each of the given test cases.
+Each block consists of the test case\'s <i>extra</i> field (usually empty)
+followed by the test code. There is also a <i>printf</i>
+statement added between code blocks to print a special separator that is used
+to split the output back into individual test case outputs.</li>
+</ol>
+<p>However, if any of the test cases has non-empty standard input, multiple test
+programs are run, one for each test case.
+</p>';
+
+$string['qtype_c_program'] = '<p>Used for C write-a-program questions, where
+there is no per-test-case code, and the different tests just use different
+standard input (stdin) data. The student answer is expected to be a complete
+runnable program, which is run as-is, without modification by CodeRunner,
+once for each test case. The values of the test code and extra fields of each
+test case are ignored.</p>';
+
+$string['qtype_cpp_program'] = '<p>Used for C++ write-a-program questions, where
+there is no per-test-case code, and the different tests just use different
+standard input (stdin) data. The student answer is expected to be a complete
+runnable program, which is run as-is, without modification by CodeRunner,
+once for each test case. The values of the test code and extra fields of each
+test case are ignored.</p>';
+
+$string['qtype_directed_graph'] = '<p>A python3 question type that asks the student to draw
+a directed graph to satisfy some specification. The question author has to write
+Python3 code to check the resulting graph.</p><p>Note that it is not actually
+necessary to use this question type for directed graphs, as the functionality
+is mainly provided by the GraphUI plugin. If the graph pre-processing performed
+by this question type does not suit your needs, you can instead just use a normal
+Python3 question (or any other language), set the UI to GraphUI, and analyse
+the JSON-serialised version of the graph (the Twig STUDENT_ANSWER&nbsp; variable)
+yourself. However, this question type does provide an example of how to use the
+GraphUI plugin. Click <i>Customise</i>&nbsp;to see the template code.</p>
+<p>The specification will ask the student to draw a directed graph to satisfy
+certain requirements. It might for example be a DFA (deterministic finite-state
+automaton) or a Turning machine. The test case code and/or the extra code will
+then analyse the graph and print a message to the student, such as OK if the
+graph is correct or a suitably informative error message otherwise.</p>
+<p>The template for this question analyses the JSON-serialised graph, extracting
+its topology in the form of an adjacency dictionary&nbsp;<i>graph</i>. This
+variable is available to the test or extra code in the test case. Keys in the
+dictionary are node names, if given, or arbitrary node identifying labels of
+the form #1, #2 etc otherwise. Values in the dictionary are lists of outgoing
+edges, sorted by neighbour node name or identifier, each edge being a tuple
+(neighbourId, edgeLabel).</p><p>Each entry in the adjacency list is of the form
+(nodeNameOrId, neighbours) where neighbours is a list of tuples
+(neighbourNodeNameOrId, edgeLabel). If nodes are given names, those are used
+as node identifiers, otherwise the names #1, #2 etc are used. The adjacency
+list and the neighbour list are both sorted in order of node name or identifier.</p>
+<p>The template is a combinator one: the <i>testcode</i>&nbsp;and
+<i>extra</i>&nbsp;code are both executed for each test case.</p><p>As a simple
+example, if the specification were just "Draw a directed graph with two nodes
+labelled A and B, with an edge from A to B", a suitable test case (albeit with
+unhelpful error output) might be:</p><pre>
+if set(graph.keys()) == {\'A\', \'B\'} and len(graph[\'A\']) == 1 and len(graph[\'B\']) == 0 and graph[\'A\'][0][0] == \'B\':
+    print(\'OK\')
+else:
+    print(\'Nope\')
+</pre>
+<p>Alternatively, there could be a set of test cases, each one checking
+one of the aspects of the specification. For example, the first test case might
+print the sorted keys, expecting to see \'A\', \'B\'. The second test case might
+print the outgoing edges from node \'A\', and so on.</p>
+<p>The question takes the following template parameters, all of which are recognised
+by the GraphUI plugin and control its behaviour.</p>
+<p><ul>
+<li>isfsm. True if the graph is of a Finite State Machine. If true, the graph
+can contain an incoming edge from nowhere (the start edge). Default: false.</li>
+<li>isdirected. True if edges are directed. Default: true.</li>
+<li>noderadius. The radius of a node, in pixels. Default: 26.</li>
+<li>fontsize. The font size used for node and edge labels. Default: 20 points.</li>
+</ul></p>';
+
+$string['qtype_java_class'] = '<p>A Java write-a-class question, where the student submits a
+complete class as their answer. Each test will  typically instantiate an object of the specified
+class and perform one or more tests on it. It is not a combinator question type, meaning that
+each test case runs as a separate sandbox program.
+</p><p>The program generated for each test case consists of the student answer, with
+the <i>public</i>&nbsp;attribute stripped if present. That (now local)
+class definition is followed by a public <i>__Tester__&nbsp;</i>&nbsp;class that
+has a <i>main</i>&nbsp;method that instantiates the Tester class and calls its
+<i>runTests</i>&nbsp;method. The <i>runTests</i>&nbsp;method simply contains the
+test case code. See the template for clarification.</p><p>It should be noted that
+the algorithm used to strip the public attribute from the student-supplied class
+is simplistic; it only works if the words <i>public class</i>&nbsp;exist exactly
+once in the student code, separated by a single space.</p>
+<p>The test case extra field is ignored.</p>
+<p>This question type is inefficient if there are many test, as a separate
+compile-and-execute job is sent to the sandbox for each test case. This could be
+resolved by writing a combinator-style question type. See the coderunner
+documentation (coderunner.org.nz) for more information.</p>';
+
+$string['qtype_java_method'] = '<p>Used for Java write-a-method questions where the
+student is asked to write a method that is essentially a standalone function.
+The author-supplied test is typically just one or two lines of code that
+(apparently) just call the student supplied method, as in C. Under the hood, the
+template constructs a Main class containing the student-supplied method
+(and any other support methods, if they choose to write them) plus a \'runTests\'
+method that wraps the testcase(s). The main function for the class constructs an
+instance of Main and calls its runTests method. See the template code for details.';
+
+$string['qtype_java_program'] = '<p>A Java write-a-program question where the student
+submits a complete program as their answer. The program is compiled and executed for each
+test case. There is no test code, just stdin test data, though this isn\'t
+actually checked: caveat emptor. The extra fields of the test cases are likewise
+ignored.</p>
+<p>This question type becomes very inefficient if there are many test cases, since
+each one necessitates a full compile-and-execute cycle on the Jobe server. It is
+possible to wrap all tests into a single Python job that is sent to the sandbox
+server and compiles the program just once, then runs it on each test case.
+For details of this approach, see the question author forum on
+coderunner.org.nz.</p>';
+
+$string['qtype_multilanguage'] = '<p>A "write a program" style
+of question in which the student can submit an answer in any of the
+following languages: C, C++, Java, Python3. The student\'s question answer
+box has a drop-down menu at the top, with which the student must select
+the language in which their answer is written.</p>
+<p>Further languages can be added, if supported on the Jobe server, by
+adding the language name to the <i>AceLang</i> field of the question edit
+form and then extending the template (q.v.) to handle the new language.</p>
+<p>The submitted program code is run as-is for each test case. The testcode
+and extra fields of each test case are ignored.</p>';
+
+$string['qtype_nodejs-2'] = '<p>A JavaScript question type, run using nodejs. The
+test program to be executed starts with the student answer. That is followed
+by each of the test case codes in turn, with a separator string being printed
+between them. However, if there is any standard input present for any of the
+test cases, a separate test run will be done for each test case.</p><p>
+If there is a risk of side-effects from a test case affecting later test cases
+you can add standard input to any one of the test cases to force the one-run-per-test-case
+mode. [The question type name is <i>nodejs-2</i> rather than just <i>nodejs</i>
+for historical reasons.]</p>';
+
+$string['qtype_octave_function'] = '<p>A question type that specifies an
+Octave function, which the student has to submit in its entirety. Each test
+case will typically call the student function with test arguments and print
+the result or some value derived from it. If there is no standard input present
+in any of the questions, the program consists of the student answer, the
+statement <code>format free</code> and the test code from each test case,
+plus an extra <i>disp</i> statement to print a separator string between
+test case outputs.</p><p>If there is any standard input present, each test
+case is instead run separately.</p>';
+
+$string['qtype_pascal_function'] = '<p>A Pascal question type where the student
+ is asked to write a procedure or function. The program to be run consists of
+ the student answer followed by the CodeRunner <i>testcode</i> wrapped
+ in <code>begin ... end.</code>.<br>
+ This is not a combinator question type, so a separate jobe run will be done
+ for each test case.</p>';
+
+$string['qtype_pascal_program'] = '<p>A Pascal question type where the student
+ answer is a complete Pascal program. The program is compiled and run once for
+ each test case, using the standard input provided in the test case and
+ ignoring the <i>testcode</i> and <i>extra</i> fields.</p>';
+
+$string['qtype_php'] = '<p>A php question in which the student submission is
+php code. In the simplest case, the student code will start with</p><pre>
+&lt;?php
+</pre>but <i>will not close the PHP tag</i>. The reason for the non-closure
+can be seen by inspecting the template: the student answer is followed by each
+of the test case test codes. If instead you wish the student code to end by
+closing the PHP tag, you should edit the template to re-open the PHP tag before
+the sequence of tests.
+</p><p>The output from each test case, which should match the test case
+<i>expected</i> field, will be the output from the student\'s PHP code
+(including any content outside the scope of &lt;?php...?&gt; tags) plus the
+output from the test code.</p><p>Inspect the template code (by clicking
+<i>Customise</i>) to understand this.</p>';
+
+$string['qtype_python2'] = '<p>A Python2 question type, which can handle
+write-a-function, write-a-class or write-a-program question types. For each
+test case, the student-answer code is executed followed by the test code.
+Thus, for example, if the student is asked to write a function definition,
+their definition will be executed first, followed by the author-supplied
+test code, which will typically call the function and print the result or
+some value derived from it.</p>
+<p>If there are no standard inputs defined for all test cases, the question
+actually wraps all the tests
+into a single run, printing a separator string between each test case output.
+Please be aware that this isn\'t necessarily the same as running each test
+case separately. For example, if there are any global variables defined by
+the student code, these will hold their values across the multiple runs.
+If this is likely to prove a problem, the easiest work-around is to define
+one of the test case standard input fields to be a non-empty value - this
+forces CodeRunner into a fallback mode of running each test case separately.</p>';
+
+$string['qtype_python3'] = '<p>A Python3 question type, which can handle
+write-a-function, write-a-class or write-a-program question types. For each
+test case, the student-answer code is executed followed by the test code.
+Thus, for example, if the student is asked to write a function definition,
+their definition will be executed first, followed by the author-supplied
+test code, which will typically call the function and print the result or
+some value derived from it.</p>
+<p>If there are no standard inputs defined for all test cases, the question
+actually wraps all the tests
+into a single run, printing a separator string between each test case output.
+Please be aware that this isn\'t necessarily the same as running each test
+case separately. For example, if there are any global variables defined by
+the student code, these will hold their values across the multiple runs.
+If this is likely to prove a problem, the easiest work-around is to define
+one of the test case standard input fields to be a non-empty value - this
+forces CodeRunner into a fallback mode of running each test case separately.</p>';
+
+$string['qtype_undirected_graph'] = '<p>A python3 question type that asks the student to draw
+an undirected graph to satisfy some specification. The question author has to write
+Python3 code to check the resulting graph.</p><p>Note that it is not actually
+necessary to use this question type for undirected graphs, as the functionality
+is mainly provided by the GraphUI plugin. If the graph pre-processing performed
+by this question type does not suit your needs, you can instead just use a normal
+Python3 question (or any other language), set the UI to GraphUI, and analyse
+the JSON-serialised version of the graph (the Twig STUDENT_ANSWER&nbsp; variable)
+yourself. However, this question type does provide an example of how to use the
+GraphUI plugin. Click <i>Customise</i>&nbsp;to see the template code.</p>
+<p>The specification will ask the student to draw an undirected graph to satisfy
+certain requirements, e.g. a graph representation of a set of towns connected
+by two-way roads. The test case code and/or the extra code will
+then analyse the graph and print a message to the student, such as OK if the
+graph is correct or a suitably informative error message otherwise.</p>
+<p>The template for this question analyses the JSON-serialised graph, extracting
+its topology in the form of an adjacency dictionary&nbsp;<i>graph</i>. This
+variable is available to the test or extra code in the test case. Keys in the
+dictionary are node names, if given, or arbitrary node identifying labels of
+the form #1, #2 etc otherwise. Values in the dictionary are lists of edges,
+sorted by neighbour node name or identifier, each edge being a tuple
+(neighbourId, edgeLabel).</p><p>Each entry in the adjacency list is of the form
+(nodeNameOrId, neighbours) where neighbours is a list of tuples
+(neighbourNodeNameOrId, edgeLabel). If nodes are given names, those are used
+as node identifiers, otherwise the names #1, #2 etc are used. The adjacency
+list and the neighbour list are both sorted in order of node name or identifier.</p>
+<p>The template is a combinator one: the <i>testcode</i>&nbsp;and
+<i>extra</i>&nbsp;code are both executed for each test case.</p><p>As a simple
+example, if the specification were just "Draw an undirected graph with two nodes
+labelled A and B, with an edge between the two nodes", a suitable test case (albeit with
+unhelpful error output) might be:</p><pre>
+if set(graph.keys()) == {\'A\', \'B\'} and len(graph[\'A\']) == 1 and len(graph[\'B\']) == 1 and graph[\'A\'][0][0] == \'B\':
+    print(\'OK\')
+else:
+    print(\'Nope\')
+</pre>
+<p>Alternatively, there could be a set of test cases, each one checking
+one of the aspects of the specification. For example, the first test case might
+print the sorted keys, expecting to see \'A\', \'B\'. The second test case might
+print the edges connected to node \'A\', and so on.</p>
+<p>The question takes the following template parameters, all of which are recognised
+by the GraphUI plugin and control its behaviour.</p>
+<p><ul>
+<li>isfsm. True if the graph is of a Finite State Machine. If true, the graph
+can contain an incoming edge from nowhere (the start edge). Default: false.</li>
+<li>isdirected. True if edges are directed. Default: false.</li>
+<li>noderadius. The radius of a node, in pixels. Default: 26.</li>
+<li>fontsize. The font size used for node and edge labels. Default: 20 points.</li>
+</ul></p>';
+
+$string['qtype_python3_w_input'] = '<p>A Python3 question type, which can handle
+write-a-function, write-a-class or write-a-program question types. It differs
+from the slightly simpler <i>python3</i> question type in that the usual
+python3 <i>input</i> function is replaced with a custom version that echoes
+standard input to standard output as it is consumed. This results in the output
+mimicking that which is seen by students when testing with keyboard input.
+It is recommended instead for the <i>python3</i> question type for any
+questions that involve calls to <i>input</i> in introductory programming
+courses, where students are likely to be confused by the non-echoing of
+standard input when taken from a file.</p><p>A slight downside of this question
+type compared to the <i>python3</i> question type is that any error messages
+in the student code will have confusing line numbers, since the substitute
+input function is inserted before the student code.</p>
+<p>For each
+test case, the student-answer code is executed followed by the test code.
+Thus, for example, if the student is asked to write a function definition,
+their definition will be executed first, followed by the author-supplied
+test code, which will typically call the function and print the result or
+some value derived from it.</p>
+<p>If there are no standard inputs defined for all test cases, the question
+actually wraps all the tests
+into a single run, printing a separator string between each test case output.
+Please be aware that this isn\'t necessarily the same as running each test
+case separately. For example, if there are any global variables defined by
+the student code, these will hold their values across the multiple runs.
+If this is likely to prove a problem, the easiest work-around is to define
+one of the test case standard input fields to be a non-empty value - this
+forces CodeRunner into a fallback mode of running each test case separately.</p>';
+
+$string['qtype_sql'] = '<p>An <b>experimental</b> SQL question type, using sqlite3,
+ run from Python3. sqlite3 must be installed on the Jobe server for this question
+ type.</p>
+ <p>The working directory is searched for files with an extension \'.db\'. If
+ there is only one such file, it is used as the sqlite3 database for all tests.
+ Multiple .db files currently issues an error message; a possible extension is
+ to use different db files for each test, e.g. in sorted order.</p>
+ <p>For each test, an sqlite3 command script of the form</p>
+ <pre>.mode column<br>.headers on<br>&lt;code in extra&gt;<br>&lt;student answer&gt;<br>&lt;testcode&gt;</pre>
+ <p>is run.</p>
+ <p>A fresh copy of the db file is used for each test case.&nbsp;</p>
+ <p>A template parameter <i>columnwidths</i>&nbsp;can be used to set the report
+ column widths. By default sqlite3 sets each column width to be the maximum of
+ three numbers: 10, the width of the header, and the width of the first row of data.
+ A template string like</p><pre><code>{"columnwidths": [10, 50, 10, 5]}
+</code></pre>
+<p>will instead use column widths of 10, 50, 10 and 5 for the first four columns.</p>';
 
 $string['qtypehelp'] = 'Help with q-type';
 $string['questioncheckboxes'] = 'Customisation';
@@ -439,6 +786,7 @@ $string['replaceexpectedwithgot'] = 'Click on the &lt;&lt; button to replace the
 $string['resultcolumns'] = 'Result columns';
 $string['reset'] = 'Reset answer';
 $string['resethover'] = 'Discard changes and reset answer to original preloaded value';
+$string['resultcolumnheader'] = 'Result';
 $string['resultcolumns_help'] = 'By default the result table displays the testcode, stdin, expected and got
 columns, provided the columns are not empty. You can change the default, and/or
 the column headers by entering a value for the resultcolumns (leave blank for
@@ -549,6 +897,10 @@ $string['student_answer'] = 'Student answer';
 $string['supportscripts'] = 'Support scripts';
 $string['syntax_errors'] = 'Syntax Error(s)';
 
+$string['table_ui_invalidjson'] = 'Table UI: invalid JSON serialisation.';
+$string['table_ui_invalidserialisation'] = 'Table UI: invalid serialisation.';
+$string['table_ui_missingparams'] = 'Table UI needs template parameters table_num_columns,
+table_num_rows and table_column_headers.';
 $string['template'] = 'Template';
 $string['template_changed'] = 'Per-test template changed - disable combinator? [\'Cancel\' leaves it enabled.]';
 $string['templatecontrols'] = 'Template controls';
@@ -649,6 +1001,8 @@ etc) are the also processed by Twig, with the template parameters as an
 environment. This can result in different
 students seeing different random variants of the question. See the documentation
 for details.';
+$string['testalltitle'] = 'Test all questions in this context';
+$string['testallincategory'] = 'Test all questions in this category';
 $string['testcase'] = 'Test case {$a}';
 $string['testcasecontrols'] = 'Test properties:';
 $string['testcasecontrols_help'] = 'If \'Use as example\' is checked, this test will be automatically included in the
@@ -720,6 +1074,10 @@ The template parameters
 from the actual question are merged with, and override, those from the
 prototype (since CodeRunner V3.2.2).
 
+There is also an \'Html\' user interface element but this is not intended for
+general use - it invokes a specialist UI plugin that can be used for advanced
+question type authoring. See the main CodeRunner documentation for details.
+
 Students with poor eyesight, or authors wishing to inspect serialisations
 (say to understand the representation used by the Graph UI),
 can toggle the use of all UI plugins on the current page by typing
@@ -731,7 +1089,7 @@ the editor form for the Sample Answer and the Answer Preload fields.
 If \'Template uses ace\' is checked,
 the Ace code editor will manage both the template and the template parameters
 boxes. Otherwise a raw text box will be used.';
-$string['uiloadfail'] = 'UI plugin load failed.';
+$string['ui_fallback'] = 'Falling back to raw text area.';
 $string['unauthorisedbulktest'] = 'You do not have suitable access to any CodeRunner questions';
 $string['unauthoriseddbaccess'] = 'You are not authorised to use this script';
 $string['unknownerror'] = 'An unexpected error occurred. The sandbox may be down. Try again shortly.';

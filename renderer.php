@@ -269,7 +269,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
     protected function build_results_table($outcome, qtype_coderunner_question $question) {
         $fb = $outcome->get_prologue();
         $testresults = $outcome->get_test_results($question);
-        if (count($testresults) > 0) {
+        if (is_array($testresults) && count($testresults) > 0) {
             $table = new html_table();
             $table->attributes['class'] = 'coderunner-test-results';
             $headers = $testresults[0];
@@ -453,7 +453,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
             $table->head[] = $this->column_header('extra', $resultcolumns);
             $showextras = true;
         }
-        $table->head[] = 'Result';
+        $table->head[] = get_string('resultcolumnheader', 'qtype_coderunner');
 
         $tablerows = array();
         $rowclasses = array();
@@ -560,7 +560,10 @@ class qtype_coderunner_renderer extends qtype_renderer {
             'initDiffButton',
             array($attributes['id'],
                 get_string('showdifferences', 'qtype_coderunner'),
-                get_string('hidedifferences', 'qtype_coderunner')
+                get_string('hidedifferences', 'qtype_coderunner'),
+                get_string('expectedcolhdr', 'qtype_coderunner'),
+                get_string('gotcolhdr', 'qtype_coderunner')
+
             )
         );
 

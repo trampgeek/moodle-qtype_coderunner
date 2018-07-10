@@ -160,6 +160,38 @@ class qtype_coderunner_test_helper extends question_test_helper {
         return $form;
     }
 
+
+    /**
+     * Gets the form data that would come back when the editing form is saved,
+     * if you were creating a new prototype python3_noace that has Ace disabled.
+     *
+     * AARGGHHH! Sadly the usual mechanism for loading questions via method named
+     * get_{qtype}_question_form_data_{name} doesn't work with CodeRunner/Behat.
+     * One should be able to use the Behat step "And the following questions exist"
+     * to select individual questions. However the column name 'template' is
+     * used to select the question (e.g. python3_noace) but the table data is
+     * then passed on to the question definer which proceeds to clobbers the
+     * 'template' field of the question. That destroys CodeRunner questions.
+     * Design flaw!
+     * So this method is useless but is left in as documentation.
+     * @return stdClass the form data.
+     */
+    public function get_coderunner_question_form_data_python3_noace() {
+        $form = get_coderunner_question_form_data_sqr();  // Starting point
+        throw new Exception("Got here");
+        $form->name = 'PROTOTYPE python3_noace';
+        $form->prototypetype = 2;
+        $form->typename = 'python3_noace';
+        $form->testcode = array();
+        $form->stdin = array();
+        $form->expected = array();
+        $form->extra = array();
+        $form->mark = array();
+        $form->ordering = array();
+        $form->questiontext = array('text' => 'Prototype for a Python3 question that does not use Ace', 'format' => FORMAT_HTML);
+        return $form;
+    }
+
     /**
      * Makes a coderunner python3-pylint-func question asking for a sqr() function
      * @return qtype_coderunner_question

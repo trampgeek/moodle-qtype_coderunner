@@ -18,7 +18,7 @@ Background:
       | contextlevel | reference | name           |
       | Course       | C1        | Test questions |
     And I log in as "teacher1"
-    And I follow "C1"
+    And I am on "Course 1" course homepage
     And I navigate to "Question bank" node in "Course administration"
     And I disable UI plugins
     And I add a "CodeRunner" question filling the form with:

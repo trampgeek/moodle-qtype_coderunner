@@ -56,6 +56,7 @@ unusual question type.
          * [Default result columns](#default-result-columns)
       * [User-interface selection](#user-interface-selection)
          * [The Graph UI](#the-graph-ui)
+         * [The Table UI](#the-table-ui)
          * [Other UI plugins](#other-ui-plugins)
       * [User-defined question types](#user-defined-question-types)
       * [Supporting or implementing new languages](#supporting-or-implementing-new-languages)
@@ -200,7 +201,7 @@ that same test all by itself in the combinator template.
 CodeRunner requires two separate plug-ins, one for the question type and one
 for the specialised adaptive behaviour. The plug-ins are in two
 different github repositories: `github.com/trampgeek/moodle-qbehaviour_adaptive_adapted_for_coderunner`
-and `github.com/trampgeek/moodle-qtype_coderunner`. Install the two plugs
+and `github.com/trampgeek/moodle-qtype_coderunner`. Install the two plugins
 using one of the following two methods.
 
 EITHER:
@@ -237,12 +238,7 @@ via an API-key and the default API-key given with CodeRunner imposes
 a limit of 100
 per hour over all clients using that key, worldwide. If you decide that CodeRunner is
 useful to you, *please* set up your own Jobe sandbox as
-described in *Sandbox configuration* below. Alternatively, if you wish to
-continue to use our Jobe server, you can apply to the principal
-[developer](mailto://trampgeek@gmail.com) for your own
-API key, stating how long you will need to use the key and a reasonable
-upper bound on the number of jobs you will need to submit per hour. We
-will do our best to accommodate you if we have sufficient capacity.
+described in *Sandbox configuration* below.
 
 WARNING: at least a couple of users have broken CodeRunner by duplicating
 the prototype questions in the System/CR\_PROTOTYPES category. `Do not` touch
@@ -330,6 +326,10 @@ Moodle administrator interface for the CodeRunner plug-in to specify the Jobe
 host name and perhaps port number. Depending on how you've chosen to
 configure your Jobe server, you may also need to supply an API-Key through
 the same interface.
+
+A video walkthrough of the process of setting up a Jobe server
+on a DigitalOcean droplet, and connecting an existing CodeRunner plugin to it, is
+available [here](https://www.youtube.com/watch?v=dGpnQpLnERw).
 
 If you intend running unit tests you
 will also need to copy the file `tests/fixtures/test-sandbox-config-dist.php`
@@ -626,8 +626,8 @@ matlab-like student submissions.
 file, with PHP code enclosed in <?php ... ?> tags and the output is the
 usual PHP output including all HTML content outside the php tags.
 
-Other less commonly used built-in question types are:
-*c\_full\_main\_tests*, *nodejs*, *pascal\_program* and *pascal\_function*.
+Other less commonly used built-in question types are: 
+*python3\_w\_input*, *nodejs*, *pascal\_program* and *pascal\_function*.
 
 As discussed later, this base set of question types can
 be customised or extended in various ways.
@@ -1769,9 +1769,48 @@ All active CodeRunner user interface plugins in both the question authoring
 form and the student's quiz page can be toggled off and on with a
 CTRL-ALT-M keypress, alternately exposing and hiding the underlying textarea element.
 
+### The Table UI
+
+*Warning:* This UI plug-in is still experimental, and may change in the future.
+It was written only to support the new python3\_program\_testing question type,
+which is itself only experimental.
+
+The plug-in replaces the usual textarea answer element with an HTML table,
+into which the student must enter text data. All cells in the table are
+HTML *textarea* elements. The question author can enable *Add row* and
+*Delete row* buttons that allow the student to add or delete rows. The configuration
+of the table is set by the following template parameters:
+
+ o `table_num_rows` sets the (initial) number of table rows, excluding the header
+ o `table_num_columns` set the number of table columns
+ o `table_column_headers` is a list of strings used for column headers
+ o `table_dynamic_rows` should be set `true` to enable the addition of *Add row*
+   and *Delete row* buttons through which the student can alter the number of
+   rows. The number of rows can never be less than the initial `table_num_rows` value.
+
+For example, the `python3\_program\_testing` question type uses the following
+template parameter setting:
+
+    {
+        "table_num_rows": 3,
+        "table_num_columns": 2,
+        "table_column_headers": ["Test", "Result"],
+        "table_dynamic_rows": true
+    }
+
+ The table serialisation is simply a JSON array of arrays containing all the
+table cells excluding the header row.
+
+As a special case of the serialisation, if all values in the serialisation
+are empty strings, the serialisation is
+itself the empty string.
+
+An example of the use of this UI type can be seen in the
+*python3_program_testing* prototype in the *samples* folder.
+
 ### Other UI plugins
 
-Question authors can write their own user-interface plugins; an JavaScript
+Question authors can write their own user-interface plugins; a JavaScript
 file with a name of the form `ui_something.js` in the
 folder
 
@@ -1840,7 +1879,7 @@ when you export your question bank
 that you include the prototype, or all of its children will die on being imported
 anywhere else!
 Similarly, if you delete a prototype question that's actually
-in use, all the children will break, giving runtime errors. To recover
+in use, all the children will break, giving "missing prototype" errors. To recover
 from such screw ups you will need to create a new prototype
 of the right name (preferably by importing the original correct prototype).
 To repeat:
@@ -2013,7 +2052,7 @@ The three scripts are:
 
         WHERE quiza.preview = 0
         AND (qasd.name NOT RLIKE '^-_' OR qasd.name = '-_rawfraction')
-        AND qasd.name NOT RLIKE '^_'
+        AND (qasd.name NOT RLIKE '^_' OR qasd.name = '_testoutcome')
         AND quest.length > 0
         ORDER BY quiza.uniqueid, timestamp;
 

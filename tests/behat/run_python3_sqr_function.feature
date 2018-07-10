@@ -21,9 +21,9 @@ Feature: Preview the Python 3 sqr function CodeRunner question
       | questioncategory | qtype      | name            |
       | Test questions   | coderunner | Square function |
     And I log in as "teacher1"
-    And I follow "C1"
+    And I am on "Course 1" course homepage
     And I navigate to "Question bank" node in "Course administration"
-    
+
   Scenario: Preview the Python3 sqr function CodeRunner question and get it right
     When I click on "Preview" "link" in the "Square function" "table_row"
     And I switch to "questionpreview" window

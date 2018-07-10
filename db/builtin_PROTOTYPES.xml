@@ -3,40 +3,29 @@
 <!-- question: 0  -->
   <question type="category">
     <category>
-        <text>$system$/CR_PROTOTYPES</text>
+        <text>top/CR_PROTOTYPES</text>
 
     </category>
   </question>
 
-<!-- question: 17335  -->
+<!-- question: 21100  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_c_function</text>
     </name>
     <questiontext format="html">
-      <text>Used for C write-a-function questions. The student answer is expected
-      to be a complete C function, but it can optionally be preceded by other self-contained
-      C code such as preprocessor directives and support functions.
-      The test code is usually just single line of code that calls the primary student
-      function and prints the result, but multiple line test code is
-      possible, too, provided the code is suitable for wrapping inside
-      the automatically-generated main function.
-          
-      The following standard header files are included: stdlib.h, ctype.h,
-          string.h, stdbool.h, math.h.
-          
-      See the template for details.</text>
+      <text>Built-in prototypes are documented in the language strings.</text>
     </questiontext>
     <generalfeedback format="html">
       <text></text>
     </generalfeedback>
     <defaultgrade>1.0000000</defaultgrade>
-    <penalty>0.3333333</penalty>
+    <penalty>0.0000000</penalty>
     <hidden>0</hidden>
     <coderunnertype>c_function</coderunnertype>
     <prototypetype>1</prototypetype>
     <allornothing>1</allornothing>
-    <penaltyregime></penaltyregime>
+    <penaltyregime>33.3, 66.7, ...</penaltyregime>
     <precheck>0</precheck>
     <showsource>0</showsource>
     <answerboxlines>18</answerboxlines>
@@ -64,7 +53,7 @@ int main() {
     return 0;
 }]]></template>
     <iscombinatortemplate>1</iscombinatortemplate>
-    <allowmultiplestdins></allowmultiplestdins>
+    <allowmultiplestdins>0</allowmultiplestdins>
     <answer></answer>
     <validateonsave>0</validateonsave>
     <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
@@ -76,33 +65,31 @@ int main() {
     <memlimitmb></memlimitmb>
     <sandboxparams></sandboxparams>
     <templateparams></templateparams>
-    <uiplugin></uiplugin>
+    <hoisttemplateparams>0</hoisttemplateparams>
+    <twigall>0</twigall>
+    <uiplugin>ace</uiplugin>
     <testcases>
     </testcases>
   </question>
 
-<!-- question: 17336  -->
+<!-- question: 21101  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_c_program</text>
     </name>
-    <questiontext format="moodle_auto_format">
-      <text>Used for C write-a-program questions, where there is no
-          per-test-case code, and the different tests just use different
-          stdin data. The student answer is expected to be a complete
-          runnable program, which is run as-is, without modification
-          by CodeRunner.</text>
+    <questiontext format="html">
+      <text>Built-in prototypes are documented in the language strings.</text>
     </questiontext>
-    <generalfeedback format="moodle_auto_format">
+    <generalfeedback format="html">
       <text></text>
     </generalfeedback>
     <defaultgrade>1.0000000</defaultgrade>
-    <penalty>0.3333333</penalty>
+    <penalty>0.0000000</penalty>
     <hidden>0</hidden>
     <coderunnertype>c_program</coderunnertype>
     <prototypetype>1</prototypetype>
     <allornothing>1</allornothing>
-    <penaltyregime></penaltyregime>
+    <penaltyregime>33.3, 66.7, ...</penaltyregime>
     <precheck>0</precheck>
     <showsource>0</showsource>
     <answerboxlines>18</answerboxlines>
@@ -112,55 +99,43 @@ int main() {
     <resultcolumns></resultcolumns>
     <template>{{ STUDENT_ANSWER }}</template>
     <iscombinatortemplate>0</iscombinatortemplate>
-    <allowmultiplestdins></allowmultiplestdins>
+    <allowmultiplestdins>0</allowmultiplestdins>
     <answer></answer>
     <validateonsave>0</validateonsave>
     <testsplitterre></testsplitterre>
     <language>C</language>
     <acelang></acelang>
     <sandbox></sandbox>
-    <grader></grader>
+    <grader>EqualityGrader</grader>
     <cputimelimitsecs></cputimelimitsecs>
     <memlimitmb></memlimitmb>
     <sandboxparams></sandboxparams>
     <templateparams></templateparams>
-    <uiplugin></uiplugin>
+    <hoisttemplateparams>0</hoisttemplateparams>
+    <twigall>0</twigall>
+    <uiplugin>ace</uiplugin>
     <testcases>
     </testcases>
   </question>
 
-<!-- question: 17337  -->
+<!-- question: 21102  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_cpp_function</text>
     </name>
     <questiontext format="html">
-      <text>Used for C++ write-a-function questions. The student answer is expected
-      to be a complete C++ function, but it can optionally be preceded by other self-contained
-      C code such as preprocessor directives and support functions.
-      The test code is usually just single line of code that calls the primary student
-      function and prints the result, but multiple line test code is
-      possible, too, provided the code is suitable for wrapping inside
-      the automatically-generated main function. When the combinator template
-      is used to wrap all the testcases into a single program, each
-      test case is isolated from the others by being placed in its own block.
-          
-      The following include files
-      are included in the program: iostream, fstream, string, math, vector and
-      algorithm. The user answer can include others if required.  
-          
-      See the template for details.</text>
+      <text>Built-in prototypes are documented in the language strings.</text>
     </questiontext>
     <generalfeedback format="html">
       <text></text>
     </generalfeedback>
     <defaultgrade>1.0000000</defaultgrade>
-    <penalty>0.3333333</penalty>
+    <penalty>0.0000000</penalty>
     <hidden>0</hidden>
     <coderunnertype>cpp_function</coderunnertype>
     <prototypetype>1</prototypetype>
     <allornothing>1</allornothing>
-    <penaltyregime></penaltyregime>
+    <penaltyregime>33.3, 66.7, ...</penaltyregime>
     <precheck>0</precheck>
     <showsource>0</showsource>
     <answerboxlines>18</answerboxlines>
@@ -191,7 +166,7 @@ int main() {
     return 0;
 }]]></template>
     <iscombinatortemplate>1</iscombinatortemplate>
-    <allowmultiplestdins></allowmultiplestdins>
+    <allowmultiplestdins>0</allowmultiplestdins>
     <answer></answer>
     <validateonsave>0</validateonsave>
     <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
@@ -203,33 +178,31 @@ int main() {
     <memlimitmb></memlimitmb>
     <sandboxparams></sandboxparams>
     <templateparams></templateparams>
-    <uiplugin></uiplugin>
+    <hoisttemplateparams>0</hoisttemplateparams>
+    <twigall>0</twigall>
+    <uiplugin>ace</uiplugin>
     <testcases>
     </testcases>
   </question>
 
-<!-- question: 17338  -->
+<!-- question: 21103  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_cpp_program</text>
     </name>
-    <questiontext format="moodle_auto_format">
-      <text>Used for C++ write-a-program questions, where there is no
-          per-test-case code, and the different tests just use different
-          stdin data. The student answer is expected to be a complete
-          runnable program, which is run as-is, without modification
-          by CodeRunner.</text>
+    <questiontext format="html">
+      <text>Built-in prototypes are documented in the language strings.</text>
     </questiontext>
-    <generalfeedback format="moodle_auto_format">
+    <generalfeedback format="html">
       <text></text>
     </generalfeedback>
     <defaultgrade>1.0000000</defaultgrade>
-    <penalty>0.3333333</penalty>
+    <penalty>0.0000000</penalty>
     <hidden>0</hidden>
     <coderunnertype>cpp_program</coderunnertype>
     <prototypetype>1</prototypetype>
     <allornothing>1</allornothing>
-    <penaltyregime></penaltyregime>
+    <penaltyregime>33.3, 66.7, ...</penaltyregime>
     <precheck>0</precheck>
     <showsource>0</showsource>
     <answerboxlines>18</answerboxlines>
@@ -239,30 +212,32 @@ int main() {
     <resultcolumns></resultcolumns>
     <template>{{ STUDENT_ANSWER }}</template>
     <iscombinatortemplate>0</iscombinatortemplate>
-    <allowmultiplestdins></allowmultiplestdins>
+    <allowmultiplestdins>0</allowmultiplestdins>
     <answer></answer>
     <validateonsave>0</validateonsave>
     <testsplitterre></testsplitterre>
     <language>cpp</language>
     <acelang></acelang>
     <sandbox></sandbox>
-    <grader></grader>
+    <grader>EqualityGrader</grader>
     <cputimelimitsecs></cputimelimitsecs>
     <memlimitmb></memlimitmb>
     <sandboxparams></sandboxparams>
     <templateparams></templateparams>
-    <uiplugin></uiplugin>
+    <hoisttemplateparams>0</hoisttemplateparams>
+    <twigall>0</twigall>
+    <uiplugin>ace</uiplugin>
     <testcases>
     </testcases>
   </question>
 
-<!-- question: 17339  -->
+<!-- question: 21104  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_directed_graph</text>
     </name>
     <questiontext format="html">
-      <text><![CDATA[<p>This is the prototype for a question that asks the student to draw a directed graph to satisfy some specification.</p><p>The template for this prototype does some preliminary analysis on the serialisation, extracting its topology in the form of an adjacency dictionary&nbsp;<i>graph</i>. Keys in the dictionary are node names if given or arbitrary node identifying labels of the form #1, #2 etc otherwise. Values in the dictionary are lists of outgoing edges, sorted by neighbour node name or identifier, each edge being a tuple (neighbourId, edgeLabel).</p><p>Each entry in the adjacency list is of the form (nodeNameOrId, neighbours) where neighbours is a list of tuples (neighbourNodeNameOrId, edgeLabel). If nodes are given names, those are used as node identifiers, otherwise the names #1, #2 etc are used. The adjacency list and the neighbour list are both sorted in order of node name or identifier.</p><p>The template is a combinator one: the <i>testcode</i>&nbsp;and <i>extra</i>&nbsp;code are both executed for each test case.</p>]]></text>
+      <text>Built-in prototypes are documented in the language strings.</text>
     </questiontext>
     <generalfeedback format="html">
       <text></text>
@@ -332,35 +307,31 @@ print(SEPARATOR)
     <memlimitmb></memlimitmb>
     <sandboxparams></sandboxparams>
     <templateparams><![CDATA[{"isdirected": true, "isfsm": false}]]></templateparams>
+    <hoisttemplateparams>0</hoisttemplateparams>
+    <twigall>0</twigall>
     <uiplugin>graph</uiplugin>
     <testcases>
     </testcases>
   </question>
 
-<!-- question: 17340  -->
+<!-- question: 21105  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_java_class</text>
     </name>
-    <questiontext format="moodle_auto_format">
-      <text>Used for Java write-a-class questions where the student submits a
-          complete class as their answer. Since the test cases for such questions
-          will typically instantiate an object of the class and perform
-          some tests on it, no attempt is made to combine the different test
-          cases into a single executable. Each test case code is assumed to be
-          a set of statements to be wrapped into the static void main 
-          method of a separate Main class.</text>
+    <questiontext format="html">
+      <text>Built-in prototypes are documented in the language strings.</text>
     </questiontext>
-    <generalfeedback format="moodle_auto_format">
+    <generalfeedback format="html">
       <text></text>
     </generalfeedback>
     <defaultgrade>1.0000000</defaultgrade>
-    <penalty>0.3333333</penalty>
+    <penalty>0.0000000</penalty>
     <hidden>0</hidden>
     <coderunnertype>java_class</coderunnertype>
     <prototypetype>1</prototypetype>
     <allornothing>1</allornothing>
-    <penaltyregime></penaltyregime>
+    <penaltyregime>33.3, 66.7, ...</penaltyregime>
     <precheck>0</precheck>
     <showsource>0</showsource>
     <answerboxlines>18</answerboxlines>
@@ -383,48 +354,43 @@ public class __Tester__ {
 }
 </template>
     <iscombinatortemplate>0</iscombinatortemplate>
-    <allowmultiplestdins></allowmultiplestdins>
+    <allowmultiplestdins>0</allowmultiplestdins>
     <answer></answer>
     <validateonsave>0</validateonsave>
     <testsplitterre></testsplitterre>
     <language>Java</language>
     <acelang></acelang>
     <sandbox></sandbox>
-    <grader></grader>
+    <grader>EqualityGrader</grader>
     <cputimelimitsecs></cputimelimitsecs>
     <memlimitmb>2000</memlimitmb>
     <sandboxparams></sandboxparams>
     <templateparams></templateparams>
-    <uiplugin></uiplugin>
+    <hoisttemplateparams>0</hoisttemplateparams>
+    <twigall>0</twigall>
+    <uiplugin>ace</uiplugin>
     <testcases>
     </testcases>
   </question>
 
-<!-- question: 17341  -->
+<!-- question: 21106  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_java_method</text>
     </name>
-    <questiontext format="moodle_auto_format">
-      <text>Used for Java write-a-method questions where the student is asked
-      to write a method that is essentially a standalone function. The author-supplied
-      test is typically just one or two lines of code that (apparently) just call
-      the student supplied method. Under the hood, the template constructs a 
-      Main class containing the student-supplied method (and any other support
-      methods, if they choose to write them) plus a 'runTests' method that
-      wraps the testcase(s). The main function for the class constructs an
-      instance of Main and calls its runTests method.</text>
+    <questiontext format="html">
+      <text>Built-in prototypes are documented in the language strings.</text>
     </questiontext>
-    <generalfeedback format="moodle_auto_format">
+    <generalfeedback format="html">
       <text></text>
     </generalfeedback>
     <defaultgrade>1.0000000</defaultgrade>
-    <penalty>0.3333333</penalty>
+    <penalty>0.0000000</penalty>
     <hidden>0</hidden>
     <coderunnertype>java_method</coderunnertype>
     <prototypetype>1</prototypetype>
     <allornothing>1</allornothing>
-    <penaltyregime></penaltyregime>
+    <penaltyregime>33.3, 66.7, ...</penaltyregime>
     <precheck>0</precheck>
     <showsource>0</showsource>
     <answerboxlines>18</answerboxlines>
@@ -453,45 +419,43 @@ public class __Tester__ {
     }
 }]]></template>
     <iscombinatortemplate>1</iscombinatortemplate>
-    <allowmultiplestdins></allowmultiplestdins>
+    <allowmultiplestdins>0</allowmultiplestdins>
     <answer></answer>
     <validateonsave>0</validateonsave>
-    <testsplitterre><![CDATA[|#<ab@17943918#@>#
-|ms]]></testsplitterre>
+    <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
     <language>Java</language>
     <acelang></acelang>
     <sandbox></sandbox>
-    <grader></grader>
+    <grader>EqualityGrader</grader>
     <cputimelimitsecs></cputimelimitsecs>
     <memlimitmb>2000</memlimitmb>
     <sandboxparams></sandboxparams>
     <templateparams></templateparams>
-    <uiplugin></uiplugin>
+    <hoisttemplateparams>0</hoisttemplateparams>
+    <twigall>0</twigall>
+    <uiplugin>ace</uiplugin>
     <testcases>
     </testcases>
   </question>
 
-<!-- question: 17342  -->
+<!-- question: 21107  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_java_program</text>
     </name>
-    <questiontext format="moodle_auto_format">
-      <text>Used for Java write-a-program questions where the student submits
-          a complete program as their answer. The program is executed for each
-          test case. There is no test code, just stdin test data
-          (though this isn't actually checked: caveat emptor).</text>
+    <questiontext format="html">
+      <text>Built-in prototypes are documented in the language strings.</text>
     </questiontext>
-    <generalfeedback format="moodle_auto_format">
+    <generalfeedback format="html">
       <text></text>
     </generalfeedback>
     <defaultgrade>1.0000000</defaultgrade>
-    <penalty>0.3333333</penalty>
+    <penalty>0.0000000</penalty>
     <hidden>0</hidden>
     <coderunnertype>java_program</coderunnertype>
     <prototypetype>1</prototypetype>
     <allornothing>1</allornothing>
-    <penaltyregime></penaltyregime>
+    <penaltyregime>33.3, 66.7, ...</penaltyregime>
     <precheck>0</precheck>
     <showsource>0</showsource>
     <answerboxlines>18</answerboxlines>
@@ -501,42 +465,43 @@ public class __Tester__ {
     <resultcolumns></resultcolumns>
     <template>{{ STUDENT_ANSWER }}</template>
     <iscombinatortemplate>0</iscombinatortemplate>
-    <allowmultiplestdins></allowmultiplestdins>
+    <allowmultiplestdins>0</allowmultiplestdins>
     <answer></answer>
     <validateonsave>0</validateonsave>
     <testsplitterre></testsplitterre>
     <language>Java</language>
     <acelang></acelang>
     <sandbox></sandbox>
-    <grader></grader>
+    <grader>EqualityGrader</grader>
     <cputimelimitsecs></cputimelimitsecs>
     <memlimitmb>2000</memlimitmb>
     <sandboxparams></sandboxparams>
     <templateparams></templateparams>
-    <uiplugin></uiplugin>
+    <hoisttemplateparams>0</hoisttemplateparams>
+    <twigall>0</twigall>
+    <uiplugin>ace</uiplugin>
     <testcases>
     </testcases>
   </question>
 
-<!-- question: 17343  -->
+<!-- question: 21108  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_octave_function</text>
     </name>
-    <questiontext format="moodle_auto_format">
-      <text>Used for Octave function questions. Student code must be a function
-          declaration, which is tested with each testcase.</text>
+    <questiontext format="html">
+      <text>Built-in prototypes are documented in the language strings.</text>
     </questiontext>
-    <generalfeedback format="moodle_auto_format">
+    <generalfeedback format="html">
       <text></text>
     </generalfeedback>
     <defaultgrade>1.0000000</defaultgrade>
-    <penalty>0.3333333</penalty>
+    <penalty>0.0000000</penalty>
     <hidden>0</hidden>
     <coderunnertype>octave_function</coderunnertype>
     <prototypetype>1</prototypetype>
     <allornothing>1</allornothing>
-    <penaltyregime></penaltyregime>
+    <penaltyregime>33.3, 66.7, ...</penaltyregime>
     <precheck>0</precheck>
     <showsource>0</showsource>
     <answerboxlines>18</answerboxlines>
@@ -556,44 +521,43 @@ disp('#<ab@17943918#@>#');
 {% endfor %}
 ]]></template>
     <iscombinatortemplate>1</iscombinatortemplate>
-    <allowmultiplestdins></allowmultiplestdins>
+    <allowmultiplestdins>0</allowmultiplestdins>
     <answer></answer>
     <validateonsave>0</validateonsave>
-    <testsplitterre><![CDATA[|#<ab@17943918#@>#
-|ms]]></testsplitterre>
+    <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
     <language>octave</language>
     <acelang></acelang>
     <sandbox></sandbox>
-    <grader></grader>
+    <grader>EqualityGrader</grader>
     <cputimelimitsecs>3</cputimelimitsecs>
     <memlimitmb>1000</memlimitmb>
     <sandboxparams></sandboxparams>
     <templateparams></templateparams>
-    <uiplugin></uiplugin>
+    <hoisttemplateparams>0</hoisttemplateparams>
+    <twigall>0</twigall>
+    <uiplugin>ace</uiplugin>
     <testcases>
     </testcases>
   </question>
 
-<!-- question: 17344  -->
+<!-- question: 21109  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_pascal_function</text>
     </name>
     <questiontext format="html">
-      <text>A Pascal question type where the student is asked to write
-      a procedure or function, which is then tested with a main program
-      consisting of the CodeRunner 'testcode' wrapped in begin end.</text>
+      <text>Built-in prototypes are documented in the language strings.</text>
     </questiontext>
     <generalfeedback format="html">
       <text></text>
     </generalfeedback>
     <defaultgrade>1.0000000</defaultgrade>
-    <penalty>0.3333333</penalty>
+    <penalty>0.0000000</penalty>
     <hidden>0</hidden>
     <coderunnertype>pascal_function</coderunnertype>
     <prototypetype>1</prototypetype>
     <allornothing>1</allornothing>
-    <penaltyregime></penaltyregime>
+    <penaltyregime>33.3, 66.7, ...</penaltyregime>
     <precheck>0</precheck>
     <showsource>0</showsource>
     <answerboxlines>18</answerboxlines>
@@ -601,16 +565,14 @@ disp('#<ab@17943918#@>#');
     <answerpreload></answerpreload>
     <useace>1</useace>
     <resultcolumns></resultcolumns>
-    <template>
-
-{{ STUDENT_ANSWER }}
+    <template>{{ STUDENT_ANSWER }}
 
 begin
     {{ TEST.testcode }};
 end.
 </template>
     <iscombinatortemplate>0</iscombinatortemplate>
-    <allowmultiplestdins></allowmultiplestdins>
+    <allowmultiplestdins>0</allowmultiplestdins>
     <answer></answer>
     <validateonsave>0</validateonsave>
     <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
@@ -622,31 +584,31 @@ end.
     <memlimitmb></memlimitmb>
     <sandboxparams></sandboxparams>
     <templateparams></templateparams>
-    <uiplugin></uiplugin>
+    <hoisttemplateparams>0</hoisttemplateparams>
+    <twigall>0</twigall>
+    <uiplugin>ace</uiplugin>
     <testcases>
     </testcases>
   </question>
 
-<!-- question: 17345  -->
+<!-- question: 21110  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_pascal_program</text>
     </name>
-    <questiontext format="moodle_auto_format">
-      <text>Used for Pascal write-a-program questions, where there is no
-          per-test-case code, and the different tests just use different
-          stdin data.</text>
+    <questiontext format="html">
+      <text>Built-in prototypes are documented in the language strings.</text>
     </questiontext>
-    <generalfeedback format="moodle_auto_format">
+    <generalfeedback format="html">
       <text></text>
     </generalfeedback>
     <defaultgrade>1.0000000</defaultgrade>
-    <penalty>0.3333333</penalty>
+    <penalty>0.0000000</penalty>
     <hidden>0</hidden>
     <coderunnertype>pascal_program</coderunnertype>
     <prototypetype>1</prototypetype>
     <allornothing>1</allornothing>
-    <penaltyregime></penaltyregime>
+    <penaltyregime>33.3, 66.7, ...</penaltyregime>
     <precheck>0</precheck>
     <showsource>0</showsource>
     <answerboxlines>18</answerboxlines>
@@ -656,44 +618,43 @@ end.
     <resultcolumns></resultcolumns>
     <template>{{ STUDENT_ANSWER }}</template>
     <iscombinatortemplate>0</iscombinatortemplate>
-    <allowmultiplestdins></allowmultiplestdins>
+    <allowmultiplestdins>0</allowmultiplestdins>
     <answer></answer>
     <validateonsave>0</validateonsave>
     <testsplitterre></testsplitterre>
     <language>pascal</language>
     <acelang></acelang>
     <sandbox></sandbox>
-    <grader></grader>
+    <grader>EqualityGrader</grader>
     <cputimelimitsecs></cputimelimitsecs>
     <memlimitmb></memlimitmb>
     <sandboxparams></sandboxparams>
     <templateparams></templateparams>
-    <uiplugin></uiplugin>
+    <hoisttemplateparams>0</hoisttemplateparams>
+    <twigall>0</twigall>
+    <uiplugin>ace</uiplugin>
     <testcases>
     </testcases>
   </question>
 
-<!-- question: 17346  -->
+<!-- question: 21111  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_php</text>
     </name>
     <questiontext format="html">
-      <text><![CDATA[<p>A php question in which the student submission is a
-normal php file, with PHP code enclosed in &lt;?php ... ?&gt; tags and
-the output is the usual PHP output including all HTML content outside
-the php tags.</p>]]></text>
+      <text>Built-in prototypes are documented in the language strings.</text>
     </questiontext>
     <generalfeedback format="html">
       <text></text>
     </generalfeedback>
     <defaultgrade>1.0000000</defaultgrade>
-    <penalty>0.3333333</penalty>
+    <penalty>0.0000000</penalty>
     <hidden>0</hidden>
     <coderunnertype>php</coderunnertype>
     <prototypetype>1</prototypetype>
     <allornothing>1</allornothing>
-    <penaltyregime></penaltyregime>
+    <penaltyregime>33.3, 66.7, ...</penaltyregime>
     <precheck>0</precheck>
     <showsource>0</showsource>
     <answerboxlines>18</answerboxlines>
@@ -712,7 +673,7 @@ echo SEPARATOR;
 {% endif %}
 {% endfor %}]]></template>
     <iscombinatortemplate>1</iscombinatortemplate>
-    <allowmultiplestdins></allowmultiplestdins>
+    <allowmultiplestdins>0</allowmultiplestdins>
     <answer></answer>
     <validateonsave>0</validateonsave>
     <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
@@ -724,30 +685,31 @@ echo SEPARATOR;
     <memlimitmb>500000</memlimitmb>
     <sandboxparams></sandboxparams>
     <templateparams></templateparams>
-    <uiplugin></uiplugin>
+    <hoisttemplateparams>0</hoisttemplateparams>
+    <twigall>0</twigall>
+    <uiplugin>ace</uiplugin>
     <testcases>
     </testcases>
   </question>
 
-<!-- question: 17347  -->
+<!-- question: 21112  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_python2</text>
     </name>
-    <questiontext format="moodle_auto_format">
-      <text>A generic Python2 question. For each test case, the
-          student code runs first, followed by the test code.</text>
+    <questiontext format="html">
+      <text>Built-in prototypes are documented in the language strings.</text>
     </questiontext>
-    <generalfeedback format="moodle_auto_format">
+    <generalfeedback format="html">
       <text></text>
     </generalfeedback>
     <defaultgrade>1.0000000</defaultgrade>
-    <penalty>0.3333333</penalty>
+    <penalty>0.0000000</penalty>
     <hidden>0</hidden>
     <coderunnertype>python2</coderunnertype>
     <prototypetype>1</prototypetype>
     <allornothing>1</allornothing>
-    <penaltyregime></penaltyregime>
+    <penaltyregime>33.3, 66.7, ...</penaltyregime>
     <precheck>0</precheck>
     <showsource>0</showsource>
     <answerboxlines>18</answerboxlines>
@@ -768,43 +730,43 @@ print(SEPARATOR)
 {% endif %}
 {% endfor %}]]></template>
     <iscombinatortemplate>1</iscombinatortemplate>
-    <allowmultiplestdins></allowmultiplestdins>
+    <allowmultiplestdins>0</allowmultiplestdins>
     <answer></answer>
     <validateonsave>0</validateonsave>
-    <testsplitterre><![CDATA[|#<ab@17943918#@>#
-|ms]]></testsplitterre>
+    <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
     <language>python2</language>
     <acelang></acelang>
     <sandbox></sandbox>
-    <grader></grader>
+    <grader>EqualityGrader</grader>
     <cputimelimitsecs></cputimelimitsecs>
     <memlimitmb></memlimitmb>
     <sandboxparams></sandboxparams>
     <templateparams></templateparams>
-    <uiplugin></uiplugin>
+    <hoisttemplateparams>0</hoisttemplateparams>
+    <twigall>0</twigall>
+    <uiplugin>ace</uiplugin>
     <testcases>
     </testcases>
   </question>
 
-<!-- question: 17348  -->
+<!-- question: 21113  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_python3</text>
     </name>
-    <questiontext format="moodle_auto_format">
-      <text>A generic Python3 question. For each test case, the
-          student code runs first, followed by the test code.</text>
+    <questiontext format="html">
+      <text>Built-in prototypes are documented in the language strings.</text>
     </questiontext>
-    <generalfeedback format="moodle_auto_format">
+    <generalfeedback format="html">
       <text></text>
     </generalfeedback>
     <defaultgrade>1.0000000</defaultgrade>
-    <penalty>0.3333333</penalty>
+    <penalty>0.0000000</penalty>
     <hidden>0</hidden>
     <coderunnertype>python3</coderunnertype>
     <prototypetype>1</prototypetype>
     <allornothing>1</allornothing>
-    <penaltyregime></penaltyregime>
+    <penaltyregime>33.3, 66.7, ...</penaltyregime>
     <precheck>0</precheck>
     <showsource>0</showsource>
     <answerboxlines>18</answerboxlines>
@@ -825,31 +787,123 @@ print(SEPARATOR)
 {% endif %}
 {% endfor %}]]></template>
     <iscombinatortemplate>1</iscombinatortemplate>
-    <allowmultiplestdins></allowmultiplestdins>
+    <allowmultiplestdins>0</allowmultiplestdins>
     <answer></answer>
     <validateonsave>0</validateonsave>
-    <testsplitterre><![CDATA[|#<ab@17943918#@>#
-|ms]]></testsplitterre>
+    <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
     <language>python3</language>
     <acelang></acelang>
     <sandbox></sandbox>
-    <grader></grader>
+    <grader>EqualityGrader</grader>
     <cputimelimitsecs></cputimelimitsecs>
     <memlimitmb></memlimitmb>
     <sandboxparams></sandboxparams>
     <templateparams></templateparams>
-    <uiplugin></uiplugin>
+    <hoisttemplateparams>0</hoisttemplateparams>
+    <twigall>0</twigall>
+    <uiplugin>ace</uiplugin>
     <testcases>
     </testcases>
   </question>
 
-<!-- question: 17349  -->
+<!-- question: 21165  -->
+  <question type="coderunner">
+    <name>
+      <text>BUILT_IN_PROTOTYPE_sql</text>
+    </name>
+    <questiontext format="html">
+      <text>Built-in prototypes are documented in the language strings.</text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.0000000</penalty>
+    <hidden>0</hidden>
+    <coderunnertype>sql</coderunnertype>
+    <prototypetype>1</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime>10, 20, ...</penaltyregime>
+    <precheck>0</precheck>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
+    <useace>1</useace>
+    <resultcolumns></resultcolumns>
+    <template><![CDATA[import subprocess, os, shutil
+
+# Use Twig to get students answer and the columnwidth template parameter
+student_answer = """{{ STUDENT_ANSWER | e('py') }}""".rstrip()
+column_widths = []
+{% for width in QUESTION.parameters.columnwidths %}
+column_widths.append({{width}})
+{% endfor %}
+
+if not student_answer.endswith(';'):
+    student_answer = student_answer + ';'
+db_files = [fname for fname in os.listdir() if fname.endswith('.db')]
+if len(db_files) == 0:
+    raise Exception("No DB files found!")
+elif len(db_files) == 1:
+    db_working = db_files[0][:-3]  # Strip .db extension
+else:
+    raise Exception("Multiple DB files not implemented yet, sorry!")
+
+SEPARATOR = "#<ab@17943918#@>#"
+controls = [".mode column", ".headers on"]
+if column_widths: # Add column width specifiers if given
+    controls.append(".width " + ' '.join(str(width) for width in column_widths))
+prelude = '\n'.join(controls) + '\n'
+
+{% for TEST in TESTCASES %}
+shutil.copyfile(db_files[0], db_working)  # Copy clean writeable db file
+testcode = """{{ TEST.testcode | e('py') }}"""
+extra = """{{ TEST.extra | e('py') }}"""
+code_to_run = '\n'.join([prelude, extra, student_answer, testcode])
+with open('commands', 'w') as sqlite_commands:
+    sqlite_commands.write(code_to_run)
+    
+with open('commands') as cmd_input:
+    text_input = cmd_input.read()
+    try:
+        output = subprocess.check_output(['sqlite3', db_working], input=text_input,
+                 universal_newlines=True)
+        print(output)
+    except Exception as e:
+        raise Exception("sqlite3 error: " + str(e))
+        
+{% if not loop.last %}
+print(SEPARATOR)
+{% endif %}
+{% endfor %}]]></template>
+    <iscombinatortemplate>1</iscombinatortemplate>
+    <allowmultiplestdins>0</allowmultiplestdins>
+    <answer></answer>
+    <validateonsave>0</validateonsave>
+    <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
+    <language>python3</language>
+    <acelang>sql</acelang>
+    <sandbox></sandbox>
+    <grader>EqualityGrader</grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb>500</memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams></templateparams>
+    <hoisttemplateparams>0</hoisttemplateparams>
+    <twigall>0</twigall>
+    <uiplugin>ace</uiplugin>
+    <testcases>
+    </testcases>
+  </question>
+
+<!-- question: 21114  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_undirected_graph</text>
     </name>
     <questiontext format="html">
-      <text><![CDATA[<p>This is the prototype for a question that asks the student to draw an undirected graph to satisfy some specification.</p><p>The template for this prototype does some preliminary analysis on the serialisation, extracting its topology in the form of an adjacency dictionary&nbsp;<i>graph</i>. Keys in the dictionary are node names if given or names like #0, #1 etc otherwise. Values in the dictionary are lists of outgoing edges, sorted by neighbour node name or identifier, each edge being a tuple (neighbourId, edgeLabel).</p><p>Each entry in the adjacency list is of the form (nodeNameOrId, neighbours) where neighbours is a list of tuples (neighbourNodeNameOrId, edgeLabel). If nodes are given names, those are used as node identifiers, otherwise names like #0, #1 etc are used. The adjacency list and the neighbour list are both sorted in order of node name or identifier. Since this is an undirected graph, edges appear twice - once for each node they connect.</p><p>The template is a combinator one: the <i>testcode</i>&nbsp;and <i>extra</i>&nbsp;code are both executed for each test case.</p>]]></text>
+      <text><![CDATA[<p>Built-in prototypes are documented in the language strings.</p>]]></text>
     </questiontext>
     <generalfeedback format="html">
       <text></text>
@@ -921,29 +975,31 @@ print(SEPARATOR)
     <memlimitmb></memlimitmb>
     <sandboxparams></sandboxparams>
     <templateparams><![CDATA[{"isdirected": false, "isfsm": false}]]></templateparams>
+    <hoisttemplateparams>0</hoisttemplateparams>
+    <twigall>0</twigall>
     <uiplugin>graph</uiplugin>
     <testcases>
     </testcases>
   </question>
 
-<!-- question: 17350  -->
+<!-- question: 21115  -->
   <question type="coderunner">
     <name>
       <text>BUILTIN_PROTOTYPE_nodejs</text>
     </name>
     <questiontext format="html">
-      <text><![CDATA[<p>A generic nodejs question in which the student answer precedes the tests.</p>]]></text>
+      <text><![CDATA[<p>Built-in prototypes are documented in the language strings.</p>]]></text>
     </questiontext>
     <generalfeedback format="html">
       <text></text>
     </generalfeedback>
     <defaultgrade>1.0000000</defaultgrade>
-    <penalty>0.3333333</penalty>
+    <penalty>0.0000000</penalty>
     <hidden>0</hidden>
     <coderunnertype>nodejs-2</coderunnertype>
     <prototypetype>1</prototypetype>
     <allornothing>1</allornothing>
-    <penaltyregime></penaltyregime>
+    <penaltyregime>33.3, 66.7, ...</penaltyregime>
     <precheck>0</precheck>
     <showsource>0</showsource>
     <answerboxlines>18</answerboxlines>
@@ -962,7 +1018,7 @@ print(SEPARATOR)
 {% endif %}
 {% endfor %}]]></template>
     <iscombinatortemplate>1</iscombinatortemplate>
-    <allowmultiplestdins></allowmultiplestdins>
+    <allowmultiplestdins>0</allowmultiplestdins>
     <answer></answer>
     <validateonsave>0</validateonsave>
     <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
@@ -974,36 +1030,31 @@ print(SEPARATOR)
     <memlimitmb>1000</memlimitmb>
     <sandboxparams></sandboxparams>
     <templateparams></templateparams>
-    <uiplugin></uiplugin>
+    <hoisttemplateparams>0</hoisttemplateparams>
+    <twigall>0</twigall>
+    <uiplugin>ace</uiplugin>
     <testcases>
     </testcases>
   </question>
 
-<!-- question: 17351  -->
+<!-- question: 21116  -->
   <question type="coderunner">
     <name>
-      <text>BUILTIN_PROTOTYPE_Python3_w_input</text>
+      <text>BUILTIN_PROTOTYPE_python3_w_input</text>
     </name>
     <questiontext format="html">
-      <text><![CDATA[<p>A variant of the normal Python3 question in which the
-usual Python3 input() function is replaced with a version that echoes the data
-it reads from standard input to standard output. This results in the program
-output looking the same to the student as when the run it interactively,
-with keyboard characters being echoed to the screen.</p>
-<p>A slight disadvantage is that the line numbers in any error messages are
-displaced by the length of inserted function, so don't correspond to those
-displayed in the ACE edit window.</p>]]></text>
+      <text><![CDATA[<p>Built-in prototypes are documented in the language strings.</p>]]></text>
     </questiontext>
     <generalfeedback format="html">
       <text></text>
     </generalfeedback>
     <defaultgrade>1.0000000</defaultgrade>
-    <penalty>0.3333333</penalty>
+    <penalty>0.0000000</penalty>
     <hidden>0</hidden>
     <coderunnertype>python3_w_input</coderunnertype>
     <prototypetype>1</prototypetype>
     <allornothing>1</allornothing>
-    <penaltyregime></penaltyregime>
+    <penaltyregime>33.3, 66.7, ...</penaltyregime>
     <precheck>0</precheck>
     <showsource>0</showsource>
     <answerboxlines>18</answerboxlines>
@@ -1027,7 +1078,7 @@ print(SEPARATOR)
 {% endif %}
 {% endfor %}]]></template>
     <iscombinatortemplate>1</iscombinatortemplate>
-    <allowmultiplestdins></allowmultiplestdins>
+    <allowmultiplestdins>0</allowmultiplestdins>
     <answer></answer>
     <validateonsave>0</validateonsave>
     <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
@@ -1039,18 +1090,20 @@ print(SEPARATOR)
     <memlimitmb></memlimitmb>
     <sandboxparams></sandboxparams>
     <templateparams></templateparams>
-    <uiplugin></uiplugin>
+    <hoisttemplateparams>0</hoisttemplateparams>
+    <twigall>0</twigall>
+    <uiplugin>ace</uiplugin>
     <testcases>
     </testcases>
   </question>
 
-<!-- question: 17352  -->
+<!-- question: 21117  -->
   <question type="coderunner">
     <name>
       <text>BULT_IN_PROTOTYPE_multilanguage</text>
     </name>
     <questiontext format="html">
-      <text><![CDATA[<p>The prototype for a "write a program" style of question in which the student can submit an answer in any of the languages: C, C++, Java, Python3. This list of allowed languages is defined by the prototype's <i>AceLang</i>&nbsp;field as a comma-separated list. The student answer has a language-select dropdown menu containing those languages.</p>]]></text>
+      <text><![CDATA[<p>Built-in prototypes are documented in the language strings.<br></p>]]></text>
     </questiontext>
     <generalfeedback format="html">
       <text></text>
@@ -1152,6 +1205,8 @@ except subprocess.CalledProcessError as e:
     <memlimitmb>8000</memlimitmb>
     <sandboxparams></sandboxparams>
     <templateparams></templateparams>
+    <hoisttemplateparams>0</hoisttemplateparams>
+    <twigall>0</twigall>
     <uiplugin>ace</uiplugin>
     <testcases>
     </testcases>

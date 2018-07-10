@@ -248,6 +248,18 @@ body#page-question-type-coderunner div.edit_code textarea {
     font-family: courier, monospace;
 }
 
+body#page-question-type-coderunner div#id_qtype_coderunner_error_div:empty {
+    display: none;
+}
+
+body#page-question-type-coderunner div#id_qtype_coderunner_error_div {
+    font-size: 120%;
+    font-weight: bold;
+    color: red;
+    border: 2px solid red;
+    padding: 4px;
+}
+
 body#page-question-type-coderunner textarea#id_templateparams {
     resize: both;
 }

@@ -24,15 +24,15 @@
         self.model = model
         self.year = year
         self.speed = speed
-        
+
     def accelerate(self):
         """Speed goes up by 5."""
-        self.speed += 5    
-        
+        self.speed += 5
+
     def brake(self):
         """Speed goes down by 5"""
         self.speed = max(0, self.speed - 5)
-        
+
     def honk_horn(self):
         """Print a beep-beep message"""
         print("{} goes 'beep beep'".format(self.model))</pre>
@@ -86,15 +86,15 @@
         self.model = model
         self.year = year
         self.speed = speed
-        
+
     def accelerate(self):
         """Speed goes up by 5."""
-        self.speed += 5    
-        
+        self.speed += 5
+
     def brake(self):
         """Speed goes down by 5"""
         self.speed = max(0, self.speed - 5)
-        
+
     def honk_horn(self):
         """Print a beep-beep message"""
         print("{} goes 'beep beep'".format(self.model))]]></answer>
@@ -249,7 +249,7 @@ print(my_car.speed)]]></text>
     """ A function to print a list of people's names. The parameter
         'people' is a list of people, where each person is represented
         as a list of their names.
-    """         
+    """
     for person in people:
         to_print = ""
         for name in person:
@@ -317,7 +317,7 @@ print(my_car.speed)]]></text>
       <expected>
                 <text>John Smith
 Mary Keyes
-Jane Doe 
+Jane Doe
 Angus</text>
       </expected>
       <extra>
@@ -461,7 +461,7 @@ main()
 from tkinter import *
 from tkinter.ttk import *
 
-# The format for the label displaying 
+# The format for the label displaying
 DISPLAY = "${0:.2f} NZD is {1:.2f} {2}"
 
 class CurrencyConverterGUI(object):
@@ -691,7 +691,7 @@ def input(prompt=''):
     s = __saved_input__(prompt)
     print(s)
     return s
-    
+
 {{STUDENT_ANSWER}}
 
 
@@ -785,7 +785,7 @@ def main():
     name = input("What is your name? ")
     print("Welcome to CodeRunner, " + name + ".")
     print("May the force be with you.")
-    
+
 main()</pre>
 <hr>
 <p><b>The question</b></p><p>Write a pylint-compliant python3 program that uses the <i>input()</i>&nbsp;function (with a prompt string as shown in the example below) to read a person's name from "standard input" (e.g. the keyboard), and then prints a two-line "Welcome to CodeRunner" message incorporating that name, as shown in the example table below. Don't forget to include the period at the end of the message and make sure you have exactly one space after the comma. [This question uses exact matching, so white space matters.]</p>]]></text>
@@ -815,7 +815,7 @@ def main():
     name = input("What is your name? ")
     print("Welcome to CodeRunner, " + name + ".")
     print("May the force be with you.")
-    
+
 
 main()]]></answer>
     <validateonsave>1</validateonsave>
@@ -1260,8 +1260,8 @@ def get_word(prompt, valid_responses):
         print('Invalid input. Try again.')
         result = input(prompt).lower()
     return result
-    
-    
+
+
 def draw_square(size, filling):
     """ Draw a square, filled or unfilled according to whether filling is
         "filled" or not, of the given size.
@@ -1273,8 +1273,8 @@ def draw_square(size, filling):
             print('*')
         else:
             print('*' + (size - 2) * ' ' + '*')
-            
-            
+
+
 def draw_triangle(size, filling):
     """ Draw a triangle, filled or unfilled according to whether filling is
         "filled" or not, of the given size.
@@ -1285,8 +1285,8 @@ def draw_triangle(size, filling):
             print(line_length * '*')
         else:
             print('*' + (line_length - 2) * ' ' + '*')
-    
-    
+
+
 def draw_shape():
     """Ask the user for a shape, its size and whether it's
        filled. Draw the shape.
@@ -1301,8 +1301,8 @@ def draw_shape():
         draw_triangle(size, filling)
     else:
         assert False
-    
-    
+
+
 draw_shape()
 ]]></answer>
     <validateonsave>1</validateonsave>
@@ -1314,7 +1314,7 @@ draw_shape()
     <cputimelimitsecs></cputimelimitsecs>
     <memlimitmb></memlimitmb>
     <sandboxparams></sandboxparams>
-    <templateparams></templateparams>
+    <templateparams>{"isfunction": false}</templateparams>
     <testcases>
       <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
       <testcode>
@@ -1673,29 +1673,29 @@ def get_word(prompt, valid_responses):
        user is re-prompted.
     """
    # *** YOUR CODE GOES HERE ***
-    
-    
+
+
 def draw_square(size, filling):
     """ Draw a square, filled or unfilled according to whether filling has
         the value "filled" or not, of the given size.
     """
    # *** YOUR CODE GOES HERE ***
-            
-            
+
+
 def draw_triangle(size, filling):
     """ Draw a triangle, filled or unfilled according to whether filling has
         the value "filled" or not, of the given size.
     """
     # *** YOUR CODE GOES HERE ***
-    
-    
+
+
 def main():
     """Ask the user for a shape, its size and whether it's
        filled. Draw the shape.
     """
     # *** YOUR CODE GOES HERE ***
-    
-    
+
+
 main()</pre>
 <p><span style="color: inherit; font-family: inherit; font-size: 24px; font-weight: bold; line-height: 40px;">Sample Output</span><br></p>]]></text>
     </questiontext>
@@ -1731,8 +1731,8 @@ def get_word(prompt, valid_responses):
         print('Invalid input. Try again.')
         result = input(prompt).lower()
     return result
-    
-    
+
+
 def draw_square(size, filling):
     """ Draw a square, filled or unfilled according to whether filling is
         "filled" or not, of the given size.
@@ -1744,8 +1744,8 @@ def draw_square(size, filling):
             print('*')
         else:
             print('*' + (size - 2) * ' ' + '*')
-            
-            
+
+
 def draw_triangle(size, filling):
     """ Draw a triangle, filled or unfilled according to whether filling is
         "filled" or not, of the given size.
@@ -1756,8 +1756,8 @@ def draw_triangle(size, filling):
             print(line_length * '*')
         else:
             print('*' + (line_length - 2) * ' ' + '*')
-    
-    
+
+
 def draw_shape():
     """Ask the user for a shape, its size and whether it's
        filled. Draw the shape.
@@ -1772,11 +1772,11 @@ def draw_shape():
         draw_triangle(size, filling)
     else:
         assert False
-    
+
 def main():
     """Call the shape drawing function"""
     draw_shape()
-    
+
 main()
 ]]></answer>
     <validateonsave>1</validateonsave>
@@ -1788,7 +1788,7 @@ main()
     <cputimelimitsecs></cputimelimitsecs>
     <memlimitmb></memlimitmb>
     <sandboxparams></sandboxparams>
-    <templateparams><![CDATA[{"stripmain":true, "runextra":true}]]></templateparams>
+    <templateparams><![CDATA[{"stripmain":true, "runextra":true, "isfunction":false}]]></templateparams>
     <testcases>
       <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
       <testcode>

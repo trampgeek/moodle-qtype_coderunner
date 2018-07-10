@@ -73,25 +73,23 @@
  *    have the uiloadfailed class added, which CSS will display in some
  *    error mode (e.g. a red border).
  *
- * 4. A getMinSize() method that should return a record with minWidth and
- *    minHeight values. These will be used to control the minimum size of the
- *    userinterface wrapper.
+ * 4. A method failMessage() that will be called only when failed() returns
+ *    True. It should be a defined CodeRunner language string key.
  *
- * 5. A destroy() method that should save the contents to the text area then
- *    destroy any HTML elements or other created content.
+ * 5. A sync() method that copies the serialised represention of the UI plugin's
+ *    data to the related TextArea. This is used when submit is clicked.
  *
- * 6. A resize(width, height) method that should resize the entire UI element
+ * 6. A destroy() method that should sync the contents to the text area then
+ *    destroy any HTML elements or other created content. This method is called
+ *    when CTRL-ALT-M is typed by the user to turn off all UI plugins
+ *
+ * 7. A resize(width, height) method that should resize the entire UI element
  *    to the given dimensions.
  *
- * 7. A hasFocus() method that returns true if the UI element has focus.
+ * 8. A hasFocus() method that returns true if the UI element has focus.
  *
  * The return value from the module define is a record with a single field
  * 'Constructor' that references the constructor (e.g. Graph, AceWrapper etc)
- *
- * If the module needs any strings from one of the language files, it should
- * access them via a call like M.util.get_string('graphfail', 'qtype_coderunner').
- * Any such strings must be defined explicitly in the function
- * constants::ui_plugin_keys().
  *
  *****************************************************************************/
 
@@ -133,20 +131,19 @@ define(['jquery'], function($) {
         var  h,
              t = this; // For use by embedded functions.
 
-        this.MIN_WIDTH = 400;
-        this.MIN_HEIGHT = 100;
         this.GUTTER = 14;  // Size of gutter at base of wrapper Node (pixels)
+        this.MIN_WRAPPER_HEIGHT = 100;
 
         this.taId = textareaId;
         this.loadFailId = textareaId + '_loadfailerr';
         this.textArea = $(document.getElementById(textareaId));
         this.readOnly = this.textArea.prop('readonly');
         this.isLoading = false;  // True if we're busy loading a UI element
-        this.loadFailed = false;  // True if UI couldn't deserialise TA contents
-        this.loadFailMessage = strings['uiloadfail'];
+        this.loadFailed = false;  // True if UI failed to initialise properly
         this.retries = 0;        // Number of failed attempts to load a UI component
+        this.strings = strings;
 
-        h = parseInt(this.textArea.css("height"));
+        h = Math.max(parseInt(this.textArea.css("height")), this.MIN_WRAPPER_HEIGHT);
 
         // Construct an empty hidden wrapper div, inserted directly after the
         // textArea, ready to contain the actual UI.
@@ -156,8 +153,8 @@ define(['jquery'], function($) {
         this.wrapperNode.css({
             resize: 'vertical',
             overflow: 'hidden',
-            height: h,
-            width: "auto",
+            minHeight: h,
+            width: "100%",
             border: "1px solid darkgrey"
         });
 
@@ -176,6 +173,11 @@ define(['jquery'], function($) {
         });
         $(window).resize(function() {
             t.checkForResize();
+        });
+        this.textArea.closest('form').submit(function() {
+            if (t.uiInstance !== null) {
+                t.uiInstance.sync();
+            }
         });
         $(document.body).on('keydown', function(e) {
             var KEY_M = 77;
@@ -198,12 +200,14 @@ define(['jquery'], function($) {
         // To avoid a potential race problem, if this method is already busy
         // with a load, try again in 200 msecs.
         //
-        var t = this;
+        var t = this,
+            errPart1 = 'Failed to load ',
+            errPart2 = ' UI component. If this error persists, please report it to the forum on coderunner.org.nz';
 
         if (this.isLoading) {  // Oops, we're loading a UI element already
             this.retries += 1;
             if (this.retries > 20) {
-                alert("Failed to load UI component. If this error persists, please report it to the forum on coderunner.org.nz");
+                alert(errPart1 + uiname + errPart2);
                 this.retries = 0;
                 this.loading = 0;
             } else {
@@ -225,7 +229,7 @@ define(['jquery'], function($) {
             this.isLoading = true;
             require(['qtype_coderunner/ui_' + this.uiname],
                 function(ui) {
-                    var minSize, uiInstance,loadFailWarn, h, w;
+                    var uiInstance,loadFailWarn, h, w, loadFailMessage;
 
                     h = t.wrapperNode.innerHeight() - t.GUTTER;
                     w = t.wrapperNode.innerWidth();
@@ -233,24 +237,20 @@ define(['jquery'], function($) {
                     if (uiInstance.failed()) {
                         // Constructor failed to load serialisation.
                         // Set uiloadfailed class on text area.
+                        t.loadFailed = true;
+                        loadFailMessage = t.strings[uiInstance.failMessage()] + '<br>' + t.strings['ui_fallback'];
                         t.wrapperNode.hide();
                         uiInstance.destroy();
                         t.uiInstance = null;
-                        t.loadFailed = true;
                         t.textArea.addClass('uiloadfailed');
-                        loadFailWarn = '<div id="' + t.loadFailId + '"class="uiloadfailed">' + t.loadFailMessage + '</div>';
+                        loadFailWarn = '<div id="' + t.loadFailId + '"class="uiloadfailed">' + loadFailMessage + '</div>';
                         $(loadFailWarn).insertBefore(t.textArea);
                     } else {
-                        minSize = uiInstance.getMinSize();
-                        t.wrapperNode.css({
-                            minWidth: minSize.minWidth,
-                            minHeight: minSize.minHeight + t.GUTTER
-                        });
                         t.hLast = 0;  // Force resize (and hence redraw)
                         t.wLast = 0;  // ... on first call to checkForResize
-                        t.wrapperNode.append(uiInstance.getElement());
                         t.textArea.hide();
                         t.wrapperNode.show();
+                        t.wrapperNode.append(uiInstance.getElement());
                         t.uiInstance = uiInstance;
                         t.loadFailed = false;
                         t.checkForResize();
@@ -299,16 +299,14 @@ define(['jquery'], function($) {
         if (this.uiInstance) {
             h = this.wrapperNode.innerHeight();
             w = this.wrapperNode.innerWidth();
-            xLeft = this.wrapperNode.offset().left;
-            maxWidth = $(window).innerWidth() - xLeft - SIZE_HACK;
-
-            hAdjusted = Math.max(this.MIN_HEIGHT, h) - this.GUTTER;
-            wAdjusted = Math.max(this.MIN_WIDTH, Math.min(maxWidth, w));
-
-            if (hAdjusted !== this.hLast || wAdjusted !== this.wLast && this.uiInstance) {
+            if (h != this.hLast || w != this.wLast) {
+                xLeft = this.wrapperNode.offset().left;
+                maxWidth = $(window).innerWidth() - xLeft - SIZE_HACK;
+                hAdjusted = h - this.GUTTER;
+                wAdjusted = Math.min(maxWidth, w);
                 this.uiInstance.resize(wAdjusted,  hAdjusted);
-                this.hLast = hAdjusted;
-                this.wLast = wAdjusted;
+                this.hLast = this.wrapperNode.innerHeight();
+                this.wLast = this.wrapperNode.innerWidth();
             }
         }
     };

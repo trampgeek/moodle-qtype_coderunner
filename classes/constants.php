@@ -52,6 +52,14 @@ class constants {
     }
 
     public static function ui_plugin_keys() {
-        return array('graphhelp', 'uiloadfail');  // All qtype_coderunner lang string names reqd by any plugins go here.
+         // All qtype_coderunner lang string names reqd by any plugins go here.
+        return array('graphhelp',
+                     'graph_ui_invalidserialisation',
+                     'table_ui_invalidjson',
+                     'table_ui_invalidserialisation',
+                     'table_ui_missingparams',
+                     'ace_ui_notready',
+                     'ui_fallback'
+            );
     }
 }

@@ -16,7 +16,7 @@
 
 /**
  * This script runs all the question tests for all deployed versions of all
- * questions in a given context.
+ * questions in a given context and, optionally, a given question category.
  * It is a modified version of the script from the qtype_stack plugin.
  *
  * @package   qtype_coderunner
@@ -29,6 +29,7 @@ require_once($CFG->libdir . '/questionlib.php');
 
 // Get the parameters from the URL.
 $contextid = required_param('contextid', PARAM_INT);
+$categoryid = optional_param('categoryid', NULL, PARAM_INT);
 
 // Login and check permissions.
 $context = context::instance_by_id($contextid);
@@ -57,7 +58,7 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading($title);
 
 // Run the tests.
-list($numpasses, $failingtests, $missinganswers) = $bulktester->run_all_tests_for_context($context);
+list($numpasses, $failingtests, $missinganswers) = $bulktester->run_all_tests_for_context($context, $categoryid);
 
 // Display the final summary.
 $bulktester->print_overall_result($numpasses, $failingtests, $missinganswers);

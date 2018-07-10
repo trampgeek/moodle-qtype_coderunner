@@ -45,6 +45,16 @@ class qtype_coderunner_jobrunner {
     public function run_tests($question, $code, $testcases, $isprecheck, $answerlanguage) {
         global $CFG;
 
+        $question->get_prototype();
+        if (empty($question->prototype)) {
+            // Missing prototype. We can't run this question
+            $outcome = new qtype_coderunner_testing_outcome(0, 0, false);
+            $message = get_string('missingprototypewhenrunning', 'qtype_coderunner',
+                    array('crtype'=>$question->coderunnertype));
+            $outcome->set_status(qtype_coderunner_testing_outcome::STATUS_MISSING_PROTOTYPE, $message);
+            return $outcome;
+        }
+
         $this->question = $question;
         $this->code = $code;
         $this->testcases = array_values($testcases);
@@ -107,7 +117,7 @@ class qtype_coderunner_jobrunner {
         } catch (Exception $e) {
             $outcome->set_status(
                     qtype_coderunner_testing_outcome::STATUS_SYNTAX_ERROR,
-                    get_string('templateerror', 'qtype_coderunner') . $e->getMessage());
+                    get_string('templateerror', 'qtype_coderunner') . ': ' . $e->getMessage());
             return $outcome;
         }
 

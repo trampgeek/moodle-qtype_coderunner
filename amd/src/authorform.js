@@ -81,6 +81,7 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
             questiontypeHelpDiv = $('#qtype-help'),
             precheck = $('select#id_precheck'),
             testtypedivs = $('div.testtype'),
+            missingPrototype = $('#id_missing_prototype'),
             uiplugin = $('#id_uiplugin');
 
         // Set up the UI controller for the textarea whose name is
@@ -295,6 +296,17 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
             }
         }
 
+        // If the missingPrototype hidden element is not empty, insert the
+        // given message as an error at the top of the question
+        function checkForMissingPrototype() {
+            var missingPrototypeMessage = missingPrototype.prop('value'),
+                messagePara = null;
+            if (missingPrototypeMessage !== '') {
+                messagePara = $('<p>' + missingPrototype.prop('value') + '</p>');
+                $('#id_qtype_coderunner_error_div').append(messagePara);
+            }
+        }
+
         /*************************************************************
          *
          * Body of initEditFormWhenReady starts here.
@@ -308,6 +320,8 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
             typeCombo.prop('disabled', true);
             customise.prop('disabled', true);
         }
+
+        checkForMissingPrototype();
 
         setCustomisationVisibility(isCustomised);
         if (!isCustomised) {

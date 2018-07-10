@@ -96,6 +96,58 @@ class qtype_coderunner_bulk_tester {
 
 
     /**
+     *
+     * @param type $categoryid the id of a question category of interest
+     * @return a count of the number of questions in the given category.
+     */
+    public function count_questions_in_category($categoryid) {
+        global $DB;
+        $rec = $DB->get_record_sql("
+            SELECT count(q.id) as count
+            FROM {question} q
+            WHERE q.category=:categoryid",
+                array('categoryid'=>$categoryid));
+        return $rec->count;
+    }
+
+
+    /**
+     *
+     * @param type $categoryid the id of a question category of interest
+     * @return an array of the categoryid of all child categories
+     */
+    public function child_categories($categoryid) {
+        global $DB;
+        $rows = $DB->get_records_sql("
+            SELECT id
+            FROM {question_categories} qc
+            WHERE qc.parent=:categoryid",
+                array('categoryid'=>$categoryid));
+        $children = array();
+        foreach ($rows as $row) {
+            $children[] = $row->id;
+        }
+        return $children;
+    }
+
+    // Return the name of the given category id.
+    public function category_name($categoryid) {
+        global $DB;
+        $row = $DB->get_record_sql("
+            SELECT name
+            FROM {question_categories} qc
+            WHERE qc.id=:categoryid",
+                array('categoryid'=>$categoryid));
+        return $row->name;
+    }
+
+    // Delete the given question category id.
+    public function delete_category($categoryid) {
+        global $DB;
+        $DB->delete_records("question_categories", array("id" => $categoryid));
+    }
+
+    /**
      * Get a list of all the categories within the supplied contextid.
      * @return an associative array mapping from category id to an object
      * with name and count fields for all question categories in the given context.
@@ -112,10 +164,31 @@ class qtype_coderunner_bulk_tester {
                         WHERE qc.id = q.category AND q.qtype='coderunner') AS count
                 FROM {question_categories} qc
                 WHERE qc.contextid = :contextid
-                ORDER BY qc.id",
+                ORDER BY qc.name",
             array('contextid' => $contextid));
     }
 
+
+    /**
+     * Get a list of all the categories within the supplied contextid.
+     * @return an associative array mapping from category id to an object
+     * with name and count fields for all question categories in the given context.
+     * The 'count' field is the number of all questions in the given
+     * category.
+     */
+    public function get_all_categories_for_context($contextid) {
+        global $DB;
+
+        return $DB->get_records_sql("
+                SELECT qc.id, qc.parent, qc.name as name,
+                       (SELECT count(1)
+                        FROM {question} q
+                        WHERE qc.id = q.category) AS count
+                FROM {question_categories} qc
+                WHERE qc.contextid = :contextid
+                ORDER BY qc.name",
+            array('contextid' => $contextid));
+    }
 
     /**
      * Categories are tree structured, with each category containing a link
@@ -240,17 +313,19 @@ class qtype_coderunner_bulk_tester {
 
     /**
      * Run the sample answer for all questions belonging to
-     * a given context that have a sample answer.
+     * a given context that have a sample answer. Optionally restrict to a
+     * specified question category.
      *
      * Do output as we go along.
      *
      * @param context $context the context to run the tests for.
+     * @param int $categoryid test only questions in this category. Default to all.
      * @return array with three elements:
      *              int a count of how many tests passed
      *              array of messages relating to the questions with failures
      *              array of messages relating to the questions without sample answers
      */
-    public function run_all_tests_for_context(context $context) {
+    public function run_all_tests_for_context(context $context, $categoryid=null) {
         global $DB, $OUTPUT;
 
         // Load the necessary data.
@@ -268,6 +343,9 @@ class qtype_coderunner_bulk_tester {
         $missinganswers = array();
 
         foreach ($categories as $category) {
+            if ($categoryid !== null && $category->id != $categoryid) {
+                continue;
+            }
             $questionids = $DB->get_records_menu('question',
                     array('category' => $category->id, 'qtype' => 'coderunner'), 'name', 'id,name');
             if (!$questionids) {
