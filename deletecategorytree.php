@@ -64,8 +64,8 @@ $categoryid = required_param('categoryid', PARAM_INT);
 $categoryname = required_param('categoryname', PARAM_RAW);
 
 // Login and check permissions.
-$context = context_system::instance();
 require_login();
+$context = context::instance_by_id($contextid);
 require_capability('moodle/question:managecategory', $context);
 
 $PAGE->set_url('/question/type/coderunner/deletecategorytree.php');
