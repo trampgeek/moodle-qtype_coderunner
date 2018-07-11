@@ -110,9 +110,11 @@ define(['jquery'], function($) {
             preloadJson = $(this.textArea).val(), // JSON-encoded table values
             preload = [],
             divHtml = "<div style='height:fit-content' class='qtype-coderunner-table-outer-div'>\n" +
-                      "<table class='table table-bordered'>\n",
-            colWidthPercent = Math.trunc(100 / this.templateParams.table_num_columns),
-            thTag = "<th style='width:" + colWidthPercent.toString() + "%'>";
+                      "<table class='table table-bordered qtype-coderunner_table'>\n",
+            colWidthPercents = this.templateParams.table_column_width_percents,
+            thTag,
+            width,
+            defaultWidth = Math.trunc(100 / this.templateParams.table_num_columns);
 
         if (preloadJson) {
             try {
@@ -128,6 +130,8 @@ define(['jquery'], function($) {
             // Build the table header
             divHtml += "<thead>\n<tr>";
             for(var iCol = 0; iCol < this.templateParams.table_num_columns; iCol++) {
+                width = colWidthPercents ? colWidthPercents[iCol] : defaultWidth;
+                thTag = "<th style='width:" + width.toString() + "%'>";
                 divHtml += thTag + this.templateParams.table_column_headers[iCol] + "</th>";
             }
             divHtml += "</tr>\n</thead>\n";
@@ -139,7 +143,7 @@ define(['jquery'], function($) {
                 divHtml += '<tr>';
                 for (iCol = 0; iCol < this.templateParams.table_num_columns; iCol++) {
                     divHtml += "<td style='padding:2px;margin:0'>";
-                    divHtml += '<textarea rows="2" style="width:97%;resize:vertical;font-family: monospace">';
+                    divHtml += '<textarea rows="2" style="width:100%;padding:0;resize:vertical;font-family: monospace">';
                     if (iRow < preload.length) {
                         divHtml += preload[iRow][iCol];
                     }

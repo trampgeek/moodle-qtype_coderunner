@@ -626,7 +626,7 @@ matlab-like student submissions.
 file, with PHP code enclosed in <?php ... ?> tags and the output is the
 usual PHP output including all HTML content outside the php tags.
 
-Other less commonly used built-in question types are: 
+Other less commonly used built-in question types are:
 *python3\_w\_input*, *nodejs*, *pascal\_program* and *pascal\_function*.
 
 As discussed later, this base set of question types can
@@ -1784,6 +1784,10 @@ of the table is set by the following template parameters:
  o `table_num_rows` sets the (initial) number of table rows, excluding the header
  o `table_num_columns` set the number of table columns
  o `table_column_headers` is a list of strings used for column headers
+ o `table_column_width_percents` is a list of numeric percentage widths of the different
+   columns. For example, if there are two columns, and the first one is to
+   occupy one-quarter of the available width, the list should be \[25, 75\].
+   This parameter is optional; by default all columns have the same width.
  o `table_dynamic_rows` should be set `true` to enable the addition of *Add row*
    and *Delete row* buttons through which the student can alter the number of
    rows. The number of rows can never be less than the initial `table_num_rows` value.
@@ -1810,7 +1814,8 @@ An example of the use of this UI type can be seen in the
 
 ### Other UI plugins
 
-Question authors can write their own user-interface plugins; a JavaScript
+Question authors who have admin access to the Moodle server can write their
+own user-interface plugins; a JavaScript
 file with a name of the form `ui_something.js` in the
 folder
 
@@ -1821,6 +1826,8 @@ the drop-down menu of available plugins. Such plugin files must be AMD modules
 and must implement the interface defined in the file
 
         &lt;moodlehome&gt;/question/type/coderunner/amd/src/userinterfacewrapper.js
+
+Writing UI plugins is, however, not a job for the faint hearted.
 
 ## User-defined question types
 
