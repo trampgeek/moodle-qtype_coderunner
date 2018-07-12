@@ -11,9 +11,13 @@
   of tests, given a specification.
 * Improve error messages if a UI plugin doesn't load in time (usually the Ace
   editor).
-* Implement Moodle privacy API.
+* Implement Moodle privacy API for GDPR compatibility. This involves simply
+  implementing the "null provider" class, essentially
+  declaring that CodeRunner does not record any personal data about users.
 * Add an experimental administrator script that deletes entire empty question
   category subtrees.
+* Use language strings to document built-in questions rather than the question
+  text to enable translation via AMOS.
 * Reduce time for which the GraphUI displays the serialised answer during question
   submission.
 * Various documentation tweaks.
