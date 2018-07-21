@@ -21,12 +21,11 @@
  *
  * The InterfaceWrapper provides:
  *
- * 1. A constructor InterfaceWrapper(uiname, textareaId, strings, params) which
+ * 1. A constructor InterfaceWrapper(uiname, textareaId, params) which
  *    hides the given text area, replaces it with a wrapper div (resizable in
  *    height by the user but with width resizing managed by changes in window
  *    width), created an instance of nameInstance as defined in the file
- *    ui_name.js (see below). strings is an associative array mapping string
- *    name (from lang/en) to string.
+ *    ui_name.js (see below).
  *    params is a record containing the decoded value of
  *    the question's templateParams, possibly enhanced by additional
  *    data such as a 'lang' value for the Ace editor.
@@ -111,13 +110,11 @@
 
 define(['jquery'], function($) {
 
-    function InterfaceWrapper(uiname, textareaId, strings, params) {
+    function InterfaceWrapper(uiname, textareaId, params) {
         // Constructor for a new user interface.
         // uiname is the name of the interface element (e.g. ace, graph, etc)
         // which should be in file ui_ace.js, ui_graph.js etc.
         // textareaId is the id of the text area that the UI is to manage
-        // strings is an associative array of language strings, namely
-        // all those specified by constants::ui_plugin_keys.
         // params is a record containing whatever additional parameters might
         // be needed by the User interface. As a minimum it should contain all
         // the template params from the JSON-encode template-params field of
@@ -141,7 +138,6 @@ define(['jquery'], function($) {
         this.isLoading = false;  // True if we're busy loading a UI element
         this.loadFailed = false;  // True if UI failed to initialise properly
         this.retries = 0;        // Number of failed attempts to load a UI component
-        this.strings = strings;
 
         h = Math.max(parseInt(this.textArea.css("height")), this.MIN_WRAPPER_HEIGHT);
 
@@ -204,6 +200,20 @@ define(['jquery'], function($) {
             errPart1 = 'Failed to load ',
             errPart2 = ' UI component. If this error persists, please report it to the forum on coderunner.org.nz';
 
+        function setLoadFailMessage(langString, errorDiv) {
+            // Get the given language string and plug it into the given jQuery
+            // div element as its html, plus a 'fallback' message on a separate line.
+            require(['core/str'], function(str) {
+                // Get langString text via AJAX
+                var
+                    s = str.get_string(langString, 'qtype_coderunner'),
+                    fallback = str.get_string('ui_fallback', 'qtype_coderunner');
+                $.when(s, fallback).done(function(s, fallback) {
+                    errorDiv.html(s + '<br>' + fallback);
+                });
+            });
+        }
+
         if (this.isLoading) {  // Oops, we're loading a UI element already
             this.retries += 1;
             if (this.retries > 20) {
@@ -229,7 +239,7 @@ define(['jquery'], function($) {
             this.isLoading = true;
             require(['qtype_coderunner/ui_' + this.uiname],
                 function(ui) {
-                    var uiInstance,loadFailWarn, h, w, loadFailMessage;
+                    var uiInstance,loadFailDiv, jqLoadFailDiv, h, w;
 
                     h = t.wrapperNode.innerHeight() - t.GUTTER;
                     w = t.wrapperNode.innerWidth();
@@ -238,13 +248,14 @@ define(['jquery'], function($) {
                         // Constructor failed to load serialisation.
                         // Set uiloadfailed class on text area.
                         t.loadFailed = true;
-                        loadFailMessage = t.strings[uiInstance.failMessage()] + '<br>' + t.strings['ui_fallback'];
                         t.wrapperNode.hide();
                         uiInstance.destroy();
                         t.uiInstance = null;
                         t.textArea.addClass('uiloadfailed');
-                        loadFailWarn = '<div id="' + t.loadFailId + '"class="uiloadfailed">' + loadFailMessage + '</div>';
-                        $(loadFailWarn).insertBefore(t.textArea);
+                        loadFailDiv = '<div id="' + t.loadFailId + '"class="uiloadfailed"></div>';
+                        jqLoadFailDiv = $(loadFailDiv);
+                        jqLoadFailDiv.insertBefore(t.textArea);
+                        setLoadFailMessage(uiInstance.failMessage(), jqLoadFailDiv);  // Insert error by AJAX
                     } else {
                         t.hLast = 0;  // Force resize (and hence redraw)
                         t.wLast = 0;  // ... on first call to checkForResize
@@ -315,12 +326,11 @@ define(['jquery'], function($) {
      *  The external entry point from the PHP.
      * @param string uiname, e.g. 'ace'
      * @param string textareaId
-     * @param associative array strings language strings required by any plugins
      * @param string templateParamsJson - the JSON-encoded template params
      * @param string lang (relevant only to Ace) - the language to be edited
      * @returns {userinterfacewrapperL#111.InterfaceWrapper}
      */
-    function newUiWrapper(uiname, textareaId, strings, templateParamsJson, lang) {
+    function newUiWrapper(uiname, textareaId, templateParamsJson, lang) {
         var params;
 
         if (uiname) {
@@ -332,7 +342,7 @@ define(['jquery'], function($) {
             if (lang) {
                 params.lang = lang;
             }
-            return new InterfaceWrapper(uiname, textareaId, strings, params);
+            return new InterfaceWrapper(uiname, textareaId, params);
         } else {
             return null;
         }

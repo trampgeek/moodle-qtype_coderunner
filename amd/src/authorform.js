@@ -57,8 +57,7 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
 
     // Set up the author edit form UI plugins and event handlers.
     // The strings parameter is an associative array containing a subset of
-    // the strings extracted from lang/xx/qtype_coderunner.php. The particular
-    // subset is specified by constants::author_edit_keys()
+    // the strings extracted from lang/xx/qtype_coderunner.php.
     // The templateParams, passed as a parameter, are needed by the
     // UI plugins.
     function initEditForm(strings, templateParams) {
@@ -128,7 +127,7 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
             }
 
             if (!uiWrapper) {
-                uiWrapper = new ui.InterfaceWrapper(uiname, taId, strings, params);
+                uiWrapper = new ui.InterfaceWrapper(uiname, taId, params);
             } else {
                 // Wrapper has already been set up - just reload the reqd UI.
                 uiWrapper.loadUi(uiname, params);

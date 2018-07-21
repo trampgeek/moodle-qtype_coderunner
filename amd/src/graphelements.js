@@ -45,7 +45,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 
-define(['qtype_coderunner/graphutil'], function(util) {
+define(['qtype_coderunner/graphutil', 'jquery'], function(util, $) {
 
     /***********************************************************************
      *
@@ -458,7 +458,6 @@ define(['qtype_coderunner/graphutil'], function(util) {
         this.topX = topX;
         this.topY = topY;
         this.parent = parent;
-        this.helpText = M.util.get_string('graphhelp', 'qtype_coderunner');
     }
 
     HelpBox.prototype.containsPoint = function(x, y) {
@@ -468,7 +467,7 @@ define(['qtype_coderunner/graphutil'], function(util) {
     };
 
     HelpBox.prototype.draw = function(c, isSelected, mouseIsOver) {
-        var lines, i, y;
+        var lines, i, y, t;
 
         if (mouseIsOver) {
             c.fillStyle = '#FFFFFF';
@@ -489,12 +488,20 @@ define(['qtype_coderunner/graphutil'], function(util) {
         c.textAlign = "left";
 
         if (isSelected) {
-            lines = this.helpText.split('\n');
-            y = this.topY + this.BUTTON_HEIGHT;
-            for (i = 0; i < lines.length; i += 1) {
-                y += this.LINE_HEIGHT;
-                c.fillText(lines[i], this.topX + this.HELP_INDENT, y);
-            }
+            t = this;
+            require(['core/str'], function(str) {
+                // Get help text via AJAX
+                var helpPresent = str.get_string('graphhelp', 'qtype_coderunner');
+                $.when(helpPresent).done(function(graphhelp) {
+                    c.font = '12pt Arial';
+                    lines = graphhelp.split('\n');
+                    y = t.topY + t.BUTTON_HEIGHT;
+                    for (i = 0; i < lines.length; i += 1) {
+                        y += t.LINE_HEIGHT;
+                        c.fillText(lines[i], t.topX + t.HELP_INDENT, y);
+                    }
+                });
+            });
         }
     };
 

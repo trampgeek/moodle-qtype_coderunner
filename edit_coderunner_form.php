@@ -47,6 +47,15 @@ class qtype_coderunner_edit_form extends question_edit_form {
         return 'coderunner';
     }
 
+
+    private static function author_edit_keys() {
+        // A list of all the language strings required by authorform.js
+        return array('coderunner_question_type', 'confirm_proceed', 'template_changed',
+            'info_unavailable', 'proceed_at_own_risk', 'error_loading_prototype',
+            'ajax_error', 'prototype_load_failure', 'prototype_error',
+            'question_type_changed');
+    }
+
     // Define the CodeRunner question edit form.
     protected function definition() {
         global $PAGE;
@@ -59,13 +68,11 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $this->make_advanced_customisation_panel($mform);
         qtype_coderunner_util::load_ace();
 
-        $keys = array_merge(constants::author_edit_keys(), constants::ui_plugin_keys());
-        $PAGE->requires->strings_for_js($keys, 'qtype_coderunner');
         $PAGE->requires->js_call_amd('qtype_coderunner/textareas', 'setupAllTAs');
 
         // Define the parameters required by the JS initEditForm amd module
         $strings = array();
-        foreach ($keys as $key) {
+        foreach (self::author_edit_keys() as $key) {
             $strings[$key] = get_string($key, 'qtype_coderunner');
         }
         if (!empty($this->question->options->mergedtemplateparams)) {
