@@ -1037,7 +1037,7 @@ from io import StringIO
 def strip_trailing(s):
     """Remove trailing white space from all lines"""
     return '\n'.join(line.rstrip() for line in s.splitlines()) + '\n'
-    
+
 def run_prog(prog):
     saved_stdout = sys.stdout
     saved_stderr = sys.stderr
@@ -1051,10 +1051,10 @@ def run_prog(prog):
     sys.stdout = saved_stdout
     sys.stderr= saved_stderr
     return output
-        
+
 table = json.loads("""{{ STUDENT_ANSWER | e('py') }}""")
-if (type(table) != list or 
-        len(table) < 3 or 
+if (type(table) != list or
+        len(table) < 3 or
         type(table[0]) != list or
         not all(len(row) == 2 for row in table)):
     print('Error in question: please report')
@@ -1075,10 +1075,10 @@ for testcode, expected in test_list:
 
 print("Yes" if pass_all_tests else "No")
 
-        
+
 {% if loop.first %}
 if not pass_all_tests:
-    print("You marked the right answer wrong! You Die!", file=sys.stderr)
+    print("Oops: you marked the right answer wrong!", file=sys.stderr)
 {% endif %}
 
 {% if not loop.last %}
