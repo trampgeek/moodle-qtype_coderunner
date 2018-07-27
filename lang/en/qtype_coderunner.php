@@ -1074,9 +1074,11 @@ The template parameters
 from the actual question are merged with, and override, those from the
 prototype (since CodeRunner V3.2.2).
 
-There is also an \'Html\' user interface element but this is not intended for
-general use - it invokes a specialist UI plugin that can be used for advanced
-question type authoring. See the main CodeRunner documentation for details.
+There is also a \'Table\' user interface element, which is still experimental
+as of version 3.5. It displays a table of text areas for the student to
+fill in. It is used by the \'python3_program_testing\' question type, which is
+included in the sample questions on github. See that example and the source
+code (ui_table.js) for more documentation.
 
 Students with poor eyesight, or authors wishing to inspect serialisations
 (say to understand the representation used by the Graph UI),
