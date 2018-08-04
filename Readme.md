@@ -1900,7 +1900,8 @@ the prototype.
 
 Most authors seem to assume that if they wish to write CodeRunner questions
 that use a language not directly supported by the Jobe sandbox, they must
-first modify Jobe to support the new language. That is not the case. A much
+first modify the Jobe code to support the new language. That is not the case, although
+the required language does of course need to be installed on the Jobe server. A much
 easier, more convenient and more maintainable approach is to use a Python
 question type that compiles (if necessary) and runs the student code in
 a Python subprocess. Indeed, in recent years at the University of Canterbury
