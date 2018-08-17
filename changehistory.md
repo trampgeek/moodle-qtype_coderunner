@@ -1,5 +1,8 @@
 # CHANGE HISTORY
 
+### 14 August 2019. 3.5.1
+Fix error in Privacy Provider (failing with PHP versions 7.x).Thanks to Sam Marshall.
+
 ### 10 July 2018. 3.5.0
 
 * Refactoring to allow repair of questions with missing prototypes

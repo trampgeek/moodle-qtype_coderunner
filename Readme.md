@@ -306,6 +306,28 @@ code. This is a useful template for authors who wish to implement their own
 question types or who need to support non-built-in languages. It is discussed
 in detail in the section "Supporting or implementing new languages".
 
+### Setting the quiz review options
+
+It is important that students get shown the result table when they click *Check*.
+For this to happen the "Specific feedback" checkbox in the Review options for
+the quiz (under *Settings*) must be checked in the "During the attempt" column.
+It will automatically be checked
+if the quiz was created with the question behaviour set to *Adaptive* but will
+otherwise be unchecked by default. Changing the question behaviour after the
+quiz has been created does not currently change the review options.
+
+Other recommended setting in the "During the attempt column" are:
+
+ 1. Right answer. This should be unchecked, at least in the "During the attempt"
+    column and possibly elsewhere, if you don't want your sample answers leaked
+    to the whole class.
+
+ 1. Whether correct. This should probably be unchecked if the quiz includes
+    any non-coderunner questions. It doesn't appear to affect CodeRunner
+    feedback but if left checked will result in other questions types
+    displaying an excessive amount of help  when *Check* is clicked.
+
+ 1.  Marks and General feedback. These should probably be checked.
 
 ### Sandbox Configuration
 
@@ -1900,7 +1922,8 @@ the prototype.
 
 Most authors seem to assume that if they wish to write CodeRunner questions
 that use a language not directly supported by the Jobe sandbox, they must
-first modify Jobe to support the new language. That is not the case. A much
+first modify the Jobe code to support the new language. That is not the case, although
+the required language does of course need to be installed on the Jobe server. A much
 easier, more convenient and more maintainable approach is to use a Python
 question type that compiles (if necessary) and runs the student code in
 a Python subprocess. Indeed, in recent years at the University of Canterbury

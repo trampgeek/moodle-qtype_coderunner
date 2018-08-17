@@ -1077,8 +1077,8 @@ prototype (since CodeRunner V3.2.2).
 There is also a \'Table\' user interface element, which is still experimental
 as of version 3.5. It displays a table of text areas for the student to
 fill in. It is used by the \'python3_program_testing\' question type, which is
-included in the sample questions on github. See that example and the source
-code (ui_table.js) for more documentation.
+included in the sample questions on github. See the plugin documentation,
+that example and the source code (ui_table.js) for more information.
 
 Students with poor eyesight, or authors wishing to inspect serialisations
 (say to understand the representation used by the Graph UI),
