@@ -47,6 +47,8 @@ Feature: missing_prototype
       | id_coderunnertype | python3_test_prototype            |
       | name              | Prototype tester                  |
       | id_questiontext   | Write the inevitable sqr function |
+      | id_customise      | 1                                 |
+      | id_uiplugin       | None                              |
       | id_testcode_0     | print(sqr(-11))                   |
       | id_expected_0     | 121                               |
       | id_testcode_1     | print(sqr(9))                     |
