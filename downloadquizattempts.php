@@ -17,7 +17,7 @@
 /**
  * This admin script displays a lit of all quizzes in the course in which the
  * user is currently browsing and provides buttons for downloading each script
- * as either a csv (flakey at handling program code) or Excel spreadsheet.
+ * as either a csv (flakey at handling program code), ods or Excel spreadsheet.
  *
  * This script should be regarded as experimental - the output format may
  * change in the future. And some of the code, particularly the JavaScript
@@ -105,11 +105,13 @@ foreach ($courses as $course) {
                     array('quizid' => $quiz->id, 'format' => 'csv'));
             $excelurl = new moodle_url('/question/type/coderunner/getallattempts.php',
                     array('quizid' => $quiz->id, 'format' => 'excel'));
+            $odsurl = new moodle_url('/question/type/coderunner/getallattempts.php',
+                    array('quizid' => $quiz->id, 'format' => 'ods'));
             $rows[] = array($quizname,
                     html_writer::link($csvurl, 'csv', array('class' => 'btn-sm')),
+                    html_writer::link($odsurl, 'ods', array('class' => 'btn-sm')),
                     html_writer::link($excelurl, 'excel', array('class' => 'btn-sm'))
             );
-
         }
 
         $table = new html_table();
