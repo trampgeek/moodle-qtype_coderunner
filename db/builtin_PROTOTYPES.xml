@@ -149,7 +149,7 @@ int main() {
 #include <cmath>
 #include <vector>
 #include <algorithm>
-        
+
 using namespace std;
 #define SEPARATOR "#<ab@17943918#@>#"
 
@@ -286,7 +286,7 @@ try:
 
 except json.JSONDecodeError as e:
     raise Exception("Oops. Illegal graph received (exception {}). Please report (unless you did something silly yourself)".format(e))
-    
+
 {% for TEST in TESTCASES %}
 {{ TEST.testcode }}
 {{ TEST.extra }}
@@ -512,7 +512,7 @@ public class __Tester__ {
     <template><![CDATA[{{ STUDENT_ANSWER }}
 
 format free
-        
+
 {% for TEST in TESTCASES %}
 {{ TEST.testcode }};
 {% if not loop.last %}
@@ -863,7 +863,7 @@ extra = """{{ TEST.extra | e('py') }}"""
 code_to_run = '\n'.join([prelude, extra, student_answer, testcode])
 with open('commands', 'w') as sqlite_commands:
     sqlite_commands.write(code_to_run)
-    
+
 with open('commands') as cmd_input:
     text_input = cmd_input.read()
     try:
@@ -872,7 +872,7 @@ with open('commands') as cmd_input:
         print(output)
     except Exception as e:
         raise Exception("sqlite3 error: " + str(e))
-        
+
 {% if not loop.last %}
 print(SEPARATOR)
 {% endif %}
@@ -954,7 +954,7 @@ try:
 
 except json.JSONDecodeError as e:
     raise Exception("Oops. Illegal graph received (exception {}). Please report (unless you did something silly yourself)".format(e))
-    
+
 {% for TEST in TESTCASES %}
 {{ TEST.testcode }}
 {{ TEST.extra }}
@@ -1009,7 +1009,7 @@ print(SEPARATOR)
     <resultcolumns></resultcolumns>
     <template><![CDATA[{{ STUDENT_ANSWER }}
 
-SEPARATOR = "#<ab@17943918#@>#"
+var SEPARATOR = "#<ab@17943918#@>#";
 
 {% for TEST in TESTCASES %}
 {{ TEST.testcode }}
@@ -1144,7 +1144,7 @@ if language == 'java':
         raise Exception("Unable to determine class name. Does the file include 'public class name'?")
     classname = match.group(1)
     filename = classname + '.java'
-else:    
+else:
     filename = 'prog.' + language_extension_map[language]
 
 # Write the student code to a file
@@ -1172,7 +1172,7 @@ elif language == 'java':
     exec_command = ["java", classname]
 else: # Python doesn't need a compile phase
     exec_command = ["python3", "./prog.py"]
-    
+
 # Now run the code. Since this is a per-test template,
 # stdin is already set up for the stdin text specified in the test case,
 # so we can run the compiled program directly.
