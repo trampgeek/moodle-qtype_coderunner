@@ -319,7 +319,7 @@ Set the penalty regime to \'0\' for zero penalties on all submissions.';
 $string['memorylimit'] = 'MemLimit (MB)';
 $string['missinganswers'] = 'missing answers';
 $string['missingoutput'] = 'You must supply the expected output from this test case.';
-$string['missingprototype'] = 'This question was defined to be of type \'{$a->crtype}\' but the prototype does not exist or is unavailable in this context. You should Cancel and try to (re)install the prototype.
+$string['missingprototype'] = 'This question was defined to be of type \'{$a->crtype}\' but the prototype does not exist, or is non-unique, or is unavailable in this context. You should Cancel and try to (re)install the prototype.
 Proceed to edit only if you know what you are doing!';
 $string['missingprototypes'] = 'Missing prototypes';
 $string['missingprototypewhenrunning'] = 'Broken question (missing prototype \'{$a->crtype}\'). Cannot be run.';
