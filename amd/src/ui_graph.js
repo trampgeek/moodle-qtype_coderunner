@@ -118,6 +118,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         // Constructor.
 
         this.SNAP_TO_PADDING = 6;
+        this.DUPLICATE_LINK_OFFSET = 16; // Pixels offset for a duplicate link
         this.HIT_TARGET_PADDING = 6;    // Pixels.
         this.DEFAULT_NODE_RADIUS = 26;  // Pixels. Template parameter noderadius can override this.
         this.DEFAULT_FONT_SIZE = 20;    // px. Template parameter fontsize can override this.
@@ -384,7 +385,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         if(this.currentLink !== null) {
             if(!(this.currentLink instanceof elements.TemporaryLink)) {
                 this.selectedObject = this.currentLink;
-                this.links.push(this.currentLink);
+                this.addLink(this.currentLink);
                 this.resetCaret();
             }
             this.currentLink = null;
@@ -425,6 +426,30 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
                 node.y = this.nodes[i].y;
             }
         }
+    };
+
+    // Add a new link (always 'this.currentLink') to the set of links.
+    // If the link connects two nodes already linked, the angle of the new link
+    // is tweaked so it is distinguishable from the existing links.
+    Graph.prototype.addLink = function(newLink) {
+        var maxPerpRHS = null;
+        for (var i = 0; i < this.links.length; i++) {
+            var link = this.links[i];
+            if (link.nodeA === newLink.nodeA && link.nodeB === newLink.nodeB) {
+                if (maxPerpRHS === null || link.perpendicularPart > maxPerpRHS) {
+                    maxPerpRHS = link.perpendicularPart;
+                }
+            }
+            if (link.nodeA === newLink.nodeB && link.nodeB === newLink.nodeA) {
+                if (maxPerpRHS === null || -link.perpendicularPart > maxPerpRHS ) {
+                    maxPerpRHS = -link.perpendicularPart;
+                }
+            }
+        }
+        if (maxPerpRHS !== null) {
+            newLink.perpendicularPart = maxPerpRHS + this.DUPLICATE_LINK_OFFSET;
+        }
+        this.links.push(newLink);
     };
 
     Graph.prototype.reload = function() {
