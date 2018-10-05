@@ -985,7 +985,7 @@ print(SEPARATOR)
 <!-- question: 21115  -->
   <question type="coderunner">
     <name>
-      <text>BUILTIN_PROTOTYPE_nodejs-2</text>
+      <text>BUILTIN_PROTOTYPE_nodejs</text>
     </name>
     <questiontext format="html">
       <text><![CDATA[<p>Built-in prototypes are documented in the language strings.</p>]]></text>
