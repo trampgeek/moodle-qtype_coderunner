@@ -1,0 +1,562 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<quiz>
+<!-- question: 0  -->
+  <question type="category">
+    <category>
+        <text>$course$/FRONT_PAGE_PROTOTYPES</text>
+
+    </category>
+  </question>
+
+<!-- question: 1053  -->
+  <question type="coderunner">
+    <name>
+      <text>PROTOTYPE_python3_tkinter</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<p>A test question for use with simple tkinter programs. Use a mock Tk that supports a subset of the full functionality that should be sufficient for COSC121. A student's submission uses the functionality in the mock module instead of the normal Tk.</p>
+<p>The tk mainloop terminates immediately and it is then expected that further&nbsp;calls to the top level window's click, enter_text, raise_event methods<br> will be called, together with calls to the display method, which prints out&nbsp;the state of the Tk widget hierarchy to check if expected changes have taken<br> place.&nbsp;The global variable __tkwin__ is the most-recently instantiated Tk window;&nbsp;due to name-mangling it can't be accessed directly from outside the module,&nbsp;but should be obtained by calling getTk().</p>
+<p>See the listing of the code in the mock tkinter (i.e. in the template) for details.</p>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.3333333</penalty>
+    <hidden>0</hidden>
+    <coderunnertype>python3_tkinter</coderunnertype>
+    <prototypetype>2</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime></penaltyregime>
+    <precheck>0</precheck>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
+    <useace>1</useace>
+    <resultcolumns><![CDATA[[["Test", "testcode"],["Got", "got"]]]]></resultcolumns>
+    <template><![CDATA[import os, re, sys
+
+def __contains__(code, construct):
+    '''True iff the given construct is used in code'''
+    return any(line.strip().startswith(construct + ' ') for line in code.split('\n'))
+
+def local_checks_ok(code):
+    errors = []
+{% for reqd in QUESTION.parameters.requiredconstructs %}
+    if not __contains__(code, '{{reqd}}'):
+        errors.append("Your program must include at least one " + '{{reqd}}' + " statement.")
+{% endfor %}
+{% for notallowed in QUESTION.parameters.proscribedconstructs %}
+    if __contains__(code, '{{notallowed}}'):
+        errors.append("Your program must not include at least any " + '{{notallowed}}' + " statements.")
+{% endfor %}
+    num_constants = len([line for line in code.split('\n') if re.match('[A-Z_][A-Z_0-9]* *=', line)])
+{% if QUESTION.parameters.maxnumconstants %}
+    max_allowed = {{ QUESTION.parameters.maxnumconstants }}
+{% else %}
+    max_allowed = 4
+{% endif %}
+    if num_constants > max_allowed:
+        errors.append("You may not use more than " + str(max_allowed) + " constants.")
+
+    for error in errors:
+        print(error, file=sys.stderr)
+    return len(errors) == 0
+
+__student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
+if not local_checks_ok(__student_answer__):
+    raise Exception("Sorry, your code fails the pre-run checks")
+
+
+os.mkdir('tkinter')
+f_tk = open('tkinter/__init__.py', 'w')
+f_tk.write(r"""
+'''A Tk mock for use within CodeRunner.
+   Supports a subset of Tk functionality that should be sufficient for COSC121.
+   A student's submission uses the functionality in this module instead of the
+   normal Tk, so this code should by in a directory called tkinter that comes
+   earlier in the search path than the usual tkinter.
+   The tk mainloop terminates immediately and it is then expected that further
+   calls to the top level window's click, enter_text, raise_event methods
+   will be called, together with calls to the display method, which prints out
+   the state of the Tk widget hierarchy to check if expected changes have taken
+   place.
+   The global getTk() function should be called to get a reference to the GUI,
+   which can then be manipulated by the tester as follows.
+
+   The Selector object
+
+    Many of the methods of the Mock Tk object require a selector parameter to
+    determine which widget an action should be applied to. This is an instance
+    of class Selector, which has the following constructor:
+
+    Selector(text=None, widget_type=None, path=None)
+        text is any text string, which is the text displayed by the widget either
+        by its 'text' attribute or by its 'textvariable' attribute.
+        widget_type is the class name of the widget, e.g. 'Label', 'Button', etc
+        path is a list of pairs that selects a grid cell in the grid hierarchy.
+        For example, if the window has a grid with a frame at (0, 2) and a Button
+        is in the frame at (1,3), the path to select that button would be
+        [(0, 2), (1, 3)]
+
+    The selector's 'matches' method returns True if a particular widget matches
+    this selector as follows. If the path was given to the constructor the widget
+    details are ignored and matches is true iff the paths match. Otherwise the
+    widget must match with regard to type and text. If one of type or text is
+    None, other the other must match.
+
+   Methods of the Mock Tk object (obtained by getTk()):
+
+    display(): Display a textual representation of the GUI's by grid cell,
+       top to bottom, left to right. However, just prints TERMINATED
+       if destroy() has been called.
+
+    click(selector): Click the widget selected by the given Selector object.
+
+    combo_select(selector, text): Set the selected combobox to the given text
+        value, which one be one of the widget's values, or an exception
+        is raised
+
+    raise_event(self, selector, text): Pass the given event object to the
+        widget matching the given selector if such a widget exists and if it has
+        a binding for the event's type.
+        event is a Tk_Event object whose attributes are a subset of the real
+        Tk Event attributes: widget, x, y, x_root, y_root, char, keysym,
+        keycode, num, width, height, type. [See
+        http://effbot.org/tkinterbook/tkinter-events-and-bindings.htm].
+        The event's widget attribute will be filled in automatically when the
+        widget is located. All others are required only if the handler is likely
+        to require them.
+
+    text_entry(selector, text): Call the set method of the widget located by the
+        given selector, which must be an Entry widget or a runtime error will
+        result
+
+   '''
+import sys
+N = 1
+S = 2
+W = 3
+E = 4
+
+RIDGE = 1
+
+INDENT = '  '
+
+__tkwin__ = None
+
+# ======================== Tk MUTABLES =========================================
+
+class TkVar_:
+    def __init__(self, value=''):
+        self.value = value
+        self.trace_w_callback = None
+        self.trace_r_callback = None
+
+    def trace_variable(self, read_or_write, callback):
+        if read_or_write == 'r':
+            self.trace_r_callback = callback
+        elif read_or_write == 'w':
+            self.trace_w_callback = callback
+        else:
+            raise TkException('First parameter to trace_variable should be r or w')
+
+    def get(self):
+        if self.trace_r_callback:
+            self.trace_r_callback('Unknown', '', 'r')
+        return self.value
+
+    def set(self, value):
+        self.value = value
+        if self.trace_w_callback:
+            self.trace_w_callback('Unknown', '', 'w')
+
+    def __repr__(self):
+        return '<<'+ repr(self.get()) + '>>'
+
+
+class StringVar(TkVar_):
+    pass
+
+class IntVar(TkVar_):
+    def __init__(self):
+        super().__init__(0)
+
+    def get(self):
+        return int(super().get())
+
+class DoubleVar(TkVar_):
+    def __init__(self):
+        super().__init__(0.0)
+
+    def get(self):
+        return float(super().get())
+
+class BooleanVar(TkVar_):
+    def __init__(self):
+        super().__init__(False)
+
+    def get(self):
+        value = super.get()
+        if value == '0' or value == 'True':
+            return True
+        elif value == '1' or value == 'False':
+            return False
+        else:
+            raise TkException('Boolean variable should be 0/1 or True/False')
+
+
+# =========== Other public Interface functionss and classes ====================
+
+def Tk():
+    global __tkwin__
+    __tkwin__ = TkWindow()
+    return __tkwin__
+
+
+def getTk():
+    '''Return the global Tk window'''
+    global __tkwin__
+    if __tkwin__ is None:
+        raise TkException('Tk window not found. Tk() never called?!')
+    return __tkwin__
+
+
+class TkException (Exception):
+    '''The class of exception thrown from within this module'''
+    def __init__(self, message):
+        super().__init__(message)
+
+
+class Tk_Event:
+    '''A Mock of the real Tk event object.'''
+    def __init__(self, event_type, **kwargs):
+        self.event_type = event_type
+        for key in kwargs:
+            setattr(self, key, kwargs[key])
+
+
+class Selector:
+    '''An object used to locate a widget in the widget hierarchy'''
+    def __init__(self, text=None, widget_type=None, path=None):
+        self.text = text
+        self.widget_type = widget_type
+        self.path = path
+
+    def matches(self, path, widget):
+        '''True if the given widget matches this selector.
+           If the path was given to the constructor the widget details are
+           ignored and matches is true iff the paths match. Otherwise the
+           widget must match with regard to type and text. If only one of
+           type and text is given the other is ignored.
+        '''
+        if self.path is not None:
+            return self.path == path
+        if self.widget_type is not None and widget.widget_type != self.widget_type:
+            return False
+        if self.text is not None and widget.text() != self.text:
+            return False
+        return True
+
+    def __str__(self):
+        attrs = []
+        if self.text is not None:
+            attrs.append('text=' + self.text)
+        if self.widget_type is not None:
+            attrs.append('widget_type=' + self.widget_type)
+        if self.path is not None:
+            attrs.append('path=' + str(self.path))
+        return repr(','.join(attrs))
+
+# ===================== WIDGET CONTAINERS =====================================
+
+class TkGeometry:
+    '''The base class for Tk windows and frames.
+       The only geometry manager supported is Grid
+    '''
+    def __init__(self, level=0):
+        self.widgetlocs = {}
+        self.widgets = []
+        self.grid_layout = {}
+        self.level = level
+        self.destroyed = False  # True when window destroyed
+
+    def add(self, widget):
+        self.widgets.append(widget)
+        return widget
+
+    def occupy(self, row, col, widget):
+        if (row, col) in self.grid_layout:
+            raise TkException("Grid location ({}, {}) already occupied by widget {}"
+                .format(row, col, self.grid_layout[(row, col)].widget_type))
+        self.grid_layout[(row, col)] = widget
+        self.widgetlocs[widget] = (row, col)
+
+    def setspan(self, rowspan, columnspan, widget):
+        if widget not in self.widgetlocs:
+            raise TkException("rowspan/columnspan not meaningful without row/column")
+        rowbase, columnbase = self.widgetlocs[widget]
+        for row in range(rowbase, rowbase + rowspan):
+            for column in range(columnbase, columnbase + columnspan):
+                if (row, column) != (rowbase, columnbase):
+                    self.occupy(row, column, widget)
+
+    def __str__(self):
+        lines = []
+        for cell in sorted(self.grid_layout):
+            widget = self.grid_layout[cell]
+            lines.append(self.level * INDENT + "Grid[{}, {}]: {}".format(
+                cell[0], cell[1], str(widget)))
+        return '\n'.join(lines) + '\n'
+
+    def find(self, selector, path=[]):
+        '''Traverse the grid hierachy to find the first widget matching the
+           given selector. Return that widget or None if not found.
+        '''
+        for (row_col, widget) in self.grid_layout.items():
+            if selector.matches(path + [row_col], widget):
+                return widget
+            elif widget.widget_type == 'Frame':
+                child = widget.find(selector, path + [row_col])
+                if child is not None:
+                    return child
+        return None
+
+# ============= The top-level Tk window ============
+class TkWindow(TkGeometry):
+
+    def mainloop(self):
+        pass
+
+    def display(self):
+        if self.destroyed:
+            print("TERMINATED")
+        else:
+            print(str(self))
+
+    def destroy(self):
+        self.destroyed = True
+
+    def click(self, selector):
+        '''Call the command handler for the widget matching the given selector.
+           Also, send the widget a <Button-1> event.
+           If no such widget exists, an exception is raised.
+           See raise_event for a definition of a selector
+        '''
+        widget = self.find(selector)
+        if widget is None:
+            raise TkException("Can't find widget matching " + str(selector))
+        else:
+            widget.do_command()
+            widget.do_event(Tk_Event('<Button-1>'))
+
+
+    def combo_select(self, selector, text):
+        '''Select the given entry in the combobox selected by selector'''
+        widget = self.find(selector)
+        if widget is None or widget.widget_type != 'Combobox':
+            raise TkException("Can't find Combobox matching " + str(selector))
+        else:
+            widget.select(text)
+
+
+    def raise_event(self, selector, event):
+        '''Pass the given event to the widget matching the given selector if
+           such a widget exists and if it has a binding for the event.type.
+           event is a Tk_Event object whose attributes are a subset of the real
+           Tk Event attributes: widget, x, y, x_root, y_root, char, keysym,
+           keycode, num, width, height, type.
+           [See http://effbot.org/tkinterbook/tkinter-events-and-bindings.htm].
+           The widget will be filled in automatically when the widget is located.
+           All others are required only if the handler is likely to require them.
+           A selector is a subclass of Selector (see above).
+        '''
+        widget = self.find(selector)
+        if widget is None:
+            raise TkException("Can't find widget matching " + str(selector))
+        else:
+            event.widget = widget
+            widget.do_event(event)
+
+    def text_entry(self, selector, text):
+        '''Call the set method of the widget located by the given selector
+           (which must be an Entry widget or a runtime error will result)
+        '''
+        widget = self.find(selector)
+        if widget is None:
+            raise TkException("Can't find widget matching " + str(selector))
+        else:
+            widget.set(text)
+
+
+# ============================= WIDGETS ========================================
+
+class Tk__Widget:
+    def __init__(self, parent, widget_type, **kwargs):
+        self.parent = parent
+        self.widget_type = widget_type
+        self.attributes = {}
+        self.grid_attributes = {}
+        self.event_handlers = {}
+        self.configure(**kwargs)
+        parent.add(self)
+
+    def __str__(self):
+        params = []
+        for attr in sorted(self.attributes):
+            attr_rep = repr(self.attributes[attr])
+            if attr_rep.startswith("<function"):
+                bits = attr_rep.split()
+                attr_rep = bits[0] + ' ' + bits[1] + '>'
+            elif attr_rep.startswith("<bound method"):
+                bits = attr_rep.split()
+                attr_rep = '<method ' + bits[2] + '>'
+            params.append("{}={}".format(attr, attr_rep))
+        me = "{}({})".format(self.widget_type, ', '.join(params))
+        for ga, value in sorted(self.grid_attributes.items()):
+            me += " {}={}".format(ga, value)
+        return me
+
+    def bind(self, event_type, handler):
+        self.event_handlers[event_type] = handler
+
+    def text(self):
+        if 'text' in self.attributes:
+            return self.attributes['text']
+        elif 'textvariable' in self.attributes:
+            return self.attributes['textvariable'].get()
+        else:
+            return ''
+
+    def do_command(self):
+        if 'command' in self.attributes:
+            self.attributes['command']()
+
+    def do_event(self, event):
+        if event.event_type in self.event_handlers:
+            self.event_handlers[event.event_type](event)
+
+    def configure(self, **kwargs):
+        for kw in kwargs:
+            self[kw] = kwargs[kw]
+
+    def grid(self, row=None, column=None, rowspan=None, columnspan=None, **others):
+        ''' NEEDS WORK!!!'''
+        if rowspan is None and columnspan is None:
+            row = 0 if row is None else row
+            column = 0 if column is None else column
+        if row is not None and column is not None:
+            self.parent.occupy(row, column, self)
+        if rowspan is None:
+            rowspan = 1
+        if columnspan is None:
+            columnspan = 1
+        self.parent.setspan(rowspan, columnspan, self)
+        for key, value in others.items():
+            self.grid_attributes[key] = value
+
+    def pack(self):
+        raise TkException("We don't do pack in this course!")
+
+    def get(self):
+        print("Calling 'get' on a widget is not supported. Please associate the widget with a textvariable and do a 'get' on that instead.", file=sys.stderr)
+        return ''
+
+    def __setitem__(self, attr, value):
+        if attr == 'text' and not isinstance(value, str):
+            raise TkException("'text' attribute of a widget must be a string")
+        self.attributes[attr] = value
+
+    def __getitem__(self, attr):
+        return self.attributes.get(attr, None)
+
+# ==== Widget subclasses ====
+
+class Label(Tk__Widget):
+    def __init__(self, window, **kwargs):
+        super().__init__(window, 'Label', **kwargs)
+
+
+class Combobox(Tk__Widget):
+    def __init__(self, window, **kwargs):
+        super().__init__(window, 'Combobox', **kwargs)
+        if 'values' in kwargs:
+            self.current = kwargs['values']
+        else:
+            self.current = ''
+
+    def select(self, text):
+        if text in self.attributes.get('values', []):
+            self.set(text)
+        else:
+            raise TkException('Non-existent combobox value selected')
+
+    def set(self, text):
+        was = self.current
+        if 'textvariable' in self.attributes:
+            self.current = text
+            self.attributes['textvariable'].set(text)
+        if text != was:
+            self.do_event(Tk_Event('<<ComboboxSelected>>'))
+
+
+
+
+class Frame(Tk__Widget, TkGeometry):
+    def __init__(self, window, **kwargs):
+        TkGeometry.__init__(self, window)
+        Tk__Widget.__init__(self, window, 'Frame', **kwargs)
+        self.level = window.level + 1
+
+    def __str__(self):
+        return Tk__Widget.__str__(self) + '\n' + TkGeometry.__str__(self)
+
+
+
+class Entry(Tk__Widget):
+    def __init__(self, window, **kwargs):
+        super().__init__(window, 'Entry', **kwargs)
+
+    def set(self, text):
+        if 'textvariable' in self.attributes:
+            self.attributes['textvariable'].set(text)
+
+
+
+class Button(Tk__Widget):
+    def __init__(self, window, **kwargs):
+        super().__init__(window, 'Button', **kwargs)
+
+# ==============================================================================
+""")
+f_tk.close()
+f_tk2 = open('tkinter/ttk.py', 'w')
+f_tk2.write('# Dummy for the ttk submodule\n')
+f_tk2.close()
+
+{{ STUDENT_ANSWER }}
+
+from tkinter import *
+{{ TEST.stdin }}]]></template>
+    <iscombinatortemplate>0</iscombinatortemplate>
+    <allowmultiplestdins></allowmultiplestdins>
+    <answer></answer>
+    <validateonsave>0</validateonsave>
+    <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
+    <language>python3</language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader>RegexGrader</grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams></templateparams>
+    <hoisttemplateparams>0</hoisttemplateparams>
+    <twigall>0</twigall>
+    <uiplugin></uiplugin>
+    <testcases>
+    </testcases>
+  </question>
+
+</quiz>
