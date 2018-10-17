@@ -51,7 +51,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
             'string_delete',
             'sqrmatlab', 'teststudentanswermacro', 'sqroctave',
             'teststudentanswermacrooctave', 'sqrnodejs',
-            'sqrjava', 'nameclass', 'printsquares', 'printstr',
+            'sqrjava', 'sqrphp', 'nameclass', 'printsquares', 'printstr',
             'sqr_user_prototype_child',
             'multilang_echo_stdin');
     }
@@ -997,6 +997,31 @@ EOPROG;
                       'iscombinatortemplate' => false)
         );
         return $q;
+    }
+
+    /* ============== PHP question support =================================*/
+
+    /**
+     * Makes a coderunner question asking for a sqr() function in Php
+     * @return qtype_coderunner_question
+     */
+    public function make_coderunner_question_sqrphp() {
+        $coderunner = $this->make_coderunner_question(
+                'php',
+                'Function to square a number n',
+                'Write a function sqr($n) that returns $n squared.',
+                array(
+                    array('testcode'  => 'print(sqr(0))',
+                          'expected'  => '0'),
+                    array('testcode'  => 'print(sqr(7))',
+                          'expected'  => '49'),
+                    array('testcode'  => 'print(sqr(-11))',
+                          'expected'  => '121'),
+                    array('testcode'  => 'print(sqr(16))',
+                          'expected'  => '256')
+        ));
+
+        return $coderunner;
     }
 
 

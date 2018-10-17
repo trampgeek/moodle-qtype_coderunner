@@ -664,7 +664,7 @@ end.
     <resultcolumns></resultcolumns>
     <template><![CDATA[{{ STUDENT_ANSWER }}
 
-define('SEPARATOR', '#<ab@17943918#@>#');
+define('SEPARATOR', "#<ab@17943918#@>#\n");
 
 {% for TEST in TESTCASES %}
 {{ TEST.testcode }};
