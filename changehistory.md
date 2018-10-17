@@ -1,7 +1,8 @@
 # CHANGE HISTORY
 
-### 6 October 2018. 3.5.2
+### 18 October 2018. 3.5.2+
 
+* Fix broken PHP question type and add test cases for it.
 * Fix GraphUI plugin to prevent new arcs from exactly overlying old ones
 * Bug fix: nodejs question type not working with strict mode. Also,
   renamed question type from nodejs-2 to just nodejs (as it used to be).
