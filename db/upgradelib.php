@@ -79,7 +79,8 @@ function update_question_types() {
         // CR_PROTOTYPES category resulting from installing an older
         // CodeRunner on top of a fresh Moodle 3.5. If so, rename it to 'top'
         // and set various other fields to their standard top values.
-        $category = $tops[0];
+        $cats = array_values($tops);
+        $category = $cats[0];
         $topid = $category->id;
         if ($category->name == 'CR_PROTOTYPES') {
             $category->name = 'top'; // A non-real name for the top category. It will be localised at the display time.
@@ -96,7 +97,7 @@ function update_question_types() {
         // earlier version of CodeRunner on Moodle 3.5, which allows only
         // one top record in a context.
         // Try to identify one of them as a 'real' top category.
-        foreach ($tops as $category) {
+        foreach ($tops as $id => $category) {
             if (strtolower($category->name) === 'top') {
                 $topid = $category->id;
                 break;
