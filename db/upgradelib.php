@@ -51,13 +51,15 @@ function update_question_types() {
 }
 
 
-// Delete all existing prototypes in the given (system) context.
+// Delete all existing prototypes in the given (system) context and in the
+// CR_PROTOTYPES category.
 function delete_existing_prototypes($systemcontextid) {
     global $DB;
     $query = "SELECT q.id
               FROM {question} q JOIN {question_categories} cats
               ON q.category = cats.id
               WHERE cats.contextid=?
+              AND cats.name='CR_PROTOTYPES'
               AND q.name LIKE '%PROTOTYPE_%'";
     $prototypes = $DB->get_records_sql($query, array($systemcontextid));
     foreach ($prototypes as $question) {
