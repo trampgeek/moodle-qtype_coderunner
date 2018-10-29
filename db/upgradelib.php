@@ -39,13 +39,14 @@ require_once($CFG->dirroot . '/lib/questionlib.php');
 function update_question_types() {
     $systemcontext = context_system::instance();
     $systemcontextid = $systemcontext->id;
-    if (!$systemcontextid) {
-        $systemcontextid = 1; // HACK ALERT: occurs when phpunit initialising itself.
-    }
 
     delete_existing_prototypes($systemcontextid);
-    $topid = find_or_make_top($systemcontextid);
-    $prototypes_category = find_or_make_prototype_category($systemcontextid, $topid);
+    if (function_exists('question_get_top_category')) { // Moodle version >= 3.5
+        $parentid = get_top_id($systemcontextid);
+    } else {
+        $parentid = 0;
+    }
+    $prototypes_category = find_or_make_prototype_category($systemcontextid, $parentid);
     load_new_prototypes($systemcontextid, $prototypes_category);
     return true;
 }
@@ -69,60 +70,58 @@ function delete_existing_prototypes($systemcontextid) {
 }
 
 
-// Find or create the top category for the system context
-// This may involve renaming an existing CR_PROTOTYPES category to 'top'
-// if there's one already there but no actual top.
-// Return the topid.
-function find_or_make_top($systemcontextid) {
+// Return the id of the top system context category for Moodle versions >= 3.5.
+// This function needs to be able to deal with the possibility that an
+// earlier CodeRunner installer has been run on Moodle 3.5 resulting in either
+// the CR_PROTOTYPES category being a proxy 'top' or in multiple top
+// categories, both of which require some repairs.
+// Must only be called for Moodle 3.5 or later.
+function get_top_id($systemcontextid) {
     global $DB;
-    $topid = -1;
-    $prototypecategoryid = -1;
+    $topid = 0;
+    $prototypecategoryid = 0;
     $tops = $DB->get_records('question_categories',
             array('contextid' => $systemcontextid, 'parent' => 0));
 
     foreach ($tops as $id => $category) {
         if (strtolower($category->name) === 'top') {
             $topid = $category->id;
-            break;
-        } else if ($category->name == 'CR_PROTOTYPES') {
+        } elseif ($category->name === 'CR_PROTOTYPES') {
             $prototypecategoryid = $category->id;
             $prototypecat = $category;
         }
     }
-    if ($topid === -1 && $prototypecategoryid !== -1) {
-        // No top found, but we do have an existing CR_PROTOTYPES category
-        // so use that. This is to handle the situation where an older
-        // version of CodeRunner was installed on Moodle 3.5, and the
-        // CR_PROTOTYPES category was then used as the 'top' category. Other
-        // content may then have been added and we don't want to lose it.
+    if ($topid === 0 && $prototypecategoryid === 0) {
+        // No top and no CR_PROTOTYPES category. Make and return a new top.
+        $topid = question_get_top_category($systemcontextid, true)->id;
+    } elseif ($topid === 0 && $prototypecategoryid !== 0) {
+        // No top found but we do have an existing CR_PROTOTYPES category
+        // which will have been treated as a 'top' proxy. Rename it to 'top'
+        // and use that as the real top.
         $topid = $prototypecategoryid;
-        make_existing_category_top($prototypecat, $systemcontextid);
+        make_cr_prototypes_top($prototypecat);
+    } elseif ($topid !== 0 && $prototypecategoryid !== 0) {
+        // We have both top and CR_PROTOTYPES categories. This is broken,
+        // and needs to be repaired.
+        $prototypecat->parent = $topid;
+        $DB->update_record('question_categories', $prototypecat);
     }
 
-    // If we couldn't find a top category or make one from an existing
-    // CR_PROTOTYPES category, create one now.
-    if ($topid === -1) {
-        $topid = make_new_top($systemcontextid);
-    }
     return $topid;
 }
 
 
-// Create CR_PROTOTYPES category if it doesn't exist or, if it already
-// exists, ensure that it is a child of the top category
-function find_or_make_prototype_category($systemcontextid, $topid) {
+// Return CR_PROTOTYPES category, creating it if it doesn't exist.
+function find_or_make_prototype_category($systemcontextid, $parentid) {
     global $DB;
     $category = $DB->get_record('question_categories',
                 array('contextid' => $systemcontextid, 'name' => 'CR_PROTOTYPES'));
-    if ($category) {
-        $category->parent = $topid;
-        $DB->update_record('question_categories', $category);
-    } else { // CR_PROTOTYPES category not defined yet. Add it.
+    if (!$category) {
         $category = array(
             'name'       => 'CR_PROTOTYPES',
             'contextid'  => $systemcontextid,
             'info'       => 'Category for CodeRunner question built-in prototypes. FOR SYSTEM USE ONLY.',
-            'parent'     => $topid,
+            'parent'     => $parentid,
             'sortorder'  => 999,
             'stamp'      => make_unique_id_code()
         );
@@ -136,28 +135,13 @@ function find_or_make_prototype_category($systemcontextid, $topid) {
 }
 
 
-// Create a new top category and return its id
-function make_new_top($systemcontextid) {
-    global $DB;
-    $category = new stdClass();
-    $category->name = 'top'; // A non-real name for the top category. It will be localised at the display time.
-    $category->info = '';
-    $category->contextid = $systemcontextid;
-    $category->parent = 0;
-    $category->sortorder = 0;
-    $category->stamp = make_unique_id_code();
-    $topid = $DB->insert_record('question_categories', $category);
-    return $topid;
-}
-
-// Given a category (which should always be CR_PROTOTYPES), rename it as
-// 'top' and rewrite it to the database with various other attributes
-// set appropriately.
-function make_existing_category_top($category, $systemcontextid) {
+// Make the existing CR_PROTOTYPES category into the top category
+// by renaming it and setting various other attributes appropriately.
+// Update it in the database.
+function make_cr_prototypes_top($category) {
     global $DB;
     $category->name = 'top'; // A non-real name for the top category. It will be localised at the display time.
     $category->info = '';
-    $category->contextid = $systemcontextid;
     $category->parent = 0;
     $category->sortorder = 999;
     $category->stamp = make_unique_id_code();
