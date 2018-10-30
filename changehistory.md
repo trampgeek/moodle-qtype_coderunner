@@ -3,11 +3,11 @@
 ### 29 October 2018. 3.5.3
 
  * Bug fix: installing CodeRunner on Moodle 3.5 with error debug messages
-   enabled resulted in message "Error: mdb->get_record() found more than one record!"
-   when browsing the question databank. Alternatively, if CodeRunner was
-   installed on a freshly build Moodle 3.5, the CR_PROTOTYPES category
-   became a proxy for the Top category in the system context, resulting in
-   all CodeRunner prototypes being hidden.
+   enabled resulted in messages "Error: mdb->get_record() found more than one record!"
+   when browsing the question bank. Alternatively, if CodeRunner was
+   installed on a freshly built Moodle 3.5, the CR_PROTOTYPES category
+   became a proxy for the Top category in the system category and its name
+   was hidden.
 
 ### 18 October 2018. 3.5.2+
 
