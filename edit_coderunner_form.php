@@ -985,14 +985,17 @@ class qtype_coderunner_edit_form extends question_edit_form {
             }
         }
 
-        $question = $this->make_question_from_form_data($data);
-        $question->start_attempt();
-        $response = array('answer' => $question->answer);
-        if (!empty($defaultlang)) {
-            $response['language'] = $defaultlang;
+        try {
+            $question = $this->make_question_from_form_data($data);
+            $question->start_attempt();
+            $response = array('answer' => $question->answer);
+            if (!empty($defaultlang)) {
+                $response['language'] = $defaultlang;
+            }
+            list($mark, $state, $cachedata) = $question->grade_response($response);
+        } catch (Exception $e) {
+            return $e->getMessage();
         }
-
-        list($mark, $state, $cachedata) = $question->grade_response($response);
 
         // Return either an empty string if run was good or an error message.
         if ($mark == 1.0) {
