@@ -1095,6 +1095,7 @@ $string['unauthorisedbulktest'] = 'You do not have suitable access to any CodeRu
 $string['unauthoriseddbaccess'] = 'You are not authorised to use this script';
 $string['unknownerror'] = 'An unexpected error occurred. The sandbox may be down. Try again shortly.';
 $string['unknowncombinatorgraderfield'] = 'Unknown field name ({$a->fieldname}) in combinator grader output';
+$string['unserializefailed'] = 'Stored test results could not be deserialised. Perhaps try regrading?';
 $string['useasexample'] = 'Use as example';
 $string['useace'] = 'Template uses ace';
 

@@ -33,6 +33,7 @@ class qtype_coderunner_testing_outcome {
     const STATUS_BAD_COMBINATOR = 3; // A combinator template yielded an invalid result
     const STATUS_SANDBOX_ERROR = 4;  // The run failed altogether.
     const STATUS_MISSING_PROTOTYPE = 5;  // Can't even start - no prototype
+    const STATUS_UNSERIALIZE_FAILED = 6; // A serialised outcome can't be deserialised
 
     const TOLERANCE = 0.00001;       // Allowable difference between actual and max marks for a correct outcome.
 
@@ -95,6 +96,10 @@ class qtype_coderunner_testing_outcome {
                ($this->status === self::STATUS_MISSING_PROTOTYPE);
     }
 
+    public function invalid() {
+        return $this->status === self::STATUS_UNSERIALIZE_FAILED;
+    }
+
     public function has_syntax_error() {
         return $this->status === self::STATUS_SYNTAX_ERROR;
     }
@@ -139,7 +144,9 @@ class qtype_coderunner_testing_outcome {
     // Return a message summarising the nature of the error if this outcome
     // is not all correct.
     public function validation_error_message() {
-        if ($this->run_failed()) {
+        if ($this->invalid()) {
+            return html_writer::tag('pre', $this->errormessage);
+        } else if ($this->run_failed()) {
             return get_string('run_failed', 'qtype_coderunner');
         } else if ($this->has_syntax_error()) {
             return get_string('syntax_errors', 'qtype_coderunner') . html_writer::tag('pre', $this->errormessage);
