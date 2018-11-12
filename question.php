@@ -310,6 +310,7 @@ class qtype_coderunner_question extends question_graded_automatically {
         // other fields at your peril (since the order in which they are
         // expanded might vary in the future).
         $this->questiontext = $this->twig_expand($this->questiontext);
+        $this->generalfeedback = $this->twig_expand($this->generalfeedback);
         $this->answer = $this->twig_expand($this->answer);
         $this->answerpreload = $this->twig_expand($this->answerpreload);
         foreach ($this->testcases as $key => $test) {
