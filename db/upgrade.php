@@ -253,6 +253,35 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2018041700, 'qtype', 'coderunner');
     }
 
+    if ($oldversion < 2018111200) {
+         // Define fields attachments, attachmentsrequired, maxfilesize and
+        // filetypeslist to be added to question_coderunner_options.
+        $table = new xmldb_table('question_coderunner_options');
+
+        $field = new xmldb_field('attachments', XMLDB_TYPE_INTEGER, '4', null, XMLDB_NOTNULL, null, '0', 'uiplugin');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $field = new xmldb_field('attachmentsrequired', XMLDB_TYPE_INTEGER, '4', null, null, null, null, 'attachments');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $field = new xmldb_field('maxfilesize', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'attachmentsrequired');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $field = new xmldb_field('filetypeslist', XMLDB_TYPE_TEXT, null, null, null, null, null, 'maxfilesize');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Coderunner savepoint reached.
+        upgrade_plugin_savepoint(true, 2018111200, 'qtype', 'coderunner');
+    }
+
     require_once(__DIR__ . '/upgradelib.php');
     update_question_types();
 

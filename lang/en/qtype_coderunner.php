@@ -24,6 +24,8 @@
 
 $string['aborted'] = 'Testing was aborted due to error.';
 $string['ace_ui_notready'] = 'Ace editor not ready. Perhaps reload page?';
+$string['acceptedfiletypes'] = 'Accepted file types';
+$string['acceptedfiletypes_help'] = 'Accepted file types can be restricted by entering a comma-separated list of file extensions (not including the period). If the field is left empty, then all file types are allowed.';
 $string['addingcoderunner'] = 'Adding a new CodeRunner Question';
 $string['ajax_error'] = '*** AJAX ERROR. DON\'T SAVE THIS! ***';
 $string['allok'] = 'Passed all tests! ';
@@ -34,6 +36,7 @@ $string['allornothing_help'] = 'If \'All-or-nothing\' is checked, all test cases
 The per-test-case marks can be specified only if the all-or-nothing checkbox is unchecked.
 
 If using a template grader that awards part marks to test cases, \'All-or-nothing\' should generally be unchecked.';
+$string['allowattachments'] = 'Allow attachments';
 $string['allowmultiplestdins'] = 'Allow multiple stdins';
 $string['answer'] = 'Sample answer';
 $string['answerprompt'] = 'Answer:';
@@ -49,6 +52,11 @@ $string['answerbox_group_help'] = 'Set the number of rows to allocate for the an
 $string['answerpreload'] = 'Answer box preload';
 $string['answerpreload_help'] = 'Text supplied here will be preloaded into the student\'s answer box.';
 $string['asolutionis'] = 'Question author\'s solution:';
+$string['attachmentoptions'] = 'Attachment options';
+$string['attachmentsoptional'] = 'Attachments are optional';
+$string['attachmentsrequired'] = 'Require attachments';
+$string['attachmentsrequired_help'] = 'This option specifies the minimum number of attachments required for a response to be graded.';
+
 $string['autotagbycategorytitle'] = 'CodeRunner autotag by category';
 $string['autotagbycategoryindextitle'] = 'CodeRunner question autotagger';
 
@@ -316,6 +324,8 @@ The default penalty regime can be set site-wide by a system administrator using
 Site administration > Plugins > Question types > CodeRunner.
 
 Set the penalty regime to \'0\' for zero penalties on all submissions.';
+$string['maxfilesize'] = 'Max allowed file size (bytes)';
+$string['maxfilesize_help'] = 'Select the maximum file upload size (bytes). Default 1 MB. Uploaded files are cached on the Jobe server for 48 hours. Allowed large file uploads with large classes can impact performance and Jobe file store space.';
 $string['memorylimit'] = 'MemLimit (MB)';
 $string['missinganswers'] = 'missing answers';
 $string['missingoutput'] = 'You must supply the expected output from this test case.';
@@ -325,6 +335,7 @@ $string['missingprototypes'] = 'Missing prototypes';
 $string['missingprototypewhenrunning'] = 'Broken question (missing prototype \'{$a->crtype}\'). Cannot be run.';
 $string['multipledefaults'] = 'At most one language can be selected as default';
 $string['multipleprototypes'] = 'Multiple prototypes found for \'{$a->crtype}\'';
+$string['mustrequirefewer'] = 'You cannot require more attachments than you allow.';
 
 $string['nearequalitygrader'] = 'Nearly exact match';
 $string['nodetailsavailable'] = 'Select a question type to see detailed help.';

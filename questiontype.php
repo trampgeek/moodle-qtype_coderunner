@@ -109,7 +109,11 @@ class qtype_coderunner extends question_type {
             'templateparams',
             'hoisttemplateparams',
             'twigall',
-            'uiplugin'
+            'uiplugin',
+            'attachments',
+            'attachmentsrequired',
+            'maxfilesize',
+            'filetypeslist'
         );
     }
 
@@ -134,6 +138,10 @@ class qtype_coderunner extends question_type {
             'templateparams',
             'hoisttemplateparams',
             'twigall',
+            'attachments',
+            'attachmentsrequired',
+            'maxfilesize',
+            'filetypeslist'
             );
     }
 
@@ -610,6 +618,47 @@ class qtype_coderunner extends question_type {
         return $success && parent::delete_question($questionid, $contextid);
     }
 
+    /******************** EDIT FORM OPTIONS ************************/
+
+    /**
+     * @return array the choices that should be offered for the number of attachments.
+     */
+    public function attachment_options() {
+        return array(
+            0 => get_string('no'),
+            1 => '1',
+            2 => '2',
+            3 => '3',
+            -1 => get_string('unlimited'),
+        );
+    }
+
+    /**
+     * @return array the choices that should be offered for the number of required attachments.
+     */
+    public function attachments_required_options() {
+        return array(
+            0 => get_string('attachmentsoptional', 'qtype_coderunner'),
+            1 => '1',
+            2 => '2',
+            3 => '3'
+        );
+    }
+
+    /**
+     * @return array the options for maximum file size
+     */
+    public function attachment_filesize_max() {
+        return array(
+            0 => '1 kB',
+            1 => '10 kB',
+            2 => '100 kB',
+            3 => '1 MB',
+            4 => '10 MB',
+            5 => '100 MB'
+        );
+    }
+
 
     /******************** IMPORT/EXPORT FUNCTIONS ***************************/
 
@@ -651,7 +700,8 @@ class qtype_coderunner extends question_type {
             'answerpreload' => '',
             'useace' => 1,
             'iscombinatortemplate' => null,  // Probably unnecessary?
-            'template' => null  // Probably unnecessary?
+            'template' => null,  // Probably unnecessary?
+            'attachments' => 0
         );
 
         foreach ($extraquestionfields as $field) {

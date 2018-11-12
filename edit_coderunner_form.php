@@ -121,6 +121,32 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $this->add_per_testcase_fields($mform, get_string('testcase', 'qtype_coderunner', "{no}"),
                 $numtestcases);
 
+        // Insert the attachment section to allow file uploads.
+        $qtype = question_bank::get_qtype('coderunner');
+        $mform->addElement('header', 'attachmentoptions', get_string('attachmentoptions', 'qtype_coderunner'));
+        $mform->setExpanded('attachmentoptions', 0);
+
+        $mform->addElement('select', 'attachments',
+                get_string('allowattachments', 'qtype_coderunner'), $qtype->attachment_options());
+        $mform->setDefault('attachments', 0);
+
+        $mform->addElement('select', 'attachmentsrequired',
+                get_string('attachmentsrequired', 'qtype_coderunner'), $qtype->attachments_required_options());
+        $mform->setDefault('attachmentsrequired', 0);
+        $mform->addHelpButton('attachmentsrequired', 'attachmentsrequired', 'qtype_coderunner');
+        $mform->disabledIf('attachmentsrequired', 'attachments', 'eq', 0);
+
+        $mform->addElement('text', 'filetypeslist', get_string('acceptedfiletypes', 'qtype_coderunner'));
+        $mform->addHelpButton('filetypeslist', 'acceptedfiletypes', 'qtype_coderunner');
+        $mform->disabledIf('filetypeslist', 'attachments', 'eq', 0);
+        $mform->setType('filetypeslist', PARAM_RAW);
+
+        $mform->addElement('select', 'maxfilesize',
+                get_string('maxfilesize', 'qtype_coderunner'), $qtype->attachment_filesize_max());
+        $mform->setDefault('maxfilesize', 3);
+        $mform->addHelpButton('maxfilesize', 'maxfilesize', 'qtype_coderunner');
+        $mform->disabledIf('maxfilesize', 'attachments', 'eq', 0);
+
         // Add the option to attach runtime support files, all of which are
         // copied into the working directory when the expanded template is
         // executed.The file context is that of the current course.
@@ -480,6 +506,12 @@ class qtype_coderunner_edit_form extends question_edit_form {
             } else if (count($parsedlangs[0]) === 0) {
                 $errors['languages'] = get_string('badacelangstring', 'qtype_coderunner');
             }
+        }
+
+        // Don't allow the teacher to require more attachments than they allow; as this would
+        // create a condition that it's impossible for the student to meet.
+        if ($data['attachments'] != -1 && $data['attachments'] < $data['attachmentsrequired'] ) {
+            $errors['attachmentsrequired']  = get_string('mustrequirefewer', 'qtype_coderunner');
         }
 
         return $errors;

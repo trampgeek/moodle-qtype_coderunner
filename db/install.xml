@@ -39,6 +39,10 @@
         <FIELD NAME="cputimelimitsecs" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="The maximum CPU time allowed for execution (secs)"/>
         <FIELD NAME="memlimitmb" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="The maximum memory allowed for this task execution (MB)"/>
         <FIELD NAME="uiplugin" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="The javascript UI plugin for student answer"/>
+        <FIELD NAME="attachments" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Whether, and how many, attachments a student is allowed to include with their response. -1 means unlimited."/>
+        <FIELD NAME="attachmentsrequired" TYPE="int" LENGTH="4" NOTNULL="false" SEQUENCE="false" COMMENT="The number of attachments that should be required"/>
+        <FIELD NAME="maxfilesize" TYPE="char" LENGTH="255" NOTNULL="false"SEQUENCE="false" COMMENT="Max allowable student file upload size in bytes"/>
+        <FIELD NAME="filetypeslist" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="What attachment file type a student is allowed to include with their response. * or empty means unlimited."/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
