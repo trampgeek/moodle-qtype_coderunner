@@ -32,13 +32,14 @@ define(['jquery'], function($) {
     /**
      * Initialise the Reset button.
      */
-    function initResetButton(buttonId, answerId, reloadText, confirmText) {
+    function initResetButton(buttonId, answerId, confirmText) {
         var resetButton = $('[id="' + buttonId + '"]'),
             studentAnswer = $('[id="' + answerId + '"]'),
             uiWrapper;
 
         resetButton.on("click", function() {
             if (window.behattesting || window.confirm(confirmText)) {
+                var reloadText = resetButton.data('reload-text');
                 uiWrapper = studentAnswer.data('current-ui-wrapper');
                 if (uiWrapper && uiWrapper.uiInstance) {
                     // If the textarea has a UI wrapper, and it's active
