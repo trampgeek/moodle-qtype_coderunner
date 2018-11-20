@@ -301,7 +301,7 @@ class qtype_coderunner_bulk_tester {
         global $DB;
 
         return $DB->get_records_sql("
-            SELECT q.id, ctx.id as contextid, qc.id as category, q.*, opts.*
+            SELECT q.id, ctx.id as contextid, qc.id as category, qc.name as categoryname, q.*, opts.*
               FROM {context} ctx
               JOIN {question_categories} qc ON qc.contextid = ctx.id
               JOIN {question} q ON q.category = qc.id
