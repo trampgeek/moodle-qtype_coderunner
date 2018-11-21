@@ -145,6 +145,10 @@ class qtype_coderunner extends question_type {
             );
     }
 
+    public function response_file_areas() {
+        return array('attachments');
+    }
+
     /**
      * If you use extra_question_fields, overload this function to return question id field name
      * in case you table use another name for this column.
@@ -650,12 +654,12 @@ class qtype_coderunner extends question_type {
      */
     public function attachment_filesize_max() {
         return array(
-            0 => '1 kB',
-            1 => '10 kB',
-            2 => '100 kB',
-            3 => '1 MB',
-            4 => '10 MB',
-            5 => '100 MB'
+            1024 => '1 kB',
+            10240 => '10 kB',
+            102400 => '100 kB',
+            1048576 => '1 MB',
+            10485760 => '10 MB',
+            104857600 => '100 MB'
         );
     }
 

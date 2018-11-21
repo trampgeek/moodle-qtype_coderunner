@@ -478,27 +478,24 @@ class qtype_coderunner_renderer extends qtype_renderer {
         require_once($CFG->dirroot . '/lib/form/filemanager.php');
 
         $question = $qa->get_question();
+        $filetypes = $this->process_file_types($qa->get_question()->filetypeslist);
         $pickeroptions = new stdClass();
         $pickeroptions->mainfile = null;
         $pickeroptions->maxfiles = $numallowed;
-        $pickeroptions->maxbytes = $this->compute_max_bytes($question->maxfilesize);
-        $pickeroptions->itemid = $qa->prepare_response_files_draft_itemid(
-                'attachments', $options->context->id);
+        $pickeroptions->maxbytes = intval($question->maxfilesize);
         $pickeroptions->context = $options->context;
-        $pickeroptions->return_types = FILE_INTERNAL | FILE_CONTROLLED_LINK;
-
+        $pickeroptions->return_types = 0;
+        $pickeroptions->accepted_types = $filetypes;
         $pickeroptions->itemid = $qa->prepare_response_files_draft_itemid(
                 'attachments', $options->context->id);
-        $pickeroptions->accepted_types = $qa->get_question()->filetypeslist;
 
         $fm = new form_filemanager($pickeroptions);
         $filesrenderer = $this->page->get_renderer('core', 'files');
 
         $text = '';
         if (!empty($qa->get_question()->filetypeslist)) {
-            $text = html_writer::tag('p', get_string('acceptedfiletypes', 'qtype_coderunner'));
-            $filetypesutil = new \core_form\filetypes_util();
-            $filetypes = $qa->get_question()->filetypeslist;
+            $typeliststring = implode(', ', $filetypes);
+            $text = html_writer::tag('p', get_string('acceptedfiletypes', 'qtype_coderunner') . ': ' . $typeliststring);
         }
         return $filesrenderer->render($fm). html_writer::empty_tag(
                 'input', array('type' => 'hidden', 'name' => $qa->get_qt_field_name('attachments'),
@@ -506,13 +503,19 @@ class qtype_coderunner_renderer extends qtype_renderer {
     }
 
 
-    private function compute_max_bytes($sizespecifier)
-    {
-        debugging("Maxsize: " . $sizespecifier);
-        $bits = explode(' ', $sizespecifier);
-        $size = intval($bits[0]);
-        $multiplier = $bits[1] === 'kB' ? 1000 : ($bits[1] === 'MB' ? 1000000 : debugging("Unknown filemaxsize unit"));
-        return $size * $multiplier;
+    /**
+     *
+     * @param string $filetypes the comma separated list of allowed file extensions
+     * @return an array of allowed file extensions, prefixed by '.'
+     */
+    private function process_file_types($filetypes) {
+        $types = explode(',', str_replace(' ', '', $filetypes));
+        foreach ($types as $i=>$type) {
+            if ($type !== '*' && $type[0] != '.') {
+                $types[$i] = '.' . $type;
+            }
+        }
+        return $types;
     }
 
     /**

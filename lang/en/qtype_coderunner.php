@@ -25,7 +25,7 @@
 $string['aborted'] = 'Testing was aborted due to error.';
 $string['ace_ui_notready'] = 'Ace editor not ready. Perhaps reload page?';
 $string['acceptedfiletypes'] = 'Accepted file types';
-$string['acceptedfiletypes_help'] = 'Accepted file types can be restricted by entering a comma-separated list of file extensions (not including the period). If the field is left empty, then all file types are allowed.';
+$string['acceptedfiletypes_help'] = 'Accepted file types can be restricted by entering a comma-separated list of accepted file extensions. If the field is left empty, then all file types are allowed.';
 $string['addingcoderunner'] = 'Adding a new CodeRunner Question';
 $string['ajax_error'] = '*** AJAX ERROR. DON\'T SAVE THIS! ***';
 $string['allok'] = 'Passed all tests! ';
@@ -259,6 +259,7 @@ $string['ideone_pass_desc'] = 'The password to use when connecting to the deprec
 $string['info_unavailable'] = 'Question type information is not available for customised questions.';
 $string['illegalformat'] = 'Illegal format ({$a->format}) in columnformats';
 $string['inputcolhdr'] = 'Input';
+$string['invalidfiletypes'] = 'The accepted file type list must be a comma separated list of valid file extensions, each being either purely alphabetic or \'*\' or c++ or c#, and optionally preceded by \'.\'';
 $string['is_prototype'] = 'Use as prototype';
 
 $string['jobe_apikey'] = 'Jobe API-key';

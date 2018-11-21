@@ -122,9 +122,14 @@ class qtype_coderunner_question extends question_graded_automatically {
     }
 
     public function get_expected_data() {
-        return array('answer' => PARAM_RAW,
+        $expecteddata = array('answer' => PARAM_RAW,
                      'language' => PARAM_NOTAGS);
+        if ($this->attachments != 0) {
+            $expecteddata['attachments'] = question_attempt::PARAM_FILES;
+        }
+        return $expecteddata;
     }
+
 
 
     public function summarise_response(array $response) {
@@ -135,11 +140,27 @@ class qtype_coderunner_question extends question_graded_automatically {
         }
     }
 
+
     public function is_gradable_response(array $response) {
-        return array_key_exists('answer', $response) &&
-                $response['answer'] !== '' &&
+        // Determine if the given response has a non-empty answer plus, if
+        // required, a suitable number of attachments
+        $hasanswer = array_key_exists('answer', $response) &&
                 strlen($response['answer']) >= constants::FUNC_MIN_LENGTH;
+        $hasattachments = array_key_exists('attachments', $response)
+            && $response['attachments'] instanceof question_response_files;
+
+        // Determine the number of attachments present.
+        if ($hasattachments) {
+            $attachcount = count($response['attachments']->get_files());
+        } else {
+            $attachcount = 0;
+        }
+
+        // The response is complete iff we have an answer and sufficient
+        // attachments.
+        return $hasanswer && ($attachcount >= $this->attachmentsrequired);
     }
+
 
     public function is_complete_response(array $response) {
         return $this->is_gradable_response($response);
@@ -176,12 +197,16 @@ class qtype_coderunner_question extends question_graded_automatically {
      * @return boolean
      */
     public function is_same_response(array $prevresponse, array $newresponse) {
-
-        return question_utils::arrays_same_at_key_missing_is_blank(
+        $same_answer = question_utils::arrays_same_at_key_missing_is_blank(
                         $prevresponse, $newresponse, 'answer') &&
                 question_utils::arrays_same_at_key_missing_is_blank(
                         $prevresponse, $newresponse, 'language');
+        $same_attachments = $this->attachments == 0 ||
+                question_utils::arrays_same_at_key_missing_is_blank(
+                $prevresponse, $newresponse, 'attachments');
+        return $same_answer && $same_attachments;
     }
+
 
     public function get_correct_response() {
         return $this->get_correct_answer();
@@ -201,6 +226,17 @@ class qtype_coderunner_question extends question_graded_automatically {
                 $answer['language'] = $default;
             }
             return $answer;
+        }
+    }
+
+
+    public function check_file_access($qa, $options, $component, $filearea, $args, $forcedownload) {
+        if ($component == 'question' && $filearea == 'response_attachments') {
+            // Response attachments visible if the question has them.
+            return $this->attachments != 0;
+        } else {
+            return parent::check_file_access($qa, $options, $component,
+                    $filearea, $args, $forcedownload);
         }
     }
 
@@ -238,11 +274,20 @@ class qtype_coderunner_question extends question_graded_automatically {
         }
         if ($gradingreqd) {
             // We haven't already graded this submission or we graded it with
-            // a different precheck setting.
+            // a different precheck setting. Get the code and the attachments
+            // from the response. The attachments is an array with keys being
+            // filenames and values being file contents.
             $code = $response['answer'];
+            $attachments = array();
+            if (array_key_exists('attachments', $response)) {
+                $files = $response['attachments']->get_files();
+                foreach ($files as $file) {
+                    $attachments[$file->get_filename()] = $file->get_content();
+                }
+            }
             $testcases = $this->filter_testcases($isprecheck, $this->precheck);
             $runner = new qtype_coderunner_jobrunner();
-            $testoutcome = $runner->run_tests($this, $code, $testcases, $isprecheck, $language);
+            $testoutcome = $runner->run_tests($this, $code, $attachments, $testcases, $isprecheck, $language);
             $testoutcomeserial = serialize($testoutcome);
         }
 
@@ -498,7 +543,7 @@ class qtype_coderunner_question extends question_graded_automatically {
 
     // Return all the datafiles to use for a run, namely all the files
     // uploaded with this question itself plus all the files uploaded with the
-    // prototype.
+    // prototype. This does not include files attached to the answer.
     public function get_files() {
         if ($this->prototypetype != 0) { // Is this a prototype question?
             $files = array(); // Don't load the files twice.

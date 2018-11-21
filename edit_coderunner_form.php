@@ -143,7 +143,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
         $mform->addElement('select', 'maxfilesize',
                 get_string('maxfilesize', 'qtype_coderunner'), $qtype->attachment_filesize_max());
-        $mform->setDefault('maxfilesize', 3);
+        $mform->setDefault('maxfilesize', '1048576');
         $mform->addHelpButton('maxfilesize', 'maxfilesize', 'qtype_coderunner');
         $mform->disabledIf('maxfilesize', 'attachments', 'eq', 0);
 
@@ -484,6 +484,13 @@ class qtype_coderunner_edit_form extends question_edit_form {
                         }
                     }
                 }
+            }
+        }
+
+        if ($data['attachments']) {
+            $err = $this->validate_file_types($data['filetypeslist']);
+            if ($err) {
+                $errors['filetypeslist'] = $err;
             }
         }
 
@@ -833,6 +840,22 @@ class qtype_coderunner_edit_form extends question_edit_form {
         asort($types);
         asort($languages);
         return array($languages, $types);
+    }
+
+    // Validate file types list. Return an error message if invalid, else
+    // an empty string.
+    private function validate_file_types($types) {
+        $error = '';
+        $types = str_replace(' ', '', $types);
+        $typelist = explode(",", $types);
+        foreach ($typelist as $type) {
+            if (preg_match('/^\.?([a-z]+)|(\*)|(c\+\+)|(c\#)$/', strtolower($type)) !== 1) {
+                $error = get_string('invalidfiletypes', 'qtype_coderunner');
+                break;
+            }
+        }
+        return $error;
+
     }
 
 
