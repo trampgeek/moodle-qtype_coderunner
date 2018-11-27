@@ -484,8 +484,8 @@ class qtype_coderunner_renderer extends qtype_renderer {
         $pickeroptions->maxfiles = $numallowed;
         $pickeroptions->maxbytes = intval($question->maxfilesize);
         $pickeroptions->context = $options->context;
-        $pickeroptions->return_types = 0;
-        $pickeroptions->accepted_types = $filetypes;
+        $pickeroptions->return_types = FILE_INTERNAL | FILE_CONTROLLED_LINK;
+        $pickeroptions->accepted_types = '';  // TODO: FIXME  Was $filetypes.
         $pickeroptions->itemid = $qa->prepare_response_files_draft_itemid(
                 'attachments', $options->context->id);
 
@@ -504,15 +504,23 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
 
     /**
-     *
+     * Convert the given filetypes string to an array of allowed extensions,
+     * each prefixed by '.'. Returns an empty array if any of the strings are
+     * '*' or if the input string is empty.
      * @param string $filetypes the comma separated list of allowed file extensions
-     * @return an array of allowed file extensions, prefixed by '.'
+     * @return an array of allowed file extensions, prefixed by '.'.
      */
     private function process_file_types($filetypes) {
-        $types = explode(',', str_replace(' ', '', $filetypes));
-        foreach ($types as $i=>$type) {
-            if ($type !== '*' && $type[0] != '.') {
-                $types[$i] = '.' . $type;
+        $types = array();
+        if ($filetypes) {
+            $types = explode(',', str_replace(' ', '', $filetypes));
+            foreach ($types as $i => $type) {
+                if ($type === '*') {
+                    $types = array();
+                    break;
+                } else if ($type[0] != '.') {
+                    $types[$i] = '.' . $type;
+                }
             }
         }
         return $types;

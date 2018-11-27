@@ -847,11 +847,13 @@ class qtype_coderunner_edit_form extends question_edit_form {
     private function validate_file_types($types) {
         $error = '';
         $types = str_replace(' ', '', $types);
-        $typelist = explode(",", $types);
-        foreach ($typelist as $type) {
-            if (preg_match('/^\.?([a-z]+)|(\*)|(c\+\+)|(c\#)$/', strtolower($type)) !== 1) {
-                $error = get_string('invalidfiletypes', 'qtype_coderunner');
-                break;
+        if ($types !== '') {
+            $typelist = explode(",", $types);
+            foreach ($typelist as $type) {
+                if (preg_match('/^\.?([a-z]+)|(\*)|(c\+\+)|(c\#)$/', strtolower($type)) !== 1) {
+                    $error = get_string('invalidfiletypes', 'qtype_coderunner');
+                    break;
+                }
             }
         }
         return $error;

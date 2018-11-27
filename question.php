@@ -141,24 +141,55 @@ class qtype_coderunner_question extends question_graded_automatically {
     }
 
 
-    public function is_gradable_response(array $response) {
-        // Determine if the given response has a non-empty answer plus, if
-        // required, a suitable number of attachments
-        $hasanswer = array_key_exists('answer', $response) &&
-                strlen($response['answer']) >= constants::FUNC_MIN_LENGTH;
+    public function validate_response(array $response) {
+        // Check the response and return a validation error message if it's
+        // faulty or an empty string otherwise.
+        $hasanswer = array_key_exists('answer', $response);
+        if (!$hasanswer || strlen($response['answer']) == 0) {
+            return get_string('answerrequired', 'qtype_coderunner');
+        } else if (strlen($response['answer']) < constants::FUNC_MIN_LENGTH) {
+            return get_string('answertooshort', 'qtype_coderunner', constants::FUNC_MIN_LENGTH);
+        }
         $hasattachments = array_key_exists('attachments', $response)
             && $response['attachments'] instanceof question_response_files;
 
-        // Determine the number of attachments present.
+        // Check the attachments
         if ($hasattachments) {
-            $attachcount = count($response['attachments']->get_files());
+            $files = $response['attachments']->get_files();
+            $attachcount = count($files);
+            // Check the filetypes.
+            $wrongfiletypes = array();
+            $allowedtypes = explode(',', str_replace(' ', '', $this->filetypeslist));
+            if ($allowedtypes && !in_array('*', $allowedtypes)) {
+                foreach ($files as $file) {
+                    $filename = $file->get_filename();
+                    $components = explode('.', $filename);
+                    $extension = '.' . $components[count($components) - 1];
+                    if (!in_array($extension, $allowedtypes)) {
+                        $wrongfiletypes[] = $extension;
+                    }
+                }
+            }
+            if (count($wrongfiletypes) > 0) {
+                $badfilelist = implode(', ', $wrongfiletypes);
+                return get_string('badfiles', 'qtype_coderunner', $badfilelist);
+            }
         } else {
             $attachcount = 0;
         }
 
-        // The response is complete iff we have an answer and sufficient
-        // attachments.
-        return $hasanswer && ($attachcount >= $this->attachmentsrequired);
+        if ($attachcount < $this->attachmentsrequired) {
+            return get_string('insufficientattachments', 'qtype_coderunner', $this->attachmentsrequired);
+        }
+
+        return '';  // All good
+    }
+
+
+    public function is_gradable_response(array $response) {
+        // Determine if the given response has a non-empty answer plus, if
+        // required, a suitable number of attachments of accepted types.
+        return $this->validate_response($response) == '';
     }
 
 
@@ -173,16 +204,9 @@ class qtype_coderunner_question extends question_graded_automatically {
      * @return string the message.
      */
     public function get_validation_error(array $response) {
-        if (array_key_exists('answer', $response)) {
-            if ($response['answer'] === '') {
-                return get_string('answerrequired', 'qtype_coderunner');
-            } else if (strlen($response['answer']) < constants::FUNC_MIN_LENGTH) {
-                return get_string('answertooshort', 'qtype_coderunner');
-            }
-        }
-        if (array_key_exists('_testoutcome', $response)) {
-            $outcome = unserialize($response['_testoutcome']);
-            return $outcome->errormessage;
+        $error =  $this->validate_response($response);
+        if ($error) {
+            return $error;
         } else {
             return get_string('unknownerror', 'qtype_coderunner');
         }
