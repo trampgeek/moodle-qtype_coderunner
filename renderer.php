@@ -478,14 +478,15 @@ class qtype_coderunner_renderer extends qtype_renderer {
         require_once($CFG->dirroot . '/lib/form/filemanager.php');
 
         $question = $qa->get_question();
-        $filetypes = $this->process_file_types($qa->get_question()->filetypeslist);
         $pickeroptions = new stdClass();
         $pickeroptions->mainfile = null;
         $pickeroptions->maxfiles = $numallowed;
         $pickeroptions->maxbytes = intval($question->maxfilesize);
+        $pickeroptions->itemid = $qa->prepare_response_files_draft_itemid(
+                'attachments', $options->context->id);
         $pickeroptions->context = $options->context;
         $pickeroptions->return_types = FILE_INTERNAL | FILE_CONTROLLED_LINK;
-        $pickeroptions->accepted_types = '';  // TODO: FIXME  Was $filetypes.
+        $pickeroptions->accepted_types = '*';  // Accept anything - names checked on upload
         $pickeroptions->itemid = $qa->prepare_response_files_draft_itemid(
                 'attachments', $options->context->id);
 
@@ -493,38 +494,19 @@ class qtype_coderunner_renderer extends qtype_renderer {
         $filesrenderer = $this->page->get_renderer('core', 'files');
 
         $text = '';
-        if (!empty($qa->get_question()->filetypeslist)) {
-            $typeliststring = implode(', ', $filetypes);
-            $text = html_writer::tag('p', get_string('acceptedfiletypes', 'qtype_coderunner') . ': ' . $typeliststring);
+        if (!empty($question->filenamesexplain)) {
+                $text = html_writer::tag('p', get_string('allowedfilenames', 'qtype_coderunner')
+                        . ': ' . $question->filenamesexplain);
+        } else if (!empty($question->filenamesregex)) {
+            $text = html_writer::tag('p', get_string('allowedfilenamesregex', 'qtype_coderunner')
+                    . ': ' . $question->filenamesregex);
         }
+
         return $filesrenderer->render($fm). html_writer::empty_tag(
                 'input', array('type' => 'hidden', 'name' => $qa->get_qt_field_name('attachments'),
                 'value' => $pickeroptions->itemid)) . $text;
     }
 
-
-    /**
-     * Convert the given filetypes string to an array of allowed extensions,
-     * each prefixed by '.'. Returns an empty array if any of the strings are
-     * '*' or if the input string is empty.
-     * @param string $filetypes the comma separated list of allowed file extensions
-     * @return an array of allowed file extensions, prefixed by '.'.
-     */
-    private function process_file_types($filetypes) {
-        $types = array();
-        if ($filetypes) {
-            $types = explode(',', str_replace(' ', '', $filetypes));
-            foreach ($types as $i => $type) {
-                if ($type === '*') {
-                    $types = array();
-                    break;
-                } else if ($type[0] != '.') {
-                    $types[$i] = '.' . $type;
-                }
-            }
-        }
-        return $types;
-    }
 
     /**
      *

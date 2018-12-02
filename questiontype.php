@@ -113,7 +113,8 @@ class qtype_coderunner extends question_type {
             'attachments',
             'attachmentsrequired',
             'maxfilesize',
-            'filetypeslist'
+            'filenamesregex',
+            'filenamesexplain'
         );
     }
 

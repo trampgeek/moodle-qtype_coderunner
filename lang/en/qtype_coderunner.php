@@ -24,8 +24,6 @@
 
 $string['aborted'] = 'Testing was aborted due to error.';
 $string['ace_ui_notready'] = 'Ace editor not ready. Perhaps reload page?';
-$string['acceptedfiletypes'] = 'Accepted file types';
-$string['acceptedfiletypes_help'] = 'Accepted file types can be restricted by entering a comma-separated list of accepted file extensions. If the field is left empty, then all file types are allowed.';
 $string['addingcoderunner'] = 'Adding a new CodeRunner Question';
 $string['ajax_error'] = '*** AJAX ERROR. DON\'T SAVE THIS! ***';
 $string['allok'] = 'Passed all tests! ';
@@ -37,6 +35,9 @@ The per-test-case marks can be specified only if the all-or-nothing checkbox is 
 
 If using a template grader that awards part marks to test cases, \'All-or-nothing\' should generally be unchecked.';
 $string['allowattachments'] = 'Allow attachments';
+$string['allowedfilenames'] = 'Allowed file names';
+$string['allowedfilenamesregex'] = 'Allowed file names (regular expression)';
+$string['allowedfilenames_help'] = 'All uploaded file names must match the given PHP (Perl) regular expression, if non empty. For example, use \'.+\\\\.cpp\' to allow any C++ file or \'(?!Prog)\\\\.java\' to allow any Java file except \'Prog.java\'. The Description is a text message shown to the student to explain what file(s) are expected. Leave empty to display the regular expression itself. Leave both empty to allow any file to be uploaded.';
 $string['allowmultiplestdins'] = 'Allow multiple stdins';
 $string['answer'] = 'Sample answer';
 $string['answerprompt'] = 'Answer:';
@@ -66,7 +67,8 @@ $string['badcputime'] = 'CPU time limit must be left blank or must be an integer
 $string['bad_dotdotdot'] = 'Misuse of \'...\'. Must be at end, after two increasing numeric penalties';
 $string['bademptyprecheck'] = 'Precheck failed with the following unexpected output.';
 $string['bad_empty_splitter'] = 'Test splitter cannot be empty when using a combinator template';
-$string['badfiles'] = 'Disallowed file types uploaded ({$a})';
+$string['badfilenamesregex'] = 'Invalid regular expression';
+$string['badfiles'] = 'Disallowed file name or names ({$a})';
 $string['badjsonfunc'] = 'Unknown JSON embedded func ({$a->func})';
 $string['badjsonorfraction'] = 'Bad JSON or missing fraction in combinator grader output. Output was: {$a->output}';
 $string['badmemlimit'] = 'Memory limit must either be left blank or must be a non-negative integer';
@@ -163,6 +165,8 @@ $string['failedhidden'] = 'Your code failed one or more hidden tests.';
 $string['failedntests'] = 'Failed {$a->numerrors} test(s)';
 $string['failedtesting'] = 'Failed testing.';
 $string['fileheader'] = 'Support files';
+$string['filenamesexplain'] = 'Description';
+$string['filenamesregex'] = 'Regular expression';
 $string['filloutoneanswer'] = 'You must enter source code that satisfies the specification. The code you enter will be executed to determine its correctness and a grade awarded accordingly.';
 $string['firstfailure'] = 'First failing test case: {$a}';
 $string['forexample'] = 'For example';
@@ -262,7 +266,6 @@ $string['info_unavailable'] = 'Question type information is not available for cu
 $string['illegalformat'] = 'Illegal format ({$a->format}) in columnformats';
 $string['inputcolhdr'] = 'Input';
 $string['insufficientattachments'] = 'Not enough attachments, {$a} required.';
-$string['invalidfiletypes'] = 'The accepted file type list must be a comma separated list of valid file extensions, each being either purely alphabetic or \'*\' or c++ or c#, and optionally preceded by \'.\'';
 $string['is_prototype'] = 'Use as prototype';
 
 $string['jobe_apikey'] = 'Jobe API-key';

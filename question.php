@@ -158,20 +158,19 @@ class qtype_coderunner_question extends question_graded_automatically {
             $files = $response['attachments']->get_files();
             $attachcount = count($files);
             // Check the filetypes.
-            $wrongfiletypes = array();
-            $allowedtypes = explode(',', str_replace(' ', '', $this->filetypeslist));
-            if ($allowedtypes && !in_array('*', $allowedtypes)) {
+            $invalidfiles = array();
+            if (!empty($this->filenamesregex)) {
                 foreach ($files as $file) {
                     $filename = $file->get_filename();
-                    $components = explode('.', $filename);
-                    $extension = '.' . $components[count($components) - 1];
-                    if (!in_array($extension, $allowedtypes)) {
-                        $wrongfiletypes[] = $extension;
+                    if (!ctype_alnum(str_replace(array('-', '_', '.'), '', $filename)) ||
+                        preg_match('`^' . $this->filenamesregex . '$`', $filename) !== 1) {
+                        $invalidfiles[] = $filename;
                     }
                 }
             }
-            if (count($wrongfiletypes) > 0) {
-                $badfilelist = implode(', ', $wrongfiletypes);
+
+            if (count($invalidfiles) > 0) {
+                $badfilelist = implode(', ', $invalidfiles);
                 return get_string('badfiles', 'qtype_coderunner', $badfilelist);
             }
         } else {

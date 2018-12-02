@@ -136,10 +136,18 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->addHelpButton('attachmentsrequired', 'attachmentsrequired', 'qtype_coderunner');
         $mform->disabledIf('attachmentsrequired', 'attachments', 'eq', 0);
 
-        $mform->addElement('text', 'filetypeslist', get_string('acceptedfiletypes', 'qtype_coderunner'));
-        $mform->addHelpButton('filetypeslist', 'acceptedfiletypes', 'qtype_coderunner');
-        $mform->disabledIf('filetypeslist', 'attachments', 'eq', 0);
-        $mform->setType('filetypeslist', PARAM_RAW);
+        $filenamecontrols = array();
+        $filenamecontrols[] = $mform->createElement('text', 'filenamesregex',
+                get_string('filenamesregex', 'qtype_coderunner'));
+        $mform->disabledIf('filenamesregex', 'attachments', 'eq', 0);
+        $mform->setType('filenamesregex', PARAM_RAW);
+        $filenamecontrols[] = $mform->createElement('text', 'filenamesexplain',
+                get_string('filenamesexplain', 'qtype_coderunner'));
+        $mform->disabledIf('filenamesexplain', 'attachments', 'eq', 0);
+        $mform->setType('filenamesexplain', PARAM_RAW);
+        $mform->addElement('group', 'filenamesgroup',
+                get_string('allowedfilenames', 'qtype_coderunner'), $filenamecontrols, null, false);
+        $mform->addHelpButton('filenamesgroup', 'allowedfilenames', 'qtype_coderunner');
 
         $mform->addElement('select', 'maxfilesize',
                 get_string('maxfilesize', 'qtype_coderunner'), $qtype->attachment_filesize_max());
@@ -488,9 +496,9 @@ class qtype_coderunner_edit_form extends question_edit_form {
         }
 
         if ($data['attachments']) {
-            $err = $this->validate_file_types($data['filetypeslist']);
-            if ($err) {
-                $errors['filetypeslist'] = $err;
+            // Check a valid regular expression was given
+            if (@preg_match('`^' . $data['filenamesregex'] . '$`', null) === false) {
+                $errors['filenamesgroup'] = get_string('badfilenamesregex', 'qtype_coderunner');
             }
         }
 
@@ -841,25 +849,6 @@ class qtype_coderunner_edit_form extends question_edit_form {
         asort($languages);
         return array($languages, $types);
     }
-
-    // Validate file types list. Return an error message if invalid, else
-    // an empty string.
-    private function validate_file_types($types) {
-        $error = '';
-        $types = str_replace(' ', '', $types);
-        if ($types !== '') {
-            $typelist = explode(",", $types);
-            foreach ($typelist as $type) {
-                if (preg_match('/^\.?([a-z]+)|(\*)|(c\+\+)|(c\#)$/', strtolower($type)) !== 1) {
-                    $error = get_string('invalidfiletypes', 'qtype_coderunner');
-                    break;
-                }
-            }
-        }
-        return $error;
-
-    }
-
 
     // Validate the test cases.
     private function validate_test_cases($data) {
