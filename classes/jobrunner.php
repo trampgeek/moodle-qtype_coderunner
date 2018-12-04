@@ -64,6 +64,7 @@ class qtype_coderunner_jobrunner {
         $this->grader = $question->get_grader();
         $this->sandbox = $question->get_sandbox();
         $this->files = array_merge($attachments, $question->get_files());
+        $attachedfilenames = implode(',', array_keys($attachments));
         $this->sandboxparams = $question->get_sandbox_params();
         $this->language = $question->get_language();
 
@@ -73,7 +74,8 @@ class qtype_coderunner_jobrunner {
             'ESCAPED_STUDENT_ANSWER' => qtype_coderunner_escapers::python(null, $code, null), // LEGACY SUPPORT.
             'MATLAB_ESCAPED_STUDENT_ANSWER' => qtype_coderunner_escapers::matlab(null, $code, null), // LEGACY SUPPORT.
             'IS_PRECHECK' => $isprecheck ? "1" : "0",
-            'ANSWER_LANGUAGE' => $answerlanguage
+            'ANSWER_LANGUAGE' => $answerlanguage,
+            'ATTACHMENTS' => $attachedfilenames
          );
 
         if ($question->get_is_combinator() and
