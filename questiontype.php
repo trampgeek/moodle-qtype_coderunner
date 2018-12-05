@@ -142,7 +142,8 @@ class qtype_coderunner extends question_type {
             'attachments',
             'attachmentsrequired',
             'maxfilesize',
-            'filetypeslist'
+            'filenamesregex',
+            'filenamesexplain'
             );
     }
 
@@ -282,11 +283,16 @@ class qtype_coderunner extends question_type {
             }
         }
 
-        // Lastly, save any datafiles.
-        if ($USER->id && isset($question->datafiles)) {
+        // Lastly, save any datafiles (support files + sample answer files).
+        if ($USER->id) {
             // The id check is a hack to deal with phpunit initialisation, when no user exists.
-            file_save_draft_area_files($question->datafiles, $question->context->id,
-                'qtype_coderunner', 'datafile', (int) $question->id, $this->fileoptions);
+            foreach (array('datafiles'=>'datafile', 'sampleanswerattachments'=>'samplefile')
+                    as $fileset=>$filearea) {
+                if (isset($question->$fileset)) {
+                    file_save_draft_area_files($question->$fileset, $question->context->id,
+                        'qtype_coderunner', $filearea, (int) $question->id, $this->fileoptions);
+                }
+            }
         }
 
         return true;

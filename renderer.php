@@ -482,8 +482,6 @@ class qtype_coderunner_renderer extends qtype_renderer {
         $pickeroptions->mainfile = null;
         $pickeroptions->maxfiles = $numallowed;
         $pickeroptions->maxbytes = intval($question->maxfilesize);
-        $pickeroptions->itemid = $qa->prepare_response_files_draft_itemid(
-                'attachments', $options->context->id);
         $pickeroptions->context = $options->context;
         $pickeroptions->return_types = FILE_INTERNAL | FILE_CONTROLLED_LINK;
         $pickeroptions->accepted_types = '*';  // Accept anything - names checked on upload
@@ -495,7 +493,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
         $text = '';
         if (!empty($question->filenamesexplain)) {
-                $text = html_writer::tag('p', get_string('allowedfilenames', 'qtype_coderunner')
+                $text = html_writer::tag('p', get_string('allowedfiles', 'qtype_coderunner')
                         . ': ' . $question->filenamesexplain);
         } else if (!empty($question->filenamesregex)) {
             $text = html_writer::tag('p', get_string('allowedfilenamesregex', 'qtype_coderunner')

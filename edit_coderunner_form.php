@@ -179,6 +179,14 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->addElement('textarea', 'answer',
                 get_string('answer', 'qtype_coderunner'),
                 array('rows' => 9, 'class' => 'answer edit_code'));
+        // Add a file attachment upload panel (disabled if attachments not allowed)
+        $options = $this->fileoptions;
+        $options['subdirs'] = false;
+        $mform->addElement('filemanager', 'sampleanswerattachments',
+                get_string('sampleanswerattachments', 'qtype_coderunner'), null,
+                $options);
+        $mform->addHelpButton('sampleanswerattachments', 'sampleanswerattachments', 'qtype_coderunner');
+        $mform->hideIf('sampleanswerattachments', 'attachments', 'eq', 0);
         $mform->addElement('advcheckbox', 'validateonsave', null,
                 get_string('validateonsave', 'qtype_coderunner'));
         $mform->setDefault('validateonsave', false);
@@ -382,15 +390,18 @@ class qtype_coderunner_edit_form extends question_edit_form {
             $question->penaltyregime = get_config('qtype_coderunner', 'default_penalty_regime');
         }
 
-        $draftid = file_get_submitted_draft_itemid('datafiles');
-        $options = $this->fileoptions;
-        $options['subdirs'] = false;
+        foreach (array('datafiles'=>'datafile', 'sampleanswerattachments'=>'samplefile')
+                as $fileset=>$filearea) {
+            $draftid = file_get_submitted_draft_itemid($fileset);
+            $options = $this->fileoptions;
+            $options['subdirs'] = false;
 
-        file_prepare_draft_area($draftid, $this->context->id,
-                'qtype_coderunner', 'datafile',
-                empty($question->id) ? null : (int) $question->id,
-                $options);
-        $question->datafiles = $draftid; // File manager needs this (and we need it when saving).
+            file_prepare_draft_area($draftid, $this->context->id,
+                    'qtype_coderunner', $filearea,
+                    empty($question->id) ? null : (int) $question->id,
+                    $options);
+            $question->$fileset = $draftid; // File manager needs this (and we need it when saving).
+        }
         return $question;
     }
 
@@ -985,6 +996,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
     private function make_question_from_form_data($data) {
         // Construct a question object containing all the fields from $data.
+        // Used in data pre-processing and when validating a question.
         global $DB;
         $question = new qtype_coderunner_question();
         foreach ($data as $key => $value) {
@@ -996,7 +1008,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
             }
         }
         $question->isnew = true;
-        $question->filemanagerdraftid = $this->get_file_manager();
+        $question->supportfilemanagerdraftid = $this->get_file_manager('datafiles');
 
         // Clean the question object, get inherited fields and run the sample answer.
         $qtype = new qtype_coderunner();
@@ -1012,15 +1024,16 @@ class qtype_coderunner_edit_form extends question_edit_form {
     }
 
     // Check the sample answer (if there is one)
-    // Return an empty string if there is no sample answer or if the sample
-    // answer passes all the tests.
+    // Return an empty string if there is no sample answer and no attachments,
+    // or if the sample answer passes all the tests.
     // Otherwise return a suitable error message for display in the form.
     private function validate_sample_answer($data) {
 
-        if (trim($data['answer']) === '') {
+        $attachments_saver = $this->get_sample_answer_file_saver();
+        $files = $attachments_saver ? $attachments_saver->get_files() : array();
+        if (trim($data['answer']) === '' && count($files) == 0) {
             return '';
         }
-
         // Check if it's a multilanguage question; if so need to determine
         // what language (either the default or the first).
         $acelangs = trim($data['acelang']);
@@ -1038,6 +1051,9 @@ class qtype_coderunner_edit_form extends question_edit_form {
             if (!empty($defaultlang)) {
                 $response['language'] = $defaultlang;
             }
+            if ($attachments_saver) {
+                $response['attachments'] = $attachments_saver;
+            }
             list($mark, $state, $cachedata) = $question->grade_response($response);
         } catch (Exception $e) {
             return $e->getMessage();
@@ -1054,14 +1070,26 @@ class qtype_coderunner_edit_form extends question_edit_form {
     }
 
 
-    // Find the filemanager element draftid.
-    private function get_file_manager() {
+    // Return a file saver for the sample answer filemanager, if present.
+    private function get_sample_answer_file_saver() {
+        $sampleanswerdraftid = $this->get_file_manager('sampleanswerattachments');
+        $saver = null;
+        if ($sampleanswerdraftid) {
+            $saver = new question_file_saver($sampleanswerdraftid, 'qtype_coderunner', 'draft');
+        }
+        return $saver;
+    }
+
+
+    // Find the id of the filemanager element draftid with the given name.
+    private function get_file_manager($filemanagername) {
         $mform = $this->_form;
         $draftid = null;
         foreach ($mform->_elements as $element) {
-            if ($element->_type == 'filemanager') {
+            if ($element->_type == 'filemanager'
+                    && $element->_attributes['name'] === $filemanagername) {
                 $draftid = (int)$element->getValue();
-                break;
+                //break;
             }
         }
         return $draftid;

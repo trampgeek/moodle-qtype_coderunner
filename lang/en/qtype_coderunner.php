@@ -35,6 +35,7 @@ The per-test-case marks can be specified only if the all-or-nothing checkbox is 
 
 If using a template grader that awards part marks to test cases, \'All-or-nothing\' should generally be unchecked.';
 $string['allowattachments'] = 'Allow attachments';
+$string['allowedfiles'] = 'Allowed files';
 $string['allowedfilenames'] = 'Allowed file names';
 $string['allowedfilenamesregex'] = 'Allowed file names (regular expression)';
 $string['allowedfilenames_help'] = 'All uploaded file names must match the given PHP (Perl) regular expression, if non empty. For example, use \'.+\\\\.cpp\' to allow any C++ file or \'(?!Prog)\\\\.java\' to allow any Java file except \'Prog.java\'. The Description is a text message shown to the student to explain what file(s) are expected. Leave empty to display the regular expression itself. Leave both empty to allow any file to be uploaded.';
@@ -116,7 +117,7 @@ $string['customisationcontrols'] = 'Customisation';
 $string['customise'] = 'Customise';
 $string['customisation'] = 'Customisation';
 
-$string['datafiles'] = 'Run-time data';
+$string['datafiles'] = 'Support files';
 $string['datafiles_help'] = 'Any files uploaded here will be added to the working directory when the expanded template program is executed. This allows large data or support files to be conveniently added.';
 $string['default_penalty_regime'] = 'Default penalty regime';
 $string['default_penalty_regime_desc'] = 'The default penalty regime to apply to new questions, consisting of a comma separated list of penalty percentages, optionally ending in ", ..." to signify an on-going arithmetic progression.';
@@ -860,6 +861,8 @@ $string['resultstring-outputlimit'] = 'Excessive output';
 $string['resultstring-abnormaltermination'] = 'Abnormal termination';
 $string['run_failed'] = 'Failed to run tests';
 
+$string['sampleanswerattachments'] = 'Sample answer attachments';
+$string['sampleanswerattachments_help'] = 'If the sample answer needs attachments files, upload them here';
 $string['sandboxcontrols'] = 'Sandbox';
 $string['sandboxcontrols_help'] = '
 Select what sandbox to use for running the student submissions.

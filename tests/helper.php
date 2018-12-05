@@ -107,7 +107,12 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $qdata->options->validateonsave = 0;
         // Ignore a bunch because they default to null.
         $qdata->options->uiplugin = 'None';
-        $qdata->testcases = self::make_test_cases($testcases);
+        $qdata->options->attachments = 0;
+        $qdata->options->attachmentsrequired = 0;
+        $qdata->options->maxfilesize = 0;
+        $qdata->options->filenamesregex = '';
+        $qdata->options->filenamesexplain = '';
+        $qdata->options->testcases = self::make_test_cases($testcases);
 
         return $qdata;
     }
@@ -157,6 +162,11 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $form->memlimitmb = '';
         $form->customise = 1;
         $form->uiplugin = 'None';
+        $form->attachments = 0;
+        $form->attachmentsrequired = 0;
+        $form->maxfilesize = 0;
+        $form->filenamesregex = '';
+        $form->filenamesexplain = '';
         return $form;
     }
 
@@ -1132,6 +1142,11 @@ EOPROG;
         $coderunner->options = array();
         $coderunner->isnew = true;  // Extra field normally added by save_question.
         $coderunner->context = context_system::instance(); // Use system context for testing.
+        $coderunner->attachments = 0;
+        $coderunner->attachmentsrequired = 0;
+        $coderunner->maxfilesize = 0;
+        $coderunner->filenamesregex = '';
+        $coderunner->filenamesexplain = '';
         foreach ($otheroptions as $key => $value) {
             $coderunner->$key = $value;
             $coderunner->options[$key] = $value;
