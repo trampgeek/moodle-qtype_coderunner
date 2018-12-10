@@ -114,7 +114,8 @@ class qtype_coderunner extends question_type {
             'attachmentsrequired',
             'maxfilesize',
             'filenamesregex',
-            'filenamesexplain'
+            'filenamesexplain',
+            'displayfeedback'
         );
     }
 
@@ -143,7 +144,8 @@ class qtype_coderunner extends question_type {
             'attachmentsrequired',
             'maxfilesize',
             'filenamesregex',
-            'filenamesexplain'
+            'filenamesexplain',
+            'displayfeedback'
             );
     }
 

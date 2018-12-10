@@ -190,6 +190,31 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
 
     /**
+     * Override the base class method to allow CodeRunner questions to force
+     * specific feedback to be displayed or hidden regardless of the quiz
+     * review options.
+     *
+     * @param question_attempt $qa the question attempt to display.
+     * @param question_display_options $options controls what should and should not be displayed.
+     * @return string HTML fragment.
+     */
+    public function feedback(question_attempt $qa, question_display_options $options) {
+        $optionsclone = clone($options);
+        $q = $qa->get_question();
+        $feedbackdisplay = $q->display_feedback();
+        if ($feedbackdisplay !== constants::FEEDBACK_USE_DEFAULT && !empty($qa->get_last_qt_var('_testoutcome'))) {
+            if ($feedbackdisplay === CONSTANTS::FEEDBACK_SHOW) {
+                $optionsclone->feedback = 1;
+            } else if ($feedbackdisplay === CONSTANTS::FEEDBACK_HIDE) {
+                $optionsclone->feedback = 0;
+            } else {
+                debugging("Invalid value of feedbackdisplay: $feedbackdisplay");
+            }
+        }
+        return parent::feedback($qa, $optionsclone);
+    }
+
+    /**
      * Generate the specific feedback. This is feedback that varies according to
      * the response the student gave.
      * @param question_attempt $qa the question attempt to display.

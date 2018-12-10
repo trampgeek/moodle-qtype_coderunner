@@ -594,7 +594,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 $answerboxelements, null, false);
         $mform->addHelpButton('answerbox_group', 'answerbox_group', 'qtype_coderunner');
 
-        // Precheck control (currently a group with only one element).
+        // Precheck control (a group with only one element).
         $precheckelements = array();
         $precheckvalues = array(
             constants::PRECHECK_DISABLED => get_string('precheck_disabled', 'qtype_coderunner'),
@@ -607,6 +607,21 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->addElement('group', 'coderunner_precheck_group',
                 get_string('precheck', 'qtype_coderunner'), $precheckelements, null, false);
         $mform->addHelpButton('coderunner_precheck_group', 'precheck', 'qtype_coderunner');
+
+        // Feedback control (a group with only one element).
+        $feedbackelements = array();
+        $feedbackvalues = array(
+            constants::FEEDBACK_USE_DEFAULT => get_string('feedback_default', 'qtype_coderunner'),
+            constants::FEEDBACK_SHOW    => get_string('feedback_show', 'qtype_coderunner'),
+            constants::FEEDBACK_HIDE => get_string('feedback_hide', 'qtype_coderunner'),
+        );
+
+        $feedbackelements[] = $mform->createElement('select', 'displayfeedback', null, $feedbackvalues);
+        $mform->addElement('group', 'coderunner_feedback_group',
+                get_string('feedback', 'qtype_coderunner'), $feedbackelements, null, false);
+        $mform->addHelpButton('coderunner_feedback_group', 'feedback', 'qtype_coderunner');
+        $mform->setDefault('displayfeedback', constants::FEEDBACK_SHOW);
+        $mform->setType('displayfeedback', PARAM_INT);
 
         // Marking controls.
         $markingelements = array();

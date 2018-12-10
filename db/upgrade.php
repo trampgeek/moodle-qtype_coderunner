@@ -288,6 +288,18 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2018120500, 'qtype', 'coderunner');
     }
 
+    if ($oldversion < 2018121002) {
+        // Define field displayfeedback to control display of result table
+        $table = new xmldb_table('question_coderunner_options');
+        $field = new xmldb_field('displayfeedback', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '1', 'filenamesregex');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Coderunner savepoint reached.
+        upgrade_plugin_savepoint(true, 2018121002, 'qtype', 'coderunner');
+    }
+
     require_once(__DIR__ . '/upgradelib.php');
     update_question_types();
 
