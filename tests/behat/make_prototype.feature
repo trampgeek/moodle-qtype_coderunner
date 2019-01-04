@@ -19,10 +19,10 @@ Feature: make_prototype
       | Course       | C1        | Top              | Behat Testing |
     And I log in as "teacher1"
     And I am on "Course 1" course homepage
-    And I navigate to "Question bank" node in "Course administration"
+    And I navigate to "Question bank" in current page administration
     And I press "Create a new question ..."
-    And I click on "input#item_qtype_coderunner" "css_element" 
-    And I press "Add"
+    And I click on "input#item_qtype_coderunner" "css_element"
+    And I press "submitbutton"
     And I set the field "id_coderunnertype" to "python3"
     And I set the field "name" to "PROTOTYPE_test_prototype"
     And I set the field "id_questiontext" to "Dummy question text"

@@ -16,7 +16,7 @@ Feature: Create a CodeRunner question (the sqr function example)
       | teacher1 | C1     | editingteacher |
     And I log in as "teacher1"
     And I am on "Course 1" course homepage
-    And I navigate to "Question bank" node in "Course administration"
+    And I navigate to "Question bank" in current page administration
 
   Scenario: As a teacher, I create a Python3 sqr(n) -> n**2 function CodeRunner question
     When I disable UI plugins
@@ -33,7 +33,7 @@ Feature: Create a CodeRunner question (the sqr function example)
       | id_expected_1     | 120                     |
     Then I should see "Failed 1 test(s)"
     And I should see "Click on the << button to replace the expected output of this testcase with actual output."
-    
+
     When I press "<<"
     And I press "id_submitbutton"
     Then I should not see "Save changes"

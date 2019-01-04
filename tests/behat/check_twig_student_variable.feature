@@ -19,7 +19,7 @@ Background:
       | Course       | C1        | Test questions |
     And I log in as "teacher1"
     And I am on "Course 1" course homepage
-    And I navigate to "Question bank" node in "Course administration"
+    And I navigate to "Question bank" in current page administration
     And I disable UI plugins
     And I add a "CodeRunner" question filling the form with:
       | id_coderunnertype       | python3                                    |
@@ -32,7 +32,7 @@ Background:
       | id_iscombinatortemplate | 0                                          |
       | id_testcode_0           | # This isn't used                          |
       | id_expected_0           | True                                       |
-    
+
   Scenario: Preview the STUDENT variable function question and check it is marked right in CodeRunner
     When I click on "Preview" "link" in the "STUDENT variable" "table_row"
     And I switch to "questionpreview" window

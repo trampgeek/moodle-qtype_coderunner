@@ -19,7 +19,7 @@ Feature: Import CodeRunner questions
 
   @javascript @_file_upload
   Scenario: Import questions exported from CodeRunner V2.
-    When I navigate to "Import" node in "Course administration > Question bank"
+    When I navigate to "Question bank > Import" in current page administration
     And I set the field "id_format_xml" to "1"
     And I upload "question/type/coderunner/tests/fixtures/simpledemoquestions.V2.xml" file to "Import" filemanager
     And I press "id_submitbutton"
@@ -32,7 +32,7 @@ Feature: Import CodeRunner questions
 
   @javascript @_file_upload
   Scenario: Import CodeRunner questions exported from V3
-    When I navigate to "Import" node in "Course administration > Question bank"
+    When I navigate to "Question bank > Import" in current page administration
     And I set the field "id_format_xml" to "1"
     And I upload "question/type/coderunner/samples/simpledemoquestions.xml" file to "Import" filemanager
     And I press "id_submitbutton"
