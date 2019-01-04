@@ -18,22 +18,42 @@ Feature: Test editing and using attachments to a CodeRunner question
       | contextlevel | reference | name           |
       | Course       | C1        | Test questions |
     And the following "questions" exist:
-      | questioncategory | qtype      | name            | template |
-      | Test questions   | coderunner | Square function | sqr      |
+      | questioncategory | qtype      | name            |
+      | Test questions   | coderunner | Square function |
     And I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I navigate to "Question bank" in current page administration
-
-  Scenario: Require 1 attachment on a CodeRunner question
-    When I click on "Edit" "link" in the "Square function" "table_row"
-    Then I should not see "Sample answer attachments"
+    And I click on "Edit" "link" in the "Square function" "table_row"
     And I click on "a[aria-controls='id_attachmentoptions']" "css_element"
-    And I set the following fields to these values:
-      | attachments         | 2      |
-      | attachmentsrequired | 1      |
-      | filenamesregex      | .*\.py |
-      | maxfilesize         | 100 kB |
-      | validateonsave      | 1      |
-    Then I should see "Sample answer attachments"
+    And I set the field "Answer" to "from sqrmodule import sqr"
+    And I set the field "Validate on save" to "1"
+    And I set the field "Allow attachments" to "1"
+    And I set the field "Require attachments" to "1"
+    And I set the field "filenamesregex" to "sqrmodulexx.py"
     And I press "id_submitbutton"
     Then I should see "Not enough attachments, 1 required."
+    When I upload "question/type/coderunner/tests/fixtures/sqrmodule.py" file to "Sample answer attachments" filemanager
+    And I press "id_submitbutton"
+    Then I should see "Disallowed file name or names (sqrmodule.py)"
+    When I set the field "filenamesregex" to "sqr[xm]odu.e.p.+"
+    # The above line tests with a simple regular expression that sqrmodule.py is accepted
+    And I press "id_submitbutton"
+    Then I should see "Question bank"
+    And I should see "Last modified by"
+
+@javascript @file_attachments
+Scenario: As a teacher I can preview my question but get an error without attachment.
+    When I click on "Preview" "link" in the "Square function" "table_row"
+    And I switch to "questionpreview" window
+    And I set the field "Answer" to "from sqrmodule import sqr"
+    And I press "Check"
+    Then I should see "Not enough attachments, 1 required."
+
+@javascript @file_attachments
+Scenario: As a teacher I can preview my question and get it right with an attachment
+    When I click on "Preview" "link" in the "Square function" "table_row"
+    And I switch to "questionpreview" window
+    And I upload "question/type/coderunner/tests/fixtures/sqrmodule.py" file to "" filemanager
+    And I set the field "Answer" to "from sqrmodule import sqr"
+    And I press "Check"
+    Then I should see "Passed all tests"
