@@ -1100,7 +1100,7 @@ print(SEPARATOR)
 <!-- question: 21117  -->
   <question type="coderunner">
     <name>
-      <text>BULT_IN_PROTOTYPE_multilanguage</text>
+      <text>BUILT_IN_PROTOTYPE_multilanguage</text>
     </name>
     <questiontext format="html">
       <text><![CDATA[<p>Built-in prototypes are documented in the language strings.<br></p>]]></text>
