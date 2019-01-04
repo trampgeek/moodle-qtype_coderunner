@@ -384,6 +384,7 @@ class qtype_coderunner_bulk_tester {
      * @param int $questionid the id of the question to be tested
      * @return array with 2 elements: the status (one of pass, fail, missinganswer
      *  or exception) and a string message describing the outcome.
+     * TODO: extend to handle questions that have sample answer attachments.
      */
     private function load_and_test_question($questionid) {
         try {
