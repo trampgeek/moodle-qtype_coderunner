@@ -167,7 +167,9 @@ class qtype_coderunner_renderer extends qtype_renderer {
             } else {
                 $files = $this->files_read_only($qa, $options);
             }
-            $qtext .= html_writer::tag('div', $files, array('class' => 'attachments'));
+            $qtext .= html_writer::tag('div', $files,
+                    array('class' => 'form-filemanager', 'data-fieldtype' => 'filemanager'));
+            // class and data-fieldtype are so behat can find the filemanager in both boost and clean themes.
         }
 
         // Initialise any JavaScript UI. Default is Ace unless uiplugin is explicitly
