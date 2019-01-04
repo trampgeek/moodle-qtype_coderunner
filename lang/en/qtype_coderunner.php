@@ -299,19 +299,19 @@ Multi-language questions, that is questions that students can answer in
 more than language, are enabled by setting the Ace-language to a comma-separated
 list of languages. Students are then presented with a drop-down menu to select
 the language in which their answer is written. If exactly one of the languages
-has an asterisk (\'*\') prepended, that language is chosen as the default language,
+has an asterisk (\'\*\') appended, that language is chosen as the default language,
 which is selected as the initial state of the drop-down menu. For example,
-an Ace-language value of "C,C++,Java*,Python3" would allow student to submit in
+an Ace-language value of "C,C++,Java\*,Python3" would allow student to submit in
 C, C++, Java or Python3 but the drop-down menu would initially show Java which
 would be the default. If no default is specified the
 initial state of the drop-down is empty and the student must choose a language.
-Multilanguage questions require a special template that uses the {{LANGUAGE}}
+Multilanguage questions require a special template that uses the {{ANSWER\_LANGUAGE}}
 template variable to control how to execute the student code. See the built-in
-sample multilanguage question type. The {{LANGUAGE}} variable is defined
+sample multilanguage question type. The {{ANSWER\_LANGUAGE}} variable is defined
 <i>only</i> for multilanguage questions.
 
 If the author wishes to supply a sample answer to a multilanguage question,
-they must write it in either the default language, if specified, or the
+they must write it in the default language, if specified, or the
 first of the allowed languages otherwise.';
 
 $string['languageselectlabel'] = 'Language';
