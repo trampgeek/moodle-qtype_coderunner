@@ -783,10 +783,19 @@ class qtype_coderunner extends question_type {
             }
         }
 
+        // Import any support files
         $datafiles = $format->getpath($data,
                 array('#', 'testcases', 0, '#', 'file'), array());
         if (is_array($datafiles)) { // Seems like a non-array does occur in some versions of PHP!
             $qo->datafiles = $format->import_files_as_draft($datafiles);
+        }
+
+        // Import any sample answer attachments
+        if (isset($data['#']['answerfiles'])) {
+            $samplefiles = $format->getpath($data, array('#', 'answerfiles', 0, '#', 'file'), array());
+            if (is_array($samplefiles)) {
+                $qo->sampleanswerattachments = $format->import_files_as_draft($samplefiles);
+            }
         }
 
         return $qo;
@@ -859,6 +868,18 @@ class qtype_coderunner extends question_type {
         $expout .= $format->write_files($datafiles);
 
         $expout .= "    </testcases>\n";
+
+        // If there are any sample answer attachments, add them in a new
+        // <answerfiles> element.
+        $sampleanswerfiles = $fs->get_area_files(
+                $contextid, 'qtype_coderunner', 'samplefile', $question->id);
+        if (count($sampleanswerfiles) > 0) {
+            $expout .= "    <answerfiles>\n";
+            $expout .= $format->write_files($sampleanswerfiles);
+            $expout .= "    </answerfiles>\n";
+        }
+
+
         return $expout;
     }
 
