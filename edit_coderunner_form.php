@@ -141,10 +141,12 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 get_string('filenamesregex', 'qtype_coderunner'));
         $mform->disabledIf('filenamesregex', 'attachments', 'eq', 0);
         $mform->setType('filenamesregex', PARAM_RAW);
+        $mform->setDefault('filenamesregex', '');
         $filenamecontrols[] = $mform->createElement('text', 'filenamesexplain',
                 get_string('filenamesexplain', 'qtype_coderunner'));
         $mform->disabledIf('filenamesexplain', 'attachments', 'eq', 0);
         $mform->setType('filenamesexplain', PARAM_RAW);
+        $mform->setDefault('filenamesexplain', '');
         $mform->addElement('group', 'filenamesgroup',
                 get_string('allowedfilenames', 'qtype_coderunner'), $filenamecontrols, null, false);
         $mform->addHelpButton('filenamesgroup', 'allowedfilenames', 'qtype_coderunner');
@@ -173,6 +175,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
      * @param object $mform the form being built
      */
     protected function add_sample_answer_field($mform) {
+        global $CFG;
         $mform->addElement('header', 'answerhdr',
                     get_string('answer', 'qtype_coderunner'), '');
         $mform->setExpanded('answerhdr', 1);
@@ -186,7 +189,11 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 get_string('sampleanswerattachments', 'qtype_coderunner'), null,
                 $options);
         $mform->addHelpButton('sampleanswerattachments', 'sampleanswerattachments', 'qtype_coderunner');
-        $mform->hideIf('sampleanswerattachments', 'attachments', 'eq', 0);
+        // Unless behat is running, hide the attachments file picker.
+        // behat barfs if it's hidden.
+        if ($CFG->prefix !== "b_") {
+            $mform->hideIf('sampleanswerattachments', 'attachments', 'eq', 0);
+        }
         $mform->addElement('advcheckbox', 'validateonsave', null,
                 get_string('validateonsave', 'qtype_coderunner'));
         $mform->setDefault('validateonsave', false);
@@ -1068,6 +1075,10 @@ class qtype_coderunner_edit_form extends question_edit_form {
             }
             if ($attachments_saver) {
                 $response['attachments'] = $attachments_saver;
+            }
+            $error = $question->validate_response($response);
+            if ($error) {
+                return $error;
             }
             list($mark, $state, $cachedata) = $question->grade_response($response);
         } catch (Exception $e) {
