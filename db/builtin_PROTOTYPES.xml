@@ -341,10 +341,10 @@ print(SEPARATOR)
     <resultcolumns></resultcolumns>
     <template>{{ STUDENT_ANSWER | replace({'public class ': 'class '}) }}
 
-public class __Tester__ {
+public class __tester__ {
 
     public static void main(String[] args) {
-        __Tester__ main = new __Tester__();
+        __tester__ main = new __tester__();
         main.runTests();
     }
 
@@ -398,12 +398,12 @@ public class __Tester__ {
     <answerpreload></answerpreload>
     <useace>1</useace>
     <resultcolumns></resultcolumns>
-    <template><![CDATA[public class Main {
+    <template><![CDATA[public class __tester__ {
     static String SEPARATOR = "#<ab@17943918#@>#";
     {{ STUDENT_ANSWER }}
 
     public static void main(String[] args) {
-        Main main = new Main();
+        __tester__ main = new __tester__
         main.runTests();
     }
 
@@ -1145,7 +1145,7 @@ if language == 'java':
     classname = match.group(1)
     filename = classname + '.java'
 else:
-    filename = 'prog.' + language_extension_map[language]
+    filename = '__tester__.' + language_extension_map[language]
 
 # Write the student code to a file
 
@@ -1155,23 +1155,23 @@ with open(filename, "w") as src:
 # Compile C, C++ and Java
 if language == 'c':
     cflags = "-std=c99 -Wall -Werror"
-    return_code = subprocess.call("gcc {0} -o prog prog.c".format(cflags).split())
+    return_code = subprocess.call("gcc {0} -o __tester__ __tester__".format(cflags).split())
     if return_code != 0:
         raise Exception("** Compilation failed. Testing aborted **")
-    exec_command = ["./prog"]
+    exec_command = ["./__tester__"]
 elif language == 'cpp':
     cppflags = "-Wall -Werror"
-    return_code = subprocess.call("g++ {0} -o prog prog.cpp".format(cppflags).split())
+    return_code = subprocess.call("g++ {0} -o __tester__ __tester__".format(cppflags).split())
     if return_code != 0:
         raise Exception("** Compilation failed. Testing aborted **")
-    exec_command = ["./prog"]
+    exec_command = ["./__tester__"]
 elif language == 'java':
     return_code = subprocess.call(['javac', filename])
     if return_code != 0:
         raise Exception("** Compilation failed. Testing aborted **")
     exec_command = ["java", classname]
 else: # Python doesn't need a compile phase
-    exec_command = ["python3", "./prog.py"]
+    exec_command = ["python3", "./__tester__.py"]
 
 # Now run the code. Since this is a per-test template,
 # stdin is already set up for the stdin text specified in the test case,
