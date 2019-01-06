@@ -136,7 +136,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
             }
         }
 
-        $progname = "prog.$language";
+        $progname = "__tester__.$language";
 
         $runspec = array(
                 'language_id'       => $language,
