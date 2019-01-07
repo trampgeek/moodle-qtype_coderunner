@@ -403,7 +403,7 @@ public class __tester__ {
     {{ STUDENT_ANSWER }}
 
     public static void main(String[] args) {
-        __tester__ main = new __tester__
+        __tester__ main = new __tester__();
         main.runTests();
     }
 
