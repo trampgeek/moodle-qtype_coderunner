@@ -149,17 +149,16 @@ class qtype_coderunner_question extends question_graded_automatically {
         $hasattachments = array_key_exists('attachments', $response)
             && $response['attachments'] instanceof question_response_files;
         if ($hasattachments) {
-            $files = $response['attachments']->get_files();
-            $attachcount = count($files);
+            $attachmentfiles = $response['attachments']->get_files();
+            $attachcount = count($attachmentfiles);
             // Check the filetypes.
             $invalidfiles = array();
-            if (!empty($this->filenamesregex)) {
-                foreach ($files as $file) {
-                    $filename = $file->get_filename();
-                    if (!ctype_alnum(str_replace(array('-', '_', '.'), '', $filename)) ||
-                        preg_match('`^' . $this->filenamesregex . '$`', $filename) !== 1) {
-                        $invalidfiles[] = $filename;
-                    }
+            $regex = $this->filenamesregex;
+            $supportfiles = $this->get_files();
+            foreach ($attachmentfiles as $file) {
+                $filename = $file->get_filename();
+                if (!$this->is_valid_filename($filename, $regex, $supportfiles)) {
+                    $invalidfiles[] = $filename;
                 }
             }
 
@@ -186,6 +185,27 @@ class qtype_coderunner_question extends question_graded_automatically {
         return '';  // All good
     }
 
+    // Return true iff the given filename is valid, meaning it matches the
+    // regex (if given), contains only alphanumerics plus '-', '_' and '.',
+    // doesn't clash with any of the support files and doesn't
+    // start with double underscore..
+    private function is_valid_filename($filename, $regex, $supportfiles) {
+        if (strpos($filename, '__') === 0) {
+            return false;  // Dunder names are reserved for runtime task
+        }
+        if (!ctype_alnum(str_replace(array('-', '_', '.'), '', $filename))) {
+            return false;  // Filenames must be alphanumeric plus '.', '-', or '_'
+        }
+        if (!empty($regex) && preg_match('`^' . $this->filenamesregex . '$`', $filename) !== 1) {
+            return false;  // Filename doesn't match given regex
+        }
+        foreach ($supportfiles as $supportfile) {
+            if ($supportfile->get_filename() == $filename) {
+                return false;  // Filename collides with a support file name
+            }
+        }
+        return true;
+    }
 
     public function is_gradable_response(array $response) {
         // Determine if the given response has a non-empty answer and/or
