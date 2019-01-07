@@ -1122,7 +1122,7 @@ print(SEPARATOR)
     <answerpreload></answerpreload>
     <useace>1</useace>
     <resultcolumns></resultcolumns>
-    <template><![CDATA[""" The template for a "write a program" question type that accepts answers
+    <template><![CDATA["""The template for a "write a program" question type that accepts answers
     in C, C++, Java or Python3 according to the value in the language select
     dropdown menu.
 """
@@ -1166,10 +1166,10 @@ elif language == 'cpp':
         raise Exception("** Compilation failed. Testing aborted **")
     exec_command = ["./__tester__"]
 elif language == 'java':
-    return_code = subprocess.call(['javac', filename])
+    return_code = subprocess.call(['javac', "-J-Xss64m", "-J-Xmx4g", filename])
     if return_code != 0:
         raise Exception("** Compilation failed. Testing aborted **")
-    exec_command = ["java", classname]
+    exec_command = ["java", "-Xss16m", "-Xmx500m", classname]
 else: # Python doesn't need a compile phase
     exec_command = ["python3", "./__tester__.py"]
 
