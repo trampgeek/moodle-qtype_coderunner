@@ -1155,13 +1155,13 @@ with open(filename, "w") as src:
 # Compile C, C++ and Java
 if language == 'c':
     cflags = "-std=c99 -Wall -Werror"
-    return_code = subprocess.call("gcc {0} -o __tester__ __tester__".format(cflags).split())
+    return_code = subprocess.call("gcc {0} -o __tester__ __tester__.c".format(cflags).split())
     if return_code != 0:
         raise Exception("** Compilation failed. Testing aborted **")
     exec_command = ["./__tester__"]
 elif language == 'cpp':
     cppflags = "-Wall -Werror"
-    return_code = subprocess.call("g++ {0} -o __tester__ __tester__".format(cppflags).split())
+    return_code = subprocess.call("g++ {0} -o __tester__ __tester__.cpp".format(cppflags).split())
     if return_code != 0:
         raise Exception("** Compilation failed. Testing aborted **")
     exec_command = ["./__tester__"]
@@ -1202,8 +1202,8 @@ except subprocess.CalledProcessError as e:
     <sandbox></sandbox>
     <grader>EqualityGrader</grader>
     <cputimelimitsecs></cputimelimitsecs>
-    <memlimitmb>8000</memlimitmb>
-    <sandboxparams></sandboxparams>
+    <memlimitmb>16000</memlimitmb>
+    <sandboxparams>{"numprocs": 50}</sandboxparams>
     <templateparams></templateparams>
     <hoisttemplateparams>0</hoisttemplateparams>
     <twigall>0</twigall>
