@@ -34,7 +34,7 @@ Feature: Test editing and using attachments to a CodeRunner question
     Then I should see "Not enough attachments, 1 required."
     When I upload "question/type/coderunner/tests/fixtures/sqrmodule.py" file to "Sample answer attachments" filemanager
     And I press "id_submitbutton"
-    Then I should see "Disallowed file name or names (sqrmodule.py)"
+    Then I should see "Disallowed file name(s): sqrmodule.py"
     When I set the field "filenamesregex" to "sqr[xm]odu.e.p.+"
     # The above line tests with a simple regular expression that sqrmodule.py is accepted
     And I press "id_submitbutton"

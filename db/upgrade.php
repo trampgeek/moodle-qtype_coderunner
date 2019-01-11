@@ -273,12 +273,12 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
 
-        $field = new xmldb_field('filenamesregex', XMLDB_TYPE_TEXT, null, XMLDB_NOTNULL, null, null, null, 'maxfilesize');
+        $field = new xmldb_field('filenamesregex', XMLDB_TYPE_TEXT, null, null, null, null, null, 'maxfilesize');
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
 
-        $field = new xmldb_field('filenamesexplain', XMLDB_TYPE_TEXT, null, XMLDB_NOTNULL, null, null, null, 'filenamesregex');
+        $field = new xmldb_field('filenamesexplain', XMLDB_TYPE_TEXT, null, null, null, null, null, 'filenamesregex');
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
