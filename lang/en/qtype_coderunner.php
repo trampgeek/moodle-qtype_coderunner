@@ -35,6 +35,7 @@ The per-test-case marks can be specified only if the all-or-nothing checkbox is 
 
 If using a template grader that awards part marks to test cases, \'All-or-nothing\' should generally be unchecked.';
 $string['allowattachments'] = 'Allow attachments';
+$string['allowattachments_help'] = 'Whether to allow students to add attachments to their submissions and, if so, how many. Attachments are copied into the runtime working directory. Warning: allowing attachments could have performance or disk-space implications for the Moodle and Jobe servers with large classes and/or large attachments.';
 $string['allowedfiles'] = 'Allowed files';
 $string['allowedfilenames'] = 'Allowed file names';
 $string['allowedfilenamesregex'] = 'Allowed file names (regular expression)';
@@ -56,6 +57,7 @@ $string['answerpreload'] = 'Answer box preload';
 $string['answerpreload_help'] = 'Text supplied here will be preloaded into the student\'s answer box.';
 $string['asolutionis'] = 'Question author\'s solution:';
 $string['attachmentoptions'] = 'Attachment options';
+
 $string['attachmentsoptional'] = 'Attachments are optional';
 $string['attachmentsrequired'] = 'Require attachments';
 $string['attachmentsrequired_help'] = 'This option specifies the minimum number of attachments required for a response to be graded.';
@@ -338,7 +340,7 @@ Site administration > Plugins > Question types > CodeRunner.
 
 Set the penalty regime to \'0\' for zero penalties on all submissions.';
 $string['maxfilesize'] = 'Max allowed file size (bytes)';
-$string['maxfilesize_help'] = 'Select the maximum file upload size (bytes). Default 1 MB. Uploaded files are cached on the Jobe server for 48 hours. Allowed large file uploads with large classes can impact performance and Jobe file store space.';
+$string['maxfilesize_help'] = 'Select the maximum file upload size (bytes). Allowing large file uploads with large classes can impact performance and and disk space on both Moodle and Jobe servers.';
 $string['memorylimit'] = 'MemLimit (MB)';
 $string['missinganswers'] = 'missing answers';
 $string['missingoutput'] = 'You must supply the expected output from this test case.';

@@ -129,6 +129,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->addElement('select', 'attachments',
                 get_string('allowattachments', 'qtype_coderunner'), $qtype->attachment_options());
         $mform->setDefault('attachments', 0);
+        $mform->addHelpButton('attachments', 'allowattachments', 'qtype_coderunner');
 
         $mform->addElement('select', 'attachmentsrequired',
                 get_string('attachmentsrequired', 'qtype_coderunner'), $qtype->attachments_required_options());
@@ -153,8 +154,8 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
         $mform->addElement('select', 'maxfilesize',
                 get_string('maxfilesize', 'qtype_coderunner'), $qtype->attachment_filesize_max());
-        $mform->setDefault('maxfilesize', '1048576');
         $mform->addHelpButton('maxfilesize', 'maxfilesize', 'qtype_coderunner');
+                $mform->setDefault('maxfilesize', '10240');
         $mform->disabledIf('maxfilesize', 'attachments', 'eq', 0);
 
         // Add the option to attach runtime support files, all of which are
