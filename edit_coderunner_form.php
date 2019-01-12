@@ -618,7 +618,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         // Feedback control (a group with only one element).
         $feedbackelements = array();
         $feedbackvalues = array(
-            constants::FEEDBACK_USE_DEFAULT => get_string('feedback_default', 'qtype_coderunner'),
+            constants::FEEDBACK_USE_QUIZ => get_string('feedback_quiz', 'qtype_coderunner'),
             constants::FEEDBACK_SHOW    => get_string('feedback_show', 'qtype_coderunner'),
             constants::FEEDBACK_HIDE => get_string('feedback_hide', 'qtype_coderunner'),
         );

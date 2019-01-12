@@ -293,7 +293,7 @@ class qtype_coderunner_question extends question_graded_automatically {
      * @return bool USE_DEFAULT, FORCE_SHOW or FORCE_HIDE from constants class.
      */
     public function display_feedback() {
-        return isset($this->displayfeedback) ? intval($this->displayfeedback): constants::FEEDBACK_USE_DEFAULT;
+        return isset($this->displayfeedback) ? intval($this->displayfeedback): constants::FEEDBACK_USE_QUIZ;
     }
 
 

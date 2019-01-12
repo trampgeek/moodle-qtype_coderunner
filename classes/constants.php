@@ -40,7 +40,7 @@ class constants {
     const TESTTYPE_PRECHECK = 1;
     const TESTTYPE_BOTH = 2;
 
-    const FEEDBACK_USE_DEFAULT = 1;
+    const FEEDBACK_USE_QUIZ = 0;
     const FEEDBACK_SHOW = 1;
     const FEEDBACK_HIDE = 2;
 

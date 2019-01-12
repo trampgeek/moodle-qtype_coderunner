@@ -204,7 +204,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
         $optionsclone = clone($options);
         $q = $qa->get_question();
         $feedbackdisplay = $q->display_feedback();
-        if ($feedbackdisplay !== constants::FEEDBACK_USE_DEFAULT && !empty($qa->get_last_qt_var('_testoutcome'))) {
+        if ($feedbackdisplay !== constants::FEEDBACK_USE_QUIZ && !empty($qa->get_last_qt_var('_testoutcome'))) {
             if ($feedbackdisplay === CONSTANTS::FEEDBACK_SHOW) {
                 $optionsclone->feedback = 1;
             } else if ($feedbackdisplay === CONSTANTS::FEEDBACK_HIDE) {
