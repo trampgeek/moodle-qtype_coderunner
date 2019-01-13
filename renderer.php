@@ -210,7 +210,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
             } else if ($feedbackdisplay === CONSTANTS::FEEDBACK_HIDE) {
                 $optionsclone->feedback = 0;
             } else {
-                debugging("Invalid value of feedbackdisplay: $feedbackdisplay");
+                throw new coding_exception("Invalid value of feedbackdisplay: $feedbackdisplay");
             }
         }
         return parent::feedback($qa, $optionsclone);
