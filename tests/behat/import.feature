@@ -46,4 +46,4 @@ Feature: Import CodeRunner questions
     And I click on "Edit" "link" in the "Java Class: bod" "table_row"
     And I set the field "id_customise" to "1"
     And I set the field "id_useace" to "0"
-    And I should see "public class __Tester__ {" in the "id_template" "field"
+    And I should see "public class __tester__ {" in the "id_template" "field"
