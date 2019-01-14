@@ -242,14 +242,14 @@ class qtype_coderunner_question extends question_graded_automatically {
      * @return boolean
      */
     public function is_same_response(array $prevresponse, array $newresponse) {
-        $same_answer = question_utils::arrays_same_at_key_missing_is_blank(
+        $sameanswer = question_utils::arrays_same_at_key_missing_is_blank(
                         $prevresponse, $newresponse, 'answer') &&
                 question_utils::arrays_same_at_key_missing_is_blank(
                         $prevresponse, $newresponse, 'language');
-        $same_attachments = $this->attachments == 0 ||
-                question_utils::arrays_same_at_key_missing_is_blank(
-                $prevresponse, $newresponse, 'attachments');
-        return $same_answer && $same_attachments;
+        $attachments1 = $this->get_attached_files($prevresponse);
+        $attachments2 = $this->get_attached_files($newresponse);
+        $sameattachments = $attachments1 === $attachments2;
+        return $sameanswer && $sameattachments;
     }
 
 
@@ -333,13 +333,7 @@ class qtype_coderunner_question extends question_graded_automatically {
             // from the response. The attachments is an array with keys being
             // filenames and values being file contents.
             $code = $response['answer'];
-            $attachments = array();
-            if (array_key_exists('attachments', $response)) {
-                $files = $response['attachments']->get_files();
-                foreach ($files as $file) {
-                    $attachments[$file->get_filename()] = $file->get_content();
-                }
-            }
+            $attachments = $this->get_attached_files($response);
             $testcases = $this->filter_testcases($isprecheck, $this->precheck);
             $runner = new qtype_coderunner_jobrunner();
             $testoutcome = $runner->run_tests($this, $code, $attachments, $testcases, $isprecheck, $language);
@@ -359,6 +353,20 @@ class qtype_coderunner_question extends question_graded_automatically {
             return array($testoutcome->mark_as_fraction(),
                     question_state::$gradedpartial, $datatocache);
         }
+    }
+
+
+    // Return a map from filename to file contents for all the attached files
+    //in the given response.
+    private function get_attached_files($response) {
+        $attachments = array();
+        if (array_key_exists('attachments', $response)) {
+            $files = $response['attachments']->get_files();
+            foreach ($files as $file) {
+                $attachments[$file->get_filename()] = $file->get_content();
+            }
+        }
+        return $attachments;
     }
 
 
