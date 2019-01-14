@@ -56,7 +56,7 @@ $string['answerbox_group_help'] = 'Set the number of rows to allocate for the an
 $string['answerpreload'] = 'Answer box preload';
 $string['answerpreload_help'] = 'Text supplied here will be preloaded into the student\'s answer box.';
 $string['asolutionis'] = 'Question author\'s solution:';
-$string['attachmentoptions'] = 'Attachment options';
+$string['attachmentoptions'] = 'Attachment options (experimental)';
 
 $string['attachmentsoptional'] = 'Attachments are optional';
 $string['attachmentsrequired'] = 'Require attachments';
