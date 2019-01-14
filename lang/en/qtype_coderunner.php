@@ -35,7 +35,7 @@ The per-test-case marks can be specified only if the all-or-nothing checkbox is 
 
 If using a template grader that awards part marks to test cases, \'All-or-nothing\' should generally be unchecked.';
 $string['allowattachments'] = 'Allow attachments';
-$string['allowattachments_help'] = 'Whether to allow students to add attachments to their submissions and, if so, how many. Attachments are copied into the runtime working directory. Warning: allowing attachments could have performance or disk-space implications for the Moodle and Jobe servers with large classes and/or large attachments.';
+$string['allowattachments_help'] = 'Whether to allow students to add attachments to their submissions and, if so, how many. Attachments are copied into the runtime working directory and a comma-separated list of the names of the attachments is provided  to the template in the Twig variable {{ ATTACHMENTS }}. Warning: allowing attachments could have performance or disk-space implications for the Moodle and Jobe servers with large classes and/or large attachments. The Moodle server, and Jobe servers prior to February 2019, store all attachments indefinitely.';
 $string['allowedfiles'] = 'Allowed files';
 $string['allowedfilenames'] = 'Allowed file names';
 $string['allowedfilenamesregex'] = 'Allowed file names (regular expression)';
