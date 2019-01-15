@@ -520,8 +520,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
         $text = '';
         if (!empty($question->filenamesexplain)) {
-                $text = html_writer::tag('p', get_string('allowedfiles', 'qtype_coderunner')
-                        . ': ' . $question->filenamesexplain);
+                $text = $question->filenamesexplain;
         } else if (!empty($question->filenamesregex)) {
             $text = html_writer::tag('p', get_string('allowedfilenamesregex', 'qtype_coderunner')
                     . ': ' . $question->filenamesregex);
