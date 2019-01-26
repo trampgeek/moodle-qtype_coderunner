@@ -49,7 +49,7 @@ $questiontype = qtype_coderunner::get_prototype($qtype, $coursecontext);
 if ($questiontype === null) {
     $questiontype = new stdClass();
     $questiontype->success = false;
-    $questiontype->error = "Error fetching prototype. " . $e->getMessage();
+    $questiontype->error = "Error fetching prototype '$qtype'.";
 } else {
     $questiontype->success = true;
     $questiontype->error = '';
