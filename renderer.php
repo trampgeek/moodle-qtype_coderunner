@@ -158,6 +158,20 @@ class qtype_coderunner_renderer extends qtype_renderer {
                     array('class' => 'validationerror'));
         }
 
+        // Add file upload controls if attachments are allowed
+        $files = '';
+        if ($question->attachments) {
+            if (empty($options->readonly)) {
+                $files = $this->files_input($qa, $question->attachments, $options);
+
+            } else {
+                $files = $this->files_read_only($qa, $options);
+            }
+            $qtext .= html_writer::tag('div', $files,
+                    array('class' => 'form-filemanager', 'data-fieldtype' => 'filemanager'));
+            // class and data-fieldtype are so behat can find the filemanager in both boost and clean themes.
+        }
+
         // Initialise any JavaScript UI. Default is Ace unless uiplugin is explicitly
         // set and is neither the empty string nor the value 'none'.
         // Thanks to Ulrich Dangel for the original implementation of the Ace code editor.
@@ -176,6 +190,31 @@ class qtype_coderunner_renderer extends qtype_renderer {
         return $qtext;
     }
 
+
+    /**
+     * Override the base class method to allow CodeRunner questions to force
+     * specific feedback to be displayed or hidden regardless of the quiz
+     * review options.
+     *
+     * @param question_attempt $qa the question attempt to display.
+     * @param question_display_options $options controls what should and should not be displayed.
+     * @return string HTML fragment.
+     */
+    public function feedback(question_attempt $qa, question_display_options $options) {
+        $optionsclone = clone($options);
+        $q = $qa->get_question();
+        $feedbackdisplay = $q->display_feedback();
+        if ($feedbackdisplay !== constants::FEEDBACK_USE_QUIZ && !empty($qa->get_last_qt_var('_testoutcome'))) {
+            if ($feedbackdisplay === CONSTANTS::FEEDBACK_SHOW) {
+                $optionsclone->feedback = 1;
+            } else if ($feedbackdisplay === CONSTANTS::FEEDBACK_HIDE) {
+                $optionsclone->feedback = 0;
+            } else {
+                throw new coding_exception("Invalid value of feedbackdisplay: $feedbackdisplay");
+            }
+        }
+        return parent::feedback($qa, $optionsclone);
+    }
 
     /**
      * Generate the specific feedback. This is feedback that varies according to
@@ -432,6 +471,75 @@ class qtype_coderunner_renderer extends qtype_renderer {
         $html .= html_writer::tag('pre', s($answer));
         $html .= html_writer::end_tag('div');
         return $html;
+    }
+
+
+    /**
+     * Displays any attached files when the question is in read-only mode.
+     * @param question_attempt $qa the question attempt to display.
+     * @param question_display_options $options controls what should and should
+     *      not be displayed. Used to get the context.
+     */
+    public function files_read_only(question_attempt $qa, question_display_options $options) {
+        $files = $qa->get_last_qt_files('attachments', $options->context->id);
+        $output = array();
+
+        foreach ($files as $file) {
+            $output[] = html_writer::tag('p', html_writer::link($qa->get_response_file_url($file),
+                    $this->output->pix_icon(file_file_icon($file), get_mimetype_description($file),
+                    'moodle', array('class' => 'icon')) . ' ' . s($file->get_filename())));
+        }
+        return implode($output);
+    }
+
+    /**
+     * Displays the input control for when the student is allowed to upload files.
+     * @param question_attempt $qa the question attempt to display.
+     * @param int $numallowed the maximum number of attachments allowed. -1 = unlimited.
+     * @param question_display_options $options controls what should and should
+     *      not be displayed. Used to get the context.
+     */
+    public function files_input(question_attempt $qa, $numallowed,
+            question_display_options $options) {
+        global $CFG, $PAGE;
+        require_once($CFG->dirroot . '/lib/form/filemanager.php');
+
+        $question = $qa->get_question();
+        $pickeroptions = new stdClass();
+        $pickeroptions->mainfile = null;
+        $pickeroptions->maxfiles = $numallowed;
+        $pickeroptions->maxbytes = intval($question->maxfilesize);
+        $pickeroptions->context = $options->context;
+        $pickeroptions->return_types = FILE_INTERNAL | FILE_CONTROLLED_LINK;
+        $pickeroptions->accepted_types = '*';  // Accept anything - names checked on upload
+        $pickeroptions->itemid = $qa->prepare_response_files_draft_itemid(
+                'attachments', $options->context->id);
+
+        $fm = new form_filemanager($pickeroptions);
+        $filesrenderer = $this->page->get_renderer('core', 'files');
+
+        $text = '';
+        if (!empty($question->filenamesexplain)) {
+                $text = $question->filenamesexplain;
+        } else if (!empty($question->filenamesregex)) {
+            $text = html_writer::tag('p', get_string('allowedfilenamesregex', 'qtype_coderunner')
+                    . ': ' . $question->filenamesregex);
+        }
+
+        # In order to prevent a spurious warning message when checking or saving
+        # the question after modifying the uploaded files, we need to explicitly
+        # initialise the form change checker, to ensure the onsubmit action for
+        # the form calls the set_form_submitted function in the module.
+        # This is only needed during Preview as it's apparently done anyway
+        # in normal quiz display mode, but we do it here regardless.
+        $PAGE->requires->yui_module('moodle-core-formchangechecker',
+                'M.core_formchangechecker.init',
+                array(array('formid' => 'responseform'))
+        );
+        $PAGE->requires->string_for_js('changesmadereallygoaway', 'moodle');
+        return $filesrenderer->render($fm). html_writer::empty_tag(
+                'input', array('type' => 'hidden', 'name' => $qa->get_qt_field_name('attachments'),
+                'value' => $pickeroptions->itemid)) . $text;
     }
 
 

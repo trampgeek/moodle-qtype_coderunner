@@ -30,19 +30,21 @@ class qtype_coderunner_jobrunner {
     private $grader = null;          // The grader instance, if it's NOT a custom one.
     private $sandbox = null;         // The sandbox we're using.
     private $code = null;            // The code we're running.
+    private $files = null;           // The files to be loaded into the working dir.
     private $question = null;        // The question that we're running code for.
     private $testcases = null;       // The testcases (a subset of those in the question).
     private $allruns = null;         // Array of the source code for all runs.
     private $precheck = null;        // True if this is a precheck run.
 
-    // Check the correctness of a student's code as an answer to the given
+    // Check the correctness of a student's code and possible extra attachments
+    // as an answer to the given
     // question and and a given set of test cases (which may be empty or a
     // subset of the question's set of testcases. $isprecheck is true if
     // this is a run triggered by the student clicking the Precheck button.
     // $answerlanguage will be the empty string except for multilanguage questions,
     // when it is the language selected in the language drop-down menu.
     // Returns a TestingOutcome object.
-    public function run_tests($question, $code, $testcases, $isprecheck, $answerlanguage) {
+    public function run_tests($question, $code, $attachments, $testcases, $isprecheck, $answerlanguage) {
         global $CFG;
 
         $question->get_prototype();
@@ -61,7 +63,8 @@ class qtype_coderunner_jobrunner {
         $this->isprecheck = $isprecheck;
         $this->grader = $question->get_grader();
         $this->sandbox = $question->get_sandbox();
-        $this->files = $question->get_files();
+        $this->files = array_merge($attachments, $question->get_files());
+        $attachedfilenames = implode(',', array_keys($attachments));
         $this->sandboxparams = $question->get_sandbox_params();
         $this->language = $question->get_language();
 
@@ -71,7 +74,8 @@ class qtype_coderunner_jobrunner {
             'ESCAPED_STUDENT_ANSWER' => qtype_coderunner_escapers::python(null, $code, null), // LEGACY SUPPORT.
             'MATLAB_ESCAPED_STUDENT_ANSWER' => qtype_coderunner_escapers::matlab(null, $code, null), // LEGACY SUPPORT.
             'IS_PRECHECK' => $isprecheck ? "1" : "0",
-            'ANSWER_LANGUAGE' => $answerlanguage
+            'ANSWER_LANGUAGE' => $answerlanguage,
+            'ATTACHMENTS' => $attachedfilenames
          );
 
         if ($question->get_is_combinator() and

@@ -60,6 +60,7 @@ unusual question type.
          * [Other UI plugins](#other-ui-plugins)
       * [User-defined question types](#user-defined-question-types)
       * [Supporting or implementing new languages](#supporting-or-implementing-new-languages)
+      * [Multilanguage questions](#multilanguage questions)
       * [Administrator scripts](#administrator-scripts)
       * [A note on accessibility](#a-note-on-accessibility)
       * [APPENDIX: How programming quizzes should work](#appendix-how-programming-quizzes-should-work)
@@ -2009,6 +2010,57 @@ distribution.
                 print("** Further testing aborted **", file=sys.stderr)
 
 
+## Multilanguage questions
+
+By extending the above approach it is possible to write questions that can be
+answered in multiple languages. Multi-language questions are enabled by setting
+the Ace-language field within the Advanced Customisation section of a
+question to a comma-separated
+list of languages. Students are then presented with a drop-down menu which they
+use to select
+the language in which their answer is written. If exactly one of the languages
+has an asterisk (\'\*\') appended, that language is chosen as the default language,
+selected as the initial state of the drop-down menu. For example,
+an Ace-language value of "C,C++,Java\*,Python3" would allow student to submit in
+C, C++, Java or Python3 but the drop-down menu would initially show Java which
+would be the default. If no default is specified the
+initial state of the drop-down is empty and the student must choose a language.
+Multilanguage questions require a special template that uses the {{ANSWER\_LANGUAGE}}
+template variable to control how to execute the student code.
+The {{ANSWER\_LANGUAGE}} variable is defined
+<i>only</i> for multilanguage questions.
+
+The template for a multilanguage question is a generalisation of the template
+shown in the previous section. It is essentially a single large case statement
+of the following form (assuming the sandbox language is Python3):
+
+    import subprocess
+    import re
+    student_answer = """{{ STUDENT_ANSWER | e('py') }}"""
+    language = """{{ ANSWER_LANGUAGE | e('py') }}""".lower()
+    if language == 'c':
+        # Code to run a C program, as in the previous section
+    elif language == 'python3':
+        # Code to execute student_answer in Python3 directly
+    elif language == 'java':
+        # Code to run a Java program, modified from that in the previous section
+
+    ... etc
+
+
+For a fully working version of such a question type, see the implementation
+of the built-in multilanguage question type, `BUILT\_IN\_PROTOTYPE\_multilanguage`.
+If you're a system administrator, you'll find the question prototype in the
+System/CR_PROTOTYPES category. If not, create a new question of
+type *multilanguage*, customise it, and examine its template. You can also
+inspect the entire question prototype in XML form within the repository
+file `db/builtin\_PROTOTYPES.xml`. Note that the prototype is
+a non-combinator question, i.e. it does a separate run for each test case, which
+isn't efficient for sluggish languages like Java.
+
+If the author wishes to supply a sample answer to a multilanguage question,
+they must write it in the default language, if specified, or the
+first of the allowed languages otherwise.
 
 ## Administrator scripts
 

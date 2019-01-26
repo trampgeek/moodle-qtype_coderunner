@@ -34,11 +34,17 @@ $string['allornothing_help'] = 'If \'All-or-nothing\' is checked, all test cases
 The per-test-case marks can be specified only if the all-or-nothing checkbox is unchecked.
 
 If using a template grader that awards part marks to test cases, \'All-or-nothing\' should generally be unchecked.';
+$string['allowattachments'] = 'Allow attachments';
+$string['allowattachments_help'] = 'Whether to allow students to add attachments to their submissions and, if so, how many. Attachments are copied into the runtime working directory and a comma-separated list of the names of the attachments is provided  to the template in the Twig variable {{ ATTACHMENTS }}. Warning: allowing attachments could have performance or disk-space implications for the Moodle and Jobe servers with large classes and/or large attachments. The Moodle server, and Jobe servers prior to February 2019, store all attachments indefinitely.';
+$string['allowedfilenames'] = 'Allowed file names';
+$string['allowedfilenamesregex'] = 'Allowed file names (regular expression)';
+$string['allowedfilenames_help'] = 'All uploaded file names must match the given PHP (Perl) regular expression, if non empty. For example, use \'.+\\\\.cpp\' to allow any C++ file or \'(?!Prog)\\\\.java\' to allow any Java file except \'Prog.java\'. Additionally, filenames must contain only alphanumeric characters plus underscore, hyphen and period, must not start with double-underscore (\'\_\_\') and must not conflict with any of the support file names. The Description is a text message shown to the student to explain what file(s) are expected. Leave empty to display the regular expression itself. Leave both empty to bypass the regular expression checking.';
 $string['allowmultiplestdins'] = 'Allow multiple stdins';
 $string['answer'] = 'Sample answer';
 $string['answerprompt'] = 'Answer:';
 $string['answer_help'] = 'A sample answer can be entered here and used for checking by the question author and optionally shown to students during review. It is also used by the bulk tester script. The correctness of a non-empty answer is checked when saving unless \'Validate on save\' is unchecked';
 $string['answerrequired'] = 'Please provide a non-empty answer';
+$string['answertooshort'] = 'Answer too short. Must be at least {$a} characters.';
 $string['atleastonetest'] = 'You must provide at least one test case for this question.';
 $string['ace-language'] = 'Ace language';
 $string['advanced_customisation'] = 'Advanced customisation';
@@ -49,6 +55,12 @@ $string['answerbox_group_help'] = 'Set the number of rows to allocate for the an
 $string['answerpreload'] = 'Answer box preload';
 $string['answerpreload_help'] = 'Text supplied here will be preloaded into the student\'s answer box.';
 $string['asolutionis'] = 'Question author\'s solution:';
+$string['attachmentoptions'] = 'Attachment options (experimental)';
+
+$string['attachmentsoptional'] = 'Attachments are optional';
+$string['attachmentsrequired'] = 'Require attachments';
+$string['attachmentsrequired_help'] = 'This option specifies the minimum number of attachments required for a response to be graded.';
+
 $string['autotagbycategorytitle'] = 'CodeRunner autotag by category';
 $string['autotagbycategoryindextitle'] = 'CodeRunner question autotagger';
 
@@ -57,6 +69,8 @@ $string['badcputime'] = 'CPU time limit must be left blank or must be an integer
 $string['bad_dotdotdot'] = 'Misuse of \'...\'. Must be at end, after two increasing numeric penalties';
 $string['bademptyprecheck'] = 'Precheck failed with the following unexpected output.';
 $string['bad_empty_splitter'] = 'Test splitter cannot be empty when using a combinator template';
+$string['badfilenamesregex'] = 'Invalid regular expression';
+$string['badfiles'] = 'Disallowed file name(s): {$a}';
 $string['badjsonfunc'] = 'Unknown JSON embedded func ({$a->func})';
 $string['badjsonorfraction'] = 'Bad JSON or missing fraction in combinator grader output. Output was: {$a->output}';
 $string['badmemlimit'] = 'Memory limit must either be left blank or must be a non-negative integer';
@@ -104,7 +118,7 @@ $string['customisationcontrols'] = 'Customisation';
 $string['customise'] = 'Customise';
 $string['customisation'] = 'Customisation';
 
-$string['datafiles'] = 'Run-time data';
+$string['datafiles'] = 'Support files';
 $string['datafiles_help'] = 'Any files uploaded here will be added to the working directory when the expanded template program is executed. This allows large data or support files to be conveniently added.';
 $string['default_penalty_regime'] = 'Default penalty regime';
 $string['default_penalty_regime_desc'] = 'The default penalty regime to apply to new questions, consisting of a comma separated list of penalty percentages, optionally ending in ", ..." to signify an on-going arithmetic progression.';
@@ -152,7 +166,14 @@ $string['fails'] = 'failures';
 $string['failedhidden'] = 'Your code failed one or more hidden tests.';
 $string['failedntests'] = 'Failed {$a->numerrors} test(s)';
 $string['failedtesting'] = 'Failed testing.';
+$string['feedback'] = 'Feedback';
+$string['feedback_quiz'] = 'Set by quiz';
+$string['feedback_show'] = 'Force show';
+$string['feedback_hide'] = 'Force hide';
+$string['feedback_help'] = 'Choose \'Set by quiz\' to allow quiz feedback settings to control display of the result table, \'Force show\' to show the result table regardless and \'Force hide\' to hide it regardless';
 $string['fileheader'] = 'Support files';
+$string['filenamesexplain'] = 'Description';
+$string['filenamesregex'] = 'Regular expression';
 $string['filloutoneanswer'] = 'You must enter source code that satisfies the specification. The code you enter will be executed to determine its correctness and a grade awarded accordingly.';
 $string['firstfailure'] = 'First failing test case: {$a}';
 $string['forexample'] = 'For example';
@@ -251,6 +272,7 @@ $string['ideone_pass_desc'] = 'The password to use when connecting to the deprec
 $string['info_unavailable'] = 'Question type information is not available for customised questions.';
 $string['illegalformat'] = 'Illegal format ({$a->format}) in columnformats';
 $string['inputcolhdr'] = 'Input';
+$string['insufficientattachments'] = 'Not enough attachments, {$a} required.';
 $string['is_prototype'] = 'Use as prototype';
 
 $string['jobe_apikey'] = 'Jobe API-key';
@@ -278,19 +300,19 @@ Multi-language questions, that is questions that students can answer in
 more than language, are enabled by setting the Ace-language to a comma-separated
 list of languages. Students are then presented with a drop-down menu to select
 the language in which their answer is written. If exactly one of the languages
-has an asterisk (\'*\') prepended, that language is chosen as the default language,
+has an asterisk (\'\*\') appended, that language is chosen as the default language,
 which is selected as the initial state of the drop-down menu. For example,
-an Ace-language value of "C,C++,Java*,Python3" would allow student to submit in
+an Ace-language value of "C,C++,Java\*,Python3" would allow student to submit in
 C, C++, Java or Python3 but the drop-down menu would initially show Java which
 would be the default. If no default is specified the
 initial state of the drop-down is empty and the student must choose a language.
-Multilanguage questions require a special template that uses the {{LANGUAGE}}
+Multilanguage questions require a special template that uses the {{ANSWER\_LANGUAGE}}
 template variable to control how to execute the student code. See the built-in
-sample multilanguage question type. The {{LANGUAGE}} variable is defined
+sample multilanguage question type. The {{ANSWER\_LANGUAGE}} variable is defined
 <i>only</i> for multilanguage questions.
 
 If the author wishes to supply a sample answer to a multilanguage question,
-they must write it in either the default language, if specified, or the
+they must write it in the default language, if specified, or the
 first of the allowed languages otherwise.';
 
 $string['languageselectlabel'] = 'Language';
@@ -316,6 +338,8 @@ The default penalty regime can be set site-wide by a system administrator using
 Site administration > Plugins > Question types > CodeRunner.
 
 Set the penalty regime to \'0\' for zero penalties on all submissions.';
+$string['maxfilesize'] = 'Max allowed file size (bytes)';
+$string['maxfilesize_help'] = 'Select the maximum file upload size (bytes). Allowing large file uploads with large classes can impact performance and and disk space on both Moodle and Jobe servers.';
 $string['memorylimit'] = 'MemLimit (MB)';
 $string['missinganswers'] = 'missing answers';
 $string['missingoutput'] = 'You must supply the expected output from this test case.';
@@ -325,6 +349,7 @@ $string['missingprototypes'] = 'Missing prototypes';
 $string['missingprototypewhenrunning'] = 'Broken question (missing prototype \'{$a->crtype}\'). Cannot be run.';
 $string['multipledefaults'] = 'At most one language can be selected as default';
 $string['multipleprototypes'] = 'Multiple prototypes found for \'{$a->crtype}\'';
+$string['mustrequirefewer'] = 'You cannot require more attachments than you allow.';
 
 $string['nearequalitygrader'] = 'Nearly exact match';
 $string['nodetailsavailable'] = 'Select a question type to see detailed help.';
@@ -842,6 +867,8 @@ $string['resultstring-outputlimit'] = 'Excessive output';
 $string['resultstring-abnormaltermination'] = 'Abnormal termination';
 $string['run_failed'] = 'Failed to run tests';
 
+$string['sampleanswerattachments'] = 'Sample answer attachments';
+$string['sampleanswerattachments_help'] = 'If the sample answer needs attachments files, upload them here';
 $string['sandboxcontrols'] = 'Sandbox';
 $string['sandboxcontrols_help'] = '
 Select what sandbox to use for running the student submissions.

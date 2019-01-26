@@ -40,6 +40,10 @@ class constants {
     const TESTTYPE_PRECHECK = 1;
     const TESTTYPE_BOTH = 2;
 
+    const FEEDBACK_USE_QUIZ = 0;
+    const FEEDBACK_SHOW = 1;
+    const FEEDBACK_HIDE = 2;
+
     const MAX_STRING_LENGTH = 8000;  // Maximum length of a string for display in the result table.
     const MAX_LINE_LENGTH = 100;     // Maximum length of a string for display in the result table.
     const MAX_NUM_LINES = 200;       // Maximum number of lines of text to be displayed a result table cell.

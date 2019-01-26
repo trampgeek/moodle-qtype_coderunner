@@ -109,7 +109,13 @@ class qtype_coderunner extends question_type {
             'templateparams',
             'hoisttemplateparams',
             'twigall',
-            'uiplugin'
+            'uiplugin',
+            'attachments',
+            'attachmentsrequired',
+            'maxfilesize',
+            'filenamesregex',
+            'filenamesexplain',
+            'displayfeedback'
         );
     }
 
@@ -134,7 +140,17 @@ class qtype_coderunner extends question_type {
             'templateparams',
             'hoisttemplateparams',
             'twigall',
+            'attachments',
+            'attachmentsrequired',
+            'maxfilesize',
+            'filenamesregex',
+            'filenamesexplain',
+            'displayfeedback'
             );
+    }
+
+    public function response_file_areas() {
+        return array('attachments');
     }
 
     /**
@@ -269,11 +285,16 @@ class qtype_coderunner extends question_type {
             }
         }
 
-        // Lastly, save any datafiles.
-        if ($USER->id && isset($question->datafiles)) {
+        // Lastly, save any datafiles (support files + sample answer files).
+        if ($USER->id) {
             // The id check is a hack to deal with phpunit initialisation, when no user exists.
-            file_save_draft_area_files($question->datafiles, $question->context->id,
-                'qtype_coderunner', 'datafile', (int) $question->id, $this->fileoptions);
+            foreach (array('datafiles'=>'datafile', 'sampleanswerattachments'=>'samplefile')
+                    as $fileset=>$filearea) {
+                if (isset($question->$fileset)) {
+                    file_save_draft_area_files($question->$fileset, $question->context->id,
+                        'qtype_coderunner', $filearea, (int) $question->id, $this->fileoptions);
+                }
+            }
         }
 
         return true;
@@ -610,6 +631,47 @@ class qtype_coderunner extends question_type {
         return $success && parent::delete_question($questionid, $contextid);
     }
 
+    /******************** EDIT FORM OPTIONS ************************/
+
+    /**
+     * @return array the choices that should be offered for the number of attachments.
+     */
+    public function attachment_options() {
+        return array(
+            0 => get_string('no'),
+            1 => '1',
+            2 => '2',
+            3 => '3',
+            -1 => get_string('unlimited'),
+        );
+    }
+
+    /**
+     * @return array the choices that should be offered for the number of required attachments.
+     */
+    public function attachments_required_options() {
+        return array(
+            0 => get_string('attachmentsoptional', 'qtype_coderunner'),
+            1 => '1',
+            2 => '2',
+            3 => '3'
+        );
+    }
+
+    /**
+     * @return array the options for maximum file size
+     */
+    public function attachment_filesize_max() {
+        return array(
+            1024 => '1 kB',
+            10240 => '10 kB',
+            102400 => '100 kB',
+            1048576 => '1 MB',
+            10485760 => '10 MB',
+            104857600 => '100 MB'
+        );
+    }
+
 
     /******************** IMPORT/EXPORT FUNCTIONS ***************************/
 
@@ -651,7 +713,8 @@ class qtype_coderunner extends question_type {
             'answerpreload' => '',
             'useace' => 1,
             'iscombinatortemplate' => null,  // Probably unnecessary?
-            'template' => null  // Probably unnecessary?
+            'template' => null,  // Probably unnecessary?
+            'attachments' => 0
         );
 
         foreach ($extraquestionfields as $field) {
@@ -720,10 +783,19 @@ class qtype_coderunner extends question_type {
             }
         }
 
+        // Import any support files
         $datafiles = $format->getpath($data,
                 array('#', 'testcases', 0, '#', 'file'), array());
         if (is_array($datafiles)) { // Seems like a non-array does occur in some versions of PHP!
             $qo->datafiles = $format->import_files_as_draft($datafiles);
+        }
+
+        // Import any sample answer attachments
+        if (isset($data['#']['answerfiles'])) {
+            $samplefiles = $format->getpath($data, array('#', 'answerfiles', 0, '#', 'file'), array());
+            if (is_array($samplefiles)) {
+                $qo->sampleanswerattachments = $format->import_files_as_draft($samplefiles);
+            }
         }
 
         return $qo;
@@ -796,6 +868,18 @@ class qtype_coderunner extends question_type {
         $expout .= $format->write_files($datafiles);
 
         $expout .= "    </testcases>\n";
+
+        // If there are any sample answer attachments, add them in a new
+        // <answerfiles> element.
+        $sampleanswerfiles = $fs->get_area_files(
+                $contextid, 'qtype_coderunner', 'samplefile', $question->id);
+        if (count($sampleanswerfiles) > 0) {
+            $expout .= "    <answerfiles>\n";
+            $expout .= $format->write_files($sampleanswerfiles);
+            $expout .= "    </answerfiles>\n";
+        }
+
+
         return $expout;
     }
 

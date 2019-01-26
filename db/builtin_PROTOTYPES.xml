@@ -341,10 +341,10 @@ print(SEPARATOR)
     <resultcolumns></resultcolumns>
     <template>{{ STUDENT_ANSWER | replace({'public class ': 'class '}) }}
 
-public class __Tester__ {
+public class __tester__ {
 
     public static void main(String[] args) {
-        __Tester__ main = new __Tester__();
+        __tester__ main = new __tester__();
         main.runTests();
     }
 
@@ -398,12 +398,12 @@ public class __Tester__ {
     <answerpreload></answerpreload>
     <useace>1</useace>
     <resultcolumns></resultcolumns>
-    <template><![CDATA[public class Main {
+    <template><![CDATA[public class __tester__ {
     static String SEPARATOR = "#<ab@17943918#@>#";
     {{ STUDENT_ANSWER }}
 
     public static void main(String[] args) {
-        Main main = new Main();
+        __tester__ main = new __tester__();
         main.runTests();
     }
 
@@ -1100,7 +1100,7 @@ print(SEPARATOR)
 <!-- question: 21117  -->
   <question type="coderunner">
     <name>
-      <text>BULT_IN_PROTOTYPE_multilanguage</text>
+      <text>BUILT_IN_PROTOTYPE_multilanguage</text>
     </name>
     <questiontext format="html">
       <text><![CDATA[<p>Built-in prototypes are documented in the language strings.<br></p>]]></text>
@@ -1122,7 +1122,7 @@ print(SEPARATOR)
     <answerpreload></answerpreload>
     <useace>1</useace>
     <resultcolumns></resultcolumns>
-    <template><![CDATA[""" The template for a "write a program" question type that accepts answers
+    <template><![CDATA["""The template for a "write a program" question type that accepts answers
     in C, C++, Java or Python3 according to the value in the language select
     dropdown menu.
 """
@@ -1145,7 +1145,7 @@ if language == 'java':
     classname = match.group(1)
     filename = classname + '.java'
 else:
-    filename = 'prog.' + language_extension_map[language]
+    filename = '__tester__.' + language_extension_map[language]
 
 # Write the student code to a file
 
@@ -1155,23 +1155,23 @@ with open(filename, "w") as src:
 # Compile C, C++ and Java
 if language == 'c':
     cflags = "-std=c99 -Wall -Werror"
-    return_code = subprocess.call("gcc {0} -o prog prog.c".format(cflags).split())
+    return_code = subprocess.call("gcc {0} -o __tester__ __tester__.c".format(cflags).split())
     if return_code != 0:
         raise Exception("** Compilation failed. Testing aborted **")
-    exec_command = ["./prog"]
+    exec_command = ["./__tester__"]
 elif language == 'cpp':
     cppflags = "-Wall -Werror"
-    return_code = subprocess.call("g++ {0} -o prog prog.cpp".format(cppflags).split())
+    return_code = subprocess.call("g++ {0} -o __tester__ __tester__.cpp".format(cppflags).split())
     if return_code != 0:
         raise Exception("** Compilation failed. Testing aborted **")
-    exec_command = ["./prog"]
+    exec_command = ["./__tester__"]
 elif language == 'java':
-    return_code = subprocess.call(['javac', filename])
+    return_code = subprocess.call(['javac', "-J-Xss64m", "-J-Xmx4g", filename])
     if return_code != 0:
         raise Exception("** Compilation failed. Testing aborted **")
-    exec_command = ["java", classname]
+    exec_command = ["java", "-Xss16m", "-Xmx500m", classname]
 else: # Python doesn't need a compile phase
-    exec_command = ["python3", "./prog.py"]
+    exec_command = ["python3", "./__tester__.py"]
 
 # Now run the code. Since this is a per-test template,
 # stdin is already set up for the stdin text specified in the test case,
@@ -1202,8 +1202,8 @@ except subprocess.CalledProcessError as e:
     <sandbox></sandbox>
     <grader>EqualityGrader</grader>
     <cputimelimitsecs></cputimelimitsecs>
-    <memlimitmb>8000</memlimitmb>
-    <sandboxparams></sandboxparams>
+    <memlimitmb>16000</memlimitmb>
+    <sandboxparams>{"numprocs": 50}</sandboxparams>
     <templateparams></templateparams>
     <hoisttemplateparams>0</hoisttemplateparams>
     <twigall>0</twigall>

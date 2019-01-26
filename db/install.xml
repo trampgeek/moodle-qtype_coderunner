@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="question/type/coderunner/db" VERSION="20180417" COMMENT="XMLDB file for Moodle question/type/coderunner"
+<XMLDB PATH="question/type/coderunner/db" VERSION="20180903" COMMENT="XMLDB file for Moodle question/type/coderunner"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../../lib/xmldb/xmldb.xsd"
 >
@@ -39,6 +39,13 @@
         <FIELD NAME="cputimelimitsecs" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="The maximum CPU time allowed for execution (secs)"/>
         <FIELD NAME="memlimitmb" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="The maximum memory allowed for this task execution (MB)"/>
         <FIELD NAME="uiplugin" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="The javascript UI plugin for student answer"/>
+        <FIELD NAME="attachments" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Whether, and how many, attachments a student is allowed to include with their response. -1 means unlimited."/>
+        <FIELD NAME="attachmentsrequired" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The number of attachments that should be required"/>
+        <FIELD NAME="maxfilesize" TYPE="int" LENGTH="11" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Max allowable student file upload size in bytes"/>
+        <FIELD NAME="filenamesregex" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="What attachment file type a student is allowed to include with their response. * or empty means unlimited."/>
+        <FIELD NAME="filenamesexplain" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Explain what file names are allowed"/>
+        <FIELD NAME="displayfeedback" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="0 to allow display of specific feedback to be controlled by quiz, 1 to force display, 2 to force hide"/>
+
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

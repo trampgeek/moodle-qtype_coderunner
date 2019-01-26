@@ -110,6 +110,7 @@ EOTEMPLATE;
     <defaultgrade>1</defaultgrade>
     <penalty>0.3333333</penalty>
     <hidden>0</hidden>
+    <idnumber></idnumber>
     <coderunnertype>sqr_user_prototype</coderunnertype>
     <prototypetype>0</prototypetype>
     <allornothing>1</allornothing>
@@ -138,6 +139,12 @@ EOTEMPLATE;
     <hoisttemplateparams>0</hoisttemplateparams>
     <twigall>0</twigall>
     <uiplugin></uiplugin>
+    <attachments>0</attachments>
+    <attachmentsrequired>0</attachmentsrequired>
+    <maxfilesize>0</maxfilesize>
+    <filenamesregex></filenamesregex>
+    <filenamesexplain></filenamesexplain>
+    <displayfeedback>1</displayfeedback>
     <testcases>
       <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
       <testcode>

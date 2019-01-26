@@ -20,10 +20,10 @@ Feature: missing_prototype
 
     And I log in as "teacher1"
     And I am on "Course 1" course homepage
-    And I navigate to "Question bank" node in "Course administration"
+    And I navigate to "Question bank" in current page administration
     And I press "Create a new question ..."
     And I click on "input#item_qtype_coderunner" "css_element"
-    And I press "Add"
+    And I press "submitbutton"
     And I set the field "id_coderunnertype" to "python3"
     And I set the field "name" to "PROTOTYPE_test_prototype"
     And I set the field "id_questiontext" to "Dummy question text"
@@ -60,7 +60,8 @@ Feature: missing_prototype
     And I press "Delete"
 
   Scenario: As a teacher, if I preview a question with a missing prototype I should see a missing prototype error
-    And I navigate to "Question bank" node in "Course administration"
+    Given I am on "Course 1" course homepage
+    And I navigate to "Question bank" in current page administration
     And I click on "table#categoryquestions a[title='Preview']" "css_element"
     And I switch to "questionpreview" window
     And I set the field "id_behaviour" to "Adaptive mode"
@@ -70,7 +71,8 @@ Feature: missing_prototype
     Then I should see "Broken question (missing prototype 'python3_test_prototype'). Cannot be run."
 
   Scenario: As a teacher, I should be able to re-parent the question and have it work correctly
-    And I navigate to "Question bank" node in "Course administration"
+    Given I am on "Course 1" course homepage
+    And I navigate to "Question bank" in current page administration
     And I click on "table#categoryquestions a[title='Edit']" "css_element"
     Then I should see "This question was defined to be of type 'python3_test_prototype' but the prototype does not exist, or is non-unique, or is unavailable in this context"
     And I set the field "id_coderunnertype" to "python3"

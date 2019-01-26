@@ -22,7 +22,7 @@ Feature: Test editing a CodeRunner question
       | Test questions   | coderunner | Square function | sqr      |
     And I log in as "teacher1"
     And I am on "Course 1" course homepage
-    And I navigate to "Question bank" node in "Course administration"
+    And I navigate to "Question bank" in current page administration
 
   Scenario: Edit a CodeRunner question
     When I click on "Edit" "link" in the "Square function" "table_row"

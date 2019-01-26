@@ -122,9 +122,14 @@ class qtype_coderunner_question extends question_graded_automatically {
     }
 
     public function get_expected_data() {
-        return array('answer' => PARAM_RAW,
+        $expecteddata = array('answer' => PARAM_RAW,
                      'language' => PARAM_NOTAGS);
+        if ($this->attachments != 0) {
+            $expecteddata['attachments'] = question_attempt::PARAM_FILES;
+        }
+        return $expecteddata;
     }
+
 
 
     public function summarise_response(array $response) {
@@ -135,11 +140,79 @@ class qtype_coderunner_question extends question_graded_automatically {
         }
     }
 
-    public function is_gradable_response(array $response) {
-        return array_key_exists('answer', $response) &&
-                $response['answer'] !== '' &&
-                strlen($response['answer']) >= constants::FUNC_MIN_LENGTH;
+
+    public function validate_response(array $response) {
+        // Check the response and return a validation error message if it's
+        // faulty or an empty string otherwise.
+
+        // First check the attachments
+        $hasattachments = array_key_exists('attachments', $response)
+            && $response['attachments'] instanceof question_response_files;
+        if ($hasattachments) {
+            $attachmentfiles = $response['attachments']->get_files();
+            $attachcount = count($attachmentfiles);
+            // Check the filetypes.
+            $invalidfiles = array();
+            $regex = $this->filenamesregex;
+            $supportfiles = $this->get_files();
+            foreach ($attachmentfiles as $file) {
+                $filename = $file->get_filename();
+                if (!$this->is_valid_filename($filename, $regex, $supportfiles)) {
+                    $invalidfiles[] = $filename;
+                }
+            }
+
+            if (count($invalidfiles) > 0) {
+                $badfilelist = implode(', ', $invalidfiles);
+                return get_string('badfiles', 'qtype_coderunner', $badfilelist);
+            }
+        } else {
+            $attachcount = 0;
+        }
+
+        if ($attachcount < $this->attachmentsrequired) {
+            return get_string('insufficientattachments', 'qtype_coderunner', $this->attachmentsrequired);
+        }
+
+        if ($attachcount == 0) { // If no attachments, require an answer
+            $hasanswer = array_key_exists('answer', $response);
+            if (!$hasanswer || strlen($response['answer']) == 0) {
+                return get_string('answerrequired', 'qtype_coderunner');
+            } else if (strlen($response['answer']) < constants::FUNC_MIN_LENGTH) {
+                return get_string('answertooshort', 'qtype_coderunner', constants::FUNC_MIN_LENGTH);
+            }
+        }
+        return '';  // All good
     }
+
+    // Return true iff the given filename is valid, meaning it matches the
+    // regex (if given), contains only alphanumerics plus '-', '_' and '.',
+    // doesn't clash with any of the support files and doesn't
+    // start with double underscore..
+    private function is_valid_filename($filename, $regex, $supportfiles) {
+        if (strpos($filename, '__') === 0) {
+            return false;  // Dunder names are reserved for runtime task
+        }
+        if (!ctype_alnum(str_replace(array('-', '_', '.'), '', $filename))) {
+            return false;  // Filenames must be alphanumeric plus '.', '-', or '_'
+        }
+        if (!empty($regex) && preg_match('`^' . $this->filenamesregex . '$`', $filename) !== 1) {
+            return false;  // Filename doesn't match given regex
+        }
+        foreach ($supportfiles as $supportfile) {
+            if ($supportfile->get_filename() == $filename) {
+                return false;  // Filename collides with a support file name
+            }
+        }
+        return true;
+    }
+
+    public function is_gradable_response(array $response) {
+        // Determine if the given response has a non-empty answer and/or
+        // a suitable number of attachments of accepted types.
+        return $this->validate_response($response) == '';
+    }
+
 
     public function is_complete_response(array $response) {
         return $this->is_gradable_response($response);
@@ -152,16 +225,9 @@ class qtype_coderunner_question extends question_graded_automatically {
      * @return string the message.
      */
     public function get_validation_error(array $response) {
-        if (array_key_exists('answer', $response)) {
-            if ($response['answer'] === '') {
-                return get_string('answerrequired', 'qtype_coderunner');
-            } else if (strlen($response['answer']) < constants::FUNC_MIN_LENGTH) {
-                return get_string('answertooshort', 'qtype_coderunner');
-            }
-        }
-        if (array_key_exists('_testoutcome', $response)) {
-            $outcome = unserialize($response['_testoutcome']);
-            return $outcome->errormessage;
+        $error =  $this->validate_response($response);
+        if ($error) {
+            return $error;
         } else {
             return get_string('unknownerror', 'qtype_coderunner');
         }
@@ -176,12 +242,16 @@ class qtype_coderunner_question extends question_graded_automatically {
      * @return boolean
      */
     public function is_same_response(array $prevresponse, array $newresponse) {
-
-        return question_utils::arrays_same_at_key_missing_is_blank(
+        $sameanswer = question_utils::arrays_same_at_key_missing_is_blank(
                         $prevresponse, $newresponse, 'answer') &&
                 question_utils::arrays_same_at_key_missing_is_blank(
                         $prevresponse, $newresponse, 'language');
+        $attachments1 = $this->get_attached_files($prevresponse);
+        $attachments2 = $this->get_attached_files($newresponse);
+        $sameattachments = $attachments1 === $attachments2;
+        return $sameanswer && $sameattachments;
     }
+
 
     public function get_correct_response() {
         return $this->get_correct_answer();
@@ -202,6 +272,27 @@ class qtype_coderunner_question extends question_graded_automatically {
             }
             return $answer;
         }
+    }
+
+
+    public function check_file_access($qa, $options, $component, $filearea, $args, $forcedownload) {
+        if ($component == 'question' && $filearea == 'response_attachments') {
+            // Response attachments visible if the question has them.
+            return $this->attachments != 0;
+        } else {
+            return parent::check_file_access($qa, $options, $component,
+                    $filearea, $args, $forcedownload);
+        }
+    }
+
+
+    /** Return a setting that determines whether or not the specific
+     *  feedback display is controlled by the quiz settings or this particular
+     *  question.
+     * @return bool FEEDBACK_USE_QUIZ, FEEDBACK_SHOW or FEEDBACK_HIDE from constants class.
+     */
+    public function display_feedback() {
+        return isset($this->displayfeedback) ? intval($this->displayfeedback): constants::FEEDBACK_USE_QUIZ;
     }
 
 
@@ -238,11 +329,14 @@ class qtype_coderunner_question extends question_graded_automatically {
         }
         if ($gradingreqd) {
             // We haven't already graded this submission or we graded it with
-            // a different precheck setting.
+            // a different precheck setting. Get the code and the attachments
+            // from the response. The attachments is an array with keys being
+            // filenames and values being file contents.
             $code = $response['answer'];
+            $attachments = $this->get_attached_files($response);
             $testcases = $this->filter_testcases($isprecheck, $this->precheck);
             $runner = new qtype_coderunner_jobrunner();
-            $testoutcome = $runner->run_tests($this, $code, $testcases, $isprecheck, $language);
+            $testoutcome = $runner->run_tests($this, $code, $attachments, $testcases, $isprecheck, $language);
             $testoutcomeserial = serialize($testoutcome);
         }
 
@@ -259,6 +353,20 @@ class qtype_coderunner_question extends question_graded_automatically {
             return array($testoutcome->mark_as_fraction(),
                     question_state::$gradedpartial, $datatocache);
         }
+    }
+
+
+    // Return a map from filename to file contents for all the attached files
+    //in the given response.
+    private function get_attached_files($response) {
+        $attachments = array();
+        if (array_key_exists('attachments', $response)) {
+            $files = $response['attachments']->get_files();
+            foreach ($files as $file) {
+                $attachments[$file->get_filename()] = $file->get_content();
+            }
+        }
+        return $attachments;
     }
 
 
@@ -496,18 +604,18 @@ class qtype_coderunner_question extends question_graded_automatically {
     }
 
 
-    // Return all the datafiles to use for a run, namely all the files
+    // Return the support files for this question, namely all the files
     // uploaded with this question itself plus all the files uploaded with the
-    // prototype.
+    // prototype. This does not include files attached to the answer.
     public function get_files() {
         if ($this->prototypetype != 0) { // Is this a prototype question?
             $files = array(); // Don't load the files twice.
         } else {
             // Load any files from the prototype.
             $this->get_prototype();
-            $files = self::get_data_files($this->prototype, $this->prototype->questionid);
+            $files = self::get_support_files($this->prototype, $this->prototype->questionid);
         }
-        $files += self::get_data_files($this, $this->id);  // Add in files for this question.
+        $files += self::get_support_files($this, $this->id);  // Add in files for this question.
         return $files;
     }
 
@@ -545,12 +653,13 @@ class qtype_coderunner_question extends question_graded_automatically {
 
 
     /**
-     *  Return an associative array mapping filename to datafile contents
-     *  for all the datafiles associated with a given question (which may
-     *  be a real question or, in the case of a prototype, the question_options
-     *  row) and the questionid from the mdl_questions table.
+     *  Return an associative array mapping filename to file contents
+     *  for all the support files the given question (which may be a real
+     *  question or, in the case of a prototype, the question_options row).
+     *  $questionid is the id of the question.
+     *  The sample answer files are not included in the return value.
      */
-    private static function get_data_files($question, $questionid) {
+    private static function get_support_files($question, $questionid) {
         global $DB, $USER;
 
         // If not given in the question object get the contextid from the database.
@@ -564,13 +673,14 @@ class qtype_coderunner_question extends question_graded_automatically {
         $fs = get_file_storage();
         $filemap = array();
 
-        if (isset($question->filemanagerdraftid)) {
+        if (isset($question->supportfilemanagerdraftid)) {
             // If we're just validating a question, get files from user draft area.
-            $draftid = $question->filemanagerdraftid;
+            $draftid = $question->supportfilemanagerdraftid;
             $context = context_user::instance($USER->id);
             $files = $fs->get_area_files($context->id, 'user', 'draft', $draftid, '', false);
         } else {
-            // Otherwise, get the stored files for this question.
+            // Otherwise, get the stored support files for this question (not
+            // the sample answer files).
             $files = $fs->get_area_files($contextid, 'qtype_coderunner', 'datafile', $questionid);
         }
 

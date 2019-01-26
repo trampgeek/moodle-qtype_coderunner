@@ -136,7 +136,16 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
             }
         }
 
-        $progname = "prog.$language";
+        if ($language === 'java') {
+            $mainclass = $this->get_main_class($sourcecode);
+            if ($mainclass) {
+                $progname = "$mainclass.$language";
+            } else {
+                $progname = 'prog.java';  // I give up. Over to the sandbox. Will probably fail.
+            }
+        } else {
+            $progname = "__tester__.$language";
+        }
 
         $runspec = array(
                 'language_id'       => $language,
@@ -208,6 +217,22 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
               'output'  => $this->filter_file_path($this->response->stdout),
               'stderr'  => $stderr
             );
+        }
+    }
+
+
+    // Return the name of the main class in the given Java prog, or FALSE if no
+    // such class found. Uses a regular expression to find a public class with
+    // a public static void main method.
+    // Not totally safe as it doesn't parse the file, e.g. would be fooled
+    // by a commented-out main class with a different name.
+    private function get_main_class($prog) {
+        $pattern = '/(^|\W)public\s+class\s+(\w+)[^{]*\{.*?public\s+static\s+void\s+main\s*\(\s*String/ms';
+        if (preg_match_all($pattern, $prog, $matches) !== 1) {
+            return false;
+        }
+        else {
+            return $matches[2][0];
         }
     }
 

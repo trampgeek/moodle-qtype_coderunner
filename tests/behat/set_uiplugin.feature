@@ -1,4 +1,4 @@
-@qtype @qtype_coderunner @javascript @setuiplugintest 
+@qtype @qtype_coderunner @javascript @setuiplugintest
 Feature: Check that a selected UI plugin is saved
   To check that a selected UI Plugin is saved
   As a teacher
@@ -22,7 +22,7 @@ Feature: Check that a selected UI plugin is saved
       | Test questions   | coderunner | Square function | sqr      |
     And I log in as "teacher1"
     And I am on "Course 1" course homepage
-    And I navigate to "Question bank" node in "Course administration"
+    And I navigate to "Question bank" in current page administration
     And I enable UI plugins
 
   Scenario: Selecting the Graph UI plugin results in a canvas being displayed
@@ -41,7 +41,7 @@ Feature: Check that a selected UI plugin is saved
     And I press "id_submitbutton"
     And I click on "Edit" "link" in the "Square function" "table_row"
     Then I should see a canvas
-  
+
 Scenario: UI plugin state is saved for student
 When I click on "Edit" "link" in the "Square function" "table_row"
     And I set the following fields to these values:

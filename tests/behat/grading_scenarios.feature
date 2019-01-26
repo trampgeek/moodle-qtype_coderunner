@@ -22,7 +22,7 @@ Feature: Check grading with the Python 3 sqr function CodeRunner question
       | Test questions   | coderunner | Square function |
     And I log in as "teacher1"
     And I am on "Course 1" course homepage
-    And I navigate to "Question bank" node in "Course administration"
+    And I navigate to "Question bank" in current page administration
     And I disable UI plugins
 
   Scenario: Preview the Python3 sqr function CodeRunner question submit two different wrong answers then the right answer
@@ -36,7 +36,7 @@ Feature: Check grading with the Python 3 sqr function CodeRunner question
     And I press "Check"
     Then I should see "Passed all tests!"
     And I should see "Mark 24.80 out of 31.00"
-    
+
   Scenario: Preview the Python3 sqr function CodeRunner question submit the same wrong answer twice then the right answer
     When I click on "Preview" "link" in the "Square function" "table_row"
     And I switch to "questionpreview" window
