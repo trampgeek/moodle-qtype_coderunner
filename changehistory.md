@@ -1,6 +1,6 @@
 # CHANGE HISTORY
 
-### 15 January 2018. 3.6.0
+### 30 January 2018. 3.6.0
 
  * Add a new experimental feature that allows students to attach files to
    their submissions. The attached files are loaded into the working directory
@@ -8,6 +8,8 @@
  * Add a *Feedback* dropdown to the question authoring form that allows the
    question author to display or hide the result table regardless of the
    behaviour mode chosen for the quiz.
+ * Fix bug in missing prototype error message (extraneous junk included, due
+   to an exception being thrown).
 
 ### 18 November 2018. 3.5.3+
 
@@ -19,6 +21,7 @@
    is moved between sites with different Moodle versions or database charsets.
  * Improve handling of Twig errors when editing questions that use TwigAll in
    conjunction with ValidateOnSave.
+
 ### 29 October 2018. 3.5.3
 
  * Bug fix: installing CodeRunner on Moodle 3.5 with error debug messages
