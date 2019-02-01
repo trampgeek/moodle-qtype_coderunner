@@ -60,7 +60,7 @@ unusual question type.
          * [Other UI plugins](#other-ui-plugins)
       * [User-defined question types](#user-defined-question-types)
       * [Supporting or implementing new languages](#supporting-or-implementing-new-languages)
-      * [Multilanguage questions](#multilanguage questions)
+      * [Multilanguage questions](#multilanguage-questions)
       * [Administrator scripts](#administrator-scripts)
       * [A note on accessibility](#a-note-on-accessibility)
       * [APPENDIX: How programming quizzes should work](#appendix-how-programming-quizzes-should-work)
