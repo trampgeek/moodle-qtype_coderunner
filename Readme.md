@@ -2050,12 +2050,12 @@ of the following form (assuming the sandbox language is Python3):
 
 
 For a fully working version of such a question type, see the implementation
-of the built-in multilanguage question type, `BUILT\_IN\_PROTOTYPE\_multilanguage`.
+of the built-in multilanguage question type, `BUILT_IN_PROTOTYPE_multilanguage`.
 If you're a system administrator, you'll find the question prototype in the
 System/CR_PROTOTYPES category. If not, create a new question of
 type *multilanguage*, customise it, and examine its template. You can also
 inspect the entire question prototype in XML form within the repository
-file `db/builtin\_PROTOTYPES.xml`. Note that the prototype is
+file `db/builtin_PROTOTYPES.xml`. Note that the prototype is
 a non-combinator question, i.e. it does a separate run for each test case, which
 isn't efficient for sluggish languages like Java.
 
