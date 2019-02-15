@@ -487,7 +487,11 @@ there is no per-test-case code, and the different tests just use different
 standard input (stdin) data. The student answer is expected to be a complete
 runnable program, which is run as-is, without modification by CodeRunner,
 once for each test case. The values of the test code and extra fields of each
-test case are ignored.</p>';
+test case are ignored.</p><p>If you need to set special compile or link
+arguments for the question, you can customise it (click the Customise
+checkbox), open the <i>Advanced customisation</i> section, and enter suitable
+values into the <i>Sandbox &gt; Parameters</i> field. For example<pre>
+{"linkargs":["-lm"]}</pre>to link with the math library.';
 
 $string['qtype_cpp_program'] = '<p>Used for C++ write-a-program questions, where
 there is no per-test-case code, and the different tests just use different
