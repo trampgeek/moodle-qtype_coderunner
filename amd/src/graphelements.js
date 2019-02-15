@@ -45,7 +45,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 
-define(['qtype_coderunner/graphutil', 'jquery'], function(util, $) {
+define(['qtype_coderunner/graphutil'], function(util) {
 
     /***********************************************************************
      *
@@ -467,7 +467,7 @@ define(['qtype_coderunner/graphutil', 'jquery'], function(util, $) {
     };
 
     HelpBox.prototype.draw = function(c, isSelected, mouseIsOver) {
-        var lines, i, y, t, helpText;
+        var lines, i, y, helpText;
 
         if (mouseIsOver) {
             c.fillStyle = '#FFFFFF';
@@ -496,7 +496,7 @@ define(['qtype_coderunner/graphutil', 'jquery'], function(util, $) {
                 y += this.LINE_HEIGHT;
                 c.fillText(lines[i], this.topX + this.HELP_INDENT, y);
             }
-        };
+        }
     };
 
     return {
