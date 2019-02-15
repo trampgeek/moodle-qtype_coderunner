@@ -1,5 +1,9 @@
 # CHANGE HISTORY
 
+### 15 February 2019. 3.6.0+
+
+ * Prevent annoying flashing of GraphUI help screen.
+
 ### 30 January 2018. 3.6.0
 
  * Add a new experimental feature that allows students to attach files to
