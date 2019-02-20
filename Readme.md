@@ -142,6 +142,9 @@ with nearly 300 students and experienced only light to moderate load factors
 on an 8-core Moodle server. The Jobe server, which runs student submissions
 (see below), is even more lightly loaded during such an exam.
 
+Some videos introducing CodeRunner and explaining question authoring
+are available in [this youtube channel](https://coderunner.org.nz/mod/url/view.php?id=472).
+
 ## Installation
 
 This chapter describes how to install CodeRunner. It assumes the
@@ -1857,7 +1860,8 @@ Writing UI plugins is, however, not a job for the faint hearted.
 
 NOTE: User-defined question types are very powerful but are not for the faint
 of heart. There are some known pitfalls, so please read the following very
-carefully.
+carefully. You may also wish to watch the short [video introducing user-defined
+question types](https://www.youtube.com/watch?v=W-En_LN6qh4).
 
 As explained earlier, each question type is defined by a prototype question,
 which is just
