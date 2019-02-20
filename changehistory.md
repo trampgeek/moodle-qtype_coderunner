@@ -1,8 +1,10 @@
 # CHANGE HISTORY
 
-### 15 February 2019. 3.6.0+
+### 20 February 2019. 3.6.0+
 
  * Prevent annoying flashing of GraphUI help screen.
+ * Document linkargs in C program question type language string.
+ * Add youtube video links to Readme.md
 
 ### 30 January 2018. 3.6.0
 
