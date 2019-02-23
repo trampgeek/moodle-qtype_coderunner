@@ -333,6 +333,7 @@ special case the last penalty can be \'...\' to mean "extend the previous
 two penalties as an arithmetic progression up to 100". For example,
 `0,5,10,30,...` is equivalent to `0,5,10,30,50,70,90,100`.
 If there are more submissions than defined penalties, the last value is used.
+Spaces can be used in lieu of commas as a separator.
 
 The default penalty regime can be set site-wide by a system administrator using
 Site administration > Plugins > Question types > CodeRunner.

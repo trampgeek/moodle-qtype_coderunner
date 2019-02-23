@@ -140,7 +140,6 @@ class qtype_coderunner_walkthrough_test extends qbehaviour_walkthrough_test_base
                 $this->get_contains_correct_expectation(),
                 $this->get_does_not_contain_validation_error_expectation(),
                 $this->get_no_hint_visible_expectation());
-
     }
 
 

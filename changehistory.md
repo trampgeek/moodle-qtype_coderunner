@@ -1,7 +1,9 @@
 # CHANGE HISTORY
 
-### 20 February 2019. 3.6.0+
+### 23 February 2019. 3.6.0+
 
+ * Improve detection of syntax errors in penalty regime and extend syntax to
+   allow space separation as well as comma separation.
  * Prevent annoying flashing of GraphUI help screen.
  * Document linkargs in C program question type language string.
  * Add youtube video links to Readme.md
