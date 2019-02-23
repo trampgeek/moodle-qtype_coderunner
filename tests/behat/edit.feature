@@ -31,6 +31,13 @@ Feature: Test editing a CodeRunner question
     And I press "Save changes"
     Then I should see "You must supply a value here."
     When I set the following fields to these values:
+      | Penalty regime | 0.1,3.2 5.1, 4.8, ...|
       | Question name | Edited name |
+    And I press "Save changes"
+    Then I should see "Misuse of '...'"
+    When I set the following fields to these values:
+      | Penalty regime | 0.1,3.2 5.1, 6.1, ...|
     And I press "id_submitbutton"
     Then I should see "Edited name"
+    And I should see "Created by"
+    And I should see "Last modified by"

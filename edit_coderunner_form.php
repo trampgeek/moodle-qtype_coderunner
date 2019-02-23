@@ -971,6 +971,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
             $errorstring = get_string('badpenalties', 'qtype_coderunner');
         } else {
             $penaltyregime = str_replace('%', '', $penaltyregime);
+            $penaltyregime = str_replace(',', ', ', $penaltyregime);
             $penaltyregime = preg_replace('/ *,? +/', ', ', $penaltyregime);
             $bits = explode(', ', $penaltyregime);
             $n = count($bits);
