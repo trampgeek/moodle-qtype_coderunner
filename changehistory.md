@@ -1,7 +1,9 @@
 # CHANGE HISTORY
 
-### 23 February 2019. 3.6.0+
+### 26 February 2019. 3.6.0+
 
+ * Bug fix: the Reset Answer button was not working correctly with TableUI
+   questions.
  * Improve detection of syntax errors in penalty regime and extend syntax to
    allow space separation as well as comma separation.
  * Prevent annoying flashing of GraphUI help screen.
