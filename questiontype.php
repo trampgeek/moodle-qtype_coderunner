@@ -356,6 +356,13 @@ class qtype_coderunner extends question_type {
             $question->sandbox = null;
         }
 
+        // Convert penalty regime string to generic form without '%'s and with
+        // ', ' as a separator
+        $penaltyregime = str_replace('%', '', $question->penaltyregime);
+        $penaltyregime = str_replace(',', ', ', $penaltyregime);
+        $question->penaltyregime = preg_replace('/ *,? +/', ', ', $penaltyregime);
+
+        // Copy and clean testcases
         if (!isset($question->testcases)) {
             $this->copy_testcases_from_form($question, $isvalidation);
         }

@@ -279,7 +279,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
         // Summarise the status of the response in a paragraph at the end.
         // Suppress when previous errors have already said enough.
-        if (!$outcome->has_syntax_error() &&
+        if (!$outcome->has_syntax_error() && !$isprecheck &&
              !$outcome->is_ungradable() &&
              !$outcome->run_failed()) {
 

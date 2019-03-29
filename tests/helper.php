@@ -60,8 +60,8 @@ class qtype_coderunner_test_helper extends question_test_helper {
      * Makes a coderunner python3 question asking for a sqr() function
      * @return qtype_coderunner_question
      */
-    public function make_coderunner_question_sqr() {
-        return $this->make_coderunner_question_sqr_subtype('python3');
+    public function make_coderunner_question_sqr($extras = array()) {
+        return $this->make_coderunner_question_sqr_subtype('python3', $extras);
     }
 
     public function get_coderunner_question_data_sqr() {
@@ -1154,7 +1154,15 @@ EOPROG;
             $coderunner->$key = $value;
             $coderunner->options[$key] = $value;
         }
+
+        // Filter the question through clean_question_form. This is
+        // a hack to allow checking of some of the form processing code without
+        // having to use Behat. There's probably a better way, but I don't know it.
+        $coderunnertype = new qtype_coderunner();
+        $coderunnertype->clean_question_form($coderunner, True);
         $this->get_options($coderunner);
+
+
         return $coderunner;
     }
 }

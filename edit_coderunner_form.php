@@ -476,19 +476,9 @@ class qtype_coderunner_edit_form extends question_edit_form {
             }
         }
 
-        if (trim($data['penaltyregime']) == '') {
-            $errors['markinggroup'] = get_string('emptypenaltyregime', 'qtype_coderunner');
-        } else {
-            $bits = explode(',', $data['penaltyregime']);
-            $n = count($bits);
-            for ($i = 0; $i < $n; $i++) {
-                $bit = trim($bits[$i]);
-                if ($bit === '...') {
-                    if ($i != $n - 1 || $n < 3 || floatval($bits[$i - 1]) <= floatval($bits[$i - 2])) {
-                        $errors['markinggroup'] = get_string('bad_dotdotdot', 'qtype_coderunner');
-                    }
-                }
-            }
+        $penaltyregimeerror = $this->validate_penalty_regime($data);
+        if ($penaltyregimeerror) {
+             $errors['markinggroup'] = $penaltyregimeerror;
         }
 
         $resultcolumnsjson = trim($data['resultcolumns']);
@@ -967,6 +957,42 @@ class qtype_coderunner_edit_form extends question_edit_form {
         return array('error' => $errormessage,
                     'istwigged' => $istwiggedparams,
                     'renderedparams' => $renderedparams);
+    }
+
+
+    private function validate_penalty_regime($data) {
+        // Check the penalty regime and return an error string or an empty string if OK.
+        $errorstring = '';
+        $expectedpr = '/[0-9]+(\.[0-9]*)?%?([, ] *[0-9]+(\.[0-9]*)?%?)*([, ] *...)?/';
+        $penaltyregime = trim($data['penaltyregime']);
+        if ($penaltyregime == '') {
+            $errorstring = get_string('emptypenaltyregime', 'qtype_coderunner');
+        } else if (!preg_match($expectedpr, $penaltyregime)) {
+            $errorstring = get_string('badpenalties', 'qtype_coderunner');
+        } else {
+            $penaltyregime = str_replace('%', '', $penaltyregime);
+            $penaltyregime = str_replace(',', ', ', $penaltyregime);
+            $penaltyregime = preg_replace('/ *,? +/', ', ', $penaltyregime);
+            $bits = explode(', ', $penaltyregime);
+            $n = count($bits);
+            if ($bits[$n - 1] === '...') {
+                if ($n < 3 || floatval($bits[$n - 2]) <= floatval($bits[$n - 3])) {
+                    // If it ends with '...', ensure the last two numbers are in increasing order
+                    $errorstring = get_string('bad_dotdotdot', 'qtype_coderunner');
+                }
+                $n--;
+            }
+            if ($errorstring === '') {
+                // Check all elements are valid numbers
+                for ($i = 0; $i < $n; $i++) {
+                    if (!is_numeric($bits[$i])) {
+                        $errorstring = get_string('badpenalties', 'qtype_coderunner');
+                        break;
+                    }
+                }
+            }
+        }
+        return $errorstring;
     }
 
     // If the template parameters contain twig code, in which case the

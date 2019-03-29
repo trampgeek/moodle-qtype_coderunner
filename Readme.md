@@ -1,6 +1,6 @@
 # CODE RUNNER
 
-Version: 3.5.2 October 2018
+Version: 3.6.0 January 2019
 
 Authors: Richard Lobb, University of Canterbury, New Zealand.
          Tim Hunt, The Open University, UK
@@ -60,7 +60,7 @@ unusual question type.
          * [Other UI plugins](#other-ui-plugins)
       * [User-defined question types](#user-defined-question-types)
       * [Supporting or implementing new languages](#supporting-or-implementing-new-languages)
-      * [Multilanguage questions](#multilanguage questions)
+      * [Multilanguage questions](#multilanguage-questions)
       * [Administrator scripts](#administrator-scripts)
       * [A note on accessibility](#a-note-on-accessibility)
       * [APPENDIX: How programming quizzes should work](#appendix-how-programming-quizzes-should-work)
@@ -71,75 +71,79 @@ unusual question type.
 
 ## Introduction
 
-CodeRunner is a Moodle question type that allows teachers to run a program
-in order to grade a student's answer. By far the most common use of CodeRunner
-is in programming courses where students are asked to write program code to
-some specification and that code is then graded by running it in a series of
-tests. CodeRunner questions have also been used in other areas of
-computer science and engineering to grade questions in which many different
-correct answers are possible and a program must be used to assess correctness.
-However, the focus throughout most of this document will be on programming
-questions, where the students' code is being graded.
+CodeRunner is a Moodle question type that allows teachers to run a program in
+order to grade a student's answer. By far the most common use of CodeRunner is
+in programming courses where students are asked to write program code to some
+specification and that code is then graded by running it in a series of tests.
+CodeRunner questions have also been used in other areas of computer science and
+engineering to grade questions in which many different correct answers are
+possible and a program must be used to assess correctness.
 
 Regardless of the behaviour chosen for a quiz, CodeRunner questions always
-run in an adaptive mode, in which students can click a *Check* button to see
+run in an adaptive mode, in which students can click a Check button to see
 if their code passes the tests defined in the question. If not, students can
-resubmit, typically for a  small penalty. In the typical
-'all-or-nothing' mode, all test cases must pass
-if the submission is to be awarded any marks. The mark for a set of questions
-in a quiz is then determined primarily by which questions the student is able
-to  solve successfully and then secondarily by how many submissions the student
-makes on each question. However, it is also possible to configure CodeRunner
-questions so that the mark is determined by how many of the tests
-the code successfully passes.
+resubmit, typically for a small penalty. In the typical 'all-or-nothing' mode,
+all test cases must pass if the submission is to be awarded any marks.
+The mark for a set of questions in a quiz is then determined primarily by
+which questions the student is able to solve successfully and then secondarily
+by how many submissions the student makes on each question.
+However, it is also possible to configure CodeRunner questions so
+that the mark is determined by how many of the tests the code successfully passes.
 
-CodeRunner and its predecessors *pycode* and *ccode* has been in use at the
-University of Canterbury for about six years, running over a million
-student quiz question submissions in Python, C , JavaScript, PHP, Octave and Matlab.
-Laboratory work, assignment work and mid-semester tests in the
-introductory first year Python programming course (COSC121), which has around
-500 students
-in the first semester and 300 in the second, are all assessed using CodeRunner
-questions. The final exams for COSC121 have also been run
-using Moodle/CodeRunner since November 2014.
+CodeRunner has been in use at the University of Canterbury for over seven years,
+running millions of student quiz question submissions in Python, C , JavaScript,
+PHP, Octave and Matlab. Laboratory work, assignment work and mid-semester tests
+in the introductory first year Python programming course (COSC121),
+which has around 650 students in the first semester and 350 in the second,
+re all assessed using CodeRunner questions. The final exams for COSC121 have
+also been run using Moodle/CodeRunner since November 2014. Other courses at
+the University of Canterbury using CodeRunner include:
 
-The second year C course (ENCE260) of around 200 students makes similar
-use of CodeRunner
-using C questions and a third year Civil Engineering course (ENCN305),
-taught in Matlab,
-uses CodeRunner for all labs and for the mid-semester programming exam. Other
-courses using Moodle/CodeRunner include:
+ * ENCE260 Computer Systems
+ * ENCN305 Programming, Statistics and Optimisation
+ * EMTH171 Mathematical Modelling and Computation
+ * SENG02 Software Engineering I
+ * COSC261 Formal Languages and Compilers
+ * COSC 262 Algorithms
+ * COSC367 Computational Intelligence
+ * ENCE360 Operating Systems
+ * SENG365 Web Computing Architectures
 
-1. EMTH171 Mathematical Modelling and Computation
-1. SENG02 Software Engineering I
-1. COSC261 Formal Languages and Compilers
-1. COSC367 Computational Intelligence
-1. ENCE360 Operating Systems
-1. SENG365 Web Computing Architectures
+CodeRunner is also being used at over 600 other sites worldwide.
 
 CodeRunner currently supports Python2 (considered obsolescent), Python3,
 C, C++, Java, PHP, JavaScript (NodeJS), Octave and Matlab.
 The architecture allows easy extension to other languages.
 
-CodeRunner can safely be used on an institutional Moodle server, provided
-that the sandbox software in which code is run ("Jobe") is installed on a separate
-machine with adequate security and firewalling. However, if CodeRunner-based
-quizzes are to be used for tests and final exams, a separate Moodle server is
-recommended, both for load reasons and so that various Moodle communication facilities,
-like chat and messaging, can be turned off without impacting other classes.
-
-A single 4-core Moodle server can handle an average quiz question submission rate of
-about 60 quiz questions per minute while maintaining a response time of less
-than about 3 - 4 seconds, assuming the student code itself runs in a
-fraction of a second. We have run CodeRunner-based exams with nearly 300 students
-and experienced only light to moderate load factors on an 8-core Moodle
-server. The Jobe server, which runs student submissions (see below),
-is even more lightly loaded during such an exam.
+CodeRunner can safely be used on an institutional Moodle server,
+provided that the sandbox software in which code is run ("Jobe")
+is installed on a separate machine with adequate security and
+firewalling. However, if CodeRunner-based quizzes are to be used for
+tests and final exams, a separate Moodle server is recommended, both for
+load reasons and so that various Moodle communication facilities, like
+chat and messaging, can be turned off without impacting other classes.
 
 The CodeRunner question type can be installed on any modern Moodle system
-(version 2.6 or later including version 3.0), on Linux, Windows and Mac. For security reasons
-submitted jobs are usually run on a separate machine called the "Jobe server"
-or "Jobe sandbox machine".
+(version 3.0 or later), on Linux, Windows and Mac. For security reasons
+submitted jobs are run on a separate machine called the "Jobe server" or
+"Jobe sandbox machine". CodeRunner is intitially configured to use a small
+outward-facing Jobe server at the University of Canterbury, and this can
+be used for initial testing.  However, this is not suitable for production
+use, for which institutions will need to install their own Jobe server.
+Instructions for installing a Jobe server are given in the Jobe documentation.
+Once Jobe is installed, use the Moodle administrator interface for the
+CodeRunner plug-in to specify the Jobe host name and perhaps port number.
+
+A single 4-core Moodle server can handle an average quiz question
+submission rate of about 60 quiz questions per minute while maintaining
+a response time of less than about 3 - 4 seconds, assuming the student code
+itself runs in a fraction of a second. We have run CodeRunner-based exams
+with nearly 300 students and experienced only light to moderate load factors
+on an 8-core Moodle server. The Jobe server, which runs student submissions
+(see below), is even more lightly loaded during such an exam.
+
+Some videos introducing CodeRunner and explaining question authoring
+are available in [this youtube channel](https://coderunner.org.nz/mod/url/view.php?id=472).
 
 ## Installation
 
@@ -1158,7 +1162,7 @@ albeit with only four different names, as follows:
 
 1. Set the template parameters field of the question authoring form to
     ```
-    { "name": "{{ random(["Bob", "Carol", "Ted", "Alice" }}" }
+    { "name": "{{ random(["Bob", "Carol", "Ted", "Alice"]) }}" }
     ```
 1. Turn on the *Twig All* checkbox, so that all fields of the question will
    get processed by Twig, once the template parameters have been set up.
@@ -1856,7 +1860,8 @@ Writing UI plugins is, however, not a job for the faint hearted.
 
 NOTE: User-defined question types are very powerful but are not for the faint
 of heart. There are some known pitfalls, so please read the following very
-carefully.
+carefully. You may also wish to watch the short [video introducing user-defined
+question types](https://www.youtube.com/watch?v=W-En_LN6qh4).
 
 As explained earlier, each question type is defined by a prototype question,
 which is just
@@ -2049,12 +2054,12 @@ of the following form (assuming the sandbox language is Python3):
 
 
 For a fully working version of such a question type, see the implementation
-of the built-in multilanguage question type, `BUILT\_IN\_PROTOTYPE\_multilanguage`.
+of the built-in multilanguage question type, `BUILT_IN_PROTOTYPE_multilanguage`.
 If you're a system administrator, you'll find the question prototype in the
 System/CR_PROTOTYPES category. If not, create a new question of
 type *multilanguage*, customise it, and examine its template. You can also
 inspect the entire question prototype in XML form within the repository
-file `db/builtin\_PROTOTYPES.xml`. Note that the prototype is
+file `db/builtin_PROTOTYPES.xml`. Note that the prototype is
 a non-combinator question, i.e. it does a separate run for each test case, which
 isn't efficient for sluggish languages like Java.
 

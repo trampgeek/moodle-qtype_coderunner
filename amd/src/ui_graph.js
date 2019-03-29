@@ -116,6 +116,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
 
     function Graph(textareaId, width, height, templateParams) {
         // Constructor.
+        var save_this = this;
 
         this.SNAP_TO_PADDING = 6;
         this.DUPLICATE_LINK_OFFSET = 16; // Pixels offset for a duplicate link
@@ -125,6 +126,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
 
         this.canvasId = 'graphcanvas_' + textareaId;
         this.textArea = $(document.getElementById(textareaId));
+        this.helpText = ''; // Obtained by JSON - see below
         this.readOnly = this.textArea.prop('readonly');
         this.templateParams = templateParams;
         this.graphCanvas = new GraphCanvas(this,  this.canvasId, width, height);
@@ -140,6 +142,13 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         this.movingObject = false;
         this.fail = false;  // Will be set true if reload fails (can't deserialise).
         this.failString = null;  // Language string key for fail error message
+        require(['core/str'], function(str) {
+            // Get help text via AJAX
+            var helpPresent = str.get_string('graphhelp', 'qtype_coderunner');
+            $.when(helpPresent).done(function(graphhelp) {
+                save_this.helpText = graphhelp;
+            });
+        });
         this.reload();
         if (!this.fail) {
             this.draw();

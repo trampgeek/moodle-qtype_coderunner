@@ -18,6 +18,8 @@
 
 .que.coderunner textarea.edit_code {
     width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .que.coderunner div.coderunnerexamples {
@@ -27,6 +29,7 @@
 #page-question-type-coderunner div.ui_wrapper,
 .que.coderunner div.ui_wrapper {
     max-width: 100%;
+    box-sizing: border-box;
     background-color: #F0F0F0;
 }
 
@@ -245,6 +248,8 @@ div.coderunner-test-results.partial {
 /* Editing form. */
 body#page-question-type-coderunner div.edit_code textarea {
     width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
     font-family: courier, monospace;
 }
 
