@@ -63,14 +63,22 @@ define(['qtype_coderunner/graphutil'], function(util) {
         this.text = '';
     }
 
-    Node.prototype.setMouseStart = function(x, y) {
-        this.mouseOffsetX = this.x - x;
-        this.mouseOffsetY = this.y - y;
+    // At the start of a drag, record our position relative to the mouse
+    Node.prototype.setMouseStart = function(mouseX, mouseY) {
+        this.mouseOffsetX = this.x - mouseX;
+        this.mouseOffsetY = this.y - mouseY;
     };
 
     Node.prototype.setAnchorPoint = function(x, y) {
         this.x = x + this.mouseOffsetX;
         this.y = y + this.mouseOffsetY;
+    };
+
+    // Given a new mouse position during a drag, move to the appropriate
+    // new position.
+    Node.prototype.trackMouse = function(mouseX, mouseY) {
+        this.x = this.mouseOffsetX + mouseX;
+        this.y = this.mouseOffsetY + mouseY;
     };
 
     Node.prototype.draw = function(c) {
@@ -102,6 +110,44 @@ define(['qtype_coderunner/graphutil'], function(util) {
 
     Node.prototype.containsPoint = function(x, y) {
         return (x - this.x) * (x - this.x) + (y - this.y) * (y - this.y) < this.parent.nodeRadius() * this.parent.nodeRadius();
+    };
+
+    // Method of a Node that, given a list of all links in a graph, returns
+    // a list of any nodes that contain a link to this node (excluding StartLinks
+    // and SelfLinks).
+    Node.prototype.neighbours = function(links) {
+        var neighbours = [], link;
+        for (var i = 0; i < links.length; i++) {
+            link = links[i];
+            if (link instanceof Link) { // Exclude SelfLinks and StartLinks
+                if (link.nodeA === this && !neighbours.includes(link.nodeB)) {
+                    neighbours.push(link.nodeB);
+                } else if (link.nodeB === this && !neighbours.includes(link.nodeA)) {
+                    neighbours.push(link.nodeA);
+                }
+            }
+        }
+        return neighbours;
+    };
+
+    // Method of Node that traverses a graph defined by a given set of links
+    // starting at 'this' node and updating the visited list for each new
+    // node. Returns the updated visited list, which (for the root call)
+    // is a list of all nodes connected to the given start node.
+    Node.prototype.traverseGraph = function(links, visited) {
+        var neighbours,
+            neighbour;
+        if (!visited.includes(this)) {
+            visited.push(this);
+            neighbours = this.neighbours(links);
+            for (var i=0; i < neighbours.length; i++) {
+                neighbour = neighbours[i];
+                if (!visited.includes(neighbour)) {
+                    neighbour.traverseGraph(links, visited);
+                }
+            }
+        }
+        return visited;
     };
 
     /***********************************************************************
@@ -186,7 +232,7 @@ define(['qtype_coderunner/graphutil'], function(util) {
     };
 
     Link.prototype.draw = function(c) {
-        var linkInfo = this.getEndPointsAndCircle();
+        var linkInfo = this.getEndPointsAndCircle(), textX, textY, textAngle;
         // Draw arc.
         c.beginPath();
         if(linkInfo.hasCircle) {
@@ -220,24 +266,24 @@ define(['qtype_coderunner/graphutil'], function(util) {
             if(endAngle < startAngle) {
                 endAngle += Math.PI * 2;
             }
-            var textAngle = (startAngle + endAngle) / 2 + linkInfo.isReversed * Math.PI;
-            var textX = linkInfo.circleX + linkInfo.circleRadius * Math.cos(textAngle);
-            var textY = linkInfo.circleY + linkInfo.circleRadius * Math.sin(textAngle);
+            textAngle = (startAngle + endAngle) / 2 + linkInfo.isReversed * Math.PI;
+            textX = linkInfo.circleX + linkInfo.circleRadius * Math.cos(textAngle);
+            textY = linkInfo.circleY + linkInfo.circleRadius * Math.sin(textAngle);
             this.parent.drawText(this.text, textX, textY, textAngle, this);
         } else {
-            var textX = (linkInfo.startX + linkInfo.endX) / 2;
-            var textY = (linkInfo.startY + linkInfo.endY) / 2;
-            var textAngle = Math.atan2(linkInfo.endX - linkInfo.startX, linkInfo.startY - linkInfo.endY);
+            textX = (linkInfo.startX + linkInfo.endX) / 2;
+            textY = (linkInfo.startY + linkInfo.endY) / 2;
+            textAngle = Math.atan2(linkInfo.endX - linkInfo.startX, linkInfo.startY - linkInfo.endY);
             this.parent.drawText(this.text, textX, textY, textAngle + this.lineAngleAdjust, this);
         }
     };
 
     Link.prototype.containsPoint = function(x, y) {
-        var linkInfo = this.getEndPointsAndCircle();
+        var linkInfo = this.getEndPointsAndCircle(), dx, dy, distance;
         if(linkInfo.hasCircle) {
-            var dx = x - linkInfo.circleX;
-            var dy = y - linkInfo.circleY;
-            var distance = Math.sqrt(dx * dx + dy * dy) - linkInfo.circleRadius;
+            dx = x - linkInfo.circleX;
+            dy = y - linkInfo.circleY;
+            distance = Math.sqrt(dx * dx + dy * dy) - linkInfo.circleRadius;
             if(Math.abs(distance) < this.parent.HIT_TARGET_PADDING) {
                 var angle = Math.atan2(dy, dx);
                 var startAngle = linkInfo.startAngle;
@@ -258,11 +304,11 @@ define(['qtype_coderunner/graphutil'], function(util) {
                 return (angle > startAngle && angle < endAngle);
             }
         } else {
-            var dx = linkInfo.endX - linkInfo.startX;
-            var dy = linkInfo.endY - linkInfo.startY;
+            dx = linkInfo.endX - linkInfo.startX;
+            dy = linkInfo.endY - linkInfo.startY;
             var length = Math.sqrt(dx * dx + dy * dy);
             var percent = (dx * (x - linkInfo.startX) + dy * (y - linkInfo.startY)) / (length * length);
-            var distance = (dx * (y - linkInfo.startY) - dy * (x - linkInfo.startX)) / length;
+            distance = (dx * (y - linkInfo.startY) - dy * (x - linkInfo.startX)) / length;
             return (percent > 0 && percent < 1 && Math.abs(distance) < this.parent.HIT_TARGET_PADDING);
         }
         return false;

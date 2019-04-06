@@ -182,6 +182,7 @@ $string['graphhelp'] = '- Double click at a blank space to create a new node/sta
 - Double click an existing node to "mark" it e.g. as an accept state for Finite State Machines
   (FSMs). Double click again to unmark it.
 - Click and drag to move a node.
+- Alt click and drag to move a (sub)graph.
 - Shift click inside one node and drag to another to create a link.
 - Shift click on a blank space, drag to a node to create a start link (FSMs only).
 - Click and drag a link to alter its curve.

@@ -237,11 +237,19 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
 
         this.selectedObject = this.selectObject(mouse.x, mouse.y);
         this.movingObject = false;
+        this.movingGraph = false;
         this.originalClick = mouse;
 
         if(this.selectedObject !== null) {
             if(e.shiftKey && this.selectedObject instanceof elements.Node) {
                 this.currentLink = new elements.SelfLink(this, this.selectedObject, mouse);
+            } else if (e.altKey && this.selectedObject instanceof elements.Node) {
+                // Moving an entire connected graph component
+                this.movingGraph = true;
+                this.movingNodes = this.selectedObject.traverseGraph(this.links, []);
+                for (var i = 0; i < this.movingNodes.length; i++) {
+                    this.movingNodes[i].setMouseStart(mouse.x, mouse.y);
+                }
             } else {
                 this.movingObject = true;
                 if(this.selectedObject.setMouseStart) {
@@ -266,7 +274,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
     };
 
     Graph.prototype.keydown = function(e) {
-        var key = util.crossBrowserKey(e);
+        var key = util.crossBrowserKey(e), i;
 
         if (this.readOnly) {
             return;
@@ -283,12 +291,12 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
             return false;
         } else if(key === 46) { // Delete key.
             if(this.selectedObject !== null) {
-                for(var i = 0; i < this.nodes.length; i++) {
+                for(i = 0; i < this.nodes.length; i++) {
                     if(this.nodes[i] === this.selectedObject) {
                         this.nodes.splice(i--, 1);
                     }
                 }
-                for(var i = 0; i < this.links.length; i++) {
+                for(i = 0; i < this.links.length; i++) {
                     if(this.links[i] === this.selectedObject ||
                            this.links[i].node === this.selectedObject ||
                            this.links[i].nodeA === this.selectedObject ||
@@ -373,8 +381,14 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
             }
             this.draw();
         }
-
-        if(this.movingObject) {
+        if (this.movingGraph) {
+            var nodes = this.movingNodes;
+            for (var i = 0; i < nodes.length; i++) {
+                 nodes[i].trackMouse(mouse.x, mouse.y);
+                 this.snapNode(nodes[i]);
+            }
+            this.draw();
+        } else if(this.movingObject) {
             this.selectedObject.setAnchorPoint(mouse.x, mouse.y);
             if(this.selectedObject instanceof elements.Node) {
                 this.snapNode(this.selectedObject);
@@ -390,6 +404,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         }
 
         this.movingObject = false;
+        this.movingGraph = false;
 
         if(this.currentLink !== null) {
             if(!(this.currentLink instanceof elements.TemporaryLink)) {
@@ -403,17 +418,18 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
     };
 
     Graph.prototype.selectObject = function(x, y) {
+        var i;
         if (this.helpBox.containsPoint(x, y) && this.selectedObject != this.helpBox) {
             // Clicking the help box menu item toggles its select state.
             return this.helpBox;
         }
 
-        for(var i = 0; i < this.nodes.length; i++) {
+        for(i = 0; i < this.nodes.length; i++) {
             if(this.nodes[i].containsPoint(x, y)) {
                 return this.nodes[i];
             }
         }
-        for(var i = 0; i < this.links.length; i++) {
+        for(i = 0; i < this.links.length; i++) {
             if(this.links[i].containsPoint(x, y)) {
                 return this.links[i];
             }
@@ -466,9 +482,9 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         if (content) {
             try {
                 // Load up the student's previous answer if non-empty.
-                var backup = JSON.parse(content);
+                var backup = JSON.parse(content), i;
 
-                for(var i = 0; i < backup.nodes.length; i++) {
+                for(i = 0; i < backup.nodes.length; i++) {
                     var backupNode = backup.nodes[i];
                     var backupNodeLayout = backup.nodeGeometry[i];
                     var node = new elements.Node(this, backupNodeLayout[0], backupNodeLayout[1]);
@@ -477,7 +493,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
                     this.nodes.push(node);
                 }
 
-                for(var i = 0; i < backup.edges.length; i++) {
+                for(i = 0; i < backup.edges.length; i++) {
                     var backupLink = backup.edges[i];
                     var backupLinkLayout = backup.edgeGeometry[i];
                     var link = null;
@@ -516,12 +532,13 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
             'nodes': [],
             'edges': [],
         };
+        var i;
 
         if(!JSON || (this.textArea.val().trim() === '' && this.nodes.length === 0)) {
             return;  // Don't save if we have an empty textbox and no graphic content.
         }
 
-        for(var i = 0; i < this.nodes.length; i++) {
+        for(i = 0; i < this.nodes.length; i++) {
             var node = this.nodes[i];
 
             var nodeData = [node.text, node.isAcceptState];
@@ -531,7 +548,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
             backup.nodes.push(nodeData);
         }
 
-        for(var i = 0; i < this.links.length; i++) {
+        for(i = 0; i < this.links.length; i++) {
             var link = this.links[i],
                 linkData = null,
                 linkLayout = null;
@@ -583,7 +600,8 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
 
     Graph.prototype.draw = function () {
         var canvas = this.getCanvas(),
-            c = canvas.getContext('2d');
+            c = canvas.getContext('2d'),
+            i;
 
         c.clearRect(0, 0, this.getCanvas().width, this.getCanvas().height);
         c.save();
@@ -592,12 +610,12 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         this.helpBox.draw(c, this.selectedObject == this.helpBox, this.helpBoxHighlighted);
         if (this.selectedObject != this.helpBox) {  // Only proceed if help info not showing.
 
-            for(var i = 0; i < this.nodes.length; i++) {
+            for(i = 0; i < this.nodes.length; i++) {
                 c.lineWidth = 1;
                 c.fillStyle = c.strokeStyle = (this.nodes[i] === this.selectedObject) ? 'blue' : 'black';
                 this.nodes[i].draw(c);
             }
-            for(var i = 0; i < this.links.length; i++) {
+            for(i = 0; i < this.links.length; i++) {
                 c.lineWidth = 1;
                 c.fillStyle = c.strokeStyle = (this.links[i] === this.selectedObject) ? 'blue' : 'black';
                 this.links[i].draw(c);
