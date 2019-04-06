@@ -124,5 +124,60 @@ EOTEMPLATE;
         $this->check_output_does_not_contain('Run 4');
     }
 
-}
+    /** Check that the triple-quoted string extension to the JSON syntax used in the
+     *  the template parameters allows multiline strings with embedded double
+     *  quotes to be correctly and transparently converted to true JSON strings.
+     */
+    public function test_template_params_with_triplequotes() {
+        // Test that a templateparams field in the question with triple-quoted
+        // strings is converted to a valid JSON string and used
+        // correctly in the template.
 
+        $q = $this->make_question('sqr');
+        $q->templateparams = <<<EOTEMPLATEPARAMS
+{
+    "string1": """Line1
+Line2
+He said "Hi!",
+    "string2": """import thing
+print("Look at me.")
+"""
+}
+EOTEMPLATEPARAMS;
+
+        $q->template = <<<EOTEMPLATE
+print('{{string1}}')
+print("+++")
+print('{{string2}}')
+print("---")
+EOTEMPLATE;
+        $q->allornothing = false;
+        $q->iscombinatortemplate = false;
+        $q->testcases = array(
+                       (object) array('type' => 0,
+                         'testcode'       => '',
+                         'expected'       => <<<EOEXPECTED
+Line1
+Line2
+He said "Hi!"
++++
+import thing
+print("Look at me.")
+EOEXPECTED
+,
+                         'stdin'          => '',
+                         'extra'          => '',
+                         'useasexample'   => 0,
+                         'display'        => 'SHOW',
+                         'mark'           => 1.0,
+                         'hiderestiffail' => 0),
+        );
+        $q->allornothing = false;
+        $q->iscombinatortemplate = false;
+        $code = "";
+        $response = array('answer' => $code);
+        $result = $q->grade_response($response);
+        list($mark, $grade, $cache) = $result;
+        $this->assertEquals(question_state::$gradedright, $grade);
+    }
+}

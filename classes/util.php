@@ -202,6 +202,15 @@ class qtype_coderunner_util {
         return $para;
     }
 
+    /**
+     * Convert the extended JSON syntax allowed for template parameters to
+     * true JSON by converting the triple-quoted JSON extension to
+     * standard JSON strings with escaped double quotes and embedded newlines.
+     */
+    public static function normalise_json($json) {
+        // TODO: IMPLEMENT ME!
+        return $json;
+    }
 
     /**
      * Parse the ace-language field to obtain the list of languages to be

@@ -60,6 +60,7 @@ if (!has_capability('moodle/grade:viewall', $coursecontext)) {
         u.email,
         qatt.slot,
         qatt.questionid,
+        qatt.questionsummary,
         quest.name as qname,
         slot.maxmark as mark,
         qattsteps.timecreated as timestamp,
