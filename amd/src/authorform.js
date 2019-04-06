@@ -105,6 +105,7 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
                 params = {};
             }
 
+            // *** TODO: FIXME
             if (uiname === "ace") {
                 // The Ace UI needs a language. For the templateparams, don't
                 // use any language as it's Twigged JavaScript that can't be
@@ -122,15 +123,15 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
                 params.lang = lang;
             }
 
-            if (uiWrapper && uiWrapper.uiname === uiname && uiWrapper.params === params) {
+            if (uiWrapper && uiWrapper.uiname === uiname) {
                 return; // We already have what we want - give up.
             }
 
             if (!uiWrapper) {
-                uiWrapper = new ui.InterfaceWrapper(uiname, taId, params);
+                uiWrapper = new ui.InterfaceWrapper(uiname, taId);  // TODO: check
             } else {
                 // Wrapper has already been set up - just reload the reqd UI.
-                uiWrapper.loadUi(uiname, params);
+                uiWrapper.loadUi(uiname);
             }
 
         }

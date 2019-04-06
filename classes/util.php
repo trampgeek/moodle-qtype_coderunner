@@ -31,19 +31,15 @@ class qtype_coderunner_util {
      * Load/initialise the specified UI JavaScipt plugin  for the given question.
      * A null plugin loads Ace.
      * $textareaid is the id of the textarea that the UI plugin is to manage.
-     * $acelang (relevant only if the plugin is ace) is the language to set the
-     * ace editor to.
      */
-    public static function load_uiplugin_js($question, $textareaid, $acelang) {
+    public static function load_uiplugin_js($question, $textareaid) {
         global $CFG, $PAGE;
 
         $uiplugin = $question->uiplugin === null ? 'ace' : strtolower($question->uiplugin);
         if ($uiplugin !== '' && $uiplugin !== 'none') {
-            $params = array($uiplugin, $textareaid, $question->templateparams); // Params to plugin's init function.
+            $params = array($uiplugin, $textareaid);  // Params to plugin's init function.
             if ($uiplugin === 'ace') {
                 self::load_ace();
-                $lang = ucwords($acelang);
-                $params[] = $lang;
             }
             $PAGE->requires->js_call_amd('qtype_coderunner/userinterfacewrapper', 'newUiWrapper', $params);
         }

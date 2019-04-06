@@ -142,13 +142,17 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         this.movingObject = false;
         this.fail = false;  // Will be set true if reload fails (can't deserialise).
         this.failString = null;  // Language string key for fail error message
-        require(['core/str'], function(str) {
-            // Get help text via AJAX
-            var helpPresent = str.get_string('graphhelp', 'qtype_coderunner');
-            $.when(helpPresent).done(function(graphhelp) {
-                save_this.helpText = graphhelp;
+        if ('helpmenutext' in templateParams) {
+            this.helpText = templateParams.helpmenutext;
+        } else {
+            require(['core/str'], function(str) {
+                // Get help text via AJAX
+                var helpPresent = str.get_string('graphhelp', 'qtype_coderunner');
+                $.when(helpPresent).done(function(graphhelp) {
+                    save_this.helpText = graphhelp;
+                });
             });
-        });
+        }
         this.reload();
         if (!this.fail) {
             this.draw();

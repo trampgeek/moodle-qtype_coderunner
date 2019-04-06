@@ -21,14 +21,12 @@
  *
  * The InterfaceWrapper provides:
  *
- * 1. A constructor InterfaceWrapper(uiname, textareaId, params) which
+ * 1. A constructor InterfaceWrapper(uiname, textareaId) which
  *    hides the given text area, replaces it with a wrapper div (resizable in
  *    height by the user but with width resizing managed by changes in window
  *    width), created an instance of nameInstance as defined in the file
  *    ui_name.js (see below).
  *    params is a record containing the decoded value of
- *    the question's templateParams, possibly enhanced by additional
- *    data such as a 'lang' value for the Ace editor.
  *
  * 2. A stop() method that destroys the embedded UI and hides the wrapper.
  *
@@ -39,7 +37,9 @@
  *    (if there is one) and (re)loads the specified one. The params parameter
  *    is a record that allows additional parameters to be passed in, such as
  *    those from the question's templateParams field and, in the case of the
- *    Ace UI, the 'lang' (language) that the editor is editing.
+ *    Ace UI, the 'lang' (language) that the editor is editing. This data
+ *    is supplied by the PHP via the data-params attribute of the answer's
+ *    base textarea.
  *
  * 5. Regular checking for any resizing of the wrapper, which are passed on to
  *    the embedded UI element's resize() method.
@@ -110,14 +110,15 @@
 
 define(['jquery'], function($) {
 
-    function InterfaceWrapper(uiname, textareaId, params) {
+    function InterfaceWrapper(uiname, textareaId) {
         // Constructor for a new user interface.
         // uiname is the name of the interface element (e.g. ace, graph, etc)
         // which should be in file ui_ace.js, ui_graph.js etc.
-        // textareaId is the id of the text area that the UI is to manage
-        // params is a record containing whatever additional parameters might
+        // textareaId is the id of the text area that the UI is to manage.
+        // The text area should have an attribute data-params, which is a
+        // JSON encoded record containing whatever additional parameters might
         // be needed by the User interface. As a minimum it should contain all
-        // the template params from the JSON-encode template-params field of
+        // the parameters from the template-params field of
         // the question so that question authors can pass in additional data
         // such as whether graph edges are bidirectional or not in the case of
         // the graph UI. Additionally the Ace editor requires a 'lang' field
@@ -134,6 +135,8 @@ define(['jquery'], function($) {
         this.taId = textareaId;
         this.loadFailId = textareaId + '_loadfailerr';
         this.textArea = $(document.getElementById(textareaId));
+        this.templateParams = JSON.parse(this.textArea.attr('data-params'));
+        this.templateParams.lang = this.textArea.attr('data-lang');
         this.readOnly = this.textArea.prop('readonly');
         this.isLoading = false;  // True if we're busy loading a UI element
         this.loadFailed = false;  // True if UI failed to initialise properly
@@ -161,7 +164,7 @@ define(['jquery'], function($) {
 
         // Load the UI into the wrapper (aysnchronous).
         this.uiInstance = null;  // Defined by loadUi asynchronously
-        this.loadUi(uiname, params);  // Load the required UI element
+        this.loadUi(uiname, this.templateParams);  // Load the required UI element
 
         // Add event handlers
         $(document).mousemove(function() {
@@ -330,19 +333,11 @@ define(['jquery'], function($) {
      * @param string lang (relevant only to Ace) - the language to be edited
      * @returns {userinterfacewrapperL#111.InterfaceWrapper}
      */
-    function newUiWrapper(uiname, textareaId, templateParamsJson, lang) {
+    function newUiWrapper(uiname, textareaId) {
         var params;
 
         if (uiname) {
-            try {
-                params = window.JSON.parse(templateParamsJson);
-            } catch(e) {
-                params = {};
-            }
-            if (lang) {
-                params.lang = lang;
-            }
-            return new InterfaceWrapper(uiname, textareaId, params);
+            return new InterfaceWrapper(uiname, textareaId);
         } else {
             return null;
         }

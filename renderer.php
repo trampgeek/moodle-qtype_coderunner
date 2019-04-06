@@ -133,7 +133,9 @@ class qtype_coderunner_renderer extends qtype_renderer {
                 'name'  => $responsefieldname,
                 'id'    => $responsefieldid,
                 'spellcheck' => 'false',
-                'rows'      => $rows
+                'rows'      => $rows,
+                'data-params' => $question->templateparams,
+                'data-lang' => ucwords($currentlanguage)
         );
 
         if ($options->readonly) {
@@ -177,7 +179,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
         // Thanks to Ulrich Dangel for the original implementation of the Ace code editor.
         $uiplugin = $question->uiplugin === null ? 'ace' : strtolower($question->uiplugin);
         if ($uiplugin !== '' && $uiplugin !== 'none') {
-            qtype_coderunner_util::load_uiplugin_js($question, $responsefieldid, $currentlanguage);
+            qtype_coderunner_util::load_uiplugin_js($question, $responsefieldid);
             if (!empty($question->acelang) && strpos($question->acelang, ',') != false) {
                 // For multilanguage questions, add javascript to switch the
                 // Ace language when the user changes the selected language.
@@ -678,7 +680,6 @@ class qtype_coderunner_renderer extends qtype_renderer {
                 get_string('hidedifferences', 'qtype_coderunner'),
                 get_string('expectedcolhdr', 'qtype_coderunner'),
                 get_string('gotcolhdr', 'qtype_coderunner')
-
             )
         );
 

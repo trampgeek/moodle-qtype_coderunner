@@ -190,7 +190,6 @@ $string['graphhelp'] = '- Double click at a blank space to create a new node/sta
 - Typing _ followed by a digit makes that digit a subscript.
 - Typing \\epsilon creates an epsilon character (and similarly for \\alpha, \\beta etc).
 - Click on a link/node then press the Delete key to remove it (or function-delete on a Mac).';
-
 $string['goodemptyprecheck'] = 'Passed';
 $string['gotcolhdr'] = 'Got';
 $string['grader'] = 'Grader';
