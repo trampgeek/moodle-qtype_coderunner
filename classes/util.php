@@ -206,10 +206,15 @@ class qtype_coderunner_util {
      * Convert the extended JSON syntax allowed for template parameters to
      * true JSON by converting the triple-quoted JSON extension to
      * standard JSON strings with escaped double quotes and embedded newlines.
+     * No longer in use, but retained for possible future use.
      */
     public static function normalise_json($json) {
-        // TODO: IMPLEMENT ME!
-        return $json;
+        $stdjson = preg_replace_callback('/"""(.*?)"""/s',
+                function ($matches) {
+                    return '"' . str_replace(array('"', "\n", "\r"), array('\"', '\n', ''), $matches[1]) . '"';
+                },
+                $json);
+        return $stdjson;
     }
 
     /**
@@ -264,6 +269,8 @@ class qtype_coderunner_util {
 
     // Decode given json-encoded template parameters, returning an associative
     // array. Return an empty array if jsonparams is empty or invalid.
+    // This function is also responsible for normalising the JSON it is
+    // given, replacing the triple-quoted strings with standard JSON versions.
     public static function template_params($jsonparams) {
         $params = json_decode($jsonparams, true);
         return $params === null ? array() : $params;

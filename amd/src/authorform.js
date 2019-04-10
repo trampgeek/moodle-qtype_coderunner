@@ -58,9 +58,10 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
     // Set up the author edit form UI plugins and event handlers.
     // The strings parameter is an associative array containing a subset of
     // the strings extracted from lang/xx/qtype_coderunner.php.
-    // The templateParams, passed as a parameter, are needed by the
-    // UI plugins.
-    function initEditForm(strings, templateParams) {
+    // The template parameters and Ace language are passed to each
+    // text area from PHP by setting its data-params and
+    // data-lang attributes.
+    function initEditForm(strings) {
         var typeCombo = $('#id_coderunnertype'),
             template = $('#id_template'),
             useace = $('#id_useace'),
@@ -86,52 +87,48 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
         // Set up the UI controller for the textarea whose name is
         // given as the first parameter (one of template, answer or answerpreload)
         // to the given UI controller (which may be "None" or, equivalently, empty).
+        // We don't attempt to process changes in template parameters,
+        // as these need to be merged with those of the prototype. But we do handle
+        // changes in the language.
         function setUi(taId, uiname) {
             var ta = $(document.getElementById(taId)),  // The jquery text area element(s).
-                uiWrapper,
-                params,
-                lang;
+                lang,
+                currentLang = ta.attr('data-lang'),     // Language set by PHP.
+                paramsJson = ta.attr('data-params'),    // Template params set by PHP.
+                params = {},
+                uiWrapper;
 
+            try {
+                params = JSON.parse(paramsJson);
+            } catch(err) {}
             uiname = uiname.toLowerCase();
             if (uiname === 'none') {
                 uiname = '';
             }
 
+            if (taId == 'id_templateparams') {
+                lang = '';
+            } else {
+                lang = language.prop('value');
+                if (taId !== "id_template" && acelang.prop('value')) {
+                    lang = preferredAceLang(acelang.prop('value'));
+                }
+            }
+
             uiWrapper = ta.data('current-ui-wrapper'); // Currently-active UI wrapper on this ta.
 
-            try {
-                params = window.JSON.parse(templateParams);
-            } catch(e) {
-                params = {};
-            }
-
-            // *** TODO: FIXME
-            if (uiname === "ace") {
-                // The Ace UI needs a language. For the templateparams, don't
-                // use any language as it's Twigged JavaScript that can't be
-                // usefully coloured. Use the value specified in 'acelang'
-                // for all fields other than the template, if the value is defined,
-                // or the value in 'language' in all other cases.
-                if (taId == 'id_templateparams') {
-                    lang = '';
-                } else {
-                    lang = language.prop('value');
-                    if (taId !== "id_template" && acelang.prop('value')) {
-                        lang = preferredAceLang(acelang.prop('value'));
-                    }
-                }
-                params.lang = lang;
-            }
-
-            if (uiWrapper && uiWrapper.uiname === uiname) {
+            if (uiWrapper && uiWrapper.uiname === uiname && currentLang == lang) {
                 return; // We already have what we want - give up.
             }
 
+            ta.attr('data-lang', lang);
+
             if (!uiWrapper) {
-                uiWrapper = new ui.InterfaceWrapper(uiname, taId);  // TODO: check
+                uiWrapper = new ui.InterfaceWrapper(uiname, taId);
             } else {
                 // Wrapper has already been set up - just reload the reqd UI.
-                uiWrapper.loadUi(uiname);
+                params.lang = lang;
+                uiWrapper.loadUi(uiname, params);
             }
 
         }

@@ -82,25 +82,13 @@ class qtype_coderunner_question extends question_graded_automatically {
     public function apply_attempt_state(question_attempt_step $step) {
         parent::apply_attempt_state($step);
         $this->student = unserialize($step->get_qt_var('_STUDENT'));
-
-        // Short-lived legacy code, for use at U of C only
-        $templateparams = $step->get_qt_var('_templateparamsinstance');
-        if ($templateparams !== null) {
-
-            $this->templateparams = $templateparams;
-            if ($step->get_qt_var('_twigall')) {
-                $this->twigall = true;
-            }
-        } else {
-            // Non-legacy code lands here
-            $seed = $step->get_qt_var('_mtrandseed');
-            if ($seed === null) {
-                // Rendering a question that was begun before randomisation
-                // was introduced into the code
-               $seed = mt_rand();
-            }
-            $this->setup_template_params($seed);
+        $seed = $step->get_qt_var('_mtrandseed');
+        if ($seed === null) {
+            // Rendering a question that was begun before randomisation
+            // was introduced into the code
+           $seed = mt_rand();
         }
+        $this->setup_template_params($seed);
 
         if ($this->twigall) {
             $this->twig_all();

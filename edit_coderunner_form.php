@@ -61,6 +61,19 @@ class qtype_coderunner_edit_form extends question_edit_form {
         global $PAGE;
 
         $mform = $this->_form;
+        if (!empty($this->question->options->mergedtemplateparams)) {
+            $this->mergedtemplateparams = $this->question->options->mergedtemplateparams;
+        } else {
+            $this->mergedtemplateparams = '';
+        }
+        if (!empty($this->question->options->language)) {
+            $this->lang = $this->acelang = $this->question->options->language;
+        } else {
+            $this->lang = $this->acelang = '';
+        }
+        if (!empty($this->question->options->acelang)) {
+            $this->acelang =  $this->question->options->acelang;
+        }
         $this->make_error_div($mform);
         $this->make_questiontype_panel($mform);
         $this->make_questiontype_help_panel($mform);
@@ -75,14 +88,9 @@ class qtype_coderunner_edit_form extends question_edit_form {
         foreach (self::author_edit_keys() as $key) {
             $strings[$key] = get_string($key, 'qtype_coderunner');
         }
-        if (!empty($this->question->options->mergedtemplateparams)) {
-            $mergedtemplateparams = $this->question->options->mergedtemplateparams;
-        } else {
-            $mergedtemplateparams = '';
-        }
 
         $PAGE->requires->js_call_amd('qtype_coderunner/authorform', 'initEditForm',
-                array($strings, $mergedtemplateparams));
+                array($strings));
 
         parent::definition($mform);  // The superclass adds the "General" stuff.
     }
@@ -180,9 +188,14 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->addElement('header', 'answerhdr',
                     get_string('answer', 'qtype_coderunner'), '');
         $mform->setExpanded('answerhdr', 1);
+        $attributes = array(
+            'rows' => 9,
+            'class' => 'answer edit_code',
+            'data-params' => $this->mergedtemplateparams,
+            'data-lang' => $this->acelang);
         $mform->addElement('textarea', 'answer',
                 get_string('answer', 'qtype_coderunner'),
-                array('rows' => 9, 'class' => 'answer edit_code'));
+                $attributes);
         // Add a file attachment upload panel (disabled if attachments not allowed)
         $options = $this->fileoptions;
         $options['subdirs'] = false;
@@ -209,9 +222,14 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->addElement('header', 'answerpreloadhdr',
                     get_string('answerpreload', 'qtype_coderunner'), '');
         $mform->setExpanded('answerpreloadhdr', 0);
+        $attributes = array(
+            'rows' => 5,
+            'class' => 'preloadanswer edit_code',
+            'data-params' => $this->mergedtemplateparams,
+            'data-lang' => $this->acelang);
         $mform->addElement('textarea', 'answerpreload',
                 get_string('answerpreload', 'qtype_coderunner'),
-                array('rows' => 5, 'class' => 'preloadanswer edit_code'));
+                $attributes);
         $mform->addHelpButton('answerpreload', 'answerpreload', 'qtype_coderunner');
     }
 
@@ -638,7 +656,10 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->addElement('textarea', 'templateparams',
             get_string('templateparams', 'qtype_coderunner'),
             array('rows' => self::TEMPLATE_PARAM_ROWS,
-                  'class' => 'edit_code'));
+                  'class' => 'edit_code',
+                  'data-lang' => '' // Don't syntax colour template params
+            )
+        );
         $mform->setType('templateparams', PARAM_RAW);
         $mform->addHelpButton('templateparams', 'templateparams', 'qtype_coderunner');
 
@@ -678,12 +699,13 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
         $mform->addElement('header', 'customisationheader',
                 get_string('customisation', 'qtype_coderunner'));
-
+        $attributes = array('rows'  => 8,
+            'class' => 'template edit_code',
+            'name'  => 'template',
+            'data-lang' => $this->lang);
         $mform->addElement('textarea', 'template',
                 get_string('template', 'qtype_coderunner'),
-                array('rows'  => 8,
-                      'class' => 'template edit_code',
-                      'name'  => 'template'));
+                $attributes);
         $mform->addHelpButton('template', 'template', 'qtype_coderunner');
 
         $templatecontrols = array();
@@ -927,12 +949,13 @@ class qtype_coderunner_edit_form extends question_edit_form {
         if ($data['templateparams'] != '') {
             // Try Twigging the template params to make sure they parse
             $ok = true;
+            $json = $data['templateparams'];
             try {
                 $twig = qtype_coderunner_twig::get_twig_environment(array('strict_variables' => true));
                 $twigparams = array('STUDENT' => new qtype_coderunner_student($USER));
-                $renderedparams = $twig->render($data['templateparams'], $twigparams);
+                $renderedparams = $twig->render($json, $twigparams);
                 if (str_replace($renderedparams, "\r", '') !==
-                        str_replace($data['templateparams'], "\r", '')) {
+                        str_replace($json, "\r", '')) {
                     // Twig loses '\r' chars, so must strip them before checking.
                     $istwiggedparams = true;
                 }

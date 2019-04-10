@@ -127,6 +127,7 @@ define(['jquery'], function($) {
         // data attribute contains an entry for 'current-ui-wrapper' that is
         // a reference to the wrapper ('this').
         var  h,
+             params,
              t = this; // For use by embedded functions.
 
         this.GUTTER = 14;  // Size of gutter at base of wrapper Node (pixels)
@@ -135,7 +136,12 @@ define(['jquery'], function($) {
         this.taId = textareaId;
         this.loadFailId = textareaId + '_loadfailerr';
         this.textArea = $(document.getElementById(textareaId));
-        this.templateParams = JSON.parse(this.textArea.attr('data-params'));
+        params = this.textArea.attr('data-params');
+        if (params) {
+            this.templateParams = JSON.parse(params);
+        } else {
+            this.templateParams = {};
+        }
         this.templateParams.lang = this.textArea.attr('data-lang');
         this.readOnly = this.textArea.prop('readonly');
         this.isLoading = false;  // True if we're busy loading a UI element
