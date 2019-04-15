@@ -136,12 +136,12 @@ class qtype_coderunner_util {
     // FIXME: can mess up UTF-8 multibyte strings.
     public static function snip(&$s) {
         $snipinsert = ' ...snip... ';
-        $len = strlen($s);
+        $len = mb_strlen($s);
         if ($len > constants::MAX_STRING_LENGTH) {
-            $lentoremove = $len - constants::MAX_STRING_LENGTH + strlen($snipinsert);
+            $lentoremove = $len - constants::MAX_STRING_LENGTH + mb_strlen($snipinsert);
             $partlength = ($len - $lentoremove) / 2;
-            $firstbit = substr($s, 0, $partlength);
-            $lastbit = substr($s, $len - $partlength, $partlength);
+            $firstbit = mb_substr($s, 0, $partlength);
+            $lastbit = mb_substr($s, $len - $partlength, $partlength);
             $s = $firstbit . $snipinsert . $lastbit;
         }
         return $s;
