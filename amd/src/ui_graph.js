@@ -651,8 +651,8 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         if(angleOrNull !== null) {
             var cos = Math.cos(angleOrNull);
             var sin = Math.sin(angleOrNull);
-            var cornerPointX = (width / 2 + 5) * (cos > 0 ? 1 : -1);
-            var cornerPointY = (10 + 5) * (sin > 0 ? 1 : -1);
+            var cornerPointX = (width / 2) * (cos > 0 ? 1 : -1);
+            var cornerPointY = 10 * (sin > 0 ? 1 : -1);
             var slide = sin * Math.pow(Math.abs(sin), 40) * cornerPointX - cos * Math.pow(Math.abs(cos), 10) * cornerPointY;
             x += cornerPointX - sin * slide;
             y += cornerPointY + cos * slide;
