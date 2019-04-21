@@ -442,7 +442,7 @@ support functions.</p>
 <p>The test code for such questions typically calls the student function with
 some test arguments and prints the result, such as
 <pre>printf("%d\n", someIntFunction(blah1, blah2))</pre>
-The test case\'s <i>Expected</i> field is the expected output from the test.
+The test case\'s <i>Expected</i> field is the expected output from the test.</p>
 <p>
 If there is no standard input supplied for any of the test cases, a single
 test program is constructed, consisting of:</p>
