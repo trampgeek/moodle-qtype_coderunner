@@ -577,7 +577,7 @@ The author-supplied test is typically just one or two lines of code that
 template constructs a Main class containing the student-supplied method
 (and any other support methods, if they choose to write them) plus a \'runTests\'
 method that wraps the testcase(s). The main function for the class constructs an
-instance of Main and calls its runTests method. See the template code for details.';
+instance of Main and calls its runTests method. See the template code for details.</p>';
 
 $string['qtype_java_program'] = '<p>A Java write-a-program question where the student
 submits a complete program as their answer. The program is compiled and executed for each
