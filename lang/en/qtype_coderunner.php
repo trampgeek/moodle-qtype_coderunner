@@ -297,7 +297,7 @@ that the student is expected to write (e.g. if a Python preprocessor is
 used to validate a student\'s C program prior to running it).
 
 Multi-language questions, that is questions that students can answer in
-more than language, are enabled by setting the Ace-language to a comma-separated
+more than one language, are enabled by setting the Ace-language to a comma-separated
 list of languages. Students are then presented with a drop-down menu to select
 the language in which their answer is written. If exactly one of the languages
 has an asterisk (\'\*\') appended, that language is chosen as the default language,
