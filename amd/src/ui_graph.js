@@ -335,7 +335,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
             this.resetCaret();
             this.draw();
         } else {
-            if(this.selectedObject instanceof elements.Node) {
+            if(this.selectedObject instanceof elements.Node && this.isFsm()) {
                 this.selectedObject.isAcceptState = !this.selectedObject.isAcceptState;
                 this.draw();
             }
