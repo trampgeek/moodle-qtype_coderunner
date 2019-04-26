@@ -335,13 +335,9 @@ define(['jquery'], function($) {
      *  The external entry point from the PHP.
      * @param string uiname, e.g. 'ace'
      * @param string textareaId
-     * @param string templateParamsJson - the JSON-encoded template params
-     * @param string lang (relevant only to Ace) - the language to be edited
      * @returns {userinterfacewrapperL#111.InterfaceWrapper}
      */
     function newUiWrapper(uiname, textareaId) {
-        var params;
-
         if (uiname) {
             return new InterfaceWrapper(uiname, textareaId);
         } else {
