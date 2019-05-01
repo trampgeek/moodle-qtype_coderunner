@@ -297,7 +297,7 @@ that the student is expected to write (e.g. if a Python preprocessor is
 used to validate a student\'s C program prior to running it).
 
 Multi-language questions, that is questions that students can answer in
-more than language, are enabled by setting the Ace-language to a comma-separated
+more than one language, are enabled by setting the Ace-language to a comma-separated
 list of languages. Students are then presented with a drop-down menu to select
 the language in which their answer is written. If exactly one of the languages
 has an asterisk (\'\*\') appended, that language is chosen as the default language,
@@ -442,7 +442,7 @@ support functions.</p>
 <p>The test code for such questions typically calls the student function with
 some test arguments and prints the result, such as
 <pre>printf("%d\n", someIntFunction(blah1, blah2))</pre>
-The test case\'s <i>Expected</i> field is the expected output from the test.
+The test case\'s <i>Expected</i> field is the expected output from the test.</p>
 <p>
 If there is no standard input supplied for any of the test cases, a single
 test program is constructed, consisting of:</p>
@@ -577,7 +577,7 @@ The author-supplied test is typically just one or two lines of code that
 template constructs a Main class containing the student-supplied method
 (and any other support methods, if they choose to write them) plus a \'runTests\'
 method that wraps the testcase(s). The main function for the class constructs an
-instance of Main and calls its runTests method. See the template code for details.';
+instance of Main and calls its runTests method. See the template code for details.</p>';
 
 $string['qtype_java_program'] = '<p>A Java write-a-program question where the student
 submits a complete program as their answer. The program is compiled and executed for each
