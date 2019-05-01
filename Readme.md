@@ -223,8 +223,8 @@ OR
 1. Get the code using git by running the following commands in the
 top level folder of your Moodle install:
 
-        git clone git://github.com/trampgeek/moodle-qtype_coderunner.git question/type/coderunner
-        git clone git://github.com/trampgeek/moodle-qbehaviour_adaptive_adapted_for_coderunner.git question/behaviour/adaptive_adapted_for_coderunner
+        git clone https://github.com/trampgeek/moodle-qtype_coderunner.git question/type/coderunner
+        git clone https://github.com/trampgeek/moodle-qbehaviour_adaptive_adapted_for_coderunner.git question/behaviour/adaptive_adapted_for_coderunner
 
 Either way you may also need to change the ownership
 and access rights to ensure the directory and
