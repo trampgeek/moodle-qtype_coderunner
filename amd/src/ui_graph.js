@@ -254,7 +254,8 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
                 for (var i = 0; i < this.movingNodes.length; i++) {
                     this.movingNodes[i].setMouseStart(mouse.x, mouse.y);
                 }
-            } else {
+            } else if (!(this.templateParams.locknodes && this.selectedObject instanceof elements.Node)
+                       && !(this.templateParams.lockedges && this.selectedObject instanceof elements.Link)){
                 this.movingObject = true;
                 if(this.selectedObject.setMouseStart) {
                     this.selectedObject.setMouseStart(mouse.x, mouse.y);
