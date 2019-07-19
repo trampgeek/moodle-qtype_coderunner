@@ -1,5 +1,18 @@
 # CHANGE HISTORY
 
+### 20 July 2019. 3.6.1
+
+ * Add "locknodes" and "lockedges" template parameters to GraphUI to allow
+   question authors to reload answerbox with a particular graph and prevent
+   students altering the topology.
+ * Add behat test for TableUI
+
+### 21 June 2019. 3.6.0+
+
+ * Fix wrong default for useace in upgrade.php (thanks Mahmoud Kassaei).
+ * Fix snip method when displaying overly-long output containing multibyte strings
+   (thanks Ivan Marichev).
+
 ### 26 February 2019. 3.6.0+
 
  * Bug fix: the Reset Answer button was not working correctly with TableUI
@@ -9,6 +22,7 @@
  * Prevent annoying flashing of GraphUI help screen.
  * Document linkargs in C program question type language string.
  * Add youtube video links to Readme.md
+ * Styling improvements for input areas (thanks Tim Hunt).
 
 ### 30 January 2018. 3.6.0
 
