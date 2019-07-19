@@ -40,7 +40,7 @@ class qtype_coderunner_missing_question_type extends Exception {
 class qtype_coderunner_test_helper extends question_test_helper {
 
     public function get_test_questions() {
-        return array('sqr', 'sqr_pylint',
+        return array('sqr', 'sqr_pylint', 'printans',
             'hello_func', 'copy_stdin', 'timeout', 'exceptions',
             'sqr_part_marks', 'sqrnoprint',
             'studentanswervar', 'hello_python',
@@ -157,6 +157,61 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $form->display = array('SHOW', 'SHOW', 'SHOW', 'SHOW', 'HIDE');
         $form->mark = array('1.0', '2.0', '4.0', '8.0', '16.0');
         $form->ordering = array('0', '10', '20', '30', '40');
+        $form->sandboxparams = '';
+        $form->grader = 'EqualityGrader';
+        $form->resultcolumns = '';
+        $form->cputimelimitsecs = '';
+        $form->memlimitmb = '';
+        $form->customise = 1;
+        $form->uiplugin = 'None';
+        $form->attachments = 0;
+        $form->attachmentsrequired = 0;
+        $form->maxfilesize = 0;
+        $form->filenamesregex = '';
+        $form->filenamesexplain = '';
+        return $form;
+    }
+
+
+        /**
+     * Gets the form data that would come back when the editing form is saved,
+     * if you were creating a Python3 question with a template that just
+     * prints the student answer. This question has no test cases defined.
+     * @return stdClass the form data.
+     */
+    public function get_coderunner_question_form_data_printans() {
+        $form = new stdClass();
+
+        $form->coderunnertype = 'python3';
+        $form->showsource = 0;
+        $form->answerboxlines = 5;
+        $form->answerboxcolumns = 100;
+        $form->useace = 0;
+        $form->precheck = 1;
+        $form->allornothing = 0;
+        $form->penaltyregime = "10, 20, ...";
+        $form->templateparams = "";
+        $form->hoisttemplateparams = 1;
+        $form->twigall = 0;
+        $form->prototypetype = 0;
+        $form->sandbox = 'DEFAULT';
+        $form->language = 'python3';
+        $form->acelang = '';
+        $form->displayfeedback = 1;
+        $form->iscombinatortemplate = 0;
+        $form->testsplitterre = '|#<ab@17943918#@>#\n|ms';
+        $form->template = "print('{{ STUDENT_ANSWER | e('py')}}\n";
+        $form->name = 'Print answer';
+        $form->questiontext = array('text' => 'Whatever answer you enter will be printed', 'format' => FORMAT_HTML);
+        $form->defaultmark = 1.0;
+        $form->generalfeedback = array('text' => 'No feedback available for coderunner questions.', 'format' => FORMAT_HTML);
+        $form->testcode = array("");
+        $form->stdin = array("");
+        $form->expected = array("Fill me in");
+        $form->extra = array("");
+        $form->display = array("SHOW");
+        $form->mark = array(1);
+        $form->ordering = array(0);
         $form->sandboxparams = '';
         $form->grader = 'EqualityGrader';
         $form->resultcolumns = '';

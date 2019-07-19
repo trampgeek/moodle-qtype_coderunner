@@ -1,8 +1,8 @@
 @qtype @qtype_coderunner @javascript
-Feature: Test editing a CodeRunner question
-  In order to be able to update my CodeRunner questions
+Feature: Test editing a CodeRunner question using the Table UI
+  In order to edit a table question
   As a teacher
-  I need to edit them
+  I should be able to set the table headers and see the table in the edit form.
 
   Background:
     Given the following "users" exist:
@@ -18,26 +18,43 @@ Feature: Test editing a CodeRunner question
       | contextlevel | reference | name           |
       | Course       | C1        | Test questions |
     And the following "questions" exist:
-      | questioncategory | qtype      | name            | template |
-      | Test questions   | coderunner | Square function | sqr      |
+      | questioncategory | qtype      | name         | template |
+      | Test questions   | coderunner | Print answer | printans |
     And I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I navigate to "Question bank" in current page administration
 
-  Scenario: Edit a CodeRunner question
-    When I click on "Edit" "link" in the "Square function" "table_row"
+
+  Scenario: Edit a CodeRunner printans question into a table question
+    When I click on "Edit" "link" in the "Print answer" "table_row"
     And I set the following fields to these values:
-      | Question name | |
-    And I press "Save changes"
-    Then I should see "You must supply a value here."
-    When I set the following fields to these values:
-      | Penalty regime | 0.1,3.2 5.1, 4.8, ...|
-      | Question name | Edited name |
-    And I press "Save changes"
-    Then I should see "Misuse of '...'"
-    When I set the following fields to these values:
-      | Penalty regime | 0.1,3.2 5.1, 6.1, ...|
+      | customise      | 1                             |
+      | id_template    | print('{{ STUDENT_ANSWER }}') |
+      | uiplugin       | Table                         |
+
+    Then I should see "Table UI needs template parameters"
+
+    And I set the following fields to these values:
+      | templateparams | {"table_num_columns": 2,"table_num_rows": 2,"table_column_headers": ["Col1", "Col2"]}|
+    And I press "id_updatebutton"
+    Then I should not see "Table UI needs template parameters"
+
+    And I set the following fields to these values:
+      | expected[0]    | Not expected at all |
+      | validateonsave | 1                   |
+
+    And I set the field with xpath "//div[@id='id_answer_wrapper']//tbody/tr[1]/td[1]/textarea" to "row0col0"
+    And I set the field with xpath "//div[@id='id_answer_wrapper']//tbody/tr[1]/td[2]/textarea" to "row0col1"
+    And I set the field with xpath "//div[@id='id_answer_wrapper']//tbody/tr[2]/td[1]/textarea" to "row1col0"
+    And I set the field with xpath "//div[@id='id_answer_wrapper']//tbody/tr[2]/td[2]/textarea" to "row1col1"
+
+    And I press "id_updatebutton"
+    Then I should see "Failed 1 test(s)"
+
+    And I set the following fields to these values:
+      | expected[0]    | [["row0col0","row0col1"],["row1col0","row1col1"]] |
+
     And I press "id_submitbutton"
-    Then I should see "Edited name"
+    Then I should not see "Failed 1 test(s)"
     And I should see "Created by"
     And I should see "Last modified by"
