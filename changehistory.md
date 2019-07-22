@@ -6,7 +6,7 @@
    the same name, the prototype file was being used instead of the override
    file in the child.
  * Add "locknodes" and "lockedges" template parameters to GraphUI to allow
-   question authors to reload answerbox with a particular graph and prevent
+   question authors to preload answerbox with a particular graph and prevent
    students altering the topology.
  * Add behat test for TableUI
 
