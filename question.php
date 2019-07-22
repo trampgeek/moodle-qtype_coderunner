@@ -603,7 +603,7 @@ class qtype_coderunner_question extends question_graded_automatically {
             $this->get_prototype();
             $files = self::get_support_files($this->prototype, $this->prototype->questionid);
         }
-        $files += self::get_support_files($this, $this->id);  // Add in files for this question.
+        $files = array_merge($files, self::get_support_files($this, $this->id));  // Add in files for this question.
         return $files;
     }
 
