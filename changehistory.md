@@ -1,7 +1,10 @@
 # CHANGE HISTORY
 
-### 20 July 2019. 3.6.1
+### 22 July 2019. 3.6.1
 
+ * Bug fix: if a prototype and a derived question had support files with
+   the same name, the prototype file was being used instead of the override
+   file in the child.
  * Add "locknodes" and "lockedges" template parameters to GraphUI to allow
    question authors to reload answerbox with a particular graph and prevent
    students altering the topology.
