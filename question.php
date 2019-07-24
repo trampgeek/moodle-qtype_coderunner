@@ -187,8 +187,8 @@ class qtype_coderunner_question extends question_graded_automatically {
         if (!empty($regex) && preg_match('`^' . $this->filenamesregex . '$`', $filename) !== 1) {
             return false;  // Filename doesn't match given regex
         }
-        foreach ($supportfiles as $supportfile) {
-            if ($supportfile->get_filename() == $filename) {
+        foreach (array_keys($supportfiles) as $supportfilename) {
+            if ($supportfilename == $filename) {
                 return false;  // Filename collides with a support file name
             }
         }
@@ -595,6 +595,7 @@ class qtype_coderunner_question extends question_graded_automatically {
     // Return the support files for this question, namely all the files
     // uploaded with this question itself plus all the files uploaded with the
     // prototype. This does not include files attached to the answer.
+    // Returns an associative array mapping filenames to filecontents.
     public function get_files() {
         if ($this->prototypetype != 0) { // Is this a prototype question?
             $files = array(); // Don't load the files twice.
