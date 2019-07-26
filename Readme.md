@@ -1114,6 +1114,7 @@ following.
  * `QUESTION.questionid` The unique internal ID of this question.
  * `QUESTION.questiontext` The question text itself
  * `QUESTION.answer` The supplied sample answer (null if not explicitly set).
+ * `QUESTION.answerpreload` The string that is preloaded into the answer box.
  * `QUESTION.language` The language being used to run the question in the sandbox,
 e.g. "Python3".
  * `QUESTION.useace` '1'/'0' if the ace editor is/is not in use.
@@ -2040,8 +2041,8 @@ would be the default. If no default is specified the
 initial state of the drop-down is empty and the student must choose a language.
 Multilanguage questions require a special template that uses the {{ANSWER\_LANGUAGE}}
 template variable to control how to execute the student code.
-The {{ANSWER\_LANGUAGE}} variable is defined
-<i>only</i> for multilanguage questions.
+The {{ANSWER\_LANGUAGE}} variable is meaningfully defined only for multilanguage questions;
+it is the empty string, otherwise.
 
 The template for a multilanguage question is a generalisation of the template
 shown in the previous section. It is essentially a single large case statement
