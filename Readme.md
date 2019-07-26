@@ -1798,11 +1798,7 @@ CTRL-ALT-M keypress, alternately exposing and hiding the underlying textarea ele
 
 ### The Table UI
 
-*Warning:* This UI plug-in is still experimental, and may change in the future.
-It was written only to support the new python3\_program\_testing question type,
-which is itself only experimental.
-
-The plug-in replaces the usual textarea answer element with an HTML table,
+The table UI plug-in replaces the usual textarea answer element with an HTML table,
 into which the student must enter text data. All cells in the table are
 HTML *textarea* elements. The question author can enable *Add row* and
 *Delete row* buttons that allow the student to add or delete rows. The configuration
@@ -1818,6 +1814,18 @@ of the table is set by the following template parameters:
  o `table_dynamic_rows` should be set `true` to enable the addition of *Add row*
    and *Delete row* buttons through which the student can alter the number of
    rows. The number of rows can never be less than the initial `table_num_rows` value.
+ o `table_locked_cells` is an array of 2-element [row, column] cell specifiers.
+   The specified cells are rendered to HTML with the *disabled* attribute, so
+   cannot be changed by the user. For example
+
+        "table_locked_cells": [[0, 0], [1, 0]]
+
+   to lock the leftmost column of rows 0 and 1.
+   This is primarily for use in conjunction with
+   an answer preload in which some cells are defined by the question author.
+   The preload answer must be defined before the table_locked_cells template
+   parameter is defined, or the question author will not be able to define
+   the required values in the first place.
 
 For example, the `python3\_program\_testing` question type uses the following
 template parameter setting:

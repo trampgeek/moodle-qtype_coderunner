@@ -52,6 +52,11 @@ define(['jquery'], function($) {
         this.templateParams = templateParams;
         this.tableDiv = null;
         this.fail = false;
+        if (templateParams.table_locked_cells) {
+            this.lockedCells = templateParams.table_locked_cells;
+        } else {
+            this.lockedCells = [];
+        }
         if (!templateParams.table_num_columns ||
             !templateParams.table_num_rows ||
             !templateParams.table_column_headers) {
@@ -61,6 +66,15 @@ define(['jquery'], function($) {
             this.reload();
         }
     }
+
+    TableUi.prototype.isLockedCell = function(row, col) {
+        for (var i = 0; i < this.lockedCells.length; i++) {
+            if (this.lockedCells[i][0] == row && this.lockedCells[i][1] == col) {
+                return true;
+            }
+        }
+        return false;
+    };
 
     TableUi.prototype.getElement = function() {
         return this.tableDiv;
@@ -143,7 +157,12 @@ define(['jquery'], function($) {
                 divHtml += '<tr>';
                 for (iCol = 0; iCol < this.templateParams.table_num_columns; iCol++) {
                     divHtml += "<td style='padding:2px;margin:0'>";
-                    divHtml += '<textarea rows="2" style="width:100%;padding:0;resize:vertical;font-family: monospace">';
+                    divHtml += '<textarea rows="2" style="width:100%;padding:0;resize:vertical;font-family: monospace"';
+                    if (this.isLockedCell(iRow, iCol)) {
+                        divHtml += ' disabled>';
+                    } else {
+                        divHtml += '>';
+                    }
                     if (iRow < preload.length) {
                         divHtml += preload[iRow][iCol];
                     }

@@ -1131,10 +1131,10 @@ The template parameters
 from the actual question are merged with, and override, those from the
 prototype (since CodeRunner V3.2.2).
 
-There is also a \'Table\' user interface element, which is still experimental
-as of version 3.5. It displays a table of text areas for the student to
+There is also a \'Table\' user interface element, which displays a table of text
+areas for the student to
 fill in. It is used by the \'python3_program_testing\' question type, which is
-included in the sample questions on github. See the plugin documentation,
+included in the sample questions on github. See the CodeRunner documentation,
 that example and the source code (ui_table.js) for more information.
 
 Students with poor eyesight, or authors wishing to inspect serialisations
