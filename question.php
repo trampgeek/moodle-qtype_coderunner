@@ -348,7 +348,7 @@ class qtype_coderunner_question extends question_graded_automatically {
     //in the given response.
     private function get_attached_files($response) {
         $attachments = array();
-        if (array_key_exists('attachments', $response)) {
+        if (array_key_exists('attachments', $response) && $response['attachments']) {
             $files = $response['attachments']->get_files();
             foreach ($files as $file) {
                 $attachments[$file->get_filename()] = $file->get_content();
