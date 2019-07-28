@@ -1,5 +1,13 @@
 # CHANGE HISTORY
 
+### 28 July 2019. 3.6.1+
+
+ * Add table_locked_cells template parameter to Table UI
+ * Bug fix: student file attachments don't work in conjunction with
+   author-supplied support files.
+ * Bug fix: attaching files after submitting a question without attachments gave
+   a runtime error
+
 ### 22 July 2019. 3.6.1
 
  * Bug fix: if a prototype and a derived question had support files with
