@@ -18,16 +18,25 @@
  * of the UI plugin architecture, see userinterfacewrapper.js.
  *
  * This plugin replaces the usual textarea answer element with a div
- * containing an HTML table. The number of columns, the column headers and
+ * containing an HTML table. The number of columns, and
  * the initial number of rows are specified by required template parameters
- * table_num_columns, table_column_headers and table_num_rows respectively.
+ * table_num_columns and table_num_rows respectively.
+ * Optional additional template parameters are:
+ *   1. table_column_headers: a list of strings that can be used to provide a
+ *      fixed header row at the top.
+ *   2. table_row_labels: a list of strings that can be used to provide a
+ *      fixed row label column at the left.
+ *   3. table_dynamic_rows, which, if true, allows the user to add rows.
+ *   4. table_locked_cells: a list of [row, column] pairs, being the coordinates
+ *      of table cells that cannot be changed by the user.
+ *   5. table_column_width_percents: a list of the percentages of the width occupied
+ *      by each column. This list must include a value for the row labels, if present.
+ *
  * The serialisation of the table, which is what is essentially copied back
  * into the textarea for submissions as the answer, is a JSON array. Each
  * element in the array is itself an array containing the values of one row
- * of the table. Empty cells are empty strings.
- *
- * An additional template parameter table_dynamic_rows, if true, allows
- * the user to add rows.
+ * of the table. Empty cells are empty strings. The table header row and row
+ * label columns are not provided in the serialisation.
  *
  * To preload the table with data, simply set the answer_preload of the question
  * to a json array of row values (each itself an array). If the number of rows
@@ -57,9 +66,10 @@ define(['jquery'], function($) {
         } else {
             this.lockedCells = [];
         }
+        this.hasHeader = templateParams.hasOwnProperty('table_num_columns');
+        this.hasRowLabels = templateParams.hasOwnProperty('table_row_labels');
         if (!templateParams.table_num_columns ||
-            !templateParams.table_num_rows ||
-            !templateParams.table_column_headers) {
+            !templateParams.table_num_rows) {
             this.fail = true;
             this.failString = 'table_ui_missingparams';
         } else {
@@ -68,8 +78,9 @@ define(['jquery'], function($) {
     }
 
     TableUi.prototype.isLockedCell = function(row, col) {
+        var actualCol = this.hasRowLabels ? col - 1 : col;
         for (var i = 0; i < this.lockedCells.length; i++) {
-            if (this.lockedCells[i][0] == row && this.lockedCells[i][1] == col) {
+            if (this.lockedCells[i][0] == row && this.lockedCells[i][1] == actualCol) {
                 return true;
             }
         }
@@ -126,9 +137,12 @@ define(['jquery'], function($) {
             divHtml = "<div style='height:fit-content' class='qtype-coderunner-table-outer-div'>\n" +
                       "<table class='table table-bordered qtype-coderunner_table'>\n",
             colWidthPercents = this.templateParams.table_column_width_percents,
-            thTag,
+            rowLabels = this.hasRowLabels ? this.templateParams.table_row_labels : [],
+            header,
             width,
-            defaultWidth = Math.trunc(100 / this.templateParams.table_num_columns);
+            iCol,
+            nCols = this.templateParams.table_num_columns + (this.hasRowLabels ? 1 : 0),
+            defaultWidth = Math.trunc(100 / nCols);
 
         if (preloadJson) {
             try {
@@ -142,31 +156,50 @@ define(['jquery'], function($) {
 
         try {
             // Build the table header
-            divHtml += "<thead>\n<tr>";
-            for(var iCol = 0; iCol < this.templateParams.table_num_columns; iCol++) {
-                width = colWidthPercents ? colWidthPercents[iCol] : defaultWidth;
-                thTag = "<th style='width:" + width.toString() + "%'>";
-                divHtml += thTag + this.templateParams.table_column_headers[iCol] + "</th>";
+            divHtml += "<thead>\n";
+            if (this.hasHeader) {
+                divHtml += "<tr>";
+                for(iCol = 0; iCol < nCols; iCol++) {
+                    width = colWidthPercents ? colWidthPercents[iCol] : defaultWidth;
+                    divHtml += "<th style='width:" + width.toString() + "%'>";
+                    if (this.hasRowLabels) {
+                        header = iCol == 0 ? '' : this.templateParams.table_column_headers[iCol - 1];
+                    } else {
+                        header = this.templateParams.table_column_headers[iCol];
+                    }
+                    divHtml += header + "</th>";
+                }
+                divHtml += "</tr>\n";
             }
-            divHtml += "</tr>\n</thead>\n";
+            divHtml += "</thead>\n";
 
-            // Build the table body. Each table cell has a textarea inside it.
+            // Build the table body. Each table cell has a textarea inside it,
+            // except for row labels (if present).
             divHtml += "<tbody>\n";
             var num_rows_required = Math.max(this.templateParams.table_num_rows, preload.length);
             for (var iRow = 0; iRow < num_rows_required; iRow++) {
                 divHtml += '<tr>';
-                for (iCol = 0; iCol < this.templateParams.table_num_columns; iCol++) {
-                    divHtml += "<td style='padding:2px;margin:0'>";
-                    divHtml += '<textarea rows="2" style="width:100%;padding:0;resize:vertical;font-family: monospace"';
-                    if (this.isLockedCell(iRow, iCol)) {
-                        divHtml += ' disabled>';
+                for (iCol = 0; iCol < nCols; iCol++) {
+                    if (this.hasRowLabels && iCol == 0) {
+                        divHtml += "<th style='padding-top:8px;text-align:center' scope='row'>";
+                        if (iRow < rowLabels.length) {
+                            divHtml += rowLabels[iRow];
+                        }
+                        divHtml += "</th>";
                     } else {
-                        divHtml += '>';
+                        divHtml += "<td style='padding:2px;margin:0'>";
+                        divHtml += '<textarea rows="2" style="width:100%;padding:0;resize:vertical;font-family: monospace"';
+                        if (this.isLockedCell(iRow, iCol)) {
+                            divHtml += ' disabled>';
+                        } else {
+                            divHtml += '>';
+                        }
+                        if (iRow < preload.length) {
+                            divHtml += preload[iRow][iCol - (this.hasRowLabels ? 1 : 0)];
+                        }
+                        divHtml += '</textarea>';
+                        divHtml += "</td>";
                     }
-                    if (iRow < preload.length) {
-                        divHtml += preload[iRow][iCol];
-                    }
-                    divHtml += '</textarea></td>';
                 }
                 divHtml += '</tr>';
             }

@@ -956,8 +956,8 @@ $string['syntax_errors'] = 'Syntax Error(s)';
 
 $string['table_ui_invalidjson'] = 'Table UI: invalid JSON serialisation.';
 $string['table_ui_invalidserialisation'] = 'Table UI: invalid serialisation.';
-$string['table_ui_missingparams'] = 'Table UI needs template parameters table_num_columns,
-table_num_rows and table_column_headers.';
+$string['table_ui_missingparams'] = 'Table UI needs template parameters table_num_columns and
+table_num_rows.';
 $string['template'] = 'Template';
 $string['template_changed'] = 'Per-test template changed - disable combinator? [\'Cancel\' leaves it enabled.]';
 $string['templatecontrols'] = 'Template controls';
