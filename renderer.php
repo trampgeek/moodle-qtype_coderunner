@@ -135,6 +135,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
                 'spellcheck' => 'false',
                 'rows'      => $rows,
                 'data-params' => $question->templateparams,
+                'data-globalextra' => $question->globalextra,
                 'data-lang' => ucwords($currentlanguage)
         );
 

@@ -64,6 +64,7 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
     function initEditForm(strings) {
         var typeCombo = $('#id_coderunnertype'),
             template = $('#id_template'),
+            globalextra = $('#id_globalextra'),
             useace = $('#id_useace'),
             language = $('#id_language'),
             acelang = $('#id_acelang'),
@@ -98,6 +99,7 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
                 params = {},
                 uiWrapper;
 
+            ta.attr('data-globalextra', globalextra.val());
             try {
                 params = JSON.parse(paramsJson);
             } catch(err) {}

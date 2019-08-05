@@ -30,14 +30,13 @@
  * elements are supported. The author is responsible for checking the
  * compatibility of other elements with jquery's val() method.
  *
- * The HTML to use in the answer area must be specified in a field 'html' in the
- * template parameters.
+ * The HTML to use in the answer area must be provided as the contents of
+ * the globalextra field in the question authoring form.
  *
  * If any fields of the answer html are to be preloaded, these should be specified
  * in the answer preload with json of the form '{"<fieldName>": "<fieldValueList>",...}'
  * where fieldValueList is a list of all the values to be assigned to the fields
  * with the given name, in document order.
- *
  *
  * To accommodate the possibility of dynamic HTML, any leftover preload values,
  * that is, values that cannot be positioned within the HTML either because
@@ -61,8 +60,8 @@
 define(['jquery'], function($) {
 
     function HtmlUi(textareaId, width, height, templateParams) {
-        this.html = templateParams.html;
         this.textArea = $(document.getElementById(textareaId));
+        this.html = this.textArea.attr('data-globalextra');
         this.readOnly = this.textArea.prop('readonly');
         this.templateParams = templateParams;
         this.fail = false;

@@ -179,7 +179,7 @@ $string['firstfailure'] = 'First failing test case: {$a}';
 $string['forexample'] = 'For example';
 
 $string['globalextra'] = 'Global extra';
-$string['globalextra_help'] = 'A field of text for general-purpose use by template authors, like the extra field of each test case, but global to all tests';
+$string['globalextra_help'] = 'A field of text for general-purpose use by template authors, like the extra field of each test case, but global to all tests. Available to the template author as {{ QUESTION.globalextra }}.';
 $string['graphhelp'] = '- Double click at a blank space to create a new node/state.
 - Double click an existing node to "mark" it e.g. as an accept state for Finite State Machines
   (FSMs). Double click again to unmark it.

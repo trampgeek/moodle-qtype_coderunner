@@ -245,7 +245,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->setExpanded('globalextrahdr', 0);
         $attributes = array(
             'rows' => 5,
-            'class' => 'globalextra');
+            'class' => 'globalextra edit_code');
         $mform->addElement('textarea', 'globalextra',
                 get_string('globalextra', 'qtype_coderunner'),
                 $attributes);
