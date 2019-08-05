@@ -101,6 +101,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
     public function definition_inner($mform) {
         $this->add_sample_answer_field($mform);
         $this->add_preload_answer_field($mform);
+        $this->add_globalextra_field($mform);
 
         if (isset($this->question->options->testcases)) {
             $numtestcases = count($this->question->options->testcases);
@@ -231,6 +232,24 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 get_string('answerpreload', 'qtype_coderunner'),
                 $attributes);
         $mform->addHelpButton('answerpreload', 'answerpreload', 'qtype_coderunner');
+    }
+
+    /**
+     * Add a field to contain extra text for use by template authors, global
+     * to all tests.
+     * @param object $mform the form being built
+     */
+    protected function add_globalextra_field($mform) {
+        $mform->addElement('header', 'globalextrahdr',
+                    get_string('globalextra', 'qtype_coderunner'), '');
+        $mform->setExpanded('globalextrahdr', 0);
+        $attributes = array(
+            'rows' => 5,
+            'class' => 'globalextra');
+        $mform->addElement('textarea', 'globalextra',
+                get_string('globalextra', 'qtype_coderunner'),
+                $attributes);
+        $mform->addHelpButton('globalextra', 'globalextra', 'qtype_coderunner');
     }
 
     /*
@@ -1032,7 +1051,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $twig = qtype_coderunner_twig::get_twig_environment(array('strict_variables' => true));
 
         // Try twig expanding everything (see question::twig_all).
-        foreach (['questiontext', 'answer', 'answerpreload'] as $field) {
+        foreach (['questiontext', 'answer', 'answerpreload', 'globalextra'] as $field) {
             $text = $data[$field];
             if (is_array($text)) {
                 $text = $text['text'];

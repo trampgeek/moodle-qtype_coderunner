@@ -91,6 +91,7 @@ class qtype_coderunner extends question_type {
             'answerboxlines',
             'answerboxcolumns',  // Defunct.
             'answerpreload',
+            'globalextra',
             'useace',
             'resultcolumns',
             'template',
@@ -135,6 +136,7 @@ class qtype_coderunner extends question_type {
             'answerboxlines',
             'answerboxcolumns',
             'answerpreload',
+            'globalextra',
             'answer',
             'validateonsave',
             'templateparams',
@@ -718,6 +720,7 @@ class qtype_coderunner extends question_type {
             'answerboxcolumns' => 90,
             'validateonsave' => 0,
             'answerpreload' => '',
+            'globalextra' => '',
             'useace' => 1,
             'iscombinatortemplate' => null,  // Probably unnecessary?
             'template' => null,  // Probably unnecessary?

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="question/type/coderunner/db" VERSION="20180903" COMMENT="XMLDB file for Moodle question/type/coderunner"
+<XMLDB PATH="question/type/coderunner/db" VERSION="20190805" COMMENT="XMLDB file for Moodle question/type/coderunner"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../../lib/xmldb/xmldb.xsd"
 >
@@ -16,6 +16,7 @@
         <FIELD NAME="answerboxlines" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="18" SEQUENCE="false" COMMENT="The number of lines for the answer box"/>
         <FIELD NAME="answerboxcolumns" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="100" SEQUENCE="false" COMMENT="Number of columns of answerbox. DEFUNCT."/>
         <FIELD NAME="answerpreload" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Text to be preloaded into the question answer box."/>
+        <FIELD NAME="globalextra" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Extra field for use by template editors, global to all tests." />
         <FIELD NAME="useace" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="1" SEQUENCE="false" COMMENT="True to use the Ace code editor for the template code."/>
         <FIELD NAME="penaltyregime" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="A comma-separated list of percentage penalties to apply to each submission. If empty use default question penalty"/>
         <FIELD NAME="answer" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="A solution to the problem. Should satisfy all the test cases (and may be used to generate solutions to them)."/>
@@ -45,7 +46,6 @@
         <FIELD NAME="filenamesregex" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="What attachment file type a student is allowed to include with their response. * or empty means unlimited."/>
         <FIELD NAME="filenamesexplain" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Explain what file names are allowed"/>
         <FIELD NAME="displayfeedback" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="0 to allow display of specific feedback to be controlled by quiz, 1 to force display, 2 to force hide"/>
-
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

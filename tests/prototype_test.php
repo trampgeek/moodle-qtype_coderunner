@@ -120,6 +120,7 @@ EOTEMPLATE;
     <answerboxlines></answerboxlines>
     <answerboxcolumns></answerboxcolumns>
     <answerpreload></answerpreload>
+    <globalextra></globalextra>
     <useace></useace>
     <resultcolumns></resultcolumns>
     <template></template>

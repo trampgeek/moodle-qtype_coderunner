@@ -409,6 +409,7 @@ class qtype_coderunner_question extends question_graded_automatically {
         $this->generalfeedback = $this->twig_expand($this->generalfeedback);
         $this->answer = $this->twig_expand($this->answer);
         $this->answerpreload = $this->twig_expand($this->answerpreload);
+        $this->globalextra = $this->twig_expand($this->globalextra);
         foreach ($this->testcases as $key => $test) {
             foreach (['testcode', 'stdin', 'expected', 'extra'] as $field) {
                 $text = $this->testcases[$key]->$field;

@@ -1191,6 +1191,7 @@ EOPROG;
         $coderunner->displayfeedback = 1;
         $coderunner->answer = '';
         $coderunner->answerpreload = '';
+        $coderunner->globalextra = '';
         $coderunner->allornothing = true;
         $coderunner->student = '';  // Would normally be filled in by question->start_attempt
         $coderunner->showsource = false;

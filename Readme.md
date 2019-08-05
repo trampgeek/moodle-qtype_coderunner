@@ -1117,6 +1117,7 @@ following.
  * `QUESTION.answerpreload` The string that is preloaded into the answer box.
  * `QUESTION.language` The language being used to run the question in the sandbox,
 e.g. "Python3".
+ * `QUESTION.globalextra` Extra data for use by template authors, global to all tests.
  * `QUESTION.useace` '1'/'0' if the ace editor is/is not in use.
  * `QUESTION.sandbox` The sandbox being used, e.g. "jobesandbox".
  * `QUESTION.grader` The PHP grader class being used, e.g. "EqualityGrader".
