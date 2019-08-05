@@ -1134,8 +1134,14 @@ prototype (since CodeRunner V3.2.2).
 There is also a \'Table\' user interface element, which displays a table of text
 areas for the student to
 fill in. It is used by the \'python3_program_testing\' question type, which is
-included in the sample questions on github. See the CodeRunner documentation,
-that example and the source code (ui_table.js) for more information.
+included in the sample questions on github. This takes template parameters of
+table_num_rows and table_num_columns (both required) and optional table_column_headers
+(a list of strings with which to label columns), table_row_labels (a list of
+strings with which to label rows) and table_column_width_percents (a list of
+the percentages of the table width to allocate to all columns, including the
+row label column if specified) and table_locked_cells (a list of [row, column]
+pairs of cells that the user cannot alter - the row and column indices are
+0-origin but do not include the row label column or the column header row).
 
 Students with poor eyesight, or authors wishing to inspect serialisations
 (say to understand the representation used by the Graph UI),
