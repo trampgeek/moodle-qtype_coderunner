@@ -409,7 +409,7 @@ class qtype_coderunner extends question_type {
             $context = $this->question_context($question);
             $prototype = $this->get_prototype($qtype, $context);
             $this->set_inherited_fields($options, $prototype);
-            if ($prototype !== null) {
+            if ($prototype !== null && trim($prototype->templateparams) !== '') {
                 $options->mergedtemplateparams = qtype_coderunner_util::merge_json(
                     $prototype->templateparams, $options->templateparams);
             } else { // Missing prototype!
