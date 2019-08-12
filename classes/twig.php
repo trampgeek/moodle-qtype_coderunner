@@ -66,6 +66,20 @@ class qtype_coderunner_twig {
         }
         return $twig;
     }
+
+
+    // Render the given Twigged string by constructing a twig environment
+    // that includes the STUDENT variable and rendering the given string
+    // in that environment.
+    // Return the Twig-expanded string.
+    // Any Twig exceptions raised must be caught higher up.
+    public static function render($s) {
+        global $USER;
+        $twig = qtype_coderunner_twig::get_twig_environment(array('strict_variables' => true));
+        $twigparams = array('STUDENT' => new qtype_coderunner_student($USER));
+        $renderedstring = $twig->render($s, $twigparams);
+        return $renderedstring;
+    }
 }
 
 /** Define a Twig extension that overrides the built-in random function
