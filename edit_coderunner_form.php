@@ -61,10 +61,15 @@ class qtype_coderunner_edit_form extends question_edit_form {
         global $PAGE;
 
         $mform = $this->_form;
+        $this->mergedtemplateparams = '';
+        $this->twiggedparams = '';
         if (!empty($this->question->options->mergedtemplateparams)) {
             $this->mergedtemplateparams = $this->question->options->mergedtemplateparams;
-        } else {
-            $this->mergedtemplateparams = '';
+            try {
+                $this->twiggedparams = qtype_coderunner_twig::render($this->mergedtemplateparams);
+            } catch (Exception $ex) {
+                // If the params are broken, don't use them.
+            }
         }
         if (!empty($this->question->options->language)) {
             $this->lang = $this->acelang = $this->question->options->language;
@@ -192,7 +197,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $attributes = array(
             'rows' => 9,
             'class' => 'answer edit_code',
-            'data-params' => $this->mergedtemplateparams,
+            'data-params' => $this->twiggedparams,
             'data-lang' => $this->acelang);
         $mform->addElement('textarea', 'answer',
                 get_string('answer', 'qtype_coderunner'),
@@ -226,7 +231,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $attributes = array(
             'rows' => 5,
             'class' => 'preloadanswer edit_code',
-            'data-params' => $this->mergedtemplateparams,
+            'data-params' => $this->twiggedparams,
             'data-lang' => $this->acelang);
         $mform->addElement('textarea', 'answerpreload',
                 get_string('answerpreload', 'qtype_coderunner'),
@@ -970,9 +975,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
             $ok = true;
             $json = $data['templateparams'];
             try {
-                $twig = qtype_coderunner_twig::get_twig_environment(array('strict_variables' => true));
-                $twigparams = array('STUDENT' => new qtype_coderunner_student($USER));
-                $renderedparams = $twig->render($json, $twigparams);
+                $renderedparams = qtype_coderunner_twig::render($json);
                 if (str_replace($renderedparams, "\r", '') !==
                         str_replace($json, "\r", '')) {
                     // Twig loses '\r' chars, so must strip them before checking.
