@@ -1,6 +1,6 @@
 # CODE RUNNER
 
-Version: 3.6.1 July 2019
+Version: 3.7.0 August 2019
 
 Authors: Richard Lobb, University of Canterbury, New Zealand.
          Tim Hunt, The Open University, UK
@@ -12,62 +12,64 @@ can post CodeRunner questions, such as
 requests for help if things go wrong, or are looking for ideas on how to write some
 unusual question type.
 
-<!--ts-->
-   * [CODE RUNNER](#code-runner)
-      * [Introduction](#introduction)
-      * [Installation](#installation)
-         * [Upgrading from a CodeRunner version earlier than 2.4.0](#upgrading-from-a-coderunner-version-earlier-than-240)
-         * [Upgrading from CodeRunner versions between 2.4 and 3.0](#upgrading-from-coderunner-versions-between-24-and-30)
-            * [Note for enthusiasts only.](#note-for-enthusiasts-only)
-         * [Installing CodeRunner from scratch](#installing-coderunner-from-scratch)
-         * [Preliminary testing of the CodeRunner question type](#preliminary-testing-of-the-coderunner-question-type)
-         * [Sandbox Configuration](#sandbox-configuration)
-         * [Running the unit tests](#running-the-unit-tests)
-      * [The Architecture of CodeRunner](#the-architecture-of-coderunner)
-      * [Question types](#question-types)
-         * [An example question type](#an-example-question-type)
-         * [Built-in question types](#built-in-question-types)
-         * [Some more-specialised question types](#some-more-specialised-question-types)
-      * [Templates](#templates)
-         * [Per-test templates](#per-test-templates)
-         * [Combinator templates](#combinator-templates)
-         * [Customising templates](#customising-templates)
-      * [Using the template as a script for more advanced questions](#using-the-template-as-a-script-for-more-advanced-questions)
-         * [Twig Escapers](#twig-escapers)
-      * [Template parameters](#template-parameters)
-         * [The Twig QUESTION variable](#the-twig-question-variable)
-         * [The Twig STUDENT variable](#the-twig-student-variable)
-      * [Randomising questions](#randomising-questions)
-         * [How it works](#how-it-works)
-         * [Randomising per-student rather than per-question-attempt](#randomising-per-student-rather-than-per-question-attempt)
-         * [An important warning about editing template parameters](#a-important-warning-about-editing-template-parameters)
-         * [Hoisting the template parameters](#hoisting-the-template-parameters)
-         * [Miscellaneous tips](#miscellaneous-tips)
-      * [Grading with templates](#grading-with-templates)
-         * [Per-test-case template grading](#per-test-case-template-grading)
-         * [Combinator-template grading](#combinator-template-grading)
-      * [Template grader examples](#template-grader-examples)
-         * [A simple grading-template example](#a-simple-grading-template-example)
-         * [A more advanced grading-template example](#a-more-advanced-grading-template-example)
-      * [Customising the result table](#customising-the-result-table)
-         * [Column specifiers](#column-specifiers)
-         * [HTML formatted columns](#html-formatted-columns)
-         * [Extended column specifier syntax (<em>obsolescent</em>)](#extended-column-specifier-syntax-obsolescent)
-         * [Default result columns](#default-result-columns)
-      * [User-interface selection](#user-interface-selection)
-         * [The Graph UI](#the-graph-ui)
-         * [The Table UI](#the-table-ui)
-         * [Other UI plugins](#other-ui-plugins)
-      * [User-defined question types](#user-defined-question-types)
-      * [Supporting or implementing new languages](#supporting-or-implementing-new-languages)
-      * [Multilanguage questions](#multilanguage-questions)
-      * [Administrator scripts](#administrator-scripts)
-      * [A note on accessibility](#a-note-on-accessibility)
-      * [APPENDIX: How programming quizzes should work](#appendix-how-programming-quizzes-should-work)
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
-<!-- Added by: rjl83, at: 2018-04-28T18:05+12:00 -->
+- [CODE RUNNER](#code-runner)
+  - [Introduction](#introduction)
+  - [Installation](#installation)
+    - [Upgrading from a CodeRunner version earlier than 2.4.0](#upgrading-from-a-coderunner-version-earlier-than-240)
+    - [Upgrading from CodeRunner versions between 2.4 and 3.0](#upgrading-from-coderunner-versions-between-24-and-30)
+      - [Note for enthusiasts only.](#note-for-enthusiasts-only)
+    - [Installing CodeRunner from scratch](#installing-coderunner-from-scratch)
+    - [Preliminary testing of the CodeRunner question type](#preliminary-testing-of-the-coderunner-question-type)
+    - [Setting the quiz review options](#setting-the-quiz-review-options)
+    - [Sandbox Configuration](#sandbox-configuration)
+    - [Running the unit tests](#running-the-unit-tests)
+  - [The Architecture of CodeRunner](#the-architecture-of-coderunner)
+  - [Question types](#question-types)
+    - [An example question type](#an-example-question-type)
+    - [Built-in question types](#built-in-question-types)
+    - [Some more-specialised question types](#some-more-specialised-question-types)
+  - [Templates](#templates)
+    - [Per-test templates](#per-test-templates)
+    - [Combinator templates](#combinator-templates)
+    - [Customising templates](#customising-templates)
+  - [Using the template as a script for more advanced questions](#using-the-template-as-a-script-for-more-advanced-questions)
+    - [Twig Escapers](#twig-escapers)
+  - [Template parameters](#template-parameters)
+    - [The Twig QUESTION variable](#the-twig-question-variable)
+    - [The Twig STUDENT variable](#the-twig-student-variable)
+  - [Randomising questions](#randomising-questions)
+    - [How it works](#how-it-works)
+    - [Randomising per-student rather than per-question-attempt](#randomising-per-student-rather-than-per-question-attempt)
+    - [An important warning about editing template parameters](#an-important-warning-about-editing-template-parameters)
+    - [Hoisting the template parameters](#hoisting-the-template-parameters)
+    - [Miscellaneous tips](#miscellaneous-tips)
+  - [Grading with templates](#grading-with-templates)
+    - [Per-test-case template grading](#per-test-case-template-grading)
+    - [Combinator-template grading](#combinator-template-grading)
+  - [Template grader examples](#template-grader-examples)
+    - [A simple grading-template example](#a-simple-grading-template-example)
+    - [A more advanced grading-template example](#a-more-advanced-grading-template-example)
+  - [Customising the result table](#customising-the-result-table)
+    - [Column specifiers](#column-specifiers)
+    - [HTML formatted columns](#html-formatted-columns)
+    - [Extended column specifier syntax (*obsolescent*)](#extended-column-specifier-syntax-obsolescent)
+    - [Default result columns](#default-result-columns)
+  - [User-interface selection](#user-interface-selection)
+    - [The Graph UI](#the-graph-ui)
+    - [The Table UI](#the-table-ui)
+    - [Other UI plugins](#other-ui-plugins)
+  - [User-defined question types](#user-defined-question-types)
+  - [Supporting or implementing new languages](#supporting-or-implementing-new-languages)
+  - [Multilanguage questions](#multilanguage-questions)
+  - [Administrator scripts](#administrator-scripts)
+  - [A note on accessibility](#a-note-on-accessibility)
+  - [APPENDIX: How programming quizzes should work](#appendix-how-programming-quizzes-should-work)
 
-<!--te-->
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 ## Introduction
 
@@ -1804,19 +1806,23 @@ The table UI plug-in replaces the usual textarea answer element with an HTML tab
 into which the student must enter text data. All cells in the table are
 HTML *textarea* elements. The question author can enable *Add row* and
 *Delete row* buttons that allow the student to add or delete rows. The configuration
-of the table is set by the following template parameters:
+of the table is set by the following template parameters, where the first two
+are required and the rest are optional.
 
- o `table_num_rows` sets the (initial) number of table rows, excluding the header
- o `table_num_columns` set the number of table columns
- o `table_column_headers` is a list of strings used for column headers
- o `table_column_width_percents` is a list of numeric percentage widths of the different
+ o `table_num_rows` (required): sets the (initial) number of table rows, excluding the header.
+ o `table_num_columns` (required): sets the number of table columns.
+ o `table_column_headers` (optional): a list of strings used for column headers. By default
+   no column headers are used.
+ o `table_row_labels` (optional): a list of strings used for row labels. By
+   default no row labels are used.
+ o `table_column_width_percents` (optional): a list of numeric percentage widths of the different
    columns. For example, if there are two columns, and the first one is to
    occupy one-quarter of the available width, the list should be \[25, 75\].
-   This parameter is optional; by default all columns have the same width.
- o `table_dynamic_rows` should be set `true` to enable the addition of *Add row*
+   By default all columns have the same width.
+ o `table_dynamic_rows` (optional): set `true` to enable the addition of *Add row*
    and *Delete row* buttons through which the student can alter the number of
    rows. The number of rows can never be less than the initial `table_num_rows` value.
- o `table_locked_cells` is an array of 2-element [row, column] cell specifiers.
+ o `table_locked_cells` (optional): an array of 2-element [row, column] cell specifiers.
    The specified cells are rendered to HTML with the *disabled* attribute, so
    cannot be changed by the user. For example
 
