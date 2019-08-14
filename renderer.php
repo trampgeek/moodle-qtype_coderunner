@@ -123,7 +123,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
         $qtext .= html_writer::end_tag('div');
 
         $preload = isset($question->answerpreload) ? $question->answerpreload : '';
-        if ($preload) {  // Add a reset button if preloaded text is non-empty
+        if ($preload) {  // Add a reset button if preloaded text is non-empty.
             $qtext .= self::reset_button($qa, $responsefieldid, $preload);
         }
 
@@ -161,7 +161,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
                     array('class' => 'validationerror'));
         }
 
-        // Add file upload controls if attachments are allowed
+        // Add file upload controls if attachments are allowed.
         $files = '';
         if ($question->attachments) {
             if (empty($options->readonly)) {
@@ -172,7 +172,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
             }
             $qtext .= html_writer::tag('div', $files,
                     array('class' => 'form-filemanager', 'data-fieldtype' => 'filemanager'));
-            // class and data-fieldtype are so behat can find the filemanager in both boost and clean themes.
+            // Class and data-fieldtype are so behat can find the filemanager in both boost and clean themes.
         }
 
         // Initialise any JavaScript UI. Default is Ace unless uiplugin is explicitly
@@ -514,7 +514,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
         $pickeroptions->maxbytes = intval($question->maxfilesize);
         $pickeroptions->context = $options->context;
         $pickeroptions->return_types = FILE_INTERNAL | FILE_CONTROLLED_LINK;
-        $pickeroptions->accepted_types = '*';  // Accept anything - names checked on upload
+        $pickeroptions->accepted_types = '*';  // Accept anything - names checked on upload.
         $pickeroptions->itemid = $qa->prepare_response_files_draft_itemid(
                 'attachments', $options->context->id);
 
@@ -529,12 +529,12 @@ class qtype_coderunner_renderer extends qtype_renderer {
                     . ': ' . $question->filenamesregex);
         }
 
-        # In order to prevent a spurious warning message when checking or saving
-        # the question after modifying the uploaded files, we need to explicitly
-        # initialise the form change checker, to ensure the onsubmit action for
-        # the form calls the set_form_submitted function in the module.
-        # This is only needed during Preview as it's apparently done anyway
-        # in normal quiz display mode, but we do it here regardless.
+        // In order to prevent a spurious warning message when checking or saving
+        // the question after modifying the uploaded files, we need to explicitly
+        // initialise the form change checker, to ensure the onsubmit action for
+        // the form calls the set_form_submitted function in the module.
+        // This is only needed during Preview as it's apparently done anyway
+        // in normal quiz display mode, but we do it here regardless.
         $PAGE->requires->yui_module('moodle-core-formchangechecker',
                 'M.core_formchangechecker.init',
                 array(array('formid' => 'responseform'))

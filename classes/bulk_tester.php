@@ -106,7 +106,7 @@ class qtype_coderunner_bulk_tester {
             SELECT count(q.id) as count
             FROM {question} q
             WHERE q.category=:categoryid",
-                array('categoryid'=>$categoryid));
+                array('categoryid' => $categoryid));
         return $rec->count;
     }
 
@@ -122,7 +122,7 @@ class qtype_coderunner_bulk_tester {
             SELECT id
             FROM {question_categories} qc
             WHERE qc.parent=:categoryid",
-                array('categoryid'=>$categoryid));
+                array('categoryid' => $categoryid));
         $children = array();
         foreach ($rows as $row) {
             $children[] = $row->id;
@@ -137,7 +137,7 @@ class qtype_coderunner_bulk_tester {
             SELECT name
             FROM {question_categories} qc
             WHERE qc.id=:categoryid",
-                array('categoryid'=>$categoryid));
+                array('categoryid' => $categoryid));
         return $row->name;
     }
 

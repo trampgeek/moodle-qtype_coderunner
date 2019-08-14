@@ -73,11 +73,10 @@ define(['jquery'], function($) {
         this.hasHeader = templateParams.hasOwnProperty('table_column_headers');
         this.hasRowLabels = templateParams.hasOwnProperty('table_row_labels');
         this.numDataColumns = templateParams.table_num_columns;
-        this.totNumColumns =  this.numDataColumns + (this.hasRowLabels ? 1 : 0);
+        this.totNumColumns = this.numDataColumns + (this.hasRowLabels ? 1 : 0);
         this.columnWidths = this.computeColumnWidths();
         this.reload();
     }
-
 
     // Return an array of the percentage widths required for each of the
     // totNumColumns columns.
@@ -86,7 +85,7 @@ define(['jquery'], function($) {
             columnWidths = [];
         if (this.templateParams.table_column_width_percents) {
             return this.templateParams.table_column_width_percents;
-        } else if (Array.prototype.fill) { // Anything except bloody IE
+        } else if (Array.prototype.fill) { // Anything except bloody IE.
             return new Array(this.totNumColumns).fill(defaultWidth);
         } else { // IE. What else?
             for (var i = 0; i < this.totNumColumns; i++) {
@@ -95,7 +94,6 @@ define(['jquery'], function($) {
             return columnWidths;
         }
     };
-
 
     // Return True if the cell at the given row and column is locked.
     // The given row and column numbers exclude column headers and row labels.
@@ -120,14 +118,12 @@ define(['jquery'], function($) {
         return this.failString;
     };
 
-
-   // Copy the serialised version of the Table UI area to the TextArea.
+    // Copy the serialised version of the Table UI area to the TextArea.
     TableUi.prototype.sync = function() {
         var
             serialisation = [],
             empty = true,
             tableRows = $(this.tableDiv).find('table tbody tr');
-
 
         tableRows.each(function () {
             var rowValues = [];
@@ -148,7 +144,7 @@ define(['jquery'], function($) {
         }
     };
 
-    // Return the HTML for row number iRow
+    // Return the HTML for row number iRow.
     TableUi.prototype.tableRow = function(iRow, preload) {
         var html = '<tr>', widthIndex = 0, width;
 
@@ -182,11 +178,10 @@ define(['jquery'], function($) {
         return html;
     };
 
-
     // Return the HTML for the table's head section.
     TableUi.prototype.tableHeadSection = function() {
         var html = "<thead>\n",
-            colIndex = 0;  // Column index including row label if present
+            colIndex = 0;  // Column index including row label if present.
 
         if (this.hasHeader) {
             html += "<tr>";
@@ -210,12 +205,11 @@ define(['jquery'], function($) {
         return html;
     };
 
-
     // Build the HTML table, filling it with the data from the serialisation
     // currently in the textarea (if there is any).
     TableUi.prototype.reload = function() {
         var
-            preloadJson = $(this.textArea).val(), // JSON-encoded table values
+            preloadJson = $(this.textArea).val(), // JSON-encoded table values.
             preload = [],
             divHtml = "<div style='height:fit-content' class='qtype-coderunner-table-outer-div'>\n" +
                       "<table class='table table-bordered qtype-coderunner_table'>\n";
@@ -231,7 +225,7 @@ define(['jquery'], function($) {
         }
 
         try {
-            // Build the table head section
+            // Build the table head section.
             divHtml += this.tableHeadSection();
 
             // Build the table body. Each table cell has a textarea inside it,
@@ -253,8 +247,7 @@ define(['jquery'], function($) {
         }
     };
 
-
-    // Add 'Add row' and 'Delete row' buttons at the end of the table
+    // Add 'Add row' and 'Delete row' buttons at the end of the table.
     TableUi.prototype.addButtons = function() {
         var deleteButtonHtml = '<button type="button"' +
                 'style="float:right;margin-right:6px" disabled>Delete row</button>',
@@ -267,7 +260,7 @@ define(['jquery'], function($) {
             if (numRows > t.templateParams.table_num_rows) {
                 lastRow.remove();
             }
-            lastRow = t.tableDiv.find('tr:last'); // New last row
+            lastRow = t.tableDiv.find('tr:last'); // New last row.
             if (numRows == t.templateParams.table_num_rows + 1) {
                 $(this).prop('disabled', true);
             }
@@ -280,15 +273,14 @@ define(['jquery'], function($) {
         addButton.click(function() {
             var lastRow, newRow;
             lastRow = t.tableDiv.find('table tbody tr:last');
-            newRow = lastRow.clone();  // Copy the last row of the table
-            newRow.find('textarea').each(function() {  // Clear all td elements in it
+            newRow = lastRow.clone();  // Copy the last row of the table.
+            newRow.find('textarea').each(function() {  // Clear all td elements in it.
                 $(this).val('');
             });
             lastRow.after(newRow);
             $(this).prev().prop('disabled', false);
         });
     };
-
 
     TableUi.prototype.resize = function() {}; // Nothing to see here. Move along please.
 

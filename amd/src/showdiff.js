@@ -46,7 +46,7 @@ define(['jquery'], function($) {
             if (has_fill) {
                    lengths[i].fill(0);
             } else {
-                // Bloody IE
+                // Bloody IE.
                 for (j = 0; j < n2 + 1; j++) {
                     lengths[i][j] = 0;
                 }
@@ -249,7 +249,7 @@ define(['jquery'], function($) {
         thEls = table.find('th');
         tableRows = table.find('tbody tr');
 
-        // Find 'Expected' and 'Got' columns
+        // Find 'Expected' and 'Got' columns.
         thEls.each(function() {
             if ($(this).html() === gotString) {
                 gotCol = columnCount;

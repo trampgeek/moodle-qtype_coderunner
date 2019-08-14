@@ -41,13 +41,13 @@ function update_question_types() {
     $systemcontextid = $systemcontext->id;
 
     delete_existing_prototypes($systemcontextid);
-    if (function_exists('question_get_top_category')) { // Moodle version >= 3.5
+    if (function_exists('question_get_top_category')) { // Moodle version >= 3.5.
         $parentid = get_top_id($systemcontextid);
     } else {
         $parentid = 0;
     }
-    $prototypes_category = find_or_make_prototype_category($systemcontextid, $parentid);
-    load_new_prototypes($systemcontextid, $prototypes_category);
+    $prototypescategory = find_or_make_prototype_category($systemcontextid, $parentid);
+    load_new_prototypes($systemcontextid, $prototypescategory);
     return true;
 }
 
@@ -86,7 +86,7 @@ function get_top_id($systemcontextid) {
     foreach ($tops as $id => $category) {
         if (strtolower($category->name) === 'top') {
             $topid = $category->id;
-        } elseif ($category->name === 'CR_PROTOTYPES') {
+        } else if ($category->name === 'CR_PROTOTYPES') {
             $prototypecategoryid = $category->id;
             $prototypecat = $category;
         }
@@ -94,13 +94,13 @@ function get_top_id($systemcontextid) {
     if ($topid === 0 && $prototypecategoryid === 0) {
         // No top and no CR_PROTOTYPES category. Make and return a new top.
         $topid = question_get_top_category($systemcontextid, true)->id;
-    } elseif ($topid === 0 && $prototypecategoryid !== 0) {
+    } else if ($topid === 0 && $prototypecategoryid !== 0) {
         // No top found but we do have an existing CR_PROTOTYPES category
         // which will have been treated as a 'top' proxy. Rename it to 'top'
         // and use that as the real top.
         $topid = $prototypecategoryid;
         make_cr_prototypes_top($prototypecat);
-    } elseif ($topid !== 0 && $prototypecategoryid !== 0) {
+    } else if ($topid !== 0 && $prototypecategoryid !== 0) {
         // We have both top and CR_PROTOTYPES categories. This is broken,
         // and needs to be repaired.
         $prototypecat->parent = $topid;
@@ -150,12 +150,12 @@ function make_cr_prototypes_top($category) {
 
 
 // Load any files in the db directory ending with _PROTOTYPES.xml.
-function load_new_prototypes($systemcontextid, $prototype_category) {
+function load_new_prototypes($systemcontextid, $prototypecategory) {
     $dbfiles = scandir(__DIR__);
     foreach ($dbfiles as $file) {
         if (strpos(strrev($file), strrev('_PROTOTYPES.xml')) === 0) {
             $filename = __DIR__ . '/' . $file;
-            load_questions($prototype_category, $filename, $systemcontextid);
+            load_questions($prototypecategory, $filename, $systemcontextid);
         }
     }
 }

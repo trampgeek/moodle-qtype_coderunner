@@ -58,11 +58,11 @@ echo $OUTPUT->heading($title);
 
 echo "<table class='table table-bordered table-striped'>\n";
 echo "<tr><th>Q1 name</th><th>Q1 Category</th><th>Q2 name</th><th>Q2 category</th></tr>\n";
-// Find all the duplicates
+// Find all the duplicates.
 $allquestionsmap = $bulktester->get_all_coderunner_questions_in_context($contextid);
 $allquestions = array_values($allquestionsmap);
 $numduplicates = 0;
-for($i = 0; $i < count($allquestions); $i++) {
+for ($i = 0; $i < count($allquestions); $i++) {
     $q1 = $allquestions[$i];
     $q1text = $q1->questiontext;
     for ($j = $i + 1; $j < count($allquestions); $j++) {

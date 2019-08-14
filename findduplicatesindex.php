@@ -67,11 +67,11 @@ if (count($availablequestionsbycontext) == 0) {
             $findduplicatesurl = new moodle_url('/question/type/coderunner/findduplicates.php', array('contextid' => $contextid));
             $findduplicateslink = html_writer::link($findduplicatesurl,
                     'Find duplicates',
-                    array('title' =>'Find all duplicates in this context',
-                          'style'=>$buttonstyle));
-            $li_text =  $name . ' (' . $numcoderunnerquestions . ') ' . $findduplicateslink;
+                    array('title' => 'Find all duplicates in this context',
+                          'style' => $buttonstyle));
+            $litext = $name . ' (' . $numcoderunnerquestions . ') ' . $findduplicateslink;
             echo html_writer::start_tag('li', array('class' => $class));
-            echo $li_text;
+            echo $litext;
         }
     }
     echo html_writer::end_tag('ul');

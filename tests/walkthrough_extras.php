@@ -134,6 +134,7 @@ EOTEMPLATE;
         // correctly in the template.
 
         $q = $this->make_question('sqr');
+
         $q->templateparams = <<<EOTEMPLATEPARAMS
 {
     "string1": """Line1
@@ -151,20 +152,20 @@ print("+++")
 print('{{string2}}')
 print("---")
 EOTEMPLATE;
-        $q->allornothing = false;
-        $q->iscombinatortemplate = false;
-        $q->testcases = array(
-                       (object) array('type' => 0,
-                         'testcode'       => '',
-                         'expected'       => <<<EOEXPECTED
+        $expected = <<<EOEXPECTED
 Line1
 Line2
 He said "Hi!"
 +++
 import thing
 print("Look at me.")
-EOEXPECTED
-,
+EOEXPECTED;
+        $q->allornothing = false;
+        $q->iscombinatortemplate = false;
+        $q->testcases = array(
+                       (object) array('type' => 0,
+                         'testcode'       => '',
+                         'expected'       => $expected,
                          'stdin'          => '',
                          'extra'          => '',
                          'useasexample'   => 0,

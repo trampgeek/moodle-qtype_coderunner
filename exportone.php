@@ -1,5 +1,5 @@
 <?php
-// This file is copied from Stack with trivial mods - http://stack.bham.ac.uk/
+// This file is part of CodeRunner - http://coderunner.org.nz/.
 //
 // CodeRunner is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -15,7 +15,8 @@
 // along with CodeRunner.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Script to download the export of a single CodeRunner question.
+ * Script to download the export of a single CodeRunner question. It is copied
+ * from the stack question type plugin, with relatively trivial changes.
  *
  * @copyright 2015 the Open University
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later

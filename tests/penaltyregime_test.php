@@ -51,10 +51,10 @@ class qtype_coderunner_penaltyregime_test extends qbehaviour_walkthrough_test_ba
 
     // Support function to run the sqr question with the given penalty regime,
     // making $numbadattempts wrong submissions followed by a correct submission.
-    // Check the resulting mark = $expected
+    // Check the resulting mark = $expected.
     public function run_with_regime($regime, $numbadattempts, $expected) {
         $helper = new qtype_coderunner_test_helper();
-        $q = $helper->make_coderunner_question_sqr(array('penaltyregime'=>$regime));
+        $q = $helper->make_coderunner_question_sqr(array('penaltyregime' => $regime));
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
         for ($i = 1; $i <= $numbadattempts; $i++) {
             // Submit a totally wrong answer $numbadattempts times.
@@ -64,7 +64,7 @@ class qtype_coderunner_penaltyregime_test extends qbehaviour_walkthrough_test_ba
         }
         // Now get it right.
         $this->process_submission(array('-submit' => 1, 'answer' => 'def sqr(n): return n * n'));
-        $this->check_current_mark($expected) ;
+        $this->check_current_mark($expected);
     }
 
     public function test_with_good_regime() {

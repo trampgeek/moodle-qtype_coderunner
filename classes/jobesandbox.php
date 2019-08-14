@@ -230,8 +230,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
         $pattern = '/(^|\W)public\s+class\s+(\w+)[^{]*\{.*?public\s+static\s+void\s+main\s*\(\s*String/ms';
         if (preg_match_all($pattern, $prog, $matches) !== 1) {
             return false;
-        }
-        else {
+        } else {
             return $matches[2][0];
         }
     }

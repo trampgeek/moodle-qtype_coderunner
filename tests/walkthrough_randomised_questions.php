@@ -1,4 +1,19 @@
 <?php
+// This file is part of CodeRunner - http://coderunner.org.nz/
+//
+// CodeRunner is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// CodeRunner is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with CodeRunner.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Further walkthrough tests for the CodeRunner plugin, testing the
  * randomisation mechanisem.
@@ -42,7 +57,7 @@ class qtype_coderunner_walkthrough_randomisation_test extends qbehaviour_walkthr
 
         foreach ($tests as $test) {
             while ($iters < 50) {
-                // Keep trying the question until we get desired search string
+                // Keep trying the question until we get desired search string.
                 $q = test_question_maker::make_question('coderunner', 'sqr');
                 $this->add_fields($q);
                 $this->start_attempt_at_question($q, 'adaptive', 1, 1);
@@ -75,7 +90,7 @@ class qtype_coderunner_walkthrough_randomisation_test extends qbehaviour_walkthr
         );
 
         foreach ($tests as $test) {
-            // First, iterate the seed until the desired situation occurs
+            // First, iterate the seed until the desired situation occurs.
             $found = false;
             $seed = 1000;
             while ($seed < 1100 && !$found) {
@@ -91,7 +106,7 @@ class qtype_coderunner_walkthrough_randomisation_test extends qbehaviour_walkthr
 
             $this->assertTrue($found);
 
-            // Without changing seed, check that the same results occur every time
+            // Without changing seed, check that the same results occur every time.
             for ($i = 0; $i < 20; $i++) {
                 $q = test_question_maker::make_question('coderunner', 'sqr');
                 $this->add_fields($q, $seed);

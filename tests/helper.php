@@ -173,7 +173,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
     }
 
 
-        /**
+    /**
      * Gets the form data that would come back when the editing form is saved,
      * if you were creating a Python3 question with a template that just
      * prints the student answer. This question has no test cases defined.
@@ -244,7 +244,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
      * @return stdClass the form data.
      */
     public function get_coderunner_question_form_data_python3_noace() {
-        $form = get_coderunner_question_form_data_sqr();  // Starting point
+        $form = get_coderunner_question_form_data_sqr();  // Starting point.
         throw new Exception("Got here");
         $form->name = 'PROTOTYPE python3_noace';
         $form->prototypetype = 2;
@@ -1193,7 +1193,7 @@ EOPROG;
         $coderunner->answerpreload = '';
         $coderunner->globalextra = '';
         $coderunner->allornothing = true;
-        $coderunner->student = '';  // Would normally be filled in by question->start_attempt
+        $coderunner->student = '';  // Would normally be filled in by question->start_attempt.
         $coderunner->showsource = false;
         $coderunner->generalfeedback = 'No feedback available for coderunner questions.';
         $coderunner->penaltyregime = '10, 20, ...';
@@ -1215,9 +1215,8 @@ EOPROG;
         // a hack to allow checking of some of the form processing code without
         // having to use Behat. There's probably a better way, but I don't know it.
         $coderunnertype = new qtype_coderunner();
-        $coderunnertype->clean_question_form($coderunner, True);
+        $coderunnertype->clean_question_form($coderunner, true);
         $this->get_options($coderunner);
-
 
         return $coderunner;
     }

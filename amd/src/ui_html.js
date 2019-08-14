@@ -73,8 +73,7 @@ define(['jquery'], function($) {
         return this.fail;
     };
 
-
-   // Copy the serialised version of the HTML UI area to the TextArea.
+    // Copy the serialised version of the HTML UI area to the TextArea.
     HtmlUi.prototype.sync = function() {
         var
             serialisation = {},
@@ -117,7 +116,7 @@ define(['jquery'], function($) {
     // Set the value of the jQuery field to the given value.
     // If the field is a radio button or a checkbox and its name matches
     // the given value, the checked attribute is set. Otherwise the field's
-    // val() function is called to set the value
+    // val() function is called to set the value.
     HtmlUi.prototype.setField = function(field, value) {
         if (field.attr('type') === 'checkbox' || field.attr('type') === 'radio') {
             field.prop('checked', field.val() === value);
@@ -128,7 +127,7 @@ define(['jquery'], function($) {
 
     HtmlUi.prototype.reload = function() {
         var
-            content = $(this.textArea).val(), // JSON-encoded HTML element settings
+            content = $(this.textArea).val(), // JSON-encoded HTML element settings.
             valuesToLoad,
             values,
             i,

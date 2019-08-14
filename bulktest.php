@@ -29,7 +29,7 @@ require_once($CFG->libdir . '/questionlib.php');
 
 // Get the parameters from the URL.
 $contextid = required_param('contextid', PARAM_INT);
-$categoryid = optional_param('categoryid', NULL, PARAM_INT);
+$categoryid = optional_param('categoryid', null, PARAM_INT);
 
 // Login and check permissions.
 $context = context::instance_by_id($contextid);

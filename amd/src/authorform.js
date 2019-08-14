@@ -296,7 +296,7 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
         }
 
         // If the missingPrototype hidden element is not empty, insert the
-        // given message as an error at the top of the question
+        // given message as an error at the top of the question.
         function checkForMissingPrototype() {
             var missingPrototypeMessage = missingPrototype.prop('value'),
                 messagePara = null;

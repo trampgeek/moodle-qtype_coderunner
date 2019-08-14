@@ -70,27 +70,27 @@ if (count($availablequestionsbycontext) == 0) {
         $testallurl = new moodle_url('/question/type/coderunner/bulktest.php', array('contextid' => $contextid));
         $testalllink = html_writer::link($testallurl,
                 get_string('bulktestallincontext', 'qtype_coderunner'),
-                array('title'=>get_string('testalltitle', 'qtype_coderunner'),
-                       'style'=>$buttonstyle));
+                array('title' => get_string('testalltitle', 'qtype_coderunner'),
+                       'style' => $buttonstyle));
         $expandlink = html_writer::link('#expand',
                 get_string('expand', 'qtype_coderunner'),
-                array('class'=>'expander',
-                      'title'=>get_string('expandtitle', 'qtype_coderunner'),
-                      'style'=> $buttonstyle));
-        $li_text =  $name . ' (' . $numcoderunnerquestions . ') ' . $testalllink . ' ' . $expandlink;
+                array('class' => 'expander',
+                      'title' => get_string('expandtitle', 'qtype_coderunner'),
+                      'style' => $buttonstyle));
+        $litext = $name . ' (' . $numcoderunnerquestions . ') ' . $testalllink . ' ' . $expandlink;
         echo html_writer::start_tag('li', array('class' => $class));
-        echo $li_text;
+        echo $litext;
 
         $categories = $bulktester->get_categories_for_context($contextid);
-        echo html_writer::start_tag('ul', array('class'=>'expandable'));
+        echo html_writer::start_tag('ul', array('class' => 'expandable'));
         foreach ($categories as $cat) {
             if ($cat->count > 0) {
                 $url = new moodle_url('/question/type/coderunner/bulktest.php',
                                     array('contextid' => $contextid, 'categoryid' => $cat->id));
                 $linktext = $cat->name . ' (' . $cat->count . ')';
-                $link = html_writer::link($url, $linktext, array('style'=>$buttonstyle));
+                $link = html_writer::link($url, $linktext, array('style' => $buttonstyle));
                 echo html_writer::tag('li', $link,
-                        array('title'=>get_string('testallincategory', 'qtype_coderunner')));
+                        array('title' => get_string('testallincategory', 'qtype_coderunner')));
             }
         }
         echo html_writer::end_tag('ul');

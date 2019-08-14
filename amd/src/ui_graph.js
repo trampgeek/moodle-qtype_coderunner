@@ -126,7 +126,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
 
         this.canvasId = 'graphcanvas_' + textareaId;
         this.textArea = $(document.getElementById(textareaId));
-        this.helpText = ''; // Obtained by JSON - see below
+        this.helpText = ''; // Obtained by JSON - see below.
         this.readOnly = this.textArea.prop('readonly');
         this.templateParams = templateParams;
         this.graphCanvas = new GraphCanvas(this,  this.canvasId, width, height);
@@ -141,12 +141,12 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         this.currentLink = null;
         this.movingObject = false;
         this.fail = false;  // Will be set true if reload fails (can't deserialise).
-        this.failString = null;  // Language string key for fail error message
+        this.failString = null;  // Language string key for fail error message.
         if ('helpmenutext' in templateParams) {
             this.helpText = templateParams.helpmenutext;
         } else {
             require(['core/str'], function(str) {
-                // Get help text via AJAX
+                // Get help text via AJAX.
                 var helpPresent = str.get_string('graphhelp', 'qtype_coderunner');
                 $.when(helpPresent).done(function(graphhelp) {
                     save_this.helpText = graphhelp;
@@ -201,9 +201,8 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
 
     // Copy the serialised version of the graph to the TextArea.
     Graph.prototype.sync = function() {
-        // Nothing to do ... always sync'd
+        // Nothing to do ... always sync'd.
     };
-
 
     Graph.prototype.keypress = function(e) {
         var key = util.crossBrowserKey(e);
@@ -248,7 +247,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
             if(e.shiftKey && this.selectedObject instanceof elements.Node) {
                 this.currentLink = new elements.SelfLink(this, this.selectedObject, mouse);
             } else if (e.altKey && this.selectedObject instanceof elements.Node) {
-                // Moving an entire connected graph component
+                // Moving an entire connected graph component.
                 this.movingGraph = true;
                 this.movingNodes = this.selectedObject.traverseGraph(this.links, []);
                 for (var i = 0; i < this.movingNodes.length; i++) {
@@ -665,7 +664,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         } else {
             x = Math.round(x);
             y = Math.round(y);
-            dy = Math.round(this.fontSize() / 3); // Don't understand this
+            dy = Math.round(this.fontSize() / 3); // Don't understand this.
             c.fillText(text, x, y + dy);
             if(theObject == this.selectedObject && this.caretVisible && this.hasFocus() && document.hasFocus()) {
                 x += width;

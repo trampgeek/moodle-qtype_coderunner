@@ -63,7 +63,7 @@ define(['qtype_coderunner/graphutil'], function(util) {
         this.text = '';
     }
 
-    // At the start of a drag, record our position relative to the mouse
+    // At the start of a drag, record our position relative to the mouse.
     Node.prototype.setMouseStart = function(mouseX, mouseY) {
         this.mouseOffsetX = this.x - mouseX;
         this.mouseOffsetY = this.y - mouseY;
@@ -119,7 +119,7 @@ define(['qtype_coderunner/graphutil'], function(util) {
         var neighbours = [], link;
         for (var i = 0; i < links.length; i++) {
             link = links[i];
-            if (link instanceof Link) { // Exclude SelfLinks and StartLinks
+            if (link instanceof Link) { // Exclude SelfLinks and StartLinks.
                 if (link.nodeA === this && !neighbours.includes(link.nodeB)) {
                     neighbours.push(link.nodeB);
                 } else if (link.nodeB === this && !neighbours.includes(link.nodeA)) {
@@ -140,7 +140,7 @@ define(['qtype_coderunner/graphutil'], function(util) {
         if (!visited.includes(this)) {
             visited.push(this);
             neighbours = this.neighbours(links);
-            for (var i=0; i < neighbours.length; i++) {
+            for (var i = 0; i < neighbours.length; i++) {
                 neighbour = neighbours[i];
                 if (!visited.includes(neighbour)) {
                     neighbour.traverseGraph(links, visited);

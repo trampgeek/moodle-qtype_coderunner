@@ -37,7 +37,7 @@ require_once($CFG->dirroot . '/question/type/coderunner/Twig/Autoloader.php');
  */
 class qtype_coderunner_phpquestions_test extends qtype_coderunner_testcase {
 
-   public function test_good_sqr_function() {
+    public function test_good_sqr_function() {
         $q = $this->make_question('sqrphp');
         $response = array('answer' => "<?php\nfunction sqr(\$n) { return \$n * \$n; }\n");
         list($mark, $grade, $cache) = $q->grade_response($response);

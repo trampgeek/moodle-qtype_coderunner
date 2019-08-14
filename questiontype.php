@@ -290,8 +290,8 @@ class qtype_coderunner extends question_type {
         // Lastly, save any datafiles (support files + sample answer files).
         if ($USER->id) {
             // The id check is a hack to deal with phpunit initialisation, when no user exists.
-            foreach (array('datafiles'=>'datafile', 'sampleanswerattachments'=>'samplefile')
-                    as $fileset=>$filearea) {
+            foreach (array('datafiles' => 'datafile',
+                'sampleanswerattachments' => 'samplefile') as $fileset => $filearea) {
                 if (isset($question->$fileset)) {
                     file_save_draft_area_files($question->$fileset, $question->context->id,
                         'qtype_coderunner', $filearea, (int) $question->id, $this->fileoptions);
@@ -359,12 +359,12 @@ class qtype_coderunner extends question_type {
         }
 
         // Convert penalty regime string to generic form without '%'s and with
-        // ', ' as a separator
+        // ', ' as a separator.
         $penaltyregime = str_replace('%', '', $question->penaltyregime);
         $penaltyregime = str_replace(',', ', ', $penaltyregime);
         $question->penaltyregime = preg_replace('/ *,? +/', ', ', $penaltyregime);
 
-        // Copy and clean testcases
+        // Copy and clean testcases.
         if (!isset($question->testcases)) {
             $this->copy_testcases_from_form($question, $isvalidation);
         }
@@ -523,7 +523,7 @@ class qtype_coderunner extends question_type {
 
         $validprotos = $DB->get_records_sql($sql, $params);
         if (count($validprotos) !== 1) {
-            return null;  // Exactly one prototype should be found
+            return null;  // Exactly one prototype should be found.
         } else {
             $prototype = reset($validprotos);
             self::update_question_text_maybe($prototype);
@@ -577,7 +577,7 @@ class qtype_coderunner extends question_type {
     // in-line help in the question authoring form) with the appropriate
     // language string.
     protected static function update_question_text_maybe($prototype) {
-        if ($prototype->prototypetype == 1) { // Built-in prototype
+        if ($prototype->prototypetype == 1) { // Built-in prototype.
             $stringname = 'qtype_' . $prototype->coderunnertype;
             $prototype->questiontext = get_string($stringname, 'qtype_coderunner');
         }
@@ -793,14 +793,14 @@ class qtype_coderunner extends question_type {
             }
         }
 
-        // Import any support files
+        // Import any support files.
         $datafiles = $format->getpath($data,
                 array('#', 'testcases', 0, '#', 'file'), array());
         if (is_array($datafiles)) { // Seems like a non-array does occur in some versions of PHP!
             $qo->datafiles = $format->import_files_as_draft($datafiles);
         }
 
-        // Import any sample answer attachments
+        // Import any sample answer attachments.
         if (isset($data['#']['answerfiles'])) {
             $samplefiles = $format->getpath($data, array('#', 'answerfiles', 0, '#', 'file'), array());
             if (is_array($samplefiles)) {
@@ -888,7 +888,6 @@ class qtype_coderunner extends question_type {
             $expout .= $format->write_files($sampleanswerfiles);
             $expout .= "    </answerfiles>\n";
         }
-
 
         return $expout;
     }

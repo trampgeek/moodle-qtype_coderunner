@@ -52,12 +52,12 @@ class qtype_coderunner_walkthrough_display_feedback extends qbehaviour_walkthrou
         $this->process_submission(array('-submit' => 1,
             'answer' => 'def sqr(n): return n * n'));
         $this->check_output_contains('Passed all tests');
-        $q->displayfeedback = 0; // Should be the same outcome (quiz default)
+        $q->displayfeedback = 0; // Should be the same outcome (quiz default).
         $this->start_attempt_at_question($q, 'adaptive', 1);
         $this->process_submission(array('-submit' => 1,
             'answer' => 'def sqr(n): return n * n'));
         $this->check_output_contains('Passed all tests');
-        $q->displayfeedback = 2; // But with a setting of 2, should be no result table
+        $q->displayfeedback = 2; // But with a setting of 2, should be no result table.
         $this->start_attempt_at_question($q, 'adaptive', 1);
         $this->process_submission(array('-submit' => 1,
             'answer' => 'def sqr(n): return n * n'));
@@ -73,7 +73,7 @@ class qtype_coderunner_walkthrough_display_feedback extends qbehaviour_walkthrou
      */
     public function test_display_feedback_deferred() {
         $q = test_question_maker::make_question('coderunner', 'sqr');
-        $q->displayfeedback = 0;  // Uses quiz feedback setting
+        $q->displayfeedback = 0;  // Uses quiz feedback setting.
         $this->start_attempt_at_question($q, 'deferredfeedback', 1);
         $this->displayoptions->feedback = 0; // Seems we have to set this explicitly.
         $this->process_submission(array('-submit' => 1,

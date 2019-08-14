@@ -49,10 +49,10 @@ class qtype_coderunner_jobrunner {
 
         $question->get_prototype();
         if (empty($question->prototype)) {
-            // Missing prototype. We can't run this question
+            // Missing prototype. We can't run this question.
             $outcome = new qtype_coderunner_testing_outcome(0, 0, false);
             $message = get_string('missingprototypewhenrunning', 'qtype_coderunner',
-                    array('crtype'=>$question->coderunnertype));
+                    array('crtype' => $question->coderunnertype));
             $outcome->set_status(qtype_coderunner_testing_outcome::STATUS_MISSING_PROTOTYPE, $message);
             return $outcome;
         }
