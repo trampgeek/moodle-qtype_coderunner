@@ -1,5 +1,17 @@
 # CHANGE HISTORY
 
+### 14 August 2019. 3.7.0
+
+ * Addition of a globalextra field to all questions for use by question authors
+   as a parameter global to all tests.
+ * Various enhancements and refactoring of TableUI including addition of a
+   table-row-labels template parameter.
+ * Modify the still experimental and undocumented HtmlUI to get the raw HTML
+   from the new globalextra field rather than via a template parameter.
+ * Bug fix: UI plugins that depend on template parameters, notable TableUI,
+   broke if Twig code was used within the template parameters, e.g. for
+   randomisation.
+
 ### 28 July 2019. 3.6.1+
 
  * Add table_locked_cells template parameter to Table UI
