@@ -1060,16 +1060,30 @@ be defined by the question author in the "Template params" field of the question
 editing form. This field must be set to a JSON-encoded record containing
 definitions of variables that can be used by the template engine to perform
 local per-question customisation of the template. The template parameters
-are passed to the template engine as the object `QUESTION.parameters`.
+are passed to the template engine as the object `QUESTION.parameters`. In
+addition, if the *Hoist template parameters* checkbox is checked (which
+is now the default behaviour) the `QUESTION.parameters` prefix can be dropped.
 
-A more advanced version of the *python3\_pylint* question type, which allows
-customisation of the pylint options via template parameters and also allows
-for an optional insertion of a module docstring for "write a function"
-questions is then:
+For example, suppose we wanted a more advanced version of the *python3\_pylint*
+question type that allows customisation of the pylint options via template parameters.
+We might also wish to insert a module docstring for "write a function"
+questions. Lastly we might want the ability to configure the error message if
+pylint errors are found.
+
+The template parameters might be:
+
+    {
+        "isfunction": false,
+        "pylintoptions": ["--disable=missing-final-newline", "--enable=C0236"],
+        "errormessage": "Pylint is not happy with your program"
+    }
+
+The template for such a question type might then be:
 
     import subprocess
     import os
     import sys
+    import re
 
     def code_ok(prog_to_test):
     {% if QUESTION.parameters.isfunction %}
@@ -1091,10 +1105,12 @@ questions is then:
         except Exception as e:
             result = e.output
 
-        if result.strip():
-            print("pylint doesn't approve of your program", file=sys.stderr)
+        # Have to remove pylint's annoying config file output message before
+        # checking for a clean run. [--quiet option in pylint 2.0 fixes this].
+        result = re.sub('Using config file.*', '', result).strip()
+        if result:
+            print("{{QUESTION.parameters.errormessage | e('py')}}", file=sys.stderr)
             print(result, file=sys.stderr)
-            print("Submission rejected", file=sys.stderr)
             return False
         else:
             return True
@@ -1105,6 +1121,8 @@ questions is then:
         __student_answer__ += '\n' + """{{ TEST.testcode | e('py') }}"""
         exec(__student_answer__)
 
+If *Hoist template parameters* is checked, all `QUESTION.parameters.` prefixes
+can be dropped.
 
 ### The Twig QUESTION variable
 
