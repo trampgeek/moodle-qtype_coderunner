@@ -229,7 +229,8 @@ class qtype_coderunner_edit_form extends question_edit_form {
     protected function add_preload_answer_field($mform) {
         $mform->addElement('header', 'answerpreloadhdr',
                     get_string('answerpreload', 'qtype_coderunner'), '');
-        $mform->setExpanded('answerpreloadhdr', 0);
+        $expanded = !empty($this->question->options->answerpreload);
+        $mform->setExpanded('answerpreloadhdr', $expanded);
         $attributes = array(
             'rows' => 5,
             'class' => 'preloadanswer edit_code',
@@ -249,7 +250,8 @@ class qtype_coderunner_edit_form extends question_edit_form {
     protected function add_globalextra_field($mform) {
         $mform->addElement('header', 'globalextrahdr',
                     get_string('globalextra', 'qtype_coderunner'), '');
-        $mform->setExpanded('globalextrahdr', 0);
+        $expanded = !empty($this->question->options->globalextra);
+        $mform->setExpanded('globalextrahdr', $expanded);
         $attributes = array(
             'rows' => 5,
             'class' => 'globalextra edit_code');
@@ -458,7 +460,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
     }
 
 
-    // A horrible horrible hack for a horrible horrible browser "feature".
+    // A horrible hack for a horrible browser "feature".
     // Inserts a newline at the start of a text string that's going to be
     // displayed at the start of a <textarea> element, because all browsers
     // strip a leading newline. If there's one there, we need to keep it, so
@@ -1054,16 +1056,15 @@ class qtype_coderunner_edit_form extends question_edit_form {
         } else {
             $parameters = array();
         }
-        $twig = qtype_coderunner_twig::get_twig_environment(array('strict_variables' => true));
 
-        // Try twig expanding everything (see question::twig_all).
+        // Try twig expanding everything (see question::twig_all), with strict_variables true.
         foreach (['questiontext', 'answer', 'answerpreload', 'globalextra'] as $field) {
             $text = $data[$field];
             if (is_array($text)) {
                 $text = $text['text'];
             }
             try {
-                $twig->render($text, $parameters);
+                qtype_coderunner_twig::render($text, $parameters, true);
             } catch (Twig_Error $ex) {
                 $errors[$field] = get_string('twigerror', 'qtype_coderunner',
                         $ex->getMessage());
@@ -1079,7 +1080,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 foreach (['testcode', 'stdin', 'expected', 'extra'] as $fieldname) {
                     $text = $data[$fieldname][$i];
                     try {
-                        $twig->render($text, $parameters);
+                        qtype_coderunner_twig::render($text, $parameters, true);
                     } catch (Twig_Error $ex) {
                         $errors["testcode[$i]"] = get_string('twigerrorintest',
                                 'qtype_coderunner', $ex->getMessage());

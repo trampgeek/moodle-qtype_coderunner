@@ -401,10 +401,7 @@ class qtype_coderunner_question extends question_graded_automatically {
         }
 
         // Twig expand everything in a context that includes the template
-        // parameters and the STUDENT and QUESTION objects. The only thing
-        // guaranteed about the QUESTION object is the parameters field - use
-        // other fields at your peril (since the order in which they are
-        // expanded might vary in the future).
+        // parameters and the STUDENT and QUESTION objects.
         $this->questiontext = $this->twig_expand($this->questiontext);
         $this->generalfeedback = $this->twig_expand($this->generalfeedback);
         $this->answer = $this->twig_expand($this->answer);
@@ -427,15 +424,13 @@ class qtype_coderunner_question extends question_graded_automatically {
      * @param associative array $twigparams Extra twig environment parameters
      */
     public function twig_expand($text, $twigparams=array()) {
-        $twig = qtype_coderunner_twig::get_twig_environment();
         $twigparams['QUESTION'] = $this;
         if ($this->hoisttemplateparams) {
             foreach ($this->parameters as $key => $value) {
                 $twigparams[$key] = $value;
             }
         }
-        $twigparams['STUDENT'] = new qtype_coderunner_student($this->student);
-        return $twig->render($text, $twigparams);
+        return qtype_coderunner_twig::render($text, $twigparams);
     }
 
     /**
@@ -445,12 +440,10 @@ class qtype_coderunner_question extends question_graded_automatically {
      * @param type $seed The random number seed to set for Twig randomisation
      */
     private function setup_template_params($seed) {
-        $twig = qtype_coderunner_twig::get_twig_environment();
-        $twigparams = array('STUDENT' => new qtype_coderunner_student($this->student));
         mt_srand($seed);
-        $ournewtemplateparams = $twig->render($this->templateparams, $twigparams);
+        $ournewtemplateparams = qtype_coderunner_twig::render($this->templateparams);
         if (isset($this->prototypetemplateparams)) {
-            $prototypenewtemplateparams = $twig->render($this->prototypetemplateparams, $twigparams);
+            $prototypenewtemplateparams = qtype_coderunner_twig::render($this->prototypetemplateparams);
             $this->templateparams = qtype_coderunner_util::merge_json($prototypenewtemplateparams, $ournewtemplateparams);
         } else {
             // Missing prototype?
