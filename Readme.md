@@ -1171,6 +1171,58 @@ PHP user object. The fields/attributes of STUDENT are:
  * `STUDENT.lastname` The last name of the current user.
  * `STUDENT.email` The email address of the current user.
 
+### Twig macros
+
+Twig has a [macro capability](https://twig.symfony.com/doc/1.x/tags/macro.html)
+that provides something akin to functions in normal programming languages.
+Macros can be stored in one Twig template and imported from there into another.
+
+In the CodeRunner context there is only a single template available
+at any time - usually the question's so-called *template* field,
+although other question fields are
+expanded if *TwigAll* is set. CodeRunner does not provide access to
+an associated file system from which
+templates of macros can be loaded or created by question authors.
+However, CodeRunner does
+provide a few macros in a support (pseudo) template named "html". These
+macros are primarily intended for use with the Html UI (q.v.); each one inserts
+a named HTML element into the template that is being expanded. As an
+example, if the question author includes the following in a question field
+
+    {% from html import input %}
+
+    ...
+
+    {{ input('fieldname', 15) }}
+
+and that question is subject to Twig expansion, the invocation of the *input*
+macro will generate the HTML code
+
+    <input name="somename" class="coderunner-ui-element" width="15">
+
+All macros name take a mandatory name parameter and additional parameters as follows.
+Optional parameters and their default values are indicated with an equals sign.
+
+  1. `input(name, width=10)` generates an input element as in the above example.
+  2. `textarea(name, rows=2, cols=80)` to generate an HTML *textarea* element.
+  3. `select(name, options)` generates an HTML select element with a sequence
+of embedded `option` elements as defined by the second parameter, which must be
+an array with elements that are either strings or 2-element string arrays.
+If a single string is provided as the array elements,
+it is used as both the value attribute of the option element and its inner
+HTML. If a 2-element array is provided, the first string is used as the value
+and the second as the inner HTML.
+  4. `radio(name, names)` generates a vertically-aligned sequence of
+mutually exclusive radio buttons, one for each of the elements of the `names`
+parameter, which must be
+an array with elements that are either strings or 2-element string arrays. As with
+*select* options, if an element is a single string it is used as both the radio
+button label and its value. But if a 2-element array is provided, the first
+element is the value attribute of the `input` element (the radio button) and
+the second is the label.
+  5. `checkbox(name, value, label)` generates a checkbox with the given name,
+value and label.
+
 
 ## Randomising questions
 
@@ -1872,6 +1924,82 @@ itself the empty string.
 
 An example of the use of this UI type can be seen in the
 *python3_program_testing* prototype in the *samples* folder.
+
+
+### The Html UI
+
+The HTML UI plug-in replaces the answer box with custom HTML provided by the
+question author. The HTML can include JavaScript in `<script>` elements.
+
+The serialisation of that HTML,
+which is what is copied back into the textarea for submissions
+as the answer, is a JSON object. The fields of that object are the names
+of all author-supplied HTML elements with a class 'coderunner-ui-element';
+all such objects are expected to have a 'name' attribute as well. The
+associated field values are lists. Each list contains all the values, in
+document order, of the results of calling the jquery val() method in turn
+on each of the UI elements with that name.
+This means that at least input, select and textarea
+elements are supported. Twig macros
+are provided to simplify entry of those elements; see [this section](#twig-macros).
+
+The author is responsible for checking the
+compatibility of any other elements entered using raw HTML with jquery's val() method.
+
+The HTML to use in the answer area must be provided as the contents of
+the `globalextra` field in the question authoring form.
+
+Care must be taken when using the HTML UI to avoid using field names that conflict
+with any other named HTML elements in the page. It is recommended that a prefix
+of some sort, such as `crui_`, be used with all names.
+
+When authoring a question that uses the html UI, the answer and answer preload
+fields are *not* controlled by the UI, but are displayed as raw text.
+sections of the authoring form. If data is to be entered into these fields,
+it must be of the form
+
+    {"<fieldName>": "<fieldValueList>",...}
+
+where fieldValueList is a list of all the values to be assigned to the fields
+with the given name, in document order.
+
+It is possible that the question author might want a dynamic answer box in
+which the student can add extra fields. A simple example of this is the Table UI,
+which is a special case of the Html UI. The Table UI provides
+an optional *Add rows* button, plus associated JavaScript, which allows
+students to add rows to the table. The serialisation then contains more
+data than can be accommodated in the fields of the original HTML. In the case of
+the Table UI, where the same name is used for all cells in a table column,
+the list of values for each name in the serialisation is longer than the number of
+rows. In other dynamic HTML contexts, new elements with entirely new names may
+have been added.
+
+When the serialisation is reloaded back into the HTML all such leftover values
+from the serialisation are assigned to the `data['leftovers']`
+attribute of the outer html div, as a sub-object of the original object.
+This outer div can be located as the 'closest' (in a jQuery sense)
+`div.qtype-coderunner-html-outer-div`. The author-supplied HTML must include
+JavaScript to make use of the 'leftovers'.
+
+As a special case of the serialisation, if all values in the serialisation
+are either empty strings or a list of empty strings, the serialisation is
+itself the empty string.
+
+In programming questions, the HTML UI can be used to define a "fill-in-the-gaps"
+programming question. Here the `globalextra` should be set to the full
+program code, wrapped in a `<pre>` element.
+Then, bits of the code can be cut out and replaced with HTML input
+elements by use of Twig macros like
+
+    {{ input('crui_expr1', 20) }}
+
+The question's template will receive the values of all input fields in JSON like
+
+    {"crui_expr1": ["*sp++"]}
+
+and, with sufficient ingenuity, can re-insert those field values into the original
+code, which can then be run with all the tests in the usual way. An example of
+this type of question is supplied as **TBS**.
 
 ### Other UI plugins
 
