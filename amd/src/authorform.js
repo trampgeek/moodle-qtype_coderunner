@@ -136,10 +136,12 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
         }
 
         // Set the correct Ui controller on both the sample answer and the answer preload.
+        // As a special case, we don't turn on the Ui controller in the answer
+        // and answer preload fields when using Html-Ui
         function setUis() {
             var uiname = uiplugin.val();
 
-            if (uiname) {
+            if (uiname && uiname !== 'html') {
                 setUi('id_answer', uiname);
                 setUi('id_answerpreload', uiname);
             }
