@@ -1212,17 +1212,19 @@ If a single string is provided as the array elements,
 it is used as both the value attribute of the option element and its inner
 HTML. If a 2-element array is provided, the first string is used as the value
 and the second as the inner HTML.
-  4. `radio(name, names)` generates a vertically-aligned sequence of
-mutually exclusive radio buttons, one for each of the elements of the `names`
+  4. `radio(name, items)` generates a vertically-aligned sequence of
+mutually exclusive radio buttons, one for each of the elements of the `items`
 parameter, which must be
 an array with elements that are either strings or 2-element string arrays. As with
 *select* options, if an element is a single string it is used as both the radio
 button label and its value. But if a 2-element array is provided, the first
 element is the value attribute of the `input` element (the radio button) and
 the second is the label.
-  5. `checkbox(name, value, label)` generates a checkbox with the given name,
-value and label.
+  5. `checkbox(name, label, ischecked=false)` generates a checkbox with the given name,
+and label, which is checked only if ischecked is true.
 
+To reduce the risk that the UI element names conflict with existing UI element
+names in the Moodle page, all names are prefixed by `crui_`.
 
 ## Randomising questions
 
@@ -1929,14 +1931,21 @@ An example of the use of this UI type can be seen in the
 ### The Html UI
 
 The HTML UI plug-in replaces the answer box with custom HTML provided by the
-question author. The HTML can include JavaScript in `<script>` elements.
+question author. The HTML will usually include data entry fields such as
+html input and text area elements and it is the values that the user enters
+into these fields that constitutes the student answer. The HTML can
+also include JavaScript in `<script>` elements. Although
+very powerful, the mechanism is complex and there are several pitfalls. Caveat
+emptor!
 
-The serialisation of that HTML,
-which is what is copied back into the textarea for submissions
-as the answer, is a JSON object. The fields of that object are the names
-of all author-supplied HTML elements with a class 'coderunner-ui-element';
-all such objects are expected to have a 'name' attribute as well. The
-associated field values are lists. Each list contains all the values, in
+When the answer is submitted by the student, the UI extracts the values of all
+UI elements within the HTML that have the class 'coderunner-ui-element'.
+Each such element
+is expected to have a 'name' attribute as well and (name, value) pairs of all
+such elements are used to construct a single JSON object which is copied into
+the underlying textarea answerbox and returned as the answer. Since multiple
+UI elements can have the same name, the values in the JSON represention of
+the answer are always lists.  Each list contains all the values, in
 document order, of the results of calling the jquery val() method in turn
 on each of the UI elements with that name.
 This means that at least input, select and textarea
@@ -1961,7 +1970,10 @@ it must be of the form
     {"<fieldName>": "<fieldValueList>",...}
 
 where fieldValueList is a list of all the values to be assigned to the fields
-with the given name, in document order.
+with the given name, in document order. For complex UIs it is easiest to turn
+off validate on save, save the question, preview it, enter the right answers into
+all fields, type CTRL-ALT-M to switch off the UI and expose the serialisation,
+then copy that serialisation back into the author form.
 
 It is possible that the question author might want a dynamic answer box in
 which the student can add extra fields. A simple example of this is the Table UI,
@@ -1987,9 +1999,13 @@ itself the empty string.
 
 In programming questions, the HTML UI can be used to define a "fill-in-the-gaps"
 programming question. Here the `globalextra` should be set to the full
-program code, wrapped in a `<pre>` element.
+program code, wrapped in a `<pre>` element. Since this is a raw text field which
+will necessarily contain some genuine HTML, it
+is necessary to manually perform html-escaping operations on the non-html code, such as replacing
+'<' characters with '&lt;'.
+
 Then, bits of the code can be cut out and replaced with HTML input
-elements by use of Twig macros like
+elements either explicitly or by use of Twig macros like
 
     {{ input('crui_expr1', 20) }}
 
