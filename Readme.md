@@ -1204,7 +1204,7 @@ All macros name take a mandatory name parameter and additional parameters as fol
 Optional parameters and their default values are indicated with an equals sign.
 
   1. `input(name, width=10)` generates an input element as in the above example.
-  2. `textarea(name, rows=2, cols=80)` to generate an HTML *textarea* element.
+  2. `textarea(name, rows=2, cols=60)` to generate an HTML *textarea* element.
   3. `select(name, options)` generates an HTML select element with a sequence
 of embedded `option` elements as defined by the second parameter, which must be
 an array with elements that are either strings or 2-element string arrays.
