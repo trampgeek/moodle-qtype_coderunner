@@ -1014,7 +1014,7 @@ var SEPARATOR = "#<ab@17943918#@>#";
 {% for TEST in TESTCASES %}
 {{ TEST.testcode }}
 {% if not loop.last %}
-print(SEPARATOR)
+console.log(SEPARATOR);
 {% endif %}
 {% endfor %}]]></template>
     <iscombinatortemplate>1</iscombinatortemplate>
