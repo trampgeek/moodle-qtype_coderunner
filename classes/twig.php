@@ -40,6 +40,7 @@ class qtype_coderunner_twig {
             $macros = qtype_coderunner_twigmacros::macros();
             $twigloader = new Twig_Loader_Array($macros);
             $twigoptions = array(
+                'cache' => false,
                 'optimisations' => 0,
                 'autoescape' => false,
                 'strict_variables' => $isstrict,
@@ -49,7 +50,7 @@ class qtype_coderunner_twig {
                 $twig->addExtension(new Twig_Extension_Debug());
             }
             $twig->addExtension(new qtype_coderunner_RandomExtension());
-            $twigenvironments[$isstrict] = $twig;
+            self::$twigenvironments[$isstrict] = $twig;
 
             $twigcore = $twig->getExtension('core');
             $twigcore->setEscaper('py', 'qtype_coderunner_escapers::python');
@@ -59,7 +60,7 @@ class qtype_coderunner_twig {
             $twigcore->setEscaper('ml', 'qtype_coderunner_escapers::matlab');
             $twigcore->setEscaper('matlab', 'qtype_coderunner_escapers::matlab');
         }
-        return $twigenvironments[$isstrict];
+        return self::$twigenvironments[$isstrict];
     }
 
 

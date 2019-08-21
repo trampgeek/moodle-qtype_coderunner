@@ -18,8 +18,10 @@
  * of the UI plugin architecture, see userinterfacewrapper.js.
  *
  * This plugin replaces the usual textarea answer box with a div
- * consisting of pre-formatted text supplied by the question author in the
- * "globalextra" field, with HTML entry or textarea elements inserted at
+ * consisting of pre-formatted text supplied by the question author in either the
+ * "globalextra" field or the testcode field of the first test case, according
+ * to the template parameter gapfiller_ui_source (default: globalextra).  HTML
+ * entry or textarea elements are then inserted at
  * specified points. It is intended primarily for use with coding questions
  * where the answerbox presents the students with code that has smallish bits
  * missing.
@@ -27,31 +29,26 @@
  * The locations within the globalextra text at which the input elements are
  * to be inserted are denoted by "tags" of the form
  *
- *     {[input("name", size)]}
+ *     {[ size ]}
+ *
+ * for an HTML input element
  *
  * or
  *
- *     {[textarea("name", rows, cols)]}
+ *     {[ rows, columns ]}
  *
- * where size, rows and cols are integer literals. These respectively
+ * for a textarea element
+ *
+ * where size, rows and column are integer literals. These respectively
  * inject an HTML input element or a textarea element of the
- * specified size. All parameters are optional; the name defaults to "value"
- * and the other defaults are size = 10, rows=2, cols=60. An empty string for
- * name, as in {[ input("", 20) ]} is also converted to "value".
+ * specified size.
  *
  * The serialisation of the answer box contents, i.e. the text that
  * copied back into the textarea for submissions
- * as the answer, is a JSON object. The fields of that object are the names
- * of all the entry elements. The
- * associated field values are lists. Each list contains all the values, in
- * document order, of the all the UI elements with that name. It can sometimes
- * be helpful to use default or empty names for all elements in the answer box,
- * as that results in a JSON serialisation in which all values appear in a list
- * associated with the attribute "value".
+ * as the answer, is simply a list of all the field values (strings), in order.
  *
- * As a special case of the serialisation, if all values in the serialisation
- * are either empty strings or a list of empty strings, the serialisation is
- * itself the empty string.
+ * As a special case of the serialisation, if the value list is empty, the
+ * serialisation itself is the empty string.
  *
  * The delimiters for the input element insertion tags are by default '{[' and
  * ']}', but can be changed by an optional template parameter gap_filler_delimiters,
@@ -71,14 +68,28 @@
 
 define(['jquery'], function($) {
 
+    // Constructor for UI. Source html comes from data-globalextra by default,
+    // else from whatever source is specified by the template parameter field
     function GapfillerUi(textareaId, width, height, templateParams) {
+        var testcase, html;
         this.textArea = $(document.getElementById(textareaId));
-        this.html = this.textArea.attr('data-globalextra').replace('<', '&lt;');
         this.readOnly = this.textArea.prop('readonly');
         this.templateParams = templateParams;
         this.fail = false;
         this.htmlDiv = null;
-        this.prefix = 'crui_';
+        this.source = templateParams.gapfiller_ui_source || 'globalextra';
+        if (this.source !== 'globalextra' && this.source !== 'test0') {
+            alert('Invalid source for HTML in ui_gapfiller');
+            this.source = 'globalextra';
+        }
+        if (this.source == 'globalextra') {
+            html = this.textArea.attr('data-globalextra');
+            this.testcase = null;
+        } else {
+            this.testcase = JSON.parse(this.textArea.attr('data-test0'));
+            html = this.testcase.testcode;
+        }
+        this.html = html.replace('<', '&lt;');
         this.reload();
     }
 
@@ -87,34 +98,22 @@ define(['jquery'], function($) {
     };
 
     // Copy the serialised version of the HTML UI area to the TextArea.
-    // If name has the expected prefix, inserted by the plugin, the prefix
-    // is stripped again for insertion into the serialisation.
     GapfillerUi.prototype.sync = function() {
         var
-            serialisation = {},
-            name,
-            t = this,
+            serialisation = [],  // A list of field values.
             empty = true;
 
         this.getFields().each(function() {
-            var value, type;
-            type = $(this).attr('type');
+            var name, value, type;
             name = $(this).attr('name');
-            if (name.startsWith(t.prefix)) {
-                name = name.substring(t.prefix.length, name.length);
-            }
-            if ((type === 'checkbox' || type === 'radio') && !($(this).is(':checked'))) {
-                value = '';
+            if (name !== 'cr_gapfiller_field') {
+                alert('Unexpected UI element found in answer box');
             } else {
                 value = $(this).val();
-            }
-            if (serialisation.hasOwnProperty(name)) {
-                serialisation[name].push(value);
-            } else {
-                serialisation[name] = [value];
-            }
-            if (value !== '') {
-                empty = false;
+                serialisation.push(value);
+                if (value !== "") {
+                    empty = false;
+                }
             }
         });
         if (empty) {
@@ -166,7 +165,7 @@ define(['jquery'], function($) {
 
         var sepLeft = reEscape('{['),
             sepRight = reEscape(']}'),
-            splitter = new RegExp(sepLeft + '(.+?)' + sepRight),
+            splitter = new RegExp(sepLeft + ' *((?:\\d+)|(?:\\d+, *\\d+)) *' + sepRight),
             bits = this.html.split(splitter),
             result = '<pre>' + bits[0],
             i;
@@ -178,86 +177,71 @@ define(['jquery'], function($) {
             }
         }
 
-        return result + '</pre>';
-    };
+        result = result + '</pre>';
 
-
-    // Return the HTML element to insert given the tag (input, textarea) and
-    // its parameters as a string, e.g. input('fred', 10).
-    GapfillerUi.prototype.markUp = function(tag) {
-        var pattern, match, result='';
-        var t = this;
-
-        // The function to handle an 'input' tag.
-        function input(name, size) {
-            name = name || 'value';
-            size = size || 10;
-            return '<input name="' + t.prefix + name +
-                '" class="coderunner-ui-element" size="' + size + '">';
-        }
-
-        // The function to handle a 'textarea' tag.
-        function textarea(name, rows, cols) {
-            name = name || 'value';
-            cols = cols || 60;
-            rows = rows || 2;
-            return '<textarea name="' + t.prefix + name +
-                    '" class ="coderunner-ui-element" rows="' + rows + '" ' +
-                    'cols="' + cols + '" style="width:auto;" />';
-        }
-
-        tag = tag.trim();
-        pattern = /(\w+)?\((?:(['"])(\w*)\2)?(?:, *(\d+))?(?:, (\d+))?\)/;
-        match = tag.match(pattern);
-        if (match && match[1] === 'input') {
-            result = input(match[3], match[4]);
-        } else if (match && match[1] === 'textarea') {
-            result = textarea(match[3], match[4], match[5]);
+        if (this.source === 'test0') {
+            result = '<table class="coderunnerexamples"><thead><tr><th class="header c0">Test</th><th class="header c1">Result</th></tr>' +
+                   '<tr><td>' + result + '</td><td>' + this.testcase.expected + '</td></tr></table>';
         }
         return result;
     };
 
+
+    // Return the HTML element to insert given the tag contents, which
+    // should be either a single integer (size of input element) or
+    // two integers separated by a comma (rows and cols of textarea).
+    GapfillerUi.prototype.markUp = function(tagContents) {
+        var numbers, result='';
+
+        // The function to handle an 'input' tag.
+        function input(size) {
+            return '<input name="cr_gapfiller_field" class="coderunner-ui-element" size="' + size + '">';
+        }
+
+        // The function to handle a 'textarea' tag.
+        function textarea(rows, cols) {
+            return '<textarea name="cr_gapfiller_field" class ="coderunner-ui-element" ' +
+                'rows="' + rows + '" ' + 'cols="' + cols + '" style="width:auto;" />';
+        }
+
+        numbers = tagContents.split(',');
+        if (numbers.length == 1) {
+            result = input(parseInt(numbers[0]));
+        } else {
+            result = textarea(parseInt(numbers[0]), parseInt(numbers[1]));
+        }
+
+        return result;
+    };
+
+    // Reload the HTML fields from the given serialisation.
+    // Unlike other plugins, we don't actually fail the load if, for example
+    // the number of fields doesn't match the number of values in the
+    // serialisation. We simply clear all the fields to zero. This ensures
+    // that at least the unfilled content is presented to the question author
+    // when the number of fields is altered during editing.
     GapfillerUi.prototype.reload = function() {
         var
             content = $(this.textArea).val(), // JSON-encoded HTML element settings.
-            valuesToLoad,
             values,
             i,
-            prefixedName,
             fields,
-            leftOvers,
             outerDiv = "<div style='height:fit-content' class='qtype-coderunner-html-outer-div'>";
 
         this.htmlDiv = $(outerDiv + this.markedUpHtml() + "</div>");
-        this.htmlDiv.data('templateparams', this.templateParams); // For use by  scripts embedded in html.
         if (content) {
             try {
-                valuesToLoad = JSON.parse(content);
-                leftOvers = {};
-                for (var name in valuesToLoad) {
-                    prefixedName = this.prefix + name;
-                    values = valuesToLoad[name];
-                    fields = this.getFields().filter("[name='" + prefixedName + "']");
-                    leftOvers[name] = [];
+                values = JSON.parse(content);
+                fields = this.getFields();
+                if (fields.length !== values.length) {
+                    this.fail = true;
+                } else {
                     for (i = 0; i < values.length; i++) {
-                        if (i < fields.length) {
-                            this.setField($(fields[i]), values[i]);
-                        } else {
-                            leftOvers[name].push(values[i]);
-                        }
-                    }
-                    if (leftOvers[name].length === 0) {
-                        delete leftOvers[name];
+                        this.setField($(fields[i]), values[i]);
                     }
                 }
-
-                if (!$.isEmptyObject(leftOvers)) {
-                    this.htmlDiv.data('leftovers', leftOvers);
-                }
-
             } catch(e) {
-                alert('Failed to initialise GapFiller UI');
-                this.fail = true;
+                // Just ignore errors
             }
         }
     };

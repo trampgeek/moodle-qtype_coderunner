@@ -418,8 +418,10 @@ class qtype_coderunner extends question_type {
         }
 
         // Add in any testcases.
-        if (!$options->testcases = $DB->get_records('question_coderunner_tests',
+        if ($testcases = $DB->get_records('question_coderunner_tests',
                 array('questionid' => $question->id), 'id ASC')) {
+            $options->testcases = array_values($testcases); // Reindex tests from zero
+        } else {
             $options->testcases = array();
         }
 

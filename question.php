@@ -424,13 +424,17 @@ class qtype_coderunner_question extends question_graded_automatically {
      * @param associative array $twigparams Extra twig environment parameters
      */
     public function twig_expand($text, $twigparams=array()) {
-        $twigparams['QUESTION'] = $this;
-        if ($this->hoisttemplateparams) {
-            foreach ($this->parameters as $key => $value) {
-                $twigparams[$key] = $value;
+        if (empty(trim($text))) {
+            return $text;
+        } else {
+            $twigparams['QUESTION'] = $this;
+            if ($this->hoisttemplateparams) {
+                foreach ($this->parameters as $key => $value) {
+                    $twigparams[$key] = $value;
+                }
             }
+            return qtype_coderunner_twig::render($text, $twigparams);
         }
-        return qtype_coderunner_twig::render($text, $twigparams);
     }
 
     /**

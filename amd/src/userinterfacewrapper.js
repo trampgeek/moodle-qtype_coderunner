@@ -131,7 +131,7 @@ define(['jquery'], function($) {
              t = this; // For use by embedded functions.
 
         this.GUTTER = 14;  // Size of gutter at base of wrapper Node (pixels)
-        this.MIN_WRAPPER_HEIGHT = 100;
+        this.MIN_WRAPPER_HEIGHT = 50;
 
         this.taId = textareaId;
         this.loadFailId = textareaId + '_loadfailerr';
