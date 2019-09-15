@@ -206,7 +206,9 @@ class qtype_coderunner_edit_form extends question_edit_form {
         // Unless behat is running, hide the attachments file picker.
         // behat barfs if it's hidden.
         if ($CFG->prefix !== "b_") {
-            $mform->hideIf('sampleanswerattachments', 'attachments', 'eq', 0);
+            /* @var $mform MoodleQuickForm */
+            $method = method_exists($mform, 'hideIf') ? 'hideIf' : 'disabledIf';
+            $mform->$method('sampleanswerattachments', 'attachments', 'eq', 0);
         }
         $mform->addElement('advcheckbox', 'validateonsave', null,
                 get_string('validateonsave', 'qtype_coderunner'));
