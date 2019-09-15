@@ -275,17 +275,7 @@ class qtype_coderunner extends question_type {
             $DB->delete_records($testcasetable, array('id' => $otc->id));
         }
 
-        // If this is a prototype, clear the caching of any child questions.
-        if ($question->prototypetype != 0) {
-            $typename = $question->coderunnertype;
-            $children = $DB->get_records('question_coderunner_options',
-                    array('prototypetype' => 0,
-                          'coderunnertype' => $typename)
-            );
-            foreach ($children as $child) {
-                question_bank::notify_question_edited($child->questionid);
-            }
-        }
+        $this->notify_prototype_children_if_any($question);
 
         // Lastly, save any datafiles (support files + sample answer files).
         if ($USER->id) {
@@ -603,22 +593,25 @@ class qtype_coderunner extends question_type {
     }
 
 
-    // Override required here so we can check if this is a prototype
-    // with children (in which case deletion is disallowed). If not,
-    // deletion is allowed but must delete the testcases too.
+    // Override default question deletion code to delete all the question's
+    // testcases.
+    // Includes a check if the question being deleted is a prototype. Currently
+    // I don't have a good way to check if the prototype being deleted has
+    // "children" in the current context. It's over to question authors to make
+    // sure they don't delete in-use prototypes.
+    // All I do when a prototype is deleted is invalidate cached child questions
+    // so that at least their subsequent behaviour is consistent with the
+    // missing prototype. This can occasionally be helpful, e.g. if a duplicate
+    // prototype has somehow been created, and is then deleted again, the
+    // child question will now function correctly.
     public function delete_question($questionid, $contextid) {
         global $DB;
 
-        // TODO: find a solution to the problem of deleting in-use
-        // prototypes. The code below isn't isn't correct (it doesn't
-        // check the context of the question) so the entire block has
-        // been commented out. Currently it's over to
-        // to user to make sure they don't delete in-use prototypes.
-        /*$question = $DB->get_record(
+        $question = $DB->get_record(
                 'question_coderunner_options',
                 array('questionid' => $questionid));
 
-
+        /*
         if ($question->prototypetype != 0) {
             $typeName = $question->coderunnertype;
             $nUses = $DB->count_records('question_coderunner_options',
@@ -637,9 +630,27 @@ class qtype_coderunner extends question_type {
 
         */
 
+        $this->notify_prototype_children_if_any($question);
         $success = $DB->delete_records("question_coderunner_tests",
                 array('questionid' => $questionid));
         return $success && parent::delete_question($questionid, $contextid);
+    }
+
+
+    // Function to notify any children of a given question (if it is a
+    // prototype) that the parent has been edited (or perhaps deleted).
+    private function notify_prototype_children_if_any($question) {
+        global $DB;
+        if ($question->prototypetype != 0) {
+            $typename = $question->coderunnertype;
+            $children = $DB->get_records('question_coderunner_options',
+                    array('prototypetype' => 0,
+                          'coderunnertype' => $typename)
+            );
+            foreach ($children as $child) {
+                //question_bank::notify_question_edited($child->questionid);
+            }
+        }
     }
 
     /******************** EDIT FORM OPTIONS ************************/
