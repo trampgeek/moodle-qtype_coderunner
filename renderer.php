@@ -50,7 +50,15 @@ class qtype_coderunner_renderer extends qtype_renderer {
         global $CFG, $PAGE;
 
         $question = $qa->get_question();
-        $qtext = $question->format_questiontext($qa);
+        $qid = $question->id;
+        $divid = "qtype_coderunner_problemspec$qid";
+        if (strpos($question->questiontext, '#*#*#*#*#*#*#*#* PROG_CONTEST_PROBLEM #*#*#*#*#*#*#*#*') !== NULL) {
+            // Special case hack for programming contest problems
+            $qtext = "<div id='$divid'>&nbsp;</div>";
+            $PAGE->requires->js_call_amd('qtype_coderunner/ajaxquestionloader', 'loadQuestionText', array($qid, $divid));
+        } else {
+            $qtext = $question->format_questiontext($qa);
+        }
         $examples = $question->example_testcases();
         if (count($examples) > 0) {
             $forexample = get_string('forexample', 'qtype_coderunner');
@@ -439,7 +447,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
     protected function make_source_code_div($outcome) {
         $html = '';
         $sourcecodelist = $outcome->get_sourcecode_list();
-        if (count($sourcecodelist) > 0) {
+        if ($sourcecodelist && count($sourcecodelist) > 0) {
             $heading = get_string('sourcecodeallruns', 'qtype_coderunner');
             $html = html_writer::start_tag('div', array('class' => 'debugging'));
             $html .= html_writer::tag('h3', $heading);

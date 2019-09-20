@@ -648,7 +648,7 @@ class qtype_coderunner extends question_type {
                           'coderunnertype' => $typename)
             );
             foreach ($children as $child) {
-                //question_bank::notify_question_edited($child->questionid);
+                question_bank::notify_question_edited($child->questionid);
             }
         }
     }
