@@ -71,7 +71,7 @@ define(['jquery'], function($) {
     // Constructor for UI. Source html comes from data-globalextra by default,
     // else from whatever source is specified by the template parameter field
     function GapfillerUi(textareaId, width, height, templateParams) {
-        var testcase, html;
+        var html;
         this.textArea = $(document.getElementById(textareaId));
         this.readOnly = this.textArea.prop('readonly');
         this.templateParams = templateParams;
@@ -104,7 +104,7 @@ define(['jquery'], function($) {
             empty = true;
 
         this.getFields().each(function() {
-            var name, value, type;
+            var name, value;
             name = $(this).attr('name');
             if (name !== 'cr_gapfiller_field') {
                 alert('Unexpected UI element found in answer box');
@@ -180,7 +180,8 @@ define(['jquery'], function($) {
         result = result + '</pre>';
 
         if (this.source === 'test0') {
-            result = '<table class="coderunnerexamples"><thead><tr><th class="header c0">Test</th><th class="header c1">Result</th></tr>' +
+            result = '<table class="coderunnerexamples"><thead><tr>' +
+                    '<th class="header c0">Test</th><th class="header c1">Result</th></tr>' +
                    '<tr><td>' + result + '</td><td>' + this.testcase.expected + '</td></tr></table>';
         }
         return result;
