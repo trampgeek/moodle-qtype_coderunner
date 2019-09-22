@@ -48,13 +48,25 @@ class qtype_coderunner_renderer extends qtype_renderer {
      */
     public function formulation_and_controls(question_attempt $qa, question_display_options $options) {
         global $CFG, $PAGE;
+        global $USER;
 
         $question = $qa->get_question();
+        $USER->coderunnerquestionid = $question->id;  // Record in case of AJAX request
         $qid = $question->id;
         $divid = "qtype_coderunner_problemspec$qid";
         if (strpos($question->questiontext, '#*#*#*#*#*#*#*#* PROG_CONTEST_PROBLEM #*#*#*#*#*#*#*#*') !== NULL) {
             // Special case hack for programming contest problems
-            $qtext = "<div id='$divid'>&nbsp;</div>";
+            $qtext = <<<EOHTML
+<div id='$divid'>
+  <div>
+    <button type="button" class="qtype_coderunner_previous">Previous</button>
+    <button type="button" class="qtype_coderunner_next">Next</button>
+    &nbsp; &nbsp;
+    <span>Page: <span class="qtype_coderunner_pagenum"></span> / <span class="qtype_coderunner_numpages"></span></span>
+  </div>
+  <canvas class='qtype_coderunner_problemspec'></canvas>
+</div>
+EOHTML;
             $PAGE->requires->js_call_amd('qtype_coderunner/ajaxquestionloader', 'loadQuestionText', array($qid, $divid));
         } else {
             $qtext = $question->format_questiontext($qa);

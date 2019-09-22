@@ -26,28 +26,123 @@
  */
 
 
-define(['jquery'], function($) {
+define(['jquery'], function ($) {
+    var pdfjsLib = window['pdfjs-dist/build/pdf'];
+    var pdfDoc = null,
+            pageNumSpan,
+            pageRendering = false,
+            pageNumPending = null,
+            scale = 1.2,
+            canvas,
+            next,
+            previous,
+            pageNum = 1,
+            numPagesSpan,
+            ctx,
+            pageRendering;
 
-    function loadQuestionText(questionId, divId) {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = '//mozilla.github.io/pdf.js/build/pdf.worker.js';
+
+    /**
+     * Get page info from document, resize canvas accordingly, and render page.
+     * @param num Page number.
+     */
+    function renderPage(num) {
+        pageRendering = true;
+        // Using promise to fetch the page
+        pdfDoc.getPage(num).then(function (page) {
+            var viewport = page.getViewport({scale: scale});
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+
+            // Render PDF page into canvas context
+            var renderContext = {
+                canvasContext: ctx,
+                viewport: viewport
+            };
+            var renderTask = page.render(renderContext);
+
+            // Wait for rendering to finish
+            renderTask.promise.then(function () {
+                pageRendering = false;
+                pageNumSpan.html('' + num);  // Update page counter
+                if (pageNumPending !== null) {
+                    // New page rendering is pending
+                    renderPage(pageNumPending);
+                    pageNumPending = null;
+                }
+            });
+        });
+    }
+
+    /**
+     * If another page rendering in progress, waits until the rendering is
+     * finised. Otherwise, executes rendering immediately.
+     */
+    function queueRenderPage(num) {
+        if (pageRendering) {
+            pageNumPending = num;
+        } else {
+            renderPage(num);
+        }
+    }
+
+    /**
+     * Displays previous page.
+     */
+    function onPrevPage() {
+        if (pageNum <= 1) {
+            return;
+        }
+        pageNum--;
+        queueRenderPage(pageNum);
+    }
+
+    /**
+     * Displays next page.
+     */
+    function onNextPage() {
+        if (pageNum >= pdfDoc.numPages) {
+            return;
+        }
+        pageNum++;
+        queueRenderPage(pageNum);
+    }
+
+    function loadQuestionText(qid, divId) {
+        canvas = $('#' + divId + ' canvas.qtype_coderunner_problemspec').get(0);
+        next = $('#' + divId + ' button.qtype_coderunner_next');
+        previous = $('#' + divId + ' button.qtype_coderunner_previous');
+        pageNumSpan = $('#' + divId + ' span.qtype_coderunner_pagenum');
+        numPagesSpan = $('#' + divId + ' span.qtype_coderunner_numpages');
+        ctx = canvas.getContext('2d');
+        next.click(onNextPage);
+        previous.click(onPrevPage);
         $.getJSON(M.cfg.wwwroot + '/question/type/coderunner/problemspec.php',
-            {
-                questionid: questionId,
-                sesskey: M.cfg.sesskey
-            },
-            function (response) {
-                if (response.filecontents) {
-                    window.alert("Yay");
-                    $('#' + divId).html(response.filecontents);
-                }
-                else {
-                    window.alert("Bad response object");
-                }
+                {
+                    questionid: qid,
+                    sesskey: M.cfg.sesskey
+                },
+                function (response) {
+                    var pdfcontents;
+                    var loadingTask;
+                    if (response.filecontentsb64) {
+                        pdfcontents = atob(response.filecontentsb64);
+                        loadingTask = pdfjsLib.getDocument({data: pdfcontents});
+                        loadingTask.promise.then(function (pdf) {
+                            pdfDoc = pdf;
+                            numPagesSpan.html('' + pdf.numPages);
+                            renderPage(1);
+                        });
 
-            }
+                    } else {
+                        window.alert("Bad response object");
+                    }
+
+                }
         ).fail(function () {
             // AJAX failed. We're dead, Fred.
             window.alert('Failed to load problem spec');
-            $('#' + divId).html("<h2>Not tonight, Josephine</h2>");
         });
     }
 
