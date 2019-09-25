@@ -178,12 +178,6 @@ define(['jquery'], function($) {
         }
 
         result = result + '</pre>';
-
-        if (this.source === 'test0') {
-            result = '<table class="coderunnerexamples"><thead><tr>' +
-                    '<th class="header c0">Test</th><th class="header c1">Result</th></tr>' +
-                   '<tr><td>' + result + '</td><td>' + this.testcase.expected + '</td></tr></table>';
-        }
         return result;
     };
 
