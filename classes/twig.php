@@ -20,10 +20,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
-require_once($CFG->dirroot . '/question/type/coderunner/Twig/Autoloader.php');
-require_once($CFG->dirroot . '/question/type/coderunner/Twig/ExtensionInterface.php');
-require_once($CFG->dirroot . '/question/type/coderunner/Twig/Extension.php');
-require_once($CFG->dirroot . '/question/type/coderunner/classes/twigmacros.php');
+require_once $CFG->dirroot . '/question/type/coderunner/vendor/autoload.php';
+require_once $CFG->dirroot . '/question/type/coderunner/classes/twigmacros.php';
 
 
 // Class that provides a singleton instance of the twig environment.
@@ -36,20 +34,25 @@ class qtype_coderunner_twig {
     private static function get_twig_environment($isstrict=false, $isdebug=false) {
         if (self::$twigenvironments[$isstrict] === null) {
             // On the first call, build the required environment.
-            Twig_Autoloader::register();
             $macros = qtype_coderunner_twigmacros::macros();
-            $twigloader = new Twig_Loader_Array($macros);
+            $twigloader = new \Twig\Loader\ArrayLoader($macros);
             $twigoptions = array(
                 'cache' => false,
                 'optimisations' => 0,
                 'autoescape' => false,
                 'strict_variables' => $isstrict,
                 'debug' => $isdebug);
-            $twig = new Twig_Environment($twigloader, $twigoptions);
+            $twig = new \Twig\Environment($twigloader, $twigoptions);
             if ($isdebug) {
                 $twig->addExtension(new Twig_Extension_Debug());
             }
-            $twig->addExtension(new qtype_coderunner_RandomExtension());
+            $newrandom = new \Twig\TwigFunction('random', 'qtype_coderunner_random',
+                array('needs_environment' => true));
+            $setrandomseed = new \Twig\TwigFunction('set_random_seed', 'qtype_coderunner_set_random_seed',
+                array('needs_environment' => true));
+            $twig->addFunction($newrandom);
+            $twig->addFunction($setrandomseed);
+
             self::$twigenvironments[$isstrict] = $twig;
 
             $twigcore = $twig->getExtension('core');
@@ -77,26 +80,6 @@ class qtype_coderunner_twig {
         return $renderedstring;
     }
 }
-
-/** Define a Twig extension that overrides the built-in random function
- *  with one that uses mt_rand everywhere. The built-in version mostly
- *  uses mt_rand but switches to PHP's array_rand function when selecting
- *  from an array. array_rand does not allow setting of a seed, which is
- *  required by CodeRunner.
- */
-
-class qtype_coderunner_RandomExtension extends Twig_Extension
-{
-    public function getFunctions() {
-        return array(
-            new Twig_SimpleFunction('random', 'qtype_coderunner_random',
-                array('needs_environment' => true)),
-            new Twig_SimpleFunction('set_random_seed', 'qtype_coderunner_set_random_seed',
-                array('needs_environment' => true))
-            );
-    }
-};
-
 
 /**
  * HACKED VERSION OF THE BUILT-IN RANDOM (see above).
