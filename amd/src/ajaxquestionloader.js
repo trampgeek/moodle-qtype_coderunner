@@ -66,6 +66,16 @@ define(['jquery'], function ($) {
             renderTask.promise.then(function () {
                 pageRendering = false;
                 pageNumSpan.html('' + num);  // Update page counter
+                if (num == 1) {
+                    previous.attr('disabled', true);
+                } else {
+                    previous.removeAttr('disabled');
+                }
+                if (num == pdfDoc.numPages) {
+                    next.attr('disabled', true);
+                } else {
+                    next.removeAttr('disabled');
+                }
                 if (pageNumPending !== null) {
                     // New page rendering is pending
                     renderPage(pageNumPending);
