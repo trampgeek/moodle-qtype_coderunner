@@ -54,7 +54,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
         $USER->coderunnerquestionid = $question->id;  // Record in case of AJAX request
         $qid = $question->id;
         $divid = "qtype_coderunner_problemspec$qid";
-        if (strpos($question->questiontext, '#*#*#*#*#*#*#*#* PROG_CONTEST_PROBLEM #*#*#*#*#*#*#*#*') !== NULL) {
+        if (strpos($question->questiontext, '#*#*#*#*#*#*#*#* PROG_CONTEST_PROBLEM #*#*#*#*#*#*#*#*') !== false) {
             // Special case hack for programming contest problems
             $qtext = <<<EOHTML
 <div id='$divid'>
