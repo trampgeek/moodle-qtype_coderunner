@@ -296,7 +296,8 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
         } else {
             $jobe = $this->jobeserver;
         }
-        $url = "http://$jobe/jobe/index.php/restapi/$resource";
+        $protocol = 'http://';
+        $url = (strpos($jobe, 'http') === 0 ? $jobe : $protocol.$jobe)."/jobe/index.php/restapi/$resource";
 
         $headers = array(
                 'User-Agent: CodeRunner',
