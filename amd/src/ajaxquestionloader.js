@@ -110,7 +110,23 @@ define(['jquery'], function ($) {
     }
 
     function loadQuestionText(qid, divId) {
-        canvas = $('#' + divId + ' canvas.qtype_coderunner_problemspec').get(0);
+        var questionTextDiv = $('#' + divId),
+            qDiv;
+        if (questionTextDiv.length != 1) {
+            window.alert("Can't load question text. Expected div not found");
+            return;
+        }
+        qDiv = '<div>\n' +
+            '<button type="button" class="qtype_coderunner_previous">Previous</button>\n' +
+            '<button type="button" class="qtype_coderunner_next">Next</button>' +
+            '&nbsp; &nbsp;' +
+            '<span>Page: <span class="qtype_coderunner_pagenum"></span> / <span ' +
+            'class="qtype_coderunner_numpages"></span></span>\n' +
+            '</div>\n' +
+            '<canvas id="qtype_coderunner_problemspec_' + qid + '"></canvas>\n' +
+            '</div>\n';
+        questionTextDiv.append(qDiv);
+        canvas = document.getElementById('qtype_coderunner_problemspec_' + qid);
         next = $('#' + divId + ' button.qtype_coderunner_next');
         previous = $('#' + divId + ' button.qtype_coderunner_previous');
         pageNumSpan = $('#' + divId + ' span.qtype_coderunner_pagenum');
