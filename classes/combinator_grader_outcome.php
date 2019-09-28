@@ -85,7 +85,7 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
                         for ($i = 0; $i < count($row); $i++) {
                             if ($headerrow[$i] != 'iscorrect' &&
                                     $headerrow[$i] != 'ishidden') {
-                                $cell = htmlspecialchars($row[i]);
+                                $cell = htmlspecialchars($row[$i]);
                                 $error .= "{$headerrow[$i]}: <pre>$cell</pre>";
                             }
                         }
