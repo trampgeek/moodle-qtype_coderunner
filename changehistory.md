@@ -1,5 +1,23 @@
 # CHANGE HISTORY
 
+### 30 September 2019. 3.7.1
+
+ * Add a new experimental Ajax service that allows a question to display the
+   question specification from a pdf file within a .zip support file, such as
+   a standard ICPC exported programming contest question. Alpha version,
+   still undocumented.
+ * Update Twig to the latest version of the 1.n branch.
+ * Allow specification of https protocol for communication to Jobe, say if
+   it's behind a reverse proxy to terminate the SSL connection (thanks Eric
+   Villard).
+ * Fix missing MoodleQuickForm::hideIf method for Moodle versions < 3.4 (thanks
+   Eric Villard)
+ * Add new experimental user interface (ui_gapfiller) to support "fill in the
+   gaps" questions.
+ * Fix broken nodejs prototype.
+ * Various tweaks to documentation.
+ * Lots of minor edits to reduce style-checker warnings
+
 ### 14 August 2019. 3.7.0
 
  * Addition of a globalextra field to all questions for use by question authors
