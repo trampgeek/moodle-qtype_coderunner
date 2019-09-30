@@ -119,7 +119,7 @@ define(['jquery'], function ($) {
         queueRenderPage(pageNum);
     }
 
-    function loadQuestionText(qid, divId) {
+    function loadQuestionText(qid, divId, questionFilename) {
         var questionTextDiv = $('#' + divId),
             qDiv;
         if (questionTextDiv.length != 1) {
@@ -147,12 +147,15 @@ define(['jquery'], function ($) {
         $.getJSON(M.cfg.wwwroot + '/question/type/coderunner/problemspec.php',
                 {
                     questionid: qid,
-                    sesskey: M.cfg.sesskey
+                    sesskey: M.cfg.sesskey,
+                    filename: questionFilename
                 },
                 function (response) {
                     var pdfcontents;
                     var loadingTask;
-                    if (response.filecontentsb64) {
+                    if (response == "FILE NOT FOUND") {
+                        window.alert("Problem spec file not found");
+                    } else if (response.filecontentsb64) {
                         pdfcontents = atob(response.filecontentsb64);
                         loadingTask = pdfjsLib.getDocument({data: pdfcontents});
                         loadingTask.promise.then(function (pdf) {

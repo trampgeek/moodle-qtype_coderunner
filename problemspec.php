@@ -18,7 +18,10 @@
  * Script to return the spec for the currently-rendered coderunner question,
  * assumed to be present in a zip support file. Since pdfs are potentially
  * binary, the file contents are returned base64 encoded.
- * Designed specifically for use with domjudge or ICPC format problem zips.
+ * Designed specifically for use with domjudge or ICPC format problem zips,
+ * although in fact it searches all zip files in the current coderunner
+ * question looking for the first match of the requested filename (if given
+ * and not empty) or the first filename ending in .pdf (otherwise).
  *
  * @package    qtype
  * @subpackage coderunner
@@ -38,8 +41,11 @@ require_login();
 require_sesskey();
 
 $currentqid = required_param('questionid', PARAM_INT);
+$reqdfilename = optional_param('filename', '', PARAM_TEXT);
+
 $qid = $USER->coderunnerquestionid;
-if ($qid != $currentqid) { // Security check: is the current questions being requested?
+// Security check: is the current questions being requested, and is it a pdf?
+if ($qid != $currentqid || ($reqdfilename !== '' && strpos($reqdfilename, '.pdf', -4) === false)) {
     // TODO: consider the possibility of a race problem if multiple questions on a page
     die(); // This is not for the current question.
 }
@@ -55,7 +61,8 @@ foreach ($files as $filename => $contents) {
             $handle = zip_open($tempfilename);
             while ($file = zip_read($handle)) {
                 $name = zip_entry_name($file);
-                if ($name === 'problem.pdf') {
+                $base = basename($name);
+                if ($base === $reqdfilename || ($reqdfilename === "" && strpos($base, '.pdf', -4) !== false)) {
                     $filecontents = zip_entry_read($file, zip_entry_filesize($file));
                     $json = json_encode(array('filecontentsb64' => base64_encode($filecontents)));
                     if ($json != NULL) {

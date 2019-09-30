@@ -55,10 +55,12 @@ class qtype_coderunner_renderer extends qtype_renderer {
         $qid = $question->id;
         $divid = "qtype_coderunner_problemspec$qid";
         $params = json_decode($question->templateparams);
-        if (isset($params->icpc_programming_contest_problem) && $params->icpc_programming_contest_problem) {
+        if (isset($params->programming_contest_problem) && $params->programming_contest_problem) {
             // Special case hack for programming contest problems
             $qtext = "<div id='$divid'></div>";
-            $PAGE->requires->js_call_amd('qtype_coderunner/ajaxquestionloader', 'loadQuestionText', array($qid, $divid));
+            $probspecfilename = isset($params->problem_spec_filename) ? $params->problem_spec_filename : '';
+            $PAGE->requires->js_call_amd('qtype_coderunner/ajaxquestionloader',
+                    'loadQuestionText', array($qid, $divid, $probspecfilename));
         } else {
             $qtext = $question->format_questiontext($qa);
         }
