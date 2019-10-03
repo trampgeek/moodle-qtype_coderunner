@@ -968,35 +968,39 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
     // Check the templateparameters value, if given. Return value is
     // an associative array with an error message 'error', a boolean
-    // 'istwigged' and a string 'renderedparams'.
-    // Error is the empty string if the template parameters are
-    // OK. istwigged is true if twigging the template parameters changed them.
-    // 'renderedparams' is the result of twig expanding the params.
+    // 'istwigged' and a string 'renderedparams'.  istwigged is true if
+    // twigging the template parameters changed them. 'renderedparams' is
+    // the result of twig expanding the params.
+    // Error is the empty string if the template parameters are OK.
+    // As a side effect, $this->renderedparams is the result of twig expanding
+    // the params and $this->decodedparams is the json decoded template parameters
+    // as an associative array.
     private function validate_template_params($data) {
         global $USER;
         $errormessage = '';
         $istwiggedparams = false;
-        $renderedparams = '';
+        $this->renderedparams = '';
+        $this->decodedparams = array();
         if ($data['templateparams'] != '') {
             // Try Twigging the template params to make sure they parse.
             $ok = true;
             $json = $data['templateparams'];
             try {
-                $renderedparams = qtype_coderunner_twig::render($json);
-                if (str_replace($renderedparams, "\r", '') !==
+                $this->renderedparams = qtype_coderunner_twig::render($json);
+                if (str_replace($this->renderedparams, "\r", '') !==
                         str_replace($json, "\r", '')) {
                     // Twig loses '\r' chars, so must strip them before checking.
-                    $istwiggedparams = true;
+                    $istwiggedparams = true; //Twigging the template parameters changed them.
                 }
             } catch (Exception $ex) {
                 $errormessage = $ex->getMessage();
                 $ok = false;
             }
             if ($ok) {
-                $decoded = json_decode($renderedparams);
-                if ($decoded === null) {
-                    if ($istwiggedparams) {
-                        $badjsonhtml = str_replace("\n", '<br>', $renderedparams);
+                $this->decodedparams = json_decode($this->renderedparams, true);
+                if ($this->decodedparams === null) {
+                    if ($this->decodedparams) {
+                        $badjsonhtml = str_replace("\n", '<br>', $this->renderedparams);
                         $errormessage = get_string('badtemplateparamsaftertwig',
                                 'qtype_coderunner', $badjsonhtml);
                     } else {
@@ -1008,7 +1012,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         }
         return array('error' => $errormessage,
                     'istwigged' => $istwiggedparams,
-                    'renderedparams' => $renderedparams);
+                    'renderedparams' => $this->renderedparams);
     }
 
 
@@ -1135,12 +1139,18 @@ class qtype_coderunner_edit_form extends question_edit_form {
             return '';
         }
         // Check if it's a multilanguage question; if so need to determine
-        // what language (either the default or the first).
+        // what language to use. If there is a specific answer_language template
+        // parameter, that is used. Otherwise the default language (if specified)
+        // or the first in the list is used.
         $acelangs = trim($data['acelang']);
         if ($acelangs !== '' && strpos($acelangs, ',') !== false) {
-            list($languages, $defaultlang) = qtype_coderunner_util::extract_languages($acelangs);
-            if ($defaultlang === '') {
-                $defaultlang = $languages[0];
+            if (empty($this->decodedparams['answer_language'])) {
+                list($languages, $answerlang) = qtype_coderunner_util::extract_languages($acelangs);
+                if ($answerlang === '') {
+                    $answerlang = $languages[0];
+                }
+            } else {
+                $answerlang = $this->decodedparams['answer_language'];
             }
         }
 
@@ -1148,8 +1158,8 @@ class qtype_coderunner_edit_form extends question_edit_form {
             $question = $this->make_question_from_form_data($data);
             $question->start_attempt();
             $response = array('answer' => $question->answer);
-            if (!empty($defaultlang)) {
-                $response['language'] = $defaultlang;
+            if (!empty($answerlang)) {
+                $response['language'] = $answerlang;
             }
             if ($attachmentssaver) {
                 $response['attachments'] = $attachmentssaver;
