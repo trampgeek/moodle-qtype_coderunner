@@ -133,6 +133,9 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
     // specifier in html_wrapper objects leaving other cells unchanged.
     // ishidden and iscorrect columns are copied across unchanged.
     private function format_table($table) {
+        if (empty($table)) {
+            return $table;
+        }
         if (!$this->columnformats) {
             $newtable = $table;
         } else {
