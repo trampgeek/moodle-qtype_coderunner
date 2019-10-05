@@ -43,13 +43,13 @@ require_sesskey();
 $currentqid = required_param('questionid', PARAM_INT);
 $reqdfilename = optional_param('filename', '', PARAM_TEXT);
 
-$qid = $USER->coderunnerquestionid;
+$qids = $USER->coderunnerquestionids;
 // Security check: is the current questions being requested, and is it a pdf?
-if ($qid != $currentqid || ($reqdfilename !== '' && strpos($reqdfilename, '.pdf', -4) === false)) {
-    // TODO: consider the possibility of a race problem if multiple questions on a page
+if (!in_array($currentqid, $qids) || ($reqdfilename !== '' && strpos($reqdfilename, '.pdf', -4) === false)) {
+    echo('{"Error": "Unauthorised"}');
     die(); // This is not for the current question.
 }
-$question = question_bank::load_question($qid);
+$question = question_bank::load_question($currentqid);
 $files = $question->get_files();
 header('Content-type: application/json; charset=utf-8');
 

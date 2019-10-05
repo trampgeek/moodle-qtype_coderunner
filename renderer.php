@@ -51,8 +51,12 @@ class qtype_coderunner_renderer extends qtype_renderer {
         global $USER;
 
         $question = $qa->get_question();
-        $USER->coderunnerquestionid = $question->id;  // Record in case of AJAX request
         $qid = $question->id;
+	if (empty($USER->coderunnerquestionids)) {
+            $USER->coderunnerquestionids = array($qid);  // Record in case of AJAX request
+	} else {
+	    array_push($USER->coderunnerquestionids, $qid); // Array of active qids
+	}
         $divid = "qtype_coderunner_problemspec$qid";
         $params = json_decode($question->templateparams);
         $qtext = $question->format_questiontext($qa);
