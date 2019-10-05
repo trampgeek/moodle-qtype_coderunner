@@ -45,7 +45,7 @@ define(['jquery'], function ($) {
 
                         questionTextDiv.append(
                           '<div><a download href="data:application/pdf;base64,' +
-                          response.filecontentsb64 + '">Download problem spec</a></div>');
+                          response.filecontentsb64 + '">Problem spec</a></div>');
                     } else {
                         questionTextDiv.append(errorDiv);
                     }
