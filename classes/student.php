@@ -40,6 +40,7 @@ class qtype_coderunner_student {
             $this->email     = $user->email;
             $this->firstname = $user->firstname;
             $this->lastname  = $user->lastname;
+            $this->canviewhidden = qtype_coderunner_testing_outcome::can_view_hidden();
         }
     }
 

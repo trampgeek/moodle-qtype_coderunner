@@ -376,7 +376,7 @@ class qtype_coderunner_testing_outcome {
      * @global type $COURSE the current course (if there is one)
      * @return boolean true iff the current user has permissions to view hidden rows
      */
-    protected static function can_view_hidden() {
+    public static function can_view_hidden() {
         global $COURSE;
 
         if ($COURSE && $coursecontext = context_course::instance($COURSE->id)) {
