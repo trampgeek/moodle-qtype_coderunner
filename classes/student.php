@@ -34,7 +34,7 @@ class qtype_coderunner_student {
     public $lastname;
 
     public function __construct($user) {
-        if ($user) {
+        if (!empty($user->username)) {
             $this->id        = $user->id;
             $this->username  = $user->username;
             $this->email     = $user->email;
