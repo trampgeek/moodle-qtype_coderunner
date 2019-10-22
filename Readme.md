@@ -1,6 +1,6 @@
 # CODE RUNNER
 
-Version: 3.7.0 August 2019
+Version: 3.7.1 October 2019
 
 Authors: Richard Lobb, University of Canterbury, New Zealand.
          Tim Hunt, The Open University, UK
@@ -1927,8 +1927,54 @@ itself the empty string.
 An example of the use of this UI type can be seen in the
 *python3_program_testing* prototype in the *samples* folder.
 
+### The Gap Filler UI (new, experimental)
 
-### The Html UI
+This plugin replaces the usual textarea answer box with a div
+consisting of pre-formatted text supplied by the question author in either the
+"globalextra" field or the testcode field of the first test case, according
+to the template parameter gapfiller_ui_source (default: globalextra).  HTML
+entry or textarea elements are then inserted at
+specified points. It is intended primarily for use with coding questions
+where the answerbox presents the students with code that has smallish bits
+missing.
+
+The locations within the globalextra text at which the input elements are
+to be inserted are denoted by "tags" of the form
+
+    {[ size ]}
+
+for an HTML input element
+
+or
+
+    {[ rows, columns ]}
+
+for a textarea element
+
+where size, rows and column are integer literals. These respectively
+inject an HTML input element or a textarea element of the
+specified size.
+
+The serialisation of the answer box contents, i.e. the text that
+copied back into the textarea for submissions
+as the answer, is simply a list of all the field values (strings), in order.
+
+As a special case of the serialisation, if the value list is empty, the
+serialisation itself is the empty string.
+
+The delimiters for the input element insertion tags are by default '{[' and
+']}', but can be changed by an optional template parameter gap_filler_delimiters,
+which must be a 2-element array of strings. For example:
+
+    {"gap_filler_delimiters": ["{{", "}}"]}
+
+Note that the double-brace delimiters in that example are the same as those
+used by Twig, so using them instead of the default would prevent you from
+ever adding Twig expansion (e.g. for randomisation) to the question. This is
+not recommended.
+
+
+### The Html UI (unsupported and experimental)
 
 The HTML UI plug-in replaces the answer box with custom HTML provided by the
 question author. The HTML will usually include data entry fields such as
