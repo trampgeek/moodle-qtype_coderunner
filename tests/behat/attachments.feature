@@ -1,4 +1,4 @@
-@qtype @qtype_coderunner @javascript
+@qtype @qtype_coderunner @javascript @_file_upload
 Feature: Test editing and using attachments to a CodeRunner question
   In order to use attachments with my CodeRunner questions
   As a teacher

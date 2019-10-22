@@ -1,4 +1,4 @@
-@qtype @qtype_coderunner @javascript
+@qtype @qtype_coderunner @javascript @_file_upload
 Feature: Test importing and exporting of question with attachments
   In order to use attachments with my CodeRunner questions
   As a teacher
