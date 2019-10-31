@@ -450,6 +450,9 @@ class qtype_coderunner_question extends question_graded_automatically {
      */
     private function setup_template_params($seed) {
         mt_srand($seed);
+        if (!isset($this->templateparams)) {
+            $this->templateparams = '';
+        }
         $ournewtemplateparams = qtype_coderunner_twig::render($this->templateparams);
         if (isset($this->prototypetemplateparams)) {
             $prototypenewtemplateparams = qtype_coderunner_twig::render($this->prototypetemplateparams);
