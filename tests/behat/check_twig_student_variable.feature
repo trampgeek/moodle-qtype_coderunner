@@ -4,7 +4,7 @@ Feature: Check the STUDENT Twig variable allows access to current username in Co
   As a teacher
   I should be able to write a function that prints my username it should be marked right
 
-Background:
+  Background:
     Given the following "users" exist:
       | username | firstname | lastname | email            |
       | teacher1 | Teacher   | 1        | teacher1@asd.com |
@@ -20,7 +20,6 @@ Background:
     And I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I navigate to "Question bank" in current page administration
-    And I disable UI plugins
     And I add a "CodeRunner" question filling the form with:
       | id_coderunnertype       | python3                                    |
       | id_customise            | 1                                          |
@@ -34,7 +33,7 @@ Background:
       | id_expected_0           | True                                       |
 
   Scenario: Preview the STUDENT variable function question and check it is marked right in CodeRunner
-    When I click on "Preview" "link" in the "STUDENT variable" "table_row"
+    When I choose "Preview" action for "STUDENT variable" in the question bank
     And I switch to "questionpreview" window
     And I set the field with xpath "//textarea[contains(@name, 'answer')]" to "blah blah blah"
     And I press "Check"

@@ -56,9 +56,7 @@ Feature: make_combinator_prototype
       | id_expected_1     | 81                                |
 
   Scenario: As a teacher, I get marked right (using combinator template) if I submit a correct answer to a CodeRunner question
-    # HACK ALERT: following line selects row 0 because question name (Combinator prototype tester)
-    # comes before the prototype.
-    When I click on "table#categoryquestions tr.r0 a[title='Preview']" "css_element"
+    When I choose "Preview" action for "Combinator prototype tester" in the question bank
     And I switch to "questionpreview" window
     And I set the field "id_behaviour" to "Adaptive mode"
     And I press "Start again with these options"

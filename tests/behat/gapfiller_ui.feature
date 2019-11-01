@@ -24,9 +24,8 @@ Feature: Test the GapFiller_UI
     And I am on "Course 1" course homepage
     And I navigate to "Question bank" in current page administration
 
-
   Scenario: Edit a CodeRunner printans question into a gap-filler question
-    When I click on "Edit" "link" in the "Print answer" "table_row"
+    When I choose "Edit question" action for "Print answer" in the question bank
     And I set the following fields to these values:
       | customise      | 1                             |
       | id_template    | print('{{ STUDENT_ANSWER }}') |
@@ -50,7 +49,7 @@ Feature: Test the GapFiller_UI
     And I should see "Created by"
     And I should see "Last modified by"
 
-    When I click on "Edit" "link" in the "Print answer" "table_row"
+    When I choose "Edit question" action for "Print answer" in the question bank
     And I set the field "id_globalextra" to:
      """
      I'm a line of text
@@ -83,7 +82,7 @@ for element in answer: print(element)
     And I should see "Created by"
     And I should see "Last modified by"
 
-    When I click on "Preview" "link" in the "Print answer" "table_row"
+    When I choose "Preview" action for "Print answer" in the question bank
     And I switch to "questionpreview" window
     And I set the field "cr_gapfiller_field" to:
      """

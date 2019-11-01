@@ -26,7 +26,7 @@ Feature: Check grading with the Python 3 sqr function CodeRunner question
     And I disable UI plugins
 
   Scenario: Preview the Python3 sqr function CodeRunner question submit two different wrong answers then the right answer
-    When I click on "Preview" "link" in the "Square function" "table_row"
+    When I choose "Preview" action for "Square function" in the question bank
     And I switch to "questionpreview" window
     And I set the field with xpath "//textarea[contains(@name, 'answer')]" to "def sqr(n): return n"
     And I press "Check"
@@ -38,7 +38,7 @@ Feature: Check grading with the Python 3 sqr function CodeRunner question
     And I should see "Mark 24.80 out of 31.00"
 
   Scenario: Preview the Python3 sqr function CodeRunner question submit the same wrong answer twice then the right answer
-    When I click on "Preview" "link" in the "Square function" "table_row"
+    When I choose "Preview" action for "Square function" in the question bank
     And I switch to "questionpreview" window
     And I set the field with xpath "//textarea[contains(@name, 'answer')]" to "def sqr(n): return n"
     And I press "Check"
@@ -49,7 +49,7 @@ Feature: Check grading with the Python 3 sqr function CodeRunner question
     And I should see "Mark 27.90 out of 31.00"
 
   Scenario: Preview the Python3 sqr function CodeRunner question precheck, submit the same wrong answer twice, fix, precheck then check
-    When I click on "Preview" "link" in the "Square function" "table_row"
+    When I choose "Preview" action for "Square function" in the question bank
     And I switch to "questionpreview" window
     And I set the field with xpath "//textarea[contains(@name, 'answer')]" to "def sqr(n): return n"
     And I press "Precheck"
@@ -61,7 +61,7 @@ Feature: Check grading with the Python 3 sqr function CodeRunner question
     And I should see "Mark 27.90 out of 31.00"
 
   Scenario: Preview the Python3 sqr function CodeRunner question precheck, submit the same wrong answer twice, fix, then check
-    When I click on "Preview" "link" in the "Square function" "table_row"
+    When I choose "Preview" action for "Square function" in the question bank
     And I switch to "questionpreview" window
     And I set the field with xpath "//textarea[contains(@name, 'answer')]" to "def sqr(n): return n"
     And I press "Precheck"
@@ -72,7 +72,7 @@ Feature: Check grading with the Python 3 sqr function CodeRunner question
     And I should see "Mark 27.90 out of 31.00"
 
   Scenario: Preview the Python3 sqr function CodeRunner question precheck a wrong answer then close and submit
-    When I click on "Preview" "link" in the "Square function" "table_row"
+    When I choose "Preview" action for "Square function" in the question bank
     And I switch to "questionpreview" window
     And I set the field with xpath "//textarea[contains(@name, 'answer')]" to "def sqr(n): return 0"
     And I press "Precheck"
