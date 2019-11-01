@@ -25,7 +25,7 @@ Feature: Test editing a CodeRunner question
     And I navigate to "Question bank" in current page administration
 
   Scenario: Edit a CodeRunner question
-    When I click on "Edit" "link" in the "Square function" "table_row"
+    When I choose "Edit question" action for "Square function" in the question bank
     And I set the following fields to these values:
       | Question name | |
     And I press "Save changes"

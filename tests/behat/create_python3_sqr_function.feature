@@ -40,7 +40,7 @@ Feature: Create a CodeRunner question (the sqr function example)
     And I should not see "Write a sqr function"
     And I should see "sqr acceptance question"
 
-    When I click on "Edit" "link" in the "sqr acceptance question" "table_row"
+    When I choose "Edit question" action for "sqr acceptance question" in the question bank
     And I set the field "id_customise" to "1"
     And I set the field "id_iscombinatortemplate" to "1"
 

@@ -26,7 +26,7 @@ Feature: Test editing a CodeRunner question using the Table UI
 
 
   Scenario: Edit a CodeRunner printans question into a table question
-    When I click on "Edit" "link" in the "Print answer" "table_row"
+    When I choose "Edit question" action for "Print answer" in the question bank
     And I set the following fields to these values:
       | customise      | 1                             |
       | id_template    | print('{{ STUDENT_ANSWER }}') |

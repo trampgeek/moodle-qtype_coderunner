@@ -29,7 +29,7 @@ Feature: Duplicate a course containing a CodeRunner question
     And I restore "test_backup.mbz" backup into a new course using this options:
       | Schema | Course name | Course 2 |
     And I navigate to "Question bank" in current page administration
-    And I click on "Edit" "link" in the "Square function" "table_row"
+    And I choose "Edit question" action for "Square function" in the question bank
     Then the following fields match these values:
       | Question name                  | Square function                                 |
       | Question text                  | Write a function sqr(n) that returns n squared. |

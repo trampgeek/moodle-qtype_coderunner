@@ -43,7 +43,6 @@ Background:
       | question         | page |
       | STUDENT variable | 1    |
 
-
   Scenario: Preview as a teacher, submit answer as a student, review as a teacher
     When I am on "Course 1" course homepage
     And I follow "Test quiz"
