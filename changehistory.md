@@ -1,5 +1,10 @@
 # CHANGE HISTORY
 
+### 1 November 2019. 3.7.2.
+
+ * Regression: upgraded Twig barfs on questions with null (as opposed to
+   empty string) template parameters.
+
 ### 30 September 2019. 3.7.1
 
  * Add a new experimental Ajax service that allows a question to display the
