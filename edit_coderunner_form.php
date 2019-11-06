@@ -66,7 +66,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         if (!empty($this->question->options->mergedtemplateparams)) {
             $this->mergedtemplateparams = $this->question->options->mergedtemplateparams;
             try {
-                $this->twiggedparams = qtype_coderunner_twig::render($this->mergedtemplateparams);
+                $this->twiggedparams = $this->twig_render($this->mergedtemplateparams);
             } catch (Exception $ex) {
                 // If the params are broken, don't use them.
                 // Code checker won't accept an empty catch.
@@ -985,7 +985,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
             $ok = true;
             $json = $data['templateparams'];
             try {
-                $this->renderedparams = qtype_coderunner_twig::render($json);
+                $this->renderedparams = $this->twig_render($json);
                 if (str_replace($this->renderedparams, "\r", '') !==
                         str_replace($json, "\r", '')) {
                     // Twig loses '\r' chars, so must strip them before checking.
@@ -1069,7 +1069,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 $text = $text['text'];
             }
             try {
-                qtype_coderunner_twig::render($text, $parameters, true);
+                $this->twig_render($text, $parameters, true);
             } catch (Twig_Error $ex) {
                 $errors[$field] = get_string('twigerror', 'qtype_coderunner',
                         $ex->getMessage());
@@ -1085,7 +1085,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 foreach (['testcode', 'stdin', 'expected', 'extra'] as $fieldname) {
                     $text = $data[$fieldname][$i];
                     try {
-                        qtype_coderunner_twig::render($text, $parameters, true);
+                        $this->twig_render($text, $parameters, true);
                     } catch (Twig_Error $ex) {
                         $errors["testcode[$i]"] = get_string('twigerrorintest',
                                 'qtype_coderunner', $ex->getMessage());
@@ -1094,6 +1094,15 @@ class qtype_coderunner_edit_form extends question_edit_form {
             }
         }
         return $errors;
+    }
+
+
+    // Render the given Twig text with the given params, using the global
+    // $USER variable (the question author) as a dummy student.
+    // @return Rendered text.
+    private function twig_render($text, $params=array(), $isstrict=false) {
+        global $USER;
+        return qtype_coderunner_twig::render($text, $USER, $params, $isstrict);
     }
 
 

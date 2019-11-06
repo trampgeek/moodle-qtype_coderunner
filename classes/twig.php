@@ -71,10 +71,9 @@ class qtype_coderunner_twig {
     // which is added the STUDENT parameter.
     // Return the Twig-expanded string.
     // Any Twig exceptions raised must be caught higher up.
-    public static function render($s, $parameters=array(), $isstrict=false) {
-        global $USER;
+    public static function render($s, $student, $parameters=array(), $isstrict=false) {
         $twig = qtype_coderunner_twig::get_twig_environment($isstrict);
-        $parameters['STUDENT'] = new qtype_coderunner_student($USER);
+        $parameters['STUDENT'] = new qtype_coderunner_student($student);
         $template = $twig->createTemplate($s);
         $renderedstring = $template->render($parameters);
         return $renderedstring;
