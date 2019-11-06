@@ -976,7 +976,6 @@ class qtype_coderunner_edit_form extends question_edit_form {
     // the params and $this->decodedparams is the json decoded template parameters
     // as an associative array.
     private function validate_template_params($data) {
-        global $USER;
         $errormessage = '';
         $istwiggedparams = false;
         $this->renderedparams = '';
