@@ -57,12 +57,13 @@ class qtype_coderunner_question extends question_graded_automatically {
      *      1 and {@link get_num_variants()} inclusive.
      */
     public function start_attempt(question_attempt_step $step=null, $variant=null) {
-        global $DB;
+        global $DB, $USER;
         if ($step !== null) {
             $userid = $step->get_user_id();
-            $user = $DB->get_record('user', array('id' => $userid));
-            parent::start_attempt($step, $variant);
-            $step->set_qt_var('_STUDENT', serialize($user));
+            $this->student = $DB->get_record('user', array('id' => $userid));
+            $step->set_qt_var('_STUDENT', serialize($this->student));
+        } else {  // Validation, so just use the global $USER as student.
+            $this->student = $USER;
         }
 
         $seed = mt_rand();
