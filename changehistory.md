@@ -1,5 +1,10 @@
 # CHANGE HISTORY
 
+### 7 November 2019. 3.7.3
+
+ * Regression fix: questions using the Twig STUDENT variable were not able
+   to be correctly reviewed by a teacher after submission by student.
+
 ### 1 November 2019. 3.7.2.
 
  * Regression: upgraded Twig barfs on questions with null (as opposed to
