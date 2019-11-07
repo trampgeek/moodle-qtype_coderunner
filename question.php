@@ -59,6 +59,7 @@ class qtype_coderunner_question extends question_graded_automatically {
     public function start_attempt(question_attempt_step $step=null, $variant=null) {
         global $DB, $USER;
         if ($step !== null) {
+            parent::start_attempt($step, $variant);
             $userid = $step->get_user_id();
             $this->student = $DB->get_record('user', array('id' => $userid));
             $step->set_qt_var('_STUDENT', serialize($this->student));
