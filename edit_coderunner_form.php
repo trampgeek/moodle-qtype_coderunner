@@ -137,6 +137,18 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $this->add_per_testcase_fields($mform, get_string('testcase', 'qtype_coderunner', "{no}"),
                 $numtestcases);
 
+        // Add the option to attach runtime support files, all of which are
+        // copied into the working directory when the expanded template is
+        // executed.The file context is that of the current course.
+        $options = $this->fileoptions;
+        $options['subdirs'] = false;
+        $mform->addElement('header', 'fileheader',
+                get_string('fileheader', 'qtype_coderunner'));
+        $mform->addElement('filemanager', 'datafiles',
+                get_string('datafiles', 'qtype_coderunner'), null,
+                $options);
+        $mform->addHelpButton('datafiles', 'datafiles', 'qtype_coderunner');
+
         // Insert the attachment section to allow file uploads.
         $qtype = question_bank::get_qtype('coderunner');
         $mform->addElement('header', 'attachmentoptions', get_string('attachmentoptions', 'qtype_coderunner'));
@@ -173,18 +185,6 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->addHelpButton('maxfilesize', 'maxfilesize', 'qtype_coderunner');
                 $mform->setDefault('maxfilesize', '10240');
         $mform->disabledIf('maxfilesize', 'attachments', 'eq', 0);
-
-        // Add the option to attach runtime support files, all of which are
-        // copied into the working directory when the expanded template is
-        // executed.The file context is that of the current course.
-        $options = $this->fileoptions;
-        $options['subdirs'] = false;
-        $mform->addElement('header', 'fileheader',
-                get_string('fileheader', 'qtype_coderunner'));
-        $mform->addElement('filemanager', 'datafiles',
-                get_string('datafiles', 'qtype_coderunner'), null,
-                $options);
-        $mform->addHelpButton('datafiles', 'datafiles', 'qtype_coderunner');
     }
 
     /**
