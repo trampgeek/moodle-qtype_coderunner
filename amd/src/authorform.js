@@ -99,7 +99,10 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
                 params = {},
                 uiWrapper;
 
+            // Set data attributes in the text area for UI components that need
+            // global extra or testcase data (e.g. gapfiller UI).
             ta.attr('data-globalextra', globalextra.val());
+            ta.attr('data-test0', $('#id_testcode_0').val());
             try {
                 params = JSON.parse(paramsJson);
             } catch(err) {}

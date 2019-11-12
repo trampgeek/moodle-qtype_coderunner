@@ -84,10 +84,8 @@ define(['jquery'], function($) {
         }
         if (this.source == 'globalextra') {
             html = this.textArea.attr('data-globalextra');
-            this.testcase = null;
         } else {
-            this.testcase = JSON.parse(this.textArea.attr('data-test0'));
-            html = this.testcase.testcode;
+            html = this.textArea.attr('data-test0');
         }
         this.html = html.replace('<', '&lt;');
         this.reload();

@@ -153,7 +153,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
                 'data-params' => $question->templateparams,
                 'data-globalextra' => $question->globalextra,
                 'data-lang' => ucwords($currentlanguage),
-                'data-test0' => $question->testcases ? json_encode($question->testcases[0]) : ''
+                'data-test0' => $question->testcases ? $question->testcases[0]->testcode : ''
         );
 
         if ($options->readonly) {
