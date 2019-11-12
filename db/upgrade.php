@@ -326,6 +326,18 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2019080500, 'qtype', 'coderunner');
     }
 
+    if ($oldversion < 2019111300) {
+        // Change default for field validateonsave from false to true.
+        $table = new xmldb_table('question_coderunner_options');
+        $field = new xmldb_field('validateonsave', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '1', 'answer');
+
+        // Launch change of type for field templateparams.
+        $dbman->change_field_default($table, $field);
+
+        // Coderunner savepoint reached.
+        upgrade_plugin_savepoint(true, 2019111300, 'qtype', 'coderunner');
+    }
+
     require_once(__DIR__ . '/upgradelib.php');
     update_question_types();
 
