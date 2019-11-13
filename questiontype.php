@@ -731,7 +731,7 @@ class qtype_coderunner extends question_type {
             'precheck' => 0,
             'answerboxlines' => 15,
             'answerboxcolumns' => 90,
-            'validateonsave' => 0,
+            'validateonsave' => 1,
             'answerpreload' => '',
             'globalextra' => '',
             'useace' => 1,

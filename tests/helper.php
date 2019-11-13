@@ -105,7 +105,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $qdata->options->useace = 0;
         $qdata->options->penaltyregime = '10, 20, ...';
         // Exclude answer, defaults to null.
-        $qdata->options->validateonsave = 0;
+        $qdata->options->validateonsave = 1;
         // Ignore a bunch because they default to null.
         $qdata->options->uiplugin = 'None';
         $qdata->options->attachments = 0;

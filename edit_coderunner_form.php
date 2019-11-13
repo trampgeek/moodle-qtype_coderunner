@@ -1143,8 +1143,8 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
         $attachmentssaver = $this->get_sample_answer_file_saver();
         $files = $attachmentssaver ? $attachmentssaver->get_files() : array();
-        if (trim($data['answer']) === '' && count($files) == 0) {
-            return '';
+        if ((!isset($data['answer']) || trim($data['answer']) === '') && count($files) == 0) {
+            return ''; // Empty answer and no attachments.
         }
         // Check if it's a multilanguage question; if so need to determine
         // what language to use. If there is a specific answer_language template
