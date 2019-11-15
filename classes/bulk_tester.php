@@ -428,8 +428,12 @@ class qtype_coderunner_bulk_tester {
         $answer = $question->answer;
         $response = array('answer' => $answer);
         // Check if it's a multilanguage question; if so need to determine
-        // what language (either the default or the first).
-        if (!empty($question->acelang) && strpos($question->acelang, ',') !== false) {
+        // what language (either specified by answer_language template param, or
+        // the AceLang default or the first).
+        $params = empty($question->templateparams) ? array() : json_decode($question->templateparams, true);
+        if (!empty($params['answer_language'])) {
+            $response['language'] = $params['answer_language'];
+        } else  if (!empty($question->acelang) && strpos($question->acelang, ',') !== false) {
             list($languages, $defaultlang) = qtype_coderunner_util::extract_languages($question->acelang);
             if ($defaultlang === '') {
                 $defaultlang = $languages[0];
@@ -524,7 +528,7 @@ class qtype_coderunner_bulk_tester {
      * Return a link to the given question in the question bank.
      * @param int $courseid the id of the course containing the question
      * @param stdObj $question the question
-     * @return html link to the question in the quesiton bank
+     * @return html link to the question in the question bank
      */
     private static function make_question_link($courseid, $question) {
         $qbankparams = array('qperpage' => 1000); // Can't easily get the true value.
