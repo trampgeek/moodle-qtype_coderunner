@@ -1,12 +1,15 @@
 # CHANGE HISTORY
 
-### 13 November 2019. 3.7.4
+### 18 November 2019. 3.7.4
 
  * Change default for validateonsave from false to true.
  * Re-order Support files and Attachment options sections in question editing form.
  * Bug fix: Questions using gapfiller_ui did not allow editing of sample
    answer when the html code source was the first test case rather
    than globalextra.
+ * Bug fix: bulk tester was not correctly testing multilanguage questions
+   in which the sample answer was not the default i.e. was not recognising
+   the answer_language template parameter.
 
 ### 7 November 2019. 3.7.3
 
