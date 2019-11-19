@@ -1,6 +1,6 @@
 # CHANGE HISTORY
 
-### 18 November 2019. 3.7.4
+### 19 November 2019. 3.7.4+
 
  * Change default for validateonsave from false to true.
  * Re-order Support files and Attachment options sections in question editing form.
