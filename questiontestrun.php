@@ -96,7 +96,12 @@ $options->suppressruntestslink = true;
 
 // Test the question with its sample answer.
 $answer = $question->answer;
-$quba->process_action($slot, array('-submit' => 'Submit', 'answer' => $answer));
+$run_params = array('-submit' => 'Submit', 'answer' => $answer);
+$templateparams = isset($question->templateparams) ? json_decode($question->templateparams, true) : array();
+if (isset($templateparams['answer_language'])) {
+    $run_params['language'] = $templateparams['answer_language'];
+}
+$quba->process_action($slot, $run_params);
 
 // Start output.
 echo $OUTPUT->header();
