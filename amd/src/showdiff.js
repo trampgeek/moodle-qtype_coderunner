@@ -241,9 +241,9 @@ define(['jquery'], function($) {
             table,
             tableRows,
             thEls,
-            columnCount = 0,
-            gotCol,
-            expectedCol;
+            columnCount=0,
+            gotCol=-1,
+            expectedCol=-1;
 
         table = diffButton.closest('div.coderunner-test-results');
         thEls = table.find('th');
@@ -259,7 +259,7 @@ define(['jquery'], function($) {
             columnCount += 1;
         });
 
-        if (gotCol && expectedCol) {
+        if (gotCol !== -1 && expectedCol !== -1) {
             diffButton.on("click", function() {
                 if (diffButton.prop('value') === showValue) {
                     processAllRows(tableRows.toArray(), gotCol, expectedCol, showDifferences);
