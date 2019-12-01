@@ -43,7 +43,7 @@ Feature: Import CodeRunner questions
     And I should see "15. Draw a graph with two nodes A and B"
     And I press "Continue"
     And I should see "C function: sqr"
-    And I click on "Edit" "link" in the "Java Class: bod" "table_row"
+    And I choose "Edit question" action for "Java Class: bod" in the question bank
     And I set the field "id_customise" to "1"
     And I set the field "id_useace" to "0"
     And I should see "public class __tester__ {" in the "id_template" "field"

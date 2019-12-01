@@ -23,7 +23,7 @@ Feature: Test importing and exporting of question with attachments
     And I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I navigate to "Question bank" in current page administration
-    And I click on "Edit" "link" in the "Square function" "table_row"
+    And I choose "Edit question" action for "Square function" in the question bank
     And I click on "a[aria-controls='id_attachmentoptions']" "css_element"
     And I set the field "Answer" to "from sqrmodule import sqr"
     And I set the field "Validate on save" to "1"
@@ -35,9 +35,8 @@ Feature: Test importing and exporting of question with attachments
     Then I should see "Question bank"
     And I should see "Last modified by"
 
-
-@file_attachments
-Scenario: As a teacher I can export a question with an attached sample answer file
+  @file_attachments
+  Scenario: As a teacher I can export a question with an attached sample answer file
     Given I am on "Course 1" course homepage
     When I navigate to "Question bank > Export" in current page administration
     And I set the field "id_format_xml" to "1"
@@ -49,8 +48,8 @@ Scenario: As a teacher I can export a question with an attached sample answer fi
     # step we avoid behat doing the reset until we are off that page.
     And I log out
 
-@file_attachments
-Scenario: As a teacher I can import a question with an attached sample answer file
+  @file_attachments
+  Scenario: As a teacher I can import a question with an attached sample answer file
     Given I am on "Course 1" course homepage
     When I navigate to "Question bank > Import" in current page administration
     And I set the field "id_format_xml" to "1"
@@ -60,7 +59,7 @@ Scenario: As a teacher I can import a question with an attached sample answer fi
     And I should see "Importing 1 questions from file"
     And I press "Continue"
     And I should see "Python3 sqr function with an attachment"
-    And I click on "Edit" "link" in the "Python3 sqr function with an attachment" "table_row"
+    And I choose "Edit question" action for "Python3 sqr function with an attachment" in the question bank
     And I press "id_submitbutton"
     # Sample question has validate on save set, so should be checked on save
     Then I should see "Question bank"
