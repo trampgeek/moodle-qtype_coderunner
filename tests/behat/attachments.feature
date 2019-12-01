@@ -23,7 +23,7 @@ Feature: Test editing and using attachments to a CodeRunner question
     And I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I navigate to "Question bank" in current page administration
-    And I click on "Edit" "link" in the "Square function" "table_row"
+    And I choose "Edit question" action for "Square function" in the question bank
     And I click on "a[aria-controls='id_attachmentoptions']" "css_element"
     And I set the field "Answer" to "from sqrmodule import sqr"
     And I set the field "Validate on save" to "1"
@@ -41,17 +41,17 @@ Feature: Test editing and using attachments to a CodeRunner question
     Then I should see "Question bank"
     And I should see "Last modified by"
 
-@javascript @file_attachments
-Scenario: As a teacher I can preview my question but get an error without attachment.
-    When I click on "Preview" "link" in the "Square function" "table_row"
+  @javascript @file_attachments
+  Scenario: As a teacher I can preview my question but get an error without attachment.
+    When I choose "Preview" action for "Square function" in the question bank
     And I switch to "questionpreview" window
     And I set the field "Answer" to "from sqrmodule import sqr"
     And I press "Check"
     Then I should see "Not enough attachments, 1 required."
 
-@javascript @file_attachments
-Scenario: As a teacher I can preview my question and get it right with an attachment
-    When I click on "Preview" "link" in the "Square function" "table_row"
+  @javascript @file_attachments
+  Scenario: As a teacher I can preview my question and get it right with an attachment
+    When I choose "Preview" action for "Square function" in the question bank
     And I switch to "questionpreview" window
     And I upload "question/type/coderunner/tests/fixtures/sqrmodule.py" file to "" filemanager
     And I set the field "Answer" to "from sqrmodule import sqr"

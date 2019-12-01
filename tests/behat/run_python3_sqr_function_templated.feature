@@ -33,7 +33,7 @@ Feature: Combinator template is called test-by-test if a runtime error occurs wh
       | id_testcode_2     | sqr(-3)                 |
       | id_expected_2     | 9                       |
       | id_display_2      | Hide                    |
-    When I click on "Edit" "link" in the "sqr acceptance question" "table_row"
+    When I choose "Edit question" action for "sqr acceptance question" in the question bank
     And I set the field "id_customise" to "1"
     And I set the field "id_iscombinatortemplate" to "1"
 
@@ -52,7 +52,7 @@ Feature: Combinator template is called test-by-test if a runtime error occurs wh
     And I press "id_submitbutton"
 
   Scenario: As a teacher, I get marked right if I submit a correct answer to a CodeRunner question
-    When I click on "Preview" "link" in the "sqr acceptance question" "table_row"
+    When I choose "Preview" action for "sqr acceptance question" in the question bank
     And I switch to "questionpreview" window
     And I set the field with xpath "//textarea[contains(@name, 'answer')]" to "def sqr(n): return n * n"
     And I press "Check"
@@ -68,7 +68,7 @@ Feature: Combinator template is called test-by-test if a runtime error occurs wh
     And I should see "Marks for this submission: 1.00/1.00"
 
   Scenario: As a teacher previewing a CodeRunner question, I should see all tests up to one that gives a runtime error then no more
-    When I click on "Preview" "link" in the "sqr acceptance question" "table_row"
+    When I choose "Preview" action for "sqr acceptance question" in the question bank
     And I switch to "questionpreview" window
     And I set the field with xpath "//textarea[contains(@name, 'answer')]" to "def sqr(n): return n * n if n != 11 else n[-1]"
     And I press "Check"

@@ -62,7 +62,8 @@ Feature: missing_prototype
   Scenario: As a teacher, if I preview a question with a missing prototype I should see a missing prototype error
     Given I am on "Course 1" course homepage
     And I navigate to "Question bank" in current page administration
-    And I click on "table#categoryquestions a[title='Preview']" "css_element"
+
+    When I choose "Preview" action for "Prototype tester" in the question bank
     And I switch to "questionpreview" window
     And I set the field "id_behaviour" to "Adaptive mode"
     And I press "Start again with these options"
@@ -73,13 +74,13 @@ Feature: missing_prototype
   Scenario: As a teacher, I should be able to re-parent the question and have it work correctly
     Given I am on "Course 1" course homepage
     And I navigate to "Question bank" in current page administration
-    And I click on "table#categoryquestions a[title='Edit']" "css_element"
+    When I choose "Edit question" action for "Prototype tester" in the question bank
     Then I should see "This question was defined to be of type 'python3_test_prototype' but the prototype does not exist, or is non-unique, or is unavailable in this context"
     And I set the field "id_coderunnertype" to "python3"
     And I set the field "id_customise" to "1"
     And I set the field "id_uiplugin" to "None"
     And I press "id_submitbutton"
-    And I click on "table#categoryquestions a[title='Preview']" "css_element"
+    And I choose "Preview" action for "Prototype tester" in the question bank
     And I switch to "questionpreview" window
     And I set the field "id_behaviour" to "Adaptive mode"
     And I press "Start again with these options"
