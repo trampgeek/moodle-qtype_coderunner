@@ -1,7 +1,11 @@
 # CHANGE HISTORY
 
-### 19 November 2019. 3.7.4+
+### 2 December 2019. 3.7.4+
 
+ * Change testcase numbering to 10, 20, ... to simplify insertion at start.
+ * Fix error in documentation relating to column formats with combinator template
+   grader.
+ * Incorporate Tim Hunt's behat test updates for Moodle 3.8 (thanks Tim).
  * Change default for validateonsave from false to true.
  * Re-order Support files and Attachment options sections in question editing form.
  * Bug fix: Questions using gapfiller_ui did not allow editing of sample
