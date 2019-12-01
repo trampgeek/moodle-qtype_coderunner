@@ -243,7 +243,7 @@ define(['jquery'], function($) {
             thEls,
             columnCount=0,
             gotCol=-1,
-            expectedCol=-1;
+            expectedCol=-1
 
         table = diffButton.closest('div.coderunner-test-results');
         thEls = table.find('th');
