@@ -880,8 +880,8 @@ resultcolumns is [["Test", "testcode"],["Input", "stdin"], ["Expected",
 "expected"], ["Got", "got"]].
 
 The setting of the resultcolumns field has no effect if a combinator template
-grader is being used. The \'resulttablecolumnformats\' attribute of the
-combinator template grader return value should be used instead.';
+grader is being used. The question author is then responsible for formatting
+the result table in any desired way.';
 $string['resultcolumnsnotjson'] = 'Result columns field is not a valid JSON string';
 $string['resultcolumnsnotlist'] = 'Result columns field must a JSON-encoded list of column specifiers';
 $string['resultcolumnspecbad'] = 'Invalid column specifier found: each one must be a list of two or more strings';
