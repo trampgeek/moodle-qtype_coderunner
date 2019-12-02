@@ -125,8 +125,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
      *  locknodepositions. True to prevent the user from moving nodes. Useful when the
      *             answer box is preloaded with a graph that the student has to
      *             annotate by changing node or edge labels or by
-     *             adding/removing edges. Also prevents toggling a node from
-     *             Note, though that nodes can still be
+     *             adding/removing edges. Note, though that nodes can still be
      *             added and deleted. See locknodeset.
      *  locknodeset. True to prevent the user from adding or deleting nodes, or
      *             toggling node types to/from acceptors.
