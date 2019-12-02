@@ -553,17 +553,24 @@ can contain an incoming edge from nowhere (the start edge). Default: false.</li>
 <li>fontsize. The font size used for node and edge labels. Default: 20 points.</li>
 <li>helpmenutext. A string to be used in lieu of the default Help info, if supplied.
 No default.</li>
-<li>locknodes. True to prevent the user from moving nodes. Useful when the
+<li>locknodepositions. True to prevent the user from moving nodes. Useful when the
 answer box is preloaded with a graph that the student has to annotate by
 changing node or edge labels or by adding/removing edges. Note, though that
 nodes can still be added and deleted.</li>
-<li>lockedges. True to prevent the user from dragging edges to change
+<li>locknodeset. True to prevent user from adding or deleting nodes or toggling
+the accept-state (from fsm graphs).</li>
+<li>locknodelabels. True to prevent the user from editing node labels (including
+newly added nodes).</li>
+<li>lockedgepositions. True to prevent the user from dragging edges to change
 their curvature. Possibly useful if the
 answer box is preloaded with a graph that the student has to annotate by
 changing node or edge labels or by adding/removing edges. Also ensures that
 edges added by a student are straight, e.g. to draw a polygon on a set of
 given points. Note, though that
 edges can still be added and deleted.</li>
+<li>lockedgeset. True to prevent the user from adding or removing edges.</li>
+<li>lockedgelabels. True to prevent the user from editing edge labels (including
+newly added ones</li>
 </ul></p>';
 
 $string['qtype_java_class'] = '<p>A Java write-a-class question, where the student submits a
