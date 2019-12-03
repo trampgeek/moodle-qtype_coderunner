@@ -116,7 +116,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
      *
      *  isfsm. True if the graph is of a Finite State Machine.
      *         If true, the graph can contain an incoming edge from nowhere
-     *         (the start edge). Default: false.
+     *         (the start edge). Default: true.
      *  isdirected. True if edges are directed. Default: true.
      *  noderadius. The radius of a node, in pixels. Default: 26.
      *  fontsize. The font size used for node and edge labels. Default: 20 points.

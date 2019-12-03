@@ -547,7 +547,7 @@ print the outgoing edges from node \'A\', and so on.</p>
 by the GraphUI plugin and control its behaviour.</p>
 <p><ul>
 <li>isfsm. True if the graph is of a Finite State Machine. If true, the graph
-can contain an incoming edge from nowhere (the start edge). Default: false.</li>
+can contain an incoming edge from nowhere (the start edge). Default: true.</li>
 <li>isdirected. True if edges are directed. Default: true.</li>
 <li>noderadius. The radius of a node, in pixels. Default: 26.</li>
 <li>fontsize. The font size used for node and edge labels. Default: 20 points.</li>
