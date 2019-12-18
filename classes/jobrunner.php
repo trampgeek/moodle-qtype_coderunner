@@ -78,8 +78,9 @@ class qtype_coderunner_jobrunner {
             'ATTACHMENTS' => $attachedfilenames
          );
 
-        if ($question->get_is_combinator() and
-                ($this->has_no_stdins() || $question->allow_multiple_stdins())) {
+        if ($question->get_is_combinator() &&
+                ($this->has_no_stdins() || $question->allow_multiple_stdins() ||
+                $this->grader->name() === 'TemplateGrader')) {
             $outcome = $this->run_combinator($isprecheck);
         } else {
             $outcome = null;
