@@ -478,18 +478,43 @@ class qtype_coderunner_renderer extends qtype_renderer {
      * @return string The html for displaying the sample answer.
      */
     public function correct_response(question_attempt $qa) {
+        global $PAGE;
         $question = $qa->get_question();
-
         $answer = $question->answer;
         if (!$answer) {
             return '';
+        } else {
+            $answer = "\n" . $answer; // Hack to ensure leading new line not lost
+        }
+        $fieldname = $qa->get_qt_field_name('sampleanswer');
+        $fieldid = 'id_' . $fieldname;
+        $currentlanguage = $question->acelang ? $question->acelang : $question->language;
+        if ($qa->get_last_qt_var('language')) { // Multilanguage question? Override.
+            $currentlanguage = $qa->get_last_qt_var('language');
         }
 
         $heading = get_string('asolutionis', 'qtype_coderunner');
         $html = html_writer::start_tag('div', array('class' => 'sample code'));
         $html .= html_writer::tag('h4', $heading);
-        $html .= html_writer::tag('pre', s($answer));
+        $rows = min(18, substr_count($answer, "\n"));
+        $taattributes = array(
+                'class' => 'coderunner-sample-answer edit_code',
+                'name'  => $fieldname,
+                'id'    => $fieldid,
+                'spellcheck' => 'false',
+                'rows'      => $rows,
+                'data-lang' => ucwords($currentlanguage),
+                'readonly' => true
+        );
+
+        $html .= html_writer::tag('textarea', s($answer), $taattributes);
         $html .= html_writer::end_tag('div');
+        $uiplugin = $question->uiplugin === null ? 'ace' : strtolower($question->uiplugin);
+        if ($uiplugin !== '' && $uiplugin !== 'none') {
+            qtype_coderunner_util::load_uiplugin_js($question, $fieldid);
+        } else {
+            $PAGE->requires->js_call_amd('qtype_coderunner/textareas', 'initQuestionTA', array(fieldid));
+        }
         return $html;
     }
 
