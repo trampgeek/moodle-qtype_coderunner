@@ -143,6 +143,17 @@ class qtype_coderunner_renderer extends qtype_renderer {
             $qtext .= self::reset_button($qa, $responsefieldid, $preload);
         }
 
+        $currentanswer = $qa->get_last_qt_var('answer');
+        if ($currentanswer === null || $currentanswer === '') {
+            $currentanswer = $preload;
+        } else {
+            // Horrible horrible hack for horrible horrible browser feature
+            // of ignoring a leading newline in a textarea. So we inject an
+            // extra one to ensure that if the answer beings with a newline it
+            // is preserved.
+            $currentanswer = "\n" . $currentanswer;
+        }
+
         $rows = isset($question->answerboxlines) ? $question->answerboxlines : 18;
         $taattributes = array(
                 'class' => 'coderunner-answer edit_code',
@@ -160,16 +171,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
             $taattributes['readonly'] = 'readonly';
         }
 
-        $currentanswer = $qa->get_last_qt_var('answer');
-        if ($currentanswer === null || $currentanswer === '') {
-            $currentanswer = $preload;
-        } else {
-            // Horrible horrible hack for horrible horrible browser feature
-            // of ignoring a leading newline in a textarea. So we inject an
-            // extra one to ensure that if the answer beings with a newline it
-            // is preserved.
-            $currentanswer = "\n" . $currentanswer;
-        }
+
         $qtext .= html_writer::tag('textarea', s($currentanswer), $taattributes);
 
         if ($qa->get_state() == question_state::$invalid) {
@@ -496,7 +498,12 @@ class qtype_coderunner_renderer extends qtype_renderer {
         $heading = get_string('asolutionis', 'qtype_coderunner');
         $html = html_writer::start_tag('div', array('class' => 'sample code'));
         $html .= html_writer::tag('h4', $heading);
-        $rows = min(18, substr_count($answer, "\n"));
+        $answerboxlines = isset($question->answerboxlines) ? $question->answerboxlines : 18;
+        if ($question->uiplugin == 'ace') {
+            $rows = min($answerboxlines, substr_count($answer, "\n"));
+        } else {
+            $rows = $answerboxlines;
+        }
         $taattributes = array(
                 'class' => 'coderunner-sample-answer edit_code',
                 'name'  => $fieldname,
