@@ -724,7 +724,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
             'id' => $buttonid,
             'name' => $buttonid,
             'value' => get_string('reset', 'qtype_coderunner'),
-            'class' => 'answer_reset_btn',
+            'class' => 'answer_reset_btn btn btn-secondary',
             'data-reload-text' => $preload);
         $html = html_writer::empty_tag('input', $attributes);
 
