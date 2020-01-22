@@ -1465,7 +1465,8 @@ a student's code to a very large
 number of tests and award a mark according to how many of the test cases
 it can handle. The usual exact-match
 grader cannot handle these situations. For such cases the *TemplateGrader* option
-can be selected in the *Grader* field of the question authoring form. The template
+can be selected in the *Grading* field of the question authoring form, after
+clicking the *Customise* checkbox. The template
 code then has a somewhat different role: the output from running the expanded
 template program is required to be a JSON string that defines the mark allocated
 to the student's answer and
@@ -1747,6 +1748,12 @@ You can change the default, and/or the column headers
 by entering a value for *result_columns* (leave blank for the default
 behaviour). If supplied, the result_columns field must be a JSON-encoded
 list of column specifiers.
+
+The default value in English is
+
+    [["Test", "testcode"], ["Input", "stdin"], ["Expected", "expected"], ["Got", "got"]]
+
+The column headers are language dependent.
 
 ### Column specifiers
 
