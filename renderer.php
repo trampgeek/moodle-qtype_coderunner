@@ -108,12 +108,12 @@ class qtype_coderunner_renderer extends qtype_renderer {
             if (strpos($question->acelang, ',') !== false) {
                 // Case of a multilanguage question. Add language selector dropdown.
                 list($languages, $default) = qtype_coderunner_util::extract_languages($question->acelang);
-                $selectname = $qa->get_qt_field_name('language');
-                $selectid = 'id_' . $selectname;
                 $currentlanguage = $qa->get_last_qt_var('language');
                 if (empty($currentlanguage) && $default !== '') {
                     $currentlanguage = $default;
                 }
+                $selectname = $qa->get_qt_field_name('language');
+                $selectid = 'id_' . $selectname;
                 $qtext .= html_writer::start_tag('div', array('class' => 'coderunner-lang-select-div'));
                 $qtext .= html_writer::tag('label',
                         get_string('languageselectlabel', 'qtype_coderunner'),
@@ -491,11 +491,25 @@ class qtype_coderunner_renderer extends qtype_renderer {
         $fieldname = $qa->get_qt_field_name('sampleanswer');
         $fieldid = 'id_' . $fieldname;
         $currentlanguage = $question->acelang ? $question->acelang : $question->language;
-        if ($qa->get_last_qt_var('language')) { // Multilanguage question? Override.
-            $currentlanguage = $qa->get_last_qt_var('language');
+        if (strpos($question->acelang, ',') !== false) {
+            // Case of a multilanguage question sample answer. Find the language,
+            // which is specified by the template parameter answer_language if
+            // given, or the default (starred) language in the language list
+            // if given or the first language listed, whichever comes first.
+            list($languages, $default) = qtype_coderunner_util::extract_languages($question->acelang);
+            $params = json_decode($question->templateparams, true);
+            if (array_key_exists('answer_language', $params)) {
+                $currentlanguage = $params['answer_language'];
+            } else if (!empty($default)) {
+                $currentlanguage = $default;
+            } else {
+                $currentlanguage = $languages[0];
+            }
         }
 
+        $uclang = ucwords($currentlanguage);
         $heading = get_string('asolutionis', 'qtype_coderunner');
+        $heading = substr($heading, 0, strlen($heading) - 1) . ' (' . $uclang . '):';
         $html = html_writer::start_tag('div', array('class' => 'sample code'));
         $html .= html_writer::tag('h4', $heading);
         $answerboxlines = isset($question->answerboxlines) ? $question->answerboxlines : 18;
@@ -510,7 +524,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
                 'id'    => $fieldid,
                 'spellcheck' => 'false',
                 'rows'      => $rows,
-                'data-lang' => ucwords($currentlanguage),
+                'data-lang' => $uclang,
                 'readonly' => true
         );
 
