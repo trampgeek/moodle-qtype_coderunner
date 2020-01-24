@@ -1,5 +1,26 @@
 # CHANGE HISTORY
 
+### 25 January 2020. 3.7.5
+
+ * Display a warning message whenever a question is run using the default
+   University of Canterbury Jobe server, which is intended only for initial
+   CodeRunner testing, not production use.
+ * Display sample answer using the selected user-interface wrapper (e.g. Ace)
+   rather than just showing the straight text version.
+ * Replace Ace editor code with the latest full source version rather than
+   an older minimised version. This turns out to greatly speed up the Ace
+   editor loading, because the Moodle JavaScript minimiser choked when
+   re-minimising the code.
+ * Various documentation tweaks.
+ * Adjust various Behat tests for compatibility with Moodle 3.8.
+ * Functionality change: combinator template grader questions are now
+   always run with a single Jobe task even when standard inputs are provided
+   to the tests and Allow multiple stdins is not checked.
+ * Bug fix: answer preload button did not have correct CSS class.
+ * Bug fix: Show Differences button was not working when Result Table had no
+   Test column.
+ * Bug fix: bulk tester wasn't working with multilanguage questions.
+
 ### 19 November 2019. 3.7.4+
 
  * Change default for validateonsave from false to true.
