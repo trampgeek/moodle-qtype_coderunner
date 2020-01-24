@@ -25,6 +25,10 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+require_once($CFG->dirroot . '/question/type/coderunner/tests/coderunnertestcase.php');
+
+qtype_coderunner_testcase::setup_test_sandbox_configuration();
+
 // Special class of exception thrown when the helper is asked to construct
 // a CodeRunner question of a type for which no prototype exists.
 // This may occur if, say Matlab has been installed in a sandbox but the
