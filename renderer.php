@@ -337,6 +337,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
     // question is being tested using the University of Canterbury's testing
     // Jobe server.
     protected function build_results_table($outcome, qtype_coderunner_question $question) {
+        global $CFG;
         $fb = $outcome->get_prologue();
         $testresults = $outcome->get_test_results($question);
         if (is_array($testresults) && count($testresults) > 0) {
@@ -382,10 +383,12 @@ class qtype_coderunner_renderer extends qtype_renderer {
         }
         $fb .= empty($outcome->epiloguehtml) ? '' : $outcome->epiloguehtml;
 
+        // Issue a bright yellow warning if using jobe2, except when running behat.
         $jobeserver = get_config('qtype_coderunner', 'jobe_host');
         $apikey = get_config('qtype_coderunner', 'jobe_apikey');
         if ($jobeserver == constants::JOBE_HOST_DEFAULT &&
-                $apikey == constants::JOBE_HOST_DEFAULT_API_KEY) {
+                $apikey == constants::JOBE_HOST_DEFAULT_API_KEY &&
+                $CFG->prefix !== 'b_') {
             $fb .= get_string('jobe_warning_html', 'qtype_coderunner');
         }
 
