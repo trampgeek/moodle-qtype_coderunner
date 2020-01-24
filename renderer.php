@@ -333,7 +333,9 @@ class qtype_coderunner_renderer extends qtype_renderer {
     }
 
     // Generate the main feedback, consisting of (in order) any prologuehtml,
-    // a table of results and any epiloguehtml.
+    // a table of results and any epiloguehtml. Finally append a warning if
+    // question is being tested using the University of Canterbury's testing
+    // Jobe server.
     protected function build_results_table($outcome, qtype_coderunner_question $question) {
         $fb = $outcome->get_prologue();
         $testresults = $outcome->get_test_results($question);
@@ -379,6 +381,13 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
         }
         $fb .= empty($outcome->epiloguehtml) ? '' : $outcome->epiloguehtml;
+
+        $jobeserver = get_config('qtype_coderunner', 'jobe_host');
+        $apikey = get_config('qtype_coderunner', 'jobe_apikey');
+        if ($jobeserver == constants::JOBE_HOST_DEFAULT &&
+                $apikey == constants::JOBE_HOST_DEFAULT_API_KEY) {
+            $fb .= get_string('jobe_warning_html', 'qtype_coderunner');
+        }
 
         return $fb;
     }

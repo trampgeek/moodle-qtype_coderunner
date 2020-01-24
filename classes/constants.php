@@ -47,4 +47,7 @@ class constants {
     const MAX_STRING_LENGTH = 8000;  // Maximum length of a string for display in the result table.
     const MAX_LINE_LENGTH = 100;     // Maximum length of a string for display in the result table.
     const MAX_NUM_LINES = 200;       // Maximum number of lines of text to be displayed a result table cell.
+
+    const JOBE_HOST_DEFAULT = 'jobe2.cosc.canterbury.ac.nz';
+    const JOBE_HOST_DEFAULT_API_KEY = '2AAA7A5415B4A9B394B54BF1D2E9D';
 }
