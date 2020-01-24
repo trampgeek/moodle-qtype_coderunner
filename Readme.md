@@ -490,13 +490,18 @@ extended to support others. A CodeRunner question type is defined by a
 language and sandbox and also the template that define how a test program is built from the
 question's test-cases plus the student's submission. The prototype also
 defines whether the correctness of the student's submission is assessed by use
-of an *EqualityGrader*, a *NearEqualityGrader* or *RegexGrader*. The EqualityGrader expects
+of an *EqualityGrader*, a *NearEqualityGrader*, a *RegexGrader* or a
+*TemplateGrader*. The EqualityGrader expects
 the output from the test execution to exactly match the expected output
 for the testcase. The NearEqualityGrader is similar but is case insensitive
 and tolerates variations in the amount of white space (e.g. missing or extra
 blank lines, or multiple spaces where only one was expected).
 The RegexGrader expects a regular expression match
-instead. The EqualityGrader is recommended for all normal use as it
+instead. Template graders are more complicated but give the question author almost
+unlimited flexibility in controlling the execution, grading and result
+display; see the section *Grading with templates*.
+
+The EqualityGrader is recommended for most normal use, as it
 encourages students to get their output exactly correct; they should be able to
 resubmit almost-right answers for a small penalty, which is generally a
 better approach than trying to award part marks based on regular expression
@@ -1044,6 +1049,13 @@ python escaper e('py') is just one of the available escapers. Others are:
  1. e('js'), e('html') for use in JavaScript and html respectively. These
     are Twig built-ins. See the Twig documentation for details.
 
+Escapers are used whenever a Twig variable is being expanded within the
+template to generate a literal string within the template code. Usually the
+required escaper is that
+of the template language, e.g. e('py') for a template written in Python.
+Escapers must *not* be used if the Twig variable is to be expanded directly
+into the template program, to be executed as is.
+
 ## Template parameters
 
 It is sometimes necessary to make quite small changes to a template over many
@@ -1506,9 +1518,10 @@ rather difficult as the generated program needs to be robust against errors
 in the submitted code. The template-grader should always return a JSON object
 and should not generate any stderr output.
 
-It is recommended that template graders be written in Python, regardless of
-the language in which the student answer is written, and that Python's subprocess
-module be used to execute the student code plus whatever test code is required.
+Although template graders can be written in any language, the developer
+finds it convenient to write them in Python, regardless of
+the language in which the student answer is written. Python's subprocess
+module can be used to execute the student code plus whatever test code is required.
 This ensures that errors in the syntax  or runtime errors in the student code
 do not break the template program itself, allowing it to output a JSON
 answer regardless. Some examples of per-test template graders are given in
