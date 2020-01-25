@@ -1,6 +1,6 @@
 # CODE RUNNER
 
-Version: 3.7.4+ November 2019
+Version: 3.7.5 January 2020
 
 Authors: Richard Lobb, University of Canterbury, New Zealand.
          Tim Hunt, The Open University, UK
@@ -1630,6 +1630,16 @@ A template grader for this situation might be the following
                     comment += "Line {} wrong\n".format(i)
 
         print(json.dumps({'got': got, 'comment': comment, 'fraction': mark / 5}))
+
+Note that in the above program the Python *dictionary*
+
+    {'got': got, 'comment': comment, 'fraction': mark / 5}
+
+gets converted by the call to json.dumps to a JSON object string, which looks
+syntactically similar but is in fact a different sort of entity altogether.
+You should always use json.dumps, or its equivalent in other languages, to
+generate a valid JSON string, handling details like escaping of embedded
+newlines.
 
 In order to display the *comment* in the output JSON, the
 the 'Result columns' field of the question (in the 'customisation' part of
