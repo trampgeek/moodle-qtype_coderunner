@@ -281,6 +281,7 @@ $string['jobe_apikey'] = 'Jobe API-key';
 $string['jobe_apikey_desc'] = 'The API key to be included in all REST requests to the Jobe server (if required). Max 40 chars. Leave blank to omit the API Key from requests';
 $string['jobe_host'] = 'Jobe server';
 $string['jobe_host_desc'] = 'The host name of the Jobe server plus the port number if other than port 80, e.g. jobe.somewhere.edu:4010. The URL for the Jobe request is obtained by default by prefixing this string with http:// and appending /jobe/index.php/restapi/<REST_METHOD>. You may either specify the https:// protocol in front of the host name (e.g. https://jobe.somewhere.edu) if the Jobe server is set behind a reverse proxy which act as an SSL termination.';
+$string['jobe_warning_html'] = "<p style='background-color:yellow'>Run using the University of Canterbury's Jobe server. This is for initial testing only. Please set up your own Jobe server as soon as possible. See <a href='https://github.com/trampgeek/moodle-qtype_coderunner/blob/master/Readme.md#sandbox-configuration' target='_blank'>here</a>.</p>";
 
 $string['language'] = 'Sandbox language';
 $string['languages'] = 'Languages';
@@ -547,23 +548,30 @@ print the outgoing edges from node \'A\', and so on.</p>
 by the GraphUI plugin and control its behaviour.</p>
 <p><ul>
 <li>isfsm. True if the graph is of a Finite State Machine. If true, the graph
-can contain an incoming edge from nowhere (the start edge). Default: false.</li>
+can contain an incoming edge from nowhere (the start edge). Default: true.</li>
 <li>isdirected. True if edges are directed. Default: true.</li>
 <li>noderadius. The radius of a node, in pixels. Default: 26.</li>
 <li>fontsize. The font size used for node and edge labels. Default: 20 points.</li>
 <li>helpmenutext. A string to be used in lieu of the default Help info, if supplied.
 No default.</li>
-<li>locknodes. True to prevent the user from moving nodes. Useful when the
+<li>locknodepositions. True to prevent the user from moving nodes. Useful when the
 answer box is preloaded with a graph that the student has to annotate by
 changing node or edge labels or by adding/removing edges. Note, though that
 nodes can still be added and deleted.</li>
-<li>lockedges. True to prevent the user from dragging edges to change
+<li>locknodeset. True to prevent user from adding or deleting nodes or toggling
+the accept-state (from fsm graphs).</li>
+<li>locknodelabels. True to prevent the user from editing node labels (including
+newly added nodes).</li>
+<li>lockedgepositions. True to prevent the user from dragging edges to change
 their curvature. Possibly useful if the
 answer box is preloaded with a graph that the student has to annotate by
 changing node or edge labels or by adding/removing edges. Also ensures that
 edges added by a student are straight, e.g. to draw a polygon on a set of
 given points. Note, though that
 edges can still be added and deleted.</li>
+<li>lockedgeset. True to prevent the user from adding or removing edges.</li>
+<li>lockedgelabels. True to prevent the user from editing edge labels (including
+newly added ones</li>
 </ul></p>';
 
 $string['qtype_java_class'] = '<p>A Java write-a-class question, where the student submits a

@@ -39,7 +39,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * JavaScript to interfdigraph2 to the Graph editor, which is used both in
+ * JavaScript to interface to the Graph editor, which is used both in
  * the author editing page and by the student question submission page.
  *
  * @package    qtype
@@ -112,6 +112,36 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
      *
      *  This is the ui component for a graph-drawing coderunner question.
      *
+     *  Relevant template parameters:
+     *
+     *  isfsm. True if the graph is of a Finite State Machine.
+     *         If true, the graph can contain an incoming edge from nowhere
+     *         (the start edge). Default: true.
+     *  isdirected. True if edges are directed. Default: true.
+     *  noderadius. The radius of a node, in pixels. Default: 26.
+     *  fontsize. The font size used for node and edge labels. Default: 20 points.
+     *  helpmenutext. A string to be used in lieu of the default Help info, if supplied.
+     *               No default.
+     *  locknodepositions. True to prevent the user from moving nodes. Useful when the
+     *             answer box is preloaded with a graph that the student has to
+     *             annotate by changing node or edge labels or by
+     *             adding/removing edges. Note, though that nodes can still be
+     *             added and deleted. See locknodeset.
+     *  locknodeset. True to prevent the user from adding or deleting nodes, or
+     *             toggling node types to/from acceptors.
+     *  lockedgepositions. True to prevent the user from dragging edges to change
+     *             their curvature. Possibly useful if the answer box is
+     *             preloaded with a graph that the student has to annotate by
+     *             changing node or edge labels or by adding/removing edges.
+     *             Also ensures that edges added by a student are straight, e.g.
+     *             to draw a polygon on a set of given points. Note, though that
+     *             edges can still be added and deleted. See lockedgeset.
+     *  lockedgeset. True to prevent the user from adding or deleting edges.
+     *  locknodelabels: True to prevent the user from editing node labels. This
+     *             will also prevent any new nodes having non-empty labels.
+     *  lockedgelabels: True to prevent the user from editing edge labels. This
+     *             also prevents any new edges from having labels.
+     *
      ***********************************************************************/
 
     function Graph(textareaId, width, height, templateParams) {
@@ -142,6 +172,15 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         this.movingObject = false;
         this.fail = false;  // Will be set true if reload fails (can't deserialise).
         this.failString = null;  // Language string key for fail error message.
+
+        // Legacy support for locknodes and lockedges.
+        if ('locknodes' in templateParams) {
+            templateParams.locknodepositions = templateParams.locknodes;
+        }
+        if ('lockedges' in templateParams) {
+            templateParams.lockedgepositions = templateParams.lockedges;
+        }
+
         if ('helpmenutext' in templateParams) {
             this.helpText = templateParams.helpmenutext;
         } else {
@@ -217,7 +256,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
                   !e.altKey &&
                   !e.ctrlKey &&
                   this.selectedObject !== null &&
-                  'text' in this.selectedObject) {
+                  this.canEditText()) {
 
             this.selectedObject.text += String.fromCharCode(key);
             this.resetCaret();
@@ -245,16 +284,20 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
 
         if(this.selectedObject !== null) {
             if(e.shiftKey && this.selectedObject instanceof elements.Node) {
-                this.currentLink = new elements.SelfLink(this, this.selectedObject, mouse);
+                if (!this.templateParams.lockedgeset) {
+                    this.currentLink = new elements.SelfLink(this, this.selectedObject, mouse);
+                }
             } else if (e.altKey && this.selectedObject instanceof elements.Node) {
                 // Moving an entire connected graph component.
-                this.movingGraph = true;
-                this.movingNodes = this.selectedObject.traverseGraph(this.links, []);
-                for (var i = 0; i < this.movingNodes.length; i++) {
-                    this.movingNodes[i].setMouseStart(mouse.x, mouse.y);
+                if (!this.templateParams.locknodepositions) {
+                    this.movingGraph = true;
+                    this.movingNodes = this.selectedObject.traverseGraph(this.links, []);
+                    for (var i = 0; i < this.movingNodes.length; i++) {
+                        this.movingNodes[i].setMouseStart(mouse.x, mouse.y);
+                    }
                 }
-            } else if (!(this.templateParams.locknodes && this.selectedObject instanceof elements.Node)
-                       && !(this.templateParams.lockedges && this.selectedObject instanceof elements.Link)){
+            } else if (!(this.templateParams.locknodepositions && this.selectedObject instanceof elements.Node)
+                       && !(this.templateParams.lockedgepositions && this.selectedObject instanceof elements.Link)){
                 this.movingObject = true;
                 if(this.selectedObject.setMouseStart) {
                     this.selectedObject.setMouseStart(mouse.x, mouse.y);
@@ -277,15 +320,23 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         }
     };
 
+    // Return true if currently selected object has text that we are allowed
+    // to edit.
+    Graph.prototype.canEditText = function() {
+        return 'text' in this.selectedObject &&
+               ((this.selectedObject instanceof elements.Node && !this.templateParams.locknodelabels) ||
+               (this.selectedObject instanceof elements.Link && !this.templateParams.lockedgelabels));
+    };
+
     Graph.prototype.keydown = function(e) {
-        var key = util.crossBrowserKey(e), i;
+        var key = util.crossBrowserKey(e), i, nodeDeleted=false;
 
         if (this.readOnly) {
             return;
         }
 
         if(key === 8) { // Backspace key.
-            if(this.selectedObject !== null && 'text' in this.selectedObject) {
+            if(this.selectedObject !== null && this.canEditText()) {
                 this.selectedObject.text = this.selectedObject.text.substr(0, this.selectedObject.text.length - 1);
                 this.resetCaret();
                 this.draw();
@@ -293,24 +344,24 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
 
             // Backspace is a shortcut for the back button, but do NOT want to change pages.
             return false;
-        } else if(key === 46) { // Delete key.
-            if(this.selectedObject !== null) {
-                for(i = 0; i < this.nodes.length; i++) {
-                    if(this.nodes[i] === this.selectedObject) {
-                        this.nodes.splice(i--, 1);
-                    }
+        } else if(key === 46 && this.selectedObject !== null) { // Delete key
+            for (i = 0; i < this.nodes.length; i++) {
+                if (this.nodes[i] === this.selectedObject && !this.templateParams.locknodeset) {
+                    this.nodes.splice(i--, 1);
+                    nodeDeleted = true;
                 }
-                for(i = 0; i < this.links.length; i++) {
-                    if(this.links[i] === this.selectedObject ||
-                           this.links[i].node === this.selectedObject ||
-                           this.links[i].nodeA === this.selectedObject ||
-                           this.links[i].nodeB === this.selectedObject) {
-                        this.links.splice(i--, 1);
-                    }
-                }
-                this.selectedObject = null;
-                this.draw();
             }
+            for (i = 0; i < this.links.length; i++) {
+                if((this.links[i] === this.selectedObject && !this.templateParams.lockedgeset) ||
+                    nodeDeleted && (
+                       this.links[i].node === this.selectedObject ||
+                       this.links[i].nodeA === this.selectedObject ||
+                       this.links[i].nodeB === this.selectedObject)) {
+                    this.links.splice(i--, 1);
+                }
+            }
+            this.selectedObject = null;
+            this.draw();
         } else if(key === 13) { // Enter key.
             if(this.selectedObject !== null) {
                 // Deselect the object.
@@ -323,17 +374,17 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
     Graph.prototype.dblclick = function(e) {
         var mouse = util.crossBrowserRelativeMousePos(e);
 
-        if (this.readOnly) {
+        if (this.readOnly || this.templateParams.locknodeset) {
             return;
         }
 
         this.selectedObject = this.selectObject(mouse.x, mouse.y);
 
         if(this.selectedObject === null) {
-            this.selectedObject = new elements.Node(this, mouse.x, mouse.y);
-            this.nodes.push(this.selectedObject);
-            this.resetCaret();
-            this.draw();
+                this.selectedObject = new elements.Node(this, mouse.x, mouse.y);
+                this.nodes.push(this.selectedObject);
+                this.resetCaret();
+                this.draw();
         } else {
             if(this.selectedObject instanceof elements.Node && this.isFsm()) {
                 this.selectedObject.isAcceptState = !this.selectedObject.isAcceptState;

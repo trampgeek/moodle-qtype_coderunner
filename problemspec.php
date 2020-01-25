@@ -67,12 +67,14 @@ foreach ($files as $filename => $contents) {
                     $json = json_encode(array('filecontentsb64' => base64_encode($filecontents)));
                     if ($json != NULL) {
                         echo $json;
+                        unlink($tempfilename);
                         zip_close($handle);
                         die();
                     }
                 }
             }
             zip_close($handle);
+            unlink($tempfilename);
         }
     }
 }

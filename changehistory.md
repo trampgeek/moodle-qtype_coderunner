@@ -1,6 +1,27 @@
 # CHANGE HISTORY
 
-### 2 December 2019. 3.7.4+
+### 25 January 2020. 3.7.5
+
+ * Display a warning message whenever a question is run using the default
+   University of Canterbury Jobe server, which is intended only for initial
+   CodeRunner testing, not production use.
+ * Display sample answer using the selected user-interface wrapper (e.g. Ace)
+   rather than just showing the straight text version.
+ * Replace Ace editor code with the latest full source version rather than
+   an older minimised version. This turns out to greatly speed up the Ace
+   editor loading, because the Moodle JavaScript minimiser choked when
+   re-minimising the code.
+ * Bug fix: combinator template grader questions were being run in multiple
+   Jobe submissions - one per test - when standard inputs were provided
+   to the tests and Allow multiple stdins was not checked.
+ * Bug fix: Questions using gapfiller_ui did not allow editing of sample
+   answer when the html code source was the first test case rather
+   than globalextra.
+ * Bug fix: answer preload button did not have correct CSS class.
+ * Bug fix: Show Differences button was not working when Result Table had no
+   Test column.
+
+### 19 November 2019. 3.7.4+
 
  * Change testcase numbering to 10, 20, ... to simplify insertion at start.
  * Fix error in documentation relating to column formats with combinator template

@@ -108,12 +108,12 @@ class qtype_coderunner_renderer extends qtype_renderer {
             if (strpos($question->acelang, ',') !== false) {
                 // Case of a multilanguage question. Add language selector dropdown.
                 list($languages, $default) = qtype_coderunner_util::extract_languages($question->acelang);
-                $selectname = $qa->get_qt_field_name('language');
-                $selectid = 'id_' . $selectname;
                 $currentlanguage = $qa->get_last_qt_var('language');
                 if (empty($currentlanguage) && $default !== '') {
                     $currentlanguage = $default;
                 }
+                $selectname = $qa->get_qt_field_name('language');
+                $selectid = 'id_' . $selectname;
                 $qtext .= html_writer::start_tag('div', array('class' => 'coderunner-lang-select-div'));
                 $qtext .= html_writer::tag('label',
                         get_string('languageselectlabel', 'qtype_coderunner'),
@@ -143,6 +143,17 @@ class qtype_coderunner_renderer extends qtype_renderer {
             $qtext .= self::reset_button($qa, $responsefieldid, $preload);
         }
 
+        $currentanswer = $qa->get_last_qt_var('answer');
+        if ($currentanswer === null || $currentanswer === '') {
+            $currentanswer = $preload;
+        } else {
+            // Horrible horrible hack for horrible horrible browser feature
+            // of ignoring a leading newline in a textarea. So we inject an
+            // extra one to ensure that if the answer beings with a newline it
+            // is preserved.
+            $currentanswer = "\n" . $currentanswer;
+        }
+
         $rows = isset($question->answerboxlines) ? $question->answerboxlines : 18;
         $taattributes = array(
                 'class' => 'coderunner-answer edit_code',
@@ -160,16 +171,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
             $taattributes['readonly'] = 'readonly';
         }
 
-        $currentanswer = $qa->get_last_qt_var('answer');
-        if ($currentanswer === null || $currentanswer === '') {
-            $currentanswer = $preload;
-        } else {
-            // Horrible horrible hack for horrible horrible browser feature
-            // of ignoring a leading newline in a textarea. So we inject an
-            // extra one to ensure that if the answer beings with a newline it
-            // is preserved.
-            $currentanswer = "\n" . $currentanswer;
-        }
+
         $qtext .= html_writer::tag('textarea', s($currentanswer), $taattributes);
 
         if ($qa->get_state() == question_state::$invalid) {
@@ -331,8 +333,11 @@ class qtype_coderunner_renderer extends qtype_renderer {
     }
 
     // Generate the main feedback, consisting of (in order) any prologuehtml,
-    // a table of results and any epiloguehtml.
+    // a table of results and any epiloguehtml. Finally append a warning if
+    // question is being tested using the University of Canterbury's testing
+    // Jobe server.
     protected function build_results_table($outcome, qtype_coderunner_question $question) {
+        global $CFG;
         $fb = $outcome->get_prologue();
         $testresults = $outcome->get_test_results($question);
         if (is_array($testresults) && count($testresults) > 0) {
@@ -377,6 +382,15 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
         }
         $fb .= empty($outcome->epiloguehtml) ? '' : $outcome->epiloguehtml;
+
+        // Issue a bright yellow warning if using jobe2, except when running behat.
+        $jobeserver = get_config('qtype_coderunner', 'jobe_host');
+        $apikey = get_config('qtype_coderunner', 'jobe_apikey');
+        if ($jobeserver == constants::JOBE_HOST_DEFAULT &&
+                $apikey == constants::JOBE_HOST_DEFAULT_API_KEY &&
+                $CFG->prefix !== 'b_') {
+            $fb .= get_string('jobe_warning_html', 'qtype_coderunner');
+        }
 
         return $fb;
     }
@@ -478,18 +492,62 @@ class qtype_coderunner_renderer extends qtype_renderer {
      * @return string The html for displaying the sample answer.
      */
     public function correct_response(question_attempt $qa) {
+        global $PAGE;
         $question = $qa->get_question();
-
         $answer = $question->answer;
         if (!$answer) {
             return '';
+        } else {
+            $answer = "\n" . $answer; // Hack to ensure leading new line not lost
+        }
+        $fieldname = $qa->get_qt_field_name('sampleanswer');
+        $fieldid = 'id_' . $fieldname;
+        $currentlanguage = $question->acelang ? $question->acelang : $question->language;
+        if (strpos($question->acelang, ',') !== false) {
+            // Case of a multilanguage question sample answer. Find the language,
+            // which is specified by the template parameter answer_language if
+            // given, or the default (starred) language in the language list
+            // if given or the first language listed, whichever comes first.
+            list($languages, $default) = qtype_coderunner_util::extract_languages($question->acelang);
+            $params = json_decode($question->templateparams, true);
+            if (array_key_exists('answer_language', $params)) {
+                $currentlanguage = $params['answer_language'];
+            } else if (!empty($default)) {
+                $currentlanguage = $default;
+            } else {
+                $currentlanguage = $languages[0];
+            }
         }
 
+        $uclang = ucwords($currentlanguage);
         $heading = get_string('asolutionis', 'qtype_coderunner');
+        $heading = substr($heading, 0, strlen($heading) - 1) . ' (' . $uclang . '):';
         $html = html_writer::start_tag('div', array('class' => 'sample code'));
         $html .= html_writer::tag('h4', $heading);
-        $html .= html_writer::tag('pre', s($answer));
+        $answerboxlines = isset($question->answerboxlines) ? $question->answerboxlines : 18;
+        if ($question->uiplugin == 'ace') {
+            $rows = min($answerboxlines, substr_count($answer, "\n"));
+        } else {
+            $rows = $answerboxlines;
+        }
+        $taattributes = array(
+                'class' => 'coderunner-sample-answer edit_code',
+                'name'  => $fieldname,
+                'id'    => $fieldid,
+                'spellcheck' => 'false',
+                'rows'      => $rows,
+                'data-lang' => $uclang,
+                'readonly' => true
+        );
+
+        $html .= html_writer::tag('textarea', s($answer), $taattributes);
         $html .= html_writer::end_tag('div');
+        $uiplugin = $question->uiplugin === null ? 'ace' : strtolower($question->uiplugin);
+        if ($uiplugin !== '' && $uiplugin !== 'none') {
+            qtype_coderunner_util::load_uiplugin_js($question, $fieldid);
+        } else {
+            $PAGE->requires->js_call_amd('qtype_coderunner/textareas', 'initQuestionTA', array(fieldid));
+        }
         return $html;
     }
 

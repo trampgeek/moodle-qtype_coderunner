@@ -24,6 +24,7 @@
  */
 
 defined('MOODLE_INTERNAL') || die();
+use qtype_coderunner\constants;
 
 $links = array(
     get_string('bulkquestiontester', 'qtype_coderunner',
@@ -57,14 +58,13 @@ $settings->add(new admin_setting_configtext(
         "qtype_coderunner/jobe_host",
         get_string('jobe_host', 'qtype_coderunner'),
         get_string('jobe_host_desc', 'qtype_coderunner'),
-        'jobe2.cosc.canterbury.ac.nz'));
+        constants::JOBE_HOST_DEFAULT));
 
 $settings->add(new admin_setting_configtext(
         "qtype_coderunner/jobe_apikey",
         get_string('jobe_apikey', 'qtype_coderunner'),
         get_string('jobe_apikey_desc', 'qtype_coderunner'),
-        '2AAA7A5415B4A9B394B54BF1D2E9D'
-        ));
+        constants::JOBE_HOST_DEFAULT_API_KEY));
 
 $settings->add(new admin_setting_configtext(
         "qtype_coderunner/ideone_user",
