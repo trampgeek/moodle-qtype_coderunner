@@ -2446,7 +2446,128 @@ text area inputs now have two modes:
 * Esc always switches to non-capturing mode.
 
 
-## APPENDIX: How programming quizzes should work
+## APPENDIX 1: How questions get marked
+
+CodeRunner is a rather complex system and, being web based, is driven by
+user-events. In this Appendix we attempt to describe the effective
+behaviour using pseudocode algorithms.
+
+An understanding of the Twig template engine is assumed in what follows.
+See [the Twig documentation](https://twig.symfony.com/) if you are not
+familiar with Twig. CodeRunner uses standard Twig, except for the addition
+of a [set_random_seed](https://github.com/trampgeek/moodle-qtype_coderunner#randomising-per-student-rather-than-per-question-attempt]
+function and some [extra escapers](https://github.com/trampgeek/moodle-qtype_coderunner#twig-escapers).
+
+### When a question is first instantiated.
+
+When a student starts a quiz, an instance of each question in the quiz has
+be be created. It's at the point that any environmental context, such as
+the student's name, plus any randomisation, gets established. To ensure that
+any randomisation done by the template remains locked in to all subsequent
+views and attempts of the question within this quiz by the current student, a
+new random number seed is generated and stored in the question at this stage.
+That seed
+is used for all subsequent randomisation except that the question
+author can explicitly call the *set_random_seed* function to use a different
+seed, such as the student's ID number.
+
+That initialisation process can be described as follows:
+<pre>
+    <b>procedure</b> create_question_instance(question):
+        question.student = get_current_moodle_user_info()
+        question.prototype = locate_prototype_question(question.prototype_name)
+        question.random_seed = make_new_random_seed()
+        set_twig_environment(question.random_seed, question.student)
+        question.template_params = twig_expand(question.template_params)
+        <b>if</b> question.prototype has template parameters:
+            prototype_params = twig_expand(question.prototype.template_params)
+            question.template_params = merge_json(prototype_params, question.template_params)
+        <b>if</b> question.twigall:
+            # Twig expand question text, sample answer, answer preload,
+            # all test case fields and global extra. The just-computed
+            # template parameters provide (most of) the twig environment.
+            set_twig_environment(question.random_seed,
+                question.student, question.template_params)
+            <b>for each</b> twiggable attribute of question:
+                question.attribute = twig_expand(question.attribute)
+        save question instance
+</pre>
+
+### Grading a submission
+
+When the user clicks the *Check* button (or *Precheck* if turned on), the
+current answer is graded. The "current answer" comprises:
+
+1. The code in the answer box or, more generally, the serialised text returned
+   by the selected UI (user interface) plug-in. For coding questions, the
+   UI is usually the Ace code-editor so the serialised text is just the raw
+   code without syntax colouring. Other UIs (e.g. GraphUI, TableUI, GapFillerUI)
+   have their own unique serialisations; see the UI plug-in documentation for
+   details.
+
+1. The set of student-supplied attached files, if attachments are enabled.
+
+The grading process involves expanding the question template, executing the
+code and grading the result. However, the process is complicated by the
+choice of sandbox, whether the question uses a so-called "combinator" or not (i.e.
+whether it attempts to combine all test-cases into a single run), whether the
+question requires that different standard input be set for each test case,
+whether it's a precheck or a full check and
+what grading method has been selected (Exact Match, Near Exact Match,
+Regular Expression, or Template Grader).
+
+Another complication relates to the environment in which the question's template
+gets expanded by Twig, i.e. the set of "template parameters". In legacy code
+the template refers to the question's template parameters using a notation like
+
+    {{ QUESTION.parameters.sometemplateparam }}
+
+but there is now a checkbox called 'Hoist template parameters', defaulting to true,
+which adds the template parameters directly to the Twig environment, allowing
+the question author to refer directly to
+
+    {{ sometemplateparam }}
+
+In the following pseudocode, we assume Hoist template parameters is true.
+
+Although CodeRunner is set up to use a variety of different sandboxes, in
+recent years only the Jobe sandbox has been supported, so we will generally disregard
+all other sandboxes. However, it sometimes helps to remember that CodeRunner
+could in principle use different sandboxes, and that not all sandboxes might
+provide the same functionality as Jobe e.g., setting of maximum
+memory or maximum runtime.
+
+<pre>
+    <b>function</b> grade_response(question, attachments, is_precheck):
+        # Grade the current submission and return a table of test results
+        if question.answer plus current set of attachments has already been graded:
+            return cached results
+        test_cases = select_subset_of_tests(question.testcases, is_precheck)
+        run_results = None
+        <b>if</b> question.is_combinator and (template grader is being used or
+            question.allow_multiple_stdins or all stdins are empty strings):
+            # Try running the combinator. If something breaks, e.g. a
+            # testcase times out, the result will be None.
+            Set up the Twig environment (templateParams) to consist of all
+                the variables in question.templateParams plus STUDENT_ANSWER,
+                IS_PRECHECK, ANSWER_LANGUAGE, and ATTACHMENTS. Additionally
+                the entire question is made available as the parameter QUESTION.
+            run_results = run_combinator(question, testcases, templateParams)
+        <b>if</b> run_result is not None:
+            run_results = []
+            <b>for</b> each test in test_cases:
+                run_results.append(run_single_testcase(question, test, templateParams)
+        <b>return</b> run_results
+</pre>
+
+<p>The algorithms used in `run_combinator` and `run_single_testcase` are
+
+<pre>
+    <b>function</b> run_combinator(question, testcases, templateParams)
+</pre>
+
+
+## APPENDIX 2: How programming quizzes should work
 
 Historical notes and a diatribe on the use of Adaptive Mode questions ...
 
