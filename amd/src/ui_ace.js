@@ -34,10 +34,9 @@
 // Thanks to Ulrich Dangel for the initial implementation of Ace within
 // CodeRunner.
 
-// WARNING: The ace editor must have already been loaded before this
-// module is used, as it assumes window.ace exists.
 
-define(['jquery'], function($) {
+//define(['jquery', 'qtype_coderunner/ace'], function($, ace) {
+define(['jquery', 'qtype_coderunner/ace'], function($, ace) {
 
     function AceWrapper(textareaId, w, h, params) {
         // Constructor for the Ace interface object
@@ -48,7 +47,8 @@ define(['jquery'], function($) {
             session;
 
         try {
-            window.ace.require("ace/ext/language_tools");
+            alert("Got here");
+            ace.require("../../ace/ext/language_tools");
             this.modelist = window.ace.require('ace/ext/modelist');
 
             this.textarea = textarea;

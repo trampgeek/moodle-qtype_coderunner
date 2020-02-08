@@ -38,21 +38,8 @@ class qtype_coderunner_util {
         $uiplugin = $question->uiplugin === null ? 'ace' : strtolower($question->uiplugin);
         if ($uiplugin !== '' && $uiplugin !== 'none') {
             $params = array($uiplugin, $textareaid);  // Params to plugin's init function.
-            if ($uiplugin === 'ace') {
-                self::load_ace();
-            }
             $PAGE->requires->js_call_amd('qtype_coderunner/userinterfacewrapper', 'newUiWrapper', $params);
         }
-    }
-
-
-    // Load the ace scripts.
-    public static function load_ace() {
-        global $PAGE;
-        $plugindirrel = '/question/type/coderunner';
-        $PAGE->requires->js($plugindirrel . '/ace/ace.js');
-        $PAGE->requires->js($plugindirrel . '/ace/ext-language_tools.js');
-        $PAGE->requires->js($plugindirrel . '/ace/ext-modelist.js');
     }
 
 
