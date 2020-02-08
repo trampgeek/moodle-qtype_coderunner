@@ -86,6 +86,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $this->make_questiontype_help_panel($mform);
         $this->make_customisation_panel($mform);
         $this->make_advanced_customisation_panel($mform);
+        qtype_coderunner_util::load_ace();
 
         $PAGE->requires->js_call_amd('qtype_coderunner/textareas', 'setupAllTAs');
 
