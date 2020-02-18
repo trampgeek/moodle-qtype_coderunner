@@ -2,6 +2,8 @@
 
 ### 18 January 2020. 3.7.5+.
 
+ * Bug fix: Show differences button was not being rendered correctly as a button
+   in Moodle 3.8.
  * Bug fix: In graphUI, self-links, i.e. edges that start and end at the same node,
     could not be labelled.
  * Require latest version of qbehaviour_adaptive_adapted_for_coderunner

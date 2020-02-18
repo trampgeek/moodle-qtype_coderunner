@@ -745,7 +745,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
             'id' => $buttonid,
             'name' => $buttonid,
             'value' => get_string('showdifferences', 'qtype_coderunner'),
-            'class' => 'btn',
+            'class' => 'btn btn-secondary',
         );
         $html = html_writer::empty_tag('input', $attributes);
 
