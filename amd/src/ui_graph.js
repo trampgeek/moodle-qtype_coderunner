@@ -323,9 +323,12 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
     // Return true if currently selected object has text that we are allowed
     // to edit.
     Graph.prototype.canEditText = function() {
+        var isNode = this.selectedObject instanceof elements.Node,
+            isLink = (this.selectedObject instanceof elements.Link ||
+                this.selectedObject instanceof elements.SelfLink);
         return 'text' in this.selectedObject &&
-               ((this.selectedObject instanceof elements.Node && !this.templateParams.locknodelabels) ||
-               (this.selectedObject instanceof elements.Link && !this.templateParams.lockedgelabels));
+               ((isNode && !this.templateParams.locknodelabels) ||
+                (isLink && !this.templateParams.lockedgelabels));
     };
 
     Graph.prototype.keydown = function(e) {

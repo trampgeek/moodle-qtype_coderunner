@@ -1,5 +1,10 @@
 # CHANGE HISTORY
 
+### 18 January 2020. 3.7.5+.
+
+ * Bug fix: In graphUI, self-links, i.e. edges that start and end at the same node,
+    could not be labelled.
+
 ### 25 January 2020. 3.7.5
 
  * Display a warning message whenever a question is run using the default
