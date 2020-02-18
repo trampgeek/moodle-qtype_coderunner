@@ -4,6 +4,7 @@
 
  * Bug fix: In graphUI, self-links, i.e. edges that start and end at the same node,
     could not be labelled.
+ * Require latest version of qbehaviour_adaptive_adapted_for_coderunner
 
 ### 25 January 2020. 3.7.5
 
