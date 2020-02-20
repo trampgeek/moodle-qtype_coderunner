@@ -1863,7 +1863,7 @@ form.
 
 ### The Graph UI
 
-The Graph UI plugin, which should be regarded as experimental at this point,
+The Graph UI plugin
 provides simple graph-drawing capabilities to support
 questions where the student is asked to draw or edit a graph. By default the
 Graph UI, which was developed for Finite State Machines, draws directed graphs,
@@ -1887,6 +1887,27 @@ graph from space, i.e., without a start node.
 
   1. fontsize - defaults to 20. The size of the Arial font, in px.
 
+  1. helpmenutext - text to replace the default help menu text. Must be a
+     single JSON string written on line using "\n" to separate lines in the menu.
+     For example:
+
+        {"helpmenutext": "Line1\nLine2\nLine3"}
+
+    The default value, written here in multiple lines for readability, is:
+
+        - Double click at a blank space to create a new node/state.
+        - Double click an existing node to "mark" it e.g. as an accept state for Finite State Machines
+          (FSMs). Double click again to unmark it.
+        - Click and drag to move a node.
+        - Alt click (or Ctrl alt click) and drag on a node to move a (sub)graph.
+        - Shift click inside one node and drag to another to create a link.
+        - Shift click on a blank space, drag to a node to create a start link (FSMs only).
+        - Click and drag a link to alter its curve.
+        - Click on a link/node to edit its text.
+        - Typing _ followed by a digit makes that digit a subscript.
+        - Typing \\epsilon creates an epsilon character (and similarly for \\alpha, \\beta etc).
+        - Click on a link/node then press the Delete key to remove it (or function-delete on a Mac).
+
 For example, for a non-directed non-fsm graph set the template parameters field to
 
         {"isdirected": false, "isfsm": false}
@@ -1894,7 +1915,7 @@ For example, for a non-directed non-fsm graph set the template parameters field 
 or merge those values into any other template parameters required by the
 question.
 
-Other template parameters may be added as required.
+Other template parameters may be added as required by specific questions.
 
 Many thanks to Emily Price for the original implementation of the Graph UI.
 

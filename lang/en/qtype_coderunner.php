@@ -184,7 +184,7 @@ $string['graphhelp'] = '- Double click at a blank space to create a new node/sta
 - Double click an existing node to "mark" it e.g. as an accept state for Finite State Machines
   (FSMs). Double click again to unmark it.
 - Click and drag to move a node.
-- Alt click and drag to move a (sub)graph.
+- Alt click (or Ctrl Alt click) and drag to move a (sub)graph.
 - Shift click inside one node and drag to another to create a link.
 - Shift click on a blank space, drag to a node to create a start link (FSMs only).
 - Click and drag a link to alter its curve.
@@ -1134,9 +1134,11 @@ representation of the graph and prints a message like "OK" if the answer is
 correct or a suitably informative error message otherwise.
 Template parameters can be set in either the prototype or the
 actual question to modify the behaviour of the Graph plugin as follows:
-{"isdirected": false} for non-directed graphs, {"isfsm": false} to disallow
-incoming edges without a start node (required by Finite State Machine graphs, FSMs),
-{"noderadius": 30}, say, to set a different noderadius in pixels.
+{"isdirected": false} for non-directed graphs; {"isfsm": false} to disallow
+incoming edges without a start node (required by Finite State Machine graphs, FSMs);
+{"noderadius": 30}, say, to set a different noderadius in pixels;
+{"helpmenutext": "Line1\nLine2\nLine3"} to replace the default help menu with a
+customised version.
 The template parameters
 from the actual question are merged with, and override, those from the
 prototype (since CodeRunner V3.2.2).
