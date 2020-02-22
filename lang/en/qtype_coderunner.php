@@ -282,6 +282,7 @@ $string['jobe_apikey_desc'] = 'The API key to be included in all REST requests t
 $string['jobe_host'] = 'Jobe server';
 $string['jobe_host_desc'] = 'The host name of the Jobe server plus the port number if other than port 80, e.g. jobe.somewhere.edu:4010. The URL for the Jobe request is obtained by default by prefixing this string with http:// and appending /jobe/index.php/restapi/<REST_METHOD>. You may either specify the https:// protocol in front of the host name (e.g. https://jobe.somewhere.edu) if the Jobe server is set behind a reverse proxy which act as an SSL termination.';
 $string['jobe_warning_html'] = "<p style='background-color:yellow'>Run using the University of Canterbury's Jobe server. This is for initial testing only. Please set up your own Jobe server as soon as possible. See <a href='https://github.com/trampgeek/moodle-qtype_coderunner/blob/master/Readme.md#sandbox-configuration' target='_blank'>here</a>.</p>";
+$string['jobe_canterbury_html'] = "<p style='color:gray; font-style:italic; font-size:smaller'>Run on the University of Canterbury's Jobe server.</p>";
 
 $string['language'] = 'Sandbox language';
 $string['languages'] = 'Languages';
