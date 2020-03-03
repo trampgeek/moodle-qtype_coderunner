@@ -2585,7 +2585,10 @@ memory or maximum runtime.
 
 <pre>
     <b>function</b> run_combinator(question, testcases, templateParams)
+
+    *** TBS ***
 </pre>
+### Lots more to come when I get a round TUIT
 
 
 ## APPENDIX 2: How programming quizzes should work
