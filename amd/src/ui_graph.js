@@ -120,6 +120,8 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
      *  isdirected. True if edges are directed. Default: true.
      *  noderadius. The radius of a node, in pixels. Default: 26.
      *  fontsize. The font size used for node and edge labels. Default: 20 points.
+     *  textoffset. An offset in pixels used to determine how far from the link
+     *             a label is positioned. Default 4.
      *  helpmenutext. A string to be used in lieu of the default Help info, if supplied.
      *               No default.
      *  locknodepositions. True to prevent the user from moving nodes. Useful when the
@@ -153,6 +155,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         this.HIT_TARGET_PADDING = 6;    // Pixels.
         this.DEFAULT_NODE_RADIUS = 26;  // Pixels. Template parameter noderadius can override this.
         this.DEFAULT_FONT_SIZE = 20;    // px. Template parameter fontsize can override this.
+        this.DEFAULT_TEXT_OFFSET = 4;   // Link label tweak. Template params can override.
 
         this.canvasId = 'graphcanvas_' + textareaId;
         this.textArea = $(document.getElementById(textareaId));
@@ -231,6 +234,11 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         return this.templateParams.isfsm !== undefined ? this.templateParams.isfsm : true;
     };
 
+
+    Graph.prototype.textOffset = function() {
+        return this.templateParams.textoffset ? this.templateParams.textoffset : this.DEFAULT_TEXT_OFFSET;
+    };
+
     // Draw an arrow head if this is a directed graph. Otherwise do nothing.
     Graph.prototype.arrowIfReqd = function(c, x, y, angle) {
         if (this.templateParams.isdirected === undefined || this.templateParams.isdirected) {
@@ -296,8 +304,8 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
                         this.movingNodes[i].setMouseStart(mouse.x, mouse.y);
                     }
                 }
-            } else if (!(this.templateParams.locknodepositions && this.selectedObject instanceof elements.Node)
-                       && !(this.templateParams.lockedgepositions && this.selectedObject instanceof elements.Link)){
+            } else if (!(this.templateParams.locknodepositions && this.selectedObject instanceof elements.Node) &&
+                       !(this.templateParams.lockedgepositions && this.selectedObject instanceof elements.Link)){
                 this.movingObject = true;
                 if(this.selectedObject.setMouseStart) {
                     this.selectedObject.setMouseStart(mouse.x, mouse.y);
@@ -323,9 +331,12 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
     // Return true if currently selected object has text that we are allowed
     // to edit.
     Graph.prototype.canEditText = function() {
+        var isNode = this.selectedObject instanceof elements.Node,
+            isLink = (this.selectedObject instanceof elements.Link ||
+                this.selectedObject instanceof elements.SelfLink);
         return 'text' in this.selectedObject &&
-               ((this.selectedObject instanceof elements.Node && !this.templateParams.locknodelabels) ||
-               (this.selectedObject instanceof elements.Link && !this.templateParams.lockedgelabels));
+               ((isNode && !this.templateParams.locknodelabels) ||
+                (isLink && !this.templateParams.lockedgelabels));
     };
 
     Graph.prototype.keydown = function(e) {
@@ -702,8 +713,8 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         if(angleOrNull !== null) {
             var cos = Math.cos(angleOrNull);
             var sin = Math.sin(angleOrNull);
-            var cornerPointX = (width / 2) * (cos > 0 ? 1 : -1);
-            var cornerPointY = 10 * (sin > 0 ? 1 : -1);
+            var cornerPointX = (width / 2 + this.textOffset()) * (cos > 0 ? 1 : -1);
+            var cornerPointY = (10 + this.textOffset()) * (sin > 0 ? 1 : -1);
             var slide = sin * Math.pow(Math.abs(sin), 40) * cornerPointX - cos * Math.pow(Math.abs(cos), 10) * cornerPointY;
             x += cornerPointX - sin * slide;
             y += cornerPointY + cos * slide;

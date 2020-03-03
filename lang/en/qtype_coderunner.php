@@ -184,7 +184,7 @@ $string['graphhelp'] = '- Double click at a blank space to create a new node/sta
 - Double click an existing node to "mark" it e.g. as an accept state for Finite State Machines
   (FSMs). Double click again to unmark it.
 - Click and drag to move a node.
-- Alt click and drag to move a (sub)graph.
+- Alt click (or Ctrl Alt click) and drag to move a (sub)graph.
 - Shift click inside one node and drag to another to create a link.
 - Shift click on a blank space, drag to a node to create a start link (FSMs only).
 - Click and drag a link to alter its curve.
@@ -282,6 +282,7 @@ $string['jobe_apikey_desc'] = 'The API key to be included in all REST requests t
 $string['jobe_host'] = 'Jobe server';
 $string['jobe_host_desc'] = 'The host name of the Jobe server plus the port number if other than port 80, e.g. jobe.somewhere.edu:4010. The URL for the Jobe request is obtained by default by prefixing this string with http:// and appending /jobe/index.php/restapi/<REST_METHOD>. You may either specify the https:// protocol in front of the host name (e.g. https://jobe.somewhere.edu) if the Jobe server is set behind a reverse proxy which act as an SSL termination.';
 $string['jobe_warning_html'] = "<p style='background-color:yellow'>Run using the University of Canterbury's Jobe server. This is for initial testing only. Please set up your own Jobe server as soon as possible. See <a href='https://github.com/trampgeek/moodle-qtype_coderunner/blob/master/Readme.md#sandbox-configuration' target='_blank'>here</a>.</p>";
+$string['jobe_canterbury_html'] = "<p style='color:gray; font-style:italic; font-size:smaller'>Run on the University of Canterbury's Jobe server.</p>";
 
 $string['language'] = 'Sandbox language';
 $string['languages'] = 'Languages';
@@ -552,6 +553,7 @@ can contain an incoming edge from nowhere (the start edge). Default: true.</li>
 <li>isdirected. True if edges are directed. Default: true.</li>
 <li>noderadius. The radius of a node, in pixels. Default: 26.</li>
 <li>fontsize. The font size used for node and edge labels. Default: 20 points.</li>
+<li>textoffset. An offset in pixels used when positioning link label text. Default 4.</li>
 <li>helpmenutext. A string to be used in lieu of the default Help info, if supplied.
 No default.</li>
 <li>locknodepositions. True to prevent the user from moving nodes. Useful when the
@@ -752,6 +754,7 @@ can contain an incoming edge from nowhere (the start edge). Default: false.</li>
 <li>isdirected. True if edges are directed. Default: false.</li>
 <li>noderadius. The radius of a node, in pixels. Default: 26.</li>
 <li>fontsize. The font size used for node and edge labels. Default: 20 points.</li>
+<li>textoffset. An offset in pixels used when positioning link label text. Default 4.</li>
 <li>helpmenutext. A string to be used in lieu of the default Help info, if supplied.
 No default.</li>
 <li>locknodes. True to prevent the user from moving nodes. Useful when the
@@ -1134,9 +1137,11 @@ representation of the graph and prints a message like "OK" if the answer is
 correct or a suitably informative error message otherwise.
 Template parameters can be set in either the prototype or the
 actual question to modify the behaviour of the Graph plugin as follows:
-{"isdirected": false} for non-directed graphs, {"isfsm": false} to disallow
-incoming edges without a start node (required by Finite State Machine graphs, FSMs),
-{"noderadius": 30}, say, to set a different noderadius in pixels.
+{"isdirected": false} for non-directed graphs; {"isfsm": false} to disallow
+incoming edges without a start node (required by Finite State Machine graphs, FSMs);
+{"noderadius": 30}, say, to set a different noderadius in pixels;
+{"helpmenutext": "Line1\nLine2\nLine3"} to replace the default help menu with a
+customised version.
 The template parameters
 from the actual question are merged with, and override, those from the
 prototype (since CodeRunner V3.2.2).
