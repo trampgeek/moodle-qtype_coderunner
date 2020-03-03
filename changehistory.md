@@ -1,7 +1,11 @@
 # CHANGE HISTORY
 
-### 18 January 2020. 3.7.5+.
+### 3 March 2020. 3.7.5+.
 
+ * Add a 'textoffset' template parameter to GraphUI base question types.
+ * Update documentation of GraphUI.
+ * Display a message 'Run on University of Canterbury's Jobe server' when
+   this is being used with a custom API key.
  * Bug fix: Show differences button was not being rendered correctly as a button
    in Moodle 3.8.
  * Bug fix: In graphUI, self-links, i.e. edges that start and end at the same node,
