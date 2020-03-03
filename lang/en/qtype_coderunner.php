@@ -553,6 +553,7 @@ can contain an incoming edge from nowhere (the start edge). Default: true.</li>
 <li>isdirected. True if edges are directed. Default: true.</li>
 <li>noderadius. The radius of a node, in pixels. Default: 26.</li>
 <li>fontsize. The font size used for node and edge labels. Default: 20 points.</li>
+<li>textoffset. An offset in pixels used when positioning link label text. Default 4.</li>
 <li>helpmenutext. A string to be used in lieu of the default Help info, if supplied.
 No default.</li>
 <li>locknodepositions. True to prevent the user from moving nodes. Useful when the
@@ -753,6 +754,7 @@ can contain an incoming edge from nowhere (the start edge). Default: false.</li>
 <li>isdirected. True if edges are directed. Default: false.</li>
 <li>noderadius. The radius of a node, in pixels. Default: 26.</li>
 <li>fontsize. The font size used for node and edge labels. Default: 20 points.</li>
+<li>textoffset. An offset in pixels used when positioning link label text. Default 4.</li>
 <li>helpmenutext. A string to be used in lieu of the default Help info, if supplied.
 No default.</li>
 <li>locknodes. True to prevent the user from moving nodes. Useful when the
