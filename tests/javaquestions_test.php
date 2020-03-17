@@ -127,6 +127,32 @@ EOCODE
         $this->assertTrue($testoutcome->all_correct());
     }
 
+    public function test_program_type_alternate_syntax() {
+        $q = $this->make_question('printsquares');
+        $response = array('answer' => <<<EOCODE
+import java.util.Scanner;
+public class PrintNames {
+    static public void main(String[] args) {
+        Scanner in = new Scanner(System.in);
+        int upTo = in.nextInt();
+        String separator = "";
+        for (int i = 1; i <= upTo; i++) {
+           System.out.print(separator +  (Integer.valueOf(i * i).toString()));
+           separator = " ";
+        }
+    }
+}
+EOCODE
+        );
+        list($mark, $grade, $cache) = $q->grade_response($response);
+        $this->assertEquals(1, $mark);
+        $this->assertEquals(question_state::$gradedright, $grade);
+        $this->assertTrue(isset($cache['_testoutcome']));
+        $testoutcome = unserialize($cache['_testoutcome']);
+        $this->assertEquals(2, count($testoutcome->testresults));
+        $this->assertTrue($testoutcome->all_correct());
+    }
+
 
     // Checks if the Java Twig escape filter works.
     public function test_java_escape() {
