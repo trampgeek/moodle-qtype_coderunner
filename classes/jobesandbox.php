@@ -227,7 +227,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
     // Not totally safe as it doesn't parse the file, e.g. would be fooled
     // by a commented-out main class with a different name.
     private function get_main_class($prog) {
-        $pattern = '/(^|\W)public\s+class\s+(\w+)[^{]*\{.*?public\s+static\s+void\s+main\s*\(\s*String/ms';
+        $pattern = '/(^|\W)public\s+class\s+(\w+)[^{]*\{.*?((public\s([a-z]*\s)*static)|(static\s([a-z]*\s)*public))\s([a-z]*\s)*void\s+main\s*\(\s*String/ms';
         if (preg_match_all($pattern, $prog, $matches) !== 1) {
             return false;
         } else {
