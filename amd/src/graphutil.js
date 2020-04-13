@@ -109,7 +109,7 @@ define(function() {
     Util.prototype.crossBrowserKey = function(e) {
         // Return which key was pressed, given the event, in a browser-independent way.
         e = e || window.event;
-        return e.key || e.which || e.keyCode;
+        return e.which || e.keyCode;
     };
 
     Util.prototype.crossBrowserElementPos = function(e) {
