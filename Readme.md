@@ -1890,12 +1890,28 @@ via template parameters as follows:
 
   1. isdirected - defaults to true. Set it to false for a non-directed graph.
 
-  1. isfsm - defaults to true. Set it to false to prevent edges that enter the
-graph from space, i.e., without a start node.
+  1. isfsm - defaults to false. Set it to true to allow edges to enter the
+graph from space, i.e., without a start node. It also allows nodes to be marked
+as accept states by double clicking.
 
   1. noderadius - defaults to 26. The radius of nodes, in pixels.
 
   1. fontsize - defaults to 20. The size of the Arial font, in px.
+
+  1. textoffset. An offset in pixels used when positioning link label text.
+      Default 4.
+
+  1. locknodes. True to prevent the user from moving nodes. Useful when the
+answer box is preloaded with a graph that the student has to annotate by
+changing node or edge labels or by adding/removing edges. Note, though that
+nodes can still be added and deleted.
+
+  1. lockedges. True to prevent the user from dragging edges to change
+their curvature. Possibly useful if the
+answer box is preloaded with a graph that the student has to annotate by
+changing node or edge labels or by adding/removing edges. Also ensures that
+edges added by a student are straight, e.g. to draw a polygon on a set of
+given points. Note, though that edges can still be added and deleted.
 
   1. helpmenutext - text to replace the default help menu text. Must be a
      single JSON string written on line using "\n" to separate lines in the menu.

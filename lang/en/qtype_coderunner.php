@@ -552,7 +552,8 @@ print the outgoing edges from node \'A\', and so on.</p>
 by the GraphUI plugin and control its behaviour.</p>
 <p><ul>
 <li>isfsm. True if the graph is of a Finite State Machine. If true, the graph
-can contain an incoming edge from nowhere (the start edge). Default: true.</li>
+can contain an incoming edge from nowhere (the start edge) and nodes can be
+marked as accept states (shown with a double circle) by double clicking. Default: true.</li>
 <li>isdirected. True if edges are directed. Default: true.</li>
 <li>noderadius. The radius of a node, in pixels. Default: 26.</li>
 <li>fontsize. The font size used for node and edge labels. Default: 20 points.</li>
@@ -753,7 +754,8 @@ print the edges connected to node \'A\', and so on.</p>
 by the GraphUI plugin and control its behaviour.</p>
 <p><ul>
 <li>isfsm. True if the graph is of a Finite State Machine. If true, the graph
-can contain an incoming edge from nowhere (the start edge). Default: false.</li>
+can contain an incoming edge from nowhere (the start edge) and nodes can be
+marked as accept states (shown with a double circle) by double clicking. Default: false.</li>
 <li>isdirected. True if edges are directed. Default: false.</li>
 <li>noderadius. The radius of a node, in pixels. Default: 26.</li>
 <li>fontsize. The font size used for node and edge labels. Default: 20 points.</li>
@@ -1140,8 +1142,9 @@ representation of the graph and prints a message like "OK" if the answer is
 correct or a suitably informative error message otherwise.
 Template parameters can be set in either the prototype or the
 actual question to modify the behaviour of the Graph plugin as follows:
-{"isdirected": false} for non-directed graphs; {"isfsm": false} to disallow
-incoming edges without a start node (required by Finite State Machine graphs, FSMs);
+{"isdirected": false} for non-directed graphs; {"isfsm": true} to allow
+incoming edges without a start node and to allow double clicking a node
+to define it as an accept state;
 {"noderadius": 30}, say, to set a different noderadius in pixels;
 {"helpmenutext": "Line1\nLine2\nLine3"} to replace the default help menu with a
 customised version.
