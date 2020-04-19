@@ -1558,7 +1558,7 @@ template grader", i.e. a TemplateGrader with the `Is combinator` checkbox checke
 In this mode, the JSON string output by the template grader
 should again contain a 'fraction' field, this time for the total mark,
 and may contain zero or more of 'prologuehtml', 'testresults', 'epiloguehtml'
-and 'showdifferences'
+'showoutputonly' and 'showdifferences'
 attributes.
 The 'prologuehtml' and 'epiloguehtml' fields are html
 that is displayed respectively before and after the (optional) result table. The
@@ -1570,6 +1570,16 @@ crosses for 1 or 0 row values respectively. The 'ishidden' column isn't
 actually displayed but 0 or 1 values in the column can be used to turn on and
 off row visibility. Students do not see hidden rows but markers and other
 staff do.
+
+The 'showoutputonly' attribute, if set true, results in the prologuehtml and
+epiloguehtml fields being displayed against a neutral background with the
+usual outcome message (e.g. "Passed all tests") suppressed. The mode is intended
+for use in pseudo-questions that can be used by students to experiment with a
+given bit of code. If this attribute is true the 'fraction' attribute is not
+required and is ignored if given. Since a mark is still required by the framework
+when a question is checked, full marks are awarded regardless of the result of
+the run but questions of this sort would normally not contribute marks towards
+a student's grade.
 
 The 'showdifferences' attribute can be added to the JSON outcome to render
 the standard 'Show differences' button after the result table; it is displayed

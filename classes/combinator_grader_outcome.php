@@ -31,14 +31,18 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
 
     // A list of the allowed attributes in the combinator template grader return value.
     public $allowedfields = array('fraction', 'prologuehtml', 'testresults', 'epiloguehtml',
-                    'feedbackhtml', 'columnformats', 'showdifferences');
+                    'feedbackhtml', 'columnformats', 'showdifferences',
+                    'showoutputonly'
+        );
 
     public function __construct($isprecheck) {
         parent::__construct(1, 0, $isprecheck);
+        $this->actualmark = 0;
         $this->epiloguehtml = null;
         $this->prologuehtml = null;
         $this->testresults = null;
         $this->columnformats = null;
+        $this->outputonly = false;
     }
 
 
@@ -58,8 +62,26 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
         $this->validate_table_formats();
     }
 
+
+    /** Mark this outcome as "outputonly", meaning only the prologuehtml and/or
+     *  epiloguehtml are displayed, there is no result table and no grading.
+     */
+
+    public function set_output_only() {
+        $this->outputonly = true;
+        $this->actualmark = 1; // Shouldn't ever be used.
+    }
+
+
     public function iscombinatorgrader() {
         return true;
+    }
+
+    // Return true if this is a question for which there is no result table
+    // but just output to be displayed as supplied. There is no message
+    // regarding success or failure with such questions.
+    public function is_output_only() {
+        return $this->outputonly;
     }
 
     /**

@@ -20,7 +20,7 @@
  *
  * @package    qtype
  * @subpackage coderunner
- * @copyright  2012, 2014 Richard Lobb, The University of Canterbury
+ * @copyright  2012, 2014, 2020 Richard Lobb, The University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -37,9 +37,6 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/coderunnertestcase
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-/**TODO** Much more thorough behaviour test required, e.g. of all the
- * testcase controls (useAsExample, display, hideRestIfFail).
- */
 
 class qtype_coderunner_walkthrough_test extends qbehaviour_walkthrough_test_base {
 
@@ -297,121 +294,6 @@ EOTEMPLATE;
         $this->check_current_output( new question_pattern_expectation('|<h2>Header</h2>|') );
     }
 
-    public function test_combinator_template_grading() {
-        // Use the question maker to provide a dummy question.
-        // Mostly ignore it. This question wants an answer with exactly
-        // two occurrences of each of the tokens 'hi' and 'ho' and awards
-        // a mark according to how well this criterion is satisfied.
-        $q = test_question_maker::make_question('coderunner', 'sqrnoprint');
-        $q->template = <<<EOTEMPLATE
-import json
-answer = """{{ STUDENT_ANSWER | e('py') }}"""
-tokens = answer.split()
-num_hi = len([t for t in tokens if t.lower() == 'hi'])
-num_ho = len([t for t in tokens if t.lower() == 'ho'])
-hi_mark = 2 if num_hi == 2 else 1 if abs(num_hi - 2) == 1 else 0
-ho_mark = 2 if num_ho == 2 else 1 if abs(num_ho - 2) == 1 else 0
-fraction = (hi_mark + ho_mark) / 4
-if fraction == 1.0:
-    feedback = '<h2>Well done</h2><p>I got 2 of each of hi and ho.</p>'
-else:
-    template = '<h2>Wrong numbers of hi and/or ho</h2>'
-    template += '<p>I wanted 2 of each but got {} and {} respectively.</p>'
-    feedback = template.format(num_hi, num_ho)
-print(json.dumps({'fraction': fraction, 'feedback_html': feedback}))
-EOTEMPLATE;
-        $q->iscombinatortemplate = true;
-        $q->allornothing = false;
-        $q->grader = 'TemplateGrader';
-
-        // Submit a right answer.
-        $this->start_attempt_at_question($q, 'adaptive', 1, 1);
-        $this->process_submission(array('-submit' => 1,
-            'answer' => "hi di hi and HO DI HO"));
-        $this->check_current_mark(1.0);
-        $this->check_current_output( new question_pattern_expectation('|<h2>Well done</h2>|') );
-
-        // Submit a partially right  answer.
-        $this->start_attempt_at_question($q, 'adaptive', 1, 1);
-        $this->process_submission(array('-submit' => 1,
-            'answer' => "hi di nothi and HO DI NOTHO"));
-        $this->check_current_mark(0.5);
-        $this->check_current_output( new question_pattern_expectation('|<h2>Wrong numbers of hi and/or ho</h2>|') );
-    }
-
-
-    // Test the new template grader testresults, prologuehtml and columnformats fields.
-    public function test_combinator_template_grading2() {
-        $q = test_question_maker::make_question('coderunner', 'sqr');
-        $q->template = <<<EOTEMPLATE
-import json
-{{ STUDENT_ANSWER }}
-
-n_vals = [3, -5, 11, 21, 200];
-results = [['n', 'Expected', 'Got', 'Mark', 'Correct', 'Comment', 'ishidden', 'iscorrect']]
-total = 0
-for n in n_vals:
-    got = sqr(n)
-    mark = 1 if got == n * n else 0
-    total += mark
-    results.append([n, n * n, got, mark, got == n * n, '<p class="blah">Test value ' + str(n) + '</p>', 0, got == n * n])
-print(json.dumps({'prologuehtml': "<h2>Prologue</h2>",
-                  'testresults': results,
-                  'epiloguehtml': "Wasn't that FUN!",
-                  'fraction': total / len(n_vals),
-                  'columnformats': ['%s', '%s', '%s', '%s', '%s', '%h']
-}))
-EOTEMPLATE;
-        $q->iscombinatortemplate = true;
-        $q->allornothing = true;  // This should be ignored.
-        $q->grader = 'TemplateGrader';
-
-        // Submit a right answer.
-        $this->start_attempt_at_question($q, 'adaptive', 1, 1);
-        $this->process_submission(array('-submit' => 1,
-            'answer' => "def sqr(n): return n * n"));
-        $this->check_current_mark(1.0);
-        $this->check_output_contains('Prologue');
-        $this->check_output_contains('Expected');
-        $this->check_output_contains('Got');
-        $this->check_output_contains("Wasn't that FUN!");
-        $this->check_output_contains("Passed all tests!");
-        $this->check_output_does_not_contain("Blah"); // HTML field should be rendered directly so class not visible.
-
-        // Submit a partially right  answer.
-        $this->start_attempt_at_question($q, 'adaptive', 1, 1);
-        $this->process_submission(array('-submit' => 1,
-            'answer' => "def sqr(n): return n * n if n != -5 else 'Bin' + 'Go!'"));
-        $this->check_output_contains('Prologue');
-        $this->check_output_contains('Expected');
-        $this->check_output_contains('Got');
-        $this->check_output_contains("Wasn't that FUN!");
-        $this->check_output_contains("Marks for this submission: 0.80/1.00");
-        $this->check_output_contains("BinGo!");
-    }
-
-
-    // Test that if the combinator output fails to yield the expected number
-    // of test case outputs, we get an appropriate error message.
-    public function test_bad_combinator_error() {
-        $q = test_question_maker::make_question('coderunner', 'sqr');
-        $q->template = <<<EOTEMPLATE
-{{ STUDENT_ANSWER }}
-__SEPARATOR__ = "#<ab@17943918#@>#"
-{% for TEST in TESTCASES %}
-{{ TEST.testcode }}
-print(__SEPARATOR__)
-{% endfor %}
-EOTEMPLATE;
-        $q->iscombinatortemplate = true;
-        $q->grader = 'EqualityGrader';
-        // Submit a right answer.
-        $this->start_attempt_at_question($q, 'adaptive', 1, 1);
-        $this->process_submission(array('-submit' => 1,
-            'answer' => 'def sqr(n): return n * n'));
-        $this->check_current_mark(0.0);
-        $this->check_output_contains('Perhaps excessive output or error in question?');
-    }
 
     // Check that if Template Debugging is enabled, the source code appears.
     public function test_template_debugging() {
@@ -424,107 +306,4 @@ EOTEMPLATE;
         $this->check_output_contains('Run 1');
         $this->check_output_contains('SEPARATOR = &quot;#&lt;ab@17943918#@&gt;#&quot;');
     }
-
-
-    // Test that if the combinator grader output has a columnformats with
-    // the wrong number of values, an appropriate error is issued.
-    public function test_bad_combinator_grader_error() {
-        $q = test_question_maker::make_question('coderunner', 'sqr');
-        $q->template = <<<EOTEMPLATE
-import json
-{{ STUDENT_ANSWER }}
-
-n_vals = [3, -5, 11, 21, 200];
-results = [['n', 'Expected', 'Got', 'Mark', 'Correct', 'Comment', 'ishidden', 'iscorrect']]
-total = 0
-for n in n_vals:
-    got = sqr(n)
-    mark = 1 if got == n * n else 0
-    total += mark
-    results.append([n, n * n, got, mark, got == n * n, '<p class="blah">Test value ' + str(n) + '</p>', 0, got == n * n])
-print(json.dumps({'prologuehtml': "<h2>Prologue</h2>",
-                  'testresults': results,
-                  'epiloguehtml': "Wasn't that FUN!",
-                  'fraction': total / len(n_vals),
-                  'columnformats': ['%s', '%s', '%s', '%s', '%s', '%h', '%s']
-}))
-EOTEMPLATE;
-        $q->iscombinatortemplate = true;
-        $q->grader = 'TemplateGrader';
-        // Submit a right answer.
-        $this->start_attempt_at_question($q, 'adaptive', 1, 1);
-        $this->process_submission(array('-submit' => 1,
-            'answer' => 'def sqr(n): return n * n'));
-        $this->check_current_mark(0.0);
-        $this->check_output_contains('Wrong number of test results column formats. Expected 6, got 7');
-    }
-
-
-    // Test that if the combinator output has a misspelled columnformats
-    // field, an appropriate error is issued.
-    public function test_bad_combinator_grader_error2() {
-        $q = test_question_maker::make_question('coderunner', 'sqr');
-        $q->template = <<<EOTEMPLATE
-import json
-{{ STUDENT_ANSWER }}
-
-n_vals = [3, -5, 11, 21, 200];
-results = [['n', 'Expected', 'Got', 'Mark', 'Correct', 'Comment', 'ishidden', 'iscorrect']]
-total = 0
-for n in n_vals:
-    got = sqr(n)
-    mark = 1 if got == n * n else 0
-    total += mark
-    results.append([n, n * n, got, mark, got == n * n, '<p class="blah">Test value ' + str(n) + '</p>', 0, got == n * n])
-print(json.dumps({'prologuehtml': "<h2>Prologue</h2>",
-                  'testresults': results,
-                  'epiloguehtml': "Wasn't that FUN!",
-                  'fraction': total / len(n_vals),
-                  'columnformatt': ['%s', '%s', '%s', '%s', '%s', '%h', '%s']
-}))
-EOTEMPLATE;
-        $q->iscombinatortemplate = true;
-        $q->grader = 'TemplateGrader';
-        // Submit a right answer.
-        $this->start_attempt_at_question($q, 'adaptive', 1, 1);
-        $this->process_submission(array('-submit' => 1,
-            'answer' => 'def sqr(n): return n * n'));
-        $this->check_current_mark(0.0);
-        $this->check_output_contains('Unknown field name (columnformatt) in combinator grader output');
-    }
-
-
-    // Test that if the combinator output has a bad value in the columnformats
-    // field, an appropriate error is issued.
-    public function test_bad_combinator_grader_error3() {
-        $q = test_question_maker::make_question('coderunner', 'sqr');
-        $q->template = <<<EOTEMPLATE
-import json
-{{ STUDENT_ANSWER }}
-
-n_vals = [3, -5, 11, 21, 200];
-results = [['n', 'Expected', 'Got', 'Mark', 'Correct', 'Comment', 'ishidden', 'iscorrect']]
-total = 0
-for n in n_vals:
-    got = sqr(n)
-    mark = 1 if got == n * n else 0
-    total += mark
-    results.append([n, n * n, got, mark, got == n * n, '<p class="blah">Test value ' + str(n) + '</p>', 0, got == n * n])
-print(json.dumps({'prologuehtml': "<h2>Prologue</h2>",
-                  'testresults': results,
-                  'epiloguehtml': "Wasn't that FUN!",
-                  'fraction': total / len(n_vals),
-                  'columnformats': ['%s', '%s', '%s', '%s', '%x', '%h']
-}))
-EOTEMPLATE;
-        $q->iscombinatortemplate = true;
-        $q->grader = 'TemplateGrader';
-        // Submit a right answer.
-        $this->start_attempt_at_question($q, 'adaptive', 1, 1);
-        $this->process_submission(array('-submit' => 1,
-            'answer' => 'def sqr(n): return n * n'));
-        $this->check_current_mark(0.0);
-        $this->check_output_contains('Illegal format (%x) in columnformats');
-    }
-
 }

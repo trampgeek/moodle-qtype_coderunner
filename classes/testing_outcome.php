@@ -111,6 +111,10 @@ class qtype_coderunner_testing_outcome {
         return $this->run_failed() || $this->combinator_error();
     }
 
+    public function is_output_only() {
+        return false;
+    }
+
     public function mark_as_fraction() {
         if ($this->status === self::STATUS_VALID) {
             // Need to return exactly 1.0 for a right answer.

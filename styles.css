@@ -141,6 +141,10 @@ body#page-question-type-coderunner .ace_editor {
     background-color: #AAFFAA;
 }
 
+.que.coderunner div.coderunner-test-results.outputonly {
+    background-color: #d9d9d9;
+}
+
 .que.coderunner div.coderunner-test-results.good.precheck {
     background: repeating-linear-gradient(0deg, #FFFFFF, #FFFFFF 8px, #f8f1f9 8px, #f8f1f9 16px);
 }

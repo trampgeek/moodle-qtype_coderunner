@@ -248,48 +248,67 @@ class qtype_coderunner_jobrunner {
      */
     private function do_combinator_grading($run, $isprecheck) {
         $outcome = new qtype_coderunner_combinator_grader_outcome($isprecheck);
-        if ($run->result !== qtype_coderunner_sandbox::RESULT_SUCCESS) {
-            $error = get_string('brokentemplategrader', 'qtype_coderunner',
-                    array('output' => $run->cmpinfo . "\n" . $run->stderr));
-            $outcome->set_status(qtype_coderunner_testing_outcome::STATUS_BAD_COMBINATOR, $error);
-        } else {
-            $result = json_decode($run->output);
-
-            if ($result === null || !isset($result->fraction) ||
-                    !is_numeric($result->fraction)) {
-                // Bad combinator output.
-                $error = get_string('badjsonorfraction', 'qtype_coderunner',
-                    array('output' => $run->output));
-                $outcome->set_status(qtype_coderunner_testing_outcome::STATUS_BAD_COMBINATOR, $error);
-            } else {
-
-                // A successful combinator run (so far).
-                $fract = $result->fraction;
-                $feedback = array();
-                if (isset($result->feedback_html)) {  // Legacy combinator grader?
-                    $result->feedbackhtml = $result->feedback_html; // Change to modern version.
-                    unset($result->feedback_html);
-                }
-                foreach ($result as $key => $value) {
-                    if (!in_array($key, $outcome->allowedfields)) {
-                        $error = get_string('unknowncombinatorgraderfield', 'qtype_coderunner',
-                            array('fieldname' => $key));
-                        $outcome->set_status(qtype_coderunner_testing_outcome::STATUS_BAD_COMBINATOR, $error);
-                        break;
-                    } else {
-                        if ($key === 'feedbackhtml' || $key === 'feedback_html') {
-                            // For compatibility with older combinator graders.
-                            $feedback['epiloguehtml'] = $result->$key;
-                        } else {
-                            $feedback[$key] = $value;
-                        }
-                    }
-                }
-                $outcome->set_mark_and_feedback($fract, $feedback);  // Further valididty checks done in here.
+        try {
+            if ($run->result !== qtype_coderunner_sandbox::RESULT_SUCCESS) {
+                $error = get_string('brokentemplategrader', 'qtype_coderunner',
+                        array('output' => $run->cmpinfo . "\n" . $run->stderr));
+                throw new Exception($error);
             }
+
+            $result = json_decode($run->output);
+            if ($result === null) {
+                $error = get_string('badjson', 'qtype_coderunner',
+                    array('output' => $run->output));
+                throw new Exception($error);
+            }
+
+            if (isset($result->showoutputonly) && $result->showoutputonly) {
+                $outcome->set_output_only();
+            } else if ($this->missing_or_bad_fraction($result)) {
+                $error = get_string('missingorbadfraction', 'qtype_coderunner',
+                    array('output' => $run->output));
+                throw new Exception($error);
+            }
+
+            // A successful combinator run (so far).
+            $fract = $outcome->is_output_only() ? 1.0 : $result->fraction;
+            $feedback = array();
+            if (isset($result->feedback_html)) {  // Legacy combinator grader?
+                $result->feedbackhtml = $result->feedback_html; // Change to modern version.
+                unset($result->feedback_html);
+            }
+            foreach ($result as $key => $value) {
+                if (!in_array($key, $outcome->allowedfields)) {
+                    $error = get_string('unknowncombinatorgraderfield', 'qtype_coderunner',
+                        array('fieldname' => $key));
+                    throw new Exception($error);
+                }
+                if ($key === 'feedbackhtml' || $key === 'feedback_html') {
+                    // For compatibility with older combinator graders.
+                    $feedback['epiloguehtml'] = $result->$key;
+                } else {
+                    $feedback[$key] = $value;
+                }
+            }
+            $outcome->set_mark_and_feedback($fract, $feedback);  // Further valididty checks done in here.
+
+        } catch (Exception $error) {
+            $outcome->set_status(qtype_coderunner_testing_outcome::STATUS_BAD_COMBINATOR, $error);
         }
         return $outcome;
     }
+
+
+    /* Check for missing or bad fraction.
+     * @return bool true iff the fraction is missing or bad.
+     */
+    private function missing_or_bad_fraction($result) {
+        return !isset($result->fraction) ||
+               !is_numeric($result->fraction) ||
+               floatval($result->fraction) < 0.0 ||
+               floatval($result->fraction) > 1.0;
+    }
+
 
     /* Return a $sep-separated string of the non-empty elements
        of the array $strings. Similar to implode except empty strings

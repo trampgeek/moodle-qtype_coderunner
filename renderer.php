@@ -257,6 +257,11 @@ class qtype_coderunner_renderer extends qtype_renderer {
             $outcome->set_status(qtype_coderunner_testing_outcome::STATUS_UNSERIALIZE_FAILED);
         }
         $resultsclass = $this->results_class($outcome, $q->allornothing);
+
+        $isoutputonly = $outcome->is_output_only();
+        if ($isoutputonly) {
+            $resultsclass .= ' outputonly';
+        }
         $isprecheck = $outcome->is_precheck($qa);
         if ($isprecheck) {
             $resultsclass .= ' precheck';
@@ -300,8 +305,11 @@ class qtype_coderunner_renderer extends qtype_renderer {
         }
 
         // Summarise the status of the response in a paragraph at the end.
-        // Suppress when previous errors have already said enough.
-        if (!$outcome->has_syntax_error() && !$isprecheck &&
+        // Suppress when previous errors have already said enough or it's
+        // an output only question.
+        if (!$outcome->has_syntax_error() &&
+             !$isprecheck &&
+             !$isoutputonly &&
              !$outcome->is_ungradable() &&
              !$outcome->run_failed()) {
 
