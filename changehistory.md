@@ -1,5 +1,13 @@
 # CHANGE HISTORY
 
+### 19 April 2020. 3.7.6
+
+ * Add a 'showoutputonly' option to combinator template graders for use
+   in 'sandpit' questions that allow students to experiment with code
+   and see text and/or image output without penalty.
+ * Bug fix: java main method declarations with static public main rather than
+   public static main were not being accepted.
+
 ### 3 March 2020. 3.7.5+.
 
  * Add a 'textoffset' template parameter to GraphUI base question types.
