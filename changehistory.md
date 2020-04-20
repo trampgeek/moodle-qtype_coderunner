@@ -5,6 +5,9 @@
  * Add a 'showoutputonly' option to combinator template graders for use
    in 'sandpit' questions that allow students to experiment with code
    and see text and/or image output without penalty.
+ * Include a demonstration of the showoutputonly option in the samples folder.
+ * Bug fix: Prevent PHP Notice Undefined property: qtype_coderunner_question::$parameters
+   when viewing a question without template parameters.
  * Bug fix: java main method declarations with static public main rather than
    public static main were not being accepted.
 
