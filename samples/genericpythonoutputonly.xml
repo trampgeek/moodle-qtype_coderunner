@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<quiz>
+<!-- question: 41170  -->
+  <question type="coderunner">
+    <name>
+      <text><![CDATA[A "run any python program" question.]]></text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<p>Enter any Python3 program into the answer box. Click <i>Check</i>&nbsp;to run it. The code is not marked: all output will be considered correct so the question will report a mark of 1.0 / 1.0.</p><p>If your program needs to read from standard input (usually the keyboard), you must attach a file <i>stdin.txt </i>containing the lines of input that you wish the program to read.</p><p><span style="font-size: 0.9375rem;">If required, your program can use matplotlib to plot a graph, which will be displayed in the output. Also, you can use <i>graphviz</i>&nbsp;and generate a .png output file, which will likewise be displayed. However, if using <i>graphviz</i>, set the <i>view&nbsp;</i>parameter in the call to the render method to <i>False, </i>e.g.</span></p><pre><span style="">g.render('pweddypikkie', format='png', view=False)</span></pre><p><span style="font-size: 0.9375rem;">The answer box has been reloaded with a simple demo. Replace this with your own code.</span></p><p><span style="font-size: 0.9375rem;"><b>Note:</b> for this question to work you need to have numpy, matplotlib and graphviz (both the executables and the python3 graphviz module) installed on your jobe server.</span></p>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1</defaultgrade>
+    <penalty>0</penalty>
+    <hidden>0</hidden>
+    <idnumber></idnumber>
+    <coderunnertype>python3_sandbox</coderunnertype>
+    <prototypetype>2</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime>0</penaltyregime>
+    <precheck>0</precheck>
+    <showsource>0</showsource>
+    <answerboxlines>11</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload><![CDATA["""Demo of the generic python code runner pseudo-question"""
+import matplotlib.pyplot as plt
+from graphviz import Graph
+
+# First some simple text output.
+vertices = [(0, 0), (100, 0), (1, 50), (100, 100), (0, 100), (0,0)]
+vx, vy = zip(*vertices)  # Unpack them
+points = [(1, 1), (20, 20), (20, 80), (60, 50),
+     (97, 1), (1, 48), (1, 52), (97, 99), (1, 99)]
+px, py = zip(*points) # Unpack
+print("Vertex x values:", vx)
+print("Vertex y values:", vy)
+print("Point x values:", px)
+print("Point y values:", py)
+
+# Now a matplotlib graph.
+axes = plt.axes()
+axes.plot(vx, vy, color='blue', marker='o', linestyle='--')
+axes.plot(px, py, color='red', marker='x', linestyle='')
+axes.set_title('The example from the geometry lecture notes')
+
+# Lastly a graphviz example
+g = Graph()
+g.node('Root', '23')
+g.node('Leaf1', '13', shape='box')
+g.node('Leaf2', '99', shape='box')
+g.edge('Root', 'Leaf1')
+g.edge('Root', 'Leaf2')
+g.render('graph', format='png', view=False)]]></answerpreload>
+    <globalextra></globalextra>
+    <useace>1</useace>
+    <resultcolumns></resultcolumns>
+    <template><![CDATA[import matplotlib.pyplot as plt
+import json
+import base64
+import subprocess
+import re
+import os
+import os.path
+import sys
+
+# Define lines of code to insert before student's code
+PREFIX = ["import matplotlib",
+          "matplotlib.use('Agg')",
+          "import matplotlib.pyplot as __plt__",
+          "__saved_input__ = input",
+          "def input(prompt=''):",
+          "    response = __saved_input__(prompt).rstrip()",
+          "    print(response)",
+          "    return response"
+]
+
+def make_data_uri(filename):
+    """Given a png or jpeg image filename (which must end in .png or .jpg/.jpeg 
+       resp.) return a data URI as a UTF-8 string.
+    """
+    with open(filename, 'br') as fin:
+        contents = fin.read()
+    contents_b64 = base64.b64encode(contents).decode('utf8')
+    if filename.endswith('.png'):
+        return "data:image/png;base64,{}".format(contents_b64)
+    elif filename.endswith('.jpeg') or filename.endswith('.jpg'):
+        return "data:image/jpeg;base64,{}".format(contents_b64)
+    else:
+        raise Exception("Unknown file type passed to make_data_uri")
+        
+    
+def tweak_line_numbers(error):
+    """Adjust the line numbers in the error message to account for extra lines"""
+    new_error = ''
+    for line in error.splitlines():
+        match = re.match("(.*, line )([0-9]+)", line)
+        if match:
+            line = match.group(1) + str(int(match.group(2)) - len(PREFIX))
+        new_error += line + '\n'
+    return new_error
+
+student_code = '\n'.join(PREFIX) + '\n'
+student_code += """{{ STUDENT_ANSWER | e('py') }}"""
+student_code += """\nif __plt__.get_fignums():
+    __plt__.savefig('matplotliboutput')
+"""
+inputfile = None
+if 'stdin.txt' in os.listdir():
+    inputfile = open('stdin.txt')
+    
+output = ''
+failed = False
+try:
+    outcome = subprocess.run(
+        ['python3', '-c', student_code],
+        stdin=inputfile,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        timeout = 25, # 25 second timeout MUST BE LESS THAN DEFAULT FOR QUESTION TYPE
+        universal_newlines=True,
+        check=True
+    )
+except subprocess.CalledProcessError as e:
+    outcome = e
+    output = "Task failed with return code = {}\n".format(outcome.returncode)
+    failed = True
+except subprocess.TimeoutExpired as e:
+    outcome = e
+    output = "Task timed out\n"
+output += outcome.stdout
+if outcome.stderr:
+    output += "*** Error output ***\n"
+    output += tweak_line_numbers(outcome.stderr)
+
+html = ''
+if output:
+    html += f"<h4>Text output:</h4>\n<pre style=background-color:white>{output}</pre>\n<hr style='border:0px'>\n"
+else:
+    html += f"<h5>No text output</h5>\n"
+
+files = sorted(os.listdir())
+for filename in files:
+    if filename.endswith('.png'):
+        data_uri = make_data_uri(filename)
+        html += f"""<h4>{filename}</h4><img class="data-uri-example" title="{filename}" src="{data_uri}" alt="{filename}">
+<hr style='border:0px'>
+"""
+
+# Lastly print the JSON-encoded result required of a combinator grader
+print(json.dumps({'epiloguehtml': html,
+                  'showoutputonly': True
+}))
+
+]]></template>
+    <iscombinatortemplate>1</iscombinatortemplate>
+    <allowmultiplestdins>0</allowmultiplestdins>
+    <answer><![CDATA["""Demo of the generic python code runner pseudo-question"""
+import matplotlib.pyplot as plt
+from graphviz import Graph 
+
+# First some simple text output.
+vertices = [(0, 0), (100, 0), (1, 50), (100, 100), (0, 100), (0,0)]
+vx, vy = zip(*vertices)  # Unpack them
+points = [(1, 1), (20, 20), (20, 80), (60, 50),
+     (97, 1), (1, 48), (1, 52), (97, 99), (1, 99)]
+px, py = zip(*points) # Unpack
+print("Vertex x values:", vx)
+print("Vertex y values:", vy)
+print("Point x values:", px)
+print("Point y values:", py)
+
+# Now a matplotlib graph.
+axes = plt.axes()
+axes.plot(vx, vy, color='blue', marker='o', linestyle='--')
+axes.plot(px, py, color='red', marker='x', linestyle='')
+axes.set_title('A matplotlib example')
+
+# Lastly a graphviz example
+g = Graph()
+g.node('Root', '23')
+g.node('Leaf1', '13', shape='box')
+g.node('Leaf2', '99', shape='box')
+g.edge('Root', 'Leaf1')
+g.edge('Root', 'Leaf2')
+g.render('graph', format='png', view=False)]]></answer>
+    <validateonsave>1</validateonsave>
+    <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
+    <language>python3</language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader>TemplateGrader</grader>
+    <cputimelimitsecs>30</cputimelimitsecs>
+    <memlimitmb>1000</memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams></templateparams>
+    <hoisttemplateparams>1</hoisttemplateparams>
+    <twigall>0</twigall>
+    <uiplugin>ace</uiplugin>
+    <attachments>2</attachments>
+    <attachmentsrequired>0</attachmentsrequired>
+    <maxfilesize>102400</maxfilesize>
+    <filenamesregex>stdin.txt|.*\.dat</filenamesregex>
+    <filenamesexplain>Optionally attach a file stdin.txt to be used as standard input and/or a data file with extension .dat for other use by the program.</filenamesexplain>
+    <displayfeedback>1</displayfeedback>
+    <testcases>
+    </testcases>
+  </question>
+
+</quiz>
