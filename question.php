@@ -401,9 +401,9 @@ class qtype_coderunner_question extends question_graded_automatically {
         // Before twig expanding all fields, copy the template parameters
         // into $this->parameters.
         if (!empty($this->templateparams)) {
-            $this->parameters = json_decode($this->templateparams, true);
+            $this->parameters = json_decode($this->templateparams);
         } else {
-            $this->parameters = array();
+            $this->parameters = new stdClass();
         }
 
         // Twig expand everything in a context that includes the template
@@ -638,9 +638,9 @@ class qtype_coderunner_question extends question_graded_automatically {
             $sandboxparams['memorylimit'] = intval($this->memlimitmb);
         }
         if (isset($this->templateparams) && $this->templateparams != '') {
-            $this->parameters = json_decode($this->templateparams, true);
+            $this->parameters = json_decode($this->templateparams);
         } else {
-            $this->parameters = array();
+            $this->parameters = new stdClass();
         }
         return $sandboxparams;
     }
