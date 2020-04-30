@@ -141,7 +141,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
             if ($mainclass) {
                 $progname = "$mainclass.$language";
             } else {
-                $progname = 'prog.java';  // I give up. Over to the sandbox. Will probably fail.
+                $progname = 'NO_PUBLIC_CLASS_FOUND.java';  // I give up. Over to the sandbox. Will probably fail.
             }
         } else {
             $progname = "__tester__.$language";
@@ -222,16 +222,57 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
 
 
     // Return the name of the main class in the given Java prog, or FALSE if no
-    // such class found. Uses a regular expression to find a public class with
-    // a public static void main method.
-    // Not totally safe as it doesn't parse the file, e.g. would be fooled
-    // by a commented-out main class with a different name.
+    // such class found. Removes comments, strings and nested code and then
+    // uses a regexp to find a public class.
     private function get_main_class($prog) {
-        $pattern = '/(^|\W)public\s+class\s+(\w+)[^{]*\{.*?((public\s([a-z]*\s)*static)|(static\s([a-z]*\s)*public))\s([a-z]*\s)*void\s+main\s*\(\s*String/ms';
-        if (preg_match_all($pattern, $prog, $matches) !== 1) {
+        // filter out comments and strings
+        $prog = $prog . ' ';
+        $filteredProg = array();
+        $skipTo = -1;
+
+        for ($i = 0; $i < strlen($prog) - 1; $i++) {
+            if ($skipTo == false) break;  // an unclosed comment/string - bail out
+            if ($i < $skipTo) continue;
+            
+            // skip "//" comments
+            if ($prog[$i].$prog[$i+1] == '//') {
+                $skipTo = strpos($prog, "\n", $i + 2);
+            }
+            
+            // skip "/**/" comments
+            else if ($prog[$i].$prog[$i+1] == '/*') {
+                $skipTo = strpos($prog, '*/', $i + 2) + 2;
+                $filteredProg[] = ' ';  // '/**/' is a token delimiter
+            }
+
+            // skip strings
+            else if ($prog[$i] == '"') {
+                // matches the whole string
+                if (preg_match('/"((\\.)|[^\\"])*"/', $prog, $matches, 0, $i)) {
+                    $skipTo = $i + strlen($matches[0]);
+                }
+                else $skipTo = false;
+            }
+
+            // copy everything else
+            else $filteredProg[] = $prog[$i];
+        }
+
+        // remove nested code
+        $depth = 0;
+        for ($i = 0; $i < count($filteredProg); $i++) {
+            if ($filteredProg[$i] == '{') $depth++;
+            if ($filteredProg[$i] == '}') $depth--;
+            if ($filteredProg[$i] != "\n" && $depth > 0 && !($depth == 1 && $filteredProg[$i] == '{')) {
+                $filteredProg[$i] = ' ';
+            }
+        }
+
+        // search for a public class
+        if (preg_match('/public\s(\w*\s)*class\s*(\w+)[^\w]/', implode('', $filteredProg), $matches) !== 1) {
             return false;
         } else {
-            return $matches[2][0];
+            return $matches[2];
         }
     }
 
