@@ -1,6 +1,6 @@
 # CODE RUNNER
 
-Version: 3.7.6 April 2020
+Version: 3.7.7 May 2020
 
 Authors: Richard Lobb, University of Canterbury, New Zealand.
          Tim Hunt, The Open University, UK
