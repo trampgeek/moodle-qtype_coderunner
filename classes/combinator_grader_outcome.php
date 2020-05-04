@@ -81,7 +81,7 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
     // but just output to be displayed as supplied. There is no message
     // regarding success or failure with such questions.
     public function is_output_only() {
-        return $this->outputonly;
+        return isset($this->outputonly) && $this->outputonly;
     }
 
     /**
