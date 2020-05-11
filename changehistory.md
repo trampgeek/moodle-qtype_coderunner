@@ -1,9 +1,10 @@
 # CHANGE HISTORY
 
-# 04 May 2020. 3.7.7
+# 11 May 2020. 3.7.7
 
  * Bug fix: viewing of combinator grader outputs from previous versions of
    CodeRunner gave Undefined property: $outputonly PHP Notices.
+ * Add graphui demo question to samples.
 
 ### 19 April 2020. 3.7.6
 
