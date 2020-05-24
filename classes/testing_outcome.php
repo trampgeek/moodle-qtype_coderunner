@@ -416,6 +416,10 @@ class qtype_coderunner_testing_outcome {
         return '';
     }
 
+    public function get_attempt_confirm() {
+        return '';
+    }
+
     public function get_sourcecode_list() {
         return $this->sourcecodelist;
     }
