@@ -1201,7 +1201,7 @@ macros are primarily intended for use with the Html UI (q.v.); each one inserts
 a named HTML element into the template that is being expanded. As an
 example, if the question author includes the following in a question field
 
-    {% from html import input %}
+    {% from 'html' import input %}
 
     ...
 
@@ -2147,13 +2147,13 @@ own user-interface plugins; a JavaScript
 file with a name of the form `ui_something.js` in the
 folder
 
-        &lt;moodlehome&gt;/question/type/coderunner/amd/src
+        <moodlehome>/question/type/coderunner/amd/src
 
 is assumed to be a user interface plugin and is automatically added to
 the drop-down menu of available plugins. Such plugin files must be AMD modules
 and must implement the interface defined in the file
 
-        &lt;moodlehome&gt;/question/type/coderunner/amd/src/userinterfacewrapper.js
+        <moodlehome>/question/type/coderunner/amd/src/userinterfacewrapper.js
 
 Writing UI plugins is, however, not a job for the faint hearted.
 
