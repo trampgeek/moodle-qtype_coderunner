@@ -246,7 +246,7 @@ define(['jquery'], function($) {
             expectedCol=-1;
 
         table = diffButton.closest('div.coderunner-test-results');
-        thEls = table.find('th');
+        thEls = table.find('thead tr').children();
         tableRows = table.find('tbody tr');
 
         // Find 'Expected' and 'Got' columns.
