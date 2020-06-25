@@ -48,8 +48,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
-
 define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'], function($, util, elements) {
 
     /***********************************************************************
@@ -257,17 +255,20 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         if (this.readOnly) {
             return;
         }
-
+        
         if(key >= 0x20 &&
                   key <= 0x7E &&
                   !e.metaKey &&
                   !e.altKey &&
                   !e.ctrlKey &&
+                  key !== 37 &&  //Don't register arrow keys
+                  key !== 39 &&
                   this.selectedObject !== null &&
                   this.canEditText()) {
 
-            this.selectedObject.text += String.fromCharCode(key);
+            this.selectedObject.insertChar(String.fromCharCode(key));
             this.resetCaret();
+            this.selectedObject.caretPosition += 1;
             this.draw();
 
             // Don't let keys do their actions (like space scrolls down the page).
@@ -347,8 +348,9 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         }
 
         if(key === 8) { // Backspace key.
-            if(this.selectedObject !== null && this.canEditText()) {
-                this.selectedObject.text = this.selectedObject.text.substr(0, this.selectedObject.text.length - 1);
+            if(this.selectedObject !== null && this.canEditText() && this.selectedObject.caretPosition > 0) {
+                this.selectedObject.deleteChar();
+                this.selectedObject.caretPosition--;
                 this.resetCaret();
                 this.draw();
             }
@@ -377,6 +379,22 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
             if(this.selectedObject !== null) {
                 // Deselect the object.
                 this.selectedObject = null;
+                this.draw();
+            }
+        } else if(key === 37) { // Left arrow key
+            if(this.selectedObject !== null && this.canEditText()) {
+                if (this.selectedObject.caretPosition > 0) {
+                    this.selectedObject.caretPosition --;
+                }
+                this.resetCaret();
+                this.draw();
+                }
+        } else if(key === 39) { // Right arrow key
+            if(this.selectedObject !== null && this.canEditText()) {
+                if (this.selectedObject.caretPosition < this.selectedObject.text.length){
+                    this.selectedObject.caretPosition ++;
+                }
+                this.resetCaret();
                 this.draw();
             }
         }
@@ -556,6 +574,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
                     var node = new elements.Node(this, backupNodeLayout[0], backupNodeLayout[1]);
                     node.isAcceptState = backupNode[1];
                     node.text = backupNode[0].toString();
+                    node.caretPosition = node.text.length;
                     this.nodes.push(node);
                 }
 
@@ -580,6 +599,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
                         link.lineAngleAdjust = backupLinkLayout.lineAngleAdjust;
                     }
                     if(link !== null) {
+                        link.caretPosition = link.text.length;
                         this.links.push(link);
                     }
                 }
@@ -727,9 +747,15 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
             x = Math.round(x);
             y = Math.round(y);
             dy = Math.round(this.fontSize() / 3); // Don't understand this.
+            
             c.fillText(text, x, y + dy);
+            
+            // Draw caret
             if(theObject == this.selectedObject && this.caretVisible && this.hasFocus() && document.hasFocus()) {
-                x += width;
+                
+                // Set correct caret position
+                x += c.measureText(text.slice(0, theObject.caretPosition)).width;
+                
                 dy = Math.round(this.fontSize() / 2);
                 c.beginPath();
                 c.moveTo(x, y - dy);

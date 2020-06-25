@@ -61,6 +61,7 @@ define(['qtype_coderunner/graphutil'], function(util) {
         this.mouseOffsetY = 0;
         this.isAcceptState = false;
         this.text = '';
+        this.caretPosition = 0;
     }
 
     // At the start of a drag, record our position relative to the mouse.
@@ -149,6 +150,19 @@ define(['qtype_coderunner/graphutil'], function(util) {
         }
         return visited;
     };
+    
+    // Inserts a given character into the Node's text attribute
+    // at the Node's current caretPosition
+    Node.prototype.insertChar = function(char) {
+        this.text = this.text.slice(0, this.caretPosition) + char + this.text.slice(this.caretPosition);
+    }
+    
+    // Deletes the character in the Node's text attribute 
+    // that is located behind the Node's current caretPosition 
+    Node.prototype.deleteChar = function() {
+        if (this.caretPosition > 0)
+            this.text = this.text.slice(0, this.caretPosition - 1) + this.text.slice(this.caretPosition);
+    }
 
     /***********************************************************************
      *
@@ -161,6 +175,7 @@ define(['qtype_coderunner/graphutil'], function(util) {
         this.nodeB = b;
         this.text = '';
         this.lineAngleAdjust = 0; // Value to add to textAngle when link is straight line.
+        this.caretPosition = 0;
 
         // Make anchor point relative to the locations of nodeA and nodeB.
         this.parallelPart = 0.5;    // Percentage from nodeA to nodeB.
@@ -313,6 +328,19 @@ define(['qtype_coderunner/graphutil'], function(util) {
         }
         return false;
     };
+    
+    
+    // Inserts a given character into the Link's text attribute
+    // at the Link's current caretPosition
+    Link.prototype.insertChar = function(char) {
+        this.text = this.text.slice(0, this.caretPosition) + char + this.text.slice(this.caretPosition);
+    }
+    
+    // Deletes the character in the Link's text attribute 
+    // that is located behind the Link's current caretPosition 
+    Link.prototype.deleteChar = function() {
+        this.text = this.text.slice(0, this.caretPosition - 1) + this.text.slice(this.caretPosition);
+    }
 
     /***********************************************************************
      *
