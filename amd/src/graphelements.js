@@ -60,7 +60,7 @@ define(['qtype_coderunner/graphutil'], function(util) {
         this.mouseOffsetX = 0;
         this.mouseOffsetY = 0;
         this.isAcceptState = false;
-        this.text = '';
+        this.textBox = new TextBox('');
         this.caretPosition = 0;
     }
 
@@ -89,7 +89,7 @@ define(['qtype_coderunner/graphutil'], function(util) {
         c.stroke();
 
         // Draw the text.
-        this.parent.drawText(this.text, this.x, this.y, null, this);
+        this.textBox.draw(this.x, this.y, null, this);
 
         // Draw a double circle for an accept state.
         if(this.isAcceptState) {
@@ -150,19 +150,6 @@ define(['qtype_coderunner/graphutil'], function(util) {
         }
         return visited;
     };
-    
-    // Inserts a given character into the Node's text attribute
-    // at the Node's current caretPosition
-    Node.prototype.insertChar = function(char) {
-        this.text = this.text.slice(0, this.caretPosition) + char + this.text.slice(this.caretPosition);
-    }
-    
-    // Deletes the character in the Node's text attribute 
-    // that is located behind the Node's current caretPosition 
-    Node.prototype.deleteChar = function() {
-        if (this.caretPosition > 0)
-            this.text = this.text.slice(0, this.caretPosition - 1) + this.text.slice(this.caretPosition);
-    }
 
     /***********************************************************************
      *
@@ -173,7 +160,7 @@ define(['qtype_coderunner/graphutil'], function(util) {
         this.parent = parent;  // The parent ui_digraph instance.
         this.nodeA = a;
         this.nodeB = b;
-        this.text = '';
+        this.textBox = new TextBox('');
         this.lineAngleAdjust = 0; // Value to add to textAngle when link is straight line.
         this.caretPosition = 0;
 
@@ -284,12 +271,12 @@ define(['qtype_coderunner/graphutil'], function(util) {
             textAngle = (startAngle + endAngle) / 2 + linkInfo.isReversed * Math.PI;
             textX = linkInfo.circleX + linkInfo.circleRadius * Math.cos(textAngle);
             textY = linkInfo.circleY + linkInfo.circleRadius * Math.sin(textAngle);
-            this.parent.drawText(this.text, textX, textY, textAngle, this);
+            this.textBox.draw(textX, textY, textAngle, this);
         } else {
             textX = (linkInfo.startX + linkInfo.endX) / 2;
             textY = (linkInfo.startY + linkInfo.endY) / 2;
             textAngle = Math.atan2(linkInfo.endX - linkInfo.startX, linkInfo.startY - linkInfo.endY);
-            this.parent.drawText(this.text, textX, textY, textAngle + this.lineAngleAdjust, this);
+            this.textBox.draw(textX, textY, textAngle + this.lineAngleAdjust, this);
         }
     };
 
@@ -328,19 +315,6 @@ define(['qtype_coderunner/graphutil'], function(util) {
         }
         return false;
     };
-    
-    
-    // Inserts a given character into the Link's text attribute
-    // at the Link's current caretPosition
-    Link.prototype.insertChar = function(char) {
-        this.text = this.text.slice(0, this.caretPosition) + char + this.text.slice(this.caretPosition);
-    }
-    
-    // Deletes the character in the Link's text attribute 
-    // that is located behind the Link's current caretPosition 
-    Link.prototype.deleteChar = function() {
-        this.text = this.text.slice(0, this.caretPosition - 1) + this.text.slice(this.caretPosition);
-    }
 
     /***********************************************************************
      *
@@ -354,7 +328,7 @@ define(['qtype_coderunner/graphutil'], function(util) {
         this.node = node;
         this.anchorAngle = 0;
         this.mouseOffsetAngle = 0;
-        this.text = '';
+        this.textBox = new TextBox('');
 
         if(mouse) {
             this.setAnchorPoint(mouse.x, mouse.y);
@@ -414,7 +388,7 @@ define(['qtype_coderunner/graphutil'], function(util) {
         // Draw the text on the loop farthest from the node.
         var textX = linkInfo.circleX + linkInfo.circleRadius * Math.cos(this.anchorAngle);
         var textY = linkInfo.circleY + linkInfo.circleRadius * Math.sin(this.anchorAngle);
-        this.parent.drawText(this.text, textX, textY, this.anchorAngle, this);
+        this.textBox.draw(textX, textY, this.anchorAngle, this);
         // Draw the head of the arrow.
         this.parent.arrowIfReqd(c, linkInfo.endX, linkInfo.endY, linkInfo.endAngle + Math.PI * 0.4);
     };
@@ -572,6 +546,98 @@ define(['qtype_coderunner/graphutil'], function(util) {
             }
         }
     };
+    
+    /***********************************************************************
+     *
+     * Define a class TextBox for a possibly editable text box that might 
+     * be contained in another element
+     *
+     ***********************************************************************/
+     
+     function TextBox(text) {
+         this.text = text;
+         this.caretPosition = text.length;
+     }
+     
+    
+    // Inserts a given character into the TextBox at its current caretPosition
+    TextBox.prototype.insertChar = function(char) {
+        this.text = this.text.slice(0, this.caretPosition) + char + this.text.slice(this.caretPosition);
+        this.caretPosition ++;
+    }
+    
+    // Deletes the character in the TextBox that is located behind the current caretPosition 
+    TextBox.prototype.deleteChar = function() {
+        if (this.caretPosition > 0){
+            this.text = this.text.slice(0, this.caretPosition - 1) + this.text.slice(this.caretPosition);
+            this.caretPosition --;
+        }
+    }
+    
+    // Moves the TextBox's caret left one character if possible
+    TextBox.prototype.caretLeft = function() {
+        if (this.caretPosition > 0) {
+            this.caretPosition --;
+        }
+    }
+    
+    // Moves the TextBox's caret right one character if possible
+    TextBox.prototype.caretRight = function() {
+        if (this.caretPosition < this.text.length) {
+            this.caretPosition ++;
+        }
+    }
+    
+    
+    TextBox.prototype.draw = function(x, y, angleOrNull, parentObject) {
+        var graph = parentObject.parent,
+            c = graph.getCanvas().getContext('2d'),
+            text = util.convertLatexShortcuts(this.text),
+            width,
+            dy;
+
+        c.font = graph.fontSize() + 'px Arial';
+        width = c.measureText(text).width;
+
+        // Center the text.
+        x -= width / 2;
+
+        // Position the text intelligently if given an angle.
+        if(angleOrNull !== null) {
+            var cos = Math.cos(angleOrNull);
+            var sin = Math.sin(angleOrNull);
+            var cornerPointX = (width / 2 + graph.textOffset()) * (cos > 0 ? 1 : -1);
+            var cornerPointY = (10 + graph.textOffset()) * (sin > 0 ? 1 : -1);
+            var slide = sin * Math.pow(Math.abs(sin), 40) * cornerPointX - cos * Math.pow(Math.abs(cos), 10) * cornerPointY;
+            x += cornerPointX - sin * slide;
+            y += cornerPointY + cos * slide;
+        }
+
+        // Draw text and caret (round the coordinates so the caret falls on a pixel).
+        if('advancedFillText' in c) {
+            c.advancedFillText(text, this.text, x + width / 2, y, angleOrNull);
+        } else {
+            x = Math.round(x);
+            y = Math.round(y);
+            dy = Math.round(graph.fontSize() / 3); // Don't understand this.
+            
+            c.fillText(text, x, y + dy);
+            
+            // Draw caret
+            if(parentObject == graph.selectedObject && graph.caretVisible && graph.hasFocus() && document.hasFocus()) {
+                
+                // Set correct caret position
+                x += c.measureText(text.slice(0, this.caretPosition)).width;
+                
+                dy = Math.round(graph.fontSize() / 2);
+                c.beginPath();
+                c.moveTo(x, y - dy);
+                c.lineTo(x, y + dy);
+                c.stroke();
+            }
+        }
+    };
+     
 
     return {
         Node: Node,
@@ -579,6 +645,7 @@ define(['qtype_coderunner/graphutil'], function(util) {
         SelfLink: SelfLink,
         TemporaryLink: TemporaryLink,
         StartLink: StartLink,
-        HelpBox: HelpBox
+        HelpBox: HelpBox,
+        TextBox: TextBox
     };
 });

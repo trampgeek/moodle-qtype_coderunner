@@ -265,10 +265,8 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
                   key !== 39 &&
                   this.selectedObject !== null &&
                   this.canEditText()) {
-
-            this.selectedObject.insertChar(String.fromCharCode(key));
+            this.selectedObject.textBox.insertChar(String.fromCharCode(key));
             this.resetCaret();
-            this.selectedObject.caretPosition += 1;
             this.draw();
 
             // Don't let keys do their actions (like space scrolls down the page).
@@ -335,7 +333,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         var isNode = this.selectedObject instanceof elements.Node,
             isLink = (this.selectedObject instanceof elements.Link ||
                 this.selectedObject instanceof elements.SelfLink);
-        return 'text' in this.selectedObject &&
+        return 'textBox' in this.selectedObject &&
                ((isNode && !this.templateParams.locknodelabels) ||
                 (isLink && !this.templateParams.lockedgelabels));
     };
@@ -348,9 +346,8 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         }
 
         if(key === 8) { // Backspace key.
-            if(this.selectedObject !== null && this.canEditText() && this.selectedObject.caretPosition > 0) {
-                this.selectedObject.deleteChar();
-                this.selectedObject.caretPosition--;
+            if(this.selectedObject !== null && this.canEditText()) {
+                this.selectedObject.textBox.deleteChar();
                 this.resetCaret();
                 this.draw();
             }
@@ -383,17 +380,13 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
             }
         } else if(key === 37) { // Left arrow key
             if(this.selectedObject !== null && this.canEditText()) {
-                if (this.selectedObject.caretPosition > 0) {
-                    this.selectedObject.caretPosition --;
-                }
+                this.selectedObject.textBox.caretLeft();
                 this.resetCaret();
                 this.draw();
                 }
         } else if(key === 39) { // Right arrow key
             if(this.selectedObject !== null && this.canEditText()) {
-                if (this.selectedObject.caretPosition < this.selectedObject.text.length){
-                    this.selectedObject.caretPosition ++;
-                }
+                this.selectedObject.textBox.caretRight();
                 this.resetCaret();
                 this.draw();
             }
@@ -573,8 +566,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
                     var backupNodeLayout = backup.nodeGeometry[i];
                     var node = new elements.Node(this, backupNodeLayout[0], backupNodeLayout[1]);
                     node.isAcceptState = backupNode[1];
-                    node.text = backupNode[0].toString();
-                    node.caretPosition = node.text.length;
+                    node.textBox = new elements.TextBox(backupNode[0].toString());
                     this.nodes.push(node);
                 }
 
@@ -586,7 +578,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
                         // Self link has two identical nodes.
                         link = new elements.SelfLink(this, this.nodes[backupLink[0]]);
                         link.anchorAngle = backupLinkLayout.anchorAngle;
-                        link.text = backupLink[2].toString();
+                        link.textBox = new elements.TextBox(backupLink[2].toString());
                     } else if(backupLink[0] === -1) {
                         link = new elements.StartLink(this, this.nodes[backupLink[1]]);
                         link.deltaX = backupLinkLayout.deltaX;
@@ -595,15 +587,15 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
                         link = new elements.Link(this, this.nodes[backupLink[0]], this.nodes[backupLink[1]]);
                         link.parallelPart = backupLinkLayout.parallelPart;
                         link.perpendicularPart = backupLinkLayout.perpendicularPart;
-                        link.text = backupLink[2].toString();
+                        link.textBox = new elements.TextBox(backupLink[2].toString());
                         link.lineAngleAdjust = backupLinkLayout.lineAngleAdjust;
                     }
                     if(link !== null) {
-                        link.caretPosition = link.text.length;
                         this.links.push(link);
                     }
                 }
             } catch(e) {
+                console.log(e);
                 this.fail = true;
                 this.failString = 'graph_ui_invalidserialisation';
             }
@@ -627,7 +619,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         for(i = 0; i < this.nodes.length; i++) {
             var node = this.nodes[i];
 
-            var nodeData = [node.text, node.isAcceptState];
+            var nodeData = [node.textBox.text, node.isAcceptState];
             var nodeLayout = [node.x, node.y];
 
             backup.nodeGeometry.push(nodeLayout);
@@ -643,7 +635,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
                 linkLayout = {
                     'anchorAngle': link.anchorAngle,
                 };
-                linkData = [this.nodes.indexOf(link.node), this.nodes.indexOf(link.node), link.text];
+                linkData = [this.nodes.indexOf(link.node), this.nodes.indexOf(link.node), link.textBox.text];
             } else if(link instanceof elements.StartLink) {
                 linkLayout = {
                     'deltaX': link.deltaX,
@@ -656,7 +648,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
                     'parallelPart': link.parallelPart,
                     'perpendicularPart': link.perpendicularPart,
                 };
-                linkData = [this.nodes.indexOf(link.nodeA), this.nodes.indexOf(link.nodeB), link.text];
+                linkData = [this.nodes.indexOf(link.nodeA), this.nodes.indexOf(link.nodeB), link.textBox.text];
             }
             if(linkData !== null && linkLayout !== null) {
                 backup.edges.push(linkData);
@@ -715,54 +707,6 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
 
         c.restore();
         this.save();
-    };
-
-    Graph.prototype.drawText = function(originalText, x, y, angleOrNull, theObject) {
-        var c = this.getCanvas().getContext('2d'),
-            text = util.convertLatexShortcuts(originalText),
-            width,
-            dy;
-
-        c.font = this.fontSize() + 'px Arial';
-        width = c.measureText(text).width;
-
-        // Center the text.
-        x -= width / 2;
-
-        // Position the text intelligently if given an angle.
-        if(angleOrNull !== null) {
-            var cos = Math.cos(angleOrNull);
-            var sin = Math.sin(angleOrNull);
-            var cornerPointX = (width / 2 + this.textOffset()) * (cos > 0 ? 1 : -1);
-            var cornerPointY = (10 + this.textOffset()) * (sin > 0 ? 1 : -1);
-            var slide = sin * Math.pow(Math.abs(sin), 40) * cornerPointX - cos * Math.pow(Math.abs(cos), 10) * cornerPointY;
-            x += cornerPointX - sin * slide;
-            y += cornerPointY + cos * slide;
-        }
-
-        // Draw text and caret (round the coordinates so the caret falls on a pixel).
-        if('advancedFillText' in c) {
-            c.advancedFillText(text, originalText, x + width / 2, y, angleOrNull);
-        } else {
-            x = Math.round(x);
-            y = Math.round(y);
-            dy = Math.round(this.fontSize() / 3); // Don't understand this.
-            
-            c.fillText(text, x, y + dy);
-            
-            // Draw caret
-            if(theObject == this.selectedObject && this.caretVisible && this.hasFocus() && document.hasFocus()) {
-                
-                // Set correct caret position
-                x += c.measureText(text.slice(0, theObject.caretPosition)).width;
-                
-                dy = Math.round(this.fontSize() / 2);
-                c.beginPath();
-                c.moveTo(x, y - dy);
-                c.lineTo(x, y + dy);
-                c.stroke();
-            }
-        }
     };
 
     return {
