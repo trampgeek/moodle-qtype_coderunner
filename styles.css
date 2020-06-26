@@ -1,0 +1,379 @@
+/* Question and results page */
+
+.que.coderunner div.coderunner-examples,
+.que.coderunner div.coderunner-test-results {
+    width: 100%;
+    overflow-x: auto;
+    box-sizing: border-box;
+}
+
+#page-question-type-coderunner table.coderunner-test-results td,
+#page-question-type-coderunner table.coderunner-test-results th,
+.que.coderunner table.coderunner-test-results td,
+.que.coderunner table.coderunnerexamples td,
+.que.coderunner textarea.edit_code {
+    font-family:courier,monospace;
+    vertical-align: top;
+}
+
+.que.coderunner textarea.edit_code {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.que.coderunner div.coderunnerexamples {
+    padding-bottom: 10px;
+}
+
+#page-question-type-coderunner div.ui_wrapper,
+.que.coderunner div.ui_wrapper {
+    max-width: 100%;
+    box-sizing: border-box;
+    background-color: #F0F0F0;
+}
+
+.que.coderunner .ace_editor,
+body#page-question-type-coderunner .ace_editor {
+    font-size: 100%;
+    line-height: 18px;
+}
+
+.que.coderunner p.for-example-para {
+    font-weight: bold;
+}
+
+.que.coderunner div.coderunner-test-results {
+    padding: 0.5em;
+}
+
+.que.coderunner label.answerprompt {
+    font-weight: bold;
+}
+
+.que.coderunner div.prompt {
+    margin-top: 20px;
+    margin-bottom: 7px;
+}
+
+.que.coderunner div.coderunner-lang-select-div {
+    padding-top: 10px;
+    padding-bottom: 3px;
+}
+
+.que.coderunner select.coderunner-lang-select {
+    margin: 0px 0px 0px 10px;
+    padding: 1px 5px 1px 5px;
+}
+
+.que.coderunner input.answer_reset_btn {
+    margin-bottom: 5px;
+}
+
+#page-question-type-coderunner table.coderunner-test-results td,
+#page-question-type-coderunner table.coderunner-test-results th,
+.que.coderunner table.coderunner-test-results td,
+.que.coderunner table.coderunner-test-results th,
+.que.coderunner table.coderunnerexamples td,
+.que.coderunner table.coderunnerexamples th {
+    border: 1px solid #B0B0B0;
+    padding: 0.4em;
+}
+
+#page-question-type-coderunner table.coderunner-test-results .header,
+.que.coderunner table.coderunner-test-results .header,
+.que.coderunner table.coderunnerexamples .header {
+    text-align: left;
+    background-color: #F8F8FF;
+}
+
+.que.coderunner table.coderunner-test-results tr.hidden-test {
+    opacity: 0.5;
+}
+
+#page-question-type-coderunner table.coderunner-test-results {
+    margin-top: 0.5em;
+    margin-bottom: 0 em;
+}
+
+.que.coderunner table.coderunner-test-results,
+.que.coderunner table.coderunnerexamples {
+    margin-bottom: 1em;
+}
+
+#page-question-type-coderunner div.coderunner-test-results td:last-child,
+#page-question-type-coderunner div.coderunner-test-results td:first-child
+.que.coderunner div.coderunner-test-results td:last-child,
+.que.coderunner div.coderunner-test-results td:first-child {
+    min-width: 16px;
+}
+
+.que.coderunner textarea.coderunner-answer[cols] {
+    max-width: 100%;
+    width: auto;
+    line-height: 18px;
+}
+
+.que.coderunner div.coderunner-test-results {
+    color: black;
+}
+
+.que.coderunner div.precheck h3 {
+    margin: 3px 0;
+    font-size: 24px;
+    color: #333;
+}
+
+.que.coderunner pre.tablecell {
+    background-color: inherit;
+    border: none;
+    padding: 0px;
+    white-space: pre;
+}
+
+.que.coderunner div.coderunner-test-results pre,
+.que.coderunner div.coderunner-examples pre {
+    margin-bottom: 0px;
+}
+
+.que.coderunner div.coderunner-test-results.good,
+#page-question-type-coderunner tr.coderunner-failed-test.fixed {
+    background-color: #AAFFAA;
+}
+
+.que.coderunner div.coderunner-test-results.outputonly {
+    background-color: #F0F0F0;
+}
+
+.que.coderunner div.coderunner-test-results.good.precheck {
+    background: repeating-linear-gradient(0deg, #FFFFFF, #FFFFFF 8px, #f8f1f9 8px, #f8f1f9 16px);
+}
+
+.que.coderunner div.coderunner-test-results.bad,
+.que.coderunner div.pre_syntax_error,
+.que.coderunner div.pre_question_error {
+    background-color: #FFAAAA;
+}
+
+.que.coderunner div.coderunner-test-results.bad.precheck,
+.que.coderunner pre.pre_syntax_error .precheck {
+    background: repeating-linear-gradient(0deg, #FFDDDD, #FFDDDD 8px, #FFEEEE 8px, #FFEEEE 16px);
+}
+
+.que.coderunner pre.pre_syntax_error,
+.que.coderunner div.pre_question_error {
+    border: none;
+}
+
+div.coderunner-test-results.partial {
+    background-color: #FFF3BF;
+}
+
+.que.coderunner span.answerprompt {
+    font-weight: bold;
+}
+
+.que.coderunner span.penaltyregime {
+    padding-left: 0.6em;
+}
+
+/* Ins and del elements are used to show differences. ins elements are
+   always hidden and del elements are always displayed (without decoration),
+   but the background colour of del elements is toggled by the
+   Show/Hide differences button.
+*/
+.que.coderunner div.coderunner-test-results del {
+    text-decoration: none;
+    background-color: #E0E000;
+}
+
+/* Add lines I seem to have somehow overridden in styles.php */
+.que.coderunner tr.r0 td {
+    background-color:#F5F5F5
+}
+
+.que.coderunner tr.r1 td {
+    background-color:#E5E5E5
+}
+
+.que.coderunner div.im-controls p.penaltyregime {
+    display: inline;
+    float: right;
+}
+
+.que.coderunner .ace_wrapper {
+    border: 1px solid #d9edf7;
+}
+
+.que.coderunner .ace_gutter-cell {
+    border-right: solid 1px #000000;
+}
+
+.que.coderunner .ace_fold-widget {
+    background-color: transparent;
+    background-image: none;
+    border: none;
+}
+
+.que.coderunner .ace_fold-widget:hover {
+    border: 1px solid gray;
+    margin-top: 1px;
+}
+
+/* expand */
+.que.coderunner .ace_fold-widget.ace_closed::before {
+    content: '►';
+    color: gray;
+    font-size: 80%;
+    margin: 0 2px;
+    margin-top: -4px;
+}
+
+/* collapse */
+.que.coderunner .ace_fold-widget.ace_open::before {
+    content: '▼';
+    color: gray;
+    font-size: 60%;
+    margin: 0 2px;
+}
+
+.que.coderunner .ace_line .ace_fold {
+    padding-right: 1px;
+    line-height: 9px;
+}
+
+.que.coderunner .ace_line .ace_fold::before {
+    background-image: none;
+    content: '←→';
+    float: right;
+    margin-top: -1px;
+}
+
+/* Editing form. */
+body#page-question-type-coderunner div.edit_code textarea {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    font-family: courier, monospace;
+}
+
+body#page-question-type-coderunner div#id_qtype_coderunner_error_div:empty {
+    display: none;
+}
+
+body#page-question-type-coderunner div#id_qtype_coderunner_error_div {
+    font-size: 120%;
+    font-weight: bold;
+    color: red;
+    border: 2px solid red;
+    padding: 4px;
+}
+
+body#page-question-type-coderunner textarea#id_templateparams {
+    resize: both;
+}
+
+body#page-question-type-coderunner .ace_wrapper {
+    border: 1px solid #bbb;
+}
+
+body#page-question-type-coderunner div[id^=fitem_id_],
+body#page-question-type-coderunner div[id^=fgroup_id_] {
+    background: #EEE;
+    margin-bottom: 0;
+    margin-top: 0;
+    padding-bottom: 5px;
+    padding-top: 5px;
+    border: 1px solid #BBB;
+    border-top: 0;
+    border-bottom: 0;
+    overflow: visible;
+}
+
+body#page-question-type-coderunner label[for^=id_useasexample],
+body#page-question-type-coderunner label[for^=id_hiderestiffail],
+body#page-question-type-coderunner label.form-check
+{
+    padding: 5px;
+    border: 1px solid lightgray;
+}
+
+body#page-question-type-coderunner p.question-type-details-header {
+    font-size: 130%;
+    padding-botton: 10px;
+}
+
+body#page-question-type-coderunner div[id^=fgroup_id_][id*=show_columns]
+        .felement span {
+    margin-right: 2em;
+}
+
+body#page-question-type-coderunner div[id^=fgroup_id_][id*=show_columns] {
+    padding-top: 16px;
+    padding-bottom: 16px;
+}
+
+body#page-question-type-coderunner select#id_coderunner_type {
+    margin-right:2em;
+}
+
+body#page-question-type-coderunner div[id^=fitem_id_testcode]:not(:first-of-type) {
+    margin-top: 14px;
+    border: 1px solid #BBB;
+    border-bottom: 0;
+    padding-top: 8px;
+}
+
+body#page-question-type-coderunner div[id=fitem_id_addanswers] {
+    margin-top: 14px;
+    border: 1px solid #BBB;
+    padding-top: 8px;
+}
+
+body#page-question-type-coderunner input[name="usecurrentcat"] {
+    margin-right: 1px;
+    margin-left: 2em;
+}
+
+body#page-question-type-coderunner input[type="checkbox"]+label {
+    margin-right: 1em;
+}
+
+body#page-question-type-coderunner textarea.edit_code {
+    width: 100%;
+    box-sizing: border-box;
+    font-family: courier, monospace;
+}
+
+body#page-question-type-coderunner textarea.uiloadfailed {
+    border: 6px solid orange;
+}
+
+body#page-question-type-coderunner div.uiloadfailed {
+    background-color: orange;
+    padding-after: 0px;
+    padding-left: 10px;
+}
+
+body#page-question-type-coderunner input.testcasemark,
+body#page-question-type-coderunner input.coderunner_answerbox_size,
+body#page-question-type-coderunner input#id_cputimelimitsecs,
+body#page-question-type-coderunner input#id_memlimitmb {
+    width: auto;
+}
+
+body#page-question-type-coderunner label+select,
+body#page-question-type-coderunner label+input {
+    margin-right: 1em;
+}
+
+body#page-question-type-coderunner div.testcaseexpression {
+    padding-top: 10px;
+    border-top: 1px solid lightgrey;
+}
+
+/* Bulk tester */
+li.bulktest.coderunner.context.quiz {
+    padding-left: 1.5em;
+    list-style-type: none;
+}

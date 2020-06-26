@@ -1,0 +1,2545 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<quiz>
+<!-- question: 0  -->
+  <question type="category">
+    <category>
+        <text>Python Full Demo Quiz</text>
+
+    </category>
+  </question>
+
+<!-- question: 912  -->
+  <question type="coderunner">
+    <name>
+      <text>Car</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<p>The following question asks the students to write a Python3 class to a given specification. This can be done with any standard Python3 question type in which the student's code is followed by the per-test-case code. This particular example uses our COSC121 question type, which enforces pylint compatibility.</p><p>For those unfamiliar with Python classes, a possible solution is hidden in the following white panel - click and drag over it to see the code.</p><pre style="color:white; background-color:white">class Car:
+    """A class that represents a car with a model, a year
+       and a speed, plus accelerate and brake methods to
+       alter the speed, plus a honk_horn method.
+    """
+    def __init__(self, model, year, speed=0):
+        """Initialiser"""
+        self.model = model
+        self.year = year
+        self.speed = speed
+
+    def accelerate(self):
+        """Speed goes up by 5."""
+        self.speed += 5
+
+    def brake(self):
+        """Speed goes down by 5"""
+        self.speed = max(0, self.speed - 5)
+
+    def honk_horn(self):
+        """Print a beep-beep message"""
+        print("{} goes 'beep beep'".format(self.model))</pre>
+<hr>
+<h3>Exercise: My first car</h3>
+
+<p>Write a class named <code style="padding:2px;">Car</code> that has the following data attributes:</p>
+
+<ul>
+	<li>model (car's model, e.g. "Toyota")</li>
+	<li>year (car's manufacturing year , e.g "2000")</li>
+	<li>speed (car's current speed, in km/h)</li>
+</ul>
+
+<p>The <code style="padding:2px;">Car</code> class should have an <code style="padding:2px;">__init__</code> method (i.e., an initialiser) that accepts the car's <code style="padding:2px;">model</code>, <code style="padding:2px;">year</code>, and <code style="padding:2px;">speed</code> as arguments. These values should assigned to the object's <code style="padding:2px;">model,</code> <code style="padding:2px;">year</code>, and <code style="padding:2px;">speed</code> data attributes. If <code style="padding:2px;">speed</code> isn't specified, then it should automatically be set to 0.</p>
+
+<p>The class should also have the following methods:</p>
+
+<ul>
+	<li><code style="padding:2px;">accelerate</code> This method should add 5 to the <code style="padding:2px;">speed</code> data attribute each time it is called.</li>
+	<li><code style="padding:2px;">brake</code> This method should subtract 5 from the speed data attribute each time it is called. The speed should not go below 0, so if <code style="padding:2px;">brake()</code> is called when the speed is already 0, the speed should stay 0.</li>
+		<li><code style="padding:2px;">honk_horn</code> This method should print <code style="padding:2px;">{model} goes 'beep beep'</code>, where <code style="padding:2px;">{model}</code> is the object's model.</li>
+</ul>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>0.0000000</defaultgrade>
+    <penalty>0.0000000</penalty>
+    <hidden>0</hidden>
+    <coderunnertype>python3_cosc121</coderunnertype>
+    <prototypetype>0</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime>10, 20, ...</penaltyregime>
+    <precheck>1</precheck>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
+    <useace>1</useace>
+    <resultcolumns></resultcolumns>
+    <template></template>
+    <iscombinatortemplate></iscombinatortemplate>
+    <answer><![CDATA[class Car:
+    """A class that represents a car with a model, a year
+       and a speed, plus accelerate and brake methods to
+       alter the speed, plus a honk_horn method.
+    """
+    def __init__(self, model, year, speed=0):
+        """Initialiser"""
+        self.model = model
+        self.year = year
+        self.speed = speed
+
+    def accelerate(self):
+        """Speed goes up by 5."""
+        self.speed += 5
+
+    def brake(self):
+        """Speed goes down by 5"""
+        self.speed = max(0, self.speed - 5)
+
+    def honk_horn(self):
+        """Print a beep-beep message"""
+        print("{} goes 'beep beep'".format(self.model))]]></answer>
+    <validateonsave>1</validateonsave>
+    <testsplitterre></testsplitterre>
+    <language></language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader></grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams></templateparams>
+    <testcases>
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text><![CDATA[my_car = Car("Toyota", 1975)
+print(my_car.speed)]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>0</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text><![CDATA[my_car = Car("Zastava", 2001, 30)
+my_car.accelerate()
+my_car.accelerate()
+my_car.brake()
+print(my_car.speed)]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>35</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text><![CDATA[my_car = Car("Ford", 1993)
+my_car.accelerate()
+my_car.accelerate()
+my_car.accelerate()
+my_car.accelerate()
+my_car.accelerate()
+my_car.brake()
+print(my_car.speed)]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>20</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text><![CDATA[my_car = Car("Toyota", 2004, 50)
+my_car.accelerate()
+my_car.brake()
+print(my_car.speed)]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>50</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text><![CDATA[my_car = Car("Rust bucket", 1987)
+my_car.honk_horn()]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>Rust bucket goes 'beep beep'</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text><![CDATA[my_car = Car("Ford", 2001, 5)
+my_car.accelerate()
+my_car.brake()
+my_car.brake()
+my_car.brake()
+print(my_car.speed)]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>0</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+    </testcases>
+  </question>
+
+<!-- question: 1028  -->
+  <question type="coderunner">
+    <name>
+      <text><![CDATA[complex for -> while]]></text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<p>This question&nbsp;uses a capability of our standard <i>python3_cosc121</i> question type that allows the question author to specify, via template parameters, Python constructs that must not appear in the submitted code (<i>for</i>&nbsp;in this case) and also constructs that <i>must</i>&nbsp;appear (<i>while</i>&nbsp;in this case).</p>
+<hr>
+<p><b>The question</b></p>
+<p>Rewrite the following code, which uses <span style="font-family: 'courier new', courier, monospace;">for</span> loops, so that it uses <span style="font-family: 'courier new', courier, monospace;">while</span> loops instead. Your function must not use <i>any</i> for loops and must remain pylint compliant.</p>
+<pre>def print_names(people):
+    """ A function to print a list of people's names. The parameter
+        'people' is a list of people, where each person is represented
+        as a list of their names.
+    """
+    for person in people:
+        to_print = ""
+        for name in person:
+            to_print += name + " "
+        print(to_print)
+</pre>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.0000000</penalty>
+    <hidden>0</hidden>
+    <coderunnertype>python3_cosc121</coderunnertype>
+    <prototypetype>0</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime>10,20,...</penaltyregime>
+    <precheck>1</precheck>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
+    <useace>1</useace>
+    <resultcolumns></resultcolumns>
+    <template></template>
+    <iscombinatortemplate></iscombinatortemplate>
+    <answer><![CDATA[def print_names(people):
+    """A function to print a list of people's names. The parameter
+        people is a list that represents a person as a list of their
+        name.
+    """
+    i = 0
+    while i < len(people):
+        person = people[i]
+        to_print = ""
+        j = 0
+        while j < len(person):
+            name = person[j]
+            to_print += name + " "
+            j += 1
+        print(to_print)
+        i += 1]]></answer>
+    <validateonsave>1</validateonsave>
+    <testsplitterre></testsplitterre>
+    <language></language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader></grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams><![CDATA[{"requiredconstructs":["while"], "proscribedconstructs":["for"]}]]></templateparams>
+    <testcases>
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text>print_names([
+   ['John', 'Smith'],
+   ['Mary', 'Keyes'],
+   ['Jane', 'Doe'],
+   ['Angus']])</text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>John Smith
+Mary Keyes
+Jane Doe
+Angus</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text>print_names([
+    ['Bilbo', 'Baggins'],
+    ['Gollum'],
+    ['Tom', 'Bombadil'],
+    ['Aragorn']])
+</text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>Bilbo Baggins
+Gollum
+Tom Bombadil
+Aragorn </text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text>print_names([])</text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text></text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+    </testcases>
+  </question>
+
+<!-- question: 1054  -->
+  <question type="coderunner">
+    <name>
+      <text>Currency Converter</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<h4>Testing GUI programs</h4><p>Testing programs that involve any form of graphical output is fundamentally difficult in any environment. CodeRunner is no exception. However, we have made a couple of reasonably successful forays into the area.</p><p></p><ol><li>In Matlab we've written question asking students to plot graphs. These are graded either by replacing the graph-plotting functions with our own and checking the data passed to them or by inspecting the graph object generated by the standard built-in plotting functions.&nbsp;</li><li>In Python3 we've written a mock <i>tkinter</i> (or a very tiny subset of it -- the subset we teach at the end of COSC121) that is able to simulate rudimentary event handling and can then output a textual representation of the state of the tkinter GUI. The output is checked using the regular expression grader rather than the normal exact match grader; we check for major behavioural aspects, such as whether an expected value appears after a particular button is clicked, rather than the precise look and feel.<br></li></ol>This question involves the second of those question types.<p></p><p>Because tkinter is such a complex and ill-specified beast, students fairly frequently write programs that appear to work correctly but are marked wrong by CodeRunner's tkinter question type. For example, they might use tkinter features that we do not implement or they might use strange layouts with empty rows and column that collapse to nothing on screen. Mostly, though, students who program using just the methods and techniques that we teach in the course get marked right and we have found tkinter questions useful in both labs and exams. We never apply a resubmission penalty to tkinter questions and in exams we tell students to mark any question that is inexplicably being graded wrong with a flag and we then mark in by hand.</p><p>Below is an example of a tkinter question, used in a COSC121 lab. A possible answer is in the following textarea, which you can enlarge if you wish to peek at it.</p>
+<textarea rows="5" columns="90" style"color:="" white;="" background-color:white"="" style="margin: 0px 0px 10px; width: 677px; height: 60px;">'''A GUI-based currency converter program'''
+
+from tkinter import *
+from tkinter.ttk import *
+
+# The format for the label displaying
+DISPLAY = "${0:.2f} NZD is {1:.2f} {2}"
+
+class CurrencyConverterGUI(object):
+    """A class that represents the GUI for the currency converted"""
+
+    def __init__(self, window, currencies):
+        """Set up the GUI and the event handlers"""
+        self.window = window
+        self.currencies = currencies
+        Label(window, text="Currency Converter").grid(row=0, column=0)
+        Label(window, text="NZD amount:").grid(row=1, column=0)
+        Label(window, text="Convert to:").grid(row=2, column=0)
+        self.message = StringVar()
+        Label(window, textvariable=self.message).grid(row=3, column=0, columnspan=2)
+        self.nzd = StringVar()
+        self.nzd.set('0.0')
+        self.nzd.trace_variable('w', self.convert)
+        Entry(window, textvariable=self.nzd).grid(row=1, column=1)
+        self.selection = StringVar()
+        self.selection.set(sorted(currencies.keys())[0])
+        select = Combobox(window, values=sorted(currencies.keys()), textvariable=self.selection)
+        select.grid(row=2, column=1)
+        select.bind('&lt;&lt;ComboboxSelected&gt;&gt;', self.convert)
+        self.currencies = currencies
+        self.convert()  # Set the initial message
+
+
+    def convert(self, *rest):
+        '''Called when the text entry or the combo box changes.
+           Displays the converted currency in the display label.
+        '''
+        nzd_string = self.nzd.get().strip()
+        nzd = 0.0 if nzd_string == '' else float(nzd_string)
+        currency = self.selection.get()
+        rate = self.currencies[currency]
+        amount = nzd * rate
+        self.message.set(DISPLAY.format(nzd, amount, currency))
+
+
+
+def main():
+    '''The main function'''
+    european_currencies = {"Albanian Lek": 87.09,
+                           "British Pound Sterling": 0.49,
+                           "Euro":0.62,
+                           "Hungarian Forint": 193.26,
+                           "Kazakhstani Tenge": 143.74,
+                           "Norwegian Krone": 5.09,
+                           "Swiss Franc": 0.75,
+                           "Turkish Lira": 1.79}
+    window = Tk()
+    converterGUI = CurrencyConverterGUI(window, european_currencies)
+    window.mainloop()
+
+main()
+</textarea>
+<hr>
+<p><b>The question</b></p><p>You are to write a currency conversion application that converts from NZ dollars to one of a number of known currencies.</p>
+<p>Your application should look like the following: the image on the left shows the application when it first starts, and the image on the right shows the state after an amount of money has been entered and the currency changed. The application should use a grid with four rows and two columns. The text used in all labels must be exactly as shown, but the precise choice of font sizes, grid padding values and similar layout parameters is over to you.</p>
+<p>The label displaying the currency conversion &nbsp;should display the string '$0.00 NZD is 0.00 Albanian Lek' when the application is first launched and should be updated whenever the NZD amount&nbsp;<em>or</em> the currency changes.</p>
+<table border="0" cellpadding="20">
+<tbody>
+<tr>
+<td><img src="@@PLUGINFILE@@/tk_023.png" alt="" width="294" height="223"></td>
+<td><img src="@@PLUGINFILE@@/tk_025.png" alt="" width="294" height="223"></td>
+</tr>
+</tbody>
+</table>
+<p>&nbsp;</p>
+<p>[Your images may show uneven blue highlighting in the combobox; this is a Tk bug and can be ignored.]</p>
+<p>Your application should start with the following skeleton:</p>
+<pre>'''A GUI-based currency convertor program'''
+
+from tkinter import *
+from tkinter.ttk import *
+
+# The format for the label displaying
+DISPLAY = "${0:.2f} NZD is {1:.2f} {2}"
+
+class CurrencyConverterGUI(object):
+
+    def __init__(self, window, currencies):
+        pass  # Your code goes here
+
+
+    def convert(self, *rest):
+        '''Called when the text entry or the combo box changes.
+           Displays the converted currency in the display label.
+        '''
+        pass  # Your code goes here
+
+
+
+def main():
+    '''The main function'''
+    european_currencies = {"Albanian Lek": 87.09,
+                           "British Pound Sterling": 0.49,
+                           "Euro":0.62,
+                           "Hungarian Forint": 193.26,
+                           "Kazakhstani Tenge": 143.74,
+                           "Norwegian Krone": 5.09,
+                           "Swiss Franc": 0.75,
+                           "Turkish Lira": 1.79}
+    window = Tk()
+    converterGUI = CurrencyConverterGUI(window, european_currencies)
+    window.mainloop()
+
+main()
+</pre>]]></text>
+<file name="tk_021.png" path="/" encoding="base64">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</file>
+<file name="tk_022.png" path="/" encoding="base64">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</file>
+<file name="tk_023.png" path="/" encoding="base64">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</file>
+<file name="tk_025.png" path="/" encoding="base64">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</file>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.0000000</penalty>
+    <hidden>0</hidden>
+    <coderunnertype>python3_tkinter</coderunnertype>
+    <prototypetype>0</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime>0</penaltyregime>
+    <precheck>0</precheck>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
+    <useace>1</useace>
+    <resultcolumns></resultcolumns>
+    <template></template>
+    <iscombinatortemplate></iscombinatortemplate>
+    <answer><![CDATA['''A GUI-based currency converter program'''
+
+from tkinter import *
+from tkinter.ttk import *
+
+# The format for the label displaying
+DISPLAY = "${0:.2f} NZD is {1:.2f} {2}"
+
+class CurrencyConverterGUI(object):
+    """A class that represents the GUI for the currency converter"""
+
+    def __init__(self, window, currencies):
+        """Set up the GUI and the event handlers"""
+        self.window = window
+        self.currencies = currencies
+        Label(window, text="Currency Converter").grid(row=0, column=0)
+        Label(window, text="NZD amount:").grid(row=1, column=0)
+        Label(window, text="Convert to:").grid(row=2, column=0)
+        self.message = StringVar()
+        Label(window, textvariable=self.message).grid(row=3, column=0, columnspan=2)
+        self.nzd = StringVar()
+        self.nzd.set('0.0')
+        self.nzd.trace_variable('w', self.convert)
+        Entry(window, textvariable=self.nzd).grid(row=1, column=1)
+        self.selection = StringVar()
+        self.selection.set(sorted(currencies.keys())[0])
+        select = Combobox(window, values=sorted(currencies.keys()), textvariable=self.selection)
+        select.grid(row=2, column=1)
+        select.bind('<<ComboboxSelected>>', self.convert)
+        self.currencies = currencies
+        self.convert()  # Set the initial message
+
+
+    def convert(self, *rest):
+        '''Called when the text entry or the combo box changes.
+           Displays the converted currency in the display label.
+        '''
+        nzd_string = self.nzd.get().strip()
+        nzd = 0.0 if nzd_string == '' else float(nzd_string)
+        currency = self.selection.get()
+        rate = self.currencies[currency]
+        amount = nzd * rate
+        self.message.set(DISPLAY.format(nzd, amount, currency))
+
+
+
+def main():
+    '''The main function'''
+    european_currencies = {"Albanian Lek": 87.09,
+                           "British Pound Sterling": 0.49,
+                           "Euro":0.62,
+                           "Hungarian Forint": 193.26,
+                           "Kazakhstani Tenge": 143.74,
+                           "Norwegian Krone": 5.09,
+                           "Swiss Franc": 0.75,
+                           "Turkish Lira": 1.79}
+    window = Tk()
+    converterGUI = CurrencyConverterGUI(window, european_currencies)
+    window.mainloop()
+
+main()
+]]></answer>
+    <validateonsave>1</validateonsave>
+    <testsplitterre></testsplitterre>
+    <language></language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader></grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams></templateparams>
+    <testcases>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text>Check that the initial state contains
+labels 'Currency Converter', 'NZD amount',
+'Convert to' and '$0.00 NZD is 0.00 Albanian Lek'</text>
+      </testcode>
+      <stdin>
+                <text>getTk().display()</text>
+      </stdin>
+      <expected>
+                <text>Label.*Currency Converter.*Label.*NZD amount.*Label.*Convert to.*Label.*\$0\.00 NZD is 0\.00 Albanian Lek</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text>Check that changing the NZD amount to 12.60
+results in the line
+$12.60 NZD is 1097.33 Albanian Lek</text>
+      </testcode>
+      <stdin>
+                <text>getTk().text_entry(Selector(widget_type='Entry'), '12.60')
+getTk().display()</text>
+      </stdin>
+      <expected>
+                <text>\$12\.60 NZD is 1097\.33 Albanian Lek</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text>Check that changing the NZD amount to 12.60
+and then the combo box to Norwegian Krone
+results in the line
+$12.60 is 64.13 Norwegian Krone
+$12.60 NZD is 1097.33 Albanian Lek</text>
+      </testcode>
+      <stdin>
+                <text>getTk().text_entry(Selector(widget_type='Entry'), '12.60')
+getTk().combo_select(Selector(widget_type='Combobox'), 'Norwegian Krone')
+getTk().display()</text>
+      </stdin>
+      <expected>
+                <text>\$12\.60 NZD is 64.13 Norwegian Krone</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+    </testcases>
+  </question>
+
+<!-- question: 888  -->
+  <question type="coderunner">
+    <name>
+      <text>Process name</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<p>The following illustrates a trivial "write a program" question. This question does not use the <i>pylint</i>&nbsp;style checker, so a standard "script" approach, with global code is acceptable. A simple solution might be:<br></p><pre>name = input("What is your name? ")
+print("Welcome to CodeRunner, " + name + ".")
+print("May the force be with you.")
+</pre>
+<hr>
+<p>Write a python3 program that uses the <i>input()</i>&nbsp;function (with a prompt string as shown in the example below) to read a person's name from "standard input" (e.g. the keyboard), and then prints a two-line "Welcome to CodeRunner" message incorporating that name as shown in the example table below. Don't forget to include the periods at the end of the message lines and make sure you have exactly one space after the comma.&nbsp;</p><p>This question uses exact matching, so white space matters. If you can't see why your answer is being marked wrong, click the <i>Show differences</i>&nbsp;button.</p>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.0000000</penalty>
+    <hidden>0</hidden>
+    <coderunnertype>python3</coderunnertype>
+    <prototypetype>0</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime>0, 10, 20, ...</penaltyregime>
+    <precheck>0</precheck>
+    <showsource>0</showsource>
+    <answerboxlines>8</answerboxlines>
+    <answerboxcolumns>70</answerboxcolumns>
+    <answerpreload></answerpreload>
+    <useace>1</useace>
+    <resultcolumns></resultcolumns>
+    <template>__saved_input__ = input
+def input(prompt=''):
+    s = __saved_input__(prompt)
+    print(s)
+    return s
+
+{{STUDENT_ANSWER}}
+
+
+{{TEST.testcode}}</template>
+    <iscombinatortemplate>0</iscombinatortemplate>
+    <answer><![CDATA[name = input("What is your name? ")
+print("Welcome to CodeRunner, " + name + ".")
+print("May the force be with you.")
+]]></answer>
+    <validateonsave>1</validateonsave>
+    <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
+    <language></language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader>EqualityGrader</grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams></templateparams>
+    <testcases>
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text></text>
+      </testcode>
+      <stdin>
+                <text>Angus McGurkinshaw</text>
+      </stdin>
+      <expected>
+                <text>What is your name? Angus McGurkinshaw
+Welcome to CodeRunner, Angus McGurkinshaw.
+May the force be with you.</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text></text>
+      </testcode>
+      <stdin>
+                <text>Pope Pius IX</text>
+      </stdin>
+      <expected>
+                <text>What is your name? Pope Pius IX
+Welcome to CodeRunner, Pope Pius IX.
+May the force be with you.</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text></text>
+      </testcode>
+      <stdin>
+                <text>Rumplestiltskin</text>
+      </stdin>
+      <expected>
+                <text>What is your name? Rumplestiltskin
+Welcome to CodeRunner, Rumplestiltskin.
+May the force be with you.</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+    </testcases>
+  </question>
+
+<!-- question: 897  -->
+  <question type="coderunner">
+    <name>
+      <text>Process name (pylinted)</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<p></p>
+<h4>Enforcing <i>pylint</i>&nbsp;compliance</h4><p>In our introductory programming course, we usually run student-submitted code through the <i>pylint</i>&nbsp;style checker (see&nbsp;<a href="http://www.pylint.org/">http://www.pylint.org/</a>) before running it. To achieve this we use special extended question types that enforce pylint compliance and various other constraints, such as a limit on how many global constants can be used. Here is the previous question again, but this time requiring a pylint-compliant solution. You'll see that there's now a <i>Precheck</i>&nbsp;button, which gives you an unlimited number of penalty-free submissions to pylint before you click <i>Check</i>&nbsp;to see if your code passes the runtime checks.</p><p>A possible solution to the question is hidden in the following white box; click and drag over it to see the hidden text.</p><pre style="color:white; background-color:white;">'''This solution is pylint compliant'''
+def main():
+    '''The main function'''
+    name = input("What is your name? ")
+    print("Welcome to CodeRunner, " + name + ".")
+    print("May the force be with you.")
+
+main()</pre>
+<hr>
+<p><b>The question</b></p><p>Write a pylint-compliant python3 program that uses the <i>input()</i>&nbsp;function (with a prompt string as shown in the example below) to read a person's name from "standard input" (e.g. the keyboard), and then prints a two-line "Welcome to CodeRunner" message incorporating that name, as shown in the example table below. Don't forget to include the period at the end of the message and make sure you have exactly one space after the comma. [This question uses exact matching, so white space matters.]</p>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.0000000</penalty>
+    <hidden>0</hidden>
+    <coderunnertype>python3_cosc121</coderunnertype>
+    <prototypetype>0</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime>0, 10, 20, ...</penaltyregime>
+    <precheck>1</precheck>
+    <showsource>0</showsource>
+    <answerboxlines>8</answerboxlines>
+    <answerboxcolumns>70</answerboxcolumns>
+    <answerpreload></answerpreload>
+    <useace>1</useace>
+    <resultcolumns></resultcolumns>
+    <template></template>
+    <iscombinatortemplate></iscombinatortemplate>
+    <answer><![CDATA['''This solution is pylint compliant'''
+def main():
+    '''The main function'''
+    name = input("What is your name? ")
+    print("Welcome to CodeRunner, " + name + ".")
+    print("May the force be with you.")
+
+
+main()]]></answer>
+    <validateonsave>1</validateonsave>
+    <testsplitterre></testsplitterre>
+    <language></language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader></grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams><![CDATA[{"maxnumconstants": 0}]]></templateparams>
+    <testcases>
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text></text>
+      </testcode>
+      <stdin>
+                <text>Angus McGurkinshaw</text>
+      </stdin>
+      <expected>
+                <text>What is your name? Angus McGurkinshaw
+Welcome to CodeRunner, Angus McGurkinshaw.
+May the force be with you.</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text></text>
+      </testcode>
+      <stdin>
+                <text>Pope Pius IX</text>
+      </stdin>
+      <expected>
+                <text>What is your name? Pope Pius IX
+Welcome to CodeRunner, Pope Pius IX.
+May the force be with you.</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text></text>
+      </testcode>
+      <stdin>
+                <text>Rumplestiltskin</text>
+      </stdin>
+      <expected>
+                <text>What is your name? Rumplestiltskin
+Welcome to CodeRunner, Rumplestiltskin.
+May the force be with you.</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+    </testcases>
+  </question>
+
+<!-- question: 885  -->
+  <question type="coderunner">
+    <name>
+      <text>Python function that prints: print_squares</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<h4 style="margin-bottom: 0cm;">A function that prints</h4><p><br></p><p>A common problem for students learning Python is the distinction between functions that return a value ("true" functions) and functions that print output and (preferably) don't return a value ("procedures"). This is an example of the latter.</p><p style="margin-bottom: 0cm;">Write a Python3 function <span style="font-family: 'courier new', 'courier', monospace;">print_sqrs_1_to_n(n)</span>&nbsp;that takes <span style="font-style: normal;">a single positive integer as a parameter and <strong>prints</strong> a table of all integers and their squares from 1 up to and including <span style="font-family: 'courier new', 'courier', monospace;">n</span>, formatted as below. The output from your function, when called with the code in the Test column, should be exactly as shown in the Result column.</span></p><p>The penalty regime for this question is 5, 15, 25, ... i.e., there is a 5% penalty for the first wrong submission but the penalty thereafter rises by 10% for each wrong submission.</p>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.0000000</penalty>
+    <hidden>0</hidden>
+    <coderunnertype>python3</coderunnertype>
+    <prototypetype>0</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime>5, 10, 20, ...</penaltyregime>
+    <precheck>0</precheck>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
+    <useace>1</useace>
+    <resultcolumns></resultcolumns>
+    <template></template>
+    <iscombinatortemplate></iscombinatortemplate>
+    <answer><![CDATA[def print_sqrs_1_to_n(n):
+    """ Print a display of the squares of all numbers from 1 to
+        the given parameter n.
+    """
+    for i in range(1, n + 1):
+        print("{0} * {0} = {1}".format(i, i * i))]]></answer>
+    <validateonsave>1</validateonsave>
+    <testsplitterre></testsplitterre>
+    <language></language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader></grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams></templateparams>
+    <testcases>
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text>print_sqrs_1_to_n(5)</text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>1 * 1 = 1
+2 * 2 = 4
+3 * 3 = 9
+4 * 4 = 16
+5 * 5 = 25</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text>print_sqrs_1_to_n(3)</text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>1 * 1 = 1
+2 * 2 = 4
+3 * 3 = 9</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text>print_sqrs_1_to_n(1)</text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>1 * 1 = 1</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text>print_sqrs_1_to_n(10)</text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>1 * 1 = 1
+2 * 2 = 4
+3 * 3 = 9
+4 * 4 = 16
+5 * 5 = 25
+6 * 6 = 36
+7 * 7 = 49
+8 * 8 = 64
+9 * 9 = 81
+10 * 10 = 100</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+    </testcases>
+  </question>
+
+<!-- question: 886  -->
+  <question type="coderunner">
+    <name>
+      <text>RLE</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<h4>A more-challenging function</h4><p>Sequences of numbers in which there are frequent "runs" of a particular number repeating several times can often be more compactly represented by use of what is called "run length encoding". A list is run-length encoded by representing it as a list of pairs (2-tuples), where each pair is a number and the length of the "run" of that number, where the length is 1 if a number occurs once, 2 if it occurs twice in a row, etc. Write a function <em>run_length_encode(nums)</em>&nbsp;that returns the run-length encoded representation of the list of integers, <em>nums</em>.</p>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.0000000</penalty>
+    <hidden>0</hidden>
+    <coderunnertype>python3</coderunnertype>
+    <prototypetype>0</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime>10, 20, ...</penaltyregime>
+    <precheck>0</precheck>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
+    <useace>1</useace>
+    <resultcolumns></resultcolumns>
+    <template></template>
+    <iscombinatortemplate></iscombinatortemplate>
+    <answer><![CDATA[def run_length_encode(nums):
+    """Return the run-length-encoded representation of the
+       list of ints in 'nums'.
+    """
+    result = []
+    current = None
+    count = 0
+    for num in nums:
+        if num == current:
+            count += 1
+        else:
+            if current is not None:
+               result.append((current, count))
+            current = num
+            count = 1
+    if current is not None:
+        result.append((current, count))
+    return result]]></answer>
+    <validateonsave>1</validateonsave>
+    <testsplitterre></testsplitterre>
+    <language></language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader></grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams></templateparams>
+    <testcases>
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text>data = [5,5,5,10,10]
+print(run_length_encode(data))</text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>[(5, 3), (10, 2)]</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text>data = [10, 20, 30, 30, 30, 30]
+print(run_length_encode(data))</text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>[(10, 1), (20, 1), (30, 4)]</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text>print(run_length_encode([1]))</text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>[(1, 1)]</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text>print(run_length_encode([]))</text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>[]</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text>data = [-1, -1, -2, -2, -2, -3, -3, -3, -3]
+print(run_length_encode(data))</text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>[(-1, 2), (-2, 3), (-3, 4)]</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text>data = [-1, -1, -2, -2, -2, -3, -3, -3]
+print(run_length_encode(data))</text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>[(-1, 2), (-2, 3), (-3, 3)]</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>HIDE</text>
+      </display>
+    </testcase>
+    </testcases>
+  </question>
+
+<!-- question: 900  -->
+  <question type="coderunner">
+    <name>
+      <text>Skool-z-Kool</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<p>And now a more-significant example of a write-a-program question. This one is not pylint checked.&nbsp;</p><p>Normally in assignment questions of this sort we would show the students only the first failing test case, but in this tutorial introduction all are shown.</p><hr><p><span style="color: inherit; font-family: inherit; font-size: 28px; font-weight: bold; line-height: 40px;">Shapes</span><br></p>
+<p>Welcome to Skool-z-Kool, a non-profit organisation that intends to develop simple Python programs for use by school children. The programs will have a dual role: they will be used to teach the younger children simple educational concepts, but will also be used as example programs for older children learning to program in Python.</p>
+<p>As an enthusiastic volunteer, you have been invited to write a program to introduce young children to some different 2D geometric shapes. Your mentor has suggested that as a pilot study, you write a program dealing with just two shapes: squares and triangles. Both shapes will be drawn on the terminal as a pattern of asterisks (ie, *'s). The program first asks the user what shape is to be drawn, then asks whether the shape should be drawn filled or unfilled, and finally asks for the size. The required shape is then drawn and the program exits.</p>
+<h3>Input</h3>
+<p>The program reads three responses from the user (i.e. "standard input") as follows:</p>
+<p>1. The shape to draw is requested from the user with the prompt <span style="font-family: 'courier new', 'courier', monospace;">"Enter shape to draw: "</span>.&nbsp;<em>Note that the prompt has a space after the colon.</em></p>
+<p style="padding-left: 30px;">The only two acceptable inputs, which must be treated case-insensitively, are <span style="font-family: 'courier new', 'courier', monospace;">"square"</span> and <span style="font-family: 'courier new', 'courier', monospace;">"triangle"</span>. Any other response results in the error message <span style="font-family: 'courier new', 'courier', monospace;">"Invalid input. Try again."</span> and the prompt for input is repeated. This continues until a valid response is received.&nbsp;</p>
+<p>2. The program then prompts the user with <span style="font-family: 'courier new', 'courier', monospace;">"Filled or unfilled? "</span> <em>(Note the space after the question mark)</em>.</p>
+<p style="padding-left: 30px;">The user must enter (case-insensitively) either <span style="font-family: 'courier new', 'courier', monospace;">"filled"</span>&nbsp;or <span style="font-family: 'courier new', 'courier', monospace;">"unfilled"</span>; anything else results in the error message <span style="font-family: 'courier new', 'courier', monospace;">"Invalid input. Try again."</span> and the prompt for input is repeated, continuing until valid input is received.</p>
+<p>3. The program lastly prompts the user for <span style="font-family: 'courier new', 'courier', monospace;">"Size: "</span> (with a space after the colon).</p>
+<p style="padding-left: 30px;">A response in the range 1 to 100 inclusive is expected. Anything else gives the error message <span style="font-family: 'courier new', 'courier', monospace;">"Invalid input. Try again." </span>and repeats until a valid input is received.</p>
+<h3>Output details</h3>
+<p>Apart from the prompts and error messages as above, the output from the program is either</p>
+<ol>
+<li>a square of asterisks of the given size, unfilled or filled as in the examples below, or</li>
+<li>a right-angled triangle with height and base-width of the given size and a vertical left-hand edge, unfilled or filled, as shown below.</li>
+</ol>
+<p>The output shape must be preceded by one extra blank line, following the final size prompt line.</p>
+<p>For example, a typical run of the program might be:</p>
+<p><tt>Enter shape to draw: <span style="text-decoration: underline;"><em>sqare</em></span><br>Invalid input. Try again.<br> Enter shape to draw: <span style="text-decoration: underline;"><em>square</em></span><br>Filled or unfilled? <span style="text-decoration: underline;"><em>unfilled</em></span><br> Size: <span style="text-decoration: underline;"><em>4</em></span></tt></p>
+<pre>****
+*  *
+*  *
+****
+</pre>
+<p>Note that in the example output above, the input that is typed by the interactive user is shown in underlined italics. In the examples and test output it is shown in plain text.</p><p>The penalty regime for this question is 10%, 20%, ..., i.e. there is a cumulative 10% penalty for each wrong failing submission, including the first.<br></p><h3 style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: rgb(51, 51, 51);">Design hint</h3><p>You are strongly encouraged to write separate functions for reading the input (possibly multiple such functions), for displaying a square and for displaying a triangle. Your main function can then call those functions.</p>
+<p><span style="color: inherit; font-family: inherit; font-size: 24px; font-weight: bold; line-height: 40px;">Sample Output</span><br></p>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.0000000</penalty>
+    <hidden>0</hidden>
+    <coderunnertype>python3</coderunnertype>
+    <prototypetype>0</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime>10,20,...</penaltyregime>
+    <precheck>0</precheck>
+    <showsource>0</showsource>
+    <answerboxlines>40</answerboxlines>
+    <answerboxcolumns>90</answerboxcolumns>
+    <answerpreload></answerpreload>
+    <useace>1</useace>
+    <resultcolumns></resultcolumns>
+    <template><![CDATA[__saved_input__ = input
+def input(prompt=""):
+    result = __saved_input__(prompt)
+    print(result)
+    return result
+
+{{STUDENT_ANSWER}}
+
+__student_answer__ = """{{ ESCAPED_STUDENT_ANSWER }}"""
+
+{{TEST.testcode}}]]></template>
+    <iscombinatortemplate>0</iscombinatortemplate>
+    <answer><![CDATA["""A possible solution to Skool-is-Kool"""
+
+def get_word(prompt, valid_responses):
+    """Read text from the user, using the given prompt.
+       The response must be in valid_responses; if not,
+       an 'invalid response' message is issued and the
+       user is reprompted.
+    """
+    result = input(prompt).lower()
+    while result not in valid_responses:
+        print('Invalid input. Try again.')
+        result = input(prompt).lower()
+    return result
+
+
+def draw_square(size, filling):
+    """ Draw a square, filled or unfilled according to whether filling is
+        "filled" or not, of the given size.
+    """
+    for row in range(size):
+        if row == 0 or row == size - 1 or filling == "filled":
+            print(size * '*')
+        elif size == 1:
+            print('*')
+        else:
+            print('*' + (size - 2) * ' ' + '*')
+
+
+def draw_triangle(size, filling):
+    """ Draw a triangle, filled or unfilled according to whether filling is
+        "filled" or not, of the given size.
+    """
+    for row in range(size):
+        line_length = row + 1
+        if line_length == 1 or line_length == size or filling == "filled":
+            print(line_length * '*')
+        else:
+            print('*' + (line_length - 2) * ' ' + '*')
+
+
+def draw_shape():
+    """Ask the user for a shape, its size and whether it's
+       filled. Draw the shape.
+    """
+    shape = get_word('Enter shape to draw: ', ['triangle', 'square'])
+    filling = get_word('Filled or unfilled? ', ['filled', 'unfilled'])
+    size = int(get_word('Size: ', [str(n) for n in range(1, 101)]))
+    print()   # Blank line required
+    if shape == 'square':
+        draw_square(size, filling)
+    elif shape == 'triangle':
+        draw_triangle(size, filling)
+    else:
+        assert False
+
+
+draw_shape()
+]]></answer>
+    <validateonsave>1</validateonsave>
+    <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
+    <language></language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader>EqualityGrader</grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams>{"isfunction": false}</templateparams>
+    <testcases>
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text></text>
+      </testcode>
+      <stdin>
+                <text>square
+filled
+5</text>
+      </stdin>
+      <expected>
+                <text>Enter shape to draw: square
+Filled or unfilled? filled
+Size: 5
+
+*****
+*****
+*****
+*****
+*****
+</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text></text>
+      </testcode>
+      <stdin>
+                <text>Square
+unfilled
+4</text>
+      </stdin>
+      <expected>
+                <text>Enter shape to draw: Square
+Filled or unfilled? unfilled
+Size: 4
+
+****
+*  *
+*  *
+****</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text></text>
+      </testcode>
+      <stdin>
+                <text>TRIANGLE
+UNFILLED
+5</text>
+      </stdin>
+      <expected>
+                <text>Enter shape to draw: TRIANGLE
+Filled or unfilled? UNFILLED
+Size: 5
+
+*
+**
+* *
+*  *
+*****</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text></text>
+      </testcode>
+      <stdin>
+                <text>Sqare
+Square
+Filed
+Filled
+200
+-1
+1</text>
+      </stdin>
+      <expected>
+                <text>Enter shape to draw: Sqare
+Invalid input. Try again.
+Enter shape to draw: Square
+Filled or unfilled? Filed
+Invalid input. Try again.
+Filled or unfilled? Filled
+Size: 200
+Invalid input. Try again.
+Size: -1
+Invalid input. Try again.
+Size: 1
+
+*</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text></text>
+      </testcode>
+      <stdin>
+                <text>triangle
+filled
+1</text>
+      </stdin>
+      <expected>
+                <text>Enter shape to draw: triangle
+Filled or unfilled? filled
+Size: 1
+
+*</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text></text>
+      </testcode>
+      <stdin>
+                <text>triangle
+unfilled
+1</text>
+      </stdin>
+      <expected>
+                <text>Enter shape to draw: triangle
+Filled or unfilled? unfilled
+Size: 1
+
+*</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text></text>
+      </testcode>
+      <stdin>
+                <text>square
+unfilled
+1</text>
+      </stdin>
+      <expected>
+                <text>Enter shape to draw: square
+Filled or unfilled? unfilled
+Size: 1
+
+*</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text></text>
+      </testcode>
+      <stdin>
+                <text>square
+unfilled
+2</text>
+      </stdin>
+      <expected>
+                <text>Enter shape to draw: square
+Filled or unfilled? unfilled
+Size: 2
+
+**
+**</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text></text>
+      </testcode>
+      <stdin>
+                <text>square
+filled
+2</text>
+      </stdin>
+      <expected>
+                <text>Enter shape to draw: square
+Filled or unfilled? filled
+Size: 2
+
+**
+**</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text></text>
+      </testcode>
+      <stdin>
+                <text>triangle
+filled
+2</text>
+      </stdin>
+      <expected>
+                <text>Enter shape to draw: triangle
+Filled or unfilled? filled
+Size: 2
+
+*
+**</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text></text>
+      </testcode>
+      <stdin>
+                <text>triangle
+unfilled
+2</text>
+      </stdin>
+      <expected>
+                <text>Enter shape to draw: triangle
+Filled or unfilled? unfilled
+Size: 2
+
+*
+**</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text></text>
+      </testcode>
+      <stdin>
+                <text>square
+Unfilled
+5</text>
+      </stdin>
+      <expected>
+                <text>Enter shape to draw: square
+Filled or unfilled? Unfilled
+Size: 5
+
+*****
+*   *
+*   *
+*   *
+*****</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+    </testcases>
+  </question>
+
+<!-- question: 902  -->
+  <question type="coderunner">
+    <name>
+      <text>Skool-z-Kool Take 2</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<p>This is a variant of the Skool-z-Kool (a.k.a. "Shapes") program in which the students are provided with a skeleton version of the code. The behaviour of the program as a whole is tested, and also the behaviour of the functions specified in the skeleton (albeit somewhat superficially). <i>pylint</i>&nbsp;checking is also turned on.</p><p>In this question, students are shown only those test cases in the example table plus just the first failing test case, in order to reduce the amount of output displayed for wrong answers.</p><p>The advantage of this all-in-one approach is that students get a clearer view of the program as a whole, right from the start. The disadvantage is the increased complexity of the result table presented to the student. Also, students will not get any marks until they have the whole program working (although the question author could turn off "all-or-nothing" if they chose). If the question is broken into three separate questions that test the support functions followed by a question testing the main function, students will earn marks at each step they get working.</p><hr><p><span style="color: inherit; font-family: inherit; font-size: 28px; font-weight: bold; line-height: 40px;">Shapes</span><br></p>
+<p>Welcome to Skool-z-Kool, a non-profit organisation that intends to develop simple Python programs for use by school children. The programs will have a dual role: they will be used to teach the younger children simple educational concepts, but will also be used as example programs for older children learning to program in Python.</p>
+<p>As an enthusiastic volunteer, you have been invited to write a program to introduce young children to some different 2D geometric shapes. Your mentor has suggested that as a pilot study, you write a program dealing with just two shapes: squares and triangles. Both shapes will be drawn on the terminal as a pattern of asterisks (ie, *'s). The program first asks the user what shape is to be drawn, then asks whether the shape should be drawn filled or unfilled, and finally asks for the size. The required shape is then drawn and the program exits.</p>
+<h3>Input</h3>
+<p>The program reads three responses from the user (i.e. "standard input") as follows:</p>
+<p>1. The shape to draw is requested from the user with the prompt <span style="font-family: 'courier new', 'courier', monospace;">"Enter shape to draw: "</span>.&nbsp;<em>Note that the prompt has a space after the colon.</em></p>
+<p style="padding-left: 30px;">The only two acceptable inputs, which must be treated case-insensitively, are <span style="font-family: 'courier new', 'courier', monospace;">"square"</span> and <span style="font-family: 'courier new', 'courier', monospace;">"triangle"</span>. Any other response results in the error message <span style="font-family: 'courier new', 'courier', monospace;">"Invalid input. Try again."</span> and the prompt for input is repeated. This continues until a valid response is received.&nbsp;</p>
+<p>2. The program then prompts the user with <span style="font-family: 'courier new', 'courier', monospace;">"Filled or unfilled? "</span> <em>(Note the space after the question mark)</em>.</p>
+<p style="padding-left: 30px;">The user must enter (case-insensitively) either <span style="font-family: 'courier new', 'courier', monospace;">"filled"</span>&nbsp;or <span style="font-family: 'courier new', 'courier', monospace;">"unfilled"</span>; anything else results in the error message <span style="font-family: 'courier new', 'courier', monospace;">"Invalid input. Try again."</span> and the prompt for input is repeated, continuing until valid input is received.</p>
+<p>3. The program lastly prompts the user for <span style="font-family: 'courier new', 'courier', monospace;">"Size: "</span> (with a space after the colon).</p>
+<p style="padding-left: 30px;">A response in the range 1 to 100 inclusive is expected. Anything else gives the error message <span style="font-family: 'courier new', 'courier', monospace;">"Invalid input. Try again." </span>and repeats until a valid input is received.</p>
+<h3>Output details</h3>
+<p>Apart from the prompts and error messages as above, the output from the program is either</p>
+<ol>
+<li>a square of asterisks of the given size, unfilled or filled as in the examples below, or</li>
+<li>a right-angled triangle with height and base-width of the given size and a vertical left-hand edge, unfilled or filled, as shown below.</li>
+</ol>
+<p>The output shape must be preceded by one extra blank line, following the final size prompt line.</p>
+<p>For example, a typical run of the program might be:</p>
+<p><tt>Enter shape to draw: <span style="text-decoration: underline;"><em>sqare</em></span><br>Invalid input. Try again.<br> Enter shape to draw: <span style="text-decoration: underline;"><em>square</em></span><br>Filled or unfilled? <span style="text-decoration: underline;"><em>unfilled</em></span><br> Size: <span style="text-decoration: underline;"><em>4</em></span></tt></p>
+<pre>****
+*  *
+*  *
+****
+</pre>
+<p>Note that in the example output above, the input that is typed by the interactive user is shown in underlined italics. In the examples and test output it is shown in plain text.</p><p>The penalty regime for this question is 10%, 20%, ..., i.e. there is a cumulative 10% penalty for each wrong failing submission, including the first.<br></p><h3 style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: rgb(51, 51, 51);">
+Program Design&nbsp;</h3><p>Your program <i>must</i>&nbsp;be of the following form.</p>
+<pre>"""A solution to the "shapes" question.
+   Author: your-name-goes-here
+   Date: current-date-goes=here"""
+
+# **** OTHER SUPPORT FUNCTIONS GO HERE IF YOU WISH ****
+
+def get_word(prompt, valid_responses):
+    """Read text from the user, using the given prompt.
+       The response must be in valid_responses; if not,
+       an 'Invalid input. Try again.' message is issued and the
+       user is re-prompted.
+    """
+   # *** YOUR CODE GOES HERE ***
+
+
+def draw_square(size, filling):
+    """ Draw a square, filled or unfilled according to whether filling has
+        the value "filled" or not, of the given size.
+    """
+   # *** YOUR CODE GOES HERE ***
+
+
+def draw_triangle(size, filling):
+    """ Draw a triangle, filled or unfilled according to whether filling has
+        the value "filled" or not, of the given size.
+    """
+    # *** YOUR CODE GOES HERE ***
+
+
+def main():
+    """Ask the user for a shape, its size and whether it's
+       filled. Draw the shape.
+    """
+    # *** YOUR CODE GOES HERE ***
+
+
+main()</pre>
+<p><span style="color: inherit; font-family: inherit; font-size: 24px; font-weight: bold; line-height: 40px;">Sample Output</span><br></p>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.0000000</penalty>
+    <hidden>0</hidden>
+    <coderunnertype>python3_cosc121</coderunnertype>
+    <prototypetype>0</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime>10,20,...</penaltyregime>
+    <precheck>0</precheck>
+    <showsource>0</showsource>
+    <answerboxlines>40</answerboxlines>
+    <answerboxcolumns>90</answerboxcolumns>
+    <answerpreload></answerpreload>
+    <useace>1</useace>
+    <resultcolumns></resultcolumns>
+    <template></template>
+    <iscombinatortemplate></iscombinatortemplate>
+    <answer><![CDATA["""A possible solution to Skool-is-Kool"""
+
+def get_word(prompt, valid_responses):
+    """Read text from the user, using the given prompt.
+       The response must be in valid_responses; if not,
+       an 'invalid response' message is issued and the
+       user is reprompted.
+    """
+    result = input(prompt).lower()
+    while result not in valid_responses:
+        print('Invalid input. Try again.')
+        result = input(prompt).lower()
+    return result
+
+
+def draw_square(size, filling):
+    """ Draw a square, filled or unfilled according to whether filling is
+        "filled" or not, of the given size.
+    """
+    for row in range(size):
+        if row == 0 or row == size - 1 or filling == "filled":
+            print(size * '*')
+        elif size == 1:
+            print('*')
+        else:
+            print('*' + (size - 2) * ' ' + '*')
+
+
+def draw_triangle(size, filling):
+    """ Draw a triangle, filled or unfilled according to whether filling is
+        "filled" or not, of the given size.
+    """
+    for row in range(size):
+        line_length = row + 1
+        if line_length == 1 or line_length == size or filling == "filled":
+            print(line_length * '*')
+        else:
+            print('*' + (line_length - 2) * ' ' + '*')
+
+
+def draw_shape():
+    """Ask the user for a shape, its size and whether it's
+       filled. Draw the shape.
+    """
+    shape = get_word('Enter shape to draw: ', ['triangle', 'square'])
+    filling = get_word('Filled or unfilled? ', ['filled', 'unfilled'])
+    size = int(get_word('Size: ', [str(n) for n in range(1, 101)]))
+    print()   # Blank line required
+    if shape == 'square':
+        draw_square(size, filling)
+    elif shape == 'triangle':
+        draw_triangle(size, filling)
+    else:
+        assert False
+
+def main():
+    """Call the shape drawing function"""
+    draw_shape()
+
+main()
+]]></answer>
+    <validateonsave>1</validateonsave>
+    <testsplitterre></testsplitterre>
+    <language></language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader></grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams><![CDATA[{"stripmain":true, "runextra":true, "isfunction":false}]]></templateparams>
+    <testcases>
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text># Testing your program
+# as a whole</text>
+      </testcode>
+      <stdin>
+                <text>square
+filled
+5</text>
+      </stdin>
+      <expected>
+                <text>Enter shape to draw: square
+Filled or unfilled? filled
+Size: 5
+
+*****
+*****
+*****
+*****
+*****
+</text>
+      </expected>
+      <extra>
+                <text>main()</text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text># Testing your program
+# as a whole</text>
+      </testcode>
+      <stdin>
+                <text>TRIANGLE
+UNFILLED
+5</text>
+      </stdin>
+      <expected>
+                <text>Enter shape to draw: TRIANGLE
+Filled or unfilled? UNFILLED
+Size: 5
+
+*
+**
+* *
+*  *
+*****</text>
+      </expected>
+      <extra>
+                <text>main()</text>
+      </extra>
+      <display>
+                <text>HIDE_IF_SUCCEED</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text># Testing your program
+# as a whole</text>
+      </testcode>
+      <stdin>
+                <text>Sqare
+Square
+Filed
+Filled
+200
+-1
+1</text>
+      </stdin>
+      <expected>
+                <text>Enter shape to draw: Sqare
+Invalid input. Try again.
+Enter shape to draw: Square
+Filled or unfilled? Filed
+Invalid input. Try again.
+Filled or unfilled? Filled
+Size: 200
+Invalid input. Try again.
+Size: -1
+Invalid input. Try again.
+Size: 1
+
+*</text>
+      </expected>
+      <extra>
+                <text>main()</text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text># Testing your program
+# as a whole</text>
+      </testcode>
+      <stdin>
+                <text>square
+Unfilled
+5</text>
+      </stdin>
+      <expected>
+                <text>Enter shape to draw: square
+Filled or unfilled? Unfilled
+Size: 5
+
+*****
+*   *
+*   *
+*   *
+*****</text>
+      </expected>
+      <extra>
+                <text>main()</text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text># Testing your program
+# as a whole</text>
+      </testcode>
+      <stdin>
+                <text>Square
+unfilled
+4</text>
+      </stdin>
+      <expected>
+                <text>Enter shape to draw: Square
+Filled or unfilled? unfilled
+Size: 4
+
+****
+*  *
+*  *
+****</text>
+      </expected>
+      <extra>
+                <text>main()</text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text># Testing your program
+# as a whole</text>
+      </testcode>
+      <stdin>
+                <text>triangle
+filled
+1</text>
+      </stdin>
+      <expected>
+                <text>Enter shape to draw: triangle
+Filled or unfilled? filled
+Size: 1
+
+*</text>
+      </expected>
+      <extra>
+                <text>main()</text>
+      </extra>
+      <display>
+                <text>HIDE_IF_SUCCEED</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text># Testing your program
+# as a whole</text>
+      </testcode>
+      <stdin>
+                <text>triangle
+unfilled
+1</text>
+      </stdin>
+      <expected>
+                <text>Enter shape to draw: triangle
+Filled or unfilled? unfilled
+Size: 1
+
+*</text>
+      </expected>
+      <extra>
+                <text>main()</text>
+      </extra>
+      <display>
+                <text>HIDE_IF_SUCCEED</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text># Testing your program
+# as a whole</text>
+      </testcode>
+      <stdin>
+                <text>square
+unfilled
+1</text>
+      </stdin>
+      <expected>
+                <text>Enter shape to draw: square
+Filled or unfilled? unfilled
+Size: 1
+
+*</text>
+      </expected>
+      <extra>
+                <text>main()</text>
+      </extra>
+      <display>
+                <text>HIDE_IF_SUCCEED</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text># Testing your program
+# as a whole</text>
+      </testcode>
+      <stdin>
+                <text>square
+unfilled
+2</text>
+      </stdin>
+      <expected>
+                <text>Enter shape to draw: square
+Filled or unfilled? unfilled
+Size: 2
+
+**
+**</text>
+      </expected>
+      <extra>
+                <text>main()</text>
+      </extra>
+      <display>
+                <text>HIDE_IF_SUCCEED</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text># Testing your program
+# as a whole</text>
+      </testcode>
+      <stdin>
+                <text>square
+filled
+2</text>
+      </stdin>
+      <expected>
+                <text>Enter shape to draw: square
+Filled or unfilled? filled
+Size: 2
+
+**
+**</text>
+      </expected>
+      <extra>
+                <text>main()</text>
+      </extra>
+      <display>
+                <text>HIDE_IF_SUCCEED</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text># Testing your program
+# as a whole</text>
+      </testcode>
+      <stdin>
+                <text>triangle
+filled
+2</text>
+      </stdin>
+      <expected>
+                <text>Enter shape to draw: triangle
+Filled or unfilled? filled
+Size: 2
+
+*
+**</text>
+      </expected>
+      <extra>
+                <text>main()</text>
+      </extra>
+      <display>
+                <text>HIDE_IF_SUCCEED</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text># Testing your program
+# as a whole</text>
+      </testcode>
+      <stdin>
+                <text>triangle
+unfilled
+2</text>
+      </stdin>
+      <expected>
+                <text>Enter shape to draw: triangle
+Filled or unfilled? unfilled
+Size: 2
+
+*
+**</text>
+      </expected>
+      <extra>
+                <text>main()</text>
+      </extra>
+      <display>
+                <text>HIDE_IF_SUCCEED</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text><![CDATA[# Testing your getWord function
+# Your call to main() is ignored here.
+prompt = "How are you? "
+ans = get_word(prompt, ['ill', 'ok'])
+print("You said " + ans.lower())]]></text>
+      </testcode>
+      <stdin>
+                <text>Fine thanks
+Not so great
+Fair to middling
+Willy nilly
+OK
+</text>
+      </stdin>
+      <expected>
+                <text>How are you? Fine thanks
+Invalid input. Try again.
+How are you? Not so great
+Invalid input. Try again.
+How are you? Fair to middling
+Invalid input. Try again.
+How are you? Willy nilly
+Invalid input. Try again.
+How are you? OK
+You said ok</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>HIDE_IF_SUCCEED</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text># Testing your draw_square function
+# Your call to main() is ignored here.
+draw_square(5, 'unfilled')</text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>*****
+*   *
+*   *
+*   *
+*****</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>HIDE_IF_SUCCEED</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text># Testing your draw_triangle function
+# Your call to main() is ignored here.
+draw_triangle(5, 'unfilled')</text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>*
+**
+* *
+*  *
+*****</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>HIDE_IF_SUCCEED</text>
+      </display>
+    </testcase>
+    </testcases>
+  </question>
+
+<!-- question: 883  -->
+  <question type="coderunner">
+    <name>
+      <text>sqr function</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<h5>Write a <i>sqr(n) </i>function</h5><p>Write a Python3 function <i>sqr(n) </i>that returns the square of its numeric parameter <i>n</i>.</p><p>For those who don't know Python, one possible answer is:<br></p>
+<pre style="background-color:#DDD">def sqr(n):
+    return n * n</pre><p>Copy that answer into the answer box and click <i>Check</i>&nbsp;to see how CodeRunner questions behave. Then try changing the answer in various ways and re-checking.</p><p>Note that CodeRunner questions are expected to be run in a quiz using Moodle's <i>adaptive</i>&nbsp;behaviour, in which students can check each question as they submit it. A flexible penalty mechanism allows the question author to specify varying re-submission penalties. In this question the first wrong submission is free, but thereafter the penalties are 10%, 20%, 30%, ...</p>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.0000000</penalty>
+    <hidden>0</hidden>
+    <coderunnertype>python3</coderunnertype>
+    <prototypetype>0</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime>0, 10, 20, ...</penaltyregime>
+    <precheck>0</precheck>
+    <showsource>0</showsource>
+    <answerboxlines>5</answerboxlines>
+    <answerboxcolumns>70</answerboxcolumns>
+    <answerpreload></answerpreload>
+    <useace>1</useace>
+    <resultcolumns></resultcolumns>
+    <template></template>
+    <iscombinatortemplate></iscombinatortemplate>
+    <answer>def sqr(n):
+    '''The generic sqr function'''
+    return n * n</answer>
+    <validateonsave>1</validateonsave>
+    <testsplitterre></testsplitterre>
+    <language></language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader></grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams></templateparams>
+    <testcases>
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text>print(sqr(-3))</text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>9</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text>print(sqr(11))</text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>121</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text>print(sqr(-4))</text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>16</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text>print(sqr(0))</text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>0</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text>print(sqr(-100))</text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>10000</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>HIDE</text>
+      </display>
+    </testcase>
+    </testcases>
+  </question>
+
+<!-- question: 884  -->
+  <question type="coderunner">
+    <name>
+      <text>sqr function showing repr</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<h5>A variant on sqr(n)</h5><p>The standard write-a-function Python3 question type executes the student's code first followed by the code shown in the Test column of the results table. This makes it easy for students to test their functions prior to submission (assuming they're sitting at a computer with their usual programming tools available): they just copy the test code after their program and run the program.</p><p>An alternative, favoured by some question authors, is to print the result of the function call, showing the student only the actual call as though they had typed it into the Python shell. This question presents the results that way, using a customised template. The question is otherwise identical to the previous one, viz:</p><p><b>Write a Python3 function <i>sqr(n) </i>that returns the square of its numeric parameter <i>n</i>.</b></p><p>As before, a possible answer is:<br></p>
+<pre style="background-color:#DDD">def sqr(n):
+    return n * n</pre><p><br></p>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.0000000</penalty>
+    <hidden>0</hidden>
+    <coderunnertype>python3</coderunnertype>
+    <prototypetype>0</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime>0, 10, 20, ...</penaltyregime>
+    <precheck>0</precheck>
+    <showsource>0</showsource>
+    <answerboxlines>5</answerboxlines>
+    <answerboxcolumns>70</answerboxcolumns>
+    <answerpreload></answerpreload>
+    <useace>1</useace>
+    <resultcolumns></resultcolumns>
+    <template><![CDATA[{{ STUDENT_ANSWER }}
+
+__student_answer__ = """{{ STUDENT_ANSWER | e('py') }}"""
+
+SEPARATOR = "#<ab@17943918#@>#"
+
+{% for TEST in TESTCASES %}
+print(repr({{ TEST.testcode }}))
+{% if not loop.last %}
+print(SEPARATOR)
+{% endif %}
+{% endfor %}]]></template>
+    <iscombinatortemplate></iscombinatortemplate>
+    <answer>def sqr(n):
+    '''The generic sqr function'''
+    return n * n</answer>
+    <validateonsave>1</validateonsave>
+    <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
+    <language></language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader>EqualityGrader</grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams></templateparams>
+    <testcases>
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text>sqr(-3)</text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>9</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text>sqr(11)</text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>121</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text>sqr(-4)</text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>16</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text>sqr(0)</text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>0</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text>sqr(-100)</text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>10000</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>HIDE</text>
+      </display>
+    </testcase>
+    </testcases>
+  </question>
+
+<!-- question: 887  -->
+  <question type="description">
+    <name>
+      <text>Intro to write-a-program questions</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<h4>Write-a-program questions</h4><p>Write-a-function questions are convenient because we can specify the input data and the output result without the complexities of having to specify the formats of input and output files. All the same, for larger tasks like assignments, "write a program" questions are the norm. Typically these ask students to read from standard input and write to standard output. Learner programmers think of these as keyboard and screen but on a quiz server data is of course taken from files. For testing such programs, the question author supplies standard input and specifies the expected output just as for write-a-function programs. The question author can also attach support files to the question; these are loaded into the execution environment at run time and can be used for input data or additional code, libraries etc, depending on the type of question.</p><p>A problem with running program that take their standard input from a file rather than the keyboard is that the input data does not get echoed to the screen. This is confusing for learner programmers. Our standard Python program question type replaces the usual Python <i>input()</i>&nbsp;function with one that <i>does</i>&nbsp;echo its input to standard output, so that the student sees the same output as when they run from the keyboard.&nbsp;</p>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>0.0000000</defaultgrade>
+    <penalty>0.0000000</penalty>
+    <hidden>0</hidden>
+  </question>
+
+<!-- question: 882  -->
+  <question type="description">
+    <name>
+      <text>Introduction</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<h3>Welcome to the CodeRunner Demo Quiz</h3><p>This quiz is a tutorial introduction to CodeRunner questions from simple write-a-function or write-a-program questions through assignment level questions into advanced customised questions to deal with special situations like GUI programming.</p><p>Python3 is used throughout this quiz. If you're not a Python3 programmer you can still look through the range of questions that can be asked. With few exceptions, similar questions can be asked in all supported languages (Python3, Python2, Java, C, C++, PHP, JavaScript, Octave, Pascal) though you might have to write your own prototypes for many of those.</p><p>You can do this quiz as many times as you like. When you submit the whole quiz at the end, you can review your answers and see the author's sample solutions. This is a standard Moodle feature; the quiz administrator can choose whether or not to display so-called "right answers", and various other information at various phases during the quiz.</p><p>We start with <i>write-a-function</i>&nbsp;questions, for which the student must submit a function satisfying the given specs. Since the student's code is run before the test code is run, the student's submission can always include additional support functions if necessary, so the specified function can be almost arbitrarily demanding, such "write a function that compiles a given source file in language X".</p><p>All the questions in this quiz are included in the CodeRunner repository at <a href="https://github.com/trampgeek/CodeRunner">https://github.com/trampgeek/CodeRunner</a>.</p><p>[Note: this quiz is work-in-progress. If new questions get added, all existing submissions will have to be deleted, so you won't necessarily be able to return to the site at a later date and see your answers. If you want to keep them, copy them to your own machine.]</p>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>0.0000000</defaultgrade>
+    <penalty>0.0000000</penalty>
+    <hidden>0</hidden>
+  </question>
+
+<!-- question: 1027  -->
+  <question type="description">
+    <name>
+      <text>Other question types (intro)</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<h4>Other question types</h4><p>The above questions have asked students to write a function (possibly with additional support functions) or to write a whole program. The remaining questions show a few other forms of question. Essentially you can ask&nbsp;<i>any</i>&nbsp;question you like subject to two requirements:</p><p><ol><li>The student submission is a single piece of text (usually, but not necessarily, program code)<br></li><li>You, the question author, are able to write a program that can assess the correctness of that submission.</li></ol></p>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>0.0000000</defaultgrade>
+    <penalty>0.0000000</penalty>
+    <hidden>0</hidden>
+  </question>
+
+<!-- question: 901  -->
+  <question type="description">
+    <name>
+      <text>Skool-z-kool discussion</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<h4>A note on templates</h4><p>The preceding <i>Skool-z-Kool</i>&nbsp;question used the basic Python3 question type, but with the built-in <i>input</i>&nbsp;function replaced by one that echoes the characters read from standard input. This is achieved by customising the question's template in the question-authoring interface. The template is a way to specify how the student's submission, the per-test-case code and any other testing code are combined to define the program to be run in the sandbox. For the above question, the template was just</p>
+<pre>__saved_input__ = input
+def input(prompt=""):
+    result = __saved_input__(prompt)
+    print(result)
+    return result
+
+{{STUDENT_ANSWER}}
+
+{{TEST.testcode}}
+</pre>
+<p>The effect is just to re-define the <i>input</i> function, run the student code and then run the test code.</p><p>If you find yourself using such a template repeatedly, you would normally make it into a new question type, such as <i>python3_with_input</i>, by defining the question as a <i>prototype</i>. See the CodeRunner documentation for details.</p><h4>Improving <i>Skool-z-Kool</i></h4><p>A problem with the preceding version of <i>Skool-z-Kool</i>&nbsp;is that it while it <i>suggests</i>&nbsp;that students should write the code with support functions, they are not forced to do so. Beginner programmers often need more encouragement than that!</p><p>The first improvement we can make to the question is to use <i>pylint</i>&nbsp;to check the submission before running it, as was done with the second version of <i>print_name</i>. In our introductory programming course we turn on pylint checking almost from the start. Our&nbsp;<i>python_cosc121</i>&nbsp;question type, used for most questions in the course, allows us to configure pylint differently for each question by using template parameters. In a question like <i>Skool-z-Kool</i>&nbsp;we would typically limit the length of any one function to around 10 - 20 lines, which pretty much forces students to use functions.</p><p>Particularly earlier on in a course we might wish to constrain the students even further, so that they are forced to use a particularly functional decomposition. That of course requires that we specify the support functions they must use and also that we must test those functions separately. A common way of achieving that is to precede the main program test question with a set of <i>write-a-function</i>&nbsp;questions, one for each support function we wish them to write. An alternative approach is that taken by the following variant of Skool-z-Kool, which presents the students with a skeleton of the program. They then have to fill in all the blanks to get the program working. Note that in our teaching environments students always have a full Python development environment available to them while doing CodeRunner questions, even in tests and exams. They are expected to develop and test their code <i>before</i>&nbsp;submitting it to the quiz server.</p><p><br></p>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>0.0000000</defaultgrade>
+    <penalty>0.0000000</penalty>
+    <hidden>0</hidden>
+  </question>
+
+</quiz>

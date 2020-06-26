@@ -1,0 +1,1113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<quiz>
+<!-- question: 0  -->
+  <question type="category">
+    <category>
+        <text>top/Exports</text>
+
+    </category>
+  </question>
+
+<!-- question: 21098  -->
+  <question type="coderunner">
+    <name>
+      <text>Program Testing #1a</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<h4>An introduction to program testing</h4><p>So far in the course, CodeRunner questions have asked you to write a program or function, which we then test. But have you thought about the code we write to test your answer? In this question, we turn things around by providing you with a set of (hidden) answers to some question and we ask <i>you</i>&nbsp;to write the tests.</p><p>Suppose that you are a teacher and you've set the following problem for your students:</p><div class="editor-indent" style="margin-left: 30px;"><div class="editor-indent" style="margin-left: 30px;"><p></p></div></div><div class="editor-indent" style="margin-left: 30px;"><p>Write a boolean-valued function <i>is_old_enough(age)</i>&nbsp;which returns <i>True</i> if the given <i>age</i>&nbsp;value is 18 or more. Otherwise the function should return <i>F</i><i>alse</i>. You may assume that <i>age</i>&nbsp;is an <i>int</i>. The return value must be a boolean, not the strings&nbsp;<i>"True" </i>or <i>"False".</i></p></div><p>How would you test the code that the student submits? That's what you're going to do in this question!</p><p>You have to write the <i>tests</i>&nbsp;for this function in the answer box below. Each test should consist of a bit of code that should be run together with the expected output ('Result'). Obviously your test code should call the function <i>is_old_enough</i>&nbsp;<b>which we supply</b>. Do not include an <i>is_old_enough</i>&nbsp;function in your test.</p><p>A few sample values have been pre-filled into the answer box. In row 1 you should enter the expected result for the given test. In rows 2 through 4 you should insert tests that will produce the given result. Then consider what additional tests you might need to make.</p><p>We will firstly run your tests with a correct answer to the question. All your tests should pass in this case, that is the output should be that which you've specified in the <i>Result</i>&nbsp;column.</p><p>We will then run your tests with several different incorrect answers. At least one of your tests should fail with each of the different incorrect answers. Only the first failing test will be shown to you. Although the tests we've given you in most questions so far in this course are often a single line of code, that's just to make it easy for you to read them. The tests you write here can be multiple lines of code if you wish.</p><p>Now ... go for it! See if you can find all our bugs. The penalty regime has been set to zero so you can get a feel for the how these questions work. There will be more of them in future labs.</p>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.0000000</penalty>
+    <hidden>0</hidden>
+    <coderunnertype>python3_program_testing</coderunnertype>
+    <prototypetype>0</prototypetype>
+    <allornothing>0</allornothing>
+    <penaltyregime>0</penaltyregime>
+    <precheck>0</precheck>
+    <showsource>1</showsource>
+    <answerboxlines>8</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload><![CDATA[[["print(is_old_enough(19))",""],["","True"],["","False"],["","False"]]]]></answerpreload>
+    <useace></useace>
+    <resultcolumns></resultcolumns>
+    <template></template>
+    <iscombinatortemplate></iscombinatortemplate>
+    <allowmultiplestdins></allowmultiplestdins>
+    <answer><![CDATA[[["print(is_old_enough(19))","True"],["print(is_old_enough(18))","True"],["print(is_old_enough(17))","False"],["print(is_old_enough(111))","True"],["",""]]]]></answer>
+    <validateonsave>1</validateonsave>
+    <testsplitterre></testsplitterre>
+    <language></language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader></grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams></templateparams>
+    <hoisttemplateparams>1</hoisttemplateparams>
+    <twigall>0</twigall>
+    <uiplugin></uiplugin>
+    <testcases>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text><![CDATA[def is_old_enough(age):
+    """True if age at least 18"""
+    return age >= 18]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>Yes</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text><![CDATA[def is_old_enough(age):
+    """Out by one (failing edge case)"""
+    return age > 18]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>No</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>HIDE_IF_SUCCEED</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="5.0000000" >
+      <testcode>
+                <text><![CDATA[def is_old_enough(age):
+    """A common silly error"""
+    return age == 18]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>No
+</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>HIDE_IF_SUCCEED</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text><![CDATA[def is_old_enough(age):
+    """Everyone is old enough to drink!"""
+    return True]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>No
+</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>HIDE_IF_SUCCEED</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text><![CDATA[def is_old_enough(age):
+    """No-one is old enough to drink!"""
+    return False]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>No</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>HIDE_IF_SUCCEED</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text><![CDATA[def is_old_enough(age):
+    """Doesn't work for centenarians!"""
+    return age in range(18, 100)]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>No</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>HIDE_IF_SUCCEED</text>
+      </display>
+    </testcase>
+    </testcases>
+  </question>
+
+<!-- question: 21168  -->
+  <question type="coderunner">
+    <name>
+      <text>Program Testing #1b</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[In the previous question you wrote some tests for the <span><i>is_old_enough </i><span style="">function. Hopefully you came up with a set of tests that worked on all the sample answers we gave you. But if a sample answer passes all your tests, does that mean it's correct? Alas, no. There are always weird answers that pass all the tests but are nonetheless wrong, and fail under some situation we didn't consider.<br><br>For example, the following answer is wrong. Why?<pre>def is_old_enough(age):
+    """True if age greater than or equal to 18, False otherwise"""
+    if age &gt;= 18:
+        return "True"
+    else:
+        return "False"
+</pre>
+<p>The chances are that this wrong answer passes all your tests in the previous question. So in this question we've added that case to the set of answers you have to test. See if you can figure out how!
+</p><p>Hint: what is the output from
+</p><pre>print(type("True"))
+</pre>versus
+<pre>print(type(True))
+</pre></span></span>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.0000000</penalty>
+    <hidden>0</hidden>
+    <coderunnertype>python3_program_testing</coderunnertype>
+    <prototypetype>0</prototypetype>
+    <allornothing>0</allornothing>
+    <penaltyregime>0</penaltyregime>
+    <precheck>0</precheck>
+    <showsource>0</showsource>
+    <answerboxlines>8</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload><![CDATA[[["print(is_old_enough(19))",""],["","True"],["","False"],["","False"]]]]></answerpreload>
+    <useace></useace>
+    <resultcolumns></resultcolumns>
+    <template></template>
+    <iscombinatortemplate></iscombinatortemplate>
+    <allowmultiplestdins></allowmultiplestdins>
+    <answer><![CDATA[[["print(is_old_enough(19))","True"],["print(is_old_enough(18))","True"],["print(is_old_enough(17))","False"],["print(is_old_enough(111))","True"],["print(type(is_old_enough(18)))","<class 'bool'>"],["print(type(is_old_enough(17)))","<class 'bool'>"]]]]></answer>
+    <validateonsave>0</validateonsave>
+    <testsplitterre></testsplitterre>
+    <language></language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader></grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams></templateparams>
+    <hoisttemplateparams>1</hoisttemplateparams>
+    <twigall>0</twigall>
+    <uiplugin></uiplugin>
+    <testcases>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text><![CDATA[def is_old_enough(age):
+    """True if age at least 18"""
+    return age >= 18]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>Yes</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text><![CDATA[def is_old_enough(age):
+    """Out by one (failing edge case)"""
+    return age > 18]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>No</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>HIDE_IF_SUCCEED</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="5.0000000" >
+      <testcode>
+                <text><![CDATA[def is_old_enough(age):
+    """A common silly error"""
+    return age == 18]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>No
+</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>HIDE_IF_SUCCEED</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text><![CDATA[def is_old_enough(age):
+    """Everyone is old enough to drink!"""
+    return True]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>No
+</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>HIDE_IF_SUCCEED</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text><![CDATA[def is_old_enough(age):
+    """No-one is old enough to drink!"""
+    return False]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>No</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>HIDE_IF_SUCCEED</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text><![CDATA[def is_old_enough(age):
+    """Doesn't work for centenarians!"""
+    return age in range(18, 100)]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>No</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>HIDE_IF_SUCCEED</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text><![CDATA[def is_old_enough(age):
+    """Wrong return type!"""
+    if age >= 18:
+        return "True"
+    else:
+        return "False"]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>No</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>HIDE_IF_SUCCEED</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text><![CDATA[def is_old_enough(age):
+    """Wrong return type only for True case!"""
+    if age >= 18:
+        return "True"
+    else:
+        return False]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>No</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text><![CDATA[def is_old_enough(age):
+    """Wrong return type only for False case!"""
+    if age >= 18:
+        return True
+    else:
+        return "False"]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>No</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+    </testcases>
+  </question>
+
+<!-- question: 21093  -->
+  <question type="coderunner">
+    <name>
+      <text>Program Testing #2</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<p>This is a question with a difference: rather than writing the function, you have to write the <i>tests</i>&nbsp;for the function! Essentially you have to write a test table like the ones we usually supply.</p><p>We will provide a number of initially hidden different answers: one correct one and several incorrect ones. You must write one or more tests. When run with a correct answer all your tests should pass (that is, the output from each of your tests should equal the corresponding result). But when run on an incorrect answer <b>at least one</b> of your tests should fail.</p><p>The function you have to test in this question is the following:</p><div class="editor-indent" style="margin-left: 30px;"><p>Write a function&nbsp;<em>alarm_clock(day, on_vacation)</em>&nbsp;that takes an int&nbsp;<em>day</em>&nbsp;(encoded as 0=Sun, 1=Mon, 2=Tue, ...6=Sat) and a boolean&nbsp;<em>on_vacation</em>&nbsp;and returns a string of the form "7:00" indicating when the alarm clock should ring. Weekdays, the alarm should be "7:00" and on the weekend it should be "10:00". Unless we are on vacation -- then on weekdays it should be "10:00" and weekends it should be "off".</p></div><p>If you reject the right answer, you get zero marks. Otherwise your mark depends on what percentage of the incorrect answers you reject. You will be shown only the first failing case.</p>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.0000000</penalty>
+    <hidden>0</hidden>
+    <coderunnertype>python3_program_testing</coderunnertype>
+    <prototypetype>0</prototypetype>
+    <allornothing>0</allornothing>
+    <penaltyregime>10, 20, ...</penaltyregime>
+    <precheck>0</precheck>
+    <showsource>0</showsource>
+    <answerboxlines>8</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
+    <useace></useace>
+    <resultcolumns></resultcolumns>
+    <template></template>
+    <iscombinatortemplate></iscombinatortemplate>
+    <allowmultiplestdins></allowmultiplestdins>
+    <answer><![CDATA[[["ok = True\nfor day in range(7):\n    for on_vacation in [True, False]:\n        got = alarm_clock(day, on_vacation)\n        if on_vacation:\n            expected = \"10:00\" if day in range(1, 6) else \"off\"\n        else:\n            expected = \"7:00\" if day in range(1, 6) else \"10:00\"\n        if expected != got:\n            ok = False\nprint(ok)","True"],["",""],["",""]]]]></answer>
+    <validateonsave>1</validateonsave>
+    <testsplitterre></testsplitterre>
+    <language></language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader></grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams></templateparams>
+    <hoisttemplateparams>1</hoisttemplateparams>
+    <twigall>0</twigall>
+    <uiplugin></uiplugin>
+    <testcases>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="0.0100000" >
+      <testcode>
+                <text><![CDATA[def alarm_clock(day, on_vacation):
+    """Returns as a string the time the alarm time
+       on a given day and holiday-status (True/False)
+    """
+    is_weekend = ((day % 6) == 0)
+    if is_weekend and on_vacation:
+        str_alarm = "off"
+    elif not is_weekend and not on_vacation:
+        str_alarm = "7:00"
+    else:
+        str_alarm = "10:00"
+    return str_alarm]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>Yes</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text><![CDATA[def alarm_clock(day, on_vacation):
+    """Fails to recognise Saturday as weekend"""
+    is_weekend = (day == 0)
+    if is_weekend and on_vacation:
+        str_alarm = "off"
+    elif not is_weekend and not on_vacation:
+        str_alarm = "7:00"
+    else:
+        str_alarm = "10:00"
+    return str_alarm]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>No</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>HIDE_IF_SUCCEED</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text><![CDATA[def alarm_clock(day, on_vacation):
+    """Upper-case O in off"""
+    is_weekend = ((day % 6) == 0)
+    if is_weekend and on_vacation:
+        str_alarm = "Off"
+    elif not is_weekend and not on_vacation:
+        str_alarm = "7:00"
+    else:
+        str_alarm = "10:00"
+    return str_alarm]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>No</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>HIDE_IF_SUCCEED</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text><![CDATA[def alarm_clock(day, on_vacation):
+    """Alarm clock is always off in the weekend"""
+    is_weekend = ((day % 6) == 0)
+    if is_weekend:
+        str_alarm = "off"
+    elif not is_weekend and not on_vacation:
+        str_alarm = "7:00"
+    else:
+        str_alarm = "10:00"
+    return str_alarm]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>No</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>HIDE_IF_SUCCEED</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text><![CDATA[def alarm_clock(day, on_vacation):
+    """Wrong time during the week when on vacation"""
+    is_weekend = ((day % 6) == 0)
+    if is_weekend and on_vacation:
+        str_alarm = "off"
+    elif not is_weekend:
+        str_alarm = "7:00"
+    else:
+        str_alarm = "10:00"
+    return str_alarm]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>No</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>HIDE_IF_SUCCEED</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text><![CDATA[def alarm_clock(day, on_vacation):
+    """Wrong format for 7 am alarm"""
+    is_weekend = ((day % 6) == 0)
+    if is_weekend and on_vacation:
+        str_alarm = "off"
+    elif not is_weekend and not on_vacation:
+        str_alarm = "07:00"
+    else:
+        str_alarm = "10:00"
+    return str_alarm]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>No</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>HIDE_IF_SUCCEED</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text><![CDATA[def alarm_clock(day, on_vacation):
+    """Fail on Sunday, not on vacation"""
+    is_weekend = ((day % 6) == 0)
+    if day == 0 and not on_vacation:
+        str_alarm = "off"
+    elif is_weekend and on_vacation:
+        str_alarm = "off"
+    elif not is_weekend and not on_vacation:
+        str_alarm = "7:00"
+    else:
+        str_alarm = "10:00"
+    return str_alarm]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>No</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>HIDE_IF_SUCCEED</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text><![CDATA[def alarm_clock(day, on_vacation):
+    """Fail on Monday, not on vacation"""
+    is_weekend = ((day % 6) == 0)
+    if day == 1 and not on_vacation:
+        str_alarm = "off"
+    elif is_weekend and on_vacation:
+        str_alarm = "off"
+    elif not is_weekend and not on_vacation:
+        str_alarm = "7:00"
+    else:
+        str_alarm = "10:00"
+    return str_alarm]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>No</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>HIDE_IF_SUCCEED</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text><![CDATA[def alarm_clock(day, on_vacation):
+    """Fail on Tuesday, not on vacation"""
+    is_weekend = ((day % 6) == 0)
+    if day == 2 and not on_vacation:
+        str_alarm = "off"
+    elif is_weekend and on_vacation:
+        str_alarm = "off"
+    elif not is_weekend and not on_vacation:
+        str_alarm = "7:00"
+    else:
+        str_alarm = "10:00"
+    return str_alarm]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>No</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>HIDE_IF_SUCCEED</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text><![CDATA[def alarm_clock(day, on_vacation):
+    """Fail on Wednesday, not on vacation"""
+    is_weekend = ((day % 6) == 0)
+    if day == 3 and not on_vacation:
+        str_alarm = "off"
+    elif is_weekend and on_vacation:
+        str_alarm = "off"
+    elif not is_weekend and not on_vacation:
+        str_alarm = "7:00"
+    else:
+        str_alarm = "10:00"
+    return str_alarm]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>No</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>HIDE_IF_SUCCEED</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text><![CDATA[def alarm_clock(day, on_vacation):
+    """Fail on Thursday, not on vacation"""
+    is_weekend = ((day % 6) == 0)
+    if day == 4 and not on_vacation:
+        str_alarm = "off"
+    elif is_weekend and on_vacation:
+        str_alarm = "off"
+    elif not is_weekend and not on_vacation:
+        str_alarm = "7:00"
+    else:
+        str_alarm = "10:00"
+    return str_alarm]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>No</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>HIDE_IF_SUCCEED</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text><![CDATA[def alarm_clock(day, on_vacation):
+    """Fail on Friday, not on vacation"""
+    is_weekend = ((day % 6) == 0)
+    if day == 5 and not on_vacation:
+        str_alarm = "off"
+    elif is_weekend and on_vacation:
+        str_alarm = "off"
+    elif not is_weekend and not on_vacation:
+        str_alarm = "7:00"
+    else:
+        str_alarm = "10:00"
+    return str_alarm]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>No</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>HIDE_IF_SUCCEED</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text><![CDATA[def alarm_clock(day, on_vacation):
+    """Fail on Saturday, not on vacation"""
+    is_weekend = ((day % 6) == 0)
+    if day == 6 and not on_vacation:
+        str_alarm = "off"
+    elif is_weekend and on_vacation:
+        str_alarm = "off"
+    elif not is_weekend and not on_vacation:
+        str_alarm = "7:00"
+    else:
+        str_alarm = "10:00"
+    return str_alarm]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>No</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>HIDE_IF_SUCCEED</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text><![CDATA[def alarm_clock(day, on_vacation):
+    """Fail on Sunday, on vacation"""
+    is_weekend = ((day % 6) == 0)
+    if day == 0 and on_vacation:
+        str_alarm = "7:00"
+    elif is_weekend and on_vacation:
+        str_alarm = "off"
+    elif not is_weekend and not on_vacation:
+        str_alarm = "7:00"
+    else:
+        str_alarm = "10:00"
+    return str_alarm]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>No</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>HIDE_IF_SUCCEED</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text><![CDATA[def alarm_clock(day, on_vacation):
+    """Fail on Monday, on vacation"""
+    is_weekend = ((day % 6) == 0)
+    if day == 1 and on_vacation:
+        str_alarm = "7:00"
+    elif is_weekend and on_vacation:
+        str_alarm = "off"
+    elif not is_weekend and not on_vacation:
+        str_alarm = "7:00"
+    else:
+        str_alarm = "10:00"
+    return str_alarm]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>No</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>HIDE_IF_SUCCEED</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text><![CDATA[def alarm_clock(day, on_vacation):
+    """Fail on Tuesday, on vacation"""
+    is_weekend = ((day % 6) == 0)
+    if day == 2 and on_vacation:
+        str_alarm = "7:00"
+    elif is_weekend and on_vacation:
+        str_alarm = "off"
+    elif not is_weekend and not on_vacation:
+        str_alarm = "7:00"
+    else:
+        str_alarm = "10:00"
+    return str_alarm]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>No</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>HIDE_IF_SUCCEED</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text><![CDATA[def alarm_clock(day, on_vacation):
+    """Fail on Wednesday, on vacation"""
+    is_weekend = ((day % 6) == 0)
+    if day == 3 and on_vacation:
+        str_alarm = "7:00"
+    elif is_weekend and on_vacation:
+        str_alarm = "off"
+    elif not is_weekend and not on_vacation:
+        str_alarm = "7:00"
+    else:
+        str_alarm = "10:00"
+    return str_alarm]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>No</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>HIDE_IF_SUCCEED</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text><![CDATA[def alarm_clock(day, on_vacation):
+    """Fail on Thursday, on vacation"""
+    is_weekend = ((day % 6) == 0)
+    if day == 4 and on_vacation:
+        str_alarm = "7:00"
+    elif is_weekend and on_vacation:
+        str_alarm = "off"
+    elif not is_weekend and not on_vacation:
+        str_alarm = "7:00"
+    else:
+        str_alarm = "10:00"
+    return str_alarm]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>No</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>HIDE_IF_SUCCEED</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text><![CDATA[def alarm_clock(day, on_vacation):
+    """Fail on Friday, on vacation"""
+    is_weekend = ((day % 6) == 0)
+    if day == 5 and on_vacation:
+        str_alarm = "7:00"
+    elif is_weekend and on_vacation:
+        str_alarm = "off"
+    elif not is_weekend and not on_vacation:
+        str_alarm = "7:00"
+    else:
+        str_alarm = "10:00"
+    return str_alarm]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>No</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>HIDE_IF_SUCCEED</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text><![CDATA[def alarm_clock(day, on_vacation):
+    """Fail on Saturday, on vacation"""
+    is_weekend = ((day % 6) == 0)
+    if day == 6 and on_vacation:
+        str_alarm = "7:00"
+    elif is_weekend and on_vacation:
+        str_alarm = "off"
+    elif not is_weekend and not on_vacation:
+        str_alarm = "7:00"
+    else:
+        str_alarm = "10:00"
+    return str_alarm]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>No</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>HIDE_IF_SUCCEED</text>
+      </display>
+    </testcase>
+    </testcases>
+  </question>
+
+<!-- question: 21123  -->
+  <question type="coderunner">
+    <name>
+      <text>PROTOTYPE_python3_program_testing</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<p>The prototype for a question type where the author supplies a specification and a set of sample answers (one correct and several incorrect) and the student supplies the table of tests. When run with the correct answer all the student's tests should pass (that is, the output from each test should equal the corresponding result). But when run on an incorrect answer <b>at least one</b> of the student tests should fail.</p><p>If the student rejects the right answer, they get zero marks. Otherwise, depending on the setting of all-or-nothing, they may get partial marks if they reject some of the wrong answers.</p><p>The author-supplied test cases should contain several solutions to the specified question, at least one of which (usually the first) should be correct. The 'Output' of each test must be either 'Yes' if the supplied test case code is a valid answer or 'No' otherwise.</p>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.0000000</penalty>
+    <hidden>0</hidden>
+    <coderunnertype>python3_program_testing</coderunnertype>
+    <prototypetype>2</prototypetype>
+    <allornothing>0</allornothing>
+    <penaltyregime>10, 20, ...</penaltyregime>
+    <precheck>0</precheck>
+    <showsource>0</showsource>
+    <answerboxlines>8</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
+    <useace>1</useace>
+    <resultcolumns><![CDATA[ [["The function being tested", "testcode"],["Input", "stdin"], ["Function is correct?", "expected"], ["Passes all your tests?", "got"]]]]></resultcolumns>
+    <template><![CDATA[import json, sys
+from io import StringIO
+
+def strip_trailing(s):
+    """Remove trailing white space from all lines"""
+    return '\n'.join(line.rstrip() for line in s.splitlines()) + '\n'
+
+def run_prog(prog):
+    saved_stdout = sys.stdout
+    saved_stderr = sys.stderr
+    sys.stdout = sys.stderr = StringIO()
+    try:
+        exec(prog)
+    except Exception as e:
+        output = "*** EXCEPTION ***\n{}".format(e)
+    else:
+        output = sys.stdout.getvalue()
+    sys.stdout = saved_stdout
+    sys.stderr= saved_stderr
+    return output
+
+table = json.loads("""{{ STUDENT_ANSWER | e('py') }}""")
+if (type(table) != list or
+        len(table) < 3 or
+        type(table[0]) != list or
+        not all(len(row) == 2 for row in table)):
+    print('Error in question: please report')
+test_list = []
+for test_code, expected in table:
+    if test_code or expected:
+        test_list.append((test_code, strip_trailing(expected)))
+SEPARATOR = "#<ab@17943918#@>#"
+
+{% for TEST in TESTCASES %}
+prog_to_test = """{{ TEST.testcode | e('py') }}"""
+pass_all_tests = True
+for testcode, expected in test_list:
+    prog_to_exec = prog_to_test + '\n' + testcode
+    got = strip_trailing(run_prog(prog_to_exec))
+    if got != expected:
+        pass_all_tests = False
+
+print("Yes" if pass_all_tests else "No")
+
+
+{% if loop.first %}
+if not pass_all_tests:
+    print("Oops: you marked the right answer wrong!", file=sys.stderr)
+{% endif %}
+
+{% if not loop.last %}
+print(SEPARATOR)
+{% endif %}
+{% endfor %}]]></template>
+    <iscombinatortemplate>1</iscombinatortemplate>
+    <allowmultiplestdins>0</allowmultiplestdins>
+    <answer></answer>
+    <validateonsave>1</validateonsave>
+    <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
+    <language>python3</language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader>EqualityGrader</grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams><![CDATA[{
+    "table_num_rows": 3,
+    "table_num_columns": 2,
+    "table_column_headers": ["Test", "Result"],
+    "table_dynamic_rows": true
+}]]></templateparams>
+    <hoisttemplateparams>1</hoisttemplateparams>
+    <twigall>0</twigall>
+    <uiplugin>table</uiplugin>
+    <testcases>
+    </testcases>
+  </question>
+
+</quiz>

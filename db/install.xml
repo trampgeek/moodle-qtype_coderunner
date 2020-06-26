@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="question/type/coderunner/db" VERSION="20191113" COMMENT="XMLDB file for Moodle question/type/coderunner"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../../lib/xmldb/xmldb.xsd"
+>
+  <TABLES>
+    <TABLE NAME="question_coderunner_options" COMMENT="Extension of the coderunner question table">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" COMMENT="Every home should have one"/>
+        <FIELD NAME="questionid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The question this option applies to"/>
+        <FIELD NAME="coderunnertype" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="The name of the prototype question from which this question inherits. It should be a valid question name within the current question category or one of its ancestors."/>
+        <FIELD NAME="prototypetype" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="0 =&amp;gt; not a prototype, 1 =&amp;gt; built-in prototype, 2 =&amp;gt; user_defined prototype"/>
+        <FIELD NAME="allornothing" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="True if answer must pass all test cases to earn any marks"/>
+        <FIELD NAME="showsource" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="True to display full source code after template expansion, for debugging template."/>
+        <FIELD NAME="precheck" TYPE="int" LENGTH="8" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Sets what test-set is used if pre-checking is available. 0 = 'disable': no pretest button available; 1 = 'empty' for no actual tests; 2 = 'examples' for all use-as-example tests; 3 = 'selected' for specific selected tests, 4 = 'all' for all tests."/>
+        <FIELD NAME="answerboxlines" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="18" SEQUENCE="false" COMMENT="The number of lines for the answer box"/>
+        <FIELD NAME="answerboxcolumns" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="100" SEQUENCE="false" COMMENT="Number of columns of answerbox. DEFUNCT."/>
+        <FIELD NAME="answerpreload" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Text to be preloaded into the question answer box."/>
+        <FIELD NAME="globalextra" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Extra field for use by template editors, global to all tests."/>
+        <FIELD NAME="useace" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="1" SEQUENCE="false" COMMENT="True to use the Ace code editor for the template code."/>
+        <FIELD NAME="penaltyregime" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="A comma-separated list of percentage penalties to apply to each submission. If empty use default question penalty"/>
+        <FIELD NAME="answer" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="A solution to the problem. Should satisfy all the test cases (and may be used to generate solutions to them)."/>
+        <FIELD NAME="validateonsave" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="If true, the sample answer will be checked when saving and saving will be aborted if the tests don't pass"/>
+        <FIELD NAME="enablecombinator" TYPE="int" LENGTH="1" NOTNULL="false" SEQUENCE="false" COMMENT="True if the combinator template may be used. True for most built-in questions (i.e. the prototypes) and false for most other customised questions."/>
+        <FIELD NAME="resultcolumns" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="A JSON record defining which result fields to display in the results table and what column name to use."/>
+        <FIELD NAME="template" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="The template for this question, expanded by Twig to yield the program to be executed."/>
+        <FIELD NAME="iscombinatortemplate" TYPE="int" LENGTH="1" NOTNULL="false" SEQUENCE="false" COMMENT="True iff the template is a combinator template, i.e. takes a list of test cases rather than a single one."/>
+        <FIELD NAME="combinatortemplate" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="DEFUNCT: An optional template to be used to combine all tests into a single run"/>
+        <FIELD NAME="allowmultiplestdins" TYPE="int" LENGTH="1" NOTNULL="false" SEQUENCE="false" COMMENT="Normally, if tests each have their own stdin, the combinator is run once for each testcase (as it's then difficult to combine all tests into a single program). Setting this field to true results in the combinator being called once with all test cases present, as happens when there is no stdin."/>
+        <FIELD NAME="testsplitterre" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="The regular expression argument to preg_split to split output from the combinator run into the basic tests again. Meaningful only if combinator template provided"/>
+        <FIELD NAME="pertesttemplate" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="DEFUNCT: A template to build a test run for each test case. Required."/>
+        <FIELD NAME="templateparams" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="A json-encoded record of extra parameters to pass to the template engine when building the source code to be executed."/>
+        <FIELD NAME="hoisttemplateparams" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="True to hoist templateparams into Twig global namespace."/>
+        <FIELD NAME="twigall" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="True to apply Twig macro expansion to question text and testcases."/>
+        <FIELD NAME="language" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="The programming language, to be passed to the sandbox"/>
+        <FIELD NAME="acelang" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="The language to configure the ace editor (if used). Required only if that language is different from the template language, which is what's used by default."/>
+        <FIELD NAME="sandbox" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="The PHP class name of a specific sandbox to use. If null, a default one for the language is used."/>
+        <FIELD NAME="sandboxparams" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="JSON-encoded extra parameters to sandbox."/>
+        <FIELD NAME="grader" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="The PHP class name of the grader to use to grade results from the sandbox. If null, the BasicGrader class is used."/>
+        <FIELD NAME="cputimelimitsecs" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="The maximum CPU time allowed for execution (secs)"/>
+        <FIELD NAME="memlimitmb" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="The maximum memory allowed for this task execution (MB)"/>
+        <FIELD NAME="uiplugin" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="The javascript UI plugin for student answer"/>
+        <FIELD NAME="attachments" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Whether, and how many, attachments a student is allowed to include with their response. -1 means unlimited."/>
+        <FIELD NAME="attachmentsrequired" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The number of attachments that should be required"/>
+        <FIELD NAME="maxfilesize" TYPE="int" LENGTH="11" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Max allowable student file upload size in bytes"/>
+        <FIELD NAME="filenamesregex" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="What attachment file type a student is allowed to include with their response. * or empty means unlimited."/>
+        <FIELD NAME="filenamesexplain" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Explain what file names are allowed"/>
+        <FIELD NAME="displayfeedback" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="0 to allow display of specific feedback to be controlled by quiz, 1 to force display, 2 to force hide"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="questionid" TYPE="foreign" FIELDS="questionid" REFTABLE="question" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="coderunnertype" UNIQUE="false" FIELDS="coderunnertype"/>
+        <INDEX NAME="prototypetype" UNIQUE="false" FIELDS="prototypetype"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="question_coderunner_tests" COMMENT="Contains tests (usually called 'testcases') to perform on a student's code answer; should output the given output. A test case is regarded as an extension of an 'answer' in Moodle parlance.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="questionid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Foreign key referencing question to which this test case relates"/>
+        <FIELD NAME="testtype" TYPE="int" LENGTH="8" NOTNULL="false" SEQUENCE="false" COMMENT="How to treat this test when precheck='selected'. 0 = Normal (i.e. not included in precheck), 1 = Precheck-only, 2 = Both"/>
+        <FIELD NAME="testcode" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="The code for this test, to be combined with the student's code to construct a test program"/>
+        <FIELD NAME="stdin" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="The standard input to the program during the test. Empty for most questions"/>
+        <FIELD NAME="expected" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="The expected output after running the student's code and executing the shell input"/>
+        <FIELD NAME="extra" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="An extra per-test-case field for templates that need more parameters than just testcode, stdin and expected."/>
+        <FIELD NAME="useasexample" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="True if this testcase is to be displayed in the spec as an example of how the function works."/>
+        <FIELD NAME="display" TYPE="char" LENGTH="30" NOTNULL="true" DEFAULT="SHOW" SEQUENCE="false" COMMENT="Controls display of this testcase to the students. One of SHOW, HIDE, HIDE_IF_FAIL, HIDE_IF_SUCCEED"/>
+        <FIELD NAME="hiderestiffail" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="If this test fails, hide all subsequent tests regardless of their display settings"/>
+        <FIELD NAME="mark" TYPE="number" LENGTH="8" NOTNULL="true" DEFAULT="1.0" SEQUENCE="false" DECIMALS="3" COMMENT="Mark for this testcase (only if not an all_or_nothing question)"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="questionid" TYPE="foreign" FIELDS="questionid" REFTABLE="question" REFFIELDS="id"/>
+      </KEYS>
+    </TABLE>
+  </TABLES>
+</XMLDB>

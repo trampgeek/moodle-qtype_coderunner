@@ -1,0 +1,816 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<quiz>
+<!-- question: 0  -->
+  <question type="category">
+    <category>
+        <text>$system$/UOC_CR_PROTOTYPES</text>
+
+    </category>
+  </question>
+
+<!-- question: 13  -->
+  <question type="coderunner">
+    <name>
+      <text>UOC_PROTOTYPE_matlab_function</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[Used for Matlab function questions. Student code must be a function declaration, which is tested with each testcase.<p><br></p><p>This version actually uses Octave, with a modified 'disp' function, rather than Matlab. There are bound to be subtle differences. Caveat emptor.</p>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.0000000</penalty>
+    <hidden>0</hidden>
+    <coderunnertype>matlab_function</coderunnertype>
+    <prototypetype>2</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime>33.3, 66.7, ...</penaltyregime>
+    <precheck>0</precheck>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
+    <useace>1</useace>
+    <resultcolumns></resultcolumns>
+    <template><![CDATA[function disp(x)
+    [h, w] = size(x);
+    if (h != 1)
+        for i = 1:h
+            disp(x(i,1:w));
+        end
+        return;
+    end
+    if (strcmp(class(x), 'logical') == 1)
+        printf('%6d', x)
+        printf('\n')
+    elseif (strcmp(class(x), 'double') == 1)
+        if (int64(x) == x)   % Integral?
+            if abs(x) > 99999
+                printf('%12d', x);
+            else
+                printf('%6d', x)
+            end
+            printf('\n')
+        else
+            printf('%10.4f', x)
+            printf('\n')
+        end
+    elseif (strcmp(class(x), 'char') == 1)
+        printf('%s\n', x)
+    elseif (strcmp(class(x), 'struct') == 1)
+        names = fieldnames(x);
+        for i = 1 : length(names)
+            field = names{i};
+            value = getfield(x, field);
+            if strcmp(class(value), 'double') == 1 && int64(value) == value
+                fprintf('%8s: %d\n', field, value);
+            elseif strcmp(class(value), 'double') == 1
+                fprintf('%8s: %f\n', field, value);
+            elseif strcmp(class(value), 'char') == 1
+                fprintf('%8s: ''%s''\n', field, value);
+            else
+                fprintf('%8s: ', field);
+                disp(value);
+            end
+        end
+        fprintf('\n');
+    else
+        printf('Unexpected data type passed to disp')
+    end
+end
+
+{{ STUDENT_ANSWER }}
+{% for TEST in TESTCASES %}
+{{ TEST.testcode }};
+{% if not loop.last %}
+disp('#<ab@17943918#@>#');
+{% endif %}
+{% endfor %}
+quit();
+]]></template>
+    <iscombinatortemplate>1</iscombinatortemplate>
+    <allowmultiplestdins></allowmultiplestdins>
+    <answer></answer>
+    <validateonsave>0</validateonsave>
+    <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
+    <language>octave</language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader>NearEqualityGrader</grader>
+    <cputimelimitsecs>10</cputimelimitsecs>
+    <memlimitmb>0</memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams></templateparams>
+    <testcases>
+    </testcases>
+  </question>
+
+<!-- question: 14  -->
+  <question type="coderunner">
+    <name>
+      <text>UOC_PROTOTYPE_matlab_script</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[Used for Matlab scripts (so-called). Runs the test code first (which probably sets up a context) and then runs the student's code, which may or may not generate output dependent on the context. Finally the <i>extra</i>&nbsp;code is run (if any).<p><br></p><p>This version actually uses Octave, with a modified 'disp' function, rather than Matlab. There are bound to be subtle differences.</p><p></p><p></p><p></p><p></p><p></p>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.0000000</penalty>
+    <hidden>0</hidden>
+    <coderunnertype>matlab_script</coderunnertype>
+    <prototypetype>2</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime>33.3, 66.7, ...</penaltyregime>
+    <precheck>0</precheck>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
+    <useace>1</useace>
+    <resultcolumns></resultcolumns>
+    <template><![CDATA[function disp(x)
+    if (strcmp(class(x), 'logical') == 1)
+        printf('%6d', x)
+        printf('\n')
+    elseif (strcmp(class(x), 'double') == 1)
+        if (int64(x) == x)   % Integral?
+            printf('%6d', x)
+            printf('\n')
+        else
+            printf('%10.4f', x)
+            printf('\n')
+        end
+    elseif (strcmp(class(x), 'char') == 1)
+        printf('%s\n', x)
+    else
+        printf('Unexpected data type passed to disp')
+    end
+end
+
+{% for TEST in TESTCASES %}
+{{ TEST.testcode }};
+{{ STUDENT_ANSWER }}
+{{ TEST.extra }};
+clear;
+{% if not loop.last %}
+disp('#<ab@17943918#@>#');
+{% endif %}
+{% endfor %}
+quit();]]></template>
+    <iscombinatortemplate>1</iscombinatortemplate>
+    <allowmultiplestdins></allowmultiplestdins>
+    <answer></answer>
+    <validateonsave>0</validateonsave>
+    <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
+    <language>octave</language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader>NearEqualityGrader</grader>
+    <cputimelimitsecs>10</cputimelimitsecs>
+    <memlimitmb>0</memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams></templateparams>
+    <testcases>
+    </testcases>
+  </question>
+
+<!-- question: 14935  -->
+  <question type="coderunner">
+    <name>
+      <text>UOC_PROTOTYPE_python3_cosc121</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<p>Prototype for a COSC121 Python3 question that is checked by pylint before being executed. Other style checks are also implemented.</p><p>It can take the following template parameters:</p>
+<ul>
+<li>isfunction: unless this isexplicitly set to false, a dummy module docstring will be inserted at the start of the program <b>unless there is one there&nbsp;</b><b>already</b>. Thus, if your question is of the "write a program" variety, you <i>should</i>&nbsp;set this to false. Otherwise omit it. Default: true.</li><li>pylintoptions: this should be a JSON list of strings which are the <i>extra</i>&nbsp;pylint options to be applied, above and beyond the course standard set.&nbsp;For example, the Template parameters string in the question authoring form might be set to<br>{"isfunction": false, "pylintoptions":["--max-args=3"]}<br>to suppress the insertion of a dummy module docstring at the start and to set the maximum number of of arguments for each function to 3. Default: []</li><li>usestandardinput: if present and true, the standard builtin Python <i style="font-size: 1rem;">input</i><span style="font-size: 1rem;"> function will be used. Otherwise, it will be replaced with a version that echoes the prompt to standard output to mimic the behaviour observed when standard input comes from the keyboard. Default false.</span></li><li<span><li>maxfunctionlength: this is the maximum number of statements that a function body can contain. Statements within statements are counted. Blank lines and comments aren't statements. Default 20.</li><li>requiredfunctioncalls: a list of functions that must be called by the student's code</li><li>requiredfunctiondefinitions: a list of functions that must be defined by the student's code</li><li>proscribedfunctions: this is a list of functions (sum, product, etc) that <b>must not</b> appear in the student's program. Default: []</li><li>proscribedconstructs: this is a list of Python constructs (if, while, def, etc) that <b>must not</b> appear in the student's program. Default: []</li><li>requiredconstructs:&nbsp;this is a list of Python constructs (if, while, def, etc) that<b> must </b>appear in the student's program. Default: []</li><li>imports: this is a list of Python modules to be imported, each with a line of the form <i>import module</i>. Default []</li><li>allowglobals: set this to true to allow global variables (i.e. to allow lowercase globals, not just "constants"). Default false.</li><li>maxnumconstants: the maximum number of constants (i.e. uppercase globals) allowed. Default: 4.</li><li>norun: if set to true, the normal execution of the student's code will not take place. Any test code provided will however still be run. Default: false</li><li>notest: if present and set to true, the test code will not be inserted into the code to be executed. Its role is then just as documentation for the student (as it still appears in the result table). Default false.</li><li>stripmain: if set to true, the program is expected to contain a global invocation of the main function, which is a line starting "main()". That line is deleted from the program. If the line is not present a "Missing call to main" exception is raised. Default: false.</li><li>stripmainifpresent:
+ if set to true and the program contains a global invocation of a main function, which is a line starting "main()", that line is
+deleted from the program. Otherwise nothing happens (cf stripmain). Default: false.</li><li>runextra: if set (to any value) the Extra Template Data is added to the program as test code <i>before</i> the usual testcode. Default: false.</li><li>warnifpassiveoutput: if set to true, warn the student that the code seems to produce output even without any CodeRunner tests being executed. This is probably the result of the student pasting test code as well as requested function(s) into their answer. Default: false.</li><li>suppresspassiveoutput: if set to true, any output generated by the student code even without any CodeRunner tests being run is ignored. This can be used, for example, to ignore output from any test code the student has included <i>and/or</i>&nbsp;to ignore the main output from a "write a program question". Only the output generated by CodeRunner tests will be displayed and marked.</li>
+</li<span></ul>
+<p>Also, if a file named '_prefix.py' appears in the working directory (i.e. has been attached to the question), the
+ code in that file is inserted into the executable program after any
+imports and other template-generated code but before the student answer.<br></p>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.0000000</penalty>
+    <hidden>0</hidden>
+    <coderunnertype>python3_cosc121</coderunnertype>
+    <prototypetype>2</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime>0,10,20...</penaltyregime>
+    <precheck>1</precheck>
+    <showsource>0</showsource>
+    <answerboxlines>60</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
+    <useace>1</useace>
+    <resultcolumns></resultcolumns>
+    <template><![CDATA[import subprocess
+import os
+import sys
+import re
+import ast
+import io
+import traceback
+
+STANDARD_PYLINT_OPTIONS = ['--disable=C0303,C0325,C0330,R0903,R0915,star-args,' +
+                      'consider-using-enumerate,simplifiable-if-statement,' +
+                      'consider-iterating-dictionary,trailing-newlines',
+                      '--enable=C0326',
+                      '--good-names=i,j,k,n,s,c,_'
+                      ]
+
+class TestCase:
+    """Record to represent a CodeRunner test case"""
+    def __init__(self, testcode, stdin, extra, expected):
+        self.testcode = testcode
+        self.stdin = stdin
+        self.extra = extra
+        self.expected = expected
+
+# ================= CODE TO DO ALL TWIG PARAMETER PROCESSING ===================
+
+def get_template_params():
+    """Extract all the template params into a global dictionary PARAMS"""
+    global PARAMS
+    {% set TEMPLATE_PARAMS = [
+        ['isfunction', 'bool', true],
+        ['pylintoptions', 'stringlist', []],
+        ['usestandardinput', 'bool', false],
+        ['maxfunctionlength', 'int', 20],
+        ['proscribedfunctions', 'stringlist', []],
+        ['proscribedconstructs', 'stringlist', []],
+        ['requiredfunctioncalls', 'stringlist', []],
+        ['requiredfunctiondefinitions', 'stringlist', []],
+        ['requiredconstructs', 'stringlist', []],
+        ['imports', 'stringlist', []],
+        ['allowglobals', 'bool', false],
+        ['maxnumconstants', 'int', 4],
+        ['norun', 'bool', false],
+        ['notest', 'bool', false],
+        ['stripmain', 'bool', false],
+        ['stripmainifpresent', 'bool', false],
+        ['runextra', 'bool', false],
+        ['warnifpassiveoutput', 'bool', false],
+        ['suppresspassiveoutput', 'bool', false]
+    ] %}
+
+    PARAMS = {}
+{% for param in TEMPLATE_PARAMS %}
+{% set key = param[0] %}
+{% set type = param[1] %}
+{% set default = param[2] %}
+{% if attribute(QUESTION.parameters, key) is defined %}
+{% set value = attribute(QUESTION.parameters, key) %}
+{% else %}
+{% set value = default %}
+{% endif %}
+{% if type == 'bool'%}
+{% if value %}
+    PARAMS['{{key}}'] = True
+{% else %}
+    PARAMS['{{key}}'] = False
+{% endif %}
+{% elseif type == 'int' %}
+    PARAMS['{{key}}'] = {{value}}
+{% elseif type == 'string' %}
+    PARAMS['{{key}}'] = '{{value}}'
+{% elseif type == 'stringlist' %}
+    PARAMS['{{key}}'] = []
+{% for item in value %}
+    PARAMS['{{key}}'].append('{{item}}')
+{% endfor %}
+{% else %}
+    PARAMS['{{key}}'] = None  # Unrecognised type
+{% endif %}
+{% endfor %}
+
+
+def get_test_cases():
+    """Return an array of Test objects from the template parameter TESTCASES"""
+    test_cases = []
+{% for TEST in TESTCASES %}
+    testcode = """{{ TEST.testcode | e('py') }}\n"""
+    stdin = """{{ TEST.stdin | e('py') }}\n"""
+    extra = """{{ TEST.extra | e('py') }}\n"""
+    expected = """{{ TEST.expected | e('py') }}\n"""
+    test_cases.append(TestCase(testcode, stdin, extra, expected))
+{% endfor %}
+    return test_cases
+
+
+def get_global_params():
+    """Set the globals STUDENT_ANSWER, IS_PRECHECK, QUESTION_PRECHECK"""
+    global STUDENT_ANSWER, IS_PRECHECK, QUESTION_PRECHECK, SEPARATOR
+    STUDENT_ANSWER = """{{ STUDENT_ANSWER | e('py') }}"""
+    if STUDENT_ANSWER[-1] != '\n':
+        STUDENT_ANSWER += '\n'
+    SEPARATOR = "#<ab@17943918#@>#"
+{%if IS_PRECHECK %}
+    IS_PRECHECK = True
+{% else %}
+    IS_PRECHECK = False
+{% endif %}
+    QUESTION_PRECHECK = int({{ QUESTION.precheck }}) # Type of precheck: 0 = None, 1 = Empty etc
+
+
+#=========================== Pylint checker =========================
+
+def pylint_is_happy(s):
+    """Return True iff pylint is happy with the given source program 's'
+    """
+    if PARAMS['isfunction']:
+        if len(s.strip()) == 0 or s.strip()[0] not in ['"', "'"]:
+            s = "'''Dummy module docstring'''\n" + s  # Add module docstring if nec.
+
+    try:
+        source = open('source.py', 'w', encoding="utf-8")
+        source.write(s)
+        source.close()
+        env = os.environ.copy()
+        env['HOME'] = os.getcwd()
+        pylint_opts = STANDARD_PYLINT_OPTIONS + PARAMS['pylintoptions']
+        if PARAMS['allowglobals']:
+            pylint_opts.append("--const-rgx='[a-zA-Z_][a-zA-Z0-9_]{2,30}$'")
+
+        cmd = 'python3 -m pylint ' + ' '.join(pylint_opts) + ' source.py'
+        result = subprocess.check_output(cmd,
+                                         stderr=subprocess.STDOUT,
+                                         universal_newlines=True,
+                                         env=env,
+                                         shell=True)
+    except Exception as e:
+        result = e.output
+
+    if "Using config file" in result:
+        result = '\n'.join(result.splitlines()[1:])
+
+    if result.strip():
+        print("Sorry, but your code doesn't pass the pylint style checks.", file=sys.stderr)
+        print(result)
+        return False
+    else:
+        return True
+
+
+def find_all_function_calls(tree):
+    """Determine if the given code contains a call to the given function."""
+    class MainFinder(ast.NodeVisitor):
+
+        def __init__(self, *args, **kwargs):
+            self.depth = 0
+            self.found = {}
+            super().__init__(*args, **kwargs)
+
+        def visit_FunctionDef(self, node):
+            """ Every time we enter a function, we get 'deeper' into the code.
+                We want to note how deep a function is when we find its call."""
+            self.depth += 1
+            self.generic_visit(node)
+            self.depth -= 1
+
+        def visit_Call(self, node):
+            """A function has been called, so check its name
+               against the given one."""
+            try:
+                if 'id' in dir(node.func):
+                    name = node.func.id
+                else:
+                    name = node.func.attr
+                # Line numbers are 1-indexed, so decrement by 1
+                self.found[name] = self.found.get(name, []) + [(node.lineno - 1, self.depth)]
+            except AttributeError:
+                pass  # either not calling a function (??) or it's not named.
+            self.generic_visit(node)
+
+    visitor = MainFinder()
+    visitor.visit(tree)
+    return visitor.found
+
+
+def find_defined_functions(tree):
+    """Find all the functions defined."""
+    defined = set()
+    class FuncFinder(ast.NodeVisitor):
+
+        def __init__(self):
+            self.prefix = ''
+
+        def visit_ClassDef(self, node):
+            old_prefix = self.prefix
+            self.prefix += node.name + '.'
+            self.generic_visit(node)
+            self.prefix = old_prefix
+
+        def visit_FunctionDef(self, node):
+            defined.add(self.prefix + node.name)
+            old_prefix = self.prefix
+            self.prefix += node.name + '.'
+            self.generic_visit(node)
+            self.prefix = old_prefix
+
+        def visit_AsyncFunctionDef(self, node):
+            self.visit_FunctionDef(node)
+
+    visitor = FuncFinder()
+    visitor.visit(tree)
+    return defined
+
+
+def constructs_used(tree):
+    '''True iff the given construct is used in code.'''
+    constructs_seen = set()
+    class ConstructFinder(ast.NodeVisitor):
+        def visit_Assert(self, node):
+            constructs_seen.add('assert')
+            self.generic_visit(node)
+        def visit_Raise(self, node):
+            constructs_seen.add('raise')
+            self.generic_visit(node)
+        def visit_Lambda(self, node):
+            constructs_seen.add('lambda')
+            self.generic_visit(node)
+        def visit_Import(self, node):
+            constructs_seen.add('import')
+            self.generic_visit(node)
+        def visit_ImportFrom(self, node):
+            constructs_seen.add('import')
+            self.generic_visit(node)
+        def visit_For(self, node):
+            constructs_seen.add('for')
+            self.generic_visit(node)
+        def visit_While(self, node):
+            constructs_seen.add('while')
+            self.generic_visit(node)
+        def visit_Comprehension(self, node):
+            constructs_seen.add('comprehension')
+            self.generic_visit(node)
+        def visit_If(self, node):
+            constructs_seen.add('if')
+            self.generic_visit(node)
+        def visit_Break(self, node):
+            constructs_seen.add('break')
+            self.generic_visit(node)
+        def visit_Continue(self, node):
+            constructs_seen.add('continue')
+            self.generic_visit(node)
+        def visit_Try(self, node):
+            constructs_seen.add('try')
+            self.generic_visit(node)
+        def visit_TryExcept(self, node):
+            constructs_seen.add('try')
+            constructs_seen.add('except')
+            self.generic_visit(node)
+        def visit_TryFinally(self, node):
+            constructs_seen.add('try')
+            constructs_seen.add('finally')
+            self.generic_visit(node)
+        def visit_ExceptHandler(self, node):
+            constructs_seen.add('except')
+            self.generic_visit(node)
+        def visit_With(self, node):
+            constructs_seen.add('with')
+            self.generic_visit(node)
+        def visit_Yield(self, node):
+            constructs_seen.add('yield')
+            self.generic_visit(node)
+        def visit_YieldFrom(self, node):
+            constructs_seen.add('yield')
+            self.generic_visit(node)
+        def visit_Return(self, node):
+            constructs_seen.add('return')
+            self.generic_visit(node)
+
+    visitor = ConstructFinder()
+    visitor.visit(tree)
+    return constructs_seen
+
+
+def find_function_calls(tree, name):
+    """Look for occurances of a specific function call"""
+    return find_all_function_calls(tree).get(name, [])
+
+
+def find_illegal_functions(tree, illegal_names):
+    """Find a set of all the functions that the student uses
+       that they are not allowed to use. """
+    func_calls = find_all_function_calls(tree)
+    return func_calls.keys() & set(illegal_names)
+
+
+def find_missing_required_function_calls(tree, required_names):
+    """Find a set of the required functions that the student fails to use"""
+    func_calls = find_all_function_calls(tree)
+    return set(required_names) - func_calls.keys()
+
+
+def find_missing_required_function_definitions(tree, required_names):
+    """Find a set of required functions that the student fails to define"""
+    func_defs = find_defined_functions(tree)
+    return set(required_names) - func_defs
+
+
+def find_illegal_constructs(tree, illegal_constructs):
+    """Find all the constructs that were used but not allowed"""
+    constructs = constructs_used(tree)
+    return constructs & set(illegal_constructs)
+
+
+def find_missing_required_constructs(tree, required_constructs):
+    """Find which of the required constructs were not used"""
+    constructs = constructs_used(tree)
+    return set(required_constructs) - constructs
+
+
+def find_too_long_funcs(tree, max_length):
+    """Return a list of the functions that exceed the given max_length.
+       Each list element is a tuple of the function name and the number of statements
+       in its body."""
+
+    bad_funcs = []
+
+    class MyVisitor(ast.NodeVisitor):
+
+        def visit_FunctionDef(self, node):
+
+            def count_statements(node):
+                """Number of statements in the given node and its children"""
+                count = 1
+                if isinstance(node, ast.Expr) and isinstance(node.value, ast.Str):
+                    count = 0
+                else:
+                    for attr in ['body', 'orelse', 'finalbody']:
+                        if hasattr(node, attr):
+                            children = node.__dict__[attr]
+                            count += sum(count_statements(child) for child in children)
+                return count
+
+            num_statements = count_statements(node) - 1 # Disregard def itself
+            if num_statements > max_length:
+                bad_funcs.append((node.name, num_statements))
+
+        def visit_AsyncFunctionDef(self, node):
+            self.visit_FunctionDef(node)
+
+    visitor = MyVisitor()
+    visitor.visit(tree)
+    return bad_funcs
+
+
+class CodeTrap(object):
+    """ A safe little container to hold the student's code and grab
+        its output, while also reformatting exceptions to be nicer
+    """
+
+    def __init__(self, student_code, pre_code=None, post_code=None):
+        self.student_code = student_code
+        self.pre_code = pre_code if pre_code else ''
+        self.post_code = post_code if post_code else ''
+        self.run_code = self.pre_code + '\n' + self.student_code + '\n' + self.post_code
+        self.offset_out = 0
+        self.offset_err = 0
+        self.scoped_globals = self._get_globals()
+
+    def _get_globals(self):
+        """ Here we define any globals that must be available """
+        # change the default options for 'open'.
+        def new_open(file, mode='r', buffering=-1,
+                     encoding='utf-8', errors=None,
+                     newline=None, closefd=True, opener=None):
+            return open(file, mode, buffering, encoding, errors, newline, closefd, opener)
+        # force 'input' to echo to stdin to stdout
+        if not PARAMS['usestandardinput']:
+            def new_input(prompt=''):
+                """ Replace the standard input prompt with a cleverer one. """
+                try:
+                    s = input(prompt)
+                except EOFError:
+                    print("'input' function called when no input data available.", file=sys.stderr)
+                    sys.exit(1)
+                print(s)
+                return s
+        else:
+            new_input = input
+        return {
+            'open': new_open,
+            'input': new_input
+        }
+
+    def __enter__(self):
+        self.old_stdout = sys.stdout
+        self.old_stderr = sys.stderr
+        sys.stdout = io.StringIO()
+        sys.stderr = io.StringIO()
+        return self
+
+    def __exit__(self, *args):
+        sys.stdout = self.old_stdout
+        sys.stderr = self.old_stderr
+
+    def exec(self):
+        """ Run the code. Report any errors to stderr,
+            made pretty and correct for the student code.
+        """
+        try:
+            exec(self.run_code, self.scoped_globals)
+        except Exception as e:
+            etype, value, tb = sys.exc_info()
+            tb_tuples = traceback.extract_tb(tb)
+            new_tb = []
+            for filename, linenumber, scope, text in tb_tuples:
+                if filename == "<string>":
+                        new_tb.append((
+                            "source.py",
+                            linenumber - len(self.pre_code.split('\n')),
+                            scope,
+                            self.run_code.split('\n')[linenumber - 1].strip()
+                        ))
+            print("Traceback (most recent call last):", file=sys.stderr)
+            print(''.join(traceback.format_list(new_tb)), end='', file=sys.stderr)
+            print(traceback.format_exception_only(etype, value)[-1], end='', file=sys.stderr)
+            return True
+        except SystemExit as e:
+            print("Unexpected termination: Please do not call exit() or quit().",
+                  file=sys.stderr)
+        except KeyboardInterrupt as e:
+            print("KeyboardInterrupt", file=sys.stderr)
+        except GeneratorExit as e:
+            print("GeneratorExit", file=sys.stderr)
+
+    def read(self):
+        """ Grab the additions to stdout and stderr since last read.
+        """
+        sys.stdout.seek(self.offset_out)
+        output = sys.stdout.read()
+        self.offset_out = len(output)
+        sys.stderr.seek(self.offset_err)
+        error = sys.stderr.read()
+        self.offset_err = len(error)
+        return output, error
+
+
+def produces_passive_output(student_code):
+    """ Check whether the given code produces output without any prompting.
+    This is essentially a "dry run" of the code.
+    """
+    with CodeTrap(student_code, PRELUDE) as t:
+        t.exec()
+        captured_output, captured_error = t.read()
+    return captured_output.strip() != '' or captured_error.strip() != ''
+
+
+def local_checks_ok(code):
+    """Perform various local checks as specified by the current set of
+       template parameters. Note that if either stripmain or stripmainifpresent
+       is defined the global STUDENT_ANSWER is updated (shock, horror).
+    """
+    global STUDENT_ANSWER
+    errors = []
+    tree = ast.parse(code)
+
+    allowed = PARAMS['maxfunctionlength']
+    bad_funcs = find_too_long_funcs(tree, allowed)
+    for func, count in bad_funcs:
+        errors.append("Function '{}' is too long\n({} statements, max is {})"
+                      "".format(func, count, allowed))
+
+    illegal_functions = PARAMS['proscribedfunctions']
+    bad_used = find_illegal_functions(tree, illegal_functions)
+    for name in bad_used:
+        errors.append("You called the banned function '{}'.".format(name))
+
+    required_function_calls = PARAMS['requiredfunctioncalls']
+    missing_funcs = find_missing_required_function_calls(tree, required_function_calls)
+    for name in missing_funcs:
+        errors.append("You forgot to use the required function '{}'.".format(name))
+
+    required_function_defs = PARAMS['requiredfunctiondefinitions']
+    missing_funcs = find_missing_required_function_definitions(tree, required_function_defs)
+    for name in missing_funcs:
+        errors.append("You forgot to define the required function '{}'.".format(name))
+
+    required_constructs = PARAMS['requiredconstructs']
+    missing_constructs = find_missing_required_constructs(tree, required_constructs)
+    for reqd in missing_constructs:
+        errors.append("Your program must include at least one " + reqd + " statement.")
+
+    proscribed_constructs = PARAMS['proscribedconstructs']
+    bad_constructs = find_illegal_constructs(tree, proscribed_constructs)
+    for notallowed in bad_constructs:
+        errors.append("Your program must not include any " + notallowed + " statements.")
+
+    num_constants = len([line for line in code.split('\n') if re.match('[A-Z_][A-Z_0-9]* *=', line)])
+    if num_constants > PARAMS['maxnumconstants']:
+        errors.append("You may not use more than " + str(PARAMS['maxnumconstants']) + " constants.")
+
+    if (PARAMS['warnifpassiveoutput'] or PARAMS['isfunction']) and produces_passive_output(code):
+        errors.append("Your code was not expected to generate any output " +
+            "when executed stand-alone.\nDid you accidentally include " +
+            "your test code?")
+
+    if PARAMS['stripmain'] or PARAMS['stripmainifpresent']:
+        main_calls = find_function_calls(tree, 'main')
+
+    if PARAMS['stripmain'] and main_calls == []:
+        errors.append("No call to main() found")
+
+    if PARAMS['stripmain'] or PARAMS['stripmainifpresent']:
+        student_lines = STUDENT_ANSWER.split('\n')
+        for (line, depth) in main_calls:
+            if depth == 0:
+                student_lines[line] = student_lines[line].replace("main",
+                                                                   "pass  # main")
+                student_lines[line] += "  # Don't call main here!"
+            else:
+                template = "{}  # We've let you call main here."
+                student_lines[line] = template.format(student_lines[line])
+        STUDENT_ANSWER = '\n'.join(student_lines) + '\n'
+
+
+    for error in errors:
+        print(error, file=sys.stderr)
+    return len(errors) == 0
+
+
+def run_test(pre_code, student_answer, post_code, skip_student_output=False):
+    """ Run the student code, with precode and post_code adjoined.
+        If skip_student_output is true, we skip any output produced
+        by the student's code without prompting.
+    """
+    io_sep = "#$<cr@931659>$#"
+    io_print = "\nprint('" + io_sep + "')\n"
+    prefix = pre_code + io_print
+    if skip_student_output:
+        postfix = '\nsys.stdin.seek(0)'
+    else:
+        postfix = ''
+    postfix += io_print + post_code
+    with CodeTrap(student_answer, prefix, postfix) as t:
+        t.exec()
+        captured_output, captured_error = t.read()
+    if captured_error.strip() != '':
+        print(captured_output.replace(io_sep + '\n', ''), end='')
+        print(captured_error, file=sys.stderr, end='')
+        exit(1)
+    pre, middle, post = captured_output.split(io_sep + '\n')
+    if skip_student_output:
+        middle = ''
+    print(pre + middle + post)
+
+
+def main():
+    global PRELUDE
+    get_template_params()
+    get_global_params()
+    PRELUDE = ''
+    for imp in PARAMS['imports']:
+        PRELUDE += 'import ' + imp + '\n'
+    try:
+        with open('_prefix.py') as prefix:
+            PRELUDE += '\n' + prefix.read()
+    except FileNotFoundError:
+        pass
+
+    if (pylint_is_happy(PRELUDE + STUDENT_ANSWER) and
+                 local_checks_ok(STUDENT_ANSWER) and
+                (not IS_PRECHECK or QUESTION_PRECHECK != 1)):
+        test_cases = get_test_cases()
+        for i_test, test in enumerate(test_cases):
+            student_code_to_run = ''
+            post_code_to_run = ''
+            cut_passive = PARAMS['suppresspassiveoutput']
+            if not PARAMS['norun']:
+                student_code_to_run = STUDENT_ANSWER
+            if PARAMS['runextra']:
+                post_code_to_run += '\n' + test.extra + '\n'
+            if not PARAMS['notest']:
+                post_code_to_run += '\n' + test.testcode + '\n'
+            run_test(PRELUDE, student_code_to_run, post_code_to_run, skip_student_output=cut_passive)
+            if i_test != len(test_cases) - 1:
+                print(SEPARATOR)
+
+main()
+]]></template>
+    <iscombinatortemplate>1</iscombinatortemplate>
+    <allowmultiplestdins>0</allowmultiplestdins>
+    <answer></answer>
+    <validateonsave>0</validateonsave>
+    <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
+    <language>python3</language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader>EqualityGrader</grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams></templateparams>
+    <testcases>
+    </testcases>
+  </question>
+
+</quiz>

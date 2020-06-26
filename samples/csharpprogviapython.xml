@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<quiz>
+<!-- question: 0  -->
+  <question type="category">
+    <category>
+        <text>$system$/Questions for export</text>
+
+    </category>
+  </question>
+
+<!-- question: 18792  -->
+  <question type="coderunner">
+    <name>
+      <text>C# echo stdin</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<p>Write a C# program that echoes standard input to standard output.</p>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.0000000</penalty>
+    <hidden>0</hidden>
+    <coderunnertype>Csharp_prog_viapython2</coderunnertype>
+    <prototypetype>0</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime>10, 20, ...</penaltyregime>
+    <precheck>1</precheck>
+    <showsource>1</showsource>
+    <answerboxlines>10</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
+    <useace></useace>
+    <resultcolumns></resultcolumns>
+    <template></template>
+    <iscombinatortemplate></iscombinatortemplate>
+    <allowmultiplestdins></allowmultiplestdins>
+    <answer>using System;
+ 
+public class HelloWorld
+{
+    static public void Main ()
+    {
+        string line = Console.ReadLine();
+        while (line != null) {
+            Console.WriteLine (line);
+            line = Console.ReadLine();
+        }
+    }
+}
+</answer>
+    <validateonsave>1</validateonsave>
+    <testsplitterre></testsplitterre>
+    <language></language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader></grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams></templateparams>
+    <uiplugin></uiplugin>
+    <testcases>
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text></text>
+      </testcode>
+      <stdin>
+                <text>I'm a line of standard input
+So am I</text>
+      </stdin>
+      <expected>
+                <text>I'm a line of standard input
+So am I</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text></text>
+      </testcode>
+      <stdin>
+                <text><![CDATA[JUST the place for a Snark!" the Bellman cried,
+As he landed his crew with care;
+Supporting each man on the top of the tide
+By a finger entwined in his hair.
+
+"Just the place for a Snark! I have said it twice:
+That alone should encourage the crew.
+Just the place for a Snark! I have said it thrice:
+What I tell you three times is true."]]></text>
+      </stdin>
+      <expected>
+                <text><![CDATA[JUST the place for a Snark!" the Bellman cried,
+As he landed his crew with care;
+Supporting each man on the top of the tide
+By a finger entwined in his hair.
+
+"Just the place for a Snark! I have said it twice:
+That alone should encourage the crew.
+Just the place for a Snark! I have said it thrice:
+What I tell you three times is true."]]></text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+    </testcases>
+  </question>
+
+<!-- question: 18791  -->
+  <question type="coderunner">
+    <name>
+      <text>UOC_CSHARP_PROG_VIA_PYTHON_PROTOTYPE</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<p>A prototype for a C# (mono) question type that tests a C# "write-a-program" question. It attempts to run all tests in a single Jobe run with a single compilation. If the run fails for any reason, including compilation error, run-time error or timeout, the CodeRunner framework will re-run this template once for each test case until the failing test case is met.</p>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.0000000</penalty>
+    <hidden>0</hidden>
+    <coderunnertype>Csharp_prog_viapython2</coderunnertype>
+    <prototypetype>2</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime>10, 20, ...</penaltyregime>
+    <precheck>0</precheck>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
+    <useace>1</useace>
+    <resultcolumns></resultcolumns>
+    <template><![CDATA[""" The template for a question type that compiles and runs a student-submitted
+    mono C# program using a combinator template that tries to run all
+    test cases in a single compile-and-execute Jobe run.
+    This assumes a "write a program" type of question, with no test code to
+    be incorporated.
+"""
+
+import subprocess, sys
+
+# Write the student code to a file prog.cs
+student_answer = """{{ STUDENT_ANSWER | e('py') }}"""
+with open("prog.cs", "w") as src:
+    print(student_answer, file=src)
+
+# Compile
+return_code = subprocess.call(['mcs', 'prog.cs'])
+if return_code != 0:
+    print("** Compilation failed. Testing aborted **", file=sys.stderr)
+
+{% if not IS_PRECHECK %}
+else:
+    # If compile succeeded and it's not a precheck run all the tests.
+{% for TEST in TESTCASES %}
+    testcode = """{{ TEST.testcode | e('py') }}\n"""
+    standard_input = """{{ TEST.stdin | e('py') }}\n""".rstrip() + '\n'
+    try:
+        output = subprocess.check_output(
+            ["mono", "./prog.exe"],
+            input = standard_input,
+            universal_newlines=True
+        )
+        print(output)
+    except subprocess.CalledProcessError as e:
+        if e.returncode > 0:
+            # Ignore non-zero positive return codes
+            if e.output:
+                print(e.output)
+        else:
+            # But negative return codes are signals - abort
+            if e.output:
+                print(e.output, file=sys.stderr)
+            if e.returncode < 0:
+                print("Task failed with signal", -e.returncode, file=sys.stderr)
+            print("** Further testing aborted **", file=sys.stderr)
+            sys.exit(1);
+{% if not loop.last %}
+    print('#<ab@17943918#@>#');   # Testcase separator
+{% endif %}
+{% endfor %}
+{% endif %}]]></template>
+    <iscombinatortemplate>1</iscombinatortemplate>
+    <allowmultiplestdins>1</allowmultiplestdins>
+    <answer></answer>
+    <validateonsave>0</validateonsave>
+    <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
+    <language>python3</language>
+    <acelang>cs</acelang>
+    <sandbox></sandbox>
+    <grader>EqualityGrader</grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams></templateparams>
+    <uiplugin>ace</uiplugin>
+    <testcases>
+    </testcases>
+  </question>
+
+</quiz>

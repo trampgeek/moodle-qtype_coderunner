@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<libraries>
+    <library>
+        <location>Twig</location>
+        <name>Twig</name>
+        <version>1.28.2</version>
+        <license>BSD 3-Clause</license>
+    </library>
+    <library>
+        <location>ace</location>
+        <name>Ace</name>
+        <version>1.2.5</version>
+        <license>BSD 3-Clause</license>
+    </library>
+</libraries>

@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<quiz>
+<!-- question: 8990  -->
+  <question type="coderunner">
+    <name>
+      <text>Directed graph demo</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<p>Draw a weighted directed graph with three nodes A, B and C such that the following properties hold:</p><p></p><ul><li>The graph has only 3 edges.</li><li>The shortest path from A to B is of length 3.</li><li>The shortest path from A to C is of length 4.</li><li>The shortest path from B to C is of length 1.</li><li>The shortest path from&nbsp;B to A is of length 5.</li><li>There are no paths from C to either A or B</li></ul><p></p>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1</defaultgrade>
+    <penalty>0</penalty>
+    <hidden>0</hidden>
+    <idnumber></idnumber>
+    <coderunnertype>directed_graph</coderunnertype>
+    <prototypetype>0</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime>10, 20, ...</penaltyregime>
+    <precheck>3</precheck>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns></answerboxcolumns>
+    <answerpreload></answerpreload>
+    <globalextra></globalextra>
+    <useace></useace>
+    <resultcolumns></resultcolumns>
+    <template><![CDATA["""This template begins with all the code from the built-in DirectedGraph
+   question type. This defines a global variable 'graph' which is a dictionary
+   mapping from node_name to a list of edges. The node_name is the label
+   within the node, if given, or a string of the form '#nnn' where nnn is
+   the number of the node, otherwise. Each edge in the edge list is a tuple of
+   (node_name, edge_label).
+   
+   For some directed graph questions that global variable is sufficient to
+   allow the question author to write tests that directly use the graph
+   variable. In more complex questions, such as this one, the author must further
+   customise the question. In this example an additional allPairsShortestPath
+   function is defined that takes the graph as a parameter and returns a
+   dictionary that maps from  (source_node_name, target_node_name) to distance.
+   
+   As an aside, a better solution here would be to have the DirectedGraph
+   question type include {{ QUESTION.globalextra }} just before the tests.
+   Then the allPairsShortestPath function could be moved into the global
+   extra, so that the question would not need to be specifically customised, but
+   could use the DirectedGraph question type directly. But at the time Directed
+   Graph was developed, the global extra field was not available.
+   
+"""
+
+# Firstly the code from the DirectedGraph question prototype (more or less)
+import json, sys
+
+student_answer = """{{ STUDENT_ANSWER | e('py') }}"""
+SEPARATOR = "#<ab@17943918#@>#"
+INF = float('inf')
+
+error_count = 0
+def error(s):
+    global error_count
+    print(s)
+    error_count += 1
+
+try:
+    graph_rep = json.loads(student_answer)
+    node_id_to_name_map = {}
+    for i, node in enumerate(graph_rep['nodes']):
+        node_id_to_name_map[i] = node[0] if node[0] != '' else ('#' + str(i))
+    edges = graph_rep['edges']
+    graph = {}
+    for node_id, node_name in sorted(node_id_to_name_map.items()):
+        edges = []
+        for id0, id1, edge_label in graph_rep['edges']:
+            if id0 == node_id:
+                edges.append((node_id_to_name_map[id1], edge_label))
+        edges.sort()
+        graph[node_name] = edges
+
+except json.JSONDecodeError as e:
+    raise Exception("Oops. Illegal graph received (exception {}). Please report (unless you did something silly yourself)".format(e))
+
+# Now we add Floyd-Warshall 
+
+def allPairsShortestPath(g):
+    """Return distance dictionary (a map from (u, v) to distance) computed
+       by Floyd-Warshall.
+    """
+    dist = {}
+    for u in g:
+        for v in g:
+            dist[u, v] = INF
+        dist[u, u] = 0
+
+        for v, edge_label in g[u]:
+            try:
+                d = int(edge_label)
+            except ValueError:
+                d = 0
+            dist[u, v] = d
+
+    for mid in g:
+        for u in g:
+            for v in g:
+                newlen = dist[u, mid] + dist[mid, v]
+                if newlen < dist[u, v]:
+                    dist[u, v] = newlen
+
+    return dist
+    
+distances = allPairsShortestPath(graph)
+
+{% for TEST in TESTCASES %}
+{{ TEST.testcode }}
+{{ TEST.extra }}
+{% if not loop.last %}
+print(SEPARATOR)
+{% endif %}
+{% endfor %}]]></template>
+    <iscombinatortemplate></iscombinatortemplate>
+    <allowmultiplestdins></allowmultiplestdins>
+    <answer><![CDATA[{"edgeGeometry":[{"lineAngleAdjust":3.141592653589793,"parallelPart":0.596288762505708,"perpendicularPart":-15.965845275713098},{"lineAngleAdjust":3.141592653589793,"parallelPart":0.5049596309111879,"perpendicularPart":-19.64332475963417},{"lineAngleAdjust":3.141592653589793,"parallelPart":0.5647328092347498,"perpendicularPart":-29.83760404566008}],"nodeGeometry":[[222,85],[342,173],[184,260]],"nodes":[["A",false],["B",false],["C",false]],"edges":[[0,1,"3"],[1,2,"1"],[1,0,"5"]]}]]></answer>
+    <validateonsave>1</validateonsave>
+    <testsplitterre></testsplitterre>
+    <language></language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader></grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams><![CDATA[{
+    "isfsm": false,
+    "isdirected": true
+}]]></templateparams>
+    <hoisttemplateparams>1</hoisttemplateparams>
+    <twigall>0</twigall>
+    <uiplugin></uiplugin>
+    <attachments>0</attachments>
+    <attachmentsrequired>0</attachmentsrequired>
+    <maxfilesize>1024</maxfilesize>
+    <filenamesregex></filenamesregex>
+    <filenamesexplain></filenamesexplain>
+    <displayfeedback>1</displayfeedback>
+    <testcases>
+      <testcase testtype="2" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text># Check the set of nodes
+print(sorted(graph.keys()))</text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>['A', 'B', 'C']</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="2" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text><![CDATA[# Check all edges have integer weights
+for u, elist in graph.items():
+   for v, label in elist:
+       try:
+           int(label)
+       except ValueError:
+           print("Edge from {} to {} should have an integer weight".format(u, v))
+]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text></text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text># Print connectivity (computed by
+# hidden all-pairs shortest path code).
+for src in 'ABC':
+    for dest in 'ABC':
+        if src != dest:
+            d = distances[src, dest]
+            print(src, dest, '-' if d == INF else d)
+        </text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>A B 3
+A C 4
+B A 5
+B C 1
+C A -
+C B -</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="2" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text># Check there are just 3 edges
+print(sum([len(edgelist) for edgelist in graph.values()]))</text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>3</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+    </testcases>
+  </question>
+
+</quiz>
