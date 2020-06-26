@@ -1,5 +1,19 @@
 # CHANGE HISTORY
 
+#26 June 2020. 3.7.8
+
+ * Correctly faulty documentation of import of html module within Twig and
+   misuse of htmlentities in documentation.
+ * Bug fix: displaying the question author's solution to a question with the
+   UI plugin explicitly set to None generates a PHP warning regarding an undefined
+   constant fieldid.
+ * Bug fix: The Show Differences button was comparing the wrong two columns
+   in Moodle 3.9.
+ * Add a linklabelreldist template parameter to the GraphUI to allow positioning
+   of link labels at relative distances other than 0.5 along the link. Supported
+   only with straight links.
+ * Two tweaks to the test suite.
+
 # 11 May 2020. 3.7.7
 
  * Bug fix: viewing of combinator grader outputs from previous versions of
