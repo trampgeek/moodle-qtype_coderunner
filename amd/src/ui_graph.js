@@ -619,7 +619,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         for(i = 0; i < this.nodes.length; i++) {
             var node = this.nodes[i];
 
-            var nodeData = [node.textBox.text, node.isAcceptState];
+            var nodeData = [node.textBox.getText(), node.isAcceptState];
             var nodeLayout = [node.x, node.y];
 
             backup.nodeGeometry.push(nodeLayout);
@@ -635,7 +635,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
                 linkLayout = {
                     'anchorAngle': link.anchorAngle,
                 };
-                linkData = [this.nodes.indexOf(link.node), this.nodes.indexOf(link.node), link.textBox.text];
+                linkData = [this.nodes.indexOf(link.node), this.nodes.indexOf(link.node), link.textBox.getText()];
             } else if(link instanceof elements.StartLink) {
                 linkLayout = {
                     'deltaX': link.deltaX,
@@ -648,7 +648,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
                     'parallelPart': link.parallelPart,
                     'perpendicularPart': link.perpendicularPart,
                 };
-                linkData = [this.nodes.indexOf(link.nodeA), this.nodes.indexOf(link.nodeB), link.textBox.text];
+                linkData = [this.nodes.indexOf(link.nodeA), this.nodes.indexOf(link.nodeB), link.textBox.getText()];
             }
             if(linkData !== null && linkLayout !== null) {
                 backup.edges.push(linkData);

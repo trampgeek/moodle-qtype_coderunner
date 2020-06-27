@@ -554,16 +554,32 @@ define(['qtype_coderunner/graphutil'], function(util) {
      *
      ***********************************************************************/
      
-     function TextBox(text) {
-         this.text = text;
-         this.caretPosition = text.length;
-     }
+    function TextBox(text) {
+        this.text = util.convertLatexShortcuts(text);
+        this.caretPosition = text.length;
+    }
      
+    TextBox.prototype.getText = function() {
+        return util.deconvertLatexShortcuts(this.text);
+    }
     
     // Inserts a given character into the TextBox at its current caretPosition
     TextBox.prototype.insertChar = function(char) {
         this.text = this.text.slice(0, this.caretPosition) + char + this.text.slice(this.caretPosition);
-        this.caretPosition ++;
+        var originalText = this.text;
+        this.text = util.convertLatexShortcuts(this.text);
+        this.caretPosition++;
+        
+        lengthDiff = originalText.length - this.text.length;
+        // If a Latex shortcut has been converted into a character, move cursor back
+        if (lengthDiff !== 0){
+            index = this.text.length - 1;
+            // Find last position where the new text differs from the original
+            while (index >= 0 && originalText[index + lengthDiff] === this.text[index]){
+                index--;
+            }
+            this.caretPosition = index + 1;
+        }
     }
     
     // Deletes the character in the TextBox that is located behind the current caretPosition 
@@ -592,12 +608,11 @@ define(['qtype_coderunner/graphutil'], function(util) {
     TextBox.prototype.draw = function(x, y, angleOrNull, parentObject) {
         var graph = parentObject.parent,
             c = graph.getCanvas().getContext('2d'),
-            text = util.convertLatexShortcuts(this.text),
             width,
             dy;
 
         c.font = graph.fontSize() + 'px Arial';
-        width = c.measureText(text).width;
+        width = c.measureText(this.text).width;
 
         // Center the text.
         x -= width / 2;
@@ -615,19 +630,19 @@ define(['qtype_coderunner/graphutil'], function(util) {
 
         // Draw text and caret (round the coordinates so the caret falls on a pixel).
         if('advancedFillText' in c) {
-            c.advancedFillText(text, this.text, x + width / 2, y, angleOrNull);
+            c.advancedFillText(this.text, this.text, x + width / 2, y, angleOrNull);
         } else {
             x = Math.round(x);
             y = Math.round(y);
             dy = Math.round(graph.fontSize() / 3); // Don't understand this.
             
-            c.fillText(text, x, y + dy);
+            c.fillText(this.text, x, y + dy);
             
             // Draw caret
             if(parentObject == graph.selectedObject && graph.caretVisible && graph.hasFocus() && document.hasFocus()) {
                 
                 // Set correct caret position
-                x += c.measureText(text.slice(0, this.caretPosition)).width;
+                x += c.measureText(this.text.slice(0, this.caretPosition)).width;
                 
                 dy = Math.round(graph.fontSize() / 2);
                 c.beginPath();
