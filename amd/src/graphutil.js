@@ -70,22 +70,6 @@ define(function() {
         text = text.replace(new RegExp('_a', 'g'), String.fromCharCode(8336));
         return text;
     };
-    
-    Util.prototype.deconvertLatexShortcuts = function(text) {
-        // Html greek characters.
-        for(var i = 0; i < this.greekLetterNames.length; i++) {
-            var name = this.greekLetterNames[i];
-            text = text.replace(new RegExp(String.fromCharCode(913 + i + (i > 16)), 'g'), '\\' + name);
-            text = text.replace(new RegExp(String.fromCharCode(945 + i + (i > 16)), 'g'), '\\' + name.toLowerCase());
-        }
-
-        // Subscripts.
-        for(var i = 0; i < 10; i++) {
-            text = text.replace(new RegExp(String.fromCharCode(8320 + i), 'g'), '_'+ i);
-        }
-        text = text.replace(new RegExp(String.fromCharCode(8336), 'g'), '_a');
-        return text;
-    }
 
     Util.prototype.drawArrow = function(c, x, y, angle) {
         // Draw an arrow head on the graphics context c at (x, y) with given angle.
