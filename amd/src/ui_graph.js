@@ -255,7 +255,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         if (this.readOnly) {
             return;
         }
-        
+
         if(key >= 0x20 &&
                   key <= 0x7E &&
                   !e.metaKey &&

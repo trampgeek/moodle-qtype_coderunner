@@ -546,7 +546,7 @@ define(['qtype_coderunner/graphutil'], function(util) {
             }
         }
     };
-    
+
     /***********************************************************************
      *
      * Define a class TextBox for a possibly editable text box that might 
@@ -554,18 +554,18 @@ define(['qtype_coderunner/graphutil'], function(util) {
      *
      ***********************************************************************/
      
-     function TextBox(text) {
-         this.text = text;
-         this.caretPosition = text.length;
-     }
-     
+    function TextBox(text) {
+        this.text = text;
+        this.caretPosition = text.length;
+    }
+    
     
     // Inserts a given character into the TextBox at its current caretPosition
     TextBox.prototype.insertChar = function(char) {
         this.text = this.text.slice(0, this.caretPosition) + char + this.text.slice(this.caretPosition);
         this.caretPosition ++;
     }
-    
+
     // Deletes the character in the TextBox that is located behind the current caretPosition 
     TextBox.prototype.deleteChar = function() {
         if (this.caretPosition > 0){
@@ -573,31 +573,32 @@ define(['qtype_coderunner/graphutil'], function(util) {
             this.caretPosition --;
         }
     }
-    
+
     // Moves the TextBox's caret left one character if possible
     TextBox.prototype.caretLeft = function() {
         if (this.caretPosition > 0) {
             this.caretPosition --;
         }
     }
-    
+
     // Moves the TextBox's caret right one character if possible
     TextBox.prototype.caretRight = function() {
         if (this.caretPosition < this.text.length) {
             this.caretPosition ++;
         }
     }
-    
-    
+
+
     TextBox.prototype.draw = function(x, y, angleOrNull, parentObject) {
         var graph = parentObject.parent,
             c = graph.getCanvas().getContext('2d'),
-            text = util.convertLatexShortcuts(this.text),
             width,
             dy;
 
         c.font = graph.fontSize() + 'px Arial';
-        width = c.measureText(text).width;
+        beforeCaretText = util.convertLatexShortcuts(this.text.slice(0, this.caretPosition));
+        afterCaretText = util.convertLatexShortcuts(this.text.slice(this.caretPosition));
+        width = c.measureText(beforeCaretText + afterCaretText).width;
 
         // Center the text.
         x -= width / 2;
@@ -615,20 +616,19 @@ define(['qtype_coderunner/graphutil'], function(util) {
 
         // Draw text and caret (round the coordinates so the caret falls on a pixel).
         if('advancedFillText' in c) {
-            c.advancedFillText(text, this.text, x + width / 2, y, angleOrNull);
+            c.advancedFillText(this.text, this.text, x + width / 2, y, angleOrNull);
         } else {
             x = Math.round(x);
             y = Math.round(y);
             dy = Math.round(graph.fontSize() / 3); // Don't understand this.
-            
-            c.fillText(text, x, y + dy);
-            
+
+            c.fillText(beforeCaretText, x, y + dy);
+
+            x += c.measureText(beforeCaretText).width;
+            c.fillText(afterCaretText, x, y + dy);
+
             // Draw caret
             if(parentObject == graph.selectedObject && graph.caretVisible && graph.hasFocus() && document.hasFocus()) {
-                
-                // Set correct caret position
-                x += c.measureText(text.slice(0, this.caretPosition)).width;
-                
                 dy = Math.round(graph.fontSize() / 2);
                 c.beginPath();
                 c.moveTo(x, y - dy);
@@ -637,7 +637,7 @@ define(['qtype_coderunner/graphutil'], function(util) {
             }
         }
     };
-     
+
 
     return {
         Node: Node,
