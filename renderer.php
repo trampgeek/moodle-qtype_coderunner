@@ -556,7 +556,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
         if ($uiplugin !== '' && $uiplugin !== 'none') {
             qtype_coderunner_util::load_uiplugin_js($question, $fieldid);
         } else {
-            $PAGE->requires->js_call_amd('qtype_coderunner/textareas', 'initQuestionTA', array(fieldid));
+            $PAGE->requires->js_call_amd('qtype_coderunner/textareas', 'initQuestionTA', array($fieldid));
         }
         return $html;
     }

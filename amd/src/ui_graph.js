@@ -154,6 +154,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         this.DEFAULT_NODE_RADIUS = 26;  // Pixels. Template parameter noderadius can override this.
         this.DEFAULT_FONT_SIZE = 20;    // px. Template parameter fontsize can override this.
         this.DEFAULT_TEXT_OFFSET = 4;   // Link label tweak. Template params can override.
+        this.DEFAULT_LINK_LABEL_REL_DIST = 0.5;  // Relative distance along link to place labels
 
         this.canvasId = 'graphcanvas_' + textareaId;
         this.textArea = $(document.getElementById(textareaId));
@@ -235,6 +236,11 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
 
     Graph.prototype.textOffset = function() {
         return this.templateParams.textoffset ? this.templateParams.textoffset : this.DEFAULT_TEXT_OFFSET;
+    };
+
+
+    Graph.prototype.linkLabelRelDist = function() {
+        return this.templateParams.linklabelreldist ? this.templateParams.linklabelreldist : this.DEFAULT_LINK_LABEL_REL_DIST;
     };
 
     // Draw an arrow head if this is a directed graph. Otherwise do nothing.

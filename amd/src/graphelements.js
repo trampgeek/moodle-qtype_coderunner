@@ -234,7 +234,7 @@ define(['qtype_coderunner/graphutil'], function(util) {
     };
 
     Link.prototype.draw = function(c) {
-        var linkInfo = this.getEndPointsAndCircle(), textX, textY, textAngle;
+        var linkInfo = this.getEndPointsAndCircle(), textX, textY, textAngle, relDist;
         // Draw arc.
         c.beginPath();
         if(linkInfo.hasCircle) {
@@ -262,6 +262,7 @@ define(['qtype_coderunner/graphutil'], function(util) {
                       Math.atan2(linkInfo.endY - linkInfo.startY, linkInfo.endX - linkInfo.startX));
         }
         // Draw the text.
+        relDist = this.parent.linkLabelRelDist();
         if(linkInfo.hasCircle) {
             var startAngle = linkInfo.startAngle;
             var endAngle = linkInfo.endAngle;
@@ -273,8 +274,8 @@ define(['qtype_coderunner/graphutil'], function(util) {
             textY = linkInfo.circleY + linkInfo.circleRadius * Math.sin(textAngle);
             this.textBox.draw(textX, textY, textAngle, this);
         } else {
-            textX = (linkInfo.startX + linkInfo.endX) / 2;
-            textY = (linkInfo.startY + linkInfo.endY) / 2;
+            textX = ((1 - relDist) * linkInfo.startX + relDist * linkInfo.endX);
+            textY = ((1 - relDist) * linkInfo.startY + relDist * linkInfo.endY);
             textAngle = Math.atan2(linkInfo.endX - linkInfo.startX, linkInfo.startY - linkInfo.endY);
             this.textBox.draw(textX, textY, textAngle + this.lineAngleAdjust, this);
         }

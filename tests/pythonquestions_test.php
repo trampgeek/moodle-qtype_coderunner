@@ -28,6 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once($CFG->dirroot . '/question/type/coderunner/tests/coderunnertestcase.php');
+require_once($CFG->dirroot . '/lib/accesslib.php');
 
 
 /**
@@ -37,12 +38,6 @@ class qtype_coderunner_pythonquestions_test extends qtype_coderunner_testcase {
     protected function setUp() {
         parent::setUp();
         $this->goodcode = "def sqr(n): return n * n";
-    }
-
-    public function test_get_question_summary() {
-        $q = $this->make_question('sqr');
-        $this->assertEquals('Write a function sqr(n) that returns n squared',
-                $q->get_question_summary());
     }
 
     public function test_summarise_response() {
@@ -272,9 +267,8 @@ EOCODE;
     public function test_customised_timeout() {
         $q = $this->make_question('hello_python');
         $slowsquare = <<<EOT
-from time import clock
-t = clock()
-while clock() < t + 10: pass  # Wait 10 seconds
+from time import sleep
+sleep(10)  # Wait 10 seconds
 print("Hello Python")
 EOT;
         $response = array('answer' => $slowsquare);  // Should time out.
