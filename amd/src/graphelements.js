@@ -641,7 +641,6 @@ define(['qtype_coderunner/graphutil'], function(util) {
     };
 
     TextBox.prototype.draw = function(x, y, angleOrNull, parentObject) {
-        this.anchorX = x,  this.anchorY = y;  //Record the position where this text is anchored to its parent
         var graph = parentObject.parent,
             c = graph.getCanvas().getContext('2d'),
             width,
@@ -652,19 +651,26 @@ define(['qtype_coderunner/graphutil'], function(util) {
         beforeCaretText = util.convertLatexShortcuts(this.text.slice(0, this.caretPosition));
         afterCaretText = util.convertLatexShortcuts(this.text.slice(this.caretPosition));
         width = c.measureText(beforeCaretText + afterCaretText).width;
-
-        // Center the text.
-        x -= width / 2;
+        
         // Position the text intelligently if given an angle.
         if(angleOrNull !== null) {
             var cos = Math.cos(angleOrNull);
             var sin = Math.sin(angleOrNull);
-            var cornerPointX = (width / 2) * (cos > 0 ? 1 : -1)  + graph.textOffset() * cos;
-            var cornerPointY = (graph.fontSize() / 2) * (sin > 0 ? 1 : -1) + graph.textOffset() * sin;
+            
+            //Add text offset in the direction of the text angle
+            x += graph.textOffset() * cos;
+            y += graph.textOffset() * sin;
+            this.anchorX = x,  this.anchorY = y;  //Record the position where text is anchored to
+            
+            var cornerPointX = (width / 2) * (cos > 0 ? 1 : -1)
+            var cornerPointY = (graph.fontSize() / 2) * (sin > 0 ? 1 : -1);
             var slide = sin * Math.pow(Math.abs(sin), 40) * cornerPointX - cos * Math.pow(Math.abs(cos), 10) * cornerPointY;
             x += cornerPointX - sin * slide;
             y += cornerPointY + cos * slide;
         }
+        
+        // Center the text.
+        x -= width / 2;
 
         //Round the coordinates so they fall on a pixel
         x = Math.round(x);
