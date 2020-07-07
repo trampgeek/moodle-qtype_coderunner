@@ -60,7 +60,7 @@ define(['qtype_coderunner/graphutil'], function(util) {
         this.mouseOffsetX = 0;
         this.mouseOffsetY = 0;
         this.isAcceptState = false;
-        this.textBox = new TextBox('');
+        this.textBox = new TextBox('', this);
         this.caretPosition = 0;
     }
 
@@ -160,7 +160,7 @@ define(['qtype_coderunner/graphutil'], function(util) {
         this.parent = parent;  // The parent ui_digraph instance.
         this.nodeA = a;
         this.nodeB = b;
-        this.textBox = new TextBox('');
+        this.textBox = new TextBox('', this);
         this.lineAngleAdjust = 0; // Value to add to textAngle when link is straight line.
         this.caretPosition = 0;
 
@@ -262,14 +262,18 @@ define(['qtype_coderunner/graphutil'], function(util) {
                       Math.atan2(linkInfo.endY - linkInfo.startY, linkInfo.endX - linkInfo.startX));
         }
         // Draw the text.
-        relDist = this.parent.linkLabelRelDist();
+        relDist = this.textBox.relDist;
         if(linkInfo.hasCircle) {
             var startAngle = linkInfo.startAngle;
             var endAngle = linkInfo.endAngle;
             if(endAngle < startAngle) {
                 endAngle += Math.PI * 2;
             }
-            textAngle = (startAngle + endAngle) / 2 + linkInfo.isReversed * Math.PI;
+
+            textAngle = ((1 - relDist) * startAngle + relDist * endAngle);
+            if (linkInfo.isReversed){
+              textAngle += (1 - relDist) * (2 * Math.PI); // Reflect text across the line between the link points
+            }
             textX = linkInfo.circleX + linkInfo.circleRadius * Math.cos(textAngle);
             textY = linkInfo.circleY + linkInfo.circleRadius * Math.sin(textAngle);
             this.textBox.draw(textX, textY, textAngle, this);
@@ -329,7 +333,7 @@ define(['qtype_coderunner/graphutil'], function(util) {
         this.node = node;
         this.anchorAngle = 0;
         this.mouseOffsetAngle = 0;
-        this.textBox = new TextBox('');
+        this.textBox = new TextBox('', this);
 
         if(mouse) {
             this.setAnchorPoint(mouse.x, mouse.y);
@@ -337,7 +341,8 @@ define(['qtype_coderunner/graphutil'], function(util) {
     }
 
     SelfLink.prototype.setMouseStart = function(x, y) {
-        this.mouseOffsetAngle = this.anchorAngle - Math.atan2(y - this.node.y, x - this.node.x);
+        this.mouseStartX = x;
+        this.mouseStartY = y;
     };
 
     SelfLink.prototype.setAnchorPoint = function(x, y) {
@@ -386,10 +391,12 @@ define(['qtype_coderunner/graphutil'], function(util) {
         c.beginPath();
         c.arc(linkInfo.circleX, linkInfo.circleY, linkInfo.circleRadius, linkInfo.startAngle, linkInfo.endAngle, false);
         c.stroke();
-        // Draw the text on the loop farthest from the node.
-        var textX = linkInfo.circleX + linkInfo.circleRadius * Math.cos(this.anchorAngle);
-        var textY = linkInfo.circleY + linkInfo.circleRadius * Math.sin(this.anchorAngle);
-        this.textBox.draw(textX, textY, this.anchorAngle, this);
+        // Draw the text on the loop.
+        var relDist = this.textBox.relDist;
+        var textAngle = linkInfo.startAngle * (1 - relDist) + linkInfo.endAngle * relDist;
+        var textX = linkInfo.circleX + linkInfo.circleRadius * Math.cos(textAngle);
+        var textY = linkInfo.circleY + linkInfo.circleRadius * Math.sin(textAngle);
+        this.textBox.draw(textX, textY, textAngle, this);
         // Draw the head of the arrow.
         this.parent.arrowIfReqd(c, linkInfo.endX, linkInfo.endY, linkInfo.endAngle + Math.PI * 0.4);
     };
@@ -550,28 +557,30 @@ define(['qtype_coderunner/graphutil'], function(util) {
 
     /***********************************************************************
      *
-     * Define a class TextBox for a possibly editable text box that might 
+     * Define a class TextBox for a possibly editable text box that might
      * be contained in another element
      *
      ***********************************************************************/
-     
-    function TextBox(text) {
+
+    function TextBox(text, parent) {
         this.text = text;
+        this.parent = parent;
         this.caretPosition = text.length;
+        this.relDist = 0.5;
+        this.boundingBox = {};
     }
-    
-    
+
     // Inserts a given character into the TextBox at its current caretPosition
     TextBox.prototype.insertChar = function(char) {
         this.text = this.text.slice(0, this.caretPosition) + char + this.text.slice(this.caretPosition);
-        this.caretPosition ++;
+        this.caretRight();
     }
 
-    // Deletes the character in the TextBox that is located behind the current caretPosition 
+    // Deletes the character in the TextBox that is located behind the current caretPosition
     TextBox.prototype.deleteChar = function() {
         if (this.caretPosition > 0){
             this.text = this.text.slice(0, this.caretPosition - 1) + this.text.slice(this.caretPosition);
-            this.caretPosition --;
+            this.caretLeft();
         }
     }
 
@@ -589,21 +598,63 @@ define(['qtype_coderunner/graphutil'], function(util) {
         }
     }
 
+    TextBox.prototype.containsPoint = function(x, y) {
+        var point = {x: x, y: y};
+        return util.isInside(point, this.boundingBox);
+    }
+
+    TextBox.prototype.setMouseStart = function(x, y) {
+      // At the start of a drag, record our position relative to the mouse.
+        this.mouseStartX = this.anchorX - x;
+        this.mouseStartY = this.anchorY - y;
+    };
+
+    TextBox.prototype.setAnchorPoint = function(x, y) {
+        x += this.mouseStartX;
+        y += this.mouseStartY;
+        var linkInfo = this.parent.getEndPointsAndCircle(), relDist;
+
+        //Calculate the relative distance of the dragged text along its parent link
+        if (linkInfo.hasCircle){
+            var textAngle = Math.atan2(y-linkInfo.circleY, x-linkInfo.circleX);
+
+            // Ensure textAngle is either between start and end angle, or more than end angle
+            if(textAngle < linkInfo.startAngle)  textAngle += Math.PI * 2;
+            if(linkInfo.endAngle < linkInfo.startAngle)  linkInfo.endAngle += Math.PI * 2;
+
+            if (linkInfo.isReversed){
+                relDist = (textAngle - linkInfo.startAngle - Math.PI*2) / (linkInfo.endAngle - linkInfo.startAngle - Math.PI*2);
+            }else{
+                relDist = (textAngle - linkInfo.startAngle) / (linkInfo.endAngle - linkInfo.startAngle);
+            }
+        }
+        else {
+            var textVector = {x: x - linkInfo.startX,
+                              y: y - linkInfo.startY};
+            var linkVector = {x: linkInfo.endX - linkInfo.startX,
+                              y: linkInfo.endY - linkInfo.startY};
+            relDist = util.scalarProjection(textVector, linkVector) / util.vectorMagnitude(linkVector);
+        }
+        if (relDist > 0 && relDist < 1){  //Ensure text isn't dragged past end of the link
+            this.relDist = relDist;
+        }
+    };
 
     TextBox.prototype.draw = function(x, y, angleOrNull, parentObject) {
+        this.anchorX = x,  this.anchorY = y;  //Record the position where this text is anchored to its parent
         var graph = parentObject.parent,
             c = graph.getCanvas().getContext('2d'),
             width,
             dy;
 
         c.font = graph.fontSize() + 'px Arial';
+        //Text before and after caret are drawn separately to expand Latex shortcuts at the caret position
         beforeCaretText = util.convertLatexShortcuts(this.text.slice(0, this.caretPosition));
         afterCaretText = util.convertLatexShortcuts(this.text.slice(this.caretPosition));
         width = c.measureText(beforeCaretText + afterCaretText).width;
 
         // Center the text.
         x -= width / 2;
-
         // Position the text intelligently if given an angle.
         if(angleOrNull !== null) {
             var cos = Math.cos(angleOrNull);
@@ -615,28 +666,31 @@ define(['qtype_coderunner/graphutil'], function(util) {
             y += cornerPointY + cos * slide;
         }
 
-        // Draw text and caret (round the coordinates so the caret falls on a pixel).
+        //Round the coordinates so they fall on a pixel
+        x = Math.round(x);
+        y = Math.round(y);
+        dy = Math.round(graph.fontSize() / 3); // Don't understand this.
+
+        // Draw text and caret
         if('advancedFillText' in c) {
             c.advancedFillText(this.text, this.text, x + width / 2, y, angleOrNull);
         } else {
-            x = Math.round(x);
-            y = Math.round(y);
-            dy = Math.round(graph.fontSize() / 3); // Don't understand this.
-
             c.fillText(beforeCaretText, x, y + dy);
+            var caretX = x + c.measureText(beforeCaretText).width;
+            c.fillText(afterCaretText, caretX, y + dy);
 
-            x += c.measureText(beforeCaretText).width;
-            c.fillText(afterCaretText, x, y + dy);
-
+            dy = Math.round(graph.fontSize() / 2);
             // Draw caret
             if(parentObject == graph.selectedObject && graph.caretVisible && graph.hasFocus() && document.hasFocus()) {
-                dy = Math.round(graph.fontSize() / 2);
                 c.beginPath();
-                c.moveTo(x, y - dy);
-                c.lineTo(x, y + dy);
+                c.moveTo(caretX, y - dy);
+                c.lineTo(caretX, y + dy);
                 c.stroke();
             }
         }
+        this.boundingBox = {x: x, y: y - dy, height: dy * 2, width: width};
+        //c.rect(x, y-dy, width, dy*2);
+        //c.stroke();
     };
 
 
