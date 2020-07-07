@@ -659,8 +659,8 @@ define(['qtype_coderunner/graphutil'], function(util) {
         if(angleOrNull !== null) {
             var cos = Math.cos(angleOrNull);
             var sin = Math.sin(angleOrNull);
-            var cornerPointX = (width / 2 + graph.textOffset()) * (cos > 0 ? 1 : -1);
-            var cornerPointY = (10 + graph.textOffset()) * (sin > 0 ? 1 : -1);
+            var cornerPointX = (width / 2) * (cos > 0 ? 1 : -1)  + graph.textOffset() * cos;
+            var cornerPointY = (graph.fontSize() / 2) * (sin > 0 ? 1 : -1) + graph.textOffset() * sin;
             var slide = sin * Math.pow(Math.abs(sin), 40) * cornerPointX - cos * Math.pow(Math.abs(cos), 10) * cornerPointY;
             x += cornerPointX - sin * slide;
             y += cornerPointY + cos * slide;
@@ -689,8 +689,6 @@ define(['qtype_coderunner/graphutil'], function(util) {
             }
         }
         this.boundingBox = {x: x, y: y - dy, height: dy * 2, width: width};
-        //c.rect(x, y-dy, width, dy*2);
-        //c.stroke();
     };
 
 
