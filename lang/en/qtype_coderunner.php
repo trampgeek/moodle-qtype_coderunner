@@ -226,7 +226,7 @@ field, which is the value displayed in the \'Got\' column of the results table.
 The other columns of the results table (testcode, stdin, expected) can also
 be defined by the template grading program and will be used instead of the values from
 the testcase. As an example, if the output of the program is the string
-<tt>{"fraction":0.5, "got": "Half the answers were right!"}</tt>, half marks would be
+<code>{"fraction":0.5, "got": "Half the answers were right!"}</code>, half marks would be
 given for that particular test case and the \'Got\' column would display the
 text "Half the answers were right!". Other columns can be added to the result
 table by adding extra attributes to the JSON record and also to the question\'s
@@ -337,7 +337,7 @@ The mandatory penalty regime is a comma-separated list of penalties (each a perc
 to apply to successive submissions. These are absolute, not cumulative. As a
 special case the last penalty can be \'...\' to mean "extend the previous
 two penalties as an arithmetic progression up to 100". For example,
-<tt>0,5,10,30,...</tt> is equivalent to <tt>0,5,10,30,50,70,90,100</tt>.
+<code>0,5,10,30,...</code> is equivalent to <code>0,5,10,30,50,70,90,100</code>.
 If there are more submissions than defined penalties, the last value is used.
 Spaces can be used in lieu of commas as a separator.
 
@@ -941,7 +941,7 @@ is used to pass further sandbox-specific data, such as compile options and
 API-keys. It should generally be left blank but if non-blank it must be a valid
 JSON record. In the case of the jobe sandbox, available attributes include
 disklimit, streamsize, numprocs, compileargs, linkargs and interpreterargs. For
-example <tt>{"compileargs":["-std=c89"]}</tt> for a C question would force C89
+example <code>{"compileargs":["-std=c89"]}</code> for a C question would force C89
 compliance and no other C options would be used. See the jobe documentation
 for details. Some sandboxes (e.g. the deprecated Ideone sandbox) may silently ignore any or all of
 these settings.
@@ -951,7 +951,7 @@ question is
 usually as specified via the administrator settings for the CodeRunner plugin.
 However, it is possible to select a different jobeserver by defining a \'jobeserver\'
 parameter and also, optionally, a \'jobeapikey\' parameter. For example, if the
-\'Parameters\' field is set to <tt>{"jobeserver": "myspecialjobe.com"}</tt>, the run
+\'Parameters\' field is set to <code>{"jobeserver": "myspecialjobe.com"}</code>, the run
 will instead by submitted to the server "myspecialjobe.com". Warning: this
 feature is still experimental and may change in the future.
 ';
@@ -1034,11 +1034,11 @@ in a context in which STUDENT_ANSWER is the student\'s
 response and TEST.testcode is the code for the current testcase. These values
 (and other testcase values like TEST.expected, TEST.stdin, TEST.mark)
 can be inserted into the template by enclosing them in double braces, e.g.
-<tt>{{TEST.testcode}}</tt>. For use within literal strings, an appropriate escape
-function should be applied, e.g. <tt>{{STUDENT_ANSWER | e(\'py\')}}</tt> is the student
+<code>{{TEST.testcode}}</code>. For use within literal strings, an appropriate escape
+function should be applied, e.g. <code>{{STUDENT_ANSWER | e(\'py\')}}</code> is the student
 answer escaped in a manner suitable for use within Python triple-double-quoted
-strings. Other escape functions are <tt>e(\'c\')</tt>, <tt>e(\'java\')</tt>,
-<tt>e(\'matlab\')</tt>. The program that is output by Twig is then compiled and executed
+strings. Other escape functions are <code>e(\'c\')</code>, <code>e(\'java\')</code>,
+<code>e(\'matlab\')</code>. The program that is output by Twig is then compiled and executed
 with the language of the selected built-in type and with stdin set
 to TEST.stdin. Output from that program is then passed to the selected grader.
 See the help under \'Grading controls\' for more on that.
@@ -1059,7 +1059,7 @@ QUESTION.parameters.&lt;&lt;param&gt;&gt;. For example, if template params is
         {"age": 23}
 
 the value 23 would be substituted into the template in place of the
-template variable <tt>{{ QUESTION.parameters.age }}</tt>.
+template variable <code>{{ QUESTION.parameters.age }}</code>.
 
 The set of template parameters passed to the template consists of any template
 parameters defined in the prototype with the question template parameters
