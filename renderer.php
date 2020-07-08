@@ -392,13 +392,16 @@ class qtype_coderunner_renderer extends qtype_renderer {
         $fb .= empty($outcome->epiloguehtml) ? '' : $outcome->epiloguehtml;
 
         // Issue a bright yellow warning if using jobe2, except when running behat.
-        $jobeserver = get_config('qtype_coderunner', 'jobe_host');
-        $apikey = get_config('qtype_coderunner', 'jobe_apikey');
-        if ($jobeserver == constants::JOBE_HOST_DEFAULT && $CFG->prefix !== 'b_') {
-            if ($apikey == constants::JOBE_HOST_DEFAULT_API_KEY) {
-                $fb .= get_string('jobe_warning_html', 'qtype_coderunner');
-            } else {
-                $fb .= get_string('jobe_canterbury_html', 'qtype_coderunner');
+        $sandboxinfo = $outcome->get_sandbox_info();
+        if (isset($sandboxinfo['jobeserver'])) {
+            $jobeserver = $sandboxinfo['jobeserver'];
+            $apikey = $sandboxinfo['jobeapikey'];
+            if ($jobeserver == constants::JOBE_HOST_DEFAULT && $CFG->prefix !== 'b_') {
+                if ($apikey == constants::JOBE_HOST_DEFAULT_API_KEY) {
+                    $fb .= get_string('jobe_warning_html', 'qtype_coderunner');
+                } else {
+                    $fb .= get_string('jobe_canterbury_html', 'qtype_coderunner');
+                }
             }
         }
 

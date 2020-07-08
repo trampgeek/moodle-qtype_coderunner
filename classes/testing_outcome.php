@@ -46,6 +46,7 @@ class qtype_coderunner_testing_outcome {
     public $actualmark;              // Actual mark (meaningful only if this is not an all-or-nothing question).
     public $testresults;             // An array of TestResult objects.
     public $sourcecodelist;          // Array of all test runs.
+    public $sandboxinfo;             // An associative array of sandbox info, e.g. Jobe server name.
 
     public function __construct($maxpossmark, $numtestsexpected, $isprecheck) {
         $this->status = self::STATUS_VALID;
@@ -57,6 +58,7 @@ class qtype_coderunner_testing_outcome {
         $this->numtestsexpected = $numtestsexpected;
         $this->testresults = array();
         $this->sourcecodelist = null;     // Array of all test runs on the sandbox.
+        $this->sandboxinfo = array();
     }
 
     public function set_status($status, $errormessage='') {
@@ -142,6 +144,15 @@ class qtype_coderunner_testing_outcome {
         if (!$tr->iscorrect) {
             $this->errorcount++;
         }
+    }
+    
+    /**
+     * 
+     * @param associative array $info
+     * Merge the given sandbox associative array with $this->sandboxinfo
+     */
+    public function add_sandbox_info($info) {
+        $this->sandboxinfo = array_merge($this->sandboxinfo, $info);
     }
 
     // Return a message summarising the nature of the error if this outcome
@@ -422,5 +433,9 @@ class qtype_coderunner_testing_outcome {
 
     public function get_error_count() {
         return $this->errorcount;
+    }
+    
+    public function get_sandbox_info() {
+        return $this->sandboxinfo;
     }
 }

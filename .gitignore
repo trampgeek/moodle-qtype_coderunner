@@ -1,0 +1,26 @@
+nbproject
+TopLogs
+.html
+loadtestingresults.ods
+/MoodleBook/makemoodlebook.py
+gh-md-toc
+moodlebook.zip
+/makemoodlebook.py
+/MoodleBook/
+/Screendumps/
+Readme.md.*
+/tests/fixtures/test-sandbox-config.php
+
+/Preloading/selenium-server-standalone-2.53.0.jar
+/selenium-server-standalone-2.53.0.jar
+/selenium-server-standalone-3.0.1.jar
+striptrailingwhitespace.py
+composer.json
+composer.lock
+excludesfromstylechecker.txt
+miscsqlqueries
+moodleopenshift.md
+dbquerieswhilefixingbug.sql
+/questions-moodle-Questions for export-20171106-1418.xml
+/twighacking.php
+NonRepoFiles/*

@@ -162,6 +162,9 @@ class qtype_coderunner_jobrunner {
         } else {
             $outcome = null; // Something broke badly.
         }
+        if ($outcome && isset($run->sandboxinfo)) {
+            $outcome->add_sandbox_info($run->sandboxinfo);
+        }
         return $outcome;
     }
 
@@ -194,6 +197,9 @@ class qtype_coderunner_jobrunner {
             $this->allruns[] = $testprog;
             $run = $this->sandbox->execute($testprog, $this->language,
                     $input, $this->files, $this->sandboxparams);
+            if (isset($run->sandboxinfo)) {
+                $outcome->add_sandbox_info($run->sandboxinfo);
+            }
             if ($run->error !== qtype_coderunner_sandbox::OK) {
                 $outcome->set_status(
                     qtype_coderunner_testing_outcome::STATUS_SANDBOX_ERROR,
