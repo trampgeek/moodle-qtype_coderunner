@@ -61,8 +61,16 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
     // refusing requests or misconfigured. The actual HTTP returncode and response
     // are left in $httpcode and $response resp.
     public function __construct() {
+        global $CFG;
         qtype_coderunner_sandbox::__construct();
-        $this->jobeserver = get_config('qtype_coderunner', 'jobe_host');
+
+        // Hack to force use of a local jobe host when behat testing.
+        if ($CFG->prefix == "bht_") {
+            $this->jobeserver = "localhost";
+        } else {
+            $this->jobeserver = get_config('qtype_coderunner', 'jobe_host');
+        }
+        
         $this->apikey = get_config('qtype_coderunner', 'jobe_apikey');
 
         list($this->httpcode, $this->response) = $this->http_request(
@@ -300,13 +308,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
      * and the HTTP headers that should be used in the request.
      */
     private function get_jobe_connection_info($resource) {
-        global $CFG;
-        // Hack to force use of a local jobe host when behat testing.
-        if ($CFG->prefix == "bht_") {
-            $jobe = "localhost";
-        } else {
-            $jobe = $this->jobeserver;
-        }
+        $jobe = $this->jobeserver;
         $protocol = 'http://';
         $url = (strpos($jobe, 'http') === 0 ? $jobe : $protocol.$jobe)."/jobe/index.php/restapi/$resource";
 
