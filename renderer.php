@@ -106,33 +106,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
         } else {
             $currentlanguage = $question->acelang;
             if (strpos($question->acelang, ',') !== false) {
-                // Case of a multilanguage question. Add language selector dropdown.
-                list($languages, $default) = qtype_coderunner_util::extract_languages($question->acelang);
-                $currentlanguage = $qa->get_last_qt_var('language');
-                if (empty($currentlanguage) && $default !== '') {
-                    $currentlanguage = $default;
-                }
-                $selectname = $qa->get_qt_field_name('language');
-                $selectid = 'id_' . $selectname;
-                $qtext .= html_writer::start_tag('div', array('class' => 'coderunner-lang-select-div'));
-                $qtext .= html_writer::tag('label',
-                        get_string('languageselectlabel', 'qtype_coderunner'),
-                        array('for' => $selectid));
-                $qtext .= html_writer::start_tag('select',
-                        array('id' => $selectid, 'name' => $selectname,
-                              'class' => 'coderunner-lang-select', 'required' => ''));
-                if (empty($currentlanguage)) {
-                    $qtext .= html_writer::tag('option', '', array('value' => ''));
-                }
-                foreach ($languages as $lang) {
-                    $attributes = array('value' => $lang);
-                    if ($lang === $currentlanguage) {
-                        $attributes['selected'] = 'selected';
-                    }
-                    $qtext .= html_writer::tag('option', $lang, $attributes);
-                }
-                $qtext .= html_writer::end_tag('select');
-                $qtext .= html_writer::end_tag('div');
+                $qtext .= $this->language_dropdown($qa);
             }
         }
 
@@ -149,28 +123,14 @@ class qtype_coderunner_renderer extends qtype_renderer {
         } else {
             // Horrible horrible hack for horrible horrible browser feature
             // of ignoring a leading newline in a textarea. So we inject an
-            // extra one to ensure that if the answer beings with a newline it
+            // extra one to ensure that if the answer begins with a newline it
             // is preserved.
             $currentanswer = "\n" . $currentanswer;
         }
 
-        $rows = isset($question->answerboxlines) ? $question->answerboxlines : 18;
-        $taattributes = array(
-                'class' => 'coderunner-answer edit_code',
-                'name'  => $responsefieldname,
-                'id'    => $responsefieldid,
-                'spellcheck' => 'false',
-                'rows'      => $rows,
-                'data-params' => $question->templateparams,
-                'data-globalextra' => $question->globalextra,
-                'data-lang' => ucwords($currentlanguage),
-                'data-test0' => $question->testcases ? $question->testcases[0]->testcode : ''
-        );
-
-        if ($options->readonly) {
-            $taattributes['readonly'] = 'readonly';
-        }
-
+        $rows = isset($question->answerboxlines) ? $question->answerboxlines : constants::DEFAULT_NUM_ROWS;
+        $taattributes = $this->answerbox_attributes($responsefieldname, $rows,
+                $question, $currentlanguage, $options->readonly);
 
         $qtext .= html_writer::tag('textarea', s($currentanswer), $taattributes);
 
@@ -514,7 +474,6 @@ class qtype_coderunner_renderer extends qtype_renderer {
             $answer = "\n" . $answer; // Hack to ensure leading new line not lost
         }
         $fieldname = $qa->get_qt_field_name('sampleanswer');
-        $fieldid = 'id_' . $fieldname;
         $currentlanguage = $question->acelang ? $question->acelang : $question->language;
         if (strpos($question->acelang, ',') !== false) {
             // Case of a multilanguage question sample answer. Find the language,
@@ -537,25 +496,19 @@ class qtype_coderunner_renderer extends qtype_renderer {
         $heading = substr($heading, 0, strlen($heading) - 1) . ' (' . $uclang . '):';
         $html = html_writer::start_tag('div', array('class' => 'sample code'));
         $html .= html_writer::tag('h4', $heading);
-        $answerboxlines = isset($question->answerboxlines) ? $question->answerboxlines : 18;
+        $answerboxlines = isset($question->answerboxlines) ? $question->answerboxlines : constants::DEFAULT_NUM_ROWS;
         if ($question->uiplugin == 'ace') {
             $rows = min($answerboxlines, substr_count($answer, "\n"));
         } else {
             $rows = $answerboxlines;
         }
-        $taattributes = array(
-                'class' => 'coderunner-sample-answer edit_code',
-                'name'  => $fieldname,
-                'id'    => $fieldid,
-                'spellcheck' => 'false',
-                'rows'      => $rows,
-                'data-lang' => $uclang,
-                'readonly' => true
-        );
+        $taattributes = $this->answerbox_attributes($fieldname, $rows, $question,
+                $currentlanguage, true);
 
         $html .= html_writer::tag('textarea', s($answer), $taattributes);
         $html .= html_writer::end_tag('div');
         $uiplugin = $question->uiplugin === null ? 'ace' : strtolower($question->uiplugin);
+        $fieldid = 'id_' . $fieldname;
         if ($uiplugin !== '' && $uiplugin !== 'none') {
             qtype_coderunner_util::load_uiplugin_js($question, $fieldid);
         } else {
@@ -728,8 +681,62 @@ class qtype_coderunner_renderer extends qtype_renderer {
         }
         return 'ERROR';
     }
+    
+    // Return the text area attributes for an answer box.
+    private function answerbox_attributes($fieldname, $rows, $question, 
+            $currentlanguage, $readonly=false) {
+        $attributes = array(
+                'class' => 'coderunner-answer edit_code',
+                'name' => $fieldname,
+                'id' => 'id_' . $fieldname,
+                'spellcheck' => 'false',
+                'rows' => $rows,
+                'data-params' => $question->templateparams,
+                'data-globalextra' => $question->globalextra,
+                'data-lang' => ucwords($currentlanguage),
+                'data-test0' => $question->testcases ? $question->testcases[0]->testcode : ''
+        );
 
+        if ($readonly) {
+            $attributes['readonly'] = '';
+        }
+        return $attributes;
+    }
 
+    
+    // Return the HTML for a language dropdown list for the given question attempt.
+    private function language_dropdown($qa) {
+        $question = $qa->get_question();
+        list($languages, $default) = qtype_coderunner_util::extract_languages($question->acelang);
+        $currentlanguage = $qa->get_last_qt_var('language');
+        if (empty($currentlanguage) && $default !== '') {
+            $currentlanguage = $default;
+        }
+        $selectname = $qa->get_qt_field_name('language');
+        $selectid = 'id_' . $selectname;
+        $html .= html_writer::start_tag('div', array('class' => 'coderunner-lang-select-div'));
+        $html .= html_writer::tag('label',
+                get_string('languageselectlabel', 'qtype_coderunner'),
+                array('for' => $selectid));
+        $html .= html_writer::start_tag('select',
+                array('id' => $selectid, 'name' => $selectname,
+                      'class' => 'coderunner-lang-select', 'required' => ''));
+        if (empty($currentlanguage)) {
+            $html .= html_writer::tag('option', '', array('value' => ''));
+        }
+        foreach ($languages as $lang) {
+            $attributes = array('value' => $lang);
+            if ($lang === $currentlanguage) {
+                $attributes['selected'] = 'selected';
+            }
+            $html .= html_writer::tag('option', $lang, $attributes);
+        }
+        $html .= html_writer::end_tag('select');
+        $html .= html_writer::end_tag('div');
+        return $html;
+    }
+    
+    
     /**
      *
      * @param qtype_coderunner_testing_outcome $outcome

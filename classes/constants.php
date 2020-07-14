@@ -50,4 +50,6 @@ class constants {
 
     const JOBE_HOST_DEFAULT = 'jobe2.cosc.canterbury.ac.nz';
     const JOBE_HOST_DEFAULT_API_KEY = '2AAA7A5415B4A9B394B54BF1D2E9D';
+    
+    const DEFAULT_NUM_ROWS = 18;     // Default answerbox size
 }
