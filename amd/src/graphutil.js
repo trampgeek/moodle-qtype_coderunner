@@ -98,6 +98,10 @@ define(function() {
         return (a.x * b.x + a.y * b.y) / this.vectorMagnitude(b);
     }
 
+    Util.prototype.isCCW = function(a, b) {
+        return (a.x * b.y) - (b.x * a.y) > 0;
+    }
+
     Util.prototype.circleFromThreePoints = function(x1, y1, x2, y2, x3, y3) {
         // Return {x, y, radius} of circle through (x1, y1), (x2, y2), (x3, y3).
         var a = this.det(x1, y1, 1, x2, y2, 1, x3, y3, 1);

@@ -521,11 +521,12 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
             }
         }
         for(i = 0; i < this.links.length; i++) {
-            if(this.links[i].containsPoint(x, y)) {
-                return this.links[i];
-            }else if ('textBox' in this.links[i] && this.links[i].textBox.containsPoint(x, y)){
+            if ('textBox' in this.links[i] && this.links[i].textBox.containsPoint(x, y)){
                 return this.links[i].textBox;
             }
+            else if(this.links[i].containsPoint(x, y)) {
+                return this.links[i];
+            } 
         }
         return null;
     };
@@ -596,6 +597,10 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
                         link.anchorAngle = backupLinkLayout.anchorAngle;
                         link.textBox = new elements.TextBox(backupLink[2].toString(), link);
                         if (backupLink.length > 3)  link.textBox.relDist = backupLink[3];
+                        if (backupLink.length > 4)  link.textBox.offset = backupLink[4];
+                        if (link.textBox.relDist != 0.5 || link.textBox.offset != this.textOffset()){
+                            link.textBox.dragged = true;    // If relDist or offset are different from the defaults then textBox must have been manually dragged
+                        }
                     } else if(backupLink[0] === -1) {
                         link = new elements.StartLink(this, this.nodes[backupLink[1]]);
                         link.deltaX = backupLinkLayout.deltaX;
@@ -606,6 +611,10 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
                         link.perpendicularPart = backupLinkLayout.perpendicularPart;
                         link.textBox = new elements.TextBox(backupLink[2].toString(), link);
                         if (backupLink.length > 3)  link.textBox.relDist = backupLink[3];
+                        if (backupLink.length > 4)  link.textBox.offset = backupLink[4];
+                        if (link.textBox.relDist != 0.5 || link.textBox.offset != this.textOffset()){
+                            link.textBox.dragged = true;    // If relDist or offset are different from the defaults then textBox must have been manually dragged
+                        }
                         link.lineAngleAdjust = backupLinkLayout.lineAngleAdjust;
                     }
                     if(link !== null) {
@@ -652,7 +661,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
                 linkLayout = {
                     'anchorAngle': link.anchorAngle,
                 };
-                linkData = [this.nodes.indexOf(link.node), this.nodes.indexOf(link.node), link.textBox.text, link.textBox.relDist];
+                linkData = [this.nodes.indexOf(link.node), this.nodes.indexOf(link.node), link.textBox.text, link.textBox.relDist, link.textBox.offset];
             } else if(link instanceof elements.StartLink) {
                 linkLayout = {
                     'deltaX': link.deltaX,
@@ -665,7 +674,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
                     'parallelPart': link.parallelPart,
                     'perpendicularPart': link.perpendicularPart,
                 };
-                linkData = [this.nodes.indexOf(link.nodeA), this.nodes.indexOf(link.nodeB), link.textBox.text, link.textBox.relDist];
+                linkData = [this.nodes.indexOf(link.nodeA), this.nodes.indexOf(link.nodeB), link.textBox.text, link.textBox.relDist, link.textBox.offset];
             }
             if(linkData !== null && linkLayout !== null) {
                 backup.edges.push(linkData);
