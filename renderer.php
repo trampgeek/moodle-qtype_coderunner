@@ -714,7 +714,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
         }
         $selectname = $qa->get_qt_field_name('language');
         $selectid = 'id_' . $selectname;
-        $html .= html_writer::start_tag('div', array('class' => 'coderunner-lang-select-div'));
+        $html = html_writer::start_tag('div', array('class' => 'coderunner-lang-select-div'));
         $html .= html_writer::tag('label',
                 get_string('languageselectlabel', 'qtype_coderunner'),
                 array('for' => $selectid));
