@@ -55,7 +55,8 @@ header('Content-type: application/json; charset=utf-8');
 
 foreach ($files as $filename => $contents) {
     if (substr($filename, -4) === '.zip') {
-        $tempfilename = tempnam('/tmp', 'zip');
+        $tempdir = make_request_directory();
+        $tempfilename = tempnam($tempdir, 'zip');
         if ($tempfilename) {
             file_put_contents($tempfilename, $contents);
             $handle = zip_open($tempfilename);
@@ -74,7 +75,7 @@ foreach ($files as $filename => $contents) {
                 }
             }
             zip_close($handle);
-            unlink($tempfilename);
+            unlink($tempfilename); // $tempdir is auto-deleted.
         }
     }
 }

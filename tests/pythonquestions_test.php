@@ -109,7 +109,7 @@ class qtype_coderunner_pythonquestions_test extends qtype_coderunner_testcase {
 
     public function test_illegal_open_error() {
         $q = $this->make_question('sqr');
-        $code = "def sqr(x):\n    f = open('/tmp/xxx');\n    return x * x";
+        $code = "def sqr(x):\n    f = open('/twaddle/blah/xxx');\n    return x * x";
         $response = array('answer' => $code);
         $result = $q->grade_response($response);
         list($mark, $grade, $cache) = $result;
