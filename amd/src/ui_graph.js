@@ -317,9 +317,11 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
                     }
                 }
             } else if (this.selectedObject instanceof elements.TextBox){
-                this.movingText = true;
-                this.selectedObject.setMouseStart(mouse.x, mouse.y);
-                this.selectedObject = this.selectedObject.parent;
+                if (!this.templateParams.lockedgelabels) {
+                    this.movingText = true;
+                    this.selectedObject.setMouseStart(mouse.x, mouse.y);
+                    this.selectedObject = this.selectedObject.parent;
+                }
             } else if (!(this.templateParams.locknodepositions && this.selectedObject instanceof elements.Node) &&
                        !(this.templateParams.lockedgepositions && this.selectedObject instanceof elements.Link)){
                 this.movingObject = true;
