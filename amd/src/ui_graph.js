@@ -155,6 +155,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         this.DEFAULT_FONT_SIZE = 20;    // px. Template parameter fontsize can override this.
         this.DEFAULT_TEXT_OFFSET = 4;   // Link label tweak. Template params can override.
         this.DEFAULT_LINK_LABEL_REL_DIST = 0.5;  // Relative distance along link to place labels
+        this.MAX_VERSIONS = 30;  // Maximum number of versions saved for undo/redo
 
         this.canvasId = 'graphcanvas_' + textareaId;
         this.textArea = $(document.getElementById(textareaId));
@@ -174,6 +175,8 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         this.movingObject = false;
         this.fail = false;  // Will be set true if reload fails (can't deserialise).
         this.failString = null;  // Language string key for fail error message.
+        this.versions = [];
+        this.versionIndex = -1; //Index of current state of graph in versions list
 
         // Legacy support for locknodes and lockedges.
         if ('locknodes' in templateParams) {
@@ -270,6 +273,8 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
                   key !== 39 &&
                   this.selectedObject !== null &&
                   this.canEditText()) {
+            if (!this.selectedObject.changingText)  this.saveVersion();
+            this.selectedObject.changingText = true;
             this.selectedObject.textBox.insertChar(String.fromCharCode(key));
             this.resetCaret();
             this.draw();
@@ -294,6 +299,8 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         this.movingGraph = false;
         this.movingText = false;
         this.originalClick = mouse;
+
+        this.saveVersion();
 
         if(this.selectedObject !== null) {
             if(e.shiftKey && this.selectedObject instanceof elements.Node) {
@@ -320,6 +327,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
                     this.selectedObject.setMouseStart(mouse.x, mouse.y);
                 }
             }
+            this.selectedObject.changingText = false;
             this.resetCaret();
         } else if(e.shiftKey && this.isFsm()) {
             this.currentLink = new elements.TemporaryLink(this, mouse, mouse);
@@ -361,10 +369,10 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
                 this.resetCaret();
                 this.draw();
             }
-
             // Backspace is a shortcut for the back button, but do NOT want to change pages.
             return false;
         } else if(key === 46 && this.selectedObject !== null) { // Delete key
+            this.saveVersion();
             for (i = 0; i < this.nodes.length; i++) {
                 if (this.nodes[i] === this.selectedObject && !this.templateParams.locknodeset) {
                     this.nodes.splice(i--, 1);
@@ -400,6 +408,10 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
                 this.resetCaret();
                 this.draw();
             }
+        } else if ((e.keyCode == 90 && e.ctrlKey && e.shiftKey) || (e.keyCode == 89 && e.ctrlKey)) {  //CTRL+SHIFT+z or CTRL+y
+            this.redo();
+        } else if (e.keyCode == 90 && e.ctrlKey) {  //CTRL+z
+            this.undo();
         }
     };
 
@@ -412,9 +424,12 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
 
         this.selectedObject = this.selectObject(mouse.x, mouse.y);
 
+        this.saveVersion();
+
         if(this.selectedObject === null) {
                 this.selectedObject = new elements.Node(this, mouse.x, mouse.y);
                 this.nodes.push(this.selectedObject);
+                this.selectedObject.changingText = false;
                 this.resetCaret();
                 this.draw();
         } else {
@@ -521,12 +536,11 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
             }
         }
         for(i = 0; i < this.links.length; i++) {
-            if ('textBox' in this.links[i] && this.links[i].textBox.containsPoint(x, y)){
+            if(this.links[i].containsPoint(x, y)) {
+                return this.links[i];
+            }else if ('textBox' in this.links[i] && this.links[i].textBox.containsPoint(x, y)){
                 return this.links[i].textBox;
             }
-            else if(this.links[i].containsPoint(x, y)) {
-                return this.links[i];
-            } 
         }
         return null;
     };
@@ -684,11 +698,51 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         this.textArea.val(JSON.stringify(backup));
     };
 
+    Graph.prototype.saveVersion = function () {
+        var curState = this.textArea.val();
+        if (this.versions.length == 0 || curState.localeCompare(this.versions[this.versionIndex]) != 0){
+            this.versionIndex++;
+            while (this.versionIndex < this.versions.length){ //Clear newer versions that have been overwritten by this save
+                this.versions.pop();
+            }
+            this.versions.push(curState);
+            if (this.versions.length > this.MAX_VERSIONS){    //Limit the size of this.versions
+                this.versions.shift();
+            }
+        }
+    }
+
+    Graph.prototype.undo = function () {
+        this.saveVersion();
+        if (this.versionIndex > 0){
+            this.versionIndex--;
+            this.textArea.val(this.versions[this.versionIndex]);
+            //Clear graph nodes and links
+            this.nodes = [];
+            this.links = [];
+            //Reload graph from serialisation
+            this.reload();
+            this.draw();
+        }
+    }
+
+    Graph.prototype.redo = function() {
+        if (this.versionIndex < this.versions.length - 1){
+            this.versionIndex++;
+            this.textArea.val(this.versions[this.versionIndex]);
+            //Clear graph nodes and links
+            this.nodes = [];
+            this.links = [];
+            //Reload graph from serialisation
+            this.reload();
+            this.draw();
+        }
+    }
+
     Graph.prototype.destroy = function () {
         clearInterval(this.caretTimer); // Stop the caret timer.
         this.graphCanvas.canvas.off();  // Stop all events.
         this.graphCanvas.canvas.remove();
-
     };
 
     Graph.prototype.resetCaret = function () {

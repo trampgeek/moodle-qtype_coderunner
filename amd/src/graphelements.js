@@ -266,7 +266,7 @@ define(['qtype_coderunner/graphutil'], function(util) {
         if(linkInfo.hasCircle) {
             var startAngle = linkInfo.startAngle;
             var endAngle = linkInfo.endAngle;
-            if(endAngle < startAngle) {
+            if (endAngle < startAngle) {
                 endAngle += Math.PI * 2;
             }
 
@@ -661,16 +661,16 @@ define(['qtype_coderunner/graphutil'], function(util) {
         var afterCaretText = util.convertLatexShortcuts(this.text.slice(this.caretPosition));
         var width = c.measureText(beforeCaretText + afterCaretText).width;
         var dy = Math.round(graph.fontSize() / 2);
-        
+
         // Position the text appropriately if it is part of a link
         if(angleOrNull !== null) {
             var cos = Math.cos(angleOrNull);
             var sin = Math.sin(angleOrNull);
-            
+
             //Add text offset in the direction of the text angle
             x += this.offset * cos;
             y += this.offset * sin;
-            
+
             // Position text intelligently if text has not been manually moved
             if (!this.dragged){
                 var cornerPointX = (width / 2) * (cos > 0 ? 1 : -1)
@@ -681,7 +681,7 @@ define(['qtype_coderunner/graphutil'], function(util) {
             }
             this.position = {x: x, y: y};  //Record the position where text is anchored to
         }
-        
+
         x -= width / 2;  // Center the text.
 
         //Round the coordinates so they fall on a pixel
@@ -697,7 +697,7 @@ define(['qtype_coderunner/graphutil'], function(util) {
             c.fillStyle = "rgba(255, 255, 255, 0.7)";
             c.fillRect(x, y-dy, width, dy*2);
             c.fillStyle = prevStyle;
-            
+
             // Draw text
             dy = Math.round(graph.fontSize() / 3); // Don't understand this.
             c.fillText(beforeCaretText, x, y + dy);
