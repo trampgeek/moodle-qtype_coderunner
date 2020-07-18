@@ -150,7 +150,8 @@ class qtype_coderunner_bulk_tester {
     /**
      * Get a list of all the categories within the supplied contextid.
      * @return an associative array mapping from category id to an object
-     * with name and count fields for all question categories in the given context.
+     * with name and count fields for all question categories in the given context
+     * that contain one or more CodeRunner questions.
      * The 'count' field is the number of coderunner questions in the given
      * category.
      */
@@ -207,8 +208,8 @@ class qtype_coderunner_bulk_tester {
         while ($catid != 0) {
             $node = $DB->get_record_sql("
                 SELECT id, name, parent FROM {question_categories}
-                WHERE id=$catid
-            ");
+                WHERE id=:catid
+            ", array('catid' => $catid));
             $path = $node->name . '/' . $path;
             $catid = $node->parent;
         }
