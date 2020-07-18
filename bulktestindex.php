@@ -47,9 +47,22 @@ $availablequestionsbycontext = array();
 foreach ($questionsbycontext as $contextid => $numcoderunnerquestions) {
     $context = context::instance_by_id($contextid);
     if (has_capability('moodle/question:editall', $context)) {
-        $availablequestionsbycontext[$contextid] = $numcoderunnerquestions;
+        $name = $context->get_context_name(true, true);
+        if (strpos($name, 'Quiz:') === 0) { // Quiz-specific question category
+            $course = $context->get_course_context(false);
+            if ($course === false) {
+                $name = 'UnknownCourse: ' . $name;
+            } else {
+                $name = $course->get_context_name(true, true) . ': ' . $name;
+            }
+        }
+        $availablequestionsbycontext[$name] = array(
+            'contextid' => $contextid,
+            'numquestions' => $numcoderunnerquestions);
     }
 }
+
+ksort($availablequestionsbycontext);
 
 // List all contexts available to the user.
 if (count($availablequestionsbycontext) == 0) {
@@ -58,14 +71,10 @@ if (count($availablequestionsbycontext) == 0) {
     echo html_writer::start_tag('ul');
     $buttonstyle = 'border: 1px solid gray; padding: 2px 2px 0px 2px;';
     $buttonstyle = 'border: 1px solid #F0F0F0; background-color: #FFFFC0; padding: 2px 2px 0px 2px;border: 4px solid white';
-    foreach ($availablequestionsbycontext as $contextid => $numcoderunnerquestions) {
-        $context = context::instance_by_id($contextid);
-        $name = $context->get_context_name(true, true);
-        if (strpos($name, 'Quiz:') === 0) {
-            $class = 'bulktest coderunner context quiz';
-        } else {
-            $class = 'bulktest coderunner context normal';
-        }
+    foreach ($availablequestionsbycontext as $name => $info) {
+        $contextid = $info['contextid'];
+        $numcoderunnerquestions = $info['numquestions'];
+
 
         $testallurl = new moodle_url('/question/type/coderunner/bulktest.php', array('contextid' => $contextid));
         $testalllink = html_writer::link($testallurl,
@@ -78,6 +87,17 @@ if (count($availablequestionsbycontext) == 0) {
                       'title' => get_string('expandtitle', 'qtype_coderunner'),
                       'style' => $buttonstyle));
         $litext = $name . ' (' . $numcoderunnerquestions . ') ' . $testalllink . ' ' . $expandlink;
+        if (strpos($name, 'Quiz:') === 0) {
+            $class = 'bulktest coderunner context quiz';
+        } else {
+            $class = 'bulktest coderunner context normal';
+        }
+        
+        if (strpos($name, ": Quiz: ") === false) {
+            $class = 'bulktest coderunner context normal';
+        } else {
+            $class = 'bulktest coderunner context quiz';
+        }
         echo html_writer::start_tag('li', array('class' => $class));
         echo $litext;
 
@@ -112,8 +132,14 @@ jQuery(document).ready(function ($) {
     $("ul.expandable").css("display", "none");
 
     $(".expander").click(function(e) {
+        var me = $(this);
         e.preventDefault();
-        $(this).next("UL").toggle();
+        if (me.text() == "Expand") {
+            me.text("Collapse");
+        } else {
+            me.text("Expand");
+        }
+        me.next("UL").toggle();
     });
 });
 </script>
