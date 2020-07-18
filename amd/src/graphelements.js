@@ -500,50 +500,72 @@ define(['qtype_coderunner/graphutil'], function(util) {
 
     /***********************************************************************
      *
-     * Define a class HelpBox for the help box and its pseudo-menu buttonb.
+     * Define a class Button for a pseudo-menu button.
      *
      ***********************************************************************/
 
-    function HelpBox(parent, topX, topY) {
-        this.BUTTON_WIDTH = 50;
-        this.BUTTON_HEIGHT = 25;
-        this.TEXT_OFFSET_X = 25;
-        this.TEXT_OFFSET_Y = 17;
-        this.LINE_HEIGHT = 18;
-        this.HELP_INDENT = 5;
-        this.topX = topX;
-        this.topY = topY;
-        this.parent = parent;
+    function Button(parent, topX, topY, text) {
+      this.BUTTON_WIDTH = 60;
+      this.BUTTON_HEIGHT = 25;
+      this.TEXT_OFFSET_X = 30;
+      this.TEXT_OFFSET_Y = 17;
+      this.topX = topX;
+      this.topY = topY;
+      this.parent = parent;
+      this.text = text;
+      this.highLighted = false;
     }
 
-    HelpBox.prototype.containsPoint = function(x, y) {
-        return x >= this.topX && y >= this.topY &&
-                x <= this.topX + this.BUTTON_WIDTH &&
-                y <= this.topY + this.BUTTON_HEIGHT;
+    Button.prototype.containsPoint = function(x, y) {
+        return util.isInside({x: x, y: y},
+          {x: this.topX, y: this.topY, width: this.BUTTON_WIDTH, height: this.BUTTON_HEIGHT});
     };
 
-    HelpBox.prototype.draw = function(c, isSelected, mouseIsOver) {
-        var lines, i, y, helpText;
-
-        if (mouseIsOver) {
+    Button.prototype.draw = function(c) {
+        if (this.highLighted) {
             c.fillStyle = '#FFFFFF';
         } else {
             c.fillStyle = '#F0F0F0';
         }
         c.fillRect(this.topX, this.topY,
-            this.topX + this.BUTTON_WIDTH, this.topY + this.BUTTON_HEIGHT);
+            this.BUTTON_WIDTH, this.BUTTON_HEIGHT);
         c.lineWidth = 0.5;
         c.strokeStyle = '#000000';
         c.strokeRect(this.topX, this.topY,
-            this.topX + this.BUTTON_WIDTH, this.topY + this.BUTTON_HEIGHT);
+            this.BUTTON_WIDTH, this.BUTTON_HEIGHT);
 
         c.font = '12pt Arial';
         c.fillStyle = '#000000';
         c.textAlign = "center";
-        c.fillText('Help', this.topX + this.TEXT_OFFSET_X, this.topY + this.TEXT_OFFSET_Y);
+        c.fillText(this.text, this.topX + this.TEXT_OFFSET_X, this.topY + this.TEXT_OFFSET_Y);
         c.textAlign = "left";
+    }
 
-        if (isSelected) {
+    Button.prototype.onClick = function() {
+
+    }
+
+    /***********************************************************************
+     *
+     * Define a class HelpBox for the help box and its pseudo-menu button.
+     *
+     ***********************************************************************/
+
+    function HelpBox(parent, topX, topY) {
+      Button.call(this, parent, topX, topY, "Help");
+      this.helpOpen = false;
+      this.LINE_HEIGHT = 18;
+      this.HELP_INDENT = 5;
+    }
+
+    HelpBox.prototype = new Button();
+
+    HelpBox.prototype.draw = function(c) {
+        var lines, i, y, helpText;
+
+        Button.prototype.draw.call(this, c);
+
+        if (this.helpOpen) {
             helpText = this.parent.helpText;
             c.font = '12pt Arial';
             lines = helpText.split('\n');
@@ -554,6 +576,12 @@ define(['qtype_coderunner/graphutil'], function(util) {
             }
         }
     };
+
+    HelpBox.prototype.onClick = function() {
+        this.helpOpen = ! this.helpOpen;
+        this.parent.draw();
+    }
+
 
     /***********************************************************************
      *
@@ -723,6 +751,7 @@ define(['qtype_coderunner/graphutil'], function(util) {
         SelfLink: SelfLink,
         TemporaryLink: TemporaryLink,
         StartLink: StartLink,
+        Button: Button,
         HelpBox: HelpBox,
         TextBox: TextBox
     };

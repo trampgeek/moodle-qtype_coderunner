@@ -168,15 +168,22 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         this.originalClick = null;
         this.nodes = [];
         this.links = [];
-        this.helpBox = new elements.HelpBox(this, 0, 0);
-        this.helpBoxHighlighted = false;
-        this.selectedObject = null; // Either a elements.Link or a elements.Node.
+        this.selectedObject = null; // Either a elements.Link or a elements.Node or a elements.Button.
         this.currentLink = null;
         this.movingObject = false;
         this.fail = false;  // Will be set true if reload fails (can't deserialise).
         this.failString = null;  // Language string key for fail error message.
         this.versions = [];
         this.versionIndex = -1; //Index of current state of graph in versions list
+
+        this.helpBox = new elements.HelpBox(this, 0, 0);   // Button that opens a help text box
+        this.clearButton = new elements.Button(this, 60, 0, "Clear");    // Button that clears the canvas
+        this.clearButton.onClick = function() {
+          if (confirm("Are you sure you want to clear the diagram?")) {
+              this.parent.clear();
+          }
+        }
+        this.buttons = [this.helpBox, this.clearButton];
 
         // Legacy support for locknodes and lockedges.
         if ('locknodes' in templateParams) {
@@ -273,8 +280,8 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
                   key !== 39 &&
                   this.selectedObject !== null &&
                   this.canEditText()) {
-            if (!this.selectedObject.changingText)  this.saveVersion();
-            this.selectedObject.changingText = true;
+            if (this.selectedObject.justMoved)  this.saveVersion();
+            this.selectedObject.justMoved = false;
             this.selectedObject.textBox.insertChar(String.fromCharCode(key));
             this.resetCaret();
             this.draw();
@@ -302,8 +309,14 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
 
         this.saveVersion();
 
+        if (this.selectedObject !== this.helpBox){
+            this.helpBox.helpOpen = false;
+        }
+
         if(this.selectedObject !== null) {
-            if(e.shiftKey && this.selectedObject instanceof elements.Node) {
+            if(this.selectedObject instanceof elements.Button){
+               this.selectedObject.onClick();
+           } else if(e.shiftKey && this.selectedObject instanceof elements.Node) {
                 if (!this.templateParams.lockedgeset) {
                     this.currentLink = new elements.SelfLink(this, this.selectedObject, mouse);
                 }
@@ -329,7 +342,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
                     this.selectedObject.setMouseStart(mouse.x, mouse.y);
                 }
             }
-            this.selectedObject.changingText = false;
+            this.selectedObject.justMoved = true;
             this.resetCaret();
         } else if(e.shiftKey && this.isFsm()) {
             this.currentLink = new elements.TemporaryLink(this, mouse, mouse);
@@ -431,7 +444,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         if(this.selectedObject === null) {
                 this.selectedObject = new elements.Node(this, mouse.x, mouse.y);
                 this.nodes.push(this.selectedObject);
-                this.selectedObject.changingText = false;
+                this.selectedObject.justMoved = true;
                 this.resetCaret();
                 this.draw();
         } else {
@@ -449,15 +462,18 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
 
     Graph.prototype.mousemove = function(e) {
         var mouse = util.crossBrowserRelativeMousePos(e),
-            closestPoint,
-            mouseInHelpBox = this.helpBox.containsPoint(mouse.x, mouse.y);
+            closestPoint;
 
         if (this.readOnly) {
             return;
         }
 
-        if (mouseInHelpBox != this.helpBoxHighlighted) {
-            this.helpBoxHighlighted = mouseInHelpBox;
+        for (i = 0; i < this.buttons.length; i++){
+            if (this.buttons[i].containsPoint(mouse.x, mouse.y)){
+                this.buttons[i].highLighted = true;
+            }else{
+                this.buttons[i].highLighted = false;
+            }
             this.draw();
         }
 
@@ -526,12 +542,12 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
     };
 
     Graph.prototype.selectObject = function(x, y) {
-        var i;
-        if (this.helpBox.containsPoint(x, y) && this.selectedObject != this.helpBox) {
-            // Clicking the help box menu item toggles its select state.
-            return this.helpBox;
+        for (i = 0; i < this.buttons.length; i++){
+            if (this.buttons[i].containsPoint(x, y)){
+                return this.buttons[i];
+            }
         }
-
+        var i;
         for(i = 0; i < this.nodes.length; i++) {
             if(this.nodes[i].containsPoint(x, y)) {
                 return this.nodes[i];
@@ -741,6 +757,14 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         }
     }
 
+    Graph.prototype.clear = function () {
+        this.saveVersion();
+        this.nodes = [];
+        this.links = [];
+        this.save();
+        this.draw();
+    }
+
     Graph.prototype.destroy = function () {
         clearInterval(this.caretTimer); // Stop the caret timer.
         this.graphCanvas.canvas.off();  // Stop all events.
@@ -767,8 +791,11 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         c.save();
         c.translate(0.5, 0.5);
 
-        this.helpBox.draw(c, this.selectedObject == this.helpBox, this.helpBoxHighlighted);
-        if (this.selectedObject != this.helpBox) {  // Only proceed if help info not showing.
+        for (i = 0; i < this.buttons.length; i++){
+            this.buttons[i].draw(c);
+        }
+
+        if (!this.helpBox.helpOpen) {  // Only proceed if help info not showing.
 
             for(i = 0; i < this.nodes.length; i++) {
                 c.lineWidth = 1;
