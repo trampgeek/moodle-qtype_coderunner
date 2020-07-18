@@ -99,6 +99,7 @@ define(function() {
     }
 
     Util.prototype.isCCW = function(a, b) {
+        // Returns true iff vector b is in a counter-clockwise orientation relative to a
         return (a.x * b.y) - (b.x * a.y) > 0;
     }
 

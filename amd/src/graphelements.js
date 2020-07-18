@@ -640,8 +640,8 @@ define(['qtype_coderunner/graphutil'], function(util) {
     };
 
     TextBox.prototype.setAnchorPoint = function(x, y) {
-        x += this.mouseOffsetX;
-        y += this.mouseOffsetY;
+        x += (this.mouseOffsetX || 0);
+        y += (this.mouseOffsetY || 0);
         var linkInfo = this.parent.getEndPointsAndCircle();
         var relDist, offset;
         //Calculate the relative distance of the dragged text along its parent link
@@ -659,15 +659,18 @@ define(['qtype_coderunner/graphutil'], function(util) {
             offset = util.vectorMagnitude({x: x-linkInfo.circleX, y: y-linkInfo.circleY}) - linkInfo.circleRadius;
         }
         else {
+            // Calculate relative position of the mouse projected onto the link. 
             var textVector = {x: x - linkInfo.startX,
                               y: y - linkInfo.startY};
             var linkVector = {x: linkInfo.endX - linkInfo.startX,
                               y: linkInfo.endY - linkInfo.startY};
             var projection = util.scalarProjection(textVector, linkVector);
             relDist = projection / util.vectorMagnitude(linkVector);
+            // Calculate offset (closest distance) of the mouse position from the link
             offset = Math.sqrt(Math.pow(util.vectorMagnitude(textVector), 2)- Math.pow(projection, 2));
+            // If the mouse is on the opposite side of the link from the default text position, negate the offset
             var ccw = util.isCCW(textVector, linkVector);
-            var reversed = this.parent.lineAngleAdjust != 0;
+            var reversed = (this.parent.lineAngleAdjust != 0);
             if ((!ccw && reversed) || (ccw && !reversed)){
                 offset *= -1;
             }
@@ -707,7 +710,7 @@ define(['qtype_coderunner/graphutil'], function(util) {
                 x += cornerPointX - sin * slide;
                 y += cornerPointY + cos * slide;
             }
-            this.position = {x: x, y: y};  //Record the position where text is anchored to
+            this.position = {x: Math.round(x), y: Math.round(y)};  //Record the position where text is anchored to
         }
 
         x -= width / 2;  // Center the text.
