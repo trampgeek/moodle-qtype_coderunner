@@ -88,6 +88,21 @@ define(function() {
         return a * e * i + b * f * g + c * d * h - a * f * h - b * d * i - c * e * g;
     };
 
+    Util.prototype.vectorMagnitude = function(v){
+        // Returns magnitude (length) of a vector v
+        return Math.sqrt(v.x * v.x + v.y * v.y);
+    }
+
+    Util.prototype.scalarProjection = function(a, b) {
+        // Returns scalar projection of vector a onto vector b
+        return (a.x * b.x + a.y * b.y) / this.vectorMagnitude(b);
+    }
+
+    Util.prototype.isCCW = function(a, b) {
+        // Returns true iff vector b is in a counter-clockwise orientation relative to a
+        return (a.x * b.y) - (b.x * a.y) > 0;
+    }
+
     Util.prototype.circleFromThreePoints = function(x1, y1, x2, y2, x3, y3) {
         // Return {x, y, radius} of circle through (x1, y1), (x2, y2), (x3, y3).
         var a = this.det(x1, y1, 1, x2, y2, 1, x3, y3, 1);
