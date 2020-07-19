@@ -60,7 +60,8 @@ define(['qtype_coderunner/graphutil'], function(util) {
         this.mouseOffsetX = 0;
         this.mouseOffsetY = 0;
         this.isAcceptState = false;
-        this.text = '';
+        this.textBox = new TextBox('', this);
+        this.caretPosition = 0;
     }
 
     // At the start of a drag, record our position relative to the mouse.
@@ -88,7 +89,7 @@ define(['qtype_coderunner/graphutil'], function(util) {
         c.stroke();
 
         // Draw the text.
-        this.parent.drawText(this.text, this.x, this.y, null, this);
+        this.textBox.draw(this.x, this.y, null, this);
 
         // Draw a double circle for an accept state.
         if(this.isAcceptState) {
@@ -159,8 +160,9 @@ define(['qtype_coderunner/graphutil'], function(util) {
         this.parent = parent;  // The parent ui_digraph instance.
         this.nodeA = a;
         this.nodeB = b;
-        this.text = '';
+        this.textBox = new TextBox('', this);
         this.lineAngleAdjust = 0; // Value to add to textAngle when link is straight line.
+        this.caretPosition = 0;
 
         // Make anchor point relative to the locations of nodeA and nodeB.
         this.parallelPart = 0.5;    // Percentage from nodeA to nodeB.
@@ -260,22 +262,26 @@ define(['qtype_coderunner/graphutil'], function(util) {
                       Math.atan2(linkInfo.endY - linkInfo.startY, linkInfo.endX - linkInfo.startX));
         }
         // Draw the text.
-        relDist = this.parent.linkLabelRelDist();
+        relDist = this.textBox.relDist;
         if(linkInfo.hasCircle) {
             var startAngle = linkInfo.startAngle;
             var endAngle = linkInfo.endAngle;
-            if(endAngle < startAngle) {
+            if (endAngle < startAngle) {
                 endAngle += Math.PI * 2;
             }
-            textAngle = (startAngle + endAngle) / 2 + linkInfo.isReversed * Math.PI;
+
+            textAngle = ((1 - relDist) * startAngle + relDist * endAngle);
+            if (linkInfo.isReversed){
+              textAngle += (1 - relDist) * (2 * Math.PI); // Reflect text across the line between the link points
+            }
             textX = linkInfo.circleX + linkInfo.circleRadius * Math.cos(textAngle);
             textY = linkInfo.circleY + linkInfo.circleRadius * Math.sin(textAngle);
-            this.parent.drawText(this.text, textX, textY, textAngle, this);
+            this.textBox.draw(textX, textY, textAngle, this);
         } else {
             textX = ((1 - relDist) * linkInfo.startX + relDist * linkInfo.endX);
             textY = ((1 - relDist) * linkInfo.startY + relDist * linkInfo.endY);
             textAngle = Math.atan2(linkInfo.endX - linkInfo.startX, linkInfo.startY - linkInfo.endY);
-            this.parent.drawText(this.text, textX, textY, textAngle + this.lineAngleAdjust, this);
+            this.textBox.draw(textX, textY, textAngle + this.lineAngleAdjust, this);
         }
     };
 
@@ -327,7 +333,7 @@ define(['qtype_coderunner/graphutil'], function(util) {
         this.node = node;
         this.anchorAngle = 0;
         this.mouseOffsetAngle = 0;
-        this.text = '';
+        this.textBox = new TextBox('', this);
 
         if(mouse) {
             this.setAnchorPoint(mouse.x, mouse.y);
@@ -335,7 +341,8 @@ define(['qtype_coderunner/graphutil'], function(util) {
     }
 
     SelfLink.prototype.setMouseStart = function(x, y) {
-        this.mouseOffsetAngle = this.anchorAngle - Math.atan2(y - this.node.y, x - this.node.x);
+        this.mouseStartX = x;
+        this.mouseStartY = y;
     };
 
     SelfLink.prototype.setAnchorPoint = function(x, y) {
@@ -384,10 +391,12 @@ define(['qtype_coderunner/graphutil'], function(util) {
         c.beginPath();
         c.arc(linkInfo.circleX, linkInfo.circleY, linkInfo.circleRadius, linkInfo.startAngle, linkInfo.endAngle, false);
         c.stroke();
-        // Draw the text on the loop farthest from the node.
-        var textX = linkInfo.circleX + linkInfo.circleRadius * Math.cos(this.anchorAngle);
-        var textY = linkInfo.circleY + linkInfo.circleRadius * Math.sin(this.anchorAngle);
-        this.parent.drawText(this.text, textX, textY, this.anchorAngle, this);
+        // Draw the text on the loop.
+        var relDist = this.textBox.relDist;
+        var textAngle = linkInfo.startAngle * (1 - relDist) + linkInfo.endAngle * relDist;
+        var textX = linkInfo.circleX + linkInfo.circleRadius * Math.cos(textAngle);
+        var textY = linkInfo.circleY + linkInfo.circleRadius * Math.sin(textAngle);
+        this.textBox.draw(textX, textY, textAngle, this);
         // Draw the head of the arrow.
         this.parent.arrowIfReqd(c, linkInfo.endX, linkInfo.endY, linkInfo.endAngle + Math.PI * 0.4);
     };
@@ -491,50 +500,72 @@ define(['qtype_coderunner/graphutil'], function(util) {
 
     /***********************************************************************
      *
-     * Define a class HelpBox for the help box and its pseudo-menu buttonb.
+     * Define a class Button for a pseudo-menu button.
      *
      ***********************************************************************/
 
-    function HelpBox(parent, topX, topY) {
-        this.BUTTON_WIDTH = 50;
-        this.BUTTON_HEIGHT = 25;
-        this.TEXT_OFFSET_X = 25;
-        this.TEXT_OFFSET_Y = 17;
-        this.LINE_HEIGHT = 18;
-        this.HELP_INDENT = 5;
-        this.topX = topX;
-        this.topY = topY;
-        this.parent = parent;
+    function Button(parent, topX, topY, text) {
+      this.BUTTON_WIDTH = 60;
+      this.BUTTON_HEIGHT = 25;
+      this.TEXT_OFFSET_X = 30;
+      this.TEXT_OFFSET_Y = 17;
+      this.topX = topX;
+      this.topY = topY;
+      this.parent = parent;
+      this.text = text;
+      this.highLighted = false;
     }
 
-    HelpBox.prototype.containsPoint = function(x, y) {
-        return x >= this.topX && y >= this.topY &&
-                x <= this.topX + this.BUTTON_WIDTH &&
-                y <= this.topY + this.BUTTON_HEIGHT;
+    Button.prototype.containsPoint = function(x, y) {
+        return util.isInside({x: x, y: y},
+          {x: this.topX, y: this.topY, width: this.BUTTON_WIDTH, height: this.BUTTON_HEIGHT});
     };
 
-    HelpBox.prototype.draw = function(c, isSelected, mouseIsOver) {
-        var lines, i, y, helpText;
-
-        if (mouseIsOver) {
+    Button.prototype.draw = function(c) {
+        if (this.highLighted) {
             c.fillStyle = '#FFFFFF';
         } else {
             c.fillStyle = '#F0F0F0';
         }
         c.fillRect(this.topX, this.topY,
-            this.topX + this.BUTTON_WIDTH, this.topY + this.BUTTON_HEIGHT);
+            this.BUTTON_WIDTH, this.BUTTON_HEIGHT);
         c.lineWidth = 0.5;
         c.strokeStyle = '#000000';
         c.strokeRect(this.topX, this.topY,
-            this.topX + this.BUTTON_WIDTH, this.topY + this.BUTTON_HEIGHT);
+            this.BUTTON_WIDTH, this.BUTTON_HEIGHT);
 
         c.font = '12pt Arial';
         c.fillStyle = '#000000';
         c.textAlign = "center";
-        c.fillText('Help', this.topX + this.TEXT_OFFSET_X, this.topY + this.TEXT_OFFSET_Y);
+        c.fillText(this.text, this.topX + this.TEXT_OFFSET_X, this.topY + this.TEXT_OFFSET_Y);
         c.textAlign = "left";
+    }
 
-        if (isSelected) {
+    Button.prototype.onClick = function() {
+
+    }
+
+    /***********************************************************************
+     *
+     * Define a class HelpBox for the help box and its pseudo-menu button.
+     *
+     ***********************************************************************/
+
+    function HelpBox(parent, topX, topY) {
+      Button.call(this, parent, topX, topY, "Help");
+      this.helpOpen = false;
+      this.LINE_HEIGHT = 18;
+      this.HELP_INDENT = 5;
+    }
+
+    HelpBox.prototype = new Button();
+
+    HelpBox.prototype.draw = function(c) {
+        var lines, i, y, helpText;
+
+        Button.prototype.draw.call(this, c);
+
+        if (this.helpOpen) {
             helpText = this.parent.helpText;
             c.font = '12pt Arial';
             lines = helpText.split('\n');
@@ -546,12 +577,185 @@ define(['qtype_coderunner/graphutil'], function(util) {
         }
     };
 
+    HelpBox.prototype.onClick = function() {
+        this.helpOpen = ! this.helpOpen;
+        this.parent.draw();
+    }
+
+
+    /***********************************************************************
+     *
+     * Define a class TextBox for a possibly editable text box that might
+     * be contained in another element
+     *
+     ***********************************************************************/
+
+    function TextBox(text, parent) {
+        this.text = text;
+        this.parent = parent;
+        this.caretPosition = text.length;
+        this.relDist = 0.5;
+        this.offset = parent.parent.textOffset();
+        this.dragged = false;
+        this.boundingBox = {};
+    }
+
+    // Inserts a given character into the TextBox at its current caretPosition
+    TextBox.prototype.insertChar = function(char) {
+        this.text = this.text.slice(0, this.caretPosition) + char + this.text.slice(this.caretPosition);
+        this.caretRight();
+    }
+
+    // Deletes the character in the TextBox that is located behind the current caretPosition
+    TextBox.prototype.deleteChar = function() {
+        if (this.caretPosition > 0){
+            this.text = this.text.slice(0, this.caretPosition - 1) + this.text.slice(this.caretPosition);
+            this.caretLeft();
+        }
+    }
+
+    // Moves the TextBox's caret left one character if possible
+    TextBox.prototype.caretLeft = function() {
+        if (this.caretPosition > 0) {
+            this.caretPosition --;
+        }
+    }
+
+    // Moves the TextBox's caret right one character if possible
+    TextBox.prototype.caretRight = function() {
+        if (this.caretPosition < this.text.length) {
+            this.caretPosition ++;
+        }
+    }
+
+    TextBox.prototype.containsPoint = function(x, y) {
+        var point = {x: x, y: y};
+        return util.isInside(point, this.boundingBox);
+    }
+
+    TextBox.prototype.setMouseStart = function(x, y) {
+      // At the start of a drag, record our position relative to the mouse.
+        this.mouseOffsetX = this.position.x - x;
+        this.mouseOffsetY = this.position.y - y;
+    };
+
+    TextBox.prototype.setAnchorPoint = function(x, y) {
+        x += (this.mouseOffsetX || 0);
+        y += (this.mouseOffsetY || 0);
+        var linkInfo = this.parent.getEndPointsAndCircle();
+        var relDist, offset;
+        //Calculate the relative distance of the dragged text along its parent link
+        if (linkInfo.hasCircle){
+            var textAngle = Math.atan2(y-linkInfo.circleY, x-linkInfo.circleX);
+            // Ensure textAngle is either between start and end angle, or more than end angle
+            if (textAngle < linkInfo.startAngle)  textAngle += Math.PI * 2;
+            if (linkInfo.endAngle < linkInfo.startAngle)  linkInfo.endAngle += Math.PI * 2;
+            // Calculate relDist from angle (inverse of angle-from-relDist calculation in Link.prototype.draw)
+            if (linkInfo.isReversed){
+                relDist = (textAngle - linkInfo.startAngle - Math.PI*2) / (linkInfo.endAngle - linkInfo.startAngle - Math.PI*2);
+            }else{
+                relDist = (textAngle - linkInfo.startAngle) / (linkInfo.endAngle - linkInfo.startAngle);
+            }
+            offset = util.vectorMagnitude({x: x-linkInfo.circleX, y: y-linkInfo.circleY}) - linkInfo.circleRadius;
+        }
+        else {
+            // Calculate relative position of the mouse projected onto the link. 
+            var textVector = {x: x - linkInfo.startX,
+                              y: y - linkInfo.startY};
+            var linkVector = {x: linkInfo.endX - linkInfo.startX,
+                              y: linkInfo.endY - linkInfo.startY};
+            var projection = util.scalarProjection(textVector, linkVector);
+            relDist = projection / util.vectorMagnitude(linkVector);
+            // Calculate offset (closest distance) of the mouse position from the link
+            offset = Math.sqrt(Math.pow(util.vectorMagnitude(textVector), 2)- Math.pow(projection, 2));
+            // If the mouse is on the opposite side of the link from the default text position, negate the offset
+            var ccw = util.isCCW(textVector, linkVector);
+            var reversed = (this.parent.lineAngleAdjust != 0);
+            if ((!ccw && reversed) || (ccw && !reversed)){
+                offset *= -1;
+            }
+        }
+        if (relDist > 0 && relDist < 1){  //Ensure text isn't dragged past end of the link
+            this.relDist = relDist;
+            this.offset = Math.round(offset);
+            this.dragged = true;
+        }
+    };
+
+    TextBox.prototype.draw = function(x, y, angleOrNull, parentObject) {
+        var graph = parentObject.parent,
+            c = graph.getCanvas().getContext('2d');
+
+        c.font = graph.fontSize() + 'px Arial';
+        //Text before and after caret are drawn separately to expand Latex shortcuts at the caret position
+        var beforeCaretText = util.convertLatexShortcuts(this.text.slice(0, this.caretPosition));
+        var afterCaretText = util.convertLatexShortcuts(this.text.slice(this.caretPosition));
+        var width = c.measureText(beforeCaretText + afterCaretText).width;
+        var dy = Math.round(graph.fontSize() / 2);
+
+        // Position the text appropriately if it is part of a link
+        if(angleOrNull !== null) {
+            var cos = Math.cos(angleOrNull);
+            var sin = Math.sin(angleOrNull);
+
+            //Add text offset in the direction of the text angle
+            x += this.offset * cos;
+            y += this.offset * sin;
+
+            // Position text intelligently if text has not been manually moved
+            if (!this.dragged){
+                var cornerPointX = (width / 2) * (cos > 0 ? 1 : -1)
+                var cornerPointY = (dy / 2) * (sin > 0 ? 1 : -1);
+                var slide = sin * Math.pow(Math.abs(sin), 40) * cornerPointX - cos * Math.pow(Math.abs(cos), 10) * cornerPointY;
+                x += cornerPointX - sin * slide;
+                y += cornerPointY + cos * slide;
+            }
+            this.position = {x: Math.round(x), y: Math.round(y)};  //Record the position where text is anchored to
+        }
+
+        x -= width / 2;  // Center the text.
+
+        //Round the coordinates so they fall on a pixel
+        x = Math.round(x);
+        y = Math.round(y);
+
+        // Draw text and caret
+        if('advancedFillText' in c) {
+            c.advancedFillText(this.text, this.text, x + width / 2, y, angleOrNull);
+        } else {
+             // Draw translucent white rectangle behind text
+            var prevStyle = c.fillStyle;
+            c.fillStyle = "rgba(255, 255, 255, 0.7)";
+            c.fillRect(x, y-dy, width, dy*2);
+            c.fillStyle = prevStyle;
+
+            // Draw text
+            dy = Math.round(graph.fontSize() / 3); // Don't understand this.
+            c.fillText(beforeCaretText, x, y + dy);
+            var caretX = x + c.measureText(beforeCaretText).width;
+            c.fillText(afterCaretText, caretX, y + dy);
+
+            // Draw caret
+            dy = Math.round(graph.fontSize() / 2);
+            if(parentObject == graph.selectedObject && graph.caretVisible && graph.hasFocus() && document.hasFocus()) {
+                c.beginPath();
+                c.moveTo(caretX, y - dy);
+                c.lineTo(caretX, y + dy);
+                c.stroke();
+            }
+        }
+        this.boundingBox = {x: x, y: y - dy, height: dy * 2, width: width};
+    };
+
+
     return {
         Node: Node,
         Link: Link,
         SelfLink: SelfLink,
         TemporaryLink: TemporaryLink,
         StartLink: StartLink,
-        HelpBox: HelpBox
+        Button: Button,
+        HelpBox: HelpBox,
+        TextBox: TextBox
     };
 });
