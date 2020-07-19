@@ -539,11 +539,11 @@ define(['qtype_coderunner/graphutil'], function(util) {
         c.textAlign = "center";
         c.fillText(this.text, this.topX + this.TEXT_OFFSET_X, this.topY + this.TEXT_OFFSET_Y);
         c.textAlign = "left";
-    }
+    };
 
     Button.prototype.onClick = function() {
 
-    }
+    };
 
     /***********************************************************************
      *
@@ -580,7 +580,7 @@ define(['qtype_coderunner/graphutil'], function(util) {
     HelpBox.prototype.onClick = function() {
         this.helpOpen = ! this.helpOpen;
         this.parent.draw();
-    }
+    };
 
 
     /***********************************************************************
@@ -604,7 +604,7 @@ define(['qtype_coderunner/graphutil'], function(util) {
     TextBox.prototype.insertChar = function(char) {
         this.text = this.text.slice(0, this.caretPosition) + char + this.text.slice(this.caretPosition);
         this.caretRight();
-    }
+    };
 
     // Deletes the character in the TextBox that is located behind the current caretPosition
     TextBox.prototype.deleteChar = function() {
@@ -612,26 +612,26 @@ define(['qtype_coderunner/graphutil'], function(util) {
             this.text = this.text.slice(0, this.caretPosition - 1) + this.text.slice(this.caretPosition);
             this.caretLeft();
         }
-    }
+    };
 
     // Moves the TextBox's caret left one character if possible
     TextBox.prototype.caretLeft = function() {
         if (this.caretPosition > 0) {
             this.caretPosition --;
         }
-    }
+    };
 
     // Moves the TextBox's caret right one character if possible
     TextBox.prototype.caretRight = function() {
         if (this.caretPosition < this.text.length) {
             this.caretPosition ++;
         }
-    }
+    };
 
     TextBox.prototype.containsPoint = function(x, y) {
         var point = {x: x, y: y};
         return util.isInside(point, this.boundingBox);
-    }
+    };
 
     TextBox.prototype.setMouseStart = function(x, y) {
       // At the start of a drag, record our position relative to the mouse.
@@ -648,8 +648,12 @@ define(['qtype_coderunner/graphutil'], function(util) {
         if (linkInfo.hasCircle){
             var textAngle = Math.atan2(y-linkInfo.circleY, x-linkInfo.circleX);
             // Ensure textAngle is either between start and end angle, or more than end angle
-            if (textAngle < linkInfo.startAngle)  textAngle += Math.PI * 2;
-            if (linkInfo.endAngle < linkInfo.startAngle)  linkInfo.endAngle += Math.PI * 2;
+            if (textAngle < linkInfo.startAngle) {
+                textAngle += Math.PI * 2;
+            }
+            if (linkInfo.endAngle < linkInfo.startAngle) {
+                linkInfo.endAngle += Math.PI * 2;
+            }
             // Calculate relDist from angle (inverse of angle-from-relDist calculation in Link.prototype.draw)
             if (linkInfo.isReversed){
                 relDist = (textAngle - linkInfo.startAngle - Math.PI*2) / (linkInfo.endAngle - linkInfo.startAngle - Math.PI*2);
@@ -659,7 +663,7 @@ define(['qtype_coderunner/graphutil'], function(util) {
             offset = util.vectorMagnitude({x: x-linkInfo.circleX, y: y-linkInfo.circleY}) - linkInfo.circleRadius;
         }
         else {
-            // Calculate relative position of the mouse projected onto the link. 
+            // Calculate relative position of the mouse projected onto the link.
             var textVector = {x: x - linkInfo.startX,
                               y: y - linkInfo.startY};
             var linkVector = {x: linkInfo.endX - linkInfo.startX,
@@ -704,7 +708,7 @@ define(['qtype_coderunner/graphutil'], function(util) {
 
             // Position text intelligently if text has not been manually moved
             if (!this.dragged){
-                var cornerPointX = (width / 2) * (cos > 0 ? 1 : -1)
+                var cornerPointX = (width / 2) * (cos > 0 ? 1 : -1);
                 var cornerPointY = (dy / 2) * (sin > 0 ? 1 : -1);
                 var slide = sin * Math.pow(Math.abs(sin), 40) * cornerPointX - cos * Math.pow(Math.abs(cos), 10) * cornerPointY;
                 x += cornerPointX - sin * slide;

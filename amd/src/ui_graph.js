@@ -182,7 +182,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
           if (confirm("Are you sure you want to clear the diagram?")) {
               this.parent.clear();
           }
-        }
+        };
         this.buttons = [this.helpBox, this.clearButton];
 
         // Legacy support for locknodes and lockedges.
@@ -280,7 +280,9 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
                   key !== 39 &&
                   this.selectedObject !== null &&
                   this.canEditText()) {
-            if (this.selectedObject.justMoved)  this.saveVersion();
+            if (this.selectedObject.justMoved) {
+                this.saveVersion();
+            }
             this.selectedObject.justMoved = false;
             this.selectedObject.textBox.insertChar(String.fromCharCode(key));
             this.resetCaret();
@@ -628,7 +630,9 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
                         link = new elements.SelfLink(this, this.nodes[backupLink[0]]);
                         link.anchorAngle = backupLinkLayout.anchorAngle;
                         link.textBox = new elements.TextBox(backupLink[2].toString(), link);
-                        if (backupLink.length > 3)  link.textBox.setAnchorPoint(backupLink[3].x, backupLink[3].y);
+                        if (backupLink.length > 3) {
+                            link.textBox.setAnchorPoint(backupLink[3].x, backupLink[3].y);
+                        }
                     } else if(backupLink[0] === -1) {
                         link = new elements.StartLink(this, this.nodes[backupLink[1]]);
                         link.deltaX = backupLinkLayout.deltaX;
@@ -639,7 +643,9 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
                         link.perpendicularPart = backupLinkLayout.perpendicularPart;
                         link.lineAngleAdjust = backupLinkLayout.lineAngleAdjust;
                         link.textBox = new elements.TextBox(backupLink[2].toString(), link);
-                        if (backupLink.length > 3)  link.textBox.setAnchorPoint(backupLink[3].x, backupLink[3].y);
+                        if (backupLink.length > 3) {
+                            link.textBox.setAnchorPoint(backupLink[3].x, backupLink[3].y);
+                        }
                     }
                     if(link !== null) {
                         this.links.push(link);
@@ -686,7 +692,9 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
                     'anchorAngle': link.anchorAngle,
                 };
                 linkData = [this.nodes.indexOf(link.node), this.nodes.indexOf(link.node), link.textBox.text];
-                if (link.textBox.dragged) linkData.push(link.textBox.position);
+                if (link.textBox.dragged) {
+                    linkData.push(link.textBox.position);
+                }
             } else if(link instanceof elements.StartLink) {
                 linkLayout = {
                     'deltaX': link.deltaX,
@@ -700,9 +708,11 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
                     'perpendicularPart': link.perpendicularPart,
                 };
                 linkData = [this.nodes.indexOf(link.nodeA), this.nodes.indexOf(link.nodeB), link.textBox.text];
-                if (link.textBox.dragged) linkData.push(link.textBox.position);
+                if (link.textBox.dragged) {
+                    linkData.push(link.textBox.position);
+                }
             }
-            if(linkData !== null && linkLayout !== null) {
+            if (linkData !== null && linkLayout !== null) {
                 backup.edges.push(linkData);
                 backup.edgeGeometry.push(linkLayout);
             }
@@ -722,7 +732,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
                 this.versions.shift();
             }
         }
-    }
+    };
 
     Graph.prototype.undo = function () {
         this.saveVersion();
@@ -736,7 +746,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
             this.reload();
             this.draw();
         }
-    }
+    };
 
     Graph.prototype.redo = function() {
         if (this.versionIndex < this.versions.length - 1){
@@ -749,7 +759,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
             this.reload();
             this.draw();
         }
-    }
+    };
 
     Graph.prototype.clear = function () {
         this.saveVersion();
@@ -757,7 +767,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         this.links = [];
         this.save();
         this.draw();
-    }
+    };
 
     Graph.prototype.destroy = function () {
         clearInterval(this.caretTimer); // Stop the caret timer.
