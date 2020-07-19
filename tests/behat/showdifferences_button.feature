@@ -35,6 +35,7 @@ Feature: Show differences in CodeRunner questions
       | print(sqr(11)) |
     And "print(sqr(-7))" row "Expected" column of "coderunner-test-results" table should contain "49"
     And "print(sqr(-7))" row "Got" column of "coderunner-test-results" table should contain "12345"
+    And I should see "Partially correct"
     And I should not see highlighted "9"
     And I should not see highlighted "123"
     And I should not see highlighted "5"
@@ -51,6 +52,8 @@ Feature: Show differences in CodeRunner questions
     When I choose "Preview" action for "Square function" in the question bank
     And I switch to "questionpreview" window
     And I set the field "id_behaviour" to "Adaptive mode"
-    And I press "Start again with these options"
-    And I set the field with xpath "//textarea[contains(@name, 'answer')]" to "def sqr(n): return n * n if n != -3 else 12345"
-    Then I should not see "Show differences"
+    And I set the field with xpath "//textarea[contains(@name, 'answer')]" to "def sqr(n): return n * n if n != -6 else 12345"
+    And I press "Check"
+    Then I should see "Partially correct"
+    And I should see "Your code failed one or more hidden tests"
+    And I should not see "Show differences"
