@@ -919,12 +919,11 @@ EOT
 
     /**
      * Makes an nodejs question asking for a sqr() function.
-     * Nodejs is not a built-in type.
      * @return qtype_coderunner_question
      */
     public function make_coderunner_question_sqrnodejs() {
         $coderunner = $this->make_coderunner_question(
-            'python3',
+            'nodejs',
             'Function to square a number n',
             'Write a js function sqr(n) that returns n squared.',
             array(
@@ -935,13 +934,8 @@ EOT
                 array('testcode'  => 'console.log(sqr(-11));',
                       'expected'  => '121'),
                 array('testcode'  => 'console.log(sqr(-16));',
-                     'expected'   => '256'),
-             ),
-             array('language'          => 'nodejs',
-                   'sandboxparams'    => '{"memorylimit": 1000000}',
-                   'template' => "{{STUDENT_ANSWER}}\n{{TEST.testcode}}\n",
-                   'iscombinatortemplate' => false)
-        );
+                     'expected'   => '256')
+        ));
         return $coderunner;
     }
 
