@@ -189,9 +189,11 @@ $string['graphhelp'] = '- Double click at a blank space to create a new node/sta
 - Shift click on a blank space, drag to a node to create a start link (FSMs only).
 - Click and drag a link to alter its curve.
 - Click on a link/node to edit its text.
+- Click in link text and drag to move it.
 - Typing _ followed by a digit makes that digit a subscript.
 - Typing \\epsilon creates an epsilon character (and similarly for \\alpha, \\beta etc).
-- Click on a link/node then press the Delete key to remove it (or function-delete on a Mac).';
+- Click on a link/node then press the Delete key to remove it (or function-delete on a Mac).
+- Ctrl+z to undo and Ctrl+y or Ctrl+Shift+z to redo.';
 $string['goodemptyprecheck'] = 'Passed';
 $string['gotcolhdr'] = 'Got';
 $string['grader'] = 'Grader';
