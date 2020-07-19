@@ -52,10 +52,10 @@ class qtype_coderunner_nodejs_question_test extends qtype_coderunner_testcase {
 
 
     public function test_bad_sqr_function() {
-        // Omit the declaration; should give a runtime error as strict mode enforced.
+        // Return a wrong answer in this version.
         $this->check_language_available('nodejs');
         $q = $this->make_question('sqrnodejs');
-        $response = array('answer' => "function sqr(n) {\n  result = n * n;    return result\n}\n");
+        $response = array('answer' => "function sqr(n) {\n  return n\n}\n");
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(0, $mark);
         $this->assertEquals(question_state::$gradedwrong, $grade);
