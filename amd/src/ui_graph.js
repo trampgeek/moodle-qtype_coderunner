@@ -730,6 +730,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
             this.versions.push(curState);
             if (this.versions.length > this.MAX_VERSIONS){    //Limit the size of this.versions
                 this.versions.shift();
+                this.versionIndex--;
             }
         }
     };
