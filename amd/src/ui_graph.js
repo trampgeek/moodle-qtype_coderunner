@@ -119,7 +119,8 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
      *  noderadius. The radius of a node, in pixels. Default: 26.
      *  fontsize. The font size used for node and edge labels. Default: 20 points.
      *  textoffset. An offset in pixels used to determine how far from the link
-     *             a label is positioned. Default 4.
+     *             a label is initially positioned. Default 5. Largely defunct
+     *             now that link text can be dragged.
      *  helpmenutext. A string to be used in lieu of the default Help info, if supplied.
      *               No default.
      *  locknodepositions. True to prevent the user from moving nodes. Useful when the
@@ -129,6 +130,8 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
      *             added and deleted. See locknodeset.
      *  locknodeset. True to prevent the user from adding or deleting nodes, or
      *             toggling node types to/from acceptors.
+     *  locknodelabels: True to prevent the user from editing node labels. This
+     *             will also prevent any new nodes having non-empty labels.
      *  lockedgepositions. True to prevent the user from dragging edges to change
      *             their curvature. Possibly useful if the answer box is
      *             preloaded with a graph that the student has to annotate by
@@ -137,8 +140,6 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
      *             to draw a polygon on a set of given points. Note, though that
      *             edges can still be added and deleted. See lockedgeset.
      *  lockedgeset. True to prevent the user from adding or deleting edges.
-     *  locknodelabels: True to prevent the user from editing node labels. This
-     *             will also prevent any new nodes having non-empty labels.
      *  lockedgelabels: True to prevent the user from editing edge labels. This
      *             also prevents any new edges from having labels.
      *
@@ -246,10 +247,6 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
 
     Graph.prototype.textOffset = function() {
         return this.templateParams.textoffset ? this.templateParams.textoffset : this.DEFAULT_TEXT_OFFSET;
-    };
-
-    Graph.prototype.linkLabelRelDist = function() {
-        return this.templateParams.linklabelreldist ? this.templateParams.linklabelreldist : this.DEFAULT_LINK_LABEL_REL_DIST;
     };
 
     // Draw an arrow head if this is a directed graph. Otherwise do nothing.
