@@ -1,6 +1,6 @@
 # CODE RUNNER
 
-Version: 3.7.8 June 2020
+Version: 3.7.9 August 2020
 
 Authors: Richard Lobb, University of Canterbury, New Zealand.
          Tim Hunt, The Open University, UK
@@ -61,8 +61,8 @@ unusual question type.
 - [User-interface selection](#user-interface-selection)
   - [The Graph UI](#the-graph-ui)
   - [The Table UI](#the-table-ui)
-  - [The Gap Filler UI (new, experimental)](#the-gap-filler-ui-new-experimental)
-  - [The Html UI (unsupported and experimental)](#the-html-ui-unsupported-and-experimental)
+  - [The Gap Filler UI](#the-gap-filler-ui)
+  - [The Html UI ](#the-html-ui)
   - [Other UI plugins](#other-ui-plugins)
 - [User-defined question types](#user-defined-question-types)
 - [Supporting or implementing new languages](#supporting-or-implementing-new-languages)
@@ -2010,7 +2010,7 @@ itself the empty string.
 An example of the use of this UI type can be seen in the
 *python3_program_testing* prototype in the *samples* folder.
 
-### The Gap Filler UI (new, experimental)
+### The Gap Filler UI
 
 This plugin replaces the usual textarea answer box with a div
 consisting of pre-formatted text supplied by the question author in either the
@@ -2019,7 +2019,7 @@ to the template parameter gapfiller_ui_source (default: globalextra).  HTML
 entry or textarea elements are then inserted at
 specified points. It is intended primarily for use with coding questions
 where the answerbox presents the students with code that has smallish bits
-missing.
+missing, but it can also be used in non-coding questions.
 
 The locations within the globalextra text at which the input elements are
 to be inserted are denoted by "tags" of the form
@@ -2038,8 +2038,8 @@ where size, rows and column are integer literals. These respectively
 inject an HTML input element or a textarea element of the
 specified size.
 
-The serialisation of the answer box contents, i.e. the text that
-copied back into the textarea for submissions
+The serialisation of the answer box contents, i.e. the text that is
+copied back into the textarea for submission
 as the answer, is simply a list of all the field values (strings), in order.
 
 As a special case of the serialisation, if the value list is empty, the
@@ -2057,7 +2057,7 @@ ever adding Twig expansion (e.g. for randomisation) to the question. This is
 not recommended.
 
 
-### The Html UI (unsupported and experimental)
+### The Html UI
 
 The HTML UI plug-in replaces the answer box with custom HTML provided by the
 question author. The HTML will usually include data entry fields such as
@@ -2125,26 +2125,6 @@ JavaScript to make use of the 'leftovers'.
 As a special case of the serialisation, if all values in the serialisation
 are either empty strings or a list of empty strings, the serialisation is
 itself the empty string.
-
-In programming questions, the HTML UI can be used to define a "fill-in-the-gaps"
-programming question. Here the `globalextra` should be set to the full
-program code, wrapped in a `<pre>` element. Since this is a raw text field which
-will necessarily contain some genuine HTML, it
-is necessary to manually perform html-escaping operations on the non-html code, such as replacing
-'<' characters with '&lt;'.
-
-Then, bits of the code can be cut out and replaced with HTML input
-elements either explicitly or by use of Twig macros like
-
-    {{ input('crui_expr1', 20) }}
-
-The question's template will receive the values of all input fields in JSON like
-
-    {"crui_expr1": ["*sp++"]}
-
-and, with sufficient ingenuity, can re-insert those field values into the original
-code, which can then be run with all the tests in the usual way. An example of
-this type of question is supplied as **TBS**.
 
 ### Other UI plugins
 
