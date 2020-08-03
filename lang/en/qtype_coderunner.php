@@ -559,27 +559,28 @@ marked as accept states (shown with a double circle) by double clicking. Default
 <li>isdirected. True if edges are directed. Default: true.</li>
 <li>noderadius. The radius of a node, in pixels. Default: 26.</li>
 <li>fontsize. The font size used for node and edge labels. Default: 20 points.</li>
-<li>textoffset. An offset in pixels used when positioning link label text. Default 4.</li>
+<li>textoffset. An offset in pixels used when positioning link label text. Deprecated
+as link text can now be manually dragged. Default 5.</li>
 <li>helpmenutext. A string to be used in lieu of the default Help info, if supplied.
 No default.</li>
 <li>locknodepositions. True to prevent the user from moving nodes. Useful when the
 answer box is preloaded with a graph that the student has to annotate by
 changing node or edge labels or by adding/removing edges. Note, though that
-nodes can still be added and deleted.</li>
-<li>locknodeset. True to prevent user from adding or deleting nodes or toggling
-the accept-state (from fsm graphs).</li>
+nodes can still be added and deleted (but see locknodeset).</li>
 <li>locknodelabels. True to prevent the user from editing node labels (including
-newly added nodes).</li>
+of newly added nodes). This will also prevent any new nodes having non-empty labels.
+Default: false.</li>
+<li>locknodeset. True to prevent the user from adding or deleting nodes or (for FSMs)
+toggling the accept state. Default: false</li>
 <li>lockedgepositions. True to prevent the user from dragging edges to change
-their curvature. Possibly useful if the
-answer box is preloaded with a graph that the student has to annotate by
-changing node or edge labels or by adding/removing edges. Also ensures that
+their curvature. Also ensures that
 edges added by a student are straight, e.g. to draw a polygon on a set of
 given points. Note, though that
-edges can still be added and deleted.</li>
-<li>lockedgeset. True to prevent the user from adding or removing edges.</li>
-<li>lockedgelabels. True to prevent the user from editing edge labels (including
-newly added ones</li>
+edges can still be added and deleted (but see lockedgeset). Default: false.</li>
+<li>lockedgelabels. True to prevent the user from editing edge labels. This also
+prevents non-empty labels on new edges. Default: false.</li>
+<li>lockedgeset. True to prevent the user from adding edges to, or deleting
+edges from, the preloaded graph. Default: false.<li>
 </ul></p>';
 
 $string['qtype_java_class'] = '<p>A Java write-a-class question, where the student submits a
@@ -761,20 +762,27 @@ marked as accept states (shown with a double circle) by double clicking. Default
 <li>isdirected. True if edges are directed. Default: false.</li>
 <li>noderadius. The radius of a node, in pixels. Default: 26.</li>
 <li>fontsize. The font size used for node and edge labels. Default: 20 points.</li>
-<li>textoffset. An offset in pixels used when positioning link label text. Default 4.</li>
+<li>textoffset. An offset in pixels used when positioning link label text. Deprecated
+as link text can now be manually dragged. Default 5.</li>
 <li>helpmenutext. A string to be used in lieu of the default Help info, if supplied.
 No default.</li>
-<li>locknodes. True to prevent the user from moving nodes. Useful when the
+<li>locknodepositions. True to prevent the user from moving nodes. Useful when the
 answer box is preloaded with a graph that the student has to annotate by
 changing node or edge labels or by adding/removing edges. Note, though that
-nodes can still be added and deleted.</li>
-<li>lockedges. True to prevent the user from dragging edges to change
-their curvature. Possibly useful if the
-answer box is preloaded with a graph that the student has to annotate by
-changing node or edge labels or by adding/removing edges. Also ensures that
+nodes can still be added and deleted (but see locknodeset).</li>
+<li>locknodelabels. True to prevent the user from editing node labels (including
+of newly added nodes). This will also prevent any new nodes having non-empty labels.
+Default: false.</li>
+<li>locknodeset. True to prevent the user from adding or deleting nodes or (for FSMs)
+toggling the accept state. Default: false</li>
+<li>lockedgepositions. True to prevent the user from dragging edges to change
+their curvature. Also ensures that
 edges added by a student are straight, e.g. to draw a polygon on a set of
-given points. Note, though that
-edges can still be added and deleted.</li>
+given points. Default: false.</li>
+<li>lockedgelabels. True to prevent the user from editing edge labels. This also
+prevents non-empty labels on new edges. Default: false.</li>
+<li>lockedgeset. True to prevent the user from adding edges to, or deleting
+edges from, the preloaded graph. Default: false.<li>
 </ul></p>';
 
 $string['qtype_python3_w_input'] = '<p>A Python3 question type, which can handle
@@ -1135,7 +1143,9 @@ the question author\'s template.
 
 The Student Answer dropdown displays a list
 of available plugins. For coding questions, the Ace editor is usually used.
-A value of \'None\' can be used to provide just a raw text box. The value
+A value of \'None\' can be used to provide just a raw text box.
+
+The value
 \'Graph\' provides the user with a simple graph-drawing user-interface for use
 with questions that ask the student to draw a graph to some specification; such
 questions will usually have a single test case, graded with a template
@@ -1149,12 +1159,13 @@ incoming edges without a start node and to allow double clicking a node
 to define it as an accept state;
 {"noderadius": 30}, say, to set a different noderadius in pixels;
 {"helpmenutext": "Line1\nLine2\nLine3"} to replace the default help menu with a
-customised version.
+customised version. Other template parameters are documented within the built-in
+directed\_graph and undirected\_graph question types.
 The template parameters
 from the actual question are merged with, and override, those from the
 prototype (since CodeRunner V3.2.2).
 
-There is also a \'Table\' user interface element, which displays a table of text
+The \'Table\' user interface element, which displays a table of text
 areas for the student to
 fill in. It is used by the \'python3_program_testing\' question type, which is
 included in the sample questions on github. This takes template parameters of
@@ -1165,6 +1176,9 @@ the percentages of the table width to allocate to all columns, including the
 row label column if specified) and table_locked_cells (a list of [row, column]
 pairs of cells that the user cannot alter - the row and column indices are
 0-origin but do not include the row label column or the column header row).
+
+The \'Gapfiller\' and \'Html\' user interfaces are documented in the 
+main CodeRunner documentation at https://github.com/trampgeek/moodle-qtype_coderunner#code-runner.
 
 Students with poor eyesight, or authors wishing to inspect serialisations
 (say to understand the representation used by the Graph UI),
