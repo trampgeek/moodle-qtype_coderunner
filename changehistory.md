@@ -1,8 +1,22 @@
 # CHANGE HISTORY
 
-#26 June 2020. 3.7.8
+### 3 July 2020. 3.7.9
 
- * Correctly faulty documentation of import of html module within Twig and
+ * Several graphUI enhancements: undo/redo, cursor movement with arrow keys when
+   editing text, dragging of link label text, adding of a Clear button (thanks Eric Song).
+ * Removed now-defunct linklabelreldist template parameter from graphUI.
+ * Improved (I hope) display of bulk test categories.
+ * Bug fix: embedded example code in the author form's on-line help was not being displayed
+   in Moodle 3.9.
+ * Bug fix: html\_UI questions were not displaying the author's sample answer.
+ * Bug fix: customising a question to use a non-standard Jobe server did not
+   work if that server required an API key.
+ * Several documentation tweaks.
+ 
+
+### 26 June 2020. 3.7.8
+
+ * Correct faulty documentation of import of html module within Twig and
    misuse of htmlentities in documentation.
  * Bug fix: displaying the question author's solution to a question with the
    UI plugin explicitly set to None generates a PHP warning regarding an undefined
@@ -14,7 +28,7 @@
    only with straight links.
  * Two tweaks to the test suite.
 
-# 11 May 2020. 3.7.7
+### 11 May 2020. 3.7.7
 
  * Bug fix: viewing of combinator grader outputs from previous versions of
    CodeRunner gave Undefined property: $outputonly PHP Notices.
