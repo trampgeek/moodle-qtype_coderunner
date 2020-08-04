@@ -8,6 +8,8 @@
  * Improved (I hope) display of bulk test categories.
  * Bug fix: embedded example code in the author form's on-line help was not being displayed
    in Moodle 3.9.
+ * Bug fix: files attached to a question as part of the sample answer were not being
+   copied into the course backup.
  * Bug fix: html\_UI questions were not displaying the author's sample answer.
  * Bug fix: customising a question to use a non-standard Jobe server did not
    work if that server required an API key.
