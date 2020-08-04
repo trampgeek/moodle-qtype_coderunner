@@ -6,6 +6,7 @@
    editing text, dragging of link label text, adding of a Clear button (thanks Eric Song).
  * Removed now-defunct linklabelreldist template parameter from graphUI.
  * Improved (I hope) display of bulk test categories.
+ * Remove "Experimental" tag from various established features.
  * Bug fix: embedded example code in the author form's on-line help was not being displayed
    in Moodle 3.9.
  * Bug fix: files attached to a question as part of the sample answer were not being
