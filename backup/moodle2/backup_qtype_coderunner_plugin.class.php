@@ -116,6 +116,7 @@ class backup_qtype_coderunner_plugin extends backup_qtype_plugin {
      * files to be processed both in backup and restore.
      */
     public static function get_qtype_fileareas() {
-        return array('datafile' => 'question_created');
+        return array('datafile' => 'question_created',
+                     'samplefile' => 'question_created');
     }
 }
