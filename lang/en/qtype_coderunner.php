@@ -55,7 +55,7 @@ $string['answerbox_group_help'] = 'Set the number of rows to allocate for the an
 $string['answerpreload'] = 'Answer box preload';
 $string['answerpreload_help'] = 'Text supplied here will be preloaded into the student\'s answer box.';
 $string['asolutionis'] = 'Question author\'s solution:';
-$string['attachmentoptions'] = 'Attachment options (experimental)';
+$string['attachmentoptions'] = 'Attachment options';
 
 $string['attachmentsoptional'] = 'Attachments are optional';
 $string['attachmentsrequired'] = 'Require attachments';
@@ -137,7 +137,7 @@ $string['emptypenaltyregime'] = 'Penalty regime must be defined (since version 3
 $string['enable'] = 'Enable';
 $string['enablecombinator'] = 'Enable combinator';
 $string['enable_diff_check'] = 'Enable \'Show differences\' button';
-$string['enable_diff_check_desc'] = 'Present students with a \'Show differences\' button if their answer is wrong and an exact-match validator is being used (experimental)';
+$string['enable_diff_check_desc'] = 'Present students with a \'Show differences\' button if their answer is wrong and an exact-match validator is being used';
 $string['enable_sandbox_desc'] = 'Permit use of the specified sandbox for running student submissions';
 $string['equalitygrader'] = 'Exact match';
 $string['error_loading_prototype'] = 'Error loading prototype. Network problems or server down, perhaps?';
@@ -814,7 +814,7 @@ If this is likely to prove a problem, the easiest work-around is to define
 one of the test case standard input fields to be a non-empty value - this
 forces CodeRunner into a fallback mode of running each test case separately.</p>';
 
-$string['qtype_sql'] = '<p>An <b>experimental</b> SQL question type, using sqlite3,
+$string['qtype_sql'] = '<p>A SQL question type, using sqlite3,
  run from Python3. sqlite3 must be installed on the Jobe server for this question
  type.</p>
  <p>The working directory is searched for files with an extension \'.db\'. If
@@ -962,8 +962,7 @@ usually as specified via the administrator settings for the CodeRunner plugin.
 However, it is possible to select a different jobeserver by defining a \'jobeserver\'
 parameter and also, optionally, a \'jobeapikey\' parameter. For example, if the
 \'Parameters\' field is set to <code>{"jobeserver": "myspecialjobe.com"}</code>, the run
-will instead by submitted to the server "myspecialjobe.com". Warning: this
-feature is still experimental and may change in the future.
+will instead by submitted to the server "myspecialjobe.com".
 ';
 $string['sandboxerror'] = 'Error from the sandbox [{$a->sandbox}]: {$a->message}';
 $string['sandboxparams'] = 'Parameters';
