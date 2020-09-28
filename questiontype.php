@@ -641,6 +641,10 @@ class qtype_coderunner extends question_type {
     // prototype) that the parent has been edited (or perhaps deleted).
     private function notify_prototype_children_if_any($question) {
         global $DB;
+        
+        if (defined('CACHE_DISABLE_ALL') && CACHE_DISABLE_ALL !== false) {
+            return;  // If caching is off, nothing to do.
+        }
         if ($question->prototypetype != 0) {
             $typename = $question->coderunnertype;
             $children = $DB->get_records('question_coderunner_options',
