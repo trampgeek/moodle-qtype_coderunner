@@ -1,5 +1,12 @@
 # CHANGE HISTORY
 
+### 15 October 2020. 3.7.9+
+
+ * Bug fix: built-in prototypes for directed-graph and undirected graph give
+   Python exception if user drags edge labels.
+ * Workaround for issue #103 - CodeRunner upgrade failing with Moodle versions above 3.9.1+
+ * Minor documentation tweaks.
+
 ### 3 July 2020. 3.7.9
 
  * Several graphUI enhancements: undo/redo, cursor movement with arrow keys when
