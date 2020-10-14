@@ -278,7 +278,7 @@ try:
     graph = {}
     for node_id, node_name in sorted(node_id_to_name_map.items()):
         edges = []
-        for id0, id1, edge_label in graph_rep['edges']:
+        for id0, id1, edge_label, *loc in graph_rep['edges']:
             if id0 == node_id:
                 edges.append((node_id_to_name_map[id1], edge_label))
         edges.sort()
@@ -944,7 +944,7 @@ try:
     graph = {}
     for node_id, node_name in sorted(node_id_to_name_map.items()):
         edges = []
-        for id0, id1, edge_label in graph_rep['edges']:
+        for id0, id1, edge_label, *loc in graph_rep['edges']:
             if id0 == node_id:
                 edges.append((node_id_to_name_map[id1], edge_label))
             elif id1 == node_id:
