@@ -105,8 +105,10 @@ class qtype_coderunner_renderer extends qtype_renderer {
             $currentlanguage = $question->language;
         } else {
             $currentlanguage = $question->acelang;
-            if (strpos($question->acelang, ',') !== false) {
+            if (strpos($currentlanguage, ',') !== false) {
                 $qtext .= $this->language_dropdown($qa);
+                list($langs, $default) = qtype_coderunner_util::extract_languages($currentlanguage);
+                $currentlanguage = $default ? $default : $langs[0];
             }
         }
 
