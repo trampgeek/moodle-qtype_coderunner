@@ -2301,6 +2301,13 @@ distribution.
                     print("Task failed with signal", -e.returncode, file=sys.stderr)
                 print("** Further testing aborted **", file=sys.stderr)
 
+The above is just a general template and some languages will need additional
+tweaks, e.g. to set up required environment variables. One user tells me that
+he had to redirect stderr output to stdout in the call to subprocess.check_output
+when using R, because it apparently writes some messages and warnings to 
+stderr while still returning a 0 ('SUCCESS') exit code. In another example,
+the same user reports that Erlang requires the HOME environment variable to
+be defined and set to be the current working directory.
 
 ## Multilanguage questions
 
