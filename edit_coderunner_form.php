@@ -61,18 +61,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         global $PAGE;
 
         $mform = $this->_form;
-        $this->mergedtemplateparams = '';
         $this->twiggedparams = '';
-        if (!empty($this->question->options->mergedtemplateparams)) {
-            $this->mergedtemplateparams = $this->question->options->mergedtemplateparams;
-            try {
-                $this->twiggedparams = $this->twig_render($this->mergedtemplateparams);
-            } catch (Exception $ex) {
-                // If the params are broken, don't use them.
-                // Code checker won't accept an empty catch.
-                $this->twiggedparams = '';
-            }
-        }
         if (!empty($this->question->options->language)) {
             $this->lang = $this->acelang = $this->question->options->language;
         } else {

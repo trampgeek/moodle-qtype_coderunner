@@ -71,10 +71,7 @@ class qtype_coderunner_question extends question_graded_automatically {
         if ($step !== null) {
             $step->set_qt_var('_mtrandseed', $seed);
         }
-        $this->setup_template_params($seed);
-        if ($this->twigall) {
-            $this->twig_all();
-        }
+        $this->evaluate_question_for_display($seed);
     }
 
     // Retrieve the saved random number seed and reconstruct the template
@@ -89,13 +86,87 @@ class qtype_coderunner_question extends question_graded_automatically {
             // was introduced into the code.
             $seed = mt_rand();
         }
-        $this->setup_template_params($seed);
-
+        $this->evaluate_question_for_display($seed);
+    }
+    
+    
+    // Evaluate all templated fields of the question that are required for
+    // displaying it to either the student or the author. At very least this will
+    // involve evaluating the template parameters using whatever language
+    // processor is set by the templateparameterslanguage field. The evaluation
+    // defines $this->parameters, which is a PHP associative array containing
+    // Twig environment variables plus UI plugin parameters.
+    // 
+    // If Twigall is set, other fields of the question, such as the question
+    // text and the various test cases are then twig-expanded using the
+    // $this->parameters as an environment.
+    //
+    public function evaluate_question_for_display($seed) {
+        $this->get_prototype();
+        $this->evaluate_parameters($seed);
         if ($this->twigall) {
             $this->twig_all();
+        }        
+    }
+    
+    /**
+     * Define the question's parameters, which define the environment that
+     * is used by Twig for expanding the question's template and (if TwigAll is
+     * set) the various other question fields to be displayed to the author
+     * or the student. 
+     * The parameters are defined by running the template parameters field
+     * through the appropriate language processor as specified by the
+     * templateparameterslanguage field (default: Twig) and then json-decoding
+     * the result to a PHP associative array. That array needs to be merged with
+     * the prototype's parameters.
+     * @param int $seed The random number seed to set for Twig randomisation
+     */
+    private function evaluate_parameters($seed) {
+        assert(isset($this->templateparams));
+        $templateparamlanguage = 'twig'; // TODO - generalise
+        $student = $this->student;
+        $this->parameters = $this->evaluate_template_params($this->templateparams, 
+                $templateparamlanguage, $seed);
+        $prototype = $this->prototype;
+        if ($prototype && $prototype->templateparams) {
+            $prototypetemplateparamlanguage = 'twig'; // TODO - generalise
+            $prototypejsontemplateparams = $this->evaluate_template_params(
+                    $prototype->templateparams, 
+                    $prototypetemplateparamlanguage,
+                    $seed);
+            $this->parameters = array_merge($prototypejsontemplateparams, $this->parameters);
         }
     }
+    
+    
+    // Evaluate the given template parameters in the context of the given random
+    // number seed and student 
+    private function evaluate_template_params($templateparams, $lang, $seed) {
+        assert($lang == 'twig'); // TODO generalise
+        $jsontemplateparams = $this->twig_render_with_seed($templateparams, $seed);
+        $parameters = json_decode($jsontemplateparams, true);
+        if ($parameters === null) {
+            $parameters = array();
+            // TODO how to issue an appropriate error message?
+        }
+        return $parameters;
+    }
 
+    
+    // Render the given twig text using the given random number seed and
+    // student variable. This version should be called only during question
+    // initialisation when randomisation is being done.
+    private function twig_render_with_seed($text, $seed) {
+        mt_srand($seed);
+        return qtype_coderunner_twig::render($text, $this->student);
+    }
+    
+    // Render the given twig text using this question's student and parameter
+    // attributes as an environment.
+    private function twig_render($text) {
+        return qtype_coderunner_twig::render($text, $this->student, $this->parameters);
+    }
+    
     /**
      * Override default behaviour so that we can use a specialised behaviour
      * that caches test results returned by the call to grade_response().
@@ -256,7 +327,7 @@ class qtype_coderunner_question extends question_graded_automatically {
             // For multilanguage questions we also need to specify the language.
             // Use the answer_language template parameter value if given, otherwise
             // run with the default.
-            $params = json_decode($this->templateparams);
+            $params = $this->parameters;
             if (!empty($params->answer_language)) {
                 $answer['language'] = $params->answer_language;
             } else if (!empty($this->acelang) && strpos($this->acelang, ',') !== false) {
@@ -398,14 +469,6 @@ class qtype_coderunner_question extends question_graded_automatically {
     // the template itself.
     // Done only if randomisation is specified within the template params.
     private function twig_all() {
-        // Before twig expanding all fields, copy the template parameters
-        // into $this->parameters.
-        if (!empty($this->templateparams)) {
-            $this->parameters = json_decode($this->templateparams);
-        } else {
-            $this->parameters = new stdClass();
-        }
-
         // Twig expand everything in a context that includes the template
         // parameters and the STUDENT and QUESTION objects.
         $this->questiontext = $this->twig_expand($this->questiontext);
@@ -422,54 +485,25 @@ class qtype_coderunner_question extends question_graded_automatically {
     }
 
     /**
-     * Return Twig-expanded version of the given text. The
-     * Twig environment includes the question itself (this) and the template
-     * parameters. Additional twig environment parameters are passed in via
-     * $twigparams. Template parameters are hoisted if required.
+     * Return Twig-expanded version of the given text.
+     * Twig environment includes the question itself (this) and, if template
+     * parameters are to be hoisted, the (key, value) pairs in $this->parameters.
      * @param string $text Text to be twig expanded.
-     * @param associative array $twigparams Extra twig environment parameters
      */
-    public function twig_expand($text, $twigparams=array()) {
+    public function twig_expand($text, $context=array()) {
         if (empty(trim($text))) {
             return $text;
         } else {
-            $twigparams['QUESTION'] = $this;
+            $context['QUESTION'] = $this;
             if ($this->hoisttemplateparams) {
                 foreach ($this->parameters as $key => $value) {
-                    $twigparams[$key] = $value;
+                    $context[$key] = $value;
                 }
             }
-            return $this->twig_render($text, $twigparams);
+            return qtype_coderunner_twig::render($text, $this->student, $context);
         }
     }
 
-    /**
-     * Define the template parameters for this question by Twig-expanding
-     * both our own template params and our prototype template params and
-     * merging the two.
-     * @param type $seed The random number seed to set for Twig randomisation
-     */
-    private function setup_template_params($seed) {
-        mt_srand($seed);
-        if (!isset($this->templateparams)) {
-            $this->templateparams = '';
-        }
-        $ournewtemplateparams = $this->twig_render($this->templateparams);
-        if (isset($this->prototypetemplateparams)) {
-            $prototypenewtemplateparams = $this->twig_render($this->prototypetemplateparams);
-            $this->templateparams = qtype_coderunner_util::merge_json($prototypenewtemplateparams, $ournewtemplateparams);
-        } else {
-            // Missing prototype?
-            $this->templateparams = $ournewtemplateparams;
-        }
-    }
-
-
-    // Render the given twig text using the given parameters and the
-    // current $this->student as user variable (for mapping to STUDENT twig param).
-    private function twig_render($text, $params=array()) {
-        return qtype_coderunner_twig::render($text, $this->student, $params);
-    }
 
 
     // Extract and return the appropriate subset of the set of question testcases
@@ -637,11 +671,6 @@ class qtype_coderunner_question extends question_graded_automatically {
         if (isset($this->memlimitmb)) {
             $sandboxparams['memorylimit'] = intval($this->memlimitmb);
         }
-        if (isset($this->templateparams) && $this->templateparams != '') {
-            $this->parameters = json_decode($this->templateparams);
-        } else {
-            $this->parameters = new stdClass();
-        }
         return $sandboxparams;
     }
 
@@ -650,9 +679,12 @@ class qtype_coderunner_question extends question_graded_automatically {
      * Load the prototype for this question and store in $this->prototype
      */
     public function get_prototype() {
-        if (!isset($this->prototype)) {
+        assert(!isset($this->prototype));
+        if ($this->prototypetype == 0) {
             $context = qtype_coderunner::question_context($this);
             $this->prototype = qtype_coderunner::get_prototype($this->coderunnertype, $context);
+        } else {
+            $this->prototype = null;
         }
     }
 

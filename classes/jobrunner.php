@@ -47,7 +47,6 @@ class qtype_coderunner_jobrunner {
     public function run_tests($question, $code, $attachments, $testcases, $isprecheck, $answerlanguage) {
         global $CFG;
 
-        $question->get_prototype();
         if (empty($question->prototype)) {
             // Missing prototype. We can't run this question.
             $outcome = new qtype_coderunner_testing_outcome(0, 0, false);
@@ -56,7 +55,6 @@ class qtype_coderunner_jobrunner {
             $outcome->set_status(qtype_coderunner_testing_outcome::STATUS_MISSING_PROTOTYPE, $message);
             return $outcome;
         }
-
         $this->question = $question;
         $this->code = $code;
         $this->testcases = array_values($testcases);

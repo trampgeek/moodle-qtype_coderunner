@@ -58,7 +58,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
 	    array_push($USER->coderunnerquestionids, $qid); // Array of active qids
 	}
         $divid = "qtype_coderunner_problemspec$qid";
-        $params = json_decode($question->templateparams);
+        $params = $question->parameters;
         $qtext = $question->format_questiontext($qa);
         if (isset($params->programming_contest_problem) && $params->programming_contest_problem) {
             // Special case hack for programming contest problems
@@ -96,10 +96,13 @@ class qtype_coderunner_renderer extends qtype_renderer {
         $responsefieldid = 'id_' . $responsefieldname;
         $answerprompt = html_writer::tag('label',
                 get_string('answerprompt', 'qtype_coderunner'), array('class' => 'answerprompt', 'for' => $responsefieldid));
-        $penaltystring = html_writer::tag('span',
+        $qtext .= $answerprompt;
+        if ($qa->has_marks()) {
+            $penaltystring = html_writer::tag('span',
                 get_string('penaltyregime', 'qtype_coderunner', $penalties),
                 array('class' => 'penaltyregime'));
-        $qtext .= $answerprompt . $penaltystring;
+            $qtext .= $penaltystring;
+        }
 
         if (empty($question->acelang)) {
             $currentlanguage = $question->language;
@@ -483,7 +486,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
             // given, or the default (starred) language in the language list
             // if given or the first language listed, whichever comes first.
             list($languages, $default) = qtype_coderunner_util::extract_languages($question->acelang);
-            $params = json_decode($question->templateparams, true);
+            $params = $question->parameters;
             if (array_key_exists('answer_language', $params)) {
                 $currentlanguage = $params['answer_language'];
             } else if (!empty($default)) {
@@ -693,7 +696,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
                 'id' => 'id_' . $fieldname,
                 'spellcheck' => 'false',
                 'rows' => $rows,
-                'data-params' => $question->templateparams,
+                'data-params' => json_encode($question->parameters),
                 'data-globalextra' => $question->globalextra,
                 'data-lang' => ucwords($currentlanguage),
                 'data-test0' => $question->testcases ? $question->testcases[0]->testcode : ''

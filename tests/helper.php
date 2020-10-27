@@ -1136,13 +1136,6 @@ EOPROG;
 
         $question->options->answers = array();  // For compatability with questiontype base.
         $question->options->testcases = $question->testcases;
-
-        // Lastly, add in the merged template params (wouldn't it be nice if
-        // I could figure out how to use the actual get_options function :-/).
-        $question->get_prototype();
-        $question->options->mergedtemplateparams = qtype_coderunner_util::merge_json(
-                $question->prototype->templateparams, $question->options->templateparams);
-
     }
 
     // Given an array of tests in which each element has just the bare minimum
