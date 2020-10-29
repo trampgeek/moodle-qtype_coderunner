@@ -252,7 +252,6 @@ class qtype_coderunner_util {
     /** Function to merge the JSON template parameters from the
      *  the prototype with the child's template params. The prototype can
      *  be overridden by the child.
-     * @return StdClass 
      */
     public static function merge_json($prototypejson, $childjson) {
         $result = new stdClass();
@@ -264,7 +263,7 @@ class qtype_coderunner_util {
             $result->$attr = $field;
         }
 
-        return $result;
+        return json_encode($result);
     }
 
     // Decode given json-encoded template parameters, returning an associative

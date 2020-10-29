@@ -103,7 +103,7 @@ class qtype_coderunner_question extends question_graded_automatically {
     //
     public function evaluate_question_for_display($seed) {
         $this->get_prototype();
-        $this->evaluate_parameters($seed);
+        $this->evaluate_merged_parameters($seed);
         if ($this->twigall) {
             $this->twig_all();
         }        
@@ -118,10 +118,10 @@ class qtype_coderunner_question extends question_graded_automatically {
      * through the appropriate language processor as specified by the
      * templateparameterslanguage field (default: Twig) and then json-decoding
      * the result to a PHP associative array. That array needs to be merged with
-     * the prototype's parameters.
+     * the prototype's parameters, which are subject to the same process.
      * @param int $seed The random number seed to set for Twig randomisation
      */
-    private function evaluate_parameters($seed) {
+    private function evaluate_merged_parameters($seed) {
         assert(isset($this->templateparams));
         $templateparamlanguage = 'twig'; // TODO - generalise
         $student = $this->student;
@@ -146,8 +146,8 @@ class qtype_coderunner_question extends question_graded_automatically {
         $jsontemplateparams = $this->twig_render_with_seed($templateparams, $seed);
         $parameters = json_decode($jsontemplateparams, true);
         if ($parameters === null) {
-            $parameters = array();
-            // TODO how to issue an appropriate error message?
+            $parameters = array('_'=>'');
+            // TODO how to issue an appropriate error message for bad template parameters?
         }
         return $parameters;
     }
