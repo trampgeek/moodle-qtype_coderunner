@@ -93,7 +93,7 @@ class qtype_coderunner_question extends question_graded_automatically {
     // Evaluate all templated fields of the question that are required for
     // displaying it to either the student or the author. At very least this will
     // involve evaluating the template parameters using whatever language
-    // processor is set by the templateparameterslanguage field. The evaluation
+    // processor is set by the templateparamslang field. The evaluation
     // defines $this->parameters, which is a PHP associative array containing
     // Twig environment variables plus UI plugin parameters.
     // 
@@ -116,23 +116,21 @@ class qtype_coderunner_question extends question_graded_automatically {
      * or the student. 
      * The parameters are defined by running the template parameters field
      * through the appropriate language processor as specified by the
-     * templateparameterslanguage field (default: Twig) and then json-decoding
+     * templateparamslang field (default: Twig) and then json-decoding
      * the result to a PHP associative array. That array needs to be merged with
      * the prototype's parameters, which are subject to the same process.
      * @param int $seed The random number seed to set for Twig randomisation
      */
     private function evaluate_merged_parameters($seed) {
         assert(isset($this->templateparams));
-        $templateparamlanguage = 'twig'; // TODO - generalise
         $student = $this->student;
         $this->parameters = $this->evaluate_template_params($this->templateparams, 
-                $templateparamlanguage, $seed);
+                $this->templateparamslang, $seed);
         $prototype = $this->prototype;
         if ($prototype && $prototype->templateparams) {
-            $prototypetemplateparamlanguage = 'twig'; // TODO - generalise
             $prototypejsontemplateparams = $this->evaluate_template_params(
                     $prototype->templateparams, 
-                    $prototypetemplateparamlanguage,
+                    $prototype->templateparamslang,
                     $seed);
             $this->parameters = array_merge($prototypejsontemplateparams, $this->parameters);
         }

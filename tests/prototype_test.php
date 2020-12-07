@@ -137,6 +137,7 @@ EOTEMPLATE;
     <memlimitmb></memlimitmb>
     <sandboxparams></sandboxparams>
     <templateparams><![CDATA[{"xxx":1, "zzz":2}]]></templateparams>
+    <templateparamslang>twig</templateparamslang>
     <hoisttemplateparams>0</hoisttemplateparams>
     <twigall>0</twigall>
     <uiplugin></uiplugin>

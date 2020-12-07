@@ -128,6 +128,7 @@ class qtype_coderunner_walkthrough_randomisation_test extends qbehaviour_walkthr
         $templateparams = '{"func": "{{ random(["sqr", "mysqr"]) }}", "n": {{ 111 + random(1) }} }';
 
         $q->templateparams = $seeding . $templateparams;
+        $q->templateparamslang = 'twig';
         $q->hoisttemplateparams = 1;
         $q->twigall = 1;
         $q->questiontext = 'Write a function {{ func }}';

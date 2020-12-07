@@ -109,6 +109,7 @@ class qtype_coderunner extends question_type {
             'sandboxparams',
             'templateparams',
             'hoisttemplateparams',
+            'templateparamslang',
             'twigall',
             'uiplugin',
             'attachments',
@@ -141,6 +142,7 @@ class qtype_coderunner extends question_type {
             'validateonsave',
             'templateparams',
             'hoisttemplateparams',
+            'templateparamslang',
             'twigall',
             'attachments',
             'attachmentsrequired',
@@ -741,6 +743,7 @@ class qtype_coderunner extends question_type {
             'useace' => 1,
             'iscombinatortemplate' => null,  // Probably unnecessary?
             'template' => null,  // Probably unnecessary?
+            'templateparamslang' => 'twig',
             'attachments' => 0
         );
 
