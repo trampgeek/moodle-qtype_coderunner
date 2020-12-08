@@ -140,30 +140,46 @@ class qtype_coderunner_question extends question_graded_automatically {
     // Evaluate the given template parameters in the context of the given random
     // number seed and student 
     private function evaluate_template_params($templateparams, $lang, $seed) {
-        assert($lang == 'twig'); // TODO generalise
-        $jsontemplateparams = $this->twig_render_with_seed($templateparams, $seed);
-        $parameters = json_decode($jsontemplateparams, true);
-        if ($parameters === null) {
-            $parameters = array('_'=>'');
-            // TODO how to issue an appropriate error message for bad template parameters?
+        if ($lang == 'twig') {
+            $jsontemplateparams = $this->twig_render_with_seed($templateparams, $seed, $this->student);
+        } else {
+            assert($lang == 'python');
+            $jsontemplateparams = $this->evaluate_template_params_python($templateparams, $seed, $this->student);
         }
-        return $parameters;
+        if ($jsontemplateparams === null) {
+            return array('_'=>'');
+            // TODO how to issue an appropriate error message for bad template parameters?
+        } else {
+            return json_decode($jsontemplateparams, true);
+        }
+    }
+    
+    
+    // Evaluate the given template parameter string using Python in the Jobe
+    // engine. Return value should be the JSON template parameter string.
+    // Also used by edit_coderunner_form so not private.
+    function evaluate_template_params_python($templateparams, $seed, $student) {
+        $files = array();
+        $input = '';
+        $sandboxparams = array();
+        $sandbox = $this->get_sandbox();
+        $run = $sandbox->execute($templateparams, 'python3', $input, $files, $sandboxparams);
+        if ($run->error !== qtype_coderunner_sandbox::OK || $run->result != qtype_coderunner_sandbox::RESULT_SUCCESS) {
+            return null;
+        } else {
+            return $run->output;
+        }
     }
 
     
     // Render the given twig text using the given random number seed and
     // student variable. This version should be called only during question
     // initialisation when randomisation is being done.
-    private function twig_render_with_seed($text, $seed) {
+    private function twig_render_with_seed($text, $seed, $student) {
         mt_srand($seed);
-        return qtype_coderunner_twig::render($text, $this->student);
+        return qtype_coderunner_twig::render($text, $student);
     }
     
-    // Render the given twig text using this question's student and parameter
-    // attributes as an environment.
-    private function twig_render($text) {
-        return qtype_coderunner_twig::render($text, $this->student, $this->parameters);
-    }
     
     /**
      * Override default behaviour so that we can use a specialised behaviour

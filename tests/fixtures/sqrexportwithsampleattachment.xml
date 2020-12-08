@@ -40,6 +40,7 @@
     <memlimitmb></memlimitmb>
     <sandboxparams></sandboxparams>
     <templateparams></templateparams>
+    <templateparamslang>twig</templateparamslang>
     <hoisttemplateparams>1</hoisttemplateparams>
     <twigall>0</twigall>
     <uiplugin></uiplugin>

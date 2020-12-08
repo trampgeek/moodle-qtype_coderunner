@@ -82,6 +82,7 @@ $string['badrandompickarg'] = 'Bad argument to JSON @randompic function';
 $string['badsandboxparams'] = '\'Other\' field (sandbox params) must be either blank or a valid JSON record';
 $string['badtemplateparams'] = 'Template parameters must be either blank or a valid JSON record';
 $string['badtemplateparamsaftertwig'] = 'Twigging of template parameters yielded invalid JSON: <pre>{$a}</pre>';
+$string['badtemplateparamsfrompython'] = 'Python execution of template parameters failed to yield valid JSON';
 $string['brokencombinator'] = 'Expected {$a->numtests} test results, got {$a->numresults}. Perhaps excessive output or error in question?';
 $string['brokentemplategrader'] = 'Bad output from grader: {$a->output}. Your program execution may have aborted (e.g. a timeout or memory limit exceeded).';
 $string['bulkquestiontester'] = 'The <a href="{$a->link}">bulk tester script</a> tests that the sample answers for all questions in the current context are marked right. Useful only once some questions with sample answers have been added; the initial install has none.';
@@ -1060,15 +1061,27 @@ all test cases into a single run.
 If the template-debugging checkbox is clicked, the program generated
 for each testcase will be displayed in the output.';
 $string['templateparams'] = 'Template params';
+$string['templateparamslang'] = 'Preprocessor';
 $string['templateparams_help'] = 'The template parameters field lets you pass string parameters to a question\'s
-template(s). If non-blank, this must be a JSON-format record. The fields of
-the record can then be used within the template, where they appear as
-QUESTION.parameters.&lt;&lt;param&gt;&gt;. For example, if template params is
+template(s). If non-blank, this must evaluate to a JSON-format record. It can
+be a pure JSON string, or JSON with embedded Twig code or a Python
+program that outputs JSON when run. The latter mode is highly experimental
+and may have significant performance implications because the template
+parameter code must
+be sent to the Jobe sandbox to be executed even before the question can be
+displayed. To enable the Python mode, set the preprocessor to <em>Python</em>.
+
+It <em>Hoist template parameters</em> is unchecked the fields of
+the JSON record can then be used within the template in the form
+QUESTION.parameters.&lt;&lt;param&gt;&gt; For example, if template params is
 
         {"age": 23}
 
 the value 23 would be substituted into the template in place of the
 template variable <code>{{ QUESTION.parameters.age }}</code>.
+
+If <em>Hoist template parameters</em> is checked the json field names can be
+used without the prefix, e.g. as <code>{{ age }}</code> directly.
 
 The set of template parameters passed to the template consists of any template
 parameters defined in the prototype with the question template parameters
@@ -1077,14 +1090,21 @@ delete them.
 
 Template parameters can also be used to provide randomisation within a question.
 When the question is first instantiated the template parameters are passed
-through the Twig template engine to yield the final JSON version.
+either through the Twig template engine if the Preprocessor is <em>Twig</em>
+or the Python interpreter otherwise to yield the final JSON version.
 Twig\'s "random" function can
 be used to assign random values to template parameters. If the "Twig All" checkbox
 is checked, all other fields of the question (question text, answer, test cases
 etc) are the also processed by Twig, with the template parameters as an
 environment. This can result in different
 students seeing different random variants of the question. See the documentation
-for details.';
+for details.
+
+If Python is the preprocessor the template parameters must be a Python
+program that can accept through sys.argv up to two arguments of the form
+<em>--seed=1234</em> and <em>--student=\<json-encode-student-record\></em> where
+<em>seed</em> is the random number seed and <em>student</em> is the current
+student.';
 $string['testalltitle'] = 'Test all questions in this context';
 $string['testallincategory'] = 'Test all questions in this category';
 $string['testcase'] = 'Test case {$a}';
@@ -1119,7 +1139,7 @@ $string['testtype_precheck'] = 'Precheck only';
 $string['testtype_both'] = 'Both';
 $string['tooshort'] = 'Answer is too short to be meaningful and has been ignored without penalty';
 $string['twigall'] = 'Twig all';
-$string['twigcontrols'] = 'Twig controls';
+$string['twigcontrols'] = 'Template controls';
 $string['twigcontrols_help'] = 'Template parameters are normally referred to during Twig expansion in the form
 {{QUESTION.parameters.someparam}} However, if the Hoist Template Parameters
 checkbox is checked, the parameters are hoisted into the Twig global name space

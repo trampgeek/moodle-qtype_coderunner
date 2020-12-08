@@ -338,7 +338,7 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2019111300, 'qtype', 'coderunner');
     }
     
-    if ($oldversion < 2020120702) {
+    if ($oldversion < 2020120701) {
 
         // Define field templateparamslang to be added to question_coderunner_options.
         $table = new xmldb_table('question_coderunner_options');

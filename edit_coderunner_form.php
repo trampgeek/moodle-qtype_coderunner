@@ -560,7 +560,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
             }
         }
 
-        if (count($errors) == 0 && $templatestatus['istwigged']) {
+        if (count($errors) == 0) {
             $errors = $this->validate_twigables($data, $templatestatus['renderedparams']);
         }
 
@@ -700,6 +700,8 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 get_string('hoisttemplateparams', 'qtype_coderunner'));
         $twigelements[] = $mform->createElement('advcheckbox', 'twigall', null,
                 get_string('twigall', 'qtype_coderunner'));
+        $templateparamlangs = array('twig'=>'Twig', 'python'=>'Python (EXPERIMENTAL)');
+        $twigelements[] = $mform->createElement('select', 'templateparamslang', get_string('templateparamslang', 'qtype_coderunner'), $templateparamlangs);
         $mform->addElement('group', 'twigcontrols', get_string('twigcontrols', 'qtype_coderunner'),
                 $twigelements, null, false);
         $mform->setDefault('twigall', false);
@@ -981,37 +983,41 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $this->renderedparams = '';
         $this->decodedparams = array();
         if ($data['templateparams'] != '') {
-            // Try Twigging the template params to make sure they parse.
-            $ok = true;
-            $json = $data['templateparams'];
-            try {
-                $this->renderedparams = $this->twig_render($json);
-                if (str_replace($this->renderedparams, "\r", '') !==
-                        str_replace($json, "\r", '')) {
-                    // Twig loses '\r' chars, so must strip them before checking.
-                    $istwiggedparams = true; //Twigging the template parameters changed them.
-                }
-            } catch (Exception $ex) {
-                $errormessage = $ex->getMessage();
-                $ok = false;
-            }
-            if ($ok) {
-                $this->decodedparams = json_decode($this->renderedparams, true);
+            list($json, $errormessage) = $this->preprocess_template_params($data);
+            if (!$errormessage) {
+                $this->renderedparams = $json;
+                $this->decodedparams = json_decode($json, true);
                 if ($this->decodedparams === null) {
-                    if ($this->decodedparams) {
-                        $badjsonhtml = str_replace("\n", '<br>', $this->renderedparams);
-                        $errormessage = get_string('badtemplateparamsaftertwig',
-                                'qtype_coderunner', $badjsonhtml);
-                    } else {
-                        $errormessage = get_string('badtemplateparams', 'qtype_coderunner');
-                    }
+                    $errormessage = get_string('badtemplateparams', 'qtype_coderunner');
                 }
             }
-
         }
         return array('error' => $errormessage,
-                    'istwigged' => $istwiggedparams,
                     'renderedparams' => $this->renderedparams);
+    }
+    
+    
+    // Run the given template parameters through whatever preprocessor is set.
+    private function preprocess_template_params($data) {
+        $templateparams = $data['templateparams'];
+        $errormessage = '';
+        if ($data['templateparamslang'] == 'twig') {
+            // Try Twigging the template params to make sure they parse.
+            try {
+                $json = $this->twig_render($templateparams);
+            } catch (Exception $ex) {
+                $errormessage = $ex->getMessage();
+            }
+        } else {
+            assert($data['templateparamslang'] == 'python');
+            try {
+                $question = $this->make_question_from_form_data($data);
+                $json = $this->python_render($question, $templateparams);
+            } catch (Exception $ex) {
+                $errormessage = $ex->getMessage();
+            }
+        }
+        return array($json, $errormessage);
     }
 
 
@@ -1103,6 +1109,16 @@ class qtype_coderunner_edit_form extends question_edit_form {
     private function twig_render($text, $params=array(), $isstrict=false) {
         global $USER;
         return qtype_coderunner_twig::render($text, $USER, $params, $isstrict);
+    }
+    
+    
+    // Render the given template params, which should be python code that outputs
+    // json, using the global $USER variable (the question author) as a dummy student.
+    // @return Rendered text.
+    private function python_render($question, $text) {
+        global $USER;
+        $json = $question->evaluate_template_params_python($text, 0, $USER);
+        return $json;
     }
 
 
