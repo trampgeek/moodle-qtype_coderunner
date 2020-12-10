@@ -146,11 +146,12 @@ class qtype_coderunner_question extends question_graded_automatically {
             assert($lang == 'python');
             $jsontemplateparams = $this->evaluate_template_params_python($templateparams, $seed, $this->student);
         }
-        if ($jsontemplateparams === null) {
+        $parameters = json_decode($jsontemplateparams, true);
+        if ($parameters === null) {
             return array('_'=>'');
             // TODO how to issue an appropriate error message for bad template parameters?
         } else {
-            return json_decode($jsontemplateparams, true);
+            return $parameters;
         }
     }
     
@@ -161,11 +162,17 @@ class qtype_coderunner_question extends question_graded_automatically {
     function evaluate_template_params_python($templateparams, $seed, $student) {
         $files = array();
         $input = '';
-        $sandboxparams = array();
+        $runargs = array("seed=$seed");
+        foreach (array('id', 'username', 'firstname', 'lastname', 'email') as $key) {
+            $runargs[] = "$key=" . $student->$key;
+        }
+        $sandboxparams = array("runargs" => $runargs);
         $sandbox = $this->get_sandbox();
-        $run = $sandbox->execute($templateparams, 'python3', $input, $files, $sandboxparams);
-        if ($run->error !== qtype_coderunner_sandbox::OK || $run->result != qtype_coderunner_sandbox::RESULT_SUCCESS) {
-            return null;
+        $run = $sandbox->execute($templateparams, "python3", $input, $files, $sandboxparams);
+        if ($run->error !== qtype_coderunner_sandbox::OK) {
+            return qtype_coderunner_sandbox::error_string($run);
+        } else if ($run->result != qtype_coderunner_sandbox::RESULT_SUCCESS) {
+            return qtype_coderunner_sandbox::result_string($run->result) . "\n" . $run->cmpinfo . $run->output . $run->stderr;
         } else {
             return $run->output;
         }

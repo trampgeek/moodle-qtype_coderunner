@@ -986,9 +986,10 @@ class qtype_coderunner_edit_form extends question_edit_form {
             list($json, $errormessage) = $this->preprocess_template_params($data);
             if (!$errormessage) {
                 $this->renderedparams = $json;
+                // Check that the preprocessed template parameters are valid json.
                 $this->decodedparams = json_decode($json, true);
                 if ($this->decodedparams === null) {
-                    $errormessage = get_string('badtemplateparams', 'qtype_coderunner');
+                    $errormessage = get_string('badtemplateparams', 'qtype_coderunner', $json);
                 }
             }
         }

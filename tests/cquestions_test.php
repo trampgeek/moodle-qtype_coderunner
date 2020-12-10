@@ -41,6 +41,7 @@ class qtype_coderunner_c_questions_test extends qtype_coderunner_testcase {
         $q = $this->make_question('sqr_c');
         $response = array('answer' => "int sqr(int n) { return n * n;}\n");
         list($mark, $grade, $cache) = $q->grade_response($response);
+        debugging(print_r($cache, true));
         $this->assertEquals(1, $mark);
         $this->assertEquals(question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
