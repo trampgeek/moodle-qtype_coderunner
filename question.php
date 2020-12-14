@@ -71,7 +71,7 @@ class qtype_coderunner_question extends question_graded_automatically {
         if ($step !== null) {
             $step->set_qt_var('_mtrandseed', $seed);
         }
-        $this->evaluate_question_for_display($seed);
+        $this->evaluate_question_for_display($seed, $step);
     }
 
     // Retrieve the saved random number seed and reconstruct the template
@@ -86,7 +86,7 @@ class qtype_coderunner_question extends question_graded_automatically {
             // was introduced into the code.
             $seed = mt_rand();
         }
-        $this->evaluate_question_for_display($seed);
+        $this->evaluate_question_for_display($seed, $step);
     }
     
     
@@ -101,9 +101,9 @@ class qtype_coderunner_question extends question_graded_automatically {
     // text and the various test cases are then twig-expanded using the
     // $this->parameters as an environment.
     //
-    public function evaluate_question_for_display($seed) {
+    public function evaluate_question_for_display($seed, $step) {
         $this->get_prototype();
-        $this->evaluate_merged_parameters($seed);
+        $this->evaluate_merged_parameters($seed, $step);
         if ($this->twigall) {
             $this->twig_all();
         }        
@@ -119,52 +119,97 @@ class qtype_coderunner_question extends question_graded_automatically {
      * templateparamslang field (default: Twig) and then json-decoding
      * the result to a PHP associative array. That array needs to be merged with
      * the prototype's parameters, which are subject to the same process.
+     * After running this function, the $this->parameters is the array of
+     * parameters.
      * @param int $seed The random number seed to set for Twig randomisation
+     * @param question_attempt_step $step The current question attempt step
      */
-    private function evaluate_merged_parameters($seed) {
+  
+     function evaluate_merged_parameters($seed, $step=null) {
         assert(isset($this->templateparams));
-        $student = $this->student;
-        $this->parameters = $this->evaluate_template_params($this->templateparams, 
-                $this->templateparamslang, $seed);
+        $paramsjson = $this->template_params_json($this->templateparams, 
+                    $this->templateparamslang, $seed, $step, '_template_params');
         $prototype = $this->prototype;
-        if ($prototype && $prototype->templateparams) {
-            $prototypejsontemplateparams = $this->evaluate_template_params(
-                    $prototype->templateparams, 
-                    $prototype->templateparamslang,
-                    $seed);
-            $this->parameters = array_merge($prototypejsontemplateparams, $this->parameters);
+        $prototypeparamsjson = $this->template_params_json($prototype->templateparams,
+                $prototype->templateparamslang, $seed, $step, '_prototype__template_params');
+   
+        $mergedjson = qtype_coderunner_util::merge_json($prototypeparamsjson, $paramsjson);
+        if (empty($mergedjson)) {
+            $mergedjson = '{}';
         }
+        $this->parameters = json_decode($mergedjson);
+
+        // TODO - how to report an error on the json_decode??
+    }
+    
+    /**
+     * Evaluate a template parameter field from a question or its prototype
+     * 
+     * @param string $params the template parameter string to evaluate
+     * @param string $lang the language of the template parameter string
+     * @param int $seed the random number seed for this instance of the question
+     * @param question_attempt_step $step the current attempt step
+     * @param string $qtvar the base name of a qt_variable in which to record
+     * the md5 current template parameters (with suffix '_md5') and the evaluated
+     * json (with suffix '_json').
+     * @return string THe Json template parameters.
+     */
+    private function template_params_json($params, $lang, $seed, $step, $qtvar) {
+        if ($step === null) {
+            $jsontemplateparams = $this->evaluate_template_params($params,
+                    $lang, $seed, $this->student);
+        } else {
+            $previousparamsmd5 = $step->get_qt_var($qtvar . '_md5');
+            $currentparamsmd5 = md5($params);
+            if ($previousparamsmd5 === $currentparamsmd5) {
+                $jsontemplateparams = $step->get_qt_var($qtvar . '_json');
+            } else {
+                $jsontemplateparams = $this->evaluate_template_params($params,
+                        $lang, $seed, $this->student);
+                $step->set_qt_var($qtvar . '_md5', $currentparamsmd5);
+                $step->set_qt_var($qtvar . '_json', $jsontemplateparams);
+            }
+        }
+        return $jsontemplateparams;
     }
     
     
     // Evaluate the given template parameters in the context of the given random
-    // number seed and student 
-    private function evaluate_template_params($templateparams, $lang, $seed) {
+    // number seed. Return value is a json string. 
+    
+    /**
+     * Evaluate a template parameter string.
+     * @param string $templateparams The template parameter string to evaluate.
+     * @param string $lang The language of the template params
+     * @param int $seed The random number seed for this question attempt
+     * @return string The evaluated JSON string or an error message (which won't be 
+     * valid json).
+     */
+    function evaluate_template_params($templateparams, $lang, $seed) {
         if ($lang == 'twig') {
-            $jsontemplateparams = $this->twig_render_with_seed($templateparams, $seed, $this->student);
+            $jsontemplateparams = $this->twig_render_with_seed($templateparams, $seed);
         } else {
             assert($lang == 'python');
-            $jsontemplateparams = $this->evaluate_template_params_python($templateparams, $seed, $this->student);
+            $jsontemplateparams = $this->evaluate_template_params_python($templateparams, $seed);
         }
-        $parameters = json_decode($jsontemplateparams, true);
-        if ($parameters === null) {
-            return array('_'=>'');
-            // TODO how to issue an appropriate error message for bad template parameters?
-        } else {
-            return $parameters;
-        }
+        return $jsontemplateparams;
     }
     
     
-    // Evaluate the given template parameter string using Python in the Jobe
-    // engine. Return value should be the JSON template parameter string.
-    // Also used by edit_coderunner_form so not private.
-    function evaluate_template_params_python($templateparams, $seed, $student) {
+    /**
+     * Evaluate a template parameter string using Python in the Jobe
+     * engine. Return value should be the JSON template parameter string.
+     *
+     * @param string $templateparams The template parameters to evaluate.
+     * @param int $seed The random number seed to use when evaluating.
+     * @return string The output from the run.
+     */
+    private function evaluate_template_params_python($templateparams, $seed) {
         $files = array();
         $input = '';
         $runargs = array("seed=$seed");
         foreach (array('id', 'username', 'firstname', 'lastname', 'email') as $key) {
-            $runargs[] = "$key=" . $student->$key;
+            $runargs[] = "$key=" . $this->student->$key;
         }
         $sandboxparams = array("runargs" => $runargs);
         $sandbox = $this->get_sandbox();
@@ -182,9 +227,9 @@ class qtype_coderunner_question extends question_graded_automatically {
     // Render the given twig text using the given random number seed and
     // student variable. This version should be called only during question
     // initialisation when randomisation is being done.
-    private function twig_render_with_seed($text, $seed, $student) {
+    private function twig_render_with_seed($text, $seed) {
         mt_srand($seed);
-        return qtype_coderunner_twig::render($text, $student);
+        return qtype_coderunner_twig::render($text, $this->student);
     }
     
     

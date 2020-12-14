@@ -475,6 +475,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
+        $this->question = $this->make_question_from_form_data($data);
         if ($data['coderunnertype'] == 'Undefined') {
             $errors['coderunner_type_group'] = get_string('questiontype_required', 'qtype_coderunner');
         }
@@ -496,9 +497,9 @@ class qtype_coderunner_edit_form extends question_edit_form {
             $errors['sandboxcontrols'] = get_string('badsandboxparams', 'qtype_coderunner');
         }
 
-        $templatestatus = $this->validate_template_params($data);
-        if ($templatestatus['error']) {
-            $errors['templateparams'] = $templatestatus['error'];
+        $templateerrors = $this->validate_template_params($data);
+        if ($templateerrors) {
+            $errors['templateparams'] = $templateerrors;
         }
 
         if ($data['prototypetype'] == 0 && ($data['grader'] !== 'TemplateGrader'
@@ -561,7 +562,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         }
 
         if (count($errors) == 0) {
-            $errors = $this->validate_twigables($data, $templatestatus['renderedparams']);
+            $errors = $this->validate_twigables();
         }
 
         if (count($errors) == 0 && !empty($data['validateonsave'])) {
@@ -968,60 +969,27 @@ class qtype_coderunner_edit_form extends question_edit_form {
     }
 
 
-    // Check the templateparameters value, if given. Return value is
-    // an associative array with an error message 'error', a boolean
-    // 'istwigged' and a string 'renderedparams'.  istwigged is true if
-    // twigging the template parameters changed them. 'renderedparams' is
-    // the result of twig expanding the params.
-    // Error is the empty string if the template parameters are OK.
-    // As a side effect, $this->renderedparams is the result of twig expanding
-    // the params and $this->decodedparams is the json decoded template parameters
-    // as an associative array.
-    private function validate_template_params($data) {
+    // Check the templateparameters value, if given. Return an error message
+    // string, which will be empty if there are no errors.
+    private function validate_template_params() {
+        global $USER;
+        $templateparams = $this->question->templateparams;
         $errormessage = '';
-        $istwiggedparams = false;
-        $this->renderedparams = '';
-        $this->decodedparams = array();
-        if ($data['templateparams'] != '') {
-            list($json, $errormessage) = $this->preprocess_template_params($data);
-            if (!$errormessage) {
-                $this->renderedparams = $json;
-                // Check that the preprocessed template parameters are valid json.
-                $this->decodedparams = json_decode($json, true);
-                if ($this->decodedparams === null) {
-                    $errormessage = get_string('badtemplateparams', 'qtype_coderunner', $json);
-                }
+        $this->question->decodedparams = array();
+        if (!empty($templateparams)) {
+            $lang = $this->question->templateparamslang;
+            $seed = 0;
+            $json = $this->question->evaluate_template_params($templateparams, $lang, $seed);
+            $decoded = json_decode($json, true);
+            if ($decoded === null) {
+                 $errormessage = get_string('badtemplateparams', 'qtype_coderunner', $json);
             }
         }
-        return array('error' => $errormessage,
-                    'renderedparams' => $this->renderedparams);
+        return $errormessage;
     }
     
     
-    // Run the given template parameters through whatever preprocessor is set.
-    private function preprocess_template_params($data) {
-        $templateparams = $data['templateparams'];
-        $errormessage = '';
-        if ($data['templateparamslang'] == 'twig') {
-            // Try Twigging the template params to make sure they parse.
-            try {
-                $json = $this->twig_render($templateparams);
-            } catch (Exception $ex) {
-                $errormessage = $ex->getMessage();
-            }
-        } else {
-            assert($data['templateparamslang'] == 'python');
-            try {
-                $question = $this->make_question_from_form_data($data);
-                $json = $this->python_render($question, $templateparams);
-            } catch (Exception $ex) {
-                $errormessage = $ex->getMessage();
-            }
-        }
-        return array($json, $errormessage);
-    }
-
-
+ 
     private function validate_penalty_regime($data) {
         // Check the penalty regime and return an error string or an empty string if OK.
         $errorstring = '';
@@ -1061,22 +1029,20 @@ class qtype_coderunner_edit_form extends question_edit_form {
     // other question fields will need twig expansion, check for twig errors
     // in all other fields. Return value is an associative array mapping from
     // form fields to error messages.
-    private function validate_twigables($data, $renderedparams) {
+    private function validate_twigables() {
         $errors = array();
-        if (!empty($renderedparams)) {
-            $parameters = json_decode($renderedparams, true);
-        } else {
-            $parameters = array();
-        }
+        $question = $this->question;
+        $question->evaluate_merged_parameters(0);
+        $parameters = $question->parameters;
 
         // Try twig expanding everything (see question::twig_all), with strict_variables true.
         foreach (['questiontext', 'answer', 'answerpreload', 'globalextra'] as $field) {
-            $text = $data[$field];
+            $text = $question->$field;
             if (is_array($text)) {
                 $text = $text['text'];
             }
             try {
-                $this->twig_render($text, $parameters, true);
+                $this->twig_render($text, $question->parameters, true);
             } catch (Twig_Error $ex) {
                 $errors[$field] = get_string('twigerror', 'qtype_coderunner',
                         $ex->getMessage());
@@ -1084,13 +1050,13 @@ class qtype_coderunner_edit_form extends question_edit_form {
         }
 
         // Now all test cases.
-        if (!empty($data['testcode'])) {
-            $num = max(count($data['testcode']), count($data['stdin']),
-                    count($data['expected']), count($data['extra']));
+        if (!empty($question->testcode)) {
+            $num = max(count($question->testcode), count($question->stdin),
+                    count($question->expected), count($question->extra));
 
             for ($i = 0; $i < $num; $i++) {
                 foreach (['testcode', 'stdin', 'expected', 'extra'] as $fieldname) {
-                    $text = $data[$fieldname][$i];
+                    $text = $question->$fieldname[$i];
                     try {
                         $this->twig_render($text, $parameters, true);
                     } catch (Twig_Error $ex) {
@@ -1109,24 +1075,15 @@ class qtype_coderunner_edit_form extends question_edit_form {
     // @return Rendered text.
     private function twig_render($text, $params=array(), $isstrict=false) {
         global $USER;
-        return qtype_coderunner_twig::render($text, $USER, $params, $isstrict);
+        $student = new qtype_coderunner_student($USER);
+        return qtype_coderunner_twig::render($text, $student, (array) $params, $isstrict);
     }
     
-    
-    // Render the given template params, which should be python code that outputs
-    // json, using the global $USER variable (the question author) as a dummy student.
-    // @return Rendered text.
-    private function python_render($question, $text) {
-        global $USER;
-        $json = $question->evaluate_template_params_python($text, 0, $USER);
-        return $json;
-    }
-
 
     private function make_question_from_form_data($data) {
         // Construct a question object containing all the fields from $data.
         // Used in data pre-processing and when validating a question.
-        global $DB;
+        global $DB, $USER;
         $question = new qtype_coderunner_question();
         foreach ($data as $key => $value) {
             if ($key === 'questiontext' || $key === 'generalfeedback') {
@@ -1138,6 +1095,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         }
         $question->isnew = true;
         $question->supportfilemanagerdraftid = $this->get_file_manager('datafiles');
+        $question->student =  new qtype_coderunner_student($USER);
 
         // Clean the question object, get inherited fields and run the sample answer.
         $qtype = new qtype_coderunner();
@@ -1156,44 +1114,44 @@ class qtype_coderunner_edit_form extends question_edit_form {
     // Return an empty string if there is no sample answer and no attachments,
     // or if the sample answer passes all the tests.
     // Otherwise return a suitable error message for display in the form.
-    private function validate_sample_answer($data) {
-
+    private function validate_sample_answer() {
+        assert(!empty($this->question->parameters));
         $attachmentssaver = $this->get_sample_answer_file_saver();
         $files = $attachmentssaver ? $attachmentssaver->get_files() : array();
-        if ((!isset($data['answer']) || trim($data['answer']) === '') && count($files) == 0) {
+        $answer = $this->question->answer;
+        if (trim($answer) === '' && count($files) == 0) {
             return ''; // Empty answer and no attachments.
         }
         // Check if it's a multilanguage question; if so need to determine
         // what language to use. If there is a specific answer_language template
         // parameter, that is used. Otherwise the default language (if specified)
         // or the first in the list is used.
-        $acelangs = trim($data['acelang']);
-        if ($acelangs !== '' && strpos($acelangs, ',') !== false) {
-            if (empty($this->decodedparams['answer_language'])) {
-                list($languages, $answerlang) = qtype_coderunner_util::extract_languages($acelangs);
+        $acelang = trim($this->question->acelang);
+        if ($acelang !== '' && strpos($acelang, ',') !== false) {
+            if (empty($this->question->parameters['answer_language'])) {
+                list($languages, $answerlang) = qtype_coderunner_util::extract_languages($acelang);
                 if ($answerlang === '') {
                     $answerlang = $languages[0];
                 }
             } else {
-                $answerlang = $this->decodedparams['answer_language'];
+                $answerlang = $this->question->parameters['answer_language'];
             }
         }
 
         try {
-            $question = $this->make_question_from_form_data($data);
-            $question->start_attempt();
-            $response = array('answer' => $question->answer);
+            $this->question->start_attempt();
+            $response = array('answer' => $this->question->answer);
             if (!empty($answerlang)) {
                 $response['language'] = $answerlang;
             }
             if ($attachmentssaver) {
                 $response['attachments'] = $attachmentssaver;
             }
-            $error = $question->validate_response($response);
+            $error = $this->question->validate_response($response);
             if ($error) {
                 return $error;
             }
-            list($mark, $state, $cachedata) = $question->grade_response($response);
+            list($mark, $state, $cachedata) = $this->question->grade_response($response);
         } catch (Exception $e) {
             return $e->getMessage();
         }

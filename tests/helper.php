@@ -1210,12 +1210,11 @@ EOPROG;
         // having to use Behat. There's probably a better way, but I don't know it.
         $coderunnertype = new qtype_coderunner();
         $coderunnertype->clean_question_form($coderunner, true);
+        $this->get_options($coderunner);
         $coderunner->get_prototype();
         if ($coderunner->prototype === null) {
-            debugging("No prototype!");
+            debugging("No prototype found in make_coderunner_question");
         }
-        $this->get_options($coderunner);
-
         return $coderunner;
     }
 }
