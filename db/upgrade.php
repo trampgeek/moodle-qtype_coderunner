@@ -342,7 +342,7 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
 
         // Define field templateparamslang to be added to question_coderunner_options.
         $table = new xmldb_table('question_coderunner_options');
-        $field = new xmldb_field('templateparamslang', XMLDB_TYPE_CHAR, '50', null, null, null, 'twig', 'templateparams');
+        $field = new xmldb_field('templateparamslang', XMLDB_TYPE_CHAR, '50', null, null, null, 'None', 'templateparams');
 
         // Conditionally launch add field templateparamslang.
         if (!$dbman->field_exists($table, $field)) {
@@ -353,6 +353,26 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2020120701, 'qtype', 'coderunner');
     }
 
+    if ($oldversion < 2020121501) {
+        $table = new xmldb_table('question_coderunner_options');
+        $field = new xmldb_field('templateparamsevalpertry', XMLDB_TYPE_INTEGER, '1', null, null, null, '0', 'templateparamslang');
+
+        // Conditionally launch add field templateparamsevalpertry.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        
+        $field = new xmldb_field('templateparamsevald', XMLDB_TYPE_TEXT, null, null, null, null, null, 'templateparamsevalpertry');
+
+        // Conditionally launch add field templateparamsevald.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+
+        // Coderunner savepoint reached.
+        upgrade_plugin_savepoint(true, 2020121501, 'qtype', 'coderunner');        
+    }
     require_once(__DIR__ . '/upgradelib.php');
     update_question_types();
 

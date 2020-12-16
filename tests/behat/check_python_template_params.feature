@@ -1,7 +1,7 @@
 
 @qtype @qtype_coderunner @javascript @pythonpreprocessortest
-Feature: Check that Python can be used instead of Twig as a template params preprocessor and that it processes the STUDENT variable correctly.
-  To check that the STUDENT template parameter variables work when python is the preprocessor
+Feature: Check that Python and other languages can be used instead of Twig as a template params preprocessor and that they processes the STUDENT variable correctly.
+  To check that the STUDENT template parameter variables work when a language other than python is the preprocessor
   As a teacher
   I should be able to write a function that prints the seed and my username it should be marked right
 
@@ -29,14 +29,15 @@ Background:
     And I disable UI plugins
     And I add a "CodeRunner" question filling the form with:
       | id_coderunnertype       | python3                                    |
-      | id_customise            | 1                                         |
+      | id_customise            | 1                                          |
       | id_name                 | STUDENT variable                           |
       | id_questiontext         | Write a program that prints True if seed parameter provided, then {{ username }}  |
       | id_answerboxlines       | 5                                          |
       | id_validateonsave       | 0                                          |
       | id_templateparams       | import sys, json; keyvalues = {param.split('=')[0]: param.split('=')[1] for param in sys.argv[1:]}; print(json.dumps(keyvalues)) |
-      | id_templateparamslang   | python                                     |
-      | id_template             | print(int("{{seed}}") > 0, "{{username}}")    |
+      | id_templateparamslang   | python3                                    |
+      | id_templateparamsevalpertry | 1                                      |
+      | id_template             | print(int("{{seed}}") > 0, end=' ');  {{STUDENT_ANSWER}} |
       | id_answer               | # Unused                                   |
       | id_iscombinatortemplate | 0                                          |
       | id_testcode_0           | # Unused                                   |
@@ -75,3 +76,33 @@ Background:
     Then I should see "Write a program that prints True if seed parameter provided, then student1"
     And I should see "Passed all tests"
 
+  Scenario: Turn off per-try evaluation. Question should fail when attempted by student. 
+
+    When I choose "Edit question" action for "STUDENT variable" in the question bank
+    And I set the following fields to these values:
+      | id_templateparamsevalpertry | 0 |
+      | id_questiontext             | Variant without per-try evaluation  |
+    And I press "id_submitbutton"
+    Then I should see "Created by"
+    And I should see "Last modified by"
+
+    When I am on "Course 1" course homepage
+    And I follow "Test quiz"
+    And I press "Preview quiz now"
+    Then I should see "Variant without per-try evaluation"
+
+    When I set the field with xpath "//textarea[contains(@name, 'answer')]" to "print('teacher1')"
+    And I press "Check"
+    Then I should see "Passed all tests"
+
+    When I log out
+    And I log in as "student1"
+    And I am on "Course 1" course homepage
+    And I follow "Test quiz"
+    And I press "Attempt quiz"
+    Then I should see "Variant without per-try evaluation"
+    And I set the field with xpath "//textarea[contains(@name, 'answer')]" to "print('student1')"
+    And I press "Check"
+    Then I should see "True student1"
+    And I should see "True teacher1"
+    And I should not see "Passed all tests"

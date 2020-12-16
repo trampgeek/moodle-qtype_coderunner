@@ -110,6 +110,8 @@ class qtype_coderunner extends question_type {
             'templateparams',
             'hoisttemplateparams',
             'templateparamslang',
+            'templateparamsevalpertry',
+            'templateparamsevald',
             'twigall',
             'uiplugin',
             'attachments',
@@ -143,6 +145,8 @@ class qtype_coderunner extends question_type {
             'templateparams',
             'hoisttemplateparams',
             'templateparamslang',
+            'templateparamsevalpertry',
+            'templateparamsevald',
             'twigall',
             'attachments',
             'attachmentsrequired',
@@ -383,11 +387,6 @@ class qtype_coderunner extends question_type {
     // The various fields are initialised from the prototype, then overridden
     // by any non-null values in the specific question.
     //
-    // As a special case, required by edit_coderunner_form, an option
-    // 'mergedtemplateparams' is set by merging the prototype question's
-    // template parameters with the given question's template parameters,
-    // with the caveat that template parameters with embedded twig code that
-    // aren't valid JSON are ignored.
     public function get_question_options($question) {
         global $CFG, $DB, $OUTPUT;
         parent::get_question_options($question);
@@ -395,18 +394,11 @@ class qtype_coderunner extends question_type {
         if ($options->prototypetype != 0) { // Question prototype?
             // Yes. It's 100% customised with nothing to inherit.
             $options->customise = true;
-            $options->mergedtemplateparams = $options->templateparams;
         } else {
             $qtype = $options->coderunnertype;
             $context = $this->question_context($question);
             $prototype = $this->get_prototype($qtype, $context);
             $this->set_inherited_fields($options, $prototype);
-            if ($prototype !== null && trim($prototype->templateparams) !== '') {
-                $options->mergedtemplateparams = qtype_coderunner_util::merge_json(
-                    $prototype->templateparams, $options->templateparams);
-            } else { // Missing prototype!
-                $options->mergedtemplateparams = $options->templateparams;
-            }
         }
 
         // Add in any testcases.
@@ -452,10 +444,6 @@ class qtype_coderunner extends question_type {
                 }
             }
         }
-
-        // Save prototype template params in the target, to be merged with
-        // the question template params if the target is actually run.
-        $target->prototypetemplateparams = $prototype->templateparams;
 
         if (!isset($target->sandbox)) {
             $target->sandbox = null;
@@ -744,6 +732,8 @@ class qtype_coderunner extends question_type {
             'iscombinatortemplate' => null,  // Probably unnecessary?
             'template' => null,  // Probably unnecessary?
             'templateparamslang' => 'twig',
+            'templateparamsevalpertry' => 0,
+            'templateparamsevald' => null,
             'attachments' => 0
         );
 
