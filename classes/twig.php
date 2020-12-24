@@ -55,13 +55,13 @@ class qtype_coderunner_twig {
 
             self::$twigenvironments[$isstrict] = $twig;
 
-            $twigcore = $twig->getExtension('core');
-            $twigcore->setEscaper('py', 'qtype_coderunner_escapers::python');
-            $twigcore->setEscaper('python', 'qtype_coderunner_escapers::python');
-            $twigcore->setEscaper('c',  'qtype_coderunner_escapers::java');
-            $twigcore->setEscaper('java', 'qtype_coderunner_escapers::java');
-            $twigcore->setEscaper('ml', 'qtype_coderunner_escapers::matlab');
-            $twigcore->setEscaper('matlab', 'qtype_coderunner_escapers::matlab');
+            $escaperextension = $twig->getExtension(\Twig\Extension\EscaperExtension::class);
+            $escaperextension->setEscaper('py', 'qtype_coderunner_escapers::python');
+            $escaperextension->setEscaper('python', 'qtype_coderunner_escapers::python');
+            $escaperextension->setEscaper('c',  'qtype_coderunner_escapers::java');
+            $escaperextension->setEscaper('java', 'qtype_coderunner_escapers::java');
+            $escaperextension->setEscaper('ml', 'qtype_coderunner_escapers::matlab');
+            $escaperextension->setEscaper('matlab', 'qtype_coderunner_escapers::matlab');
         }
         return self::$twigenvironments[$isstrict];
     }
@@ -74,6 +74,13 @@ class qtype_coderunner_twig {
     public static function render($s, $student, $parameters=array(), $isstrict=false) {
         $twig = qtype_coderunner_twig::get_twig_environment($isstrict);
         $parameters['STUDENT'] = new qtype_coderunner_student($student);
+        if (array_key_exists('__twigprefix__', $parameters)) {
+            $prefix = $parameters['__twigprefix__'];
+            if (is_array($prefix)) {
+                $prefix = implode("\n", $prefix);
+            }
+            $s = $prefix . "\n" . $s;
+        }
         $template = $twig->createTemplate($s);
         $renderedstring = $template->render($parameters);
         return $renderedstring;
@@ -81,66 +88,73 @@ class qtype_coderunner_twig {
 }
 
 /**
- * HACKED VERSION OF THE BUILT-IN RANDOM (see above).
- * Returns a random value depending on the supplied parameter type:
- * - a random item from a Traversable or array
- * - a random character from a string
- * - a random integer between 0 and the integer parameter.
- *
- * @param Twig_Environment                   $env
- * @param Traversable|array|int|float|string $values The values to pick a random item from
- *
- * @throws Twig_Error_Runtime When $values is an empty array (does not apply to an empty string which is returned as is).
- *
- * @return mixed A random value from the given sequence
- */
-function qtype_coderunner_random(Twig_Environment $env, $values = null)
-{
-    if (null === $values) {
-        return mt_rand();
-    }
-
-    if (is_int($values) || is_float($values)) {
-        return $values < 0 ? mt_rand($values, 0) : mt_rand(0, $values);
-    }
-
-    if ($values instanceof Traversable) {
-        $values = iterator_to_array($values);
-    } elseif (is_string($values)) {
-        if ('' === $values) {
-            return '';
-        }
-        if (null !== $charset = $env->getCharset()) {
-            if ('UTF-8' !== $charset) {
-                $values = twig_convert_encoding($values, 'UTF-8', $charset);
-            }
-
-            // unicode version of str_split()
-            // split at all positions, but not after the start and not before the end
-            $values = preg_split('/(?<!^)(?!$)/u', $values);
-
-            if ('UTF-8' !== $charset) {
-                foreach ($values as $i => $value) {
-                    $values[$i] = twig_convert_encoding($value, $charset, 'UTF-8');
-                }
-            }
-        } else {
-            return $values[mt_rand(0, strlen($values) - 1)];
-        }
-    }
-
-    if (!is_array($values)) {
-        return $values;
-    }
-
-    if (0 === count($values)) {
-        throw new Twig_Error_Runtime('The random function cannot pick from an empty array.');
-    }
-
+ * HACKED VERSION of Twig's built-in random. Only change is to ensure that
+ * the PHP mtrand seed fully determines the results. The original version used
+ * array_rand for picking a random element from an array, which does not use
+ * mtrand.	
+ * Returns a random value depending on the supplied parameter type:	
+ * - a random item from a \Traversable or array	
+ * - a random character from a string	
+ * - a random integer between 0 and the integer parameter.	
+ *	
+ * @param \Traversable|array|int|float|string $values The values to pick a random item from	
+ * @param int|null                            $max    Maximum value used when $values is an int	
+ *	
+ * @throws RuntimeError when $values is an empty array (does not apply to an empty string which is returned as is)	
+ *	
+ * @return mixed A random value from the given sequence	
+ */	
+function twig_random(Environment $env, $values = null, $max = null)	
+{	
+    if (null === $values) {	
+        return null === $max ? mt_rand() : mt_rand(0, $max);	
+    }	
+    if (\is_int($values) || \is_float($values)) {	
+        if (null === $max) {	
+            if ($values < 0) {	
+                $max = 0;	
+                $min = $values;	
+            } else {	
+                $max = $values;	
+                $min = 0;	
+            }	
+        } else {	
+            $min = $values;	
+            $max = $max;	
+        }	
+        return mt_rand($min, $max);	
+    }	
+    if (\is_string($values)) {	
+        if ('' === $values) {	
+            return '';	
+        }	
+        if (null !== $charset = $env->getCharset()) {	
+            if ('UTF-8' !== $charset) {	
+                $values = twig_convert_encoding($values, 'UTF-8', $charset);	
+            }	
+            // unicode version of str_split()	
+            // split at all positions, but not after the start and not before the end	
+            $values = preg_split('/(?<!^)(?!$)/u', $values);	
+            if ('UTF-8' !== $charset) {	
+                foreach ($values as $i => $value) {	
+                    $values[$i] = twig_convert_encoding($value, $charset, 'UTF-8');	
+                }	
+            }	
+        } else {	
+            return $values[mt_rand(0, \strlen($values) - 1)];	
+        }	
+    }	
+    if (!twig_test_iterable($values)) {	
+        return $values;	
+    }	
+    $values = twig_to_array($values);	
+    if (0 === \count($values)) {	
+        throw new RuntimeError('The random function cannot pick from an empty array.');	
+    }	
     // The original version did: return $values[array_rand($values, 1)];
     $keys = array_keys($values);
     $key = $keys[mt_rand(0, count($keys) - 1)];
-    return $values[$key];
+    return $values[$key];	
 }
 
 /**
