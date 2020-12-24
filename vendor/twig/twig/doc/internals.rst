@@ -40,17 +40,13 @@ an instance of ``\Twig\Token``, and the stream is an instance of
 * ``\Twig\Token::STRING_TYPE``: A string in an expression;
 * ``\Twig\Token::OPERATOR_TYPE``: An operator;
 * ``\Twig\Token::PUNCTUATION_TYPE``: A punctuation sign;
-* ``\Twig\Token::INTERPOLATION_START_TYPE``, ``\Twig\Token::INTERPOLATION_END_TYPE`` (as of Twig 1.5): Delimiters for string interpolation;
+* ``\Twig\Token::INTERPOLATION_START_TYPE``, ``\Twig\Token::INTERPOLATION_END_TYPE``: Delimiters for string interpolation;
 * ``\Twig\Token::EOF_TYPE``: Ends of template.
 
 You can manually convert a source code into a token stream by calling the
 ``tokenize()`` method of an environment::
 
     $stream = $twig->tokenize(new \Twig\Source($source, $identifier));
-
-.. versionadded:: 1.27
-    ``\Twig\Source`` was introduced in version 1.27, pass the source and the
-    identifier directly on previous versions.
 
 As the stream has a ``__toString()`` method, you can have a textual
 representation of it by echoing the object::
@@ -124,7 +120,7 @@ The generated template for a ``Hello {{ name }}`` template reads as follows
 using)::
 
     /* Hello {{ name }} */
-    class __TwigTemplate_1121b6f109fe93ebe8c6e22e3712bceb extends \Twig\Template
+    class __TwigTemplate_1121b6f109fe93ebe8c6e22e3712bceb extends Template
     {
         protected function doDisplay(array $context, array $blocks = [])
         {

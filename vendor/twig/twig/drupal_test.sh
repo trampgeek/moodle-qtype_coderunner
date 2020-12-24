@@ -6,18 +6,17 @@ set -e
 REPO=`pwd`
 cd /tmp
 rm -rf drupal-twig-test
-composer create-project --no-interaction drupal-composer/drupal-project:8.x-dev drupal-twig-test
+composer create-project --no-interaction drupal/recommended-project:9.1.x-dev drupal-twig-test
 cd drupal-twig-test
 (cd vendor/twig && rm -rf twig && ln -sf $REPO twig)
-echo '$config["system.logging"]["error_level"] = "verbose";' >> web/sites/default/settings.php
 php ./web/core/scripts/drupal install --no-interaction demo_umami > output
 perl -p -i -e 's/^([A-Za-z]+)\: (.+)$/export DRUPAL_\1=\2/' output
 source output
+#echo '$config["system.logging"]["error_level"] = "verbose";' >> web/sites/default/settings.php
 
 wget https://get.symfony.com/cli/installer -O - | bash
 export PATH="$HOME/.symfony/bin:$PATH"
 symfony server:start -d --no-tls
-ENDPOINT=`symfony server:status -no-ansi | sed -E 's/^.+ http/http/'`
 
 curl -OLsS https://get.blackfire.io/blackfire-player.phar
 chmod +x blackfire-player.phar
@@ -47,5 +46,5 @@ scenario
     click link('Structure')
         expect status_code() == 200
 EOF
-./blackfire-player.phar run drupal-tests.bkf --endpoint=$ENDPOINT --variable name=$DRUPAL_Username --variable pass=$DRUPAL_Password
+./blackfire-player.phar run drupal-tests.bkf --endpoint=`symfony var:export SYMFONY_DEFAULT_ROUTE_URL` --variable name=$DRUPAL_Username --variable pass=$DRUPAL_Password
 symfony server:stop

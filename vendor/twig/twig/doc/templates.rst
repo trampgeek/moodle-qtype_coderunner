@@ -96,6 +96,7 @@ PHP object, or items of a PHP array):
       (even if ``bar`` is the constructor - use ``__construct()`` instead);
     * if not, and if ``foo`` is an object, check that ``getBar`` is a valid method;
     * if not, and if ``foo`` is an object, check that ``isBar`` is a valid method;
+    * if not, and if ``foo`` is an object, check that ``hasBar`` is a valid method;
     * if not, return a ``null`` value.
 
     Twig also supports a specific syntax for accessing items on PHP arrays,
@@ -127,7 +128,7 @@ Global Variables
 
 The following variables are always available in templates:
 
-* ``_self``: references the current template;
+* ``_self``: references the current template name;
 * ``_context``: references the current context;
 * ``_charset``: references the current charset.
 
@@ -176,11 +177,6 @@ To apply a filter on a section of code, wrap it with the
 Go to the :doc:`filters<filters/index>` page to learn more about built-in
 filters.
 
-.. note::
-
-    The ``apply`` tag was introduced in Twig 1.40; use the ``filter`` tag with
-    previous versions.
-
 Functions
 ---------
 
@@ -203,9 +199,6 @@ built-in functions.
 
 Named Arguments
 ---------------
-
-.. versionadded:: 1.12
-    Support for named arguments was added in Twig 1.12.
 
 .. code-block:: twig
 
@@ -496,9 +489,6 @@ For bigger sections it makes sense to mark a block
 Macros
 ------
 
-.. versionadded:: 1.12
-    Support for default argument values was added in Twig 1.12.
-
 Macros are comparable with functions in regular programming languages. They are
 useful to reuse HTML fragments to not repeat yourself. They are described in the
 :doc:`macro<tags/macro>` tag documentation.
@@ -514,9 +504,9 @@ Twig allows expressions everywhere.
 
     The operator precedence is as follows, with the lowest-precedence operators
     listed first: ``?:`` (ternary operator), ``b-and``, ``b-xor``, ``b-or``,
-    ``or``, ``and``, ``==``, ``!=``, ``<``, ``>``, ``>=``, ``<=``, ``in``,
-    ``matches``, ``starts with``, ``ends with``, ``..``, ``+``, ``-``, ``~``,
-    ``*``, ``/``, ``//``, ``%``, ``is`` (tests), ``**``, ``??``, ``|``
+    ``or``, ``and``, ``==``, ``!=``, ``<=>``, ``<``, ``>``, ``>=``, ``<=``,
+    ``in``, ``matches``, ``starts with``, ``ends with``, ``..``, ``+``, ``-``,
+    ``~``, ``*``, ``/``, ``//``, ``%``, ``is`` (tests), ``**``, ``??``, ``|``
     (filters), ``[]``, and ``.``:
 
     .. code-block:: twig
@@ -531,9 +521,6 @@ Twig allows expressions everywhere.
 
 Literals
 ~~~~~~~~
-
-.. versionadded:: 1.5
-    Support for hash keys as names and expressions was added in Twig 1.5.
 
 The simplest form of expressions are literals. Literals are representations
 for PHP types such as strings, numbers, and arrays. The following literals
@@ -562,13 +549,18 @@ exist:
     {# keys as string #}
     { 'foo': 'foo', 'bar': 'bar' }
 
-    {# keys as names (equivalent to the previous hash) -- as of Twig 1.5 #}
+    {# keys as names (equivalent to the previous hash) #}
     { foo: 'foo', bar: 'bar' }
 
     {# keys as integer #}
     { 2: 'foo', 4: 'bar' }
 
-    {# keys as expressions (the expression must be enclosed into parentheses) -- as of Twig 1.5 #}
+    {# keys can be omitted if it is the same as the variable name #}
+    { foo }
+    {# is equivalent to the following #}
+    { 'foo': foo }
+
+    {# keys as expressions (the expression must be enclosed into parentheses) #}
     {% set foo = 'foo' %}
     { (foo): 'foo', (1 + 1): 'bar', (foo ~ 'b'): 'baz' }
 
@@ -728,9 +720,6 @@ tests.
 Other Operators
 ~~~~~~~~~~~~~~~
 
-.. versionadded:: 1.12.0
-    Support for the extended ternary operator was added in Twig 1.12.0.
-
 The following operators don't fit into any of the other categories:
 
 * ``|``: Applies a filter.
@@ -763,8 +752,6 @@ The following operators don't fit into any of the other categories:
   .. code-block:: twig
 
       {{ foo ? 'yes' : 'no' }}
-
-      {# as of Twig 1.12.0 #}
       {{ foo ?: 'no' }} is the same as {{ foo ? foo : 'no' }}
       {{ foo ? 'yes' }} is the same as {{ foo ? 'yes' : '' }}
 
@@ -780,9 +767,6 @@ The following operators don't fit into any of the other categories:
 String Interpolation
 ~~~~~~~~~~~~~~~~~~~~
 
-.. versionadded:: 1.5
-    String interpolation was added in Twig 1.5.
-
 String interpolation (``#{expression}``) allows any valid expression to appear
 within a *double-quoted string*. The result of evaluating that expression is
 inserted into the string:
@@ -796,12 +780,6 @@ inserted into the string:
 
 Whitespace Control
 ------------------
-
-.. versionadded:: 1.1
-    Tag level whitespace control was added in Twig 1.1.
-
-.. versionadded:: 1.39
-    Tag level Line whitespace control was added in Twig 1.39.
 
 The first newline after a template tag is removed automatically (like in PHP).
 Whitespace is not further modified by the template engine, so each whitespace
@@ -859,17 +837,11 @@ the modifiers on one side of a tag or on both sides:
 
         {# output will be <div><strong>foo bar</strong></div> #}
 
-    Note that the ``apply`` tag was introduced in Twig 1.40; use the ``filter``
-    tag with previous versions.
-
 Extensions
 ----------
 
-Twig can be extended. If you are looking for new tags, filters, or functions,
-have a look at the Twig official `extension repository`_.
-
-If you want to create your own, read the :ref:`Creating an
-Extension<creating_extensions>` chapter.
+Twig can be extended. If you want to create your own extensions, read the
+:ref:`Creating an Extension <creating_extensions>` chapter.
 
 .. _`Twig bundle`:                https://github.com/Anomareh/PHP-Twig.tmbundle
 .. _`Jinja syntax plugin`:        http://jinja.pocoo.org/docs/integration/#vim
@@ -877,7 +849,6 @@ Extension<creating_extensions>` chapter.
 .. _`Twig syntax plugin`:         http://plugins.netbeans.org/plugin/37069/php-twig
 .. _`Twig plugin`:                https://github.com/pulse00/Twig-Eclipse-Plugin
 .. _`Twig language definition`:   https://github.com/gabrielcorpse/gedit-twig-template-language
-.. _`extension repository`:       https://github.com/twigphp/Twig-extensions
 .. _`Twig syntax mode`:           https://github.com/bobthecow/Twig-HTML.mode
 .. _`other Twig syntax mode`:     https://github.com/muxx/Twig-HTML.mode
 .. _`Notepad++ Twig Highlighter`: https://github.com/Banane9/notepadplusplus-twig

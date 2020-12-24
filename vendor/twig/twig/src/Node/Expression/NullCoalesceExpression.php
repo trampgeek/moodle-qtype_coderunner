@@ -20,18 +20,22 @@ use Twig\Node\Node;
 
 class NullCoalesceExpression extends ConditionalExpression
 {
-    public function __construct(\Twig_NodeInterface $left, \Twig_NodeInterface $right, $lineno)
+    public function __construct(Node $left, Node $right, int $lineno)
     {
-        $test = new AndBinary(
-            new DefinedTest(clone $left, 'defined', new Node(), $left->getTemplateLine()),
-            new NotUnary(new NullTest($left, 'null', new Node(), $left->getTemplateLine()), $left->getTemplateLine()),
-            $left->getTemplateLine()
-        );
+        $test = new DefinedTest(clone $left, 'defined', new Node(), $left->getTemplateLine());
+        // for "block()", we don't need the null test as the return value is always a string
+        if (!$left instanceof BlockReferenceExpression) {
+            $test = new AndBinary(
+                $test,
+                new NotUnary(new NullTest($left, 'null', new Node(), $left->getTemplateLine()), $left->getTemplateLine()),
+                $left->getTemplateLine()
+            );
+        }
 
         parent::__construct($test, $left, $right, $lineno);
     }
 
-    public function compile(Compiler $compiler)
+    public function compile(Compiler $compiler): void
     {
         /*
          * This optimizes only one case. PHP 7 also supports more complex expressions
@@ -40,7 +44,7 @@ class NullCoalesceExpression extends ConditionalExpression
          * cases might be implemented as an optimizer node visitor, but has not been done
          * as benefits are probably not worth the added complexity.
          */
-        if (\PHP_VERSION_ID >= 70000 && $this->getNode('expr2') instanceof NameExpression) {
+        if ($this->getNode('expr2') instanceof NameExpression) {
             $this->getNode('expr2')->setAttribute('always_defined', true);
             $compiler
                 ->raw('((')
@@ -54,5 +58,3 @@ class NullCoalesceExpression extends ConditionalExpression
         }
     }
 }
-
-class_alias('Twig\Node\Expression\NullCoalesceExpression', 'Twig_Node_Expression_NullCoalesce');

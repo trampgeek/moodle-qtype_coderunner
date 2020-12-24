@@ -1,11 +1,6 @@
 ``macro``
 =========
 
-.. versionadded:: 1.12
-
-    The possibility to define default values for arguments in the macro
-    signature was added in Twig 1.12.
-
 Macros are comparable with functions in regular programming languages. They
 are useful to reuse template fragments to not repeat yourself.
 
@@ -27,17 +22,6 @@ via macros (called ``forms.html``):
 Each macro argument can have a default value (here ``text`` is the default value
 for ``type`` if not provided in the call).
 
-.. note::
-
-    Before Twig 1.12, defining default argument values was done via the
-    ``default`` filter in the macro body:
-
-    .. code-block:: twig
-
-        {% macro input(name, value, type, size) %}
-            <input type="{{ type|default('text') }}" name="{{ name }}" value="{{ value|e }}" size="{{ size|default(20) }}" />
-        {% endmacro %}
-
 Macros differ from native PHP functions in a few ways:
 
 * Arguments of a macro are always optional.
@@ -53,8 +37,8 @@ variables.
     You can pass the whole context as an argument by using the special
     ``_context`` variable.
 
-Import
-------
+Importing Macros
+----------------
 
 There are two ways to import macros. You can import the complete template
 containing the macros into a local variable (via the ``import`` tag) or only
@@ -78,23 +62,6 @@ The macros can then be called at will in the *current* template:
     <p>{{ forms.input('username') }}</p>
     <p>{{ forms.input('password', null, 'password') }}</p>
 
-When you want to use a macro in another macro from the same file, you need to
-import it locally:
-
-.. code-block:: twig
-
-    {% macro input(name, value, type, size) %}
-        <input type="{{ type|default('text') }}" name="{{ name }}" value="{{ value|e }}" size="{{ size|default(20) }}" />
-    {% endmacro %}
-
-    {% macro wrapped_input(name, value, type, size) %}
-        {% import _self as forms %}
-
-        <div class="field">
-            {{ forms.input(name, value, type, size) }}
-        </div>
-    {% endmacro %}
-
 Alternatively you can import names from the template into the current namespace
 via the ``from`` tag:
 
@@ -105,26 +72,60 @@ via the ``from`` tag:
     <p>{{ input_field('password', '', 'password') }}</p>
     <p>{{ textarea('comment') }}</p>
 
-.. note::
-
-    Importing macros using ``import`` or ``from`` is **local** to the current
-    file. The imported macros are not available in included templates or child
-    templates; you need to explicitly re-import macros in each file.
-
 .. tip::
 
-    To import macros from the current file, use the special ``_self`` variable:
+    When macro usages and definitions are in the same template, you don't need to
+    import the macros as they are automatically available under the special
+    ``_self`` variable:
 
     .. code-block:: twig
 
-        {% import _self as forms %}
+        <p>{{ _self.input('password', '', 'password') }}</p>
 
-        <p>{{ forms.input('username') }}</p>
+        {% macro input(name, value, type = "text", size = 20) %}
+            <input type="{{ type }}" name="{{ name }}" value="{{ value|e }}" size="{{ size }}" />
+        {% endmacro %}
 
-    When you define a macro in the template where you are going to use it, you
-    might be tempted to call the macro directly via ``_self.input()`` instead of
-    importing it; even if it seems to work, this is just a side-effect of the
-    current implementation and it won't work anymore in Twig 2.x.
+Macros Scoping
+--------------
+
+The scoping rules are the same whether you imported macros via ``import`` or
+``from``.
+
+Imported macros are always **local** to the current template. It means that
+macros are available in all blocks and other macros defined in the current
+template, but they are not available in included templates or child templates;
+you need to explicitly re-import macros in each template.
+
+Imported macros are not available in the body of ``embed`` tags, you need
+to explicitly re-import macros inside the tag.
+
+When calling ``import`` or ``from`` from a ``block`` tag, the imported macros
+are only defined in the current block and they override macros defined at the
+template level with the same names.
+
+When calling ``import`` or ``from`` from a ``macro`` tag, the imported macros
+are only defined in the current macro and they override macros defined at the
+template level with the same names.
+
+Checking if a Macro is defined
+------------------------------
+
+You can check if a macro is defined via the ``defined`` test:
+
+.. code-block:: twig
+
+    {% import "macros.twig" as macros %}
+
+    {% from "macros.twig" import hello %}
+
+    {% if macros.hello is defined -%}
+        OK
+    {% endif %}
+
+    {% if hello is defined -%}
+        OK
+    {% endif %}
 
 Named Macro End-Tags
 --------------------
