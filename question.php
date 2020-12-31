@@ -140,8 +140,8 @@ class qtype_coderunner_question extends question_graded_automatically {
             $paramsjson = $this->template_params_json($this->templateparams, 
                         $this->templateparamslang, $seed, $step, '_template_params');
             $prototype = $this->prototype;
-            if ($prototype !== null) {
-                // Merge with prototype parameters (unless prototype is missing).
+            if ($prototype !== null && $this->prototypetype == 0) {
+                // Merge with prototype parameters (unless this is a prototype or prototype is missing).
                 $prototypeparamsjson = $this->template_params_json($prototype->templateparams,
                     $prototype->templateparamslang, $seed, $step, '_prototype__template_params');
                 $paramsjson = qtype_coderunner_util::merge_json($prototypeparamsjson, $paramsjson);
