@@ -76,10 +76,7 @@ class qtype_coderunner_twig {
         $parameters['STUDENT'] = new qtype_coderunner_student($student);
         if (array_key_exists('__twigprefix__', $parameters)) {
             $prefix = $parameters['__twigprefix__'];
-            if (is_array($prefix)) {
-                $prefix = implode("\n", $prefix);
-            }
-            $s = $prefix . "\n" . $s;
+            $s = $prefix . $s;
         }
         $template = $twig->createTemplate($s);
         $renderedstring = $template->render($parameters);
@@ -104,7 +101,7 @@ class qtype_coderunner_twig {
  *	
  * @return mixed A random value from the given sequence	
  */	
-function twig_random(Environment $env, $values = null, $max = null)	
+function qtype_coderunner_twig_random(Environment $env, $values = null, $max = null)	
 {	
     if (null === $values) {	
         return null === $max ? mt_rand() : mt_rand(0, $max);	
