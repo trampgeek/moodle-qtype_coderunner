@@ -125,6 +125,10 @@ abstract class qtype_coderunner_sandbox {
      * that has been enabled by the administrator (through the usual
      * plug-in setting controls) and that supports the given language.
      * It's public so the tester can call it (yuck, hacky).
+     * If there's only one sandbox available, just return it without querying
+     * it. This could result in downstream "unsupported language" errors but
+     * saves an extra call to the jobe server in the most common case where
+     * there is a only a single Jobe server available anyway.
      * @param type $language to run.
      * @return an instance of the preferred sandbox for the given language
      * or null if no enabled sandboxes support this language.
@@ -134,6 +138,9 @@ abstract class qtype_coderunner_sandbox {
         foreach ($sandboxes as $extname => $classname) {
             $sb = self::get_instance($extname);
             if ($sb) {
+                if (count($sandboxes) === 1) {
+                    return $sb;  // There's only one sandbox, let's just try it!
+                }
                 $langs = $sb->get_languages();
                 if ($langs->error == $sb::OK) {
                     foreach ($langs->languages as $lang) {
@@ -155,7 +162,7 @@ abstract class qtype_coderunner_sandbox {
 
 
     /**
-     * A list of available standboxes. Keys are the externally known sandbox names
+     * A list of available sandboxes. Keys are the externally known sandbox names
      * as they appear in the exported questions, values are the associated
      * class names. File names are the same as the class names with the
      * leading qtype_coderunner and all underscores removed.
