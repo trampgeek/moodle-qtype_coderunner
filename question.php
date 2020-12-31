@@ -121,6 +121,19 @@ class qtype_coderunner_question extends question_graded_automatically {
      * the prototype's parameters, which are subject to the same process.
      * After running this function, the $this->parameters is a stdClass object
      * with all the parameters as attributes.
+     * 
+     * In the simplest case, the template parameters are evaluated when the
+     * question is saved and are stored in the question in the database.
+     * However, if the "Evaluate on each attempt" checkbox is set (implying
+     * randomisation or customisation per student) the template parameters
+     * are evaluated once when the question attempt begins. Are further 
+     * complication is that the question author might change the template
+     * parameters after students have started a quiz (hopefully in a way that
+     * doesn't disrupt the randomisation) and the template parameters will
+     * then need to be re-evaluated. This is handled by recording the
+     * md5 hash of the template parameters within the question attempt step
+     * record in the database, re-evaluating only if the hash changes.
+     * 
      * If the prototype is missing, process just the template parameters from
      * this question; an error message will be given later.
      * @param int $seed The random number seed to set for Twig randomisation
