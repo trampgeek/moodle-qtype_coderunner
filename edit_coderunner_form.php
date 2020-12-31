@@ -1185,7 +1185,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         }
         $question->isnew = true;
         $question->supportfilemanagerdraftid = $this->get_file_manager('datafiles');
-        $question->student =  new qtype_coderunner_student($USER);
+        $question->student = new qtype_coderunner_student($USER);
 
         // Clean the question object, get inherited fields and run the sample answer.
         $qtype = new qtype_coderunner();
