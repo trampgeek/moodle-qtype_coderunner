@@ -30,7 +30,6 @@ Feature: twigprefix
     And I set the field "id_templateparamslang" to "Python3"
     And I set the field "id_questiontext" to "Dummy question text"
     And I set the field "id_customise" to "1"
-    And I set the field "id_twigall" to "1" 
     And I set the field "id_useace" to "0"
     And I set the field "id_uiplugin" to "None"
     And I set the field "id_template" to:
@@ -51,6 +50,7 @@ Feature: twigprefix
       | name              | Prototype tester                  |
       | id_questiontext   | Print BingleyBeep                 |
       | id_testcode_0     |                                   |
+      | id_twigall        | 1                                 |
       | id_expected_0     | {{ _self.blah() }}                |
 
   Scenario: As a teacher, I get marked right (using per-test-case template) if I submit a correct answer to the above question
