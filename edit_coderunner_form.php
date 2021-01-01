@@ -739,12 +739,18 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
         $sandboxcontrols = array();
 
-        $sandboxes = array('DEFAULT' => 'DEFAULT');
-        foreach (qtype_coderunner_sandbox::available_sandboxes() as $ext => $class) {
-            $sandboxes[$ext] = $ext;
-        }
+        $enabled = qtype_coderunner_sandbox::enabled_sandboxes();
+        if (count($enabled) > 1) {
+            $sandboxes = array_merge(array('DEFAULT' => 'DEFAULT'), $enabled);
+            foreach ($sandboxes as $ext => $class) {
+                $sandboxes[$ext] = $ext;
+            }
 
-        $sandboxcontrols[] = $mform->createElement('select', 'sandbox', null, $sandboxes);
+            $sandboxcontrols[] = $mform->createElement('select', 'sandbox', null, $sandboxes);
+        } else {
+            $sandboxcontrols[] = $mform->createElement('hidden', 'sandbox', 'DEFAULT');
+            $mform->setType('sandbox', PARAM_RAW);
+        }
 
         $sandboxcontrols[] = $mform->createElement('text', 'cputimelimitsecs',
                 get_string('cputime', 'qtype_coderunner'), array('size' => 3));
@@ -755,6 +761,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->addElement('group', 'sandboxcontrols',
                 get_string('sandboxcontrols', 'qtype_coderunner'),
                 $sandboxcontrols, null, false);
+        
         $mform->setType('cputimelimitsecs', PARAM_RAW);
         $mform->setType('memlimitmb', PARAM_RAW);
         $mform->setType('sandboxparams', PARAM_RAW);
