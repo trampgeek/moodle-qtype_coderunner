@@ -61,7 +61,7 @@ define(['jquery'], function($) {
 
     function HtmlUi(textareaId, width, height, templateParams) {
         this.textArea = $(document.getElementById(textareaId));
-        this.html = this.textArea.attr('data-globalextra');
+        this.html = this.textArea.attr('data-globalextra').replace(/___textareaId___/gm, this.textareaId);
         this.readOnly = this.textArea.prop('readonly');
         this.templateParams = templateParams;
         this.fail = false;
