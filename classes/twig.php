@@ -46,7 +46,7 @@ class qtype_coderunner_twig {
             if ($isdebug) {
                 $twig->addExtension(new Twig_Extension_Debug());
             }
-            $newrandom = new \Twig\TwigFunction('random', 'qtype_coderunner_random',
+            $newrandom = new \Twig\TwigFunction('random', 'qtype_coderunner_twig_random',
                 array('needs_environment' => true));
             $setrandomseed = new \Twig\TwigFunction('set_random_seed', 'qtype_coderunner_set_random_seed',
                 array('needs_environment' => true));
@@ -101,7 +101,7 @@ class qtype_coderunner_twig {
  *	
  * @return mixed A random value from the given sequence	
  */	
-function qtype_coderunner_twig_random(Environment $env, $values = null, $max = null)	
+function qtype_coderunner_twig_random(Twig\Environment $env, $values = null, $max = null)	
 {	
     if (null === $values) {	
         return null === $max ? mt_rand() : mt_rand(0, $max);	
