@@ -596,50 +596,40 @@ class qtype_coderunner_renderer extends qtype_renderer {
      *
      * @param array $examples The array of testcases tagged "use as example"
      * @param array $resultcolumns the array of 2-element arrays specifying what
-     * columns should appear in the result table
+     * columns should appear in the result table, and their formats.
      * @return string An HTML table element displaying all the testcases.
      */
     private function format_examples($examples, $resultcolumns) {
         $table = new html_table();
         $table->attributes['class'] = 'coderunnerexamples';
+        
+        // Record counts of non-empty cells in each column so empty columns are suppressed.
+        // But always show the 'expected' column (renaming it to 'result').
         list($numtests, $numstds, $numextras) = $this->count_bits($examples);
+        $counts = array('testcode' => $numtests, 'stdin' => $numstds, 'extra' => $numextras, 'expected' => 1);
+        
         $table->head = array();
-        $showtests = $showstds = $showextras = false;
-        if ($numtests && $this->show_column('testcode', $resultcolumns)) {
-            $table->head[] = $this->column_header('testcode', $resultcolumns);
-            $showtests = true;
-        }
-        if ($numstds && $this->show_column('stdin', $resultcolumns)) {
-            $table->head[] = $this->column_header('stdin', $resultcolumns);
-            $showstds = true;
-        }
-        if ($numextras && $this->show_column('extra', $resultcolumns)) {
-            $table->head[] = $this->column_header('extra', $resultcolumns);
-            $showextras = true;
-        }
-        $table->head[] = get_string('resultcolumnheader', 'qtype_coderunner');
-
-        $tablerows = array();
-        $rowclasses = array();
+        $table->data = array();
+        $table->rowclasses = array();
         $i = 0;
         foreach ($examples as $example) {
             $row = array();
-            $rowclasses[$i] = $i % 2 == 0 ? 'r0' : 'r1';
-            if ($showtests) {
-                $row[] = qtype_coderunner_util::format_cell($example->testcode);
+            foreach (array('testcode', 'stdin', 'extra', 'expected') as $col) {
+                if ($counts[$col] && $this->show_column($col, $resultcolumns)) {
+                    if ($i == 0) {
+                        $table->head[] = $this->column_header($col, $resultcolumns);
+                    }
+                    if ($this->column_format($col, $resultcolumns) == '%h') {
+                        $row[] = $example->$col; // For html (%h) column, use raw value.
+                    } else { // Otherwise wrap value in <pre> element.
+                        $row[] = qtype_coderunner_util::format_cell($example->$col);
+                    }
+                }
             }
-            if ($showstds) {
-                $row[] = qtype_coderunner_util::format_cell($example->stdin);
-            }
-            if ($showextras) {
-                $row[] = qtype_coderunner_util::format_cell($example->extra);
-            }
-            $row[] = qtype_coderunner_util::format_cell($example->expected);
-            $tablerows[] = $row;
+            $table->data[] = $row;
+            $table->rowclasses[] = $i % 2 == 0 ? 'r0' : 'r1';
             $i++;
         }
-        $table->data = $tablerows;
-        $table->rowclasses = $rowclasses;
         return html_writer::table($table);
     }
 
@@ -678,13 +668,29 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
     // Return the column header to be used for the given testcase field,
     // as specified by the question's resultcolumns field.
+    // But HACK ALERT - the 'expected' column is renamed to 'Result' in
+    // the example table.
     private function column_header($field, $resultcolumns) {
+        if ($field === 'expected') {
+            return get_string('resultcolumnheader', 'qtype_coderunner');
+        }
         foreach ($resultcolumns as $columnspecifier) {
             if ($columnspecifier[1] === $field) {
                 return $columnspecifier[0];
             }
         }
         return 'ERROR';
+    }
+    
+    // Return the format to be used for the given field. If no specific
+    // format given, return %s.
+    private function column_format($field, $resultcolumns) {
+        foreach ($resultcolumns as $columnspecifier) {
+            if (count($columnspecifier) > 2 && $columnspecifier[1] === $field) {
+                return trim($columnspecifier[2]);
+            }
+        }
+        return '%s';
     }
     
     // Return the text area attributes for an answer box.
