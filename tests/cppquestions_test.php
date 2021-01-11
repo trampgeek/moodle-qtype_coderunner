@@ -98,7 +98,7 @@ int main() {
         $this->assertFalse($testoutcome->has_syntax_error());
         $this->assertEquals(1, count($testoutcome->testresults));
         $this->assertFalse($testoutcome->all_correct());
-        $this->assertTrue(strpos($testoutcome->testresults[0]->got, '***Error***') === 0);
+        $this->assertTrue(strpos($testoutcome->testresults[0]->got, '***Run error***') === 0);
     }
 
     public function test_cpp_strings() {
