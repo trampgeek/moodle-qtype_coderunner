@@ -72,23 +72,24 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
         }
         
         $this->apikey = get_config('qtype_coderunner', 'jobe_apikey');
-
-        list($this->httpcode, $this->response) = $this->http_request(
-                'languages', self::HTTP_GET);
-
-        if ($this->httpcode == 200 && is_array($this->response)) {
-            $this->languages = array();
-            foreach ($this->response as $lang) {
-                $this->languages[] = $lang[0];
-            }
-        } else {
-            $this->languages = array();
-        }
+        $this->languages = null;
     }
 
 
     // List of supported languages.
     public function get_languages() {
+        if ($this->languages === null) {
+            list($this->httpcode, $this->response) = $this->http_request(
+                'languages', self::HTTP_GET);
+            if ($this->httpcode == 200 && is_array($this->response)) {
+                $this->languages = array();
+                foreach ($this->response as $lang) {
+                    $this->languages[] = $lang[0];
+                }
+            } else {
+                $this->languages = array();
+            }
+        }
         return (object) array(
             'error'     => $this->get_error_code($this->httpcode),
             'languages' => $this->languages);
@@ -133,10 +134,6 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
 
     public function execute($sourcecode, $language, $input, $files=null, $params=null) {
         $language = strtolower($language);
-        if (!in_array($language, $this->languages)) { // This shouldn't be possible.
-            return (object) array('error' => self::UNKNOWN_SERVER_ERROR);
-        }
-
         if ($input !== '' && substr($input, -1) != "\n") {
             $input .= "\n";  // Force newline on the end if necessary.
         }
@@ -351,6 +348,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
     // from json).
     // The code is -1 if the request fails utterly.
     private function http_request($resource, $method, $body=null) {
+        //debugging("Sending an http_request");
         list($url, $headers) = $this->get_jobe_connection_info($resource);
 
         $curl = new curl();
