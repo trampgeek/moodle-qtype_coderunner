@@ -28,6 +28,8 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once($CFG->dirroot . '/question/type/coderunner/tests/coderunnertestcase.php');
+require_once $CFG->dirroot . '/question/type/coderunner/vendor/autoload.php';
+require_once $CFG->dirroot . '/question/type/coderunner/classes/twigmacros.php';
 
 /**
  * Unit tests for the coderunner question definition class.
@@ -36,15 +38,19 @@ class qtype_coderunner_template_test extends qtype_coderunner_testcase {
 
     public function test_template_engine() {
         // Check if the template engine is installed and working OK.
-        Twig_Autoloader::register();
-        $loader = new Twig_Loader_String();
-        $twig = new Twig_Environment($loader, array(
-            'debug' => true,
-            'autoescape' => false,
-            'strict_variables' => true,
-            'optimizations' => 0
-        ));
-        $this->assertEquals('Hello Fabien!', $twig->render('Hello {{ name }}!', array('name' => 'Fabien')));
+        $macros = qtype_coderunner_twigmacros::macros();
+        $twigloader = new \Twig\Loader\ArrayLoader($macros);
+        $twigoptions = array(
+                'cache' => false,
+                'optimizations' => 0,
+                'autoescape' => false,
+                'strict_variables' => true,
+                'debug' => true);
+        $twig = new \Twig\Environment($twigloader, $twigoptions);
+
+        $template = $twig->createTemplate('Hello {{ name }}!');
+        $renderedstring = $template->render(array('name' => 'Fabien'));
+        $this->assertEquals('Hello Fabien!', $renderedstring);
     }
 
     public function test_question_template() {
@@ -118,6 +124,7 @@ EOTEMPLATE;
 
         $q = $this->make_question('sqr');
         $q->templateparams = '{"age":23, "string":"blah"}';
+        $q->parameters = json_decode($q->templateparams);
         $q->template = <<<EOTEMPLATE
 {{ STUDENT_ANSWER }}
 {{ TEST.testcode }}
