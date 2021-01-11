@@ -26,18 +26,13 @@ Feature: twigprefix
     And I press "submitbutton"
     And I set the field "id_coderunnertype" to "python3"
     And I set the field "name" to "PROTOTYPE_test_twigprefix"
-    And I set the field "id_templateparams" to "print('{\"__twigprefix__\": \"{% macro blah() %}BingleyBeep{%endmacro%}\"}')"
+    And I set the field "id_templateparams" to "print('{\"__twigprefix__\": \"{% macro blah() %}BingleyBeep{% endmacro %}\"}')"
     And I set the field "id_templateparamslang" to "Python3"
     And I set the field "id_questiontext" to "Dummy question text"
     And I set the field "id_customise" to "1"
     And I set the field "id_useace" to "0"
     And I set the field "id_uiplugin" to "None"
-    And I set the field "id_template" to:
-      """
-      {{STUDENT_ANSWER}}
-
-      print({{TEST.testcode}})
-      """
+    And I set the field "id_template" to "{{STUDENT_ANSWER}}"
     And I set the field "id_iscombinatortemplate" to "0"
     And I click on "a[aria-controls='id_advancedcustomisationheader']" "css_element"
     And I set the field "prototypetype" to "Yes (user defined)"
