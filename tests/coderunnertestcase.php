@@ -37,7 +37,7 @@ class qtype_coderunner_testcase extends advanced_testcase {
     protected function setUp() {
         parent::setUp();
         self::setup_test_sandbox_configuration();
-        $this->resetAfterTest();
+        $this->resetAfterTest(false);
         $this->setAdminUser();
         $generator = $this->getDataGenerator()->get_plugin_generator('core_question');
         $this->category = $generator->create_question_category(array());
@@ -77,7 +77,7 @@ class qtype_coderunner_testcase extends advanced_testcase {
     // Check if language installed. If not, mark test skipped and don't
     // return (exception raised internally).
     protected function check_language_available($language) {
-        if (qtype_coderunner_sandbox::get_best_sandbox($language) === null) {
+        if (qtype_coderunner_sandbox::get_best_sandbox($language, true) === null) {
             $this->markTestSkipped(
                     "$language is not installed on your server. Test skipped.");
         }
