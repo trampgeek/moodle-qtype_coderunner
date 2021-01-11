@@ -59,13 +59,15 @@
 
 define(['jquery'], function($) {
 
-    function HtmlUi(textareaId, width, height, templateParams) {
-        this.textArea = $(document.getElementById(textareaId));
+    function HtmlUi(textAreaId, width, height, templateParams) {
+        this.textAreaId = textAreaId;
+        this.textArea = $(document.getElementById(textAreaId));
         this.html = this.textArea.attr('data-globalextra');
         this.readOnly = this.textArea.prop('readonly');
         this.templateParams = templateParams;
         this.fail = false;
         this.htmlDiv = null;
+        this.htmlDivId = null;
         this.reload();
     }
 
@@ -110,7 +112,7 @@ define(['jquery'], function($) {
     };
 
     HtmlUi.prototype.getFields = function() {
-        return $(this.htmlDiv).find('.coderunner-ui-element');
+        return $(document.getElementById(this.htmlDivId)).find('.coderunner-ui-element');
     };
 
     // Set the value of the jQuery field to the given value.
@@ -133,10 +135,12 @@ define(['jquery'], function($) {
             i,
             fields,
             leftOvers,
-            outerDiv = "<div style='height:fit-content' class='qtype-coderunner-html-outer-div'>";
+            outerDivId = 'qtype-coderunner-outer-div-' + this.textAreaId.toString(),
+            outerDiv = "<div style='height:fit-content' class='qtype-coderunner-html-outer-div' id='" + outerDivId + "'>";
 
         this.htmlDiv = $(outerDiv + this.html + "</div>");
-        this.htmlDiv.data('templateparams', this.templateParams); // For use by  scripts embedded in html.
+        this.htmlDivId = outerDivId;
+        this.htmlDiv.data('templateparams', this.templateParams); // For use by scripts embedded in html.
         if (content) {
             try {
                 valuesToLoad = JSON.parse(content);
