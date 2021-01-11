@@ -156,6 +156,9 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $form->name = 'Square function';
         $form->questiontext = array('text' => 'Write a function sqr(n) that returns n squared.', 'format' => FORMAT_HTML);
         $form->defaultmark = 31.0;
+        $form->answer = '';
+        $form->answerpreload = '';
+        $form->globalextra = '';
         $form->generalfeedback = array('text' => 'No feedback available for coderunner questions.', 'format' => FORMAT_HTML);
         $form->testcode = array('print(sqr(0))', 'print(sqr(1))', 'print(sqr(11))', 'print(sqr(-7))', 'print(sqr(-6))');
         $form->stdin = array('', '', '', '', '');
