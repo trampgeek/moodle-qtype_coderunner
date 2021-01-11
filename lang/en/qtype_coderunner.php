@@ -290,18 +290,15 @@ $string['jobe_canterbury_html'] = "<p style='color:gray; font-style:italic; font
 $string['language'] = 'Sandbox language';
 $string['languages'] = 'Languages';
 $string['languages_help'] = 'The sandbox language is the computer language used
-to run the submission.
-It must be known to the chosen sandbox (if a specific one has been
-selected) or to at least one of the enabled sandboxes (otherwise).
-This should not usually need altering from the value in the
+to run the submission. This should not usually need altering from the value in the
 parent template; tweak it at your peril.
 
 Ace-language is the
 language used by the Ace code editor (if enabled) for the student\'s answer.
 By default this is the same as the sandbox language; enter a different
 value here only if the template language is different from the language
-that the student is expected to write (e.g. if a Python preprocessor is
-used to validate a student\'s C program prior to running it).
+that the student is expected to write (e.g. if a Python template is
+used to preprocess a student\'s C program and then execute it in a subprocess).
 
 Multi-language questions, that is questions that students can answer in
 more than one language, are enabled by setting the Ace-language to a comma-separated
