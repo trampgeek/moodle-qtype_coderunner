@@ -61,7 +61,7 @@ class qtype_coderunner_question extends question_graded_automatically {
         if ($step !== null) {
             parent::start_attempt($step, $variant);
             $userid = $step->get_user_id();
-            $this->student = $DB->get_record('user', array('id' => $userid));
+            $this->student = new qtype_coderunner_student($DB->get_record('user', array('id' => $userid)));
             $step->set_qt_var('_STUDENT', serialize($this->student));
         } else {  // Validation, so just use the global $USER as student.
             $this->student = new qtype_coderunner_student($USER);
@@ -126,7 +126,7 @@ class qtype_coderunner_question extends question_graded_automatically {
      * question is saved and are stored in the question in the database.
      * However, if the "Evaluate on each attempt" checkbox is set (implying
      * randomisation or customisation per student) the template parameters
-     * are evaluated once when the question attempt begins. Are further 
+     * are evaluated once when the question attempt begins. A further 
      * complication is that the question author might change the template
      * parameters after students have started a quiz (hopefully in a way that
      * doesn't disrupt the randomisation) and the template parameters will
@@ -138,7 +138,7 @@ class qtype_coderunner_question extends question_graded_automatically {
      * this question; an error message will be given later.
      * @param int $seed The random number seed to set for Twig randomisation
      * @param question_attempt_step $step The current question attempt step
-     * @return string the json string of the merged template parameters.
+     * @return string The json string of the merged template parameters.
      */
   
      function evaluate_merged_parameters($seed, $step=null) {
@@ -150,13 +150,12 @@ class qtype_coderunner_question extends question_graded_automatically {
             // Otherwise we have to evaluate this and our prototypes template
             // parameters and merge them.
             assert(isset($this->templateparams));
-            $paramsjson = $this->template_params_json($this->templateparams, 
-                        $this->templateparamslang, $seed, $step, '_template_params');
+            $paramsjson = $this->template_params_json($seed, $step, '_template_params');
             $prototype = $this->prototype;
             if ($prototype !== null && $this->prototypetype == 0) {
                 // Merge with prototype parameters (unless this is a prototype or prototype is missing).
-                $prototypeparamsjson = $this->template_params_json($prototype->templateparams,
-                    $prototype->templateparamslang, $seed, $step, '_prototype__template_params');
+                $prototype->student = $this->student; // Supply this missing attribute.
+                $prototypeparamsjson = $prototype->template_params_json($seed, $step, '_prototype__template_params');
                 $paramsjson = qtype_coderunner_util::merge_json($prototypeparamsjson, $paramsjson);
             }
        
@@ -170,29 +169,28 @@ class qtype_coderunner_question extends question_graded_automatically {
     }
     
     /**
-     * Evaluate a template parameter field from a question or its prototype
+     * Evaluate the template parameter field for this question alone (i.e.
+     * not including its prototype).
      * 
-     * @param string $params the template parameter string to evaluate
-     * @param string $lang the language of the template parameter string
      * @param int $seed the random number seed for this instance of the question
      * @param question_attempt_step $step the current attempt step
      * @param string $qtvar the base name of a qt_variable in which to record
-     * the md5 current template parameters (with suffix '_md5') and the evaluated
+     * the md5 hash of the current template parameters (with suffix '_md5') and the evaluated
      * json (with suffix '_json').
-     * @return string THe Json template parameters.
+     * @return string The Json template parameters.
      */
-    function template_params_json($params, $lang, $seed=0, $step=null, $qtvar='') {
+    function template_params_json($seed=0, $step=null, $qtvar='') {
+        $params = $this->templateparams;
+        $lang = $this->templateparamslang;
         if ($step === null) {
-            $jsontemplateparams = $this->evaluate_template_params($params,
-                    $lang, $seed, $this->student);
+            $jsontemplateparams = $this->evaluate_template_params($params, $lang, $seed);
         } else {
             $previousparamsmd5 = $step->get_qt_var($qtvar . '_md5');
             $currentparamsmd5 = md5($params);
             if ($previousparamsmd5 === $currentparamsmd5) {
                 $jsontemplateparams = $step->get_qt_var($qtvar . '_json');
             } else {
-                $jsontemplateparams = $this->evaluate_template_params($params,
-                        $lang, $seed, $this->student);
+                $jsontemplateparams = $this->evaluate_template_params($params, $lang, $seed);
                 $step->set_qt_var($qtvar . '_md5', $currentparamsmd5);
                 $step->set_qt_var($qtvar . '_json', $jsontemplateparams);
             }
@@ -746,9 +744,9 @@ class qtype_coderunner_question extends question_graded_automatically {
         } else {
             // Load any files from the prototype.
             $this->get_prototype();
-            $files = self::get_support_files($this->prototype, $this->prototype->questionid);
+            $files = self::get_support_files($this->prototype);
         }
-        $files = array_merge($files, self::get_support_files($this, $this->id));  // Add in files for this question.
+        $files = array_merge($files, self::get_support_files($this));  // Add in files for this question.
         return $files;
     }
 
@@ -787,12 +785,10 @@ class qtype_coderunner_question extends question_graded_automatically {
 
     /**
      *  Return an associative array mapping filename to file contents
-     *  for all the support files the given question (which may be a real
-     *  question or, in the case of a prototype, the question_options row).
-     *  $questionid is the id of the question.
+     *  for all the support files for the given question.
      *  The sample answer files are not included in the return value.
      */
-    private static function get_support_files($question, $questionid) {
+    private static function get_support_files($question) {
         global $DB, $USER;
 
         // If not given in the question object get the contextid from the database.
@@ -814,7 +810,7 @@ class qtype_coderunner_question extends question_graded_automatically {
         } else {
             // Otherwise, get the stored support files for this question (not
             // the sample answer files).
-            $files = $fs->get_area_files($contextid, 'qtype_coderunner', 'datafile', $questionid);
+            $files = $fs->get_area_files($contextid, 'qtype_coderunner', 'datafile', $question->id);
         }
 
         foreach ($files as $f) {
