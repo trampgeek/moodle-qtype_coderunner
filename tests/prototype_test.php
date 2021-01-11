@@ -137,10 +137,10 @@ EOTEMPLATE;
     <memlimitmb></memlimitmb>
     <sandboxparams></sandboxparams>
     <templateparams><![CDATA[{"xxx":1, "zzz":2}]]></templateparams>
+    <hoisttemplateparams>0</hoisttemplateparams>
     <templateparamslang>twig</templateparamslang>
     <templateparamsevalpertry>0</templateparamsevalpertry>
-    <templateparamsevald>twig</templateparamsevald>
-    <hoisttemplateparams>0</hoisttemplateparams>
+    <templateparamsevald></templateparamsevald>
     <twigall>0</twigall>
     <uiplugin></uiplugin>
     <attachments>0</attachments>
@@ -214,7 +214,8 @@ Line 2</text>
     private function make_sqr_user_type_prototype($fileattachmentreqd = false) {
         global $DB;
         $q = $this->make_question('sqr');
-        $q->test_cases = array();  // No testcases in a prototype.
+        $q->name = 'PROTOTYPE_sqr_user_prototype';
+        $q->testcases = array();  // No testcases in a prototype.
         $q->prototypetype = 2;
         $q->coderunnertype = "sqr_user_prototype";
         $q->cputimelimitsecs = 29; // Arbitrary test value.
@@ -223,27 +224,18 @@ Line 2</text>
         $q->templateparams = '{"xxx": 100, "yyy": 200}';
 
         // Save the prototype to the DB so it has an accessible context for
-        // retrieving associated files. All we need is its id and
-        // its category, but the DB has other required fields so we dummy
-        // up a minimal question containing the right category, at least.
-
+        // retrieving associated files.
         question_bank::load_question_definition_classes('coderunner');
         $row = new qtype_coderunner_question();
         test_question_maker::initialise_a_question($row);
         $catrow = $DB->get_record_select(  // Find the question category for system context (1).
                    'question_categories',
                    "contextid=1 limit 1");
-        $row->category = $catrow->id;
-        $row->qtype = 'qtype_coderunner';
-        $row->contextid = 1;
-        foreach (array('id', 'name', 'questiontext', 'generalfeedback') as $key) {
-            $row->$key = $q->$key;
-        }
-
-        $q->id = $DB->insert_record('question', $row);
+        $q->category = $catrow->id;
+        $row->qtype = 'coderunner';
 
         $qtype = new qtype_coderunner();
-        $qtype->save_question_options($q);
+        $qtype->save_question($row, $q);
 
         if ($fileattachmentreqd) {
             // Attach a file.
