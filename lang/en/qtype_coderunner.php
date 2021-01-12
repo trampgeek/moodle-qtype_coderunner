@@ -262,6 +262,18 @@ The \'showoutputonly\' field, if true, is used when the question is to be
 used only to display the output and perhaps images from a run, with no mark.
 ';
 $string['graph_ui_invalidserialisation'] = 'GraphUI: invalid serialisation';
+$string['graphui_isfsm_descr'] = 'True if the graph represents a Finite State Machine, in which case it can contain an incoming edge from nowhere (the start edge) and can have \'accept\' nodes';
+$string['graphui_isdirected_descr'] = 'True if edges are directed';
+$string['graphui_noderadius_descr'] = 'The radius of a node in pixels';
+$string['graphui_fontsize_descr'] = 'The font size in points used for node and edge labels.';
+$string['graphui_helpmenutext_descr'] = 'Text which if non-empty replaces the standard help menu text defined in the CodeRunner language strings';
+$string['graphui_textoffset_descr'] = 'The offset in pixels of a link label from its link';
+$string['graphui_locknodepositions_descr'] = 'If true, prevents the user from moving nodes. Useful when the answer box is preloaded with a graph that the student has to annotate by changing node or edge labels or by adding/removing edges. Note, though that nodes can still be added and deleted. See locknodeset.';
+$string['graphui_locknodeset_descr'] = 'If true, prevents the the user from adding or deleting nodes or toggling node types to/from acceptors.';
+$string['graphui_locknodelabels_descr'] = 'If true, prevent the user from editing node labels. This will also prevent any new nodes having non-empty labels';
+$string['graphui_lockedgepositions_descr'] = 'If true prevents the user from dragging edges to change their curvature. Possibly useful if the answer box is preloaded with a graph that the student has to annotate by changing node or edge labels or by adding/removing edges. Also ensures that edges added by a student are straight, e.g. to draw a polygon on a set of given points. Note, though that edges can still be added and deleted. See lockedgeset.';
+$string['graphui_lockedgeset_descr'] = 'If true prevents the user from adding or deleting edges.';
+$string['graphui_lockedgelabels_descr'] = 'True to prevent the user from editing edge labels. This also prevents any new edges from having labels.';
 $string['hidden'] = 'Hidden';
 $string['hidedifferences'] = 'Hide differences';
 $string['HIDE'] = 'Hide';
