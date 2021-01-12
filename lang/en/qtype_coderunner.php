@@ -209,8 +209,11 @@ also collapses multiple spaces and tabs to a single space, deletes all blank
 lines and converts the strings to lower case.
 
 The \'regular expression\' grader uses the \'expected\'
-field of the test case as a regular expression and tests the output to see
-if a match to the expected result can be found anywhere within the output.
+field of the test case as a regular expression (without PERL-type delimiters)
+and tests the output to see
+if a match to the expected result can be found anywhere within the output. For
+example, an expected value of \'ab.*z\' would match any output that contains the
+the characters \'ab\' anywhere in the output and a \'z\' character somewhere later.
 To force matching of the entire output, start and end the regular expression
 with \'\A\' and \'\Z\' respectively. Regular expression matching uses MULTILINE
 and DOTALL options.
