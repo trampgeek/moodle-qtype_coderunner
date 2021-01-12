@@ -63,7 +63,7 @@ int main() {
     <grader>EqualityGrader</grader>
     <cputimelimitsecs></cputimelimitsecs>
     <memlimitmb></memlimitmb>
-    <sandboxparams></sandboxparams>
+    <sandboxparams>{"linkargs": ["-lm"]}</sandboxparams>
     <templateparams></templateparams>
     <hoisttemplateparams>0</hoisttemplateparams>
     <twigall>0</twigall>
@@ -109,7 +109,7 @@ int main() {
     <grader>EqualityGrader</grader>
     <cputimelimitsecs></cputimelimitsecs>
     <memlimitmb></memlimitmb>
-    <sandboxparams></sandboxparams>
+    <sandboxparams>{"linkargs": ["-lm"]}</sandboxparams>
     <templateparams></templateparams>
     <hoisttemplateparams>0</hoisttemplateparams>
     <twigall>0</twigall>
@@ -176,7 +176,7 @@ int main() {
     <grader>EqualityGrader</grader>
     <cputimelimitsecs></cputimelimitsecs>
     <memlimitmb></memlimitmb>
-    <sandboxparams></sandboxparams>
+    <sandboxparams>{"linkargs": ["-lm"]}</sandboxparams>
     <templateparams></templateparams>
     <hoisttemplateparams>0</hoisttemplateparams>
     <twigall>0</twigall>
@@ -222,7 +222,7 @@ int main() {
     <grader>EqualityGrader</grader>
     <cputimelimitsecs></cputimelimitsecs>
     <memlimitmb></memlimitmb>
-    <sandboxparams></sandboxparams>
+    <sandboxparams>{"linkargs": ["-lm"]}</sandboxparams>
     <templateparams></templateparams>
     <hoisttemplateparams>0</hoisttemplateparams>
     <twigall>0</twigall>
