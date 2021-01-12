@@ -486,16 +486,16 @@ class qtype_coderunner extends question_type {
      *
      * @param string $coderunnertype prototype name.
      * @param context $context a context.
-     * @return stdClass prototype row from question_coderunner_options, with the
-     * addition of the question text (for use in the edit-form question-type help button)
-     * or null if no prototype can be found or if more than one prototype is found.
+     * @return qtype_coderunner_question prototype the prototype for the given
+     * question type in the given context or null if no prototype can be found
+     * or if more than one prototype is found.
      */
     public static function get_prototype($coderunnertype, $context) {
         global $DB;
         list($contextcondition, $params) = $DB->get_in_or_equal($context->get_parent_context_ids(true));
         $params[] = $coderunnertype;
-
-        $sql = "SELECT qco.*, q.questiontext
+        
+        $sql = "SELECT q.id
                   FROM {question_coderunner_options} qco
                   JOIN {question} q ON qco.questionid = q.id
                   JOIN {question_categories} qc ON qc.id = q.category
@@ -503,11 +503,12 @@ class qtype_coderunner extends question_type {
                    AND qc.contextid $contextcondition
                    AND qco.coderunnertype = ?";
 
-        $validprotos = $DB->get_records_sql($sql, $params);
-        if (count($validprotos) !== 1) {
+        $validprotoids = $DB->get_records_sql($sql, $params);
+        if (count($validprotoids) !== 1) {
             return null;  // Exactly one prototype should be found.
         } else {
-            $prototype = reset($validprotos);
+            $proto = reset($validprotoids);
+            $prototype = question_bank::load_question($proto->id);
             self::update_question_text_maybe($prototype);
             return $prototype;
         }
