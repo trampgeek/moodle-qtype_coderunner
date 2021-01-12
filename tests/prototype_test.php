@@ -34,6 +34,10 @@ require_once($CFG->dirroot . '/question/format/xml/format.php');
 require_once($CFG->dirroot . '/question/engine/tests/helpers.php');
 
 class qtype_coderunner_prototype_test extends qtype_coderunner_testcase {
+    protected function setUp() {
+        parent::setUp();
+        $this->resetAfterTest(true);
+    }
 
     // Test we can create a prototype question then a derived question that
     // inherits a few representative fields.
