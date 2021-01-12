@@ -45,6 +45,7 @@ class qtype_coderunner_test extends advanced_testcase {
     protected $qtype;
 
     protected function setUp() {
+        $this->resetAfterTest(true);
         $this->qtype = new qtype_coderunner();
     }
 
