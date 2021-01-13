@@ -604,7 +604,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->addElement('group', 'twigcontrols', get_string('twigcontrols', 'qtype_coderunner'),
                 $twigelements, null, false);
         $mform->setDefault('templateparamslang', 'None');
-        $mform->setDefault('templateparamsevalpertry', false);
+        $mform->setDefault('templateparamsevalpertry', true);
         $mform->setDefault('twigall', false);
         $mform->$hidemethod('templateparamsevalpertry', 'templateparamslang', 'eq', 'None');
         $mform->$hidemethod('templateparamsevalpertry', 'templateparamslang', 'eq', 'twig');
@@ -627,7 +627,6 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $plugins = new qtype_coderunner_ui_plugins();
         $plugins_without_params = $plugins->all_with_no_params();
         $mform->hideIf('uiparameters', 'uiplugin', 'in', $plugins_without_params);
-        
     }
 
 
