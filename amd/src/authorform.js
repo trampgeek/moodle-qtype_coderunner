@@ -111,7 +111,7 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
                 uiname = '';
             }
 
-            if (taId == 'id_templateparams') {
+            if (taId == 'id_templateparams' || taId == 'id_uiparameters') {
                 lang = '';
             } else {
                 lang = language.prop('value');
@@ -340,6 +340,7 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
 
         if (useace.prop('checked')) {
             setUi('id_templateparams', 'ace');
+            setUi('id_uiparameters', 'ace');
         }
 
         // Set up event Handlers.
@@ -376,9 +377,11 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
             if (isTurningOn) {
                 setUi('id_template', 'ace');
                 setUi('id_templateparams', 'ace');
+                setUi('id_uiparameters', 'ace');
             } else {
                 setUi('id_template', '');
                 setUi('id_templateparams', '');
+                setUi('id_uiparameters', '');
             }
         });
 

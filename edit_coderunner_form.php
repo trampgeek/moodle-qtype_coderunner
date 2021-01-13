@@ -41,6 +41,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
     const DEFAULT_NUM_ROWS = 18;    // Answer box rows.
     const DEFAULT_NUM_COLS = 100;   // Answer box columns.
     const TEMPLATE_PARAM_ROWS = 5;  // The number of rows of the template parameter field.
+    const UI_PARAM_ROWS = 5;  // The number of rows of the template parameter field.
     const RESULT_COLUMNS_SIZE = 80; // The size of the resultcolumns field.
 
     public function qtype() {
@@ -607,12 +608,26 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->setDefault('twigall', false);
         $mform->$hidemethod('templateparamsevalpertry', 'templateparamslang', 'eq', 'None');
         $mform->$hidemethod('templateparamsevalpertry', 'templateparamslang', 'eq', 'twig');
-        
-        // Although hoisttemplateparams defaults to true in the database,
-        // it defaults to true in this form. This ensures that legacy questions are
-        // not affected, while new questions default to true.
         $mform->setDefault('hoisttemplateparams', true);
         $mform->addHelpButton('twigcontrols', 'twigcontrols', 'qtype_coderunner');
+        
+        // UI params
+        $mform->addElement('textarea', 'uiparameters',
+            get_string('uiparameters', 'qtype_coderunner'),
+            array('rows' => self::UI_PARAM_ROWS,
+                  'class' => 'edit_code',
+                  'data-lang' => '' // Don't syntax colour ui params.
+            )
+        );
+        $mform->setType('uiparameters', PARAM_RAW);
+        $mform->addHelpButton('uiparameters', 'uiparameters', 'qtype_coderunner');
+        
+        // Hide the UI Parameters field if the currently-selected UI plugin
+        // does not take any parameters (e.g. Ace).
+        $plugins = new qtype_coderunner_ui_plugins();
+        $plugins_without_params = $plugins->all_with_no_params();
+        $mform->hideIf('uiparameters', 'uiplugin', 'in', $plugins_without_params);
+        
     }
 
 
@@ -676,7 +691,8 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->addHelpButton('resultcolumns', 'resultcolumns', 'qtype_coderunner');
 
         $uicontrols = array();
-        $uitypes = $this->get_ui_plugins();
+        $plugins = new qtype_coderunner_ui_plugins();
+        $uitypes = $plugins->dropdownlist();
 
         $uicontrols[] = $mform->createElement('select', 'uiplugin',
                 get_string('student_answer', 'qtype_coderunner'), $uitypes);
@@ -691,26 +707,8 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
         $mform->setExpanded('customisationheader');  // Although expanded it's hidden until JavaScript unhides it .
     }
-
-
-    // Get a list of all available UI plugins, namely all files of the form
-    // ui_pluginname.js in the amd/src directory.
-    // Returns an associative array with a uiname => uiname entry for each
-    // available ui plugin.
-    private function get_ui_plugins() {
-        global $CFG;
-        $uiplugins = array('None' => 'None');
-        $files = scandir($CFG->dirroot . '/question/type/coderunner/amd/src');
-        foreach ($files as $file) {
-            if (substr($file, 0, 3) === 'ui_' && substr($file, -3) === '.js') {
-                $uiname = substr($file, 3, -3);
-                $uiplugins[$uiname] = ucfirst($uiname);
-            }
-        }
-        return $uiplugins;
-    }
-
-
+    
+    
     // Make the advanced customisation panel, also hidden until the user
     // customises the question. The fields in this part of the form are much more
     // advanced and not recommended for most users.

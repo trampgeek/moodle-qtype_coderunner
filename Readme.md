@@ -39,7 +39,10 @@ unusual question type.
 - [Using the template as a script for more advanced questions](#using-the-template-as-a-script-for-more-advanced-questions)
   - [Twig Escapers](#twig-escapers)
 - [Template parameters](#template-parameters)
+  - [Twigging the whole question](#twigging-the-whole-question)
   - [Preprocessing of template parameters](#preprocessing-of-template-parameters)
+    - [Preprocessing with Twig](#preprocessing-with-twig)
+    - [Preprocessing with other languages](#preprocessing-with-other-languages)
   - [The Twig TEST variable](#the-twig-test-variable)
   - [The Twig TESTCASES variable](#the-twig-testcases-variable)
   - [The Twig QUESTION variable](#the-twig-question-variable)
@@ -67,8 +70,10 @@ unusual question type.
   - [The Table UI](#the-table-ui)
   - [The Gap Filler UI](#the-gap-filler-ui)
   - [The Html UI](#the-html-ui)
+    - [The textareaid macro](#the-textareaid-macro)
   - [Other UI plugins](#other-ui-plugins)
 - [User-defined question types](#user-defined-question-types)
+  - [Prototype template parameters](#prototype-template-parameters)
 - [Supporting or implementing new languages](#supporting-or-implementing-new-languages)
 - [Multilanguage questions](#multilanguage-questions)
 - [Administrator scripts](#administrator-scripts)
@@ -1241,8 +1246,10 @@ As mentioned earlier, the template parameters do not need to be hard coded;
 they can be procedurally generated when the question is first initialised,
 allowing for the possibility of random variants of a question or questions
 customised for a particular student. The question author chooses how to generate
-required template parameters using the *Preprocessor* dropdown in the
+the required template parameters using the *Preprocessor* dropdown in the
 *Template controls* section of the question editing form.
+
+#### Preprocessing with Twig
 
 The simplest and
 by far the most efficient option is *Twig*. Selecting that option results in
@@ -1254,9 +1261,34 @@ documented [here](#the-twig-student-variable). The output of that initial
 Twig run thus provides the context for subsequent evaluations of the question's
 template, text, test cases, etc.
 
+As a simple example of using Twig as a preprocessor for randomising questions
+we might have a template parameters field like
+
+    { "functionname": "{{ random(["find_first", "get_first", "pick_first"]) }}" }
+
+which will evaluate to one of
+
+    { "functionname": "find_first"}
+
+or
+
+    { "functionname": "get_first"}
+
+or
+
+    { "functionname": "pick_first"}
 
 
-The choice of program to perform 
+If the Twig variable *functionname* is then used throughout the question
+(with Twig All checked), students will get to see one of three different
+variants of the question. The topic of randomisation of questions, or customising
+them per student, is discussed in more length in the section [Randomising questions](#randomising-questions).
+
+#### Preprocessing with other languages
+
+*** TBS ***
+
+
 ### The Twig TEST variable
 
 The template variable `TEST`, which is defined in the Twig context only when
@@ -1403,18 +1435,30 @@ names in the Moodle page, all names are prefixed by `crui_`.
 
 ## Randomising questions
 
-Sometimes one wants a question that presents different variations of itself
-to each student. As a trivial example, a generalisation of a `Hello world`
-program might ask students to write a program that prints `Hello <name>`,
-where there are many different values for `name`.
+As explained in the section [Preprocessing with Twig](#preprocessing-with-twig),
+randomisation is achieved through a template parameter pre-process that
+generates a randomised set of template parameters. The various template parameters
+are then used throughout the question, by setting the Twig All checkbox.
 
-By way of introduction, a Python version of the above example above is easily achieved,
+Although there are many different template parameter preprocessors available,
+the rest of this discussion will focus only on the use of Twig as the preprocessor.
+The use of alternative languages as preprocessors is sometimes useful when
+different template parameters have dependencies that are not easily computed by
+Twig. However, because preprocessing has to be done on the Jobe sandbox when a question
+is first instantiated use of a preprocessor other than Twig can have a huge
+performance impact at the start of a test or exam, so use of non-Twig preprocessors
+should be used with caution.
+
+As a trivial example of randomisation, consider a generalisation of a `Hello world`
+program that asks students to write a program that prints `Hello <name>`,
+where there are many different values for `name`. A Python version of the above
+example above is easily achieved,
 albeit with only four different names, as follows:
 
 1. Set the template parameters field of the question authoring form to
-    ```
+
     { "name": "{{ random(["Bob", "Carol", "Ted", "Alice"]) }}" }
-    ```
+
 1. Turn on the *Twig All* checkbox, so that all fields of the question will
    get processed by Twig, once the template parameters have been set up.
 1. Turn on the *Hoist template parameters* checkbox if necessary. It's on by
@@ -2282,6 +2326,34 @@ JavaScript to make use of the 'leftovers'.
 As a special case of the serialisation, if all values in the serialisation
 are either empty strings or a list of empty strings, the serialisation is
 itself the empty string.
+
+#### The textareaid macro
+
+A problem arises if the HTML supplied by the question author contains elements
+with explicit *id* attributes, as might be required if there is also JavaScript
+present that needs to refer to the new elements. If the review options allow
+display of the question author's answer then when the student reviews their
+quiz, the student answer and the author's answer will both include the new
+elements, resulting in a conflict of id. Apart from being invalid HTML, this
+is likely to result in wrong results when any JavaScript code referencing the
+elements runs.
+
+A workaround for this problem is to include the special macro string
+
+    ___textareaid___
+
+as part of any new ids. Note that there are THREE (3) underscores at both the 
+start and end of the macro string.
+
+When the HTML UI inserts the global extra
+html into the question,
+that macro is replaced everywhere by the actual ID of the answer box's text-area, which is
+different for the student and author answers. This technique can also be used
+to ensure that the names given to elements like radio buttons are different
+in the two answers.
+
+Thanks Markus Gafner for this workaround.
+
 
 ### Other UI plugins
 

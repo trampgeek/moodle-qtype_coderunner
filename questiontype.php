@@ -114,6 +114,7 @@ class qtype_coderunner extends question_type {
             'templateparamsevald',
             'twigall',
             'uiplugin',
+            'uiparameters',
             'attachments',
             'attachmentsrequired',
             'maxfilesize',
@@ -148,6 +149,7 @@ class qtype_coderunner extends question_type {
             'templateparamsevalpertry',
             'templateparamsevald',
             'twigall',
+            'uiparameters',
             'attachments',
             'attachmentsrequired',
             'maxfilesize',
@@ -735,6 +737,7 @@ class qtype_coderunner extends question_type {
             'templateparamslang' => 'twig',
             'templateparamsevalpertry' => 0,
             'templateparamsevald' => null,
+            'uiparameters' => null,
             'attachments' => 0
         );
 

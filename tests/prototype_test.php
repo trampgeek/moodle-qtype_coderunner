@@ -146,6 +146,7 @@ EOTEMPLATE;
     <templateparamsevalpertry>0</templateparamsevalpertry>
     <templateparamsevald></templateparamsevald>
     <twigall>0</twigall>
+    <uiparameters></uiparameters>
     <uiplugin></uiplugin>
     <attachments>0</attachments>
     <attachmentsrequired>0</attachmentsrequired>

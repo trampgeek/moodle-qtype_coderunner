@@ -28,20 +28,45 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+// A class to represent a single parameter with a name, type and value.
+class qtype_coderunner_ui_parameter {
+    public function __construct($name, $type, $value) {
+        $this->name = $name;
+        $this->type = $type;
+        $this->value = $value;
+    }
+}
+
+/**
+ * A class representing a set of qtype_coderunner_ui_parameter objects for
+ * a particular ui plugin.
+ */
 class qtype_coderunner_ui_parameters {
 
     /**
      * Construct a ui_parameters object by reading the json file for the
      * specified ui_plugin.
-     * @param string $name the name of the ui component, e.g. graph_ui, used to
+     * @param string $name the name of the ui component, e.g. graph, used to
      * locate the JSON file that specifies the type and default value, e.g.
-     * graph_ui.json.
+     * ui_graph.json.
      */
     public function __construct(string $name) {
         global $CFG;
-        $json = file_get_contents($CFG->dirroot . "/question/type/coderunner/amd/src/$name.json");
-        $spec = json_decode($json);
-        $this->params = $spec->parameters;
+        $filename = $CFG->dirroot . "/question/type/coderunner/amd/src/ui_{$name}.json";
+        $this->params = array();
+        if (file_exists($filename)) {
+            $json = file_get_contents($filename);
+            $spec = json_decode($json);
+            foreach ((array) $spec->parameters as $name => $obj) {
+                $this->params[$name] = new qtype_coderunner_ui_parameter($name, $obj->type, $obj->default);
+            }
+        }
+    }
+    
+    
+    // Return the number of parameters in this parameter set.
+    public function length() {
+        return count($this->params);
     }
     
     /**
@@ -50,17 +75,20 @@ class qtype_coderunner_ui_parameters {
      * @return string the type of the parameter
      */
     public function type(string $parameter) {
-        return $this->params->$parameter->type;
+        return $this->params[$parameter]->type;
     }
     
+    
     /**
-     * Get the default value for a particular parameter.
+     * Get the default value (which may have been overridden by merge_json so
+     * is really just the value) for a particular parameter.
      * @param string $parameter the name of the parameter of interest
-     * @return the default value of the parameter.
+     * @return the value of the parameter.
      */
-    public function default(string $parameter) {
-        return $this->params->$parameter->default;
+    public function value(string $parameter) {
+        return $this->params[$parameter]->value;
     }
+    
     
     /**
      * Merge a set of parameter values, defined by a JSON string, into this.
@@ -68,11 +96,19 @@ class qtype_coderunner_ui_parameters {
      */
     public function merge_json(string $json) {
         $newvalues = json_decode($json);
-        foreach ($newvalues as $key=>$value) {
+        foreach ($newvalues as $key => $value) {
             if (!array_key_exists($key, (array) $this->params)) {
                 throw new qtype_coderunner_exception('Unexpected key value when merging json');
             }
-            $this->params->$key = $value;
+            $this->params[$key]->value = $value;
         }
+    }
+    
+    
+    /**
+     * Return a list of all parameter names
+     */
+    public function all_names() {
+        return array_keys($this->params);
     }
 }

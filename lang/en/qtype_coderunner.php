@@ -1207,6 +1207,10 @@ If \'Template uses ace\' is checked,
 the Ace code editor will manage both the template and the template parameters
 boxes. Otherwise a raw text box will be used.';
 $string['ui_fallback'] = 'Falling back to raw text area.';
+$string['uiparameters'] = 'UI plugin params';
+$string['uiparameters_help'] = 'A JSON string defining any User Interface
+parameter values that are either required by the UI plugin or which override the
+default values. For example, to draw larger nodes when using the GraphUI: \'{"noderadius": 30}\'';
 $string['unauthorisedbulktest'] = 'You do not have suitable access to any CodeRunner questions';
 $string['unauthoriseddbaccess'] = 'You are not authorised to use this script';
 $string['unknownerror'] = 'An unexpected error occurred. The sandbox may be down. Try again shortly.';

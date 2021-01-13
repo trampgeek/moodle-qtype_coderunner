@@ -144,6 +144,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $form->templateparamslang = 'twig';
         $form->templateparamsevalpertry = 0;
         $form->templateparamsevald = null;
+        $form->uiparameters = null;
         $form->twigall = 0;
         $form->prototypetype = 0;
         $form->sandbox = 'DEFAULT';
@@ -205,6 +206,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $form->templateparamslang = 'twig';
         $form->templateparamsevalpertry = 0;
         $form->templateparamsevald = null;
+        $form->uiparameters = null;
         $form->twigall = 0;
         $form->prototypetype = 0;
         $form->sandbox = 'DEFAULT';
@@ -1185,6 +1187,7 @@ EOPROG;
         $coderunner->templateparamslang = 'twig';
         $coderunner->templateparamsevalpertry = 0;
         $coderunner->templateparamsevald = null;
+        $coderunner->uiparameters = null;
         $coderunner->hoisttemplateparams = 0;
         $coderunner->twigall = 0;
         $coderunner->prototypetype = 0;

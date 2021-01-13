@@ -131,6 +131,7 @@ class qtype_coderunner_walkthrough_randomisation_test extends qbehaviour_walkthr
         $q->templateparamslang = 'twig';
         $q->templateparamsevalpertry = 0;
         $q->templateparamsevald = null;
+        $q->uiparameters = null;
         $q->hoisttemplateparams = 1;
         $q->twigall = 1;
         $q->questiontext = 'Write a function {{ func }}';

@@ -37,12 +37,37 @@ class qtype_coderunner_ui_parameters_test extends qtype_coderunner_testcase {
 
     // Test that the json specifier for the graph_ui class can be loaded.
     public function test_load() {
-        $graphuiparams = new qtype_coderunner_ui_parameters('ui_graph');
+        $graphuiparams = new qtype_coderunner_ui_parameters('graph');
         $this->assertEquals("boolean", $graphuiparams->type('isdirected'));
-        $this->assertEquals(true, $graphuiparams->default('isdirected'));
+        $this->assertEquals(true, $graphuiparams->value('isdirected'));
         $this->assertEquals("int", $graphuiparams->type('noderadius'));
-        $this->assertEquals(26, $graphuiparams->default('noderadius'));
+        $this->assertEquals(26, $graphuiparams->value('noderadius'));
+        $graphuiparams->merge_json('{"noderadius": 30}');
+        $this->assertEquals(30, $graphuiparams->value('noderadius'));
+        $aceparams = new qtype_coderunner_ui_parameters('ace');
+        $this->assertEmpty($aceparams->all_names());
     }
     
-
+    // Test that we can get a list of all plugins and their parameter lists.
+    public function test_plugin_list() {
+        $plugins = new qtype_coderunner_ui_plugins();
+        $names = $plugins->all_names();
+        $this->assertContains('ace', $names);
+        $this->assertContains('graph', $names);
+        // debugging(print_r($plugins->parameters('ace'), true));
+        $aceparams = $plugins->parameters('ace');
+        $this->assertEquals(0, $aceparams->length());
+        $graphparams = $plugins->parameters('graph');
+        //debugging(print_r($graphparams, true));
+        $this->assertEquals(26, $graphparams->value('noderadius'));
+        $this->assertContains('ace', $plugins->all_with_no_params());
+    }
+    
+    // Test the dropdown list for the plugins.
+    public function test_dropdown() {
+        $plugins = new qtype_coderunner_ui_plugins();
+        $dropdowns = $plugins->dropdownlist();
+        $this->assertEquals('None', $dropdowns['None']);
+        $this->assertEquals('Graph', $dropdowns['graph']);
+    }
 }
