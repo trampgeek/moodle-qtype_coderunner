@@ -22,7 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
+define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function($, ui, str) {
 
     // Define a mapping from the fields of the JSON object returned by an AJAX
     // 'get question type' request to the form elements. Keys are JSON field
@@ -32,6 +32,9 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
     // setting the property with it.
     var JSON_TO_FORM_MAP = {
         template:            ['#id_template', 'value', ''],
+        templateparamslang:  ['#id_templateparamslang', 'value', 'None'],
+        templateparamsevalpertry: ['#id_templateparamsevalpertry', 'checked', true],
+        uiparameters: ['#id_uiparameters', 'value', ''],
         iscombinatortemplate:['#id_iscombinatortemplate', 'checked', '',
                                 function (value) {
                                     return value === '1' ? true : false;
@@ -56,14 +59,13 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
     };
 
     // Set up the author edit form UI plugins and event handlers.
-    // The strings parameter is an associative array containing a subset of
-    // the strings extracted from lang/xx/qtype_coderunner.php.
     // The template parameters and Ace language are passed to each
     // text area from PHP by setting its data-params and
     // data-lang attributes.
-    function initEditForm(strings) {
+    function initEditForm() {
         var typeCombo = $('#id_coderunnertype'),
             template = $('#id_template'),
+            templateParamsLang = $('#id_templateparamslang'),
             globalextra = $('#id_globalextra'),
             useace = $('#id_useace'),
             language = $('#id_language'),
@@ -188,7 +190,10 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
 
             typeName.prop('value', newType);
             customise.prop('checked', false);
-            questiontypeHelpDiv.html(detailsHtml(newType, response.questiontext));
+            str.get_string('coderunner_question_type', 'qtype_coderunner').then(function (s) {
+                questiontypeHelpDiv.html(detailsHtml(newType, s, response.questiontext));
+            });
+
             setCustomisationVisibility(false);
             enableTemplateSupportFields();
         }
@@ -198,27 +203,35 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
         // the template contents with an error message in case the user
         // saves the question and later wonders why it breaks.
         function reportError(questionType, error) {
-            var errorMessage;
-            window.alert(getString('prototype_load_failure') + error);
-            errorMessage = getString('prototype_error') + "\n";
-            errorMessage += error + '\n';
-            errorMessage += "CourseId: " + courseId + ", qtype: " + questionType;
-            template.prop('value', errorMessage);
+            langStringAlert('prototype_load_failure', error);
+            str.get_string('prototype_error', 'qtype_coderunner').then(function(s) {
+                var errorMessage = s + "\n";
+                errorMessage += error + '\n';
+                errorMessage += "CourseId: " + courseId + ", qtype: " + questionType;
+                template.prop('value', errorMessage);
+            });
         }
 
-        function detailsHtml(title, html) {
+        function detailsHtml(title, coderunner_descr, html) {
             // Local function to return the HTML to display in the
             // question type details section of the form.
             var resultHtml = '<p class="question-type-details-header">';
-            resultHtml += getString('coderunner_question_type');
+            resultHtml += coderunner_descr;
             resultHtml += title + '</p>\n' + html;
             return resultHtml;
 
         }
 
-        // Get the required string from the strings parameter.
-        function getString(key) {
-            return strings[key];
+        // Raise an alert with the given language string and possible additional
+        // extra text.
+        function langStringAlert(key, extra) {
+            str.get_string(key, 'qtype_coderunner').then(function(s) {
+                var message = s;
+                if (extra) {
+                    message += '\n' + extra;
+                }
+                alert(message);
+            });
         }
 
         // Get the "preferred language" from the AceLang string supplied.
@@ -267,9 +280,14 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
 
                     }
                 ).fail(function () {
-                    // AJAX failed. We're dead, Fred.
-                    window.alert(getString('error_loading_prototype'));
-                    template.prop('value', getString('ajax_error'));
+                    // AJAX failed. We're dead, Fred. The attempt to get the
+                    // language translation for the error message will likely
+                    // fail too, so use English for a start.
+                    langStringAlert('error_loading_prototype');
+                    template.prop('value', '*** AJAX ERROR. DON\'T SAVE THIS! ***');
+                    str.get_string('ajax_error', 'qtype_coderunner').then(function(s) {
+                        template.prop('value', s);  // Translates into current language (if it works).
+                    });
                 });
             }
         }
@@ -319,7 +337,9 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
 
         if (prototypeType.prop('value') == 1) {
             // Editing a built-in question type: Dangerous!
-            window.alert(getString('proceed_at_own_risk'));
+            str.get_string('proceed_at_own_risk', 'qtype_coderunner').then(function(s) {
+                alert(s);
+            });
             prototypeType.prop('disabled', true);
             typeCombo.prop('disabled', true);
             customise.prop('disabled', true);
@@ -333,7 +353,9 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
             loadCustomisationFields();  // setUis is called when this completes.
         } else {
             setUis();  // Set up UI controllers on answer and answerpreload.
-            questiontypeHelpDiv.html("<p>" + getString('info_unavailable') + "</p>");
+            str.get_string('info_unavailable', 'qtype_coderunner').then(function(s) {
+                questiontypeHelpDiv.html("<p>" + s + "</p>");
+            });
         }
 
         set_testtype_visibilities();
@@ -351,11 +373,13 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
                 // Customisation is being turned on.
                 setCustomisationVisibility(true);
             } else { // Customisation being turned off.
-                if (window.confirm(getString('confirm_proceed'))) {
-                    setCustomisationVisibility(false);
-                } else {
-                    customise.prop('checked', true);
-                }
+                str.get_string('confirm_proceed', 'qtype_coderunner').then(function(s) {
+                    if (window.confirm(s)) {
+                        setCustomisationVisibility(false);
+                    } else {
+                        customise.prop('checked', true);
+                    }
+                });
             }
         });
 
@@ -366,8 +390,14 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
         });
 
         typeCombo.on('change', function() {
-            if (!customise.prop('checked') ||
-                    window.confirm(getString('question_type_changed'))) {
+            if (customise.prop('checked')) {
+                // Author has customised the question. Ask if they want to reload inherited stuff.
+                str.get_string('question_type_changed', 'qtype_coderunner').then(function (s) {
+                    if (window.confirm(s)) {
+                        loadCustomisationFields();
+                    }
+                });
+            } else {
                 loadCustomisationFields();
             }
         });
@@ -382,6 +412,13 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper'], function($, ui) {
                 setUi('id_template', '');
                 setUi('id_templateparams', '');
                 setUi('id_uiparameters', '');
+            }
+        });
+
+        templateParamsLang.on('change', function() {
+            var newLang = templateParamsLang.val();
+            if (newLang !== 'None' && newLang !== 'twig') {
+                langStringAlert('templateparamsusingsandbox');
             }
         });
 
