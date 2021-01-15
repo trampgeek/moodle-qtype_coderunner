@@ -160,8 +160,31 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
             advancedCustomisation.css('display', display);
             if (isVisible && useace.prop('checked')) {
                 setUi('id_template', 'ace');
+                setUi('id_uiparameters', 'ace');
             }
         }
+
+
+        // Turn on or off the Ace editor in the template and uiparameters fields
+        // so we can reload the textareas with JavaScript.
+        // Ignore if UseAce is unchecked.
+        // Parameter is true to stop Ace, false to restart it.
+        function enableAceInCustomisedFields(stateOn) {
+            var taIds = ['id_template', 'id_uiparameters'];
+            var uiWrapper, ta;
+            if (useace.prop('checked')) {
+                for(var i = 0; i < taIds.length; i++) {
+                    ta = $(document.getElementById(taIds[i]));
+                    uiWrapper = ta.data('current-ui-wrapper');
+                    if (uiWrapper && stateOn) {
+                        uiWrapper.restart();
+                    } else if (uiWrapper && !stateOn) {
+                        uiWrapper.stop();
+                    }
+                }
+            }
+        }
+
 
         // After loading the form with new question type data we have to
         // enable or disable both the testsplitterre and the allow multiple
@@ -178,6 +201,8 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
         // Copy fields from the AJAX "get question type" response into the form.
         function copyFieldsFromQuestionType(newType, response) {
             var formspecifier, attrval, filter;
+
+            enableAceInCustomisedFields(false);
             for (var key in JSON_TO_FORM_MAP) {
                 formspecifier = JSON_TO_FORM_MAP[key];
                 attrval = response[key] ? response[key] : formspecifier[2];
