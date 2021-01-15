@@ -388,7 +388,7 @@ class qtype_coderunner extends question_type {
     // testcases) from the database into the question.
     // The various fields are initialised from the prototype, then overridden
     // by any non-null values in the specific question.
-    //
+    // As a side effect, the question->prototype field is set to the prototype.
     public function get_question_options($question) {
         global $CFG, $DB, $OUTPUT;
         parent::get_question_options($question);
@@ -399,8 +399,8 @@ class qtype_coderunner extends question_type {
         } else {
             $qtype = $options->coderunnertype;
             $context = $this->question_context($question);
-            $prototype = $this->get_prototype($qtype, $context);
-            $this->set_inherited_fields($options, $prototype);
+            $question->prototype = $this->get_prototype($qtype, $context);
+            $this->set_inherited_fields($options, $question->prototype);
         }
 
         // Add in any testcases.

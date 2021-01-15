@@ -53,6 +53,7 @@ class qtype_coderunner_ui_parameters {
     public function __construct(string $name) {
         global $CFG;
         $filename = $CFG->dirroot . "/question/type/coderunner/amd/src/ui_{$name}.json";
+        $this->uiname = $name;
         $this->params = array();
         if (file_exists($filename)) {
             $json = file_get_contents($filename);
@@ -93,15 +94,44 @@ class qtype_coderunner_ui_parameters {
     /**
      * Merge a set of parameter values, defined by a JSON string, into this.
      * @param string $json the JSON string defining the set of parameters to merge in.
+     * @param boolean $ignorebad If a parameter in the json string does not
+     * already have a key, ignore it. Otherwise an exception is raised.
      */
-    public function merge_json(string $json) {
-        $newvalues = json_decode($json);
-        foreach ($newvalues as $key => $value) {
-            if (!array_key_exists($key, (array) $this->params)) {
-                throw new qtype_coderunner_exception('Unexpected key value when merging json');
+    public function merge_json($json, $ignorebad=false) {
+        if (!empty($json)) {
+            $newvalues = json_decode($json);
+            foreach ($newvalues as $key => $value) {
+                $matching_key = $this->find_key($key);
+                if ($matching_key === null) {
+                    if ($ignorebad) {
+                        continue;
+                    } else {
+                        throw new qtype_coderunner_exception('Unexpected key value when merging json');
+                    }
+                }
+                $this->params[$matching_key]->value = $value;
             }
-            $this->params[$key]->value = $value;
         }
+    }
+    
+    
+    /**
+     * Search the set of parameters for one that equals the given one, or
+     * is equal to it with the UI plugin name plus an underscore as a prefix.
+     * The latter match is for legacy parameter names like table_num_rows for
+     * the table ui plugin.
+     * @param string $paramname The name of the parameter to find. 
+     * @return string The actual parameter name that matches the given one,
+     * of null if no such name. 
+     */
+    private function find_key(string $paramname) {
+        foreach ($this->params as $param) {
+            $alias = "{$this->uiname}_{$param->name}";
+            if ($param->name === $paramname || $alias === $paramname) {
+                return $param->name;
+            }
+        }
+        return null;
     }
     
     
@@ -110,5 +140,19 @@ class qtype_coderunner_ui_parameters {
      */
     public function all_names() {
         return array_keys($this->params);
+    }
+    
+    
+    /**
+     * Return the json encoded parameter-name => parameter value set.
+     */
+    public function to_json() {
+        $params_array = array();
+        foreach ($this->params as $param) {
+            if ($param->value !== null) {
+                $params_array[$param->name] = $param->value;
+            }
+        }
+        return json_encode($params_array);
     }
 }

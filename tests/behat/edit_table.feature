@@ -32,12 +32,12 @@ Feature: Test editing a CodeRunner question using the Table UI
       | id_template    | print('{{ STUDENT_ANSWER }}') |
       | uiplugin       | Table                         |
 
-    Then I should see "Table UI needs template parameters"
+    Then I should see "Table UI needs parameters"
 
     And I set the following fields to these values:
       | templateparams | {"table_num_columns": 2,"table_num_rows": 2,"table_column_headers": ["Col1", "Col2"]}|
     And I press "id_updatebutton"
-    Then I should not see "Table UI needs template parameters"
+    Then I should not see "Table UI needs parameters"
 
     And I set the following fields to these values:
       | expected[0]    | Not expected at all |

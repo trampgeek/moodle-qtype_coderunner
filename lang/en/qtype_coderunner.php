@@ -994,8 +994,8 @@ $string['syntax_errors'] = 'Syntax Error(s)';
 
 $string['table_ui_invalidjson'] = 'Table UI: invalid JSON serialisation.';
 $string['table_ui_invalidserialisation'] = 'Table UI: invalid serialisation.';
-$string['table_ui_missingparams'] = 'Table UI needs template parameters table_num_columns and
-table_num_rows.';
+$string['table_ui_missingparams'] = 'Table UI needs parameters num_columns and
+num_rows.';
 $string['template'] = 'Template';
 $string['template_changed'] = 'Per-test template changed - disable combinator? [\'Cancel\' leaves it enabled.]';
 $string['templatecontrols'] = 'Template controls';
@@ -1055,7 +1055,7 @@ response and TEST.testcode is the code for the current testcase. These values
 (and other testcase values like TEST.expected, TEST.stdin, TEST.mark)
 can be inserted into the template by enclosing them in double braces, e.g.
 <code>{{TEST.testcode}}</code>. For use within literal strings, an appropriate escape
-function should be applied, e.g. <code>{{STUDENT_ANSWER | e(\'py\')}}</code> is the student
+function should be applied, e.g. <code>{{STUDENT_ANSWER | e(\'py\')}}</code> is the studentpage requires
 answer escaped in a manner suitable for use within Python triple-double-quoted
 strings. Other escape functions are <code>e(\'c\')</code>, <code>e(\'java\')</code>,
 <code>e(\'matlab\')</code>. The program that is output by Twig is then compiled and executed
@@ -1071,8 +1071,12 @@ all test cases into a single run.
 If the template-debugging checkbox is clicked, the program generated
 for each testcase will be displayed in the output.';
 $string['templateparams'] = 'Template params';
-$string['templateparamsevalpertry'] = 'Evaluate on each attempt';
+$string['templateparamsevalpertry'] = 'Evaluate per student';
 $string['templateparamslang'] = 'Preprocessor';
+$string['templateparamsusingsandbox'] = str_replace("\n", ' ',
+'Preprocessors other than Twig use the sandbox server. When a student starts a
+quiz all such questions initiate a sandbox run before the question can even be
+displayed. In a test or exam, this can overload the sandbox server. Caveat emptor!');
 $string['templateparams_help'] = 'If non-blank, the template parameters field must
 evaluate to a JSON-format record. In its simplest form the field is just a JSON
 record defining a set of variables that are added to the environment for the Twig
@@ -1184,11 +1188,11 @@ The \'Table\' user interface element, which displays a table of text
 areas for the student to
 fill in. It is used by the \'python3_program_testing\' question type, which is
 included in the sample questions on github. This takes template parameters of
-table_num_rows and table_num_columns (both required) and optional table_column_headers
-(a list of strings with which to label columns), table_row_labels (a list of
-strings with which to label rows) and table_column_width_percents (a list of
+num_rows and num_columns (both required) and optional column_headers
+(a list of strings with which to label columns), row_labels (a list of
+strings with which to label rows) and column_width_percents (a list of
 the percentages of the table width to allocate to all columns, including the
-row label column if specified) and table_locked_cells (a list of [row, column]
+row label column if specified) and locked_cells (a list of [row, column]
 pairs of cells that the user cannot alter - the row and column indices are
 0-origin but do not include the row label column or the column header row).
 

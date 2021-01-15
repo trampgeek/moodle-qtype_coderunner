@@ -48,15 +48,6 @@ class qtype_coderunner_edit_form extends question_edit_form {
         return 'coderunner';
     }
 
-
-    private static function author_edit_keys() {
-        // A list of all the language strings required by authorform.js.
-        return array('coderunner_question_type', 'confirm_proceed', 'template_changed',
-            'info_unavailable', 'proceed_at_own_risk', 'error_loading_prototype',
-            'ajax_error', 'prototype_load_failure', 'prototype_error',
-            'question_type_changed');
-    }
-
     // Define the CodeRunner question edit form.
     protected function definition() {
         global $PAGE;
@@ -79,15 +70,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         qtype_coderunner_util::load_ace();
 
         $PAGE->requires->js_call_amd('qtype_coderunner/textareas', 'setupAllTAs');
-
-        // Define the parameters required by the JS initEditForm amd module.
-        $strings = array();
-        foreach (self::author_edit_keys() as $key) {
-            $strings[$key] = get_string($key, 'qtype_coderunner');
-        }
-
-        $PAGE->requires->js_call_amd('qtype_coderunner/authorform', 'initEditForm',
-                array($strings));
+        $PAGE->requires->js_call_amd('qtype_coderunner/authorform', 'initEditForm');
 
         parent::definition($mform);  // The superclass adds the "General" stuff.
     }
@@ -196,13 +179,10 @@ class qtype_coderunner_edit_form extends question_edit_form {
                     get_string('answer', 'qtype_coderunner'), '');
         $mform->setExpanded('answerhdr', 1);
         
-        // Cut out the next line and the use of jsonparams in data-params
-        // once UI plugin parameters have been refactored properly.
-        $jsonparams = $this->get_merged_params();
         $attributes = array(
             'rows' => 9,
             'class' => 'answer edit_code',
-            'data-params' => $jsonparams,
+            'data-params' => $this->get_merged_ui_params(),
             'data-lang' => $this->acelang);
         $mform->addElement('textarea', 'answer',
                 get_string('answer', 'qtype_coderunner'),
@@ -386,6 +366,9 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 $question->missingprototypemessage = get_string(
                         'missingprototype', 'qtype_coderunner', array('crtype' => $question->coderunnertype));
             }
+            
+            // Record the prototype for subsequent use.
+            $question->prototype = $q->prototype;
 
             // Next flatten all the question->options down into the question itself.
             $question->testcode = array();
@@ -922,17 +905,26 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
     // Check the templateparameters value, if given. Return an array containing
     // the error message string, which will be empty if there are no errors, 
-    // and the JSON evaluated template parameters. 
+    // and the JSON evaluated template parameters, which will be empty if there
+    // are errors.
     private function validate_template_params() {
         global $USER;
         $templateparams = $this->formquestion->templateparams;
         $errormessage = '';
+        $json = '';
         $seed = mt_rand();
-        $json = $this->formquestion->evaluate_merged_parameters($seed); 
-        $decoded = json_decode($json, true);
-        if ($decoded === null) {
-             $errormessage = get_string('badtemplateparams', 'qtype_coderunner', $json);
+        try {
+            $json = $this->formquestion->evaluate_merged_parameters($seed); 
+            $decoded = json_decode($json, true);
+            if ($decoded === null) {
+               $errormessage = get_string('badtemplateparams', 'qtype_coderunner', $json);
+            }
+        } catch (qtype_coderunner_bad_json_exception $e) {
+            $errormessage = get_string('badtemplateparams', 'qtype_coderunner', $e->getMessage());
+        } catch (Exception $e) {
+            $errormessage = get_string('badtemplateparams', 'qtype_coderunner', '** Unknown error **');
         }
+
         return array($errormessage, $json);
     }
     
@@ -991,7 +983,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
             }
             try {
                 $this->twig_render($text, $parameters, true);
-            } catch (Twig_Error $ex) {
+            } catch (Exception $ex) {
                 $errors[$field] = get_string('twigerror', 'qtype_coderunner',
                         $ex->getMessage());
             }
@@ -1007,7 +999,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
                     $text = $question->$fieldname[$i];
                     try {
                         $this->twig_render($text, $parameters, true);
-                    } catch (Twig_Error $ex) {
+                    } catch (Exception $ex) {
                         $errors["testcode[$i]"] = get_string('twigerrorintest',
                                 'qtype_coderunner', $ex->getMessage());
                     }
@@ -1087,6 +1079,9 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
         try {
             $savedevalpertry = $this->formquestion->templateparamsevalpertry;
+            if (!isset($this->formquestion->uiparameters)) {
+                $this->formquestion->uiparameters = null; // If hidden, value isn't recorded in formquestion.
+            }
             $this->formquestion->templateparamsevalpertry = 0; // Save an extra evaluation
             $this->formquestion->start_attempt();
             $this->formquestion->templateparamsevalpertry = $savedevalpertry;
@@ -1205,16 +1200,31 @@ class qtype_coderunner_edit_form extends question_edit_form {
     }
 
     
-   
-    // Stop gap function until UI parameters properly refactored.
-    // Returns the Json for the merged template parameters. Only works
-    // once the question has been saved. 
-    private function get_merged_params() {
-        if (isset($this->question->options->templateparamsevald)) {
-            return $this->question->options->templateparamsevald;
+    // Returns the Json for the merged template parameters.
+    private function get_merged_ui_params() {
+        // ** TODO ** check for legacy use of template params and generate
+        // validation errors. 
+        $q = $this->question;
+        if (isset($q->options)) {
+            // Editing an existing question
+            $ui = $q->options->uiplugin;
+            $templateparams = $q->options->templateparamsevald;
+            $uiparamsfield = $q->options->uiparameters;
         } else {
-            return '{}';
+            // New question
+            $ui = 'ace';
+            $templateparams = '';
+            $uiparamsfield = '';
         }
+
+        $uiparams = new qtype_coderunner_ui_parameters($ui);
+        if (!empty($q->prototype)) {
+            $uiparams->merge_json($q->prototype->uiparameters, true);
+        }
+        $uiparams->merge_json($templateparams, true);
+        $uiparams->merge_json($uiparamsfield);
+        $json = $uiparams->to_json();
+        return $json;
     }
 
 

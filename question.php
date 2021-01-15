@@ -107,7 +107,8 @@ class qtype_coderunner_question extends question_graded_automatically {
         $this->parameters = json_decode($paramsjson);
         if ($this->twigall) {
             $this->twig_all();
-        }        
+        }
+        $this->uiparameters = $this->evaluate_merged_ui_parameters();
     }
     
     /**
@@ -258,6 +259,28 @@ class qtype_coderunner_question extends question_graded_automatically {
     private function twig_render_with_seed($text, $seed) {
         mt_srand($seed);
         return qtype_coderunner_twig::render($text, $this->student);
+    }
+    
+    
+    // Get the default ui parameters for the ui plugin and merge in
+    // both the prototypes and this questions parameters.
+    // In order to support the legacy method of including ui parameters
+    // within the template parameters, we need to filter out only the
+    // valid ui parameters, so need to load the uiplugin json file to find
+    // which ones are supported.
+    // The order of evaluation (later values overriding earlier ones) is:
+    // built-in defaults; plugin's json defaults; modern prototype ui params;
+    // legacy prototype template params; legacy question template params;
+    // modern question ui params.
+    private function evaluate_merged_ui_parameters() {
+        $uiplugin = $this->uiplugin === null ? 'ace' : strtolower($this->uiplugin);
+        $uiparams = new qtype_coderunner_ui_parameters($uiplugin);
+        if (isset($this->prototype->uiparameters)) { // Ensure prototype not missing.
+            $uiparams->merge_json($this->prototype->uiparameters);
+        }
+        $uiparams->merge_json($this->templateparamsevald, true); // Legacy support.    
+        $uiparams->merge_json($this->uiparameters);
+        $this->mergeduiparams = $uiparams->to_json();
     }
     
     
@@ -561,7 +584,7 @@ class qtype_coderunner_question extends question_graded_automatically {
     // Twig expand all text fields of the question except the templateparam field
     // (which should have been expanded when the question was started) and
     // the template itself.
-    // Done only if randomisation is specified within the template params.
+    // Done only if the Twig All checkbox is checked.
     private function twig_all() {
         // Twig expand everything in a context that includes the template
         // parameters and the STUDENT and QUESTION objects.
@@ -570,6 +593,9 @@ class qtype_coderunner_question extends question_graded_automatically {
         $this->answer = $this->twig_expand($this->answer);
         $this->answerpreload = $this->twig_expand($this->answerpreload);
         $this->globalextra = $this->twig_expand($this->globalextra);
+        if (!empty($this->uiparameters)) {
+            $this->uiparameters = $this->twig_expand($this->uiparameters);
+        }
         foreach ($this->testcases as $key => $test) {
             foreach (['testcode', 'stdin', 'expected', 'extra'] as $field) {
                 $text = $this->testcases[$key]->$field;

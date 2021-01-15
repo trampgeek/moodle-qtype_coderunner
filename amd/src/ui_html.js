@@ -61,6 +61,7 @@ define(['jquery'], function($) {
 
     function HtmlUi(textareaId, width, height, templateParams) {
         this.textArea = $(document.getElementById(textareaId));
+        this.textareaId = textareaId;
         this.html = this.textArea.attr('data-globalextra').replace(/___textareaId___/gm, textareaId);
         this.readOnly = this.textArea.prop('readonly');
         this.templateParams = templateParams;
@@ -134,7 +135,7 @@ define(['jquery'], function($) {
             i,
             fields,
             leftOvers,
-            outerDivId = 'qtype-coderunner-outer-div-' + this.textAreaId.toString(),
+            outerDivId = 'qtype-coderunner-outer-div-' + this.textareaId.toString(),
             outerDiv = "<div style='height:fit-content' class='qtype-coderunner-html-outer-div' id='" + outerDivId + "'>";
 
         this.htmlDiv = $(outerDiv + this.html + "</div>");

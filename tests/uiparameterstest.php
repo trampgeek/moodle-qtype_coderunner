@@ -36,7 +36,7 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/coderunnertestcase
 class qtype_coderunner_ui_parameters_test extends qtype_coderunner_testcase {
 
     // Test that the json specifier for the graph_ui class can be loaded.
-    public function test_load() {
+    public function test_params() {
         $graphuiparams = new qtype_coderunner_ui_parameters('graph');
         $this->assertEquals("boolean", $graphuiparams->type('isdirected'));
         $this->assertEquals(true, $graphuiparams->value('isdirected'));
@@ -44,6 +44,10 @@ class qtype_coderunner_ui_parameters_test extends qtype_coderunner_testcase {
         $this->assertEquals(26, $graphuiparams->value('noderadius'));
         $graphuiparams->merge_json('{"noderadius": 30}');
         $this->assertEquals(30, $graphuiparams->value('noderadius'));
+        $json = $graphuiparams->to_json();
+        $params_array = json_decode($json, true);
+        $this->assertContains('noderadius', array_keys($params_array));
+        $this->assertEquals(30, $params_array['noderadius']);
         $aceparams = new qtype_coderunner_ui_parameters('ace');
         $this->assertEmpty($aceparams->all_names());
     }

@@ -70,7 +70,7 @@ unusual question type.
   - [The Table UI](#the-table-ui)
   - [The Gap Filler UI](#the-gap-filler-ui)
   - [The Html UI](#the-html-ui)
-    - [The textareaid macro](#the-textareaid-macro)
+    - [The textareaId macro](#the-textareaId-macro)
   - [Other UI plugins](#other-ui-plugins)
 - [User-defined question types](#user-defined-question-types)
   - [Prototype template parameters](#prototype-template-parameters)
@@ -1256,8 +1256,8 @@ by far the most efficient option is *Twig*. Selecting that option results in
 the template parameters field being passed through Twig to yield the JSON
 template parameter string. That string is decoded to yield the Twig context
 for all subsequent Twig operations on the question. When evaluating the
-template parameters in this way the only context is the STUDENT variable, 
-documented [here](#the-twig-student-variable). The output of that initial
+template parameters with Twig the only context is the [STUDENT variable] 
+(#the-twig-student-variable). The output of that initial
 Twig run thus provides the context for subsequent evaluations of the question's
 template, text, test cases, etc.
 
@@ -1281,13 +1281,103 @@ or
 
 If the Twig variable *functionname* is then used throughout the question
 (with Twig All checked), students will get to see one of three different
-variants of the question. The topic of randomisation of questions, or customising
-them per student, is discussed in more length in the section [Randomising questions](#randomising-questions).
+variants of the question.
+
+The topic of randomisation of questions, or customising
+them per student, is discussed in more length in the section
+[Randomising questions](#randomising-questions).
 
 #### Preprocessing with other languages
 
-*** TBS ***
+When randomising questions you usually expect to get different outputs from
+the various tests. Computing the expected outputs for some given randomised
+input parameters can be difficult in Twig, especially when numerical calculations
+are involved. The safest approach is to precompute offline a limited set of variants
+and encode them, together with the expected outputs, into the twig parameters.
+Then Twig can simply select a specific variant from a set of variants as shown
+in the section [Miscellaneous tips](#miscellaneous-tips).
 
+An alternative approach is to compute the
+template parameters in the same language as that of the question, e.g. Python,
+Java etc. This can be done by setting the template parameter Preprocessor
+to your language of choice and writing a program in that language in the
+template parameters field. This is a powerful and still somewhat experimental method.
+Furthermore it suffers from a potentially major disadvantage. The evaluation
+of the template parameters takes place on the sandbox server, and when a student
+starts a quiz, all their questions using this form of randomisation initiate a run
+on the sandbox server and cannot even be displayed until the run completes. If
+you a running a large test or exam, and students all start at the same time,
+there can be thousands of jobs hitting the sandbox server within a few seconds.
+This is almost certain to overload it! Caveat emptor! The approach should,
+however, be safe for lab and assignment use, when students are not all 
+starting the quiz at the same time.
+
+If you still wish to use this approach , here's how to do it.
+
+#### The template parameter preprocessor program
+
+The template parameter program must print to standard output a single valid JSON string,
+which then is used in exactly the same way as if it had been entered into the
+template parameter field as pure JSON with no preprocessor. The program is given
+command line arguments specifying the random number seed that it must use
+and the various attributes of the student. For example, it should behave as if 
+invoked from a Linux command line of the form:
+
+    blah seed=1257134 id=902142 username='amgc001' firstname='Angus' 'lastname=McGurk' email='angus@somewhere.ac'
+
+The command line arguments are
+
+ 1. Seed (int): the random number seed. This *must* be used for any randomisation and
+the program *must* generate the same output when given the same seed.
+ 1. Student id number (int)
+ 1. Student username (string)
+ 1. Student first name (string)
+ 1. Student last name (string)
+ 1. Student email address (string)
+
+The student parameters can be ignored unless you wish to customise a question
+different for different students.
+
+Here, for example, is a Python preprocessor program that could be used to
+ask a student to write a function that has 3 variant names to print the
+student's first name:
+
+    import sys, json, random
+    args = {param.split('=')[0]: param.split('=')[1] for param in sys.argv[1:]}
+    random.seed(args['seed'])
+    func_name = ['welcome_me', 'hi_to_me', 'hello_me'][random.randint(0, 2)]
+    first_name = args['firstname']
+    print(json.dumps({'func_name': func_name, 'first_name': first_name}))
+
+The question text could then say 
+
+Write a function {{ func_name }}() that prints a welcome message of the
+form "Hello {{ first_name }}!".
+
+However, please realise that that is an extremely bad example of when to use
+a preprocessor, as the job is more easily and more efficiently done in Twig, 
+as explained in the section [Randomising questions](#randomising-questions).
+Note, too, that Twig All must be set.
+
+#### The Evaluate per student option
+When you select a preprocessor other than Twig, a checkbox 'Evaluate per
+student' is shown, and is initially checked. This controls when the preprocessor
+gets called. Usually this capability is being used for randomisation or for
+per-student customisation, so the preprocessor must be invoked for each 
+student when they start their attempt. As explained above, this can have serious 
+load implications. However, there are some situations where you might wish to
+perform a template parameter computation for other purposes, e.g. to compute a
+value within the question text in a non-randomised question without using
+an offline program. In that case, you can uncheck the *Evaluate per student*
+option and the template parameters will be computed only once, when the
+question is saved.
+
+Although clumsy, this approach can also be used to compute the expected output
+values in the "For example" table. However, you then either need to replicate the
+sample answer within the template parameters program, or have that program
+define the sample answer as a string which it both uses internally to compute the
+expected outputs and which it also returns as one of the template parameters.
+Not recommended!
 
 ### The Twig TEST variable
 
@@ -2327,7 +2417,7 @@ As a special case of the serialisation, if all values in the serialisation
 are either empty strings or a list of empty strings, the serialisation is
 itself the empty string.
 
-#### The textareaid macro
+#### The textareaId macro
 
 A problem arises if the HTML supplied by the question author contains elements
 with explicit *id* attributes, as might be required if there is also JavaScript
@@ -2340,9 +2430,9 @@ elements runs.
 
 A workaround for this problem is to include the special macro string
 
-    ___textareaid___
+    ___textareaId___
 
-as part of any new ids. Note that there are THREE (3) underscores at both the 
+as part of any new ids. Note the capital-I and that there are THREE (3) underscores at both the 
 start and end of the macro string.
 
 When the HTML UI inserts the global extra
@@ -2352,7 +2442,10 @@ different for the student and author answers. This technique can also be used
 to ensure that the names given to elements like radio buttons are different
 in the two answers.
 
-Thanks Markus Gafner for this workaround.
+As an example application of this capability, see [this CodeRunner author's forum
+thread](https://coderunner.org.nz/mod/forum/discuss.php?d=381) where Markus Gafner
+(who contributed this workaround) shows a TextUI question with an embedded
+GraphUI question, plus other embedded questions.
 
 
 ### Other UI plugins

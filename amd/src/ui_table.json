@@ -1,0 +1,33 @@
+{
+    "name": "ui_table",
+    "parameters": {
+        "num_rows": {
+            "type": "int",
+            "default": null
+        },
+        "num_columns": {
+            "type": "int",
+            "default": null
+        },
+        "column_headers": {
+            "type": "string[]",
+            "default": null
+        },
+        "row_labels": {
+            "type": "string[]",
+            "default": null
+        },
+        "dynamic_rows": {
+            "type": "boolean",
+            "default": false
+        },
+        "locked_cells": {
+            "type": "int[][]",
+            "default": []
+        },
+        "column_width_percents": {
+            "type": "float[]",
+            "default": null
+        }
+    }
+}

@@ -30,22 +30,29 @@ Background:
     And I add a "CodeRunner" question filling the form with:
       | id_coderunnertype       | python3                                    |
       | id_customise            | 1                                          |
-      | id_name                 | STUDENT variable                           |
+      | id_name                 | Python preprocessor                        |
       | id_questiontext         | Write a program that prints True if seed parameter provided, then {{ username }}  |
       | id_answerboxlines       | 5                                          |
       | id_validateonsave       | 0                                          |
-      | id_templateparams       | import sys, json; keyvalues = {param.split('=')[0]: param.split('=')[1] for param in sys.argv[1:]}; print(json.dumps(keyvalues)) |
-      | id_templateparamslang   | python3                                    |
+      | id_templateparams       | {"username": "twaddle"}                    |
+      | id_templateparamslang   | None                                       |
       | id_templateparamsevalpertry | 1                                      |
-      | id_template             | print(int("{{seed}}") > 0, end=' ');  {{STUDENT_ANSWER}} |
+      | id_template             |                                            |
       | id_answer               | # Unused                                   |
       | id_iscombinatortemplate | 0                                          |
       | id_testcode_0           | # Unused                                   |
       | id_expected_0           | True {{ username }}                        |
-      | id_twigall              | true                                       |
+      | id_twigall              | 1                                          |
+   When I choose "Edit question" action for "Python preprocessor" in the question bank
+   And I set the field "id_templateparams" to "import sys, json; keyvalues = {param.split('=')[0]: param.split('=')[1] for param in sys.argv[1:]}; print(json.dumps(keyvalues))"
+   And I set the field "id_twigall" to "1"
+   And I set the field "id_template" to "print({{seed}} > 0, end=' ');  {{STUDENT_ANSWER}}"
+   And I set the field "id_templateparamslang" to "python3" 
+   And I accept the currently displayed dialog
+   And I press "Save changes"
    And quiz "Test quiz" contains the following questions:
-      | question         | page |
-      | STUDENT variable | 1    |
+      | question            | page |
+      | Python preprocessor | 1    |
 
   Scenario: Preview as a teacher, submit answer as a student, review as a teacher
     When I am on "Course 1" course homepage
@@ -78,7 +85,7 @@ Background:
 
   Scenario: Turn off per-try evaluation. Question should fail when attempted by student. 
 
-    When I choose "Edit question" action for "STUDENT variable" in the question bank
+    When I choose "Edit question" action for "Python preprocessor" in the question bank
     And I set the following fields to these values:
       | id_templateparamsevalpertry | 0 |
       | id_questiontext             | Variant without per-try evaluation  |

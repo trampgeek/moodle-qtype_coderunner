@@ -20,17 +20,17 @@
  * This plugin replaces the usual textarea answer element with a div
  * containing an HTML table. The number of columns, and
  * the initial number of rows are specified by required template parameters
- * table_num_columns and table_num_rows respectively.
+ * num_columns and num_rows respectively.
  * Optional additional template parameters are:
- *   1. table_column_headers: a list of strings that can be used to provide a
+ *   1. column_headers: a list of strings that can be used to provide a
  *      fixed header row at the top.
- *   2. table_row_labels: a list of strings that can be used to provide a
+ *   2. row_labels: a list of strings that can be used to provide a
  *      fixed row label column at the left.
- *   3. table_dynamic_rows, which, if true, allows the user to add rows.
- *   4. table_locked_cells: a list of [row, column] pairs, being the coordinates
+ *   3. dynamic_rows, which, if true, allows the user to add rows.
+ *   4. locked_cells: a list of [row, column] pairs, being the coordinates
  *      of table cells that cannot be changed by the user. row and column numbers
  *      are zero origin and do not include the header row or the row labels.
- *   5. table_column_width_percents: a list of the percentages of the width occupied
+ *   5. width_percents: a list of the percentages of the width occupied
  *      by each column. This list must include a value for the row labels, if present.
  *
  * The serialisation of the table, which is what is essentially copied back
@@ -41,8 +41,8 @@
  *
  * To preload the table with data, simply set the answer_preload of the question
  * to a json array of row values (each itself an array). If the number of rows
- * in the preload exceeds the number set by table_num_rows, extra rows are
- * added. If the number is less than table_num_rows, or if there is no
+ * in the preload exceeds the number set by num_rows, extra rows are
+ * added. If the number is less than num_rows, or if there is no
  * answer preload, undefined rows are simply left blank.
  *
  * As a special case of the serialisation, if all cells in the serialisation
@@ -61,18 +61,18 @@ define(['jquery'], function($) {
         this.readOnly = this.textArea.prop('readonly');
         this.tableDiv = null;
         this.templateParams = templateParams;
-        if (!templateParams.table_num_columns ||
-            !templateParams.table_num_rows) {
+        if (!templateParams.num_columns ||
+            !templateParams.num_rows) {
             this.fail = true;
             this.failString = 'table_ui_missingparams';
             return;  // We're dead, fred.
         }
 
         this.fail = false;
-        this.lockedCells = templateParams.table_locked_cells || [];
-        this.hasHeader = templateParams.hasOwnProperty('table_column_headers');
-        this.hasRowLabels = templateParams.hasOwnProperty('table_row_labels');
-        this.numDataColumns = templateParams.table_num_columns;
+        this.lockedCells = templateParams.locked_cells || [];
+        this.hasHeader = templateParams.hasOwnProperty('column_headers');
+        this.hasRowLabels = templateParams.hasOwnProperty('row_labels');
+        this.numDataColumns = templateParams.num_columns;
         this.totNumColumns = this.numDataColumns + (this.hasRowLabels ? 1 : 0);
         this.columnWidths = this.computeColumnWidths();
         this.reload();
@@ -83,8 +83,8 @@ define(['jquery'], function($) {
     TableUi.prototype.computeColumnWidths = function() {
         var defaultWidth = Math.trunc(100 / this.totNumColumns),
             columnWidths = [];
-        if (this.templateParams.table_column_width_percents) {
-            return this.templateParams.table_column_width_percents;
+        if (this.templateParams.width_percents) {
+            return this.templateParams.width_percents;
         } else if (Array.prototype.fill) { // Anything except bloody IE.
             return new Array(this.totNumColumns).fill(defaultWidth);
         } else { // IE. What else?
@@ -153,8 +153,8 @@ define(['jquery'], function($) {
             width = this.columnWidths[0];
             widthIndex = 1;
             html += "<th style='padding-top:8px;text-align:center;width:" + width + "%' scope='row'>";
-            if (iRow < this.templateParams.table_row_labels.length) {
-                html += this.templateParams.table_row_labels[iRow];
+            if (iRow < this.templateParams.row_labels.length) {
+                html += this.templateParams.row_labels[iRow];
             }
             html += "</th>";
         }
@@ -193,8 +193,8 @@ define(['jquery'], function($) {
 
             for(var iCol = 0; iCol < this.numDataColumns; iCol++) {
                 html += "<th style='width:" + this.columnWidths[colIndex] + "%'>";
-                if (iCol < this.templateParams.table_column_headers.length) {
-                    html += this.templateParams.table_column_headers[iCol];
+                if (iCol < this.templateParams.column_headers.length) {
+                    html += this.templateParams.column_headers[iCol];
                 }
                 colIndex++;
                 html += "</th>";
@@ -231,14 +231,14 @@ define(['jquery'], function($) {
             // Build the table body. Each table cell has a textarea inside it,
             // except for row labels (if present).
             divHtml += "<tbody>\n";
-            var num_rows_required = Math.max(this.templateParams.table_num_rows, preload.length);
+            var num_rows_required = Math.max(this.templateParams.num_rows, preload.length);
             for (var iRow = 0; iRow < num_rows_required; iRow++) {
                 divHtml += this.tableRow(iRow, preload);
             }
 
             divHtml += '</tbody>\n</table>\n</div>';
             this.tableDiv = $(divHtml);
-            if (this.templateParams.table_dynamic_rows) {
+            if (this.templateParams.dynamic_rows) {
                 this.addButtons();
             }
         } catch (error) {
@@ -257,11 +257,11 @@ define(['jquery'], function($) {
         deleteButton.click(function() {
             var numRows = t.tableDiv.find('table tbody tr').length,
                 lastRow = t.tableDiv.find('tr:last');
-            if (numRows > t.templateParams.table_num_rows) {
+            if (numRows > t.templateParams.num_rows) {
                 lastRow.remove();
             }
             lastRow = t.tableDiv.find('tr:last'); // New last row.
-            if (numRows == t.templateParams.table_num_rows + 1) {
+            if (numRows == t.templateParams.num_rows + 1) {
                 $(this).prop('disabled', true);
             }
         });
