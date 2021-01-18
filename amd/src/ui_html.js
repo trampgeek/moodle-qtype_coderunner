@@ -67,7 +67,6 @@ define(['jquery'], function($) {
         this.templateParams = templateParams;
         this.fail = false;
         this.htmlDiv = null;
-        this.htmlDivId = null;
         this.reload();
     }
 
@@ -112,7 +111,7 @@ define(['jquery'], function($) {
     };
 
     HtmlUi.prototype.getFields = function() {
-        return $(document.getElementById(this.htmlDivId)).find('.coderunner-ui-element');
+        return $(this.htmlDiv).find('.coderunner-ui-element');
     };
 
     // Set the value of the jQuery field to the given value.
@@ -139,8 +138,7 @@ define(['jquery'], function($) {
             outerDiv = "<div style='height:fit-content' class='qtype-coderunner-html-outer-div' id='" + outerDivId + "'>";
 
         this.htmlDiv = $(outerDiv + this.html + "</div>");
-        this.htmlDivId = outerDivId;
-        this.htmlDiv.data('templateparams', this.templateParams); // For use by scripts embedded in html.
+        this.htmlDiv.data('templateparams', this.templateParams); // For use by  scripts embedded in html.
         if (content) {
             try {
                 valuesToLoad = JSON.parse(content);
