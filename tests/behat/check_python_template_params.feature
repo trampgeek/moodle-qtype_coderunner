@@ -47,8 +47,7 @@ Background:
    And I set the field "id_templateparams" to "import sys, json; keyvalues = {param.split('=')[0]: param.split('=')[1] for param in sys.argv[1:]}; print(json.dumps(keyvalues))"
    And I set the field "id_twigall" to "1"
    And I set the field "id_template" to "print({{seed}} > 0, end=' ');  {{STUDENT_ANSWER}}"
-   And I set the field "id_templateparamslang" to "python3" 
-   And I accept the currently displayed dialog
+   And I set the field "id_templateparamslang" to "python3" and dismiss the alert
    And I press "Save changes"
    And quiz "Test quiz" contains the following questions:
       | question            | page |
@@ -84,8 +83,9 @@ Background:
     And I should see "Passed all tests"
 
   Scenario: Turn off per-try evaluation. Question should fail when attempted by student. 
-
-    When I choose "Edit question" action for "Python preprocessor" in the question bank
+    When I am on "Course 1" course homepage 
+    And I navigate to "Question bank" in current page administration
+    And I choose "Edit question" action for "Python preprocessor" in the question bank
     And I set the following fields to these values:
       | id_templateparamsevalpertry | 0 |
       | id_questiontext             | Variant without per-try evaluation  |

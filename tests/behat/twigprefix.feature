@@ -1,5 +1,5 @@
 
-@qtype @qtype_coderunner @javascript @twigprefixtests
+@qtype @qtype_coderunner @javascript @twigprefixtests @_alert
 Feature: twigprefix
   When I define a template parameter __twigprefix__ in a prototype
   As a teacher
@@ -26,9 +26,8 @@ Feature: twigprefix
     And I press "submitbutton"
     And I set the field "id_coderunnertype" to "python3"
     And I set the field "name" to "PROTOTYPE_test_twigprefix"
-    And I set the field "id_templateparams" to "print('{\"__twigprefix__\": \"{% macro blah() %}BingleyBeep{% endmacro %}\"}')"
-    And I set the field "id_templateparamslang" to "Python3"
-    And I click on "OK" "button" confirming the dialogue
+    And I set the field "id_templateparams" to "print('{\"__twigprefix__\": \"{% macro blah() %}BingleyBeep{% endmacro %}\"}')" 
+    And I set the field "id_templateparamslang" to "Python3" and dismiss the alert
     And I set the field "id_questiontext" to "Dummy question text"
     And I set the field "id_customise" to "1"
     And I set the field "id_useace" to "0"
