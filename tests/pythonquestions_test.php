@@ -35,7 +35,7 @@ require_once($CFG->dirroot . '/lib/accesslib.php');
  * Unit tests for the coderunner question definition class.
  */
 class qtype_coderunner_pythonquestions_test extends qtype_coderunner_testcase {
-    protected function setUp() {
+    protected function setUp(): void {
         parent::setUp();
         $this->goodcode = "def sqr(n): return n * n";
     }

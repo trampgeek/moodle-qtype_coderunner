@@ -43,7 +43,7 @@ class qtype_coderunner_restore_testcase extends advanced_testcase {
      */
     protected $category;
 
-    public function setUp() {
+    public function setUp(): void {
         $this->resetAfterTest();
         $this->setAdminUser();
 

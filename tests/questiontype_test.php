@@ -44,12 +44,12 @@ require_once($CFG->dirroot . '/question/type/coderunner/edit_coderunner_form.php
 class qtype_coderunner_test extends advanced_testcase {
     protected $qtype;
 
-    protected function setUp() {
+    protected function setUp(): void {
         $this->resetAfterTest(true);
         $this->qtype = new qtype_coderunner();
     }
 
-    protected function tearDown() {
+    protected function tearDown(): void {
         $this->qtype = null;
     }
 

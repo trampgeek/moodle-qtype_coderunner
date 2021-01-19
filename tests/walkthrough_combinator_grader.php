@@ -41,7 +41,7 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/coderunnertestcase
 
 class qtype_coderunner_walkthrough_combinator_grader extends qbehaviour_walkthrough_test_base {
 
-    protected function setUp() {
+    protected function setUp(): void {
         global $CFG;
         parent::setUp();
         qtype_coderunner_testcase::setup_test_sandbox_configuration();
