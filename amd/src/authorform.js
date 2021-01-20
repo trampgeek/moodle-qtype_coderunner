@@ -25,16 +25,14 @@
 define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function($, ui, str) {
 
     // Define a mapping from the fields of the JSON object returned by an AJAX
-    // 'get question type' request to the form elements. Keys are JSON field
+    // 'get question type' request to the form elements. Only fields that
+    // below to the question type should appear here. Keys are JSON field
     // names, values are a 3- or 4-element array of: a jQuery form element selector;
     // the element property to be set; a default value if the JSON field is
     // empty and an optional filter function to apply to the field value before
     // setting the property with it.
     var JSON_TO_FORM_MAP = {
         template:            ['#id_template', 'value', ''],
-        templateparamslang:  ['#id_templateparamslang', 'value', 'None'],
-        templateparamsevalpertry: ['#id_templateparamsevalpertry', 'checked', true],
-        uiparameters: ['#id_uiparameters', 'value', ''],
         iscombinatortemplate:['#id_iscombinatortemplate', 'checked', '',
                                 function (value) {
                                     return value === '1' ? true : false;
@@ -97,7 +95,7 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
             var ta = $(document.getElementById(taId)),  // The jquery text area element(s).
                 lang,
                 currentLang = ta.attr('data-lang'),     // Language set by PHP.
-                paramsJson = ta.attr('data-params'),    // Template params set by PHP.
+                paramsJson = ta.attr('data-params'),    // Ui params set by PHP.
                 params = {},
                 uiWrapper;
 
@@ -114,7 +112,7 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
             }
 
             if (taId == 'id_templateparams' || taId == 'id_uiparameters') {
-                lang = '';
+                lang = ''; // These fields may be twigged, so can't be parsed by Ace.
             } else {
                 lang = language.prop('value');
                 if (taId !== "id_template" && acelang.prop('value')) {
@@ -160,7 +158,6 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
             advancedCustomisation.css('display', display);
             if (isVisible && useace.prop('checked')) {
                 setUi('id_template', 'ace');
-                setUi('id_uiparameters', 'ace');
             }
         }
 
