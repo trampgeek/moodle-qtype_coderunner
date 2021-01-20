@@ -182,20 +182,20 @@ class qtype_coderunner_question extends question_graded_automatically {
      */
     function template_params_json($seed=0, $step=null, $qtvar='') {
         $params = $this->templateparams;
-        $lang = $this->templateparamslang;
-        if ($step === null) {
-            $jsontemplateparams = $this->evaluate_template_params($params, $lang, $seed);
-        } else {
-            $previousparamsmd5 = $step->get_qt_var($qtvar . '_md5');
-            $currentparamsmd5 = md5($params);
-            if ($previousparamsmd5 === $currentparamsmd5) {
-                $jsontemplateparams = $step->get_qt_var($qtvar . '_json');
-            } else {
+            $lang = $this->templateparamslang;
+            if ($step === null) {
                 $jsontemplateparams = $this->evaluate_template_params($params, $lang, $seed);
-                $step->set_qt_var($qtvar . '_md5', $currentparamsmd5);
-                $step->set_qt_var($qtvar . '_json', $jsontemplateparams);
+            } else {
+                $previousparamsmd5 = $step->get_qt_var($qtvar . '_md5');
+                $currentparamsmd5 = md5($params);
+                if ($previousparamsmd5 === $currentparamsmd5) {
+                    $jsontemplateparams = $step->get_qt_var($qtvar . '_json');
+                } else {
+                    $jsontemplateparams = $this->evaluate_template_params($params, $lang, $seed);
+                    $step->set_qt_var($qtvar . '_md5', $currentparamsmd5);
+                    $step->set_qt_var($qtvar . '_json', $jsontemplateparams);
+                }
             }
-        }
         return $jsontemplateparams;
     }
     
@@ -212,7 +212,9 @@ class qtype_coderunner_question extends question_graded_automatically {
      * valid json).
      */
     function evaluate_template_params($templateparams, $lang, $seed) {
-        if ($lang == 'None') {
+        if (empty($templateparams)) {
+            $jsontemplateparams = '{}';
+        }else if ($lang == 'None') {
             $jsontemplateparams = $templateparams;
         } else if ($lang == 'twig') {
             $jsontemplateparams = $this->twig_render_with_seed($templateparams, $seed);
