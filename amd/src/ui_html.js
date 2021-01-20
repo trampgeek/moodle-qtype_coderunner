@@ -59,12 +59,12 @@
 
 define(['jquery'], function($) {
 
-    function HtmlUi(textareaId, width, height, templateParams) {
+    function HtmlUi(textareaId, width, height, uiParams) {
         this.textArea = $(document.getElementById(textareaId));
         this.textareaId = textareaId;
         this.html = this.textArea.attr('data-globalextra').replace(/___textareaId___/gm, textareaId);
         this.readOnly = this.textArea.prop('readonly');
-        this.templateParams = templateParams;
+        this.uiParams = uiParams;
         this.fail = false;
         this.htmlDiv = null;
         this.reload();
@@ -138,7 +138,8 @@ define(['jquery'], function($) {
             outerDiv = "<div style='height:fit-content' class='qtype-coderunner-html-outer-div' id='" + outerDivId + "'>";
 
         this.htmlDiv = $(outerDiv + this.html + "</div>");
-        this.htmlDiv.data('templateparams', this.templateParams); // For use by  scripts embedded in html.
+        this.htmlDiv.data('uiparams', this.uiParams);       // For use by  scripts embedded in html.
+        this.htmlDiv.data('templateparams', this.uiParams); // Legacy support only. DEPRECATED.
         if (content) {
             try {
                 valuesToLoad = JSON.parse(content);

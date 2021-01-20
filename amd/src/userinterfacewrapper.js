@@ -36,7 +36,7 @@
  * 4. A loadUi(uiname, params) method that kills any currently running UI element
  *    (if there is one) and (re)loads the specified one. The params parameter
  *    is a record that allows additional parameters to be passed in, such as
- *    those from the question's templateParams field and, in the case of the
+ *    those from the question's uiParams field and, in the case of the
  *    Ace UI, the 'lang' (language) that the editor is editing. This data
  *    is supplied by the PHP via the data-params attribute of the answer's
  *    base textarea.
@@ -59,7 +59,7 @@
  *    ID of the textArea from which the UI element should obtain its initial
  *    serialisation and to which it should write the serialisation when its save
  *    or destroy methods are called. params is a JavaScript object,
- *    decoded from the JSON templateParams defined by the question plus any
+ *    decoded from the JSON uiParams defined by the question plus any
  *    additional data required, such as the 'lang' in the case of Ace.
  *
  * 2. A getElement() method that returns the HTML element that the
@@ -118,7 +118,7 @@ define(['jquery'], function($) {
         // The text area should have an attribute data-params, which is a
         // JSON encoded record containing whatever additional parameters might
         // be needed by the User interface. As a minimum it should contain all
-        // the parameters from the template-params field of
+        // the parameters from the uiparameters field of
         // the question so that question authors can pass in additional data
         // such as whether graph edges are bidirectional or not in the case of
         // the graph UI. Additionally the Ace editor requires a 'lang' field
@@ -138,11 +138,11 @@ define(['jquery'], function($) {
         this.textArea = $(document.getElementById(textareaId));
         params = this.textArea.attr('data-params');
         if (params) {
-            this.templateParams = JSON.parse(params);
+            this.uiParams = JSON.parse(params);
         } else {
-            this.templateParams = {};
+            this.uiParams = {};
         }
-        this.templateParams.lang = this.textArea.attr('data-lang');
+        this.uiParams.lang = this.textArea.attr('data-lang');
         this.readOnly = this.textArea.prop('readonly');
         this.isLoading = false;  // True if we're busy loading a UI element
         this.loadFailed = false;  // True if UI failed to initialise properly
@@ -170,7 +170,7 @@ define(['jquery'], function($) {
 
         // Load the UI into the wrapper (aysnchronous).
         this.uiInstance = null;  // Defined by loadUi asynchronously
-        this.loadUi(uiname, this.templateParams);  // Load the required UI element
+        this.loadUi(uiname, this.uiParams);  // Load the required UI element
 
         // Add event handlers
         $(document).mousemove(function() {

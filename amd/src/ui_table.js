@@ -19,9 +19,9 @@
  *
  * This plugin replaces the usual textarea answer element with a div
  * containing an HTML table. The number of columns, and
- * the initial number of rows are specified by required template parameters
+ * the initial number of rows are specified by required UI parameters
  * num_columns and num_rows respectively.
- * Optional additional template parameters are:
+ * Optional additional UI parameters are:
  *   1. column_headers: a list of strings that can be used to provide a
  *      fixed header row at the top.
  *   2. row_labels: a list of strings that can be used to provide a
@@ -56,23 +56,23 @@
 
 define(['jquery'], function($) {
 
-    function TableUi(textareaId, width, height, templateParams) {
+    function TableUi(textareaId, width, height, uiParams) {
         this.textArea = $(document.getElementById(textareaId));
         this.readOnly = this.textArea.prop('readonly');
         this.tableDiv = null;
-        this.templateParams = templateParams;
-        if (!templateParams.num_columns ||
-            !templateParams.num_rows) {
+        this.uiParams = uiParams;
+        if (!uiParams.num_columns ||
+            !uiParams.num_rows) {
             this.fail = true;
             this.failString = 'table_ui_missingparams';
             return;  // We're dead, fred.
         }
 
         this.fail = false;
-        this.lockedCells = templateParams.locked_cells || [];
-        this.hasHeader = templateParams.hasOwnProperty('column_headers');
-        this.hasRowLabels = templateParams.hasOwnProperty('row_labels');
-        this.numDataColumns = templateParams.num_columns;
+        this.lockedCells = uiParams.locked_cells || [];
+        this.hasHeader = uiParams.hasOwnProperty('column_headers');
+        this.hasRowLabels = uiParams.hasOwnProperty('row_labels');
+        this.numDataColumns = uiParams.num_columns;
         this.totNumColumns = this.numDataColumns + (this.hasRowLabels ? 1 : 0);
         this.columnWidths = this.computeColumnWidths();
         this.reload();
@@ -83,8 +83,8 @@ define(['jquery'], function($) {
     TableUi.prototype.computeColumnWidths = function() {
         var defaultWidth = Math.trunc(100 / this.totNumColumns),
             columnWidths = [];
-        if (this.templateParams.width_percents) {
-            return this.templateParams.width_percents;
+        if (this.uiParams.width_percents) {
+            return this.uiParams.width_percents;
         } else if (Array.prototype.fill) { // Anything except bloody IE.
             return new Array(this.totNumColumns).fill(defaultWidth);
         } else { // IE. What else?
@@ -153,8 +153,8 @@ define(['jquery'], function($) {
             width = this.columnWidths[0];
             widthIndex = 1;
             html += "<th style='padding-top:8px;text-align:center;width:" + width + "%' scope='row'>";
-            if (iRow < this.templateParams.row_labels.length) {
-                html += this.templateParams.row_labels[iRow];
+            if (iRow < this.uiParams.row_labels.length) {
+                html += this.uiParams.row_labels[iRow];
             }
             html += "</th>";
         }
@@ -193,8 +193,8 @@ define(['jquery'], function($) {
 
             for(var iCol = 0; iCol < this.numDataColumns; iCol++) {
                 html += "<th style='width:" + this.columnWidths[colIndex] + "%'>";
-                if (iCol < this.templateParams.column_headers.length) {
-                    html += this.templateParams.column_headers[iCol];
+                if (iCol < this.uiParams.column_headers.length) {
+                    html += this.uiParams.column_headers[iCol];
                 }
                 colIndex++;
                 html += "</th>";
@@ -231,14 +231,14 @@ define(['jquery'], function($) {
             // Build the table body. Each table cell has a textarea inside it,
             // except for row labels (if present).
             divHtml += "<tbody>\n";
-            var num_rows_required = Math.max(this.templateParams.num_rows, preload.length);
+            var num_rows_required = Math.max(this.uiParams.num_rows, preload.length);
             for (var iRow = 0; iRow < num_rows_required; iRow++) {
                 divHtml += this.tableRow(iRow, preload);
             }
 
             divHtml += '</tbody>\n</table>\n</div>';
             this.tableDiv = $(divHtml);
-            if (this.templateParams.dynamic_rows) {
+            if (this.uiParams.dynamic_rows) {
                 this.addButtons();
             }
         } catch (error) {
@@ -257,11 +257,11 @@ define(['jquery'], function($) {
         deleteButton.click(function() {
             var numRows = t.tableDiv.find('table tbody tr').length,
                 lastRow = t.tableDiv.find('tr:last');
-            if (numRows > t.templateParams.num_rows) {
+            if (numRows > t.uiParams.num_rows) {
                 lastRow.remove();
             }
             lastRow = t.tableDiv.find('tr:last'); // New last row.
-            if (numRows == t.templateParams.num_rows + 1) {
+            if (numRows == t.uiParams.num_rows + 1) {
                 $(this).prop('disabled', true);
             }
         });

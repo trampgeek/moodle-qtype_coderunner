@@ -110,7 +110,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
      *
      *  This is the ui component for a graph-drawing coderunner question.
      *
-     *  Relevant template parameters:
+     *  Relevant ui parameters:
      *
      *  isfsm. True if the graph is of a Finite State Machine.
      *         If true, the graph can contain an incoming edge from nowhere
@@ -145,16 +145,16 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
      *
      ***********************************************************************/
 
-    function Graph(textareaId, width, height, templateParams) {
+    function Graph(textareaId, width, height, uiParams) {
         // Constructor.
         var save_this = this;
 
         this.SNAP_TO_PADDING = 6;
         this.DUPLICATE_LINK_OFFSET = 16; // Pixels offset for a duplicate link
         this.HIT_TARGET_PADDING = 6;    // Pixels.
-        this.DEFAULT_NODE_RADIUS = 26;  // Pixels. Template parameter noderadius can override this.
-        this.DEFAULT_FONT_SIZE = 20;    // px. Template parameter fontsize can override this.
-        this.DEFAULT_TEXT_OFFSET = 5;   // Link label tweak. Template params can override.
+        this.DEFAULT_NODE_RADIUS = 26;  // Pixels. UI parameter noderadius can override this.
+        this.DEFAULT_FONT_SIZE = 20;    // px. UI parameter fontsize can override this.
+        this.DEFAULT_TEXT_OFFSET = 5;   // Link label tweak. UI params can override.
         this.DEFAULT_LINK_LABEL_REL_DIST = 0.5;  // Relative distance along link to place labels
         this.MAX_VERSIONS = 30;  // Maximum number of versions saved for undo/redo
 
@@ -162,7 +162,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         this.textArea = $(document.getElementById(textareaId));
         this.helpText = ''; // Obtained by JSON - see below.
         this.readOnly = this.textArea.prop('readonly');
-        this.templateParams = templateParams;
+        this.uiParams = uiParams;
         this.graphCanvas = new GraphCanvas(this,  this.canvasId, width, height);
         this.caretVisible = true;
         this.caretTimer = 0;  // Need global so we can kill a running timer.
@@ -187,15 +187,15 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         this.buttons = [this.helpBox, this.clearButton];
 
         // Legacy support for locknodes and lockedges.
-        if ('locknodes' in templateParams) {
-            templateParams.locknodepositions = templateParams.locknodes;
+        if ('locknodes' in uiParams) {
+            uiParams.locknodepositions = uiParams.locknodes;
         }
-        if ('lockedges' in templateParams) {
-            templateParams.lockedgepositions = templateParams.lockedges;
+        if ('lockedges' in uiParams) {
+            uiParams.lockedgepositions = uiParams.lockedges;
         }
 
-        if ('helpmenutext' in templateParams) {
-            this.helpText = templateParams.helpmenutext;
+        if ('helpmenutext' in uiParams) {
+            this.helpText = uiParams.helpmenutext;
         } else {
           require(['core/str'], function(str) {
                 // Get help text via AJAX.
@@ -233,25 +233,25 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
     };
 
     Graph.prototype.nodeRadius = function() {
-        return this.templateParams.noderadius ? this.templateParams.noderadius : this.DEFAULT_NODE_RADIUS;
+        return this.uiParams.noderadius ? this.uiParams.noderadius : this.DEFAULT_NODE_RADIUS;
     };
 
     Graph.prototype.fontSize = function() {
-        return this.templateParams.fontsize ? this.templateParams.fontsize : this.DEFAULT_FONT_SIZE;
+        return this.uiParams.fontsize ? this.uiParams.fontsize : this.DEFAULT_FONT_SIZE;
     };
 
     Graph.prototype.isFsm = function() {
-        return this.templateParams.isfsm !== undefined ? this.templateParams.isfsm : true;
+        return this.uiParams.isfsm !== undefined ? this.uiParams.isfsm : true;
     };
 
 
     Graph.prototype.textOffset = function() {
-        return this.templateParams.textoffset ? this.templateParams.textoffset : this.DEFAULT_TEXT_OFFSET;
+        return this.uiParams.textoffset ? this.uiParams.textoffset : this.DEFAULT_TEXT_OFFSET;
     };
 
     // Draw an arrow head if this is a directed graph. Otherwise do nothing.
     Graph.prototype.arrowIfReqd = function(c, x, y, angle) {
-        if (this.templateParams.isdirected === undefined || this.templateParams.isdirected) {
+        if (this.uiParams.isdirected === undefined || this.uiParams.isdirected) {
             util.drawArrow(c, x, y, angle);
         }
     };
@@ -316,12 +316,12 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
             if(this.selectedObject instanceof elements.Button){
                this.selectedObject.onClick();
            } else if(e.shiftKey && this.selectedObject instanceof elements.Node) {
-                if (!this.templateParams.lockedgeset) {
+                if (!this.uiParams.lockedgeset) {
                     this.currentLink = new elements.SelfLink(this, this.selectedObject, mouse);
                 }
             } else if (e.altKey && this.selectedObject instanceof elements.Node) {
                 // Moving an entire connected graph component.
-                if (!this.templateParams.locknodepositions) {
+                if (!this.uiParams.locknodepositions) {
                     this.movingGraph = true;
                     this.movingNodes = this.selectedObject.traverseGraph(this.links, []);
                     for (var i = 0; i < this.movingNodes.length; i++) {
@@ -329,13 +329,13 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
                     }
                 }
             } else if (this.selectedObject instanceof elements.TextBox){
-                if (!this.templateParams.lockedgelabels) {
+                if (!this.uiParams.lockedgelabels) {
                     this.movingText = true;
                     this.selectedObject.setMouseStart(mouse.x, mouse.y);
                     this.selectedObject = this.selectedObject.parent;
                 }
-            } else if (!(this.templateParams.locknodepositions && this.selectedObject instanceof elements.Node) &&
-                       !(this.templateParams.lockedgepositions && this.selectedObject instanceof elements.Link)){
+            } else if (!(this.uiParams.locknodepositions && this.selectedObject instanceof elements.Node) &&
+                       !(this.uiParams.lockedgepositions && this.selectedObject instanceof elements.Link)){
                 this.movingObject = true;
                 if(this.selectedObject.setMouseStart) {
                     this.selectedObject.setMouseStart(mouse.x, mouse.y);
@@ -366,8 +366,8 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
             isLink = (this.selectedObject instanceof elements.Link ||
                 this.selectedObject instanceof elements.SelfLink);
         return 'textBox' in this.selectedObject &&
-               ((isNode && !this.templateParams.locknodelabels) ||
-                (isLink && !this.templateParams.lockedgelabels));
+               ((isNode && !this.uiParams.locknodelabels) ||
+                (isLink && !this.uiParams.lockedgelabels));
     };
 
     Graph.prototype.keydown = function(e) {
@@ -388,13 +388,13 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         } else if(key === 46 && this.selectedObject !== null) { // Delete key
             this.saveVersion();
             for (i = 0; i < this.nodes.length; i++) {
-                if (this.nodes[i] === this.selectedObject && !this.templateParams.locknodeset) {
+                if (this.nodes[i] === this.selectedObject && !this.uiParams.locknodeset) {
                     this.nodes.splice(i--, 1);
                     nodeDeleted = true;
                 }
             }
             for (i = 0; i < this.links.length; i++) {
-                if((this.links[i] === this.selectedObject && !this.templateParams.lockedgeset) ||
+                if((this.links[i] === this.selectedObject && !this.uiParams.lockedgeset) ||
                     nodeDeleted && (
                        this.links[i].node === this.selectedObject ||
                        this.links[i].nodeA === this.selectedObject ||
@@ -432,7 +432,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
     Graph.prototype.dblclick = function(e) {
         var mouse = util.crossBrowserRelativeMousePos(e);
 
-        if (this.readOnly || this.templateParams.locknodeset) {
+        if (this.readOnly || this.uiParams.locknodeset) {
             return;
         }
 

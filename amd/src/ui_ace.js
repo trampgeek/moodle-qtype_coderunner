@@ -22,7 +22,7 @@
  *
  * A special case behaviour of the AceWrapper is that it needs to know
  * the Programming language that is being edited. This MUST be provided in
- * the constructor templateParams parameter (an associative array) as a string
+ * the constructor params parameter (an associative array) as a string
  * with key 'lang'.
  *
  * @package    qtype

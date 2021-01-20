@@ -20,7 +20,7 @@
  * This plugin replaces the usual textarea answer box with a div
  * consisting of pre-formatted text supplied by the question author in either the
  * "globalextra" field or the testcode field of the first test case, according
- * to the template parameter gapfiller_ui_source (default: globalextra).  HTML
+ * to the ui parameter gapfiller_ui_source (default: globalextra).  HTML
  * entry or textarea elements are then inserted at
  * specified points. It is intended primarily for use with coding questions
  * where the answerbox presents the students with code that has smallish bits
@@ -51,7 +51,7 @@
  * serialisation itself is the empty string.
  *
  * The delimiters for the input element insertion tags are by default '{[' and
- * ']}', but can be changed by an optional template parameter gap_filler_delimiters,
+ * ']}', but can be changed by an optional ui parameter gap_filler_delimiters,
  * which must be a 2-element array of strings. For example:
  *
  *     {"gap_filler_delimiters": ["{{", "}}"]}
@@ -69,15 +69,15 @@
 define(['jquery'], function($) {
 
     // Constructor for UI. Source html comes from data-globalextra by default,
-    // else from whatever source is specified by the template parameter field
-    function GapfillerUi(textareaId, width, height, templateParams) {
+    // else from whatever source is specified by the uiParams parameter.
+    function GapfillerUi(textareaId, width, height, uiParams) {
         var html;
         this.textArea = $(document.getElementById(textareaId));
         this.readOnly = this.textArea.prop('readonly');
-        this.templateParams = templateParams;
+        this.uiParams = uiParams;
         this.fail = false;
         this.htmlDiv = null;
-        this.source = templateParams.gapfiller_ui_source || 'globalextra';
+        this.source = uiParams.gapfiller_ui_source || 'globalextra';
         if (this.source !== 'globalextra' && this.source !== 'test0') {
             alert('Invalid source for HTML in ui_gapfiller');
             this.source = 'globalextra';
