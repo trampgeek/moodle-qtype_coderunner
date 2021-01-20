@@ -342,7 +342,7 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
 
         // Define field templateparamslang to be added to question_coderunner_options.
         $table = new xmldb_table('question_coderunner_options');
-        $field = new xmldb_field('templateparamslang', XMLDB_TYPE_CHAR, '50', null, null, null, 'None', 'templateparams');
+        $field = new xmldb_field('templateparamslang', XMLDB_TYPE_CHAR, '50', null, null, null, 'twig', 'templateparams');
 
         // Conditionally launch add field templateparamslang.
         if (!$dbman->field_exists($table, $field)) {
