@@ -1,18 +1,6 @@
 {
     "name": "ui_graph",
     "parameters": {
-        "isfsm": {
-            "type": "boolean",
-            "default": true
-        },
-        "isdirected": {
-            "type": "boolean",
-            "default": true
-        },
-        "noderadius": {
-            "type": "int",
-            "default": 26
-        },
         "fontsize": {
             "type": "int",
             "default": 20
@@ -21,20 +9,16 @@
             "type": "string",
             "default": ""
         },
-        "textoffset": {
-            "type": "int",
-            "default": 5
-        },
-        "locknodepositions": {
+        "isdirected": {
             "type": "boolean",
-            "default": false
+            "default": true
         },
-        "locknodeset": {
+        "isfsm": {
             "type": "boolean",
-            "default": false
+            "default": true
         },
-        "locknodelabels": {
-            "type": "boolean",
+        "lockedgelabels": {
+            "type": "boolean", 
             "default": false
         },
         "lockedgepositions": {
@@ -45,9 +29,26 @@
             "type": "boolean",
             "default": false
         },
-        "lockedgelabels": {
-            "type": "boolean", 
+        "locknodelabels": {
+            "type": "boolean",
             "default": false
+        },
+        "locknodepositions": {
+            "type": "boolean",
+            "default": false
+        },
+        "locknodeset": {
+            "type": "boolean",
+            "default": false
+        },
+        "noderadius": {
+            "type": "int",
+            "default": 26
+        },
+
+        "textoffset": {
+            "type": "int",
+            "default": 5
         }
     }
 }
