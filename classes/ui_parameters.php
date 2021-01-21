@@ -155,4 +155,28 @@ class qtype_coderunner_ui_parameters {
         }
         return json_encode($params_array);
     }
+    
+    
+    /**
+     * Return an HTML table describing all available parameters.
+     */
+    public function html_table() {
+        $namehdr = get_string('uiparamname', 'qtype_coderunner');
+        $descrhdr = get_string('uiparamdesc', 'qtype_coderunner');
+        $defaulthdr = get_string('uiparamdefault', 'qtype_coderunner');
+        $html = "<table class='table table-bordered'>\n<tr><th>$namehdr</th><th>$descrhdr</th><th>$defaulthdr</th>\n";
+        $params = $this->params;
+        ksort($params);
+        foreach ($params as $param) {
+            $descr = get_string("{$this->uiname}ui_{$param->name}_descr", 'qtype_coderunner');
+            $value = $param->value;
+            if ($param->type == 'boolean') {
+                $value = $value ? 'true' : 'false';
+            }
+            $html .= "<tr><td>{$param->name}</td><td>$descr</td><td>$value</td></tr>\n";
+        }
+        $html .= "</table>\n";
+        return $html;
+    }
+    
 }
