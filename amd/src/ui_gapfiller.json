@@ -7,7 +7,7 @@
         },
         "delimiters": {
             "type": "string[]",
-            "default": null
+            "default": ["{{", "}}"]
         }
     }
 }

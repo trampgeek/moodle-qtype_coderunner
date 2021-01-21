@@ -3,19 +3,21 @@
     "parameters": {
         "num_rows": {
             "type": "int",
-            "default": null
+            "default": null,
+            "required": true
         },
         "num_columns": {
             "type": "int",
-            "default": null
+            "default": null,
+            "required": true
         },
         "column_headers": {
             "type": "string[]",
-            "default": null
+            "default": []
         },
         "row_labels": {
             "type": "string[]",
-            "default": null
+            "default": []
         },
         "dynamic_rows": {
             "type": "boolean",
@@ -27,7 +29,7 @@
         },
         "column_width_percents": {
             "type": "float[]",
-            "default": null
+            "default": []
         }
     }
 }

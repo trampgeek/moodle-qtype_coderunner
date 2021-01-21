@@ -30,10 +30,11 @@ defined('MOODLE_INTERNAL') || die();
 
 // A class to represent a single parameter with a name, type and value.
 class qtype_coderunner_ui_parameter {
-    public function __construct($name, $type, $value) {
+    public function __construct($name, $type, $value, $required=false) {
         $this->name = $name;
         $this->type = $type;
         $this->value = $value;
+        $this->required = $required;
     }
 }
 
@@ -59,7 +60,8 @@ class qtype_coderunner_ui_parameters {
             $json = file_get_contents($filename);
             $spec = json_decode($json);
             foreach ((array) $spec->parameters as $name => $obj) {
-                $this->params[$name] = new qtype_coderunner_ui_parameter($name, $obj->type, $obj->default);
+                $required = isset($obj->required) && $obj->required;
+                $this->params[$name] = new qtype_coderunner_ui_parameter($name, $obj->type, $obj->default, $required);
             }
         }
     }
@@ -88,6 +90,16 @@ class qtype_coderunner_ui_parameters {
      */
     public function value(string $parameter) {
         return $this->params[$parameter]->value;
+    }
+    
+    
+    /**
+     * Return true if the given uiparameter is required.
+     * @param string $parameter the name of the parameter of interest
+     * @return true iff the nominated parameter has a required attribute that is true.
+     */
+    public function is_required(string $parameter) {
+        return $this->params[$parameter]->required;
     }
     
     
@@ -164,16 +176,17 @@ class qtype_coderunner_ui_parameters {
         $namehdr = get_string('uiparamname', 'qtype_coderunner');
         $descrhdr = get_string('uiparamdesc', 'qtype_coderunner');
         $defaulthdr = get_string('uiparamdefault', 'qtype_coderunner');
-        $html = "<table class='table table-bordered'>\n<tr><th>$namehdr</th><th>$descrhdr</th><th>$defaulthdr</th>\n";
+        $html = "<table class='table table-bordered qtype_coderunner_tableui_parameters_table'>\n<tr><th>$namehdr</th><th>$descrhdr</th><th>$defaulthdr</th>\n";
         $params = $this->params;
         ksort($params);
         foreach ($params as $param) {
             $descr = get_string("{$this->uiname}ui_{$param->name}_descr", 'qtype_coderunner');
-            $value = $param->value;
             if ($param->type == 'boolean') {
-                $value = $value ? 'true' : 'false';
+                $displayvalue = $param->value ? 'true' : 'false';
+            } else {
+                $displayvalue = json_encode($param->value);
             }
-            $html .= "<tr><td>{$param->name}</td><td>$descr</td><td>$value</td></tr>\n";
+            $html .= "<tr><td>{$param->name}</td><td>$descr</td><td><code>$displayvalue</code></td></tr>\n";
         }
         $html .= "</table>\n";
         return $html;

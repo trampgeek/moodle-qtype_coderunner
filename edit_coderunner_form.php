@@ -594,22 +594,33 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->setDefault('hoisttemplateparams', true);
         $mform->addHelpButton('twigcontrols', 'twigcontrols', 'qtype_coderunner');
         
-        // UI params
-        $mform->addElement('textarea', 'uiparameters',
+        // UI parameters
+        $uiplugin = empty($this->question->options->uiplugin) ? '' : $this->question->options->uiplugin;
+        $plugins = new qtype_coderunner_ui_plugins();
+        $plugins_without_params = $plugins->all_with_no_params();
+        
+        $uielements = array();
+        if ($uiplugin) {
+            $infohead = get_string('uiparametertablehead', 'qtype_coderunner');
+            $tablehtml = $plugins->parameters($uiplugin)->html_table();
+            $uielements[] = $mform->createElement('html', "<div><p>$infohead</p>$tablehtml</div>");
+        }
+        $uielements[] = $mform->createElement('textarea', 'uiparameters',
             get_string('uiparameters', 'qtype_coderunner'),
             array('rows' => self::UI_PARAM_ROWS,
                   'class' => 'edit_code',
                   'data-lang' => '' // Don't syntax colour ui params.
             )
         );
-        $mform->setType('uiparameters', PARAM_RAW);
-        $mform->addHelpButton('uiparameters', 'uiparameters', 'qtype_coderunner');
         
-        // Hide the UI Parameters field if the currently-selected UI plugin
+        $mform->setType('uiparameters', PARAM_RAW);
+        $mform->addElement('group', 'uiparametergroup', get_string('uiparametergroup', 'qtype_coderunner'),
+                $uielements, null, false);
+        $mform->addHelpButton('uiparametergroup', 'uiparametergroup', 'qtype_coderunner');
+        
+        // Hide the UI Parameter Group field if the currently-selected UI plugin
         // does not take any parameters (e.g. Ace).
-        $plugins = new qtype_coderunner_ui_plugins();
-        $plugins_without_params = $plugins->all_with_no_params();
-        $mform->hideIf('uiparameters', 'uiplugin', 'in', $plugins_without_params);
+        $mform->hideIf('uiparametergroup', 'uiplugin', 'in', $plugins_without_params);
     }
 
 
@@ -812,6 +823,13 @@ class qtype_coderunner_edit_form extends question_edit_form {
             $errors['templateparams'] = $templateerrors;
             $this->formquestion->templateparamsevald = '{}';
         }
+        
+        if (isset($data['uiparameters']) && $data['uiparameters']) {
+            $uiparametererrors = $this->validate_ui_parameters($data['uiparameters']);
+            if ($uiparametererrors) {
+                $errors['uiparametergroup'] = $uiparametererrors;      
+            }
+        }
 
         if ($data['prototypetype'] == 0 && ($data['grader'] !== 'TemplateGrader'
                 || $data['iscombinatortemplate'] === false)) {
@@ -924,8 +942,71 @@ class qtype_coderunner_edit_form extends question_edit_form {
         } catch (Exception $e) {
             $errormessage = get_string('badtemplateparams', 'qtype_coderunner', '** Unknown error **');
         }
+        
+        if ($errormessage === '') {
+            // Check for legacy case of ui parameters defined within the template params
+            $uiplugin = $this->formquestion->uiplugin;
+            $uiparams = new qtype_coderunner_ui_parameters($uiplugin);
+            $templateparamsnoprototype = json_decode($this->formquestion->template_params_json(), true);
+            $alluiparamnames = $uiparams->all_names();
+            $badparams = array();
+            foreach (array_keys($templateparamsnoprototype) as $paramname) {
+                if (in_array($paramname, $alluiparamnames)) {
+                    $badparams[] = $paramname;
+                }
+            }
+            if ($badparams) {
+                $errormessage = get_string('legacyuiparams', 'qtype_coderunner') . implode(', ', $badparams);
+            }
+        }
 
         return array($errormessage, $json);
+    }
+    
+    // Check that the uiparameters field, if present and non-empty, is valid.
+    // Return an error message string if not valid, else an empty string.
+    private function validate_ui_parameters($uiparameters) {
+        $errormessage = '';
+        if (empty($uiparameters)) {
+            return $errormessage;
+        }
+        $json = '';
+        $seed = mt_rand();
+        try {
+            $decoded = json_decode($uiparameters, true);
+        } catch (Exception $e) {
+            $decoded = null;
+        }
+        if ($decoded === null) {
+               $errormessage = get_string('baduiparams', 'qtype_coderunner');
+        } else {
+            // Check only valid uiparameters are defined
+            $uiplugin = $this->formquestion->uiplugin;
+            $uiparams = new qtype_coderunner_ui_parameters($uiplugin);
+            $alluiparamnames = $uiparams->all_names();
+            $badparams = array();
+            foreach (array_keys($decoded) as $paramname) {
+                if (!in_array($paramname, $alluiparamnames)) {
+                    $badparams[] = $paramname;
+                }
+            }
+            if ($badparams) {
+                $errormessage = get_string('illegaluiparamname', 'qtype_coderunner') . implode(', ', $badparams);
+            } else {
+                // Make sure any required ui parameters are defined.
+                $missingparams = array();
+                foreach ($alluiparamnames as $uiname) {
+                    if ($uiparams->is_required($uiname) && !in_array($uiname, array_keys($decoded))) {
+                        $missingparams[] = $uiname;
+                    }
+                }
+                if ($missingparams) {
+                    $errormessage = get_string('missinguiparams', 'qtype_coderunner') . implode(', ', $missingparams);
+                }
+            }
+        }
+
+        return $errormessage;
     }
     
     

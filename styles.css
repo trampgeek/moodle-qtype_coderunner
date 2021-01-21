@@ -257,6 +257,10 @@ body#page-question-type-coderunner div.edit_code textarea {
     font-family: courier, monospace;
 }
 
+body#page-question-type-coderunner pre.templateparamserror {
+    color: #ca3120;
+}
+
 body#page-question-type-coderunner div#id_qtype_coderunner_error_div:empty {
     display: none;
 }

@@ -80,7 +80,8 @@ $string['badquestion'] = 'Error in question';
 $string['badrandomintarg'] = 'Bad argument to JSON @randomint function';
 $string['badrandompickarg'] = 'Bad argument to JSON @randompic function';
 $string['badsandboxparams'] = '\'Other\' field (sandbox params) must be either blank or a valid JSON record';
-$string['badtemplateparams'] = 'Template parameters must evaluate to blank or a valid JSON record. Got: <pre>{$a}</pre>';
+$string['badtemplateparams'] = 'Template parameters must evaluate to blank or a valid JSON record. Got: <pre class="templateparamserror">{$a}</pre>';
+$string['baduiparams'] = 'UI parameters must be blank or a valid JSON record.';
 $string['brokencombinator'] = 'Expected {$a->numtests} test results, got {$a->numresults}. Perhaps excessive output or error in question?';
 $string['brokentemplategrader'] = 'Bad output from grader: {$a->output}. Your program execution may have aborted (e.g. a timeout or memory limit exceeded).';
 $string['bulkquestiontester'] = 'The <a href="{$a->link}">bulk tester script</a> tests that the sample answers for all questions in the current context are marked right. Useful only once some questions with sample answers have been added; the initial install has none.';
@@ -177,6 +178,9 @@ $string['filloutoneanswer'] = 'You must enter source code that satisfies the spe
 $string['firstfailure'] = 'First failing test case: {$a}';
 $string['forexample'] = 'For example';
 
+$string['gapfillerui_delimiters_descr'] = 'A 2-character array of the strings used to open and close the gap description';
+$string['gapfillerui_ui_source_descr'] = '"globalextra" to take the HTML to display from the globalextra field or "test0" to take it from the testcode field of the first test';
+
 $string['globalextra'] = 'Global extra';
 $string['globalextra_help'] = 'A field of text for general-purpose use by template authors, like the extra field of each test case, but global to all tests. Available to the template author as {{ QUESTION.globalextra }}.';
 $string['graphhelp'] = '- Double click at a blank space to create a new node/state.
@@ -267,7 +271,7 @@ $string['graphui_isdirected_descr'] = 'True if edges are directed';
 $string['graphui_noderadius_descr'] = 'The radius of a node in pixels';
 $string['graphui_fontsize_descr'] = 'The font size in points used for node and edge labels.';
 $string['graphui_helpmenutext_descr'] = 'Text which if non-empty replaces the standard help menu text defined in the CodeRunner language strings';
-$string['graphui_textoffset_descr'] = 'The offset in pixels of a link label from its link';
+$string['graphui_textoffset_descr'] = 'The offset in pixels of a link label from its link (deprecated - use dragging instead).';
 $string['graphui_locknodepositions_descr'] = 'If true, prevents the user from moving nodes. Useful when the answer box is preloaded with a graph that the student has to annotate by changing node or edge labels or by adding/removing edges. Note, though that nodes can still be added and deleted. See locknodeset.';
 $string['graphui_locknodeset_descr'] = 'If true, prevents the the user from adding or deleting nodes or toggling node types to/from acceptors.';
 $string['graphui_locknodelabels_descr'] = 'If true, prevent the user from editing node labels. This will also prevent any new nodes having non-empty labels';
@@ -284,6 +288,7 @@ $string['hoisttemplateparams'] = 'Hoist template parameters';
 
 $string['howtogetmore'] = 'For more detailed information, save the question with \'Validate on save\' unchecked and test manually';
 
+$string['illegaluiparamname'] = 'The following are not valid ui parameters: ';
 $string['iscombinatortemplate'] = 'Is combinator';
 $string['ideone_user'] = 'Ideone server user';
 $string['ideone_user_desc'] = 'The login name to use when connecting to the deprecated Ideone server (if the ideone sandbox is enabled)';
@@ -335,6 +340,7 @@ they must write it in the default language, if specified, or the
 first of the allowed languages otherwise.';
 
 $string['languageselectlabel'] = 'Language';
+$string['legacyuiparams'] = 'UI parameters can no longer be defined within the template parameters field. Please define the following in the UI parameters field instead: ';
 $string['mark'] = 'Mark';
 $string['marking'] = 'Mark allocation';
 $string['markinggroup'] = 'Marking';
@@ -368,6 +374,7 @@ $string['missingprototype'] = 'This question was defined to be of type \'{$a->cr
 Proceed to edit only if you know what you are doing!';
 $string['missingprototypes'] = 'Missing prototypes';
 $string['missingprototypewhenrunning'] = 'Broken question (missing prototype \'{$a->crtype}\'). Cannot be run.';
+$string['missinguiparams'] = 'The following UI parameters are required but not defined: ';
 $string['multipledefaults'] = 'At most one language can be selected as default';
 $string['multipleprototypes'] = 'Multiple prototypes found for \'{$a->crtype}\'';
 $string['mustrequirefewer'] = 'You cannot require more attachments than you allow.';
@@ -560,39 +567,7 @@ else:
 <p>Alternatively, there could be a set of test cases, each one checking
 one of the aspects of the specification. For example, the first test case might
 print the sorted keys, expecting to see \'A\', \'B\'. The second test case might
-print the outgoing edges from node \'A\', and so on.</p>
-<p>The question takes the following template parameters, all of which are recognised
-by the GraphUI plugin and control its behaviour.</p>
-<p><ul>
-<li>isfsm. True if the graph is of a Finite State Machine. If true, the graph
-can contain an incoming edge from nowhere (the start edge) and nodes can be
-marked as accept states (shown with a double circle) by double clicking. Default: true.</li>
-<li>isdirected. True if edges are directed. Default: true.</li>
-<li>noderadius. The radius of a node, in pixels. Default: 26.</li>
-<li>fontsize. The font size used for node and edge labels. Default: 20 points.</li>
-<li>textoffset. An offset in pixels used when positioning link label text. Deprecated
-as link text can now be manually dragged. Default 5.</li>
-<li>helpmenutext. A string to be used in lieu of the default Help info, if supplied.
-No default.</li>
-<li>locknodepositions. True to prevent the user from moving nodes. Useful when the
-answer box is preloaded with a graph that the student has to annotate by
-changing node or edge labels or by adding/removing edges. Note, though that
-nodes can still be added and deleted (but see locknodeset).</li>
-<li>locknodelabels. True to prevent the user from editing node labels (including
-of newly added nodes). This will also prevent any new nodes having non-empty labels.
-Default: false.</li>
-<li>locknodeset. True to prevent the user from adding or deleting nodes or (for FSMs)
-toggling the accept state. Default: false</li>
-<li>lockedgepositions. True to prevent the user from dragging edges to change
-their curvature. Also ensures that
-edges added by a student are straight, e.g. to draw a polygon on a set of
-given points. Note, though that
-edges can still be added and deleted (but see lockedgeset). Default: false.</li>
-<li>lockedgelabels. True to prevent the user from editing edge labels. This also
-prevents non-empty labels on new edges. Default: false.</li>
-<li>lockedgeset. True to prevent the user from adding edges to, or deleting
-edges from, the preloaded graph. Default: false.<li>
-</ul></p>';
+print the outgoing edges from node \'A\', and so on.</p>';
 
 $string['qtype_java_class'] = '<p>A Java write-a-class question, where the student submits a
 complete class as their answer. Each test will  typically instantiate an object of the specified
@@ -763,38 +738,7 @@ else:
 <p>Alternatively, there could be a set of test cases, each one checking
 one of the aspects of the specification. For example, the first test case might
 print the sorted keys, expecting to see \'A\', \'B\'. The second test case might
-print the edges connected to node \'A\', and so on.</p>
-<p>The question takes the following template parameters, all of which are recognised
-by the GraphUI plugin and control its behaviour.</p>
-<p><ul>
-<li>isfsm. True if the graph is of a Finite State Machine. If true, the graph
-can contain an incoming edge from nowhere (the start edge) and nodes can be
-marked as accept states (shown with a double circle) by double clicking. Default: false.</li>
-<li>isdirected. True if edges are directed. Default: false.</li>
-<li>noderadius. The radius of a node, in pixels. Default: 26.</li>
-<li>fontsize. The font size used for node and edge labels. Default: 20 points.</li>
-<li>textoffset. An offset in pixels used when positioning link label text. Deprecated
-as link text can now be manually dragged. Default 5.</li>
-<li>helpmenutext. A string to be used in lieu of the default Help info, if supplied.
-No default.</li>
-<li>locknodepositions. True to prevent the user from moving nodes. Useful when the
-answer box is preloaded with a graph that the student has to annotate by
-changing node or edge labels or by adding/removing edges. Note, though that
-nodes can still be added and deleted (but see locknodeset).</li>
-<li>locknodelabels. True to prevent the user from editing node labels (including
-of newly added nodes). This will also prevent any new nodes having non-empty labels.
-Default: false.</li>
-<li>locknodeset. True to prevent the user from adding or deleting nodes or (for FSMs)
-toggling the accept state. Default: false</li>
-<li>lockedgepositions. True to prevent the user from dragging edges to change
-their curvature. Also ensures that
-edges added by a student are straight, e.g. to draw a polygon on a set of
-given points. Default: false.</li>
-<li>lockedgelabels. True to prevent the user from editing edge labels. This also
-prevents non-empty labels on new edges. Default: false.</li>
-<li>lockedgeset. True to prevent the user from adding edges to, or deleting
-edges from, the preloaded graph. Default: false.<li>
-</ul></p>';
+print the edges connected to node \'A\', and so on.</p>';
 
 $string['qtype_python3_w_input'] = '<p>A Python3 question type, which can handle
 write-a-function, write-a-class or write-a-program question types. It differs
@@ -992,6 +936,14 @@ $string['student_answer'] = 'Student answer';
 $string['supportscripts'] = 'Support scripts';
 $string['syntax_errors'] = 'Syntax Error(s)';
 
+$string['tableui_num_rows_descr'] = 'The (initial) number of rows in the table, excluding the top header row (if headers are given). Required.';
+$string['tableui_num_columns_descr'] = 'The number of columns in the table, excluding the left-most label column (if labels are given). Required.';
+$string['tableui_column_headers_descr'] = 'A list of strings for the column headers.';
+$string['tableui_dynamic_rows_descr'] = 'If true, and "Add row" button is provided to allow users to add rows to the table.';
+$string['tableui_row_labels_descr'] = 'A list of strings for the row labels, i.e. the values in column 0.';
+$string['tableui_locked_cells_descr'] = 'A list of 2-element lists giving the 0-origin coordinates of cells that the user cannot alter. Coordinates do not include a possible header row or row-label column.';
+$string['tableui_column_width_percents_descr'] = 'A list of floating point numbers giving the percentage of the available table width to allocate to the columns, including the row-label column if present.';
+
 $string['table_ui_invalidjson'] = 'Table UI: invalid JSON serialisation.';
 $string['table_ui_invalidserialisation'] = 'Table UI: invalid serialisation.';
 $string['table_ui_missingparams'] = 'Table UI needs parameters num_columns and
@@ -1171,30 +1123,11 @@ questions will usually have a single test case, graded with a template
 that analyses the serialised
 representation of the graph and prints a message like "OK" if the answer is
 correct or a suitably informative error message otherwise.
-Template parameters can be set in either the prototype or the
-actual question to modify the behaviour of the Graph plugin as follows:
-{"isdirected": false} for non-directed graphs; {"isfsm": true} to allow
-incoming edges without a start node and to allow double clicking a node
-to define it as an accept state;
-{"noderadius": 30}, say, to set a different noderadius in pixels;
-{"helpmenutext": "Line1\nLine2\nLine3"} to replace the default help menu with a
-customised version. Other template parameters are documented within the built-in
-directed\_graph and undirected\_graph question types.
-The template parameters
-from the actual question are merged with, and override, those from the
-prototype (since CodeRunner V3.2.2).
 
 The \'Table\' user interface element, which displays a table of text
 areas for the student to
 fill in. It is used by the \'python3_program_testing\' question type, which is
-included in the sample questions on github. This takes template parameters of
-num_rows and num_columns (both required) and optional column_headers
-(a list of strings with which to label columns), row_labels (a list of
-strings with which to label rows) and column_width_percents (a list of
-the percentages of the table width to allocate to all columns, including the
-row label column if specified) and locked_cells (a list of [row, column]
-pairs of cells that the user cannot alter - the row and column indices are
-0-origin but do not include the row label column or the column header row).
+included in the sample questions on github. 
 
 The \'Gapfiller\' and \'Html\' user interfaces are documented in the 
 main CodeRunner documentation at https://github.com/trampgeek/moodle-qtype_coderunner#code-runner.
@@ -1211,10 +1144,16 @@ If \'Template uses ace\' is checked,
 the Ace code editor will manage both the template and the template parameters
 boxes. Otherwise a raw text box will be used.';
 $string['ui_fallback'] = 'Falling back to raw text area.';
-$string['uiparameters'] = 'UI plugin params';
-$string['uiparameters_help'] = 'A JSON string defining any User Interface
+$string['uiparametergroup'] = 'UI parameters';
+$string['uiparametergroup_help'] = 'A JSON string defining any User Interface
 parameter values that are either required by the UI plugin or which override the
 default values. For example, to draw larger nodes when using the GraphUI: \'{"noderadius": 30}\'';
+$string['uiparameters'] = 'UI parameters (JSON)';
+$string['uiparametertablehead'] = '<p><b>The available parameters for the current UI are as follows.
+To update this table after a UI change, save the question and reload the page.</b></p>';
+$string['uiparamname'] = 'Name';
+$string['uiparamdesc'] = 'Description';
+$string['uiparamdefault'] = 'Default';
 $string['unauthorisedbulktest'] = 'You do not have suitable access to any CodeRunner questions';
 $string['unauthoriseddbaccess'] = 'You are not authorised to use this script';
 $string['unknownerror'] = 'An unexpected error occurred. The sandbox may be down. Try again shortly.';
