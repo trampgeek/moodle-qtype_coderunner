@@ -444,7 +444,12 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
             }
         });
 
-        uiplugin.on('change', setUis);
+        uiplugin.on('change', function () {
+            setUis();
+            str.get_string('uichanged', 'qtype_coderunner').then(function (s) {
+                alert(s);
+            });
+        });
 
         precheck.on('change', set_testtype_visibilities);
 

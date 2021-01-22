@@ -103,6 +103,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $qdata->options->allornothing = 0;
         $qdata->options->showsource = 0;
         $qdata->options->precheck = 1;
+        $qdata->options->hidecheck = 0;
         $qdata->options->answerboxlines = 5;
         $qdata->options->displayfeedback = 1;
         // Exclude precheck as it defaults to null.
@@ -137,6 +138,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $form->answerboxcolumns = 100;
         $form->useace = 0;
         $form->precheck = 1;
+        $form->hidecheck = 0;
         $form->allornothing = 0;
         $form->penaltyregime = "10, 20, ...";
         $form->templateparams = "";
@@ -199,6 +201,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $form->answerboxcolumns = 100;
         $form->useace = 0;
         $form->precheck = 1;
+        $form->hidecheck = 0;
         $form->allornothing = 0;
         $form->penaltyregime = "10, 20, ...";
         $form->templateparams = "";
@@ -1193,6 +1196,7 @@ EOPROG;
         $coderunner->prototypetype = 0;
         $coderunner->name = $name;
         $coderunner->precheck = 0;
+        $coderunner->hidecheck = 0;
         $coderunner->questiontext = $questiontext;
         $coderunner->displayfeedback = 1;
         $coderunner->answer = '';

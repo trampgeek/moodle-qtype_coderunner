@@ -513,7 +513,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 $answerboxelements, null, false);
         $mform->addHelpButton('answerbox_group', 'answerbox_group', 'qtype_coderunner');
 
-        // Precheck control (a group with only one element).
+        // Precheck control group (precheck + hide check).
         $precheckelements = array();
         $precheckvalues = array(
             constants::PRECHECK_DISABLED => get_string('precheck_disabled', 'qtype_coderunner'),
@@ -522,9 +522,12 @@ class qtype_coderunner_edit_form extends question_edit_form {
             constants::PRECHECK_SELECTED => get_string('precheck_selected', 'qtype_coderunner'),
             constants::PRECHECK_ALL      => get_string('precheck_all', 'qtype_coderunner')
         );
-        $precheckelements[] = $mform->createElement('select', 'precheck', null, $precheckvalues);
+        $precheckelements[] = $mform->createElement('select', 'precheck',
+                get_string('precheck', 'qtype_coderunner'), $precheckvalues);
+        $precheckelements[] = $mform->createElement('advcheckbox', 'hidecheck', null,
+                get_string('hidecheck', 'qtype_coderunner'));
         $mform->addElement('group', 'coderunner_precheck_group',
-                get_string('precheck', 'qtype_coderunner'), $precheckelements, null, false);
+                get_string('submitbuttons', 'qtype_coderunner'), $precheckelements, null, false);
         $mform->addHelpButton('coderunner_precheck_group', 'precheck', 'qtype_coderunner');
 
         // Feedback control (a group with only one element).
@@ -595,32 +598,28 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->addHelpButton('twigcontrols', 'twigcontrols', 'qtype_coderunner');
         
         // UI parameters
-        $uiplugin = empty($this->question->options->uiplugin) ? '' : $this->question->options->uiplugin;
+        $uiplugin = empty($this->question->options->uiplugin) ? 'None' : $this->question->options->uiplugin;
         $plugins = new qtype_coderunner_ui_plugins();
         $plugins_without_params = $plugins->all_with_no_params();
-        
-        $uielements = array();
-        if ($uiplugin) {
+        if ($uiplugin !== 'None' && !in_array($uiplugin, $plugins_without_params)) {
+            // Only add the UI parameters panel if the current plugin has parameters.
+            $uielements = array();
             $infohead = get_string('uiparametertablehead', 'qtype_coderunner');
             $tablehtml = $plugins->parameters($uiplugin)->html_table();
             $uielements[] = $mform->createElement('html', "<div><p>$infohead</p>$tablehtml</div>");
+            $uielements[] = $mform->createElement('textarea', 'uiparameters',
+                get_string('uiparameters', 'qtype_coderunner'),
+                array('rows' => self::UI_PARAM_ROWS,
+                      'class' => 'edit_code',
+                      'data-lang' => '' // Don't syntax colour ui params.
+                )
+            );
+            $mform->setType('uiparameters', PARAM_RAW);
+        
+            $mform->addElement('group', 'uiparametergroup', get_string('uiparametergroup', 'qtype_coderunner'),
+                $uielements, false);
+            $mform->addHelpButton('uiparametergroup', 'uiparametergroup', 'qtype_coderunner');
         }
-        $uielements[] = $mform->createElement('textarea', 'uiparameters',
-            get_string('uiparameters', 'qtype_coderunner'),
-            array('rows' => self::UI_PARAM_ROWS,
-                  'class' => 'edit_code',
-                  'data-lang' => '' // Don't syntax colour ui params.
-            )
-        );
-        
-        $mform->setType('uiparameters', PARAM_RAW);
-        $mform->addElement('group', 'uiparametergroup', get_string('uiparametergroup', 'qtype_coderunner'),
-                $uielements, null, false);
-        $mform->addHelpButton('uiparametergroup', 'uiparametergroup', 'qtype_coderunner');
-        
-        // Hide the UI Parameter Group field if the currently-selected UI plugin
-        // does not take any parameters (e.g. Ace).
-        $mform->hideIf('uiparametergroup', 'uiplugin', 'in', $plugins_without_params);
     }
 
 

@@ -388,6 +388,22 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         // Coderunner savepoint reached.
         upgrade_plugin_savepoint(true, 2021010113, 'qtype', 'coderunner');
     }
+    
+    if ($oldversion < 2021012200) {
+
+        // Define field hidecheck to be added to question_coderunner_options.
+        $table = new xmldb_table('question_coderunner_options');
+        $field = new xmldb_field('hidecheck', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'precheck');
+
+        // Conditionally launch add field hidecheck.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Coderunner savepoint reached.
+        upgrade_plugin_savepoint(true, 2021012200, 'qtype', 'coderunner');
+    }
+    
     require_once(__DIR__ . '/upgradelib.php');
     update_question_types();
 

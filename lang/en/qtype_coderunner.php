@@ -279,6 +279,7 @@ $string['graphui_lockedgepositions_descr'] = 'If true prevents the user from dra
 $string['graphui_lockedgeset_descr'] = 'If true prevents the user from adding or deleting edges.';
 $string['graphui_lockedgelabels_descr'] = 'True to prevent the user from editing edge labels. This also prevents any new edges from having labels.';
 $string['hidden'] = 'Hidden';
+$string['hidecheck'] = 'Hide check';
 $string['hidedifferences'] = 'Hide differences';
 $string['HIDE'] = 'Hide';
 $string['HIDE_IF_FAIL'] = 'Hide if fail';
@@ -412,7 +413,11 @@ $string['precheck_empty'] = 'Empty';
 $string['precheck_examples'] = 'Examples';
 $string['precheck_selected'] = 'Selected';
 $string['precheck_all'] = 'All';
-$string['precheck_help'] = 'If Precheck is enabled, students will have an extra button to the left of the
+$string['precheck_help'] = 'Set what button are available for students to
+submit answers. Usually at least a Check button is shown but this can be
+hidden (e.g. for use in Deferred Feedback contexts) if <i>Hide check<i> is checked.
+
+If Precheck is enabled, students will have an extra button to the left of the
 usual check button to give them a penalty-free run to check their code against
 a subset of the question test cases.
 
@@ -933,6 +938,7 @@ $string['sourcecodeallruns'] = 'Debug: source code from all test runs';
 $string['stdin'] = 'Standard Input';
 $string['stdin_help'] = 'The standard input to the test, seen by the template as {{TEST.stdin}}';
 $string['student_answer'] = 'Student answer';
+$string['submitbuttons'] = 'Submit buttons';
 $string['supportscripts'] = 'Support scripts';
 $string['syntax_errors'] = 'Syntax Error(s)';
 
@@ -1032,11 +1038,13 @@ displayed. In a test or exam, this can overload the sandbox server. Caveat empto
 $string['templateparams_help'] = 'If non-blank, the template parameters field must
 evaluate to a JSON-format record. In its simplest form the field is just a JSON
 record defining a set of variables that are added to the environment for the Twig
-template engine when it expands the template. If a preprocessor is specified,
+template engine when it expands the template (and other fields if Twig All is set).
+
+If a preprocessor is specified in the Template param controls section,
 the template parameters are first processed by the specified language
 to yield a JSON record. See the documentation for details.
 
-<b>Warning:<b> use of a preprocessor other than Twig can have drastic performance
+<b>Warning:</b> use of a preprocessor other than Twig can have drastic performance
 implications if the Evaluate-on-each-attempt checkbox is
 checked, which it has to be if used for randomisation or for per-student question
 customisation. Preprocessing must be done before a question
@@ -1044,19 +1052,7 @@ can be displayed to a student and, except for Twig, takes place on the Jobe sand
 server. Every attempt on every question of this sort by every student will result in a job
 being sent to that server. This can result in thousands of jobs hitting the
 Jobe server at once at the start of a large test or exam, which will almost
-certainly overload it. Caveat Emptor!
-
-It <em>Hoist template parameters</em> is unchecked the fields of
-the JSON record can be used within the template in the form
-QUESTION.parameters.&lt;&lt;param&gt;&gt; For example, if template params is
-
-        {"age": 23}
-
-the value 23 would be substituted into the template in place of the
-template variable <code>{{ QUESTION.parameters.age }}</code>.
-
-If <em>Hoist template parameters</em> is checked the json field names can be
-used without the prefix, e.g. as <code>{{ age }}</code> directly.';
+certainly overload it. Caveat Emptor!';
 $string['testalltitle'] = 'Test all questions in this context';
 $string['testallincategory'] = 'Test all questions in this category';
 $string['testcase'] = 'Test case {$a}';
@@ -1091,23 +1087,35 @@ $string['testtype_precheck'] = 'Precheck only';
 $string['testtype_both'] = 'Both';
 $string['tooshort'] = 'Answer is too short to be meaningful and has been ignored without penalty';
 $string['twigall'] = 'Twig all';
-$string['twigcontrols'] = 'Template controls';
-$string['twigcontrols_help'] = 'Template parameters are normally referred to during Twig expansion in the form
+$string['twigcontrols'] = 'Template param controls';
+$string['twigcontrols_help'] = 'Template parameters were traditionally referred to during Twig expansion in the form
 {{QUESTION.parameters.someparam}} However, if the Hoist Template Parameters
 checkbox is checked, the parameters are hoisted into the Twig global name space
 and can be referenced simply as {{someparam}}.
 
-The Twig macro processor was traditionally applied only to the template. It is now
-applied to the template parameters as well and, if Twig All is checked, to the
-question text, sample answer, answer preload and all test case fields, using
-the Twig-expanded template parameters as an environment. You will usually
-need to turn on TwigAll if using randomisation within the template parameters';
+If Twig All is checked, Twig macro expansion is applied not just to the template
+but also to the
+question text, sample answer, answer preload, UI parameters and all test case fields, using
+the template parameters as an environment. You will usually
+need to turn on TwigAll if using randomisation within the template parameters.
+
+The text in the template parameters field must either be JSON or must evaluate
+to yield JSON when processed by the specified Preprocessor. Be warned that choosing
+a preprocessor other than Twig results in a submission to the Jobe sandbox before
+the question can even be displayed.
+
+If using a preprocessor other than Twig, a Jobe sandbox submission is usually
+required for each question for each student when they start the quiz.
+If <i>Evaluate per student</i> is unchecked a single sandbox submission will
+take place only when the question is saved. However, that essentially prevents
+any use of per-student randomisation.';
 $string['twigerror'] = 'Twig error {$a}';
 $string['twigerrorintest'] = 'Twig error when processing this test {$a}';
 $string['type_header'] = 'CodeRunner question type';
 $string['typename'] = 'Question type';
 $string['typerequired'] = 'Please select the type of question (language, format, etc)';
 
+$string['uichanged'] = 'UI changed. Save and reload page to see and edit available ui parameters (if any).';
 $string['uicontrols'] = 'Input UIs';
 $string['uicontrols_help'] = 'Select the User Interface controllers for the student answer and
 the question author\'s template.
@@ -1149,8 +1157,7 @@ $string['uiparametergroup_help'] = 'A JSON string defining any User Interface
 parameter values that are either required by the UI plugin or which override the
 default values. For example, to draw larger nodes when using the GraphUI: \'{"noderadius": 30}\'';
 $string['uiparameters'] = 'UI parameters (JSON)';
-$string['uiparametertablehead'] = '<p><b>The available parameters for the current UI are as follows.
-To update this table after a UI change, save the question and reload the page.</b></p>';
+$string['uiparametertablehead'] = '<p><b>The available parameters for the current UI are as follows.</b></p>';
 $string['uiparamname'] = 'Name';
 $string['uiparamdesc'] = 'Description';
 $string['uiparamdefault'] = 'Default';

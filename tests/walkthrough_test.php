@@ -306,4 +306,14 @@ EOTEMPLATE;
         $this->check_output_contains('Run 1');
         $this->check_output_contains('SEPARATOR = &quot;#&lt;ab@17943918#@&gt;#&quot;');
     }
+    
+    // Check hidecheck option works.
+    public function test_hide_check() {
+        $q = test_question_maker::make_question('coderunner', 'sqr');
+        $this->start_attempt_at_question($q, 'adaptive', 1, 1);
+        $this->check_output_contains('Check');
+        $q->hidecheck = 1;
+        $this->start_attempt_at_question($q, 'adaptive', 1, 1);
+        $this->check_output_does_not_contain('Check');
+    }
 }

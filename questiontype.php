@@ -87,6 +87,7 @@ class qtype_coderunner extends question_type {
             'allornothing',
             'penaltyregime',
             'precheck',
+            'hidecheck',
             'showsource',
             'answerboxlines',
             'answerboxcolumns',  // Defunct.
@@ -136,6 +137,7 @@ class qtype_coderunner extends question_type {
             'allornothing',
             'penaltyregime',
             'precheck',
+            'hidecheck',
             'showsource',
             'answerboxlines',
             'answerboxcolumns',
@@ -738,6 +740,7 @@ class qtype_coderunner extends question_type {
             'templateparamsevalpertry' => 0,
             'templateparamsevald' => null,
             'uiparameters' => null,
+            'hidecheck' => 0,
             'attachments' => 0
         );
 

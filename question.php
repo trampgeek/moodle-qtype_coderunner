@@ -214,7 +214,9 @@ class qtype_coderunner_question extends question_graded_automatically {
     function evaluate_template_params($templateparams, $lang, $seed) {
         if (empty($templateparams)) {
             $jsontemplateparams = '{}';
-        } else if (isset($this->cachedevaldtemplateparams)) {
+        } else if (isset($this->cachedfuncparams) &&
+                $this->cachedfuncparams === array('lang' => $lang, 'seed' => $seed)) {
+            // Use previously cached result if possible.
             $jsontemplateparams = $this->cachedevaldtemplateparams;
         } else if ($lang == 'None') {
             $jsontemplateparams = $templateparams;
@@ -226,6 +228,7 @@ class qtype_coderunner_question extends question_graded_automatically {
             $jsontemplateparams = $this->evaluate_template_params_on_jobe($templateparams, $lang, $seed);
         }
         // Cache in this to avoid multiple evaluations during question editing and validation.
+        $this->cachedfuncparams = array('lang' => $lang, 'seed' => $seed);
         $this->cachedevaldtemplateparams = $jsontemplateparams;
         return $jsontemplateparams;
     }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="question/type/coderunner/db" VERSION="20210113" COMMENT="XMLDB file for Moodle question/type/coderunner"
+<XMLDB PATH="question/type/coderunner/db" VERSION="20210122" COMMENT="XMLDB file for Moodle question/type/coderunner"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../../lib/xmldb/xmldb.xsd"
 >
@@ -13,6 +13,7 @@
         <FIELD NAME="allornothing" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="True if answer must pass all test cases to earn any marks"/>
         <FIELD NAME="showsource" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="True to display full source code after template expansion, for debugging template."/>
         <FIELD NAME="precheck" TYPE="int" LENGTH="8" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Sets what test-set is used if pre-checking is available. 0 = 'disable': no pretest button available; 1 = 'empty' for no actual tests; 2 = 'examples' for all use-as-example tests; 3 = 'selected' for specific selected tests, 4 = 'all' for all tests."/>
+        <FIELD NAME="hidecheck" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="True to hide the check button."/>
         <FIELD NAME="answerboxlines" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="18" SEQUENCE="false" COMMENT="The number of lines for the answer box"/>
         <FIELD NAME="answerboxcolumns" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="100" SEQUENCE="false" COMMENT="Number of columns of answerbox. DEFUNCT."/>
         <FIELD NAME="answerpreload" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Text to be preloaded into the question answer box."/>
