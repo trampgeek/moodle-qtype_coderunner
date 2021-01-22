@@ -43,9 +43,11 @@ define(['jquery'], function($) {
         // Constructor for the Ace interface object
 
         var textarea = $(document.getElementById(textareaId)),
+            wrapper = $(document.getElementById(textareaId + '_wrapper')),
             focused = textarea[0] === document.activeElement,
             lang = params.lang,
-            session;
+            session,
+            t = this;  // For embedded callbacks.
 
         try {
             window.ace.require("ace/ext/language_tools");
@@ -87,23 +89,27 @@ define(['jquery'], function($) {
             // Try to tell Moodle about parts of the editor with z-index.
             // It is hard to be sure if this is complete. ACE adds all its CSS using JavaScript.
             // Here, we just deal with things that are known to cause a problem.
-            $('.ace_gutter').addClass('moodle-has-zindex');
+            // Can't do these operations until editor has rendered. So ...
+            this.editor.renderer.on('afterRender', function() {
+                wrapper.find('.ace_gutter').addClass('moodle-has-zindex');
 
-            textarea.hide();
-            if (focused) {
-                this.editor.focus();
-                this.editor.navigateFileEnd();
-                /*
-                var session = this.editor.getSession(),
-                    lines = session.getLength();
-                this.editor.gotoLine(lines, session.getLine(lines - 1).length);
-                */
-            }
-            this.aceLabel = $('.answerprompt');
-            this.aceLabel.attr('for', 'ace_' + textareaId);
+                //textarea.hide();
+                if (focused) {
+                    t.editor.focus();
+                    t.editor.navigateFileEnd();
+                    /*
+                    var session = this.editor.getSession(),
+                        lines = session.getLength();
+                    this.editor.gotoLine(lines, session.getLine(lines - 1).length);
+                    */
+                }
+                t.aceLabel = wrapper.find('.answerprompt');
+                t.aceLabel.attr('for', 'ace_' + textareaId);
 
-            this.aceTextarea = $('.ace_text-input');
-            this.aceTextarea.attr('id', 'ace_' + textareaId);
+                t.aceTextarea = wrapper.find('.ace_text-input');
+                t.aceTextarea.attr('id', 'ace_' + textareaId);
+            });
+
             this.fail = false;
         }
         catch(err) {
