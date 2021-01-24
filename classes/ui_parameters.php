@@ -47,14 +47,14 @@ class qtype_coderunner_ui_parameters {
     /**
      * Construct a ui_parameters object by reading the json file for the
      * specified ui_plugin.
-     * @param string $name the name of the ui component, e.g. graph, used to
+     * @param string $uiname the name of the ui component, e.g. graph, used to
      * locate the JSON file that specifies the type and default value, e.g.
      * ui_graph.json.
      */
-    public function __construct(string $name) {
+    public function __construct(string $uiname) {
         global $CFG;
-        $filename = $CFG->dirroot . "/question/type/coderunner/amd/src/ui_{$name}.json";
-        $this->uiname = $name;
+        $filename = $CFG->dirroot . "/question/type/coderunner/amd/src/ui_{$uiname}.json";
+        $this->uiname = $uiname;
         $this->params = array();
         if (file_exists($filename)) {
             $json = file_get_contents($filename);
@@ -170,26 +170,32 @@ class qtype_coderunner_ui_parameters {
     
     
     /**
-     * Return an HTML table describing all available parameters.
+     * Return a description (usually a table) of all available parameters.
      */
     public function html_table() {
-        $namehdr = get_string('uiparamname', 'qtype_coderunner');
-        $descrhdr = get_string('uiparamdesc', 'qtype_coderunner');
-        $defaulthdr = get_string('uiparamdefault', 'qtype_coderunner');
-        $html = "<table class='table table-bordered qtype_coderunner_tableui_parameters_table'>\n<tr><th>$namehdr</th><th>$descrhdr</th><th>$defaulthdr</th>\n";
         $params = $this->params;
-        ksort($params);
-        foreach ($params as $param) {
-            $descr = get_string("{$this->uiname}ui_{$param->name}_descr", 'qtype_coderunner');
-            if ($param->type == 'boolean') {
-                $displayvalue = $param->value ? 'true' : 'false';
-            } else {
-                $displayvalue = json_encode($param->value);
+        if ($params) {
+            $namehdr = get_string('uiparamname', 'qtype_coderunner');
+            $descrhdr = get_string('uiparamdesc', 'qtype_coderunner');
+            $defaulthdr = get_string('uiparamdefault', 'qtype_coderunner');
+            $html = get_string('uiparametertablehead', 'qtype_coderunner');
+            $html .= "<table class='table table-bordered qtype_coderunner_tableui_parameters_table'>\n<tr><th>$namehdr</th><th>$descrhdr</th><th>$defaulthdr</th>\n";
+            ksort($params);
+            foreach ($params as $param) {
+                $descr = get_string("{$this->uiname}ui_{$param->name}_descr", 'qtype_coderunner');
+                if ($param->type == 'boolean') {
+                    $displayvalue = $param->value ? 'true' : 'false';
+                } else {
+                    $displayvalue = json_encode($param->value);
+                }
+                $html .= "<tr><td>{$param->name}</td><td>$descr</td><td><code>$displayvalue</code></td></tr>\n";
             }
-            $html .= "<tr><td>{$param->name}</td><td>$descr</td><td><code>$displayvalue</code></td></tr>\n";
+            $html .= "</table>\n";
+        } else {
+            $html = get_string('nouiparameters', 'qtype_coderunner', array('uiname'=>$this->uiname));
         }
-        $html .= "</table>\n";
-        return $html;
+        $div = "<div class='ui_parameters_descr'>$html</div>";
+        return $div;
     }
     
 }

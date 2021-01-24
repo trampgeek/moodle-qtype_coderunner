@@ -54,24 +54,22 @@ class qtype_coderunner_ui_parameters_test extends qtype_coderunner_testcase {
     
     // Test that we can get a list of all plugins and their parameter lists.
     public function test_plugin_list() {
-        $plugins = new qtype_coderunner_ui_plugins();
+        $plugins = qtype_coderunner_ui_plugins::getInstance();
         $names = $plugins->all_names();
         $this->assertContains('ace', $names);
         $this->assertContains('graph', $names);
-        // debugging(print_r($plugins->parameters('ace'), true));
         $aceparams = $plugins->parameters('ace');
         $this->assertEquals(0, $aceparams->length());
         $graphparams = $plugins->parameters('graph');
-        //debugging(print_r($graphparams, true));
         $this->assertEquals(26, $graphparams->value('noderadius'));
         $this->assertContains('ace', $plugins->all_with_no_params());
     }
     
     // Test the dropdown list for the plugins.
     public function test_dropdown() {
-        $plugins = new qtype_coderunner_ui_plugins();
+        $plugins = qtype_coderunner_ui_plugins::getInstance();
         $dropdowns = $plugins->dropdownlist();
-        $this->assertEquals('None', $dropdowns['None']);
+        $this->assertEquals('None', $dropdowns['none']);
         $this->assertEquals('Graph', $dropdowns['graph']);
     }
 }

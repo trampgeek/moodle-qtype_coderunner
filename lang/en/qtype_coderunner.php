@@ -289,7 +289,7 @@ $string['hoisttemplateparams'] = 'Hoist template parameters';
 
 $string['howtogetmore'] = 'For more detailed information, save the question with \'Validate on save\' unchecked and test manually';
 
-$string['illegaluiparamname'] = 'The following are not valid ui parameters: ';
+$string['illegaluiparamname'] = 'The following are not valid parameters for the {$a->uiname} UI: ';
 $string['iscombinatortemplate'] = 'Is combinator';
 $string['ideone_user'] = 'Ideone server user';
 $string['ideone_user_desc'] = 'The login name to use when connecting to the deprecated Ideone server (if the ideone sandbox is enabled)';
@@ -382,6 +382,7 @@ $string['mustrequirefewer'] = 'You cannot require more attachments than you allo
 
 $string['nearequalitygrader'] = 'Nearly exact match';
 $string['nodetailsavailable'] = 'Select a question type to see detailed help.';
+$string['nouiparameters'] = 'The {$a->uiname} UI does not take parameters.';
 $string['noqtype'] = 'No question type selected';
 $string['morehidden'] = 'Some hidden test cases failed, too.';
 $string['noerrorsallowed'] = 'Your code must pass all tests to earn any marks. Try again.';
@@ -1157,7 +1158,8 @@ $string['uiparametergroup_help'] = 'A JSON string defining any User Interface
 parameter values that are either required by the UI plugin or which override the
 default values. For example, to draw larger nodes when using the GraphUI: \'{"noderadius": 30}\'';
 $string['uiparameters'] = 'UI parameters (JSON)';
-$string['uiparametertablehead'] = '<p><b>The available parameters for the current UI are as follows.</b></p>';
+$string['uiparametertablehead'] = '<p><b>The available parameters for the current UI are as follows.
+Note that default values shown may have been overridden by the prototype.</b></p>';
 $string['uiparamname'] = 'Name';
 $string['uiparamdesc'] = 'Description';
 $string['uiparamdefault'] = 'Default';
@@ -1165,6 +1167,7 @@ $string['unauthorisedbulktest'] = 'You do not have suitable access to any CodeRu
 $string['unauthoriseddbaccess'] = 'You are not authorised to use this script';
 $string['unknownerror'] = 'An unexpected error occurred. The sandbox may be down. Try again shortly.';
 $string['unknowncombinatorgraderfield'] = 'Unknown field name ({$a->fieldname}) in combinator grader output';
+$string['unknownuiplugin'] = 'Information on an unknown plugin ({$a->pluginname}) was requested.';
 $string['unserializefailed'] = 'Stored test results could not be deserialised. Perhaps try regrading?';
 $string['useasexample'] = 'Use as example';
 $string['useace'] = 'Template uses ace';

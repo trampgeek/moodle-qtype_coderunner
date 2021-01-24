@@ -26,7 +26,7 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
 
     // Define a mapping from the fields of the JSON object returned by an AJAX
     // 'get question type' request to the form elements. Only fields that
-    // below to the question type should appear here. Keys are JSON field
+    // belong to the question type should appear here. Keys are JSON field
     // names, values are a 3- or 4-element array of: a jQuery form element selector;
     // the element property to be set; a default value if the JSON field is
     // empty and an optional filter function to apply to the field value before
@@ -314,6 +314,28 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
             }
         }
 
+
+        // Load the UI parameter description field by Ajax when the UI plugin
+        // is changed.
+        function loadUiParametersDescription() {
+            var newUi = uiplugin.children('option:selected').text();
+            $.getJSON(M.cfg.wwwroot + '/question/type/coderunner/ajax.php',
+                {
+                    uiplugin: newUi,
+                    courseid: courseId,
+                    sesskey: M.cfg.sesskey
+                },
+                function (uidescr) {
+                    $('.ui_parameters_descr').replaceWith(uidescr);
+                }
+            ).fail(function () {
+                // AJAX failed. We're dead, Fred. The attempt to get the
+                // language translation for the error message will likely
+                // fail too, so use English for a start.
+                langStringAlert('error_loading_ui_descr');
+            });
+        }
+
         // Show/hide all testtype divs in the testcases according to the
         // 'Precheck' selector.
         function set_testtype_visibilities() {
@@ -387,6 +409,8 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
             setUi('id_uiparameters', 'ace');
         }
 
+        loadUiParametersDescription();
+
         // Set up event Handlers.
 
         customise.on('change', function() {
@@ -446,9 +470,7 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
 
         uiplugin.on('change', function () {
             setUis();
-            str.get_string('uichanged', 'qtype_coderunner').then(function (s) {
-                alert(s);
-            });
+            loadUiParametersDescription();
         });
 
         precheck.on('change', set_testtype_visibilities);

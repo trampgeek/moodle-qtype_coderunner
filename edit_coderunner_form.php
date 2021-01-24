@@ -598,28 +598,26 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->addHelpButton('twigcontrols', 'twigcontrols', 'qtype_coderunner');
         
         // UI parameters
-        $uiplugin = empty($this->question->options->uiplugin) ? 'None' : $this->question->options->uiplugin;
-        $plugins = new qtype_coderunner_ui_plugins();
+        $uiplugin = empty($this->question->options->uiplugin) ? 'none' : $this->question->options->uiplugin;
+        $plugins = qtype_coderunner_ui_plugins::getInstance();
         $plugins_without_params = $plugins->all_with_no_params();
-        if ($uiplugin !== 'None' && !in_array($uiplugin, $plugins_without_params)) {
-            // Only add the UI parameters panel if the current plugin has parameters.
-            $uielements = array();
-            $infohead = get_string('uiparametertablehead', 'qtype_coderunner');
-            $tablehtml = $plugins->parameters($uiplugin)->html_table();
-            $uielements[] = $mform->createElement('html', "<div><p>$infohead</p>$tablehtml</div>");
-            $uielements[] = $mform->createElement('textarea', 'uiparameters',
-                get_string('uiparameters', 'qtype_coderunner'),
-                array('rows' => self::UI_PARAM_ROWS,
-                      'class' => 'edit_code',
-                      'data-lang' => '' // Don't syntax colour ui params.
-                )
-            );
-            $mform->setType('uiparameters', PARAM_RAW);
-        
-            $mform->addElement('group', 'uiparametergroup', get_string('uiparametergroup', 'qtype_coderunner'),
-                $uielements, false);
-            $mform->addHelpButton('uiparametergroup', 'uiparametergroup', 'qtype_coderunner');
-        }
+
+        $uielements = array(); 
+        $uiparamedescriptionhtml = $plugins->parameters($uiplugin)->html_table();
+        $uielements[] = $mform->createElement('html', $uiparamedescriptionhtml);
+        $uielements[] = $mform->createElement('textarea', 'uiparameters',
+            get_string('uiparameters', 'qtype_coderunner'),
+            array('rows' => self::UI_PARAM_ROWS,
+                  'class' => 'edit_code',
+                  'data-lang' => '' // Don't syntax colour ui params.
+            )
+        );
+        $mform->setType('uiparameters', PARAM_RAW);
+
+        $mform->addElement('group', 'uiparametergroup', get_string('uiparametergroup', 'qtype_coderunner'),
+            $uielements, null, false);
+        $mform->addHelpButton('uiparametergroup', 'uiparametergroup', 'qtype_coderunner');
+        $mform->hideIf('uiparametergroup', 'uiplugin', 'in', $plugins_without_params);
     }
 
 
@@ -683,7 +681,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->addHelpButton('resultcolumns', 'resultcolumns', 'qtype_coderunner');
 
         $uicontrols = array();
-        $plugins = new qtype_coderunner_ui_plugins();
+        $plugins = qtype_coderunner_ui_plugins::getInstance();
         $uitypes = $plugins->dropdownlist();
 
         $uicontrols[] = $mform->createElement('select', 'uiplugin',
@@ -965,6 +963,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
     // Check that the uiparameters field, if present and non-empty, is valid.
     // Return an error message string if not valid, else an empty string.
     private function validate_ui_parameters($uiparameters) {
+        $checkmissing = false; // True to check for missing parameters. Currently not doing this.
         $errormessage = '';
         if (empty($uiparameters)) {
             return $errormessage;
@@ -980,9 +979,11 @@ class qtype_coderunner_edit_form extends question_edit_form {
                $errormessage = get_string('baduiparams', 'qtype_coderunner');
         } else {
             // Check only valid uiparameters are defined
-            $uiplugin = $this->formquestion->uiplugin;
-            $uiparams = new qtype_coderunner_ui_parameters($uiplugin);
+            $uipluginname = $this->formquestion->uiplugin;
+            $uiplugins = qtype_coderunner_ui_plugins::getInstance();
+            $uiparams = $uiplugins->parameters($uipluginname);
             $alluiparamnames = $uiparams->all_names();
+            $avail = print_r($alluiparamnames, true);
             $badparams = array();
             foreach (array_keys($decoded) as $paramname) {
                 if (!in_array($paramname, $alluiparamnames)) {
@@ -990,8 +991,9 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 }
             }
             if ($badparams) {
-                $errormessage = get_string('illegaluiparamname', 'qtype_coderunner') . implode(', ', $badparams);
-            } else {
+                $errormessage = get_string('illegaluiparamname', 'qtype_coderunner',
+                        array('uiname'=>$uipluginname)) . implode(', ', $badparams);
+            } else if ($checkmissing) {
                 // Make sure any required ui parameters are defined.
                 $missingparams = array();
                 foreach ($alluiparamnames as $uiname) {

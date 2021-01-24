@@ -27,10 +27,14 @@
 defined('MOODLE_INTERNAL') || die();
 
 class qtype_coderunner_ui_plugins {
+    
+    private static $instance = null;
 
     /**
      * Construct a ui_plugins object by reading amd/src directory to identify
      * all available plugins and their specifications (if available).
+     * uinames are internally lower-case and filenames should be lower-case
+     * too. Capitalised names are used only in the UI plugin selector.
      */
     public function __construct() {
         global $CFG;
@@ -41,12 +45,27 @@ class qtype_coderunner_ui_plugins {
             if (substr($file, 0, 3) === 'ui_' && substr($file, -3) === '.js') {
                 $uiname = substr($file, 3, -3);
                 $parameters = new qtype_coderunner_ui_parameters($uiname);
-                $plugin = new qtype_coderunner_ui_plugin($file, $parameters);
-                $this->plugins[$plugin->uiname] = $plugin;
+                $plugin = new qtype_coderunner_ui_plugin($uiname, $parameters);
+                $this->plugins[$uiname] = $plugin;
             }
         }
+        
+        // Add a dummy 'None' uiplugin.
+        $emptyparameters = new qtype_coderunner_ui_parameters('none');
+        $this->plugins['none'] = new qtype_coderunner_ui_plugin(null, $emptyparameters);
     }
     
+    // This is a singleton class. Construct the object only if we haven't
+    // already done so.
+    public static function getInstance()
+    {
+      if (self::$instance == null)
+      {
+        self::$instance = new qtype_coderunner_ui_plugins();
+      }
+
+      return self::$instance;
+    }
     
     // Return an array of all ui plugin names.
     public function all_names() {
@@ -80,16 +99,17 @@ class qtype_coderunner_ui_plugins {
     
     // Return the parameters for the given ui plugin name.
     public function parameters($name) {
-        return $this->plugins[$name]->parameters();
+        $params = $this->plugins[$name]->parameters();
+        return $params;
     }
     
     // Return an array mapping from uiname to a ucfirst version of the name,
     // and including a None => None entry, suitable for use in the plugin
     // dropdown selector.
     public function dropdownlist() {
-        $uiplugins = array('None' => 'None');
+        $uiplugins = array();
         foreach ($this->plugins as $name => $plugin) {
-            $uiplugins[$plugin->uiname] = $plugin->externalname;
+            $uiplugins[$plugin->uiname] = ucfirst($plugin->uiname);
         }
         return $uiplugins;
     }
@@ -97,15 +117,21 @@ class qtype_coderunner_ui_plugins {
 
 
 // A class to represent a single plugin. The uiname is the lower case
-// plugin name, e.g. 'ace', 'graph', the externalname is the same with
-// an uppercase first letter.
+// plugin name, e.g. 'ace', 'graph'.
 class qtype_coderunner_ui_plugin {
     
-    public function __construct(string $filename, qtype_coderunner_ui_parameters $parameters) {
-        assert (substr($filename, 0, 3) === 'ui_' && substr($filename, -3) === '.js');
-        $this->filename = $filename;
-        $this->uiname = substr($filename, 3, -3);
-        $this->externalname = ucfirst($this->uiname);
+    /**
+     * 
+     * @param string-or-null $filename the ui plugins filename or null for 'None'
+     * @param qtype_coderunner_ui_parameters $parameters the set of parameters available.
+     */
+    public function __construct($uiname, qtype_coderunner_ui_parameters $parameters) {
+        if ($uiname !== null) {
+            $this->uiname = $uiname;
+        } else {
+            // Special case for the 'None' ui plugin.
+            $this->uiname = 'none';
+        }
         $this->params = $parameters;
     }
     

@@ -120,6 +120,7 @@ EOTEMPLATE;
     <allornothing>1</allornothing>
     <penaltyregime>10, 20, ...</penaltyregime>
     <precheck>0</precheck>
+    <hidecheck>0</hidecheck>
     <showsource></showsource>
     <answerboxlines></answerboxlines>
     <answerboxcolumns></answerboxcolumns>

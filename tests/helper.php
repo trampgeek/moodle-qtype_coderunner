@@ -112,7 +112,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
         // Exclude answer, defaults to null.
         $qdata->options->validateonsave = 1;
         // Ignore a bunch because they default to null.
-        $qdata->options->uiplugin = 'None';
+        $qdata->options->uiplugin = 'none';
         $qdata->options->attachments = 0;
         $qdata->options->attachmentsrequired = 0;
         $qdata->options->maxfilesize = 0;
@@ -176,7 +176,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $form->cputimelimitsecs = '';
         $form->memlimitmb = '';
         $form->customise = 1;
-        $form->uiplugin = 'None';
+        $form->uiplugin = 'none';
         $form->attachments = 0;
         $form->attachmentsrequired = 0;
         $form->maxfilesize = 0;
@@ -236,7 +236,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $form->cputimelimitsecs = '';
         $form->memlimitmb = '';
         $form->customise = 1;
-        $form->uiplugin = 'None';
+        $form->uiplugin = 'none';
         $form->attachments = 0;
         $form->attachmentsrequired = 0;
         $form->maxfilesize = 0;
