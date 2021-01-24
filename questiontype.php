@@ -434,20 +434,21 @@ class qtype_coderunner extends question_type {
             return;
         }
 
-        $noninheritedfields = $this->noninherited_fields();
-        foreach ($prototype as $field => $value) {
-            $isinheritedfield = !in_array($field, $noninheritedfields);
-            if ($isinheritedfield && $field != 'id' && $field != 'questionid') {
-                if (isset($target->$field) &&
-                          $target->$field !== null &&
-                          $target->$field !== '' &&
-                          $target->$field != $value) {
+        $extrafields = $this->extra_question_fields();
+        array_shift($extrafields); // Remove the extraneous qtype_coderunner_options entry.
+        $inheritedfields = array_diff($extrafields, $this->noninherited_fields());
+        foreach ($inheritedfields as $field) {
+            $prototypevalue = $prototype->$field;
+            if (isset($target->$field) &&
+                    $target->$field !== null &&
+                    $target->$field !== '' &&
+                    $target->$field != $prototypevalue) {
                     $target->customise = true; // An inherited field has been changed.
+                    debugging("Changed {$field} from $prototypevalue to {$target->$field}");
                 } else {
-                    $target->$field = $value;
+                    $target->$field = $prototypevalue; // Inherit the field value
                 }
             }
-        }
 
         if (!isset($target->sandbox)) {
             $target->sandbox = null;
