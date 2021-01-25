@@ -113,15 +113,15 @@ class qtype_coderunner_ui_parameters {
         if (!empty($json)) {
             $newvalues = json_decode($json);
             foreach ($newvalues as $key => $value) {
-                $matching_key = $this->find_key($key);
-                if ($matching_key === null) {
+                $matchingkey = $this->find_key($key);
+                if ($matchingkey === null) {
                     if ($ignorebad) {
                         continue;
                     } else {
                         throw new qtype_coderunner_exception('Unexpected key value when merging json');
                     }
                 }
-                $this->params[$matching_key]->value = $value;
+                $this->params[$matchingkey]->value = $value;
             }
         }
     }
@@ -159,13 +159,20 @@ class qtype_coderunner_ui_parameters {
      * Return the json encoded parameter-name => parameter value set.
      */
     public function to_json() {
+        return json_encode($this->to_array());
+    }
+    
+    /**
+     * Return the parameters as an associative array.
+     */
+    public function to_array() {
         $params_array = array();
         foreach ($this->params as $param) {
             if ($param->value !== null) {
                 $params_array[$param->name] = $param->value;
             }
         }
-        return json_encode($params_array);
+        return $params_array;
     }
     
     
@@ -174,12 +181,15 @@ class qtype_coderunner_ui_parameters {
      */
     public function html_table() {
         $params = $this->params;
+        $html = '<p class="uiparamdescrheader">';
         if ($params) {
             $namehdr = get_string('uiparamname', 'qtype_coderunner');
             $descrhdr = get_string('uiparamdesc', 'qtype_coderunner');
             $defaulthdr = get_string('uiparamdefault', 'qtype_coderunner');
-            $html = get_string('uiparametertablehead', 'qtype_coderunner');
-            $html .= "<table class='table table-bordered qtype_coderunner_tableui_parameters_table'>\n<tr><th>$namehdr</th><th>$descrhdr</th><th>$defaulthdr</th>\n";
+            $html .= get_string('uiparametertablehead', 'qtype_coderunner', 
+                    array('uiname' => $this->uiname));
+            $html .= '</p>';
+            $html .= "<table class='table table-bordered qtype_coderunner_ui_parameters_table'>\n<tr><th>$namehdr</th><th>$descrhdr</th><th>$defaulthdr</th>\n";
             ksort($params);
             foreach ($params as $param) {
                 $descr = get_string("{$this->uiname}ui_{$param->name}_descr", 'qtype_coderunner');
@@ -192,7 +202,8 @@ class qtype_coderunner_ui_parameters {
             }
             $html .= "</table>\n";
         } else {
-            $html = get_string('nouiparameters', 'qtype_coderunner', array('uiname'=>$this->uiname));
+            $html .= get_string('nouiparameters', 'qtype_coderunner', array('uiname'=>$this->uiname));
+            $html .= '</p>';
         }
         $div = "<div class='ui_parameters_descr'>$html</div>";
         return $div;

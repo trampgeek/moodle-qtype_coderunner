@@ -219,7 +219,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $attributes = array(
             'rows' => 5,
             'class' => 'preloadanswer edit_code',
-            //'data-params' => $this->twiggedparams,
+            'data-params' => $this->get_merged_ui_params(),
             'data-lang' => $this->acelang);
         $mform->addElement('textarea', 'answerpreload',
                 get_string('answerpreload', 'qtype_coderunner'),
@@ -354,12 +354,14 @@ class qtype_coderunner_edit_form extends question_edit_form {
     public function data_preprocessing($question) {
         // Preprocess the question data to be loaded into the form. Called by set_data after
         // standard stuff all loaded.
+        // TODO - consider how much of this can be dispensed with just by
+        // calling question_bank::loadquestion($question->id).
         global $COURSE;
 
         $question->missingprototypemessage = ''; // The optimistic assumption
         if (isset($question->options->testcases)) { // Reloading a saved question?
 
-            // Firstly check if we're editing a question with a missing prototype
+            // Firstly check if we're editing a question with a missing prototype.
             // Set missing_prototype if so.
             $q = $this->make_question_from_form_data($question);
             if ($q->prototype === null) {
@@ -617,7 +619,6 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->addElement('group', 'uiparametergroup', get_string('uiparametergroup', 'qtype_coderunner'),
             $uielements, null, false);
         $mform->addHelpButton('uiparametergroup', 'uiparametergroup', 'qtype_coderunner');
-        $mform->hideIf('uiparametergroup', 'uiplugin', 'in', $plugins_without_params);
     }
 
 
@@ -941,7 +942,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         }
         
         if ($errormessage === '') {
-            // Check for legacy case of ui parameters defined within the template params
+            // Check for legacy case of ui parameters defined within the template params.
             $uiplugin = $this->formquestion->uiplugin;
             $uiparams = new qtype_coderunner_ui_parameters($uiplugin);
             $templateparamsnoprototype = json_decode($this->formquestion->template_params_json(), true);
@@ -954,6 +955,19 @@ class qtype_coderunner_edit_form extends question_edit_form {
             }
             if ($badparams) {
                 $errormessage = get_string('legacyuiparams', 'qtype_coderunner') . implode(', ', $badparams);
+            } else {
+                foreach (array_keys($templateparamsnoprototype) as $paramname) {
+                    // Also check if  template parameter starts with UI plugin name and
+                    // an underscore followed by a valid ui parameter name.
+                    $bits = explode('_', $paramname, 2);
+                    if (count($bits) > 1 && $bits[0] === $uiplugin && in_array($bits[1], $alluiparamnames)) {
+                        $badparams[] = $paramname;
+                    }
+                    if ($badparams) {
+                        $extra = array('uiname' => $uiplugin);
+                        $errormessage = get_string('legacyuiparams2', 'qtype_coderunner', $extra) . implode(', ', $badparams);
+                    }
+                }
             }
         }
 
@@ -969,7 +983,6 @@ class qtype_coderunner_edit_form extends question_edit_form {
             return $errormessage;
         }
         $json = '';
-        $seed = mt_rand();
         try {
             $decoded = json_decode($uiparameters, true);
         } catch (Exception $e) {
@@ -1268,7 +1281,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $question->supportfilemanagerdraftid = $this->get_file_manager('datafiles');
         $question->student = new qtype_coderunner_student($USER);
 
-        // Clean the question object, get inherited fields and run the sample answer.
+        // Clean the question object, get inherited fields.
         $qtype = new qtype_coderunner();
         $qtype->clean_question_form($question, true);
         $questiontype = $question->coderunnertype;
@@ -1283,30 +1296,29 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
     
     // Returns the Json for the merged template parameters.
+    // It is assumed that this function is called only when a question is
+    // initially loaded from the DB or a new question is being created,
+    // so that it can use the question bank's load_question method to get
+    // a valid question from the DB rather than the stdClass 'question'
+    // provided to the form at initialisation.
     private function get_merged_ui_params() {
-        // ** TODO ** check for legacy use of template params and generate
-        // validation errors. 
+        global $USER;
+        if (isset($this->cacheduiparamsjson)) {
+            return $this->cacheduiparamsjson;
+        }
         $q = $this->question;
         if (isset($q->options)) {
             // Editing an existing question
-            $ui = $q->options->uiplugin;
-            $templateparams = $q->options->templateparamsevald;
-            $uiparamsfield = $q->options->uiparameters;
+            $qfromdb = question_bank::load_question($q->id);
+            $qfromdb->student = new qtype_coderunner_student($USER);
+            $seed = 1;
+            $qfromdb->evaluate_question_for_display($seed, null);
+            $json = json_encode($qfromdb->mergeduiparameters);
+            $this->cacheduiparamsjson = $json;
+            return $json;
         } else {
-            // New question
-            $ui = 'ace';
-            $templateparams = '';
-            $uiparamsfield = '';
+            return '{}';
         }
-
-        $uiparams = new qtype_coderunner_ui_parameters($ui);
-        if (!empty($q->prototype)) {
-            $uiparams->merge_json($q->prototype->uiparameters, true);
-        }
-        $uiparams->merge_json($templateparams, true);
-        $uiparams->merge_json($uiparamsfield);
-        $json = $uiparams->to_json();
-        return $json;
     }
 
 

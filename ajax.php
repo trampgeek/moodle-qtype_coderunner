@@ -19,6 +19,9 @@
  * question type by looking up the prototype in the question_coderunner_options
  * table. Fields 'success' and 'error' are added for validation checking by
  * the caller.
+ * 
+ * Alternatively, if called with a parameter uiplugin rather than qtype, returns
+ * a record describing the UI plugin parameters.
  *
  * @group qtype_coderunner
  * Assumed to be run after python questions have been tested, so focuses
@@ -64,8 +67,9 @@ if ($qtype) {
         $uidescr = get_string('unknownuiplugin', 'qtype_coderunner', array('pluginname'=>$uiplugin));
     } else {
         $uiparams = $uiplugins->parameters($uiplugin);
-        $uidescr = $uiparams->html_table();
+        $numparameters = $uiparams->length();
+        $descr = $uiparams->html_table();
     }
-    echo json_encode($uidescr);
+    echo json_encode(array('numparameters' => $numparameters, 'descr' => $descr));
 }
 die();

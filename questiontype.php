@@ -444,7 +444,6 @@ class qtype_coderunner extends question_type {
                     $target->$field !== '' &&
                     $target->$field != $prototypevalue) {
                     $target->customise = true; // An inherited field has been changed.
-                    debugging("Changed {$field} from $prototypevalue to {$target->$field}");
                 } else {
                     $target->$field = $prototypevalue; // Inherit the field value
                 }

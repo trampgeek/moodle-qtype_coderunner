@@ -57,14 +57,11 @@ class qtype_coderunner_ui_plugins {
     
     // This is a singleton class. Construct the object only if we haven't
     // already done so.
-    public static function getInstance()
-    {
-      if (self::$instance == null)
-      {
-        self::$instance = new qtype_coderunner_ui_plugins();
-      }
-
-      return self::$instance;
+    public static function getInstance() {
+        if (self::$instance == null) {
+            self::$instance = new qtype_coderunner_ui_plugins();
+        }
+        return self::$instance;
     }
     
     // Return an array of all ui plugin names.

@@ -702,7 +702,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
                 'id' => 'id_' . $fieldname,
                 'spellcheck' => 'false',
                 'rows' => $rows,
-                'data-params' => $question->mergeduiparams,
+                'data-params' => json_encode($question->mergeduiparameters),
                 'data-globalextra' => $question->globalextra,
                 'data-lang' => ucwords($currentlanguage),
                 'data-test0' => $question->testcases ? $question->testcases[0]->testcode : ''

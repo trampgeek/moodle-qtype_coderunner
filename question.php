@@ -103,12 +103,12 @@ class qtype_coderunner_question extends question_graded_automatically {
     //
     public function evaluate_question_for_display($seed, $step) {
         $this->get_prototype();
-        $paramsjson = $this->evaluate_merged_parameters($seed, $step);
-        $this->parameters = json_decode($paramsjson);
+        $this->templateparamsjson = $this->evaluate_merged_parameters($seed, $step);
+        $this->parameters = json_decode($this->templateparamsjson);
         if ($this->twigall) {
             $this->twig_all();
         }
-        $this->uiparameters = $this->evaluate_merged_ui_parameters();
+        $this->mergeduiparameters = $this->evaluate_merged_ui_parameters();
     }
     
     /**
@@ -143,27 +143,20 @@ class qtype_coderunner_question extends question_graded_automatically {
      */
   
      function evaluate_merged_parameters($seed, $step=null) {
-        // If we have a value for templateparamsevald and we're asked to use it, do so.
-        if (!$this->templateparamsevalpertry && !empty($this->templateparamsevald)) {
-            $paramsjson = $this->templateparamsevald;
-        } else {
-         
-            // Otherwise we have to evaluate this and our prototypes template
-            // parameters and merge them.
-            assert(isset($this->templateparams));
-            $paramsjson = $this->template_params_json($seed, $step, '_template_params');
-            $prototype = $this->prototype;
-            if ($prototype !== null && $this->prototypetype == 0) {
-                // Merge with prototype parameters (unless this is a prototype or prototype is missing).
-                $prototype->student = $this->student; // Supply this missing attribute.
-                $prototypeparamsjson = $prototype->template_params_json($seed, $step, '_prototype__template_params');
-                $paramsjson = qtype_coderunner_util::merge_json($prototypeparamsjson, $paramsjson);
-            }
-       
-            if (empty($paramsjson)) {
-                $paramsjson = '{}';
-            }
+        assert(isset($this->templateparams));
+        $paramsjson = $this->template_params_json($seed, $step, '_template_params');
+        $prototype = $this->prototype;
+        if ($prototype !== null && $this->prototypetype == 0) {
+            // Merge with prototype parameters (unless this is a prototype or prototype is missing).
+            $prototype->student = $this->student; // Supply this missing attribute.
+            $prototypeparamsjson = $prototype->template_params_json($seed, $step, '_prototype__template_params');
+            $paramsjson = qtype_coderunner_util::merge_json($prototypeparamsjson, $paramsjson);
         }
+
+        if (empty($paramsjson)) {
+            $paramsjson = '{}';
+        }
+
         return $paramsjson;
 
         // TODO - how to report an error on the json_decode??
@@ -192,8 +185,12 @@ class qtype_coderunner_question extends question_graded_automatically {
                 $jsontemplateparams = $step->get_qt_var($qtvar . '_json');
             } else {
                 $jsontemplateparams = $this->evaluate_template_params($params, $lang, $seed);
-                $step->set_qt_var($qtvar . '_md5', $currentparamsmd5);
-                $step->set_qt_var($qtvar . '_json', $jsontemplateparams);
+                if (is_a($step, 'question_attempt_step_read_only')) {
+                    debugging("Read-only question attempt step encountered");
+                } else {
+                    $step->set_qt_var($qtvar . '_md5', $currentparamsmd5);
+                    $step->set_qt_var($qtvar . '_json', $jsontemplateparams);
+                }
             }
         }
         return $jsontemplateparams;
@@ -212,13 +209,14 @@ class qtype_coderunner_question extends question_graded_automatically {
      * valid json).
      */
     function evaluate_template_params($templateparams, $lang, $seed) {
+        $lang = strtolower($lang); // Just in case some old legacy DB entries escaped.
         if (empty($templateparams)) {
             $jsontemplateparams = '{}';
         } else if (isset($this->cachedfuncparams) &&
                 $this->cachedfuncparams === array('lang' => $lang, 'seed' => $seed)) {
             // Use previously cached result if possible.
             $jsontemplateparams = $this->cachedevaldtemplateparams;
-        } else if ($lang == 'None') {
+        } else if ($lang == 'none') {
             $jsontemplateparams = $templateparams;
         } else if ($lang == 'twig') {
             $jsontemplateparams = $this->twig_render_with_seed($templateparams, $seed);
@@ -281,15 +279,16 @@ class qtype_coderunner_question extends question_graded_automatically {
     // built-in defaults; plugin's json defaults; modern prototype ui params;
     // legacy prototype template params; legacy question template params;
     // modern question ui params.
+    // Return the the merged parameters as an associative array.
     private function evaluate_merged_ui_parameters() {
         $uiplugin = $this->uiplugin === null ? 'ace' : strtolower($this->uiplugin);
         $uiparams = new qtype_coderunner_ui_parameters($uiplugin);
         if (isset($this->prototype->uiparameters)) { // Ensure prototype not missing.
             $uiparams->merge_json($this->prototype->uiparameters);
         }
-        $uiparams->merge_json($this->templateparamsevald, true); // Legacy support.    
+        $uiparams->merge_json($this->templateparamsjson, true); // Legacy support.    
         $uiparams->merge_json($this->uiparameters);
-        $this->mergeduiparams = $uiparams->to_json();
+        return $uiparams->to_array();
     }
     
     

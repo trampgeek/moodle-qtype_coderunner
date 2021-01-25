@@ -141,6 +141,7 @@ $string['enable_diff_check_desc'] = 'Present students with a \'Show differences\
 $string['enable_sandbox_desc'] = 'Permit use of the specified sandbox for running student submissions';
 $string['equalitygrader'] = 'Exact match';
 $string['error_loading_prototype'] = 'Error loading prototype. Network problems or server down, perhaps?';
+$string['error_loading_ui_descr'] = 'Error loading UI description. Network problems or server down, perhaps?';
 $string['errorstring-ok'] = 'OK';
 $string['errorstring-autherror'] = 'Unauthorised to use sandbox';
 $string['errorstring-jobe400'] = 'Error from Jobe sandbox server: ';
@@ -341,7 +342,8 @@ they must write it in the default language, if specified, or the
 first of the allowed languages otherwise.';
 
 $string['languageselectlabel'] = 'Language';
-$string['legacyuiparams'] = 'UI parameters can no longer be defined within the template parameters field. Please define the following in the UI parameters field instead: ';
+$string['legacyuiparams'] = 'UI parameters can no longer be defined within the template parameters field. Please move the following to the UI parameters field instead: ';
+$string['legacyuiparams2'] = 'UI parameters can no longer be defined within the template parameters field. Please move the following to the UI parameters field instead, removing the \'{$a->uiname}_\' prefix: ';
 $string['mark'] = 'Mark';
 $string['marking'] = 'Mark allocation';
 $string['markinggroup'] = 'Marking';
@@ -1158,8 +1160,7 @@ $string['uiparametergroup_help'] = 'A JSON string defining any User Interface
 parameter values that are either required by the UI plugin or which override the
 default values. For example, to draw larger nodes when using the GraphUI: \'{"noderadius": 30}\'';
 $string['uiparameters'] = 'UI parameters (JSON)';
-$string['uiparametertablehead'] = '<p><b>The available parameters for the current UI are as follows.
-Note that default values shown may have been overridden by the prototype.</b></p>';
+$string['uiparametertablehead'] = 'The {$a->uiname} UI takes the following parameters.';
 $string['uiparamname'] = 'Name';
 $string['uiparamdesc'] = 'Description';
 $string['uiparamdefault'] = 'Default';

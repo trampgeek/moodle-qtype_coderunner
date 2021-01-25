@@ -83,7 +83,8 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
             precheck = $('select#id_precheck'),
             testtypedivs = $('div.testtype'),
             missingPrototype = $('#id_missing_prototype'),
-            uiplugin = $('#id_uiplugin');
+            uiplugin = $('#id_uiplugin'),
+            uiparameters = $('#id_uiparameters');
 
         // Set up the UI controller for the textarea whose name is
         // given as the first parameter (one of template, answer or answerpreload)
@@ -325,13 +326,21 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
                     courseid: courseId,
                     sesskey: M.cfg.sesskey
                 },
-                function (uidescr) {
-                    $('.ui_parameters_descr').replaceWith(uidescr);
+                function (uiInfo) {
+                    var currentuiparameters = uiparameters.val();
+                    $('.ui_parameters_descr').replaceWith(uiInfo.descr);
+                    if (uiInfo.numparameters == 0 && currentuiparameters.trim() === '') {
+                        uiparameters.val(''); // Remove stray white space.
+                        $('#fgroup_id_uiparametergroup').hide();
+                    } else {
+                        $('#fgroup_id_uiparametergroup').show();
+                        if (useace.prop('checked')) {
+                            setUi('id_uiparameters', 'ace');
+                        }
+                    }
                 }
             ).fail(function () {
-                // AJAX failed. We're dead, Fred. The attempt to get the
-                // language translation for the error message will likely
-                // fail too, so use English for a start.
+                // AJAX failed.
                 langStringAlert('error_loading_ui_descr');
             });
         }

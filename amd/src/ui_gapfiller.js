@@ -20,7 +20,7 @@
  * This plugin replaces the usual textarea answer box with a div
  * consisting of pre-formatted text supplied by the question author in either the
  * "globalextra" field or the testcode field of the first test case, according
- * to the ui parameter gapfiller_ui_source (default: globalextra).  HTML
+ * to the ui parameter ui_source (default: globalextra).  HTML
  * entry or textarea elements are then inserted at
  * specified points. It is intended primarily for use with coding questions
  * where the answerbox presents the students with code that has smallish bits
@@ -77,7 +77,7 @@ define(['jquery'], function($) {
         this.uiParams = uiParams;
         this.fail = false;
         this.htmlDiv = null;
-        this.source = uiParams.gapfiller_ui_source || 'globalextra';
+        this.source = uiParams.ui_source || 'globalextra';
         if (this.source !== 'globalextra' && this.source !== 'test0') {
             alert('Invalid source for HTML in ui_gapfiller');
             this.source = 'globalextra';
@@ -92,7 +92,7 @@ define(['jquery'], function($) {
     }
 
     GapfillerUi.prototype.failed = function() {
-        return this.fail;
+        return this.fail; // Currently always true. See reload function.
     };
 
     // Copy the serialised version of the HTML UI area to the TextArea.
@@ -210,12 +210,14 @@ define(['jquery'], function($) {
     // Reload the HTML fields from the given serialisation.
     // Unlike other plugins, we don't actually fail the load if, for example
     // the number of fields doesn't match the number of values in the
-    // serialisation. We simply clear all the fields to zero. This ensures
+    // serialisation. We simply set any excess fields for which data
+    // in unavailable to '???' or discard extra values. This ensures
     // that at least the unfilled content is presented to the question author
     // when the number of fields is altered during editing.
     GapfillerUi.prototype.reload = function() {
         var
             content = $(this.textArea).val(), // JSON-encoded HTML element settings.
+            value,
             values,
             i,
             fields,
@@ -226,12 +228,9 @@ define(['jquery'], function($) {
             try {
                 values = JSON.parse(content);
                 fields = this.getFields();
-                if (fields.length !== values.length) {
-                    this.fail = true;
-                } else {
-                    for (i = 0; i < values.length; i++) {
-                        this.setField($(fields[i]), values[i]);
-                    }
+                for (i = 0; i < fields.length; i++) {
+                    value = i < values.length ? values[i] : '???';
+                    this.setField($(fields[i]), value);
                 }
             } catch(e) {
                 // Just ignore errors
