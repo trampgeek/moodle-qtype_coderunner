@@ -277,8 +277,21 @@ body#page-question-type-coderunner textarea#id_templateparams {
     resize: both;
 }
 
-body#page-question-type-coderunner .uiparamdescrheader {
+body#page-question-type-coderunner .uiparamtablediv {
     padding-top: 8px;
+}
+
+body#page-question-type-coderunner table.uiparamtable,
+body#page-question-type-coderunner table.uiparamtable th,
+body#page-question-type-coderunner table.uiparamtable td {
+    border: 1px solid #ccc;
+    padding: 4px;
+    background-color: #F8F8F8;
+}
+
+body#page-question-type-coderunner button.toggleuidetails {
+    border: none;
+    color: blue;
 }
 
 body#page-question-type-coderunner .ace_wrapper {

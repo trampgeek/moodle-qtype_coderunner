@@ -281,6 +281,7 @@ $string['graphui_lockedgeset_descr'] = 'If true prevents the user from adding or
 $string['graphui_lockedgelabels_descr'] = 'True to prevent the user from editing edge labels. This also prevents any new edges from having labels.';
 $string['hidden'] = 'Hidden';
 $string['hidecheck'] = 'Hide check';
+$string['hidedetails'] = 'Hide details';
 $string['hidedifferences'] = 'Hide differences';
 $string['HIDE'] = 'Hide';
 $string['HIDE_IF_FAIL'] = 'Hide if fail';
@@ -935,6 +936,7 @@ $string['showcolumns'] = 'Show columns:';
 $string['showcolumns_help'] = 'Select which columns of the results table should
 be displayed to students. Empty columns will be hidden regardless.
 The defaults are appropriate for most uses.';
+$string['showdetails'] = 'Show details';
 $string['showdifferences'] = 'Show differences';
 $string['showsource'] = 'Template debugging';
 $string['sourcecodeallruns'] = 'Debug: source code from all test runs';
@@ -1160,7 +1162,7 @@ $string['uiparametergroup_help'] = 'A JSON string defining any User Interface
 parameter values that are either required by the UI plugin or which override the
 default values. For example, to draw larger nodes when using the GraphUI: \'{"noderadius": 30}\'';
 $string['uiparameters'] = 'UI parameters (JSON)';
-$string['uiparametertablehead'] = 'The {$a->uiname} UI takes the following parameters.';
+$string['uiparametertablehead'] = 'The {$a->uiname} UI takes the following parameters: ';
 $string['uiparamname'] = 'Name';
 $string['uiparamdesc'] = 'Description';
 $string['uiparamdefault'] = 'Default';

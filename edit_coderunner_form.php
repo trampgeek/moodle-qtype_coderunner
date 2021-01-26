@@ -605,7 +605,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $plugins_without_params = $plugins->all_with_no_params();
 
         $uielements = array(); 
-        $uiparamedescriptionhtml = $plugins->parameters($uiplugin)->html_table();
+        $uiparamedescriptionhtml = '<div class="ui_parameters_descr"></div>'; // JavaScript fills this.
         $uielements[] = $mform->createElement('html', $uiparamedescriptionhtml);
         $uielements[] = $mform->createElement('textarea', 'uiparameters',
             get_string('uiparameters', 'qtype_coderunner'),

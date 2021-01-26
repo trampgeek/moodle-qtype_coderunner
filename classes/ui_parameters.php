@@ -156,6 +156,18 @@ class qtype_coderunner_ui_parameters {
     
     
     /**
+     * Return a list of all parameter names with star to denote required.
+     */
+    public function all_names_starred() {
+        $names = array();
+        foreach ($this->params as $param) {
+            $names[] = $param->required ? $param->name . '*' : $param->name;
+        }
+        return $names;
+    }
+    
+    
+    /**
      * Return the json encoded parameter-name => parameter value set.
      */
     public function to_json() {
@@ -173,6 +185,18 @@ class qtype_coderunner_ui_parameters {
             }
         }
         return $params_array;
+    }
+    
+    
+    // Return a table (array of arrays) of parameters, each row containing
+    // the parameter name, description, default value and boolean 'isrequired'.
+    public function table() {
+        $table = array();
+        foreach ($this->params as $param) {
+            $descr = get_string("{$this->uiname}ui_{$param->name}_descr", 'qtype_coderunner');
+            $table[] = array($param->name, $descr, $param->value, $param->required);
+        }
+        return $table;
     }
     
     

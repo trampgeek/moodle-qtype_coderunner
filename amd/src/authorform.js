@@ -315,6 +315,18 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
             }
         }
 
+        // Return a table describing all the UI parameters.
+        function UiParameterDescriptionTable(uiParamInfo) {
+            var html = '<div class="uiparamtablediv"><table class="uiparamtable">\n',
+                hdrs = uiParamInfo.columnheaders, param, i;
+            html += "<tr><th>" + hdrs[0] + "</th><th>" + hdrs[1] + "</th><th>" + hdrs[2] + "</th></tr>\n";
+            for (i = 0; i < uiParamInfo.uiparamstable.length; i++) {
+                param = uiParamInfo.uiparamstable[i];
+                html += "<tr><td>" + param[0] + "</td><td>" + param[1] + "</td><td>" + param[2] + "</td></tr>\n";
+            }
+            html += "</table></div>\n";
+            return html;
+        }
 
         // Load the UI parameter description field by Ajax when the UI plugin
         // is changed.
@@ -327,12 +339,31 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
                     sesskey: M.cfg.sesskey
                 },
                 function (uiInfo) {
-                    var currentuiparameters = uiparameters.val();
-                    $('.ui_parameters_descr').replaceWith(uiInfo.descr);
-                    if (uiInfo.numparameters == 0 && currentuiparameters.trim() === '') {
+                    var currentuiparameters = uiparameters.val(),
+                        paramDescriptionDiv = $('.ui_parameters_descr'),
+                        showhidebutton = $('<button type="button" class="toggleuidetails">' + uiInfo.showdetails + '</button>'),
+                        table;
+                    paramDescriptionDiv.empty();
+                    paramDescriptionDiv.append(uiInfo.header);
+                    if (uiInfo.uiparamstable.length == 0 && currentuiparameters.trim() === '') {
                         uiparameters.val(''); // Remove stray white space.
                         $('#fgroup_id_uiparametergroup').hide();
                     } else {
+                        if (uiInfo.uiparamstable.length != 0) {
+                            paramDescriptionDiv.append(showhidebutton);
+                            table = $(UiParameterDescriptionTable(uiInfo));
+                            paramDescriptionDiv.append(table);
+                            table.hide();
+                            showhidebutton.click(function () {
+                                if (showhidebutton.html() == uiInfo.showdetails) {
+                                    table.show();
+                                    showhidebutton.html(uiInfo.hidedetails);
+                                } else {
+                                    table.hide();
+                                    showhidebutton.html(uiInfo.showdetails);
+                                }
+                            });
+                        }
                         $('#fgroup_id_uiparametergroup').show();
                         if (useace.prop('checked')) {
                             setUi('id_uiparameters', 'ace');

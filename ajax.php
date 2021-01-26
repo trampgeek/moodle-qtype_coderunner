@@ -21,7 +21,7 @@
  * the caller.
  * 
  * Alternatively, if called with a parameter uiplugin rather than qtype, returns
- * a record describing the UI plugin parameters.
+ * a list describing the UI plugin parameters and their descriptions.
  *
  * @group qtype_coderunner
  * Assumed to be run after python questions have been tested, so focuses
@@ -63,13 +63,29 @@ if ($qtype) {
 } else if ($uiplugin) {
     $uiplugins = qtype_coderunner_ui_plugins::getInstance();
     $allnames = $uiplugins->all_names();
+    $uiparamstable = array();
+    $columnheaders = array();
     if (!in_array($uiplugin, $allnames)) {
-        $uidescr = get_string('unknownuiplugin', 'qtype_coderunner', array('pluginname'=>$uiplugin));
+        $uiheader = get_string('unknownuiplugin', 'qtype_coderunner', array('pluginname'=>$uiplugin));
     } else {
         $uiparams = $uiplugins->parameters($uiplugin);
-        $numparameters = $uiparams->length();
-        $descr = $uiparams->html_table();
+        if ($uiparams->length() === 0) {
+            $uiheader = get_string('nouiparameters', 'qtype_coderunner', array('uiname' => $uiplugin));
+        } else {
+            $csv = implode(', ', $uiparams->all_names_starred());
+            $uiheader = get_string('uiparametertablehead', 'qtype_coderunner', 
+                    array('uiname' => $uiplugin)) . $csv . '.';
+            $uiparamstable = $uiparams->table();
+            $namehdr = get_string('uiparamname', 'qtype_coderunner');
+            $descrhdr = get_string('uiparamdesc', 'qtype_coderunner');
+            $defaulthdr = get_string('uiparamdefault', 'qtype_coderunner');
+            $columnheaders = array($namehdr, $descrhdr, $defaulthdr);
+        }
     }
-    echo json_encode(array('numparameters' => $numparameters, 'descr' => $descr));
+    echo json_encode(array('header' => $uiheader,
+        'uiparamstable' => $uiparamstable,
+        'columnheaders' => $columnheaders,
+        'showdetails' => get_string('showdetails', 'qtype_coderunner'),
+        'hidedetails' => get_string('hidedetails', 'qtype_coderunner')));
 }
 die();
