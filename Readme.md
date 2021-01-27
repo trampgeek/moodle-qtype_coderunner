@@ -1415,40 +1415,61 @@ defined in the previous section.
 
 ### The Twig QUESTION variable
 
-The template variable `QUESTION` is an object containing all the fields of the
-PHP question object. Some of the other
-QUESTION fields/attributes that might be of interest to authors include the
-following.
+The template variable `QUESTION` is an object containing a
+subset of the fields of the PHP question object.
 
- * `QUESTION.questionid` The unique internal ID of this question.
+By far the most import fields are:
+
+ * `QUESTION.id` The unique internal ID of this question.
+ * `QUESTION.questionid` Same as `QUESTION.id` - deprecated.
+ * `QUESTION.parameters` A Twig object whose (key, value) pairs are the
+result of merging the evaluated template parameters of the prototype with those
+of the question itself. These template parameters
+can either by used in Twig code like {{ QUESTION.parameters.someparam }} or,
+it *hoisttemplateparams* was set in the question authoring form, simply as
+{{ someparam }}.
+  * `QUESTION.uiparameters` A Twig object whose (key, value) pairs are the
+result of merging the UI parameters of the prototype with those
+of the question itself. These template parameters
+must be referenced in Twig code like {{ QUESTION.uiparameters.someparam }};
+they are not available as global variables.
+  * `QUESTION.answer` The supplied sample answer (null if not explicitly set).
+
+Other fields are:
+
  * `QUESTION.questiontext` The question text itself
- * `QUESTION.answer` The supplied sample answer (null if not explicitly set).
+
  * `QUESTION.answerpreload` The string that is preloaded into the answer box.
  * `QUESTION.language` The language being used to run the question in the sandbox,
 e.g. "Python3".
+ * `QUESTION.precheck` The setting of the precheck dropdown: 0 = no precheck
+1 = precheck examples, 2 = precheck selected.
+ * `QUESTION.hidecheck` True if the *Hide check* checkbox is set.
+ * `QUESTION.iscombinatortemplate` True if this is a combinator question.
+ * `QUESTION.penaltyregime` The penalty regime for this question.
  * `QUESTION.globalextra` Extra data for use by template authors, global to all tests.
  * `QUESTION.useace` '1'/'0' if the ace editor is/is not in use.
+ * `QUESTION.acelang` The language for the Ace editor to use for syntax colouring etc.
+ * `QUESTION.allowmultiplestdins` True if the author has requested all tests
+be run in a single sandbox submission despite the existence of standard input
+in the questions.
  * `QUESTION.sandbox` The sandbox being used, e.g. "jobesandbox".
  * `QUESTION.grader` The PHP grader class being used, e.g. "EqualityGrader".
+ * `QUESTION.allornothing` True if all-or-nothing grading has been requested.
  * `QUESTION.cputimelimitsecs` The allowed CPU time (null unless explicitly set).
  * `QUESTION.memlimitmb` The allowed memory in MB (null unless explicitly set).
  * `QUESTION.sandboxparams` The JSON string used to specify the sandbox parameters
 in the question authoring form (null unless explicitly set).
- * `QUESTION.templateparams` The raw string used to specify the template
-parameters in the question authoring form. This string is either raw JSON
-or a program in some language (traditionally Twig but other languages are possible)
-that evaluates to yield a JSON string. The question author
-should not generally use this attribute of the `QUESTION` object directly
-but should instead access the specific parameters as in
-the previous section, i.e. by using ...
- * `QUESTION.parameters` A Twig object whose (key, value) pairs are the
-result of evaluating the raw templateparams string. These template parameters
-can either by used in Twig code like {{ QUESTION.parameters.someparam }} or,
-it *hoisttemplateparams* was set in the question authoring form, simply as
-{{ someparam }}.
+ * `QUESTION.uiplugin` The UI plugin in use.
  * `QUESTION.resultcolumns` The JSON string used in the question authoring
 form to select which columns to display, and how to display them (null
 unless explicitly set).
+ * `QUESTION.attachments` How many attachments are allowed. -1 means unlimited.
+ * `QUESTION.attachmentsrequired` The minimum number of attachments that must
+be included in a submission.
+ * `QUESTION.displayfeedback` Controls the feedback display (result table).
+0 to allow display of specific feedback to be controlled by the quiz's
+review options, 1 to force display, 2 to force hide.
 
 Most of these are effectively read only - assigning a new value within the
 template to the `cputimelimitsecs` attribute does not alter the actual run time;

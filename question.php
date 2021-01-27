@@ -611,6 +611,31 @@ class qtype_coderunner_question extends question_graded_automatically {
             }
         }
     }
+    
+    // Return a stdObject pseudo-clone of this question with only the fields
+    // documented in the README.md, for use in Twig expansion. 
+    // HACK ALERT - the field uiparameters exported to the Twig context is
+    // actually the mergeduiparameters field, just as the parameters field
+    // is the merged template parameters. [Where merging refers to the combining
+    // of the prototype and the question.]
+    public function sanitisedCloneOfThis() {
+        $clone = new stdClass();
+        $fieldsrequired = array('id', 'questiontext', 'answer',
+            'answerpreload', 'language', 'globalextra', 'useace', 'sandbox', 
+            'grader', 'cputimelimitsecs', 'memlimitmb', 'sandboxparams', 
+            'parameters', 'resultcolumns', 'allornothing', 'precheck',
+            'hidecheck', 'penaltyregime', 'iscombinatortemplate',
+            'allowmultiplestdins', 'acelang', 'uiplugin', 'attachments',
+            'attachmentsrequired', 'displayfeedback');
+        foreach ($fieldsrequired as $field) {
+            $clone->$field = $this->$field;
+        }
+        if (isset($this->mergeduiparameters)) { // Only available at execution time.
+            $clone->uiparameters = $this->mergeduiparameters;
+        }
+        $clone->questionid = $this->id;
+        return $clone;
+    }   
 
     /**
      * Return Twig-expanded version of the given text.
@@ -622,7 +647,7 @@ class qtype_coderunner_question extends question_graded_automatically {
         if (empty(trim($text))) {
             return $text;
         } else {
-            $context['QUESTION'] = $this;
+            $context['QUESTION'] = $this->sanitisedCloneOfThis();
             if ($this->hoisttemplateparams) {
                 foreach ($this->parameters as $key => $value) {
                     $context[$key] = $value;

@@ -1216,6 +1216,7 @@ EOPROG;
         $coderunner->maxfilesize = 0;
         $coderunner->filenamesregex = '';
         $coderunner->filenamesexplain = '';
+        $coderunner->parameters = array();  // Normally generated during question initialisation.
         foreach ($otheroptions as $key => $value) {
             $coderunner->$key = $value;
             $coderunner->options[$key] = $value;
