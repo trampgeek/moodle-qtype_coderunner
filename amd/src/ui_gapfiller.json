@@ -8,6 +8,10 @@
         "delimiters": {
             "type": "string[]",
             "default": ["{[", "]}"]
+        },
+        "sync_interval_secs": {
+            "type": "int",
+            "default": 5
         }
     }
 }

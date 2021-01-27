@@ -106,6 +106,7 @@ define(['jquery'], function($) {
         }
     };
 
+
     HtmlUi.prototype.getElement = function() {
         return this.htmlDiv;
     };

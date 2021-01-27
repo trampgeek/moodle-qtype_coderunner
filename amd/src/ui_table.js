@@ -69,9 +69,9 @@ define(['jquery'], function($) {
         }
 
         this.fail = false;
-        this.lockedCells = uiParams.locked_cells;
-        this.hasHeader = uiParams.column_headers.length > 0;
-        this.hasRowLabels = uiParams.row_labels.length > 0;
+        this.lockedCells = uiParams.locked_cells || [];
+        this.hasHeader = uiParams.column_headers && uiParams.column_headers.length > 0 ? true : false;
+        this.hasRowLabels = uiParams.row_labels && uiParams.row_labels.length > 0 ? true : false;
         this.numDataColumns = uiParams.num_columns;
         this.totNumColumns = this.numDataColumns + (this.hasRowLabels ? 1 : 0);
         this.columnWidths = this.computeColumnWidths();
@@ -83,7 +83,7 @@ define(['jquery'], function($) {
     TableUi.prototype.computeColumnWidths = function() {
         var defaultWidth = Math.trunc(100 / this.totNumColumns),
             columnWidths = [];
-        if (this.uiParams.column_width_percents.length > 0) {
+        if (this.uiParams.column_width_percents && this.uiParams.column_width_percents.length > 0) {
             return this.uiParams.column_width_percents;
         } else if (Array.prototype.fill) { // Anything except bloody IE.
             return new Array(this.totNumColumns).fill(defaultWidth);

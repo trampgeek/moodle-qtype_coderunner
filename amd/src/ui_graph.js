@@ -261,6 +261,11 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         // Nothing to do ... always sync'd.
     };
 
+    // Disable autosync, too.
+    Graph.prototype.syncIntervalSecs = function() {
+        return 0;
+    };
+
     Graph.prototype.keypress = function(e) {
         var key = util.crossBrowserKey(e);
 

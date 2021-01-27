@@ -1,0 +1,9 @@
+{
+    "name": "ui_html",
+    "parameters": {
+        "sync_interval_secs": {
+            "type": "int",
+            "default": 5
+        }
+    }
+}

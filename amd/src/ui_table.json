@@ -30,6 +30,10 @@
         "column_width_percents": {
             "type": "float[]",
             "default": []
+        },
+        "sync_interval_secs": {
+            "type": "int",
+            "default": 5
         }
     }
 }

@@ -87,6 +87,12 @@
  *
  * 8. A hasFocus() method that returns true if the UI element has focus.
  *
+ * 9. A syncIntervalSecs() method that returns the time interval between
+ *    calls to the sync() method. 0 for no sync calls. The userinterfacewrapper
+ *    provides all instances with a generic (base-class) version that returns
+ *    the value of a UI parameter sync_interval_secs if given else uses the
+ *    UI interface wrapper default (currently 10).
+ *
  * The return value from the module define is a record with a single field
  * 'Constructor' that references the constructor (e.g. Graph, AceWrapper etc)
  *
@@ -127,11 +133,12 @@ define(['jquery'], function($) {
         // data attribute contains an entry for 'current-ui-wrapper' that is
         // a reference to the wrapper ('this').
         var  h,
-             params,
-             t = this; // For use by embedded functions.
+            params,
+            t = this; // For use by embedded functions.
 
         this.GUTTER = 14;  // Size of gutter at base of wrapper Node (pixels)
         this.MIN_WRAPPER_HEIGHT = 50;
+        this.DEFAULT_SYNC_INTERVAL_SECS = 5;
 
         this.taId = textareaId;
         this.loadFailId = textareaId + '_loadfailerr';
@@ -223,6 +230,13 @@ define(['jquery'], function($) {
             });
         }
 
+        // The default method for a UIs sync_interval_secs method.
+        // Returns the sync_interval_secs parameter if given, else
+        // DEFAULT_SYNC_INTERVAL_SECS.
+        function syncIntervalSecsBase() {
+            return params.sync_interval_secs ? params.sync_interval_secs : t.DEFAULT_SYNC_INTERVAL_SECS;
+        }
+
         if (this.isLoading) {  // Oops, we're loading a UI element already
             this.retries += 1;
             if (this.retries > 20) {
@@ -248,7 +262,7 @@ define(['jquery'], function($) {
             this.isLoading = true;
             require(['qtype_coderunner/ui_' + this.uiname],
                 function(ui) {
-                    var uiInstance,loadFailDiv, jqLoadFailDiv, h, w;
+                    var uiInstance,loadFailDiv, jqLoadFailDiv, h, w, uiInstancePrototype;
 
                     h = t.wrapperNode.innerHeight() - t.GUTTER;
                     w = t.wrapperNode.innerWidth();
@@ -274,9 +288,33 @@ define(['jquery'], function($) {
                         t.uiInstance = uiInstance;
                         t.loadFailed = false;
                         t.checkForResize();
+                        uiInstancePrototype = Object.getPrototypeOf(uiInstance);
+                        uiInstancePrototype.syncIntervalSecs = syncIntervalSecsBase;
+                        t.startSyncTimer(uiInstance);
                     }
                     t.isLoading = false;
                 });
+        }
+    };
+
+
+    // Start a sync timer on the given uiInstance, unless its time interval is 0.
+    InterfaceWrapper.prototype.startSyncTimer = function(uiInstance) {
+        var timeout = uiInstance.syncIntervalSecs();
+        if (timeout) {
+            this.uiInstance.timer = setInterval(function () {
+                uiInstance.sync();
+            }, timeout * 1000);
+        } else {
+            this.uiInstance.timer = null;
+        }
+    };
+
+
+    // Stop the sync timer on the given uiInstance, if running.
+    InterfaceWrapper.prototype.stopSyncTimer = function(uiInstance) {
+        if (uiInstance.timer) {
+            clearTimeout(uiInstance.timer);
         }
     };
 
@@ -285,6 +323,7 @@ define(['jquery'], function($) {
         // Disable (shutdown) the embedded ui component.
         // The wrapper remains active for ctrl-alt-M events, but is hidden.
         if (this.uiInstance !== null) {
+            this.stopSyncTimer(this.uiInstance);
             this.textArea.show();
             if (this.uiInstance.hasFocus()) {
                 this.textArea.focus();

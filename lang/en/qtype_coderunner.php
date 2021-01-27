@@ -181,6 +181,7 @@ $string['forexample'] = 'For example';
 
 $string['gapfillerui_delimiters_descr'] = 'A 2-character array of the strings used to open and close the gap description';
 $string['gapfillerui_ui_source_descr'] = '"globalextra" to take the HTML to display from the globalextra field or "test0" to take it from the testcode field of the first test';
+$string['gapfillerui_sync_interval_secs_descr'] = 'The time interval in seconds between calls to sync the UI contents back to the question answer. 0 for no such auto-syncing.';
 
 $string['globalextra'] = 'Global extra';
 $string['globalextra_help'] = 'A field of text for general-purpose use by template authors, like the extra field of each test case, but global to all tests. Available to the template author as {{ QUESTION.globalextra }}.';
@@ -288,8 +289,8 @@ $string['HIDE_IF_FAIL'] = 'Hide if fail';
 $string['HIDE_IF_SUCCEED'] = 'Hide if succeed';
 $string['hiderestiffail'] = 'Hide rest if fail';
 $string['hoisttemplateparams'] = 'Hoist template parameters';
-
 $string['howtogetmore'] = 'For more detailed information, save the question with \'Validate on save\' unchecked and test manually';
+$string['htmlui_sync_interval_secs_descr'] = 'The time interval in seconds between calls to sync the UI contents back to the question answer. 0 for no such auto-syncing.';
 
 $string['illegaluiparamname'] = 'The following are not valid parameters for the {$a->uiname} UI: ';
 $string['iscombinatortemplate'] = 'Is combinator';
@@ -954,6 +955,7 @@ $string['tableui_dynamic_rows_descr'] = 'If true, and "Add row" button is provid
 $string['tableui_row_labels_descr'] = 'A list of strings for the row labels, i.e. the values in column 0.';
 $string['tableui_locked_cells_descr'] = 'A list of 2-element lists giving the 0-origin coordinates of cells that the user cannot alter. Coordinates do not include a possible header row or row-label column.';
 $string['tableui_column_width_percents_descr'] = 'A list of floating point numbers giving the percentage of the available table width to allocate to the columns, including the row-label column if present.';
+$string['tableui_sync_interval_secs_descr'] = 'The time interval in seconds between calls to sync the UI contents back to the question answer. 0 for no such auto-syncing.';
 
 $string['table_ui_invalidjson'] = 'Table UI: invalid JSON serialisation.';
 $string['table_ui_invalidserialisation'] = 'Table UI: invalid serialisation.';

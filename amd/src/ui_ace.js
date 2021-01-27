@@ -133,6 +133,10 @@ define(['jquery'], function($) {
         // Nothing to do ... always sync'd
     };
 
+    // Disable autosync, too.
+    AceWrapper.prototype.syncIntervalSecs = function() {
+        return 0;
+    };
 
     AceWrapper.prototype.setLanguage = function(language) {
         var session = this.editor.getSession(),

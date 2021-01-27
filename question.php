@@ -288,7 +288,7 @@ class qtype_coderunner_question extends question_graded_automatically {
         }
         $uiparams->merge_json($this->templateparamsjson, true); // Legacy support.    
         $uiparams->merge_json($this->uiparameters);
-        return $uiparams->to_array();
+        return $uiparams->updated_params();
     }
     
     
