@@ -823,7 +823,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
             $this->formquestion->templateparamsevald = '{}';
         }
         
-        if (isset($data['uiparameters']) && $data['uiparameters']) {
+        if (!$templateerrors && isset($data['uiparameters']) && $data['uiparameters']) {
             $uiparametererrors = $this->validate_ui_parameters($data['uiparameters']);
             if ($uiparametererrors) {
                 $errors['uiparametergroup'] = $uiparametererrors;      
@@ -888,8 +888,8 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 $errors['filenamesgroup'] = get_string('badfilenamesregex', 'qtype_coderunner');
             }
         }
-
-        if (count($errors) == 0) {
+     
+        if (count($errors) == 0 && $data['twigall']) {
             $errors = $this->validate_twigables();
         }
 
@@ -1060,17 +1060,19 @@ class qtype_coderunner_edit_form extends question_edit_form {
         return $errorstring;
     }
 
-    // If the template parameters contain twig code, in which case the
-    // other question fields will need twig expansion, check for twig errors
-    // in all other fields. Return value is an associative array mapping from
+    // Check for twig errors in all fields except the template itself, which
+    // is checked when the answer is validated. Checking it here would require
+    // setting up a runtime context with STUDENT_ANSWER and TEST or TESTCASES etc.
+    // Return value is an associative array mapping from
     // form fields to error messages.
+    // Should only be called if twig all is set.
     private function validate_twigables() {
         $errors = array();
         $question = $this->formquestion;
         $jsonparams = $question->templateparamsevald;
         $parameters = json_decode($jsonparams, true);
         $parameters['QUESTION'] = $question;
-
+        
         // Try twig expanding everything (see question::twig_all), with strict_variables true.
         foreach (['questiontext', 'answer', 'answerpreload', 'globalextra'] as $field) {
             $text = $question->$field;
