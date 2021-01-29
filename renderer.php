@@ -696,13 +696,18 @@ class qtype_coderunner_renderer extends qtype_renderer {
     // Return the text area attributes for an answer box.
     private function answerbox_attributes($fieldname, $rows, $question, 
             $currentlanguage, $readonly=false) {
+        if ($question->mergeduiparameters) {
+            $uiparamsjson = json_encode($question->mergeduiparameters);
+        } else {
+            $uiparamsjson = '{}';
+        }
         $attributes = array(
                 'class' => 'coderunner-answer edit_code',
                 'name' => $fieldname,
                 'id' => 'id_' . $fieldname,
                 'spellcheck' => 'false',
                 'rows' => $rows,
-                'data-params' => json_encode($question->mergeduiparameters, JSON_FORCE_OBJECT),
+                'data-params' => $uiparamsjson,
                 'data-globalextra' => $question->globalextra,
                 'data-lang' => ucwords($currentlanguage),
                 'data-test0' => $question->testcases ? $question->testcases[0]->testcode : ''

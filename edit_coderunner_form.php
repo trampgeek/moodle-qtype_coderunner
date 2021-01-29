@@ -1316,7 +1316,11 @@ class qtype_coderunner_edit_form extends question_edit_form {
             $qfromdb->student = new qtype_coderunner_student($USER);
             $seed = 1;
             $qfromdb->evaluate_question_for_display($seed, null);
-            $json = json_encode($qfromdb->mergeduiparameters, JSON_FORCE_OBJECT);
+            if ($qfromdb->mergeduiparameters) {
+                $json = json_encode($qfromdb->mergeduiparameters);
+            } else {
+                $json = '{}';
+            }
             $this->cacheduiparamsjson = $json;
             return $json;
         } else {

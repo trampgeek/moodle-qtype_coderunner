@@ -34,9 +34,13 @@ Feature: Test editing a CodeRunner question using the Table UI
     Then I should see "Table UI needs parameters"
 
     And I set the following fields to these values:
-      | uiparameters | {"num_columns": 2,"num_rows": 2,"column_headers": ["Col1", "Col2"]}|
+      | uiparameters | {"num_columns": 2,"num_rows": 2,"column_headers": ["Column1Hdr", "Column2Hdr"], "row_labels": ["Row0", "Row1"]} |
     And I press "id_updatebutton"
     Then I should not see "Table UI needs parameters"
+    And I should see "Column1Hdr" in the ".ui_wrapper" "css_element"
+    And I should see "Column2Hdr" in the ".ui_wrapper" "css_element"
+    And I should see "Row0" in the ".ui_wrapper" "css_element"
+    And I should see "Row1" in the ".ui_wrapper" "css_element"
 
     And I set the following fields to these values:
       | expected[0]    | Not expected at all |
