@@ -2463,10 +2463,31 @@ different for the student and author answers. This technique can also be used
 to ensure that the names given to elements like radio buttons are different
 in the two answers.
 
-As an example application of this capability, see [this CodeRunner author's forum
-thread](https://coderunner.org.nz/mod/forum/discuss.php?d=381) where Markus Gafner
-(who contributed this workaround) shows a TextUI question with an embedded
-GraphUI question, plus other embedded questions.
+Using this macro, it is also possible to include the GraphUI in the HtmlUI.
+By including a custom grader, it is possible to create a Question with several
+sub questions. To do this, in the html-code a textarea element needs to be
+defined:
+
+    <textarea class="coderunner-ui-element"
+    id="graph_target_name____textareaId___"
+    name="graph_target" spellcheck="false" rows="18" data-params=""
+    data-globalextra=""></textarea>
+
+This element is hidden, but the graph will be drawn at this position and its
+contents serialised into that textarea.
+
+Secondly, the amd-script needs to get called using:
+
+    M.util.js_pending('qtype_coderunner/userinterfacewrapper');
+    require(['qtype_coderunner/userinterfacewrapper'], function(amd) {
+        amd.newUiWrapper("graph", "graph_target_name____textareaId___");
+        M.util.js_complete('qtype_coderunner/userinterfacewrapper');
+    });
+
+By using multiple graph elements, keep in mind that the id and name should
+be unique. For more information, see this CodeRunner author's forum thread
+where Markus Gafner (who contributed this workaround) shows a HtmlUI question
+with an embedded GraphUI question, plus other embedded questions.
 
 
 ### Other UI plugins
