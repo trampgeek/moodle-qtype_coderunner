@@ -100,10 +100,18 @@ class qtype_coderunner_question extends question_graded_automatically {
     // If Twigall is set, other fields of the question, such as the question
     // text and the various test cases are then twig-expanded using the
     // $this->parameters as an environment.
+    // We can't really deal with exceptions here - they shouldn't occur
+    // normally as questions shouldn't be saved with bad template or UI
+    // parameters, but it can occur with legacy questions. We just ignore errors
+    // and hope they cause failures down the line.
     //
     public function evaluate_question_for_display($seed, $step) {
         $this->get_prototype();
-        $this->templateparamsjson = $this->evaluate_merged_parameters($seed, $step);
+        try {
+            $this->templateparamsjson = $this->evaluate_merged_parameters($seed, $step);
+        } catch (Exception $e) {
+            $this->templateparamsjson = '{}';
+        }
         $this->parameters = json_decode($this->templateparamsjson);
         if ($this->twigall) {
             $this->twig_all();
@@ -120,7 +128,7 @@ class qtype_coderunner_question extends question_graded_automatically {
      * through the appropriate language processor as specified by the
      * templateparamslang field (default: Twig). The result needs to be merged with
      * the prototype's parameters, which are subject to the same process.
-     * After running this function, the $this->parameters is a stdClass object
+     * After running this function, $this->parameters is a stdClass object
      * with all the parameters as attributes.
      * 
      * In the simplest case, the template parameters are evaluated when the
@@ -266,7 +274,7 @@ class qtype_coderunner_question extends question_graded_automatically {
     private function twig_render_with_seed($text, $seed) {
         mt_srand($seed);
         return qtype_coderunner_twig::render($text, $this->student);
-    }
+        }
     
     
     // Get the default ui parameters for the ui plugin and merge in
