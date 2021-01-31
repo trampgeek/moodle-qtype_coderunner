@@ -1437,9 +1437,19 @@ they are not available as global variables.
 
 Other fields are:
 
+ * `QUESTION.name` The name of the question.
+ * `QUESTION.generalfeedback The contents of the general feedback field in the
+    question authoring form.
+ * `QUESTION.generalfeedbackformat. The format of the general feedback. 0 = moodle,
+   1 = HTML, 2 = Plain, 3 = Wiki, 4 = Markdown.
  * `QUESTION.questiontext` The question text itself
-
  * `QUESTION.answerpreload` The string that is preloaded into the answer box.
+ * `QUESTION.stepinfo`. An object with info regarding the current step. Attributes
+   are *numchecks*, *numprechecks* and *fraction* being respectively the number
+   of times the user has clicked *Check* prior to this submission, the number
+   of times the user has clicked *Precheck* prior to this submission, and the
+   best fraction (0 - 1) the student has achieved so far 
+   on this question (not including this submission).
  * `QUESTION.language` The language being used to run the question in the sandbox,
 e.g. "Python3".
  * `QUESTION.precheck` The setting of the precheck dropdown: 0 = no precheck

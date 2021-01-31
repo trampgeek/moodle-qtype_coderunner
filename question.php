@@ -500,18 +500,22 @@ class qtype_coderunner_question extends question_graded_automatically {
      * third array element in its response, containing data to be cached and
      * served up again in the response on subsequent calls.
      * @param array $response the qt_data for the current pending step. The
-     * two relevant keys are '_testoutcome', which is a cached copy of the
+     * main relevant keys are '_testoutcome', which is a cached copy of the
      * grading outcome if this response has already been graded and 'answer'
-     * (the student's answer) otherwise.
+     * (the student's answer) otherwise. Also present are 'numchecks',
+     * 'numprechecks' and 'fraction' which relate to the current (pending) step and
+     * the history of prior submissions.
      * @param bool $isprecheck true iff this grading is occurring because the
      * student clicked the precheck button
+     * @param int $prevtries how many previous tries have been recorded for
+     * this question, not including the current one.
      * @return 3-element array of the mark (0 - 1), the question_state (
      * gradedright, gradedwrong, gradedpartial, invalid) and the full
      * qtype_coderunner_testing_outcome object to be cached. The invalid
      * state is used when a sandbox error occurs.
      * @throws coding_exception
      */
-    public function grade_response(array $response, $isprecheck=false) {
+    public function grade_response(array $response, bool $isprecheck=false, int $prevtries=0) {
         if ($isprecheck && empty($this->precheck)) {
             throw new coding_exception("Unexpected precheck");
         }
@@ -534,6 +538,7 @@ class qtype_coderunner_question extends question_graded_automatically {
             $attachments = $this->get_attached_files($response);
             $testcases = $this->filter_testcases($isprecheck, $this->precheck);
             $runner = new qtype_coderunner_jobrunner();
+            $this->stepinfo = self::step_info($response);
             $testoutcome = $runner->run_tests($this, $code, $attachments, $testcases, $isprecheck, $language);
             $testoutcomeserial = serialize($testoutcome);
         }
@@ -567,6 +572,24 @@ class qtype_coderunner_question extends question_graded_automatically {
         return $attachments;
     }
 
+    
+    /** Pulls out the step information in the response, added by the CodeRunner
+    /*  custom behaviour, for use by the question author in issuing feedback.
+     * 
+     * @param type $response The usual response array enhanced by the addition of
+     * numchecks, numprechecks and fraction values relating to the current step.
+     * @return stdClass object with the numchecks, numprechecks and fraction
+     * attributes.
+     */
+    
+    private static function step_info($response) {
+        $stepinfo = new stdClass();
+        foreach(['numchecks', 'numprechecks', 'fraction'] as $key) {
+            $value = isset($response[$key]) ? $response[$key] : 0;
+            $stepinfo->$key = $value;
+        }
+        return $stepinfo;
+    }
 
     /**
      * @return an array of result column specifiers, each being a 2-element
@@ -628,20 +651,25 @@ class qtype_coderunner_question extends question_graded_automatically {
     // of the prototype and the question.]
     public function sanitisedCloneOfThis() {
         $clone = new stdClass();
-        $fieldsrequired = array('id', 'questiontext', 'answer',
-            'answerpreload', 'language', 'globalextra', 'useace', 'sandbox', 
+        $fieldsrequired = array('id', 'name', 'questiontext', 'generalfeedback',
+            'generalfeedbackformat',
+            'answer', 'answerpreload', 'language', 'globalextra', 'useace', 'sandbox', 
             'grader', 'cputimelimitsecs', 'memlimitmb', 'sandboxparams', 
             'parameters', 'resultcolumns', 'allornothing', 'precheck',
             'hidecheck', 'penaltyregime', 'iscombinatortemplate',
             'allowmultiplestdins', 'acelang', 'uiplugin', 'attachments',
-            'attachmentsrequired', 'displayfeedback');
+            'attachmentsrequired', 'displayfeedback', 'stepinfo');
         foreach ($fieldsrequired as $field) {
-            $clone->$field = $this->$field;
+            if (isset($this->$field)) {
+                $clone->$field = $this->$field;
+            } else {
+                $clone->$field = null;
+            }
         }
         if (isset($this->mergeduiparameters)) { // Only available at execution time.
             $clone->uiparameters = $this->mergeduiparameters;
         }
-        $clone->questionid = $this->id;
+        $clone->questionid = $this->id; // Legacy support.
         return $clone;
     }   
 
