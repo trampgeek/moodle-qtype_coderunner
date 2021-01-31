@@ -79,29 +79,18 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
         $qtext .= html_writer::start_tag('div', array('class' => 'prompt'));
 
-        if (empty($question->penaltyregime) && $question->penaltyregime !== '0') {
-            if (intval(100 * $question->penalty) == 100 * $question->penalty) {
-                $decdigits = 0;
-            } else {
-                $decdigits = 1;
-            }
-            $penaltypercent = number_format($question->penalty * 100, $decdigits);
-            $penaltypercent2 = number_format($question->penalty * 200, $decdigits);
-            $penalties = $penaltypercent . ', ' . $penaltypercent2 . ', ...';
-        } else {
-            $penalties = $question->penaltyregime;
-        }
-
         $responsefieldname = $qa->get_qt_field_name('answer');
         $responsefieldid = 'id_' . $responsefieldname;
         $answerprompt = html_writer::tag('label',
-                get_string('answerprompt', 'qtype_coderunner'), array('class' => 'answerprompt', 'for' => $responsefieldid));
+                get_string('answerprompt', 'qtype_coderunner'),
+                array('class' => 'answerprompt', 'for' => $responsefieldid));
         $qtext .= $answerprompt;
-        if ($qa->has_marks()) {
-            $penaltystring = html_writer::tag('span',
-                get_string('penaltyregime', 'qtype_coderunner', $penalties),
+        $behaviour = $qa->get_behaviour(true);
+        if ($behaviour->penaltiesenabled && $qa->has_marks()) {
+            $penaltystring = $this->penalty_regime_string($qa);
+            $htmlpenalties = html_writer::tag('span', $penaltystring,
                 array('class' => 'penaltyregime'));
-            $qtext .= $penaltystring;
+            $qtext .= $htmlpenalties;
         }
 
         if (empty($question->acelang)) {
@@ -461,6 +450,29 @@ class qtype_coderunner_renderer extends qtype_renderer {
             $html .= html_writer::end_tag('div');
         }
         return $html;
+    }
+    
+    
+    /**
+     * Return a string describing the penalties in place for this question.
+     * @param type $qa
+     * @return type
+     */
+    protected function penalty_regime_string(question_attempt $qa) {
+        $question = $qa->get_question();
+        if (empty($question->penaltyregime) && $question->penaltyregime !== '0') {
+            if (intval(100 * $question->penalty) == 100 * $question->penalty) {
+                $decdigits = 0;
+            } else {
+                $decdigits = 1;
+            }
+            $penaltypercent = number_format($question->penalty * 100, $decdigits);
+            $penaltypercent2 = number_format($question->penalty * 200, $decdigits);
+            $penalties = $penaltypercent . ', ' . $penaltypercent2 . ', ...';
+        } else {
+            $penalties = $question->penaltyregime;
+        }
+        return get_string('penaltyregime', 'qtype_coderunner', $penalties);
     }
 
 
