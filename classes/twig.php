@@ -159,7 +159,7 @@ function qtype_coderunner_twig_random(Twig\Environment $env, $values = null, $ma
  *  seed to the given value.
  *  @return '' The empty string
  */
-function qtype_coderunner_set_random_seed(Twig_Environment $env, $seed)
+function qtype_coderunner_set_random_seed(Twig\Environment $env, $seed)
 {
     mt_srand($seed);
     return '';
