@@ -44,7 +44,7 @@ class qtype_coderunner_twig {
                 'debug' => $isdebug);
             $twig = new \Twig\Environment($twigloader, $twigoptions);
             if ($isdebug) {
-                $twig->addExtension(new Twig_Extension_Debug());
+                $twig->addExtension(new \Twig\Extension\DebugExtension());
             }
             $newrandom = new \Twig\TwigFunction('random', 'qtype_coderunner_twig_random',
                 array('needs_environment' => true));
