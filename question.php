@@ -193,9 +193,7 @@ class qtype_coderunner_question extends question_graded_automatically {
                 $jsontemplateparams = $step->get_qt_var($qtvar . '_json');
             } else {
                 $jsontemplateparams = $this->evaluate_template_params($params, $lang, $seed);
-                if (is_a($step, 'question_attempt_step_read_only')) {
-                    debugging("Read-only question attempt step encountered");
-                } else {
+                if (!is_a($step, 'question_attempt_step_read_only')) {
                     $step->set_qt_var($qtvar . '_md5', $currentparamsmd5);
                     $step->set_qt_var($qtvar . '_json', $jsontemplateparams);
                 }
