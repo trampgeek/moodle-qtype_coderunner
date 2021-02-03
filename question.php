@@ -650,7 +650,7 @@ class qtype_coderunner_question extends question_graded_automatically {
     public function sanitisedCloneOfThis() {
         $clone = new stdClass();
         $fieldsrequired = array('id', 'name', 'questiontext', 'generalfeedback',
-            'generalfeedbackformat',
+            'generalfeedbackformat', 'testcases',
             'answer', 'answerpreload', 'language', 'globalextra', 'useace', 'sandbox', 
             'grader', 'cputimelimitsecs', 'memlimitmb', 'sandboxparams', 
             'parameters', 'resultcolumns', 'allornothing', 'precheck',
