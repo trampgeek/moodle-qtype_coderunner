@@ -98,19 +98,24 @@ class qtype_coderunner_question extends question_graded_automatically {
     // Twig environment variables plus UI plugin parameters.
     // 
     // If Twigall is set, other fields of the question, such as the question
-    // text and the various test cases are then twig-expanded using the
+    // text and the various test cases are then twig-expanded using
     // $this->parameters as an environment.
     // We can't really deal with exceptions here - they shouldn't occur
     // normally as questions shouldn't be saved with bad template or UI
-    // parameters, but it can occur with legacy questions. We just ignore errors
-    // and hope they cause failures down the line.
+    // parameters, but they can occur with legacy questions or due to Jobe server
+    // overload when using non-twig template parameter preprocessors.
+    // If this happens, we display a message at the start of the question.
     //
     public function evaluate_question_for_display($seed, $step) {
         $this->get_prototype();
+        $this->initialisationerrormessage = '';
         try {
             $this->templateparamsjson = $this->evaluate_merged_parameters($seed, $step);
         } catch (Exception $e) {
-            $this->templateparamsjson = '{}';
+            $error = $e->getMessage();
+            $this->templateparamsjson = '{"initerror": "' . $error . '"}';
+            $erroroninit = get_string('erroroninit', 'qtype_coderunner', array('error'=>$error));
+            $this->initialisationerrormessage = $erroroninit;
         }
         $this->parameters = json_decode($this->templateparamsjson);
         if ($this->twigall) {
@@ -166,8 +171,6 @@ class qtype_coderunner_question extends question_graded_automatically {
         }
 
         return $paramsjson;
-
-        // TODO - how to report an error on the json_decode??
     }
     
     /**
@@ -256,7 +259,11 @@ class qtype_coderunner_question extends question_graded_automatically {
         $sandboxparams = array("runargs" => $runargs);
         $sandbox = $this->get_sandbox();
         $run = $sandbox->execute($templateparams, $lang, $input, $files, $sandboxparams);
-        if ($run->error !== qtype_coderunner_sandbox::OK) {
+        if ($run->error === qtype_coderunner_sandbox::SERVER_OVERLOAD) {
+            // Ugly. Probably a major test is running and we overloaded the server.
+            $message = get_string('overloadoninit', 'qtype_coderunner');
+            throw new qtype_coderunner_overload_exception($message);
+        } else if ($run->error !== qtype_coderunner_sandbox::OK) {
             return qtype_coderunner_sandbox::error_string($run);
         } else if ($run->result != qtype_coderunner_sandbox::RESULT_SUCCESS) {
             return qtype_coderunner_sandbox::result_string($run->result) . "\n" . $run->cmpinfo . $run->output . $run->stderr;

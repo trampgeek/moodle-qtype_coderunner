@@ -59,7 +59,11 @@ class qtype_coderunner_renderer extends qtype_renderer {
 	}
         $divid = "qtype_coderunner_problemspec$qid";
         $params = $question->parameters;
-        $qtext = $question->format_questiontext($qa);
+        $qtext = '';
+        if (isset($question->initialisationerrormessage) && $question->initialisationerrormessage) {
+            $qtext .= "<div class='initialisationerror'>{$question->initialisationerrormessage}</div>";
+        }
+        $qtext .= $question->format_questiontext($qa);
         if (isset($params->programming_contest_problem) && $params->programming_contest_problem) {
             // Special case hack for programming contest problems
             $qtext .= "<div id='$divid'></div>";

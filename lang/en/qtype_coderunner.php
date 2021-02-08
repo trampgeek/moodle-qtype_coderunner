@@ -142,6 +142,7 @@ $string['enable_sandbox_desc'] = 'Permit use of the specified sandbox for runnin
 $string['equalitygrader'] = 'Exact match';
 $string['error_loading_prototype'] = 'Error loading prototype. Network problems or server down, perhaps?';
 $string['error_loading_ui_descr'] = 'Error loading UI description. Network problems or server down, perhaps?';
+$string['erroroninit'] = '**** ERROR WHEN INITIALISING QUESTION ****<br>{$a->error}<br>';
 $string['errorstring-ok'] = 'OK';
 $string['errorstring-autherror'] = 'Unauthorised to use sandbox';
 $string['errorstring-jobe400'] = 'Error from Jobe sandbox server: ';
@@ -397,6 +398,7 @@ $string['negativeorzeromark'] = 'Mark must be greater than zero';
 $string['options'] = 'Options';
 $string['ordering'] = 'Ordering';
 $string['overallresult'] = 'Overall result';
+$string['overloadoninit'] = 'Sandbox server overload prevented question initialisation';
 
 $string['passes'] = 'passes';
 $string['penaltyregime'] = '(penalty regime: {$a} %)';
