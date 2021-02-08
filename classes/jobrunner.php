@@ -255,7 +255,7 @@ class qtype_coderunner_jobrunner {
         try {
             if ($run->result !== qtype_coderunner_sandbox::RESULT_SUCCESS) {
                 $error = get_string('brokentemplategrader', 'qtype_coderunner',
-                        array('output' => $run->cmpinfo . "\n" . $run->stderr));
+                        array('output' => $run->cmpinfo . "\n" . $run->output . "\n" . $run->stderr));
                 throw new Exception($error);
             }
 
