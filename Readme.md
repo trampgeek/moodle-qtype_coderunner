@@ -1,6 +1,6 @@
 # CODE RUNNER
 
-Version: 4.0.0 January 2021
+Version: 4.0.0 February 2021
 
 Authors: Richard Lobb, University of Canterbury, New Zealand.
          Tim Hunt, The Open University, UK
@@ -93,8 +93,7 @@ order to grade a student's answer. By far the most common use of CodeRunner is
 in programming courses where students are asked to write program code to some
 specification and that code is then graded by running it in a series of tests.
 CodeRunner questions have also been used in other areas of computer science and
-engineering to grade questions in which many different correct answers are
-possible and a program must be used to assess correctness.
+engineering to grade questions in which a program must be used to assess correctness.
 
 Regardless of the behaviour chosen for a quiz, CodeRunner questions always
 run in an adaptive mode, in which students can click a Check button to see
@@ -107,30 +106,20 @@ by how many submissions the student makes on each question.
 However, it is also possible to configure CodeRunner questions so
 that the mark is determined by how many of the tests the code successfully passes.
 
-CodeRunner has been in use at the University of Canterbury for over seven years,
-running millions of student quiz question submissions in Python, C , JavaScript,
-PHP, Octave and Matlab. Laboratory work, assignment work and mid-semester tests
-in the introductory first year Python programming course (COSC121),
-which has around 650 students in the first semester and 350 in the second,
-re all assessed using CodeRunner questions. The final exams for COSC121 have
-also been run using Moodle/CodeRunner since November 2014. Other courses at
-the University of Canterbury using CodeRunner include:
+CodeRunner has been in use at the University of Canterbury for over ten years
+running many millions of student quiz question submissions in Python, C , JavaScript,
+PHP, Octave and Matlab. It is used in laboratory work, assignments, tests and
+exams in multiple courses. In recent years CodeRunner has spread around the
+world and as of January 2021 is installed on over 1800 Moodle sites worldwide
+(see [here](https://moodle.org/plugins/stats.php?plugin=qtype_coderunner)), with
+at least some of its language strings translated into 19 other languages (see
+[here](https://moodle.org/plugins/translations.php?plugin=qtype_coderunner])).
 
- * ENCE260 Computer Systems
- * ENCN305 Programming, Statistics and Optimisation
- * EMTH171 Mathematical Modelling and Computation
- * SENG02 Software Engineering I
- * COSC261 Formal Languages and Compilers
- * COSC 262 Algorithms
- * COSC367 Computational Intelligence
- * ENCE360 Operating Systems
- * SENG365 Web Computing Architectures
-
-CodeRunner is also being used at over 600 other sites worldwide.
-
-CodeRunner currently supports Python2 (considered obsolescent), Python3,
-C, C++, Java, PHP, JavaScript (NodeJS), Octave and Matlab.
-The architecture allows easy extension to other languages.
+CodeRunner currently natively upports Python2 (considered obsolescent), Python3,
+C, C++, Java, PHP, Pascal, JavaScript (NodeJS), Octave and Matlab.
+However, other languages are easily supported without altering the source
+code of either CodeRunner just by scripting
+the execution of the new language within a Python-based question.
 
 CodeRunner can safely be used on an institutional Moodle server,
 provided that the sandbox software in which code is run ("Jobe")
