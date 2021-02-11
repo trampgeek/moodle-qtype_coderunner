@@ -129,23 +129,30 @@ tests and final exams, a separate Moodle server is recommended, both for
 load reasons and so that various Moodle communication facilities, like
 chat and messaging, can be turned off without impacting other classes.
 
-The CodeRunner question type can be installed on any modern Moodle system
-(version 3.0 or later), on Linux, Windows and Mac. For security reasons
-submitted jobs are run on a separate machine called the "Jobe server" or
-"Jobe sandbox machine". CodeRunner is intitially configured to use a small
+The most recent version of CodeRunner specifies that it requires Moodle version 3.9 or later,
+but previous releases support Moodle version 3.0 or later. The current version
+should work with older versions of Moodle 3.0 or later, too, provided they are
+running PHP V7.2 or later. CodeRunner is developed
+and tested on Linux only, but Windows-based Moodle sites have also used it.
+
+For security reasons
+submitted jobs are run on a separate Linux-based machine called the
+[Jobe server](https://github.com/trampgeek/jobe). CodeRunner is initially
+configured to use a small
 outward-facing Jobe server at the University of Canterbury, and this can
 be used for initial testing.  However, this is not suitable for production
 use, for which institutions will need to install their own Jobe server.
 Instructions for installing a Jobe server are given in the Jobe documentation.
 Once Jobe is installed, use the Moodle administrator interface for the
 CodeRunner plug-in to specify the Jobe host name and perhaps port number.
+A [Docker Jobe server image](https://hub.docker.com/r/trampgeek/jobeinabox) is also available.
 
-A single 4-core Moodle server can handle an average quiz question
-submission rate of about 60 quiz questions per minute while maintaining
+A modern 8-core Moodle server can handle an average quiz question
+submission rate of well over 1000 Python quiz questions per minute while maintaining
 a response time of less than about 3 - 4 seconds, assuming the student code
 itself runs in a fraction of a second. We have run CodeRunner-based exams
-with nearly 300 students and experienced only light to moderate load factors
-on an 8-core Moodle server. The Jobe server, which runs student submissions
+with nearly 500 students and experienced only light to moderate load factors
+on our 8-core Moodle server. The Jobe server, which runs student submissions
 (see below), is even more lightly loaded during such an exam.
 
 Some videos introducing CodeRunner and explaining question authoring
@@ -154,60 +161,9 @@ are available in [this youtube channel](https://coderunner.org.nz/mod/url/view.p
 ## Installation
 
 This chapter describes how to install CodeRunner. It assumes the
-existence of a working Moodle system, version 2.6 or later (including
-Moodle 3).
+existence of a working Moodle system, version 3.0 or later.
 
-If you are installing for the first time, jump straight to section 2.2.
-
-### Upgrading from a CodeRunner version earlier than 2.4.0
-
-The current version of CodeRunner is incompatible with versions prior to
-2.4.0. If you're attempting to upgrade from an earlier version, you should
-first upgrade to the most recent version 2 (checkout branch V2 in the repository).
-That will upgrade all questions in the database to a format that can be handled
-by current versions.
-
-If you are already running CodeRunner version 2.4.0 or later, you can upgrade
-simply by following the instructions in the next two sections.
-
-### Upgrading from CodeRunner versions between 2.4 and 3.0
-
-Upgrading to version 3.1 from version 2.4 through 3.0 should generally be
-straightforward though, as usual, you should make a database backup before
-upgrading. To upgrade, simply install the latest code and login to the web
-interface as an administrator. When Moodle detects the
-changed version number it will run upgrade code that updates all questions to
-the latest format.
-
-However, if you have written your own question types
-you should be aware that all existing questions in the system
-`CR_PROTOTYPES` category with names containing the
-string `PROTOTYPE_` are deleted by the installer/upgrader.
-The installer then re-loads them from the file
-
-    db/questions-CR_PROTOTYPES.xml
-
-Hence if you have developed your own question prototypes and placed them in
-the system `CR_PROTOTYPES` category (not recommended) you must export them
-in Moodle XML format before upgrading. You can then re-import them after the
-upgrade is complete using the usual question-bank import function in the
-web interface. However, it is strongly recommended that you do not put your
-own question prototypes in the `CR_PROTOTYPES` category but create a new
-category for your own use.
-
-#### Note for enthusiasts only.
-
-Versions from 3.1 onwards no-longer allows a question to have both a per-test
-template and a combinator template: questions must have one or the other. In
-upgrading from Version 3.0 and earlier, the combinator template is used if "Enable
-combinator" was set or a combinator template grader is being used, otherwise
-the per-test template is used. This should not change the behaviour of the
-question *provided* the two templates are consistent in the sense that running
-any test in the per-test template yields exactly the same result as running
-that same test all by itself in the combinator template.
-
-
-### Installing CodeRunner from scratch
+### Installing CodeRunner
 
 CodeRunner requires two separate plug-ins, one for the question type and one
 for the specialised adaptive behaviour. The plug-ins are in two
@@ -260,6 +216,31 @@ for normal use - they are akin to base classes in a prototypal inheritance
 system like JavaScript's. If you duplicate a prototype question the question
 type will become unusable, as CodeRunner doesn't know which version of the
 prototype to use.
+
+### Upgrading from earlier versions of CodeRunner
+
+Upgrading CodeRunner versions from version 2.4 or later onwards should generally be
+straightforward though, as usual, you should make a database backup before
+upgrading. To upgrade, simply install the latest code and login to the web
+interface as an administrator. When Moodle detects the
+changed version number it will run upgrade code that updates all questions to
+the latest format.
+
+However, if you have written your own question types
+you should be aware that all existing questions in the system
+`CR_PROTOTYPES` category with names containing the
+string `PROTOTYPE_` are deleted by the installer/upgrader.
+The installer then re-loads them from the file
+
+    db/questions-CR_PROTOTYPES.xml
+
+Hence if you have developed your own question prototypes and placed them in
+the system `CR_PROTOTYPES` category (not recommended) you must export them
+in Moodle XML format before upgrading. You can then re-import them after the
+upgrade is complete using the usual question-bank import function in the
+web interface. However, it is strongly recommended that you do not put your
+own question prototypes in the `CR_PROTOTYPES` category but create a new
+category for your own use.
 
 ### Preliminary testing of the CodeRunner question type
 
@@ -320,14 +301,15 @@ in detail in the section "Supporting or implementing new languages".
 ### Setting the quiz review options
 
 It is important that students get shown the result table when they click *Check*.
-For this to happen the "Specific feedback" checkbox in the Review options for
-the quiz (under *Settings*) must be checked in the "During the attempt" column.
-It will automatically be checked
-if the quiz was created with the question behaviour set to *Adaptive* but will
-otherwise be unchecked by default. Changing the question behaviour after the
-quiz has been created does not currently change the review options.
+In Moodle quiz question parlance, the result table is called the question's *Specific
+feedback* and the quiz review options normally control when that feedback should
+be displayed to the student. By default, however, CodeRunner always displays this
+result table; if you wish to have the quiz review options control when it is
+shown you must change the *Feedback* drop-down in the question author form from
+its default *Force show* to *Set by quiz*.
 
-Other recommended setting in the "During the attempt column" are:
+Some recommended setting in the "During the attempt column" of the quiz review
+options are:
 
  1. Right answer. This should be unchecked, at least in the "During the attempt"
     column and possibly elsewhere, if you don't want your sample answers leaked
@@ -364,24 +346,29 @@ A video walkthrough of the process of setting up a Jobe server
 on a DigitalOcean droplet, and connecting an existing CodeRunner plugin to it, is
 available [here](https://www.youtube.com/watch?v=dGpnQpLnERw).
 
+An alternative and generally much faster way to set up a Jobe server is to use
+the Docker image [*jobeinabox*](https://hub.docker.com/r/trampgeek/jobeinabox).
+Because it is containerised, this version of Jobe is even more secure. The only
+disadvantage is that is is more difficult to manage
+the code or OS features within the Jobe container, e.g. to install new languages in it.
+
 If you intend running unit tests you
 will also need to copy the file `tests/fixtures/test-sandbox-config-dist.php`
 to 'tests/fixtures/test-sandbox-config.php', then edit it to set the correct
 host and any other necessary configuration for the Jobe server.
 
-Assuming you have built *Jobe* on a separate server, the JobeSandbox fully
-isolates student code from the Moodle server. However, Jobe *can* be installed
-on the Moodle server itself, rather than on a
-completely different machine. This works fine,
-but is much less secure than running Jobe on
-a completely separate machine. If a student program manages to break out of
-the sandbox when it's running on a separate machine, the worst it can do is
-bring the sandbox server down, whereas a security breach on the Moodle server
-could be used to hack into the Moodle database, which contains student run results
-and marks. That said, our Computer Science department used an earlier even less
-secure Sandbox for some years without any ill effects. Moodle keeps extensive logs
-of all activities, so a student deliberately breaching security is taking a
-huge risk.
+Assuming you have built *Jobe* on a separate server, suitably firewalled,
+the JobeSandbox fully
+isolates student code from the Moodle server. Some users install Jobe on
+the Moodle server but this is not recommended for security reasons: a student
+who manages to break out of the Jobe security might then run code on the 
+Moodle server itself if it is not adequately locked down. If you really want to
+run Jobe on the Moodle server, please at least use the JobeInAbox docker image,
+which should adequately protect the Moodle system from direct damage.
+Do realise, though, that
+unless the Moodle server is itself carefully firewalled, Jobe tasks are likely
+to be able to open connections to other machines within your intranet or
+elsewhere.
 
 ### Running the unit tests
 
