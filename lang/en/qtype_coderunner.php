@@ -172,7 +172,8 @@ $string['feedback'] = 'Feedback';
 $string['feedback_quiz'] = 'Set by quiz';
 $string['feedback_show'] = 'Force show';
 $string['feedback_hide'] = 'Force hide';
-$string['feedback_help'] = 'Choose \'Set by quiz\' to allow quiz feedback settings to control display of the result table, \'Force show\' to show the result table regardless and \'Force hide\' to hide it regardless';
+$string['feedback_help'] = 'Choose \'Set by quiz\' to allow the quiz\'s review options (specifically the
+\'Specific feedback\' setting) to control display of the result table, \'Force show\' to show the result table regardless and \'Force hide\' to hide it regardless';
 $string['fileheader'] = 'Support files';
 $string['filenamesexplain'] = 'Description';
 $string['filenamesregex'] = 'Regular expression';
@@ -227,7 +228,7 @@ and DOTALL options.
 
 The \'template grader\' option assumes that the output
 from the program is actually a
-grading result, i.e. that the template not tests *and grades* the student answer.
+grading result, i.e. that the template tests *and grades* the student answer.
 The only output from such a template program must be a JSON-encoded record.
 
 If the template is a per-test template (i.e., not a combinator), the JSON string must describe a row of the
@@ -252,8 +253,8 @@ that is displayed respectively before and after the (optional) result table. The
 \'testresults\' field, if given, is a list of lists used to display some sort
 of result table. The first row is the column-header row and all other rows
 define the table body. Two special column header values exist: \'iscorrect\'
-and \'ishidden\'. The \'iscorrect\' column(s) are used to display ticks or
-crosses for 1 or 0 row values respectively. The \'ishidden\' column isn\'t
+and \'ishidden\'. The \'iscorrect\' column(s) are used to display crosses or
+ticks for 0 and 1 respectively. The \'ishidden\' column isn\'t
 actually displayed but 0 or 1 values in the column can be used to turn on and
 off row visibility. Students do not see hidden rows but markers and other
 staff do. If a \'testresults\' table is supplied an optional
@@ -369,7 +370,10 @@ Spaces can be used in lieu of commas as a separator.
 The default penalty regime can be set site-wide by a system administrator using
 Site administration > Plugins > Question types > CodeRunner.
 
-Set the penalty regime to \'0\' for zero penalties on all submissions.';
+Set the penalty regime to \'0\' for zero penalties on all submissions.
+
+The penalty regime is ignored and no penalties are applied if the quiz is
+run using the \'Adaptive (no penalties)\' behaviour.';
 $string['maxfilesize'] = 'Max allowed file size (bytes)';
 $string['maxfilesize_help'] = 'Select the maximum file upload size (bytes). Allowing large file uploads with large classes can impact performance and and disk space on both Moodle and Jobe servers.';
 $string['memorylimit'] = 'MemLimit (MB)';
@@ -422,28 +426,24 @@ $string['precheck_selected'] = 'Selected';
 $string['precheck_all'] = 'All';
 $string['precheck_help'] = 'Set what button are available for students to
 submit answers. Usually at least a Check button is shown but this can be
-hidden (e.g. for use in Deferred Feedback contexts) if <i>Hide check<i> is checked.
+hidden (e.g. for use in Deferred Feedback contexts) if <i>Hide check</i> is checked.
 
 If Precheck is enabled, students will have an extra button to the left of the
 usual check button to give them a penalty-free run to check their code against
-a subset of the question test cases.
-
-If \'Empty\' is selected, a single run
+a subset of the question test cases. Then<ul>
+<li>If \'Empty\' is selected, a single run
 will be done with the per-test template using a testcase in which all the
 fields (testcode, stdin, expected, etc) are the empty string. Non-empty output
 is deemed to be a precheck failure. Use with caution:
 some question types will not handle this correctly, e.g. write-a-program questions
 that generate output.
-
-If \'Examples\' is selected, the code will
+</li><li>If \'Examples\' is selected, the code will
 be tested against all the tests for which \'use_as_example\' has been checked.
-
-If \'Selected\' is selected, an extra UI element is added to each test case
+</li><li>If \'Selected\' is selected, an extra UI element is added to each test case
 to allow the author to select a specific subset of the tests.
-
-If \'All\' is selected, all test cases are run (although their behaviour might
+</li><li>If \'All\' is selected, all test cases are run (although their behaviour might
 be different from the normal Check, if the template code so chooses).
-
+</ul>
 The template can check whether or not the run is a precheck run using the
 Twig parameter {{ IS_PRECHECK }}, which is "1" during precheck runs and
 "0" otherwise.';
@@ -801,13 +801,13 @@ $string['qtype_sql'] = '<p>A SQL question type, using sqlite3,
 
 $string['qtypehelp'] = 'Help with q-type';
 $string['questioncheckboxes'] = 'Customisation';
-$string['questioncheckboxes_help'] = 'To customise the question type, e.g. to edit the question templates or
-sandbox parameters, click the \'Customise\'
+$string['questioncheckboxes_help'] = 'To customise the question type, e.g. to edit
+the question template, user interface or sandbox parameters, click the \'Customise\'
 checkbox and read the help available on the newly-visible form elements for
 more information.
 
 If the template-debugging checkbox is clicked, the program generated
-for each testcase will be displayed in the output.';
+for each Jobe sandbox run will be displayed in the output.';
 $string['questionloaderror'] = 'Failed to load question';
 $string['questionpreview'] = 'Question preview';
 $string['questiontype'] = 'Question type';
@@ -896,17 +896,11 @@ $string['run_failed'] = 'Failed to run tests';
 $string['sampleanswerattachments'] = 'Sample answer attachments';
 $string['sampleanswerattachments_help'] = 'If the sample answer needs attachments files, upload them here';
 $string['sandboxcontrols'] = 'Sandbox';
-$string['sandboxcontrols_help'] = '
-Select what sandbox to use for running the student submissions.
-DEFAULT uses the highest priority sandbox available for the chosen language.
-Since Jobe has replaced all sandbox
-types except the deprecated \'ideonesandbox\',
-the value \'jobesandbox\' is recommended for normal use, and results in better
-error messages if the Jobe server is down.
-
-You can also set the
-maximum CPU time in seconds  allowed for each testcase run and the maximum
-memory a single testcase run can consume (MB). A blank entry uses the sandbox\'s
+$string['sandboxcontrols_help'] = 'All jobs are run on the Jobe sandbox, which imposes
+constraints on memory, CPU time, file output etc. Here is where you adjust those constraints.
+    
+\'TimeLimit (secs)\' sets the maximum CPU time in seconds  allowed for each sandbox run
+and \'MemLimit (MB)\' sets the maximum memory the run can use. A blank entry uses the sandbox\'s
 default value (typically 5 secs for the CPU time limit and a language-dependent
 amount of memory), but the defaults may not be suitable for resource-demanding
 programs. A value of zero for the maximum memory results in no limit being
@@ -923,10 +917,7 @@ compliance and no other C options would be used. See the jobe documentation
 for details. Some sandboxes (e.g. the deprecated Ideone sandbox) may silently ignore any or all of
 these settings.
 
-If the sandbox is set to \'jobesandbox\', the jobe host to use for testing the
-question is
-usually as specified via the administrator settings for the CodeRunner plugin.
-However, it is possible to select a different jobeserver by defining a \'jobeserver\'
+It is possible to select a different jobeserver by defining a \'jobeserver\'
 parameter and also, optionally, a \'jobeapikey\' parameter. For example, if the
 \'Parameters\' field is set to <code>{"jobeserver": "myspecialjobe.com"}</code>, the run
 will instead by submitted to the server "myspecialjobe.com".
@@ -1022,8 +1013,8 @@ response and TEST.testcode is the code for the current testcase. These values
 (and other testcase values like TEST.expected, TEST.stdin, TEST.mark)
 can be inserted into the template by enclosing them in double braces, e.g.
 <code>{{TEST.testcode}}</code>. For use within literal strings, an appropriate escape
-function should be applied, e.g. <code>{{STUDENT_ANSWER | e(\'py\')}}</code> is the studentpage requires
-answer escaped in a manner suitable for use within Python triple-double-quoted
+function should be applied, e.g. <code>{{STUDENT_ANSWER | e(\'py\')}}</code> is  
+suitable for use within Python triple-double-quoted
 strings. Other escape functions are <code>e(\'c\')</code>, <code>e(\'java\')</code>,
 <code>e(\'matlab\')</code>. The program that is output by Twig is then compiled and executed
 with the language of the selected built-in type and with stdin set
@@ -1031,12 +1022,12 @@ to TEST.stdin. Output from that program is then passed to the selected grader.
 See the help under \'Grading controls\' for more on that.
 
 Note that if a customised per-test template is used
-there will be a compile-and-execute cycle for every test case, whereas most
-built-in question types define instead a combinator template that combines
+there will be a compile-and-execute job submitted to the sandbox for every test case, 
+whereas most built-in question types define instead a combinator template that combines
 all test cases into a single run.
 
 If the template-debugging checkbox is clicked, the program generated
-for each testcase will be displayed in the output.';
+for each sandbox run will be displayed in the output.';
 $string['templateparams'] = 'Template params';
 $string['templateparamsevalpertry'] = 'Evaluate per student';
 $string['templateparamslang'] = 'Preprocessor';
@@ -1045,7 +1036,7 @@ $string['templateparamsusingsandbox'] = str_replace("\n", ' ',
 quiz all such questions initiate a sandbox run before the question can even be
 displayed. In a test or exam, this can overload the sandbox server. Caveat emptor!');
 $string['templateparams_help'] = 'If non-blank, the template parameters field must
-evaluate to a JSON-format record. In its simplest form the field is just a JSON
+evaluate to a JSON-format record. In its simplest form the field <i>is</i> just a JSON
 record defining a set of variables that are added to the environment for the Twig
 template engine when it expands the template (and other fields if Twig All is set).
 
@@ -1060,8 +1051,8 @@ customisation. Preprocessing must be done before a question
 can be displayed to a student and, except for Twig, takes place on the Jobe sandbox
 server. Every attempt on every question of this sort by every student will result in a job
 being sent to that server. This can result in thousands of jobs hitting the
-Jobe server at once at the start of a large test or exam, which will almost
-certainly overload it. Caveat Emptor!';
+Jobe server at once at the start of a large test or exam, which will probably
+overload it. Caveat Emptor!';
 $string['testalltitle'] = 'Test all questions in this context';
 $string['testallincategory'] = 'Test all questions in this category';
 $string['testcase'] = 'Test case {$a}';
@@ -1102,11 +1093,15 @@ $string['twigcontrols_help'] = 'Template parameters were traditionally referred 
 checkbox is checked, the parameters are hoisted into the Twig global name space
 and can be referenced simply as {{someparam}}.
 
-If Twig All is checked, Twig macro expansion is applied not just to the template
-but also to the
-question text, sample answer, answer preload, UI parameters and all test case fields, using
-the template parameters as an environment. You will usually
+If Twig All is checked, Twig macro expansion is applied to the
+question text, sample answer, answer preload, UI parameters and all test case fields
+using the template parameters as an environment. You will usually
 need to turn on TwigAll if using randomisation within the template parameters.
+Note that this Twig All expansion occurs when the question is first initialised, whereas
+the Twig expansion of the template occurs much later, when the student submits
+an answer. The environment for expanding the template includes the QUESTION
+Twig variable (a subset of the entire question record), some fields of which
+might have been expanded as a result of using Twig All. 
 
 The text in the template parameters field must either be JSON or must evaluate
 to yield JSON when processed by the specified Preprocessor. Be warned that choosing
@@ -1116,8 +1111,10 @@ the question can even be displayed.
 If using a preprocessor other than Twig, a Jobe sandbox submission is usually
 required for each question for each student when they start the quiz.
 If <i>Evaluate per student</i> is unchecked a single sandbox submission will
-take place only when the question is saved. However, that essentially prevents
-any use of per-student randomisation.';
+take place only when the question is saved; this is a relatively low-cost operation but
+is not normally useful, as it essentially prevents
+any use of per-student randomisation. It can however be used to generate 
+question content in some situations.';
 $string['twigerror'] = 'Twig error {$a}';
 $string['twigerrorintest'] = 'Twig error when processing this test {$a}';
 $string['type_header'] = 'CodeRunner question type';
