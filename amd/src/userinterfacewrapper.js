@@ -288,8 +288,10 @@ define(['jquery'], function($) {
                         t.uiInstance = uiInstance;
                         t.loadFailed = false;
                         t.checkForResize();
+
+                        // Set a default syncIntervalSecs method if uiInstance lacks one.
                         uiInstancePrototype = Object.getPrototypeOf(uiInstance);
-                        uiInstancePrototype.syncIntervalSecs = syncIntervalSecsBase;
+                        uiInstancePrototype.syncIntervalSecs = uiInstancePrototype.syncIntervalSecs || syncIntervalSecsBase;
                         t.startSyncTimer(uiInstance);
                     }
                     t.isLoading = false;
