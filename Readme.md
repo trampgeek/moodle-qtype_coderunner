@@ -2357,7 +2357,7 @@ not recommended.
 
 ### The Html UI
 
-The HTML UI plug-in replaces the answer box with custom HTML provided by the
+The Html UI plug-in replaces the answer box with custom HTML provided by the
 question author. The HTML will usually include data entry fields such as
 html input and text area elements and it is the values that the user enters
 into these fields that constitutes the student answer. The HTML can
@@ -2381,17 +2381,18 @@ are provided to simplify entry of those elements; see [this section](#twig-macro
 
 The author is responsible for checking the
 compatibility of any other elements entered using raw HTML with jquery's val() method.
+If an element lacks a *val* method, jquery *valHooks* can be used to define one.
 
 The HTML to use in the answer area must be provided as the contents of
 the `globalextra` field in the question authoring form.
 
-Care must be taken when using the HTML UI to avoid using field names that conflict
+Care must be taken when using the Html UI to avoid using field names that conflict
 with any other named HTML elements in the page. It is recommended that a prefix
 of some sort, such as `crui_`, be used with all names.
 
-When authoring a question that uses the html UI, the answer and answer preload
+When authoring a question that uses the Html UI, the answer and answer preload
 fields are *not* controlled by the UI, but are displayed as raw text.
-sections of the authoring form. If data is to be entered into these fields,
+If data is to be entered into these fields,
 it must be of the form
 
     {"<fieldName>": "<fieldValueList>",...}
@@ -2442,7 +2443,7 @@ A workaround for this problem is to include the special macro string
 as part of any new ids. Note the capital-I and that there are THREE (3) underscores at both the 
 start and end of the macro string.
 
-When the HTML UI inserts the global extra
+When the Html UI inserts the global extra
 html into the question,
 that macro is replaced everywhere by the actual ID of the answer box's text-area, which is
 different for the student and author answers. This technique can also be used
