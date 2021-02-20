@@ -47,6 +47,10 @@ body#page-question-type-coderunner .ace_editor {
     font-weight: bold;
 }
 
+.que.coderunner .btn  {
+    margin-right: 10px;
+}
+
 .que.coderunner div.coderunner-test-results {
     padding: 0.5em;
 }
