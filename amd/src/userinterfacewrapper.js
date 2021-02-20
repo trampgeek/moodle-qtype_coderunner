@@ -235,7 +235,7 @@ define(['jquery'], function($) {
         // DEFAULT_SYNC_INTERVAL_SECS.
         function syncIntervalSecsBase() {
             if (params.hasOwnProperty('sync_interval_secs')) {
-                return params.sync_interval_secs;
+                return parseInt(params.sync_interval_secs);
             } else {
                 return t.DEFAULT_SYNC_INTERVAL_SECS;
             }
