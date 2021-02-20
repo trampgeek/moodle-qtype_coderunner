@@ -11,7 +11,7 @@
         },
         "sync_interval_secs": {
             "type": "int",
-            "default": 5
+            "default": 3
         }
     }
 }
