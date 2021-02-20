@@ -234,7 +234,11 @@ define(['jquery'], function($) {
         // Returns the sync_interval_secs parameter if given, else
         // DEFAULT_SYNC_INTERVAL_SECS.
         function syncIntervalSecsBase() {
-            return params.sync_interval_secs ? params.sync_interval_secs : t.DEFAULT_SYNC_INTERVAL_SECS;
+            if (params.hasOwnProperty('sync_interval_secs')) {
+                return params.sync_interval_secs;
+            } else {
+                return t.DEFAULT_SYNC_INTERVAL_SECS;
+            }
         }
 
         if (this.isLoading) {  // Oops, we're loading a UI element already
