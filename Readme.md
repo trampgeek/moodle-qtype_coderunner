@@ -1421,7 +1421,8 @@ Other fields are:
  * `QUESTION.questiontext` The question text itself
  * `QUESTION.answerpreload` The string that is preloaded into the answer box.
  * `QUESTION.stepinfo`. An object with info regarding the current step. Attributes
-   are *numchecks*, *numprechecks* and *fraction* being respectively the number
+   are *quizbehaviour*, *numchecks*, *numprechecks* and *fraction* being respectively the 
+   behaviour set for the quiz in which the question is running, the number
    of times the user has clicked *Check* prior to this submission, the number
    of times the user has clicked *Precheck* prior to this submission, and the
    best fraction (0 - 1) the student has achieved so far 
