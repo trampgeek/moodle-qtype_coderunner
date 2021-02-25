@@ -589,7 +589,7 @@ class qtype_coderunner_question extends question_graded_automatically {
     
     private static function step_info($response) {
         $stepinfo = new stdClass();
-        foreach(['numchecks', 'numprechecks', 'fraction', 'quizbehaviour'] as $key) {
+        foreach(['numchecks', 'numprechecks', 'fraction', 'preferredbehaviour'] as $key) {
             $value = isset($response[$key]) ? $response[$key] : 0;
             $stepinfo->$key = $value;
         }
