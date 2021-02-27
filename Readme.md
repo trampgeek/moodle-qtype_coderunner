@@ -426,11 +426,12 @@ merges the student's submitted answer with
 the question's template together with code for this particular test case to yield an executable program.
 By "executable", we mean a program that can be executed, possibly
 with a preliminary compilation step.
-1. The executable program is passed into whatever sandbox is configured
-   for this question (usually the Jobe sandbox). The sandbox compiles the program (if necessary) and runs it,
-   using the standard input supplied by the testcase.
+1. The executable program is passed to the Jobe sandbox, which compiles
+   the program (if necessary) and runs it,
+   using the standard input supplied by the testcase. 
 1. The output from the run is passed into whatever Grader component is
-   configured, as is the expected output specified for the test case. The most common grader is the
+   configured, as is the expected output specified for the test case.
+   The most common grader is the
    "exact match" grader but other types are available.
 1. The output from the grader is a "test result object" which contains
    (amongst other things) "Expected" and "Got" attributes.
@@ -442,36 +443,44 @@ with a preliminary compilation step.
    Typically the whole table is coloured red if any tests fail or green
    if all tests pass.
 
-The above description is somewhat simplified.
+The above description is somewhat simplified, in the following ways:
 
-Firstly, it is not always necessary to
-run a different job in the sandbox for each test case. Instead, all tests can often
-be combined into a single executable program. This is achieved by use of what is known as
-a "combinator template" rather than the simpler "per-test template" described
-above. Combinator templates are useful with questions of the *write-a-function*
-or *write-a-class* variety. They are not often used with *write-a-program* questions,
-which are usually tested with different standard inputs, so multiple
-execution runs are required. Furthermore, even with write-a-function questions
-that do have a combinator template,
-CodeRunner will revert to running tests one-at-a-time (still using the combinator
-template) if running all tests in the one program gives some form of runtime error,
-in order that students can be
-presented with all test results up until the one that failed.
+ *  It is not always necessary to
+    run a different job in the sandbox for each test case. Instead, all tests can often
+    be combined into a single executable program. This is achieved by use of what is known as
+    a "combinator template" rather than the simpler "per-test template" described
+    above. Combinator templates are useful with questions of the *write-a-function*
+    or *write-a-class* variety. They are not often used with *write-a-program* questions,
+    which are usually tested with different standard inputs, so multiple
+    execution runs are required. Furthermore, even with write-a-function questions
+    that do have a combinator template,
+    CodeRunner will revert to running tests one-at-a-time (still using the combinator
+    template) if running all tests in the one program gives some form of runtime error,
+    in order that students can be
+    presented with all test results up until the one that failed.
 
-Combinator templates are explained in the *Templates*
-section.
+    Combinator templates are explained in the *Templates*
+    section.
 
-Secondly, the above description of the grading process ignores *template graders*,
-which do grading as well as testing. These support more advanced testing
-strategies, such as running thousands of tests or awarding marks in more complex
-ways than is possible with the standard option of either "all-or-nothing" marking
-or linear summation of individual test marks.
+ *  The question author can pass parameters to the
+    Twig template engine when it merges the question's template with the student answer
+    and the test cases. Such parameters add considerable flexibility to question
+    types, allow question authors to selectively enable features such
+    as style checkers and allowed/disallowed constructs. This functionality
+    is discussed in the [Template parameters](#template-parameters) section.
 
-A per-test-case template grader can be used to define each
-row of the result table, or a combinator template grader can be used to
-defines the entire feedback panel, with or without a result table.
-See the section on grading templates for
-more information.
+ *  The above description ignores *template graders*, where the question's
+    template includes code to do grading as well as testing. Template
+    graders support more advanced testing
+    strategies, such as running thousands of tests or awarding marks in more complex
+    ways than is possible with the standard option of either "all-or-nothing" marking
+    or linear summation of individual test marks.
+
+    A per-test-case template grader can be used to define each
+    row of the result table, or a combinator template grader can be used to
+    defines the entire feedback panel, with or without a result table.
+    See the section on [Grading with templates](#grading-with-templates) for
+    more information.
 
 ## Question types
 
@@ -527,7 +536,7 @@ The C-function question type expects students to submit a C function, plus possi
 additional support functions, to some specification. As a trivial example, the question
 might ask "Write a C function with signature `int sqr(int n)` that returns
 the square of its parameter *n*". The author will then provide some test
-cases of the form
+cases, such as
 
     printf("%d\n", sqr(-11));
 
@@ -555,7 +564,7 @@ or wrong accordingly.
 That example assumes the use of a per-test template rather than the more complicated
 combinator template that is actually used by the built-in C function question type.
 See the section
-on *templates* for more.
+on [Templates](#templates) for more details.
 
 ### Built-in question types
 
@@ -583,11 +592,12 @@ example, except that it uses a combinator template. The student supplies
  The template for this question type generates some standard includes, followed
  by the student code followed by a main function that executes the tests one by
  one. However, if any of the test cases have any standard input defined, the
- template is expanded and executed separately for each test case.
+ template is expanded and executed separately for each test case separately.
 
  The manner in which a C (or any other) program is executed is not part of the question
  type definition: it is defined by the particular sandbox to which the
- execution is passed. The Jobe sandbox
+ execution is passed. The architecture of CodeRunner allows for the multiple
+ different sandboxes but currently only the Jobe sandbox is supported. It
  uses the `gcc` compiler with the language set to
  accept C99 and with both *-Wall* and *-Werror* options set on the command line
  to issue all warnings and reject the code if there are any warnings.
@@ -663,17 +673,18 @@ file, with PHP code enclosed in <?php ... ?> tags and the output is the
 usual PHP output including all HTML content outside the php tags.
 
 Other less commonly used built-in question types are:
-*python3\_w\_input*, *nodejs*, *pascal\_program* and *pascal\_function*.
+*nodejs*, *pascal\_program* and *pascal\_function*.
 
 As discussed later, this base set of question types can
 be customised or extended in various ways.
 
 ### Some more-specialised question types
 
-The following question types used to exist as built-ins but have now been
-dropped from the main install as they are intended primarily for University
-of Canterbury (UOC) use only. They can be imported, if desired, from the file
-`uoc_prototypes.xml`, located in the CodeRunner/coderunner/samples folder.
+The following question types, used by the University
+of Canterbury (UOC) are not part of the basic supported question type set.
+They can be imported, if desired, from the file
+`uoc_prototypes.xml`, located in the CodeRunner/coderunner/samples folder. 
+However, they come with no guarantees of correctness or on-going support.
 
 The UOC question types include:
 
@@ -762,10 +773,10 @@ the student has attached to their submission.
 Additionally, if the question author has set any template parameters and has
 checked the *Hoist template parameters* checkbox, the context will include
 all the values defined by the template parameters field. This will be explained
-in section [Template parameters](#template-parameters).
+in the section [Template parameters](#template-parameters).
 
 The TEST attributes most likely to be used within
-the template are TEST.testcode (the code to execute for the test),
+the template are TEST.testcode (the code to execute for the test)
 and TEST.extra (the extra test data provided in the
 question authoring form). The template will typically use just the TEST.testcode
 field, which is the "test" field of the testcase. It is usually
@@ -1035,7 +1046,7 @@ Note that any output written to *stderr* is interpreted by CodeRunner as a
 runtime error, which aborts the test sequence, so the student sees the error
 output only on the first test case.
 
-The full `python3_pylint` question type is much more complex than the
+The full `python3_cosc121` question type is much more complex than the
 above, because it includes many extra features, enabled by use of
 [template parameters](#template-parameters).
 
@@ -1230,7 +1241,8 @@ the required template parameters using the *Preprocessor* dropdown in the
 The simplest and
 by far the most efficient option is *Twig*. Selecting that option results in
 the template parameters field being passed through Twig to yield the JSON
-template parameter string. That string is decoded to yield the Twig context
+template parameter string. That string is decoded from JSON to PHP,
+to yield the Twig context
 for all subsequent Twig operations on the question. When evaluating the
 template parameters with Twig the only context is the [STUDENT variable] 
 (#the-twig-student-variable). The output of that initial
@@ -1282,7 +1294,7 @@ Furthermore it suffers from a potentially major disadvantage. The evaluation
 of the template parameters takes place on the sandbox server, and when a student
 starts a quiz, all their questions using this form of randomisation initiate a run
 on the sandbox server and cannot even be displayed until the run completes. If
-you a running a large test or exam, and students all start at the same time,
+you are running a large test or exam, and students all start at the same time,
 there can be thousands of jobs hitting the sandbox server within a few seconds.
 This is almost certain to overload it! Caveat emptor! The approach should,
 however, be safe for lab and assignment use, when students are not all 
@@ -1312,7 +1324,7 @@ the program *must* generate the same output when given the same seed.
  1. Student email address (string)
 
 The student parameters can be ignored unless you wish to customise a question
-different for different students.
+differently for different students.
 
 Here, for example, is a Python preprocessor program that could be used to
 ask a student to write a function that has 3 variant names to print the
@@ -1333,7 +1345,7 @@ form "Hello {{ first_name }}!".
 However, please realise that that is an extremely bad example of when to use
 a preprocessor, as the job is more easily and more efficiently done in Twig, 
 as explained in the section [Randomising questions](#randomising-questions).
-Note, too, that Twig All must be set.
+Note, too, that *Twig All* must be set.
 
 #### The Evaluate per student option
 When you select a preprocessor other than Twig, a checkbox 'Evaluate per
@@ -1580,13 +1592,11 @@ such as the order in which shuffled options will be presented in a multichoice
 question. These variables are essentially "frozen" throughout the lifetime of that particular
 question instance, including when it is subsequently reviewed or regraded.
 
-When a CodeRunner question is instantiated, the template parameters field is
-processed by the Twig template engine. If there's no embedded Twig within the
-template, the template parameters field will not change. However, if the
-template does actually
-include embedded Twig code, the output from
-Twig will be different from the input. Usually any embedded Twig code will make
-at least one call to the Twig *random* function, resulting in one or more
+When a CodeRunner question is instantiated with the template parameters preprocessor
+set to *Twig*, the template parameters field is
+processed by the Twig template engine. It is assumed that the template parameters
+field includes some embedded Twig, which will make
+at least one call to the Twig *random* function. This results in one or more
 template parameters having randomised values. The above example shows a case
 in which the template parameter "name" is assigned a randomly-chosen value
 from a list of options. Another common variant is
