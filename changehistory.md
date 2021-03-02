@@ -10,9 +10,9 @@
  * Add QUESTION.stepinfo to the Twig environment. This is a record with attributes
    preferredbehaviour, numchecks, numprechecks and fraction allowing authors
    to provide more elaborate feedback according to quiz mode and previous submissions.
- * Add a macro ___textareaId___ to the HTML-UI that gets replaced by the id
+ * Add a macro \_\_\_textareaId\_\_\_ to the HTML-UI that gets replaced by the id
    of the textarea element that the HTML-UI is operating on.
- * Add special __twigprefix__ that, if defined in a question's prototype,
+ * Add special \_\_twigprefix\_\_ that, if defined in a question's prototype,
    provides content (e.g. Twig macros) that is inserted at the start of all
    Twig-expanded question fields.
  * Reduce unnecessary calls to the Jobe server to get its list of supported
@@ -20,10 +20,10 @@
  * Bug fix: nodejs programs in ESM style were breaking. So change filename extension to .js
  * Bug fix: Ace plugin was generating duplicate (and wrong) ids when multiple
     ace editors were present in a form.
- * Bug fix: Ace editor was not being initialised to the correct language with
+ * Bug fix: Ace editor was not being initialised to the correct language with multilanguage
+   questions for which an explicit default language was specified.
  * Bug fix: some non-inherited fields were being mistakenly loaded from the
     prototype when changing question type via Ajax.
-    multilanguage questions for which an explicit default was specified.
  * Bug fix: %h formats for columns were being ignored in the "For example" table.
 
 ### 15 October 2020. 3.7.9+
