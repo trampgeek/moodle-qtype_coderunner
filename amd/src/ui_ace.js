@@ -91,17 +91,15 @@ define(['jquery'], function($) {
             // Here, we just deal with things that are known to cause a problem.
             // Can't do these operations until editor has rendered. So ...
             this.editor.renderer.on('afterRender', function() {
-                wrapper.find('.ace_gutter').addClass('moodle-has-zindex');
+                var gutter =  wrapper.find('.ace_gutter');
+                if (gutter.hasClass('moodle-has-zindex')) {
+                    return;  // So we only do what follows once.
+                }
+                gutter.addClass('moodle-has-zindex');
 
-                //textarea.hide();
                 if (focused) {
                     t.editor.focus();
                     t.editor.navigateFileEnd();
-                    /*
-                    var session = this.editor.getSession(),
-                        lines = session.getLength();
-                    this.editor.gotoLine(lines, session.getLine(lines - 1).length);
-                    */
                 }
                 t.aceLabel = wrapper.find('.answerprompt');
                 t.aceLabel.attr('for', 'ace_' + textareaId);
