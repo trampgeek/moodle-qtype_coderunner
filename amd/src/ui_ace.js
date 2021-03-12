@@ -80,6 +80,11 @@ define(['jquery'], function($) {
 
             session = this.editor.getSession();
             session.setValue(this.textarea.val());
+            
+            // Set theme if available (not currently enabled).
+            if (params.theme) {
+                this.editor.setTheme("ace/theme/" + params.theme);
+            }
 
             this.setLanguage(lang);
 
