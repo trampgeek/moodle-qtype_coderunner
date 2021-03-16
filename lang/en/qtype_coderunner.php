@@ -1042,7 +1042,8 @@ template engine when it expands the template (and other fields if Twig All is se
 
 If a preprocessor is specified in the Template param controls section,
 the template parameters are first processed by the specified language
-to yield a JSON record. See the documentation for details.
+to yield a JSON record. See <a href="https://coderunner.org.nz/mod/url/view.php?id=199">
+the documentation</a> for details.
 
 <b>Warning:</b> use of a preprocessor other than Twig can have drastic performance
 implications if the Evaluate-on-each-attempt checkbox is
@@ -1106,7 +1107,8 @@ might have been expanded as a result of using Twig All.
 The text in the template parameters field must either be JSON or must evaluate
 to yield JSON when processed by the specified Preprocessor. Be warned that choosing
 a preprocessor other than Twig results in a submission to the Jobe sandbox before
-the question can even be displayed.
+the question can even be displayed. See <a href="https://coderunner.org.nz/mod/url/view.php?id=199">
+the documentation</a> for how to write a non-Twig preprocessor.
 
 If using a preprocessor other than Twig, a Jobe sandbox submission is usually
 required for each question for each student when they start the quiz.
