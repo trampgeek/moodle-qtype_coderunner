@@ -689,7 +689,7 @@ class qtype_coderunner_question extends question_graded_automatically {
             return $text;
         } else {
             $context['QUESTION'] = $this->sanitisedCloneOfThis();
-            if ($this->hoisttemplateparams) {
+            if ($this->hoisttemplateparams && is_iterable($this->parameters)) {
                 foreach ($this->parameters as $key => $value) {
                     $context[$key] = $value;
                 }
