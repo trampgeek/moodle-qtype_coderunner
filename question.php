@@ -117,7 +117,7 @@ class qtype_coderunner_question extends question_graded_automatically {
             $erroroninit = get_string('erroroninit', 'qtype_coderunner', array('error'=>$error));
             $this->initialisationerrormessage = $erroroninit;
         }
-        $this->parameters = json_decode($this->templateparamsjson);
+        $this->parameters = json_decode($this->templateparamsjson, true);
         if ($this->twigall) {
             $this->twig_all();
         }
