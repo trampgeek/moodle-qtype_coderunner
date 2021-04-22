@@ -948,6 +948,7 @@ $string['tableui_dynamic_rows_descr'] = 'If true, and "Add row" button is provid
 $string['tableui_row_labels_descr'] = 'A list of strings for the row labels, i.e. the values in column 0.';
 $string['tableui_locked_cells_descr'] = 'A list of 2-element lists giving the 0-origin coordinates of cells that the user cannot alter. Coordinates do not include a possible header row or row-label column.';
 $string['tableui_column_width_percents_descr'] = 'A list of floating point numbers giving the percentage of the available table width to allocate to the columns, including the row-label column if present.';
+$string['tableui_lines_per_cell_descr'] = 'The number of text rows in each textarea/cell';
 $string['tableui_sync_interval_secs_descr'] = 'The time interval in seconds between calls to sync the UI contents back to the question answer. 0 for no such auto-syncing.';
 
 $string['table_ui_invalidjson'] = 'Table UI: invalid JSON serialisation.';

@@ -34,6 +34,10 @@
         "sync_interval_secs": {
             "type": "int",
             "default": 5
+        },
+        "lines_per_cell": {
+            "type": "int",
+            "default": 2
         }
     }
 }

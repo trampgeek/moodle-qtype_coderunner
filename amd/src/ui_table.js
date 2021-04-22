@@ -73,6 +73,7 @@ define(['jquery'], function($) {
         this.hasHeader = uiParams.column_headers && uiParams.column_headers.length > 0 ? true : false;
         this.hasRowLabels = uiParams.row_labels && uiParams.row_labels.length > 0 ? true : false;
         this.numDataColumns = uiParams.num_columns;
+        this.rowsPerCell = uiParams.lines_per_cell;
         this.totNumColumns = this.numDataColumns + (this.hasRowLabels ? 1 : 0);
         this.columnWidths = this.computeColumnWidths();
         this.reload();
@@ -162,7 +163,8 @@ define(['jquery'], function($) {
         for (var iCol = 0; iCol < this.numDataColumns; iCol++) {
             width = this.columnWidths[widthIndex++];
             html += "<td style='padding:2px;margin:0,width:" + width + "'%>";
-            html += '<textarea rows="2" style="width:100%;padding:0;resize:vertical;font-family: monospace"';
+            html += '<textarea rows="' + this.rowsPerCell + '"';
+            html += ' style="width:100%;padding:0;resize:vertical;font-family: monospace"';
             if (this.isLockedCell(iRow, iCol)) {
                 html += ' disabled>';
             } else {
