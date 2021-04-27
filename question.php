@@ -254,7 +254,8 @@ class qtype_coderunner_question extends question_graded_automatically {
         $input = '';
         $runargs = array("seed=$seed");
         foreach (array('id', 'username', 'firstname', 'lastname', 'email') as $key) {
-            $runargs[] = "$key=" . $this->student->$key;
+            $value = preg_replace("/[^A-Za-z0-9]/", '', $this->student->$key);
+            $runargs[] = "$key=" . $value;
         }
         $sandboxparams = array("runargs" => $runargs);
         $sandbox = $this->get_sandbox();
