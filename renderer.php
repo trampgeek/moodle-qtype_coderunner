@@ -503,8 +503,8 @@ class qtype_coderunner_renderer extends qtype_renderer {
             // if given or the first language listed, whichever comes first.
             list($languages, $default) = qtype_coderunner_util::extract_languages($question->acelang);
             $params = $question->parameters;
-            if (array_key_exists('answer_language', $params)) {
-                $currentlanguage = $params['answer_language'];
+            if (property_exists($params, 'answer_language')) {
+                $currentlanguage = $params->answer_language;
             } else if (!empty($default)) {
                 $currentlanguage = $default;
             } else {
