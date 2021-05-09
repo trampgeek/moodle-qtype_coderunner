@@ -1,5 +1,17 @@
 # CHANGE HISTORY
 
+### 9 May 2021. 4.0.2
+ * Added a `lines_per_cell` parameter to the table UI.
+ * Bug fix: template preprocessor runs broke if a student had an apostrophe or space
+   within their first or last names.
+ * Bug fix in 4.0.0: Ace editor hung in a render loop when displaying template parameter
+   field.
+ * Bug fix: PHP errors were generated if the template parameters were bad, e.g.
+   if a template parameter preprocessor run failed.
+ * Bug fix: the sample answer for multilanguage questions was not being
+   correctly displayed in a quiz review.
+
+
 ### 2 March 2021. 4.0.0
  * Add template parameter preprocessing capability that allows uses of languages
    other than Twig for generating the JSON template parameter set.
