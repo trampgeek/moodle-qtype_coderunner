@@ -117,7 +117,7 @@ class qtype_coderunner_question extends question_graded_automatically {
             $erroroninit = get_string('erroroninit', 'qtype_coderunner', array('error'=>$error));
             $this->initialisationerrormessage = $erroroninit;
         }
-        $this->parameters = json_decode($this->templateparamsjson, true);
+        $this->parameters = json_decode($this->templateparamsjson);
         if ($this->twigall) {
             $this->twig_all();
         }
@@ -690,7 +690,7 @@ class qtype_coderunner_question extends question_graded_automatically {
             return $text;
         } else {
             $context['QUESTION'] = $this->sanitisedCloneOfThis();
-            if ($this->hoisttemplateparams && is_iterable($this->parameters)) {
+            if ($this->hoisttemplateparams) {
                 foreach ($this->parameters as $key => $value) {
                     $context[$key] = $value;
                 }
