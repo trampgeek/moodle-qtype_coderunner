@@ -1954,11 +1954,11 @@ A template grader for this situation might be the following
                 else:
                     comment += "Line {} wrong\n".format(i)
 
-        print(json.dumps({'got': got, 'comment': comment, 'fraction': mark / 5}))
+        print(json.dumps({'got': got, 'comment': comment, 'fraction': mark / 5, 'awarded': mark}))
 
 Note that in the above program the Python *dictionary*
 
-    {'got': got, 'comment': comment, 'fraction': mark / 5}
+    {'got': got, 'comment': comment, 'fraction': mark / 5, 'awarded': mark}
 
 gets converted by the call to json.dumps to a JSON object string, which looks
 syntactically similar but is in fact a different sort of entity altogether.
@@ -1966,9 +1966,9 @@ You should always use json.dumps, or its equivalent in other languages, to
 generate a valid JSON string, handling details like escaping of embedded
 newlines.
 
-In order to display the *comment* in the output JSON, the
+In order to display the *comment* and *awarded* columns in the output JSON, the
 the 'Result columns' field of the question (in the 'customisation' part of
-the question authoring form) should include that field and its column header, e.g.
+the question authoring form) should include those field and their column headers, e.g.
 
         [["Expected", "expected"], ["Got", "got"], ["Comment", "comment"], ["Mark", "awarded"]]
 
