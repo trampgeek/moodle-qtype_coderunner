@@ -32,7 +32,7 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
     // A list of the allowed attributes in the combinator template grader return value.
     public $allowedfields = array('fraction', 'prologuehtml', 'testresults', 'epiloguehtml',
                     'feedbackhtml', 'columnformats', 'showdifferences',
-                    'showoutputonly'
+                    'showoutputonly', 'attemptconfirmhtml'
         );
 
     public function __construct($isprecheck) {
@@ -40,6 +40,7 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
         $this->actualmark = 0;
         $this->epiloguehtml = null;
         $this->prologuehtml = null;
+	$this->attemptconfirmhtml = null;
         $this->testresults = null;
         $this->columnformats = null;
         $this->outputonly = false;
@@ -200,6 +201,10 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
                $this->showdifferences &&  isset($this->testresults);
     }
 
+    public function get_attempt_confirm() {
+        return empty($this->attemptconfirmhtml) ?
+	       '' : $this->attemptconfirmhtml;
+    }
 
     // Check that if a columnformats field is supplied
     // the number of entries is correct and that each entry is either '%s'
