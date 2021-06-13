@@ -144,6 +144,8 @@ class behat_coderunner extends behat_base {
     /** 
      * Sets the given field to a given value and dismisses the expected alert. 
      * @When /^I set the field "(?P<field_string>(?:[^"]|\\")*)" to "(?P<field_value_string>(?:[^"]|\\")*)" and dismiss the alert$/
+     * 
+     * NOT WORKING as at 13 June 2021. UnexpectedAlertOpen isn't being caught.
      */
     public function i_set_the_field_and_dismiss_the_alert($field, $value){
         try {
