@@ -253,7 +253,7 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
                 return;
             }
             str.get_string(key, 'qtype_coderunner').then(function(s) {
-                var message = s;
+                var message = s.replace(/\n/g, " ");
                 if (extra) {
                     message += '\n' + extra;
                 }
