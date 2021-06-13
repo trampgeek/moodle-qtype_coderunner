@@ -31,6 +31,7 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
     // the element property to be set; a default value if the JSON field is
     // empty and an optional filter function to apply to the field value before
     // setting the property with it.
+    var BEHAT_TESTING = false;  // Suppress alerts (necessary until UnexpectedAlertOpens can be caught).
     var JSON_TO_FORM_MAP = {
         template:            ['#id_template', 'value', ''],
         iscombinatortemplate:['#id_iscombinatortemplate', 'checked', '',
@@ -248,6 +249,9 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
         // Raise an alert with the given language string and possible additional
         // extra text.
         function langStringAlert(key, extra) {
+            if (BEHAT_TESTING) {
+                return;
+            }
             str.get_string(key, 'qtype_coderunner').then(function(s) {
                 var message = s;
                 if (extra) {
