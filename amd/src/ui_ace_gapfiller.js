@@ -3,6 +3,7 @@ define("qtype_coderunner/ui_ace_gapfiller", ['jquery'], function($) {
     const Range = ace.require("ace/range").Range;
     const fillChar = " ";
     const validChars = /[ !"#$%&'()*+`\-./0-9:;<=>?@A-Z\[\]\\^_a-z{}|~]/;
+    var nextGapIndex = 0;
 
     function AceGapfillerUi(textareaId, w, h, uiParams) {
         // Constructor for the Ace interface object
@@ -111,6 +112,12 @@ define("qtype_coderunner/ui_ace_gapfiller", ['jquery'], function($) {
 
                 if (gap === null) {
                     // Not in a gap
+                } else if (commandName === "indent") {
+                    // Instead of indenting, move to next gap.
+                    let nextGap = t.gaps[(gap.index+1) % t.gaps.length];
+                    t.editor.moveCursorTo(nextGap.range.start.row, nextGap.range.start.column+nextGap.textSize);
+                    t.editor.selection.clearSelection(); // Clear selection.
+                    
                 } else if (t.editor.selection.isEmpty()) {
                     // User is not selecting multiple characters.
                     if (commandName === "insertstring") {
@@ -450,6 +457,9 @@ define("qtype_coderunner/ui_ace_gapfiller", ['jquery'], function($) {
     };
 
     function Gap(editor, row, column, minWidth, maxWidth=Infinity) {
+        this.index = nextGapIndex;
+        nextGapIndex += 1;
+
         this.editor = editor;
     
         this.minWidth = minWidth;
