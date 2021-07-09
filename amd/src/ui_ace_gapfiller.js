@@ -314,9 +314,7 @@ define("qtype_coderunner/ui_ace_gapfiller", ['jquery'], function($) {
                 values = JSON.parse(content);
                 for (let i = 0; i < this.gaps.length; i++) {
                     value = i < values.length ? values[i]: '???';
-                    for (let char of value) {
-                        this.gaps[i].insertChar(this.gaps, {row: this.gaps[i].range.start.row, column: this.gaps[i].range.start.column+this.gaps[i].textSize}, char);
-                    }
+                    this.gaps[i].insertText(this.gaps, this.gaps[i].range.start.column, value);
                 }
             } catch(e) {
                 // Just ignore errors
