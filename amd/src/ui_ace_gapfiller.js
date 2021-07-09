@@ -131,6 +131,25 @@ define("qtype_coderunner/ui_ace_gapfiller", ['jquery'], function($) {
                         }
                     }
                     t.editor.selection.clearSelection(); // Keep selection clear.
+
+                } else if (!t.editor.selection.isEmpty() && gap.cursorInGap(selectionRange.start) && gap.cursorInGap(selectionRange.end)) {
+                    // User is selecting multiple characters and is in a gap.
+                 
+                    // These are the commands that remove the selected text.
+                    if (commandName === "insertstring" || commandName === "backspace" || commandName === "del" || commandName === "paste" || commandName === "cut") {
+                        gap.deleteRange(t.gaps, selectionRange.start.column, selectionRange.end.column);
+                        t.editor.selection.clearSelection(); // Clear selection.
+                    }
+                    
+                    if (commandName === "insertstring") {
+                        let char = e.args;
+                        if (validChars.test(char)) {    
+                            gap.insertChar(t.gaps, selectionRange.start, char);
+                        }
+                    }
+                }
+                if (commandName === "paste") {
+                    gap.insertText(t.gaps, cursor.column, e.args.text);
                 }
                 e.preventDefault();
                 e.stopPropagation();    
