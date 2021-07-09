@@ -49,6 +49,8 @@ define("qtype_coderunner/ui_ace_gapfiller", ['jquery'], function($) {
             }
 
             this.editor.setOptions({
+                displayIndentGuides: false,
+                dragEnabled: false,
                 enableBasicAutocompletion: true,
                 newLineMode: "unix",
             });
