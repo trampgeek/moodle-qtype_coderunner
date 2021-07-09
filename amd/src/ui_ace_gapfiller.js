@@ -148,8 +148,10 @@ define("qtype_coderunner/ui_ace_gapfiller", ['jquery'], function($) {
                         }
                     }
                 }
+
+                // Paste text into gap.
                 if (commandName === "paste") {
-                    gap.insertText(t.gaps, cursor.column, e.args.text);
+                    gap.insertText(t.gaps, selectionRange.start.column, e.args.text);
                 }
                 e.preventDefault();
                 e.stopPropagation();    
@@ -163,6 +165,30 @@ define("qtype_coderunner/ui_ace_gapfiller", ['jquery'], function($) {
                     if (cursor.column > gap.range.start.column+gap.textSize) {
                         t.editor.moveCursorTo(gap.range.start.row, gap.range.start.column+gap.textSize);
                     }
+                }
+            });
+            
+            this.gapToSelect = null;    // Stores gap that has been selected with triple click.
+            
+            // Select all text in gap on triple click within gap.
+            this.editor.on("tripleclick", function(e) {
+                let cursor = t.editor.selection.getCursor();
+                let gap = t.findCursorGap(cursor);
+                if (gap !== null) {
+                    t.editor.selection.setSelectionRange(new Range(gap.range.start.row, gap.range.start.column, gap.range.start.row, gap.range.end.column), false);
+                    t.gapToSelect = gap;
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            });
+            
+            // Annoying hack to ensure the tripple click thing works.
+            this.editor.on("click", function(e) {
+                if (t.gapToSelect) {
+                    t.editor.moveCursorTo(t.gapToSelect.range.start.row, t.gapToSelect.range.start.column+t.gapToSelect.textSize);
+                    t.gapToSelect = null;  
+                    e.preventDefault();
+                    e.stopPropagation();
                 }
             });
 
