@@ -2,7 +2,7 @@ define("qtype_coderunner/ui_ace_gapfiller", ['jquery'], function($) {
 
     const Range = ace.require("ace/range").Range;
     const fillChar = " ";
-    const validChars = /[ !"#$%&'()*+`\-./0-9:;<=>?@A-Z\[\]\\^_a-z{}|~]/;
+    const validChars = /[ !"#$%&'()*+,`\-./0-9:;<=>?@A-Z\[\]\\^_a-z{}|~]/;
 
     function AceGapfillerUi(textareaId, w, h, uiParams) {
         // Constructor for the Ace interface object
