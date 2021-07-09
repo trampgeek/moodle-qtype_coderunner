@@ -463,6 +463,22 @@ define("qtype_coderunner/ui_ace_gapfiller", ['jquery'], function($) {
         }
     }
 
+    Gap.prototype.deleteRange = function(gaps, start, end) {
+        for (let i = start; i < end; i++) {
+            if (start < this.range.start.column+this.textSize) {
+                this.deleteChar(gaps, {row: this.range.start.row, column: start});
+            }
+        }
+    }
+    
+    Gap.prototype.insertText = function(gaps, start, text) {
+        for (let i = 0; i < text.length; i++) {
+            if (start+i < this.range.start.column+this.maxWidth) {
+                this.insertChar(gaps, {row: this.range.start.row, column: start+i}, text[i]);
+            }
+        }
+    }
+
     Gap.prototype.getText = function() {
         return this.editor.session.getTextRange(new Range(this.range.start.row, this.range.start.column, this.range.end.row, this.range.start.column+this.textSize));
     }
