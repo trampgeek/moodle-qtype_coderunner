@@ -3,7 +3,6 @@ define("qtype_coderunner/ui_ace_gapfiller", ['jquery'], function($) {
     const Range = ace.require("ace/range").Range;
     const fillChar = " ";
     const validChars = /[ !"#$%&'()*+`\-./0-9:;<=>?@A-Z\[\]\\^_a-z{}|~]/;
-    var nextGapIndex = 0;
 
     function AceGapfillerUi(textareaId, w, h, uiParams) {
         // Constructor for the Ace interface object
@@ -18,6 +17,7 @@ define("qtype_coderunner/ui_ace_gapfiller", ['jquery'], function($) {
         let code = "";
         this.uiParams = uiParams;
         this.source = uiParams.ui_source || 'globalextra';
+        this.nextGapIndex = 0;
         if (this.source !== 'globalextra' && this.source !== 'test0') {
             alert('Invalid source for code in ui_ace_gapfiller');
             this.source = 'globalextra';
@@ -117,7 +117,7 @@ define("qtype_coderunner/ui_ace_gapfiller", ['jquery'], function($) {
                     let nextGap = t.gaps[(gap.index+1) % t.gaps.length];
                     t.editor.moveCursorTo(nextGap.range.start.row, nextGap.range.start.column+nextGap.textSize);
                     t.editor.selection.clearSelection(); // Clear selection.
-                    
+
                 } else if (t.editor.selection.isEmpty()) {
                     // User is not selecting multiple characters.
                     if (commandName === "insertstring") {
@@ -245,7 +245,11 @@ define("qtype_coderunner/ui_ace_gapfiller", ['jquery'], function($) {
                 let maxWidth = (values.length > 1 ? parseInt(values[1]) : Infinity);
             
                 // Create new gap.
-                this.gaps.push(new Gap(this.editor, i, columnPos, minWidth, maxWidth));
+                let gap = new Gap(this.editor, i, columnPos, minWidth, maxWidth);
+                gap.index = this.nextGapIndex;
+                this.nextGapIndex += 1;
+                this.gaps.push(gap);
+                
                 columnPos += minWidth;
                 editorContent += ' '.repeat(minWidth);
                 if (j + 1 < bits.length) {
@@ -457,9 +461,6 @@ define("qtype_coderunner/ui_ace_gapfiller", ['jquery'], function($) {
     };
 
     function Gap(editor, row, column, minWidth, maxWidth=Infinity) {
-        this.index = nextGapIndex;
-        nextGapIndex += 1;
-
         this.editor = editor;
     
         this.minWidth = minWidth;
