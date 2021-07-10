@@ -1,3 +1,59 @@
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more util.details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Implementation of the ace_gapfiller_ui user interface plugin. For overall details
+ * of the UI plugin architecture, see userinterfacewrapper.js.
+ *
+ * This plugin uses the usual ace editor but only makes some portions of the text editable.
+ * The pre-formatted text is supplied by the question author in either the
+ * "globalextra" field or the testcode field of the first test case, according
+ * to the ui parameter ui_source (default: globalextra).
+ * Editable "gaps" are inserted into the ace editor at specified points.
+ * It is intended primarily for use with coding questions where the answerbox presents 
+ * the students with code that has smallish bits missing.
+ *
+ * The locations within the globalextra text at which the gaps are
+ * to be inserted are denoted by "tags" of the form
+ *
+ *     {[ size ]}
+ *
+ * or 
+ * 
+ *     {[ size-maxSize ]}
+ *
+ * where size and maxSize are integer literals. These respectively inject a "gap" into 
+ * the editor of the specified size and maxSize. If maxSize is not specified then the 
+ * "gap" has no maximum size and can grow without bound.
+ *
+ * The serialisation of the answer box contents, i.e. the text that
+ * copied back into the textarea for submissions
+ * as the answer, is simply a list of all the field values (strings), in order.
+ *
+ * As a special case of the serialisation, if the value list is empty, the
+ * serialisation itself is the empty string.
+ *
+ * The delimiters for the gap tags are by default '{[' and
+ * ']}'.
+ *
+ * @package    qtype
+ * @subpackage coderunner
+ * @copyright  Richard Lobb, 2019, The University of Canterbury
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 define("qtype_coderunner/ui_ace_gapfiller", ['jquery'], function($) {
 
     const Range = ace.require("ace/range").Range;
