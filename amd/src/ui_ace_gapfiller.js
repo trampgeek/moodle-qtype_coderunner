@@ -213,9 +213,10 @@ define("qtype_coderunner/ui_ace_gapfiller", ['jquery'], function($) {
                 }
 
                 // Paste text into gap.
-                if (commandName === "paste") {
+                if (gap !== null && commandName === "paste") {
                     gap.insertText(t.gaps, selectionRange.start.column, e.args.text);
                 }
+                
                 e.preventDefault();
                 e.stopPropagation();    
             });
