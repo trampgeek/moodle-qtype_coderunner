@@ -153,7 +153,7 @@ define("qtype_coderunner/ui_ace_gapfiller", ['jquery'], function($) {
             this.editor.commands.on("exec", function(e) { 
                 let cursor = t.editor.selection.getCursor();
                 let commandName = e.command.name;
-                selectionRange = t.editor.getSelectionRange();
+                let selectionRange = t.editor.getSelectionRange();
 
                 let gap = t.findCursorGap(cursor);
 
@@ -168,13 +168,21 @@ define("qtype_coderunner/ui_ace_gapfiller", ['jquery'], function($) {
 
                 if (gap === null) {
                     // Not in a gap
+                    if (commandName === "selectall") {
+                        t.editor.selection.selectAll();
+                    }
+                
                 } else if (commandName === "indent") {
                     // Instead of indenting, move to next gap.
                     let nextGap = t.gaps[(gap.index+1) % t.gaps.length];
                     t.editor.moveCursorTo(nextGap.range.start.row, nextGap.range.start.column+nextGap.textSize);
                     t.editor.selection.clearSelection(); // Clear selection.
 
-                } else if (t.editor.selection.isEmpty()) {
+                } else if (commandName === "selectall") {
+                    // Select all text in a gap if we are in a gap.
+                    t.editor.selection.setSelectionRange(new Range(gap.range.start.row, gap.range.start.column, gap.range.start.row, gap.range.end.column), false);
+                
+                }else if (t.editor.selection.isEmpty()) {
                     // User is not selecting multiple characters.
                     if (commandName === "insertstring") {
                         let char = e.args;
@@ -216,7 +224,7 @@ define("qtype_coderunner/ui_ace_gapfiller", ['jquery'], function($) {
                 if (gap !== null && commandName === "paste") {
                     gap.insertText(t.gaps, selectionRange.start.column, e.args.text);
                 }
-                
+
                 e.preventDefault();
                 e.stopPropagation();    
             });
