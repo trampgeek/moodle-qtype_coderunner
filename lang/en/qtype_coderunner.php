@@ -1032,10 +1032,10 @@ for each sandbox run will be displayed in the output.';
 $string['templateparams'] = 'Template params';
 $string['templateparamsevalpertry'] = 'Evaluate per student';
 $string['templateparamslang'] = 'Preprocessor';
-$string['templateparamsusingsandbox'] = str_replace("\n", ' ',
-'Preprocessors other than Twig use the sandbox server. When a student starts a
-quiz all such questions initiate a sandbox run before the question can even be
-displayed. In a test or exam, this can overload the sandbox server. Caveat emptor!');
+$string['templateparamsusingsandbox'] = 'Preprocessors other than Twig use
+the sandbox server. When a student starts a quiz all such questions initiate
+a sandbox run before the question can even be displayed. In a test or exam,
+this can overload the sandbox server. Caveat emptor!';
 $string['templateparams_help'] = 'If non-blank, the template parameters field must
 evaluate to a JSON-format record. In its simplest form the field <i>is</i> just a JSON
 record defining a set of variables that are added to the environment for the Twig

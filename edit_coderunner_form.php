@@ -796,6 +796,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $this->formquestion = $this->make_question_from_form_data($data);
         if ($data['coderunnertype'] == 'Undefined') {
             $errors['coderunner_type_group'] = get_string('questiontype_required', 'qtype_coderunner');
+            return $errors;  // Don't continue checking in this case. Template param validation breaks.
         }
         if ($data['cputimelimitsecs'] != '' &&
              (!ctype_digit($data['cputimelimitsecs']) || intval($data['cputimelimitsecs']) <= 0)) {
