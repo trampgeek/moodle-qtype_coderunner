@@ -406,3 +406,16 @@ li.bulktest.coderunner.context.quiz {
     padding-left: 1.5em;
     list-style-type: none;
 }
+
+/* Ace gapfiller ui */
+.ace-gap-background {
+    position: absolute;
+    background-color: SeaShell;
+    border-radius: 0px;
+}
+
+.ace-gap-outline {
+    position: absolute;
+    outline: 1px solid;
+    outline-color: rgba(0, 0, 0, 0.5);
+}

@@ -1,6 +1,6 @@
 # CODE RUNNER
 
-Version: 4.0.0 February 2021
+Version: 4.0.2 May 2021
 
 Authors: Richard Lobb, University of Canterbury, New Zealand.
          Tim Hunt, The Open University, UK
@@ -1954,11 +1954,11 @@ A template grader for this situation might be the following
                 else:
                     comment += "Line {} wrong\n".format(i)
 
-        print(json.dumps({'got': got, 'comment': comment, 'fraction': mark / 5}))
+        print(json.dumps({'got': got, 'comment': comment, 'fraction': mark / 5, 'awarded': mark}))
 
 Note that in the above program the Python *dictionary*
 
-    {'got': got, 'comment': comment, 'fraction': mark / 5}
+    {'got': got, 'comment': comment, 'fraction': mark / 5, 'awarded': mark}
 
 gets converted by the call to json.dumps to a JSON object string, which looks
 syntactically similar but is in fact a different sort of entity altogether.
@@ -1966,9 +1966,9 @@ You should always use json.dumps, or its equivalent in other languages, to
 generate a valid JSON string, handling details like escaping of embedded
 newlines.
 
-In order to display the *comment* in the output JSON, the
+In order to display the *comment* and *awarded* columns in the output JSON, the
 the 'Result columns' field of the question (in the 'customisation' part of
-the question authoring form) should include that field and its column header, e.g.
+the question authoring form) should include those field and their column headers, e.g.
 
         [["Expected", "expected"], ["Got", "got"], ["Comment", "comment"], ["Mark", "awarded"]]
 
@@ -2273,20 +2273,22 @@ HTML *textarea* elements. The question author can enable *Add row* and
 of the table is set by the following template parameters, where the first two
 are required and the rest are optional.
 
- * `table_num_rows` (required): sets the (initial) number of table rows, excluding the header.
- * `table_num_columns` (required): sets the number of table columns.
+ * `num_rows` (required): sets the (initial) number of table rows, excluding the header.
+ * `num_columns` (required): sets the number of table columns.
  * `table_column_headers` (optional): a list of strings used for column headers. By default
    no column headers are used.
- * `table_row_labels` (optional): a list of strings used for row labels. By
+ * `row_labels` (optional): a list of strings used for row labels. By
    default no row labels are used.
- * `table_column_width_percents` (optional): a list of numeric percentage widths of the different
+ * `lines_per_cell` (optional): the initial number of rows for each of the
+   table text-area cells. Default 2.
+ * `column_width_percents` (optional): a list of numeric percentage widths of the different
    columns. For example, if there are two columns, and the first one is to
    occupy one-quarter of the available width, the list should be \[25, 75\].
    By default all columns have the same width.
- * `table_dynamic_rows` (optional): set `true` to enable the addition of *Add row*
+ * `dynamic_rows` (optional): set `true` to enable the addition of *Add row*
    and *Delete row* buttons through which the student can alter the number of
    rows. The number of rows can never be less than the initial `table_num_rows` value.
- * `table_locked_cells` (optional): an array of 2-element [row, column] cell specifiers.
+ * `locked_cells` (optional): an array of 2-element [row, column] cell specifiers.
    The specified cells are rendered to HTML with the *disabled* attribute, so
    cannot be changed by the user. For example
 
@@ -2300,13 +2302,13 @@ are required and the rest are optional.
    the required values in the first place.
 
 For example, the `python3\_program\_testing` question type uses the following
-template parameter setting:
+UI parameter setting:
 
     {
-        "table_num_rows": 3,
-        "table_num_columns": 2,
-        "table_column_headers": ["Test", "Result"],
-        "table_dynamic_rows": true
+        "num_rows": 3,
+        "num_columns": 2,
+        "column_headers": ["Test", "Result"],
+        "dynamic_rows": true
     }
 
  The table serialisation is simply a JSON array of arrays containing all the
@@ -2324,7 +2326,7 @@ An example of the use of this UI type can be seen in the
 This plugin replaces the usual textarea answer box with a div
 consisting of pre-formatted text supplied by the question author in either the
 "globalextra" field or the testcode field of the first test case, according
-to the template parameter gapfiller_ui_source (default: globalextra).  HTML
+to the ui parameter ui_source (default: globalextra).  HTML
 entry or textarea elements are then inserted at
 specified points. It is intended primarily for use with coding questions
 where the answerbox presents the students with code that has smallish bits
@@ -2355,10 +2357,10 @@ As a special case of the serialisation, if the value list is empty, the
 serialisation itself is the empty string.
 
 The delimiters for the input element insertion tags are by default '{[' and
-']}', but can be changed by an optional template parameter gap_filler_delimiters,
+']}', but can be changed by an optional UI parameter delimiters,
 which must be a 2-element array of strings. For example:
 
-    {"gap_filler_delimiters": ["{{", "}}"]}
+    {"delimiters": ["{{", "}}"]}
 
 Note that the double-brace delimiters in that example are the same as those
 used by Twig, so using them instead of the default would prevent you from

@@ -7,9 +7,9 @@ Feature: Check that Python and other languages can be used instead of Twig as a 
 
 Background:
     Given the following "users" exist:
-      | username | firstname | lastname | email            |
-      | teacher1 | Teacher   | 1        | teacher1@asd.com |
-      | student1 | Student   | 1        | student@asd.com  |
+      | username | firstname       | lastname  | email            |
+      | teacher1 | Teacher         | Last      | teacher1@asd.com |
+      | student1 | Student First   | O'Connell | student@asd.com  |
     And the following "courses" exist:
       | fullname | shortname | category |
       | Course 1 | C1        | 0        |
@@ -31,17 +31,17 @@ Background:
       | id_coderunnertype       | python3                                    |
       | id_customise            | 1                                          |
       | id_name                 | Python preprocessor                        |
-      | id_questiontext         | Write a program that prints True if seed parameter provided, then {{ username }}  |
+      | id_questiontext         | Write a program that prints True if seed parameter provided, then {{ firstname }} {{ lastname }}  |
       | id_answerboxlines       | 5                                          |
       | id_validateonsave       | 0                                          |
-      | id_templateparams       | {"username": "twaddle"}                    |
+      | id_templateparams       | {"firstname": "twaddle", "lastname" : "twaddle" } |
       | id_templateparamslang   | None                                       |
       | id_templateparamsevalpertry | 1                                      |
       | id_template             |                                            |
       | id_answer               | # Unused                                   |
       | id_iscombinatortemplate | 0                                          |
       | id_testcode_0           | # Unused                                   |
-      | id_expected_0           | True {{ username }}                        |
+      | id_expected_0           | True {{ firstname }} {{ lastname }}       |
       | id_twigall              | 1                                          |
    When I choose "Edit question" action for "Python preprocessor" in the question bank
    And I set the field "id_templateparams" to "import sys, json; keyvalues = {param.split('=')[0]: param.split('=')[1] for param in sys.argv[1:]}; print(json.dumps(keyvalues))"
@@ -57,9 +57,9 @@ Background:
     When I am on "Course 1" course homepage
     And I follow "Test quiz"
     And I press "Preview quiz now"
-    Then I should see "Write a program that prints True if seed parameter provided, then teacher1"
+    Then I should see "Write a program that prints True if seed parameter provided, then Teacher Last"
 
-    When I set the field with xpath "//textarea[contains(@name, 'answer')]" to "print('teacher1')"
+    When I set the field with xpath "//textarea[contains(@name, 'answer')]" to "print('Teacher Last')"
     And I press "Check"
     Then I should see "Passed all tests"
 
@@ -68,8 +68,8 @@ Background:
     And I am on "Course 1" course homepage
     And I follow "Test quiz"
     And I press "Attempt quiz"
-    Then I should see "Write a program that prints True if seed parameter provided, then student1"
-    And I set the field with xpath "//textarea[contains(@name, 'answer')]" to "print('student1')"
+    Then I should see "Write a program that prints True if seed parameter provided, then StudentFirst OConnell"
+    And I set the field with xpath "//textarea[contains(@name, 'answer')]" to "print('StudentFirst OConnell')"
     And I press "Check"
     Then I should see "Passed all tests"
 
@@ -79,7 +79,7 @@ Background:
     And I follow "Test quiz"
     And I follow "Attempts: 1"
     And I follow "Review attempt"
-    Then I should see "Write a program that prints True if seed parameter provided, then student1"
+    Then I should see "Write a program that prints True if seed parameter provided, then StudentFirst OConnell"
     And I should see "Passed all tests"
 
   Scenario: Turn off per-try evaluation. Question should fail when attempted by student. 
@@ -98,7 +98,7 @@ Background:
     And I press "Preview quiz now"
     Then I should see "Variant without per-try evaluation"
 
-    When I set the field with xpath "//textarea[contains(@name, 'answer')]" to "print('teacher1')"
+    When I set the field with xpath "//textarea[contains(@name, 'answer')]" to "print('Teacher Last')"
     And I press "Check"
     Then I should see "Passed all tests"
 
@@ -108,8 +108,8 @@ Background:
     And I follow "Test quiz"
     And I press "Attempt quiz"
     Then I should see "Variant without per-try evaluation"
-    And I set the field with xpath "//textarea[contains(@name, 'answer')]" to "print('student1')"
+    And I set the field with xpath "//textarea[contains(@name, 'answer')]" to "print('StudentFirst OConnell')"
     And I press "Check"
-    Then I should see "True student1"
-    And I should see "True teacher1"
+    Then I should see "True StudentFirst OConnell"
+    And I should see "True Teacher Last"
     And I should not see "Passed all tests"

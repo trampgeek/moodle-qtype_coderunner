@@ -250,11 +250,12 @@ class qtype_coderunner_question extends question_graded_automatically {
      * @return string The output from the run.
      */
     private function evaluate_template_params_on_jobe($templateparams, $lang, $seed) {
-        $files = array();
+        $files = $this->get_files();
         $input = '';
         $runargs = array("seed=$seed");
         foreach (array('id', 'username', 'firstname', 'lastname', 'email') as $key) {
-            $runargs[] = "$key=" . $this->student->$key;
+            $value = preg_replace("/[^A-Za-z0-9]/", '', $this->student->$key);
+            $runargs[] = "$key=" . $value;
         }
         $sandboxparams = array("runargs" => $runargs);
         $sandbox = $this->get_sandbox();

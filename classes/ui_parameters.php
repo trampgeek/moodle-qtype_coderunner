@@ -111,8 +111,8 @@ class qtype_coderunner_ui_parameters {
      * already have a key, ignore it. Otherwise an exception is raised.
      */
     public function merge_json($json, $ignorebad=false) {
-        if (!empty($json)) {
-            $newvalues = json_decode($json);
+        $newvalues = json_decode($json);
+        if ($newvalues !== null) {  // If $json is valid.
             foreach ($newvalues as $key => $value) {
                 $matchingkey = $this->find_key($key);
                 if ($matchingkey === null) {

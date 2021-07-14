@@ -948,6 +948,7 @@ $string['tableui_dynamic_rows_descr'] = 'If true, and "Add row" button is provid
 $string['tableui_row_labels_descr'] = 'A list of strings for the row labels, i.e. the values in column 0.';
 $string['tableui_locked_cells_descr'] = 'A list of 2-element lists giving the 0-origin coordinates of cells that the user cannot alter. Coordinates do not include a possible header row or row-label column.';
 $string['tableui_column_width_percents_descr'] = 'A list of floating point numbers giving the percentage of the available table width to allocate to the columns, including the row-label column if present.';
+$string['tableui_lines_per_cell_descr'] = 'The number of text rows in each textarea/cell';
 $string['tableui_sync_interval_secs_descr'] = 'The time interval in seconds between calls to sync the UI contents back to the question answer. 0 for no such auto-syncing.';
 
 $string['table_ui_invalidjson'] = 'Table UI: invalid JSON serialisation.';
@@ -1042,7 +1043,8 @@ template engine when it expands the template (and other fields if Twig All is se
 
 If a preprocessor is specified in the Template param controls section,
 the template parameters are first processed by the specified language
-to yield a JSON record. See the documentation for details.
+to yield a JSON record. See <a href="https://coderunner.org.nz/mod/url/view.php?id=199">
+the documentation</a> for details.
 
 <b>Warning:</b> use of a preprocessor other than Twig can have drastic performance
 implications if the Evaluate-on-each-attempt checkbox is
@@ -1106,7 +1108,8 @@ might have been expanded as a result of using Twig All.
 The text in the template parameters field must either be JSON or must evaluate
 to yield JSON when processed by the specified Preprocessor. Be warned that choosing
 a preprocessor other than Twig results in a submission to the Jobe sandbox before
-the question can even be displayed.
+the question can even be displayed. See <a href="https://coderunner.org.nz/mod/url/view.php?id=199">
+the documentation</a> for how to write a non-Twig preprocessor.
 
 If using a preprocessor other than Twig, a Jobe sandbox submission is usually
 required for each question for each student when they start the quiz.
