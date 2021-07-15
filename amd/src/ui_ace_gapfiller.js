@@ -22,7 +22,7 @@
  * "globalextra" field or the testcode field of the first test case, according
  * to the ui parameter ui_source (default: globalextra).
  * Editable "gaps" are inserted into the ace editor at specified points.
- * It is intended primarily for use with coding questions where the answerbox presents 
+ * It is intended primarily for use with coding questions where the answerbox presents
  * the students with code that has smallish bits missing.
  *
  * The locations within the globalextra text at which the gaps are
@@ -30,12 +30,12 @@
  *
  *     {[ size ]}
  *
- * or 
- * 
+ * or
+ *
  *     {[ size-maxSize ]}
  *
- * where size and maxSize are integer literals. These respectively inject a "gap" into 
- * the editor of the specified size and maxSize. If maxSize is not specified then the 
+ * where size and maxSize are integer literals. These respectively inject a "gap" into
+ * the editor of the specified size and maxSize. If maxSize is not specified then the
  * "gap" has no maximum size and can grow without bound.
  *
  * The serialisation of the answer box contents, i.e. the text that
@@ -54,20 +54,18 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define("qtype_coderunner/ui_ace_gapfiller", ['jquery'], function($) {
+define(['jquery'], function($) {
 
-    const Range = ace.require("ace/range").Range;
+    var Range;  // Can't load this until ace has loaded.
     const fillChar = " ";
     const validChars = /[ !"#$%&'()*+,`\-./0-9:;<=>?@A-Z\[\]\\^_a-z{}|~]/;
 
     function AceGapfillerUi(textareaId, w, h, uiParams) {
         // Constructor for the Ace interface object
-
         this.textArea = $(document.getElementById(textareaId));
         var wrapper = $(document.getElementById(textareaId + '_wrapper')),
             focused = this.textArea[0] === document.activeElement,
             lang = uiParams.lang,
-            session,
             t = this;  // For embedded callbacks.
 
         let code = "";
@@ -83,9 +81,10 @@ define("qtype_coderunner/ui_ace_gapfiller", ['jquery'], function($) {
         } else {
             code = this.textArea.attr('data-test0');
         }
-        
+
         try {
             window.ace.require("ace/ext/language_tools");
+            Range = window.ace.require("ace/range").Range;
             this.modelist = window.ace.require('ace/ext/modelist');
 
             this.enabled = false;
@@ -112,8 +111,6 @@ define("qtype_coderunner/ui_ace_gapfiller", ['jquery'], function($) {
                 newLineMode: "unix",
             });
             this.editor.$blockScrolling = Infinity;
-
-            session = this.editor.getSession();
 
             // Set theme if available (not currently enabled).
             if (uiParams.theme) {
@@ -150,7 +147,7 @@ define("qtype_coderunner/ui_ace_gapfiller", ['jquery'], function($) {
             this.createGaps(code);
 
             // Intercept commands sent to ace.
-            this.editor.commands.on("exec", function(e) { 
+            this.editor.commands.on("exec", function(e) {
                 let cursor = t.editor.selection.getCursor();
                 let commandName = e.command.name;
                 let selectionRange = t.editor.getSelectionRange();
@@ -158,12 +155,12 @@ define("qtype_coderunner/ui_ace_gapfiller", ['jquery'], function($) {
                 let gap = t.findCursorGap(cursor);
 
                 if (commandName.startsWith("go")) {  // If command just moves the cursor then do nothing.
-                    if (gap != null && commandName === "gotoright" && cursor.column === gap.range.start.column+gap.textSize) {
+                    if (gap !== null && commandName === "gotoright" && cursor.column === gap.range.start.column+gap.textSize) {
                         // In this case we jump out of gap over the empty space that contains nothing that the user has entered.
                         t.editor.moveCursorTo(cursor.row, gap.range.end.column+1);
                     } else {
                         return;
-                    }   
+                    }
                 }
 
                 if (gap === null) {
@@ -171,7 +168,7 @@ define("qtype_coderunner/ui_ace_gapfiller", ['jquery'], function($) {
                     if (commandName === "selectall") {
                         t.editor.selection.selectAll();
                     }
-                
+
                 } else if (commandName === "indent") {
                     // Instead of indenting, move to next gap.
                     let nextGap = t.gaps[(gap.index+1) % t.gaps.length];
@@ -180,14 +177,17 @@ define("qtype_coderunner/ui_ace_gapfiller", ['jquery'], function($) {
 
                 } else if (commandName === "selectall") {
                     // Select all text in a gap if we are in a gap.
-                    t.editor.selection.setSelectionRange(new Range(gap.range.start.row, gap.range.start.column, gap.range.start.row, gap.range.end.column), false);
-                
-                }else if (t.editor.selection.isEmpty()) {
+                    t.editor.selection.setSelectionRange(new Range(gap.range.start.row,
+                                                         gap.range.start.column,
+                                                         gap.range.start.row,
+                                                         gap.range.end.column), false);
+
+                } else if (t.editor.selection.isEmpty()) {
                     // User is not selecting multiple characters.
                     if (commandName === "insertstring") {
                         let char = e.args;
                         // Only allow user to insert 'valid' chars.
-                        if (validChars.test(char)) {    
+                        if (validChars.test(char)) {
                             gap.insertChar(t.gaps, cursor, char);
                         }
                     } else if (commandName === "backspace") {
@@ -203,18 +203,22 @@ define("qtype_coderunner/ui_ace_gapfiller", ['jquery'], function($) {
                     }
                     t.editor.selection.clearSelection(); // Keep selection clear.
 
-                } else if (!t.editor.selection.isEmpty() && gap.cursorInGap(selectionRange.start) && gap.cursorInGap(selectionRange.end)) {
+                } else if (!t.editor.selection.isEmpty() && gap.cursorInGap(selectionRange.start)
+                           && gap.cursorInGap(selectionRange.end)) {
                     // User is selecting multiple characters and is in a gap.
-                 
+
                     // These are the commands that remove the selected text.
-                    if (commandName === "insertstring" || commandName === "backspace" || commandName === "del" || commandName === "paste" || commandName === "cut") {
+                    if (commandName === "insertstring" || commandName === "backspace"
+                        || commandName === "del" || commandName === "paste"
+                        || commandName === "cut") {
+
                         gap.deleteRange(t.gaps, selectionRange.start.column, selectionRange.end.column);
                         t.editor.selection.clearSelection(); // Clear selection.
                     }
-                    
+
                     if (commandName === "insertstring") {
                         let char = e.args;
-                        if (validChars.test(char)) {    
+                        if (validChars.test(char)) {
                             gap.insertChar(t.gaps, selectionRange.start, char);
                         }
                     }
@@ -226,39 +230,42 @@ define("qtype_coderunner/ui_ace_gapfiller", ['jquery'], function($) {
                 }
 
                 e.preventDefault();
-                e.stopPropagation();    
+                e.stopPropagation();
             });
 
             // Move cursor to where it should be if we click on a gap.
             t.editor.selection.on('changeCursor', function() {
                 let cursor = t.editor.selection.getCursor();
                 let gap = t.findCursorGap(cursor);
-                if (gap != null) {
+                if (gap !== null) {
                     if (cursor.column > gap.range.start.column+gap.textSize) {
                         t.editor.moveCursorTo(gap.range.start.row, gap.range.start.column+gap.textSize);
                     }
                 }
             });
-            
+
             this.gapToSelect = null;    // Stores gap that has been selected with triple click.
-            
+
             // Select all text in gap on triple click within gap.
             this.editor.on("tripleclick", function(e) {
                 let cursor = t.editor.selection.getCursor();
                 let gap = t.findCursorGap(cursor);
                 if (gap !== null) {
-                    t.editor.selection.setSelectionRange(new Range(gap.range.start.row, gap.range.start.column, gap.range.start.row, gap.range.end.column), false);
+                    t.editor.selection.setSelectionRange(new Range(gap.range.start.row,
+                                                                   gap.range.start.column,
+                                                                   gap.range.start.row,
+                                                                   gap.range.end.column), false);
                     t.gapToSelect = gap;
                     e.preventDefault();
                     e.stopPropagation();
                 }
             });
-            
+
             // Annoying hack to ensure the tripple click thing works.
             this.editor.on("click", function(e) {
                 if (t.gapToSelect) {
                     t.editor.moveCursorTo(t.gapToSelect.range.start.row, t.gapToSelect.range.start.column+t.gapToSelect.textSize);
-                    t.gapToSelect = null;  
+                    t.gapToSelect = null;
                     e.preventDefault();
                     e.stopPropagation();
                 }
@@ -270,7 +277,6 @@ define("qtype_coderunner/ui_ace_gapfiller", ['jquery'], function($) {
         catch(err) {
             // Something ugly happened. Probably ace editor hasn't been loaded
             this.fail = true;
-            console.log(err);
         }
     }
 
@@ -302,26 +308,26 @@ define("qtype_coderunner/ui_ace_gapfiller", ['jquery'], function($) {
         for (let i = 0; i < lines.length; i++) {
             let bits = lines[i].split(splitter);
             editorContent += bits[0];
-            
+
             let columnPos = bits[0].length;
             for (let j = 1; j < bits.length; j += 2) {
                 let values = bits[j].split('-');
                 let minWidth = parseInt(values[0]);
                 let maxWidth = (values.length > 1 ? parseInt(values[1]) : Infinity);
-            
+
                 // Create new gap.
                 let gap = new Gap(this.editor, i, columnPos, minWidth, maxWidth);
                 gap.index = this.nextGapIndex;
                 this.nextGapIndex += 1;
                 this.gaps.push(gap);
-                
+
                 columnPos += minWidth;
                 editorContent += ' '.repeat(minWidth);
                 if (j + 1 < bits.length) {
                     editorContent += bits[j+1];
                     columnPos += bits[j+1].length;
                 }
-                
+
             }
 
             if (i < lines.length-1) {
@@ -329,19 +335,20 @@ define("qtype_coderunner/ui_ace_gapfiller", ['jquery'], function($) {
             }
         }
         this.editor.session.setValue(editorContent);
-    }
+    };
 
     // Return the gap that the cursor is in. This will acutally return a gap if the cursor is 1 outside the gap
     // as this will be needed for backspace/insertion to work. Rigth now this is done as a simple
     // linear search but could be improved later. Returns null if the cursor is not in a gap.
     AceGapfillerUi.prototype.findCursorGap = function(cursor) {
-        for (let gap of this.gaps) {
+        for (let i=0; i < this.gaps.length; i++) {
+            let gap = this.gaps[i];
             if (gap.cursorInGap(cursor)) {
                 return gap;
             }
         }
         return null;
-    }
+    };
 
     AceGapfillerUi.prototype.failed = function() {
         return this.fail;
@@ -357,7 +364,8 @@ define("qtype_coderunner/ui_ace_gapfiller", ['jquery'], function($) {
         let serialisation = [];  // A list of field values.
         let empty = true;
 
-        for (let gap of this.gaps) {
+        for (let i=0; i < this.gaps.length; i++) {
+            let gap = this.gaps[i];
             let value = gap.getText();
             serialisation.push(value);
             if (value !== "") {
@@ -376,16 +384,16 @@ define("qtype_coderunner/ui_ace_gapfiller", ['jquery'], function($) {
         let content = this.textArea.val();
         if (content) {
             try {
-                values = JSON.parse(content);
+                let values = JSON.parse(content);
                 for (let i = 0; i < this.gaps.length; i++) {
-                    value = i < values.length ? values[i]: '???';
+                    let value = i < values.length ? values[i]: '???';
                     this.gaps[i].insertText(this.gaps, this.gaps[i].range.start.column, value);
                 }
             } catch(e) {
                 // Just ignore errors
             }
         }
-    }
+    };
 
     AceGapfillerUi.prototype.setLanguage = function(language) {
         var session = this.editor.getSession(),
@@ -525,42 +533,43 @@ define("qtype_coderunner/ui_ace_gapfiller", ['jquery'], function($) {
 
     function Gap(editor, row, column, minWidth, maxWidth=Infinity) {
         this.editor = editor;
-    
+
         this.minWidth = minWidth;
         this.maxWidth = maxWidth;
-    
+
         this.range = new Range(row, column, row, column+minWidth);
         this.textSize = 0;
-    
+
         // Create markers
         this.editor.session.addMarker(this.range, "ace-gap-outline", "text", true);
         this.editor.session.addMarker(this.range, "ace-gap-background", "text", false);
     }
-    
+
     Gap.prototype.cursorInGap = function(cursor) {
-        return (cursor.row >= this.range.start.row && cursor.column >= this.range.start.column  && 
-            cursor.row <= this.range.end.row && cursor.column <= this.range.end.column);
-    }
-    
+        return (cursor.row >= this.range.start.row && cursor.column >= this.range.start.column &&
+                cursor.row <= this.range.end.row && cursor.column <= this.range.end.column);
+    };
+
     Gap.prototype.getWidth = function() {
         return (this.range.end.column-this.range.start.column);
-    }
-    
+    };
+
     Gap.prototype.changeWidth = function(gaps, delta) {
         this.range.end.column += delta;
-    
-        // Update any gaps that come after this one on the same line.
-        for (let other of gaps) {
+
+        // Update any gaps that come after this one on the same line
+        for (let i=0; i < gaps.length; i++) {
+            let other = gaps[i];
             if (other.range.start.row === this.range.start.row && other.range.start.column > this.range.end.column) {
                 other.range.start.column += delta;
                 other.range.end.column += delta;
             }
         }
-    
+
         this.editor.$onChangeBackMarker();
         this.editor.$onChangeFrontMarker();
-    }
-    
+    };
+
     Gap.prototype.insertChar = function(gaps, pos, char) {
         if (this.textSize === this.getWidth() && this.getWidth() < this.maxWidth) {    // Grow the size of gap and insert char.
             this.changeWidth(gaps, 1);
@@ -571,18 +580,19 @@ define("qtype_coderunner/ui_ace_gapfiller", ['jquery'], function($) {
             this.textSize += 1;  // Important to record that texSize has increased before insertion.
             this.editor.session.insert(pos, char);
         }
-    }
-    
+    };
+
     Gap.prototype.deleteChar = function(gaps, pos) {
         this.textSize -= 1;
         this.editor.session.remove(new Range(pos.row, pos.column, pos.row, pos.column+1));
-    
+
         if (this.textSize >= this.minWidth) {
             this.changeWidth(gaps, -1);  // Shrink the size of the gap.
         } else {
-            this.editor.session.insert({row: pos.row, column: this.range.end.column-1}, fillChar); // Put new space at end so everything is shifted across.
+            // Put new space at end so everything is shifted across.
+            this.editor.session.insert({row: pos.row, column: this.range.end.column-1}, fillChar);
         }
-    }
+    };
 
     Gap.prototype.deleteRange = function(gaps, start, end) {
         for (let i = start; i < end; i++) {
@@ -590,21 +600,23 @@ define("qtype_coderunner/ui_ace_gapfiller", ['jquery'], function($) {
                 this.deleteChar(gaps, {row: this.range.start.row, column: start});
             }
         }
-    }
-    
+    };
+
     Gap.prototype.insertText = function(gaps, start, text) {
         for (let i = 0; i < text.length; i++) {
             if (start+i < this.range.start.column+this.maxWidth) {
                 this.insertChar(gaps, {row: this.range.start.row, column: start+i}, text[i]);
             }
         }
-    }
+    };
 
     Gap.prototype.getText = function() {
-        return this.editor.session.getTextRange(new Range(this.range.start.row, this.range.start.column, this.range.end.row, this.range.start.column+this.textSize));
-    }
+        return this.editor.session.getTextRange(new Range(this.range.start.row, this.range.start.column,
+                                                this.range.end.row, this.range.start.column+this.textSize));
 
-     return {
+    };
+
+    return {
         Constructor: AceGapfillerUi
     };
 });
