@@ -10,7 +10,7 @@ moodlebook.zip
 /Screendumps/
 Readme.md.*
 /tests/fixtures/test-sandbox-config.php
-
+/LocalStuff/
 /Preloading/selenium-server-standalone-2.53.0.jar
 /selenium-server-standalone-2.53.0.jar
 /selenium-server-standalone-3.0.1.jar

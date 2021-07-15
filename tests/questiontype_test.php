@@ -38,7 +38,7 @@ require_once($CFG->dirroot . '/question/type/coderunner/edit_coderunner_form.php
 /**
  * Unit tests for the coderunner question type class.
  *
- * @copyright  2012 Richard Lobb, The University of Canterbury
+ * @copyright  2021 Richard Lobb, The University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class qtype_coderunner_test extends advanced_testcase {
@@ -75,43 +75,4 @@ class qtype_coderunner_test extends advanced_testcase {
         $this->assertEquals(array(), $this->qtype->get_possible_responses($q));
     }
 
-    public function test_question_saving_graph_ui() {
-        $this->resetAfterTest(true);
-        $this->setAdminUser();
-
-        $questiondata = test_question_maker::get_question_data('coderunner');
-        $questiondata->options->uiplugin = 'graph';
-        $formdata = test_question_maker::get_question_form_data('coderunner');
-        $formdata->uiplugin = 'graph';
-
-        $generator = $this->getDataGenerator()->get_plugin_generator('core_question');
-        $cat = $generator->create_question_category(array());
-
-        // Mock submit a form with form data.
-        $formdata->category = "{$cat->id},{$cat->contextid}";
-        qtype_coderunner_edit_form::mock_submit((array)$formdata);
-
-        $form = qtype_coderunner_test_helper::get_question_editing_form($cat, $questiondata);
-        $this->assertTrue($form->is_validated());
-
-        $fromform = $form->get_data();
-        $returnedfromsave = $this->qtype->save_question($questiondata, $fromform);
-
-        $actualquestionsdata = question_load_questions(array($returnedfromsave->id));
-        $actualquestiondata = end($actualquestionsdata);
-
-        foreach ($questiondata as $property => $value) {
-            if (!in_array($property, array('id', 'version', 'timemodified', 'timecreated', 'options', 'testcases'))) {
-                $this->assertAttributeEquals($value, $property, $actualquestiondata);
-            }
-        }
-
-        foreach ($questiondata->options as $optionname => $value) {
-            if ($optionname != 'testcases') {
-                $this->assertAttributeEquals($value, $optionname, $actualquestiondata->options);
-            }
-        }
-
-        // TODO: Validate the test cases.
-    }
 }
