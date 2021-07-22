@@ -308,7 +308,7 @@ result table; if you wish to have the quiz review options control when it is
 shown you must change the *Feedback* drop-down in the question author form from
 its default *Force show* to *Set by quiz*.
 
-Some recommended setting in the "During the attempt column" of the quiz review
+Some recommended setting in the "During the attempt" column of the quiz review
 options are:
 
  1. Right answer. This should be unchecked, at least in the "During the attempt"
@@ -399,7 +399,7 @@ or
 If you're on a Red Hat or similar system in which the web server runs as
 *apache*, you should replace *www-data* with *apache.
 
-TThe unit tests will almost certainly show lots of skipped or failed tests relating
+The unit tests will almost certainly show lots of skipped or failed tests relating
 to the various sandboxes and languages that you have not installed, e.g.
 the LiuSandbox, Matlab, Octave and Java. These can all be ignored unless you plan to use
 those capabilities. The name of the failing tests should be sufficient to
@@ -759,7 +759,7 @@ the template to be rendered and a set of pre-defined variables that we will
 call the *Twig Context*. The default set of context variables is:
 
  * STUDENT\_ANSWER, which is the text that the student entered into the answer box.
- * TEST, which is a record containing the testcase. See [The Twig TEST variable)(#the-twig-test-variable).
+ * TEST, which is a record containing the testcase. See [The Twig TEST variable](#the-twig-test-variable).
  * IS\_PRECHECK, which has the value 1 (True) if the template is being evaluated asY
 a result of a student clicking the *Precheck* button or 0 (False) otherwise.
  * ANSWER\_LANGUAGE, which is meaningful only for multilanguage questions, for
