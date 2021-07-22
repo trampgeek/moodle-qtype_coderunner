@@ -1244,8 +1244,8 @@ the template parameters field being passed through Twig to yield the JSON
 template parameter string. That string is decoded from JSON to PHP,
 to yield the Twig context
 for all subsequent Twig operations on the question. When evaluating the
-template parameters with Twig the only context is the [STUDENT variable] 
-(#the-twig-student-variable). The output of that initial
+template parameters with Twig the only context is the
+[STUDENT variable](#the-twig-student-variable). The output of that initial
 Twig run thus provides the context for subsequent evaluations of the question's
 template, text, test cases, etc.
 
