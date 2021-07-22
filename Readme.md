@@ -783,7 +783,7 @@ field, which is the "test" field of the testcase. It is usually
 a bit of code to be run to test the student's answer.
 
 When Twig processes the template, it replaces any occurrences of
-strings of the form `{{ TWIG\_VARIABLE }}` with the value of the given
+strings of the form `{{ TWIG_VARIABLE }}` with the value of the given
 TWIG_VARIABLE (e.g. STUDENT\_ANSWER). As an example,
 the question type *c\_function*, which asks students to write a C function,
 might have the following template (if it used a per-test template):
