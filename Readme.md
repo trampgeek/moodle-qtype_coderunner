@@ -1088,7 +1088,7 @@ attributes of the question including its question text, sample answer and
 As explained above, the Twig syntax {{ STUDENT\_ANSWER | e('py') }} results
 in the student's submission
 being filtered by a Python escape function that escapes all
-all double quote and backslash characters with an added backslash. The
+double quote and backslash characters with an added backslash. The
 python escaper e('py') is just one of the available escapers. Others are:
 
  1. e('java'). This prefixes single and double quote characters with a backslash
