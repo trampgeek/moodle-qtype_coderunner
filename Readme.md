@@ -1966,7 +1966,7 @@ You should always use json.dumps, or its equivalent in other languages, to
 generate a valid JSON string, handling details like escaping of embedded
 newlines.
 
-In order to display the *comment* and *awarded* columns in the output JSON, the
+In order to display the *comment* and *awarded* columns in the output JSON,
 the 'Result columns' field of the question (in the 'customisation' part of
 the question authoring form) should include those field and their column headers, e.g.
 
