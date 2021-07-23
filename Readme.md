@@ -308,7 +308,7 @@ result table; if you wish to have the quiz review options control when it is
 shown you must change the *Feedback* drop-down in the question author form from
 its default *Force show* to *Set by quiz*.
 
-Some recommended setting in the "During the attempt column" of the quiz review
+Some recommended setting in the "During the attempt" column of the quiz review
 options are:
 
  1. Right answer. This should be unchecked, at least in the "During the attempt"
@@ -399,7 +399,7 @@ or
 If you're on a Red Hat or similar system in which the web server runs as
 *apache*, you should replace *www-data* with *apache.
 
-TThe unit tests will almost certainly show lots of skipped or failed tests relating
+The unit tests will almost certainly show lots of skipped or failed tests relating
 to the various sandboxes and languages that you have not installed, e.g.
 the LiuSandbox, Matlab, Octave and Java. These can all be ignored unless you plan to use
 those capabilities. The name of the failing tests should be sufficient to
@@ -759,7 +759,7 @@ the template to be rendered and a set of pre-defined variables that we will
 call the *Twig Context*. The default set of context variables is:
 
  * STUDENT\_ANSWER, which is the text that the student entered into the answer box.
- * TEST, which is a record containing the testcase. See [The Twig TEST variable)(#the-twig-test-variable).
+ * TEST, which is a record containing the testcase. See [The Twig TEST variable](#the-twig-test-variable).
  * IS\_PRECHECK, which has the value 1 (True) if the template is being evaluated asY
 a result of a student clicking the *Precheck* button or 0 (False) otherwise.
  * ANSWER\_LANGUAGE, which is meaningful only for multilanguage questions, for
@@ -783,7 +783,7 @@ field, which is the "test" field of the testcase. It is usually
 a bit of code to be run to test the student's answer.
 
 When Twig processes the template, it replaces any occurrences of
-strings of the form `{{ TWIG\_VARIABLE }}` with the value of the given
+strings of the form `{{ TWIG_VARIABLE }}` with the value of the given
 TWIG_VARIABLE (e.g. STUDENT\_ANSWER). As an example,
 the question type *c\_function*, which asks students to write a C function,
 might have the following template (if it used a per-test template):
@@ -1088,7 +1088,7 @@ attributes of the question including its question text, sample answer and
 As explained above, the Twig syntax {{ STUDENT\_ANSWER | e('py') }} results
 in the student's submission
 being filtered by a Python escape function that escapes all
-all double quote and backslash characters with an added backslash. The
+double quote and backslash characters with an added backslash. The
 python escaper e('py') is just one of the available escapers. Others are:
 
  1. e('java'). This prefixes single and double quote characters with a backslash
@@ -1244,8 +1244,8 @@ the template parameters field being passed through Twig to yield the JSON
 template parameter string. That string is decoded from JSON to PHP,
 to yield the Twig context
 for all subsequent Twig operations on the question. When evaluating the
-template parameters with Twig the only context is the [STUDENT variable] 
-(#the-twig-student-variable). The output of that initial
+template parameters with Twig the only context is the
+[STUDENT variable](#the-twig-student-variable). The output of that initial
 Twig run thus provides the context for subsequent evaluations of the question's
 template, text, test cases, etc.
 
@@ -1966,7 +1966,7 @@ You should always use json.dumps, or its equivalent in other languages, to
 generate a valid JSON string, handling details like escaping of embedded
 newlines.
 
-In order to display the *comment* and *awarded* columns in the output JSON, the
+In order to display the *comment* and *awarded* columns in the output JSON,
 the 'Result columns' field of the question (in the 'customisation' part of
 the question authoring form) should include those field and their column headers, e.g.
 
