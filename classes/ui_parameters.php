@@ -119,7 +119,8 @@ class qtype_coderunner_ui_parameters {
                     if ($ignorebad) {
                         continue;
                     } else {
-                        throw new qtype_coderunner_exception('Unexpected key value when merging json');
+                        throw new qtype_coderunner_exception(
+                            "Unexpected key value ($key) when merging json for ui {$this->uiname}");
                     }
                 }
                 $this->params[$matchingkey]->value = $value;
