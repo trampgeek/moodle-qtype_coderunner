@@ -819,6 +819,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         list($templateerrors, $json) = $this->validate_template_params();
         if (!$templateerrors) {
             $this->formquestion->templateparamsevald = $json;
+            $this->formquestion->parameters = json_decode($json, true);
         } else {
             $errors['templateparams'] = $templateerrors;
             $this->formquestion->templateparamsevald = '{}';
@@ -1153,7 +1154,6 @@ class qtype_coderunner_edit_form extends question_edit_form {
     // or if the sample answer passes all the tests.
     // Otherwise return a suitable error message for display in the form.
     private function validate_sample_answer() {
-        assert(!empty($this->formquestion->parameters));
         $attachmentssaver = $this->get_sample_answer_file_saver();
         $files = $attachmentssaver ? $attachmentssaver->get_files() : array();
         $answer = $this->formquestion->answer;
