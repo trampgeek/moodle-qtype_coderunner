@@ -194,7 +194,7 @@ define(['jquery'], function($) {
         // The function to handle a 'textarea' tag.
         function textarea(rows, cols) {
             return '<textarea name="cr_gapfiller_field" class ="coderunner-ui-element" ' +
-                'rows="' + rows + '" ' + 'cols="' + cols + '" style="width:auto;" />';
+                'rows="' + rows + '" ' + 'cols="' + cols + '" style="width:auto;"></textarea>';
         }
 
         numbers = tagContents.split(',');
