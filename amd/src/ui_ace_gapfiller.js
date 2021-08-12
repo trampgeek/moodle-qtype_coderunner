@@ -51,6 +51,7 @@
  * @package    qtype
  * @subpackage coderunner
  * @copyright  Richard Lobb, 2019, The University of Canterbury
+ * @copyright  Matthew Toohey, 2021, The University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
