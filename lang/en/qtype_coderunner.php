@@ -379,7 +379,7 @@ $string['maxfilesize'] = 'Max allowed file size (bytes)';
 $string['maxfilesize_help'] = 'Select the maximum file upload size (bytes). Allowing large file uploads with large classes can impact performance and and disk space on both Moodle and Jobe servers.';
 $string['memorylimit'] = 'MemLimit (MB)';
 $string['missinganswers'] = 'missing answers';
-$string['missingorbadfraction'] = 'Bad or missing fraction in output from combinator grader output. Output was: {$a->output}';
+$string['missingorbadfraction'] = 'Bad or missing fraction in output from template grader. Output was: {$a->output}';
 $string['missingoutput'] = 'You must supply the expected output from this test case.';
 $string['missingprototype'] = 'This question was defined to be of type \'{$a->crtype}\' but the prototype does not exist, or is non-unique, or is unavailable in this context. You should Cancel and try to (re)install the prototype.
 Proceed to edit only if you know what you are doing!';
