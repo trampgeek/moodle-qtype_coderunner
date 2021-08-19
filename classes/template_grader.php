@@ -51,8 +51,13 @@ class qtype_coderunner_template_grader extends qtype_coderunner_grader {
     protected function grade_known_good(&$output, &$testcase) {
         $result = json_decode($output);
         if ($result === null || !isset($result->fraction) || !is_numeric($result->fraction)) {
-            $errormessage = get_string('brokentemplategrader', 'qtype_coderunner',
-                    array('output' => "\nOutput was: " . $output));
+            if ($result === null) {
+                $errorcode = 'brokentemplategrader';
+            } else {
+                $errorcode = 'missingorbadfraction';
+            }
+            $errormessage = get_string($errorcode, 'qtype_coderunner',
+                    array('output' => $output));
             $testresultobj = new qtype_coderunner_test_result($testcase, false, 0.0, $errormessage);
         } else {
             $iscorrect = abs($result->fraction - 1.0) < 0.000001;
