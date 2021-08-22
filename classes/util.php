@@ -53,6 +53,7 @@ class qtype_coderunner_util {
         $PAGE->requires->js($plugindirrel . '/ace/ace.js');
         $PAGE->requires->js($plugindirrel . '/ace/ext-language_tools.js');
         $PAGE->requires->js($plugindirrel . '/ace/ext-modelist.js');
+        $PAGE->requires->js($plugindirrel . '/ace/ext-static_highlight.js');
     }
 
 
