@@ -61,6 +61,10 @@ class qtype_coderunner_twigmacros {
 <input type="checkbox" name="crui_{{ name }}" class="coderunner-ui-element"{% if ischecked %} checked{%endif%}>
 </label>
 {%endmacro %}
+                
+{% macro textarea(name, rows=2, cols=60) %}
+<textarea name="crui_{{ name }}" rows="{{ rows }}" cols="{{ cols }}" class="coderunner-ui-element"></textarea>{% endmacro %}
+
 EOMACROS;
         return array('html' => $htmlmacros);
     }
