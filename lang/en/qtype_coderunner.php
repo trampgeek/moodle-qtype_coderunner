@@ -114,6 +114,7 @@ $string['columncontrols_help'] = 'The checkboxes select which columns of the res
 
 $string['confirm_proceed'] = 'If you save this question with \'Customise\' unchecked, any customisations made will be lost. Proceed?';
 $string['confirmreset'] = 'Discard all your work on this question and reset answer box to original preloaded value?';
+$string['corruptuiparams'] = 'The UI parameters for this question or its prototype are broken. Proceed with caution.';
 $string['cputime'] = 'TimeLimit (secs)';
 $string['customisationcontrols'] = 'Customisation';
 $string['customise'] = 'Customise';

@@ -83,7 +83,7 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
             questiontypeHelpDiv = $('#qtype-help'),
             precheck = $('select#id_precheck'),
             testtypedivs = $('div.testtype'),
-            missingPrototype = $('#id_missing_prototype'),
+            brokenQuestion = $('#id_broken_question'),
             uiplugin = $('#id_uiplugin'),
             uiparameters = $('#id_uiparameters');
 
@@ -406,13 +406,13 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
             }
         }
 
-        // If the missingPrototype hidden element is not empty, insert the
+        // If the brokenquestionmessage hidden element is not empty, insert the
         // given message as an error at the top of the question.
-        function checkForMissingPrototype() {
-            var missingPrototypeMessage = missingPrototype.prop('value'),
+        function checkForBrokenQuestion() {
+            var brokenQuestionMessage = brokenQuestion.prop('value'),
                 messagePara = null;
-            if (missingPrototypeMessage !== '') {
-                messagePara = $('<p>' + missingPrototype.prop('value') + '</p>');
+            if (brokenQuestionMessage !== '') {
+                messagePara = $('<p>' + brokenQuestion.prop('value') + '</p>');
                 $('#id_qtype_coderunner_error_div').append(messagePara);
             }
         }
@@ -433,7 +433,7 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
             customise.prop('disabled', true);
         }
 
-        checkForMissingPrototype();
+        checkForBrokenQuestion();
 
         setCustomisationVisibility(isCustomised);
         if (!isCustomised) {
