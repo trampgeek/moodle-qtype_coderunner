@@ -1,5 +1,29 @@
 # CHANGE HISTORY
 
+### 28 August 2021. 4.1.0
+
+ * New feature (experimental): A new UI, the Ace gapfiller, allows gap-filler questions in
+   which code is displayed by the Ace editor with gaps for the students to fill in.
+ * New feature: allow use of support files by Jobe-based template-parameter preprocessors.
+ * New feature: add /ace/ext-static_highlight.js to the list of Ace scripts to
+   include. This allows for the possibility of using Ace to statically highlight code,
+    e.g. when embedded in question specifications.
+ * Remove PHP code from language string file which was raising an exception in AMOS.
+ * Add missing Twig text area macro for using in HTML-UI questions
+   (documented but never actually implemented).
+ * With combinator template graders, only render the result table if there is at least
+   one non-header row to display.
+ * Various documentation and error message tweaks.
+ * Bug fix: existing gapfiller UI was not working correctly with textarea gaps.
+ * Bug fix: saving a question with an undefined question type could crash.
+ * Bug fix: students with spaces or apostrophes in their names were breaking
+   question that used Jobe-based template-parameter preprocessors.
+ * Bug fix: sample answer for multilanguage questions were not being correctly 
+   displayed.
+ * Bug fix: multilanguage questions were not being validated using the 'answer_language'
+   template parameter but were instead using the default language.
+
+
 ### 9 May 2021. 4.0.2
  * Added a `lines_per_cell` parameter to the table UI.
  * Bug fix: template preprocessor runs broke if a student had an apostrophe or space

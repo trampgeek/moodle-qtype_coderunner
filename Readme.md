@@ -1,9 +1,9 @@
 # CODE RUNNER
 
-Version: 4.0.2 May 2021
+Version: 4.1.0 August 2021
 
 Authors: Richard Lobb, University of Canterbury, New Zealand.
-         Tim Hunt, The Open University, UK
+         Tim Hunt, The Open University, UK.
 
 NOTE: A few sample quizzes containing example CodeRunner questions
 are available at [coderunner.org.nz](http://coderunner.org.nz). There's also
