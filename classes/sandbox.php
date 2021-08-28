@@ -136,6 +136,9 @@ abstract class qtype_coderunner_sandbox {
      */
     public static function get_best_sandbox($language, $forcelanguagecheck=false) {
         $sandboxes = self::enabled_sandboxes();
+        if (count($sandboxes) == 0) {
+            throw new qtype_coderunner_exception('No sandboxes available for running code!');
+        }
         foreach ($sandboxes as $extname => $classname) {
             $sb = self::get_instance($extname);
             if ($sb) {
