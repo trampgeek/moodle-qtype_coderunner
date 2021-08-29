@@ -13,7 +13,11 @@
    (documented but never actually implemented).
  * With combinator template graders, only render the result table if there is at least
    one non-header row to display.
+ * Change the default value for 'Evaluate per student' when using Jobe languages
+   to evaluate the template parameters from True to False.
  * Various documentation and error message tweaks.
+ * Deleted various autotag scripts which were potentially unsafe in various ways
+   and shouldn't ever have been part of the distribution anyway.
  * Bug fix: existing gapfiller UI was not working correctly with textarea gaps.
  * Bug fix: saving a question with an undefined question type could crash.
  * Bug fix: students with spaces or apostrophes in their names were breaking
