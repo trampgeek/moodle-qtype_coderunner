@@ -64,7 +64,7 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
     function initEditForm() {
         var typeCombo = $('#id_coderunnertype'),
             template = $('#id_template'),
-            templateParamsLang = $('#id_templateparamslang'),
+            evaluatePerStudent = $('#id_templateparamsevalpertry'),
             globalextra = $('#id_globalextra'),
             useace = $('#id_useace'),
             language = $('#id_language'),
@@ -505,9 +505,8 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
             }
         });
 
-        templateParamsLang.on('change', function() {
-            var newLang = templateParamsLang.val();
-            if (newLang !== 'None' && newLang !== 'twig') {
+        evaluatePerStudent.on('change', function() {
+            if (evaluatePerStudent.is(':checked')) {
                 langStringAlert('templateparamsusingsandbox');
             }
         });

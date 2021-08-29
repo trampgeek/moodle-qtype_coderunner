@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <libraries>
     <library>
-        <location>Twig</location>
+	<location>vendor/twig</location>
         <name>Twig</name>
         <version>1.28.2</version>
         <license>BSD 3-Clause</license>

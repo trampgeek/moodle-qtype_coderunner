@@ -1035,7 +1035,8 @@ $string['templateparams'] = 'Template params';
 $string['templateparamsevalpertry'] = 'Evaluate per student';
 $string['templateparamslang'] = 'Preprocessor';
 $string['templateparamsusingsandbox'] = 'Preprocessors other than Twig use
-the sandbox server. When a student starts a quiz all such questions initiate
+the sandbox server. If "Evaluate per student" is also set, then when a student
+starts a quiz all such questions initiate
 a sandbox run before the question can even be displayed. In a test or exam,
 this can overload the sandbox server. Caveat emptor!';
 $string['templateparams_help'] = 'If non-blank, the template parameters field must
@@ -1049,7 +1050,7 @@ to yield a JSON record. See <a href="https://coderunner.org.nz/mod/url/view.php?
 the documentation</a> for details.
 
 <b>Warning:</b> use of a preprocessor other than Twig can have drastic performance
-implications if the Evaluate-on-each-attempt checkbox is
+implications if the Evaluate-per-student checkbox is
 checked, which it has to be if used for randomisation or for per-student question
 customisation. Preprocessing must be done before a question
 can be displayed to a student and, except for Twig, takes place on the Jobe sandbox

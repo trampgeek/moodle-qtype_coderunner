@@ -594,7 +594,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->addElement('group', 'twigcontrols', get_string('twigcontrols', 'qtype_coderunner'),
                 $twigelements, null, false);
         $mform->setDefault('templateparamslang', 'None');
-        $mform->setDefault('templateparamsevalpertry', true);
+        $mform->setDefault('templateparamsevalpertry', false);
         $mform->setDefault('twigall', false);
         $mform->$hidemethod('templateparamsevalpertry', 'templateparamslang', 'eq', 'None');
         $mform->$hidemethod('templateparamsevalpertry', 'templateparamslang', 'eq', 'twig');
