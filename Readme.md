@@ -1347,17 +1347,20 @@ a preprocessor, as the job is more easily and more efficiently done in Twig,
 as explained in the section [Randomising questions](#randomising-questions).
 Note, too, that *Twig All* must be set.
 
-#### The Evaluate per student option
+#### The Evaluate per run option
 When you select a preprocessor other than Twig, a checkbox 'Evaluate per
-student' is shown, and is initially checked. This controls when the preprocessor
-gets called. Usually this capability is being used for randomisation or for
-per-student customisation, so the preprocessor must be invoked for each 
+run' is shown, and is initially unchecked. This controls when the preprocessor
+gets called. If you are using the template preprocessor for randomisation or
+for per-student customisation, 
+you must check this option so that the preprocessor is invoked for each 
 student when they start their attempt. As explained above, this can have serious 
-load implications. However, there are some situations where you might wish to
-perform a template parameter computation for other purposes, e.g. to compute a
-value within the question text in a non-randomised question without using
-an offline program. In that case, you can uncheck the *Evaluate per student*
-option and the template parameters will be computed only once, when the
+load implications. 
+
+However, if you are using the template preprocessor for other purposes,
+e.g. to compute values within the question text in a non-randomised question
+without using
+an offline program you can leave *Evaluate per run* unchecked. In this case
+the template parameters will be computed only once, when the
 question is saved.
 
 Although clumsy, this approach can also be used to compute the expected output
