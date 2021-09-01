@@ -104,7 +104,7 @@ The mark for a set of questions in a quiz is then determined primarily by
 which questions the student is able to solve successfully and then secondarily
 by how many submissions the student makes on each question.
 However, it is also possible to configure CodeRunner questions so
-that the mark is determined by how many of the tests the code successfully passes.
+that the mark is determined by how many of the tests the code successfully passed.
 
 CodeRunner has been in use at the University of Canterbury for over ten years
 running many millions of student quiz question submissions in Python, C , JavaScript,
@@ -115,10 +115,10 @@ world and as of January 2021 is installed on over 1800 Moodle sites worldwide
 at least some of its language strings translated into 19 other languages (see
 [here](https://moodle.org/plugins/translations.php?plugin=qtype_coderunner])).
 
-CodeRunner currently natively upports Python2 (considered obsolescent), Python3,
-C, C++, Java, PHP, Pascal, JavaScript (NodeJS), Octave and Matlab.
+CodeRunner supports the following languages: Python2 (considered obsolete),
+Python3, C, C++, Java, PHP, Pascal, JavaScript (NodeJS), Octave and Matlab.
 However, other languages are easily supported without altering the source
-code of either CodeRunner just by scripting
+code of either CodeRunner or the original language just by scripting
 the execution of the new language within a Python-based question.
 
 CodeRunner can safely be used on an institutional Moodle server,
@@ -135,21 +135,21 @@ should work with older versions of Moodle 3.0 or later, too, provided they are
 running PHP V7.2 or later. CodeRunner is developed
 and tested on Linux only, but Windows-based Moodle sites have also used it.
 
-For security reasons
-submitted jobs are run on a separate Linux-based machine called the
-[Jobe server](https://github.com/trampgeek/jobe). CodeRunner is initially
-configured to use a small
-outward-facing Jobe server at the University of Canterbury, and this can
-be used for initial testing.  However, this is not suitable for production
-use, for which institutions will need to install their own Jobe server.
-Instructions for installing a Jobe server are given in the Jobe documentation.
+Submitted jobs are run on a separate Linux-based machine, called the
+[Jobe server](https://github.com/trampgeek/jobe), for security purposes.
+CodeRunner is initially configured to use a small, outward-facing Jobe server
+at the University of Canterbury, and this server can
+be used for initial testing; however, the Canterbury server is not suitable
+for production use. Institutions will need to install and operate their own Jobe server
+when using CodeRunner in a production capacity.
+Instructions for installing a Jobe server are provided in the Jobe documentation.
 Once Jobe is installed, use the Moodle administrator interface for the
-CodeRunner plug-in to specify the Jobe host name and perhaps port number.
+CodeRunner plug-in to specify the Jobe host name and port number.
 A [Docker Jobe server image](https://hub.docker.com/r/trampgeek/jobeinabox) is also available.
 
 A modern 8-core Moodle server can handle an average quiz question
 submission rate of well over 1000 Python quiz questions per minute while maintaining
-a response time of less than about 3 - 4 seconds, assuming the student code
+a response time of less than 3 - 4 seconds, assuming the student code
 itself runs in a fraction of a second. We have run CodeRunner-based exams
 with nearly 500 students and experienced only light to moderate load factors
 on our 8-core Moodle server. The Jobe server, which runs student submissions
