@@ -18,10 +18,8 @@ unusual question type.
 
 - [Introduction](#introduction)
 - [Installation](#installation)
-  - [Upgrading from a CodeRunner version earlier than 2.4.0](#upgrading-from-a-coderunner-version-earlier-than-240)
-  - [Upgrading from CodeRunner versions between 2.4 and 3.0](#upgrading-from-coderunner-versions-between-24-and-30)
-    - [Note for enthusiasts only.](#note-for-enthusiasts-only)
-  - [Installing CodeRunner from scratch](#installing-coderunner-from-scratch)
+  - [Installing CodeRunner](#installing-coderunner)
+  - [Upgrading from earlier versions of CodeRunner](#upgrading-from-earlier-versions-of-coderunner)
   - [Preliminary testing of the CodeRunner question type](#preliminary-testing-of-the-coderunner-question-type)
   - [Setting the quiz review options](#setting-the-quiz-review-options)
   - [Sandbox Configuration](#sandbox-configuration)
@@ -43,6 +41,8 @@ unusual question type.
   - [Preprocessing of template parameters](#preprocessing-of-template-parameters)
     - [Preprocessing with Twig](#preprocessing-with-twig)
     - [Preprocessing with other languages](#preprocessing-with-other-languages)
+    - [The template parameter preprocessor program](#the-template-parameter-preprocessor-program)
+    - [The Evaluate per run option](#the-evaluate-per-run-option)
   - [The Twig TEST variable](#the-twig-test-variable)
   - [The Twig TESTCASES variable](#the-twig-testcases-variable)
   - [The Twig QUESTION variable](#the-twig-question-variable)
@@ -69,8 +69,9 @@ unusual question type.
   - [The Graph UI](#the-graph-ui)
   - [The Table UI](#the-table-ui)
   - [The Gap Filler UI](#the-gap-filler-ui)
+  - [The Ace Gap Filler UI](#the-ace-gap-filler-ui)
   - [The Html UI](#the-html-ui)
-    - [The textareaId macro](#the-textareaId-macro)
+    - [The textareaId macro](#the-textareaid-macro)
   - [Other UI plugins](#other-ui-plugins)
 - [User-defined question types](#user-defined-question-types)
   - [Prototype template parameters](#prototype-template-parameters)
@@ -2370,6 +2371,16 @@ used by Twig, so using them instead of the default would prevent you from
 ever adding Twig expansion (e.g. for randomisation) to the question. This is
 not recommended.
 
+
+### The Ace Gap Filler UI
+
+This is a new and still experimental variant on the Gap Filler UI in which
+the text is rendered by the Ace editor with all usual syntax highlighting
+but the user can edit only the text in the gaps. 
+
+It behaves exactly like the Gap Filler UI, above, except that it does not
+currently support the {[ rows, columns ]} syntax for multiline gaps. Only
+in-line gaps are supported.
 
 ### The Html UI
 
