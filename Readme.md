@@ -2279,7 +2279,7 @@ are required and the rest are optional.
 
  * `num_rows` (required): sets the (initial) number of table rows, excluding the header.
  * `num_columns` (required): sets the number of table columns.
- * `table_column_headers` (optional): a list of strings used for column headers. By default
+ * `column_headers` (optional): a list of strings used for column headers. By default
    no column headers are used.
  * `row_labels` (optional): a list of strings used for row labels. By
    default no row labels are used.
@@ -2291,17 +2291,17 @@ are required and the rest are optional.
    By default all columns have the same width.
  * `dynamic_rows` (optional): set `true` to enable the addition of *Add row*
    and *Delete row* buttons through which the student can alter the number of
-   rows. The number of rows can never be less than the initial `table_num_rows` value.
+   rows. The number of rows can never be less than the initial `num_rows` value.
  * `locked_cells` (optional): an array of 2-element [row, column] cell specifiers.
    The specified cells are rendered to HTML with the *disabled* attribute, so
    cannot be changed by the user. For example
 
-        "table_locked_cells": [[0, 0], [1, 0]]
+        "locked_cells": [[0, 0], [1, 0]]
 
    to lock the leftmost column of rows 0 and 1.
    This is primarily for use in conjunction with
    an answer preload in which some cells are defined by the question author.
-   The preload answer must be defined before the table_locked_cells template
+   The preload answer must be defined before the locked_cells template
    parameter is defined, or the question author will not be able to define
    the required values in the first place.
 
