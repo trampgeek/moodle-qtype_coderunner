@@ -385,7 +385,7 @@ $string['missingoutput'] = 'You must supply the expected output from this test c
 $string['missingprototype'] = 'This question was defined to be of type \'{$a->crtype}\' but the prototype does not exist, or is non-unique, or is unavailable in this context. You should Cancel and try to (re)install the prototype.
 Proceed to edit only if you know what you are doing!';
 $string['missingprototypes'] = 'Missing prototypes';
-$string['missingprototypewhenrunning'] = 'Broken question (missing prototype \'{$a->crtype}\'). Cannot be run.';
+$string['missingprototypewhenrunning'] = 'Broken question (missing or duplicate prototype \'{$a->crtype}\'). Cannot be run.';
 $string['missinguiparams'] = 'The following UI parameters are required but not defined: ';
 $string['multipledefaults'] = 'At most one language can be selected as default';
 $string['multipleprototypes'] = 'Multiple prototypes found for \'{$a->crtype}\'';
