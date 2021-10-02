@@ -396,10 +396,10 @@ class qtype_coderunner_bulk_tester {
             } else {
                 $ok = $this->test_question($question);
                 if ($ok) {
-                    $message = get_string('pass', 'qtype_coderunner');
+                    $message =  "<b style='color:green'>" . get_string('pass', 'qtype_coderunner') . "</b>";
                     $status = self::PASS;
                 } else {
-                    $message = get_string('fail', 'qtype_coderunner');
+                    $message = "<b style='color:red'>" . get_string('fail', 'qtype_coderunner') . "</b>";
                     $status = self::FAIL;
                 }
             }
