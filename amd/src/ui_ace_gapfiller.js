@@ -71,6 +71,7 @@ define(['jquery'], function($) {
 
         let code = "";
         this.uiParams = uiParams;
+        this.gaps = [];
         this.source = uiParams.ui_source || 'globalextra';
         this.nextGapIndex = 0;
         if (this.source !== 'globalextra' && this.source !== 'test0') {

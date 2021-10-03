@@ -1,5 +1,13 @@
 # CHANGE HISTORY
 
+### 26 September 2021. 4.1.0+
+
+ * Bug fix: ace_gapfiller UI doesn't display warning if Ace editor not loaded.
+ * Change default value of Evaluate-per-student when using Jobe sadnbox to
+   evaluate template parameters from True to False. Generate warning message
+   only when author changes the checkbox to True.
+ * Various documentation tweaks (main documentation + in-line).
+
 ### 28 August 2021. 4.1.0
 
  * New feature (experimental): A new UI, the Ace gapfiller, allows gap-filler questions in
