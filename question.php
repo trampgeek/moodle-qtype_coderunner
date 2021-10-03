@@ -876,7 +876,9 @@ class qtype_coderunner_question extends question_graded_automatically {
      * Load the prototype for this question and store in $this->prototype
      */
     public function get_prototype() {
-        assert(!isset($this->prototype));
+        if (isset($this->prototype)) {
+            return;  // Nothing to do.
+        }
         if ($this->prototypetype == 0) {
             $context = qtype_coderunner::question_context($this);
             $this->prototype = qtype_coderunner::get_prototype($this->coderunnertype, $context);
