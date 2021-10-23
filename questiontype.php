@@ -121,7 +121,8 @@ class qtype_coderunner extends question_type {
             'maxfilesize',
             'filenamesregex',
             'filenamesexplain',
-            'displayfeedback'
+            'displayfeedback',
+            'giveupallowed',
         );
     }
 
@@ -157,8 +158,9 @@ class qtype_coderunner extends question_type {
             'maxfilesize',
             'filenamesregex',
             'filenamesexplain',
-            'displayfeedback'
-            );
+            'displayfeedback',
+            'giveupallowed',
+        );
     }
 
     public function response_file_areas() {
@@ -743,7 +745,8 @@ class qtype_coderunner extends question_type {
             'templateparamsevald' => null,
             'uiparameters' => null,
             'hidecheck' => 0,
-            'attachments' => 0
+            'attachments' => 0,
+            'giveupallowed' => 0,
         );
 
         foreach ($extraquestionfields as $field) {

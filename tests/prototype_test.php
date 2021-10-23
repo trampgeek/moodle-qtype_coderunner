@@ -155,6 +155,7 @@ EOTEMPLATE;
     <filenamesregex></filenamesregex>
     <filenamesexplain></filenamesexplain>
     <displayfeedback>1</displayfeedback>
+    <giveupallowed>0</giveupallowed>
     <testcases>
       <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
       <testcode>

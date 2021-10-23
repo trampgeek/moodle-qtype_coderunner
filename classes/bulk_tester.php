@@ -357,11 +357,19 @@ class qtype_coderunner_bulk_tester {
             echo $OUTPUT->heading("{$category->name} ($numquestions)", 4);
             echo "<ul>\n";
             foreach ($questionids as $questionid => $name) {
+                // Output question name before testing, so if something goes wrong, it is clear which question was the problem.
                 $questionname = format_string($name);
                 $previewurl = new moodle_url($questiontestsurl, array('questionid' => $questionid));
                 $questionnamelink = html_writer::link($previewurl, $questionname, array('target' => '_blank'));
+                echo "<li>$questionnamelink:";
+                flush(); // Force output to prevent timeouts and show progress.
+
+                // Now run the test.
                 list($outcome, $message) = $this->load_and_test_question($questionid);
-                $html = "<li>$questionnamelink: $message</li>";
+
+                // Report the result, and record failures for the summary.
+                echo " $message</li>";
+                flush(); // Force output to prevent timeouts and show progress.
                 if ($outcome === self::PASS) {
                     $numpasses += 1;
                 } else if ($outcome === self::MISSINGANSWER) {
@@ -369,9 +377,6 @@ class qtype_coderunner_bulk_tester {
                 } else {
                     $failingtests[] = "$questionnamelink: $message";
                 }
-                $html = "<li>$questionnamelink: $message";
-                echo $html;
-                flush(); // Force output to prevent timeouts and show progress.
             }
             echo "</ul>\n";
         }
