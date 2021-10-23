@@ -44,6 +44,10 @@ class constants {
     const FEEDBACK_SHOW = 1;
     const FEEDBACK_HIDE = 2;
 
+    const GIVEUP_NEVER = 0;
+    const GIVEUP_AFTER_MAX_MARKS = 1;
+    const GIVEUP_ALWAYS = 2;
+
     const MAX_STRING_LENGTH = 8000;  // Maximum length of a string for display in the result table.
     const MAX_LINE_LENGTH = 100;     // Maximum length of a string for display in the result table.
     const MAX_NUM_LINES = 200;       // Maximum number of lines of text to be displayed a result table cell.
