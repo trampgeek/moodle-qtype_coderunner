@@ -106,6 +106,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $qdata->options->hidecheck = 0;
         $qdata->options->answerboxlines = 5;
         $qdata->options->displayfeedback = 1;
+        $qdata->options->giveupallowed = 0;
         // Exclude precheck as it defaults to null.
         $qdata->options->useace = 0;
         $qdata->options->penaltyregime = '10, 20, ...';
@@ -153,6 +154,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $form->language = 'python3';
         $form->acelang = '';
         $form->displayfeedback = 1;
+        $form->giveupallowed = 0;
         $form->iscombinatortemplate = 0;
         $form->testsplitterre = '|#<ab@17943918#@>#\n|ms';
         $form->template = "{{ STUDENT_ANSWER }}\n{{ TEST.testcode }}\n";
@@ -216,6 +218,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $form->language = 'python3';
         $form->acelang = '';
         $form->displayfeedback = 1;
+        $form->giveupallowed = 0;
         $form->iscombinatortemplate = 0;
         $form->testsplitterre = '|#<ab@17943918#@>#\n|ms';
         $form->template = "print('{{ STUDENT_ANSWER | e('py')}}\n";
@@ -1199,6 +1202,7 @@ EOPROG;
         $coderunner->hidecheck = 0;
         $coderunner->questiontext = $questiontext;
         $coderunner->displayfeedback = 1;
+        $coderunner->giveupallowed = 0;
         $coderunner->answer = '';
         $coderunner->answerpreload = '';
         $coderunner->globalextra = '';

@@ -533,6 +533,20 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 get_string('submitbuttons', 'qtype_coderunner'), $precheckelements, null, false);
         $mform->addHelpButton('coderunner_precheck_group', 'precheck', 'qtype_coderunner');
 
+        // Whether to show the 'Stop and read feedback' button.
+        $giveupelements = [];
+        $giveupvalues = array(
+                constants::GIVEUP_NEVER => get_string('giveup_never', 'qtype_coderunner'),
+                constants::GIVEUP_AFTER_MAX_MARKS => get_string('giveup_aftermaxmarks', 'qtype_coderunner'),
+                constants::GIVEUP_ALWAYS => get_string('giveup_always', 'qtype_coderunner'),
+        );
+
+        $giveupelements[] = $mform->createElement('select', 'giveupallowed', null, $giveupvalues);
+        $mform->addElement('group', 'coderunner_giveup_group',
+                get_string('giveup', 'qtype_coderunner'), $giveupelements, null, false);
+        $mform->addHelpButton('coderunner_giveup_group', 'giveup', 'qtype_coderunner');
+        $mform->setDefault('giveupallowed', constants::GIVEUP_NEVER);
+
         // Feedback control (a group with only one element).
         $feedbackelements = array();
         $feedbackvalues = array(
