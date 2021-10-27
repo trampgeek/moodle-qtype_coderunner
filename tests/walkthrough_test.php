@@ -310,7 +310,7 @@ EOTEMPLATE;
         $this->check_output_contains('Run 1');
         $this->check_output_contains('SEPARATOR = &quot;#&lt;ab@17943918#@&gt;#&quot;');
     }
-    
+
     // Check hidecheck option works.
     public function test_hide_check() {
         $q = test_question_maker::make_question('coderunner', 'sqr');
@@ -488,6 +488,14 @@ EOTEMPLATE;
                 $qa->summarise_action($qa->get_last_step()));
         //$this->assertEquals('Attempt finished submitting: wrong',
         //        $qa->summarise_action($qa->get_last_step()));
+
+        // Also check what happens in Quiz deferred feedback mode, when all the quiz display
+        // options are false, but the question is set to override that.
+        $q->displayfeedback = constants::FEEDBACK_SHOW;
+        $this->displayoptions->feedback = false;
+        $this->displayoptions->generalfeedback = false;
+        $this->check_current_output(
+                $this->get_contains_general_feedback_expectation($q));
     }
 
     protected function get_contains_stop_button_expectation($enabled = null): question_contains_tag_with_attributes {
