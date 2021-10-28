@@ -399,6 +399,35 @@ EOTEMPLATE;
         //        $qa->summarise_action($qa->get_last_step()));
     }
 
+    public function test_stop_button_always_never_answered() {
+        $q = test_question_maker::make_question('coderunner', 'sqr');
+        $q->giveupallowed = constants::GIVEUP_ALWAYS;
+        $this->start_attempt_at_question($q, 'adaptive', 1, 1);
+        $qa = $this->get_question_attempt();
+
+        // Check the initial state.
+        $this->check_current_state(question_state::$todo);
+
+        // Click the Stop button.
+        $this->process_submission(array('-finish' => 1, 'answer' => ''));
+        $this->check_current_state(question_state::$gaveup);
+        $this->check_current_mark(0);
+        $this->check_current_output(
+                $this->get_does_not_contain_validation_error_expectation(),
+                $this->get_does_not_contain_stop_button_expectation(),
+                $this->get_no_hint_visible_expectation(),
+                $this->get_contains_general_feedback_expectation($q));
+        $this->assertEquals('Attempt finished submitting: ', $qa->summarise_action($qa->get_last_step()));
+
+        // Also check what happens in Quiz deferred feedback mode, when all the quiz display
+        // options are false, but the question is set to override that.
+        $q->displayfeedback = constants::FEEDBACK_SHOW;
+        $this->displayoptions->feedback = false;
+        $this->displayoptions->generalfeedback = false;
+        $this->check_current_output(
+                $this->get_contains_general_feedback_expectation($q));
+    }
+
     public function test_stop_button_after_max() {
         $q = test_question_maker::make_question('coderunner', 'sqr');
         $q->giveupallowed = constants::GIVEUP_AFTER_MAX_MARKS;

@@ -185,18 +185,25 @@ class qtype_coderunner_renderer extends qtype_renderer {
         /** @var qtype_coderunner_question $q */
         $q = $qa->get_question();
         $feedbackdisplay = $q->display_feedback();
+
+        // Update options for displaying specific feedback.
         if ($feedbackdisplay !== constants::FEEDBACK_USE_QUIZ && !empty($qa->get_last_qt_var('_testoutcome'))) {
             if ($feedbackdisplay === CONSTANTS::FEEDBACK_SHOW) {
                 $optionsclone->feedback = 1;
-                if ($qa->get_state()->is_finished() && $q->giveupallowed) {
-                    $optionsclone->generalfeedback = 1;
-                }
             } else if ($feedbackdisplay === CONSTANTS::FEEDBACK_HIDE) {
                 $optionsclone->feedback = 0;
             } else {
                 throw new coding_exception("Invalid value of feedbackdisplay: $feedbackdisplay");
             }
         }
+
+        // Update options for displaying general feedback.
+        if ($feedbackdisplay === CONSTANTS::FEEDBACK_SHOW) {
+            if ($qa->get_state()->is_finished() && $q->giveupallowed) {
+                $optionsclone->generalfeedback = 1;
+            }
+        }
+
         return parent::feedback($qa, $optionsclone);
     }
 
