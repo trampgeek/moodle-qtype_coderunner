@@ -182,8 +182,11 @@ class qtype_coderunner_renderer extends qtype_renderer {
      */
     public function feedback(question_attempt $qa, question_display_options $options) {
         $optionsclone = clone($options);
+        /** @var qtype_coderunner_question $q */
         $q = $qa->get_question();
         $feedbackdisplay = $q->display_feedback();
+
+        // Update options for displaying specific feedback.
         if ($feedbackdisplay !== constants::FEEDBACK_USE_QUIZ && !empty($qa->get_last_qt_var('_testoutcome'))) {
             if ($feedbackdisplay === CONSTANTS::FEEDBACK_SHOW) {
                 $optionsclone->feedback = 1;
@@ -193,6 +196,14 @@ class qtype_coderunner_renderer extends qtype_renderer {
                 throw new coding_exception("Invalid value of feedbackdisplay: $feedbackdisplay");
             }
         }
+
+        // Update options for displaying general feedback.
+        if ($feedbackdisplay === CONSTANTS::FEEDBACK_SHOW) {
+            if ($qa->get_state()->is_finished() && $q->giveupallowed) {
+                $optionsclone->generalfeedback = 1;
+            }
+        }
+
         return parent::feedback($qa, $optionsclone);
     }
 
@@ -455,8 +466,8 @@ class qtype_coderunner_renderer extends qtype_renderer {
         }
         return $html;
     }
-    
-    
+
+
     /**
      * Return a string describing the penalties in place for this question.
      * @param type $qa
@@ -618,12 +629,12 @@ class qtype_coderunner_renderer extends qtype_renderer {
     private function format_examples($examples, $resultcolumns) {
         $table = new html_table();
         $table->attributes['class'] = 'coderunnerexamples';
-        
+
         // Record counts of non-empty cells in each column so empty columns are suppressed.
         // But always show the 'expected' column (renaming it to 'result').
         list($numtests, $numstds, $numextras) = $this->count_bits($examples);
         $counts = array('testcode' => $numtests, 'stdin' => $numstds, 'extra' => $numextras, 'expected' => 1);
-        
+
         $table->head = array();
         $table->data = array();
         $table->rowclasses = array();
@@ -697,7 +708,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
         }
         return 'ERROR';
     }
-    
+
     // Return the format to be used for the given field. If no specific
     // format given, return %s.
     private function column_format($field, $resultcolumns) {
@@ -708,9 +719,9 @@ class qtype_coderunner_renderer extends qtype_renderer {
         }
         return '%s';
     }
-    
+
     // Return the text area attributes for an answer box.
-    private function answerbox_attributes($fieldname, $rows, $question, 
+    private function answerbox_attributes($fieldname, $rows, $question,
             $currentlanguage, $readonly=false) {
         if ($question->mergeduiparameters) {
             $uiparamsjson = json_encode($question->mergeduiparameters);
@@ -735,7 +746,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
         return $attributes;
     }
 
-    
+
     // Return the HTML for a language dropdown list for the given question attempt.
     private function language_dropdown($qa) {
         $question = $qa->get_question();
@@ -767,8 +778,8 @@ class qtype_coderunner_renderer extends qtype_renderer {
         $html .= html_writer::end_tag('div');
         return $html;
     }
-    
-    
+
+
     /**
      *
      * @param qtype_coderunner_testing_outcome $outcome
