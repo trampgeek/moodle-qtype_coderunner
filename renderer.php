@@ -167,6 +167,15 @@ class qtype_coderunner_renderer extends qtype_renderer {
             $PAGE->requires->js_call_amd('qtype_coderunner/textareas', 'initQuestionTA', array($responsefieldid));
         }
 
+	// with the isoutputonly option, give feedback on the answer status here?
+	$toserialised = $qa->get_last_qt_var('_testoutcome');
+	if ($toserialised) {
+	    $outcome = unserialize($toserialised);
+	    if ($outcome !== false) {
+	         $qtext .= $outcome->get_attempt_confirm();
+            }
+	}
+
         return $qtext;
     }
 
