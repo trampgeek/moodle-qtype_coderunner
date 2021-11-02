@@ -597,6 +597,7 @@ class qtype_coderunner_question extends question_graded_automatically {
             $value = isset($response[$key]) ? $response[$key] : 0;
             $stepinfo->$key = $value;
         }
+        $stepinfo->coderunnerversion = get_config('qtype_coderunner')->version;
         return $stepinfo;
     }
 
