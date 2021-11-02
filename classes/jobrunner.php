@@ -297,8 +297,8 @@ class qtype_coderunner_jobrunner {
             }
             $outcome->set_mark_and_feedback($fract, $feedback);  // Further valididty checks done in here.
 
-        } catch (Exception $error) {
-            $outcome->set_status(qtype_coderunner_testing_outcome::STATUS_BAD_COMBINATOR, $error);
+        } catch (Exception $except) {
+            $outcome->set_status(qtype_coderunner_testing_outcome::STATUS_BAD_COMBINATOR, $except->getMessage());
         }
         return $outcome;
     }
