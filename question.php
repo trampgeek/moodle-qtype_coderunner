@@ -495,7 +495,7 @@ class qtype_coderunner_question extends question_graded_automatically {
     /** Return a setting that determines whether or not the specific
      *  feedback display is controlled by the quiz settings or this particular
      *  question.
-     * @return bool FEEDBACK_USE_QUIZ, FEEDBACK_SHOW or FEEDBACK_HIDE from constants class.
+     * @return int FEEDBACK_USE_QUIZ, FEEDBACK_SHOW or FEEDBACK_HIDE from constants class.
      */
     public function display_feedback() {
         return isset($this->displayfeedback) ? intval($this->displayfeedback) : constants::FEEDBACK_USE_QUIZ;
