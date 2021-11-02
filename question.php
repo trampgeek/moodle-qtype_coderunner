@@ -111,15 +111,16 @@ class qtype_coderunner_question extends question_graded_automatically {
         $this->initialisationerrormessage = '';
         try {
             $this->templateparamsjson = $this->evaluate_merged_parameters($seed, $step);
+            $this->parameters = json_decode($this->templateparamsjson);
         } catch (Exception $e) {
             $error = $e->getMessage();
-            $this->templateparamsjson = '{"initerror": "' . $error . '"}';
+            $this->parameters = array("initerror"=>"' . $error . '");
+            $this->templateparamsjson = json_encode($this->parameters);
             $erroroninit = get_string('erroroninit', 'qtype_coderunner', array('error'=>$error));
             $this->initialisationerrormessage = $erroroninit;
         }
         // ** TODO ** Consider implications of adding the parameter true to
         // the following, so that the parameters are PHP arrays for Twig.
-        $this->parameters = json_decode($this->templateparamsjson);
         if ($this->twigall) {
             $this->twig_all();
         }
