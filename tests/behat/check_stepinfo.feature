@@ -36,10 +36,11 @@ Feature: Check that the QUESTION.stepinfo record is working.
       | id_penaltyregime        | 10, 20, ...                                |
       | id_validateonsave       | 0                                          |
       | id_template             | print('{{ QUESTION.stepinfo \| json_encode }}') |
+      | id_grader               | RegexGrader                                |
       | id_answer               |                                            |
       | id_iscombinatortemplate | 0                                          |
       | id_testcode_0           | # This isn't used                          |
-      | id_expected_0           | {"numchecks":2,"numprechecks":3,"fraction":0,"preferredbehaviour":"deferredfeedback"}  |
+      | id_expected_0           | "numchecks":2,"numprechecks":3,"fraction":0.*,"preferredbehaviour":"deferredfeedback","coderunnerversion":.*  |
       | id_twigall              | false                                      |
     And quiz "Test quiz" contains the following questions:
       | question         | page |
@@ -53,24 +54,25 @@ Feature: Check that the QUESTION.stepinfo record is working.
 
     When I set the field with xpath "//textarea[contains(@name, 'answer')]" to "# Blah 1"
     And I press "Precheck"
-    Then I should see "{\"numchecks\":0,\"numprechecks\":0,\"fraction\":0,\"preferredbehaviour\":\"deferredfeedback\"}"
+    Then I should see "{\"numchecks\":0,\"numprechecks\":0,\"fraction\":0,"
+    And I should see "\"coderunnerversion\":"
 
     When I set the field with xpath "//textarea[contains(@name, 'answer')]" to "# Blah 2"
     And I press "Precheck"
-    Then I should see "{\"numchecks\":0,\"numprechecks\":1,\"fraction\":0,\"preferredbehaviour\":\"deferredfeedback\"}"
+    Then I should see "{\"numchecks\":0,\"numprechecks\":1,\"fraction\":0,"
 
     And I press "Check"
-    Then I should see "{\"numchecks\":0,\"numprechecks\":2,\"fraction\":0,\"preferredbehaviour\":\"deferredfeedback\"}"
+    Then I should see "{\"numchecks\":0,\"numprechecks\":2,\"fraction\":0,"
 
     When I set the field with xpath "//textarea[contains(@name, 'answer')]" to "# Blah 3"
     And I press "Check"
-    Then I should see "{\"numchecks\":1,\"numprechecks\":2,\"fraction\":0,\"preferredbehaviour\":\"deferredfeedback\"}"
+    Then I should see "{\"numchecks\":1,\"numprechecks\":2,\"fraction\":0,"
 
     When I set the field with xpath "//textarea[contains(@name, 'answer')]" to "# Blah 4"
     And I press "Precheck"
-    Then I should see "{\"numchecks\":2,\"numprechecks\":2,\"fraction\":0,\"preferredbehaviour\":\"deferredfeedback\"}"
+    Then I should see "{\"numchecks\":2,\"numprechecks\":2,\"fraction\":0,"
     And I press "Check"
-    Then I should see "{\"numchecks\":2,\"numprechecks\":3,\"fraction\":0,\"preferredbehaviour\":\"deferredfeedback\"}"
+    Then I should see "{\"numchecks\":2,\"numprechecks\":3,\"fraction\":0,"
 
     When I set the field with xpath "//textarea[contains(@name, 'answer')]" to "# Blah 5"
     And I press "Check"
