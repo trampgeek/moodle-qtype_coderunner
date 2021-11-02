@@ -69,7 +69,7 @@ Feature: missing_prototype
     And I press "Start again with these options"
     And I set the field with xpath "//textarea[contains(@name, 'answer')]" to "def sqr(n): return n * n"
     And I press "Check"
-    Then I should see "Broken question (missing prototype 'python3_test_prototype'). Cannot be run."
+    Then I should see "Broken question (missing or duplicate prototype 'python3_test_prototype'). Cannot be run."
 
   Scenario: As a teacher, I should be able to re-parent the question and have it work correctly
     Given I am on "Course 1" course homepage
