@@ -306,6 +306,11 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
      */
     private function get_jobe_connection_info($resource) {
         $jobe = $this->jobeserver;
+        if (!empty($this->currentjobid) && strpos($jobe, ';') !== false) {
+            // Support multiple servers - thanks Khang Pham Nguyen KHANG: 2021/10/18
+            $servers = array_values(array_filter(array_map('trim', explode(';', $jobe)), 'strlen'));
+            $jobe = $servers[intval($this->currentjobid, 16) % count($servers)];
+        }
         $protocol = 'http://';
         $url = (strpos($jobe, 'http') === 0 ? $jobe : $protocol.$jobe)."/jobe/index.php/restapi/$resource";
 
