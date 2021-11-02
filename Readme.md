@@ -2380,7 +2380,10 @@ but the user can edit only the text in the gaps.
 
 It behaves exactly like the Gap Filler UI, above, except that it does not
 currently support the {[ rows, columns ]} syntax for multiline gaps. Only
-in-line gaps are supported.
+in-line gaps are supported. In addition, the field width can have a maximum
+width set, with a syntax like {[20-40]}, meaning the initial field width
+is 20 characters but can expand up to 40. If the maximum value is omitted, the
+field can expand to an arbitrary width.
 
 ### The Html UI
 
