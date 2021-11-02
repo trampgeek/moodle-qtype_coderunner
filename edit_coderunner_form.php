@@ -946,7 +946,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $templateparams = $this->formquestion->templateparams;
         $errormessage = '';
         $json = '';
-        $seed = mt_rand();
+        $seed = mt_rand();  // TODO use a fixed seed if !evaluate_per_try.
         try {
             $json = $this->formquestion->evaluate_merged_parameters($seed); 
             $decoded = json_decode($json, true);
