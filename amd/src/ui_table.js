@@ -73,7 +73,7 @@ define(['jquery'], function($) {
         this.hasHeader = uiParams.column_headers && uiParams.column_headers.length > 0 ? true : false;
         this.hasRowLabels = uiParams.row_labels && uiParams.row_labels.length > 0 ? true : false;
         this.numDataColumns = uiParams.num_columns;
-        this.rowsPerCell = uiParams.lines_per_cell;
+        this.rowsPerCell = uiParams.lines_per_cell || 2;
         this.totNumColumns = this.numDataColumns + (this.hasRowLabels ? 1 : 0);
         this.columnWidths = this.computeColumnWidths();
         this.reload();
