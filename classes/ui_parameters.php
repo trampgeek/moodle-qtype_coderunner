@@ -184,6 +184,19 @@ class qtype_coderunner_ui_parameters {
         return json_encode($params_array);
     }
     
+    
+    /**
+     * Return an associative array of all parameters. Currently unused.
+     */
+    public function params_as_array() {
+        $params_array = array();
+        foreach ($this->params as $param) {
+            $params_array[$param->name] = $param->value;
+        }
+        return $params_array;
+    }
+    
+    
     /**
      * Return an array of all those parameters that have been updated since
      * the initial load from the json file (i.e. those parameters that have
