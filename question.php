@@ -283,9 +283,9 @@ class qtype_coderunner_question extends question_graded_automatically {
     private function twig_render_with_seed($text, $seed) {
         mt_srand($seed);
         return qtype_coderunner_twig::render($text, $this->student);
-        }
-    
-    
+    }
+
+
     // Get the default ui parameters for the ui plugin and merge in
     // both the prototypes and this questions parameters.
     // In order to support the legacy method of including ui parameters
@@ -307,8 +307,8 @@ class qtype_coderunner_question extends question_graded_automatically {
         $uiparams->merge_json($this->uiparameters);
         return $uiparams->updated_params();
     }
-    
-    
+
+
     /**
      * Override default behaviour so that we can use a specialised behaviour
      * that caches test results returned by the call to grade_response().
