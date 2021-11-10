@@ -252,7 +252,7 @@ class qtype_coderunner_bulk_tester {
         $context = context::instance_by_id($contextid);
         $questionids = $DB->get_records_sql(
                 "SELECT q.id
-                 FROM mdl_question q JOIN mdl_quiz_slots slt
+                 FROM {question} q JOIN {quiz_slots} slt
                  ON q.id = slt.questionid
                  WHERE slt.quizid = :quizid AND q.qtype='coderunner'",
                 array('quizid' => $quizid));
@@ -278,13 +278,13 @@ class qtype_coderunner_bulk_tester {
         return $DB->get_records_sql("
             SELECT qz.id as quizid, qz.name as name,
                 (SELECT count(1)
-                 FROM mdl_question q JOIN mdl_quiz_slots slt
+                 FROM {question} q JOIN {quiz_slots} slt
                  ON q.id = slt.questionid
                  WHERE slt.quizid = qz.id AND q.qtype='coderunner'
                 ) AS count
-            FROM mdl_quiz qz
-            JOIN mdl_course crs on qz.course = crs.id
-            JOIN mdl_context ctx on ctx.instanceid = crs.id
+            FROM {quiz} qz
+            JOIN {course} crs on qz.course = crs.id
+            JOIN {context} ctx on ctx.instanceid = crs.id
             WHERE ctx.id = :contextid
             ORDER BY name",
                 array('contextid' => $contextid)
