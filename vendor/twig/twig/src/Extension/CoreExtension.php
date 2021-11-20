@@ -201,7 +201,9 @@ final class CoreExtension extends AbstractExtension
             // array helpers
             new TwigFilter('join', 'twig_join_filter'),
             new TwigFilter('split', 'twig_split_filter', ['needs_environment' => true]),
-            new TwigFilter('sort', 'twig_sort_filter'),
+            // *** RJL *** pass the environment into the sort function so it can
+            // check for sandboxing and restrict the arrow function accordingly.
+            new TwigFilter('sort', 'twig_sort_filter', ['needs_environment' => true]),
             new TwigFilter('merge', 'twig_array_merge'),
             new TwigFilter('batch', 'twig_array_batch'),
             new TwigFilter('column', 'twig_array_column'),
@@ -869,8 +871,15 @@ function twig_reverse_filter(Environment $env, $item, $preserveKeys = false)
  *
  * @return array
  */
-function twig_sort_filter($array, $arrow = null)
+
+// *** RJL *** Add sandbox security check on the arrow function, as for
+// map, reduce and filter.
+function twig_sort_filter(Environment $env, $array, $arrow = null)
 {
+    if ($arrow !== null && !$arrow instanceof Closure && $env->hasExtension('\Twig\Extension\SandboxExtension')
+            && $env->getExtension('\Twig\Extension\SandboxExtension')->isSandboxed()) {
+        throw new RuntimeError('The callable passed to the "sort" filter must be a Closure in sandbox mode.');
+    }
     if ($array instanceof \Traversable) {
         $array = iterator_to_array($array);
     } elseif (!\is_array($array)) {
