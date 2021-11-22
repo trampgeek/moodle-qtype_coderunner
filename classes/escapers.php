@@ -29,7 +29,7 @@ defined('MOODLE_INTERNAL') || die();
 class qtype_coderunner_escapers {
 
     /**
-     * An escaper for user with Python triple-doublequote delimiters. Escapes only
+     * An escaper for use with Python. Escapes only
      * double quote characters plus backslashes.
      * @param type $environ   The Twig environment (currently ignored)
      * @param type $s         The string to convert
