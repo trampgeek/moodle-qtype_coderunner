@@ -202,20 +202,6 @@ class qtype_coderunner_util {
         return $para;
     }
 
-    /**
-     * Convert the extended JSON syntax allowed for template parameters to
-     * true JSON by converting the triple-quoted JSON extension to
-     * standard JSON strings with escaped double quotes and embedded newlines.
-     * No longer in use, but retained for possible future use.
-     */
-    public static function normalise_json($json) {
-        $stdjson = preg_replace_callback('/"""(.*?)"""/s',
-                function ($matches) {
-                    return '"' . str_replace(array('"', "\n", "\r"), array('\"', '\n', ''), $matches[1]) . '"';
-                },
-                $json);
-        return $stdjson;
-    }
 
     /**
      * Parse the ace-language field to obtain the list of languages to be
