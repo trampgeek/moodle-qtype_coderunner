@@ -59,6 +59,7 @@ class qtype_coderunner_testing_outcome {
         $this->testresults = array();
         $this->sourcecodelist = null;     // Array of all test runs on the sandbox.
         $this->sandboxinfo = array();
+        $this->graderstate = '';  // For passing state between runs using combinator grader.
     }
 
     public function set_status($status, $errormessage='') {

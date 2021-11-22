@@ -548,6 +548,11 @@ class qtype_coderunner_question extends question_graded_automatically {
             $testcases = $this->filter_testcases($isprecheck, $this->precheck);
             $runner = new qtype_coderunner_jobrunner();
             $this->stepinfo = self::step_info($response);
+            if (isset($response['graderstate'])) {
+                $this->stepinfo->graderstate = $response['graderstate'];
+            } else {
+                $this->stepinfo->graderstate = '';
+            }
             $testoutcome = $runner->run_tests($this, $code, $attachments, $testcases, $isprecheck, $language);
             $testoutcomeserial = serialize($testoutcome);
         }

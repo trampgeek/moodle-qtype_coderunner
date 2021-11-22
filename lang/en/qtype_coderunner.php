@@ -257,7 +257,8 @@ Result Columns field.
 If the template is a combinator, the JSON string output by the template grader
 should again contain a \'fraction\' field, this time for the total mark,
 and may contain zero or more of \'prologuehtml\', \'testresults\',
-\'epiloguehtml\', \'columnformats\', \'showoutputonly\' and \'showdifferences\'.
+\'epiloguehtml\', \'columnformats\', \'showoutputonly\', \'showdifferences\'
+and \'graderstate\'.
 The \'prologuehtml\' and \'epiloguehtml\' fields are html
 that is displayed respectively before and after the (optional) result table. The
 \'testresults\' field, if given, is a list of lists used to display some sort
@@ -278,6 +279,10 @@ The \'showdifferences\' field turns on display of a \'Show Differences\'
 button after the results table if the awarded mark fraction is not 1.0.
 The \'showoutputonly\' field, if true, is used when the question is to be
 used only to display the output and perhaps images from a run, with no mark.
+The \'graderstate\' variable is a string value that the question author can
+use to pass grading information between question attempts. If included
+in the grading response to a submission it will be available on the next
+submission as the Twig variable \'QUESTION.stepinfo.graderstate\'.
 ';
 $string['graph_ui_invalidserialisation'] = 'GraphUI: invalid serialisation';
 $string['graphui_isfsm_descr'] = 'True if the graph represents a Finite State Machine, in which case it can contain an incoming edge from nowhere (the start edge) and can have \'accept\' nodes';

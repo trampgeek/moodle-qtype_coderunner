@@ -32,8 +32,8 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
     // A list of the allowed attributes in the combinator template grader return value.
     public $allowedfields = array('fraction', 'prologuehtml', 'testresults', 'epiloguehtml',
                     'feedbackhtml', 'columnformats', 'showdifferences',
-                    'showoutputonly'
-        );
+                    'showoutputonly', 'graderstate'
+    );
 
     public function __construct($isprecheck) {
         parent::__construct(1, 0, $isprecheck);
@@ -48,7 +48,7 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
 
     /**
      * Method to set the mark and the various feedback values (prologuehtml,
-     * testresults, columnformats, epiloguehtml).
+     * testresults, columnformats, epiloguehtml, graderstate).
      * @param float $markfraction the mark in the range 0 - 1
      * @param array $feedback Associative array of attributes to add to the
      * outcome object, usually zero or more of prologuehtml, testresults,
@@ -198,6 +198,10 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
     public function show_differences() {
         return $this->actualmark != 1.0 && isset($this->showdifferences) &&
                $this->showdifferences &&  isset($this->testresults);
+    }
+    
+    public function get_grader_state() {
+        return empty($this->graderstate) ? '' : $this->graderstate;
     }
 
 

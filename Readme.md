@@ -1,6 +1,6 @@
 # CodeRunner
 
-Version: 4.1.0+ September 2021
+Version: 4.1.1 November 2021
 
 Authors: Richard Lobb, University of Canterbury, New Zealand.
          Tim Hunt, The Open University, UK.
@@ -1442,7 +1442,11 @@ Other fields are:
    of times the user has clicked *Check* prior to this submission, the number
    of times the user has clicked *Precheck* prior to this submission, and the
    best fraction (0 - 1) the student has achieved so far 
-   on this question (not including this submission).
+   on this question (not including this submission). Additionally, if a
+   combinator template grader is being used and the question author has chosen
+   to report the grader state in a previous submission, a string-valued attribute
+   *graderstate* may be present. The use of this is entirely over to the question
+   author. See under Combinator-template grading.
  * `QUESTION.language` The language being used to run the question in the sandbox,
 e.g. "Python3".
  * `QUESTION.precheck` The setting of the precheck dropdown: 0 = no precheck
@@ -1877,7 +1881,7 @@ template grader", i.e. a TemplateGrader with the `Is combinator` checkbox checke
 In this mode, the JSON string output by the template grader
 should again contain a 'fraction' field, this time for the total mark,
 and may contain zero or more of 'prologuehtml', 'testresults', 'epiloguehtml'
-'showoutputonly' and 'showdifferences'
+'showoutputonly', 'showdifferences' and 'graderstate'.
 attributes.
 The 'prologuehtml' and 'epiloguehtml' fields are html
 that is displayed respectively before and after the (optional) result table. The
@@ -1904,6 +1908,15 @@ The 'showdifferences' attribute can be added to the JSON outcome to render
 the standard 'Show differences' button after the result table; it is displayed
 only if there is actually a result table present and if full marks were not
 awarded to the question.
+
+The 'graderstate' attribute is a string value that is stored in the database
+with the question attempt and is passed back to the combinator template grader
+code on the next attempt of that question as the field 'graderstate' of the
+'QUESTION.stepinfo' object. The use of this variable is entirely at the
+discretion of the question author; the facility is available only to allow
+question authors to grade a submission differently according to what was
+previously submitted. It could, for example, be a json-encoded record of the
+correctness of the different tests.
 
 Combinator-template grading gives the user complete control of the feedback to
 the student as well as of the grading process. The ability to include HTML
