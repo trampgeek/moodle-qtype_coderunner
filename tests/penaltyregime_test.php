@@ -28,7 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once($CFG->dirroot . '/question/engine/tests/helpers.php');
-require_once($CFG->dirroot . '/question/type/coderunner/tests/coderunnertestcase.php');
+require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 require_once($CFG->dirroot . '/question/type/coderunner/tests/helper.php');
 
 /**
@@ -41,7 +41,7 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/helper.php');
 /** More extensive testing of penalty regime.
  */
 
-class qtype_coderunner_penaltyregime_test extends qbehaviour_walkthrough_test_base {
+class qtype_coderunner_penaltyregime_testcase extends qbehaviour_walkthrough_test_base {
 
     protected function setUp(): void {
         global $CFG;

@@ -30,12 +30,12 @@
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
-require_once($CFG->dirroot . '/question/type/coderunner/tests/coderunnertestcase.php');
+require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 
 /**
  * Unit tests for coderunner nodejs questions.
  */
-class qtype_coderunner_nodejs_question_test extends qtype_coderunner_testcase {
+class qtype_coderunner_nodejs_question_testcase extends qtype_coderunner_testcase {
 
     public function test_good_sqr_function() {
         $this->check_language_available('nodejs');

@@ -28,12 +28,12 @@
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
-require_once($CFG->dirroot . '/question/type/coderunner/tests/coderunnertestcase.php');
+require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 
 /**
  * Unit tests for UI parameters
  */
-class qtype_coderunner_ui_parameters_test extends qtype_coderunner_testcase {
+class qtype_coderunner_ui_parameters_testcase extends qtype_coderunner_testcase {
 
     // Test that the json specifier for the graph_ui class can be loaded.
     public function test_params() {

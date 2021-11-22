@@ -15,14 +15,14 @@
 // along with CodeRunner.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Unit tests for coderunner C questions.
+ * Unit tests for coderunner octave questions.
  * @group qtype_coderunner
  * Assumed to be run after python questions have been tested, so focuses
- * only on C-specific aspects.
+ * only on octave-specific aspects.
  *
  * @package    qtype
  * @subpackage coderunner
- * @copyright  2012 Richard Lobb, University of Canterbury
+ * @copyright  2014 Richard Lobb, University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -30,17 +30,17 @@
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
-require_once($CFG->dirroot . '/question/type/coderunner/tests/coderunnertestcase.php');
+require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 require_once($CFG->dirroot . '/question/type/coderunner/question.php');
 
 /**
- * Unit tests for coderunner matlab questions
+ * Unit tests for coderunner octave questions.
  */
-class qtype_coderunner_matlab_question_test extends qtype_coderunner_testcase {
+class qtype_coderunner_octave_question_testcase extends qtype_coderunner_testcase {
 
     public function test_good_sqr_function() {
-        $this->check_language_available('matlab');
-        $q = $this->make_question('sqrmatlab');
+        $this->check_language_available('octave');
+        $q = $this->make_question('sqroctave');
         $response = array('answer' => "function sq = sqr(n)\n  sq = n * n;\nend\n");
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(1, $mark);
@@ -53,8 +53,8 @@ class qtype_coderunner_matlab_question_test extends qtype_coderunner_testcase {
 
 
     public function test_bad_sqr_function() {
-        $this->check_language_available('matlab');
-        $q = $this->make_question('sqrmatlab');
+        $this->check_language_available('octave');
+        $q = $this->make_question('sqroctave');
         $response = array('answer' => "function sq = sqr(n)\n  sq = n;\nend\n");
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(0, $mark);
@@ -67,21 +67,22 @@ class qtype_coderunner_matlab_question_test extends qtype_coderunner_testcase {
 
 
     public function test_bad_syntax() {
-        $this->check_language_available('matlab');
-        $q = $this->make_question('sqrmatlab');
-        $response = array('answer' => "function sq = sqr(n)\n  sq = n;\nendd\n");
+        $this->check_language_available('octave');
+        $q = $this->make_question('sqroctave');
+        $response = array('answer' => "function sq = sqr(n)\n  sq = n:\nend\n");
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(0, $mark);
         $this->assertEquals(question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testoutcome = unserialize($cache['_testoutcome']);
         $this->assertEquals(1, count($testoutcome->testresults));
-        $this->assertTrue(strpos($testoutcome->testresults[0]->got, "Abnormal termination") !== false);
+        $this->assertTrue(strpos($testoutcome->testresults[0]->got, "Abnormal termination") !== false
+                || strpos($testoutcome->testresults[0]->got, "syntax error") !== false);
     }
 
     public function test_student_answer_macro() {
-        $this->check_language_available('matlab');
-        $q = $this->make_question('teststudentanswermacro');
+        $this->check_language_available('octave');
+        $q = $this->make_question('teststudentanswermacrooctave');
         $response = array('answer' => <<<EOT
 function mytest()
     s1 = '"Hi!" he said'; % a comment
@@ -90,10 +91,10 @@ function mytest()
     disp(s2);
 end
 EOT
-        );
+            );
+
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(1, $mark);
         $this->assertEquals(question_state::$gradedright, $grade);
     }
-
 }

@@ -27,10 +27,10 @@
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
-require_once($CFG->dirroot . '/question/type/coderunner/tests/coderunnertestcase.php');
+require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 
 
-class qtype_coderunner_datafile_test extends qtype_coderunner_testcase {
+class qtype_coderunner_datafile_testcase extends qtype_coderunner_testcase {
 
     // Test loading of files in the jobe sandbox.
     public function test_datafile_jobesandbox() {

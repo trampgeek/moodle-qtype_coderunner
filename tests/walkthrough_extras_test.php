@@ -31,12 +31,12 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once($CFG->dirroot . '/question/engine/tests/helpers.php');
-require_once($CFG->dirroot . '/question/type/coderunner/tests/coderunnertestcase.php');
+require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 require_once($CFG->dirroot . '/question/type/coderunner/question.php');
 
 define('PRELOAD_TEST', "# TEST COMMENT TO CHECK PRELOAD IS WORKING\n");
 
-class qtype_coderunner_walkthrough_extras_test extends qbehaviour_walkthrough_test_base {
+class qtype_coderunner_walkthrough_extras_testcase extends qbehaviour_walkthrough_test_base {
 
     protected function setUp(): void {
         global $CFG;
@@ -122,63 +122,5 @@ EOTEMPLATE;
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
         $this->process_submission(array('-submit' => 1, 'answer' => "def sqr(n): return n * n\n"));
         $this->check_output_does_not_contain('Run 4');
-    }
-
-    /** Check that the triple-quoted string extension to the JSON syntax used in the
-     *  the template parameters allows multiline strings with embedded double
-     *  quotes to be correctly and transparently converted to true JSON strings.
-     */
-    public function test_template_params_with_triplequotes() {
-        // Test that a templateparams field in the question with triple-quoted
-        // strings is converted to a valid JSON string and used
-        // correctly in the template.
-
-        $q = $this->make_question('sqr');
-
-        $q->templateparams = <<<EOTEMPLATEPARAMS
-{
-    "string1": """Line1
-Line2
-He said "Hi!",
-    "string2": """import thing
-print("Look at me.")
-"""
-}
-EOTEMPLATEPARAMS;
-
-        $q->template = <<<EOTEMPLATE
-print('{{string1}}')
-print("+++")
-print('{{string2}}')
-print("---")
-EOTEMPLATE;
-        $expected = <<<EOEXPECTED
-Line1
-Line2
-He said "Hi!"
-+++
-import thing
-print("Look at me.")
-EOEXPECTED;
-        $q->allornothing = false;
-        $q->iscombinatortemplate = false;
-        $q->testcases = array(
-                       (object) array('type' => 0,
-                         'testcode'       => '',
-                         'expected'       => $expected,
-                         'stdin'          => '',
-                         'extra'          => '',
-                         'useasexample'   => 0,
-                         'display'        => 'SHOW',
-                         'mark'           => 1.0,
-                         'hiderestiffail' => 0),
-        );
-        $q->allornothing = false;
-        $q->iscombinatortemplate = false;
-        $code = "";
-        $response = array('answer' => $code);
-        $result = $q->grade_response($response);
-        list($mark, $grade, $cache) = $result;
-        $this->assertEquals(question_state::$gradedright, $grade);
     }
 }

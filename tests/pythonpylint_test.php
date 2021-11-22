@@ -27,12 +27,12 @@
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
-require_once($CFG->dirroot . '/question/type/coderunner/tests/coderunnertestcase.php');
+require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 
 /**
  * Unit tests for the coderunner question definition class.
  */
-class qtype_coderunner_pythonpylint_test extends qtype_coderunner_testcase {
+class qtype_coderunner_pythonpylint_testcase extends qtype_coderunner_testcase {
 
     public function test_pylint_func_good() {
         // Test that a python3_pylint question with a good pylint-compatible.

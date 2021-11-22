@@ -34,10 +34,10 @@
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
-require_once($CFG->dirroot . '/question/type/coderunner/tests/coderunnertestcase.php');
+require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 
 
-class qtype_coderunner_jobesandbox_test extends qtype_coderunner_testcase {
+class qtype_coderunner_jobesandbox_testcase extends qtype_coderunner_testcase {
 
     public function test_fail_with_bad_key() {
         $this->check_sandbox_enabled('jobesandbox');

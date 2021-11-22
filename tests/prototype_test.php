@@ -28,12 +28,12 @@
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
-require_once($CFG->dirroot . '/question/type/coderunner/tests/coderunnertestcase.php');
+require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
 require_once($CFG->dirroot . '/question/format/xml/format.php');
 require_once($CFG->dirroot . '/question/engine/tests/helpers.php');
 
-class qtype_coderunner_prototype_test extends qtype_coderunner_testcase {
+class qtype_coderunner_prototype_testcase extends qtype_coderunner_testcase {
     protected function setUp(): void {
         parent::setUp();
         $this->resetAfterTest(true);

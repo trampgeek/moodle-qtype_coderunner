@@ -31,12 +31,12 @@
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
-require_once($CFG->dirroot . '/question/type/coderunner/tests/coderunnertestcase.php');
+require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 
 /**
  * Unit tests for the RegexGrader class.
  */
-class qtype_coderunner_grader_test extends qtype_coderunner_testcase {
+class qtype_coderunner_grader_testcase extends qtype_coderunner_testcase {
 
     public function test_regex_grader() {
         // Check using a question that reads stdin and writes to stdout.

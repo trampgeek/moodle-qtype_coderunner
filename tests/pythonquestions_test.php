@@ -27,14 +27,14 @@
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
-require_once($CFG->dirroot . '/question/type/coderunner/tests/coderunnertestcase.php');
+require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 require_once($CFG->dirroot . '/lib/accesslib.php');
 
 
 /**
  * Unit tests for the coderunner question definition class.
  */
-class qtype_coderunner_pythonquestions_test extends qtype_coderunner_testcase {
+class qtype_coderunner_pythonquestions_testcase extends qtype_coderunner_testcase {
     protected function setUp(): void {
         parent::setUp();
         $this->goodcode = "def sqr(n): return n * n";

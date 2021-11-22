@@ -27,14 +27,14 @@
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
-require_once($CFG->dirroot . '/question/type/coderunner/tests/coderunnertestcase.php');
+require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 
 
 /**
  * Unit tests for the coderunner question definition class. This file tests
  * a simple PHP question
  */
-class qtype_coderunner_phpquestions_test extends qtype_coderunner_testcase {
+class qtype_coderunner_phpquestions_testcase extends qtype_coderunner_testcase {
 
     public function test_good_sqr_function() {
         $q = $this->make_question('sqrphp');

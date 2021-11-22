@@ -29,7 +29,7 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once($CFG->dirroot . '/question/engine/tests/helpers.php');
-require_once($CFG->dirroot . '/question/type/coderunner/tests/coderunnertestcase.php');
+require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 
 /**
  * Unit tests for the coderunner question type.
@@ -39,7 +39,7 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/coderunnertestcase
  */
 
 
-class qtype_coderunner_walkthrough_combinator_grader extends qbehaviour_walkthrough_test_base {
+class qtype_coderunner_walkthrough_combinator_grader_testcase extends qbehaviour_walkthrough_test_base {
 
     protected function setUp(): void {
         global $CFG;
@@ -202,7 +202,7 @@ EOTEMPLATE;
         $this->process_submission(array('-submit' => 1,
             'answer' => 'def sqr(n): return n * n'));
         $this->check_current_mark(0.0);
-        $this->check_output_contains('Bad or missing fraction in output from combinator grader output');
+        $this->check_output_contains('Bad or missing fraction in output from template grader');
     }
 
     // Test that if the combinator grader output has a fraction attribute > 1.0
@@ -225,7 +225,7 @@ EOTEMPLATE;
         $this->process_submission(array('-submit' => 1,
             'answer' => 'def sqr(n): return n * n'));
         $this->check_current_mark(0.0);
-        $this->check_output_contains('Bad or missing fraction in output from combinator grader output');
+        $this->check_output_contains('Bad or missing fraction in output from template grader');
     }
 
     // Test that if the combinator grader output has a showoutputonly attribute
@@ -353,6 +353,39 @@ EOTEMPLATE;
             'answer' => 'def sqr(n): return n * n'));
         $this->check_current_mark(0.0);
         $this->check_output_contains('Illegal format (%x) in columnformats');
+    }
+    
+    // Test that if there is a 'graderstate' in the JSON printed by
+    // a combinator template grader, that value is available to the
+    // question author on the next submission of an answer.
+    public function test_graderstate_in_stepinfo() {
+        $q = test_question_maker::make_question('coderunner', 'sqr');
+        $q->template = <<<EOTEMPLATE
+import json
+{{ STUDENT_ANSWER }}
+stepinfo = json.loads("""{{ QUESTION.stepinfo | json_encode }}""")
+gradermessage = stepinfo['graderstate']
+if gradermessage == '':
+    gradermessage = 'Empty'
+epiloguehtml = f"graderstate: {gradermessage}"
+print(json.dumps({'prologuehtml': "<h2>Prologue</h2>",
+                  'showoutputonly': True,
+                  'epiloguehtml': epiloguehtml,
+                  'graderstate': "boomerang"
+}))
+EOTEMPLATE;
+        $q->iscombinatortemplate = true;
+        $q->grader = 'TemplateGrader';
+        // Submit a right answer.
+        $this->start_attempt_at_question($q, 'adaptive', 1, 1);
+        $this->process_submission(array('-submit' => 1,
+            'answer' => 'def sqr(n): return n * n'));
+        $this->check_output_contains("Prologue");
+        $this->check_output_contains("graderstate: Empty");
+        $this->check_output_does_not_contain('Passed all tests');
+        $this->process_submission(array('-submit' => 1,
+            'answer' => 'def sqr(n): return n * n # resubmit'));
+        $this->check_output_contains("graderstate: boomerang");
     }
 
 }

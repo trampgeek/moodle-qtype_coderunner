@@ -27,14 +27,14 @@
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
-require_once($CFG->dirroot . '/question/type/coderunner/tests/coderunnertestcase.php');
+require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 require_once $CFG->dirroot . '/question/type/coderunner/vendor/autoload.php';
 require_once $CFG->dirroot . '/question/type/coderunner/classes/twigmacros.php';
 
 /**
  * Unit tests for the coderunner question definition class.
  */
-class qtype_coderunner_template_test extends qtype_coderunner_testcase {
+class qtype_coderunner_template_testcase extends qtype_coderunner_testcase {
 
     public function test_template_engine() {
         // Check if the template engine is installed and working OK.
