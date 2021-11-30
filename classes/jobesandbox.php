@@ -28,6 +28,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+global $CFG;
+require_once($CFG->libdir . '/filelib.php'); // Needed when run as web service.
+
 class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
 
     const DEBUGGING = 0;
