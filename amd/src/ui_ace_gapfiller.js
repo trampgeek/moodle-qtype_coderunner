@@ -48,8 +48,7 @@
  * The delimiters for the gap tags are by default '{[' and
  * ']}'.
  *
- * @package    qtype
- * @subpackage coderunner
+ * @module qtype_coderunner/ui_ace_gapfiller
  * @copyright  Richard Lobb, 2019, The University of Canterbury
  * @copyright  Matthew Toohey, 2021, The University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -61,8 +60,14 @@ define(['jquery'], function($) {
     const fillChar = " ";
     const validChars = /[ !"#$%&'()*+,`\-./0-9:;<=>?@A-Z\[\]\\^_a-z{}|~]/;
 
+    /**
+     * Constructor for the Ace interface object
+     * @param {string} textareaId The ID of the textarea html element.
+     * @param {int} w The width of the text area in pixels.
+     * @param {int} h The height of the text area in pixels.
+     * @param {object} uiParams The UI parameter specifier object.
+     */
     function AceGapfillerUi(textareaId, w, h, uiParams) {
-        // Constructor for the Ace interface object
         this.textArea = $(document.getElementById(textareaId));
         var wrapper = $(document.getElementById(textareaId + '_wrapper')),
             focused = this.textArea[0] === document.activeElement,
@@ -282,10 +287,19 @@ define(['jquery'], function($) {
         }
     }
 
-    // Do not call until after this.editor has been instantiated.
+    /**
+     * The method that creates the gaps at all places containing the appropriate
+     * marker (default {[ ... ]}).
+     * Do not call until after this.editor has been instantiated.
+     * @param {string} code The initial raw text code
+     */
     AceGapfillerUi.prototype.createGaps = function(code) {
         this.gaps = [];
-        // Extract gaps from source code and insert gaps into editor.
+        /**
+         * Escape special characters in a given string.
+         * @param {string} s The input string.
+         * @returns {string} The updated string, with escaped specials.
+         */
         function reEscape(s) {
             var c, specials = '{[(*+\\', result='';
             for (var i = 0; i < s.length; i++) {
@@ -339,9 +353,14 @@ define(['jquery'], function($) {
         this.editor.session.setValue(editorContent);
     };
 
-    // Return the gap that the cursor is in. This will acutally return a gap if the cursor is 1 outside the gap
-    // as this will be needed for backspace/insertion to work. Rigth now this is done as a simple
-    // linear search but could be improved later. Returns null if the cursor is not in a gap.
+    /**
+     * Return the gap that the cursor is in. This will actually return a gap if
+     * the cursor is 1 outside the gap as this will be needed for
+     * backspace/insertion to work. Rigth now this is done as a simple
+     * linear search but could be improved later.
+     * @param {object} cursor The ace editor cursor position.
+     * @returns {object} The gap that the cursor is current in, or null otherwise.
+     */
     AceGapfillerUi.prototype.findCursorGap = function(cursor) {
         for (let i=0; i < this.gaps.length; i++) {
             let gap = this.gaps[i];
@@ -533,6 +552,15 @@ define(['jquery'], function($) {
         this.editor.resize();
     };
 
+    /**
+     * Constructor for the Gap object that represents a gap in the source code
+     * that the user is expected to fill.
+     * @param {object} editor The Ace Editor object.
+     * @param {int} row The row within the text of the gap.
+     * @param {int} column The column within the text of the gap.
+     * @param {int} minWidth The minimum width (in characters) of the gap.
+     * @param {int} maxWidth The maximum width (in characters) of the gap.
+     */
     function Gap(editor, row, column, minWidth, maxWidth=Infinity) {
         this.editor = editor;
 

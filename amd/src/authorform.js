@@ -16,8 +16,7 @@
 /**
  * JavaScript for handling UI actions in the question authoring form.
  *
- * @package    qtype
- * @subpackage coderunner
+ * @module qtype_coderunner/authorform
  * @copyright  Richard Lobb, 2015, The University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -57,10 +56,12 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
         uiplugin:            ['#id_uiplugin', 'value', 'ace']
     };
 
-    // Set up the author edit form UI plugins and event handlers.
-    // The template parameters and Ace language are passed to each
-    // text area from PHP by setting its data-params and
-    // data-lang attributes.
+    /**
+     * Set up the author edit form UI plugins and event handlers.
+     * The template parameters and Ace language are passed to each
+     * text area from PHP by setting its data-params and
+     * data-lang attributes.
+     */
     function initEditForm() {
         var typeCombo = $('#id_coderunnertype'),
             template = $('#id_template'),
@@ -87,12 +88,15 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
             uiplugin = $('#id_uiplugin'),
             uiparameters = $('#id_uiparameters');
 
-        // Set up the UI controller for the textarea whose name is
-        // given as the first parameter (one of template, answer or answerpreload)
-        // to the given UI controller (which may be "None" or, equivalently, empty).
-        // We don't attempt to process changes in template parameters,
-        // as these need to be merged with those of the prototype. But we do handle
-        // changes in the language.
+        /**
+         * Set up the UI controller for a given textarea (one of template,
+         * answer or answerpreload).
+         * We don't attempt to process changes in template parameters,
+         * as these need to be merged with those of the prototype. But we do handle
+         * changes in the language.
+         * @param {string} taId The ID of the textarea element.
+         * @param {string} uiname The name of the UI controller (may be empty or none).
+         */
         function setUi(taId, uiname) {
             var ta = $(document.getElementById(taId)),  // The jquery text area element(s).
                 lang,
@@ -140,9 +144,11 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
 
         }
 
-        // Set the correct Ui controller on both the sample answer and the answer preload.
-        // As a special case, we don't turn on the Ui controller in the answer
-        // and answer preload fields when using Html-Ui
+        /**
+         * Set the correct Ui controller on both the sample answer and the answer preload.
+         * As a special case, we don't turn on the Ui controller in the answer
+         * and answer preload fields when using Html-Ui.
+         */
         function setUis() {
             var uiname = uiplugin.val();
 
@@ -152,8 +158,10 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
             }
         }
 
-        // Display or Hide all customisation parts of the form according
-        // to whether isVisible is true or false respectively.
+        /**
+         * Display or Hide all customisation parts of the form.
+         * @param {bool} isVisible True to show, false to hide.
+         */
         function setCustomisationVisibility(isVisible) {
             var display = isVisible ? 'block' : 'none';
             customisationFieldSet.css('display', display);
@@ -164,10 +172,12 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
         }
 
 
-        // Turn on or off the Ace editor in the template and uiparameters fields
-        // so we can reload the textareas with JavaScript.
-        // Ignore if UseAce is unchecked.
-        // Parameter is true to stop Ace, false to restart it.
+        /**
+         * Turn on or off the Ace editor in the template and uiparameters fields
+         * so we can reload the textareas with JavaScript.
+         * Ignore if UseAce is unchecked.
+         * @param {bool} stateOn True to stop Ace, false to restart it.
+         */
         function enableAceInCustomisedFields(stateOn) {
             var taIds = ['id_template', 'id_uiparameters'];
             var uiWrapper, ta;
@@ -185,11 +195,13 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
         }
 
 
-        // After loading the form with new question type data we have to
-        // enable or disable both the testsplitterre and the allow multiple
-        // stdins field. These are subsequently enabled/disabled via event handlers
-        // set up by code in edit_coderunner_form.php (q.v.) but those event
-        // handlers do not handle the freshly downloaded state.
+        /**
+         * After loading the form with new question type data we have to
+         * enable or disable both the testsplitterre and the allow multiple
+         * stdins field. These are subsequently enabled/disabled via event handlers
+         * set up by code in edit_coderunner_form.php (q.v.) but those event
+         * handlers do not handle the freshly downloaded state.
+         */
         function enableTemplateSupportFields() {
             var isCombinatorEnabled = isCombinator.prop('checked');
 
@@ -197,7 +209,11 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
             allowMultipleStdins.prop('disabled', !isCombinatorEnabled);
         }
 
-        // Copy fields from the AJAX "get question type" response into the form.
+        /**
+         * Copy fields from the AJAX "get question type" response into the form.
+         * @param {string} newType the newly selected question type.
+         * @param {object} response The AJAX resopnse.
+         */
         function copyFieldsFromQuestionType(newType, response) {
             var formspecifier, attrval, filter;
 
@@ -222,10 +238,14 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
             enableTemplateSupportFields();
         }
 
-        // A JSON request for a question type returned a 'failure' response - probably a
-        // missing question type. Report the error with an alert, and replace
-        // the template contents with an error message in case the user
-        // saves the question and later wonders why it breaks.
+        /**
+         * A JSON request for a question type returned a 'failure' response - probably a
+         * missing question type. Report the error with an alert, and replace
+         * the template contents with an error message in case the user
+         * saves the question and later wonders why it breaks.
+         * @param {string} questionType The CodeRunner (sub) question type.
+         * @param {string} error The error message to be reported.
+         */
         function reportError(questionType, error) {
             langStringAlert('prototype_load_failure', error);
             str.get_string('prototype_error', 'qtype_coderunner').then(function(s) {
@@ -236,9 +256,18 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
             });
         }
 
+        /**
+         * Local function to return the HTML to display in the
+         * question type details section of the form.
+         * @param {string} title The type of the question being described.
+         * @param {string} coderunner_descr The language string to introduce
+         * the detail.
+         * @param {html} html The HTML description of the question type, namely
+         * the question text from its prototype.
+         * @return {html} The composite HTML describing the question type.
+         */
         function detailsHtml(title, coderunner_descr, html) {
-            // Local function to return the HTML to display in the
-            // question type details section of the form.
+
             var resultHtml = '<p class="question-type-details-header">';
             resultHtml += coderunner_descr;
             resultHtml += title + '</p>\n' + html;
@@ -246,8 +275,12 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
 
         }
 
-        // Raise an alert with the given language string and possible additional
-        // extra text.
+        /**
+         * Raise an alert with the given language string and possible additional
+         * extra text.
+         * @param {string} key The language string to put in the Alert.
+         * @param {string} extra Extra text to append.
+         */
         function langStringAlert(key, extra) {
             if (BEHAT_TESTING) {
                 return;
@@ -261,10 +294,14 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
             });
         }
 
-        // Get the "preferred language" from the AceLang string supplied.
-        // For multilanguage questions, this is either the default (i.e.,
-        // the language with a '*' suffix), or the first language. Otherwise
-        // it is simply the entire AceLang string.
+        /**
+         * Get the "preferred language" from the AceLang string supplied.
+         * @param {string} acelang The AceLang string.
+         * For multilanguage questions, this is either the default (i.e.,
+         * the language with a '*' suffix), or the first language. Otherwise
+         * it is simply the entire AceLang string.
+         * @return {string} The language to pass to Ace for syntax highlighting.
+         */
         function preferredAceLang(acelang) {
             var langs, i;
             if (acelang.indexOf(',') < 0) {
@@ -280,8 +317,10 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
             }
         }
 
-        // Load the various customisation fields into the form from the
-        // CodeRunner question type currently selected by the combobox.
+        /**
+         * Load the various customisation fields into the form from the
+         * CodeRunner question type currently selected by the combobox.
+         */
         function loadCustomisationFields() {
             var newType = typeCombo.children('option:selected').text();
 
@@ -319,7 +358,12 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
             }
         }
 
-        // Return a table describing all the UI parameters.
+        /**
+         * Build an HTML table describing all the UI parameters.
+         * @param {object} uiParamInfo The object describing the parameters
+         * for a particular UI.
+         * @return {string} An HTML table describing each UI parameter.
+         */
         function UiParameterDescriptionTable(uiParamInfo) {
             var html = '<div class="uiparamtablediv"><table class="uiparamtable">\n',
                 hdrs = uiParamInfo.columnheaders, param, i;
@@ -332,8 +376,10 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
             return html;
         }
 
-        // Load the UI parameter description field by Ajax when the UI plugin
-        // is changed.
+        /**
+         * Load the UI parameter description field by Ajax when the UI plugin
+         * is changed.
+         */
         function loadUiParametersDescription() {
             var newUi = uiplugin.children('option:selected').text();
             $.getJSON(M.cfg.wwwroot + '/question/type/coderunner/ajax.php',
@@ -380,8 +426,10 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
             });
         }
 
-        // Show/hide all testtype divs in the testcases according to the
-        // 'Precheck' selector.
+        /**
+         * Show/hide all testtype divs in the testcases according to the
+         * 'Precheck' selector.
+         */
         function set_testtype_visibilities() {
             if (precheck.val() === '3') { // Show only for case of 'Selected'.
                 testtypedivs.show();
@@ -390,24 +438,30 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
             }
         }
 
-        // Check that the Ace language is correctly set for the answer and
-        // answer preload fields.
+        /**
+         * Check that the Ace language is correctly set for the answer and
+         * answer preload fields.
+         */
         function check_ace_lang() {
             if (uiplugin.val() === 'ace'){
                 setUis();
             }
         }
 
-        // Check that the Ace language is correctly set for the template,
-        // if template_uses_ace is checked.
+        /**
+         * Check that the Ace language is correctly set for the template,
+         * if template_uses_ace is checked.
+         */
         function check_template_lang() {
             if (useace.prop('checked')) {
                 setUi('id_template', 'ace');
             }
         }
 
-        // If the brokenquestionmessage hidden element is not empty, insert the
-        // given message as an error at the top of the question.
+        /**
+         * If the brokenquestionmessage hidden element is not empty, insert the
+         * given message as an error at the top of the question.
+         */
         function checkForBrokenQuestion() {
             var brokenQuestionMessage = brokenQuestion.prop('value'),
                 messagePara = null;

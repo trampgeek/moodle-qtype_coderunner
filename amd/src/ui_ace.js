@@ -25,8 +25,7 @@
  * the constructor params parameter (an associative array) as a string
  * with key 'lang'.
  *
- * @package    qtype
- * @subpackage coderunner
+ * @module qtype_coderunner/ui_ace
  * @copyright  Richard Lobb, 2015, 2017, The University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -38,9 +37,15 @@
 // module is used, as it assumes window.ace exists.
 
 define(['jquery'], function($) {
-
+    /**
+     * Constructor for the Ace interface object.
+     * @param {string} textareaId The ID of the HTML textarea element to be wrapped.
+     * @param {int} w The width in pixels of the textarea.
+     * @param {int} h The height in pixels of the textarea.
+     * @param {object} params The UI parameter object.
+     */
     function AceWrapper(textareaId, w, h, params) {
-        // Constructor for the Ace interface object
+
 
         var textarea = $(document.getElementById(textareaId)),
             wrapper = $(document.getElementById(textareaId + '_wrapper')),

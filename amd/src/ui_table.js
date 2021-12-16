@@ -48,14 +48,19 @@
  * As a special case of the serialisation, if all cells in the serialisation
  * are empty strings, the serialisation is itself the empty string.
  *
- * @package    qtype
- * @subpackage coderunner
+ * @module qtype_coderunner/ui_table
  * @copyright  Richard Lobb, 2018, The University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 define(['jquery'], function($) {
-
+    /**
+     * Constructor for the TableUI object.
+     * @param {string} textareaId The ID of the html textarea.
+     * @param {int} width The width in pixels of the textarea.
+     * @param {int} height The height in pixels of the textarea.
+     * @param {object} uiParams The UI parameter object.
+     */
     function TableUi(textareaId, width, height, uiParams) {
         this.textArea = $(document.getElementById(textareaId));
         this.readOnly = this.textArea.prop('readonly');

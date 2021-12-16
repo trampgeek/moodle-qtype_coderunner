@@ -51,14 +51,19 @@
  * are either empty strings or a list of empty strings, the serialisation is
  * itself the empty string.
  *
- * @package    qtype
- * @subpackage coderunner
+ * @module coderunner/ui_html
  * @copyright  Richard Lobb, 2018, The University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 define(['jquery'], function($) {
-
+    /**
+     * Constructor for the HtmlUi object.
+     * @param {string} textareaId The ID of the html textarea.
+     * @param {int} width The width in pixels of the textarea.
+     * @param {int} height The height in pixels of the textarea.
+     * @param {object} uiParams The UI parameter object.
+     */
     function HtmlUi(textareaId, width, height, uiParams) {
         this.textArea = $(document.getElementById(textareaId));
         this.textareaId = textareaId;

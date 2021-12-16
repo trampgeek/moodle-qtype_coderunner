@@ -6,8 +6,7 @@
  * ctrl-alt-M to disable/re-enable the entire user interface, including the
  * wrapper.
  *
- * @package    qtype
- * @subpackage coderunner
+ * @module coderunner/userinterfacewrapper
  * @copyright  Richard Lobb, 2015, The University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
@@ -98,40 +97,44 @@
  *
  *****************************************************************************/
 
-// This file is part of Moodle - http://moodle.org/
-//
-// Moodle is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// Moodle is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more util.details.
-//
-// You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+/**
+ * This file is part of Moodle - http:moodle.org/
+ *
+ * Moodle is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Moodle is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more util.details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Moodle.  If not, see <http:www.gnu.org/licenses/>.
+ */
 
 
 define(['jquery'], function($) {
-
+    /**
+     * Constructor for a new user interface.
+     * @param {string} uiname The name of the interface element (e.g. ace, graph, etc)
+     * which should be in file ui_ace.js, ui_graph.js etc.
+     * @param {string} textareaId The id of the text area that the UI is to manage.
+     * The text area should have an attribute data-params, which is a
+     * JSON encoded record containing whatever additional parameters might
+     * be needed by the User interface. As a minimum it should contain all
+     * the parameters from the uiparameters field of
+     * the question so that question authors can pass in additional data
+     * such as whether graph edges are bidirectional or not in the case of
+     * the graph UI. Additionally the Ace editor requires a 'lang' field
+     * to specify what language the editor is editing.
+     * When the wrapper has been set up on a text area, the text area's
+     * data attribute contains an entry for 'current-ui-wrapper' that is
+     * a reference to the wrapper ('this').
+     */
     function InterfaceWrapper(uiname, textareaId) {
-        // Constructor for a new user interface.
-        // uiname is the name of the interface element (e.g. ace, graph, etc)
-        // which should be in file ui_ace.js, ui_graph.js etc.
-        // textareaId is the id of the text area that the UI is to manage.
-        // The text area should have an attribute data-params, which is a
-        // JSON encoded record containing whatever additional parameters might
-        // be needed by the User interface. As a minimum it should contain all
-        // the parameters from the uiparameters field of
-        // the question so that question authors can pass in additional data
-        // such as whether graph edges are bidirectional or not in the case of
-        // the graph UI. Additionally the Ace editor requires a 'lang' field
-        // to specify what language the editor is editing.
-        // When the wrapper has been set up on a text area, the text area's
-        // data attribute contains an entry for 'current-ui-wrapper' that is
-        // a reference to the wrapper ('this').
+
         var  h,
             params,
             t = this; // For use by embedded functions.
@@ -157,8 +160,10 @@ define(['jquery'], function($) {
 
         h = Math.max(parseInt(this.textArea.css("height")), this.MIN_WRAPPER_HEIGHT);
 
-        // Construct an empty hidden wrapper div, inserted directly after the
-        // textArea, ready to contain the actual UI.
+        /**
+         * Construct an empty hidden wrapper div, inserted directly after the
+         * textArea, ready to contain the actual UI.
+         */
         this.wrapperNode = $("<div id='" + this.taId + "_wrapper' class='ui_wrapper'></div>");
         this.textArea.after(this.wrapperNode);
         this.wrapperNode.hide();
@@ -170,16 +175,22 @@ define(['jquery'], function($) {
             border: "1px solid darkgrey"
         });
 
-        // Record a reference to this wrapper in the text area's data attribute
-        // for use by external javascript that needs to interact with the
-        // wrapper, e.g. the multilanguage.js module.
+        /**
+         * Record a reference to this wrapper in the text area's data attribute
+         * for use by external javascript that needs to interact with the
+         * wrapper, e.g. the multilanguage.js module.
+         */
         this.textArea.data('current-ui-wrapper', this);
 
-        // Load the UI into the wrapper (aysnchronous).
+        /**
+         * Load the UI into the wrapper (aysnchronous).
+         */
         this.uiInstance = null;  // Defined by loadUi asynchronously
         this.loadUi(uiname, this.uiParams);  // Load the required UI element
 
-        // Add event handlers
+        /**
+         * Add event handlers
+         */
         $(document).mousemove(function() {
             t.checkForResize();
         });
@@ -203,24 +214,35 @@ define(['jquery'], function($) {
         });
     }
 
-
+    /**
+     * Load the specified UI element (which in the case of Ace will need
+     * to know the language, lang, as well - this must be supplied as
+     * a 'lang' attribute of the record params.
+     * When ui is up and running, this.uiInstance will reference it.
+     * To avoid a potential race problem, if this method is already busy
+     * with a load, try again in 200 msecs.
+     * @param {string} uiname The name of the User Interface to be used.
+     * @param {object} params The UI parameters object that passes parameters
+     * to the actual UI object.
+     */
     InterfaceWrapper.prototype.loadUi = function(uiname, params) {
-        // Load the specified UI element (which in the case of Ace will need
-        // to know the language, lang, as well - this must be supplied as
-        // a 'lang' attribute of the record params.
-        // When ui is up and running, this.uiInstance will reference it.
-        // To avoid a potential race problem, if this method is already busy
-        // with a load, try again in 200 msecs.
-        //
         var t = this,
             errPart1 = 'Failed to load ',
             errPart2 = ' UI component. If this error persists, please report it to the forum on coderunner.org.nz';
 
+        /**
+         * Get the given language string and plug it into the given jQuery
+         * div element as its html, plus a 'fallback' message on a separate line.
+         * @param {string} langString The language string specifier for the error message,
+         * to be loaded by AJAX.
+         * @param {object} errorDiv The div object into which the error message
+         * is to be inserted.
+         */
         function setLoadFailMessage(langString, errorDiv) {
-            // Get the given language string and plug it into the given jQuery
-            // div element as its html, plus a 'fallback' message on a separate line.
             require(['core/str'], function(str) {
-                // Get langString text via AJAX
+                /**
+                 * Get langString text via AJAX
+                 */
                 var
                     s = str.get_string(langString, 'qtype_coderunner'),
                     fallback = str.get_string('ui_fallback', 'qtype_coderunner');
@@ -230,9 +252,11 @@ define(['jquery'], function($) {
             });
         }
 
-        // The default method for a UIs sync_interval_secs method.
-        // Returns the sync_interval_secs parameter if given, else
-        // DEFAULT_SYNC_INTERVAL_SECS.
+        /**
+         * The default method for a UIs sync_interval_secs method.
+         * Returns the sync_interval_secs parameter if given, else
+         * DEFAULT_SYNC_INTERVAL_SECS.
+         */
         function syncIntervalSecsBase() {
             if (params.hasOwnProperty('sync_interval_secs')) {
                 return parseInt(params.sync_interval_secs);
@@ -272,8 +296,10 @@ define(['jquery'], function($) {
                     w = t.wrapperNode.innerWidth();
                     uiInstance = new ui.Constructor(t.taId, w, h, params);
                     if (uiInstance.failed()) {
-                        // Constructor failed to load serialisation.
-                        // Set uiloadfailed class on text area.
+                        /*
+                         * Constructor failed to load serialisation.
+                         * Set uiloadfailed class on text area.
+                         */
                         t.loadFailed = true;
                         t.wrapperNode.hide();
                         uiInstance.destroy();
@@ -293,7 +319,9 @@ define(['jquery'], function($) {
                         t.loadFailed = false;
                         t.checkForResize();
 
-                        // Set a default syncIntervalSecs method if uiInstance lacks one.
+                        /*
+                         * Set a default syncIntervalSecs method if uiInstance lacks one.
+                         */
                         uiInstancePrototype = Object.getPrototypeOf(uiInstance);
                         uiInstancePrototype.syncIntervalSecs = uiInstancePrototype.syncIntervalSecs || syncIntervalSecsBase;
                         t.startSyncTimer(uiInstance);
@@ -304,7 +332,11 @@ define(['jquery'], function($) {
     };
 
 
-    // Start a sync timer on the given uiInstance, unless its time interval is 0.
+    /**
+     * Start a sync timer on the given uiInstance, unless its time interval is 0.
+     * @param {object} uiInstance The instance of the user interface object whose
+     * timer is to be set up.
+     */
     InterfaceWrapper.prototype.startSyncTimer = function(uiInstance) {
         var timeout = uiInstance.syncIntervalSecs();
         if (timeout) {
@@ -317,7 +349,11 @@ define(['jquery'], function($) {
     };
 
 
-    // Stop the sync timer on the given uiInstance, if running.
+    /**
+     * Stop the sync timer on the given uiInstance, if running.
+     * @param {object} uiInstance The instance of the user interface object whose
+     * timer is to be set up.
+     */
     InterfaceWrapper.prototype.stopSyncTimer = function(uiInstance) {
         if (uiInstance.timer) {
             clearTimeout(uiInstance.timer);
@@ -326,8 +362,10 @@ define(['jquery'], function($) {
 
 
     InterfaceWrapper.prototype.stop = function() {
-        // Disable (shutdown) the embedded ui component.
-        // The wrapper remains active for ctrl-alt-M events, but is hidden.
+        /*
+         * Disable (shutdown) the embedded ui component.
+         * The wrapper remains active for ctrl-alt-M events, but is hidden.
+         */
         if (this.uiInstance !== null) {
             this.stopSyncTimer(this.uiInstance);
             this.textArea.show();
@@ -344,20 +382,25 @@ define(['jquery'], function($) {
         $(document.getElementById(this.loadFailId)).remove();
     };
 
-
+    /*
+     * Re-enable the ui element (e.g. after alt-cntrl-M). This is
+     * a full re-initialisation of the ui element.
+     */
     InterfaceWrapper.prototype.restart = function() {
-        // Re-enable the ui element (e.g. after alt-cntrl-M). This is
-        // a full re-initialisation of the ui element.
         if (this.uiInstance === null) {
-            // Restart the UI component in the textarea
+            /**
+             * Restart the UI component in the textarea
+             */
             this.loadUi(this.uiname, this.params);
         }
     };
 
 
-
+    /**
+     * Check for wrapper resize - propagate to ui element.
+     */
     InterfaceWrapper.prototype.checkForResize = function() {
-        // Check for wrapper resize - propagate to ui element.
+
         var h, hAdjusted, w, wAdjusted, xLeft, maxWidth;
         var SIZE_HACK = 25;  // Horrible but best I can do. TODO: FIXME
 
@@ -377,10 +420,9 @@ define(['jquery'], function($) {
     };
 
     /**
-     *  The external entry point from the PHP.
-     * @param string uiname, e.g. 'ace'
-     * @param string textareaId
-     * @returns {userinterfacewrapperL#111.InterfaceWrapper}
+     * The external entry point from the PHP.
+     * @param {string} uiname The name of the User Interface to use e.g. 'ace'
+     * @param {string} textareaId The ID of the textarea to be wrapped.
      */
     function newUiWrapper(uiname, textareaId) {
         if (uiname) {

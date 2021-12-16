@@ -45,9 +45,10 @@
 
 
 define(function() {
-
+    /**
+     * Contstructor for the Util class.
+     */
     function Util() {
-        // Constructor for the Util class.
 
         this.greekLetterNames = ['Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon',
                                 'Zeta', 'Eta', 'Theta', 'Iota', 'Kappa', 'Lambda',

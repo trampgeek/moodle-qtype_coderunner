@@ -20,8 +20,7 @@
  * If clicked, the button reloads the student answer field with the original
  * preloaded text (after a Confirm dialogue, of course).
  *
- * @package    qtype
- * @subpackage coderunner
+ * @module qtype_coderunner/resetbutton
  * @copyright  Richard Lobb, 2016, The University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -31,6 +30,11 @@ define(['jquery'], function($) {
 
     /**
      * Initialise the Reset button.
+     * @param {string} buttonId The ID of the button.
+     * @param {string} answerId The ID of the answer box whose contents are to
+     * be reset.
+     * @param {string} confirmText The language string to display when asking
+     * the user to confirm the reset.
      */
     function initResetButton(buttonId, answerId, confirmText) {
         var resetButton = $('[id="' + buttonId + '"]'),

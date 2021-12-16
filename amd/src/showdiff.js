@@ -18,8 +18,7 @@
  * button that is shown in the student's result page if their answer
  * isn't right and an "exact-match" (or near equivalent) grader is being used.
  *
- * @package    qtype
- * @subpackage coderunner
+ * @module qtype_coderunner/showdiff
  * @copyright  Richard Lobb, 2016, The University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -29,11 +28,16 @@ define(['jquery'], function($) {
 
     var NLCHAR = '\u21A9';  // Unicode "leftwards arrow with hook" to show newlines.
 
+    /**
+     *  Given two lists of items, items1 and item2, return the length matrix
+     * M defined as M[i][j] = max subsequence length of the two item lists
+     * items1[0:i], items2[0:j]
+     * @param {array} items1 The first list of items.
+     * @param {array} items2 The second list of items.
+     * @return {array} The length matrix.
+     */
     function lcsLengths(items1, items2) {
-        /* Given two lists of items, items1 and item2, return the length matrix
-           M defined as M[i][j] = max subsequence length of the two item lists
-           items1[0:i], items2[0:j]
-         */
+
         var n1 = items1.length,
             n2 = items2.length,
             lengths, i, j,
@@ -64,8 +68,15 @@ define(['jquery'], function($) {
         return lengths;
     }
 
+    /**
+     * Given two lists of items, items1 and item2, return the longest common
+     * subsequence.
+     * @param {array} items1 The first list of items.
+     * @param {array} items2 The second list of items.
+     * @return {array} The longest common subsequence.
+     */
     function lcss(items1, items2) {
-        /* Return the longest common subsequence of the two item lists */
+
         var M, i, j, n, result, length;
         M = lcsLengths(items1, items2);
         length = M[items1.length][items2.length];
@@ -88,10 +99,19 @@ define(['jquery'], function($) {
         return result;
     }
 
-    /* Process the given token list and a subsequence of it, concatenating
+    /**
+     * Process the given token list and a subsequence of it, concatenating
      * tokens and wrapping all items not in the subsequence with
      * del tags (or whatever strings are specified by startDel, endDel).
-     * Return (what is assumed to be) the html of all the joined tokens.
+     * @param {array} tokens A list of tokens in the original string.
+     * @param {array} subSeq A subsequence of the tokens array.
+     * @param {string} startDel An optional string that denotes the start of
+     * a sequence of tokens to be deleted. Default '<del>'
+     * @param {string} endDel An optional string to mark the end of a sequence
+     * of deleted tokens. Default '</del>'.
+     * @return {string} The concatenated sequence of tokens with start and
+     * end delete tokens inserted to mark where the tokens from the first
+     * parameter are not present in the second.
      */
     function insertDels(tokens, subSeq, startDel, endDel) {
         var html = "",
@@ -126,15 +146,21 @@ define(['jquery'], function($) {
         return html;
     }
 
-    /* Return the HTML element type (i.e. its tag name) in lower case */
+    /**
+     * @param {string} elem An HTML element
+     * @return {string} The HTML element type (i.e. its tag name) in lower case
+     */
     function elType(elem) {
         return elem.tagName.toLowerCase();
     }
 
-    /* Return the sequence of tokens from the given HTML element.
+    /**
+     * Return the sequence of tokens from the given HTML element.
      * A token is either a single character or an HTML entity (&.*;)
      * Extra 'leftward-arrow-with-hook' characters (\u21A9) are added
      * at the ends of lines.
+     * @param {string} element The HTML element whose contents are to be tokenised.
+     * @return {array} The list of tokens extracted from the element.
      */
     function getTokens(element) {
         var isPre = elType(element) === 'pre',
@@ -142,9 +168,11 @@ define(['jquery'], function($) {
             seq,
             i = 0;
 
+        /**
+         * Extract and return the next token starting at text[i]. Update i.
+         * Precondition: i < text.length.
+         */
         function nextToken() {
-            // Extract and return the next token start at text[i]. Update i.
-            // Precondition: i < text.length.
             var token, match;
             if (text[i] != '&') {
                 token = text[i];
@@ -175,12 +203,15 @@ define(['jquery'], function($) {
         return seq;
     }
 
-    /* Given (references to) two HTML elements, extract the innerHTML
+    /**
+     *  Given (references to) two HTML elements, extract the innerHTML
      * of both, find the longest common subsequence of chars and wrap text not
      * in that subsequence in del elements.
      * <br> elements within the innerHTML are preceded by a
      * Unicode "leftwards arrow with hook" ('\u21A9') so that line break changes
      * can be highlighted.
+     * @param {string} firstEl The first HTML element to be processed.
+     * @param {string} secondEl The second HTML element to be processed.
      */
     function showDifferences(firstEl, secondEl) {
         var openDelTag = '<del>',
@@ -196,9 +227,12 @@ define(['jquery'], function($) {
         secondEl.innerHTML = insertDels(seq2, css, openDelTag, closeDelTag);
     }
 
-    /* Given (references to) two DOM elements, delete all <del ...> and </del>
+    /**
+     *  Given (references to) two DOM elements, delete all <del ...> and </del>
      * tags from the innerHTML of both. Also remove the "leftwards arrows with
      * hooks".
+     * @param {string} firstEl The first HTML element to be processed.
+     * @param {string} secondEl The second HTML element to be processed.
      */
     function hideDifferences(firstEl, secondEl) {
         var replPat = new RegExp('(</?del[^>]*>)|(' + NLCHAR + ')', 'g');
@@ -206,14 +240,15 @@ define(['jquery'], function($) {
         secondEl.innerHTML = secondEl.innerHTML.replace(replPat, '');
     }
 
-    /************************************************************************
-     *
+    /**
      * Now the API for applying diffs to rows in a CodeRunner
      * results table. Defines a class with methods initDiffButton and
      * processAllRows.
-     *
-     *************************************************************************/
-
+     * @param {array} tableRows The list of rows from the CodeRunner results table.
+     * @param {int} gotCol The column number of the 'Got' column in the table.
+     * @param {int} expectedCol The column number of the 'Expected' column.
+     * @param {function} f The function to apply to the (expected, got) pair.
+     */
     function processAllRows(tableRows, gotCol, expectedCol, f) {
         var row,
             cells,
@@ -231,10 +266,11 @@ define(['jquery'], function($) {
 
     /**
      * Initialise the Show Differences button.
-     * @param string buttonId The ID of the Show Differences button
-     * @param string showValue the text in the button initially
-     * @param string hideValue the text in the button when differences are showing
-     * @returns undefined
+     * @param {string} buttonId The ID of the Show Differences button.
+     * @param {string} showValue The text in the button initially.
+     * @param {string} hideValue The text in the button when differences are showing.
+     * @param {string} expectedString The column header denoting the 'Expected' column.
+     * @param {string} gotString The column header denoting the 'Got' column.
      */
     function initDiffButton(buttonId, showValue, hideValue, expectedString, gotString) {
         var diffButton = $('[id="' + buttonId + '"]'),

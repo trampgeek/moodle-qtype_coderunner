@@ -3,7 +3,11 @@
  * A module for use by ui_graph, defining classes Node, Link, SelfLink,
  * StartLink and TemporaryLink
  *
- ******************************************************************************/
+ * @module qtype_coderunner/graphelements
+ * @copyright  Richard Lobb, 2015, The University of Canterbury
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 // This code is a modified version of Finite State Machine Designer
 // (http://madebyevan.com/fsm/)
 /*
@@ -47,12 +51,13 @@
 
 define(['qtype_coderunner/graphutil'], function(util) {
 
-    /***********************************************************************
-     *
+    /**
      * Define a class Node that represents a node in a graph
+     * @param {object} parent The Graph to which this node belongs.
+     * @param {int} x The x-coordinate of the node.
+     * @param {int} y The y-coordinate of the node.
      *
-     ***********************************************************************/
-
+     */
     function Node(parent, x, y) {
         this.parent = parent;  // The ui_graph instance.
         this.x = x;
@@ -151,11 +156,13 @@ define(['qtype_coderunner/graphutil'], function(util) {
         return visited;
     };
 
-    /***********************************************************************
-     *
+    /**
      * Define a class Link that represents a connection between two nodes.
+     * @param {object} parent The graph to which this link belongs.
+     * @param {object} a The node at one end of the link.
+     * @param {object} b The node at the other end of the link.
      *
-     ***********************************************************************/
+     */
     function Link(parent, a, b) {
         this.parent = parent;  // The parent ui_digraph instance.
         this.nodeA = a;
@@ -321,13 +328,14 @@ define(['qtype_coderunner/graphutil'], function(util) {
         return false;
     };
 
-    /***********************************************************************
-     *
+    /**
      * Define a class SelfLink that represents a connection from a node back
      * to itself.
-     *
-     ***********************************************************************/
-
+     * @param {object} parent The graph to which this link belongs.
+     * @param {object} node The node the link emerges from and returns to.
+     * @param {object} mouse The current position of the mouse that's defining
+     * the position of the self-link.
+     */
     function SelfLink(parent, node, mouse) {
         this.parent = parent;
         this.node = node;
@@ -409,12 +417,13 @@ define(['qtype_coderunner/graphutil'], function(util) {
         return (Math.abs(distance) < this.parent.HIT_TARGET_PADDING);
     };
 
-    /***********************************************************************
-     *
+    /**
      * Define a class StartLink that represents a start link in a finite
      * state machine. Not useful in general digraphs.
-     *
-     ***********************************************************************/
+     * @param {object} parent The graph to which this link belongs.
+     * @param {node} node The node that the link leads into.
+     * @param {object} start The point at the open end of the link.
+     */
     function StartLink(parent, node, start) {
         this.parent = parent;
         this.node = node;
@@ -474,13 +483,13 @@ define(['qtype_coderunner/graphutil'], function(util) {
         return (percent > 0 && percent < 1 && Math.abs(distance) < this.parent.HIT_TARGET_PADDING);
     };
 
-    /***********************************************************************
-     *
+    /**
      * Define a class TemporaryLink that represents a link that's in the
      * process of being created.
-     *
-     ***********************************************************************/
-
+     * @param {object} parent The graph to which this link belongs.
+     * @param {object} from The node the link starts at.
+     * @param {object} to The node the link goes to.
+     */
     function TemporaryLink(parent, from, to) {
         this.parent = parent;
         this.from = from;
@@ -498,12 +507,13 @@ define(['qtype_coderunner/graphutil'], function(util) {
         this.parent.arrowIfReqd(c, this.to.x, this.to.y, Math.atan2(this.to.y - this.from.y, this.to.x - this.from.x));
     };
 
-    /***********************************************************************
-     *
+    /**
      * Define a class Button for a pseudo-menu button.
-     *
-     ***********************************************************************/
-
+     * @param {object} parent The graph to which this button belongs.
+     * @param {int} topX The x coordinate of the top left corner of the menu text.
+     * @param {int} topY The y coordinate of the top left corner of the menu text.
+     * @param {string} text The button label text.
+     */
     function Button(parent, topX, topY, text) {
       this.BUTTON_WIDTH = 60;
       this.BUTTON_HEIGHT = 25;
@@ -545,12 +555,12 @@ define(['qtype_coderunner/graphutil'], function(util) {
 
     };
 
-    /***********************************************************************
-     *
+    /**
      * Define a class HelpBox for the help box and its pseudo-menu button.
-     *
-     ***********************************************************************/
-
+     * @param {object} parent The graph to which this help box belongs.
+     * @param {int} topX The x coordinate of the top left corner of the help box.
+     * @param {int} topY The y coordinate of the top left corner of the help box.
+     */
     function HelpBox(parent, topX, topY) {
       Button.call(this, parent, topX, topY, "Help");
       this.helpOpen = false;
@@ -583,13 +593,12 @@ define(['qtype_coderunner/graphutil'], function(util) {
     };
 
 
-    /***********************************************************************
-     *
+    /**
      * Define a class TextBox for a possibly editable text box that might
-     * be contained in another element
-     *
-     ***********************************************************************/
-
+     * be contained in another element.
+     * @param {string} text The text to put in the text box.
+     * @param {object} parent The graph to which the text box belongs.
+     **/
     function TextBox(text, parent) {
         this.text = text;
         this.parent = parent;

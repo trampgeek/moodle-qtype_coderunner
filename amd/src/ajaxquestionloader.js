@@ -19,14 +19,21 @@
  * problems, where the support file is a single domjudge or ICPC problem zip,
  * with the problem spec within it.
  *
- * @package    qtype
- * @subpackage coderunner
+ * @module qtype_coderunner/ajaxquestionloader
  * @copyright  Richard Lobb, 2019, The University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 
 define(['jquery'], function ($) {
+    /**
+     * Append to the question text div in the question a data-URL containing
+     * the contents of the question specification file (usu. a pdf).
+     * @param {int} qid The question ID in the database.
+     * @param {string} divId The ID of the question text <div> element.
+     * @param {string} questionFilename The name of the problem spec file within
+     * the problem zip file.
+     */
     function loadQuestionText(qid, divId, questionFilename) {
         var questionTextDiv = $('#' + divId),
             errorDiv = '<div style="colour:red">Failed to load problem spec<div>';

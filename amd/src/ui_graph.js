@@ -1,6 +1,8 @@
-// This file is part of Moodle - http://moodle.org/
-//
-// Much of this code is from Finite State Machine Designer:
+/**
+ * This file is part of Moodle - http:moodle.org/
+ *
+ * Much of this code is from Finite State Machine Designer:
+ */
 /*
  Finite State Machine Designer (http://madebyevan.com/fsm/)
  License: MIT License (see below)
@@ -24,44 +26,42 @@
  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  OTHER DEALINGS IN THE SOFTWARE.
 */
-//
-// Moodle is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// Moodle is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more util.details.
-//
-// You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+/**
+ *
+ * Moodle is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Moodle is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more util.details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Moodle.  If not, see <http:www.gnu.org/licenses/>.
+ */
 
 /**
  * JavaScript to interface to the Graph editor, which is used both in
  * the author editing page and by the student question submission page.
  *
- * @package    qtype
- * @subpackage coderunner
+ * @module qtype_coderunner/ui_graph
  * @copyright  Richard Lobb, 2015, The University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'], function($, util, elements) {
 
-    /***********************************************************************
-     *
-     * A GraphCanvas is a wrapper for a Graph's HTML canvas
+    /**
+     * Constructor for a GraphCanvas object, which is a wrapper for a Graph's HTML canvas
      * object.
-     *
-     ************************************************************************/
-
+     * @param {object} parent The Graph that owns this object.
+     * @param {string} canvasId The ID of the HTML canvas to be wrapped by this object.
+     * @param {int} w The required width of the wrapper.
+     * @param {int} h The required height of the wrapper.
+     */
     function GraphCanvas(parent, canvasId, w, h) {
-        // Constructor, given the Graph that owns this canvas, the
-        // required canvasId and the height and width of the wrapper that
-        // encloses the Canvas.
-
         this.HANDLE_SIZE = 10;
 
         this.parent = parent;
@@ -97,8 +97,12 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
             return parent.keypress(e);
         });
 
+        /**
+         * Resize this object to then given dimensions.
+         * @param {int} w Required width.
+         * @param {int} h Required height.
+         */
         this.resize = function(w, h) {
-            // Resize to given dimensions.
             this.canvas.attr("width", w);
             this.canvas.attr("height", h);
         };
@@ -106,8 +110,8 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         this.resize(w, h);
     }
 
-    /***********************************************************************
-     *
+    /**
+     *  Constructor for the Graph object.
      *  This is the ui component for a graph-drawing coderunner question.
      *
      *  Relevant ui parameters:
@@ -142,11 +146,15 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
      *  lockedgeset. True to prevent the user from adding or deleting edges.
      *  lockedgelabels: True to prevent the user from editing edge labels. This
      *             also prevents any new edges from having labels.
-     *
-     ***********************************************************************/
-
+     * @param {string} textareaId The ID of the html textarea.
+     * @param {int} width The width in pixels of the textarea.
+     * @param {int} height The height in pixels of the textarea.
+     * @param {object} uiParams The UI parameter object.
+     */
     function Graph(textareaId, width, height, uiParams) {
-        // Constructor.
+        /**
+         * Constructor.
+         */
         var save_this = this;
 
         this.SNAP_TO_PADDING = 6;
@@ -186,7 +194,9 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         };
         this.buttons = [this.helpBox, this.clearButton];
 
-        // Legacy support for locknodes and lockedges.
+        /**
+         * Legacy support for locknodes and lockedges.
+         */
         if ('locknodes' in uiParams) {
             uiParams.locknodepositions = uiParams.locknodes;
         }
@@ -198,7 +208,9 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
             this.helpText = uiParams.helpmenutext;
         } else {
           require(['core/str'], function(str) {
-                // Get help text via AJAX.
+                /**
+                 * Get help text via AJAX.
+                 */
                 var helpPresent = str.get_string('graphhelp', 'qtype_coderunner');
                 $.when(helpPresent).done(function(graphhelp) {
                     save_this.helpText = graphhelp;
@@ -249,19 +261,31 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         return this.uiParams.textoffset ? this.uiParams.textoffset : this.DEFAULT_TEXT_OFFSET;
     };
 
-    // Draw an arrow head if this is a directed graph. Otherwise do nothing.
+    /**
+     * Draw an arrow head if this is a directed graph. Otherwise do nothing.
+     * @param {object} c The graphic context.
+     * @param {int} x The x location of the arrow head.
+     * @param {int} y The y location of the arrow head.
+     * @param {float} angle The angle of the arrow.
+     */
     Graph.prototype.arrowIfReqd = function(c, x, y, angle) {
         if (this.uiParams.isdirected === undefined || this.uiParams.isdirected) {
             util.drawArrow(c, x, y, angle);
         }
     };
 
-    // Copy the serialised version of the graph to the TextArea.
+    /**
+     * Copy the serialised version of the graph to the TextArea.
+     */
     Graph.prototype.sync = function() {
-        // Nothing to do ... always sync'd.
+        /**
+         * Nothing to do ... always sync'd.
+         */
     };
 
-    // Disable autosync, too.
+    /**
+     * Disable autosync, too.
+     */
     Graph.prototype.syncIntervalSecs = function() {
         return 0;
     };
@@ -290,10 +314,14 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
             this.resetCaret();
             this.draw();
 
-            // Don't let keys do their actions (like space scrolls down the page).
+            /**
+             * Don't let keys do their actions (like space scrolls down the page).
+             */
             return false;
         } else if(key === 8 || key === 0x20 || key === 9) {
-            // Disable scrolling on backspace, tab and space.
+            /**
+             * Disable scrolling on backspace, tab and space.
+             */
             return false;
         }
     };
@@ -325,7 +353,9 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
                     this.currentLink = new elements.SelfLink(this, this.selectedObject, mouse);
                 }
             } else if (e.altKey && this.selectedObject instanceof elements.Node) {
-                // Moving an entire connected graph component.
+                /**
+                 * Moving an entire connected graph component.
+                 */
                 if (!this.uiParams.locknodepositions) {
                     this.movingGraph = true;
                     this.movingNodes = this.selectedObject.traverseGraph(this.links, []);
@@ -355,17 +385,23 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         this.draw();
 
         if(this.hasFocus()) {
-            // Disable drag-and-drop only if the canvas is already focused.
+            /**
+             * Disable drag-and-drop only if the canvas is already focused.
+             */
             return false;
         } else {
-            // Otherwise, let the browser switch the focus away from wherever it was.
+            /**
+             * Otherwise, let the browser switch the focus away from wherever it was.
+             */
             this.resetCaret();
             return true;
         }
     };
 
-    // Return true if currently selected object has text that we are allowed
-    // to edit.
+    /**
+     * Return true if currently selected object has text that we are allowed
+     * to edit.
+     */
     Graph.prototype.canEditText = function() {
         var isNode = this.selectedObject instanceof elements.Node,
             isLink = (this.selectedObject instanceof elements.Link ||
@@ -388,7 +424,9 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
                 this.resetCaret();
                 this.draw();
             }
-            // Backspace is a shortcut for the back button, but do NOT want to change pages.
+            /**
+             * Backspace is a shortcut for the back button, but do NOT want to change pages.
+             */
             return false;
         } else if(key === 46 && this.selectedObject !== null) { // Delete key
             this.saveVersion();
@@ -411,7 +449,9 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
             this.draw();
         } else if(key === 13) { // Enter key.
             if(this.selectedObject !== null) {
-                // Deselect the object.
+                /**
+                 * Deselect the object.
+                 */
                 this.selectedObject = null;
                 this.draw();
             }
@@ -583,9 +623,12 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         }
     };
 
-    // Add a new link (always 'this.currentLink') to the set of links.
-    // If the link connects two nodes already linked, the angle of the new link
-    // is tweaked so it is distinguishable from the existing links.
+    /**
+     * Add a new link (always 'this.currentLink') to the set of links.
+     * If the link connects two nodes already linked, the angle of the new link
+     * is tweaked so it is distinguishable from the existing links.
+     * @param {object} newLink The link to be added.
+     */
     Graph.prototype.addLink = function(newLink) {
         var maxPerpRHS = null;
         for (var i = 0; i < this.links.length; i++) {
@@ -611,7 +654,9 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         var content = $(this.textArea).val();
         if (content) {
             try {
-                // Load up the student's previous answer if non-empty.
+                /**
+                 * Load up the student's previous answer if non-empty.
+                 */
                 var backup = JSON.parse(content), i;
 
                 for(i = 0; i < backup.nodes.length; i++) {
@@ -628,7 +673,9 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
                     var backupLinkLayout = backup.edgeGeometry[i];
                     var link = null;
                     if(backupLink[0] === backupLink[1]) {
-                        // Self link has two identical nodes.
+                        /**
+                         * Self link has two identical nodes.
+                         */
                         link = new elements.SelfLink(this, this.nodes[backupLink[0]]);
                         link.anchorAngle = backupLinkLayout.anchorAngle;
                         link.textBox = new elements.TextBox(backupLink[2].toString(), link);
@@ -742,10 +789,14 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         if (this.versionIndex > 0){
             this.versionIndex--;
             this.textArea.val(this.versions[this.versionIndex]);
-            //Clear graph nodes and links
+            /**
+             * Clear graph nodes and links
+             */
             this.nodes = [];
             this.links = [];
-            //Reload graph from serialisation
+            /**
+             * Reload graph from serialisation
+             */
             this.reload();
             this.draw();
         }
@@ -755,10 +806,14 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         if (this.versionIndex < this.versions.length - 1){
             this.versionIndex++;
             this.textArea.val(this.versions[this.versionIndex]);
-            //Clear graph nodes and links
+            /**
+             * Clear graph nodes and links
+             */
             this.nodes = [];
             this.links = [];
-            //Reload graph from serialisation
+            /**
+             * Reload graph from serialisation
+             */
             this.reload();
             this.draw();
         }

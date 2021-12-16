@@ -1,17 +1,19 @@
-// This file is part of Moodle - http://moodle.org/
-//
-// Moodle is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// Moodle is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more util.details.
-//
-// You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+/**
+ * This file is part of Moodle - http:moodle.org/
+ *
+ * Moodle is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Moodle is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more util.details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Moodle.  If not, see <http:www.gnu.org/licenses/>.
+ */
 
 /**
  * Implementation of the gapfiller_ui user interface plugin. For overall details
@@ -60,16 +62,21 @@
  * used by Twig, so using them instead of the default would prevent you from
  * ever adding Twig expansion (e.g. for randomisation) to the question.
  *
- * @package    qtype
- * @subpackage coderunner
+ * @module qtype_coderunner/ui_gapfiller
  * @copyright  Richard Lobb, 2019, The University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 define(['jquery'], function($) {
 
-    // Constructor for UI. Source html comes from data-globalextra by default,
-    // else from whatever source is specified by the uiParams parameter.
+    /**
+     * Constructor for UI. Source html comes from data-globalextra by default,
+     * else from whatever source is specified by the uiParams parameter.
+     * @param {string} textareaId The ID of the html textarea.
+     * @param {int} width The width in pixels of the textarea.
+     * @param {int} height The height in pixels of the textarea.
+     * @param {object} uiParams The UI parameter object.
+     */
     function GapfillerUi(textareaId, width, height, uiParams) {
         var html;
         this.textArea = $(document.getElementById(textareaId));
@@ -95,7 +102,9 @@ define(['jquery'], function($) {
         return this.fail; // Currently always true. See reload function.
     };
 
-    // Copy the serialised version of the HTML UI area to the TextArea.
+    /**
+     * Copy the serialised version of the HTML UI area to the TextArea.
+     */
     GapfillerUi.prototype.sync = function() {
         var
             serialisation = [],  // A list of field values.
@@ -129,10 +138,14 @@ define(['jquery'], function($) {
         return $(this.htmlDiv).find('.coderunner-ui-element');
     };
 
-    // Set the value of the jQuery field to the given value.
-    // If the field is a radio button or a checkbox,
-    // the checked attribute is set. Otherwise the field's
-    // val() function is called to set the value.
+    /**
+     * Set the value of the jQuery field to the given value.
+     * If the field is a radio button or a checkbox,
+     * the checked attribute is set. Otherwise the field's
+     * val() function is called to set the value.
+     * @param {object} field The JQuery field elemetn whose value is to be set.
+     * @param {string} value The value to be used.
+     */
     GapfillerUi.prototype.setField = function(field, value) {
         if (field.attr('type') === 'checkbox' || field.attr('type') === 'radio') {
             field.prop('checked', field.val() === value);
@@ -141,12 +154,18 @@ define(['jquery'], function($) {
         }
     };
 
-    // Process the supplied HTML, HTML-escaping existing HTML
-    // and inserting the input and textarea elements
-    // at the marked locations.
+    /**
+     * Process the supplied HTML, HTML-escaping existing HTML
+     * and inserting the input and textarea elements
+     * at the marked locations.
+     */
     GapfillerUi.prototype.markedUpHtml = function() {
 
-        // Prefix any regular expression special chars in s with a backslash.
+        /**
+         * Prefix any regular expression special chars in s with a backslash.
+         * @param {string} s The string whose special values are to be escaped.
+         * @return {string} The escaped string.
+         */
         function reEscape(s) {
             var c, specials = '{[(*+\\', result='';
             for (var i = 0; i < s.length; i++) {
@@ -180,18 +199,32 @@ define(['jquery'], function($) {
     };
 
 
-    // Return the HTML element to insert given the tag contents, which
-    // should be either a single integer (size of input element) or
-    // two integers separated by a comma (rows and cols of textarea).
+    /**
+     * Return the HTML element to insert given the tag contents, which
+     * should be either a single integer (size of input element) or
+     * two integers separated by a comma (rows and cols of textarea).
+     * @param {string} tagContents The text between the delimiters of a gap specifier.
+     * @return {string} The HTML for an input or textarea element build
+     * according to the given tagContents.
+     */
     GapfillerUi.prototype.markUp = function(tagContents) {
         var numbers, result='';
 
-        // The function to handle an 'input' tag.
+        /**
+         * The function to handle an 'input' tag.
+         * @param {int} size The size of the input element to return.
+         * @return {string} The html for a text area to the given specs.
+         */
         function input(size) {
             return '<input name="cr_gapfiller_field" class="coderunner-ui-element" size="' + size + '">';
         }
 
-        // The function to handle a 'textarea' tag.
+        /**
+         * The function to handle a 'textarea' tag.
+         * @param {int} rows The number of rows of text required.
+         * @param {int} cols The number of columns of text required.
+         * @return The HTML for a textarea to the given specs.
+         */
         function textarea(rows, cols) {
             return '<textarea name="cr_gapfiller_field" class ="coderunner-ui-element" ' +
                 'rows="' + rows + '" ' + 'cols="' + cols + '" style="width:auto;"></textarea>';
@@ -207,13 +240,15 @@ define(['jquery'], function($) {
         return result;
     };
 
-    // Reload the HTML fields from the given serialisation.
-    // Unlike other plugins, we don't actually fail the load if, for example
-    // the number of fields doesn't match the number of values in the
-    // serialisation. We simply set any excess fields for which data
-    // in unavailable to '???' or discard extra values. This ensures
-    // that at least the unfilled content is presented to the question author
-    // when the number of fields is altered during editing.
+    /**
+     * Reload the HTML fields from the given serialisation.
+     * Unlike other plugins, we don't actually fail the load if, for example
+     * the number of fields doesn't match the number of values in the
+     * serialisation. We simply set any excess fields for which data
+     * in unavailable to '???' or discard extra values. This ensures
+     * that at least the unfilled content is presented to the question author
+     * when the number of fields is altered during editing.
+     */
     GapfillerUi.prototype.reload = function() {
         var
             content = $(this.textArea).val(), // JSON-encoded HTML element settings.
@@ -233,7 +268,9 @@ define(['jquery'], function($) {
                     this.setField($(fields[i]), value);
                 }
             } catch(e) {
-                // Just ignore errors
+                /**
+                 * Just ignore errors
+                 */
             }
         }
     };
@@ -250,7 +287,9 @@ define(['jquery'], function($) {
         return focused;
     };
 
-    // Destroy the GapFiller UI and serialise the result into the original text area.
+    /**
+     * Destroy the GapFiller UI and serialise the result into the original text area.
+     */
     GapfillerUi.prototype.destroy = function() {
         this.sync();
         $(this.htmlDiv).remove();
