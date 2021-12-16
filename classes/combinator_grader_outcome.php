@@ -199,7 +199,7 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
         return $this->actualmark != 1.0 && isset($this->showdifferences) &&
                $this->showdifferences &&  isset($this->testresults);
     }
-    
+
     public function get_grader_state() {
         return empty($this->graderstate) ? '' : $this->graderstate;
     }

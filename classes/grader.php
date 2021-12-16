@@ -52,7 +52,7 @@ abstract class qtype_coderunner_grader {
      * leading qtype_coderunner and all underscores removed.
      * @return array
      */
-    static public function available_graders() {
+    public static function available_graders() {
         return array('EqualityGrader'       => 'qtype_coderunner_equality_grader',
                      'NearEqualityGrader'   => 'qtype_coderunner_near_equality_grader',
                      'RegexGrader'          => 'qtype_coderunner_regex_grader',

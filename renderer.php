@@ -47,16 +47,16 @@ class qtype_coderunner_renderer extends qtype_renderer {
      * @return string HTML fragment.
      */
     public function formulation_and_controls(question_attempt $qa, question_display_options $options) {
-        global $CFG, $PAGE;
+        global $CFG;
         global $USER;
 
         $question = $qa->get_question();
         $qid = $question->id;
-	if (empty($USER->coderunnerquestionids)) {
-            $USER->coderunnerquestionids = array($qid);  // Record in case of AJAX request
-	} else {
-	    array_push($USER->coderunnerquestionids, $qid); // Array of active qids
-	}
+        if (empty($USER->coderunnerquestionids)) {
+            $USER->coderunnerquestionids = array($qid);  // Record in case of AJAX request.
+        } else {
+            array_push($USER->coderunnerquestionids, $qid); // Array of active qids.
+        }
         $divid = "qtype_coderunner_problemspec$qid";
         $params = $question->parameters;
         $qtext = '';
@@ -65,10 +65,10 @@ class qtype_coderunner_renderer extends qtype_renderer {
         }
         $qtext .= $question->format_questiontext($qa);
         if (isset($params->programming_contest_problem) && $params->programming_contest_problem) {
-            // Special case hack for programming contest problems
+            // Special case hack for programming contest problems.
             $qtext .= "<div id='$divid'></div>";
             $probspecfilename = isset($params->problem_spec_filename) ? $params->problem_spec_filename : '';
-            $PAGE->requires->js_call_amd('qtype_coderunner/ajaxquestionloader',
+            $this->page->requires->js_call_amd('qtype_coderunner/ajaxquestionloader',
                     'loadQuestionText', array($qid, $divid, $probspecfilename));
         }
         $examples = $question->example_testcases();
@@ -112,7 +112,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
         $preload = isset($question->answerpreload) ? $question->answerpreload : '';
         if ($preload) {  // Add a reset button if preloaded text is non-empty.
-            $qtext .= self::reset_button($qa, $responsefieldid, $preload);
+            $qtext .= $this->reset_button($qa, $responsefieldid, $preload);
         }
 
         $currentanswer = $qa->get_last_qt_var('answer');
@@ -161,10 +161,12 @@ class qtype_coderunner_renderer extends qtype_renderer {
             if (!empty($question->acelang) && strpos($question->acelang, ',') != false) {
                 // For multilanguage questions, add javascript to switch the
                 // Ace language when the user changes the selected language.
-                $PAGE->requires->js_call_amd('qtype_coderunner/multilanguagequestion', 'initLangSelector', array($responsefieldid));
+                $this->page->requires->js_call_amd('qtype_coderunner/multilanguagequestion',
+                        'initLangSelector', array($responsefieldid));
             }
         } else {
-            $PAGE->requires->js_call_amd('qtype_coderunner/textareas', 'initQuestionTA', array($responsefieldid));
+            $this->page->requires->js_call_amd('qtype_coderunner/textareas', 'initQuestionTA',
+                    array($responsefieldid));
         }
 
         return $qtext;
@@ -497,13 +499,12 @@ class qtype_coderunner_renderer extends qtype_renderer {
      * @return string The html for displaying the sample answer.
      */
     public function correct_response(question_attempt $qa) {
-        global $PAGE;
         $question = $qa->get_question();
         $answer = $question->answer;
         if (!$answer) {
             return '';
         } else {
-            $answer = "\n" . $answer; // Hack to ensure leading new line not lost
+            $answer = "\n" . $answer; // Hack to ensure leading new line not lost.
         }
         $fieldname = $qa->get_qt_field_name('sampleanswer');
         $currentlanguage = $question->acelang ? $question->acelang : $question->language;
@@ -544,7 +545,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
         if ($uiplugin !== '' && $uiplugin !== 'none') {
             qtype_coderunner_util::load_uiplugin_js($question, $fieldid);
         } else {
-            $PAGE->requires->js_call_amd('qtype_coderunner/textareas', 'initQuestionTA', array($fieldid));
+            $this->page->requires->js_call_amd('qtype_coderunner/textareas', 'initQuestionTA', array($fieldid));
         }
         return $html;
     }
@@ -577,7 +578,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
      */
     public function files_input(question_attempt $qa, $numallowed,
             question_display_options $options) {
-        global $CFG, $PAGE;
+        global $CFG;
         require_once($CFG->dirroot . '/lib/form/filemanager.php');
 
         $question = $qa->get_question();
@@ -608,11 +609,11 @@ class qtype_coderunner_renderer extends qtype_renderer {
         // the form calls the set_form_submitted function in the module.
         // This is only needed during Preview as it's apparently done anyway
         // in normal quiz display mode, but we do it here regardless.
-        $PAGE->requires->yui_module('moodle-core-formchangechecker',
+        $this->page->requires->yui_module('moodle-core-formchangechecker',
                 'M.core_formchangechecker.init',
                 array(array('formid' => 'responseform'))
         );
-        $PAGE->requires->string_for_js('changesmadereallygoaway', 'moodle');
+        $this->page->requires->string_for_js('changesmadereallygoaway', 'moodle');
         return $filesrenderer->render($fm). html_writer::empty_tag(
                 'input', array('type' => 'hidden', 'name' => $qa->get_qt_field_name('attachments'),
                 'value' => $pickeroptions->itemid)) . $text;
@@ -800,8 +801,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
     // Support method to generate the "Show differences" button.
     // Returns the HTML for the button, and sets up the JavaScript handler
     // for it.
-    protected static function diff_button($qa) {
-        global $PAGE;
+    protected function diff_button($qa) {
         $buttonid = $qa->get_behaviour_field_name('diffbutton');
         $attributes = array(
             'type' => 'button',
@@ -812,7 +812,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
         );
         $html = html_writer::empty_tag('input', $attributes);
 
-        $PAGE->requires->js_call_amd('qtype_coderunner/showdiff',
+        $this->page->requires->js_call_amd('qtype_coderunner/showdiff',
             'initDiffButton',
             array($attributes['id'],
                 get_string('showdifferences', 'qtype_coderunner'),
@@ -837,8 +837,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
      * @param string $preload The text to be plugged into the answer if reset
      * @return string html string for the button
      */
-    protected static function reset_button($qa, $responsefieldid, $preload) {
-        global $PAGE;
+    protected function reset_button($qa, $responsefieldid, $preload) {
         $buttonid = $qa->get_behaviour_field_name('resetbutton');
         $attributes = array(
             'type' => 'button',
@@ -849,7 +848,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
             'data-reload-text' => $preload);
         $html = html_writer::empty_tag('input', $attributes);
 
-        $PAGE->requires->js_call_amd('qtype_coderunner/resetbutton',
+        $this->page->requires->js_call_amd('qtype_coderunner/resetbutton',
             'initResetButton',
             array($buttonid,
                   $responsefieldid,

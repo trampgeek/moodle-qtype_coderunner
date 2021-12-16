@@ -913,7 +913,7 @@ $string['sampleanswerattachments_help'] = 'If the sample answer needs attachment
 $string['sandboxcontrols'] = 'Sandbox';
 $string['sandboxcontrols_help'] = 'All jobs are run on the Jobe sandbox, which imposes
 constraints on memory, CPU time, file output etc. Here is where you adjust those constraints.
-    
+
 \'TimeLimit (secs)\' sets the maximum CPU time in seconds  allowed for each sandbox run
 and \'MemLimit (MB)\' sets the maximum memory the run can use. A blank entry uses the sandbox\'s
 default value (typically 5 secs for the CPU time limit and a language-dependent
@@ -1029,7 +1029,7 @@ response and TEST.testcode is the code for the current testcase. These values
 (and other testcase values like TEST.expected, TEST.stdin, TEST.mark)
 can be inserted into the template by enclosing them in double braces, e.g.
 <code>{{TEST.testcode}}</code>. For use within literal strings, an appropriate escape
-function should be applied, e.g. <code>{{STUDENT_ANSWER | e(\'py\')}}</code> is  
+function should be applied, e.g. <code>{{STUDENT_ANSWER | e(\'py\')}}</code> is
 suitable for use within Python triple-double-quoted
 strings. Other escape functions are <code>e(\'c\')</code>, <code>e(\'java\')</code>,
 <code>e(\'matlab\')</code>. The program that is output by Twig is then compiled and executed
@@ -1038,7 +1038,7 @@ to TEST.stdin. Output from that program is then passed to the selected grader.
 See the help under \'Grading controls\' for more on that.
 
 Note that if a customised per-test template is used
-there will be a compile-and-execute job submitted to the sandbox for every test case, 
+there will be a compile-and-execute job submitted to the sandbox for every test case,
 whereas most built-in question types define instead a combinator template that combines
 all test cases into a single run.
 
@@ -1119,7 +1119,7 @@ Note that this Twig All expansion occurs when the question is first initialised,
 the Twig expansion of the template occurs much later, when the student submits
 an answer. The environment for expanding the template includes the QUESTION
 Twig variable (a subset of the entire question record), some fields of which
-might have been expanded as a result of using Twig All. 
+might have been expanded as a result of using Twig All.
 
 The text in the template parameters field must either be JSON or must evaluate
 to yield JSON when processed by the specified Preprocessor. Be warned that choosing
@@ -1132,7 +1132,7 @@ required for each question for each student when they start the quiz.
 If <i>Evaluate per student</i> is unchecked a single sandbox submission will
 take place only when the question is saved; this is a relatively low-cost operation but
 is not normally useful, as it essentially prevents
-any use of per-student randomisation. It can however be used to generate 
+any use of per-student randomisation. It can however be used to generate
 question content in some situations.';
 $string['twigerror'] = 'Twig error {$a}';
 $string['twigerrorintest'] = 'Twig error when processing this test {$a}';
@@ -1160,9 +1160,9 @@ correct or a suitably informative error message otherwise.
 The \'Table\' user interface element, which displays a table of text
 areas for the student to
 fill in. It is used by the \'python3_program_testing\' question type, which is
-included in the sample questions on github. 
+included in the sample questions on github.
 
-The \'Gapfiller\' and \'Html\' user interfaces are documented in the 
+The \'Gapfiller\' and \'Html\' user interfaces are documented in the
 main CodeRunner documentation at https://github.com/trampgeek/moodle-qtype_coderunner#code-runner.
 
 Students with poor eyesight, or authors wishing to inspect serialisations

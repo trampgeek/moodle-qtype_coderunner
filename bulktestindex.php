@@ -48,7 +48,7 @@ foreach ($questionsbycontext as $contextid => $numcoderunnerquestions) {
     $context = context::instance_by_id($contextid);
     if (has_capability('moodle/question:editall', $context)) {
         $name = $context->get_context_name(true, true);
-        if (strpos($name, 'Quiz:') === 0) { // Quiz-specific question category
+        if (strpos($name, 'Quiz:') === 0) { // Quiz-specific question category.
             $course = $context->get_course_context(false);
             if ($course === false) {
                 $name = 'UnknownCourse: ' . $name;
@@ -92,7 +92,7 @@ if (count($availablequestionsbycontext) == 0) {
         } else {
             $class = 'bulktest coderunner context normal';
         }
-        
+
         if (strpos($name, ": Quiz: ") === false) {
             $class = 'bulktest coderunner context normal';
         } else {

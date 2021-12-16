@@ -401,7 +401,7 @@ class qtype_coderunner_bulk_tester {
             } else {
                 $ok = $this->test_question($question);
                 if ($ok) {
-                    $message =  "<b style='color:green'>" . get_string('pass', 'qtype_coderunner') . "</b>";
+                    $message = "<b style='color:green'>" . get_string('pass', 'qtype_coderunner') . "</b>";
                     $status = self::PASS;
                 } else {
                     $message = "<b style='color:red'>" . get_string('fail', 'qtype_coderunner') . "</b>";
@@ -439,7 +439,7 @@ class qtype_coderunner_bulk_tester {
         $params = empty($question->templateparams) ? array() : json_decode($question->templateparams, true);
         if (!empty($params['answer_language'])) {
             $response['language'] = $params['answer_language'];
-        } else  if (!empty($question->acelang) && strpos($question->acelang, ',') !== false) {
+        } else if (!empty($question->acelang) && strpos($question->acelang, ',') !== false) {
             list($languages, $defaultlang) = qtype_coderunner_util::extract_languages($question->acelang);
             if ($defaultlang === '') {
                 $defaultlang = $languages[0];

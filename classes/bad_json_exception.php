@@ -23,11 +23,4 @@ defined('MOODLE_INTERNAL') || die();
 
 /* The class for an exception when bad json passed to util::template_params  */
 class qtype_coderunner_bad_json_exception extends Exception {
-    /**
-     * @param string $errorcode exception description identifier
-     * @param mixed $debuginfo debugging data to display
-     */
-    public function __construct($bad_json) {
-        parent::__construct($bad_json);
-    }
 }

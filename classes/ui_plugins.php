@@ -23,11 +23,10 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
 defined('MOODLE_INTERNAL') || die();
 
 class qtype_coderunner_ui_plugins {
-    
+
     private static $instance = null;
 
     /**
@@ -49,27 +48,27 @@ class qtype_coderunner_ui_plugins {
                 $this->plugins[$uiname] = $plugin;
             }
         }
-        
+
         // Add a dummy 'None' uiplugin.
         $emptyparameters = new qtype_coderunner_ui_parameters('none');
         $this->plugins['none'] = new qtype_coderunner_ui_plugin(null, $emptyparameters);
     }
-    
+
     // This is a singleton class. Construct the object only if we haven't
     // already done so.
-    public static function getInstance() {
+    public static function get_instance() {
         if (self::$instance == null) {
             self::$instance = new qtype_coderunner_ui_plugins();
         }
         return self::$instance;
     }
-    
+
     // Return an array of all ui plugin names.
     public function all_names() {
         return array_keys($this->plugins);
     }
-    
-    
+
+
     // Return an array of all the names of ui plugsin that don't have any
     // parameters. Used to suppress the ui parameter panel in the question
     // editing form.
@@ -82,8 +81,8 @@ class qtype_coderunner_ui_plugins {
         }
         return $result;
     }
-    
-    
+
+
     /**
      * Get the qtype_coderunner_ui_plugin object for the given plugin name.
      * @param string $uiname
@@ -92,14 +91,14 @@ class qtype_coderunner_ui_plugins {
     public function get_plugin($uiname) {
         return $this->plugsins[$uiname];
     }
-    
-    
+
+
     // Return the parameters for the given ui plugin name.
     public function parameters($name) {
         $params = $this->plugins[$name]->parameters();
         return $params;
     }
-    
+
     // Return an array mapping from uiname to a ucfirst version of the name,
     // and including a None => None entry, suitable for use in the plugin
     // dropdown selector.
@@ -116,9 +115,9 @@ class qtype_coderunner_ui_plugins {
 // A class to represent a single plugin. The uiname is the lower case
 // plugin name, e.g. 'ace', 'graph'.
 class qtype_coderunner_ui_plugin {
-    
+
     /**
-     * 
+     *
      * @param string-or-null $filename the ui plugins filename or null for 'None'
      * @param qtype_coderunner_ui_parameters $parameters the set of parameters available.
      */
@@ -131,9 +130,9 @@ class qtype_coderunner_ui_plugin {
         }
         $this->params = $parameters;
     }
-    
+
     /**
-     * 
+     *
      * @return qtype_coderunner_ui_parameters the parameters for this plugin.
      */
     public function parameters() {

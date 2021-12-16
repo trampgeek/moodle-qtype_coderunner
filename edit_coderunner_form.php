@@ -52,7 +52,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
     protected function definition() {
         global $PAGE;
         $mform = $this->_form;
-        
+
         if (!empty($this->question->options->language)) {
             $this->lang = $this->acelang = $this->question->options->language;
         } else {
@@ -158,9 +158,9 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 $mform->setDefault('maxfilesize', '10240');
         $mform->disabledIf('maxfilesize', 'attachments', 'eq', 0);
     }
-    
-    
-    function get_data() {
+
+
+    public function get_data() {
         $fields = parent::get_data();
         if ($fields) {
             $fields->templateparamsevald = $this->formquestion->templateparamsevald;
@@ -177,7 +177,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->addElement('header', 'answerhdr',
                     get_string('answer', 'qtype_coderunner'), '');
         $mform->setExpanded('answerhdr', 1);
-        
+
         $attributes = array(
             'rows' => 9,
             'class' => 'answer edit_code',
@@ -196,7 +196,6 @@ class qtype_coderunner_edit_form extends question_edit_form {
         // Unless behat is running, hide the attachments file picker.
         // behat barfs if it's hidden.
         if ($CFG->prefix !== "b_") {
-            /* @var $mform MoodleQuickForm */
             $method = method_exists($mform, 'hideIf') ? 'hideIf' : 'disabledIf';
             $mform->$method('sampleanswerattachments', 'attachments', 'eq', 0);
         }
@@ -369,7 +368,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 $question->brokenquestionmessage = get_string(
                         'missingprototype', 'qtype_coderunner', array('crtype' => $question->coderunnertype));
             }
-            
+
             // Record the prototype for subsequent use.
             $question->prototype = $q->prototype;
 
@@ -440,7 +439,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
             $draftid = file_get_submitted_draft_itemid($fileset);
             $options = $this->fileoptions;
             $options['subdirs'] = false;
-            
+
             file_prepare_draft_area($draftid, $this->context->id,
                     'qtype_coderunner', $filearea,
                     empty($question->id) ? null : (int) $question->id,
@@ -462,7 +461,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
     }
 
 
-    
+
 
     // FUNCTIONS TO BUILD PARTS OF THE MAIN FORM
     // =========================================.
@@ -484,7 +483,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->addElement('hidden', 'brokenquestionmessage', '',
                 array('id' => 'id_broken_question', 'class' => 'brokenquestionerror'));
         $mform->setType('brokenquestionmessage', PARAM_RAW);
-        
+
         // The Question Type controls (a group with just a single member).
         $typeselectorelements = array();
         $expandedtypes = array_merge(array('Undefined' => 'Undefined'), $types);
@@ -592,9 +591,10 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 get_string('hoisttemplateparams', 'qtype_coderunner'));
         $twigelements[] = $mform->createElement('advcheckbox', 'twigall', null,
                 get_string('twigall', 'qtype_coderunner'));
-        $templateparamlangs = array('None'=>'None',
-            'twig'=>'Twig',
-            'python3'=>'Python3',
+        $templateparamlangs = array(
+            'None' => 'None',
+            'twig' => 'Twig',
+            'python3' => 'Python3',
             'c' => 'C',
             'cpp' => 'C++',
             'java' => 'Java',
@@ -602,7 +602,8 @@ class qtype_coderunner_edit_form extends question_edit_form {
             'octave' => 'Octave',
             'pascal' => 'Pascal'
             );
-        $twigelements[] = $mform->createElement('select', 'templateparamslang', get_string('templateparamslang', 'qtype_coderunner'), $templateparamlangs);
+        $twigelements[] = $mform->createElement('select', 'templateparamslang',
+                get_string('templateparamslang', 'qtype_coderunner'), $templateparamlangs);
         $twigelements[] = $mform->createElement('advcheckbox', 'templateparamsevalpertry', null,
                 get_string('templateparamsevalpertry', 'qtype_coderunner'));
         $mform->addElement('group', 'twigcontrols', get_string('twigcontrols', 'qtype_coderunner'),
@@ -614,13 +615,13 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->$hidemethod('templateparamsevalpertry', 'templateparamslang', 'eq', 'twig');
         $mform->setDefault('hoisttemplateparams', true);
         $mform->addHelpButton('twigcontrols', 'twigcontrols', 'qtype_coderunner');
-        
-        // UI parameters
-        $uiplugin = empty($this->question->options->uiplugin) ? 'none' : $this->question->options->uiplugin;
-        $plugins = qtype_coderunner_ui_plugins::getInstance();
-        $plugins_without_params = $plugins->all_with_no_params();
 
-        $uielements = array(); 
+        // UI parameters.
+        $uiplugin = empty($this->question->options->uiplugin) ? 'none' : $this->question->options->uiplugin;
+        $plugins = qtype_coderunner_ui_plugins::get_instance();
+        $pluginswithoutparams = $plugins->all_with_no_params();
+
+        $uielements = array();
         $uiparamedescriptionhtml = '<div class="ui_parameters_descr"></div>'; // JavaScript fills this.
         $uielements[] = $mform->createElement('html', $uiparamedescriptionhtml);
         $uielements[] = $mform->createElement('textarea', 'uiparameters',
@@ -698,7 +699,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->addHelpButton('resultcolumns', 'resultcolumns', 'qtype_coderunner');
 
         $uicontrols = array();
-        $plugins = qtype_coderunner_ui_plugins::getInstance();
+        $plugins = qtype_coderunner_ui_plugins::get_instance();
         $uitypes = $plugins->dropdownlist();
 
         $uicontrols[] = $mform->createElement('select', 'uiplugin',
@@ -714,8 +715,8 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
         $mform->setExpanded('customisationheader');  // Although expanded it's hidden until JavaScript unhides it .
     }
-    
-    
+
+
     // Make the advanced customisation panel, also hidden until the user
     // customises the question. The fields in this part of the form are much more
     // advanced and not recommended for most users.
@@ -766,7 +767,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->addElement('group', 'sandboxcontrols',
                 get_string('sandboxcontrols', 'qtype_coderunner'),
                 $sandboxcontrols, null, false);
-        
+
         $mform->setType('cputimelimitsecs', PARAM_RAW);
         $mform->setType('memlimitmb', PARAM_RAW);
         $mform->setType('sandboxparams', PARAM_RAW);
@@ -795,15 +796,13 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->disabledIf('testsplitterre', 'iscombinatortemplate', 'eq', 0);
         $mform->disabledIf('allowmultiplestdins', 'iscombinatortemplate', 'eq', 0);
     }
-    
-    
-  
-    // **********************************************************
-    //
-    // VALIDATION
-    //
-    // **********************************************************
-    
+
+
+    /***********************************************************
+     *
+     * VALIDATION.
+     *
+     **********************************************************/
 
     // Validate the given data and possible files.
     public function validation($data, $files) {
@@ -839,11 +838,11 @@ class qtype_coderunner_edit_form extends question_edit_form {
             $errors['templateparams'] = $templateerrors;
             $this->formquestion->templateparamsevald = '{}';
         }
-        
+
         if (!$templateerrors && isset($data['uiparameters']) && $data['uiparameters']) {
             $uiparametererrors = $this->validate_ui_parameters($data['uiparameters']);
             if ($uiparametererrors) {
-                $errors['uiparametergroup'] = $uiparametererrors;      
+                $errors['uiparametergroup'] = $uiparametererrors;
             }
         }
 
@@ -905,7 +904,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 $errors['filenamesgroup'] = get_string('badfilenamesregex', 'qtype_coderunner');
             }
         }
-     
+
         if (count($errors) == 0 && $data['twigall']) {
             $errors = $this->validate_twigables();
         }
@@ -935,10 +934,10 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
         return $errors;
     }
-    
+
 
     // Check the templateparameters value, if given. Return an array containing
-    // the error message string, which will be empty if there are no errors, 
+    // the error message string, which will be empty if there are no errors,
     // and the JSON evaluated template parameters, which will be empty if there
     // are errors.
     private function validate_template_params() {
@@ -948,17 +947,17 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $json = '';
         $seed = mt_rand();  // TODO use a fixed seed if !evaluate_per_try.
         try {
-            $json = $this->formquestion->evaluate_merged_parameters($seed); 
+            $json = $this->formquestion->evaluate_merged_parameters($seed);
             $decoded = json_decode($json, true);
             if ($decoded === null) {
-               $errormessage = get_string('badtemplateparams', 'qtype_coderunner', $json);
+                $errormessage = get_string('badtemplateparams', 'qtype_coderunner', $json);
             }
         } catch (qtype_coderunner_bad_json_exception $e) {
             $errormessage = get_string('badtemplateparams', 'qtype_coderunner', $e->getMessage());
         } catch (Exception $e) {
             $errormessage = get_string('badtemplateparams', 'qtype_coderunner', '** Unknown error **');
         }
-        
+
         if ($errormessage === '') {
             // Check for legacy case of ui parameters defined within the template params.
             $uiplugin = $this->formquestion->uiplugin;
@@ -991,7 +990,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
         return array($errormessage, $json);
     }
-    
+
     // Check that the uiparameters field, if present and non-empty, is valid.
     // Return an error message string if not valid, else an empty string.
     private function validate_ui_parameters($uiparameters) {
@@ -1009,12 +1008,11 @@ class qtype_coderunner_edit_form extends question_edit_form {
         if ($decoded === null) {
                $errormessage = get_string('baduiparams', 'qtype_coderunner');
         } else {
-            // Check only valid uiparameters are defined
+            // Check only valid uiparameters are defined.
             $uipluginname = $this->formquestion->uiplugin;
-            $uiplugins = qtype_coderunner_ui_plugins::getInstance();
+            $uiplugins = qtype_coderunner_ui_plugins::get_instance();
             $uiparams = $uiplugins->parameters($uipluginname);
             $alluiparamnames = $uiparams->all_names();
-            $avail = print_r($alluiparamnames, true);
             $badparams = array();
             foreach (array_keys($decoded) as $paramname) {
                 if (!in_array($paramname, $alluiparamnames)) {
@@ -1023,7 +1021,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
             }
             if ($badparams) {
                 $errormessage = get_string('illegaluiparamname', 'qtype_coderunner',
-                        array('uiname'=>$uipluginname)) . implode(', ', $badparams);
+                        array('uiname' => $uipluginname)) . implode(', ', $badparams);
             } else if ($checkmissing) {
                 // Make sure any required ui parameters are defined.
                 $missingparams = array();
@@ -1040,8 +1038,8 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
         return $errormessage;
     }
-    
-    
+
+
     private function validate_penalty_regime($data) {
         // Check the penalty regime and return an error string or an empty string if OK.
         $errorstring = '';
@@ -1089,7 +1087,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $jsonparams = $question->templateparamsevald;
         $parameters = json_decode($jsonparams, true);
         $parameters['QUESTION'] = $question;
-        
+
         // Try twig expanding everything (see question::twig_all), with strict_variables true.
         foreach (['questiontext', 'answer', 'answerpreload', 'globalextra'] as $field) {
             $text = $question->$field;
@@ -1109,9 +1107,10 @@ class qtype_coderunner_edit_form extends question_edit_form {
             $num = max(count($question->testcode), count($question->stdin),
                     count($question->expected), count($question->extra));
 
-            for ($i = 0; $i < $num; $i++) {
-                foreach (['testcode', 'stdin', 'expected', 'extra'] as $fieldname) {
-                    $text = $question->$fieldname[$i];
+            foreach (['testcode', 'stdin', 'expected', 'extra'] as $fieldname) {
+                $fields = $question->$fieldname;
+                for ($i = 0; $i < $num; $i++) {
+                    $text = $fields[$i];
                     try {
                         $this->twig_render($text, $parameters, true);
                     } catch (Exception $ex) {
@@ -1164,7 +1163,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
     }
 
 
-    // Check the sample answer (if there is one)
+    // Check the sample answer (if there is one).
     // Return an empty string if there is no sample answer and no attachments,
     // or if the sample answer passes all the tests.
     // Otherwise return a suitable error message for display in the form.
@@ -1196,7 +1195,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
             if (!isset($this->formquestion->uiparameters)) {
                 $this->formquestion->uiparameters = null; // If hidden, value isn't recorded in formquestion.
             }
-            $this->formquestion->templateparamsevalpertry = 0; // Save an extra evaluation
+            $this->formquestion->templateparamsevalpertry = 0; // Save an extra evaluation.
             $this->formquestion->start_attempt();
             $this->formquestion->templateparamsevalpertry = $savedevalpertry;
             $response = array('answer' => $this->formquestion->answer);
@@ -1272,7 +1271,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         asort($languages);
         return array($languages, $types);
     }
-    
+
     // Render the given Twig text with the given params, using the global
     // $USER variable (the question author) as a dummy student.
     // @return Rendered text.
@@ -1281,7 +1280,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $student = new qtype_coderunner_student($USER);
         return qtype_coderunner_twig::render($text, $student, (array) $params, $isstrict);
     }
-    
+
 
     private function make_question_from_form_data($data) {
         // Construct a question object containing all the fields from $data.
@@ -1313,7 +1312,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         return $question;
     }
 
-    
+
     // Returns the Json for the merged template parameters.
     // It is assumed that this function is called only when a question is
     // initially loaded from the DB or a new question is being created,
@@ -1327,7 +1326,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         }
         $q = $this->question;
         if (isset($q->options)) {
-            // Editing an existing question
+            // Editing an existing question.
             try {
                 $qfromdb = question_bank::load_question($q->id);
                 $qfromdb->student = new qtype_coderunner_student($USER);

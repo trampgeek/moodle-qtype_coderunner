@@ -337,7 +337,7 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         // Coderunner savepoint reached.
         upgrade_plugin_savepoint(true, 2019111300, 'qtype', 'coderunner');
     }
-    
+
     if ($oldversion < 2020120701) {
 
         // Define field templateparamslang to be added to question_coderunner_options.
@@ -361,7 +361,7 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
-        
+
         $field = new xmldb_field('templateparamsevald', XMLDB_TYPE_TEXT, null, null, null, null, null, 'templateparamsevalpertry');
 
         // Conditionally launch add field templateparamsevald.
@@ -369,11 +369,10 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
 
-
         // Coderunner savepoint reached.
-        upgrade_plugin_savepoint(true, 2020121501, 'qtype', 'coderunner');        
+        upgrade_plugin_savepoint(true, 2020121501, 'qtype', 'coderunner');
     }
-    
+
     if ($oldversion < 2021010113) {
 
         // Define field uiparameters to be added to question_coderunner_options.
@@ -388,7 +387,7 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         // Coderunner savepoint reached.
         upgrade_plugin_savepoint(true, 2021010113, 'qtype', 'coderunner');
     }
-    
+
     if ($oldversion < 2021012200) {
 
         // Define field hidecheck to be added to question_coderunner_options.

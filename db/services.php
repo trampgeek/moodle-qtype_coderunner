@@ -20,18 +20,27 @@
 // use with a mini-IDE feature inside a CodeRunner question, where students can
 // try out their code on the Jobe server prior to submitting it for grading.
 
-// Based on https://docs.moodle.org/dev/Adding_a_web_service_to_a_plugin
+// Based on https://docs.moodle.org/dev/Adding_a_web_service_to_a_plugin.
 
+/**
+ * List of Web Services for the qtype_coderunner plugin.
+ *
+ * @package    qtype
+ * @subpackage coderunner
+ * @copyright  2021 Richard Lobb, University of Canterbury
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 
+defined('MOODLE_INTERNAL') || die();
 
 $functions = array(
-    'qtype_coderunner_run_in_sandbox' => array(      //web service function name
-        'classname'   => 'qtype_coderunner_external',    // Namespaced class in classes/external
-        'methodname'  => 'run_in_sandbox',    // External function name
-        'description' => 'Runs a job on the Jobe sandbox server', 
-        'type'        => '',                  // Do DB access allowed
-        'ajax'        => true,        // The service is available to 'internal' ajax calls. 
+    'qtype_coderunner_run_in_sandbox' => array(      // Web service function name.
+        'classname'   => 'qtype_coderunner_external',  // Namespaced class in classes/external.
+        'methodname'  => 'run_in_sandbox',    // External function name.
+        'description' => 'Runs a job on the Jobe sandbox server',
+        'type'        => '',          // No DB access allowed.
+        'ajax'        => true,        // The service is available to 'internal' ajax calls.
         'capabilities' => '',         // I can't find a capability that allows a user to run a question?
-        'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE)  // ** TODO ** check implications of this.
+        'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE)  // TODO ** check implications of this.
     ),
 );

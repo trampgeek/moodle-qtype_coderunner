@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with CodeRunner.  If not, see <http://www.gnu.org/licenses/>.
 
+defined('MOODLE_INTERNAL') || die();
+
 /**
  * Script to return the spec for the currently-rendered coderunner question,
  * assumed to be present in a zip support file. Since pdfs are potentially
@@ -66,7 +68,7 @@ foreach ($files as $filename => $contents) {
                 if ($base === $reqdfilename || ($reqdfilename === "" && strpos($base, '.pdf', -4) !== false)) {
                     $filecontents = zip_entry_read($file, zip_entry_filesize($file));
                     $json = json_encode(array('filecontentsb64' => base64_encode($filecontents)));
-                    if ($json != NULL) {
+                    if ($json != null) {
                         echo $json;
                         unlink($tempfilename);
                         zip_close($handle);
@@ -75,7 +77,7 @@ foreach ($files as $filename => $contents) {
                 }
             }
             zip_close($handle);
-            unlink($tempfilename); // $tempdir is auto-deleted.
+            unlink($tempfilename); // Note: $tempdir is auto-deleted.
         }
     }
 }

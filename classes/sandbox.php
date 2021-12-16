@@ -130,7 +130,7 @@ abstract class qtype_coderunner_sandbox {
      * there is a only a single Jobe server available anyway.
      * @param string $language to run.
      * @param bool $forcelanguagecheck true to ensure language is actually
-     * available even when there's only one sandbox available. 
+     * available even when there's only one sandbox available.
      * @return an instance of the preferred sandbox for the given language
      * or null if no enabled sandboxes support this language.
      */
@@ -177,8 +177,8 @@ abstract class qtype_coderunner_sandbox {
                      'ideonesandbox'    => 'qtype_coderunner_ideonesandbox'
         );
     }
-        
-        
+
+
     /**
      * A list of enabled sandboxes.
      * Keys are the externally known sandbox names

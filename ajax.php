@@ -19,7 +19,7 @@
  * question type by looking up the prototype in the question_coderunner_options
  * table. Fields 'success' and 'error' are added for validation checking by
  * the caller.
- * 
+ *
  * Alternatively, if called with a parameter uiplugin rather than qtype, returns
  * a list describing the UI plugin parameters and their descriptions.
  *
@@ -61,19 +61,19 @@ if ($qtype) {
     }
     echo json_encode($questiontype);
 } else if ($uiplugin) {
-    $uiplugins = qtype_coderunner_ui_plugins::getInstance();
+    $uiplugins = qtype_coderunner_ui_plugins::get_instance();
     $allnames = $uiplugins->all_names();
     $uiparamstable = array();
     $columnheaders = array();
     if (!in_array($uiplugin, $allnames)) {
-        $uiheader = get_string('unknownuiplugin', 'qtype_coderunner', array('pluginname'=>$uiplugin));
+        $uiheader = get_string('unknownuiplugin', 'qtype_coderunner', array('pluginname' => $uiplugin));
     } else {
         $uiparams = $uiplugins->parameters($uiplugin);
         if ($uiparams->length() === 0) {
             $uiheader = get_string('nouiparameters', 'qtype_coderunner', array('uiname' => $uiplugin));
         } else {
             $csv = implode(', ', $uiparams->all_names_starred());
-            $uiheader = get_string('uiparametertablehead', 'qtype_coderunner', 
+            $uiheader = get_string('uiparametertablehead', 'qtype_coderunner',
                     array('uiname' => $uiplugin)) . $csv . '.';
             $uiparamstable = $uiparams->table();
             $namehdr = get_string('uiparamname', 'qtype_coderunner');

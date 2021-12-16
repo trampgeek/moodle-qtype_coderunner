@@ -354,7 +354,7 @@ EOTEMPLATE;
         $this->check_current_mark(0.0);
         $this->check_output_contains('Illegal format (%x) in columnformats');
     }
-    
+
     // Test that if there is a 'graderstate' in the JSON printed by
     // a combinator template grader, that value is available to the
     // question author on the next submission of an answer.
@@ -387,5 +387,4 @@ EOTEMPLATE;
             'answer' => 'def sqr(n): return n * n # resubmit'));
         $this->check_output_contains("graderstate: boomerang");
     }
-
 }

@@ -28,8 +28,8 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
-require_once $CFG->dirroot . '/question/type/coderunner/vendor/autoload.php';
-require_once $CFG->dirroot . '/question/type/coderunner/classes/twigmacros.php';
+require_once($CFG->dirroot . '/question/type/coderunner/vendor/autoload.php');
+require_once($CFG->dirroot . '/question/type/coderunner/classes/twigmacros.php');
 
 /**
  * Unit tests for the coderunner question definition class.

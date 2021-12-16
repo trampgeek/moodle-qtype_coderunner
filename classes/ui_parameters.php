@@ -66,13 +66,13 @@ class qtype_coderunner_ui_parameters {
             }
         }
     }
-    
-    
+
+
     // Return the number of parameters in this parameter set.
     public function length() {
         return count($this->params);
     }
-    
+
     /**
      * Get the type of a particular parameter.
      * @param string $parameter the name of the parameter of interest
@@ -81,8 +81,8 @@ class qtype_coderunner_ui_parameters {
     public function type(string $parameter) {
         return $this->params[$parameter]->type;
     }
-    
-    
+
+
     /**
      * Get the default value (which may have been overridden by merge_json so
      * is really just the value) for a particular parameter.
@@ -92,8 +92,8 @@ class qtype_coderunner_ui_parameters {
     public function value(string $parameter) {
         return $this->params[$parameter]->value;
     }
-    
-    
+
+
     /**
      * Return true if the given uiparameter is required.
      * @param string $parameter the name of the parameter of interest
@@ -102,8 +102,8 @@ class qtype_coderunner_ui_parameters {
     public function is_required(string $parameter) {
         return $this->params[$parameter]->required;
     }
-    
-    
+
+
     /**
      * Merge a set of parameter values, defined by a JSON string, into this.
      * @param string $json the JSON string defining the set of parameters to merge in.
@@ -128,16 +128,16 @@ class qtype_coderunner_ui_parameters {
             }
         }
     }
-    
-    
+
+
     /**
      * Search the set of parameters for one that equals the given one, or
      * is equal to it with the UI plugin name plus an underscore as a prefix.
      * The latter match is for legacy parameter names like table_num_rows for
      * the table ui plugin.
-     * @param string $paramname The name of the parameter to find. 
+     * @param string $paramname The name of the parameter to find.
      * @return string The actual parameter name that matches the given one,
-     * of null if no such name. 
+     * of null if no such name.
      */
     private function find_key(string $paramname) {
         foreach ($this->params as $param) {
@@ -148,16 +148,16 @@ class qtype_coderunner_ui_parameters {
         }
         return null;
     }
-    
-    
+
+
     /**
      * Return a list of all parameter names
      */
     public function all_names() {
         return array_keys($this->params);
     }
-    
-    
+
+
     /**
      * Return a list of all parameter names with star to denote required.
      */
@@ -168,51 +168,51 @@ class qtype_coderunner_ui_parameters {
         }
         return $names;
     }
-    
-    
+
+
     /**
      * Return the json encoded parameter-name => parameter value set.
      * Used only in testing.
      */
     public function to_json() {
-        $params_array = array();
+        $paramsarray = array();
         foreach ($this->params as $param) {
             if ($param->value !== null) {
-                $params_array[$param->name] = $param->value;
+                $paramsarray[$param->name] = $param->value;
             }
         }
-        return json_encode($params_array);
+        return json_encode($paramsarray);
     }
-    
-    
+
+
     /**
      * Return an associative array of all parameters. Currently unused.
      */
     public function params_as_array() {
-        $params_array = array();
+        $paramsarray = array();
         foreach ($this->params as $param) {
-            $params_array[$param->name] = $param->value;
+            $paramsarray[$param->name] = $param->value;
         }
-        return $params_array;
+        return $paramsarray;
     }
-    
-    
+
+
     /**
      * Return an array of all those parameters that have been updated since
      * the initial load from the json file (i.e. those parameters that have
      * been defined within the prototype or the question itself).
      */
     public function updated_params() {
-        $params_array = array();
+        $paramsarray = array();
         foreach ($this->params as $param) {
             if ($param->updated) {
-                $params_array[$param->name] = $param->value;
+                $paramsarray[$param->name] = $param->value;
             }
         }
-        return $params_array;
+        return $paramsarray;
     }
-    
-    
+
+
     // Return a table (array of arrays) of parameters, each row containing
     // the parameter name, description, default value and boolean 'isrequired'.
     public function table() {

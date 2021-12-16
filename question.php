@@ -23,9 +23,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
 defined('MOODLE_INTERNAL') || die();
-
 
 require_once($CFG->dirroot . '/question/behaviour/adaptive/behaviour.php');
 require_once($CFG->dirroot . '/question/engine/questionattemptstep.php');
@@ -88,15 +86,15 @@ class qtype_coderunner_question extends question_graded_automatically {
         }
         $this->evaluate_question_for_display($seed, $step);
     }
-    
-    
+
+
     // Evaluate all templated fields of the question that are required for
     // displaying it to either the student or the author. At very least this will
     // involve evaluating the template parameters using whatever language
     // processor is set by the templateparamslang field. The evaluation
     // defines $this->parameters, which is a PHP associative array containing
     // Twig environment variables plus UI plugin parameters.
-    // 
+    //
     // If Twigall is set, other fields of the question, such as the question
     // text and the various test cases are then twig-expanded using
     // $this->parameters as an environment.
@@ -114,51 +112,51 @@ class qtype_coderunner_question extends question_graded_automatically {
             $this->parameters = json_decode($this->templateparamsjson);
         } catch (Exception $e) {
             $error = $e->getMessage();
-            $this->parameters = array("initerror"=>"' . $error . '");
+            $this->parameters = array("initerror" => "' . $error . '");
             $this->templateparamsjson = json_encode($this->parameters);
-            $erroroninit = get_string('erroroninit', 'qtype_coderunner', array('error'=>$error));
+            $erroroninit = get_string('erroroninit', 'qtype_coderunner', array('error' => $error));
             $this->initialisationerrormessage = $erroroninit;
         }
-        // ** TODO ** Consider implications of adding the parameter true to
+        // TODO ** Consider implications of adding the parameter true to
         // the following, so that the parameters are PHP arrays for Twig.
         if ($this->twigall) {
             $this->twig_all();
         }
         $this->mergeduiparameters = $this->evaluate_merged_ui_parameters();
     }
-    
+
     /**
      * Define the question's parameters, which define the environment that
      * is used by Twig for expanding the question's template and (if TwigAll is
      * set) the various other question fields to be displayed to the author
-     * or the student. 
+     * or the student.
      * The parameters are defined by running the template parameters field
      * through the appropriate language processor as specified by the
      * templateparamslang field (default: Twig). The result needs to be merged with
      * the prototype's parameters, which are subject to the same process.
      * After running this function, $this->parameters is a stdClass object
      * with all the parameters as attributes.
-     * 
+     *
      * In the simplest case, the template parameters are evaluated when the
      * question is saved and are stored in the question in the database.
      * However, if the "Evaluate on each attempt" checkbox is set (implying
      * randomisation or customisation per student) the template parameters
-     * are evaluated once when the question attempt begins. A further 
+     * are evaluated once when the question attempt begins. A further
      * complication is that the question author might change the template
      * parameters after students have started a quiz (hopefully in a way that
      * doesn't disrupt the randomisation) and the template parameters will
      * then need to be re-evaluated. This is handled by recording the
      * md5 hash of the template parameters within the question attempt step
      * record in the database, re-evaluating only if the hash changes.
-     * 
+     *
      * If the prototype is missing, process just the template parameters from
      * this question; an error message will be given later.
      * @param int $seed The random number seed to set for Twig randomisation
      * @param question_attempt_step $step The current question attempt step
      * @return string The json string of the merged template parameters.
      */
-  
-     function evaluate_merged_parameters($seed, $step=null) {
+
+    public function evaluate_merged_parameters($seed, $step=null) {
         assert(isset($this->templateparams));
         $paramsjson = $this->template_params_json($seed, $step, '_template_params');
         $prototype = $this->prototype;
@@ -175,11 +173,11 @@ class qtype_coderunner_question extends question_graded_automatically {
 
         return $paramsjson;
     }
-    
+
     /**
      * Evaluate the template parameter field for this question alone (i.e.
      * not including its prototype).
-     * 
+     *
      * @param int $seed the random number seed for this instance of the question
      * @param question_attempt_step $step the current attempt step
      * @param string $qtvar the base name of a qt_variable in which to record
@@ -187,7 +185,7 @@ class qtype_coderunner_question extends question_graded_automatically {
      * json (with suffix '_json').
      * @return string The Json template parameters.
      */
-    function template_params_json($seed=0, $step=null, $qtvar='') {
+    public function template_params_json($seed=0, $step=null, $qtvar='') {
         $params = $this->templateparams;
         $lang = $this->templateparamslang;
         if ($step === null) {
@@ -207,20 +205,20 @@ class qtype_coderunner_question extends question_graded_automatically {
         }
         return $jsontemplateparams;
     }
-    
-    
+
+
     // Evaluate the given template parameters in the context of the given random
-    // number seed. Return value is a json string. 
-    
+    // number seed. Return value is a json string.
+
     /**
      * Evaluate a template parameter string.
      * @param string $templateparams The template parameter string to evaluate.
      * @param string $lang The language of the template params
      * @param int $seed The random number seed for this question attempt
-     * @return string The evaluated JSON string or an error message (which won't be 
+     * @return string The evaluated JSON string or an error message (which won't be
      * valid json).
      */
-    function evaluate_template_params($templateparams, $lang, $seed) {
+    public function evaluate_template_params($templateparams, $lang, $seed) {
         $lang = strtolower($lang); // Just in case some old legacy DB entries escaped.
         if (empty($templateparams)) {
             $jsontemplateparams = '{}';
@@ -242,8 +240,8 @@ class qtype_coderunner_question extends question_graded_automatically {
         $this->cachedevaldtemplateparams = $jsontemplateparams;
         return $jsontemplateparams;
     }
-    
-    
+
+
     /**
      * Evaluate a template parameter string using a given language on the Jobe
      * server. Return value should be the JSON template parameter string.
@@ -276,7 +274,7 @@ class qtype_coderunner_question extends question_graded_automatically {
         }
     }
 
-    
+
     // Render the given twig text using the given random number seed and
     // student variable. This version should be called only during question
     // initialisation when evaluating the template parameters.
@@ -303,7 +301,7 @@ class qtype_coderunner_question extends question_graded_automatically {
         if (isset($this->prototype->uiparameters)) { // Ensure prototype not missing.
             $uiparams->merge_json($this->prototype->uiparameters);
         }
-        $uiparams->merge_json($this->templateparamsjson, true); // Legacy support.    
+        $uiparams->merge_json($this->templateparamsjson, true); // Legacy support.
         $uiparams->merge_json($this->uiparameters);
         return $uiparams->updated_params();
     }
@@ -586,19 +584,19 @@ class qtype_coderunner_question extends question_graded_automatically {
         return $attachments;
     }
 
-    
+
     /** Pulls out the step information in the response, added by the CodeRunner
     /*  custom behaviour, for use by the question author in issuing feedback.
-     * 
+     *
      * @param type $response The usual response array enhanced by the addition of
      * numchecks, numprechecks and fraction values relating to the current step.
      * @return stdClass object with the numchecks, numprechecks and fraction
      * attributes.
      */
-    
+
     private static function step_info($response) {
         $stepinfo = new stdClass();
-        foreach(['numchecks', 'numprechecks', 'fraction', 'preferredbehaviour'] as $key) {
+        foreach (['numchecks', 'numprechecks', 'fraction', 'preferredbehaviour'] as $key) {
             $value = isset($response[$key]) ? $response[$key] : 0;
             $stepinfo->$key = $value;
         }
@@ -657,19 +655,19 @@ class qtype_coderunner_question extends question_graded_automatically {
             }
         }
     }
-    
+
     // Return a stdObject pseudo-clone of this question with only the fields
-    // documented in the README.md, for use in Twig expansion. 
+    // documented in the README.md, for use in Twig expansion.
     // HACK ALERT - the field uiparameters exported to the Twig context is
     // actually the mergeduiparameters field, just as the parameters field
     // is the merged template parameters. [Where merging refers to the combining
-    // of the prototype and the question.]
-    public function sanitisedCloneOfThis() {
+    // of the prototype and the question].
+    protected function sanitised_clone_of_this() {
         $clone = new stdClass();
         $fieldsrequired = array('id', 'name', 'questiontext', 'generalfeedback',
             'generalfeedbackformat', 'testcases',
-            'answer', 'answerpreload', 'language', 'globalextra', 'useace', 'sandbox', 
-            'grader', 'cputimelimitsecs', 'memlimitmb', 'sandboxparams', 
+            'answer', 'answerpreload', 'language', 'globalextra', 'useace', 'sandbox',
+            'grader', 'cputimelimitsecs', 'memlimitmb', 'sandboxparams',
             'parameters', 'resultcolumns', 'allornothing', 'precheck',
             'hidecheck', 'penaltyregime', 'iscombinatortemplate',
             'allowmultiplestdins', 'acelang', 'uiplugin', 'attachments',
@@ -686,7 +684,7 @@ class qtype_coderunner_question extends question_graded_automatically {
         }
         $clone->questionid = $this->id; // Legacy support.
         return $clone;
-    }   
+    }
 
     /**
      * Return Twig-expanded version of the given text.
@@ -698,7 +696,7 @@ class qtype_coderunner_question extends question_graded_automatically {
         if (empty(trim($text))) {
             return $text;
         } else {
-            $context['QUESTION'] = $this->sanitisedCloneOfThis();
+            $context['QUESTION'] = $this->sanitised_clone_of_this();
             if ($this->hoisttemplateparams) {
                 foreach ($this->parameters as $key => $value) {
                     $context[$key] = $value;

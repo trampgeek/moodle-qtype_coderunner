@@ -25,7 +25,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
@@ -33,7 +32,7 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
 
 class qtype_coderunner_graphui_save_testcase extends qtype_coderunner_testcase {
-    
+
     protected $qtype;
 
     protected function setUp(): void {

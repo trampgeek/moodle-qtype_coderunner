@@ -45,16 +45,16 @@ class qtype_coderunner_ui_parameters_testcase extends qtype_coderunner_testcase 
         $graphuiparams->merge_json('{"noderadius": 30}');
         $this->assertEquals(30, $graphuiparams->value('noderadius'));
         $json = $graphuiparams->to_json();
-        $params_array = json_decode($json, true);
-        $this->assertContains('noderadius', array_keys($params_array));
-        $this->assertEquals(30, $params_array['noderadius']);
+        $paramsarray = json_decode($json, true);
+        $this->assertContains('noderadius', array_keys($paramsarray));
+        $this->assertEquals(30, $paramsarray['noderadius']);
         $aceparams = new qtype_coderunner_ui_parameters('ace');
         $this->assertEmpty($aceparams->all_names());
     }
-    
+
     // Test that we can get a list of all plugins and their parameter lists.
     public function test_plugin_list() {
-        $plugins = qtype_coderunner_ui_plugins::getInstance();
+        $plugins = qtype_coderunner_ui_plugins::get_instance();
         $names = $plugins->all_names();
         $this->assertContains('ace', $names);
         $this->assertContains('graph', $names);
@@ -64,10 +64,10 @@ class qtype_coderunner_ui_parameters_testcase extends qtype_coderunner_testcase 
         $this->assertEquals(26, $graphparams->value('noderadius'));
         $this->assertContains('ace', $plugins->all_with_no_params());
     }
-    
+
     // Test the dropdown list for the plugins.
     public function test_dropdown() {
-        $plugins = qtype_coderunner_ui_plugins::getInstance();
+        $plugins = qtype_coderunner_ui_plugins::get_instance();
         $dropdowns = $plugins->dropdownlist();
         $this->assertEquals('None', $dropdowns['none']);
         $this->assertEquals('Graph', $dropdowns['graph']);

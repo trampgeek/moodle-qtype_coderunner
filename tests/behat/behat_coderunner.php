@@ -140,20 +140,19 @@ class behat_coderunner extends behat_base {
         $this->getSession()->getPage()->fillField('id_template', $dfatemplate);
 
     }
-    
-    /** 
-     * Sets the given field to a given value and dismisses the expected alert. 
+
+    /**
+     * Sets the given field to a given value and dismisses the expected alert.
      * @When /^I set the field "(?P<field_string>(?:[^"]|\\")*)" to "(?P<field_value_string>(?:[^"]|\\")*)" and dismiss the alert$/
-     * 
+     *
      * This is currently just a hack. I used to be able to catch UnexpectedAlertOpen
      * but that's not working any more. I can catch a general exception
      */
-    public function i_set_the_field_and_dismiss_the_alert($field, $value){
+    public function i_set_the_field_and_dismiss_the_alert($field, $value) {
         try {
             $this->execute('behat_forms::i_set_the_field_to', array($field, $this->escape($value)));
-        }
-        catch (Exception $e) {  # For some reason UnexpectedAlertOpen can't be caught.
-            // $this->getSession()->getDriver()->getWebDriver()->switchTo()->alert()->dismiss(); # And this doesn't work either.
+        } catch (Exception $e) {  // For some reason UnexpectedAlertOpen can't be caught.
+            // The following also doesn't work: $this->getSession()->getDriver()->getWebDriver()->switchTo()->alert()->dismiss().
             return; // But ignoring the exception altogether seems to work?!
         }
     }

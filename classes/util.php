@@ -20,8 +20,6 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-
-
 global $CFG;
 
 use qtype_coderunner\constants;
@@ -255,7 +253,7 @@ class qtype_coderunner_util {
 
     // Decode given json-encoded template parameters, returning an associative
     // array. Return an empty array if jsonparams is empty.
-    // If given invalid JSON, throws an bad_json_exception with the bad json as the message. 
+    // If given invalid JSON, throws an bad_json_exception with the bad json as the message.
     public static function template_params($jsonparams) {
         if (empty($jsonparams)) {
             return array();

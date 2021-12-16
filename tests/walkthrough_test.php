@@ -395,8 +395,8 @@ EOTEMPLATE;
         // start failing, and which point it should be replaced by the commented-out version.
         $this->assertEquals('Attempt finished submitting: ',
                 $qa->summarise_action($qa->get_last_step()));
-        //$this->assertEquals('Attempt finished submitting: def sqr(n): return n * n',
-        //        $qa->summarise_action($qa->get_last_step()));
+        // $this->assertEquals('Attempt finished submitting: def sqr(n): return n * n',
+        // $qa->summarise_action($qa->get_last_step()));
     }
 
     public function test_stop_button_always_never_answered() {
@@ -515,8 +515,8 @@ EOTEMPLATE;
         // start failing, and which point it should be replaced by the commented-out version.
         $this->assertEquals('Attempt finished submitting: ',
                 $qa->summarise_action($qa->get_last_step()));
-        //$this->assertEquals('Attempt finished submitting: wrong',
-        //        $qa->summarise_action($qa->get_last_step()));
+        // $this->assertEquals('Attempt finished submitting: wrong',
+        // $qa->summarise_action($qa->get_last_step()));
 
         // Also check what happens in Quiz deferred feedback mode, when all the quiz display
         // options are false, but the question is set to override that.
@@ -572,8 +572,8 @@ EOTEMPLATE;
         // start failing, and which point it should be replaced by the commented-out version.
         $this->assertEquals('Attempt finished submitting: ',
                 $qa->summarise_action($qa->get_last_step()));
-        //$this->assertEquals('Attempt finished submitting: def sqr(n): return 2 * n',
-        //        $qa->summarise_action($qa->get_last_step()));
+        // $this->assertEquals('Attempt finished submitting: def sqr(n): return 2 * n',
+        // $qa->summarise_action($qa->get_last_step()));
     }
 
     protected function get_contains_stop_button_expectation($enabled = null): question_contains_tag_with_attributes {
@@ -590,7 +590,7 @@ EOTEMPLATE;
         return new question_contains_tag_with_attributes('input', $expectedattributes, $forbiddenattributes);
     }
 
-    protected function get_does_not_contain_stop_button_expectation(): question_no_pattern_expectation{
+    protected function get_does_not_contain_stop_button_expectation(): question_no_pattern_expectation {
         return new question_no_pattern_expectation('/name="' .
             $this->quba->get_field_prefix($this->slot) . '-finish"/');
     }

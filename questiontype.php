@@ -412,7 +412,7 @@ class qtype_coderunner extends question_type {
         // Add in any testcases.
         if ($testcases = $DB->get_records('question_coderunner_tests',
                 array('questionid' => $question->id), 'id ASC')) {
-            $options->testcases = array_values($testcases); // Reindex tests from zero
+            $options->testcases = array_values($testcases); // Reindex tests from zero.
         } else {
             $options->testcases = array();
         }
@@ -448,10 +448,10 @@ class qtype_coderunner extends question_type {
                     $target->$field !== '' &&
                     $target->$field != $prototypevalue) {
                     $target->customise = true; // An inherited field has been changed.
-                } else {
-                    $target->$field = $prototypevalue; // Inherit the field value
-                }
+            } else {
+                $target->$field = $prototypevalue; // Inherit the field value.
             }
+        }
 
         if (!isset($target->sandbox)) {
             $target->sandbox = null;
@@ -502,7 +502,7 @@ class qtype_coderunner extends question_type {
         global $DB;
         list($contextcondition, $params) = $DB->get_in_or_equal($context->get_parent_context_ids(true));
         $params[] = $coderunnertype;
-        
+
         $sql = "SELECT q.id
                   FROM {question_coderunner_options} qco
                   JOIN {question} q ON qco.questionid = q.id
@@ -610,25 +610,6 @@ class qtype_coderunner extends question_type {
                 'question_coderunner_options',
                 array('questionid' => $questionid));
 
-        /*
-        if ($question->prototypetype != 0) {
-            $typeName = $question->coderunnertype;
-            $nUses = $DB->count_records('question_coderunner_options',
-                    array('prototypetype' => 0,
-                          'coderunnertype' => $typeName));
-            if ($nUses != 0) {
-                // TODO: see if a better solution to this problem can be found.
-                // Throwing an exception is very heavy-handed but the return
-                // value from this function is ignored by the question bank,
-                // and other deletion (e.g. of the question itself) proceeds
-                // regardless, leaving things in an even worse state than if
-                // I didn't even check for an in-use prototype!
-                throw new moodle_exception('Attempting to delete in-use prototype');
-            }
-        }
-
-        */
-
         $this->notify_prototype_children_if_any($question);
         $success = $DB->delete_records("question_coderunner_tests",
                 array('questionid' => $questionid));
@@ -640,7 +621,7 @@ class qtype_coderunner extends question_type {
     // prototype) that the parent has been edited (or perhaps deleted).
     private function notify_prototype_children_if_any($question) {
         global $DB;
-        
+
         if (defined('CACHE_DISABLE_ALL') && CACHE_DISABLE_ALL !== false) {
             return;  // If caching is off, nothing to do.
         }
