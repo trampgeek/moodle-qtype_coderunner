@@ -38,9 +38,18 @@ class qtype_coderunner_external extends external_api {
     public static function run_in_sandbox_parameters() {
         return new external_function_parameters(
             array(
-                'sourcecode' => new external_value(PARAM_RAW, 'The source code to be run', VALUE_REQUIRED),
-                'language' => new external_value(PARAM_TEXT, 'The computer language of the sourcecode', VALUE_REQUIRED),
-                'stdin' => new external_value(PARAM_RAW, 'The standard input to use for the run', VALUE_REQUIRED)
+                'sourcecode' => new external_value(PARAM_RAW,
+                        'The source code to be run', VALUE_REQUIRED),
+                'language' => new external_value(PARAM_TEXT,
+                        'The computer language of the sourcecode', VALUE_DEFAULT, 'python3'),
+                'stdin' => new external_value(PARAM_RAW,
+                        'The standard input to use for the run', VALUE_DEFAULT, ''),
+                'files' => new external_value(PARAM_RAW,
+                        'A JSON object in which attributes are filenames and values file contents',
+                        VALUE_DEFAULT, ''),
+                'params' => new external_value(PARAM_RAW,
+                        'A JSON object defining any sandbox parameters',
+                        VALUE_DEFAULT, '')
             )
         );
     }
@@ -56,20 +65,33 @@ class qtype_coderunner_external extends external_api {
 
     /**
      * Run a job in the sandbox (Jobe).
-     * @return string welcome message
+     * @param string $sourcecode The source code to be run.
+     * @param string $language The language of execution (default python3)
+     * @param string $stdin The standard input for the run (default empty)
+     * @param string $files A JSON object in which attributes are filenames and
+     * attribute values are the corresponding file contents.
+     * @param string $params A JSON object defining any required Jobe sandbox
+     * parameters (cputime, memorylimit etc).
+     * @return string JSON-encoded Jobe run-result object.
+     * @throws qtype_coderunner_exception
      */
-    public static function run_in_sandbox($sourcecode, $language, $stdin) {
+    public static function run_in_sandbox($sourcecode, $language='python3', $stdin='', $files='', $params='') {
         // Parameters validation.
-        $params = self::validate_parameters(self::run_in_sandbox_parameters(),
+        self::validate_parameters(self::run_in_sandbox_parameters(),
                 array('sourcecode' => $sourcecode,
                       'language' => $language,
-                      'stdin' => $stdin));
+                      'stdin' => $stdin,
+                      'files' => $files,
+                      'params' => $params
+                    ));
         $sandbox = qtype_coderunner_sandbox::get_best_sandbox($language);
         if ($sandbox === null) {
             throw new qtype_coderunner_exception("Language {$language} is not available on this system");
         }
         try {
-            $runresult = $sandbox->execute($sourcecode, $language, $stdin);
+            $filesarray = $files ? json_decode($files, true) : null;
+            $paramsarray = $params ? json_decode($params, true) : null;
+            $runresult = $sandbox->execute($sourcecode, $language, $stdin, $filesarray, $paramsarray);
         } catch (Exception $ex) {
             throw new qtype_coderunner_exception("Attempt to run job failed with error {$ex->message}");
         }
