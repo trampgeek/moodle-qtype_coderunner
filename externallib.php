@@ -39,17 +39,17 @@ class qtype_coderunner_external extends external_api {
         return new external_function_parameters(
             array(
                 'sourcecode' => new external_value(PARAM_RAW,
-                        'The source code to be run', VALUE_REQUIRED),
+                        'The source code to be run', PARAM_REQUIRED),
                 'language' => new external_value(PARAM_TEXT,
-                        'The computer language of the sourcecode', VALUE_DEFAULT, 'python3'),
+                        'The computer language of the sourcecode', PARAM_REQUIRED, 'python3'),
                 'stdin' => new external_value(PARAM_RAW,
-                        'The standard input to use for the run', VALUE_DEFAULT, ''),
+                        'The standard input to use for the run', PARAM_REQUIRED, ''),
                 'files' => new external_value(PARAM_RAW,
                         'A JSON object in which attributes are filenames and values file contents',
-                        VALUE_DEFAULT, ''),
+                        PARAM_DEFAULT, ''),
                 'params' => new external_value(PARAM_RAW,
                         'A JSON object defining any sandbox parameters',
-                        VALUE_DEFAULT, '')
+                        PARAM_DEFAULT, '')
             )
         );
     }
@@ -76,6 +76,14 @@ class qtype_coderunner_external extends external_api {
      * @throws qtype_coderunner_exception
      */
     public static function run_in_sandbox($sourcecode, $language='python3', $stdin='', $files='', $params='') {
+        // First, see if the web service is enabled.
+        if (!get_config('qtype_coderunner', 'wsenabled')) {
+            throw new qtype_coderunner_exception(get_string('wsdisabled', 'qtype_coderunner'));
+        }
+        // Now check if the user is logged in, and not a guest.
+        if (!isloggedin() || isguestuser()) {
+            throw new qtype_coderunner_exception(get_string('wsnoaccess', 'qtype_coderunner'));
+        }
         // Parameters validation.
         self::validate_parameters(self::run_in_sandbox_parameters(),
                 array('sourcecode' => $sourcecode,
@@ -90,7 +98,11 @@ class qtype_coderunner_external extends external_api {
         }
         try {
             $filesarray = $files ? json_decode($files, true) : null;
-            $paramsarray = $params ? json_decode($params, true) : null;
+            $paramsarray = $params ? json_decode($params, true) : array();
+            $jobehostws = get_config('qtype_coderunner', 'wsjobeserver').trim();
+            if ($jobehostws !== '') {
+                $paramsarray['jobeserver'] = $jobehostws;
+            }
             $runresult = $sandbox->execute($sourcecode, $language, $stdin, $filesarray, $paramsarray);
         } catch (Exception $ex) {
             throw new qtype_coderunner_exception("Attempt to run job failed with error {$ex->message}");
