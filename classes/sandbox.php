@@ -305,9 +305,7 @@ abstract class qtype_coderunner_sandbox {
      *         file contents, defining a file context at execution time
      * @param associative array $params Sandbox parameters, depends on
      *         particular sandbox but most sandboxes should recognise
-     *         at least cputime (secs), memorylimit (Megabytes) and
-     *         files (an associative array mapping filenames to string
-     *         filecontents)
+     *         at least cputime (secs) and memorylimit (Megabytes).
      *         If the $params array is null, sandbox defaults are used.
      * @return an object with at least an attribute 'error'. This is one of the
      *         values 0 through 8 (OK to UNKNOWN_SERVER_ERROR) as defined above.
