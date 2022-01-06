@@ -96,6 +96,14 @@ class qtype_coderunner_external extends external_api {
         if ($sandbox === null) {
             throw new qtype_coderunner_exception("Language {$language} is not available on this system");
         }
+
+        if (get_config('qtype_coderunner', 'wsloggingenabled')) {
+            $context = context_system::instance();
+            $event = \qtype_coderunner\event\sandbox_webservice_exec::create([
+                'contextid' => $context->id]);
+            $event->trigger();
+        }
+
         try {
             $filesarray = $files ? json_decode($files, true) : null;
             $paramsarray = $params ? json_decode($params, true) : array();
