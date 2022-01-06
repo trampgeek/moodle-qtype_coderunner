@@ -40,7 +40,7 @@ $functions = array(
         'description' => 'Runs a job on the Jobe sandbox server',
         'type'        => '',          // No DB access allowed.
         'ajax'        => true,        // The service is available to 'internal' ajax calls.
-        'capabilities' => '',         // I can't find a capability that allows a user to run a question?
+        'capabilities' => '',         // No capabilities being checked.
         'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE)  // TODO ** check implications of this.
     ),
 );
