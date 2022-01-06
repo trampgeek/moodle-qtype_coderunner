@@ -109,6 +109,7 @@ $string['coderunnersettings'] = 'CodeRunner settings';
 $string['coderunnersummary'] = 'Answer is program code that is executed in the context of a set of test cases to determine its correctness.';
 $string['coderunnertype'] = 'Question type';
 $string['coderunnertype_help'] = 'Select the programming language and question type. Once a type has been selected, details can be seen in the Question type details panel below.';
+$string['coderunnerwssettings'] = 'Jobe Web-service Settings';
 $string['columncontrols'] = 'Result table';
 $string['columncontrols_help'] = 'The checkboxes select which columns of the results table should be displayed to the student after submission';
 
@@ -325,6 +326,10 @@ $string['jobe_apikey'] = 'Jobe API-key';
 $string['jobe_apikey_desc'] = 'The API key to be included in all REST requests to the Jobe server (if required). Max 40 chars. Leave blank to omit the API Key from requests';
 $string['jobe_host'] = 'Jobe server';
 $string['jobe_host_desc'] = 'The host name of the Jobe server plus the port number if other than port 80, e.g. jobe.somewhere.edu:4010. The URL for the Jobe request is obtained by default by prefixing this string with http:// and appending /jobe/index.php/restapi/<REST_METHOD>. You may either specify the https:// protocol in front of the host name (e.g. https://jobe.somewhere.edu) if the Jobe server is set behind a reverse proxy which act as an SSL termination.';
+$string['jobe_host_ws'] = 'Jobe server to use for web services';
+$string['jobe_host_ws_desc'] = 'By default, the Jobe server web service will use
+the default CodeRunner Jobe server. For security it is better to use an alternative
+Jobe server, set by this field. Leave blank to use the default.';
 $string['jobe_warning_html'] = "<p style='background-color:yellow'>Run using the University of Canterbury's Jobe server. This is for initial testing only. Please set up your own Jobe server as soon as possible. See <a href='https://github.com/trampgeek/moodle-qtype_coderunner/blob/master/Readme.md#sandbox-configuration' target='_blank'>here</a>.</p>";
 $string['jobe_canterbury_html'] = "<p style='color:gray; font-style:italic; font-size:smaller'>Run on the University of Canterbury's Jobe server.</p>";
 
@@ -937,6 +942,9 @@ parameter and also, optionally, a \'jobeapikey\' parameter. For example, if the
 \'Parameters\' field is set to <code>{"jobeserver": "myspecialjobe.com"}</code>, the run
 will instead by submitted to the server "myspecialjobe.com".
 ';
+$string['enable_sandbox_ws'] = "Enable Jobe web service";
+$string['enable_sandbox_ws_desc'] = 'Enable the web service allowing direct
+access to the Jobe server. EXPERIMENTAL FEATURE.';
 $string['sandboxerror'] = 'Error from the sandbox [{$a->sandbox}]: {$a->message}';
 $string['sandboxparams'] = 'Parameters';
 $string['seethisquestioninthequestionbank'] = 'See this question in the question bank';
@@ -1198,5 +1206,7 @@ $string['useace'] = 'Template uses ace';
 $string['validateonsave'] = 'Validate on save';
 
 $string['wrongnumberofformats'] = 'Wrong number of test results column formats. Expected {$a->expected}, got {$a->got}';
+$string['wsdisabled'] = 'Sandbox web service disabled. Talk to a sysadmin';
+$string['wsnoaccess'] = 'Only logged-in non-guest users can access this functionality';
 
 $string['xmlcoderunnerformaterror'] = 'XML format error in coderunner question';
