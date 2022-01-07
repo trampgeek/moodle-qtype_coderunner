@@ -76,7 +76,7 @@ class qtype_coderunner_external extends external_api {
      * @throws qtype_coderunner_exception
      */
     public static function run_in_sandbox($sourcecode, $language='python3', $stdin='', $files='', $params='') {
-        global $USER; 
+        global $USER;
         // First, see if the web service is enabled.
         if (!get_config('qtype_coderunner', 'wsenabled')) {
             throw new qtype_coderunner_exception(get_string('wsdisabled', 'qtype_coderunner'));
@@ -104,12 +104,14 @@ class qtype_coderunner_external extends external_api {
             $readers = $logmanger->get_readers('\core\log\sql_reader');
             $reader = reset($readers);
             $maxhourlyrate = intval(get_config('qtype_coderunner', 'wsmaxhourlyrate'));
-            $hour_ago = strtotime('-1 hour');
-            $select = "userid = :userid AND eventname = :eventname AND timecreated > :since";
-            $log_params = array('userid' => $USER->id, 'since' => $hour_ago, 'eventname' => '\qtype_coderunner\event\sandbox_webservice_exec');
-            $currentrate = $reader->get_events_select_count($select, $log_params);
-            if ($currentrate >= $maxhourlyrate) {
-                throw new qtype_coderunner_exception(get_string('ws_submission_rate_exceeded', 'qtype_coderunner'));
+            if ($maxhourlyrate > 0) {
+                $hour_ago = strtotime('-1 hour');
+                $select = "userid = :userid AND eventname = :eventname AND timecreated > :since";
+                $log_params = array('userid' => $USER->id, 'since' => $hour_ago, 'eventname' => '\qtype_coderunner\event\sandbox_webservice_exec');
+                $currentrate = $reader->get_events_select_count($select, $log_params);
+                if ($currentrate >= $maxhourlyrate) {
+                    throw new qtype_coderunner_exception(get_string('ws_submission_rate_exceeded', 'qtype_coderunner'));
+                }
             }
             $context = context_system::instance();
             $event = \qtype_coderunner\event\sandbox_webservice_exec::create([
