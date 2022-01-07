@@ -95,9 +95,9 @@ $settings->add(new admin_setting_configtext(
         '')
 );
 
-$settings->add(new admin_setting_configcheckbox(
-        "qtype_coderunner/wsloggingenabled",
-        get_string('wsloggingenable', 'qtype_coderunner'),
-        get_string('wsloggingenable_desc', 'qtype_coderunner'),
-        false)
+$settings->add(new admin_setting_configtext(
+        "qtype_coderunner/wsmaxhourlyrate",
+        get_string('wsmaxhourlyrate', 'qtype_coderunner'),
+        get_string('wsmaxhourlyrate_desc', 'qtype_coderunner'),
+        '200')
 );

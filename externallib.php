@@ -39,17 +39,17 @@ class qtype_coderunner_external extends external_api {
         return new external_function_parameters(
             array(
                 'sourcecode' => new external_value(PARAM_RAW,
-                        'The source code to be run', PARAM_REQUIRED),
+                        'The source code to be run', VALUE_REQUIRED),
                 'language' => new external_value(PARAM_TEXT,
-                        'The computer language of the sourcecode', PARAM_REQUIRED, 'python3'),
+                        'The computer language of the sourcecode', VALUE_REQUIRED, 'python3'),
                 'stdin' => new external_value(PARAM_RAW,
-                        'The standard input to use for the run', PARAM_REQUIRED, ''),
+                        'The standard input to use for the run', VALUE_REQUIRED, ''),
                 'files' => new external_value(PARAM_RAW,
                         'A JSON object in which attributes are filenames and values file contents',
-                        PARAM_DEFAULT, ''),
-                'params' => new external_value(PARAM_RAW,
+                        VALUE_DEFAULT, ''),
+                'params' => new external_value(PARAM_TEXT,
                         'A JSON object defining any sandbox parameters',
-                        PARAM_DEFAULT, '')
+                        VALUE_DEFAULT, '')
             )
         );
     }
@@ -70,12 +70,13 @@ class qtype_coderunner_external extends external_api {
      * @param string $stdin The standard input for the run (default empty)
      * @param string $files A JSON object in which attributes are filenames and
      * attribute values are the corresponding file contents.
-     * @param string $params A JSON object defining any required Jobe sandbox
+     * @param string $params A JSON-encoded string defining any required Jobe sandbox
      * parameters (cputime, memorylimit etc).
      * @return string JSON-encoded Jobe run-result object.
      * @throws qtype_coderunner_exception
      */
     public static function run_in_sandbox($sourcecode, $language='python3', $stdin='', $files='', $params='') {
+        global $USER; 
         // First, see if the web service is enabled.
         if (!get_config('qtype_coderunner', 'wsenabled')) {
             throw new qtype_coderunner_exception(get_string('wsdisabled', 'qtype_coderunner'));
@@ -98,6 +99,18 @@ class qtype_coderunner_external extends external_api {
         }
 
         if (get_config('qtype_coderunner', 'wsloggingenabled')) {
+            // Check if need to throttle this user, and if not allow the request and log it.
+            $logmanager = get_log_manager();$logmanger = get_log_manager();
+            $readers = $logmanger->get_readers('\core\log\sql_reader');
+            $reader = reset($readers);
+            $maxhourlyrate = intval(get_config('qtype_coderunner', 'wsmaxhourlyrate'));
+            $hour_ago = strtotime('-1 hour');
+            $select = "userid = :userid AND eventname = :eventname AND timecreated > :since";
+            $log_params = array('userid' => $USER->id, 'since' => $hour_ago, 'eventname' => '\qtype_coderunner\event\sandbox_webservice_exec');
+            $currentrate = $reader->get_events_select_count($select, $log_params);
+            if ($currentrate >= $maxhourlyrate) {
+                throw new qtype_coderunner_exception(get_string('ws_submission_rate_exceeded', 'qtype_coderunner'));
+            }
             $context = context_system::instance();
             $event = \qtype_coderunner\event\sandbox_webservice_exec::create([
                 'contextid' => $context->id]);
@@ -107,7 +120,7 @@ class qtype_coderunner_external extends external_api {
         try {
             $filesarray = $files ? json_decode($files, true) : null;
             $paramsarray = $params ? json_decode($params, true) : array();
-            $jobehostws = get_config('qtype_coderunner', 'wsjobeserver').trim();
+            $jobehostws = trim(get_config('qtype_coderunner', 'wsjobeserver'));
             if ($jobehostws !== '') {
                 $paramsarray['jobeserver'] = $jobehostws;
             }

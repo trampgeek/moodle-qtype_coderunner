@@ -156,6 +156,10 @@ $string['errorstring-accessdenied'] = 'Access to sandbox denied';
 $string['errorstring-submissionlimitexceeded'] = 'Sandbox submission limit reached';
 $string['errorstring-submissionfailed'] = 'Submission to sandbox failed';
 $string['errorstring-unknown'] = 'Unexpected error while executing your code. The sandbox server may be down or overloaded. Perhaps try again shortly?';
+
+$string['event_sandboxwebserviceexec'] = 'CR sandbox exec';
+$string['event_sandboxwebserviceexec_desc'] = 'A job was executed via the CodeRunner sandbox web service.';
+
 $string['expand'] = 'Expand';
 $string['expandtitle'] = 'Show question categories';
 $string['expected'] = 'Expected output';
@@ -1207,6 +1211,12 @@ $string['validateonsave'] = 'Validate on save';
 
 $string['wrongnumberofformats'] = 'Wrong number of test results column formats. Expected {$a->expected}, got {$a->got}';
 $string['wsdisabled'] = 'Sandbox web service disabled. Talk to a sysadmin';
+$string['wsloggingenable'] = 'Log sandbox web service usage';
+$string['wsloggingenable_desc'] = 'If this option is checked, every code execution via the sandbox web service will be logged.';
 $string['wsnoaccess'] = 'Only logged-in non-guest users can access this functionality';
+$string['wsmaxhourlyrate'] = 'Max hourly rate of submissions';
+$string['wsmaxhourlyrate_desc'] = 'If a user attempts to exceed this rate of submissions in any given hour their submissions will be disallowed';
+$string['ws_submission_rate_exceeded'] = 'You have exceeded the maximum hourly \'Try it!\' submission rate. Request denied.';
+
 
 $string['xmlcoderunnerformaterror'] = 'XML format error in coderunner question';

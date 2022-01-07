@@ -47,11 +47,13 @@ class qtype_coderunner_util {
     // Load the ace scripts.
     public static function load_ace() {
         global $PAGE;
-        $plugindirrel = '/question/type/coderunner';
-        $PAGE->requires->js($plugindirrel . '/ace/ace.js');
-        $PAGE->requires->js($plugindirrel . '/ace/ext-language_tools.js');
-        $PAGE->requires->js($plugindirrel . '/ace/ext-modelist.js');
-        $PAGE->requires->js($plugindirrel . '/ace/ext-static_highlight.js');
+        if ($PAGE->requires->should_create_one_time_item_now('qtype_coderunner-ace-scripts')) {
+            $plugindirrel = '/question/type/coderunner';
+            $PAGE->requires->js($plugindirrel . '/ace/ace.js');
+            $PAGE->requires->js($plugindirrel . '/ace/ext-language_tools.js');
+            $PAGE->requires->js($plugindirrel . '/ace/ext-modelist.js');
+            $PAGE->requires->js($plugindirrel . '/ace/ext-static_highlight.js');
+        }
     }
 
 

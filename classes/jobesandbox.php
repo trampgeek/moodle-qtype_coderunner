@@ -108,9 +108,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
      *         file contents, defining a file context at execution time
      * @param associative array $params Sandbox parameters, depends on
      *         particular sandbox but most sandboxes should recognise
-     *         at least cputime (secs), memorylimit (Megabytes) and
-     *         files (an associative array mapping filenames to string
-     *         filecontents.
+     *         at least cputime (secs) and memorylimit (Megabytes).
      *         If the $params array is null, sandbox defaults are used.
      * @return an object with at least the attribute 'error'.
      *         The error attribute is one of the
