@@ -101,3 +101,10 @@ $settings->add(new admin_setting_configtext(
         get_string('wsmaxhourlyrate_desc', 'qtype_coderunner'),
         '200')
 );
+
+$settings->add(new admin_setting_configtext(
+        "qtype_coderunner/wsmaxcputime",
+        get_string('wsmaxcputime', 'qtype_coderunner'),
+        get_string('wsmaxcputime_desc', 'qtype_coderunner'),
+        '5')
+);
