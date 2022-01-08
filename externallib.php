@@ -107,12 +107,14 @@ class qtype_coderunner_external extends external_api {
             if ($maxhourlyrate > 0) {
                 $hour_ago = strtotime('-1 hour');
                 $select = "userid = :userid AND eventname = :eventname AND timecreated > :since";
-                $log_params = array('userid' => $USER->id, 'since' => $hour_ago, 'eventname' => '\qtype_coderunner\event\sandbox_webservice_exec');
+                $log_params = array('userid' => $USER->id, 'since' => $hour_ago,
+                    'eventname' => '\qtype_coderunner\event\sandbox_webservice_exec');
                 $currentrate = $reader->get_events_select_count($select, $log_params);
                 if ($currentrate >= $maxhourlyrate) {
                     throw new qtype_coderunner_exception(get_string('ws_submission_rate_exceeded', 'qtype_coderunner'));
                 }
             }
+
             $context = context_system::instance();
             $event = \qtype_coderunner\event\sandbox_webservice_exec::create([
                 'contextid' => $context->id]);
@@ -122,6 +124,12 @@ class qtype_coderunner_external extends external_api {
         try {
             $filesarray = $files ? json_decode($files, true) : null;
             $paramsarray = $params ? json_decode($params, true) : array();
+            $maxcputime = intval(get_config('qtype_coderunner', 'wsmaxcputime'));  // Limit CPU time through this service.
+            if (isset($paramsarray['cputime'])) {
+                $paramsarray['cputime'] = min($paramsarray['cputime'], $maxcputime);
+            } else {
+                $paramsarray['cputime'] = $maxcputime;
+            }
             $jobehostws = trim(get_config('qtype_coderunner', 'wsjobeserver'));
             if ($jobehostws !== '') {
                 $paramsarray['jobeserver'] = $jobehostws;
