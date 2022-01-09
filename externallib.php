@@ -111,7 +111,7 @@ class qtype_coderunner_external extends external_api {
                     'eventname' => '\qtype_coderunner\event\sandbox_webservice_exec');
                 $currentrate = $reader->get_events_select_count($select, $log_params);
                 if ($currentrate >= $maxhourlyrate) {
-                    throw new qtype_coderunner_exception(get_string('ws_submission_rate_exceeded', 'qtype_coderunner'));
+                    throw new qtype_coderunner_exception(get_string('wssubmissionrateexceeded', 'qtype_coderunner'));
                 }
             }
 
