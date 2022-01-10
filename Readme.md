@@ -1,6 +1,6 @@
 # CodeRunner
 
-Version: 4.1.1 November 2021
+Version: 4.2.1 January 2022
 
 Authors: Richard Lobb, University of Canterbury, New Zealand.
          Tim Hunt, The Open University, UK.
@@ -362,7 +362,7 @@ Assuming you have built *Jobe* on a separate server, suitably firewalled,
 the JobeSandbox fully
 isolates student code from the Moodle server. Some users install Jobe on
 the Moodle server but this is not recommended for security reasons: a student
-who manages to break out of the Jobe security might then run code on the 
+who manages to break out of the Jobe security might then run code on the
 Moodle server itself if it is not adequately locked down. If you really want to
 run Jobe on the Moodle server, please at least use the JobeInAbox docker image,
 which should adequately protect the Moodle system from direct damage.
@@ -429,7 +429,7 @@ By "executable", we mean a program that can be executed, possibly
 with a preliminary compilation step.
 1. The executable program is passed to the Jobe sandbox, which compiles
    the program (if necessary) and runs it,
-   using the standard input supplied by the testcase. 
+   using the standard input supplied by the testcase.
 1. The output from the run is passed into whatever Grader component is
    configured, as is the expected output specified for the test case.
    The most common grader is the
@@ -684,7 +684,7 @@ be customised or extended in various ways.
 The following question types, used by the University
 of Canterbury (UOC) are not part of the basic supported question type set.
 They can be imported, if desired, from the file
-`uoc_prototypes.xml`, located in the CodeRunner/coderunner/samples folder. 
+`uoc_prototypes.xml`, located in the CodeRunner/coderunner/samples folder.
 However, they come with no guarantees of correctness or on-going support.
 
 The UOC question types include:
@@ -731,7 +731,7 @@ answer, the test code and other custom code within the template itself.
 The template for a question is by default defined by the CodeRunner question
 type, which itself is defined by a special "prototype" question, to be explained later.
 You can inspect the template of any question by clicking the customise box in
-the question authoring form. 
+the question authoring form.
 
 A question's template can be either a *per-test template* or a *combinator
 template*. The first one is the simpler; it is applied once for every test
@@ -838,7 +838,7 @@ variable they are given a TESTCASES variable. This is
 is a list of all the individual TEST objects. A combinator template is expected
 to iterate through all the tests in a single run, separating the output
 from the different tests with a special separator string, defined within the
-question authoring form. The default separator string is 
+question authoring form. The default separator string is
 
     "#<ab@17943918#@>#"
 
@@ -976,7 +976,7 @@ like
 If you're a newcomer to customising templates or developing your own question type (see later),
 it is recommended that you start
 with a per-test template, and move to a combinator template only when you're
-familiar with how things work and need the performance gain offered by a 
+familiar with how things work and need the performance gain offered by a
 combinator template.
 
 ## Template debugging
@@ -1051,7 +1051,7 @@ The full `python3_cosc121` question type is much more complex than the
 above, because it includes many extra features, enabled by use of
 [template parameters](#template-parameters).
 
-Some other complex question types that we've built using the technique 
+Some other complex question types that we've built using the technique
 described above include:
 
  1. A Matlab question in which the template code (also Matlab) breaks down
@@ -1218,7 +1218,7 @@ For example, if there is a template parameter function name, defined as, say,
 the body of the question might begin
 
 Write a function `{{ functionname }}(items)` that takes a list of items as a
-parameter and returns the first ... 
+parameter and returns the first ...
 
 The test cases would then also need be parameterised, e.g. the test code might
 be
@@ -1298,7 +1298,7 @@ on the sandbox server and cannot even be displayed until the run completes. If
 you are running a large test or exam, and students all start at the same time,
 there can be thousands of jobs hitting the sandbox server within a few seconds.
 This is almost certain to overload it! Caveat emptor! The approach should,
-however, be safe for lab and assignment use, when students are not all 
+however, be safe for lab and assignment use, when students are not all
 starting the quiz at the same time.
 
 If you still wish to use this approach , here's how to do it.
@@ -1309,7 +1309,7 @@ The template parameter program must print to standard output a single valid JSON
 which then is used in exactly the same way as if it had been entered into the
 template parameter field as pure JSON with no preprocessor. The program is given
 command line arguments specifying the random number seed that it must use
-and the various attributes of the student. For example, it should behave as if 
+and the various attributes of the student. For example, it should behave as if
 invoked from a Linux command line of the form:
 
     blah seed=1257134 id=902142 username='amgc001' firstname='Angus' 'lastname=McGurk' email='angus@somewhere.ac'
@@ -1338,13 +1338,13 @@ student's first name:
     first_name = args['firstname']
     print(json.dumps({'func_name': func_name, 'first_name': first_name}))
 
-The question text could then say 
+The question text could then say
 
 Write a function {{ func_name }}() that prints a welcome message of the
 form "Hello {{ first_name }}!".
 
 However, please realise that that is an extremely bad example of when to use
-a preprocessor, as the job is more easily and more efficiently done in Twig, 
+a preprocessor, as the job is more easily and more efficiently done in Twig,
 as explained in the section [Randomising questions](#randomising-questions).
 Note, too, that *Twig All* must be set.
 
@@ -1352,10 +1352,10 @@ Note, too, that *Twig All* must be set.
 When you select a preprocessor other than Twig, a checkbox 'Evaluate per
 run' is shown, and is initially unchecked. This controls when the preprocessor
 gets called. If you are using the template preprocessor for randomisation or
-for per-student customisation, 
-you must check this option so that the preprocessor is invoked for each 
-student when they start their attempt. As explained above, this can have serious 
-load implications. 
+for per-student customisation,
+you must check this option so that the preprocessor is invoked for each
+student when they start their attempt. As explained above, this can have serious
+load implications.
 
 However, if you are using the template preprocessor for other purposes,
 e.g. to compute values within the question text in a non-randomised question
@@ -1386,12 +1386,12 @@ test only when *Precheck* is clicked" and 2 denotes "always run this test".
  * `TEST.extra` Whatever text was entered by the author into the Extra field of this test.
  * `TEST.stdin` The standard input (as a text string) to be used when running this test. This
 isn't generally needed by the question author because CodeRunner by default copies it to
-a file and sets standard input to use that file when running the test. 
+a file and sets standard input to use that file when running the test.
  * `TEST.expected` The expected output when running this test.
  * `TEST.useasexample` True (1) if the "Use as example" checkbox is checked for
 this test.
  * `TEST.display` One of the string values "SHOW", "HIDE", "HIDE_IF_SUCCEED" or
-"HIDE_IF_FAIL". 
+"HIDE_IF_FAIL".
  * `TEST.hiderestiffail` True (1) if the "Hide rest if fail" checkbox is checked
 for this test.
  * `TEST.mark` How many marks to allocate to this test. Meaningful only if
@@ -1437,11 +1437,11 @@ Other fields are:
  * `QUESTION.questiontext` The question text itself
  * `QUESTION.answerpreload` The string that is preloaded into the answer box.
  * `QUESTION.stepinfo`. An object with info regarding the current step. Attributes
-   are *preferredbehaviour*, *numchecks*, *numprechecks* and *fraction* being respectively the 
+   are *preferredbehaviour*, *numchecks*, *numprechecks* and *fraction* being respectively the
    behaviour set for the quiz in which the question is running, the number
    of times the user has clicked *Check* prior to this submission, the number
    of times the user has clicked *Precheck* prior to this submission, and the
-   best fraction (0 - 1) the student has achieved so far 
+   best fraction (0 - 1) the student has achieved so far
    on this question (not including this submission). Additionally, if a
    combinator template grader is being used and the question author has chosen
    to report the grader state in a previous submission, a string-valued attribute
@@ -2389,7 +2389,7 @@ not recommended.
 
 This is a new and still experimental variant on the Gap Filler UI in which
 the text is rendered by the Ace editor with all usual syntax highlighting
-but the user can edit only the text in the gaps. 
+but the user can edit only the text in the gaps.
 
 It behaves exactly like the Gap Filler UI, above, except that it does not
 currently support the {[ rows, columns ]} syntax for multiline gaps. Only
@@ -2483,7 +2483,7 @@ A workaround for this problem is to include the special macro string
 
     ___textareaId___
 
-as part of any new ids. Note the capital-I and that there are THREE (3) underscores at both the 
+as part of any new ids. Note the capital-I and that there are THREE (3) underscores at both the
 start and end of the macro string.
 
 When the Html UI inserts the global extra
@@ -2702,7 +2702,7 @@ distribution.
 The above is just a general template and some languages will need additional
 tweaks, e.g. to set up required environment variables. One user tells me that
 he had to redirect stderr output to stdout in the call to subprocess.check_output
-when using R, because it apparently writes some messages and warnings to 
+when using R, because it apparently writes some messages and warnings to
 stderr while still returning a 0 ('SUCCESS') exit code. In another example,
 the same user reports that Erlang requires the HOME environment variable to
 be defined and set to be the current working directory.
@@ -2758,6 +2758,16 @@ isn't efficient for sluggish languages like Java.
 If the author wishes to supply a sample answer to a multilanguage question,
 they must write it in the default language, if specified, or the
 first of the allowed languages otherwise.
+
+## The 'qtype_coderunner_run_in_sandbox' web service
+
+Note: This feature is experimental and may change in the future.
+
+CodeRunner provides an Ajax-accessible web service that allows JavaScript code
+to directly run jobs on the (or 'a') CodeRunner sandbox (usually a Jobe
+server). This service is used by the *ace_inline_code* Moodle filter plugin
+in order to display syntax-coloured editable code with a 'Try it!' button
+in any Moodle content page.
 
 ## Administrator scripts
 

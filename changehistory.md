@@ -1,5 +1,27 @@
 # CHANGE HISTORY
 
+### 10 January 2022. 4.2.1
+
+ * Stop-and-read-feedback option added.
+ * New experimental web service added that allows AJAX access to the
+   CodeRunner sandbox (usually Jobe). Disabled by default. Supports the new
+   experimental ace_inline_code filter (find it on github).
+ * Allow a comma-separated list of Jobe servers, from which one is randomly
+   selected for any given job.
+ * Improve error handling when a combinator template grader fails, particularly
+   with PostgreSQL servers.
+ * Plug security hole in Twig that could be exploited to allow question authors
+   to run code on the Moodle server itself.
+ * Add graderstate functionality for use by combinator template graders, allowing
+   them to customise grade and feedback according to prior submissions.
+ * Add field coderunnerversion added to stepinfo.
+ * In TableUI make num_rows = 2 an explicit default.
+ * Bug fix: an erroneous assert statement was causing PHP warnings to be logged.
+   regarding prototype already loaded if assert checking was turned on.
+ * Visibility of failing questions in bulk tester improved.
+ * Various code refactoring to conform to moodle standards.
+ * Various documentation tweaks.
+
 ### 26 September 2021. 4.1.0+
 
  * Bug fix: ace_gapfiller UI doesn't display warning if Ace editor not loaded.
@@ -30,7 +52,7 @@
  * Bug fix: saving a question with an undefined question type could crash.
  * Bug fix: students with spaces or apostrophes in their names were breaking
    question that used Jobe-based template-parameter preprocessors.
- * Bug fix: sample answer for multilanguage questions were not being correctly 
+ * Bug fix: sample answer for multilanguage questions were not being correctly
    displayed.
  * Bug fix: multilanguage questions were not being validated using the 'answer_language'
    template parameter but were instead using the default language.
@@ -54,7 +76,7 @@
  * Separate UI-plugin parameters from template parameters and provide an improved UI
    that lists all available UI parameters and their meanings for the currently
    selected UI.
- * Update Twig to the latest version (3.1). 
+ * Update Twig to the latest version (3.1).
  * Add QUESTION.stepinfo to the Twig environment. This is a record with attributes
    preferredbehaviour, numchecks, numprechecks and fraction allowing authors
    to provide more elaborate feedback according to quiz mode and previous submissions.
@@ -96,7 +118,7 @@
  * Bug fix: customising a question to use a non-standard Jobe server did not
    work if that server required an API key.
  * Several documentation tweaks.
- 
+
 
 ### 26 June 2020. 3.7.8
 
