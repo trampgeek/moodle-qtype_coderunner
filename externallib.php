@@ -138,6 +138,7 @@ class qtype_coderunner_external extends external_api {
         } catch (Exception $ex) {
             throw new qtype_coderunner_exception("Attempt to run job failed with error {$ex->message}");
         }
+        $runresult->sandboxinfo = null; // Prevent leakage of info.
         return json_encode($runresult);
     }
 }
