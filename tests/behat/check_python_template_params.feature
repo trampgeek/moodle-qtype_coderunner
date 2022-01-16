@@ -1,4 +1,3 @@
-
 @qtype @qtype_coderunner @javascript @pythonpreprocessortest
 Feature: Check that Python and other languages can be used instead of Twig as a template params preprocessor and that they processes the STUDENT variable correctly.
   To check that the STUDENT template parameter variables work when a language other than python is the preprocessor
@@ -82,8 +81,8 @@ Background:
     Then I should see "Write a program that prints True if seed parameter provided, then StudentFirst OConnell"
     And I should see "Passed all tests"
 
-  Scenario: Turn off per-try evaluation. Question should fail when attempted by student. 
-    When I am on "Course 1" course homepage 
+  Scenario: Turn off per-try evaluation. Question should fail when attempted by student.
+    When I am on "Course 1" course homepage
     And I navigate to "Question bank" in current page administration
     And I choose "Edit question" action for "Python preprocessor" in the question bank
     And I set the following fields to these values:
