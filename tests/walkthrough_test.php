@@ -391,12 +391,8 @@ EOTEMPLATE;
                 $this->get_does_not_contain_stop_button_expectation(),
                 $this->get_no_hint_visible_expectation(),
                 $this->get_contains_general_feedback_expectation($q));
-        // Once the fix for MDL-72901 lands in Moodle core, this next assertion will
-        // start failing, and which point it should be replaced by the commented-out version.
-        $this->assertEquals('Attempt finished submitting: ',
+        $this->assertEquals('Attempt finished submitting: def sqr(n): return n * n',
                 $qa->summarise_action($qa->get_last_step()));
-        // $this->assertEquals('Attempt finished submitting: def sqr(n): return n * n',
-        // $qa->summarise_action($qa->get_last_step()));
     }
 
     public function test_stop_button_always_never_answered() {
@@ -511,12 +507,8 @@ EOTEMPLATE;
                 $this->get_does_not_contain_stop_button_expectation(),
                 $this->get_no_hint_visible_expectation(),
                 $this->get_contains_general_feedback_expectation($q));
-        // Once the fix for MDL-72901 lands in Moodle core, this next assertion will
-        // start failing, and which point it should be replaced by the commented-out version.
-        $this->assertEquals('Attempt finished submitting: ',
+        $this->assertEquals('Attempt finished submitting: wrong',
                 $qa->summarise_action($qa->get_last_step()));
-        // $this->assertEquals('Attempt finished submitting: wrong',
-        // $qa->summarise_action($qa->get_last_step()));
 
         // Also check what happens in Quiz deferred feedback mode, when all the quiz display
         // options are false, but the question is set to override that.
@@ -568,12 +560,8 @@ EOTEMPLATE;
                 $this->get_does_not_contain_stop_button_expectation(),
                 $this->get_no_hint_visible_expectation(),
                 $this->get_contains_general_feedback_expectation($q));
-        // Once the fix for MDL-72901 lands in Moodle core, this next assertion will
-        // start failing, and which point it should be replaced by the commented-out version.
-        $this->assertEquals('Attempt finished submitting: ',
+        $this->assertEquals('Attempt finished submitting: def sqr(n): return 2 * n',
                 $qa->summarise_action($qa->get_last_step()));
-        // $this->assertEquals('Attempt finished submitting: def sqr(n): return 2 * n',
-        // $qa->summarise_action($qa->get_last_step()));
     }
 
     protected function get_contains_stop_button_expectation($enabled = null): question_contains_tag_with_attributes {
