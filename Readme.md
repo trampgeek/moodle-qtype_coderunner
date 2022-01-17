@@ -2791,7 +2791,8 @@ administrator. There are several additional configuration options:
  2. Enable logging. By default every request made using the web service is
     logged to the Moodle event log. Only logged-in users can use the service,
     and the event records simply the name of the user and the date and time
-    and which they made use of the service. Logging can be disabled by unchecking
+    at which they made use of the service. It does not record which particular
+    page or script initiated the request Logging can be disabled by unchecking
     this option, which will reduce the size of user-activity reports if there
     is heavy usage of the web service. Unless there is a problem with the
     size of reports, however, it is strongly recommended to leave logging enabled.
@@ -2804,8 +2805,8 @@ administrator. There are several additional configuration options:
     the specified rate over the preceding hour. The feature works only if
     event logging is enabled.
 
- 4. Maximum allowed CPU time. Again, to mitigate against abuse, the maximum
-    CPU time that a web service job can take is set settable by a system administrator.
+ 4. Maximum allowed CPU time. The maximum
+    CPU time that a web service job can take is configurable by a system administrator.
     The default value of 5 seconds is sufficient for most short runs but larger
     values might be appropriate in some environments. The absolute maximum CPU
     time is set by the Jobe server configuration and is usually about 50 seconds.
@@ -2852,32 +2853,33 @@ This page displays a textarea into which a user can enter Python code, which
 can then be run by clicking the button. The output is displayed in an alert.
 The [ace_inline filter plugin](https://github.com/trampgeek/ace_inline)
 does something similar to this, except it
-uses the Ace editor to provide code editing and has many more configuration
+uses the Ace editor to provide code editing, displays the output inline in the
+page, does much more extensive error analysis and has many more configuration
 options.
 
 The *response* object is an object with at least an attribute 'error'. This is one of the
 values 0 through 9 (OK to SERVER_OVERLOAD) as defined in the CodeRunner source
-file [sandbox.php*](https://github.com/trampgeek/moodle-qtype_coderunner/blob/master/classes/sandbox.php).
+file [sandbox.php](https://github.com/trampgeek/moodle-qtype_coderunner/blob/master/classes/sandbox.php).
 Any value other than 0 is a sandbox error of some sort,
 meaning the run did not take place.
 
 If error is 0 (OK), the job did get run on the sandbox server and the returned
 object then has additional attributes
-result, output, stderr, signal and cmpinfo as follows:
+`result`, `output`, `stderr`, `signal` and `cmpinfo` as follows:
 
- o result: one of the result constants defined in *sandbox.php*. The hoped-for
+ * `result`: one of the result constants defined in *sandbox.php*. The hoped-for
    value is 15 ('RESULT_SUCCESS'). Other common values are 11
    ('RESULT_COMPILATION_ERROR), 12 ('RESULT_RUNTIME_ERROR') and 13 ('RESULT_TIME_LIMIT').
    Other outcomes are more serious (and much more rare) and can be classified as, say,
    'Unexpected sandbox error'.
 
- o output: the stdout from the run
+ * `output`: the stdout from the run
 
- o stderr: the stderr output from the run (generally a non-empty string is taken as a runtime error)
+ * `stderr`: the stderr output from the run (generally a non-empty string is taken as a runtime error)
 
- o signal: one of the standard Linux signal values (but often not used)
+ * `signal`: one of the standard Linux signal values (but often not used)
 
- o cmpinfo: the output from the compilation run (usually empty unless the result
+ * `cmpinfo`: the output from the compilation run (usually empty unless the result
    code is for a compilation error).
 
 If error is anything other than OK, the returned object may optionally
@@ -2885,20 +2887,19 @@ include an error message in the stderr field.
 
 Other arguments to the ajax webservice call are:
 
- o `stdin`, which prides a fixed string to use as standard input by the code.
+ * `stdin`, which prides a fixed string to use as standard input by the code.
 
- o `files`, which is a JSON-encoded object that provides a map from a so-called 'filename'
+ * `files`, which is a JSON-encoded object that provides a map from a so-called 'filename'
    (the attribute name) to 'file contents' (the attribute value). Each attribute
    of the files object is used to create a file in the working directory on
    the Jobe server.
 
- o `params`, which is a JSON-encoded object that defines parameters to the
-   jobe sandbox. For example the string value
+ * `params`, which is a JSON-encoded object that defines parameters to the
+   jobe sandbox. For example the following string value would set the maximum
+   runtime on the sandbox to 10 seconds (although constrained
+   by the system administrator's setting of the maximum allowed CPU time):
 
        {"cputime": 10}
-
-    would set the maximum runtime on the sandbox to 10 seconds (although constrained
-    by the system administrator's setting of the maximum allowed CPU time).
 
 ## Administrator scripts
 
