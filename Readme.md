@@ -2764,10 +2764,138 @@ first of the allowed languages otherwise.
 Note: This feature is experimental and may change in the future.
 
 CodeRunner provides an Ajax-accessible web service that allows JavaScript code
-to directly run jobs on the (or 'a') CodeRunner sandbox (usually a Jobe
-server). This service is used by the *ace_inline_code* Moodle filter plugin
+to directly run jobs on the Jobe server. (More precisely, it runs jobs
+on whatever sandbox has been configured for the specified language, but
+nowadays the only sandbox in production use is the Jobe sandbox).
+This service was added to support the
+[Ace_inline code Moodle filter plugin](https://github.com/trampgeek/ace_inline)
 in order to display syntax-coloured editable code with a 'Try it!' button
-in any Moodle content page.
+in any Moodle content page, but may have other uses.
+
+### Enabling and configuring the web service
+
+The web service is not enabled by default, and must be enabled in the CodeRunner
+settings page by by a moodle system
+administrator. There are several additional configuration options:
+
+ 1. Jobe server to use for web services. The sandbox server
+    web service will use whatever sandbox is configured for the specified
+    language. This is virtually always a Jobe server, and the particular
+    Jobe server to use is configured via the admin interface (above).
+    However, for best web service security it is better to use an alternative
+    Jobe server, set by this field. Leave blank to use the default.
+
+ 2. Enable logging. By default every request made using the web service is
+    logged to the Moodle event log. Only logged-in users can use the service,
+    and the event records simply the name of the user and the date and time
+    and which they made use of the service. Logging can be disabled by unchecking
+    this option, which will reduce the size of user-activity reports if there
+    is heavy usage of the web service. Unless there is a problem with the
+    size of reports, however, it is strongly recommended to leave logging enabled.
+
+ 3. Maximum hourly submission rate. If logging is enabled (above) the system
+    administrator can set a per-user maximum web service submission rate. This
+    is mostly a security feature to prevent abuse of the service, for example by
+    JavaScripted automatic submissions. The default rate is 200 submissions
+    per hour. The system denies any request that would result in exceeding
+    the specified rate over the preceding hour. The feature works only if
+    event logging is enabled.
+
+ 4. Maximum allowed CPU time. Again, to mitigate against abuse, the maximum
+    CPU time that a web service job can take is set settable by a system administrator.
+    The default value of 5 seconds is sufficient for most short runs but larger
+    values might be appropriate in some environments. The absolute maximum CPU
+    time is set by the Jobe server configuration and is usually about 50 seconds.
+
+### Use of the web service.
+
+The service is intended for use within Moodle content pages, usually within
+AMD scripts. However, the service can be used from JavaScript directly
+embedded in a page using an HTML editor. For example:
+
+        <h3>A simple demo of the CodeRunner sandbox web service.</h3>
+        <textarea id="code" rows="4" cols="40"></textarea>
+        <br>
+        <button id="mybutton">Run me!</button>
+
+        <script>
+            var button = document.getElementById('mybutton');
+            var text = document.getElementById('code');
+            button.onclick = function() {
+                require(['core/ajax'], function(ajax) {
+                    ajax.call([{
+                        methodname: 'qtype_coderunner_run_in_sandbox',
+                        args: {
+                            sourcecode: text.value,
+                            language: "python3"
+                        },
+                        done: function(responseJson) {
+                            var response = JSON.parse(responseJson);
+                            if (response.error !== 0 || response.result !== 15) {
+                                alert("Oops: " + responseJson);
+                            } else {
+                                alert("Output was: '" + response.output + "'");
+                            }
+                        },
+                        fail: function(error) {
+                            alert(error.message);
+                        }
+                    }]);
+                });
+            }
+        </script>
+
+This page displays a textarea into which a user can enter Python code, which
+can then be run by clicking the button. The output is displayed in an alert.
+The [ace_inline filter plugin](https://github.com/trampgeek/ace_inline)
+does something similar to this, except it
+uses the Ace editor to provide code editing and has many more configuration
+options.
+
+The *response* object is an object with at least an attribute 'error'. This is one of the
+values 0 through 9 (OK to SERVER_OVERLOAD) as defined in the CodeRunner source
+file [sandbox.php*](https://github.com/trampgeek/moodle-qtype_coderunner/blob/master/classes/sandbox.php).
+Any value other than 0 is a sandbox error of some sort,
+meaning the run did not take place.
+
+If error is 0 (OK), the job did get run on the sandbox server and the returned
+object then has additional attributes
+result, output, stderr, signal and cmpinfo as follows:
+
+ o result: one of the result constants defined in *sandbox.php*. The hoped-for
+   value is 15 ('RESULT_SUCCESS'). Other common values are 11
+   ('RESULT_COMPILATION_ERROR), 12 ('RESULT_RUNTIME_ERROR') and 13 ('RESULT_TIME_LIMIT').
+   Other outcomes are more serious (and much more rare) and can be classified as, say,
+   'Unexpected sandbox error'.
+
+ o output: the stdout from the run
+
+ o stderr: the stderr output from the run (generally a non-empty string is taken as a runtime error)
+
+ o signal: one of the standard Linux signal values (but often not used)
+
+ o cmpinfo: the output from the compilation run (usually empty unless the result
+   code is for a compilation error).
+
+If error is anything other than OK, the returned object may optionally
+include an error message in the stderr field.
+
+Other arguments to the ajax webservice call are:
+
+ o `stdin`, which prides a fixed string to use as standard input by the code.
+
+ o `files`, which is a JSON-encoded object that provides a map from a so-called 'filename'
+   (the attribute name) to 'file contents' (the attribute value). Each attribute
+   of the files object is used to create a file in the working directory on
+   the Jobe server.
+
+ o `params`, which is a JSON-encoded object that defines parameters to the
+   jobe sandbox. For example the string value
+
+       {"cputime": 10}
+
+    would set the maximum runtime on the sandbox to 10 seconds (although constrained
+    by the system administrator's setting of the maximum allowed CPU time).
 
 ## Administrator scripts
 
