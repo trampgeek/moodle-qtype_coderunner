@@ -1,4 +1,4 @@
-define("ace/mode/doc_comment_highlight_rules",["require","exports","module","ace/lib/oop","ace/mode/text_highlight_rules"], function(require, exports, module) {
+ace.define("ace/mode/doc_comment_highlight_rules",["require","exports","module","ace/lib/oop","ace/mode/text_highlight_rules"], function(require, exports, module) {
 "use strict";
 
 var oop = require("../lib/oop");
@@ -48,7 +48,7 @@ exports.DocCommentHighlightRules = DocCommentHighlightRules;
 
 });
 
-define("ace/mode/asl_highlight_rules",["require","exports","module","ace/lib/oop","ace/mode/doc_comment_highlight_rules","ace/mode/text_highlight_rules"], function(require, exports, module) {
+ace.define("ace/mode/asl_highlight_rules",["require","exports","module","ace/lib/oop","ace/mode/doc_comment_highlight_rules","ace/mode/text_highlight_rules"], function(require, exports, module) {
     "use strict";
 
     var oop = require("../lib/oop");
@@ -58,16 +58,7 @@ define("ace/mode/asl_highlight_rules",["require","exports","module","ace/lib/oop
     var ASLHighlightRules = function() {
         var keywords = (
             "Default|DefinitionBlock|Device|Method|Else|ElseIf|For|Function|If|Include|Method|Return|" +
-            "Scope|Switch|Case|While|Break|BreakPoint|Continue|NoOp|Wait"
-        );
-
-        var keywordOperators = (
-            "Add|And|Decrement|Divide|Increment|Index|LAnd|LEqual|LGreater|LGreaterEqual|" +
-            "LLess|LLessEqual|LNot|LNotEqual|LOr|Mod|Multiply|NAnd|NOr|Not|Or|RefOf|Revision|" +
-            "ShiftLeft|ShiftRight|Subtract|XOr|DerefOf"
-        );
-
-        var buildinFunctions = (
+            "Scope|Switch|Case|While|Break|BreakPoint|Continue|NoOp|Wait|True|False|" +
             "AccessAs|Acquire|Alias|BankField|Buffer|Concatenate|ConcatenateResTemplate|" +
             "CondRefOf|Connection|CopyObject|CreateBitField|CreateByteField|CreateDWordField|" +
             "CreateField|CreateQWordField|CreateWordField|DataTableRegion|Debug|" +
@@ -81,6 +72,12 @@ define("ace/mode/asl_highlight_rules",["require","exports","module","ace/lib/oop
             "Store|ThermalZone|Timer|ToBCD|ToBuffer|ToDecimalString|ToInteger|ToPLD|ToString|" +
             "ToUUID|UARTSerialBusV2|Unicode|Unload|VendorLong|VendorShort|WordBusNumber|WordIO|" +
             "WordSpace"
+        );
+
+        var keywordOperators = (
+            "Add|And|Decrement|Divide|Increment|Index|LAnd|LEqual|LGreater|LGreaterEqual|" +
+            "LLess|LLessEqual|LNot|LNotEqual|LOr|Mod|Multiply|NAnd|NOr|Not|Or|RefOf|Revision|" +
+            "ShiftLeft|ShiftRight|Subtract|XOr|DerefOf"
         );
 
         var flags = (
@@ -121,8 +118,12 @@ define("ace/mode/asl_highlight_rules",["require","exports","module","ace/lib/oop
             "ThermalZoneObj|BuffFieldObj|DDBHandleObj"
         );
 
-        var buildinConstants = (
+        var builtinConstants = (
             "__FILE__|__PATH__|__LINE__|__DATE__|__IASL__"
+        );
+
+        var strNumbers = (
+            "One|Ones|Zero"
         );
 
         var deprecated = (
@@ -131,11 +132,11 @@ define("ace/mode/asl_highlight_rules",["require","exports","module","ace/lib/oop
 
         var keywordMapper = this.createKeywordMapper({
             "keyword": keywords,
+            "constant.numeric": strNumbers,
             "keyword.operator": keywordOperators,
-            "function.buildin": buildinFunctions,
-            "constant.language": buildinConstants,
+            "constant.language": builtinConstants,
             "storage.type": storageTypes,
-            "constant.character": flags,
+            "constant.library": flags,
             "invalid.deprecated": deprecated
         }, "identifier");
 
@@ -174,13 +175,13 @@ define("ace/mode/asl_highlight_rules",["require","exports","module","ace/lib/oop
                     regex : /0[xX][0-9a-fA-F]+\b/
                 }, {
                     token : "constant.numeric",
-                    regex : /(One(s)?|Zero|True|False|[0-9]+)\b/
+                    regex : /[0-9]+\b/
                 }, {
                     token : keywordMapper,
                     regex : "[a-zA-Z_$][a-zA-Z0-9_$]*\\b"
                 }, {
                     token : "keyword.operator",
-                    regex : "/|!|\\$|%|&|\\||\\*|\\-\\-|\\-|\\+\\+|\\+|~|==|=|!=|\\^|<=|>=|<<=|>>=|>>>=|<>|<|>|!|&&|\\|\\||\\?\\:|\\*=|%=|\\+=|\\-=|&=|\\^=|\\|="
+                    regex : /[!\~\*\/%+-<>\^|=&]/
                 }, {
                     token : "lparen",
                     regex : "[[({]"
@@ -251,7 +252,7 @@ define("ace/mode/asl_highlight_rules",["require","exports","module","ace/lib/oop
     exports.ASLHighlightRules = ASLHighlightRules;
 });
 
-define("ace/mode/folding/cstyle",["require","exports","module","ace/lib/oop","ace/range","ace/mode/folding/fold_mode"], function(require, exports, module) {
+ace.define("ace/mode/folding/cstyle",["require","exports","module","ace/lib/oop","ace/range","ace/mode/folding/fold_mode"], function(require, exports, module) {
 "use strict";
 
 var oop = require("../../lib/oop");
@@ -391,7 +392,7 @@ oop.inherits(FoldMode, BaseFoldMode);
 
 });
 
-define("ace/mode/asl",["require","exports","module","ace/lib/oop","ace/mode/text","ace/mode/asl_highlight_rules","ace/mode/folding/cstyle"], function (require, exports, module) {
+ace.define("ace/mode/asl",["require","exports","module","ace/lib/oop","ace/mode/text","ace/mode/asl_highlight_rules","ace/mode/folding/cstyle"], function (require, exports, module) {
     "use strict";
 
     var oop = require("../lib/oop");
@@ -412,7 +413,7 @@ define("ace/mode/asl",["require","exports","module","ace/lib/oop","ace/mode/text
 
     exports.Mode = Mode;
 });                (function() {
-                    window.require(["ace/mode/asl"], function(m) {
+                    ace.require(["ace/mode/asl"], function(m) {
                         if (typeof module == "object" && typeof exports == "object" && module) {
                             module.exports = m;
                         }

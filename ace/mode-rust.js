@@ -1,19 +1,20 @@
-define("ace/mode/rust_highlight_rules",["require","exports","module","ace/lib/oop","ace/mode/text_highlight_rules"], function(require, exports, module) {
+ace.define("ace/mode/rust_highlight_rules",["require","exports","module","ace/lib/oop","ace/mode/text_highlight_rules"], function(require, exports, module) {
 "use strict";
 
 var oop = require("../lib/oop");
 var TextHighlightRules = require("./text_highlight_rules").TextHighlightRules;
 
 var stringEscape = /\\(?:[nrt0'"\\]|x[\da-fA-F]{2}|u\{[\da-fA-F]{6}\})/.source;
+var wordPattern = /[a-zA-Z_\xa1-\uffff][a-zA-Z0-9_\xa1-\uffff]*/.source;
 var RustHighlightRules = function() {
 
     this.$rules = { start:
        [ { token: 'variable.other.source.rust',
-           regex: '\'[a-zA-Z_][a-zA-Z0-9_]*(?![\\\'])' },
+           regex: '\'' + wordPattern + '(?![\\\'])' },
          { token: 'string.quoted.single.source.rust',
            regex: "'(?:[^'\\\\]|" + stringEscape + ")'" },
          { token: 'identifier',
-           regex:  /r#[a-zA-Z_][a-zA-Z0-9_]*\b/ },
+           regex:  "r#" + wordPattern + "\\b" },
          {
             stateName: "bracketedComment",
             onMatch : function(value, currentState, stack){
@@ -53,10 +54,10 @@ var RustHighlightRules = function() {
                 regex: stringEscape },
               { defaultToken: 'string.quoted.double.source.rust' } ] },
          { token: [ 'keyword.source.rust', 'text', 'entity.name.function.source.rust' ],
-           regex: '\\b(fn)(\\s+)((?:r#)?[a-zA-Z_][a-zA-Z0-9_]*)' },
-         { token: 'support.constant', regex: '\\b[a-zA-Z_][\\w\\d]*::' },
+           regex: '\\b(fn)(\\s+)((?:r#)?'+ wordPattern + ')' },
+         { token: 'support.constant', regex: wordPattern + '::' },
          { token: 'keyword.source.rust',
-           regex: '\\b(?:abstract|alignof|as|become|box|break|catch|continue|const|crate|default|do|dyn|else|enum|extern|for|final|if|impl|in|let|loop|macro|match|mod|move|mut|offsetof|override|priv|proc|pub|pure|ref|return|self|sizeof|static|struct|super|trait|type|typeof|union|unsafe|unsized|use|virtual|where|while|yield)\\b' },
+           regex: '\\b(?:abstract|alignof|as|async|await|become|box|break|catch|continue|const|crate|default|do|dyn|else|enum|extern|for|final|if|impl|in|let|loop|macro|match|mod|move|mut|offsetof|override|priv|proc|pub|pure|ref|return|self|sizeof|static|struct|super|trait|type|typeof|union|unsafe|unsized|use|virtual|where|while|yield)\\b' },
          { token: 'storage.type.source.rust',
            regex: '\\b(?:Self|isize|usize|char|bool|u8|u16|u32|u64|u128|f16|f32|f64|i8|i16|i32|i64|i128|str|option|either|c_float|c_double|c_void|FILE|fpos_t|DIR|dirent|c_char|c_schar|c_uchar|c_short|c_ushort|c_int|c_uint|c_long|c_ulong|size_t|ptrdiff_t|clock_t|time_t|c_longlong|c_ulonglong|intptr_t|uintptr_t|off_t|dev_t|ino_t|pid_t|mode_t|ssize_t)\\b' },
          { token: 'variable.language.source.rust', regex: '\\bself\\b' },
@@ -108,7 +109,7 @@ oop.inherits(RustHighlightRules, TextHighlightRules);
 exports.RustHighlightRules = RustHighlightRules;
 });
 
-define("ace/mode/folding/cstyle",["require","exports","module","ace/lib/oop","ace/range","ace/mode/folding/fold_mode"], function(require, exports, module) {
+ace.define("ace/mode/folding/cstyle",["require","exports","module","ace/lib/oop","ace/range","ace/mode/folding/fold_mode"], function(require, exports, module) {
 "use strict";
 
 var oop = require("../../lib/oop");
@@ -248,7 +249,7 @@ oop.inherits(FoldMode, BaseFoldMode);
 
 });
 
-define("ace/mode/rust",["require","exports","module","ace/lib/oop","ace/mode/text","ace/mode/rust_highlight_rules","ace/mode/folding/cstyle"], function(require, exports, module) {
+ace.define("ace/mode/rust",["require","exports","module","ace/lib/oop","ace/mode/text","ace/mode/rust_highlight_rules","ace/mode/folding/cstyle"], function(require, exports, module) {
 "use strict";
 
 var oop = require("../lib/oop");
@@ -272,7 +273,7 @@ oop.inherits(Mode, TextMode);
 
 exports.Mode = Mode;
 });                (function() {
-                    window.require(["ace/mode/rust"], function(m) {
+                    ace.require(["ace/mode/rust"], function(m) {
                         if (typeof module == "object" && typeof exports == "object" && module) {
                             module.exports = m;
                         }

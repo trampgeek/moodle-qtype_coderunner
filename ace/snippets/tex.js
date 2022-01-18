@@ -1,4 +1,4 @@
-define("ace/snippets/tex",["require","exports","module"], function(require, exports, module) {
+ace.define("ace/snippets/tex",["require","exports","module"], function(require, exports, module) {
 "use strict";
 
 exports.snippetText = "#PREAMBLE\n\
@@ -195,7 +195,7 @@ snippet sum\n\
 exports.scope = "tex";
 
 });                (function() {
-                    window.require(["ace/snippets/tex"], function(m) {
+                    ace.require(["ace/snippets/tex"], function(m) {
                         if (typeof module == "object" && typeof exports == "object" && module) {
                             module.exports = m;
                         }

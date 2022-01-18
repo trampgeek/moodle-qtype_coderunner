@@ -1,4 +1,4 @@
-define("ace/snippets/css",["require","exports","module"], function(require, exports, module) {
+ace.define("ace/snippets/css",["require","exports","module"], function(require, exports, module) {
 "use strict";
 
 exports.snippetText = "snippet .\n\
@@ -972,7 +972,7 @@ snippet zoo\n\
 exports.scope = "css";
 
 });                (function() {
-                    window.require(["ace/snippets/css"], function(m) {
+                    ace.require(["ace/snippets/css"], function(m) {
                         if (typeof module == "object" && typeof exports == "object" && module) {
                             module.exports = m;
                         }

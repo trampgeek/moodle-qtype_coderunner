@@ -1,4 +1,4 @@
-define("ace/snippets/python",["require","exports","module"], function(require, exports, module) {
+ace.define("ace/snippets/python",["require","exports","module"], function(require, exports, module) {
 "use strict";
 
 exports.snippetText = "snippet #!\n\
@@ -163,7 +163,7 @@ snippet getopt\n\
 exports.scope = "python";
 
 });                (function() {
-                    window.require(["ace/snippets/python"], function(m) {
+                    ace.require(["ace/snippets/python"], function(m) {
                         if (typeof module == "object" && typeof exports == "object" && module) {
                             module.exports = m;
                         }

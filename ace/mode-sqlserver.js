@@ -1,4 +1,4 @@
-define("ace/mode/doc_comment_highlight_rules",["require","exports","module","ace/lib/oop","ace/mode/text_highlight_rules"], function(require, exports, module) {
+ace.define("ace/mode/doc_comment_highlight_rules",["require","exports","module","ace/lib/oop","ace/mode/text_highlight_rules"], function(require, exports, module) {
 "use strict";
 
 var oop = require("../lib/oop");
@@ -48,7 +48,7 @@ exports.DocCommentHighlightRules = DocCommentHighlightRules;
 
 });
 
-define("ace/mode/sqlserver_highlight_rules",["require","exports","module","ace/lib/oop","ace/mode/doc_comment_highlight_rules","ace/mode/text_highlight_rules"], function(require, exports, module) {
+ace.define("ace/mode/sqlserver_highlight_rules",["require","exports","module","ace/lib/oop","ace/mode/doc_comment_highlight_rules","ace/mode/text_highlight_rules"], function(require, exports, module) {
 "use strict";
 
 var oop = require("../lib/oop");
@@ -198,7 +198,7 @@ oop.inherits(SqlServerHighlightRules, TextHighlightRules);
 exports.SqlHighlightRules = SqlServerHighlightRules;
 });
 
-define("ace/mode/folding/cstyle",["require","exports","module","ace/lib/oop","ace/range","ace/mode/folding/fold_mode"], function(require, exports, module) {
+ace.define("ace/mode/folding/cstyle",["require","exports","module","ace/lib/oop","ace/range","ace/mode/folding/fold_mode"], function(require, exports, module) {
 "use strict";
 
 var oop = require("../../lib/oop");
@@ -338,7 +338,7 @@ oop.inherits(FoldMode, BaseFoldMode);
 
 });
 
-define("ace/mode/folding/sqlserver",["require","exports","module","ace/lib/oop","ace/range","ace/mode/folding/cstyle"], function(require, exports, module) {
+ace.define("ace/mode/folding/sqlserver",["require","exports","module","ace/lib/oop","ace/range","ace/mode/folding/cstyle"], function(require, exports, module) {
 "use strict";
 
 var oop = require("../../lib/oop");
@@ -407,7 +407,7 @@ oop.inherits(FoldMode, BaseFoldMode);
 
 });
 
-define("ace/mode/sqlserver",["require","exports","module","ace/lib/oop","ace/mode/text","ace/mode/sqlserver_highlight_rules","ace/mode/folding/sqlserver"], function(require, exports, module) {
+ace.define("ace/mode/sqlserver",["require","exports","module","ace/lib/oop","ace/mode/text","ace/mode/sqlserver_highlight_rules","ace/mode/folding/sqlserver"], function(require, exports, module) {
 "use strict";
 
 var oop = require("../lib/oop");
@@ -429,13 +429,14 @@ oop.inherits(Mode, TextMode);
         return session.$mode.$highlightRules.completions;
     };
     
-    this.$id = "ace/mode/sql";
+    this.$id = "ace/mode/sqlserver";
+    this.snippetFileId = "ace/snippets/sqlserver";
 }).call(Mode.prototype);
 
 exports.Mode = Mode;
 
 });                (function() {
-                    window.require(["ace/mode/sqlserver"], function(m) {
+                    ace.require(["ace/mode/sqlserver"], function(m) {
                         if (typeof module == "object" && typeof exports == "object" && module) {
                             module.exports = m;
                         }

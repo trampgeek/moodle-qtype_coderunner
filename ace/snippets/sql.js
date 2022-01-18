@@ -1,4 +1,4 @@
-define("ace/snippets/sql",["require","exports","module"], function(require, exports, module) {
+ace.define("ace/snippets/sql",["require","exports","module"], function(require, exports, module) {
 "use strict";
 
 exports.snippetText = "snippet tbl\n\
@@ -31,7 +31,7 @@ snippet s*\n\
 exports.scope = "sql";
 
 });                (function() {
-                    window.require(["ace/snippets/sql"], function(m) {
+                    ace.require(["ace/snippets/sql"], function(m) {
                         if (typeof module == "object" && typeof exports == "object" && module) {
                             module.exports = m;
                         }

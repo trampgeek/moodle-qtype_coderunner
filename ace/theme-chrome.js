@@ -1,4 +1,4 @@
-define("ace/theme/chrome",["require","exports","module","ace/lib/dom"], function(require, exports, module) {
+ace.define("ace/theme/chrome",["require","exports","module","ace/lib/dom"], function(require, exports, module) {
 
 exports.isDark = false;
 exports.cssClass = "ace-chrome";
@@ -124,9 +124,9 @@ background: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAACCAYAAACZ
 ";
 
 var dom = require("../lib/dom");
-dom.importCssString(exports.cssText, exports.cssClass);
+dom.importCssString(exports.cssText, exports.cssClass, false);
 });                (function() {
-                    window.require(["ace/theme/chrome"], function(m) {
+                    ace.require(["ace/theme/chrome"], function(m) {
                         if (typeof module == "object" && typeof exports == "object" && module) {
                             module.exports = m;
                         }

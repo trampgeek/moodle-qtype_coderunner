@@ -1,4 +1,4 @@
-define("ace/theme/chaos",["require","exports","module","ace/lib/dom"], function(require, exports, module) {
+ace.define("ace/theme/chaos",["require","exports","module","ace/lib/dom"], function(require, exports, module) {
 
 exports.isDark = true;
 exports.cssClass = "ace-chaos";
@@ -121,7 +121,7 @@ color: #777;\
 .ace-chaos .ace_fold-widget.ace_start,\
 .ace-chaos .ace_fold-widget.ace_end,\
 .ace-chaos .ace_fold-widget.ace_closed{\
-background: none;\
+background: none !important;\
 border: none;\
 box-shadow: none;\
 }\
@@ -151,10 +151,10 @@ color: #000;\
 ";
 
 var dom = require("../lib/dom");
-dom.importCssString(exports.cssText, exports.cssClass);
+dom.importCssString(exports.cssText, exports.cssClass, false);
 
 });                (function() {
-                    window.require(["ace/theme/chaos"], function(m) {
+                    ace.require(["ace/theme/chaos"], function(m) {
                         if (typeof module == "object" && typeof exports == "object" && module) {
                             module.exports = m;
                         }

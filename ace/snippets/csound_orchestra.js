@@ -1,4 +1,4 @@
-define("ace/snippets/csound_orchestra",["require","exports","module"], function(require, exports, module) {
+ace.define("ace/snippets/csound_orchestra",["require","exports","module"], function(require, exports, module) {
 "use strict";
 
 exports.snippetText = "# else\n\
@@ -52,7 +52,7 @@ snippet while\n\
 exports.scope = "csound_orchestra";
 
 });                (function() {
-                    window.require(["ace/snippets/csound_orchestra"], function(m) {
+                    ace.require(["ace/snippets/csound_orchestra"], function(m) {
                         if (typeof module == "object" && typeof exports == "object" && module) {
                             module.exports = m;
                         }

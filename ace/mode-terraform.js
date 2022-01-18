@@ -1,4 +1,4 @@
-define("ace/mode/terraform_highlight_rules",["require","exports","module","ace/lib/oop","ace/mode/text_highlight_rules"], function (require, exports, module) {
+ace.define("ace/mode/terraform_highlight_rules",["require","exports","module","ace/lib/oop","ace/mode/text_highlight_rules"], function (require, exports, module) {
 "use strict";
 
 var oop = require("../lib/oop");
@@ -40,11 +40,15 @@ var TerraformHighlightRules = function () {
 
             {
                 token: "singleline.comment.terraform",
-                regex: '#(.)*$'
+                regex: '#.*$'
+            },
+            {
+                token: "singleline.comment.terraform",
+                regex: '//.*$'
             },
             {
                 token: "multiline.comment.begin.terraform",
-                regex: '^\\s*\\/\\*',
+                regex: /\/\*/,
                 push: "blockComment"
             },
             {
@@ -66,11 +70,7 @@ var TerraformHighlightRules = function () {
             {include: "variables"}
         ],
         blockComment: [{
-            regex: "^\\s*\\/\\*",
-            token: "multiline.comment.begin.terraform",
-            push: "blockComment"
-        }, {
-            regex: "\\*\\/\\s*$",
+            regex: /\*\//,
             token: "multiline.comment.end.terraform",
             next: "pop"
         }, {
@@ -181,7 +181,7 @@ oop.inherits(TerraformHighlightRules, TextHighlightRules);
 exports.TerraformHighlightRules = TerraformHighlightRules;
 });
 
-define("ace/mode/folding/cstyle",["require","exports","module","ace/lib/oop","ace/range","ace/mode/folding/fold_mode"], function(require, exports, module) {
+ace.define("ace/mode/folding/cstyle",["require","exports","module","ace/lib/oop","ace/range","ace/mode/folding/fold_mode"], function(require, exports, module) {
 "use strict";
 
 var oop = require("../../lib/oop");
@@ -321,7 +321,7 @@ oop.inherits(FoldMode, BaseFoldMode);
 
 });
 
-define("ace/mode/matching_brace_outdent",["require","exports","module","ace/range"], function(require, exports, module) {
+ace.define("ace/mode/matching_brace_outdent",["require","exports","module","ace/range"], function(require, exports, module) {
 "use strict";
 
 var Range = require("../range").Range;
@@ -361,7 +361,7 @@ var MatchingBraceOutdent = function() {};
 exports.MatchingBraceOutdent = MatchingBraceOutdent;
 });
 
-define("ace/mode/terraform",["require","exports","module","ace/lib/oop","ace/mode/text","ace/mode/terraform_highlight_rules","ace/mode/behaviour/cstyle","ace/mode/folding/cstyle","ace/mode/matching_brace_outdent"], function (require, exports, module) {
+ace.define("ace/mode/terraform",["require","exports","module","ace/lib/oop","ace/mode/text","ace/mode/terraform_highlight_rules","ace/mode/behaviour/cstyle","ace/mode/folding/cstyle","ace/mode/matching_brace_outdent"], function (require, exports, module) {
 "use strict";
 
 var oop = require("../lib/oop");
@@ -383,12 +383,15 @@ oop.inherits(Mode, TextMode);
 
 
 (function () {
+    this.lineCommentStart = ["#", "//"];
+    this.blockComment = {start: "/*", end: "*/"};
+    
     this.$id = "ace/mode/terraform";
 }).call(Mode.prototype);
 
 exports.Mode = Mode;
 });                (function() {
-                    window.require(["ace/mode/terraform"], function(m) {
+                    ace.require(["ace/mode/terraform"], function(m) {
                         if (typeof module == "object" && typeof exports == "object" && module) {
                             module.exports = m;
                         }

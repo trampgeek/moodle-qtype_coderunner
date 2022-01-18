@@ -1,4 +1,4 @@
-define("ace/snippets/erlang",["require","exports","module"], function(require, exports, module) {
+ace.define("ace/snippets/erlang",["require","exports","module"], function(require, exports, module) {
 "use strict";
 
 exports.snippetText = "# module and export all\n\
@@ -165,7 +165,7 @@ snippet gen_server\n\
 exports.scope = "erlang";
 
 });                (function() {
-                    window.require(["ace/snippets/erlang"], function(m) {
+                    ace.require(["ace/snippets/erlang"], function(m) {
                         if (typeof module == "object" && typeof exports == "object" && module) {
                             module.exports = m;
                         }

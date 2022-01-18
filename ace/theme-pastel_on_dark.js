@@ -1,4 +1,4 @@
-define("ace/theme/pastel_on_dark",["require","exports","module","ace/lib/dom"], function(require, exports, module) {
+ace.define("ace/theme/pastel_on_dark",["require","exports","module","ace/lib/dom"], function(require, exports, module) {
 
 exports.isDark = true;
 exports.cssClass = "ace-pastel-on-dark";
@@ -104,9 +104,9 @@ background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAACCAYAAACZgb
 }";
 
 var dom = require("../lib/dom");
-dom.importCssString(exports.cssText, exports.cssClass);
+dom.importCssString(exports.cssText, exports.cssClass, false);
 });                (function() {
-                    window.require(["ace/theme/pastel_on_dark"], function(m) {
+                    ace.require(["ace/theme/pastel_on_dark"], function(m) {
                         if (typeof module == "object" && typeof exports == "object" && module) {
                             module.exports = m;
                         }

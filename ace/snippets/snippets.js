@@ -1,4 +1,4 @@
-define("ace/snippets/snippets",["require","exports","module"], function(require, exports, module) {
+ace.define("ace/snippets/snippets",["require","exports","module"], function(require, exports, module) {
 "use strict";
 
 exports.snippetText = "# snippets for making snippets :)\n\
@@ -14,7 +14,7 @@ snippet v\n\
 exports.scope = "snippets";
 
 });                (function() {
-                    window.require(["ace/snippets/snippets"], function(m) {
+                    ace.require(["ace/snippets/snippets"], function(m) {
                         if (typeof module == "object" && typeof exports == "object" && module) {
                             module.exports = m;
                         }

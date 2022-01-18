@@ -1,4 +1,4 @@
-define("ace/ext/themelist",["require","exports","module"], function(require, exports, module) {
+ace.define("ace/ext/themelist",["require","exports","module"], function(require, exports, module) {
 "use strict";
 
 var themeData = [
@@ -13,7 +13,7 @@ var themeData = [
     ["Solarized Light"],
     ["TextMate"       ],
     ["Tomorrow"       ],
-    ["XCode"          ],
+    ["Xcode"          ],
     ["Kuroir"],
     ["KatzenMilch"],
     ["SQL Server"           ,"sqlserver"               , "light"],
@@ -30,6 +30,8 @@ var themeData = [
     ["Merbivore Soft"       ,"merbivore_soft"          ,  "dark"],
     ["Mono Industrial"      ,"mono_industrial"         ,  "dark"],
     ["Monokai"              ,"monokai"                 ,  "dark"],
+    ["Nord Dark"            ,"nord_dark"               ,  "dark"],
+    ["One Dark"             ,"one_dark"                ,  "dark"],
     ["Pastel on dark"       ,"pastel_on_dark"          ,  "dark"],
     ["Solarized Dark"       ,"solarized_dark"          ,  "dark"],
     ["Terminal"             ,"terminal"                ,  "dark"],
@@ -56,7 +58,7 @@ exports.themes = themeData.map(function(data) {
 });
 
 });                (function() {
-                    window.require(["ace/ext/themelist"], function(m) {
+                    ace.require(["ace/ext/themelist"], function(m) {
                         if (typeof module == "object" && typeof exports == "object" && module) {
                             module.exports = m;
                         }

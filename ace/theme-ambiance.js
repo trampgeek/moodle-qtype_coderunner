@@ -1,4 +1,4 @@
-define("ace/theme/ambiance",["require","exports","module","ace/lib/dom"], function(require, exports, module) {
+ace.define("ace/theme/ambiance",["require","exports","module","ace/lib/dom"], function(require, exports, module) {
 
 exports.isDark = true;
 exports.cssClass = "ace-ambiance";
@@ -25,7 +25,7 @@ color: #777;\
 .ace-ambiance .ace_fold-widget.ace_start,\
 .ace-ambiance .ace_fold-widget.ace_end,\
 .ace-ambiance .ace_fold-widget.ace_closed{\
-background: none;\
+background: none !important;\
 border: none;\
 box-shadow: none;\
 }\
@@ -169,13 +169,14 @@ background-image: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMgAAADICA
 }\
 .ace-ambiance .ace_indent-guide {\
 background: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAACCAYAAACZgbYnAAAAEklEQVQImWNQUFD4z6Crq/sfAAuYAuYl+7lfAAAAAElFTkSuQmCC\") right repeat-y;\
-}";
+}\
+";
 
 var dom = require("../lib/dom");
-dom.importCssString(exports.cssText, exports.cssClass);
+dom.importCssString(exports.cssText, exports.cssClass, false);
 
 });                (function() {
-                    window.require(["ace/theme/ambiance"], function(m) {
+                    ace.require(["ace/theme/ambiance"], function(m) {
                         if (typeof module == "object" && typeof exports == "object" && module) {
                             module.exports = m;
                         }

@@ -1,4 +1,4 @@
-define("ace/mode/csound_preprocessor_highlight_rules",["require","exports","module","ace/lib/oop","ace/mode/text_highlight_rules"], function(require, exports, module) {
+ace.define("ace/mode/csound_preprocessor_highlight_rules",["require","exports","module","ace/lib/oop","ace/mode/text_highlight_rules"], function(require, exports, module) {
 "use strict";
 
 var oop = require("../lib/oop");
@@ -280,7 +280,7 @@ oop.inherits(CsoundPreprocessorHighlightRules, TextHighlightRules);
 exports.CsoundPreprocessorHighlightRules = CsoundPreprocessorHighlightRules;
 });
 
-define("ace/mode/csound_score_highlight_rules",["require","exports","module","ace/lib/oop","ace/mode/csound_preprocessor_highlight_rules"], function(require, exports, module) {
+ace.define("ace/mode/csound_score_highlight_rules",["require","exports","module","ace/lib/oop","ace/mode/csound_preprocessor_highlight_rules"], function(require, exports, module) {
 "use strict";
 
 var oop = require("../lib/oop");
@@ -300,7 +300,7 @@ var CsoundScoreHighlightRules = function(embeddedRulePrefix) {
     start.push(
         {
             token : "keyword.control.csound-score",
-            regex : /[abCdefiqstvxy]/
+            regex : /[aBbCdefiqstvxy]/
         }, {
             token : "invalid.illegal.csound-score",
             regex : /w/
@@ -431,7 +431,7 @@ oop.inherits(CsoundScoreHighlightRules, CsoundPreprocessorHighlightRules);
 exports.CsoundScoreHighlightRules = CsoundScoreHighlightRules;
 });
 
-define("ace/mode/csound_score",["require","exports","module","ace/lib/oop","ace/mode/text","ace/mode/csound_score_highlight_rules"], function(require, exports, module) {
+ace.define("ace/mode/csound_score",["require","exports","module","ace/lib/oop","ace/mode/text","ace/mode/csound_score_highlight_rules"], function(require, exports, module) {
 "use strict";
 
 var oop = require("../lib/oop");
@@ -448,11 +448,12 @@ oop.inherits(Mode, TextMode);
     this.lineCommentStart = ";";
     this.blockComment = {start: "/*", end: "*/"};
 
+    this.$id = "ace/mode/csound_score";
 }).call(Mode.prototype);
 
 exports.Mode = Mode;
 });                (function() {
-                    window.require(["ace/mode/csound_score"], function(m) {
+                    ace.require(["ace/mode/csound_score"], function(m) {
                         if (typeof module == "object" && typeof exports == "object" && module) {
                             module.exports = m;
                         }

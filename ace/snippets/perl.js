@@ -1,4 +1,4 @@
-define("ace/snippets/perl",["require","exports","module"], function(require, exports, module) {
+ace.define("ace/snippets/perl",["require","exports","module"], function(require, exports, module) {
 "use strict";
 
 exports.snippetText = "# #!/usr/bin/perl\n\
@@ -352,7 +352,7 @@ snippet debug_trace\n\
 exports.scope = "perl";
 
 });                (function() {
-                    window.require(["ace/snippets/perl"], function(m) {
+                    ace.require(["ace/snippets/perl"], function(m) {
                         if (typeof module == "object" && typeof exports == "object" && module) {
                             module.exports = m;
                         }

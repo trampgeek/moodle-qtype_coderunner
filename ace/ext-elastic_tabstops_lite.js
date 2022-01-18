@@ -1,4 +1,4 @@
-define("ace/ext/elastic_tabstops_lite",["require","exports","module","ace/editor","ace/config"], function(require, exports, module) {
+ace.define("ace/ext/elastic_tabstops_lite",["require","exports","module","ace/editor","ace/config"], function(require, exports, module) {
 "use strict";
 
 var ElasticTabstopsLite = function(editor) {
@@ -268,7 +268,7 @@ require("../config").defineOptions(Editor.prototype, "editor", {
 });
 
 });                (function() {
-                    window.require(["ace/ext/elastic_tabstops_lite"], function(m) {
+                    ace.require(["ace/ext/elastic_tabstops_lite"], function(m) {
                         if (typeof module == "object" && typeof exports == "object" && module) {
                             module.exports = m;
                         }
