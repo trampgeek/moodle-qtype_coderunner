@@ -15,21 +15,20 @@
 // along with CodeRunner.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package   qtype_coderunner
- * @copyright Richard Lobb, The University of Canterbury, New Zealand.
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * Define a new capability that gives access to the sandbox web service.
+ * Default allows any authenticated user to access.
  */
 
-defined('MOODLE_INTERNAL') || die();
-
-$plugin->version  = 2022011905;
-$plugin->requires = 2019111800;
-$plugin->cron = 0;
-$plugin->component = 'qtype_coderunner';
-$plugin->maturity = MATURITY_STABLE;
-$plugin->release = '4.2.1';
-
-$plugin->dependencies = array(
-    'qbehaviour_adaptive_adapted_for_coderunner' => 2021112300
+$capabilities = array(
+    'qtype/coderunner:sandboxwsaccess' => array(
+        'riskbitmask'  => 0, // No standard risks apply. Only potential DoS.
+        'captype'      => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes'   => array(
+            'student'        => CAP_ALLOW,
+            'teacher'        => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'manager'        => CAP_ALLOW
+        )
+    )
 );
-

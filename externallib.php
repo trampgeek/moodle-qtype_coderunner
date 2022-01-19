@@ -38,6 +38,9 @@ class qtype_coderunner_external extends external_api {
     public static function run_in_sandbox_parameters() {
         return new external_function_parameters(
             array(
+                'courseid' => new external_value(PARAM_INT,
+                        'The Moodle course ID of the originating web page',
+                        VALUE_REQUIRED),
                 'sourcecode' => new external_value(PARAM_RAW,
                         'The source code to be run', VALUE_REQUIRED),
                 'language' => new external_value(PARAM_TEXT,
@@ -75,19 +78,23 @@ class qtype_coderunner_external extends external_api {
      * @return string JSON-encoded Jobe run-result object.
      * @throws qtype_coderunner_exception
      */
-    public static function run_in_sandbox($sourcecode, $language='python3', $stdin='', $files='', $params='') {
+    public static function run_in_sandbox($courseid, $sourcecode, $language='python3',
+            $stdin='', $files='', $params='') {
         global $USER;
         // First, see if the web service is enabled.
         if (!get_config('qtype_coderunner', 'wsenabled')) {
             throw new qtype_coderunner_exception(get_string('wsdisabled', 'qtype_coderunner'));
         }
-        // Now check if the user is logged in, and not a guest.
-        if (!isloggedin() || isguestuser()) {
+
+        // Now check if the user has the capability (usually meaning is logged in and not a guest).
+        $context = get_context_instance(CONTEXT_COURSE, $courseid);
+        if (!has_capability('qtype/coderunner:sandboxwsaccess', $context, $USER->id)) {
             throw new qtype_coderunner_exception(get_string('wsnoaccess', 'qtype_coderunner'));
         }
         // Parameters validation.
         self::validate_parameters(self::run_in_sandbox_parameters(),
-                array('sourcecode' => $sourcecode,
+                array('courseid' => $courseid,
+                      'sourcecode' => $sourcecode,
                       'language' => $language,
                       'stdin' => $stdin,
                       'files' => $files,
@@ -115,9 +122,10 @@ class qtype_coderunner_external extends external_api {
                 }
             }
 
-            $context = context_system::instance();
+            $context = context_system::instance(); // The event is logged as a system event.
             $event = \qtype_coderunner\event\sandbox_webservice_exec::create([
-                'contextid' => $context->id]);
+                'contextid' => $context->id,
+                'courseid' => $courseid]);
             $event->trigger();
         }
 

@@ -2825,11 +2825,20 @@ embedded in a page using an HTML editor. For example:
         <script>
             var button = document.getElementById('mybutton');
             var text = document.getElementById('code');
+
+            var bodyClasses = document.getElementsByTagName('BODY')[0].classList;
+            for (var i = 0; i < bodyClasses.length; i++) {
+                if (bodyClasses[i].startsWith('course-')) {
+                    var courseId = parseInt(bodyClasses[i].split('-')[1]);
+                    break;
+                }
+            }
             button.onclick = function() {
                 require(['core/ajax'], function(ajax) {
                     ajax.call([{
                         methodname: 'qtype_coderunner_run_in_sandbox',
                         args: {
+                            courseid:
                             sourcecode: text.value,
                             language: "python3"
                         },
