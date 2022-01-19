@@ -50,7 +50,6 @@ class sandbox_webservice_exec extends \core\event\base {
      * @return string
      */
     public function get_description() {
-        return "The user with id '$this->userid' executed a job " .
-                "via the CodeRunner sandbox web service in the course with id '$this->courseid'.";
+        return "The user with id '$this->userid' executed a job  via the CodeRunner sandbox web service.";
     }
 }

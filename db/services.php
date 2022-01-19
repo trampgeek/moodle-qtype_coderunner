@@ -34,13 +34,13 @@
 defined('MOODLE_INTERNAL') || die();
 
 $functions = array(
-    'qtype_coderunner_run_in_sandbox' => array(      // Web service function name.
-        'classname'   => 'qtype_coderunner_external',  // Namespaced class in classes/external.
-        'methodname'  => 'run_in_sandbox',    // External function name.
+    'qtype_coderunner_run_in_sandbox' => [
+        'classname'   => 'qtype_coderunner\external\run_in_sandbox',
+        'classpath'   => '',
         'description' => 'Runs a job on the Jobe sandbox server',
         'type'        => '',          // No DB access allowed.
         'ajax'        => true,        // The service is available to 'internal' ajax calls.
-        'capabilities' => '',         // No capabilities being checked.
-        'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE)  // TODO ** check implications of this.
-    ),
+        'capabilities' => 'qtype/coderunner:sandboxwsaccess',
+        'services'    => [MOODLE_OFFICIAL_MOBILE_SERVICE]
+    ],
 );

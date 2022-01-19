@@ -24,22 +24,29 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace qtype_coderunner\external;
+
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->libdir . "/externallib.php");
+global $CFG;
+require_once($CFG->libdir . '/externallib.php');
+use external_api;
+use external_function_parameters;
+use external_value;
+use context;
+use qtype_coderunner_sandbox;
 
-
-class qtype_coderunner_external extends external_api {
+class run_in_sandbox extends external_api {
 
     /**
      * Returns description of method parameters. Used for validation.
      * @return external_function_parameters
      */
-    public static function run_in_sandbox_parameters() {
+    public static function execute_parameters(): external_function_parameters {
         return new external_function_parameters(
             array(
-                'courseid' => new external_value(PARAM_INT,
-                        'The Moodle course ID of the originating web page',
+                'contextid' => new external_value(PARAM_INT,
+                        'The Moodle context ID of the originating web page',
                         VALUE_REQUIRED),
                 'sourcecode' => new external_value(PARAM_RAW,
                         'The source code to be run', VALUE_REQUIRED),
@@ -62,12 +69,13 @@ class qtype_coderunner_external extends external_api {
      * Returns description of method result value
      * @return external_description
      */
-    public static function run_in_sandbox_returns() {
+    public static function execute_returns() {
         return new external_value(PARAM_RAW, 'The JSON-encoded Jobe server run result');
     }
 
     /**
      * Run a job in the sandbox (Jobe).
+     * @param int $contextid The context from which the request was initiated.
      * @param string $sourcecode The source code to be run.
      * @param string $language The language of execution (default python3)
      * @param string $stdin The standard input for the run (default empty)
@@ -78,7 +86,7 @@ class qtype_coderunner_external extends external_api {
      * @return string JSON-encoded Jobe run-result object.
      * @throws qtype_coderunner_exception
      */
-    public static function run_in_sandbox($courseid, $sourcecode, $language='python3',
+    public static function execute($contextid, $sourcecode, $language='python3',
             $stdin='', $files='', $params='') {
         global $USER;
         // First, see if the web service is enabled.
@@ -86,20 +94,22 @@ class qtype_coderunner_external extends external_api {
             throw new qtype_coderunner_exception(get_string('wsdisabled', 'qtype_coderunner'));
         }
 
-        // Now check if the user has the capability (usually meaning is logged in and not a guest).
-        $context = get_context_instance(CONTEXT_COURSE, $courseid);
-        if (!has_capability('qtype/coderunner:sandboxwsaccess', $context, $USER->id)) {
-            throw new qtype_coderunner_exception(get_string('wsnoaccess', 'qtype_coderunner'));
-        }
         // Parameters validation.
-        self::validate_parameters(self::run_in_sandbox_parameters(),
-                array('courseid' => $courseid,
+        self::validate_parameters(self::execute_parameters(),
+                array('contextid' => $contextid,
                       'sourcecode' => $sourcecode,
                       'language' => $language,
                       'stdin' => $stdin,
                       'files' => $files,
                       'params' => $params
                     ));
+
+        // Now check if the user has the capability (usually meaning is logged in and not a guest).
+        $context = context::instance_by_id($contextid);
+        if (!has_capability('qtype/coderunner:sandboxwsaccess', $context, $USER->id)) {
+            throw new qtype_coderunner_exception(get_string('wsnoaccess', 'qtype_coderunner'));
+        }
+
         $sandbox = qtype_coderunner_sandbox::get_best_sandbox($language);
         if ($sandbox === null) {
             throw new qtype_coderunner_exception("Language {$language} is not available on this system");
@@ -122,10 +132,8 @@ class qtype_coderunner_external extends external_api {
                 }
             }
 
-            $context = context_system::instance(); // The event is logged as a system event.
             $event = \qtype_coderunner\event\sandbox_webservice_exec::create([
-                'contextid' => $context->id,
-                'courseid' => $courseid]);
+                'contextid' => $context->id]);
             $event->trigger();
         }
 

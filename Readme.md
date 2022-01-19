@@ -2838,7 +2838,7 @@ embedded in a page using an HTML editor. For example:
                     ajax.call([{
                         methodname: 'qtype_coderunner_run_in_sandbox',
                         args: {
-                            courseid:
+                            contextid: M.cfg.contextid, // Moodle context ID
                             sourcecode: text.value,
                             language: "python3"
                         },
