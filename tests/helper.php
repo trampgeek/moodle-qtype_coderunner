@@ -57,7 +57,8 @@ class qtype_coderunner_test_helper extends question_test_helper {
             'teststudentanswermacrooctave', 'sqrnodejs',
             'sqrjava', 'sqrphp', 'nameclass', 'printsquares', 'printstr',
             'sqr_user_prototype_child',
-            'multilang_echo_stdin');
+            'multilang_echo_stdin',
+            'demows');
     }
 
     /**
@@ -159,7 +160,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $form->testsplitterre = '|#<ab@17943918#@>#\n|ms';
         $form->template = "{{ STUDENT_ANSWER }}\n{{ TEST.testcode }}\n";
         $form->name = 'Square function';
-        $form->questiontext = array('text' => 'Write a function sqr(n) that returns n squared.', 'format' => FORMAT_HTML);
+        $form->questiontext = array('text' => 'Write a function sqr(x) that returns x squared.', 'format' => FORMAT_HTML);
         $form->defaultmark = 31.0;
         $form->answer = '';
         $form->answerpreload = '';
@@ -553,6 +554,94 @@ except ValueError:
 
         return $coderunner;
     }
+
+
+    /**
+     * Makes a coderunner question that is just to demonstrate the
+     * web service (so the actual question is irrelevant - only the
+     * description matters).
+     */
+    public function get_coderunner_question_form_data_demows() {
+        $form = new stdClass();
+
+        $form->coderunnertype = 'python3';
+        $form->showsource = 0;
+        $form->answerboxlines = 5;
+        $form->answerboxcolumns = 100;
+        $form->useace = 0;
+        $form->precheck = 1;
+        $form->hidecheck = 0;
+        $form->allornothing = 0;
+        $form->penaltyregime = "10, 20, ...";
+        $form->templateparams = "";
+        $form->hoisttemplateparams = 1;
+        $form->templateparamslang = 'twig';
+        $form->templateparamsevalpertry = 0;
+        $form->templateparamsevald = null;
+        $form->uiparameters = null;
+        $form->twigall = 0;
+        $form->prototypetype = 0;
+        $form->sandbox = 'DEFAULT';
+        $form->language = 'python3';
+        $form->acelang = '';
+        $form->displayfeedback = 1;
+        $form->giveupallowed = 0;
+        $form->iscombinatortemplate = 0;
+        $form->testsplitterre = '|#<ab@17943918#@>#\n|ms';
+        $form->template = "print('{{ STUDENT_ANSWER | e('py')}}\n";
+        $form->name = 'Demo web service';
+        $form->defaultmark = 1.0;
+        $form->generalfeedback = array('text' => 'No feedback available for coderunner questions.', 'format' => FORMAT_HTML);
+        $form->testcode = array("");
+        $form->stdin = array("");
+        $form->expected = array("Fill me in");
+        $form->extra = array("");
+        $form->display = array("SHOW");
+        $form->mark = array(1);
+        $form->ordering = array(0);
+        $form->sandboxparams = '';
+        $form->grader = 'EqualityGrader';
+        $form->resultcolumns = '';
+        $form->cputimelimitsecs = '';
+        $form->memlimitmb = '';
+        $form->customise = 1;
+        $form->uiplugin = 'none';
+        $form->attachments = 0;
+        $form->attachmentsrequired = 0;
+        $form->maxfilesize = 0;
+        $form->filenamesregex = '';
+        $form->filenamesexplain = '';
+        $form->questiontext = array('text' => <<<QEND
+<button type="button" id="clickme">Click me</button>
+<p id="ws-output"></p>
+<script>
+    var code = 'print("Hello me!")\\nprint("Hello you!")\\n';
+    var button = document.getElementById('clickme');
+    var output = document.getElementById('ws-output');
+    button.onclick = function() {
+        require(['core/ajax'], function(ajax) {
+            ajax.call([{
+                methodname: 'qtype_coderunner_run_in_sandbox',
+                args: {
+                    contextid: M.cfg.contextid, // Moodle context ID
+                    sourcecode: code,
+                    language: "python3"
+                },
+                done: function(responseJson) {
+                    output.innerHTML = responseJson;
+                },
+                fail: function(error) {
+                    output.innerHTML = 'ERROR: ' + error.message;
+                }
+            }]);
+        });
+    }
+</script>
+QEND
+         , 'format' => FORMAT_HTML);
+     return $form;
+    }
+
 
     /**
      * Makes a coderunner question of type 'sqr_user_prototype_child' to check out

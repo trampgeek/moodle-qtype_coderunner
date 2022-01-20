@@ -35,6 +35,7 @@ use external_function_parameters;
 use external_value;
 use context;
 use qtype_coderunner_sandbox;
+use qtype_coderunner_exception;
 
 class run_in_sandbox extends external_api {
 

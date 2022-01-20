@@ -2820,19 +2820,11 @@ embedded in a page using an HTML editor. For example:
         <h3>A simple demo of the CodeRunner sandbox web service.</h3>
         <textarea id="code" rows="4" cols="40"></textarea>
         <br>
-        <button id="mybutton">Run me!</button>
+        <button type="button" id="mybutton">Run me!</button>
 
         <script>
             var button = document.getElementById('mybutton');
             var text = document.getElementById('code');
-
-            var bodyClasses = document.getElementsByTagName('BODY')[0].classList;
-            for (var i = 0; i < bodyClasses.length; i++) {
-                if (bodyClasses[i].startsWith('course-')) {
-                    var courseId = parseInt(bodyClasses[i].split('-')[1]);
-                    break;
-                }
-            }
             button.onclick = function() {
                 require(['core/ajax'], function(ajax) {
                     ajax.call([{
