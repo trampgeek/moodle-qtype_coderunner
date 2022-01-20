@@ -160,7 +160,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $form->testsplitterre = '|#<ab@17943918#@>#\n|ms';
         $form->template = "{{ STUDENT_ANSWER }}\n{{ TEST.testcode }}\n";
         $form->name = 'Square function';
-        $form->questiontext = array('text' => 'Write a function sqr(x) that returns x squared.', 'format' => FORMAT_HTML);
+        $form->questiontext = array('text' => 'Write a function sqr(n) that returns n squared.', 'format' => FORMAT_HTML);
         $form->defaultmark = 31.0;
         $form->answer = '';
         $form->answerpreload = '';
