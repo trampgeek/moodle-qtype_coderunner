@@ -102,6 +102,7 @@ $string['coderunner_install_testsuite_intro'] = 'This page allows you to test th
 $string['coderunner_install_testsuite_failures'] = 'Tests that failed';
 $string['coderunner_install_testsuite_noanswer'] = 'Questions without sample answers';
 
+$string['coderunner:sandboxwsaccess'] = 'Allow access to the Jobe sandbox via web services';
 $string['coderunner_help'] = 'In response to a question, which is a specification for a program fragment, function or whole program, the respondent enters source code in a specified computer language that satisfies the specification.';
 $string['coderunner_link'] = 'question/type/coderunner';
 $string['coderunner_question_type'] = 'CodeRunner question type: ';
