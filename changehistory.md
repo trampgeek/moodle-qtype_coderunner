@@ -1,6 +1,6 @@
 # CHANGE HISTORY
 
-### 10 January 2022. 4.2.1
+### 21 January 2022. 4.2.1+
 
  * Stop-and-read-feedback option added.
  * New experimental web service added that allows AJAX access to the
@@ -14,7 +14,7 @@
    to run code on the Moodle server itself.
  * Add graderstate functionality for use by combinator template graders, allowing
    them to customise grade and feedback according to prior submissions.
- * Add field coderunnerversion added to stepinfo.
+ * Add field coderunnerversion to stepinfo.
  * In TableUI make num_rows = 2 an explicit default.
  * Bug fix: an erroneous assert statement was causing PHP warnings to be logged.
    regarding prototype already loaded if assert checking was turned on.
@@ -25,7 +25,7 @@
 ### 26 September 2021. 4.1.0+
 
  * Bug fix: ace_gapfiller UI doesn't display warning if Ace editor not loaded.
- * Change default value of Evaluate-per-student when using Jobe sadnbox to
+ * Change default value of Evaluate-per-student when using Jobe sandbox to
    evaluate template parameters from True to False. Generate warning message
    only when author changes the checkbox to True.
  * Various documentation tweaks (main documentation + in-line).

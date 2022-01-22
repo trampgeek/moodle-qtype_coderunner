@@ -37,6 +37,7 @@ $functions = array(
     'qtype_coderunner_run_in_sandbox' => [
         'classname'   => 'qtype_coderunner\external\run_in_sandbox',
         'classpath'   => '',
+        'methodname'  => 'execute',    // Redundant but legacy Moodle versions need it.
         'description' => 'Runs a job on the Jobe sandbox server',
         'type'        => '',          // No DB access allowed.
         'ajax'        => true,        // The service is available to 'internal' ajax calls.
