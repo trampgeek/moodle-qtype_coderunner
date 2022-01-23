@@ -78,4 +78,3 @@ Feature: Check grading with the Python 3 sqr function CodeRunner question
     And I press "Precheck"
     And I press "Submit and finish"
     And I should see "Mark 1.00 out of 31.00"
-

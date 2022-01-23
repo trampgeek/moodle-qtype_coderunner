@@ -4,7 +4,7 @@ Feature: Check the STUDENT Twig variable allows access to current username in Co
   As a teacher
   I should be able to write a function that prints my username it should be marked right
 
-Background:
+  Background:
     Given the following "users" exist:
       | username | firstname | lastname | email            |
       | teacher1 | Teacher   | 1        | teacher1@asd.com |
@@ -39,7 +39,7 @@ Background:
       | id_testcode_0           | # This isn't used                          |
       | id_expected_0           | {{ STUDENT.username }}                     |
       | id_twigall              | true                                       |
-   And quiz "Test quiz" contains the following questions:
+    And quiz "Test quiz" contains the following questions:
       | question         | page |
       | STUDENT variable | 1    |
 
@@ -71,4 +71,3 @@ Background:
     And I follow "Review attempt"
     Then I should see "Write a program that prints student1"
     And I should see "Passed all tests"
-

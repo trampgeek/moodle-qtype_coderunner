@@ -105,7 +105,6 @@ for element in answer: print(element)
       | id_twigall              | 1                             |
       | id_testcode_0           | print("{[10]}")               |
 
-   
     And I press "id_updatebutton"
     Then I should see "UI parameters can no longer be defined within the template parameters field"
 
@@ -129,4 +128,3 @@ for element in answer: print(element)
     And I set the field "cr_gapfiller_field" to "bubble"
     And I press "Check"
     Then I should see "Passed all tests!"
-

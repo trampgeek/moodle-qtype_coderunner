@@ -28,7 +28,6 @@ Feature: Test sandbox web service
       | question         | page |
       | Demo web service | 1    |
 
-
   @javascript
   Scenario: As a student if I try to initiate a WS request I get an error if the service is disabled.
     When I am on the "Quiz 1" "mod_quiz > View" page logged in as "student"

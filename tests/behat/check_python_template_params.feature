@@ -4,7 +4,7 @@ Feature: Check that Python and other languages can be used instead of Twig as a 
   As a teacher
   I should be able to write a function that prints the seed and my username it should be marked right
 
-Background:
+  Background:
     Given the following "users" exist:
       | username | firstname       | lastname  | email            |
       | teacher1 | Teacher         | Last      | teacher1@asd.com |
@@ -41,14 +41,14 @@ Background:
       | id_testcode_0           | # Unused                                   |
       | id_expected_0           | True {{ firstname }} {{ lastname }}       |
       | id_twigall              | 1                                          |
-   When I choose "Edit question" action for "Python preprocessor" in the question bank
-   And I set the field "id_templateparams" to "import sys, json; keyvalues = {param.split('=')[0]: param.split('=')[1] for param in sys.argv[1:]}; print(json.dumps(keyvalues))"
-   And I set the field "id_twigall" to "1"
-   And I set the field "id_template" to "print({{seed}} > 0, end=' ');  {{STUDENT_ANSWER}}"
-   And I set the field "id_templateparamslang" to "python3"
-   And I set the field "id_templateparamsevalpertry" to "1" and dismiss the alert
-   And I press "Save changes"
-   And quiz "Test quiz" contains the following questions:
+    When I choose "Edit question" action for "Python preprocessor" in the question bank
+    And I set the field "id_templateparams" to "import sys, json; keyvalues = {param.split('=')[0]: param.split('=')[1] for param in sys.argv[1:]}; print(json.dumps(keyvalues))"
+    And I set the field "id_twigall" to "1"
+    And I set the field "id_template" to "print({{seed}} > 0, end=' ');  {{STUDENT_ANSWER}}"
+    And I set the field "id_templateparamslang" to "python3"
+    And I set the field "id_templateparamsevalpertry" to "1" and dismiss the alert
+    And I press "Save changes"
+    And quiz "Test quiz" contains the following questions:
       | question            | page |
       | Python preprocessor | 1    |
 

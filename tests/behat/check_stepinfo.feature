@@ -77,4 +77,3 @@ Feature: Check that the QUESTION.stepinfo record is working.
     When I set the field with xpath "//textarea[contains(@name, 'answer')]" to "# Blah 5"
     And I press "Check"
     Then I should see "{\"numchecks\":3,\"numprechecks\":3,\"fraction\":0.8"
-

@@ -43,5 +43,3 @@ Feature: Preview the Python 3 sqr function CodeRunner question with a preload
     And I press "Check"
     Then I should see "# Your answer goes here"
     And I should see "Marks for this submission: 0.00/31.00"
-
-
