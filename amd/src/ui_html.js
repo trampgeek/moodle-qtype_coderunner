@@ -79,6 +79,12 @@ define(['jquery'], function($) {
         return this.fail;
     };
 
+
+    HtmlUi.prototype.failMessage = function() {
+        return 'htmluiloadfail';
+    };
+
+
     // Copy the serialised version of the HTML UI area to the TextArea.
     HtmlUi.prototype.sync = function() {
         var
@@ -171,7 +177,6 @@ define(['jquery'], function($) {
                 }
 
             } catch(e) {
-                alert('Failed to initialise HTML UI');
                 this.fail = true;
             }
         }

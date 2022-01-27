@@ -314,6 +314,7 @@ $string['hiderestiffail'] = 'Hide rest if fail';
 $string['hoisttemplateparams'] = 'Hoist template parameters';
 $string['howtogetmore'] = 'For more detailed information, save the question with \'Validate on save\' unchecked and test manually';
 $string['htmlui_sync_interval_secs_descr'] = 'The time interval in seconds between calls to sync the UI contents back to the question answer. 0 for no such auto-syncing.';
+$string['htmluiloadfail'] = 'The HTML UI plugin failed to initialise. Probably the JSON state string is invalid.';
 
 $string['illegaluiparamname'] = 'The following are not valid parameters for the {$a->uiname} UI: ';
 $string['iscombinatortemplate'] = 'Is combinator';
