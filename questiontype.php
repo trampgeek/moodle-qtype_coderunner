@@ -123,6 +123,7 @@ class qtype_coderunner extends question_type {
             'filenamesexplain',
             'displayfeedback',
             'giveupallowed',
+            'prototypeextra'
         );
     }
 

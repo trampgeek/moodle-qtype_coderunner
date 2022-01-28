@@ -120,6 +120,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $qdata->options->maxfilesize = 0;
         $qdata->options->filenamesregex = '';
         $qdata->options->filenamesexplain = '';
+        $qdata->options->prototypeextra = '';
         $qdata->options->testcases = self::make_test_cases($testcases);
 
         return $qdata;
@@ -185,6 +186,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $form->maxfilesize = 0;
         $form->filenamesregex = '';
         $form->filenamesexplain = '';
+        $form->prototypeextra = '';
         return $form;
     }
 
@@ -246,6 +248,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $form->maxfilesize = 0;
         $form->filenamesregex = '';
         $form->filenamesexplain = '';
+        $form->prototypeextra = '';
         return $form;
     }
 
@@ -611,6 +614,7 @@ except ValueError:
         $form->maxfilesize = 0;
         $form->filenamesregex = '';
         $form->filenamesexplain = '';
+        $form->prototypeextra = '';
         $form->questiontext = array('text' => <<<QEND
 <button type="button" id="clickme">Click me</button>
 <p id="ws-output"></p>
@@ -1309,6 +1313,7 @@ EOPROG;
         $coderunner->maxfilesize = 0;
         $coderunner->filenamesregex = '';
         $coderunner->filenamesexplain = '';
+        $coderunner->prototypeextra = '';
         $coderunner->parameters = array();  // Normally generated during question initialisation.
         foreach ($otheroptions as $key => $value) {
             $coderunner->$key = $value;

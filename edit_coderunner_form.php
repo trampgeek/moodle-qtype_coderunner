@@ -713,6 +713,14 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 null, false);
         $mform->addHelpButton('uicontrols', 'uicontrols', 'qtype_coderunner');
 
+        $attributes = array(
+            'rows' => 5,
+            'class' => 'prototypeextra edit_code');
+        $mform->addElement('textarea', 'prototypeextra',
+                get_string('prototypeextra', 'qtype_coderunner'),
+                $attributes);
+        $mform->addHelpButton('prototypeextra', 'prototypeextra', 'qtype_coderunner');
+
         $mform->setExpanded('customisationheader');  // Although expanded it's hidden until JavaScript unhides it .
     }
 

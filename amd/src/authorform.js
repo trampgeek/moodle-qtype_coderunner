@@ -67,6 +67,7 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
             template = $('#id_template'),
             evaluatePerStudent = $('#id_templateparamsevalpertry'),
             globalextra = $('#id_globalextra'),
+            prototypeextra = $('#id_prototypeextra'),
             useace = $('#id_useace'),
             language = $('#id_language'),
             acelang = $('#id_acelang'),
@@ -107,6 +108,7 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
 
             // Set data attributes in the text area for UI components that need
             // global extra or testcase data (e.g. gapfiller UI).
+            ta.attr('data-prototypeextra', prototypeextra.val());
             ta.attr('data-globalextra', globalextra.val());
             ta.attr('data-test0', $('#id_testcode_0').val());
             try {
@@ -147,12 +149,23 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
         /**
          * Set the correct Ui controller on both the sample answer and the answer preload.
          * As a special case, we don't turn on the Ui controller in the answer
-         * and answer preload fields when using Html-Ui.
+         * and answer preload fields when using Html-Ui and the ui-parameter
+         * enable_in_editor is false.
          */
         function setUis() {
             var uiname = uiplugin.val();
-
-            if (uiname && uiname !== 'html') {
+            var enableUi = true;
+            if (uiname === 'html' && uiparameters.val().trim() !== '') {
+                try {
+                    var uiparams = JSON.parse(uiparameters.val());
+                    if (uiparams.enable_in_editor === false) {
+                        enableUi = false;
+                    }
+                } catch (error) {
+                    alert("Invalid UI parameters.");
+                }
+            }
+            if (enableUi) {
                 setUi('id_answer', uiname);
                 setUi('id_answerpreload', uiname);
             }

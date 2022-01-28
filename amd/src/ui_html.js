@@ -31,7 +31,9 @@
  * compatibility of other elements with jquery's val() method.
  *
  * The HTML to use in the answer area must be provided as the contents of
- * the globalextra field in the question authoring form.
+ * either the globalextra field or the prototypeextra field in the question
+ * authoring form. The choice of which is set by the html_src UI parameter, which
+ * must be either 'globalextra' or 'prototypeextra'.
  *
  * If any fields of the answer html are to be preloaded, these should be specified
  * in the answer preload with json of the form '{"<fieldName>": "<fieldValueList>",...}'
@@ -67,7 +69,9 @@ define(['jquery'], function($) {
     function HtmlUi(textareaId, width, height, uiParams) {
         this.textArea = $(document.getElementById(textareaId));
         this.textareaId = textareaId;
-        this.html = this.textArea.attr('data-globalextra').replace(/___textareaId___/gm, textareaId);
+        var srcField = uiParams.html_src || 'globalextra';
+        this.html = this.textArea.attr('data-' + srcField);
+        this.html = this.html.replace(/___textareaId___/gm, textareaId);
         this.readOnly = this.textArea.prop('readonly');
         this.uiParams = uiParams;
         this.fail = false;

@@ -737,6 +737,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
                 'rows' => $rows,
                 'data-params' => $uiparamsjson,
                 'data-globalextra' => $question->globalextra,
+                'data-prototypeextra' => $question->prototypeextra,
                 'data-lang' => ucwords($currentlanguage),
                 'data-test0' => $question->testcases ? $question->testcases[0]->testcode : ''
         );

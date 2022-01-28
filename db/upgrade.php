@@ -418,6 +418,21 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2021111000, 'qtype', 'coderunner');
     }
 
+    if ($oldversion < 2022012703) {
+
+        // Define field prototypeextra to be added to question_coderunner_options.
+        $table = new xmldb_table('question_coderunner_options');
+        $field = new xmldb_field('prototypeextra', XMLDB_TYPE_TEXT, null, null, null, null, null, 'giveupallowed');
+
+        // Conditionally launch add field prototypeextra.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Coderunner savepoint reached.
+        upgrade_plugin_savepoint(true, 2022012703, 'qtype', 'coderunner');
+    }
+
     require_once(__DIR__ . '/upgradelib.php');
     update_question_types();
 

@@ -313,7 +313,9 @@ $string['HIDE_IF_SUCCEED'] = 'Hide if succeed';
 $string['hiderestiffail'] = 'Hide rest if fail';
 $string['hoisttemplateparams'] = 'Hoist template parameters';
 $string['howtogetmore'] = 'For more detailed information, save the question with \'Validate on save\' unchecked and test manually';
+$string['htmlui_html_src_descr'] = "Sets the source for the HTML code. Must be either 'globalextra' or 'prototypeextra'.";
 $string['htmlui_sync_interval_secs_descr'] = 'The time interval in seconds between calls to sync the UI contents back to the question answer. 0 for no such auto-syncing.';
+$string['htmlui_enable_in_editor_descr'] = 'If true, use the UI to display the sample answer and answer preload within the question editing form, rather than the serialised version. Set this to false if using Twig in the HTML src field.';
 $string['htmluiloadfail'] = 'The HTML UI plugin failed to initialise. Probably the JSON state string is invalid.';
 
 $string['illegaluiparamname'] = 'The following are not valid parameters for the {$a->uiname} UI: ';
@@ -479,6 +481,9 @@ $string['precheckingemptyset'] = 'Prechecking examples, but there aren\'t any!';
 $string['privacy:metadata'] = 'The CodeRunner question type plugin does not store any personal data.';
 $string['proceed_at_own_risk'] = 'Editing a built-in question prototype?! Proceed at your own risk!';
 $string['prototypecontrols'] = 'Prototyping';
+$string['prototypeextra'] = 'Prototype extra';
+$string['prototypeextra_help'] = 'A field of text for general-purpose use by question type authors, like global extra, but part of the prototype state. Available to the template author as {{ QUESTION.prototypeextra }}.';
+
 $string['prototypeusage'] = 'CodeRunner question prototype usage for course {$a}';
 $string['prototypeusageindex'] = 'Available courses';
 $string['prototypecontrols_help'] = 'If \'Is prototype\' is true, this question becomes a prototype for other questions.

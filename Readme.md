@@ -1458,6 +1458,7 @@ e.g. "Python3".
  * `QUESTION.iscombinatortemplate` True if this is a combinator question.
  * `QUESTION.penaltyregime` The penalty regime for this question.
  * `QUESTION.globalextra` Extra data for use by template authors, global to all tests.
+ * `QUESTION.prototypeextra` Extra data for use by prototype or customised code.
  * `QUESTION.useace` '1'/'0' if the ace editor is/is not in use.
  * `QUESTION.acelang` The language for the Ace editor to use for syntax colouring etc.
  * `QUESTION.allowmultiplestdins` True if the author has requested all tests

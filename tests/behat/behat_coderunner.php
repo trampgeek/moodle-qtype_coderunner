@@ -151,9 +151,9 @@ class behat_coderunner extends behat_base {
     public function i_set_the_field_and_dismiss_the_alert($field, $value) {
         try {
             $this->execute('behat_forms::i_set_the_field_to', array($field, $this->escape($value)));
+            $this->getSession()->getDriver()->getWebDriver()->switchTo()->alert()->dismiss(); // This has started working again!
         } catch (Exception $e) {  // For some reason UnexpectedAlertOpen can't be caught.
-            // The following also doesn't work: $this->getSession()->getDriver()->getWebDriver()->switchTo()->alert()->dismiss().
-            return; // But ignoring the exception altogether seems to work?!
+            return;
         }
     }
 }
