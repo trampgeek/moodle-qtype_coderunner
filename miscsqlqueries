@@ -1,0 +1,243 @@
+List all courses:
+SELECT crs.id as courseid, fullname, path, depth, ctx.contextlevel, ctx.id as ctxid
+FROM `mdl_context` as ctx
+JOIN mdl_course as crs ON ctx.instanceid = crs.id
+WHERE contextlevel=50
+
+List all CodeRunner questions in a course:
+SELECT q.name, cro.coderunnertype, crs.id as courseid, shortname, path, depth, ctx.contextlevel, ctx.id as ctxid
+FROM mdl_question_coderunner_options as cro
+JOIN mdl_question as q ON cro.questionid = q.id
+JOIN mdl_question_categories as cat ON q.category = cat.id
+JOIN `mdl_context` as ctx ON cat.contextid = ctx.id
+JOIN mdl_course as crs ON ctx.instanceid = crs.id
+WHERE contextlevel=50
+AND shortname like 'COSC121%'
+
+Count all questions in a course:
+SELECT count(q.id)
+FROM mdl_question q
+JOIN mdl_question_categories as cat ON q.category = cat.id
+JOIN `mdl_context` ctx ON cat.contextid = ctx.id
+JOIN mdl_course as crs ON ctx.instanceid = crs.id
+WHERE contextlevel=50
+AND shortname like 'COSC121%'
+
+Find all the homeless random questions in a particular course (see https://tracker.moodle.org/browse/MDL-63260)
+SELECT count(q.id)
+FROM mdl_question AS q
+LEFT JOIN mdl_quiz_slots AS qslots ON q.id = qslots.questionid
+JOIN mdl_question_categories as cat ON q.category = cat.id
+JOIN `mdl_context` ctx ON cat.contextid = ctx.id
+JOIN mdl_course as crs ON ctx.instanceid = crs.id
+WHERE qslots.questionid IS NULL
+AND q.qtype = 'random'
+AND shortname like 'CSC001-2018S3';
+
+Turn on precheck (to 1) for all COSC121 questions:
+UPDATE mdl_question_coderunner_options as cro
+JOIN mdl_question as q ON cro.questionid = q.id
+JOIN mdl_question_categories as cat ON q.category = cat.id
+JOIN `mdl_context` as ctx ON cat.contextid = ctx.id
+JOIN mdl_course as crs ON ctx.instanceid = crs.id
+SET precheck = 1
+WHERE contextlevel=50
+AND shortname like 'COSC121%'
+
+Change all questions in a particular course and question category to python3_scratchpad
+UPDATE mdl_question_coderunner_options as cro
+JOIN mdl_question as q ON cro.questionid = q.id
+JOIN mdl_question_categories as cat ON q.category = cat.id
+JOIN `mdl_context` as ctx ON cat.contextid = ctx.id
+JOIN mdl_course as crs ON ctx.instanceid = crs.id
+SET coderunnertype = 'python3_scratchpad',
+    answer = if(answer='','',concat('{"answer_code":["',replace(replace(replace(answer,'\n','\\n'),'"','\\"'),'\r',''),'"],"test_code":[""],"qtype_cr-prefix-answer":[""],"qtype_cr-show-panel":[""]}')),
+    answerpreload = if(answerpreload='','',concat('{"answer_code":["',replace(replace(replace(answerpreload,'\n','\\n'),'"','\\"'),'\r',''),'"],"test_code":[""],"qtype_cr-prefix-answer":[""],"qtype_cr-show-panel":[""]}'))
+WHERE contextlevel=50
+AND coderunnertype = 'python3_stage1'
+AND cat.name = 'LM1 - Introducing Python'
+AND shortname = 'COSC131-21SU2_1';
+
+
+Turn on precheck (to 1) for all ENCE260 questions:
+UPDATE mdl_question_coderunner_options as cro
+JOIN mdl_question as q ON cro.questionid = q.id
+JOIN mdl_question_categories as cat ON q.category = cat.id
+JOIN `mdl_context` as ctx ON cat.contextid = ctx.id
+JOIN mdl_course as crs ON ctx.instanceid = crs.id
+SET precheck = 1
+WHERE contextlevel=50
+AND shortname like 'ENCE260%'
+
+Turn on HideRestIfFail on all testcases in COSC121
+UPDATE mdl_question_coderunner_tests as tests
+JOIN mdl_question as q ON tests.questionid = q.id
+JOIN mdl_question_categories as cat ON q.category = cat.id
+JOIN `mdl_context` as ctx ON cat.contextid = ctx.id
+JOIN mdl_course as crs ON ctx.instanceid = crs.id
+SET hiderestiffail=1
+WHERE contextlevel=50
+AND shortname like 'COSC121-2018S2';
+
+List all questions names in ENCE260
+SELECT q.name
+FROM mdl_question as q
+JOIN mdl_question_categories AS cat ON q.category = cat.id
+JOIN `mdl_context` as ctx ON cat.contextid = ctx.id
+JOIN mdl_course as crs ON ctx.instanceid = crs.id
+WHERE contextlevel=50
+AND shortname like 'ENCE260%';
+
+Update all penalties in ENCE260
+UPDATE mdl_question_coderunner_options as cro
+JOIN mdl_question as q ON cro.questionid = q.id
+JOIN mdl_question_categories as cat ON q.category = cat.id
+JOIN `mdl_context` as ctx ON cat.contextid = ctx.id
+JOIN mdl_course as crs ON ctx.instanceid = crs.id
+SET penaltyregime='0, 10, ...'
+WHERE contextlevel=50
+AND shortname like 'ENCE260%';
+
+Get all question attempt data for a particular quiz number (626 in this case)
+SELECT
+    concat(quiza.uniqueid, qasd.attemptstepid, qasd.id) as uniquekey,
+    quiza.uniqueid as quizattemptid,
+    timestart,
+    timefinish,
+    u.firstname,
+    u.lastname,
+    u.email,
+    qatt.slot,
+    qatt.questionid,
+    quest.name as qname,
+    qattsteps.timecreated as timestamp,
+    FROM_UNIXTIME(qattsteps.timecreated,'%Y/%m/%d %H:%i:%s') as datetime,
+    qattsteps.fraction,
+    qattsteps.state,
+    qasd.attemptstepid,
+    qasd.name as qasdname,
+    qasd.value as value
+
+    FROM mdl_user u
+    JOIN mdl_quiz_attempts quiza ON quiza.userid = u.id AND quiza.quiz = 626
+    JOIN mdl_question_attempts qatt ON qatt.questionusageid = quiza.uniqueid
+    LEFT JOIN mdl_question_attempt_steps qattsteps ON qattsteps.questionattemptid = qatt.id
+    LEFT JOIN mdl_question_attempt_step_data qasd on qasd.attemptstepid = qattsteps.id
+    JOIN mdl_question quest ON quest.id = qatt.questionid
+
+    WHERE quiza.preview = 0
+    AND qasd.name NOT RLIKE '-_.*'
+    AND qasd.name NOT RLIKE '_.*'
+    AND quest.length > 0
+    ORDER BY quiza.uniqueid, timestamp
+
+Get detailed info on a particular quiz attempt
+From https://docs.moodle.org/dev/Overview_of_the_Moodle_question_engine#Detailed_data_about_an_attempt
+
+SELECT
+    quiza.userid,
+    quiza.quiz,
+    quiza.id AS quizattemptid,
+    quiza.attempt,
+    quiza.sumgrades,
+    qu.preferredbehaviour,
+    qa.slot,
+    qa.behaviour,
+    qa.questionid,
+    qa.variant,
+    qa.maxmark,
+    qa.minfraction,
+    qa.flagged,
+    qas.sequencenumber,
+    qas.state,
+    qas.fraction,
+    FROM_UNIXTIME(qas.timecreated) as timestamp,
+    qas.userid,
+    qasd.name,
+    qasd.value,
+    qa.questionsummary,
+    qa.rightanswer,
+    qa.responsesummary
+
+FROM mdl_quiz_attempts quiza
+JOIN mdl_question_usages qu ON qu.id = quiza.uniqueid
+JOIN mdl_question_attempts qa ON qa.questionusageid = qu.id
+JOIN mdl_question_attempt_steps qas ON qas.questionattemptid = qa.id
+LEFT JOIN mdl_question_attempt_step_data qasd ON qasd.attemptstepid = qas.id
+
+WHERE quiza.id = 75612
+ORDER BY quiza.userid, quiza.attempt, qa.slot, qas.sequencenumber, qasd.name
+
+Update all penalty regimes in a course
+start transaction;
+UPDATE mdl_question_coderunner_options qco
+JOIN mdl_question q on q.id = qco.questionid
+SET penaltyregime='0, 10, ...'
+WHERE prototypetype=0 and qc.contextid=565;
+commit;
+
+
+Get all sample answers for a quiz
+SELECT slt.slot, opts.answer
+FROM mdl_question q
+JOIN mdl_quiz_slots slt
+ON q.id = slt.questionid
+JOIN mdl_quiz quiz ON slt.quizid = quiz.id
+JOIN mdl_question_coderunner_options opts on opts.questionid = q.id
+WHERE quiz.name='COSC121 Final Exam 2017S2' AND q.qtype='coderunner'
+
+
+Find all quizzes using a particular question, knowing its id
+SELECT quiz.name
+FROM mdl_quiz quiz
+JOIN mdl_quiz_slots slt
+ON slt.quizid = quiz.id
+JOIN mdl_question q
+ON q.id = slt.questionid
+WHERE q.id = 46598;
+
+
+Find all questions within a given course (crs.id) that don't appear in any quiz.
+However they may be in categories from which questions are being drawn at random.
+SELECT quest.id, cat.name, quest.name
+FROM mdl_question quest
+JOIN mdl_question_categories cat
+ON quest.category = cat.id
+JOIN mdl_context ctx ON cat.contextid = ctx.id
+JOIN mdl_course as crs ON ctx.instanceid = crs.id
+LEFT JOIN mdl_quiz_slots slt ON quest.id = slt.questionid
+WHERE slt.id is null
+AND contextlevel=50
+AND crs.id=31
+ORDER BY cat.name;
+
+Find all categories from which questions are (possibly) drawn at random,
+i.e. which contain a question of qtype 'random'.
+SELECT DISTINCT cat.name as catname, cat.id as catid FROM mdl_question_categories cat
+JOIN mdl_question q
+ON q.category=cat.id
+WHERE q.qtype='random'
+ORDER BY cat.name;
+
+Find all questions within a given course (crs.id) that don't appear in any quiz
+and which are in categories that do not have random questions in them.
+SELECT quest.id, cat.name, quest.name
+FROM mdl_question quest
+JOIN mdl_question_categories cat
+ON quest.category = cat.id
+JOIN mdl_context ctx ON cat.contextid = ctx.id
+JOIN mdl_course as crs ON ctx.instanceid = crs.id
+LEFT JOIN mdl_quiz_slots slt ON quest.id = slt.questionid
+LEFT JOIN (
+    SELECT DISTINCT cat.name as catname, cat.id as catid FROM mdl_question_categories cat
+    JOIN mdl_question q
+    ON q.category=cat.id
+    WHERE q.qtype='random'
+    ORDER BY cat.name
+) randomcats
+ON cat.id=catid
+WHERE slt.id is null
+AND catid is null
+AND contextlevel=50
+AND crs.id=31
+ORDER BY cat.name;
