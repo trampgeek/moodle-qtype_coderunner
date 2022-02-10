@@ -58,6 +58,16 @@ AND coderunnertype = 'python3_stage1'
 AND cat.name = 'LM1 - Introducing Python'
 AND shortname = 'COSC131-21SU2_1';
 
+Set penalty in mdl_question table to 0 for all questions in a given course and category
+UPDATE mdl_question q
+JOIN mdl_question_categories as cat ON q.category = cat.id
+JOIN `mdl_context` as ctx ON cat.contextid = ctx.id
+JOIN mdl_course as crs ON ctx.instanceid = crs.id
+SET penalty = 0
+WHERE contextlevel = 50
+AND cat.name like 'LM1%'
+AND shortname = 'COSC131-22S1';
+
 
 Turn on precheck (to 1) for all ENCE260 questions:
 UPDATE mdl_question_coderunner_options as cro
