@@ -126,20 +126,24 @@ if (count($availablequestionsbycontext) == 0) {
 }
 
 echo <<<SCRIPT_END
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script>
-jQuery(document).ready(function ($) {
-    $("ul.expandable").css("display", "none");
-
-    $(".expander").click(function(e) {
-        var me = $(this);
-        e.preventDefault();
-        if (me.text() == "Expand") {
-            me.text("Collapse");
-        } else {
-            me.text("Expand");
-        }
-        me.next("UL").toggle();
+document.addEventListener("DOMContentLoaded", function(event) {
+    var expandables = document.getElementsByClassName('expandable');
+    Array.from(expandables).forEach(function (expandable) {
+        expandable.style.display = 'none';
+    });
+    var expanders = document.getElementsByClassName('expander');
+    Array.from(expanders).forEach(function(expander) {
+        expander.addEventListener('click', function(event) {
+            event.preventDefault();
+            if (expander.innerHTML == 'Expand') {
+                expander.innerHTML = 'Collapse';
+                expander.nextSibling.style.display = 'inline';
+            } else {
+                expander.innerTHML = 'Expand';
+                expander.nextSibling.style.display = 'none';
+            }
+        });
     });
 });
 </script>
