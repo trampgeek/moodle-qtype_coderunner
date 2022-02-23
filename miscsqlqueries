@@ -51,12 +51,13 @@ JOIN mdl_question_categories as cat ON q.category = cat.id
 JOIN `mdl_context` as ctx ON cat.contextid = ctx.id
 JOIN mdl_course as crs ON ctx.instanceid = crs.id
 SET coderunnertype = 'python3_scratchpad',
+    penalty = 0,
     answer = if(answer='','',concat('{"answer_code":["',replace(replace(replace(answer,'\n','\\n'),'"','\\"'),'\r',''),'"],"test_code":[""],"qtype_cr-prefix-answer":[""],"qtype_cr-show-panel":[""]}')),
     answerpreload = if(answerpreload='','',concat('{"answer_code":["',replace(replace(replace(answerpreload,'\n','\\n'),'"','\\"'),'\r',''),'"],"test_code":[""],"qtype_cr-prefix-answer":[""],"qtype_cr-show-panel":[""]}'))
 WHERE contextlevel=50
 AND coderunnertype = 'python3_stage1'
-AND cat.name = 'LM1 - Introducing Python'
-AND shortname = 'COSC131-21SU2_1';
+AND shortname = 'COSC131-22S1'
+AND cat.name like 'LM4%';
 
 Set penalty in mdl_question table to 0 for all questions in a given course and category
 UPDATE mdl_question q
@@ -68,6 +69,14 @@ WHERE contextlevel = 50
 AND cat.name like 'LM1%'
 AND shortname = 'COSC131-22S1';
 
+Find all questions with a particular template parameter, all courses.
+SELECT shortname, q.name, cat.name
+FROM mdl_question_coderunner_options as cro
+JOIN mdl_question as q ON cro.questionid = q.id
+JOIN mdl_question_categories as cat ON q.category = cat.id
+JOIN `mdl_context` as ctx ON cat.contextid = ctx.id
+JOIN mdl_course as crs ON ctx.instanceid = crs.id
+WHERE cro.templateparams like '%parsonsproblemthreshold%';
 
 Turn on precheck (to 1) for all ENCE260 questions:
 UPDATE mdl_question_coderunner_options as cro
