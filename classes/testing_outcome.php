@@ -243,7 +243,7 @@ class qtype_coderunner_testing_outcome {
      */
     protected function build_results_table(qtype_coderunner_question $question) {
         $resultcolumns = $question->result_columns();
-        $canviewhidden = $this->can_view_hidden();
+        $canviewhidden = self::can_view_hidden();
 
         // Build the table header, containing all the specified field headers,
         // unless all rows in that column would be blank.
@@ -395,7 +395,7 @@ class qtype_coderunner_testing_outcome {
         global $COURSE;
 
         if ($COURSE && $coursecontext = context_course::instance($COURSE->id)) {
-            $canviewhidden = has_capability('moodle/grade:viewhidden', $coursecontext);
+            $canviewhidden = has_capability('qtype/coderunner:viewhiddentestcases', $coursecontext);
         } else {
             $canviewhidden = false;
         }
