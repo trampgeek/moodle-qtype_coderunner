@@ -143,7 +143,7 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
      * @return A table of test results. See the parent class for details.
      */
     public function get_test_results(qtype_coderunner_question $q) {
-        if (empty($this->testresults) || $this->can_view_hidden()) {
+        if (empty($this->testresults) || self::can_view_hidden()) {
             return $this->format_table($this->testresults);
         } else {
             return $this->format_table($this->visible_rows($this->testresults));
