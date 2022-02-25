@@ -117,7 +117,7 @@ SET penaltyregime='0, 10, ...'
 WHERE contextlevel=50
 AND shortname like 'ENCE260%';
 
-Get all question attempt data for a particular quiz number (626 in this case)
+Get all question attempt data for a particular named quiz
 SELECT
     concat(quiza.uniqueid, qasd.attemptstepid, qasd.id) as uniquekey,
     quiza.uniqueid as quizattemptid,
@@ -138,7 +138,8 @@ SELECT
     qasd.value as value
 
     FROM mdl_user u
-    JOIN mdl_quiz_attempts quiza ON quiza.userid = u.id AND quiza.quiz = 626
+    JOIN mdl_quiz_attempts quiza ON quiza.userid = u.id
+    JOIN mdl_quiz qz ON quiza.quiz = qz.id
     JOIN mdl_question_attempts qatt ON qatt.questionusageid = quiza.uniqueid
     LEFT JOIN mdl_question_attempt_steps qattsteps ON qattsteps.questionattemptid = qatt.id
     LEFT JOIN mdl_question_attempt_step_data qasd on qasd.attemptstepid = qattsteps.id
@@ -148,7 +149,28 @@ SELECT
     AND qasd.name NOT RLIKE '-_.*'
     AND qasd.name NOT RLIKE '_.*'
     AND quest.length > 0
-    ORDER BY quiza.uniqueid, timestamp
+AND qz.name = 'Learning Module 1: Introducing Python'
+AND quest.name = 'Printing a procedure'
+    ORDER BY quiza.uniqueid, timestamp;
+
+Count submissions on a particular question in a given quiz in a given course.
+SELECT u.firstname, u.lastname, count(slot)
+
+FROM mdl_user u
+JOIN mdl_quiz_attempts quiza ON quiza.userid = u.id
+JOIN mdl_question_attempts qatt ON qatt.questionusageid = quiza.uniqueid
+JOIN mdl_quiz qz ON quiza.quiz = qz.id
+JOIN mdl_course crs ON qz.course = crs.id
+LEFT JOIN mdl_question_attempt_steps qattsteps ON qattsteps.questionattemptid = qatt.id
+LEFT JOIN mdl_question_attempt_step_data qasd on qasd.attemptstepid = qattsteps.id
+JOIN mdl_question quest ON quest.id = qatt.questionid
+
+WHERE qz.name = 'Module 1: Introducing Python. Due 6 pm, 3 March.'
+AND quest.name = '22 Legal variable names'
+AND crs.shortname = 'COSC131-21S1'
+AND qasd.name = '-submit'
+
+GROUP BY u.id;
 
 Get detailed info on a particular quiz attempt
 From https://docs.moodle.org/dev/Overview_of_the_Moodle_question_engine#Detailed_data_about_an_attempt
