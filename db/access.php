@@ -15,20 +15,38 @@
 // along with CodeRunner.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Define a new capability that gives access to the sandbox web service.
- * Default allows any authenticated user to access.
+ * Capability definitions for the qtype_coderunner plugin.
+ *
+ * @package   qtype_coderunner
+ * @category  access
+ * @copyright 2022 Richard Lobb, University of Canterbury
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$capabilities = array(
-    'qtype/coderunner:sandboxwsaccess' => array(
+$capabilities = [
+    // When reviewing questions, whether the hidden testcases are shown. Intended for teacher-like roles.
+    'qtype/coderunner:viewhiddentestcases' => [
+        'riskbitmask' => 0,
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_COURSE,
+        'archetypes' => [
+            'teacher' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW
+        ],
+        'clonepermissionsfrom' => 'moodle/grade:viewhidden'
+    ],
+
+    // Who can use the sandbox web service (and therefore use the ace_inline filter).
+    'qtype/coderunner:sandboxwsaccess' => [
         'riskbitmask'  => 0, // No standard risks apply. Only potential DoS.
         'captype'      => 'write',
         'contextlevel' => CONTEXT_SYSTEM,
-        'archetypes'   => array(
+        'archetypes'   => [
             'student'        => CAP_ALLOW,
             'teacher'        => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
             'manager'        => CAP_ALLOW
-        )
-    )
-);
+        ]
+    ]
+];

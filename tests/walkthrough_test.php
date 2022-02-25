@@ -108,6 +108,45 @@ class qtype_coderunner_walkthrough_testcase extends qbehaviour_walkthrough_test_
 
     }
 
+    public function test_view_hidden_testcases_capability() {
+        global $DB, $PAGE;
+        $this->resetAfterTest();
+
+        // Create a course and a teacher.
+        $generator = $this->getDataGenerator();
+        $course = $generator->create_course();
+        $user = $generator->create_user();
+        $coursecontext = context_course::instance($course->id);
+        $generator->enrol_user($user->id, $course->id, 'editingteacher');
+        $this->setUser($user);
+        $PAGE->set_course($course);
+
+        // Create the question we will test.
+        $q = test_question_maker::make_question('coderunner', 'sqr');
+        $this->start_attempt_at_question($q, 'adaptive', 1, 1);
+
+        // Submit a wrong answer.
+        $this->process_submission(array('-submit' => 1, 'answer' => 'def sqr(n): return n'));
+
+        // This is not what we are really testing, but just to make what the test is doing clear.
+        $this->assertTrue(has_capability('qtype/coderunner:viewhiddentestcases', $coursecontext));
+
+        // Verify hidden cases are visible.
+        $this->check_current_state(question_state::$todo);
+        $this->check_current_mark(0);
+        $this->render();
+        $this->assertStringContainsString('print(sqr(-6))', $this->currentoutput);
+
+        // Change users permission and check.
+        role_change_permission($DB->get_field('role', 'id', ['shortname' => 'editingteacher']),
+                $coursecontext, 'qtype/coderunner:viewhiddentestcases', CAP_PREVENT);
+        $this->assertFalse(has_capability('qtype/coderunner:viewhiddentestcases', $coursecontext));
+
+        // Verify hidden cases hidden.
+        $this->render();
+        $this->assertStringNotContainsString('print(sqr(-6))', $this->currentoutput);
+    }
+
     public function test_partial_marks() {
         $q = test_question_maker::make_question('coderunner', 'sqr_part_marks');
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
