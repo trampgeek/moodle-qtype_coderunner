@@ -1,5 +1,11 @@
 # CHANGE HISTORY
 
+### 26 February 2022. 4.2.3+
+
+ * Add specific capability (qtype/coderunner:viewhiddentestcases) for viewing
+   hidden test cases (default to existing built-in moodle/grade:viewhidden).
+   Thanks Tim Hunt.
+
 ### 27 January 2022. 4.2.3
 
  * Implement missing failMessage() method in HTML UI plugin, which resulted
