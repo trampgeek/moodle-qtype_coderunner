@@ -72,4 +72,3 @@ Feature: Test the HTML_UI
     And I set the field "cr_inputfield" to "bobble"
     And I press "Check"
     Then I should not see "Passed all tests!"
-
