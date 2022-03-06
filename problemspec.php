@@ -14,8 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with CodeRunner.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Script to return the spec for the currently-rendered coderunner question,
  * assumed to be present in a zip support file. Since pdfs are potentially
