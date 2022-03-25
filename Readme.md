@@ -1,6 +1,6 @@
 # CodeRunner
 
-Version: 4.2.1 January 2022
+Version: 4.2.3 February 2022
 
 Authors: Richard Lobb, University of Canterbury, New Zealand.
          Tim Hunt, The Open University, UK.
