@@ -111,7 +111,7 @@ $string['coderunnersettings'] = 'CodeRunner settings';
 $string['coderunnersummary'] = 'Answer is program code that is executed in the context of a set of test cases to determine its correctness.';
 $string['coderunnertype'] = 'Question type';
 $string['coderunnertype_help'] = 'Select the programming language and question type. Once a type has been selected, details can be seen in the Question type details panel below.';
-$string['coderunnerwssettings'] = 'Sandob web-service settings';
+$string['coderunnerwssettings'] = 'Sandbox web-service settings';
 $string['columncontrols'] = 'Result table';
 $string['columncontrols_help'] = 'The checkboxes select which columns of the results table should be displayed to the student after submission';
 
