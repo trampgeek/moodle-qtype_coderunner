@@ -59,6 +59,8 @@ define(['jquery'], function($) {
     var Range;  // Can't load this until ace has loaded.
     const fillChar = " ";
     const validChars = /[ !"#$%&'()*+,`\-./0-9:;<=>?@A-Z\[\]\\^_a-z{}|~]/;
+    const ACE_DARK_THEME = 'ace/theme/tomorrow_night';
+    const ACE_LIGHT_THEME = 'ace/theme/textmate';
 
     /**
      * Constructor for the Ace interface object
@@ -119,9 +121,14 @@ define(['jquery'], function($) {
             });
             this.editor.$blockScrolling = Infinity;
 
-            // Set theme if available (not currently enabled).
-            if (uiParams.theme) {
+            // Set theme to dark if user-prefers-color-scheme is dark,
+            // else use the uiParams theme if provided else use light.
+            if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+                this.editor.setTheme(ACE_DARK_THEME);
+            } else if (uiParams.theme) {
                 this.editor.setTheme("ace/theme/" + uiParams.theme);
+            } else {
+                this.editor.setTheme(ACE_LIGHT_THEME);
             }
 
             this.setLanguage(lang);

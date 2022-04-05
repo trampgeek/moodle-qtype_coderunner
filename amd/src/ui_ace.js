@@ -45,7 +45,8 @@ define(['jquery'], function($) {
      * @param {object} params The UI parameter object.
      */
     function AceWrapper(textareaId, w, h, params) {
-
+        const ACE_DARK_THEME = 'ace/theme/tomorrow_night';
+        const ACE_LIGHT_THEME = 'ace/theme/textmate';
 
         var textarea = $(document.getElementById(textareaId)),
             wrapper = $(document.getElementById(textareaId + '_wrapper')),
@@ -63,7 +64,6 @@ define(['jquery'], function($) {
             this.contents_changed = false;
             this.capturingTab = false;
             this.clickInProgress = false;
-
 
             this.editNode = $("<div></div>"); // Ace editor manages this
             this.editNode.css({
@@ -89,6 +89,16 @@ define(['jquery'], function($) {
             // Set theme if available (not currently enabled).
             if (params.theme) {
                 this.editor.setTheme("ace/theme/" + params.theme);
+            }
+
+            // Set theme to dark if user-prefers-color-scheme is dark,
+            // else use the uiParams theme if provided else use light.
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                this.editor.setTheme(ACE_DARK_THEME);
+            } else if (params.theme) {
+                this.editor.setTheme("ace/theme/" + params.theme);
+            } else {
+                this.editor.setTheme(ACE_LIGHT_THEME);
             }
 
             this.setLanguage(lang);
@@ -122,6 +132,7 @@ define(['jquery'], function($) {
         }
         catch(err) {
             // Something ugly happened. Probably ace editor hasn't been loaded
+            console.log('Error initialising ace: ' + err);
             this.fail = true;
         }
     }
@@ -141,7 +152,6 @@ define(['jquery'], function($) {
         // Nothing to do ... always sync'd
     };
 
-    // Disable autosync, too.
     AceWrapper.prototype.syncIntervalSecs = function() {
         return 0;
     };
