@@ -26,7 +26,7 @@
  WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  OTHER DEALINGS IN THE SOFTWARE.
-*/
+ */
 
 // This file is part of Moodle - http://moodle.org/
 //
@@ -44,16 +44,16 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 
-define(function() {
+define(['jquery'], function($) {
     /**
      * Contstructor for the Util class.
      */
     function Util() {
 
         this.greekLetterNames = ['Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon',
-                                'Zeta', 'Eta', 'Theta', 'Iota', 'Kappa', 'Lambda',
-                                'Mu', 'Nu', 'Xi', 'Omicron', 'Pi', 'Rho', 'Sigma',
-                                'Tau', 'Upsilon', 'Phi', 'Chi', 'Psi', 'Omega' ];
+            'Zeta', 'Eta', 'Theta', 'Iota', 'Kappa', 'Lambda',
+            'Mu', 'Nu', 'Xi', 'Omicron', 'Pi', 'Rho', 'Sigma',
+            'Tau', 'Upsilon', 'Phi', 'Chi', 'Psi', 'Omega'];
     }
 
     Util.prototype.convertLatexShortcuts = function(text) {
@@ -65,14 +65,14 @@ define(function() {
         }
 
         // Subscripts.
-        for(var i = 0; i < 10; i++) {
+        for (var i = 0; i < 10; i++) {
             text = text.replace(new RegExp('_' + i, 'g'), String.fromCharCode(8320 + i));
         }
         text = text.replace(new RegExp('_a', 'g'), String.fromCharCode(8336));
         return text;
     };
 
-    Util.prototype.drawArrow = function(c, x, y, angle) {
+    Util.prototype.drawArrow = function (c, x, y, angle) {
         // Draw an arrow head on the graphics context c at (x, y) with given angle.
 
         var dx = Math.cos(angle);
@@ -84,27 +84,27 @@ define(function() {
         c.fill();
     };
 
-    Util.prototype.det = function(a, b, c, d, e, f, g, h, i) {
+    Util.prototype.det = function (a, b, c, d, e, f, g, h, i) {
         // Determinant of given matrix elements.
         return a * e * i + b * f * g + c * d * h - a * f * h - b * d * i - c * e * g;
     };
 
-    Util.prototype.vectorMagnitude = function(v){
+    Util.prototype.vectorMagnitude = function (v) {
         // Returns magnitude (length) of a vector v
         return Math.sqrt(v.x * v.x + v.y * v.y);
     };
 
-    Util.prototype.scalarProjection = function(a, b) {
+    Util.prototype.scalarProjection = function (a, b) {
         // Returns scalar projection of vector a onto vector b
         return (a.x * b.x + a.y * b.y) / this.vectorMagnitude(b);
     };
 
-    Util.prototype.isCCW = function(a, b) {
+    Util.prototype.isCCW = function (a, b) {
         // Returns true iff vector b is in a counter-clockwise orientation relative to a
         return (a.x * b.y) - (b.x * a.y) > 0;
     };
 
-    Util.prototype.circleFromThreePoints = function(x1, y1, x2, y2, x3, y3) {
+    Util.prototype.circleFromThreePoints = function (x1, y1, x2, y2, x3, y3) {
         // Return {x, y, radius} of circle through (x1, y1), (x2, y2), (x3, y3).
         var a = this.det(x1, y1, 1, x2, y2, 1, x3, y3, 1);
         var bx = -this.det(x1 * x1 + y1 * y1, y1, 1, x2 * x2 + y2 * y2, y2, 1, x3 * x3 + y3 * y3, y3, 1);
@@ -117,31 +117,34 @@ define(function() {
         };
     };
 
-    Util.prototype.isInside = function(pos, rect) {
+    Util.prototype.isInside = function (pos, rect) {
         // True iff given point pos is inside rectangle.
         return pos.x > rect.x && pos.x < rect.x + rect.width && pos.y < rect.y + rect.height && pos.y > rect.y;
     };
 
-    Util.prototype.crossBrowserKey = function(e) {
+    Util.prototype.crossBrowserKey = function (e) {
         // Return which key was pressed, given the event, in a browser-independent way.
         e = e || window.event;
         return e.which || e.keyCode;
     };
 
-    Util.prototype.crossBrowserElementPos = function(e) {
+    Util.prototype.crossBrowserElementPos = function (e) {
         // Return the {x, y} location of the element in which event e occurred.
         e = e || window.event;
         var obj = e.target || e.srcElement;
-        var x = 0, y = 0;
-        while(obj.offsetParent) {
-            x += obj.offsetLeft;
-            y += obj.offsetTop;
-            obj = obj.offsetParent;
-        }
-        return { 'x': x, 'y': y };
+        /*
+         var x = 0, y = 0;
+         while(obj.offsetParent) {
+         x += obj.offsetLeft;
+         y += obj.offsetTop;
+         obj = obj.offsetParent;
+         }
+         return { 'x': x, 'y': y };
+         */
+        return {'x': $(obj).offset().left, 'y': $(obj).offset().top}; //KHANG: get real offset without reagard position type
     };
 
-    Util.prototype.crossBrowserMousePos = function(e) {
+    Util.prototype.crossBrowserMousePos = function (e) {
         // Return the {x, y} page coords (?) of the mouse position associated with event e.
         e = e || window.event;
         return {
@@ -150,7 +153,7 @@ define(function() {
         };
     };
 
-    Util.prototype.crossBrowserRelativeMousePos = function(e) {
+    Util.prototype.crossBrowserRelativeMousePos = function (e) {
         // Return the {x, y} location relative to the element within which the
         // event occurred of the mouse position associated with event e.
         var element = this.crossBrowserElementPos(e);

@@ -1,8 +1,6 @@
-/**
- * This file is part of Moodle - http:moodle.org/
- *
- * Much of this code is from Finite State Machine Designer:
- */
+// This file is part of Moodle - http://moodle.org/
+//
+// Much of this code is from Finite State Machine Designer:
 /*
  Finite State Machine Designer (http://madebyevan.com/fsm/)
  License: MIT License (see below)
@@ -25,22 +23,20 @@
  WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  OTHER DEALINGS IN THE SOFTWARE.
-*/
-/**
- *
- * Moodle is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Moodle is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more util.details.
- *
- * You should have received a copy of the GNU General Public License
- * along with Moodle.  If not, see <http:www.gnu.org/licenses/>.
  */
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more util.details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * JavaScript to interface to the Graph editor, which is used both in
@@ -51,7 +47,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'], function($, util, elements) {
+define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'], function ($, util, elements) {
 
     /**
      * Constructor for a GraphCanvas object, which is a wrapper for a Graph's HTML canvas
@@ -67,42 +63,83 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         this.parent = parent;
         this.canvas = $(document.createElement("canvas"));
         this.canvas.attr({
-            id:         canvasId,
-            class:      "coderunner_graphcanvas",
-            tabindex:   1 // So canvas can get focus.
+            id: canvasId,
+            class: "coderunner_graphcanvas",
+            tabindex: 1 // So canvas can get focus.
         });
         this.canvas.css({'background-color': 'white'});
 
-        this.canvas.on('mousedown', function(e) {
+        this.canvas.on('mousedown', function (e) {
             return parent.mousedown(e);
         });
 
-        this.canvas.on('mouseup', function(e) {
+        this.canvas.on('mouseup', function (e) {
             return parent.mouseup(e);
         });
 
-        this.canvas.on('dblclick', function(e) {
+        this.canvas.on('dblclick', function (e) {
             return parent.dblclick(e);
         });
 
-        this.canvas.on('keydown', function(e) {
+        this.canvas.on('keydown', function (e) {
             return parent.keydown(e);
         });
 
-        this.canvas.on('mousemove', function(e) {
+        this.canvas.on('mousemove', function (e) {
             return parent.mousemove(e);
         });
 
-        this.canvas.on('keypress', function(e) {
+        this.canvas.on('keypress', function (e) {
             return parent.keypress(e);
         });
 
-        /**
-         * Resize this object to then given dimensions.
-         * @param {int} w Required width.
-         * @param {int} h Required height.
-         */
-        this.resize = function(w, h) {
+        //BEGIN KHANG: 2021/08/22
+        this.canvas.on('touchstart', function (e) {
+            var ret;
+            if (e.touches.length == 2) {
+                ret = parent.dblclick({
+                    type: 'dblclick',
+                    target: e.touches[0].target,
+                    pageX: (e.touches[0].pageX + e.touches[1].pageX) / 2,
+                    pageY: (e.touches[0].pageY + e.touches[1].pageY) / 2,
+                    clientX: (e.touches[0].clientX + e.touches[1].clientX) / 2,
+                    clientY: (e.touches[0].clientY + e.touches[1].clientY) / 2
+                });
+            } else {
+                ret = parent.mousedown({
+                    type: 'mousedown',
+                    target: e.touches[0].target,
+                    pageX: e.touches[0].pageX,
+                    pageY: e.touches[0].pageY,
+                    clientX: e.touches[0].clientX,
+                    clientY: e.touches[0].clientY,
+                    shiftKey: parent.shiftKeyButton.activated,
+                    altKey: (e.touches.length == 3)
+                });
+            }
+            return ret;
+        });
+
+
+        this.canvas.on('touchmove', function (e) {
+            return parent.mousemove({
+                type: 'mousemove',
+                target: e.touches[0].target,
+                pageX: e.touches[0].pageX,
+                pageY: e.touches[0].pageY,
+                clientX: e.touches[0].clientX,
+                clientY: e.touches[0].clientY
+            });
+        });
+
+        this.canvas.on('touchend', function () {
+            return parent.mouseup();
+        });
+        //END KHANG: 2021/08/22
+
+
+        this.resize = function (w, h) {
+            // Resize to given dimensions.
             this.canvas.attr("width", w);
             this.canvas.attr("height", h);
         };
@@ -171,7 +208,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         this.helpText = ''; // Obtained by JSON - see below.
         this.readOnly = this.textArea.prop('readonly');
         this.uiParams = uiParams;
-        this.graphCanvas = new GraphCanvas(this,  this.canvasId, width, height);
+        this.graphCanvas = new GraphCanvas(this, this.canvasId, width, height);
         this.caretVisible = true;
         this.caretTimer = 0;  // Need global so we can kill a running timer.
         this.originalClick = null;
@@ -187,16 +224,94 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
 
         this.helpBox = new elements.HelpBox(this, 0, 0);   // Button that opens a help text box
         this.clearButton = new elements.Button(this, 60, 0, "Clear");    // Button that clears the canvas
-        this.clearButton.onClick = function() {
-          if (confirm("Are you sure you want to clear the diagram?")) {
-              this.parent.clear();
-          }
+        this.clearButton.onClick = function () {
+            if (confirm("Are you sure you want to clear the diagram?")) {
+                this.parent.clear();
+            }
         };
-        this.buttons = [this.helpBox, this.clearButton];
 
-        /**
-         * Legacy support for locknodes and lockedges.
-         */
+        //KHANG: 2021/08/22
+        this.shiftKeyButton = new elements.Button(this, 120, 0, "shift");
+        this.shiftKeyButton.activated = false;
+        this.shiftKeyButton.onClick = function () {
+            this.activated = !this.activated;
+            this.text = this.activated ? "SHIFT" : "shift";
+            this.highLighted = this.activated;
+            save_this.draw();
+        };
+
+        this.editableObject = null;
+        this.selectedObject_saved = null;
+        this.editButton = new elements.Button(this, 240, 0, "Edit");
+        this.editButton.onClick = function () {
+            if (save_this.editableObject && save_this.editableObject.textBox) {
+                var label = prompt("Enter the label: ", save_this.editableObject.textBox.text);
+                if (label === null) {
+                    return;
+                }
+                save_this.saveVersion();
+                save_this.editableObject.textBox.text = label;
+                save_this.draw();
+            }
+        };
+
+        this.deleteButton = new elements.Button(this, 180, 0, "Delete");
+        this.deleteButton.onClick = function () {
+            if (!save_this.selectedObject_saved) {
+                return;
+            }
+            var i, nodeDeleted = false;
+            save_this.saveVersion();
+            for (var i = 0; i < save_this.nodes.length; i++) {
+                if (save_this.nodes[i] === save_this.selectedObject_saved && !save_this.uiParams.locknodeset) {
+                    save_this.nodes.splice(i--, 1);
+                    nodeDeleted = true;
+                }
+            }
+            for (var i = 0; i < save_this.links.length; i++) {
+                if ((save_this.links[i] === save_this.selectedObject_saved && !save_this.uiParams.lockedgeset) ||
+                        nodeDeleted && (
+                                save_this.links[i].node === save_this.selectedObject_saved ||
+                                save_this.links[i].nodeA === save_this.selectedObject_saved ||
+                                save_this.links[i].nodeB === save_this.selectedObject_saved)) {
+                    save_this.links.splice(i--, 1);
+                }
+            }
+            save_this.selectedObject_saved = null;
+            save_this.editableObject = null;
+            save_this.draw();
+        };
+
+        this.undoButton = new elements.Button(this, 300, 0, "Undo");
+        this.undoButton.onClick = function () {
+            save_this.undo();
+        };
+
+
+        this.redButton = new elements.Button(this, 360, 0, "Red");
+        this.redButton.onClick = function () {
+            if (!save_this.selectedObject_saved) {
+                return;
+            }
+            save_this.saveVersion();
+            save_this.selectedObject_saved.setNodeType(1);
+        };
+
+        this.blackButton = new elements.Button(this, 420, 0, "Black");
+        this.blackButton.onClick = function () {
+            if (!save_this.selectedObject_saved) {
+                return;
+            }
+            save_this.saveVersion();
+            save_this.selectedObject_saved.setNodeType(0);
+        };
+
+        this.buttons = [this.helpBox, this.clearButton, this.shiftKeyButton,
+            this.deleteButton, this.editButton, this.undoButton, this.redButton, this.blackButton];
+
+        //END KHANG: 2021/08/22
+
+        // Legacy support for locknodes and lockedges.
         if ('locknodes' in uiParams) {
             uiParams.locknodepositions = uiParams.locknodes;
         }
@@ -207,12 +322,10 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         if ('helpmenutext' in uiParams) {
             this.helpText = uiParams.helpmenutext;
         } else {
-          require(['core/str'], function(str) {
-                /**
-                 * Get help text via AJAX.
-                 */
+            require(['core/str'], function (str) {
+                // Get help text via AJAX.
                 var helpPresent = str.get_string('graphhelp', 'qtype_coderunner');
-                $.when(helpPresent).done(function(graphhelp) {
+                $.when(helpPresent).done(function (graphhelp) {
                     save_this.helpText = graphhelp;
                 });
             });
@@ -223,89 +336,77 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         }
     }
 
-    Graph.prototype.failed = function() {
+    Graph.prototype.failed = function () {
         return this.fail;
     };
 
-    Graph.prototype.failMessage = function() {
+    Graph.prototype.failMessage = function () {
         return this.failString;
     };
 
-    Graph.prototype.getElement = function() {
+    Graph.prototype.getElement = function () {
         return this.getCanvas();
     };
 
-    Graph.prototype.hasFocus = function() {
+    Graph.prototype.hasFocus = function () {
         return document.activeElement == this.getCanvas();
     };
 
-    Graph.prototype.getCanvas = function() {
+    Graph.prototype.getCanvas = function () {
         var canvas = this.graphCanvas.canvas[0];
         return canvas;
     };
 
-    Graph.prototype.nodeRadius = function() {
+    Graph.prototype.nodeRadius = function () {
         return this.uiParams.noderadius ? this.uiParams.noderadius : this.DEFAULT_NODE_RADIUS;
     };
 
-    Graph.prototype.fontSize = function() {
+    Graph.prototype.fontSize = function () {
         return this.uiParams.fontsize ? this.uiParams.fontsize : this.DEFAULT_FONT_SIZE;
     };
 
-    Graph.prototype.isFsm = function() {
+    Graph.prototype.isFsm = function () {
         return this.uiParams.isfsm !== undefined ? this.uiParams.isfsm : true;
     };
 
 
-    Graph.prototype.textOffset = function() {
+    Graph.prototype.textOffset = function () {
         return this.uiParams.textoffset ? this.uiParams.textoffset : this.DEFAULT_TEXT_OFFSET;
     };
 
-    /**
-     * Draw an arrow head if this is a directed graph. Otherwise do nothing.
-     * @param {object} c The graphic context.
-     * @param {int} x The x location of the arrow head.
-     * @param {int} y The y location of the arrow head.
-     * @param {float} angle The angle of the arrow.
-     */
-    Graph.prototype.arrowIfReqd = function(c, x, y, angle) {
+    // Draw an arrow head if this is a directed graph. Otherwise do nothing.
+    Graph.prototype.arrowIfReqd = function (c, x, y, angle) {
         if (this.uiParams.isdirected === undefined || this.uiParams.isdirected) {
             util.drawArrow(c, x, y, angle);
         }
     };
 
-    /**
-     * Copy the serialised version of the graph to the TextArea.
-     */
-    Graph.prototype.sync = function() {
-        /**
-         * Nothing to do ... always sync'd.
-         */
+    // Copy the serialised version of the graph to the TextArea.
+    Graph.prototype.sync = function () {
+        // Nothing to do ... always sync'd.
     };
 
-    /**
-     * Disable autosync, too.
-     */
-    Graph.prototype.syncIntervalSecs = function() {
+    // Disable autosync, too.
+    Graph.prototype.syncIntervalSecs = function () {
         return 0;
     };
 
-    Graph.prototype.keypress = function(e) {
+    Graph.prototype.keypress = function (e) {
         var key = util.crossBrowserKey(e);
 
         if (this.readOnly) {
             return;
         }
 
-        if(key >= 0x20 &&
-                  key <= 0x7E &&
-                  !e.metaKey &&
-                  !e.altKey &&
-                  !e.ctrlKey &&
-                  key !== 37 &&  //Don't register arrow keys
-                  key !== 39 &&
-                  this.selectedObject !== null &&
-                  this.canEditText()) {
+        if (key >= 0x20 &&
+                key <= 0x7E &&
+                !e.metaKey &&
+                !e.altKey &&
+                !e.ctrlKey &&
+                key !== 37 && //Don't register arrow keys
+                key !== 39 &&
+                this.selectedObject !== null &&
+                this.canEditText()) {
             if (this.selectedObject.justMoved) {
                 this.saveVersion();
             }
@@ -314,19 +415,15 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
             this.resetCaret();
             this.draw();
 
-            /**
-             * Don't let keys do their actions (like space scrolls down the page).
-             */
+            // Don't let keys do their actions (like space scrolls down the page).
             return false;
-        } else if(key === 8 || key === 0x20 || key === 9) {
-            /**
-             * Disable scrolling on backspace, tab and space.
-             */
+        } else if (key === 8 || key === 0x20 || key === 9) {
+            // Disable scrolling on backspace, tab and space.
             return false;
         }
     };
 
-    Graph.prototype.mousedown = function(e) {
+    Graph.prototype.mousedown = function (e) {
         var mouse = util.crossBrowserRelativeMousePos(e);
 
         if (this.readOnly) {
@@ -341,21 +438,19 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
 
         this.saveVersion();
 
-        if (this.selectedObject !== this.helpBox){
+        if (this.selectedObject !== this.helpBox) {
             this.helpBox.helpOpen = false;
         }
 
-        if(this.selectedObject !== null) {
-            if(this.selectedObject instanceof elements.Button){
-               this.selectedObject.onClick();
-           } else if(e.shiftKey && this.selectedObject instanceof elements.Node) {
+        if (this.selectedObject !== null) {
+            if (this.selectedObject instanceof elements.Button) {
+                this.selectedObject.onClick();
+            } else if (e.shiftKey && this.selectedObject instanceof elements.Node) {
                 if (!this.uiParams.lockedgeset) {
                     this.currentLink = new elements.SelfLink(this, this.selectedObject, mouse);
                 }
             } else if (e.altKey && this.selectedObject instanceof elements.Node) {
-                /**
-                 * Moving an entire connected graph component.
-                 */
+                // Moving an entire connected graph component.
                 if (!this.uiParams.locknodepositions) {
                     this.movingGraph = true;
                     this.movingNodes = this.selectedObject.traverseGraph(this.links, []);
@@ -363,72 +458,73 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
                         this.movingNodes[i].setMouseStart(mouse.x, mouse.y);
                     }
                 }
-            } else if (this.selectedObject instanceof elements.TextBox){
+            } else if (this.selectedObject instanceof elements.TextBox) {
                 if (!this.uiParams.lockedgelabels) {
                     this.movingText = true;
                     this.selectedObject.setMouseStart(mouse.x, mouse.y);
                     this.selectedObject = this.selectedObject.parent;
                 }
             } else if (!(this.uiParams.locknodepositions && this.selectedObject instanceof elements.Node) &&
-                       !(this.uiParams.lockedgepositions && this.selectedObject instanceof elements.Link)){
+                    !(this.uiParams.lockedgepositions && this.selectedObject instanceof elements.Link)) {
                 this.movingObject = true;
-                if(this.selectedObject.setMouseStart) {
+                if (this.selectedObject.setMouseStart) {
                     this.selectedObject.setMouseStart(mouse.x, mouse.y);
                 }
             }
             this.selectedObject.justMoved = true;
             this.resetCaret();
-        } else if(e.shiftKey && this.isFsm()) {
+
+
+        } else if (e.shiftKey && this.isFsm()) {
             this.currentLink = new elements.TemporaryLink(this, mouse, mouse);
         }
 
+        //BEGIN KHANG: 2021/08/22
+        if (!(this.selectedObject && this.selectedObject instanceof elements.Button)) {
+            this.selectedObject_saved = this.selectedObject;
+            this.editableObject = this.selectedObject && this.canEditText() ? this.selectedObject : null;
+        }
+        //END KHANG: 2021/08/22
+
         this.draw();
 
-        if(this.hasFocus()) {
-            /**
-             * Disable drag-and-drop only if the canvas is already focused.
-             */
+        if (this.hasFocus()) {
+            // Disable drag-and-drop only if the canvas is already focused.
             return false;
         } else {
-            /**
-             * Otherwise, let the browser switch the focus away from wherever it was.
-             */
+            // Otherwise, let the browser switch the focus away from wherever it was.
             this.resetCaret();
             return true;
         }
     };
 
-    /**
-     * Return true if currently selected object has text that we are allowed
-     * to edit.
-     */
-    Graph.prototype.canEditText = function() {
+    // Return true if currently selected object has text that we are allowed
+    // to edit.
+    Graph.prototype.canEditText = function () {
         var isNode = this.selectedObject instanceof elements.Node,
-            isLink = (this.selectedObject instanceof elements.Link ||
-                this.selectedObject instanceof elements.SelfLink);
+                isLink = (this.selectedObject instanceof elements.Link ||
+                        this.selectedObject instanceof elements.SelfLink);
         return 'textBox' in this.selectedObject &&
-               ((isNode && !this.uiParams.locknodelabels) ||
-                (isLink && !this.uiParams.lockedgelabels));
+                ((isNode && !this.uiParams.locknodelabels) ||
+                        (isLink && !this.uiParams.lockedgelabels));
     };
 
-    Graph.prototype.keydown = function(e) {
-        var key = util.crossBrowserKey(e), i, nodeDeleted=false;
+    Graph.prototype.keydown = function (e) {
+        var key = util.crossBrowserKey(e), i, nodeDeleted = false;
 
         if (this.readOnly) {
             return;
         }
 
-        if(key === 8) { // Backspace key.
-            if(this.selectedObject !== null && this.canEditText()) {
+        if (key === 8) { // Backspace key.
+            if (this.selectedObject !== null && this.canEditText()) {
                 this.selectedObject.textBox.deleteChar();
                 this.resetCaret();
                 this.draw();
             }
-            /**
-             * Backspace is a shortcut for the back button, but do NOT want to change pages.
-             */
+            // Backspace is a shortcut for the back button, but do NOT want to change pages.
             return false;
-        } else if(key === 46 && this.selectedObject !== null) { // Delete key
+        } else if (key === 46 && this.selectedObject !== null) { // Delete key
             this.saveVersion();
             for (i = 0; i < this.nodes.length; i++) {
                 if (this.nodes[i] === this.selectedObject && !this.uiParams.locknodeset) {
@@ -437,32 +533,30 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
                 }
             }
             for (i = 0; i < this.links.length; i++) {
-                if((this.links[i] === this.selectedObject && !this.uiParams.lockedgeset) ||
-                    nodeDeleted && (
-                       this.links[i].node === this.selectedObject ||
-                       this.links[i].nodeA === this.selectedObject ||
-                       this.links[i].nodeB === this.selectedObject)) {
+                if ((this.links[i] === this.selectedObject && !this.uiParams.lockedgeset) ||
+                        nodeDeleted && (
+                                this.links[i].node === this.selectedObject ||
+                                this.links[i].nodeA === this.selectedObject ||
+                                this.links[i].nodeB === this.selectedObject)) {
                     this.links.splice(i--, 1);
                 }
             }
             this.selectedObject = null;
             this.draw();
-        } else if(key === 13) { // Enter key.
-            if(this.selectedObject !== null) {
-                /**
-                 * Deselect the object.
-                 */
+        } else if (key === 13) { // Enter key.
+            if (this.selectedObject !== null) {
+                // Deselect the object.
                 this.selectedObject = null;
                 this.draw();
             }
-        } else if(key === 37) { // Left arrow key
-            if(this.selectedObject !== null && this.canEditText()) {
+        } else if (key === 37) { // Left arrow key
+            if (this.selectedObject !== null && this.canEditText()) {
                 this.selectedObject.textBox.caretLeft();
                 this.resetCaret();
                 this.draw();
-                }
-        } else if(key === 39) { // Right arrow key
-            if(this.selectedObject !== null && this.canEditText()) {
+            }
+        } else if (key === 39) { // Right arrow key
+            if (this.selectedObject !== null && this.canEditText()) {
                 this.selectedObject.textBox.caretRight();
                 this.resetCaret();
                 this.draw();
@@ -474,7 +568,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         }
     };
 
-    Graph.prototype.dblclick = function(e) {
+    Graph.prototype.dblclick = function (e) {
         var mouse = util.crossBrowserRelativeMousePos(e);
 
         if (this.readOnly || this.uiParams.locknodeset) {
@@ -485,58 +579,60 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
 
         this.saveVersion();
 
-        if(this.selectedObject === null) {
-                this.selectedObject = new elements.Node(this, mouse.x, mouse.y);
-                this.nodes.push(this.selectedObject);
-                this.selectedObject.justMoved = true;
-                this.resetCaret();
-                this.draw();
+        if (this.selectedObject === null) {
+            this.selectedObject = new elements.Node(this, mouse.x, mouse.y);
+            this.nodes.push(this.selectedObject);
+            this.selectedObject.justMoved = true;
+            this.resetCaret();
+            this.selectedObject_saved = this.selectedObject;    //KHANG
+            this.editableObject = this.canEditText() ? this.selectedObject : null; //KHANG
+            this.draw();
         } else {
-            if(this.selectedObject instanceof elements.Node && this.isFsm()) {
+            if (this.selectedObject instanceof elements.Node && this.isFsm()) {
                 this.selectedObject.isAcceptState = !this.selectedObject.isAcceptState;
                 this.draw();
             }
         }
     };
 
-    Graph.prototype.resize = function(w, h) {
+    Graph.prototype.resize = function (w, h) {
         this.graphCanvas.resize(w, h);
         this.draw();
     };
 
-    Graph.prototype.mousemove = function(e) {
+    Graph.prototype.mousemove = function (e) {
         var mouse = util.crossBrowserRelativeMousePos(e),
-            closestPoint;
+                closestPoint;
 
         if (this.readOnly) {
             return;
         }
 
-        for (i = 0; i < this.buttons.length; i++){
-            if (this.buttons[i].containsPoint(mouse.x, mouse.y)){
+        for (i = 0; i < this.buttons.length; i++) {
+            if (this.buttons[i].containsPoint(mouse.x, mouse.y)) {
                 this.buttons[i].highLighted = true;
-            }else{
+            } else {
                 this.buttons[i].highLighted = false;
             }
             this.draw();
         }
 
-        if(this.currentLink !== null) {
+        if (this.currentLink !== null) {
             var targetNode = this.selectObject(mouse.x, mouse.y);
-            if(!(targetNode instanceof elements.Node)) {
+            if (!(targetNode instanceof elements.Node)) {
                 targetNode = null;
             }
 
-            if(this.selectedObject === null) {
-                if(targetNode !== null) {
+            if (this.selectedObject === null) {
+                if (targetNode !== null) {
                     this.currentLink = new elements.StartLink(this, targetNode, this.originalClick);
                 } else {
                     this.currentLink = new elements.TemporaryLink(this, this.originalClick, mouse);
                 }
             } else {
-                if(targetNode === this.selectedObject) {
+                if (targetNode === this.selectedObject) {
                     this.currentLink = new elements.SelfLink(this, this.selectedObject, mouse);
-                } else if(targetNode !== null) {
+                } else if (targetNode !== null) {
                     this.currentLink = new elements.Link(this, this.selectedObject, targetNode);
                 } else {
                     closestPoint = this.selectedObject.closestPointOnCircle(mouse.x, mouse.y);
@@ -548,23 +644,23 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         if (this.movingGraph) {
             var nodes = this.movingNodes;
             for (var i = 0; i < nodes.length; i++) {
-                 nodes[i].trackMouse(mouse.x, mouse.y);
-                 this.snapNode(nodes[i]);
+                nodes[i].trackMouse(mouse.x, mouse.y);
+                this.snapNode(nodes[i]);
             }
             this.draw();
-        } else if(this.movingText){
+        } else if (this.movingText) {
             this.selectedObject.textBox.setAnchorPoint(mouse.x, mouse.y);
             this.draw();
-        } else if(this.movingObject) {
+        } else if (this.movingObject) {
             this.selectedObject.setAnchorPoint(mouse.x, mouse.y);
-            if(this.selectedObject instanceof elements.Node) {
+            if (this.selectedObject instanceof elements.Node) {
                 this.snapNode(this.selectedObject);
             }
             this.draw();
         }
     };
 
-    Graph.prototype.mouseup = function() {
+    Graph.prototype.mouseup = function () {
 
         if (this.readOnly) {
             return;
@@ -574,62 +670,65 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         this.movingGraph = false;
         this.movingText = false;
 
-        if(this.currentLink !== null) {
-            if(!(this.currentLink instanceof elements.TemporaryLink)) {
+        //alert(this.currentLink + ':' + typeof(this.currentLink));
+        if (this.currentLink !== null) {
+            if (!(this.currentLink instanceof elements.TemporaryLink)) {
                 this.selectedObject = this.currentLink;
                 this.addLink(this.currentLink);
                 this.resetCaret();
+
+                //BEGIN KHANG: 2021/08/22
+                this.selectedObject_saved = this.selectedObject;
+                this.editableObject = this.canEditText() ? this.selectedObject : null;
+                //END KHANG: 2021/08/22
             }
             this.currentLink = null;
             this.draw();
         }
     };
 
-    Graph.prototype.selectObject = function(x, y) {
-        for (i = 0; i < this.buttons.length; i++){
-            if (this.buttons[i].containsPoint(x, y)){
+    Graph.prototype.selectObject = function (x, y) {
+        for (i = 0; i < this.buttons.length; i++) {
+            if (this.buttons[i].containsPoint(x, y)) {
                 return this.buttons[i];
             }
         }
         var i;
-        for(i = 0; i < this.nodes.length; i++) {
-            if(this.nodes[i].containsPoint(x, y)) {
+        for (i = 0; i < this.nodes.length; i++) {
+            if (this.nodes[i].containsPoint(x, y)) {
                 return this.nodes[i];
             }
         }
-        for(i = 0; i < this.links.length; i++) {
-            if(this.links[i].containsPoint(x, y)) {
+        for (i = 0; i < this.links.length; i++) {
+            if (this.links[i].containsPoint(x, y)) {
                 return this.links[i];
-            }else if ('textBox' in this.links[i] && this.links[i].textBox.containsPoint(x, y)){
+            } else if ('textBox' in this.links[i] && this.links[i].textBox.containsPoint(x, y)) {
                 return this.links[i].textBox;
             }
         }
         return null;
     };
 
-    Graph.prototype.snapNode = function(node) {
-        for(var i = 0; i < this.nodes.length; i++) {
-            if(this.nodes[i] === node){
+    Graph.prototype.snapNode = function (node) {
+        for (var i = 0; i < this.nodes.length; i++) {
+            if (this.nodes[i] === node) {
                 continue;
             }
 
-            if(Math.abs(node.x - this.nodes[i].x) < this.SNAP_TO_PADDING) {
+            if (Math.abs(node.x - this.nodes[i].x) < this.SNAP_TO_PADDING) {
                 node.x = this.nodes[i].x;
             }
 
-            if(Math.abs(node.y - this.nodes[i].y) < this.SNAP_TO_PADDING) {
+            if (Math.abs(node.y - this.nodes[i].y) < this.SNAP_TO_PADDING) {
                 node.y = this.nodes[i].y;
             }
         }
     };
 
-    /**
-     * Add a new link (always 'this.currentLink') to the set of links.
-     * If the link connects two nodes already linked, the angle of the new link
-     * is tweaked so it is distinguishable from the existing links.
-     * @param {object} newLink The link to be added.
-     */
-    Graph.prototype.addLink = function(newLink) {
+    // Add a new link (always 'this.currentLink') to the set of links.
+    // If the link connects two nodes already linked, the angle of the new link
+    // is tweaked so it is distinguishable from the existing links.
+    Graph.prototype.addLink = function (newLink) {
         var maxPerpRHS = null;
         for (var i = 0; i < this.links.length; i++) {
             var link = this.links[i];
@@ -639,7 +738,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
                 }
             }
             if (link.nodeA === newLink.nodeB && link.nodeB === newLink.nodeA) {
-                if (maxPerpRHS === null || -link.perpendicularPart > maxPerpRHS ) {
+                if (maxPerpRHS === null || -link.perpendicularPart > maxPerpRHS) {
                     maxPerpRHS = -link.perpendicularPart;
                 }
             }
@@ -650,39 +749,38 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         this.links.push(newLink);
     };
 
-    Graph.prototype.reload = function() {
+    Graph.prototype.reload = function () {
         var content = $(this.textArea).val();
         if (content) {
             try {
-                /**
-                 * Load up the student's previous answer if non-empty.
-                 */
+                // Load up the student's previous answer if non-empty.
                 var backup = JSON.parse(content), i;
 
-                for(i = 0; i < backup.nodes.length; i++) {
+                for (i = 0; i < backup.nodes.length; i++) {
                     var backupNode = backup.nodes[i];
                     var backupNodeLayout = backup.nodeGeometry[i];
                     var node = new elements.Node(this, backupNodeLayout[0], backupNodeLayout[1]);
                     node.isAcceptState = backupNode[1];
                     node.textBox = new elements.TextBox(backupNode[0].toString(), node);
+                    if (backupNode.length > 2) {
+                        node.setNodeType(backupNode[2]);
+                    }
                     this.nodes.push(node);
                 }
 
-                for(i = 0; i < backup.edges.length; i++) {
+                for (i = 0; i < backup.edges.length; i++) {
                     var backupLink = backup.edges[i];
                     var backupLinkLayout = backup.edgeGeometry[i];
                     var link = null;
-                    if(backupLink[0] === backupLink[1]) {
-                        /**
-                         * Self link has two identical nodes.
-                         */
+                    if (backupLink[0] === backupLink[1]) {
+                        // Self link has two identical nodes.
                         link = new elements.SelfLink(this, this.nodes[backupLink[0]]);
                         link.anchorAngle = backupLinkLayout.anchorAngle;
                         link.textBox = new elements.TextBox(backupLink[2].toString(), link);
                         if (backupLink.length > 3) {
                             link.textBox.setAnchorPoint(backupLink[3].x, backupLink[3].y);
                         }
-                    } else if(backupLink[0] === -1) {
+                    } else if (backupLink[0] === -1) {
                         link = new elements.StartLink(this, this.nodes[backupLink[1]]);
                         link.deltaX = backupLinkLayout.deltaX;
                         link.deltaY = backupLinkLayout.deltaY;
@@ -696,18 +794,18 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
                             link.textBox.setAnchorPoint(backupLink[3].x, backupLink[3].y);
                         }
                     }
-                    if(link !== null) {
+                    if (link !== null) {
                         this.links.push(link);
                     }
                 }
-            } catch(e) {
+            } catch (e) {
                 this.fail = true;
                 this.failString = 'graph_ui_invalidserialisation';
             }
         }
     };
 
-    Graph.prototype.save = function() {
+    Graph.prototype.save = function () {
 
         var backup = {
             'edgeGeometry': [],
@@ -717,26 +815,26 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         };
         var i;
 
-        if(!JSON || (this.textArea.val().trim() === '' && this.nodes.length === 0)) {
+        if (!JSON || (this.textArea.val().trim() === '' && this.nodes.length === 0)) {
             return;  // Don't save if we have an empty textbox and no graphic content.
         }
 
-        for(i = 0; i < this.nodes.length; i++) {
+        for (i = 0; i < this.nodes.length; i++) {
             var node = this.nodes[i];
 
-            var nodeData = [node.textBox.text, node.isAcceptState];
+            var nodeData = [node.textBox.text, node.isAcceptState, node.nodeType]; //KHANG
             var nodeLayout = [node.x, node.y];
 
             backup.nodeGeometry.push(nodeLayout);
             backup.nodes.push(nodeData);
         }
 
-        for(i = 0; i < this.links.length; i++) {
+        for (i = 0; i < this.links.length; i++) {
             var link = this.links[i],
-                linkData = null,
-                linkLayout = null;
+                    linkData = null,
+                    linkLayout = null;
 
-            if(link instanceof elements.SelfLink) {
+            if (link instanceof elements.SelfLink) {
                 linkLayout = {
                     'anchorAngle': link.anchorAngle,
                 };
@@ -744,13 +842,13 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
                 if (link.textBox.dragged) {
                     linkData.push(link.textBox.position);
                 }
-            } else if(link instanceof elements.StartLink) {
+            } else if (link instanceof elements.StartLink) {
                 linkLayout = {
                     'deltaX': link.deltaX,
                     'deltaY': link.deltaY
                 };
                 linkData = [-1, this.nodes.indexOf(link.node), ""];
-            } else if(link instanceof elements.Link) {
+            } else if (link instanceof elements.Link) {
                 linkLayout = {
                     'lineAngleAdjust': link.lineAngleAdjust,
                     'parallelPart': link.parallelPart,
@@ -771,13 +869,13 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
 
     Graph.prototype.saveVersion = function () {
         var curState = this.textArea.val();
-        if (this.versions.length == 0 || curState.localeCompare(this.versions[this.versionIndex]) != 0){
+        if (this.versions.length == 0 || curState.localeCompare(this.versions[this.versionIndex]) != 0) {
             this.versionIndex++;
-            while (this.versionIndex < this.versions.length){ //Clear newer versions that have been overwritten by this save
+            while (this.versionIndex < this.versions.length) { //Clear newer versions that have been overwritten by this save
                 this.versions.pop();
             }
             this.versions.push(curState);
-            if (this.versions.length > this.MAX_VERSIONS){    //Limit the size of this.versions
+            if (this.versions.length > this.MAX_VERSIONS) {    //Limit the size of this.versions
                 this.versions.shift();
                 this.versionIndex--;
             }
@@ -786,34 +884,26 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
 
     Graph.prototype.undo = function () {
         this.saveVersion();
-        if (this.versionIndex > 0){
+        if (this.versionIndex > 0) {
             this.versionIndex--;
             this.textArea.val(this.versions[this.versionIndex]);
-            /**
-             * Clear graph nodes and links
-             */
+            //Clear graph nodes and links
             this.nodes = [];
             this.links = [];
-            /**
-             * Reload graph from serialisation
-             */
+            //Reload graph from serialisation
             this.reload();
             this.draw();
         }
     };
 
-    Graph.prototype.redo = function() {
-        if (this.versionIndex < this.versions.length - 1){
+    Graph.prototype.redo = function () {
+        if (this.versionIndex < this.versions.length - 1) {
             this.versionIndex++;
             this.textArea.val(this.versions[this.versionIndex]);
-            /**
-             * Clear graph nodes and links
-             */
+            //Clear graph nodes and links
             this.nodes = [];
             this.links = [];
-            /**
-             * Reload graph from serialisation
-             */
+            //Reload graph from serialisation
             this.reload();
             this.draw();
         }
@@ -837,7 +927,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         var t = this; // For embedded function to access this.
 
         clearInterval(this.caretTimer);
-        this.caretTimer = setInterval(function() {
+        this.caretTimer = setInterval(function () {
             t.caretVisible = !t.caretVisible;
             t.draw();
         }, 500);
@@ -846,31 +936,31 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
 
     Graph.prototype.draw = function () {
         var canvas = this.getCanvas(),
-            c = canvas.getContext('2d'),
-            i;
+                c = canvas.getContext('2d'),
+                i;
 
         c.clearRect(0, 0, this.getCanvas().width, this.getCanvas().height);
         c.save();
         c.translate(0.5, 0.5);
 
-        for (i = 0; i < this.buttons.length; i++){
+        for (i = 0; i < this.buttons.length; i++) {
             this.buttons[i].draw(c);
         }
 
         if (!this.helpBox.helpOpen) {  // Only proceed if help info not showing.
 
-            for(i = 0; i < this.nodes.length; i++) {
+            for (i = 0; i < this.nodes.length; i++) {
                 c.lineWidth = 1;
                 c.fillStyle = c.strokeStyle = (this.nodes[i] === this.selectedObject) ? 'blue' : 'black';
                 this.nodes[i].draw(c);
             }
-            for(i = 0; i < this.links.length; i++) {
+            for (i = 0; i < this.links.length; i++) {
                 c.lineWidth = 1;
                 c.fillStyle = c.strokeStyle = (this.links[i] === this.selectedObject
-                                              || this.links[i].textBox === this.selectedObject) ? 'blue' : 'black';
+                        || this.links[i].textBox === this.selectedObject) ? 'blue' : 'black';
                 this.links[i].draw(c);
             }
-            if(this.currentLink !== null) {
+            if (this.currentLink !== null) {
                 c.lineWidth = 1;
                 c.fillStyle = c.strokeStyle = 'black';
                 this.currentLink.draw(c);
