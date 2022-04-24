@@ -75,7 +75,6 @@ if (count($availablequestionsbycontext) == 0) {
         $contextid = $info['contextid'];
         $numcoderunnerquestions = $info['numquestions'];
 
-
         $testallurl = new moodle_url('/question/type/coderunner/bulktest.php', array('contextid' => $contextid));
         $testalllink = html_writer::link($testallurl,
                 get_string('bulktestallincontext', 'qtype_coderunner'),

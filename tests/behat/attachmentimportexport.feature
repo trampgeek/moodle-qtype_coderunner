@@ -24,7 +24,7 @@ Feature: Test importing and exporting of question with attachments
     And I am on "Course 1" course homepage
     And I navigate to "Question bank" in current page administration
     And I choose "Edit question" action for "Square function" in the question bank
-    And I click on "a[aria-controls='id_attachmentoptions']" "css_element"
+    And I click on "a[aria-controls='id_attachmentoptionscontainer']" "css_element"
     And I set the field "Answer" to "from sqrmodule import sqr"
     And I set the field "Validate on save" to "1"
     And I set the field "Allow attachments" to "1"
@@ -33,7 +33,6 @@ Feature: Test importing and exporting of question with attachments
     And I upload "question/type/coderunner/tests/fixtures/sqrmodule.py" file to "Sample answer attachments" filemanager
     And I press "id_submitbutton"
     Then I should see "Question bank"
-    And I should see "Last modified by"
 
   @file_attachments
   Scenario: As a teacher I can export a question with an attached sample answer file

@@ -32,7 +32,6 @@ Feature: Check that the directed and undirected graph question types work.
       | id_answer         | {"edgeGeometry":[{"lineAngleAdjust":0,"parallelPart":0.5,"perpendicularPart":0}],"nodeGeometry":[[246,163],[426,160]],"nodes":[["A",false],["B",false]],"edges":[[0,1,"wt"]]}|
     And I enable UI plugins
     And I choose "Preview" action for "Test 2-node directed graph" in the question bank
-    And I switch to "questionpreview" window
     Then I should see a canvas
     And I press "Fill in correct responses"
     And I press "Check"

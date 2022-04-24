@@ -54,27 +54,6 @@ class qtype_coderunner_bulk_tester {
 
 
     /**
-     * Get all available prototypes for the given course.
-     * @param $courseid the id of the course whose context is searched for prototypes
-     * @return stdClass[] question prototype rows from question joined to
-     * coderunner_options, keyed by coderunnertype
-     */
-    public static function get_all_prototypes($courseid) {
-        global $DB;
-        $coursecontext = context_course::instance($courseid);
-        list($contextcondition, $params) = $DB->get_in_or_equal($coursecontext->get_parent_context_ids(true));
-
-        $rows = $DB->get_records_sql("
-                SELECT qco.coderunnertype, q.name, qco.*
-                  FROM {question_coderunner_options} qco
-                  JOIN {question} q ON q.id = qco.questionid
-                  JOIN {question_categories} qc ON qc.id = q.category
-                  WHERE prototypetype != 0 AND qc.contextid $contextcondition
-                  ORDER BY coderunnertype", $params);
-        return $rows;
-    }
-
-    /**
      * Get all the contexts that contain at least one CodeRunner question, with a
      * count of the number of those questions.
      *
@@ -85,70 +64,40 @@ class qtype_coderunner_bulk_tester {
 
         return $DB->get_records_sql_menu("
             SELECT ctx.id, COUNT(q.id) AS numcoderunnerquestions
-              FROM {context} ctx
-              JOIN {question_categories} qc ON qc.contextid = ctx.id
-              JOIN {question} q ON q.category = qc.id
-             WHERE q.qtype = 'coderunner'
-          GROUP BY ctx.id, ctx.path
-          ORDER BY ctx.path
+            FROM {context} ctx
+            JOIN {question_categories} qc ON qc.contextid = ctx.id
+            JOIN {question_bank_entries} qbe ON qbe.questioncategoryid = qc.id
+            JOIN {question_versions} qv ON qv.questionbankentryid = qbe.id
+            JOIN {question} q ON qv.questionid = q.id
+            WHERE q.qtype = 'coderunner'
+            GROUP BY ctx.id, ctx.path
+            ORDER BY ctx.path
         ");
     }
 
 
     /**
-     *
+     * Find all coderunner questions in a given category.
      * @param type $categoryid the id of a question category of interest
-     * @return a count of the number of questions in the given category.
+     * @return all coderunner question ids in any state and any version in the given
+     * category. Each row in the returned list of rows has an id, name and version number.
      */
-    public function count_questions_in_category($categoryid) {
+    public function coderunner_questions_in_category($categoryid) {
         global $DB;
-        $rec = $DB->get_record_sql("
-            SELECT count(q.id) as count
+        $rec = $DB->get_records_sql("
+            SELECT q.id, q.name, qv.version
             FROM {question} q
-            WHERE q.category=:categoryid",
+            JOIN {question_versions} qv ON qv.questionid = q.id
+            JOIN {question_bank_entries} qbe ON qv.questionbankentryid = qbe.id
+            WHERE q.qtype = 'coderunner' and qbe.questioncategoryid=:categoryid",
                 array('categoryid' => $categoryid));
-        return $rec->count;
+        return $rec;
     }
 
 
     /**
-     *
-     * @param type $categoryid the id of a question category of interest
-     * @return an array of the categoryid of all child categories
-     */
-    public function child_categories($categoryid) {
-        global $DB;
-        $rows = $DB->get_records_sql("
-            SELECT id
-            FROM {question_categories} qc
-            WHERE qc.parent=:categoryid",
-                array('categoryid' => $categoryid));
-        $children = array();
-        foreach ($rows as $row) {
-            $children[] = $row->id;
-        }
-        return $children;
-    }
-
-    // Return the name of the given category id.
-    public function category_name($categoryid) {
-        global $DB;
-        $row = $DB->get_record_sql("
-            SELECT name
-            FROM {question_categories} qc
-            WHERE qc.id=:categoryid",
-                array('categoryid' => $categoryid));
-        return $row->name;
-    }
-
-    // Delete the given question category id.
-    public function delete_category($categoryid) {
-        global $DB;
-        $DB->delete_records("question_categories", array("id" => $categoryid));
-    }
-
-    /**
-     * Get a list of all the categories within the supplied contextid.
+     * Get a list of all the categories within the supplied contextid that
+     * contain CodeRunner questions in any state and any version.
      * @return an associative array mapping from category id to an object
      * with name and count fields for all question categories in the given context
      * that contain one or more CodeRunner questions.
@@ -162,133 +111,13 @@ class qtype_coderunner_bulk_tester {
                 SELECT qc.id, qc.parent, qc.name as name,
                        (SELECT count(1)
                         FROM {question} q
-                        WHERE qc.id = q.category AND q.qtype='coderunner') AS count
+                        JOIN {question_versions} qv ON qv.questionid = q.id
+                        JOIN {question_bank_entries} qbe ON qv.questionbankentryid = qbe.id
+                        WHERE qc.id = qbe.questioncategoryid and q.qtype='coderunner') AS count
                 FROM {question_categories} qc
                 WHERE qc.contextid = :contextid
                 ORDER BY qc.name",
             array('contextid' => $contextid));
-    }
-
-
-    /**
-     * Get a list of all the categories within the supplied contextid.
-     * @return an associative array mapping from category id to an object
-     * with name and count fields for all question categories in the given context.
-     * The 'count' field is the number of all questions in the given
-     * category.
-     */
-    public function get_all_categories_for_context($contextid) {
-        global $DB;
-
-        return $DB->get_records_sql("
-                SELECT qc.id, qc.parent, qc.name as name,
-                       (SELECT count(1)
-                        FROM {question} q
-                        WHERE qc.id = q.category) AS count
-                FROM {question_categories} qc
-                WHERE qc.contextid = :contextid
-                ORDER BY qc.name",
-            array('contextid' => $contextid));
-    }
-
-    /**
-     * Categories are tree structured, with each category containing a link
-     * to its parent node. Thus any given category can be defined by a path-
-     * like variable consisting of a '/'-separated list of all the names
-     * on the path from the root to the nominated category node.
-     * Given a category id, return that path.
-     * @global type $DB
-     * @param type $categoryid
-     */
-    public function category_path($categoryid) {
-        global $DB;
-
-        $path = '';
-        $catid = $categoryid;
-        while ($catid != 0) {
-            $node = $DB->get_record_sql("
-                SELECT id, name, parent FROM {question_categories}
-                WHERE id=:catid
-            ", array('catid' => $catid));
-            $path = $node->name . '/' . $path;
-            $catid = $node->parent;
-        }
-        return $path;
-    }
-
-
-    /**
-     * Add the given tag to all questions in the given categoryid
-     * @param int $contextid  The current context. Not sure why this is needed.
-     * @param int $categoryid The category in which questions are to be tagged
-     * @param string $tag The tag to add
-     */
-    public function tag_by_category($contextid, $categoryid, $tag) {
-        global $DB;
-
-        $context = context::instance_by_id($contextid);
-        $questionids = $DB->get_records_sql(
-                "SELECT q.id FROM {question} q WHERE q.category = :catid",
-                array('catid' => $categoryid));
-        foreach (array_keys($questionids) as $questionid) {
-            $name = $DB->get_field_sql('SELECT name FROM {question} q where q.id = :questionid',
-                    array('questionid' => $questionid));
-            echo "Added tag <em>$tag</em> to question $questionid, '$name'<br>";
-            core_tag_tag::add_item_tag('core_question', 'question', $questionid, $context, $tag);
-            question_bank::notify_question_edited($questionid);
-        }
-    }
-
-
-    /**
-     * Add the given tag to all questions in the given quiz (specified by id).
-     * @param int $contextid  The current context. Not sure why this is needed.
-     * @param int $quizid The id of the quiz in which questions are to be tagged
-     * @param string $tag The tag to add
-     */
-    public function tag_by_quiz($contextid, $quizid, $tag) {
-        global $DB;
-
-        $context = context::instance_by_id($contextid);
-        $questionids = $DB->get_records_sql(
-                "SELECT q.id
-                 FROM {question} q JOIN {quiz_slots} slt
-                 ON q.id = slt.questionid
-                 WHERE slt.quizid = :quizid AND q.qtype='coderunner'",
-                array('quizid' => $quizid));
-        foreach (array_keys($questionids) as $questionid) {
-            $name = $DB->get_field_sql('SELECT name FROM {question} q where q.id = :questionid',
-                    array('questionid' => $questionid));
-            echo "Added tag <em>$tag</em> to question $questionid, '$name'<br>";
-            core_tag_tag::add_item_tag('core_question', 'question', $questionid, $context, $tag);
-            question_bank::notify_question_edited($questionid);
-        }
-    }
-
-    /**
-     * Return all the quizzes in the given context
-     * @param int $contextid the course context
-     * @return associative array with keys being quizid and value being an
-     * object with a name field (the quiz name) and a count field (the number
-     * of CodeRunner questions in the quiz).
-     */
-    public function get_quizzes_for_context($contextid) {
-        global $DB;
-
-        return $DB->get_records_sql("
-            SELECT qz.id as quizid, qz.name as name,
-                (SELECT count(1)
-                 FROM {question} q JOIN {quiz_slots} slt
-                 ON q.id = slt.questionid
-                 WHERE slt.quizid = qz.id AND q.qtype='coderunner'
-                ) AS count
-            FROM {quiz} qz
-            JOIN {course} crs on qz.course = crs.id
-            JOIN {context} ctx on ctx.instanceid = crs.id
-            WHERE ctx.id = :contextid
-            ORDER BY name",
-                array('contextid' => $contextid)
-        );
     }
 
 
@@ -305,7 +134,9 @@ class qtype_coderunner_bulk_tester {
             SELECT q.id, ctx.id as contextid, qc.id as category, qc.name as categoryname, q.*, opts.*
               FROM {context} ctx
               JOIN {question_categories} qc ON qc.contextid = ctx.id
-              JOIN {question} q ON q.category = qc.id
+              JOIN {question_bank_entries} qbe ON qbe.questioncategoryid = qc.id
+              JOIN {question_versions} qv ON qv.questionbankentryid = qbe.id
+              JOIN {question} q ON q.id = qv.questionid
               JOIN {question_coderunner_options} opts ON opts.questionid = q.id
               WHERE prototypetype = 0
               AND ctx.id = :contextid
@@ -330,7 +161,7 @@ class qtype_coderunner_bulk_tester {
         global $DB, $OUTPUT;
 
         // Load the necessary data.
-        $categories = get_categories_for_contexts($context->id);
+        $categories = $this->get_categories_for_context($context->id);
         $questiontestsurl = new moodle_url('/question/type/coderunner/questiontestrun.php');
         if ($context->contextlevel == CONTEXT_COURSE) {
             $questiontestsurl->param('courseid', $context->instanceid);
@@ -343,29 +174,29 @@ class qtype_coderunner_bulk_tester {
         $failingtests = array();
         $missinganswers = array();
 
-        foreach ($categories as $category) {
-            if ($categoryid !== null && $category->id != $categoryid) {
+        foreach ($categories as $currentcategoryid => $nameandcount) {
+            if ($categoryid !== null && $currentcategoryid != $categoryid) {
                 continue;
             }
-            $questionids = $DB->get_records_menu('question',
-                    array('category' => $category->id, 'qtype' => 'coderunner'), 'name', 'id,name');
-            if (!$questionids) {
+            $questions = $this->coderunner_questions_in_category($currentcategoryid);
+            if (!$questions) {
                 continue;
             }
 
-            $numquestions = count($questionids);
-            echo $OUTPUT->heading("{$category->name} ($numquestions)", 4);
+            echo $OUTPUT->heading("{$nameandcount->name} ($nameandcount->count)", 4);
             echo "<ul>\n";
-            foreach ($questionids as $questionid => $name) {
+            foreach ($questions as $question) {
                 // Output question name before testing, so if something goes wrong, it is clear which question was the problem.
-                $questionname = format_string($name);
-                $previewurl = new moodle_url($questiontestsurl, array('questionid' => $questionid));
-                $questionnamelink = html_writer::link($previewurl, $questionname, array('target' => '_blank'));
+                $questionname = format_string($question->name);
+                $previewurl = new moodle_url($questiontestsurl,
+                        array('questionid' => $question->id));
+                $enhancedname = "{$question->name} (V{$question->version})";
+                $questionnamelink = html_writer::link($previewurl, $enhancedname, array('target' => '_blank'));
                 echo "<li>$questionnamelink:";
                 flush(); // Force output to prevent timeouts and show progress.
 
                 // Now run the test.
-                list($outcome, $message) = $this->load_and_test_question($questionid);
+                list($outcome, $message) = $this->load_and_test_question($question->id);
 
                 // Report the result, and record failures for the summary.
                 echo " $message</li>";

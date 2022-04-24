@@ -24,3 +24,12 @@ dbquerieswhilefixingbug.sql
 /questions-moodle-Questions for export-20171106-1418.xml
 /twighacking.php
 NonRepoFiles/*
+/amd/src/blockly/
+/amd/build/blockly/
+/amd/build/bak/
+/amd/build/ui_blockly.min.js
+/amd/build/ui_blockly.min.js.map
+/amd/src/bak/
+/amd/src/ui_blockly.js
+/amd/src/ui_blockly.json
+/amd/src/.eslintrc.js

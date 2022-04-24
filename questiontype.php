@@ -469,6 +469,7 @@ class qtype_coderunner extends question_type {
 
     /**
      * Get all available prototypes from the current course context.
+     * Only the most recent version of each prototype question is returned.
      * @return stdClass[] prototype rows from question_coderunner_options.
      */
     public static function get_all_prototypes() {
@@ -480,8 +481,16 @@ class qtype_coderunner extends question_type {
                 SELECT qco.*
                   FROM {question_coderunner_options} qco
                   JOIN {question} q ON q.id = qco.questionid
-                  JOIN {question_categories} qc ON qc.id = q.category
-                 WHERE prototypetype != 0 AND qc.contextid $contextcondition", $params);
+                  JOIN {question_versions} qv ON qv.questionid = q.id
+                  JOIN {question_bank_entries} qbe ON qv.questionbankentryid = qbe.id
+                  JOIN {question_categories} qc ON qc.id = qbe.questioncategoryid
+                  WHERE (qv.version = (SELECT MAX(v.version)
+                                        FROM {question_versions} v
+                                        JOIN {question_bank_entries} be ON be.id = v.questionbankentryid
+                                       WHERE be.id = qbe.id)
+                                     )
+                        AND prototypetype != 0
+                        AND qc.contextid $contextcondition", $params);
 
         return $rows;
     }
@@ -492,6 +501,7 @@ class qtype_coderunner extends question_type {
      * To be valid, the named prototype (a question of the specified type
      * and with prototypetype non zero) must be in a question category that's
      * available in the given current context.
+     * Only the most recent version of the question prototype is returned.
      *
      * @param string $coderunnertype prototype name.
      * @param context $context a context.
@@ -507,8 +517,15 @@ class qtype_coderunner extends question_type {
         $sql = "SELECT q.id
                   FROM {question_coderunner_options} qco
                   JOIN {question} q ON qco.questionid = q.id
-                  JOIN {question_categories} qc ON qc.id = q.category
-                 WHERE qco.prototypetype != 0
+                  JOIN {question_versions} qv ON qv.questionid = q.id
+                  JOIN {question_bank_entries} qbe ON qv.questionbankentryid = qbe.id
+                  JOIN {question_categories} qc ON qc.id = qbe.questioncategoryid
+                 WHERE (qv.version = (SELECT MAX(v.version)
+                                        FROM {question_versions} v
+                                        JOIN {question_bank_entries} be ON be.id = v.questionbankentryid
+                                       WHERE be.id = qbe.id)
+                                     )
+                   AND qco.prototypetype != 0
                    AND qc.contextid $contextcondition
                    AND qco.coderunnertype = ?";
 
@@ -521,18 +538,6 @@ class qtype_coderunner extends question_type {
             self::update_question_text_maybe($prototype);
             return $prototype;
         }
-    }
-
-    /**
-     * True iff the given row from the question_coderunner_options table is a valid prototype in the given context.
-     *
-     * @param stdClass $questionoptionsrow a prototype row from the question_coderunner_options table.
-     * @param context $context the current context.
-     * @return bool this prototype is available in the given context.
-     */
-    public static function is_available_prototype($questionoptionsrow, context $context) {
-        return in_array(self::question_contextid($questionoptionsrow),
-                $context->get_parent_context_ids(true));
     }
 
     /**
@@ -558,9 +563,11 @@ class qtype_coderunner extends question_type {
             return $question->contextid;
         } else {
             $questionid = isset($question->questionid) ? $question->questionid : $question->id;
-            $sql = "SELECT contextid FROM {question_categories}, {question}
-                     WHERE {question}.id = ?
-                       AND {question}.category = {question_categories}.id";
+            $sql = "SELECT contextid FROM {question_categories} qc
+                        JOIN {question_bank_entries} qbe ON qbe.questioncategoryid = qc.id
+                        JOIN {question_versions} qv ON qv.questionbankentryid = qbe.id
+                        JOIN {question} q ON qv.questionid = q.id
+                    WHERE q.id = ?";
             return $DB->get_field_sql($sql, array($questionid), MUST_EXIST);
         }
     }
