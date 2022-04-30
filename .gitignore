@@ -29,7 +29,7 @@ NonRepoFiles/*
 /amd/build/bak/
 /amd/build/ui_blockly.min.js
 /amd/build/ui_blockly.min.js.map
-/amd/src/bak/
+/amd/src/partiallyupdatedgraph/
 /amd/src/ui_blockly.js
 /amd/src/ui_blockly.json
 /amd/src/.eslintrc.js
