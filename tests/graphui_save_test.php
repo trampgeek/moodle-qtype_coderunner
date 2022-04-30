@@ -65,7 +65,8 @@ class qtype_coderunner_graphui_save_testcase extends qtype_coderunner_testcase {
         $actualquestiondata = end($actualquestionsdata);
 
         foreach ($questiondata as $property => $value) {
-            if (!in_array($property, array('id', 'version', 'timemodified', 'timecreated', 'options', 'testcases'))) {
+            if (!in_array($property, array('id', 'idnumber', 'version', 'timemodified',
+                'timecreated', 'options', 'testcases'))) {
                 $this->assertEquals($value, $actualquestiondata->$property);
             }
         }
