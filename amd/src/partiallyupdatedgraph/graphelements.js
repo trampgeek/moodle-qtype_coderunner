@@ -3,11 +3,7 @@
  * A module for use by ui_graph, defining classes Node, Link, SelfLink,
  * StartLink and TemporaryLink
  *
- * @module qtype_coderunner/graphelements
- * @copyright  Richard Lobb, 2015, The University of Canterbury
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
+ ******************************************************************************/
 // This code is a modified version of Finite State Machine Designer
 // (http://madebyevan.com/fsm/)
 /*
@@ -32,7 +28,7 @@
  WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  OTHER DEALINGS IN THE SOFTWARE.
-*/
+ */
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -67,44 +63,64 @@ define(['qtype_coderunner/graphutil'], function(util) {
         this.isAcceptState = false;
         this.textBox = new TextBox('', this);
         this.caretPosition = 0;
+        this.color = "rgba(255, 255, 255, 0.5)"; //KHANG
+        this.nodeType = -1; //KHANG: for RED/BLACK tree
     }
 
     // At the start of a drag, record our position relative to the mouse.
-    Node.prototype.setMouseStart = function(mouseX, mouseY) {
+    Node.prototype.setMouseStart = function (mouseX, mouseY) {
         this.mouseOffsetX = this.x - mouseX;
         this.mouseOffsetY = this.y - mouseY;
     };
 
-    Node.prototype.setAnchorPoint = function(x, y) {
+    Node.prototype.setAnchorPoint = function (x, y) {
         this.x = x + this.mouseOffsetX;
         this.y = y + this.mouseOffsetY;
     };
 
     // Given a new mouse position during a drag, move to the appropriate
     // new position.
-    Node.prototype.trackMouse = function(mouseX, mouseY) {
+    Node.prototype.trackMouse = function (mouseX, mouseY) {
         this.x = this.mouseOffsetX + mouseX;
         this.y = this.mouseOffsetY + mouseY;
     };
 
-    Node.prototype.draw = function(c) {
+    //KHANG: set color (node type) to the node
+    Node.prototype.setNodeType = function (type) {
+        this.nodeType = type;
+        if (type === null || type === undefined || type < 0) {
+            this.color = "rgba(255, 255, 255, 0.5)";
+            this.type = -1;
+        } else if (type == 0) {
+            this.color = "rgba(119, 119, 119, 1)"; //considered as black
+        } else {
+            this.color = "rgba(255, 119, 119, 1)";   //consider as red
+        }
+    };
+    //END KHANG
+
+    Node.prototype.draw = function (c) {
         // Draw the circle.
+        var prevStyle = c.fillStyle;    //KHANG
+        c.fillStyle = this.color;       //KHANG
         c.beginPath();
         c.arc(this.x, this.y, this.parent.nodeRadius(), 0, 2 * Math.PI, false);
         c.stroke();
+        c.fill();                   //KHANG
+        c.fillStyle = prevStyle;    //KHANG
 
         // Draw the text.
         this.textBox.draw(this.x, this.y, null, this);
 
         // Draw a double circle for an accept state.
-        if(this.isAcceptState) {
+        if (this.isAcceptState) {
             c.beginPath();
             c.arc(this.x, this.y, this.parent.nodeRadius() - 6, 0, 2 * Math.PI, false);
             c.stroke();
         }
     };
 
-    Node.prototype.closestPointOnCircle = function(x, y) {
+    Node.prototype.closestPointOnCircle = function (x, y) {
         var dx = x - this.x;
         var dy = y - this.y;
         var scale = Math.sqrt(dx * dx + dy * dy);
@@ -114,14 +130,14 @@ define(['qtype_coderunner/graphutil'], function(util) {
         };
     };
 
-    Node.prototype.containsPoint = function(x, y) {
+    Node.prototype.containsPoint = function (x, y) {
         return (x - this.x) * (x - this.x) + (y - this.y) * (y - this.y) < this.parent.nodeRadius() * this.parent.nodeRadius();
     };
 
     // Method of a Node that, given a list of all links in a graph, returns
     // a list of any nodes that contain a link to this node (excluding StartLinks
     // and SelfLinks).
-    Node.prototype.neighbours = function(links) {
+    Node.prototype.neighbours = function (links) {
         var neighbours = [], link;
         for (var i = 0; i < links.length; i++) {
             link = links[i];
@@ -140,9 +156,9 @@ define(['qtype_coderunner/graphutil'], function(util) {
     // starting at 'this' node and updating the visited list for each new
     // node. Returns the updated visited list, which (for the root call)
     // is a list of all nodes connected to the given start node.
-    Node.prototype.traverseGraph = function(links, visited) {
+    Node.prototype.traverseGraph = function (links, visited) {
         var neighbours,
-            neighbour;
+                neighbour;
         if (!visited.includes(this)) {
             visited.push(this);
             neighbours = this.neighbours(links);
@@ -176,7 +192,7 @@ define(['qtype_coderunner/graphutil'], function(util) {
         this.perpendicularPart = 0; // Pixels from line between nodeA and nodeB.
     }
 
-    Link.prototype.getAnchorPoint = function() {
+    Link.prototype.getAnchorPoint = function () {
         var dx = this.nodeB.x - this.nodeA.x;
         var dy = this.nodeB.y - this.nodeA.y;
         var scale = Math.sqrt(dx * dx + dy * dy);
@@ -186,21 +202,21 @@ define(['qtype_coderunner/graphutil'], function(util) {
         };
     };
 
-    Link.prototype.setAnchorPoint = function(x, y) {
+    Link.prototype.setAnchorPoint = function (x, y) {
         var dx = this.nodeB.x - this.nodeA.x;
         var dy = this.nodeB.y - this.nodeA.y;
         var scale = Math.sqrt(dx * dx + dy * dy);
         this.parallelPart = (dx * (x - this.nodeA.x) + dy * (y - this.nodeA.y)) / (scale * scale);
         this.perpendicularPart = (dx * (y - this.nodeA.y) - dy * (x - this.nodeA.x)) / scale;
         // Snap to a straight line.
-        if(this.parallelPart > 0 && this.parallelPart < 1 && Math.abs(this.perpendicularPart) < this.parent.SNAP_TO_PADDING) {
+        if (this.parallelPart > 0 && this.parallelPart < 1 && Math.abs(this.perpendicularPart) < this.parent.SNAP_TO_PADDING) {
             this.lineAngleAdjust = (this.perpendicularPart < 0) * Math.PI;
             this.perpendicularPart = 0;
         }
     };
 
-    Link.prototype.getEndPointsAndCircle = function() {
-        if(this.perpendicularPart === 0) {
+    Link.prototype.getEndPointsAndCircle = function () {
+        if (this.perpendicularPart === 0) {
             var midX = (this.nodeA.x + this.nodeB.x) / 2;
             var midY = (this.nodeA.y + this.nodeB.y) / 2;
             var start = this.nodeA.closestPointOnCircle(midX, midY);
@@ -240,37 +256,37 @@ define(['qtype_coderunner/graphutil'], function(util) {
         };
     };
 
-    Link.prototype.draw = function(c) {
+    Link.prototype.draw = function (c) {
         var linkInfo = this.getEndPointsAndCircle(), textX, textY, textAngle, relDist;
         // Draw arc.
         c.beginPath();
-        if(linkInfo.hasCircle) {
+        if (linkInfo.hasCircle) {
             c.arc(linkInfo.circleX,
-                  linkInfo.circleY,
-                  linkInfo.circleRadius,
-                  linkInfo.startAngle,
-                  linkInfo.endAngle,
-                  linkInfo.isReversed);
+                    linkInfo.circleY,
+                    linkInfo.circleRadius,
+                    linkInfo.startAngle,
+                    linkInfo.endAngle,
+                    linkInfo.isReversed);
         } else {
             c.moveTo(linkInfo.startX, linkInfo.startY);
             c.lineTo(linkInfo.endX, linkInfo.endY);
         }
         c.stroke();
         // Draw the head of the arrow.
-        if(linkInfo.hasCircle) {
+        if (linkInfo.hasCircle) {
             this.parent.arrowIfReqd(c,
-                      linkInfo.endX,
-                      linkInfo.endY,
-                      linkInfo.endAngle - linkInfo.reverseScale * (Math.PI / 2));
+                    linkInfo.endX,
+                    linkInfo.endY,
+                    linkInfo.endAngle - linkInfo.reverseScale * (Math.PI / 2));
         } else {
             this.parent.arrowIfReqd(c,
-                      linkInfo.endX,
-                      linkInfo.endY,
-                      Math.atan2(linkInfo.endY - linkInfo.startY, linkInfo.endX - linkInfo.startX));
+                    linkInfo.endX,
+                    linkInfo.endY,
+                    Math.atan2(linkInfo.endY - linkInfo.startY, linkInfo.endX - linkInfo.startX));
         }
         // Draw the text.
         relDist = this.textBox.relDist;
-        if(linkInfo.hasCircle) {
+        if (linkInfo.hasCircle) {
             var startAngle = linkInfo.startAngle;
             var endAngle = linkInfo.endAngle;
             if (endAngle < startAngle) {
@@ -278,8 +294,8 @@ define(['qtype_coderunner/graphutil'], function(util) {
             }
 
             textAngle = ((1 - relDist) * startAngle + relDist * endAngle);
-            if (linkInfo.isReversed){
-              textAngle += (1 - relDist) * (2 * Math.PI); // Reflect text across the line between the link points
+            if (linkInfo.isReversed) {
+                textAngle += (1 - relDist) * (2 * Math.PI); // Reflect text across the line between the link points
             }
             textX = linkInfo.circleX + linkInfo.circleRadius * Math.cos(textAngle);
             textY = linkInfo.circleY + linkInfo.circleRadius * Math.sin(textAngle);
@@ -292,27 +308,27 @@ define(['qtype_coderunner/graphutil'], function(util) {
         }
     };
 
-    Link.prototype.containsPoint = function(x, y) {
+    Link.prototype.containsPoint = function (x, y) {
         var linkInfo = this.getEndPointsAndCircle(), dx, dy, distance;
-        if(linkInfo.hasCircle) {
+        if (linkInfo.hasCircle) {
             dx = x - linkInfo.circleX;
             dy = y - linkInfo.circleY;
             distance = Math.sqrt(dx * dx + dy * dy) - linkInfo.circleRadius;
-            if(Math.abs(distance) < this.parent.HIT_TARGET_PADDING) {
+            if (Math.abs(distance) < this.parent.HIT_TARGET_PADDING) {
                 var angle = Math.atan2(dy, dx);
                 var startAngle = linkInfo.startAngle;
                 var endAngle = linkInfo.endAngle;
-                if(linkInfo.isReversed) {
+                if (linkInfo.isReversed) {
                     var temp = startAngle;
                     startAngle = endAngle;
                     endAngle = temp;
                 }
-                if(endAngle < startAngle) {
+                if (endAngle < startAngle) {
                     endAngle += Math.PI * 2;
                 }
-                if(angle < startAngle) {
+                if (angle < startAngle) {
                     angle += Math.PI * 2;
-                } else if(angle > endAngle) {
+                } else if (angle > endAngle) {
                     angle -= Math.PI * 2;
                 }
                 return (angle > startAngle && angle < endAngle);
@@ -343,33 +359,33 @@ define(['qtype_coderunner/graphutil'], function(util) {
         this.mouseOffsetAngle = 0;
         this.textBox = new TextBox('', this);
 
-        if(mouse) {
+        if (mouse) {
             this.setAnchorPoint(mouse.x, mouse.y);
         }
     }
 
-    SelfLink.prototype.setMouseStart = function(x, y) {
+    SelfLink.prototype.setMouseStart = function (x, y) {
         this.mouseStartX = x;
         this.mouseStartY = y;
     };
 
-    SelfLink.prototype.setAnchorPoint = function(x, y) {
+    SelfLink.prototype.setAnchorPoint = function (x, y) {
         this.anchorAngle = Math.atan2(y - this.node.y, x - this.node.x) + this.mouseOffsetAngle;
         // Snap to 90 degrees.
         var snap = Math.round(this.anchorAngle / (Math.PI / 2)) * (Math.PI / 2);
-        if(Math.abs(this.anchorAngle - snap) < 0.1) {
+        if (Math.abs(this.anchorAngle - snap) < 0.1) {
             this.anchorAngle = snap;
         }
         // Keep in the range -pi to pi so our containsPoint() function always works.
-        if(this.anchorAngle < -Math.PI) {
+        if (this.anchorAngle < -Math.PI) {
             this.anchorAngle += 2 * Math.PI;
         }
-        if(this.anchorAngle > Math.PI) {
+        if (this.anchorAngle > Math.PI) {
             this.anchorAngle -= 2 * Math.PI;
         }
     };
 
-    SelfLink.prototype.getEndPointsAndCircle = function() {
+    SelfLink.prototype.getEndPointsAndCircle = function () {
         var circleX = this.node.x + 1.5 * this.parent.nodeRadius() * Math.cos(this.anchorAngle);
         var circleY = this.node.y + 1.5 * this.parent.nodeRadius() * Math.sin(this.anchorAngle);
         var circleRadius = 0.75 * this.parent.nodeRadius();
@@ -393,7 +409,7 @@ define(['qtype_coderunner/graphutil'], function(util) {
         };
     };
 
-    SelfLink.prototype.draw = function(c) {
+    SelfLink.prototype.draw = function (c) {
         var linkInfo = this.getEndPointsAndCircle();
         // Draw arc.
         c.beginPath();
@@ -409,7 +425,7 @@ define(['qtype_coderunner/graphutil'], function(util) {
         this.parent.arrowIfReqd(c, linkInfo.endX, linkInfo.endY, linkInfo.endAngle + Math.PI * 0.4);
     };
 
-    SelfLink.prototype.containsPoint = function(x, y) {
+    SelfLink.prototype.containsPoint = function (x, y) {
         var linkInfo = this.getEndPointsAndCircle();
         var dx = x - linkInfo.circleX;
         var dy = y - linkInfo.circleY;
@@ -430,25 +446,25 @@ define(['qtype_coderunner/graphutil'], function(util) {
         this.deltaX = 0;
         this.deltaY = 0;
 
-        if(start) {
+        if (start) {
             this.setAnchorPoint(start.x, start.y);
         }
     }
 
-    StartLink.prototype.setAnchorPoint = function(x, y) {
+    StartLink.prototype.setAnchorPoint = function (x, y) {
         this.deltaX = x - this.node.x;
         this.deltaY = y - this.node.y;
 
-        if(Math.abs(this.deltaX) < this.parent.SNAP_TO_PADDING) {
+        if (Math.abs(this.deltaX) < this.parent.SNAP_TO_PADDING) {
             this.deltaX = 0;
         }
 
-        if(Math.abs(this.deltaY) < this.parent.SNAP_TO_PADDING) {
+        if (Math.abs(this.deltaY) < this.parent.SNAP_TO_PADDING) {
             this.deltaY = 0;
         }
     };
 
-    StartLink.prototype.getEndPoints = function() {
+    StartLink.prototype.getEndPoints = function () {
         var startX = this.node.x + this.deltaX;
         var startY = this.node.y + this.deltaY;
         var end = this.node.closestPointOnCircle(startX, startY);
@@ -460,7 +476,7 @@ define(['qtype_coderunner/graphutil'], function(util) {
         };
     };
 
-    StartLink.prototype.draw = function(c) {
+    StartLink.prototype.draw = function (c) {
         var endPoints = this.getEndPoints();
 
         // Draw the line.
@@ -473,7 +489,7 @@ define(['qtype_coderunner/graphutil'], function(util) {
         this.parent.arrowIfReqd(c, endPoints.endX, endPoints.endY, Math.atan2(-this.deltaY, -this.deltaX));
     };
 
-    StartLink.prototype.containsPoint = function(x, y) {
+    StartLink.prototype.containsPoint = function (x, y) {
         var endPoints = this.getEndPoints();
         var dx = endPoints.endX - endPoints.startX;
         var dy = endPoints.endY - endPoints.startY;
@@ -496,7 +512,7 @@ define(['qtype_coderunner/graphutil'], function(util) {
         this.to = to;
     }
 
-    TemporaryLink.prototype.draw = function(c) {
+    TemporaryLink.prototype.draw = function (c) {
         // Draw the line.
         c.beginPath();
         c.moveTo(this.to.x, this.to.y);
@@ -515,34 +531,34 @@ define(['qtype_coderunner/graphutil'], function(util) {
      * @param {string} text The button label text.
      */
     function Button(parent, topX, topY, text) {
-      this.BUTTON_WIDTH = 60;
-      this.BUTTON_HEIGHT = 25;
-      this.TEXT_OFFSET_X = 30;
-      this.TEXT_OFFSET_Y = 17;
-      this.topX = topX;
-      this.topY = topY;
-      this.parent = parent;
-      this.text = text;
-      this.highLighted = false;
+        this.BUTTON_WIDTH = 60;
+        this.BUTTON_HEIGHT = 25;
+        this.TEXT_OFFSET_X = 30;
+        this.TEXT_OFFSET_Y = 17;
+        this.topX = topX;
+        this.topY = topY;
+        this.parent = parent;
+        this.text = text;
+        this.highLighted = false;
     }
 
-    Button.prototype.containsPoint = function(x, y) {
+    Button.prototype.containsPoint = function (x, y) {
         return util.isInside({x: x, y: y},
-          {x: this.topX, y: this.topY, width: this.BUTTON_WIDTH, height: this.BUTTON_HEIGHT});
+                {x: this.topX, y: this.topY, width: this.BUTTON_WIDTH, height: this.BUTTON_HEIGHT});
     };
 
-    Button.prototype.draw = function(c) {
+    Button.prototype.draw = function (c) {
         if (this.highLighted) {
             c.fillStyle = '#FFFFFF';
         } else {
             c.fillStyle = '#F0F0F0';
         }
         c.fillRect(this.topX, this.topY,
-            this.BUTTON_WIDTH, this.BUTTON_HEIGHT);
+                this.BUTTON_WIDTH, this.BUTTON_HEIGHT);
         c.lineWidth = 0.5;
         c.strokeStyle = '#000000';
         c.strokeRect(this.topX, this.topY,
-            this.BUTTON_WIDTH, this.BUTTON_HEIGHT);
+                this.BUTTON_WIDTH, this.BUTTON_HEIGHT);
 
         c.font = '12pt Arial';
         c.fillStyle = '#000000';
@@ -551,7 +567,7 @@ define(['qtype_coderunner/graphutil'], function(util) {
         c.textAlign = "left";
     };
 
-    Button.prototype.onClick = function() {
+    Button.prototype.onClick = function () {
 
     };
 
@@ -562,15 +578,15 @@ define(['qtype_coderunner/graphutil'], function(util) {
      * @param {int} topY The y coordinate of the top left corner of the help box.
      */
     function HelpBox(parent, topX, topY) {
-      Button.call(this, parent, topX, topY, "Help");
-      this.helpOpen = false;
-      this.LINE_HEIGHT = 18;
-      this.HELP_INDENT = 5;
+        Button.call(this, parent, topX, topY, "Help");
+        this.helpOpen = false;
+        this.LINE_HEIGHT = 18;
+        this.HELP_INDENT = 5;
     }
 
     HelpBox.prototype = new Button();
 
-    HelpBox.prototype.draw = function(c) {
+    HelpBox.prototype.draw = function (c) {
         var lines, i, y, helpText;
 
         Button.prototype.draw.call(this, c);
@@ -587,8 +603,8 @@ define(['qtype_coderunner/graphutil'], function(util) {
         }
     };
 
-    HelpBox.prototype.onClick = function() {
-        this.helpOpen = ! this.helpOpen;
+    HelpBox.prototype.onClick = function () {
+        this.helpOpen = !this.helpOpen;
         this.parent.draw();
     };
 
@@ -610,52 +626,52 @@ define(['qtype_coderunner/graphutil'], function(util) {
     }
 
     // Inserts a given character into the TextBox at its current caretPosition
-    TextBox.prototype.insertChar = function(char) {
+    TextBox.prototype.insertChar = function (char) {
         this.text = this.text.slice(0, this.caretPosition) + char + this.text.slice(this.caretPosition);
         this.caretRight();
     };
 
     // Deletes the character in the TextBox that is located behind the current caretPosition
-    TextBox.prototype.deleteChar = function() {
-        if (this.caretPosition > 0){
+    TextBox.prototype.deleteChar = function () {
+        if (this.caretPosition > 0) {
             this.text = this.text.slice(0, this.caretPosition - 1) + this.text.slice(this.caretPosition);
             this.caretLeft();
         }
     };
 
     // Moves the TextBox's caret left one character if possible
-    TextBox.prototype.caretLeft = function() {
+    TextBox.prototype.caretLeft = function () {
         if (this.caretPosition > 0) {
-            this.caretPosition --;
+            this.caretPosition--;
         }
     };
 
     // Moves the TextBox's caret right one character if possible
-    TextBox.prototype.caretRight = function() {
+    TextBox.prototype.caretRight = function () {
         if (this.caretPosition < this.text.length) {
-            this.caretPosition ++;
+            this.caretPosition++;
         }
     };
 
-    TextBox.prototype.containsPoint = function(x, y) {
+    TextBox.prototype.containsPoint = function (x, y) {
         var point = {x: x, y: y};
         return util.isInside(point, this.boundingBox);
     };
 
-    TextBox.prototype.setMouseStart = function(x, y) {
-      // At the start of a drag, record our position relative to the mouse.
+    TextBox.prototype.setMouseStart = function (x, y) {
+        // At the start of a drag, record our position relative to the mouse.
         this.mouseOffsetX = this.position.x - x;
         this.mouseOffsetY = this.position.y - y;
     };
 
-    TextBox.prototype.setAnchorPoint = function(x, y) {
+    TextBox.prototype.setAnchorPoint = function (x, y) {
         x += (this.mouseOffsetX || 0);
         y += (this.mouseOffsetY || 0);
         var linkInfo = this.parent.getEndPointsAndCircle();
         var relDist, offset;
         //Calculate the relative distance of the dragged text along its parent link
-        if (linkInfo.hasCircle){
-            var textAngle = Math.atan2(y-linkInfo.circleY, x-linkInfo.circleX);
+        if (linkInfo.hasCircle) {
+            var textAngle = Math.atan2(y - linkInfo.circleY, x - linkInfo.circleX);
             // Ensure textAngle is either between start and end angle, or more than end angle
             if (textAngle < linkInfo.startAngle) {
                 textAngle += Math.PI * 2;
@@ -664,40 +680,39 @@ define(['qtype_coderunner/graphutil'], function(util) {
                 linkInfo.endAngle += Math.PI * 2;
             }
             // Calculate relDist from angle (inverse of angle-from-relDist calculation in Link.prototype.draw)
-            if (linkInfo.isReversed){
-                relDist = (textAngle - linkInfo.startAngle - Math.PI*2) / (linkInfo.endAngle - linkInfo.startAngle - Math.PI*2);
-            }else{
+            if (linkInfo.isReversed) {
+                relDist = (textAngle - linkInfo.startAngle - Math.PI * 2) / (linkInfo.endAngle - linkInfo.startAngle - Math.PI * 2);
+            } else {
                 relDist = (textAngle - linkInfo.startAngle) / (linkInfo.endAngle - linkInfo.startAngle);
             }
-            offset = util.vectorMagnitude({x: x-linkInfo.circleX, y: y-linkInfo.circleY}) - linkInfo.circleRadius;
-        }
-        else {
+            offset = util.vectorMagnitude({x: x - linkInfo.circleX, y: y - linkInfo.circleY}) - linkInfo.circleRadius;
+        } else {
             // Calculate relative position of the mouse projected onto the link.
             var textVector = {x: x - linkInfo.startX,
-                              y: y - linkInfo.startY};
+                y: y - linkInfo.startY};
             var linkVector = {x: linkInfo.endX - linkInfo.startX,
-                              y: linkInfo.endY - linkInfo.startY};
+                y: linkInfo.endY - linkInfo.startY};
             var projection = util.scalarProjection(textVector, linkVector);
             relDist = projection / util.vectorMagnitude(linkVector);
             // Calculate offset (closest distance) of the mouse position from the link
-            offset = Math.sqrt(Math.pow(util.vectorMagnitude(textVector), 2)- Math.pow(projection, 2));
+            offset = Math.sqrt(Math.pow(util.vectorMagnitude(textVector), 2) - Math.pow(projection, 2));
             // If the mouse is on the opposite side of the link from the default text position, negate the offset
             var ccw = util.isCCW(textVector, linkVector);
             var reversed = (this.parent.lineAngleAdjust != 0);
-            if ((!ccw && reversed) || (ccw && !reversed)){
+            if ((!ccw && reversed) || (ccw && !reversed)) {
                 offset *= -1;
             }
         }
-        if (relDist > 0 && relDist < 1){  //Ensure text isn't dragged past end of the link
+        if (relDist > 0 && relDist < 1) {  //Ensure text isn't dragged past end of the link
             this.relDist = relDist;
             this.offset = Math.round(offset);
             this.dragged = true;
         }
     };
 
-    TextBox.prototype.draw = function(x, y, angleOrNull, parentObject) {
+    TextBox.prototype.draw = function (x, y, angleOrNull, parentObject) {
         var graph = parentObject.parent,
-            c = graph.getCanvas().getContext('2d');
+                c = graph.getCanvas().getContext('2d');
 
         c.font = graph.fontSize() + 'px Arial';
         //Text before and after caret are drawn separately to expand Latex shortcuts at the caret position
@@ -707,7 +722,7 @@ define(['qtype_coderunner/graphutil'], function(util) {
         var dy = Math.round(graph.fontSize() / 2);
 
         // Position the text appropriately if it is part of a link
-        if(angleOrNull !== null) {
+        if (angleOrNull !== null) {
             var cos = Math.cos(angleOrNull);
             var sin = Math.sin(angleOrNull);
 
@@ -716,7 +731,7 @@ define(['qtype_coderunner/graphutil'], function(util) {
             y += this.offset * sin;
 
             // Position text intelligently if text has not been manually moved
-            if (!this.dragged){
+            if (!this.dragged) {
                 var cornerPointX = (width / 2) * (cos > 0 ? 1 : -1);
                 var cornerPointY = (dy / 2) * (sin > 0 ? 1 : -1);
                 var slide = sin * Math.pow(Math.abs(sin), 40) * cornerPointX - cos * Math.pow(Math.abs(cos), 10) * cornerPointY;
@@ -733,13 +748,13 @@ define(['qtype_coderunner/graphutil'], function(util) {
         y = Math.round(y);
 
         // Draw text and caret
-        if('advancedFillText' in c) {
+        if ('advancedFillText' in c) {
             c.advancedFillText(this.text, this.text, x + width / 2, y, angleOrNull);
         } else {
-             // Draw translucent white rectangle behind text
+            // Draw translucent white rectangle behind text
             var prevStyle = c.fillStyle;
             c.fillStyle = "rgba(255, 255, 255, 0.7)";
-            c.fillRect(x, y-dy, width, dy*2);
+            c.fillRect(x, y - dy, width, dy * 2);
             c.fillStyle = prevStyle;
 
             // Draw text
@@ -750,7 +765,7 @@ define(['qtype_coderunner/graphutil'], function(util) {
 
             // Draw caret
             dy = Math.round(graph.fontSize() / 2);
-            if(parentObject == graph.selectedObject && graph.caretVisible && graph.hasFocus() && document.hasFocus()) {
+            if (parentObject == graph.selectedObject && graph.caretVisible && graph.hasFocus() && document.hasFocus()) {
                 c.beginPath();
                 c.moveTo(caretX, y - dy);
                 c.lineTo(caretX, y + dy);
