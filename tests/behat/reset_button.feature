@@ -26,7 +26,6 @@ Feature: Preview the Python 3 sqr function CodeRunner question with a preload
 
   Scenario: Preview the Python3 sqr function, get it wrong, then reset it
     When I choose "Preview" action for "Square function" in the question bank
-    And I switch to "questionpreview" window
     And I should see "# Your answer goes here"
     And I set the field with xpath "//textarea[contains(@name, 'answer')]" to "def sqr(n): return n"
     And I press "Check"

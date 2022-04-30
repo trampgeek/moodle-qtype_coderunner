@@ -48,14 +48,18 @@ Feature: Check that Python and other languages can be used instead of Twig as a 
     And I set the field "id_templateparamslang" to "python3"
     And I set the field "id_templateparamsevalpertry" to "1" and dismiss the alert
     And I press "Save changes"
-    And quiz "Test quiz" contains the following questions:
-      | question            | page |
-      | Python preprocessor | 1    |
+
+    And I am on the "Test quiz" "mod_quiz > Edit" page logged in as "teacher1"
+    And I open the "last" add to quiz menu
+    And I follow "from question bank"
+    And I set the field with xpath "//input[@type='checkbox' and @id='qbheadercheckbox']" to "1"
+    And I press "Add selected questions to the quiz"
+
 
   Scenario: Preview as a teacher, submit answer as a student, review as a teacher
     When I am on "Course 1" course homepage
     And I follow "Test quiz"
-    And I press "Preview quiz now"
+    And I press "Preview quiz"
     Then I should see "Write a program that prints True if seed parameter provided, then Teacher Last"
 
     When I set the field with xpath "//textarea[contains(@name, 'answer')]" to "print('Teacher Last')"
@@ -90,11 +94,10 @@ Feature: Check that Python and other languages can be used instead of Twig as a 
     And I set the field "id_templateparamsevalpertry" to "0"
     And I press "id_submitbutton"
     Then I should see "Created by"
-    And I should see "Last modified by"
 
     When I am on "Course 1" course homepage
     And I follow "Test quiz"
-    And I press "Preview quiz now"
+    And I press "Preview quiz"
     Then I should see "Variant without per-try evaluation"
 
     When I set the field with xpath "//textarea[contains(@name, 'answer')]" to "print('Teacher Last')"

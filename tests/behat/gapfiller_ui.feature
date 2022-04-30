@@ -47,7 +47,6 @@ Feature: Test the GapFiller_UI
     And I press "id_submitbutton"
     Then I should not see "Failed 1 test(s)"
     And I should see "Created by"
-    And I should see "Last modified by"
 
     When I choose "Edit question" action for "Print answer" in the question bank
     And I set the field "id_globalextra" to:
@@ -80,10 +79,8 @@ for element in answer: print(element)
     And I press "id_submitbutton"
     Then I should not see "Failed 1 test(s)"
     And I should see "Created by"
-    And I should see "Last modified by"
 
     When I choose "Preview" action for "Print answer" in the question bank
-    And I switch to "questionpreview" window
     And I set the field "cr_gapfiller_field" to:
      """
      Line 1
@@ -120,7 +117,6 @@ for element in answer: print(element)
     And I should see "Created by"
 
     When I choose "Preview" action for "Print answer" in the question bank
-    And I switch to "questionpreview" window
     And I set the field "cr_gapfiller_field" to "not a bubble"
     And I press "Check"
     Then I should not see "Passed all tests!"

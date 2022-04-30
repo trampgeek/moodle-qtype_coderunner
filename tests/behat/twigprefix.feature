@@ -34,7 +34,7 @@ Feature: twigprefix
     And I set the field "id_uiplugin" to "None"
     And I set the field "id_template" to "{{STUDENT_ANSWER}}"
     And I set the field "id_iscombinatortemplate" to "0"
-    And I click on "a[aria-controls='id_advancedcustomisationheader']" "css_element"
+    And I click on "a[aria-controls='id_advancedcustomisationheadercontainer']" "css_element"
     And I set the field "prototypetype" to "Yes (user defined)"
     And I set the field "typename" to "test_twigprefix"
     And I press "id_submitbutton"
@@ -50,7 +50,7 @@ Feature: twigprefix
 
   Scenario: As a teacher, I get marked right (using per-test-case template) if I submit a correct answer to the above question
     When I choose "Preview" action for "Prototype tester" in the question bank
-    And I switch to "questionpreview" window
+    And I click on "a[aria-controls='id_attemptoptionsheadercontainer']" "css_element"
     And I set the field "id_behaviour" to "Adaptive mode"
     And I press "Start again with these options"
     And I set the field with xpath "//textarea[contains(@name, 'answer')]" to "print('BingleyBeep')"

@@ -47,7 +47,6 @@ Feature: Test the HTML_UI
     And I press "id_submitbutton"
     Then I should not see "Failed"
     And I should see "Created by"
-    And I should see "Last modified by"
 
     When I choose "Edit question" action for "Print answer" in the question bank
     And I set the field "id_globalextra" to ""
@@ -62,10 +61,8 @@ Feature: Test the HTML_UI
     Then "[name='cr_inputfield']" "css_element" should not exist
     Then I should not see "Failed"
     And I should see "Created by"
-    And I should see "Last modified by"
 
     When I choose "Preview" action for "Print answer" in the question bank
-    And I switch to "questionpreview" window
     And I set the field "cr_inputfield" to "bubble"
     And I press "Check"
     Then I should see "Passed all tests!"

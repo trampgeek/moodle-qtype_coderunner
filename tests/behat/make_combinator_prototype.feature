@@ -40,7 +40,7 @@ Feature: make_combinator_prototype
       {% endfor %}
       """
     And I set the field "id_iscombinatortemplate" to "1"
-    And I click on "a[aria-controls='id_advancedcustomisationheader']" "css_element"
+    And I click on "a[aria-controls='id_advancedcustomisationheadercontainer']" "css_element"
     And I set the field "prototypetype" to "Yes (user defined)"
     And I set the field "typename" to "python3_test_combinator_prototype"
     And I press "id_submitbutton"
@@ -57,7 +57,7 @@ Feature: make_combinator_prototype
 
   Scenario: As a teacher, I get marked right (using combinator template) if I submit a correct answer to a CodeRunner question
     When I choose "Preview" action for "Combinator prototype tester" in the question bank
-    And I switch to "questionpreview" window
+    And I click on "a[aria-controls='id_attemptoptionsheadercontainer']" "css_element"
     And I set the field "id_behaviour" to "Adaptive mode"
     And I press "Start again with these options"
     And I set the field with xpath "//textarea[contains(@name, 'answer')]" to "def sqr(n): return n * n"

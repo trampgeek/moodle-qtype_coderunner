@@ -26,7 +26,6 @@ Feature: Show differences in CodeRunner questions
 
   Scenario: As a teacher submitting a wrong answer to a CodeRunner question preview, the Show differences button should work
     When I choose "Preview" action for "Square function" in the question bank
-    And I switch to "questionpreview" window
     And I set the field with xpath "//textarea[contains(@name, 'answer')]" to "def sqr(n): return n * n if n != -7 else 12345"
     And I press "Check"
     Then the following should exist in the "coderunner-test-results" table:
@@ -50,7 +49,7 @@ Feature: Show differences in CodeRunner questions
 
   Scenario: As a teacher submitting a wrong answer to a CodeRunner question preview and only hidden tests fail, I should not see the Show differences button
     When I choose "Preview" action for "Square function" in the question bank
-    And I switch to "questionpreview" window
+    And I click on "a[aria-controls='id_attemptoptionsheadercontainer']" "css_element"
     And I set the field "id_behaviour" to "Adaptive mode"
     And I set the field with xpath "//textarea[contains(@name, 'answer')]" to "def sqr(n): return n * n if n != -6 else 12345"
     And I press "Check"

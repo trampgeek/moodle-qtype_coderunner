@@ -6,21 +6,21 @@ Feature: Test importing and exporting of question with attachments
 
   Background:
     Given the following "users" exist:
-      | username | firstname | lastname | email            |
-      | teacher1 | Teacher   | 1        | teacher1@asd.com |
+      | username |
+      | teacher  |
     And the following "courses" exist:
       | fullname | shortname | category |
       | Course 1 | C1        | 0        |
     And the following "course enrolments" exist:
-      | user     | course | role           |
-      | teacher1 | C1     | editingteacher |
+      | user    | course | role           |
+      | teacher | C1     | editingteacher |
     And the following "question categories" exist:
       | contextlevel | reference | name           |
       | Course       | C1        | Test questions |
     And the following "questions" exist:
       | questioncategory | qtype      | name            |
       | Test questions   | coderunner | Square function |
-    And I log in as "teacher1"
+    And I log in as "teacher"
     And I am on "Course 1" course homepage
     And I navigate to "Question bank" in current page administration
     And I choose "Edit question" action for "Square function" in the question bank
@@ -36,8 +36,7 @@ Feature: Test importing and exporting of question with attachments
 
   @file_attachments
   Scenario: As a teacher I can export a question with an attached sample answer file
-    Given I am on "Course 1" course homepage
-    When I navigate to "Question bank > Export" in current page administration
+    When I am on the "Course 1" "core_question > course question export" page logged in as teacher
     And I set the field "id_format_xml" to "1"
     And I press "Export questions to file"
     Then following "click here" should download between "4600" and "4900" bytes
@@ -49,8 +48,7 @@ Feature: Test importing and exporting of question with attachments
 
   @file_attachments
   Scenario: As a teacher I can import a question with an attached sample answer file
-    Given I am on "Course 1" course homepage
-    When I navigate to "Question bank > Import" in current page administration
+    When I am on the "Course 1" "core_question > course question import" page logged in as teacher
     And I set the field "id_format_xml" to "1"
     And I upload "question/type/coderunner/tests/fixtures/sqrexportwithsampleattachment.xml" file to "Import" filemanager
     And I press "id_submitbutton"

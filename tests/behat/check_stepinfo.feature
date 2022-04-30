@@ -49,7 +49,7 @@ Feature: Check that the QUESTION.stepinfo record is working.
   Scenario: Click check twice, precheck 3 times, should get expected answer.
     When I am on "Course 1" course homepage
     And I follow "Test quiz"
-    And I press "Preview quiz now"
+    And I press "Preview quiz"
     Then I should see "Write a program that does anything"
 
     When I set the field with xpath "//textarea[contains(@name, 'answer')]" to "# Blah 1"

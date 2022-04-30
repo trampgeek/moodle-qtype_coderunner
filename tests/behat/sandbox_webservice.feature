@@ -31,7 +31,7 @@ Feature: Test sandbox web service
   @javascript
   Scenario: As a student if I try to initiate a WS request I get an error if the service is disabled.
     When I am on the "Quiz 1" "mod_quiz > View" page logged in as "student"
-    And I press "Attempt quiz now"
+    And I press "Attempt quiz"
     And I press "Click me"
     Then I should see "ERROR: qtype_coderunner/Sandbox web service disabled."
 
@@ -44,7 +44,7 @@ Feature: Test sandbox web service
     And I press "Save changes"
     And I log out
     When I am on the "Quiz 1" "mod_quiz > View" page logged in as "student"
-    And I press "Attempt quiz now"
+    And I press "Attempt quiz"
     And I press "Click me"
     Then I should see "Hello me!"
     And I should see "Hello you!"

@@ -37,7 +37,7 @@ Feature: missing_prototype
       print({{TEST.testcode}})
       """
     And I set the field "id_iscombinatortemplate" to "0"
-    And I click on "a[aria-controls='id_advancedcustomisationheader']" "css_element"
+    And I click on "a[aria-controls='id_advancedcustomisationheadercontainer']" "css_element"
     And I set the field "prototypetype" to "Yes (user defined)"
     And I set the field "typename" to "python3_test_prototype"
     And I press "id_submitbutton"
@@ -55,8 +55,7 @@ Feature: missing_prototype
       | id_expected_1     | 81                                |
 
     # Now delete the prototype, leaving the question orphaned
-    And I click on "PROTOTYPE_test_prototype" "text"
-    And I press "Delete"
+    And I choose "Delete" action for "PROTOTYPE_test_prototype" in the question bank
     And I press "Delete"
 
   Scenario: As a teacher, if I preview a question with a missing prototype I should see a missing prototype error
@@ -64,7 +63,7 @@ Feature: missing_prototype
     And I navigate to "Question bank" in current page administration
 
     When I choose "Preview" action for "Prototype tester" in the question bank
-    And I switch to "questionpreview" window
+    And I click on "a[aria-controls='id_attemptoptionsheadercontainer']" "css_element"
     And I set the field "id_behaviour" to "Adaptive mode"
     And I press "Start again with these options"
     And I set the field with xpath "//textarea[contains(@name, 'answer')]" to "def sqr(n): return n * n"
@@ -81,7 +80,7 @@ Feature: missing_prototype
     And I set the field "id_uiplugin" to "None"
     And I press "id_submitbutton"
     And I choose "Preview" action for "Prototype tester" in the question bank
-    And I switch to "questionpreview" window
+    And I click on "a[aria-controls='id_attemptoptionsheadercontainer']" "css_element"
     And I set the field "id_behaviour" to "Adaptive mode"
     And I press "Start again with these options"
     And I set the field with xpath "//textarea[contains(@name, 'answer')]" to "def sqr(n): return n * n"

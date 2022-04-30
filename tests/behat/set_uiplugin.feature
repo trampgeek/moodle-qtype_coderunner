@@ -34,7 +34,6 @@ Feature: Check that a selected UI plugin is saved
 
   Scenario: UI plugin state is saved when question is saved
     When I choose "Edit question" action for "Square function" in the question bank
-    And I click on "a[aria-controls='id_answerhdr']" "css_element"
     And I set the following fields to these values:
       | id_customise | 1     |
       | id_uiplugin  | graph |
@@ -49,5 +48,4 @@ Feature: Check that a selected UI plugin is saved
       | id_uiplugin  | graph |
     And I press "id_submitbutton"
     When I choose "Preview" action for "Square function" in the question bank
-    And I switch to "questionpreview" window
     Then I should see a canvas

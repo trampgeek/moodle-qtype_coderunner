@@ -46,7 +46,7 @@ Feature: Check the STUDENT Twig variable allows access to current username in Co
   Scenario: Preview as a teacher, submit answer as a student, review as a teacher
     When I am on "Course 1" course homepage
     And I follow "Test quiz"
-    And I press "Preview quiz now"
+    And I press "Preview quiz"
     Then I should see "Write a program that prints teacher1"
 
     When I set the field with xpath "//textarea[contains(@name, 'answer')]" to "print('teacher1')"
