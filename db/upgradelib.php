@@ -177,7 +177,7 @@ function load_questions($category, $importfilename, $contextid) {
     $qformat = new qformat_xml();
     $qformat->setCategory($category);
     $systemcontext = context::instance_by_id($contextid);
-    $contexts = new question_edit_contexts($systemcontext);
+    $contexts = new core_question\local\bank\question_edit_contexts($systemcontext);
     $qformat->setContexts($contexts->having_one_edit_tab_cap('import'));
     $qformat->setCourse($COURSE);
     $qformat->setFilename($importfilename);
