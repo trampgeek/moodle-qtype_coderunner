@@ -332,7 +332,8 @@ class qtype_coderunner extends question_type {
             $suffix = '';
             $type = $question->coderunnertype;
             while (true) {
-                $row = $this->get_prototype($type . $suffix, $question->context);
+                // Check for the existence of a prototype with this type name and suffix.
+                $row = $this->get_prototype($type . $suffix, $question->context, true);
                 if ($row === null) {
                     break;
                 }
@@ -505,11 +506,13 @@ class qtype_coderunner extends question_type {
      *
      * @param string $coderunnertype prototype name.
      * @param context $context a context.
+     * @param boolean $checkexistenceonly if true the function returns true if
+     * the prototype exists, rather than the prototype itself.
      * @return qtype_coderunner_question prototype the prototype for the given
      * question type in the given context or null if no prototype can be found
      * or if more than one prototype is found.
      */
-    public static function get_prototype($coderunnertype, $context) {
+    public static function get_prototype($coderunnertype, $context, $checkexistenceonly=false) {
         global $DB;
         list($contextcondition, $params) = $DB->get_in_or_equal($context->get_parent_context_ids(true));
         $params[] = $coderunnertype;
@@ -532,6 +535,8 @@ class qtype_coderunner extends question_type {
         $validprotoids = $DB->get_records_sql($sql, $params);
         if (count($validprotoids) !== 1) {
             return null;  // Exactly one prototype should be found.
+        } else if ($checkexistenceonly) {
+            return true;
         } else {
             $proto = reset($validprotoids);
             $prototype = question_bank::load_question($proto->id);
