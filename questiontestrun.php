@@ -23,6 +23,7 @@
  * results of the tests.
  *
  * The script takes one parameter id which is a questionid as a parameter.
+ * Only the latest version of the given question is tested.
  *
  * @copyright  2012 the Open University, 2016 Richard Lobb, The University of Canterbury.
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -36,11 +37,11 @@ require_once($CFG->libdir . '/questionlib.php');
 $questionid = required_param('questionid', PARAM_INT);
 
 // Load the necessary data.
-$questiondata = $DB->get_record('question', array('id' => $questionid), '*', MUST_EXIST);
+$qbe = get_question_bank_entry($questionid);
 $question = question_bank::load_question($questionid);
 
 // Setup the context to whatever was specified by the tester.
-$urlparams = array('questionid' => $question->id);
+$urlparams = array('questionid' => $questionid);
 if ($cmid = optional_param('cmid', 0, PARAM_INT)) {
     $cm = get_coursemodule_from_id(false, $cmid);
     require_login($cm->course, false, $cm);
@@ -56,8 +57,8 @@ if ($cmid = optional_param('cmid', 0, PARAM_INT)) {
 }
 
 // Check permissions.
-question_require_capability_on($questiondata, 'view');
-$canedit = question_has_capability_on($questiondata, 'edit');
+question_require_capability_on($question, 'view');
+$canedit = question_has_capability_on($question, 'edit');
 
 // Initialise $PAGE.
 $PAGE->set_url('/question/type/coderunner/questiontestrun.php', $urlparams);
@@ -71,11 +72,11 @@ $qbankparams = $urlparams;
 unset($qbankparams['questionid']);
 unset($qbankparams['seed']);
 $qbankparams['qperpage'] = 1000; // Should match MAXIMUM_QUESTIONS_PER_PAGE but that constant is not easily accessible.
-$qbankparams['category'] = ',' . $question->contextid;  // TODO: check what edit now requires.
-$qbankparams['lastchanged'] = $question->id;
-/* if ($questiondata->hidden) {
-    $qbankparams['showhidden'] = 1;
-} */
+$qbankparams['category'] = $qbe->questioncategoryid . ',' . $question->contextid;
+$qbankparams['lastchanged'] = $questionid;
+//if (isset($questiondata->hidden) && $questiondata->hidden) {
+//    $qbankparams['showhidden'] = 1;
+//}
 $questionbanklink = new moodle_url('/question/edit.php', $qbankparams);
 $exportquestionlink = new moodle_url('/question/type/coderunner/exportone.php', $urlparams);
 $exportquestionlink->param('sesskey', sesskey());
