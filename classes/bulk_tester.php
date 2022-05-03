@@ -55,7 +55,8 @@ class qtype_coderunner_bulk_tester {
 
     /**
      * Get all the contexts that contain at least one CodeRunner question, with a
-     * count of the number of those questions.
+     * count of the number of those questions. Only the latest version of each
+     * question is counted.
      *
      * @return array context id => number of CodeRunner questions.
      */
@@ -70,6 +71,11 @@ class qtype_coderunner_bulk_tester {
             JOIN {question_versions} qv ON qv.questionbankentryid = qbe.id
             JOIN {question} q ON qv.questionid = q.id
             WHERE q.qtype = 'coderunner'
+            AND (qv.version = (SELECT MAX(v.version)
+                                FROM {question_versions} v
+                                JOIN {question_bank_entries} be ON be.id = v.questionbankentryid
+                                WHERE be.id = qbe.id)
+                              )
             GROUP BY ctx.id, ctx.path
             ORDER BY ctx.path
         ");
@@ -77,7 +83,8 @@ class qtype_coderunner_bulk_tester {
 
 
     /**
-     * Find all coderunner questions in a given category.
+     * Find all coderunner questions in a given category, returning only
+     * the latest version of each question.
      * @param type $categoryid the id of a question category of interest
      * @return all coderunner question ids in any state and any version in the given
      * category. Each row in the returned list of rows has an id, name and version number.
@@ -89,7 +96,13 @@ class qtype_coderunner_bulk_tester {
             FROM {question} q
             JOIN {question_versions} qv ON qv.questionid = q.id
             JOIN {question_bank_entries} qbe ON qv.questionbankentryid = qbe.id
-            WHERE q.qtype = 'coderunner' and qbe.questioncategoryid=:categoryid",
+            WHERE q.qtype = 'coderunner'
+            AND (qv.version = (SELECT MAX(v.version)
+                                FROM {question_versions} v
+                                JOIN {question_bank_entries} be ON be.id = v.questionbankentryid
+                                WHERE be.id = qbe.id)
+                              )
+            AND qbe.questioncategoryid=:categoryid",
                 array('categoryid' => $categoryid));
         return $rec;
     }
@@ -123,6 +136,7 @@ class qtype_coderunner_bulk_tester {
 
     /**
      * Get all the non-prototype coderunner questions in the given context.
+     * Only the latest version of a question is returned.
      *
      * @param courseid
      * @return array qid => question
@@ -139,6 +153,11 @@ class qtype_coderunner_bulk_tester {
               JOIN {question} q ON q.id = qv.questionid
               JOIN {question_coderunner_options} opts ON opts.questionid = q.id
               WHERE prototypetype = 0
+              AND (qv.version = (SELECT MAX(v.version)
+                                FROM {question_versions} v
+                                JOIN {question_bank_entries} be ON be.id = v.questionbankentryid
+                                WHERE be.id = qbe.id)
+                              )
               AND ctx.id = :contextid
               ORDER BY name", array('contextid' => $contextid));
     }
@@ -196,7 +215,12 @@ class qtype_coderunner_bulk_tester {
                 flush(); // Force output to prevent timeouts and show progress.
 
                 // Now run the test.
-                list($outcome, $message) = $this->load_and_test_question($question->id);
+                try {
+                    list($outcome, $message) = $this->load_and_test_question($question->id);
+                } catch (Exception $e) {
+                    $message = print_r($e, true);
+                    $outcome = self::FAIL;
+                }
 
                 // Report the result, and record failures for the summary.
                 echo " $message</li>";
