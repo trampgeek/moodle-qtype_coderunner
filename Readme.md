@@ -1,6 +1,8 @@
 # CodeRunner
 
-Version: 4.2.3 February 2022
+Version: 5.0.0 2 May 2022. Requires **MOODLE V4.0 or later**. Earlier versions
+of Moodle must use CodeRunner V4.
+
 
 Authors: Richard Lobb, University of Canterbury, New Zealand.
          Tim Hunt, The Open University, UK.
