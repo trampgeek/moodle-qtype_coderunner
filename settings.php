@@ -58,7 +58,10 @@ $settings->add(new admin_setting_configtext(
         "qtype_coderunner/jobe_host",
         get_string('jobe_host', 'qtype_coderunner'),
         get_string('jobe_host_desc', 'qtype_coderunner'),
-        constants::JOBE_HOST_DEFAULT));
+        constants::JOBE_HOST_DEFAULT,
+        PARAM_RAW,
+        60)
+);
 
 $settings->add(new admin_setting_configtext(
         "qtype_coderunner/jobe_apikey",
@@ -92,7 +95,9 @@ $settings->add(new admin_setting_configtext(
         "qtype_coderunner/wsjobeserver",
         get_string('jobe_host_ws', 'qtype_coderunner'),
         get_string('jobe_host_ws_desc', 'qtype_coderunner'),
-        '')
+        '',
+        PARAM_RAW,
+        60)
 );
 
 $settings->add(new admin_setting_configcheckbox(
