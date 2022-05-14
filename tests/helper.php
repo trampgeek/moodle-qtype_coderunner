@@ -1275,7 +1275,7 @@ EOPROG;
     // Return a CodeRunner question of a given (sub)type with given testcases
     // and other options. Further fields might be added by
     // coderunnertestcase::make_question (q.v.).
-    private function make_coderunner_question($type, $name = '', $questiontext = '',
+    private function make_coderunner_question($type, $name, $questiontext,
             $testcases, $otheroptions = array()) {
         question_bank::load_question_definition_classes('coderunner');
         $coderunner = new qtype_coderunner_question();
