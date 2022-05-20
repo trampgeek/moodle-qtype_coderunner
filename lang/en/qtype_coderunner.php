@@ -334,12 +334,12 @@ $string['is_prototype'] = 'Use as prototype';
 $string['jobe_apikey'] = 'Jobe API-key';
 $string['jobe_apikey_desc'] = 'The API key to be included in all REST requests to the Jobe server (if required). Max 40 chars. Leave blank to omit the API Key from requests';
 $string['jobe_host'] = 'Jobe server';
-$string['jobe_host_desc'] = 'The host name of the Jobe server plus the port number if other than port 80, e.g. jobe.somewhere.edu:4010. The URL for the Jobe request is obtained by default by prefixing this string with http:// and appending /jobe/index.php/restapi/<REST_METHOD>. You may either specify the https:// protocol in front of the host name (e.g. https://jobe.somewhere.edu) if the Jobe server is set behind a reverse proxy which act as an SSL termination.';
+$string['jobe_host_desc'] = 'The host name of the Jobe server plus the port number if other than port 80, e.g. jobe.somewhere.edu:4010. The URL for the Jobe request is obtained by default by prefixing this string with http:// and appending /jobe/index.php/restapi/<REST_METHOD>. You may either specify the https:// protocol in front of the host name (e.g. https://jobe.somewhere.edu) if the Jobe server is set behind a reverse proxy which act as an SSL termination. Multiple jobe servers, separated by a semicolon, are possible for handling higher loads: one is chosen at random.';
 $string['jobe_host_ws'] = 'Jobe server to use for web services';
 $string['jobe_host_ws_desc'] = 'The sandbox server web service will use whatever sandbox is configured for the specified
     language. This is virtually always a Jobe server, and the particular Jobe server to use is configured via the admin interface (above).
     However, for best web service security it is better to use an alternative
-    Jobe server, set by this field. Leave blank to use the default.';
+    Jobe server, set by this field. Multiple jobe servers, separated by a semicolon, are possible for handling higher loads: one is chosen at random. Leave blank to use the default. ';
 $string['jobe_warning_html'] = "<p style='background-color:yellow'>Run using the University of Canterbury's Jobe server. This is for initial testing only. Please set up your own Jobe server as soon as possible. See <a href='https://github.com/trampgeek/moodle-qtype_coderunner/blob/master/Readme.md#sandbox-configuration' target='_blank'>here</a>.</p>";
 $string['jobe_canterbury_html'] = "<p style='color:gray; font-style:italic; font-size:smaller'>Run on the University of Canterbury's Jobe server.</p>";
 
