@@ -1,9 +1,12 @@
 # CodeRunner
 
-Version: 4.2.3 February 2022
+Version: 4.2.3 February 2022  **FOR MOODLE_3X ONLY**
 
 Authors: Richard Lobb, University of Canterbury, New Zealand.
          Tim Hunt, The Open University, UK.
+
+IMPORTANT: this is the version of CodeRunner for use with Moodle versions 3.x.
+For Moodle 4.0 and later, use the Master branch.
 
 NOTE: A few sample quizzes containing example CodeRunner questions
 are available at [coderunner.org.nz](http://coderunner.org.nz). There's also
