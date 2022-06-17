@@ -32,6 +32,7 @@ require_once($CFG->libdir . '/questionlib.php');
 // Get the parameters from the URL.
 $contextid = required_param('contextid', PARAM_INT);
 $categoryid = optional_param('categoryid', null, PARAM_INT);
+$iterations = optional_param('iterations', 1, PARAM_INT);  // Guru use only.
 
 // Login and check permissions.
 $context = context::instance_by_id($contextid);
@@ -60,8 +61,13 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading($title);
 
 // Run the tests.
-list($numpasses, $failingtests, $missinganswers) = $bulktester->run_all_tests_for_context($context, $categoryid);
-
+$passes = 0;
+$fails = [];
+for ($i = 0; $i < $iterations; $i++) {
+    list($numpasses, $failingtests, $missinganswers) = $bulktester->run_all_tests_for_context($context, $categoryid);
+    $passes += $numpasses;
+    $fails = array_merge($fails, $failingtests);
+}
 // Display the final summary.
-$bulktester->print_overall_result($numpasses, $failingtests, $missinganswers);
+$bulktester->print_overall_result($passes, $fails, $missinganswers);
 echo $OUTPUT->footer();
