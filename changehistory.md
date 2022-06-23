@@ -1,5 +1,18 @@
 # CHANGE HISTORY
 
+### 23 June. 4.2.4+
+
+ * Auto-load Ace for questions using HTML-UI as well as ones using Ace directly.
+
+### 15 June 2022. 4.2.4
+
+ * Renamed branch to MOODLE_3X_STABLE on github as it's not Moodle 4 compatible.
+ * Update for PHP8 compatibility (although Moodle itself isn't yet PHP8 compatible).
+   Thanks Tim Hunt.
+ * Add a full licence.
+ * Fix typo in display of webservice settings.
+ * Fix regression: AJAX download of programming contest problem spec had stopped working.
+
 ### 26 February 2022. 4.2.3+
 
  * Add specific capability (qtype/coderunner:viewhiddentestcases) for viewing

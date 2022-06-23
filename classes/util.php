@@ -36,7 +36,7 @@ class qtype_coderunner_util {
         $uiplugin = $question->uiplugin === null ? 'ace' : strtolower($question->uiplugin);
         if ($uiplugin !== '' && $uiplugin !== 'none') {
             $params = array($uiplugin, $textareaid);  // Params to plugin's init function.
-            if (strpos($uiplugin, 'ace') !== false) {
+            if (strpos($uiplugin, 'ace') !== false || $uiplugin === 'html') {
                 self::load_ace();
             }
             $PAGE->requires->js_call_amd('qtype_coderunner/userinterfacewrapper', 'newUiWrapper', $params);
