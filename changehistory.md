@@ -3,6 +3,7 @@
 ### 23 June. 4.2.4+
 
  * Auto-load Ace for questions using HTML-UI as well as ones using Ace directly.
+ * Add shuffle function to Twig
 
 ### 15 June 2022. 4.2.4
 
