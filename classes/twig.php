@@ -48,15 +48,20 @@ class qtype_coderunner_twig {
             if ($isdebug) {
                 $twig->addExtension(new \Twig\Extension\DebugExtension());
             }
+
+            // Add some functions to twig: random (modified to use seed), randomseed, shuffle.
             $newrandom = new \Twig\TwigFunction('random', 'qtype_coderunner_twig_random',
                 array('needs_environment' => true));
             $setrandomseed = new \Twig\TwigFunction('set_random_seed', 'qtype_coderunner_set_random_seed',
                 array('needs_environment' => true));
             $twig->addFunction($newrandom);
             $twig->addFunction($setrandomseed);
-
+            $shuffle = new \Twig\TwigFilter('shuffle', 'qtype_coderunner_twig_shuffle',
+                array('needs_environment' => true));
+            $twig->addFilter($shuffle);
             self::$twigenvironments[$isstrict] = $twig;
 
+            // Set various escapers for the different languages.
             $escaperextension = $twig->getExtension(\Twig\Extension\EscaperExtension::class);
             $escaperextension->setEscaper('py', 'qtype_coderunner_escapers::python');
             $escaperextension->setEscaper('python', 'qtype_coderunner_escapers::python');
@@ -100,7 +105,7 @@ class qtype_coderunner_twig {
             'inline_css', 'join', 'json_encode', 'keys', 'language_name',
             'last', 'length', 'locale_name', 'lower', 'map', 'markdown_to_html',
             'merge', 'nl2br', 'number_format', 'raw', 'reduce', 'replace',
-            'reverse', 'round', 'slice', 'slug', 'sort', 'spaceless', 'split',
+            'reverse', 'round', 'shuffle', 'slice', 'slug', 'sort', 'spaceless', 'split',
             'striptags', 'timezone_name', 'title', 'trim', 'u', 'upper',
             'url_encode');
         $functions = array('attribute', 'block', 'constant', 'country_timezones',
@@ -201,3 +206,14 @@ function qtype_coderunner_set_random_seed(Twig\Environment $env, $seed)
     mt_srand($seed);
     return '';
 }
+
+/**
+ * The shuffle function for Twig. Randomises order of element an array.
+ * @param array $array The data to shuffle.
+ * @return The shuffled $array.
+ */
+function qtype_coderunner_twig_shuffle(Twig\Environment $env, $array) {
+    shuffle($array);
+    return $array;
+}
+
