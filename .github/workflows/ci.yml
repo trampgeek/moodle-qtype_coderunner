@@ -1,4 +1,4 @@
-name: Moodle plugin CI
+name: CodeRunner CI MOODLE_3X_STABLE
 on: [push, pull_request]
 
 jobs:
