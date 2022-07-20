@@ -108,7 +108,7 @@ jobs:
 
       - name: Validating
         if: ${{ always() }}
-        run: moodle-plugin-ci validate
+        run: moodle-plugin-ci validate /var/www/html/moodle/question/type/coderunner
 
       - name: Check upgrade savepoints
         if: ${{ always() }}
