@@ -124,8 +124,8 @@ jobs:
 
       - name: PHPUnit tests
         if: ${{ always() }}
-        run: moodle-plugin-ci phpunit
+        run: moodle-plugin-ci phpunit /var/www/html/moodle/question/type/coderunner
 
       - name: Behat features
         if: ${{ always() }}
-        run: moodle-plugin-ci behat
+        run: moodle-plugin-ci behat --profile chrome /var/www/html/moodle/question/type/coderunner
