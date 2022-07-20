@@ -10,10 +10,10 @@ jobs:
       matrix:
         include:
           - php: '7.4'
-            moodle-branch: 'MOODLE_402_STABLE'
+            moodle-branch: 'MOODLE_400_STABLE'
             database: 'pgsql'
           - php: '7.3'
-            moodle-branch: 'MOODLE_402_STABLE'
+            moodle-branch: 'MOODLE_400_STABLE'
             database: 'mariadb'
 
     services:
@@ -108,7 +108,7 @@ jobs:
 
       - name: Validating
         if: ${{ always() }}
-        run: moodle-plugin-ci validate question/type/coderunner
+        run: moodle-plugin-ci validate
 
       - name: Check upgrade savepoints
         if: ${{ always() }}
@@ -124,8 +124,8 @@ jobs:
 
       - name: PHPUnit tests
         if: ${{ always() }}
-        run: moodle-plugin-ci phpunit question/type/coderunner
+        run: moodle-plugin-ci phpunit
 
       - name: Behat features
         if: ${{ always() }}
-        run: moodle-plugin-ci behat --profile chrome question/type/coderunner
+        run: moodle-plugin-ci behat --profile chrome
