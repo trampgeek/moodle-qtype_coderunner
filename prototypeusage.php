@@ -28,6 +28,7 @@ define('NO_OUTPUT_BUFFERING', true);
 
 require_once(__DIR__.'/../../../config.php');
 require_once($CFG->libdir . '/questionlib.php');
+require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
 
 // Get the parameters from the URL.
 $courseid = required_param('courseid', PARAM_INT);
@@ -54,7 +55,11 @@ if (!has_capability('moodle/question:editall', $coursecontext)) {
     echo html::tag('p', get_string('unauthorisedbulktest', 'qtype_coderunner'));
 } else {
     $questions = $bulktester->get_all_coderunner_questions_in_context($coursecontextid);
-    $prototypes = $bulktester->get_all_prototypes($courseid);
+    $prototypequestions = qtype_coderunner::get_all_prototypes($courseid);
+    $prototypes = [];
+    foreach ($prototypequestions as $prototype) {
+        $prototypes[$prototype->coderunnertype] = $prototype;
+    }
 
     // Analyse the prototype usage.
 

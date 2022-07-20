@@ -1262,7 +1262,9 @@ class qtype_coderunner_edit_form extends question_edit_form {
         // e.g. Java for java. For question types without a
         // subtype the word 'Default' is used.
 
-        $records = qtype_coderunner::get_all_prototypes();
+        global $COURSE;
+        $courseid = $COURSE->id;
+        $records = qtype_coderunner::get_all_prototypes($courseid);
         $types = array();
         foreach ($records as $row) {
             if (($pos = strpos($row->coderunnertype, '_')) !== false) {

@@ -469,13 +469,14 @@ class qtype_coderunner extends question_type {
     }
 
     /**
-     * Get all available prototypes from the current course context.
+     * Get all available prototypes for the given course.
      * Only the most recent version of each prototype question is returned.
+     * @param int $courseid the ID of the course whose prototypes are required.
      * @return stdClass[] prototype rows from question_coderunner_options.
      */
-    public static function get_all_prototypes() {
-        global $DB, $COURSE;
-        $coursecontext = context_course::instance($COURSE->id);
+    public static function get_all_prototypes($courseid) {
+        global $DB;
+        $coursecontext = context_course::instance($courseid);
         list($contextcondition, $params) = $DB->get_in_or_equal($coursecontext->get_parent_context_ids(true));
 
         $rows = $DB->get_records_sql("
