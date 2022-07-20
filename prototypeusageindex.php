@@ -27,7 +27,6 @@
 require_once(__DIR__.'/../../../config.php');
 require_once($CFG->libdir . '/questionlib.php');
 
-
 // Login and check permissions.
 $context = context_system::instance();
 require_login();
@@ -46,6 +45,11 @@ echo $OUTPUT->heading(get_string('prototypeusageindex', 'qtype_coderunner'));
 
 echo html_writer::start_tag('ul');
 foreach ($allcourses as $course) {
+    $courseid = $course->id;
+    $coursecontext = context_course::instance($courseid);
+    if (!has_capability('moodle/grade:viewall', $coursecontext)) {
+        continue;
+    }
     $contextid = $course->contextid;
     $context = context::instance_by_id($contextid);
     echo html_writer::tag('li',
