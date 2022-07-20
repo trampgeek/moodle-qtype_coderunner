@@ -108,7 +108,7 @@ jobs:
 
       - name: Validating
         if: ${{ always() }}
-        run: moodle-plugin-ci validate /var/www/html/moodle/question/type/coderunner
+        run: moodle-plugin-ci validate question/type/coderunner
 
       - name: Check upgrade savepoints
         if: ${{ always() }}
@@ -124,8 +124,8 @@ jobs:
 
       - name: PHPUnit tests
         if: ${{ always() }}
-        run: moodle-plugin-ci phpunit /var/www/html/moodle/question/type/coderunner
+        run: moodle-plugin-ci phpunit question/type/coderunner
 
       - name: Behat features
         if: ${{ always() }}
-        run: moodle-plugin-ci behat --profile chrome /var/www/html/moodle/question/type/coderunner
+        run: moodle-plugin-ci behat --profile chrome question/type/coderunner
