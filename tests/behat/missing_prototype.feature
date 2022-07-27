@@ -18,9 +18,7 @@ Feature: missing_prototype
       | contextlevel | reference | Question category | name           |
       | Course       | C1        | Top               | Test questions |
 
-    And I log in as "teacher1"
-    And I am on "Course 1" course homepage
-    And I navigate to "Question bank" in current page administration
+    And I am on the "Course 1" "core_question > course question bank" page logged in as teacher1
     And I press "Create a new question ..."
     And I click on "input#item_qtype_coderunner" "css_element"
     And I press "submitbutton"
@@ -59,10 +57,7 @@ Feature: missing_prototype
     And I press "Delete"
 
   Scenario: As a teacher, if I preview a question with a missing prototype I should see a missing prototype error
-    Given I am on "Course 1" course homepage
-    And I navigate to "Question bank" in current page administration
-
-    When I choose "Preview" action for "Prototype tester" in the question bank
+    And I am on the "Prototype tester" "core_question > preview" page
     And I click on "a[aria-controls='id_attemptoptionsheadercontainer']" "css_element"
     And I set the field "id_behaviour" to "Adaptive mode"
     And I press "Start again with these options"
@@ -71,9 +66,7 @@ Feature: missing_prototype
     Then I should see "Broken question (missing or duplicate prototype 'python3_test_prototype'). Cannot be run."
 
   Scenario: As a teacher, I should be able to re-parent the question and have it work correctly
-    Given I am on "Course 1" course homepage
-    And I navigate to "Question bank" in current page administration
-    When I choose "Edit question" action for "Prototype tester" in the question bank
+    And I am on the "Prototype tester" "core_question > edit" page
     Then I should see "This question was defined to be of type 'python3_test_prototype' but the prototype does not exist, or is non-unique, or is unavailable in this context"
     And I set the field "id_coderunnertype" to "python3"
     And I set the field "id_customise" to "1"

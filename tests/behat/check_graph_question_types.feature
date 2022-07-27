@@ -17,9 +17,7 @@ Feature: Check that the directed and undirected graph question types work.
     And the following "question categories" exist:
       | contextlevel | reference | name           |
       | Course       | C1        | Test questions |
-    And I log in as "teacher1"
-    And I am on "Course 1" course homepage
-    And I navigate to "Question bank" in current page administration
+    And I am on the "Course 1" "core_question > course question bank" page logged in as teacher1
 
   Scenario: Preview a coderunner directed graph question
     When I disable UI plugins
