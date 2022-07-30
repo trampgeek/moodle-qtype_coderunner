@@ -20,12 +20,9 @@ Feature: Preview the Python 3 sqr function CodeRunner question
     And the following "questions" exist:
       | questioncategory | qtype      | name            |
       | Test questions   | coderunner | Square function |
-    And I log in as "teacher1"
-    And I am on "Course 1" course homepage
-    And I navigate to "Question bank" in current page administration
 
   Scenario: Preview the Python3 sqr function CodeRunner question and get it right
-    When I choose "Preview" action for "Square function" in the question bank
+    When I am on the "Square function" "core_question > preview" page logged in as teacher1
     And I set the field with xpath "//textarea[contains(@name, 'answer')]" to "def sqr(n): return n * n"
     And I press "Check"
     Then the following should exist in the "coderunner-test-results" table:
@@ -39,13 +36,13 @@ Feature: Preview the Python 3 sqr function CodeRunner question
     And I should see "Marks for this submission: 31.00/31.00"
 
   Scenario: Preview the Python3 sqr function CodeRunner question and submit syntactically invalid answer
-    When I choose "Preview" action for "Square function" in the question bank
+    When I am on the "Square function" "core_question > preview" page logged in as teacher1
     And I set the field with xpath "//textarea[contains(@name, 'answer')]" to "def sqr(n); return n * n"
     And I press "Check"
     And I should see "Marks for this submission: 0.00/31.00"
 
   Scenario: Preview the Python3 sqr function CodeRunner question and get it wrong
-    When I choose "Preview" action for "Square function" in the question bank
+    When I am on the "Square function" "core_question > preview" page logged in as teacher1
     And I set the field with xpath "//textarea[contains(@name, 'answer')]" to "def sqr(n): return n * n * n"
     And I press "Check"
     Then the following should exist in the "coderunner-test-results" table:

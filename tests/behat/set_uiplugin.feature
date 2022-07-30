@@ -20,20 +20,17 @@ Feature: Check that a selected UI plugin is saved
     And the following "questions" exist:
       | questioncategory | qtype      | name            | template |
       | Test questions   | coderunner | Square function | sqr      |
-    And I log in as "teacher1"
-    And I am on "Course 1" course homepage
-    And I navigate to "Question bank" in current page administration
     And I enable UI plugins
 
   Scenario: Selecting the Graph UI plugin results in a canvas being displayed
-    When I choose "Edit question" action for "Square function" in the question bank
+    When I am on the "Square function" "core_question > edit" page logged in as teacher1
     And I set the following fields to these values:
       | id_customise | 1     |
       | id_uiplugin  | graph |
     Then I should see a canvas
 
   Scenario: UI plugin state is saved when question is saved
-    When I choose "Edit question" action for "Square function" in the question bank
+    When I am on the "Square function" "core_question > edit" page logged in as teacher1
     And I set the following fields to these values:
       | id_customise | 1     |
       | id_uiplugin  | graph |
@@ -42,7 +39,7 @@ Feature: Check that a selected UI plugin is saved
     Then I should see a canvas
 
   Scenario: UI plugin state is saved for student
-    When I choose "Edit question" action for "Square function" in the question bank
+    When I am on the "Square function" "core_question > edit" page logged in as teacher1
     And I set the following fields to these values:
       | id_customise | 1     |
       | id_uiplugin  | graph |

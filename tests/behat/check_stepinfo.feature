@@ -22,9 +22,8 @@ Feature: Check that the QUESTION.stepinfo record is working.
     And the following "activities" exist:
       | activity   | name      | course | idnumber |
       | quiz       | Test quiz | C1     | quiz1    |
-    And I log in as "teacher1"
-    And I am on "Course 1" course homepage
-    And I navigate to "Question bank" in current page administration
+    And I am on the "Course 1" "core_question > course question bank" page logged in as teacher1
+
     And I disable UI plugins
     And I add a "CodeRunner" question filling the form with:
       | id_coderunnertype       | python3                                    |
@@ -47,8 +46,7 @@ Feature: Check that the QUESTION.stepinfo record is working.
       | Testing stepinfo | 1    |
 
   Scenario: Click check twice, precheck 3 times, should get expected answer.
-    When I am on "Course 1" course homepage
-    And I follow "Test quiz"
+    When I am on the "Test quiz" "quiz activity" page
     And I press "Preview quiz"
     Then I should see "Write a program that does anything"
 

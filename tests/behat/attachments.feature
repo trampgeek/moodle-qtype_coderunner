@@ -20,10 +20,7 @@ Feature: Test editing and using attachments to a CodeRunner question
     And the following "questions" exist:
       | questioncategory | qtype      | name            |
       | Test questions   | coderunner | Square function |
-    And I log in as "teacher1"
-    And I am on "Course 1" course homepage
-    And I navigate to "Question bank" in current page administration
-    And I choose "Edit question" action for "Square function" in the question bank
+    And I am on the "Square function" "core_question > edit" page logged in as teacher1
     And I click on "a[aria-controls='id_attachmentoptionscontainer']" "css_element"
     And I set the field "Answer" to "from sqrmodule import sqr"
     And I set the field "Validate on save" to "1"

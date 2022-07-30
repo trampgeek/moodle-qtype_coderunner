@@ -20,12 +20,9 @@ Feature: Preview the Python 3 sqr function CodeRunner question with a preload
     And the following "questions" exist:
       | questioncategory | qtype      | name            | answerpreload           |
       | Test questions   | coderunner | Square function | # Your answer goes here |
-    And I log in as "teacher1"
-    And I am on "Course 1" course homepage
-    And I navigate to "Question bank" in current page administration
 
   Scenario: Preview the Python3 sqr function, get it wrong, then reset it
-    When I choose "Preview" action for "Square function" in the question bank
+    When I am on the "Square function" "core_question > preview" page logged in as teacher1
     And I should see "# Your answer goes here"
     And I set the field with xpath "//textarea[contains(@name, 'answer')]" to "def sqr(n): return n"
     And I press "Check"

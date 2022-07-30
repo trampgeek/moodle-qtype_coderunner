@@ -20,18 +20,15 @@ Feature: Test the HTML_UI
     And the following "questions" exist:
       | questioncategory | qtype      | name         | template |
       | Test questions   | coderunner | Print answer | printans |
-    And I log in as "teacher1"
-    And I am on "Course 1" course homepage
-    And I navigate to "Question bank" in current page administration
 
   Scenario: Edit a CodeRunner printans question into an html UI question
-    When I choose "Edit question" action for "Print answer" in the question bank
+    When I am on the "Print answer" "core_question > edit" page logged in as teacher1
     And I set the field "id_answer" to ""
     And I set the following fields to these values:
       | id_customise   | 1                                 |
       | id_template    | print('''{{ STUDENT_ANSWER }}''') |
       | id_uiplugin    | Html                              |
-      | id_expected_0  | {"cr_inputfield":["bubble"]}     |
+      | id_expected_0  | {"cr_inputfield":["bubble"]}      |
 
     And I set the field "id_globalextra" to:
      """
