@@ -1886,8 +1886,8 @@ The ultimate in grading flexibility is achieved by use of a "Combinator
 template grader", i.e. a TemplateGrader with the `Is combinator` checkbox checked.
 In this mode, the JSON string output by the template grader
 should again contain a 'fraction' field, this time for the total mark,
-and may contain zero or more of 'prologuehtml', 'testresults', 'epiloguehtml'
-'showoutputonly', 'showdifferences' and 'graderstate'.
+and may contain zero or more of 'prologuehtml', 'testresults', 'columnformats',
+'epiloguehtml', 'showoutputonly', 'showdifferences' and 'graderstate'.
 attributes.
 The 'prologuehtml' and 'epiloguehtml' fields are html
 that is displayed respectively before and after the (optional) result table. The
@@ -1899,6 +1899,14 @@ crosses for 1 or 0 row values respectively. The 'ishidden' column isn't
 actually displayed but 0 or 1 values in the column can be used to turn on and
 off row visibility. Students do not see hidden rows but markers and other
 staff do.
+
+If a 'testresults' field is present, there can also be a 'columnformats' field.
+This should have one format specifier per table column and each format specifier
+should either be '%s', in which case all formatting is left to the renderer
+(which sanitises the field and encloses it in a &lt;pre&gt; element)
+or '%h' in which case the table cell is displayed directly without further
+processing. '%s' formatting is the default in the absence of an explicit
+'columnformats' field.
 
 The 'showoutputonly' attribute, if set true, results in the prologuehtml and
 epiloguehtml fields being displayed against a neutral background with the
