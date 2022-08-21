@@ -531,7 +531,7 @@ disp('#<ab@17943918#@>#');
     <grader>EqualityGrader</grader>
     <cputimelimitsecs>3</cputimelimitsecs>
     <memlimitmb>1000</memlimitmb>
-    <sandboxparams></sandboxparams>
+    <sandboxparams>{"sourcefilename": "__tester__"}</sandboxparams>
     <templateparams></templateparams>
     <hoisttemplateparams>0</hoisttemplateparams>
     <twigall>0</twigall>
