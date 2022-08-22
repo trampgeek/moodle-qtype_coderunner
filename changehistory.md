@@ -1,5 +1,14 @@
 # CHANGE HISTORY
 
+### 22 August 2022. 5.0.0
+
+ * Release candidate for Moodle 4.0.
+ * Document the 'columnformats' field used by some combinator-template graders.
+ * Improve output of prototype-usage script.
+ * Make Behat tests a bit faster and more robust (Thanks Tim Hunt)
+ * Bug fix: exporting of questions with missing prototypes was failing.
+
+
 ### 26 February 2022. 4.2.3+
 
  * Add specific capability (qtype/coderunner:viewhiddentestcases) for viewing
