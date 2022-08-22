@@ -54,7 +54,7 @@ $coursecontext = context::instance_by_id($coursecontextid);
 if (!has_capability('moodle/question:editall', $coursecontext)) {
     echo html::tag('p', get_string('unauthorisedbulktest', 'qtype_coderunner'));
 } else {
-    $questions = $bulktester->get_all_coderunner_questions_in_context($coursecontextid);
+    $questions = $bulktester->get_all_coderunner_questions_in_context($coursecontextid, true);
     $prototypequestions = qtype_coderunner::get_all_prototypes($courseid);
     $prototypes = [];
     foreach ($prototypequestions as $prototype) {
@@ -73,6 +73,10 @@ if (!has_capability('moodle/question:editall', $coursecontext)) {
                 $missing[$type] = array($question);
             }
         } else {
+            if ($question->prototypetype != 0) {
+                $prototypes[$type]->name = $question->name;
+                $prototypes[$type]->category = $question->categoryname;
+            }
             if (isset($prototypes[$type]->usages)) {
                 $prototypes[$type]->usages[] = $question;
             } else {

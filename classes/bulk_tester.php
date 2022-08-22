@@ -135,14 +135,20 @@ class qtype_coderunner_bulk_tester {
 
 
     /**
-     * Get all the non-prototype coderunner questions in the given context.
-     * Only the latest version of a question is returned.
+     * Get all the coderunner questions in the given context.
      *
-     * @param courseid
+     * @param courseid The id of the course of interest.
+     * @param includeprototypes true to include prototypes in the returned list.
      * @return array qid => question
      */
-    public function get_all_coderunner_questions_in_context($contextid) {
+    public function get_all_coderunner_questions_in_context($contextid, $includeprototypes=0) {
         global $DB;
+
+        if ($includeprototypes) {
+            $exclprototypes = '';
+        } else {
+            $exclprototypes = 'AND prototypetype=0';
+        }
 
         return $DB->get_records_sql("
             SELECT q.id, ctx.id as contextid, qc.id as category, qc.name as categoryname, q.*, opts.*
@@ -152,12 +158,12 @@ class qtype_coderunner_bulk_tester {
               JOIN {question_versions} qv ON qv.questionbankentryid = qbe.id
               JOIN {question} q ON q.id = qv.questionid
               JOIN {question_coderunner_options} opts ON opts.questionid = q.id
-              WHERE prototypetype = 0
-              AND (qv.version = (SELECT MAX(v.version)
+              WHERE (qv.version = (SELECT MAX(v.version)
                                 FROM {question_versions} v
                                 JOIN {question_bank_entries} be ON be.id = v.questionbankentryid
                                 WHERE be.id = qbe.id)
                               )
+              $exclprototypes
               AND ctx.id = :contextid
               ORDER BY name", array('contextid' => $contextid));
     }
@@ -357,10 +363,12 @@ class qtype_coderunner_bulk_tester {
      */
     public static function display_prototypes($courseid, $prototypes, $missingprototypes) {
         global $OUTPUT;
-
+        ksort($prototypes, SORT_STRING | SORT_FLAG_CASE);
         foreach ($prototypes as $prototypename => $prototype) {
             if (isset($prototype->usages)) {
+                $name = isset($prototype->name) ? " ({$prototype->category}/{$prototype->name})" : ' (global)';
                 echo $OUTPUT->heading($prototypename, 4);
+                echo $OUTPUT->heading($name, 6);
                 echo html_writer::start_tag('ul');
                 foreach ($prototype->usages as $question) {
                     echo html_writer::tag('li', self::make_question_link($courseid, $question));
