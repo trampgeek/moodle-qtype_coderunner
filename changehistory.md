@@ -1,5 +1,9 @@
 # CHANGE HISTORY
 
+### 5 September 2022. 5.0.1
+
+ * Add uninstall instructions to Readme.md
+
 ### 22 August 2022. 5.0.0
 
  * Release candidate for Moodle 4.0.
