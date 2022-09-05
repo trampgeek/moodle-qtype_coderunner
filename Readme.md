@@ -26,6 +26,7 @@ unusual question type.
   - [Setting the quiz review options](#setting-the-quiz-review-options)
   - [Sandbox Configuration](#sandbox-configuration)
   - [Running the unit tests](#running-the-unit-tests)
+- [Uninstalling CodeRunner](#uninstalling-coderunner)
 - [The Architecture of CodeRunner](#the-architecture-of-coderunner)
 - [Question types](#question-types)
   - [An example question type](#an-example-question-type)
@@ -413,6 +414,40 @@ tell you if you need be at all worried.
 
 Feel free to [email the principal developer](mailto:richard.lobb@canterbury.ac.nz) if you have problems
 with the installation.
+
+## Uninstalling CodeRunner
+
+Like any question-type plugin, CodeRunner can be uninstalled using the *Uninstall*
+link in the Moodle *Manage plugins* page. BUT in order for that link to be
+present (for any question type), the system checks to see if there are any questions
+of that type present. If so, the link is silently not displayed.
+
+So, you need to do the following before the Uninstall link is displayed:
+
+ 1. Backup your server.
+
+ 2. Find any quizzes that use CodeRunner questions and either delete them or
+    remove the CodeRunner questions from them. If you don't do this, then when
+    you try to delete the questions from the question bank (step 2) they will simply be
+    hidden rather than properly deleted.
+
+ 3. Remove all the user-defined CodeRunner questions.
+
+ 4. Delete all the CodeRunner prototypes (which define the set of available
+    question types) from the System > Top for System > CR_PROTOTYPES category.
+    This requires Moodle administrator level privileges.
+
+You should then find the Uninstall link showing for CodeRunner in the Manage plugins page.
+If not, you must still have some CodeRunner questions hidden away somewhere. If you
+have admin rights, you should be able to find them with the SQL command:
+
+        select id, category, name from mdl_question where qtype='coderunner';
+
+If you have a lot of coderunner questions you *may* be able to just delete all the coderunner
+questions SQL but I'd be very reluctant to do that myself as it will break
+the database integrity and I'm not sure that the subsequent plugin deletion
+will clean up the mess. Certainly any quizzes referring to deleted questions
+will break (but of course they're going to break anyway if you uninstall CodeRunner).
 
 ## The Architecture of CodeRunner
 
