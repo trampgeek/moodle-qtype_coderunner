@@ -37,4 +37,3 @@ Feature: Test editing a CodeRunner question
     And I press "id_submitbutton"
     Then I should see "Edited name"
     And I should see "Created by"
-

@@ -53,7 +53,6 @@ Feature: Check that Python and other languages can be used instead of Twig as a 
     And I set the field with xpath "//input[@type='checkbox' and @id='qbheadercheckbox']" to "1"
     And I press "Add selected questions to the quiz"
 
-
   Scenario: Preview as a teacher, submit answer as a student, review as a teacher
     When I am on the "Test quiz" "quiz activity" page
     And I press "Preview quiz"

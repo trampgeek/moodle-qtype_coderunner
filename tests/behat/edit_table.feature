@@ -57,4 +57,3 @@ Feature: Test editing a CodeRunner question using the Table UI
     And I press "id_submitbutton"
     Then I should not see "Failed 1 test(s)"
     And I should see "Created by"
-
