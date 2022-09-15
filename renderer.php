@@ -526,9 +526,18 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
         $uclang = ucwords($currentlanguage);
         $heading = get_string('asolutionis', 'qtype_coderunner');
-        $heading = substr($heading, 0, strlen($heading) - 1) . ' (' . $uclang . '):';
-        $html = html_writer::start_tag('div', array('class' => 'sample code'));
-        $html .= html_writer::tag('h4', $heading);
+        $heading = substr($heading, 0, strlen($heading) - 1) . ' (' . $uclang . ')';
+        $divid = 'id_div_' . $fieldname;
+        $answerlinkid = 'id_link_' . $fieldname;
+        $html = html_writer::start_tag('div', array('class' => 'sample-code-wrapper'));
+        $html .= html_writer::start_tag('a', array(
+            'id' => $answerlinkid));
+        $html .= html_writer::tag('h6', "\u{25B8} " . $heading);
+        $html .= html_writer::end_tag('a');
+        $html .= html_writer::start_tag('div', array(
+            'id' => $divid,
+            'class' => 'sample code',
+            'style' => 'display:none'));
         $answerboxlines = isset($question->answerboxlines) ? $question->answerboxlines : constants::DEFAULT_NUM_ROWS;
         if ($question->uiplugin == 'ace') {
             $rows = min($answerboxlines, substr_count($answer, "\n"));
@@ -540,13 +549,17 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
         $html .= html_writer::tag('textarea', s($answer), $taattributes);
         $html .= html_writer::end_tag('div');
+        $html .= html_writer::end_tag('div');
         $uiplugin = $question->uiplugin === null ? 'ace' : strtolower($question->uiplugin);
         $fieldid = 'id_' . $fieldname;
         if ($uiplugin !== '' && $uiplugin !== 'none') {
             qtype_coderunner_util::load_uiplugin_js($question, $fieldid);
         } else {
-            $this->page->requires->js_call_amd('qtype_coderunner/textareas', 'initQuestionTA', array($fieldid));
+            $this->page->requires->js_call_amd('qtype_coderunner/textareas',
+                    'initQuestionTA', array($fieldid));
         }
+        $this->page->requires->js_call_amd('qtype_coderunner/textareas',
+                'setupShowHideAnswer', array($answerlinkid, $divid));
         return $html;
     }
 

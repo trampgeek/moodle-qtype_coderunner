@@ -46,6 +46,30 @@ define(['jquery'], function($) {
         $(document.getElementById(taId)).each(initTextArea);
     }
 
+
+    /**
+     * Set up to expand or collapse the question author's answer when the user clicks
+     * on the show/hide answer button.
+     * @param {string} linkId The ID of the link that the user clicks.
+     * @param {sting} divId The ID of the div to be shown or hidden.
+     */
+    function setupShowHideAnswer(linkId, divId) {
+        let link = $(document.getElementById(linkId)),
+            div = $(document.getElementById(divId)),
+            hdr = link.children()[0], // The <h6> element.
+            hdrText = hdr.innerText;  // Its body.
+        link.click(() => {
+            if (div.is(":visible")) {
+                div.hide();
+                hdr.innerText = hdrText.replace("\u25BE", "\u25B8");
+            } else {
+                div.show();
+                div.trigger('mousemove'); // So user sees contents.
+                hdr.innerText = hdrText.replace("\u25B8", "\u25BE");
+            }
+        });
+    }
+
     /**
      * Set up the JavaScript to handle a text area 'this'.
      * It just does rudimentary autoindent on return and replaces tabs with
@@ -188,6 +212,7 @@ define(['jquery'], function($) {
 
     return {
         setupAllTAs: setupAllTAs,
-        initQuestionTA: initQuestionTA
+        initQuestionTA: initQuestionTA,
+        setupShowHideAnswer: setupShowHideAnswer,
     };
 });

@@ -55,7 +55,7 @@ $string['answerboxlines'] = 'Rows';
 $string['answerbox_group_help'] = 'Set the number of rows to allocate for the answer box. This sets the minimum height of the User Interface element (e.g. Ace) that controls the answer box. The width is set to fit the window. If the answer overflows the box vertically or horizontally, scrollbars will appear.';
 $string['answerpreload'] = 'Answer box preload';
 $string['answerpreload_help'] = 'Text supplied here will be preloaded into the student\'s answer box.';
-$string['asolutionis'] = 'Question author\'s solution:';
+$string['asolutionis'] = 'Show/hide question author\'s solution:';
 $string['attachmentoptions'] = 'Attachment options';
 
 $string['attachmentsoptional'] = 'Attachments are optional';
