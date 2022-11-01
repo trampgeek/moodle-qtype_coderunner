@@ -15,7 +15,7 @@
 // along with CodeRunner.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * CodeRunner renderer class.
+ * CodeRunner renderer class.Documentation tweak
  *
  * @package    qtype
  * @subpackage coderunner
@@ -616,17 +616,6 @@ class qtype_coderunner_renderer extends qtype_renderer {
                     . ': ' . $question->filenamesregex);
         }
 
-        // In order to prevent a spurious warning message when checking or saving
-        // the question after modifying the uploaded files, we need to explicitly
-        // initialise the form change checker, to ensure the onsubmit action for
-        // the form calls the set_form_submitted function in the module.
-        // This is only needed during Preview as it's apparently done anyway
-        // in normal quiz display mode, but we do it here regardless.
-        $this->page->requires->yui_module('moodle-core-formchangechecker',
-                'M.core_formchangechecker.init',
-                array(array('formid' => 'responseform'))
-        );
-        $this->page->requires->string_for_js('changesmadereallygoaway', 'moodle');
         return $filesrenderer->render($fm). html_writer::empty_tag(
                 'input', array('type' => 'hidden', 'name' => $qa->get_qt_field_name('attachments'),
                 'value' => $pickeroptions->itemid)) . $text;
