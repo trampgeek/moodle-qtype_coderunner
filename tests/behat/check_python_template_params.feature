@@ -44,7 +44,8 @@ Feature: Check that Python and other languages can be used instead of Twig as a 
     And I set the field "id_twigall" to "1"
     And I set the field "id_template" to "print({{seed}} > 0, end=' ');  {{STUDENT_ANSWER}}"
     And I set the field "id_templateparamslang" to "python3"
-    And I set the field "id_templateparamsevalpertry" to "1" and dismiss the alert
+    And I set CodeRunner behat testing flag
+    And I set the field "id_templateparamsevalpertry" to "1"
     And I press "Save changes"
 
     And I am on the "Test quiz" "mod_quiz > Edit" page logged in as teacher1
