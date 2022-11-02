@@ -15,7 +15,7 @@
 // along with CodeRunner.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * CodeRunner renderer class.Documentation tweak
+ * CodeRunner renderer class.
  *
  * @package    qtype
  * @subpackage coderunner
