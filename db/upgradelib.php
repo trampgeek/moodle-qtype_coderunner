@@ -63,7 +63,7 @@ function delete_existing_prototypes($systemcontextid) {
               JOIN {question_bank_entries} qbe ON qbe.questioncategoryid = qc.id
               JOIN {question_versions} qv ON qv.questionbankentryid = qbe.id
               JOIN {question} q ON q.id = qv.questionid
-              WHERE qc.id=?
+              WHERE ctx.id=?
               AND qc.name='CR_PROTOTYPES'
               AND q.name LIKE '%PROTOTYPE_%'";
     $prototypes = $DB->get_records_sql($query, array($systemcontextid));
