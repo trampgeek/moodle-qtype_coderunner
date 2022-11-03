@@ -509,7 +509,8 @@ public class __tester__ {
     <answerpreload></answerpreload>
     <useace>1</useace>
     <resultcolumns></resultcolumns>
-    <template><![CDATA[{{ STUDENT_ANSWER }}
+    <template><![CDATA[1; % Dummy statement to make a script
+{{ STUDENT_ANSWER }}
 
 format free
 
