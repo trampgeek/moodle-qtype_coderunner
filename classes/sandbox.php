@@ -232,15 +232,25 @@ abstract class qtype_coderunner_sandbox {
         if (!isset($errorstrings[$errorcode])) {
             throw new coding_exception("Bad call to sandbox.errorString");
         }
-        if ($errorcode != self::JOBE_400_ERROR || !isset($runresult->stderr)) {
-            return get_string($errorstrings[$errorcode], 'qtype_coderunner');
-        } else {
+        if ($errorcode == self::JOBE_400_ERROR) {
             // Special case for JOBE_400 error. Include HTTP error message in
-            // the returned error.
+            // the returned error (if given).
             $message = get_string('errorstring-jobe400', 'qtype_coderunner');
-            $message .= $runresult->stderr;
-            return $message;
+            if (isset($runresult->stderr)) {
+                $message .= $runresult->stderr;
+            }
+        } else if ($errorcode == self::UNKNOWN_SERVER_ERROR && isset($runresult->stderr)) {
+            // Errors such as a blocked URL land up here.
+            $message = get_string('errorstring-jobe-failed', 'qtype_coderunner');
+            $extra = $runresult->stderr;
+            if (strcmp($extra, "The URL is blocked.") == 0) {
+                $extra = get_string('errorstring-blocked-url', 'qtype_coderunner');
+            }
+            $message .= $extra;
+        } else {
+            $message = get_string($errorstrings[$errorcode], 'qtype_coderunner');
         }
+        return $message;
     }
 
 

@@ -376,8 +376,15 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
         }
 
         if ($response !== false) {
-            $returncode = $curl->info['http_code'];
-            $responsebody = $response === '' ? '' : json_decode($response);
+            if (isset($curl->info['http_code'])) {
+                $returncode = $curl->info['http_code'];
+                $responsebody = $response === '' ? '' : json_decode($response);
+            } else {
+                // Various weird stuff lands here, such as URL blocked.
+                // Hopefully the value of $response is useful.
+                $returncode = -1;
+                $responsebody = print_r($response, true);
+            }
         } else {
             $returncode = -1;
             $responsebody = '';
