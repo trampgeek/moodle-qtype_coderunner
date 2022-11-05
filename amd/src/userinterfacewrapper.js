@@ -134,19 +134,20 @@ define(['jquery'], function($) {
      * a reference to the wrapper ('this').
      */
     function InterfaceWrapper(uiname, textareaId) {
-
-        var  h,
-            params,
-            t = this; // For use by embedded functions.
+        let t = this; // For use by embedded functions.
 
         this.GUTTER = 14;  // Size of gutter at base of wrapper Node (pixels)
-        this.MIN_WRAPPER_HEIGHT = 50;
         this.DEFAULT_SYNC_INTERVAL_SECS = 5;
+
+        const PIXELS_PER_ROW = 19;  // For estimating height of textareas.
+        const MAX_GROWN_ROWS = 50;  // Upper limit to artifically grown textarea rows.
+        const MIN_WRAPPER_HEIGHT = 50;
 
         this.taId = textareaId;
         this.loadFailId = textareaId + '_loadfailerr';
-        this.textArea = $(document.getElementById(textareaId));
-        params = this.textArea.attr('data-params');
+        const ta = document.getElementById(textareaId);
+        this.textArea = $(ta);
+        const params = this.textArea.attr('data-params');
         if (params) {
             this.uiParams = JSON.parse(params);
         } else {
@@ -154,11 +155,19 @@ define(['jquery'], function($) {
         }
         this.uiParams.lang = this.textArea.attr('data-lang');
         this.readOnly = this.textArea.prop('readonly');
-        this.isLoading = false;  // True if we're busy loading a UI element
-        this.loadFailed = false;  // True if UI failed to initialise properly
-        this.retries = 0;        // Number of failed attempts to load a UI component
+        this.isLoading = false;   // True if we're busy loading a UI element.
+        this.loadFailed = false;  // True if UI failed to initialise properly.
+        this.retries = 0;         // Number of failed attempts to load a UI component.
 
-        h = Math.max(parseInt(this.textArea.css("height")), this.MIN_WRAPPER_HEIGHT);
+        let h = parseInt(this.textArea.css("height"));
+        let content_lines = this.textArea.val().split('\n').length;
+        let rows = ta.rows;
+        if (content_lines > rows) {
+            // Allow reloaded text areas with lots of text to grow bigger, within limits.
+            rows = Math.min(content_lines, MAX_GROWN_ROWS);
+            console.log("Grown rows: " + rows);
+        }
+        h = Math.max(h, rows * PIXELS_PER_ROW, MIN_WRAPPER_HEIGHT);
 
         /**
          * Construct an empty hidden wrapper div, inserted directly after the
@@ -203,7 +212,7 @@ define(['jquery'], function($) {
             }
         });
         $(document.body).on('keydown', function(e) {
-            var KEY_M = 77;
+            const KEY_M = 77;
             if (e.keyCode === KEY_M && e.ctrlKey && e.altKey) {
                 if (t.uiInstance !== null || t.loadFailed) {
                     t.stop();
@@ -226,7 +235,7 @@ define(['jquery'], function($) {
      * to the actual UI object.
      */
     InterfaceWrapper.prototype.loadUi = function(uiname, params) {
-        var t = this,
+        const t = this,
             errPart1 = 'Failed to load ',
             errPart2 = ' UI component. If this error persists, please report it to the forum on coderunner.org.nz';
 
@@ -243,7 +252,7 @@ define(['jquery'], function($) {
                 /**
                  * Get langString text via AJAX
                  */
-                var
+                const
                     s = str.get_string(langString, 'qtype_coderunner'),
                     fallback = str.get_string('ui_fallback', 'qtype_coderunner');
                 $.when(s, fallback).done(function(s, fallback) {
@@ -290,11 +299,9 @@ define(['jquery'], function($) {
             this.isLoading = true;
             require(['qtype_coderunner/ui_' + this.uiname],
                 function(ui) {
-                    var uiInstance,loadFailDiv, jqLoadFailDiv, h, w, uiInstancePrototype;
-
-                    h = t.wrapperNode.innerHeight() - t.GUTTER;
-                    w = t.wrapperNode.innerWidth();
-                    uiInstance = new ui.Constructor(t.taId, w, h, params);
+                    const h = t.wrapperNode.innerHeight() - t.GUTTER;
+                    const w = t.wrapperNode.innerWidth();
+                    const uiInstance = new ui.Constructor(t.taId, w, h, params);
                     if (uiInstance.failed()) {
                         /*
                          * Constructor failed to load serialisation.
@@ -305,8 +312,8 @@ define(['jquery'], function($) {
                         uiInstance.destroy();
                         t.uiInstance = null;
                         t.textArea.addClass('uiloadfailed');
-                        loadFailDiv = '<div id="' + t.loadFailId + '"class="uiloadfailed"></div>';
-                        jqLoadFailDiv = $(loadFailDiv);
+                        const loadFailDiv = '<div id="' + t.loadFailId + '"class="uiloadfailed"></div>';
+                        let jqLoadFailDiv = $(loadFailDiv);
                         jqLoadFailDiv.insertBefore(t.textArea);
                         setLoadFailMessage(uiInstance.failMessage(), jqLoadFailDiv);  // Insert error by AJAX
                     } else {
@@ -322,7 +329,7 @@ define(['jquery'], function($) {
                         /*
                          * Set a default syncIntervalSecs method if uiInstance lacks one.
                          */
-                        uiInstancePrototype = Object.getPrototypeOf(uiInstance);
+                        let uiInstancePrototype = Object.getPrototypeOf(uiInstance);
                         uiInstancePrototype.syncIntervalSecs = uiInstancePrototype.syncIntervalSecs || syncIntervalSecsBase;
                         t.startSyncTimer(uiInstance);
                     }
@@ -338,7 +345,7 @@ define(['jquery'], function($) {
      * timer is to be set up.
      */
     InterfaceWrapper.prototype.startSyncTimer = function(uiInstance) {
-        var timeout = uiInstance.syncIntervalSecs();
+        const timeout = uiInstance.syncIntervalSecs();
         if (timeout) {
             this.uiInstance.timer = setInterval(function () {
                 uiInstance.sync();
@@ -400,18 +407,16 @@ define(['jquery'], function($) {
      * Check for wrapper resize - propagate to ui element.
      */
     InterfaceWrapper.prototype.checkForResize = function() {
-
-        var h, hAdjusted, w, wAdjusted, xLeft, maxWidth;
-        var SIZE_HACK = 25;  // Horrible but best I can do. TODO: FIXME
+        const SIZE_HACK = 25;  // Horrible but best I can do. TODO: FIXME
 
         if (this.uiInstance) {
-            h = this.wrapperNode.innerHeight();
-            w = this.wrapperNode.innerWidth();
+            const h = this.wrapperNode.innerHeight();
+            const w = this.wrapperNode.innerWidth();
             if (h != this.hLast || w != this.wLast) {
-                xLeft = this.wrapperNode.offset().left;
-                maxWidth = $(window).innerWidth() - xLeft - SIZE_HACK;
-                hAdjusted = h - this.GUTTER;
-                wAdjusted = Math.min(maxWidth, w);
+                const xLeft = this.wrapperNode.offset().left;
+                const maxWidth = $(window).innerWidth() - xLeft - SIZE_HACK;
+                const hAdjusted = h - this.GUTTER;
+                const wAdjusted = Math.min(maxWidth, w);
                 this.uiInstance.resize(wAdjusted,  hAdjusted);
                 this.hLast = this.wrapperNode.innerHeight();
                 this.wLast = this.wrapperNode.innerWidth();
