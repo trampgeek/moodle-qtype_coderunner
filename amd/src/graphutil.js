@@ -128,37 +128,15 @@ define(function() {
         return e.which || e.keyCode;
     };
 
-    Util.prototype.crossBrowserElementPos = function(e) {
-        // Return the {x, y} location of the element in which event e occurred.
-        e = e || window.event;
-        var obj = e.target || e.srcElement;
-        var x = 0, y = 0;
-        while(obj.offsetParent) {
-            x += obj.offsetLeft;
-            y += obj.offsetTop;
-            obj = obj.offsetParent;
-        }
-        return { 'x': x, 'y': y };
-    };
-
-    Util.prototype.crossBrowserMousePos = function(e) {
-        // Return the {x, y} page coords (?) of the mouse position associated with event e.
-        e = e || window.event;
-        return {
-            'x': e.pageX || e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft,
-            'y': e.pageY || e.clientY + document.body.scrollTop + document.documentElement.scrollTop
-        };
-    };
 
     Util.prototype.crossBrowserRelativeMousePos = function(e) {
-        // Return the {x, y} location relative to the element within which the
-        // event occurred of the mouse position associated with event e.
-        var element = this.crossBrowserElementPos(e);
-        var mouse = this.crossBrowserMousePos(e);
-        return {
-            'x': mouse.x - element.x,
-            'y': mouse.y - element.y
-        };
+        // Earlier complex version was breaking in Moodle 4, so replaced
+        // with this much simpler version that should work with all modern
+        // browsers.
+        const rect = e.target.getBoundingClientRect();
+        const x = e.clientX - rect.left; //x position within the element.
+        const y = e.clientY - rect.top;  //y position within the element.
+        return {'x': x, 'y': y};
     };
 
     return new Util();
