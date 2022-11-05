@@ -165,7 +165,6 @@ define(['jquery'], function($) {
         if (content_lines > rows) {
             // Allow reloaded text areas with lots of text to grow bigger, within limits.
             rows = Math.min(content_lines, MAX_GROWN_ROWS);
-            console.log("Grown rows: " + rows);
         }
         h = Math.max(h, rows * PIXELS_PER_ROW, MIN_WRAPPER_HEIGHT);
 
