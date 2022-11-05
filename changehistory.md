@@ -1,5 +1,23 @@
 # CHANGE HISTORY
 
+### 5 November 2022. 5.1.0
+
+ * On review page, hide question author's answer by default with a link to
+   click to show it.
+ * Improve error message when the Moodle security settings are blocking the
+   Jobe connection.
+ * Increase size of Ace window when displaying more lines of code than will
+   fit the specified or default text area size.
+ * Bug fix: questions with student file attachments were sometimes not displaying
+   correctly in Moodle 4.0
+ * Bug fix: GraphUI plugin wasn't working in the question authoring page in Moodle 4.0
+ * Bug fix: Octave function question type was producing unhelpful "error sourcing
+   file" when the answer contained a syntax error and a more recent version
+   of Octave was being used.
+ * Improve testing by turning off alerts  when behat is running, plus other
+   tweaks.
+ * Some documentation tweaks.
+
 ### 5 September 2022. 5.0.1
 
  * Add uninstall instructions to Readme.md
