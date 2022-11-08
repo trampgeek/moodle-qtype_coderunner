@@ -24,6 +24,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace qtype_coderunner;
+
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
@@ -32,7 +34,7 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 /**
  * Unit tests for the coderunner question definition class.
  */
-class qtype_coderunner_pythonpylint_testcase extends qtype_coderunner_testcase {
+class pythonpylint_test extends \qtype_coderunner_testcase {
 
     public function test_pylint_func_good() {
         // Test that a python3_pylint question with a good pylint-compatible.
@@ -52,7 +54,7 @@ EOCODE;
         $response = array('answer' => $code);
         $result = $q->grade_response($response);
         list($mark, $grade, $cache) = $result;
-        $this->assertEquals(question_state::$gradedright, $grade);
+        $this->assertEquals(\question_state::$gradedright, $grade);
     }
 
     public function test_pylint_func_bad() {
@@ -68,6 +70,6 @@ EOCODE;
         $response = array('answer' => $code);
         $result = $q->grade_response($response);
         list($mark, $grade, $cache) = $result;
-        $this->assertEquals(question_state::$gradedwrong, $grade);
+        $this->assertEquals(\question_state::$gradedwrong, $grade);
     }
 }

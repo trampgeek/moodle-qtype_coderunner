@@ -24,6 +24,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace qtype_coderunner;
+
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
@@ -41,19 +43,19 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/helper.php');
 /** More extensive testing of penalty regime.
  */
 
-class qtype_coderunner_penaltyregime_testcase extends qbehaviour_walkthrough_test_base {
+class penaltyregime_test extends \qbehaviour_walkthrough_test_base {
 
     protected function setUp(): void {
         global $CFG;
         parent::setUp();
-        qtype_coderunner_testcase::setup_test_sandbox_configuration();
+        \qtype_coderunner_testcase::setup_test_sandbox_configuration();
     }
 
     // Support function to run the sqr question with the given penalty regime,
     // making $numbadattempts wrong submissions followed by a correct submission.
     // Check the resulting mark = $expected.
     public function run_with_regime($regime, $numbadattempts, $expected) {
-        $helper = new qtype_coderunner_test_helper();
+        $helper = new \qtype_coderunner_test_helper();
         $q = $helper->make_coderunner_question_sqr(array('penaltyregime' => $regime));
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
         for ($i = 1; $i <= $numbadattempts; $i++) {

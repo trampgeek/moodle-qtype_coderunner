@@ -26,6 +26,8 @@
 
 use qtype_coderunner\constants;
 
+namespace qtype_coderunner;
+
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
@@ -40,20 +42,20 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
  */
 
 
-class qtype_coderunner_walkthrough_testcase extends qbehaviour_walkthrough_test_base {
+class walkthrough_test extends \qbehaviour_walkthrough_test_base {
 
     protected function setUp(): void {
         parent::setUp();
-        qtype_coderunner_testcase::setup_test_sandbox_configuration();
+        \qtype_coderunner_testcase::setup_test_sandbox_configuration();
     }
 
     public function test_adaptive() {
-        $q = test_question_maker::make_question('coderunner', 'sqr');
+        $q = \test_question_maker::make_question('coderunner', 'sqr');
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
         $qa = $this->get_question_attempt();
 
         // Check the initial state.
-        $this->check_current_state(question_state::$todo);
+        $this->check_current_state(\question_state::$todo);
         $this->check_current_mark(null);
         $this->check_current_output(
                 $this->get_contains_marked_out_of_summary(),
@@ -69,7 +71,7 @@ class qtype_coderunner_walkthrough_testcase extends qbehaviour_walkthrough_test_
         $this->process_submission(array('-submit' => 1, 'answer' => ''));
 
         // Verify.
-        $this->check_current_state(question_state::$invalid);
+        $this->check_current_state(\question_state::$invalid);
         $this->check_current_mark(null);
         $this->check_current_output(
                 $this->get_contains_marked_out_of_summary(),
@@ -85,10 +87,10 @@ class qtype_coderunner_walkthrough_testcase extends qbehaviour_walkthrough_test_
         $this->process_submission(array('-submit' => 1, 'answer' => 'def sqr(n): return n'));
 
         // Verify.
-        $this->check_current_state(question_state::$todo);
+        $this->check_current_state(\question_state::$todo);
         $this->check_current_mark(0);
         $this->check_current_output(
-                new question_pattern_expectation('/' .
+                new \question_pattern_expectation('/' .
                         preg_quote(get_string('noerrorsallowed', 'qtype_coderunner') . '/'))
               );
         $this->assertEquals('Submit: def sqr(n): return n', $qa->summarise_action($qa->get_last_step()));
@@ -97,7 +99,7 @@ class qtype_coderunner_walkthrough_testcase extends qbehaviour_walkthrough_test_
         $this->process_submission(array('-submit' => 1, 'answer' => 'def sqr(n): return n * n'));
 
         // Verify.
-        $this->check_current_state(question_state::$complete);
+        $this->check_current_state(\question_state::$complete);
         $this->check_current_mark(0.9);
         $this->check_current_output(
                 $this->get_contains_correct_expectation(),
@@ -116,13 +118,13 @@ class qtype_coderunner_walkthrough_testcase extends qbehaviour_walkthrough_test_
         $generator = $this->getDataGenerator();
         $course = $generator->create_course();
         $user = $generator->create_user();
-        $coursecontext = context_course::instance($course->id);
+        $coursecontext = \context_course::instance($course->id);
         $generator->enrol_user($user->id, $course->id, 'editingteacher');
         $this->setUser($user);
         $PAGE->set_course($course);
 
         // Create the question we will test.
-        $q = test_question_maker::make_question('coderunner', 'sqr');
+        $q = \test_question_maker::make_question('coderunner', 'sqr');
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
 
         // Submit a wrong answer.
@@ -132,7 +134,7 @@ class qtype_coderunner_walkthrough_testcase extends qbehaviour_walkthrough_test_
         $this->assertTrue(has_capability('qtype/coderunner:viewhiddentestcases', $coursecontext));
 
         // Verify hidden cases are visible.
-        $this->check_current_state(question_state::$todo);
+        $this->check_current_state(\question_state::$todo);
         $this->check_current_mark(0);
         $this->render();
         $this->assertStringContainsString('print(sqr(-6))', $this->currentoutput);
@@ -148,17 +150,17 @@ class qtype_coderunner_walkthrough_testcase extends qbehaviour_walkthrough_test_
     }
 
     public function test_partial_marks() {
-        $q = test_question_maker::make_question('coderunner', 'sqr_part_marks');
+        $q = \test_question_maker::make_question('coderunner', 'sqr_part_marks');
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
 
          // Submit a totally wrong answer.
         $this->process_submission(array('-submit' => 1, 'answer' => 'def sqr(n): return -19'));
 
         // Verify.
-        $this->check_current_state(question_state::$todo);
+        $this->check_current_state(\question_state::$todo);
         $this->check_current_mark(0);
         $this->check_current_output(
-                new question_pattern_expectation('/' .
+                new \question_pattern_expectation('/' .
                         preg_quote(get_string('incorrect', 'question') . '/'))
               );
 
@@ -166,7 +168,7 @@ class qtype_coderunner_walkthrough_testcase extends qbehaviour_walkthrough_test_
         $this->process_submission(array('-submit' => 1, 'answer' => 'def sqr(n): return n * n if n < 0 else -19'));
         $this->check_current_mark(0.54);  // 4.5/7.5 * 90%.
         $this->check_current_output(
-                new question_pattern_expectation('/' .
+                new \question_pattern_expectation('/' .
                         preg_quote(get_string('partiallycorrect', 'question') . '/'))
               );
 
@@ -174,7 +176,7 @@ class qtype_coderunner_walkthrough_testcase extends qbehaviour_walkthrough_test_
         $this->process_submission(array('-submit' => 1, 'answer' => 'def sqr(n): return n * n'));
 
         // Verify.
-        $this->check_current_state(question_state::$complete);
+        $this->check_current_state(\question_state::$complete);
         $this->check_current_mark(0.8); // Full marks but 20% penalty after 2 wrong submissions.
         $this->check_current_output(
                 $this->get_contains_correct_expectation(),
@@ -187,12 +189,12 @@ class qtype_coderunner_walkthrough_testcase extends qbehaviour_walkthrough_test_
     // penalty (if no explicit regime - legacy test) or with CodeRunner's regime
     // if set.
     public function test_display_of_penalty_regime() {
-        $q = test_question_maker::make_question('coderunner', 'sqr');
+        $q = \test_question_maker::make_question('coderunner', 'sqr');
         $q->penaltyregime = '';
         $q->penalty = 0.18555555;
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
         $this->check_output_contains('penalty regime: 18.6, 37.1, ... %');
-                $q = test_question_maker::make_question('coderunner', 'sqr');
+                $q = \test_question_maker::make_question('coderunner', 'sqr');
         $q->penaltyregime = '0,11,33, ...';
         $q->penalty = 0.18555555;
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
@@ -204,7 +206,7 @@ class qtype_coderunner_walkthrough_testcase extends qbehaviour_walkthrough_test_
     // the system falls back to a per test template and that the final results
     // table includes all tests up to and including the failing test.
     public function test_behaviour_with_run_error() {
-        $q = test_question_maker::make_question('coderunner', 'sqr');
+        $q = \test_question_maker::make_question('coderunner', 'sqr');
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
         $answer = "def sqr(n): return n * n if n != 11 else x * x\n";
         $this->process_submission(array('-submit' => 1, 'answer' => $answer));
@@ -219,7 +221,7 @@ class qtype_coderunner_walkthrough_testcase extends qbehaviour_walkthrough_test_
 
 
     public function test_grading_template_output() {
-        $q = test_question_maker::make_question('coderunner', 'sqrnoprint');
+        $q = \test_question_maker::make_question('coderunner', 'sqrnoprint');
         $q->template = <<<EOTEMPLATE
 {{ STUDENT_ANSWER }}
 got = str({{TEST.testcode}})
@@ -242,10 +244,10 @@ EOTEMPLATE;
         $this->process_submission(array('-submit' => 1, 'answer' => 'def sqr(n): return -19'));
 
         // Verify.
-        $this->check_current_state(question_state::$todo);
+        $this->check_current_state(\question_state::$todo);
         $this->check_current_mark(0);
         $this->check_current_output(
-                new question_pattern_expectation('/' .
+                new \question_pattern_expectation('/' .
                         preg_quote(get_string('incorrect', 'question') . '/'))
               );
 
@@ -255,8 +257,8 @@ EOTEMPLATE;
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
         $this->process_submission(array('-submit' => 1, 'answer' => "def sqr(n): return n * n\n"));
         $this->check_current_mark(23.0 / 31.0);
-        $this->check_current_output( new question_pattern_expectation('/Tiddlypom/') );
-        $this->check_current_output( new question_pattern_expectation('/Twiddlydee/') );
+        $this->check_current_output( new \question_pattern_expectation('/Tiddlypom/') );
+        $this->check_current_output( new \question_pattern_expectation('/Twiddlydee/') );
     }
 
     /* Test that if a template grader sets an abort attribute in the returned
@@ -264,7 +266,7 @@ EOTEMPLATE;
      * at that point.
      */
     public function test_grading_template_abort() {
-        $q = test_question_maker::make_question('coderunner', 'sqrnoprint');
+        $q = \test_question_maker::make_question('coderunner', 'sqrnoprint');
         $q->template = <<<EOTEMPLATE
 {{ STUDENT_ANSWER }}
 got = {{TEST.testcode}}  # e.g. sqr(-11)
@@ -285,14 +287,14 @@ EOTEMPLATE;
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
         $this->process_submission(array('-submit' => 1, 'answer' => "def sqr(n): return n * n\n"));
         $this->check_current_mark(3.0 / 31.0);
-        $this->check_current_output( new question_pattern_expectation('/Twiddlydum/') );
+        $this->check_current_output( new \question_pattern_expectation('/Twiddlydum/') );
     }
 
     /**
      *  Test that HTML in result table cells is appropriately sanitised
      */
     public function test_result_table_sanitising() {
-        $q = test_question_maker::make_question('coderunner', 'sqr');
+        $q = \test_question_maker::make_question('coderunner', 'sqr');
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
         $qa = $this->get_question_attempt();
 
@@ -308,7 +310,7 @@ EOTEMPLATE;
            attribute. For a per-test template this is used in the results
            table as the raw html contents of the "got" column.
          */
-        $q = test_question_maker::make_question('coderunner', 'sqrnoprint');
+        $q = \test_question_maker::make_question('coderunner', 'sqrnoprint');
         $q->template = <<<EOTEMPLATE
 {{ STUDENT_ANSWER }}
 got = str({{TEST.testcode}})
@@ -332,15 +334,15 @@ EOTEMPLATE;
         $this->process_submission(array('-submit' => 1,
             'answer' => "def sqr(n): return -1 if n == 1 else n * n \n"));
         $this->check_current_mark(21.0 / 31.0);
-        $this->check_current_output( new question_pattern_expectation("|<svg width=.100. height=.200.></svg>|") );
-        $this->check_current_output( new question_pattern_expectation('/YeeHa/') );
-        $this->check_current_output( new question_pattern_expectation('|<h2>Header</h2>|') );
+        $this->check_current_output( new \question_pattern_expectation("|<svg width=.100. height=.200.></svg>|") );
+        $this->check_current_output( new \question_pattern_expectation('/YeeHa/') );
+        $this->check_current_output( new \question_pattern_expectation('|<h2>Header</h2>|') );
     }
 
 
     // Check that if Template Debugging is enabled, the source code appears.
     public function test_template_debugging() {
-        $q = test_question_maker::make_question('coderunner', 'sqr');
+        $q = \test_question_maker::make_question('coderunner', 'sqr');
         $q->showsource = 1;
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
         $this->process_submission(array('-submit' => 1,
@@ -352,7 +354,7 @@ EOTEMPLATE;
 
     // Check hidecheck option works.
     public function test_hide_check() {
-        $q = test_question_maker::make_question('coderunner', 'sqr');
+        $q = \test_question_maker::make_question('coderunner', 'sqr');
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
         $this->check_output_contains('Check');
         $q->hidecheck = 1;
@@ -361,13 +363,13 @@ EOTEMPLATE;
     }
 
     public function test_stop_button_always() {
-        $q = test_question_maker::make_question('coderunner', 'sqr');
+        $q = \test_question_maker::make_question('coderunner', 'sqr');
         $q->giveupallowed = constants::GIVEUP_ALWAYS;
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
         $qa = $this->get_question_attempt();
 
         // Check the initial state.
-        $this->check_current_state(question_state::$todo);
+        $this->check_current_state(\question_state::$todo);
         $this->check_current_mark(null);
         $this->check_current_output(
                 $this->get_contains_marked_out_of_summary(),
@@ -383,7 +385,7 @@ EOTEMPLATE;
         $this->process_submission(array('-submit' => 1, 'answer' => ''));
 
         // Verify.
-        $this->check_current_state(question_state::$invalid);
+        $this->check_current_state(\question_state::$invalid);
         $this->check_current_mark(null);
         $this->check_current_output(
                 $this->get_contains_marked_out_of_summary(),
@@ -399,10 +401,10 @@ EOTEMPLATE;
         $this->process_submission(array('-submit' => 1, 'answer' => 'def sqr(n): return n'));
 
         // Verify.
-        $this->check_current_state(question_state::$todo);
+        $this->check_current_state(\question_state::$todo);
         $this->check_current_mark(0);
         $this->check_current_output(
-                new question_pattern_expectation('/' .
+                new \question_pattern_expectation('/' .
                         preg_quote(get_string('noerrorsallowed', 'qtype_coderunner') . '/')),
                 $this->get_contains_stop_button_expectation());
         $this->assertEquals('Submit: def sqr(n): return n', $qa->summarise_action($qa->get_last_step()));
@@ -411,7 +413,7 @@ EOTEMPLATE;
         $this->process_submission(array('-submit' => 1, 'answer' => 'def sqr(n): return n * n'));
 
         // Verify.
-        $this->check_current_state(question_state::$complete);
+        $this->check_current_state(\question_state::$complete);
         $this->check_current_mark(0.9);
         $this->check_current_output(
                 $this->get_contains_correct_expectation(),
@@ -422,7 +424,7 @@ EOTEMPLATE;
 
         // Now click the Stop button.
         $this->process_submission(array('-finish' => 1, 'answer' => 'def sqr(n): return n * n'));
-        $this->check_current_state(question_state::$gradedright);
+        $this->check_current_state(\question_state::$gradedright);
         $this->check_current_mark(0.9);
         $this->check_current_output(
                 $this->get_contains_correct_expectation(),
@@ -435,17 +437,17 @@ EOTEMPLATE;
     }
 
     public function test_stop_button_always_never_answered() {
-        $q = test_question_maker::make_question('coderunner', 'sqr');
+        $q = \test_question_maker::make_question('coderunner', 'sqr');
         $q->giveupallowed = constants::GIVEUP_ALWAYS;
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
         $qa = $this->get_question_attempt();
 
         // Check the initial state.
-        $this->check_current_state(question_state::$todo);
+        $this->check_current_state(\question_state::$todo);
 
         // Click the Stop button.
         $this->process_submission(array('-finish' => 1, 'answer' => ''));
-        $this->check_current_state(question_state::$gaveup);
+        $this->check_current_state(\question_state::$gaveup);
         $this->check_current_mark(0);
         $this->check_current_output(
                 $this->get_does_not_contain_validation_error_expectation(),
@@ -464,13 +466,13 @@ EOTEMPLATE;
     }
 
     public function test_stop_button_after_max() {
-        $q = test_question_maker::make_question('coderunner', 'sqr');
+        $q = \test_question_maker::make_question('coderunner', 'sqr');
         $q->giveupallowed = constants::GIVEUP_AFTER_MAX_MARKS;
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
         $qa = $this->get_question_attempt();
 
         // Check the initial state.
-        $this->check_current_state(question_state::$todo);
+        $this->check_current_state(\question_state::$todo);
         $this->check_current_mark(null);
         $this->check_current_output(
                 $this->get_contains_marked_out_of_summary(),
@@ -486,7 +488,7 @@ EOTEMPLATE;
         $this->process_submission(array('-submit' => 1, 'answer' => ''));
 
         // Verify.
-        $this->check_current_state(question_state::$invalid);
+        $this->check_current_state(\question_state::$invalid);
         $this->check_current_mark(null);
         $this->check_current_output(
                 $this->get_contains_marked_out_of_summary(),
@@ -502,10 +504,10 @@ EOTEMPLATE;
         $this->process_submission(array('-submit' => 1, 'answer' => 'def sqr(n): return n'));
 
         // Verify.
-        $this->check_current_state(question_state::$todo);
+        $this->check_current_state(\question_state::$todo);
         $this->check_current_mark(0);
         $this->check_current_output(
-                new question_pattern_expectation('/' .
+                new \question_pattern_expectation('/' .
                         preg_quote(get_string('noerrorsallowed', 'qtype_coderunner') . '/')),
                 $this->get_does_not_contain_stop_button_expectation());
         $this->assertEquals('Submit: def sqr(n): return n', $qa->summarise_action($qa->get_last_step()));
@@ -514,7 +516,7 @@ EOTEMPLATE;
         $this->process_submission(array('-submit' => 1, 'answer' => 'def sqr(n): return n * n'));
 
         // Verify.
-        $this->check_current_state(question_state::$complete);
+        $this->check_current_state(\question_state::$complete);
         $this->check_current_mark(0.9);
         $this->check_current_output(
                 $this->get_contains_correct_expectation(),
@@ -527,7 +529,7 @@ EOTEMPLATE;
         $this->process_submission(array('-submit' => 1, 'answer' => 'wrong'));
 
         // Verify.
-        $this->check_current_state(question_state::$complete);
+        $this->check_current_state(\question_state::$complete);
         $this->check_current_mark(0.9);
         $this->check_current_output(
                 $this->get_contains_mark_summary(0.9),
@@ -539,7 +541,7 @@ EOTEMPLATE;
 
         // Now click the Stop button.
         $this->process_submission(array('-finish' => 1, 'answer' => 'wrong'));
-        $this->check_current_state(question_state::$gradedwrong);
+        $this->check_current_state(\question_state::$gradedwrong);
         $this->check_current_mark(0.9);
         $this->check_current_output(
                 $this->get_contains_incorrect_expectation(),
@@ -559,21 +561,21 @@ EOTEMPLATE;
     }
 
     public function test_stop_button_after_max_repeatedly_wrong() {
-        $q = test_question_maker::make_question('coderunner', 'sqr');
+        $q = \test_question_maker::make_question('coderunner', 'sqr');
         $q->penaltyregime = '50, 100';
         $q->giveupallowed = constants::GIVEUP_AFTER_MAX_MARKS;
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
         $qa = $this->get_question_attempt();
 
         // Check the initial state.
-        $this->check_current_state(question_state::$todo);
+        $this->check_current_state(\question_state::$todo);
         $this->check_current_mark(null);
 
         // Submit a wrong answer.
         $this->process_submission(array('-submit' => 1, 'answer' => 'def sqr(n): return n'));
 
         // Verify.
-        $this->check_current_state(question_state::$todo);
+        $this->check_current_state(\question_state::$todo);
         $this->check_current_mark(0);
         $this->check_current_output(
                 $this->get_does_not_contain_stop_button_expectation());
@@ -582,7 +584,7 @@ EOTEMPLATE;
         $this->process_submission(array('-submit' => 1, 'answer' => 'def sqr(n): return 2 * n'));
 
         // Verify - now not possible to improve.
-        $this->check_current_state(question_state::$todo);
+        $this->check_current_state(\question_state::$todo);
         $this->check_current_mark(0);
         $this->check_current_output(
                 $this->get_contains_correct_expectation(),
@@ -592,7 +594,7 @@ EOTEMPLATE;
 
         // Now click the Stop button.
         $this->process_submission(array('-finish' => 1, 'answer' => 'def sqr(n): return 2 * n'));
-        $this->check_current_state(question_state::$gradedwrong);
+        $this->check_current_state(\question_state::$gradedwrong);
         $this->check_current_mark(0);
         $this->check_current_output(
                 $this->get_contains_incorrect_expectation(),
@@ -603,7 +605,7 @@ EOTEMPLATE;
                 $qa->summarise_action($qa->get_last_step()));
     }
 
-    protected function get_contains_stop_button_expectation($enabled = null): question_contains_tag_with_attributes {
+    protected function get_contains_stop_button_expectation($enabled = null): \question_contains_tag_with_attributes {
         $expectedattributes = array(
             'type' => 'submit',
             'name' => $this->quba->get_field_prefix($this->slot) . '-finish',
@@ -614,11 +616,11 @@ EOTEMPLATE;
         } else if ($enabled === false) {
             $expectedattributes['disabled'] = 'disabled';
         }
-        return new question_contains_tag_with_attributes('input', $expectedattributes, $forbiddenattributes);
+        return new \question_contains_tag_with_attributes('input', $expectedattributes, $forbiddenattributes);
     }
 
-    protected function get_does_not_contain_stop_button_expectation(): question_no_pattern_expectation {
-        return new question_no_pattern_expectation('/name="' .
+    protected function get_does_not_contain_stop_button_expectation(): \question_no_pattern_expectation {
+        return new \question_no_pattern_expectation('/name="' .
             $this->quba->get_field_prefix($this->slot) . '-finish"/');
     }
 }

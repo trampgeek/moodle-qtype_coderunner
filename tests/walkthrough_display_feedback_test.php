@@ -25,6 +25,8 @@
  */
 
 
+namespace qtype_coderunner;
+
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
@@ -32,12 +34,12 @@ require_once($CFG->dirroot . '/question/engine/tests/helpers.php');
 require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 require_once($CFG->dirroot . '/question/type/coderunner/question.php');
 
-class qtype_coderunner_walkthrough_display_feedback_testcase extends qbehaviour_walkthrough_test_base {
+class walkthrough_display_feedback_test extends \qbehaviour_walkthrough_test_base {
 
     protected function setUp(): void {
         global $CFG;
         parent::setUp();
-        qtype_coderunner_testcase::setup_test_sandbox_configuration();
+        \qtype_coderunner_testcase::setup_test_sandbox_configuration();
     }
 
 
@@ -46,7 +48,7 @@ class qtype_coderunner_walkthrough_display_feedback_testcase extends qbehaviour_
      *  not if display feedback is set to 2.
      */
     public function test_display_feedback_adaptive() {
-        $q = test_question_maker::make_question('coderunner', 'sqr');
+        $q = \test_question_maker::make_question('coderunner', 'sqr');
         $this->assertEquals($q->displayfeedback, 1);
         $this->start_attempt_at_question($q, 'adaptive', 1);
         $this->process_submission(array('-submit' => 1,
@@ -72,7 +74,7 @@ class qtype_coderunner_walkthrough_display_feedback_testcase extends qbehaviour_
      *  (usually) correspond to that behaviour.
      */
     public function test_display_feedback_deferred() {
-        $q = test_question_maker::make_question('coderunner', 'sqr');
+        $q = \test_question_maker::make_question('coderunner', 'sqr');
         $q->displayfeedback = 0;  // Uses quiz feedback setting.
         $this->start_attempt_at_question($q, 'deferredfeedback', 1);
         $this->displayoptions->feedback = 0; // Seems we have to set this explicitly.

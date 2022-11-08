@@ -27,6 +27,8 @@
  */
 
 
+namespace qtype_coderunner;
+
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
@@ -34,12 +36,12 @@ require_once($CFG->dirroot . '/question/engine/tests/helpers.php');
 require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 require_once($CFG->dirroot . '/question/type/coderunner/question.php');
 
-class qtype_coderunner_walkthrough_multilang_testcase extends qbehaviour_walkthrough_test_base {
+class walkthrough_multilang_test extends \qbehaviour_walkthrough_test_base {
 
     protected function setUp(): void {
         global $CFG;
         parent::setUp();
-        qtype_coderunner_testcase::setup_test_sandbox_configuration();
+        \qtype_coderunner_testcase::setup_test_sandbox_configuration();
     }
 
     public function test_echostdin() {
@@ -62,7 +64,7 @@ public class InOut {
     }
 }"
         );
-        $q = test_question_maker::make_question('coderunner', 'multilang_echo_stdin');
+        $q = \test_question_maker::make_question('coderunner', 'multilang_echo_stdin');
 
         // Submit a right answer in all languages.
         foreach ($answers as $lang => $answer) {

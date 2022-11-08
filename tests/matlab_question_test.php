@@ -27,6 +27,8 @@
  */
 
 
+namespace qtype_coderunner;
+
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
@@ -36,7 +38,7 @@ require_once($CFG->dirroot . '/question/type/coderunner/question.php');
 /**
  * Unit tests for coderunner matlab questions
  */
-class qtype_coderunner_matlab_question_testcase extends qtype_coderunner_testcase {
+class matlab_question_test extends \qtype_coderunner_testcase {
 
     public function test_good_sqr_function() {
         $this->check_language_available('matlab');
@@ -44,7 +46,7 @@ class qtype_coderunner_matlab_question_testcase extends qtype_coderunner_testcas
         $response = array('answer' => "function sq = sqr(n)\n  sq = n * n;\nend\n");
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(1, $mark);
-        $this->assertEquals(question_state::$gradedright, $grade);
+        $this->assertEquals(\question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testoutcome = unserialize($cache['_testoutcome']);
         $this->assertEquals(4, count($testoutcome->testresults));
@@ -58,7 +60,7 @@ class qtype_coderunner_matlab_question_testcase extends qtype_coderunner_testcas
         $response = array('answer' => "function sq = sqr(n)\n  sq = n;\nend\n");
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(0, $mark);
-        $this->assertEquals(question_state::$gradedwrong, $grade);
+        $this->assertEquals(\question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testoutcome = unserialize($cache['_testoutcome']);
         $this->assertEquals(4, count($testoutcome->testresults));
@@ -72,7 +74,7 @@ class qtype_coderunner_matlab_question_testcase extends qtype_coderunner_testcas
         $response = array('answer' => "function sq = sqr(n)\n  sq = n;\nendd\n");
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(0, $mark);
-        $this->assertEquals(question_state::$gradedwrong, $grade);
+        $this->assertEquals(\question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testoutcome = unserialize($cache['_testoutcome']);
         $this->assertEquals(1, count($testoutcome->testresults));
@@ -93,7 +95,7 @@ EOT
         );
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(1, $mark);
-        $this->assertEquals(question_state::$gradedright, $grade);
+        $this->assertEquals(\question_state::$gradedright, $grade);
     }
 
 }
