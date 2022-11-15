@@ -1,0 +1,17 @@
+{
+    "name": "ui_html",
+    "parameters": {
+        "sync_interval_secs": {
+            "type": "int",
+            "default": 5
+        },
+        "html_src": {
+            "type": "string",
+            "default": "globalextra"
+        },
+        "enable_in_editor": {
+            "type": "boolean",
+            "default": true
+        }
+    }
+}
