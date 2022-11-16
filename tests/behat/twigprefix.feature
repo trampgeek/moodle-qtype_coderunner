@@ -1,5 +1,5 @@
 
-@qtype @qtype_coderunner @javascript @twigprefixtests @_alert
+@qtype @qtype_coderunner @javascript @twigprefixtests
 Feature: twigprefix
   When I define a template parameter __twigprefix__ in a prototype
   As a teacher
@@ -19,13 +19,15 @@ Feature: twigprefix
       | contextlevel | reference | questioncategory | name          |
       | Course       | C1        | Top              | Behat Testing |
     And I am on the "Course 1" "core_question > course question bank" page logged in as teacher1
+    And I set CodeRunner behat testing flag
+    And I disable UI plugins
     And I press "Create a new question ..."
     And I click on "input#item_qtype_coderunner" "css_element"
     And I press "submitbutton"
     And I set the field "id_coderunnertype" to "python3"
     And I set the field "name" to "PROTOTYPE_test_twigprefix"
     And I set the field "id_templateparams" to "print('{\"__twigprefix__\": \"{% macro blah() %}BingleyBeep{% endmacro %}\"}')"
-    And I set the field "id_templateparamslang" to "Python3" and dismiss the alert
+    And I set the field "id_templateparamslang" to "Python3"
     And I set the field "id_questiontext" to "Dummy question text"
     And I set the field "id_customise" to "1"
     And I set the field "id_useace" to "0"
