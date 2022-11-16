@@ -14,301 +14,116 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Implementation of the table_ui user interface plugin. For overall details
+ * Implementation of the html_ui user interface plugin. For overall details
  * of the UI plugin architecture, see userinterfacewrapper.js.
  *
  * This plugin replaces the usual textarea answer element with a div
- * containing an HTML table. The number of columns, and
- * the initial number of rows are specified by required UI parameters
- * num_columns and num_rows respectively.
- * Optional additional UI parameters are:
- *   1. column_headers: a list of strings that can be used to provide a
- *      fixed header row at the top.
- *   2. row_labels: a list of strings that can be used to provide a
- *      fixed row label column at the left.
- *   3. dynamic_rows, which, if true, allows the user to add rows.
- *   4. locked_cells: a list of [row, column] pairs, being the coordinates
- *      of table cells that cannot be changed by the user. row and column numbers
- *      are zero origin and do not include the header row or the row labels.
- *   5. width_percents: a list of the percentages of the width occupied
- *      by each column. This list must include a value for the row labels, if present.
+ * containing the author-supplied HTML. The serialisation of that HTML,
+ * which is what is essentially copied back into the textarea for submissions
+ * as the answer, is a JSON object. The fields of that object are the names
+ * of all author-supplied HTML elements with a class 'coderunner-ui-element';
+ * all such objects are expected to have a 'name' attribute as well. The
+ * associated field values are lists. Each list contains all the values, in
+ * document order, of the results of calling the jquery val() method in turn
+ * on each of the UI elements with that name.
+ * This means that at least input, select and textarea
+ * elements are supported. The author is responsible for checking the
+ * compatibility of other elements with jquery's val() method.
  *
- * The serialisation of the table, which is what is essentially copied back
- * into the textarea for submissions as the answer, is a JSON array. Each
- * element in the array is itself an array containing the values of one row
- * of the table. Empty cells are empty strings. The table header row and row
- * label columns are not provided in the serialisation.
+ * The HTML to use in the answer area must be provided as the contents of
+ * either the globalextra field or the prototypeextra field in the question
+ * authoring form. The choice of which is set by the html_src UI parameter, which
+ * must be either 'globalextra' or 'prototypeextra'.
  *
- * To preload the table with data, simply set the answer_preload of the question
- * to a json array of row values (each itself an array). If the number of rows
- * in the preload exceeds the number set by num_rows, extra rows are
- * added. If the number is less than num_rows, or if there is no
- * answer preload, undefined rows are simply left blank.
+ * If any fields of the answer html are to be preloaded, these should be specified
+ * in the answer preload with json of the form '{"<fieldName>": "<fieldValueList>",...}'
+ * where fieldValueList is a list of all the values to be assigned to the fields
+ * with the given name, in document order.
  *
- * As a special case of the serialisation, if all cells in the serialisation
- * are empty strings, the serialisation is itself the empty string.
+ * To accommodate the possibility of dynamic HTML, any leftover preload values,
+ * that is, values that cannot be positioned within the HTML either because
+ * there is no field of the required name or because, in the case of a list,
+ * there are insufficient elements, are assigned to the data['leftovers']
+ * attribute of the outer html div, as a sub-object of the original object.
+ * This outer div can be located as the 'closest' (in a jQuery sense)
+ * div.qtype-coderunner-html-outer-div. The author-supplied HTML must include
+ * JavaScript to make use of the 'leftovers'.
  *
- * @module qtype_coderunner/ui_table
- * @copyright  Richard Lobb, 2018, The University of Canterbury
+ * As a special case of the serialisation, if all values in the serialisation
+ * are either empty strings or a list of empty strings, the serialisation is
+ * itself the empty string.
+ *
+ * @module coderunner/ui_html
+ * @copyright  James Napier, 2022, The University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 define(['jquery'], function($) {
     /**
-     * Constructor for the TableUI object.
+     * Constructor for the DualBlobUi object.
      * @param {string} textareaId The ID of the html textarea.
      * @param {int} width The width in pixels of the textarea.
      * @param {int} height The height in pixels of the textarea.
      * @param {object} uiParams The UI parameter object.
      */
-    function TableUi(textareaId, width, height, uiParams) {
+    function DualBlobUi(textareaId, width, height, uiParams) {
         this.textArea = $(document.getElementById(textareaId));
-        this.readOnly = this.textArea.prop('readonly');
-        this.tableDiv = null;
-        this.uiParams = uiParams;
-        if (!uiParams.num_columns ||
-            !uiParams.num_rows) {
-            this.fail = true;
-            this.failString = 'table_ui_missingparams';
-            return;  // We're dead, fred.
-        }
+        this.textareaId = textareaId;
 
+        this.readOnly = this.textArea.prop('readonly');
+        this.uiParams = uiParams;
         this.fail = false;
-        this.lockedCells = uiParams.locked_cells || [];
-        this.hasHeader = uiParams.column_headers && uiParams.column_headers.length > 0 ? true : false;
-        this.hasRowLabels = uiParams.row_labels && uiParams.row_labels.length > 0 ? true : false;
-        this.numDataColumns = uiParams.num_columns;
-        this.rowsPerCell = uiParams.lines_per_cell || 2;
-        this.totNumColumns = this.numDataColumns + (this.hasRowLabels ? 1 : 0);
-        this.columnWidths = this.computeColumnWidths();
-        this.reload();
+
+        this.blobDiv = null;
+        this.reload(); // Draw my beautiful blobs.
     }
 
-    // Return an array of the percentage widths required for each of the
-    // totNumColumns columns.
-    TableUi.prototype.computeColumnWidths = function() {
-        var defaultWidth = Math.trunc(100 / this.totNumColumns),
-            columnWidths = [];
-        if (this.uiParams.column_width_percents && this.uiParams.column_width_percents.length > 0) {
-            return this.uiParams.column_width_percents;
-        } else if (Array.prototype.fill) { // Anything except bloody IE.
-            return new Array(this.totNumColumns).fill(defaultWidth);
-        } else { // IE. What else?
-            for (var i = 0; i < this.totNumColumns; i++) {
-                columnWidths.push(defaultWidth);
-            }
-            return columnWidths;
-        }
-    };
-
-    // Return True if the cell at the given row and column is locked.
-    // The given row and column numbers exclude column headers and row labels.
-    TableUi.prototype.isLockedCell = function(row, col) {
-        for (var i = 0; i < this.lockedCells.length; i++) {
-            if (this.lockedCells[i][0] == row && this.lockedCells[i][1] == col) {
-                return true;
-            }
-        }
-        return false;
-    };
-
-    TableUi.prototype.getElement = function() {
-        return this.tableDiv;
-    };
-
-    TableUi.prototype.failed = function() {
+    DualBlobUi.prototype.failed = function() {
         return this.fail;
     };
 
-    TableUi.prototype.failMessage = function() {
-        return this.failString;
+
+    DualBlobUi.prototype.failMessage = function() {
+        return 'DualBlobUiloadfail';
     };
 
-    // Copy the serialised version of the Table UI area to the TextArea.
-    TableUi.prototype.sync = function() {
-        var
-            serialisation = [],
-            empty = true,
-            tableRows = $(this.tableDiv).find('table tbody tr');
 
-        tableRows.each(function () {
-            var rowValues = [];
-            $(this).find('textarea').each(function () {
-                var cellVal = $(this).val();
-                rowValues.push(cellVal);
-                if (cellVal) {
-                    empty = false;
-                }
-            });
-            serialisation.push(rowValues);
+    // Copy the serialised version of the HTML UI area to the TextArea.
+    DualBlobUi.prototype.sync = function() {
+        let serialization = [];
+        $(this.blobDiv).find('textarea').each(function() {
+            serialization.push($(this).val());
         });
-
-        if (empty) {
-            this.textArea.val('');
-        } else {
-            this.textArea.val(JSON.stringify(serialisation));
-        }
+        this.textArea.val(JSON.stringify(serialization));
     };
 
-    // Return the HTML for row number iRow.
-    TableUi.prototype.tableRow = function(iRow, preload) {
-        var html = '<tr>', widthIndex = 0, width;
 
-        // Insert the row label if required.
-        if (this.hasRowLabels) {
-            width = this.columnWidths[0];
-            widthIndex = 1;
-            html += "<th style='padding-top:8px;text-align:center;width:" + width + "%' scope='row'>";
-            if (iRow < this.uiParams.row_labels.length) {
-                html += this.uiParams.row_labels[iRow];
-            }
-            html += "</th>";
-        }
-
-        for (var iCol = 0; iCol < this.numDataColumns; iCol++) {
-            width = this.columnWidths[widthIndex++];
-            html += "<td style='padding:2px;margin:0,width:" + width + "'%>";
-            html += '<textarea rows="' + this.rowsPerCell + '"';
-            html += ' style="width:100%;padding:0;resize:vertical;font-family: monospace"';
-            if (this.isLockedCell(iRow, iCol)) {
-                html += ' disabled>';
-            } else {
-                html += '>';
-            }
-            if (iRow < preload.length) {
-                html += preload[iRow][iCol];
-            }
-            html += '</textarea>';
-            html += "</td>";
-        }
-        html += '</tr>';
-        return html;
+    DualBlobUi.prototype.getElement = function() {
+        return this.blobDiv;
     };
 
-    // Return the HTML for the table's head section.
-    TableUi.prototype.tableHeadSection = function() {
-        var html = "<thead>\n",
-            colIndex = 0;  // Column index including row label if present.
 
-        if (this.hasHeader) {
-            html += "<tr>";
-
-            if (this.hasRowLabels) {
-                html += "<th style='width:" + this.columnWidths[0] + "%'></th>";
-                colIndex += 1;
-            }
-
-            for(var iCol = 0; iCol < this.numDataColumns; iCol++) {
-                html += "<th style='width:" + this.columnWidths[colIndex] + "%'>";
-                if (iCol < this.uiParams.column_headers.length) {
-                    html += this.uiParams.column_headers[iCol];
-                }
-                colIndex++;
-                html += "</th>";
-            }
-            html += "</tr>\n";
-        }
-        html += "</thead>\n";
-        return html;
+    DualBlobUi.prototype.reload = function() {
+        
+        let html = "<div style='height:fit-content'><textarea></textarea> <textarea></textarea></div>";
+        this.blobDiv = $(html);
     };
 
-    // Build the HTML table, filling it with the data from the serialisation
-    // currently in the textarea (if there is any).
-    TableUi.prototype.reload = function() {
-        var
-            preloadJson = $(this.textArea).val(), // JSON-encoded table values.
-            preload = [],
-            divHtml = "<div style='height:fit-content' class='qtype-coderunner-table-outer-div'>\n" +
-                      "<table class='table table-bordered qtype-coderunner_table'>\n";
+    DualBlobUi.prototype.resize = function() {}; // Nothing to see here. Move along please.
 
-        if (preloadJson) {
-            try {
-                preload = JSON.parse(preloadJson);
-            } catch(error)  {
-                this.fail = true;
-                this.failString = 'table_ui_invalidjson';
-                return;
-            }
-        }
-
-        try {
-            // Build the table head section.
-            divHtml += this.tableHeadSection();
-
-            // Build the table body. Each table cell has a textarea inside it,
-            // except for row labels (if present).
-            divHtml += "<tbody>\n";
-            var num_rows_required = Math.max(this.uiParams.num_rows, preload.length);
-            for (var iRow = 0; iRow < num_rows_required; iRow++) {
-                divHtml += this.tableRow(iRow, preload);
-            }
-
-            divHtml += '</tbody>\n</table>\n</div>';
-            this.tableDiv = $(divHtml);
-            if (this.uiParams.dynamic_rows) {
-                this.addButtons();
-            }
-        } catch (error) {
-            this.fail = true;
-            this.failString = 'table_ui_invalidserialisation';
-        }
-    };
-
-    // Add 'Add row' and 'Delete row' buttons at the end of the table.
-    TableUi.prototype.addButtons = function() {
-        var deleteButtonHtml = '<button type="button"' +
-                'style="float:right;margin-right:6px" disabled>Delete row</button>',
-            deleteButton = $(deleteButtonHtml),
-            t = this;
-        this.tableDiv.append(deleteButton);
-        deleteButton.click(function() {
-            var numRows = t.tableDiv.find('table tbody tr').length,
-                lastRow = t.tableDiv.find('tr:last');
-            if (numRows > t.uiParams.num_rows) {
-                lastRow.remove();
-            }
-            lastRow = t.tableDiv.find('tr:last'); // New last row.
-            if (numRows == t.uiParams.num_rows + 1) {
-                $(this).prop('disabled', true);
-            }
-        });
-
-        var addButtonHtml = '<button type="button"' +
-                'style="float:right;margin-right:6px">Add row</button>',
-            addButton = $(addButtonHtml);
-        t.tableDiv.append(addButton);
-        addButton.click(function() {
-            var lastRow, newRow;
-            lastRow = t.tableDiv.find('table tbody tr:last');
-            newRow = lastRow.clone();  // Copy the last row of the table.
-            newRow.find('textarea').each(function() {  // Clear all td elements in it.
-                $(this).val('');
-            });
-            lastRow.after(newRow);
-            $(this).prev().prop('disabled', false);
-        });
-    };
-
-    TableUi.prototype.resize = function() {}; // Nothing to see here. Move along please.
-
-    TableUi.prototype.hasFocus = function() {
-        var focused = false;
-        $(this.tableDiv).find('textarea').each(function() {
-            if (this === document.activeElement) {
-                focused = true;
-            }
-        });
-        return focused;
+    DualBlobUi.prototype.hasFocus = function() {
+        // TODO.
+        return true;
     };
 
     // Destroy the HTML UI and serialise the result into the original text area.
-    TableUi.prototype.destroy = function() {
+    DualBlobUi.prototype.destroy = function() {
         this.sync();
-        $(this.tableDiv).remove();
-        this.tableDiv = null;
+        $(this.blobDiv).remove();
+        this.blobDiv = null;
     };
 
     return {
-        Constructor: TableUi
+        Constructor: DualBlobUi
     };
 });
