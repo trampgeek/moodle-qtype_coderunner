@@ -112,7 +112,7 @@ define(['jquery'], function($) {
             preload = JSON.parse(preloadString);
         }
         preload.forEach( (item) => {
-            html += "<textarea>" + item + "</textarea>";
+            html += "<textarea style='width:100%;height:250px'>" + item + "</textarea>";
         });
         html += "</div>";
         this.blobDiv = $(html);
