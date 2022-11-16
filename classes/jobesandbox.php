@@ -313,6 +313,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
             $servers = array_values(array_filter(array_map('trim', explode(';', $jobe)), 'strlen'));
             $jobe = $servers[intval($this->currentjobid, 16) % count($servers)];
         }
+        $jobe = trim($jobe); // Remove leading or trailing extra whitespace from the settings.
         $protocol = 'http://';
         $url = (strpos($jobe, 'http') === 0 ? $jobe : $protocol.$jobe)."/jobe/index.php/restapi/$resource";
 
