@@ -105,7 +105,19 @@ define(['jquery'], function($) {
 
     DualBlobUi.prototype.reload = function() {
         
-        let html = "<div style='height:fit-content'><textarea></textarea> <textarea></textarea></div>";
+        let 
+            html = "<div style='height:fit-content'>",
+            preloadString = $(this.textArea).val();
+            preload = ["", ""];
+        if (preloadString) {
+            preload = JSON.parse(preloadString);
+        };
+        
+        preload.forEach( (item) => {
+            html += "<textarea>" + item + "</textarea>";
+        });
+        html += "</div>";
+        
         this.blobDiv = $(html);
     };
 
