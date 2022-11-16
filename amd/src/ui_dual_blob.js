@@ -54,6 +54,7 @@
  * itself the empty string.
  *
  * @module coderunner/ui_html
+ * @copyright  Richard Lobb, 2022, The University of Canterbury
  * @copyright  James Napier, 2022, The University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -90,11 +91,33 @@ define(['jquery'], function($) {
 
     // Copy the serialised version of the HTML UI area to the TextArea.
     DualBlobUi.prototype.sync = function() {
-        let serialization = [];
-        $(this.blobDiv).find('textarea').each(function() {
-            serialization.push($(this).val());
-        });
-        this.textArea.val(JSON.stringify(serialization));
+//        let serialisation = {};
+//        this.getFields().each(function() {
+//            let value,
+//                name = $(this).attr('name'),
+//                type = $(this).attr('type');
+//            
+//            if ((type === 'checkbox' || type === 'radio') && !($(this).is(':checked'))) {
+//                value = '';
+//            } else {
+//                value = $(this).val();
+//            }
+//            if (serialisation.hasOwnProperty(name)) {
+//                serialisation[name].push(value);
+//            } else {
+//                serialisation[name] = [value];
+//            }
+//            
+//        });
+//        
+////        $(this.blobDiv).find('textarea').each(function() {
+////            serialization.push($(this).val());
+////        });
+        let serialisation = {
+            answer_code: '',
+            test_code: ''
+        };
+        this.textArea.val(JSON.stringify(serialisation));
     };
 
 
@@ -103,22 +126,39 @@ define(['jquery'], function($) {
     };
 
 
+    DualBlobUi.prototype.getFields = function() {
+        return $(this.blobDiv).find('.coderunner-ui-element');
+    };
+
+
     DualBlobUi.prototype.reload = function() {
         let
             html = "<div style='height:fit-content'>",
             preloadString = $(this.textArea).val(),
-            preload = ["", ""];
-        try {
-            if (preloadString) {
-                preload = JSON.parse(preloadString);
-            }
-        } catch (error) {
-            this.fail = true;
-            this.failString = 'blob_ui_invalidserialisation';
-        }
-        preload.forEach(( item ) => {
-            html += "<textarea style='width:100%;height:250px'>" + item + "</textarea>";
-        });
+            preload = {
+                answer_code: ['e'],
+                test_code: ['a']
+            };
+
+//        try {
+//            if (preloadString) {
+//                preload = JSON.parse(preloadString);
+//            }
+//        } catch (error) {
+//            this.fail = true;
+//            this.failString = 'blob_ui_invalidserialisation';
+//            return;
+//        }
+//        // { .answer_code .test_code }
+//        preload.forEach(( item ) => {
+//            html += `<textarea style='width:100%;height:250px'>${item}</textarea>`;
+//        });
+        function textArea(text) {
+            return`<textarea class='coderunner-ui-element' style='width:100%;height:250px'>${text}</textarea>`;
+        };
+        html += textArea(preload['answer_code']);
+        html += "<button class='coderunner-ui-element'>Show/Hide</button>";
+        html += textArea(preload['test_code']);
         html += "</div>";
         this.blobDiv = $(html);
     };
