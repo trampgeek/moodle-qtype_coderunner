@@ -108,10 +108,15 @@ define(['jquery'], function($) {
             html = "<div style='height:fit-content'>",
             preloadString = $(this.textArea).val(),
             preload = ["", ""];
-        if (preloadString) {
-            preload = JSON.parse(preloadString);
+        try {
+            if (preloadString) {
+                preload = JSON.parse(preloadString);
+            }
+        } catch (error) {
+            this.fail = true;
+            this.failString = 'blob_ui_invalidserialisation';
         }
-        preload.forEach( (item) => {
+        preload.forEach(( item ) => {
             html += "<textarea style='width:100%;height:250px'>" + item + "</textarea>";
         });
         html += "</div>";
@@ -121,8 +126,13 @@ define(['jquery'], function($) {
     DualBlobUi.prototype.resize = function() {}; // Nothing to see here. Move along please.
 
     DualBlobUi.prototype.hasFocus = function() {
-        // TODO.
-        return true;
+        let focused = false;
+        $(this.blobDiv).find('textarea').each(function() {
+            if (this === document.activeElement) {
+                focused = true;
+            }
+        });
+        return focused;
     };
 
     // Destroy the HTML UI and serialise the result into the original text area.
