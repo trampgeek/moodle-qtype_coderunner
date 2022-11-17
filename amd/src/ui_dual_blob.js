@@ -114,8 +114,8 @@ define(['jquery'], function($) {
 ////            serialization.push($(this).val());
 ////        });
         let serialisation = {
-            answer_code: '',
-            test_code: ''
+            answer_code: [''],
+            test_code: ['']
         };
         this.textArea.val(JSON.stringify(serialisation));
     };
@@ -136,29 +136,26 @@ define(['jquery'], function($) {
             html = "<div style='height:fit-content'>",
             preloadString = $(this.textArea).val(),
             preload = {
-                answer_code: ['e'],
-                test_code: ['a']
+                answer_code: [''],
+                test_code: ['']
             };
 
-//        try {
-//            if (preloadString) {
-//                preload = JSON.parse(preloadString);
-//            }
-//        } catch (error) {
-//            this.fail = true;
-//            this.failString = 'blob_ui_invalidserialisation';
-//            return;
-//        }
-//        // { .answer_code .test_code }
-//        preload.forEach(( item ) => {
-//            html += `<textarea style='width:100%;height:250px'>${item}</textarea>`;
-//        });
-        function textArea(text) {
-            return`<textarea class='coderunner-ui-element' style='width:100%;height:250px'>${text}</textarea>`;
-        };
-        html += textArea(preload['answer_code']);
+        try {
+            if (preloadString) {
+                preload = JSON.parse(preloadString);
+            }
+        } catch (error) {
+            this.fail = true;
+            this.failString = 'blob_ui_invalidserialisation';
+            return;
+        }
+
+        function textArea(name, text) {
+            return`<textarea class='coderunner-ui-element' name='${name}' style='width:100%;height:250px'>${text}</textarea>`;
+        }
+        html += textArea('answer_code', preload['answer_code']);
         html += "<button class='coderunner-ui-element'>Show/Hide</button>";
-        html += textArea(preload['test_code']);
+        html += textArea('test_code', preload['test_code']);
         html += "</div>";
         this.blobDiv = $(html);
     };
