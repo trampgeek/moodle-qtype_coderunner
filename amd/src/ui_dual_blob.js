@@ -93,10 +93,9 @@ define(['jquery'], function($) {
     DualBlobUi.prototype.sync = function() {
         let serialisation = {};
         this.getFields().each(function() {
-            let value,
-                name = $(this).attr('name'),
-                type = $(this).attr('type');
-
+            const name = $(this).attr('name');
+            const type = $(this).attr('type');
+            let value;
             if ((type === 'checkbox' || type === 'radio') && !($(this).is(':checked'))) {
                 value = '';
             } else {
@@ -123,16 +122,18 @@ define(['jquery'], function($) {
 
 
     DualBlobUi.prototype.reload = function() {
-        let
-            html = "<div style='height:fit-content'>",
-            preloadString = $(this.textArea).val(),
-            preload = {
+        const preloadString = $(this.textArea).val();
+        let html = "<div>";
+        let preload = {
                 answer_code: [''],
-                test_code: ['']
+                test_code: [''],
+                show_hide: [''],
+                prefix_ans: ['']
             };
 
         try {
             if (preloadString) {
+                console.log(preloadString);
                 preload = JSON.parse(preloadString);
             }
         } catch (error) {
@@ -144,9 +145,9 @@ define(['jquery'], function($) {
         * Create text area...
         * @param {string} name The ID of the html textarea.
         * @return {string} text area html string.
-        * */
+        */
         function html_textArea(name) {
-            return`<textarea
+            return `<textarea
                     class='coderunner-ui-element' 
                     name='${name}' 
                     style='width:100%;height:250px'>${preload[name]}</textarea>`;
@@ -154,21 +155,22 @@ define(['jquery'], function($) {
         /**
         * Create text area...
         * @param {string} name The ID of the html input.
-        *  @param {string} type trype of the html input.
+        * @param {string} type trype of the html input.
         * @return {string} text area html string.
-        * */
+        */
         function html_input(name, type) {
             return`<input
                     type='${type}'
+                    
                     class='coderunner-ui-element' 
                     name='${name}' 
-                    style='width:100%;height:250px'>${preload[name]}</textarea>`;
+                    value='${preload[name]}'>`;
         }
-        html += html_textArea('answer_code', preload['answer_code']);
-//        html += "<button type='button' class='coderunner-ui-element'>Show/Hide</button>";
+        console.log(preload);
+        html += html_textArea('answer_code');
         html += html_input('show_hide', 'button');
         html += html_input('prefix_ans', 'checkbox');
-        html += html_textArea('test_code', preload['test_code']);
+        html += html_textArea('test_code');
         html += "</div>";
         this.blobDiv = $(html);
     };
