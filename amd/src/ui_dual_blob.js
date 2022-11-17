@@ -96,7 +96,8 @@ define(['jquery'], function($) {
             const name = $(this).attr('name');
             const type = $(this).attr('type');
             let value;
-            if ((type === 'checkbox' || type === 'radio')) {
+            // Is checking a an hack?
+            if ((type === 'checkbox' || type === 'radio' || type === 'a')) {
                 value = $(this).is(':checked') ? '1' :'';
             } else {
                 value = $(this).val();
@@ -133,7 +134,6 @@ define(['jquery'], function($) {
 
         try {
             if (preloadString) {
-                console.log(preloadString);
                 preload = JSON.parse(preloadString);
             }
         } catch (error) {
@@ -159,7 +159,7 @@ define(['jquery'], function($) {
         * @return {string} text area html string.
         */
         function html_input(name, type) {
-            const checked = (preload[name][0]) ? 'checked' : ''; 
+            const checked = (preload[name][0]) ? 'checked' : '';
             return`<input
                     type='${type}'
                     ${checked}
@@ -167,10 +167,8 @@ define(['jquery'], function($) {
                     name='${name}' 
                     value='${preload[name]}'>`;
         }
-        console.log(preload);
         html += html_textArea('answer_code');
-        html += html_input('show_hide', 'button');
-
+        html += html_input('show_hide', 'checkbox');
         html += html_textArea('test_code');
         html += html_input('prefix_ans', 'checkbox');
         html += '<input type="button" value="run">';
