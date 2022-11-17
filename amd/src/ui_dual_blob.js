@@ -91,32 +91,23 @@ define(['jquery'], function($) {
 
     // Copy the serialised version of the HTML UI area to the TextArea.
     DualBlobUi.prototype.sync = function() {
-//        let serialisation = {};
-//        this.getFields().each(function() {
-//            let value,
-//                name = $(this).attr('name'),
-//                type = $(this).attr('type');
-//            
-//            if ((type === 'checkbox' || type === 'radio') && !($(this).is(':checked'))) {
-//                value = '';
-//            } else {
-//                value = $(this).val();
-//            }
-//            if (serialisation.hasOwnProperty(name)) {
-//                serialisation[name].push(value);
-//            } else {
-//                serialisation[name] = [value];
-//            }
-//            
-//        });
-//        
-////        $(this.blobDiv).find('textarea').each(function() {
-////            serialization.push($(this).val());
-////        });
-        let serialisation = {
-            answer_code: [''],
-            test_code: ['']
-        };
+        let serialisation = {};
+        this.getFields().each(function() {
+            let value,
+                name = $(this).attr('name'),
+                type = $(this).attr('type');
+
+            if ((type === 'checkbox' || type === 'radio') && !($(this).is(':checked'))) {
+                value = '';
+            } else {
+                value = $(this).val();
+            }
+            if (serialisation.hasOwnProperty(name)) {
+                serialisation[name].push(value);
+            } else {
+                serialisation[name] = [value];
+            }
+        });
         this.textArea.val(JSON.stringify(serialisation));
     };
 
@@ -149,9 +140,16 @@ define(['jquery'], function($) {
             this.failString = 'blob_ui_invalidserialisation';
             return;
         }
-
-        function textArea(name, text) {
-            return`<textarea class='coderunner-ui-element' name='${name}' style='width:100%;height:250px'>${text}</textarea>`;
+        /**
+        * Create text area...
+        * @param {string} name The ID of the html textarea.
+        * @return {string} text area html string.
+        * */
+        function textArea(name) {
+            return`<textarea
+                    class='coderunner-ui-element' 
+                    name='${name}' 
+                    style='width:100%;height:250px'>${preload[name]}</textarea>`;
         }
         html += textArea('answer_code', preload['answer_code']);
         html += "<button class='coderunner-ui-element'>Show/Hide</button>";
