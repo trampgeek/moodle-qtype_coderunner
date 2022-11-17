@@ -145,15 +145,30 @@ define(['jquery'], function($) {
         * @param {string} name The ID of the html textarea.
         * @return {string} text area html string.
         * */
-        function textArea(name) {
+        function html_textArea(name) {
             return`<textarea
                     class='coderunner-ui-element' 
                     name='${name}' 
                     style='width:100%;height:250px'>${preload[name]}</textarea>`;
         }
-        html += textArea('answer_code', preload['answer_code']);
-        html += "<button class='coderunner-ui-element'>Show/Hide</button>";
-        html += textArea('test_code', preload['test_code']);
+        /**
+        * Create text area...
+        * @param {string} name The ID of the html input.
+        *  @param {string} type trype of the html input.
+        * @return {string} text area html string.
+        * */
+        function html_input(name, type) {
+            return`<input
+                    type='${type}'
+                    class='coderunner-ui-element' 
+                    name='${name}' 
+                    style='width:100%;height:250px'>${preload[name]}</textarea>`;
+        }
+        html += html_textArea('answer_code', preload['answer_code']);
+//        html += "<button type='button' class='coderunner-ui-element'>Show/Hide</button>";
+        html += html_input('show_hide', 'button');
+        html += html_input('prefix_ans', 'checkbox');
+        html += html_textArea('test_code', preload['test_code']);
         html += "</div>";
         this.blobDiv = $(html);
     };
