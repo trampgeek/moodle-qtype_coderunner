@@ -96,8 +96,8 @@ define(['jquery'], function($) {
             const name = $(this).attr('name');
             const type = $(this).attr('type');
             let value;
-            if ((type === 'checkbox' || type === 'radio') && !($(this).is(':checked'))) {
-                value = '';
+            if ((type === 'checkbox' || type === 'radio')) {
+                value = $(this).is(':checked') ? '1' :'';
             } else {
                 value = $(this).val();
             }
@@ -159,9 +159,10 @@ define(['jquery'], function($) {
         * @return {string} text area html string.
         */
         function html_input(name, type) {
+            const checked = (preload[name][0]) ? 'checked' : ''; 
             return`<input
                     type='${type}'
-                    
+                    ${checked}
                     class='coderunner-ui-element' 
                     name='${name}' 
                     value='${preload[name]}'>`;
@@ -169,8 +170,11 @@ define(['jquery'], function($) {
         console.log(preload);
         html += html_textArea('answer_code');
         html += html_input('show_hide', 'button');
-        html += html_input('prefix_ans', 'checkbox');
+
         html += html_textArea('test_code');
+        html += html_input('prefix_ans', 'checkbox');
+        html += '<input type="button" value="run">';
+
         html += "</div>";
         this.blobDiv = $(html);
     };
