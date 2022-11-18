@@ -180,14 +180,14 @@ define(['jquery'], function ($) {
         this.blobDiv = $(html);
         const showButton = $(this.html_input('show_hide', preload['show_hide'], 'checkbox'));
         this.blobDiv.append(showButton);
-        
+
         // Scratchpad.
         this.scratchpadDiv = $('<div></div>');
         if (!preload.show_hide[0]) {
             $(this.scratchpadDiv).hide();
         }
         html = this.html_textArea('test_code', preload['test_code']);
-        html += this.html_input('input', 'prefix_ans', 'checkbox');
+        html += this.html_input('prefix_ans', preload['prefix_ans'], 'checkbox');
         html += '<input type="button" value="run">';
         $(this.scratchpadDiv).append($(html));
         $(this.blobDiv).append(this.scratchpadDiv);
