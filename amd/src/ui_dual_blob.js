@@ -59,7 +59,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['jquery'], function($) {
+define(['jquery'], function ($) {
     /**
      * Constructor for the DualBlobUi object.
      * @param {string} textareaId The ID of the html textarea.
@@ -80,26 +80,26 @@ define(['jquery'], function($) {
         this.reload(); // Draw my beautiful blobs.
     }
 
-    DualBlobUi.prototype.failed = function() {
+    DualBlobUi.prototype.failed = function () {
         return this.fail;
     };
 
 
-    DualBlobUi.prototype.failMessage = function() {
+    DualBlobUi.prototype.failMessage = function () {
         return 'DualBlobUiloadfail';
     };
 
 
     // Copy the serialised version of the HTML UI area to the TextArea.
-    DualBlobUi.prototype.sync = function() {
+    DualBlobUi.prototype.sync = function () {
         let serialisation = {};
-        this.getFields().each(function() {
+        this.getFields().each(function () {
             const name = $(this).attr('name');
             const type = $(this).attr('type');
             let value;
             // Is checking a an hack? TODO: fix.
             if ((type === 'checkbox' || type === 'radio' || type === 'a')) {
-                value = $(this).is(':checked') ? '1' :'';
+                value = $(this).is(':checked') ? '1' : '';
             } else {
                 value = $(this).val();
             }
@@ -113,35 +113,37 @@ define(['jquery'], function($) {
     };
 
 
-    DualBlobUi.prototype.getElement = function() {
+    DualBlobUi.prototype.getElement = function () {
         return this.blobDiv;
     };
 
 
-    DualBlobUi.prototype.getFields = function() {
+    DualBlobUi.prototype.getFields = function () {
         return $(this.blobDiv).find('.coderunner-ui-element');
     };
-    
-    
+
+
     /**
-    * Create text area...
-    * @param {string} name The ID of the html textarea.
-    * @return {string} text area html string.
-    */
-    DualBlobUi.prototype.html_textArea = function(name, value) {
-            return `<textarea
+     * Create text area...
+     * @param {string} name The ID of the html textarea.
+     * @param {string} value The ID of the html textarea.
+     * @return {string} value area html string.
+     */
+    DualBlobUi.prototype.html_textArea = function (name, value) {
+        return `<textarea
                     class='coderunner-ui-element' 
                     name='${name}' 
                     style='width:100%;height:250px'>${value}</textarea>`;
-        };
+    };
 
     /**
-    * Create text area...
-    * @param {string} name The ID of the html input.
-    * @param {string} type trype of the html input.
-    * @return {string} text area html string.
-    */
-    DualBlobUi.prototype.html_input = function(name, value, type) {
+     * Create text area...
+     * @param {string} name The ID of the html input.
+     * @param {string} value trype of the html input.
+     * @param {string} type trype of the html input.
+     * @return {string} type area html string.
+     */
+    DualBlobUi.prototype.html_input = function (name, value, type) {
         const checked = (value[0]) ? 'checked' : '';
         return`<input
                 type='${type}'
@@ -149,22 +151,18 @@ define(['jquery'], function($) {
                 class='coderunner-ui-element' 
                 name='${name}' 
                 value='${value}'>`;
-    }
-//
-//    DualBlobUi.prototype.addScratchpad = function() {
-//        //no.
-//    };
-//    
-//    
-    DualBlobUi.prototype.reload = function() {
+    };
+
+
+    DualBlobUi.prototype.reload = function () {
         const preloadString = $(this.textArea).val();
         let html = "<div>";
         let preload = {
-                answer_code: [''],
-                test_code: [''],
-                show_hide: [''],
-                prefix_ans: ['']
-            };
+            answer_code: [''],
+            test_code: [''],
+            show_hide: [''],
+            prefix_ans: ['']
+        };
 
         try {
             if (preloadString) {
@@ -177,37 +175,33 @@ define(['jquery'], function($) {
         }
 
         html += this.html_textArea('answer_code', preload['answer_code']);
-        
+
         html += '</div>';
         this.blobDiv = $(html);
-        const showButton =  $(this.html_input('show_hide', preload['show_hide'], 'checkbox'));
+        const showButton = $(this.html_input('show_hide', preload['show_hide'], 'checkbox'));
         this.blobDiv.append(showButton);
-        
-        
-        
+
+
+
         // Scratchpad.
         this.scratchpadDiv = $(`<div></div>`);
         html = this.html_textArea('test_code', preload['test_code']);
-        html += this.html_input('input','prefix_ans', 'checkbox');
+        html += this.html_input('input', 'prefix_ans', 'checkbox');
         html += '<input type="button" value="run">';
         $(this.scratchpadDiv).append($(html));
         $(this.blobDiv).append(this.scratchpadDiv);
-        
-        let t = this;
-        $(showButton).click(function() {
-//            $(t.scratchpadDiv).prop('hidden', false)
-              $(t.scratchpadDiv).toggle();
-        });
 
-        
-        
+        const t = this;
+        $(showButton).click(function () {
+            $(t.scratchpadDiv).toggle();
+        });
     };
 
-    DualBlobUi.prototype.resize = function() {}; // Nothing to see here. Move along please.
+    DualBlobUi.prototype.resize = function () {}; // Nothing to see here. Move along please.
 
-    DualBlobUi.prototype.hasFocus = function() {
+    DualBlobUi.prototype.hasFocus = function () {
         let focused = false;
-        $(this.blobDiv).find('textarea').each(function() {
+        $(this.blobDiv).find('textarea').each(function () {
             if (this === document.activeElement) {
                 focused = true;
             }
@@ -216,7 +210,7 @@ define(['jquery'], function($) {
     };
 
     // Destroy the HTML UI and serialise the result into the original text area.
-    DualBlobUi.prototype.destroy = function() {
+    DualBlobUi.prototype.destroy = function () {
         this.sync();
         $(this.blobDiv).remove();
         this.blobDiv = null;
