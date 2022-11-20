@@ -154,20 +154,22 @@ define(['jquery'], function ($) {
     };
 
 
-    DualBlobUi.prototype.handleRunButtonClick = async function (ajax, text) {
+    DualBlobUi.prototype.handleRunButtonClick = async function (ajax, outputDisplayArea, code) {
         ajax.call([{
                     methodname: 'qtype_coderunner_run_in_sandbox',
                     args: {
                         contextid: M.cfg.contextid, // Moodle context ID
-                        sourcecode: "print('hello world')",
+                        sourcecode: code,
                         language: 'python3'
                     },
                     done: function(responseJson) {
-                        var response = JSON.parse(responseJson);
+                        const response = JSON.parse(responseJson);
                         if (response.error !== 0 || response.result !== 15) {
                             alert("Oops: " + responseJson);
                         } else {
-                            alert("Output was: '" + response.output + "'");
+                            //alert("Output was: '" + response.output + "'");
+                            outputDisplayArea.html(response.output);
+                            outputDisplayArea.show();
                         }
                     },
                     fail: function(error) {
@@ -221,10 +223,14 @@ define(['jquery'], function ($) {
                               run</button>`);
         require(['core/ajax'], function(ajax) {
             runButton.on('click', function() {
-                t.handleRunButtonClick(ajax, preload.test_code);
+                t.handleRunButtonClick(ajax, outputDisplayArea, preload.test_code[0]);
             });
         });
+        const outputDisplayArea = $("<pre style='width:100%;white-space:pre-wrap;background-color:#eff;" +
+                "border:1px gray;padding:5px;overflow-wrap:break-word;max-height:600px;overflow:auto;'></pre>");
+        outputDisplayArea.hide();
         this.scratchpadDiv.append(runButton);
+         this.scratchpadDiv.append(outputDisplayArea);
 
         this.blobDiv.append(this.scratchpadDiv);
 
