@@ -144,7 +144,7 @@ define(['jquery'], function ($) {
      * @return {string} type area html string.
      */
     DualBlobUi.prototype.html_input = function (name, value, type) {
-        const checked = (value[0]) ? 'checked' : '';
+        const checked = (value && value[0]) ? 'checked' : '';
         return`<input
                 type='${type}'
                 ${checked}
@@ -154,7 +154,31 @@ define(['jquery'], function ($) {
     };
 
 
-    DualBlobUi.prototype.reload = function () {
+    DualBlobUi.prototype.handleRunButtonClick = async function (ajax, text) {
+        ajax.call([{
+                    methodname: 'qtype_coderunner_run_in_sandbox',
+                    args: {
+                        contextid: M.cfg.contextid, // Moodle context ID
+                        sourcecode: "print('hello world')",
+                        language: 'python3'
+                    },
+                    done: function(responseJson) {
+                        var response = JSON.parse(responseJson);
+                        if (response.error !== 0 || response.result !== 15) {
+                            alert("Oops: " + responseJson);
+                        } else {
+                            alert("Output was: '" + response.output + "'");
+                        }
+                    },
+                    fail: function(error) {
+                        alert(`Error: ${error.message}`);
+                        console.log(error);
+                    }
+                }]);
+    };
+
+
+    DualBlobUi.prototype.reload = async function () {
         const preloadString = $(this.textArea).val();
         let html = "<div>";
         let preload = {
@@ -184,15 +208,27 @@ define(['jquery'], function ($) {
         // Scratchpad.
         this.scratchpadDiv = $('<div></div>');
         if (!preload.show_hide[0]) {
-            $(this.scratchpadDiv).hide();
+            this.scratchpadDiv.hide();
         }
         html = this.html_textArea('test_code', preload['test_code']);
         html += this.html_input('prefix_ans', preload['prefix_ans'], 'checkbox');
-        html += '<input type="button" value="run">';
-        $(this.scratchpadDiv).append($(html));
-        $(this.blobDiv).append(this.scratchpadDiv);
 
+        this.scratchpadDiv.append($(html));
         const t = this;
+        const runButton = $(`<button type='button' 
+                              class='btn btn-secondary'
+                              style='margin-bottom:6px;padding:2px 8px;'>
+                              run</button>`);
+        require(['core/ajax'], function(ajax) {
+            runButton.on('click', function() {
+                t.handleRunButtonClick(ajax, preload.test_code);
+            });
+        });
+        this.scratchpadDiv.append(runButton);
+
+        this.blobDiv.append(this.scratchpadDiv);
+
+
         $(showButton).click(function () {
             $(t.scratchpadDiv).toggle();
         });
@@ -202,7 +238,7 @@ define(['jquery'], function ($) {
 
     DualBlobUi.prototype.hasFocus = function () {
         let focused = false;
-        $(this.blobDiv).find('textarea').each(function () {
+        $(this.blobDiv).find('textarea').each(function() {
             if (this === document.activeElement) {
                 focused = true;
             }
