@@ -60,6 +60,103 @@
  */
 
 define(['jquery'], function ($) {
+    const RESULT_SUCCESS = 15; // Code for a correct Jobe run.
+    const DEFUALT_MAX_OUTPUT_LEN = 8;
+
+
+    /**
+     * Escape text special HTML characters.
+     * @param {string} text
+     * @returns {string} text with various special chars replaced with equivalent
+     * html entities. Newlines are replaced with <br>.
+     */
+    function escapeHtml(text) {
+        const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        };
+
+        return text.replace(/[&<>"']/g, function (m) {
+            return map[m];
+        });
+    }
+
+
+    /**
+     * Analyse the response for errors. There are two sorts of error: sandbox failures,
+     * for which the field response.error is non-zero meaning the run didn't take
+     * place at all and failures in the run
+     * itself, such as compile errors, timeouts, runtime errors etc. The
+     * various codes are documented in the CodeRunner file sandbox.php.
+     * Some error returns, notably compilation error and runtime error, are not
+     * treated as errors here, since the stdout + stderr should reveal what
+     * happened anyway. More obscure errors are lumped together as 'Unknown
+     * runtime error'.
+     * @param {object} response The response from the web-service sandbox request.
+     * @returns string The language string to use for an error message or '' if
+     * no error message.
+     */
+    function diagnose(response) {
+        // Table of error conditions.
+        // Each row is response.error, response.result, langstring
+        // response.result is ignored if response.error is non-zero.
+        // Any condition not in the table is deemed an "Unknown runtime error".
+        const ERROR_RESPONSES = [
+            [1, 0, 'error_access_denied'], // Sandbox AUTH_ERROR
+            [2, 0, 'error_unknown_language'], // Sandbox WRONG_LANG_ID
+            [3, 0, 'error_access_denied'], // Sandbox ACCESS_DENIED
+            [4, 0, 'error_submission_limit_reached'], // Sandbox SUBMISSION_LIMIT_EXCEEDED
+            [5, 0, 'error_sandbox_server_overload'], // Sandbox SERVER_OVERLOAD
+            [0, 11, ''], // RESULT_COMPILATION_ERROR
+            [0, 12, ''], // RESULT_RUNTIME_ERROR
+            [0, 13, 'error_timeout'], // RESULT TIME_LIMIT
+            [0, RESULT_SUCCESS, ''], // RESULT_SUCCESS
+            [0, 17, 'error_memory_limit'], // RESULT_MEMORY_LIMIT
+            [0, 21, 'error_sandbox_server_overload'], // RESULT_SERVER_OVERLOAD
+            [0, 30, 'error_excessive_output']  // RESULT OUTPUT_LIMIT
+        ];
+        for (const row of ERROR_RESPONSES) {
+            if (row[0] == response.error && (response.error != 0 || response.result == row[1])) {
+                return row[2];
+            }
+        }
+        return 'error_unknown_runtime';
+    }
+
+    /**
+     * Get the specified language string using
+     * AJAX and plug it into the given textarea
+     * @param {string} langStringName The language string name.
+     * @param {DOMnode} textarea The textarea into which the error message
+     * should be plugged.
+     * @param {string} additionalText Extra text to follow the result code.
+     */
+    function setLangString(langStringName, textarea, additionalText) {
+        require(['core/str'], function (str) {
+            const promise = str.get_string(langStringName, 'filter_ace_inline');
+            $.when(promise).then(function (message) {
+                textarea.show();
+                textarea.html(escapeHtml("*** " + message + " ***\n" + additionalText));
+            });
+        });
+    }
+
+    /**
+     * Concatenates the cmpinfo, stdout and stderr fields of the sandbox
+     * response, truncating both stdout and stderr to a given maximum length
+     * if necessary (in which case '... (truncated)' is appended.
+     * @param {object} response Sandbox response object
+     * @param {int} maxLen The maximum length of the trimmed stringlen.
+     */
+    function combinedOutput(response, maxLen) {
+        const limit = s => s.length <= maxLen ? s : s.substr(0, maxLen) + '... (truncated)';
+        return response.cmpinfo + limit(response.output) + limit(response.stderr);
+    }
+
+
     /**
      * Constructor for the DualBlobUi object.
      * @param {string} textareaId The ID of the html textarea.
@@ -158,31 +255,52 @@ define(['jquery'], function ($) {
         // Make sure to use up-to-date serialization.
         this.sync();
 
-        const preloadString = $(this.textArea).val();
+        const htmlOutput = false; //TODO: Ask Richard about this one?
+        const maxLen = this.uiParams['max-output-length'] || DEFUALT_MAX_OUTPUT_LEN;
+        const preloadString = this.textArea.val();
         const serial = JSON.parse(preloadString);
         const code = this.combineCode(serial.answer_code[0], serial.test_code[0], serial.prefix_ans[0]);
 
         ajax.call([{
-                    methodname: 'qtype_coderunner_run_in_sandbox',
-                    args: {
-                        contextid: M.cfg.contextid, // Moodle context ID
-                        sourcecode: code,
-                        language: 'python3'
-                    },
-                    done: function(responseJson) {
-                        const response = JSON.parse(responseJson);
-                        if (response.error !== 0 || response.result !== 15) {
-                            alert("Oops: " + responseJson);
-                        } else {
-                            //alert("Output was: '" + response.output + "'");
-                            outputDisplayArea.html(response.output);
+                methodname: 'qtype_coderunner_run_in_sandbox',
+                args: {
+                    contextid: M.cfg.contextid, // Moodle context ID
+                    sourcecode: code,
+                    language: 'python3'
+                },
+                done: function (responseJson) {
+                    const response = JSON.parse(responseJson);
+                    const error = diagnose(response);
+                    if (error === '') {
+                        // If no errors or compilation error or runtime error
+                        if (!htmlOutput || response.result !== RESULT_SUCCESS) {
+                            // Either it's not HTML output or it is but we have compilation or runtime errors.
+                            const text = combinedOutput(response, maxLen);
                             outputDisplayArea.show();
+                            outputDisplayArea.html(escapeHtml(text));
+                        } else { // Valid HTML output - just plug in the raw html to the DOM.
+                            // Repeat the deletion of previous output in case of multiple button clicks.
+                            outputDisplayArea.next('div.filter-ace-inline-html').remove();
+                            const html = $("<div class='filter-ace-inline-html '" +
+                                    "style='background-color:#eff;padding:5px;'" +
+                                    response.output + "</div>");
+                            outputDisplayArea.after(html);
                         }
-                    },
-                    fail: function(error) {
-                        alert(`Error: ${error.message}`);
+                    } else {
+                        // If an error occurs, display the language string in the
+                        // outputDisplayArea plus additional info.
+                        let extra = response.error == 0 ? combinedOutput(response, maxLen) : '';
+                        if (error === 'error_unknown_runtime') {
+                            extra += response.error ? '(Sandbox error code ' + response.error + ')' :
+                                    '(Run result: ' + response.result + ')';
+                        }
+                        setLangString(error, outputDisplayArea, extra);
                     }
-                }]);
+                },
+                fail: function (error) {
+                    alert(error.message);
+                }
+            }]);
     };
 
     DualBlobUi.prototype.reload = async function () {
@@ -226,8 +344,8 @@ define(['jquery'], function ($) {
                               class='btn btn-secondary'
                               style='margin-bottom:6px;padding:2px 8px;'>
                               run</button>`);
-        require(['core/ajax'], function(ajax) {
-            runButton.on('click', function() {
+        require(['core/ajax'], function (ajax) {
+            runButton.on('click', function () {
                 t.handleRunButtonClick(ajax, outputDisplayArea, preload.test_code[0]);
             });
         });
@@ -249,7 +367,7 @@ define(['jquery'], function ($) {
 
     DualBlobUi.prototype.hasFocus = function () {
         let focused = false;
-        $(this.blobDiv).find('textarea').each(function() {
+        $(this.blobDiv).find('textarea').each(function () {
             if (this === document.activeElement) {
                 focused = true;
             }
