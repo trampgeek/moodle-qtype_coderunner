@@ -158,6 +158,21 @@ define(['jquery'], function ($) {
 
 
     /**
+     * Create text area...
+     * @param {string} name The ID of the html textarea.
+     * @param {string} value The ID of the html textarea.
+     * @return {string} value area html string.
+     */
+    function htmlTextArea(name, value) {
+        return `<textarea
+                    class='coderunner-ui-element' 
+                    name='${name}' 
+                    style='width:100%;height:250px'>${value}</textarea>`;
+    }
+
+
+
+    /**
      * Constructor for the DualBlobUi object.
      * @param {string} textareaId The ID of the html textarea.
      * @param {int} width The width in pixels of the textarea.
@@ -215,18 +230,7 @@ define(['jquery'], function ($) {
         return $(this.blobDiv).find('.coderunner-ui-element');
     };
 
-    /**
-     * Create text area...
-     * @param {string} name The ID of the html textarea.
-     * @param {string} value The ID of the html textarea.
-     * @return {string} value area html string.
-     */
-    DualBlobUi.prototype.html_textArea = function (name, value) {
-        return `<textarea
-                    class='coderunner-ui-element' 
-                    name='${name}' 
-                    style='width:100%;height:250px'>${value}</textarea>`;
-    };
+
 
     /**
      * Create text area...
@@ -305,7 +309,6 @@ define(['jquery'], function ($) {
 
     DualBlobUi.prototype.reload = async function () {
         const preloadString = $(this.textArea).val();
-        let html = "<div>";
         let preload = {
             answer_code: [''],
             test_code: [''],
@@ -323,27 +326,27 @@ define(['jquery'], function ($) {
             return;
         }
 
-        html += this.html_textArea('answer_code', preload['answer_code']);
-
-        html += '</div>';
-        this.blobDiv = $(html);
-        const showButton = $(this.html_input('show_hide', preload['show_hide'], 'checkbox'));
-        this.blobDiv.append(showButton);
+        // Main ide.
+        const divHtml = "<div></div>";
+        const answerTextHtml = (htmlTextArea('answer_code', preload['answer_code']));
+        const showButtonHtml = "<a>Scratchpad...</a>";
+        const showButton = $(showButtonHtml);
+        this.blobDiv = $(divHtml);
+        this.blobDiv.append([$(answerTextHtml), showButton]);
 
         // Scratchpad.
-        this.scratchpadDiv = $('<div></div>');
+        this.scratchpadDiv = $(divHtml);
         if (!preload.show_hide[0]) {
             this.scratchpadDiv.hide();
         }
-        html = this.html_textArea('test_code', preload['test_code']);
-        html += this.html_input('prefix_ans', preload['prefix_ans'], 'checkbox');
 
-        this.scratchpadDiv.append($(html));
+        const testCodeHtml = htmlTextArea('test_code', preload['test_code']);
+        const prefixAnsHtml = this.html_input('prefix_ans', preload['prefix_ans'], 'checkbox');
         const t = this;
-        const runButton = $(`<button type='button' 
-                              class='btn btn-secondary'
-                              style='margin-bottom:6px;padding:2px 8px;'>
-                              run</button>`);
+        const runButton = $("<button type='button' " +
+                "class='btn btn-secondary'" +
+                "style='margin-bottom:6px;padding:2px 8px;'>" +
+                "run</button>");
         require(['core/ajax'], function (ajax) {
             runButton.on('click', function () {
                 t.handleRunButtonClick(ajax, outputDisplayArea, preload.test_code[0]);
@@ -352,8 +355,10 @@ define(['jquery'], function ($) {
         const outputDisplayArea = $("<pre style='width:100%;white-space:pre-wrap;background-color:#eff;" +
                 "border:1px gray;padding:5px;overflow-wrap:break-word;max-height:600px;overflow:auto;'></pre>");
         outputDisplayArea.hide();
-        this.scratchpadDiv.append(runButton);
-        this.scratchpadDiv.append(outputDisplayArea);
+
+        this.scratchpadDiv.append([$(testCodeHtml), $(prefixAnsHtml), runButton, outputDisplayArea]);
+//        this.scratchpadDiv.append(runButton);
+//        this.scratchpadDiv.append(outputDisplayArea);
 
         this.blobDiv.append(this.scratchpadDiv);
 
@@ -367,7 +372,7 @@ define(['jquery'], function ($) {
 
     DualBlobUi.prototype.hasFocus = function () {
         let focused = false;
-        $(this.blobDiv).find('textarea').each(function () {
+        this.blobDivfind('textarea').each(function () {
             if (this === document.activeElement) {
                 focused = true;
             }
