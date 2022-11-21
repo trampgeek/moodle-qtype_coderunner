@@ -154,7 +154,21 @@ define(['jquery'], function ($) {
     };
 
 
-    DualBlobUi.prototype.handleRunButtonClick = async function (ajax, outputDisplayArea, code) {
+    DualBlobUi.prototype.combineCode = function (answerCode, testCode, prefixAns) {
+        let combined = prefixAns ? (answerCode + '\n') : '';
+        combined += testCode;
+        return combined;
+    };
+
+
+    DualBlobUi.prototype.handleRunButtonClick = async function (ajax, outputDisplayArea) {
+        // Make sure to use up-to-date serialization.
+        this.sync();
+
+        const preloadString = $(this.textArea).val();
+        const serial = JSON.parse(preloadString);
+        const code = this.combineCode(serial.answer_code[0], serial.test_code[0], serial.prefix_ans[0]);
+
         ajax.call([{
                     methodname: 'qtype_coderunner_run_in_sandbox',
                     args: {
@@ -174,7 +188,6 @@ define(['jquery'], function ($) {
                     },
                     fail: function(error) {
                         alert(`Error: ${error.message}`);
-                        console.log(error);
                     }
                 }]);
     };
