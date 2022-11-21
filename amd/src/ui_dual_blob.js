@@ -61,7 +61,7 @@
 
 define(['jquery'], function ($) {
     const RESULT_SUCCESS = 15; // Code for a correct Jobe run.
-    const DEFUALT_MAX_OUTPUT_LEN = 8;
+    const DEFUALT_MAX_OUTPUT_LEN = 100;
 
 
     /**
@@ -266,7 +266,7 @@ define(['jquery'], function ($) {
                 args: {
                     contextid: M.cfg.contextid, // Moodle context ID
                     sourcecode: code,
-                    language: 'python3'
+                    language: this.uiParams.lang
                 },
                 done: function (responseJson) {
                     const response = JSON.parse(responseJson);
