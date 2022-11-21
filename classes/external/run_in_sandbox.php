@@ -111,9 +111,9 @@ class run_in_sandbox extends external_api {
             throw new qtype_coderunner_exception(get_string('wsnoaccess', 'qtype_coderunner'));
         }
 
-        $sandbox = qtype_coderunner_sandbox::get_best_sandbox($language);
+        $sandbox = qtype_coderunner_sandbox::get_best_sandbox($language, true);
         if ($sandbox === null) {
-            throw new qtype_coderunner_exception("Language {$language} is not available on this system");
+            throw new qtype_coderunner_exception(get_string('wsnolanguage', 'qtype_coderunner', $language));
         }
 
         if (get_config('qtype_coderunner', 'wsloggingenabled')) {
@@ -139,8 +139,13 @@ class run_in_sandbox extends external_api {
         }
 
         try {
-            $filesarray = $files ? json_decode($files, true) : null;
+            $filesarray = $files ? json_decode($files, true) : array();
             $paramsarray = $params ? json_decode($params, true) : array();
+            
+            // Throws error for incorrect JSON formatting
+            if ($filesarray === null || $paramsarray === null) {
+                throw new qtype_coderunner_exception(get_string('wsbadjson', 'qtype_coderunner'));
+            }
             $maxcputime = intval(get_config('qtype_coderunner', 'wsmaxcputime'));  // Limit CPU time through this service.
             if (isset($paramsarray['cputime'])) {
                 $paramsarray['cputime'] = min($paramsarray['cputime'], $maxcputime);
