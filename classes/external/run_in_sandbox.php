@@ -111,9 +111,9 @@ class run_in_sandbox extends external_api {
             throw new qtype_coderunner_exception(get_string('wsnoaccess', 'qtype_coderunner'));
         }
 
-        $sandbox = qtype_coderunner_sandbox::get_best_sandbox($language);
+        $sandbox = qtype_coderunner_sandbox::get_best_sandbox($language, true);
         if ($sandbox === null) {
-            throw new qtype_coderunner_exception("Language {$language} is not available on this system");
+            throw new qtype_coderunner_exception(get_string('wsnolanguage', 'qtype_coderunner', $language));
         }
 
         if (get_config('qtype_coderunner', 'wsloggingenabled')) {
