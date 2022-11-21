@@ -84,11 +84,9 @@ define(['jquery'], function ($) {
         return this.fail;
     };
 
-
     DualBlobUi.prototype.failMessage = function () {
         return 'DualBlobUiloadfail';
     };
-
 
     // Copy the serialised version of the HTML UI area to the TextArea.
     DualBlobUi.prototype.sync = function () {
@@ -112,16 +110,13 @@ define(['jquery'], function ($) {
         this.textArea.val(JSON.stringify(serialisation));
     };
 
-
     DualBlobUi.prototype.getElement = function () {
         return this.blobDiv;
     };
 
-
     DualBlobUi.prototype.getFields = function () {
         return $(this.blobDiv).find('.coderunner-ui-element');
     };
-
 
     /**
      * Create text area...
@@ -153,13 +148,11 @@ define(['jquery'], function ($) {
                 value='${value}'>`;
     };
 
-
     DualBlobUi.prototype.combineCode = function (answerCode, testCode, prefixAns) {
         let combined = prefixAns ? (answerCode + '\n') : '';
         combined += testCode;
         return combined;
     };
-
 
     DualBlobUi.prototype.handleRunButtonClick = async function (ajax, outputDisplayArea) {
         // Make sure to use up-to-date serialization.
@@ -191,7 +184,6 @@ define(['jquery'], function ($) {
                     }
                 }]);
     };
-
 
     DualBlobUi.prototype.reload = async function () {
         const preloadString = $(this.textArea).val();
@@ -243,7 +235,7 @@ define(['jquery'], function ($) {
                 "border:1px gray;padding:5px;overflow-wrap:break-word;max-height:600px;overflow:auto;'></pre>");
         outputDisplayArea.hide();
         this.scratchpadDiv.append(runButton);
-         this.scratchpadDiv.append(outputDisplayArea);
+        this.scratchpadDiv.append(outputDisplayArea);
 
         this.blobDiv.append(this.scratchpadDiv);
 
