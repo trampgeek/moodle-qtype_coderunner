@@ -14,8 +14,8 @@
             "default": "run!"
         },
         "sb_html_out": {
-            "type": "string",
-            "default": "Sandbox"
+            "type": "boolean",
+            "default": false
         },
         "html_src": {
             "type": "string",
