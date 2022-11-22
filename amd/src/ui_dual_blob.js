@@ -294,7 +294,7 @@ define(['jquery'], function ($) {
                             // Repeat the deletion of previous output in case of multiple button clicks.
                             outputDisplayArea.next('div.filter-ace-inline-html').remove();
                             const html = $("<div class='filter-ace-inline-html '" +
-                                    "style='background-color:#eff;padding:5px;'" +
+                                    "style='background-color:#eff;padding:5px;'>" +
                                     response.output + "</div>");
                             outputDisplayArea.after(html);
                         }
