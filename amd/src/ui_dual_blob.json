@@ -1,9 +1,21 @@
 {
-    "name": "ui_html",
+    "name": "ui_dual_blob",
     "parameters": {
         "sync_interval_secs": {
             "type": "int",
             "default": 5
+        },
+        "sb_name": {
+            "type": "string",
+            "default": "Scratchpad"
+        },
+        "sb_button_name": {
+            "type": "string",
+            "default": "run!"
+        },
+        "sb_html_out": {
+            "type": "string",
+            "default": "Sandbox"
         },
         "html_src": {
             "type": "string",
