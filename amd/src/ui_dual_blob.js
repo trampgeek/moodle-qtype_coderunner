@@ -202,14 +202,17 @@ define(['jquery'], function ($) {
 
     // Copy the serialised version of the HTML UI area to the TextArea.
     DualBlobUi.prototype.sync = function () {
+        const t = this;
         let serialisation = {};
+
         this.getFields().each(function () {
             const name = $(this).attr('name');
             const type = $(this).attr('type');
             let value;
-            // Is checking a an hack? TODO: fix.
-            if ((type === 'checkbox' || type === 'radio' || type === 'a')) {
+            if ((type === 'checkbox' || type === 'radio')) {
                 value = $(this).is(':checked') ? '1' : '';
+            } else if ($(this).is('a')) {
+                value = t.scratchpadDiv.is(':visible') ? '1' : '';
             } else {
                 value = $(this).val();
             }
@@ -218,6 +221,7 @@ define(['jquery'], function ($) {
             } else {
                 serialisation[name] = [value];
             }
+
         });
         this.textArea.val(JSON.stringify(serialisation));
     };
@@ -233,20 +237,23 @@ define(['jquery'], function ($) {
 
 
     /**
-     * Create text area...
-     * @param {string} name The ID of the html input.
+     * Create input feild...
+     * @param {string} name The name for the html input.
+     * @param {string} label text.
      * @param {string} value trype of the html input.
-     * @param {string} type trype of the html input.
-     * @return {string} type area html string.
+     * @param {string} type type of the html input.
+     * @return {string} HTML string containing both input and label elements.
      */
-    DualBlobUi.prototype.html_input = function (name, value, type) {
+    DualBlobUi.prototype.html_input = function (name, label, value, type) {
         const checked = (value && value[0]) ? 'checked' : '';
-        return`<input
-                type='${type}'
-                ${checked}
-                class='coderunner-ui-element' 
-                name='${name}' 
-                value='${value}'>`;
+        const labelHtml = `<label for='${name}'>${label}</label>`;
+        const inputHtml = "<input " +
+                `type='${type}' ` +
+                `${checked} ` +
+                "class='coderunner-ui-element' " +
+                `name='${name}' ` +
+                `value='${value}'>`;
+        return inputHtml + labelHtml;
     };
 
     DualBlobUi.prototype.combineCode = function (answerCode, testCode, prefixAns) {
@@ -315,7 +322,6 @@ define(['jquery'], function ($) {
             show_hide: [''],
             prefix_ans: ['']
         };
-
         try {
             if (preloadString) {
                 preload = JSON.parse(preloadString);
@@ -328,23 +334,27 @@ define(['jquery'], function ($) {
 
         // Main ide.
         const divHtml = "<div></div>";
-        const answerTextHtml = (htmlTextArea('answer_code', preload['answer_code']));
-        const showButtonHtml = "<a>Scratchpad...</a>";
+        const answerTextHtml = htmlTextArea('answer_code', preload['answer_code']);
+        const showButtonHtml = "<a value='1' class='coderunner-ui-element' " +
+                "name='show_hide'>▶Scratchpad</a>";
         const showButton = $(showButtonHtml);
+
         this.blobDiv = $(divHtml);
         this.blobDiv.append([$(answerTextHtml), showButton]);
+        showButton.click(function () {
+            $(t.scratchpadDiv).toggle();
+        });
 
         // Scratchpad.
         this.scratchpadDiv = $(divHtml);
         if (!preload.show_hide[0]) {
             this.scratchpadDiv.hide();
         }
-
         const testCodeHtml = htmlTextArea('test_code', preload['test_code']);
-        const prefixAnsHtml = this.html_input('prefix_ans', preload['prefix_ans'], 'checkbox');
+        const prefixAnsHtml = this.html_input('prefix_ans', 'Prefix Answer?', preload['prefix_ans'], 'checkbox');
         const t = this;
         const runButton = $("<button type='button' " +
-                "class='btn btn-secondary'" +
+                "class='btn btn-secondary' " +
                 "style='margin-bottom:6px;padding:2px 8px;'>" +
                 "run</button>");
         require(['core/ajax'], function (ajax) {
@@ -355,24 +365,16 @@ define(['jquery'], function ($) {
         const outputDisplayArea = $("<pre style='width:100%;white-space:pre-wrap;background-color:#eff;" +
                 "border:1px gray;padding:5px;overflow-wrap:break-word;max-height:600px;overflow:auto;'></pre>");
         outputDisplayArea.hide();
-
-        this.scratchpadDiv.append([$(testCodeHtml), $(prefixAnsHtml), runButton, outputDisplayArea]);
-//        this.scratchpadDiv.append(runButton);
-//        this.scratchpadDiv.append(outputDisplayArea);
+        this.scratchpadDiv.append([$(testCodeHtml), runButton, $(prefixAnsHtml), outputDisplayArea]);
 
         this.blobDiv.append(this.scratchpadDiv);
-
-
-        $(showButton).click(function () {
-            $(t.scratchpadDiv).toggle();
-        });
     };
 
     DualBlobUi.prototype.resize = function () {}; // Nothing to see here. Move along please.
 
     DualBlobUi.prototype.hasFocus = function () {
         let focused = false;
-        this.blobDivfind('textarea').each(function () {
+        this.blobDiv.find('textarea').each(function () {
             if (this === document.activeElement) {
                 focused = true;
             }
