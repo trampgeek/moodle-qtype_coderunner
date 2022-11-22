@@ -335,24 +335,29 @@ define(['jquery'], function ($) {
         // Main ide.
         const divHtml = "<div></div>";
         const answerTextHtml = htmlTextArea('answer_code', preload['answer_code']);
-        const showButtonHtml = "<a value='1' class='coderunner-ui-element' " +
-                "name='show_hide'>▶Scratchpad</a>";
+        const showButtonHtml = "<a class='coderunner-ui-element' " +
+                "name='show_hide'>▼Scratchpad</a>";
         const showButton = $(showButtonHtml);
+        const t = this;
+        showButton.click(function () {
+            const arrow = $(t.scratchpadDiv).is(':visible') ? '▶' : '▼';
+            t.scratchpadDiv.toggle();
+            showButton.html(arrow + 'Scratchpad');
+        });
 
         this.blobDiv = $(divHtml);
         this.blobDiv.append([$(answerTextHtml), showButton]);
-        showButton.click(function () {
-            $(t.scratchpadDiv).toggle();
-        });
+
 
         // Scratchpad.
         this.scratchpadDiv = $(divHtml);
         if (!preload.show_hide[0]) {
             this.scratchpadDiv.hide();
+            this.showButton.html('▶Scratchpad');
         }
         const testCodeHtml = htmlTextArea('test_code', preload['test_code']);
         const prefixAnsHtml = this.html_input('prefix_ans', 'Prefix Answer?', preload['prefix_ans'], 'checkbox');
-        const t = this;
+
         const runButton = $("<button type='button' " +
                 "class='btn btn-secondary' " +
                 "style='margin-bottom:6px;padding:2px 8px;'>" +
