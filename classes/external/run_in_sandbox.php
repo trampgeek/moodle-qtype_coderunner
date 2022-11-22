@@ -123,11 +123,11 @@ class run_in_sandbox extends external_api {
             $reader = reset($readers);
             $maxhourlyrate = intval(get_config('qtype_coderunner', 'wsmaxhourlyrate'));
             if ($maxhourlyrate > 0) {
-                $hour_ago = strtotime('-1 hour');
+                $hourago = strtotime('-1 hour');
                 $select = "userid = :userid AND eventname = :eventname AND timecreated > :since";
-                $log_params = array('userid' => $USER->id, 'since' => $hour_ago,
+                $logparams = array('userid' => $USER->id, 'since' => $hourago,
                     'eventname' => '\qtype_coderunner\event\sandbox_webservice_exec');
-                $currentrate = $reader->get_events_select_count($select, $log_params);
+                $currentrate = $reader->get_events_select_count($select, $logparams);
                 if ($currentrate >= $maxhourlyrate) {
                     throw new qtype_coderunner_exception(get_string('wssubmissionrateexceeded', 'qtype_coderunner'));
                 }
@@ -141,8 +141,8 @@ class run_in_sandbox extends external_api {
         try {
             $filesarray = $files ? json_decode($files, true) : array();
             $paramsarray = $params ? json_decode($params, true) : array();
-            
-            // Throws error for incorrect JSON formatting
+
+            // Throws error for incorrect JSON formatting.
             if ($filesarray === null || $paramsarray === null) {
                 throw new qtype_coderunner_exception(get_string('wsbadjson', 'qtype_coderunner'));
             }

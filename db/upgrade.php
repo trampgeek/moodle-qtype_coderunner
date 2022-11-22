@@ -20,7 +20,6 @@
  * @param $oldversion the version of this plugin we are upgrading from.
  * @return bool success/failure.
  */
-defined('MOODLE_INTERNAL') || die();
 
 function xmldb_qtype_coderunner_upgrade($oldversion) {
     global $CFG, $DB;

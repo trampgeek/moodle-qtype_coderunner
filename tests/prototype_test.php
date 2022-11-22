@@ -35,6 +35,9 @@ require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
 require_once($CFG->dirroot . '/question/format/xml/format.php');
 require_once($CFG->dirroot . '/question/engine/tests/helpers.php');
 
+/**
+ * @coversNothing
+ */
 class prototype_test extends \qtype_coderunner_testcase {
     protected function setUp(): void {
         parent::setUp();

@@ -36,6 +36,7 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 
 /**
  * Unit tests for coderunner nodejs questions.
+ * @coversNothing
  */
 class nodejs_question_test extends \qtype_coderunner_testcase {
 

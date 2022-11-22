@@ -25,9 +25,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
-
 class qtype_coderunner_ideonesandbox extends qtype_coderunner_sandbox {
 
     private $client = null;       // The soap client referencing ideone.com.

@@ -26,8 +26,6 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
 class qtype_coderunner_bulk_tester {
 
     const PASS = 0;
@@ -224,7 +222,7 @@ class qtype_coderunner_bulk_tester {
                 try {
                     list($outcome, $message) = $this->load_and_test_question($question->id);
                 } catch (Exception $e) {
-                    $message = print_r($e, true);
+                    $message = $e->getMessage();
                     $outcome = self::FAIL;
                 }
 

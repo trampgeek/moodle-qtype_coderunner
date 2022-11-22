@@ -33,6 +33,9 @@ global $CFG;
 require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
 
+/**
+ * @coversNothing
+ */
 class graphui_save_test extends \qtype_coderunner_testcase {
 
     protected $qtype;

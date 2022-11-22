@@ -22,7 +22,6 @@
  * @copyright  2012 Richard Lobb, The University of Canterbury.
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-defined('MOODLE_INTERNAL') || die();
 
 use qtype_coderunner\constants;
 

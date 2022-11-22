@@ -23,8 +23,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
 // This class wraps the various escaper functions required by Twig.
 class qtype_coderunner_escapers {
 

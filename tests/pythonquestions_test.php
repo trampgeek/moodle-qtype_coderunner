@@ -35,6 +35,7 @@ require_once($CFG->dirroot . '/lib/accesslib.php');
 
 /**
  * Unit tests for the coderunner question definition class.
+ * @coversNothing
  */
 class pythonquestions_test extends \qtype_coderunner_testcase {
     protected function setUp(): void {

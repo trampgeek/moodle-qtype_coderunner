@@ -20,8 +20,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
-require_once $CFG->dirroot . '/question/type/coderunner/vendor/autoload.php';
-require_once $CFG->dirroot . '/question/type/coderunner/classes/twigmacros.php';
+require_once($CFG->dirroot . '/question/type/coderunner/vendor/autoload.php');
+require_once($CFG->dirroot . '/question/type/coderunner/classes/twigmacros.php');
 
 
 // Class that provides a singleton instance of the twig environment.
@@ -79,7 +79,7 @@ class qtype_coderunner_twig {
     // Return the Twig-expanded string.
     // Any Twig exceptions raised must be caught higher up.
     public static function render($s, $student, $parameters=array(), $isstrict=false) {
-        $twig = qtype_coderunner_twig::get_twig_environment($isstrict);
+        $twig = self::get_twig_environment($isstrict);
         $parameters['STUDENT'] = new qtype_coderunner_student($student);
         if (array_key_exists('__twigprefix__', $parameters)) {
             $prefix = $parameters['__twigprefix__'];
@@ -143,8 +143,7 @@ class qtype_coderunner_twig {
  *
  * @return mixed A random value from the given sequence
  */
-function qtype_coderunner_twig_random(Twig\Environment $env, $values = null, $max = null)
-{
+function qtype_coderunner_twig_random(Twig\Environment $env, $values = null, $max = null) {
     if (null === $values) {
         return null === $max ? mt_rand() : mt_rand(0, $max);
     }
@@ -171,8 +170,8 @@ function qtype_coderunner_twig_random(Twig\Environment $env, $values = null, $ma
             if ('UTF-8' !== $charset) {
                 $values = twig_convert_encoding($values, 'UTF-8', $charset);
             }
-            // unicode version of str_split()
-            // split at all positions, but not after the start and not before the end
+            // Unicode version of str_split().
+            // Split at all positions, but not after the start and not before the end.
             $values = preg_split('/(?<!^)(?!$)/u', $values);
             if ('UTF-8' !== $charset) {
                 foreach ($values as $i => $value) {
@@ -190,19 +189,18 @@ function qtype_coderunner_twig_random(Twig\Environment $env, $values = null, $ma
     if (0 === \count($values)) {
         throw new RuntimeError('The random function cannot pick from an empty array.');
     }
-    // The original version did: return $values[array_rand($values, 1)];
+
     $keys = array_keys($values);
     $key = $keys[mt_rand(0, count($keys) - 1)];
     return $values[$key];
 }
 
 /**
- *  A hook into PHP's mt_srand function, to set the MT random number generator
- *  seed to the given value.
- *  @return '' The empty string
+ * A hook into PHP's mt_srand function, to set the MT random number generator
+ * seed to the given value.
+ * @return '' The empty string
  */
-function qtype_coderunner_set_random_seed(Twig\Environment $env, $seed)
-{
+function qtype_coderunner_set_random_seed(Twig\Environment $env, $seed) {
     mt_srand($seed);
     return '';
 }

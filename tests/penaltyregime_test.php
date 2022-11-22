@@ -34,13 +34,11 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 require_once($CFG->dirroot . '/question/type/coderunner/tests/helper.php');
 
 /**
- * Unit tests for the coderunner question type.
+ * More extensive testing of penalty regime.
  *
+ * @coversNothing
  * @copyright  2011 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
-/** More extensive testing of penalty regime.
  */
 
 class penaltyregime_test extends \qbehaviour_walkthrough_test_base {

@@ -37,6 +37,7 @@ require_once($CFG->dirroot . '/question/type/coderunner/question.php');
 
 /**
  * Unit tests for coderunner matlab questions
+ * @coversNothing
  */
 class matlab_question_test extends \qtype_coderunner_testcase {
 

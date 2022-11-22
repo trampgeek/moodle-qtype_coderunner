@@ -35,6 +35,7 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 
 /**
  * Unit tests for coderunner Java questions
+ * @coversNothing
  */
 class java_question_test extends \qtype_coderunner_testcase {
 

@@ -34,7 +34,8 @@ require_once($CFG->dirroot . '/question/type/coderunner/vendor/autoload.php');
 require_once($CFG->dirroot . '/question/type/coderunner/classes/twigmacros.php');
 
 /**
- * Unit tests for the coderunner question definition class.
+ * Unit tests for the behaviour of coderunner question templates.
+ * @coversNothing
  */
 class template_test extends \qtype_coderunner_testcase {
 

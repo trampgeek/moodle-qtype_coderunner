@@ -14,18 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with CodeRunner.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Further walkthrough tests for the CodeRunner plugin, testing the
- * randomisation mechanisem.
- * @group qtype_coderunner
- *
- * @package    qtype
- * @subpackage coderunner
- * @copyright  2018 Richard Lobb, The University of Canterbury
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
-
 namespace qtype_coderunner;
 
 defined('MOODLE_INTERNAL') || die();
@@ -35,6 +23,16 @@ require_once($CFG->dirroot . '/question/engine/tests/helpers.php');
 require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 require_once($CFG->dirroot . '/question/type/coderunner/question.php');
 
+/**
+ * Further walkthrough tests for the CodeRunner plugin, testing the
+ * randomisation mechanisem.
+ * @group qtype_coderunner
+ * @coverageNothing
+ * @package    qtype
+ * @subpackage coderunner
+ * @copyright  2018 Richard Lobb, The University of Canterbury
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class walkthrough_randomisation_test extends \qbehaviour_walkthrough_test_base {
 
     protected function setUp(): void {

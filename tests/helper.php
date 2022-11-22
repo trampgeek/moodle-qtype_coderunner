@@ -643,7 +643,7 @@ except ValueError:
 </script>
 QEND
          , 'format' => FORMAT_HTML);
-     return $form;
+        return $form;
     }
 
 

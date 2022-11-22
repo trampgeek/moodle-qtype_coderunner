@@ -21,8 +21,6 @@
  */
 
 namespace qtype_coderunner;
-defined('MOODLE_INTERNAL') || die();
-
 
 class constants {
     const TEMPLATE_LANGUAGE = 0;

@@ -18,9 +18,6 @@
  * Library routines for qtype_coderunner
  */
 
-defined('MOODLE_INTERNAL') || die();
-
-
 /* The class for exceptions thrown in the coderunner plugin */
 class qtype_coderunner_exception extends moodle_exception {
     /**

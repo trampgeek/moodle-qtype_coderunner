@@ -18,9 +18,6 @@
  * Library routines for qtype_coderunner
  */
 
-defined('MOODLE_INTERNAL') || die();
-
-
 /* The class for an exception when bad json passed to util::template_params  */
 class qtype_coderunner_bad_json_exception extends Exception {
 }

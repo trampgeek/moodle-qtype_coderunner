@@ -34,6 +34,7 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 
 /**
  * Unit tests for coderunner C questions
+ * @coversNothing
  */
 class c_questions_test extends \qtype_coderunner_testcase {
 

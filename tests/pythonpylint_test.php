@@ -33,6 +33,7 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 
 /**
  * Unit tests for the coderunner question definition class.
+ * @coversNothing
  */
 class pythonpylint_test extends \qtype_coderunner_testcase {
 

@@ -232,7 +232,7 @@ abstract class qtype_coderunner_localsandbox extends qtype_coderunner_sandbox {
      * of nothing going terribly wrong or qtype_coderunner_sandbox::UNKNOWN_SERVER_ERROR
      * otherwise.
      */
-    protected abstract function compile();
+    abstract protected function compile();
 
 
     /** Run the task defined by the source, language, input and params attributes
@@ -245,7 +245,7 @@ abstract class qtype_coderunner_localsandbox extends qtype_coderunner_sandbox {
      * of nothing going terribly wrong or qtype_coderunner_sandbox::UNKNOWN_SERVER_ERROR
      * otherwise.
      */
-    protected abstract function run_in_sandbox();
+    abstract protected function run_in_sandbox();
 
 }
 
