@@ -5,15 +5,15 @@
             "type": "int",
             "default": 5
         },
-        "sb_name": {
+        "sp_name": {
             "type": "string",
             "default": "Scratchpad"
         },
-        "sb_button_name": {
+        "sp_button_name": {
             "type": "string",
             "default": "run!"
         },
-        "sb_html_out": {
+        "sp_html_out": {
             "type": "boolean",
             "default": false
         },

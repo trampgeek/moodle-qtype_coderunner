@@ -208,9 +208,9 @@ define(['jquery'], function ($) {
         this.uiParams = uiParams;
         this.fail = false;
 
-        this.sbName = uiParams.sb_name || 'Scratchpad';
-        this.sbButtonName = uiParams.sb_button_name || 'run!';
-        this.sbHtmlOutput = uiParams.sb_html_out || false;
+        this.sbName = uiParams.sp_name || 'Scratchpad';
+        this.sbButtonName = uiParams.sp_button_name || 'run!';
+        this.sbHtmlOutput = uiParams.sp_html_out || false;
 
         this.blobDiv = null;
         this.scratchpadDiv = null;
