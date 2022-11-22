@@ -209,7 +209,8 @@ define(['jquery'], function ($) {
         this.fail = false;
 
         this.sbName = uiParams.sp_name || 'Scratchpad';
-        this.sbButtonName = uiParams.sp_button_name || 'run!';
+        this.sbButtonName = uiParams.sp_button_name || 'Run!';
+        this.spPrefixName = uiParams.sp_prefix_name || 'Prefix Answer?';
         this.sbHtmlOutput = uiParams.sp_html_out || false;
 
         this.blobDiv = null;
@@ -357,7 +358,7 @@ define(['jquery'], function ($) {
             showButton.html(`▶${this.sbName}`);
         }
         const testCodeHtml = htmlTextArea('test_code', preload['test_code']);
-        const prefixAnsHtml = htmlInput('prefix_ans', 'Prefix Answer?', preload['prefix_ans'], 'checkbox');
+        const prefixAnsHtml = htmlInput('prefix_ans', this.spPrefixName, preload['prefix_ans'], 'checkbox');
 
         const runButton = $("<button type='button' " +
                 "class='btn btn-secondary' " +

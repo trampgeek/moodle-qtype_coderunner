@@ -11,19 +11,15 @@
         },
         "sp_button_name": {
             "type": "string",
-            "default": "run!"
+            "default": "Run!"
+        },
+        "sp_prefix_name": {
+            "type": "string",
+            "default": "Prefix Answer?"
         },
         "sp_html_out": {
             "type": "boolean",
             "default": false
-        },
-        "html_src": {
-            "type": "string",
-            "default": "globalextra"
-        },
-        "enable_in_editor": {
-            "type": "boolean",
-            "default": true
         }
     }
 }
