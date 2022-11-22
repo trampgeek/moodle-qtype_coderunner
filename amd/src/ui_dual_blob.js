@@ -353,7 +353,7 @@ define(['jquery'], function ($) {
         this.scratchpadDiv = $(divHtml);
         if (!preload.show_hide[0]) {
             this.scratchpadDiv.hide();
-            this.showButton.html('▶Scratchpad');
+            showButton.html('▶Scratchpad');
         }
         const testCodeHtml = htmlTextArea('test_code', preload['test_code']);
         const prefixAnsHtml = this.html_input('prefix_ans', 'Prefix Answer?', preload['prefix_ans'], 'checkbox');
