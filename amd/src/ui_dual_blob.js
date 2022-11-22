@@ -208,6 +208,10 @@ define(['jquery'], function ($) {
         this.uiParams = uiParams;
         this.fail = false;
 
+        this.sbName = uiParams.sb_name || 'Scratchpad';
+        this.sbButtonName = uiParams.sb_button_name || 'run!';
+        this.sbHtmlOutput = uiParams.sb_html_out || false;
+
         this.blobDiv = null;
         this.scratchpadDiv = null;
         this.reload(); // Draw my beautiful blobs.
@@ -242,7 +246,6 @@ define(['jquery'], function ($) {
             } else {
                 serialisation[name] = [value];
             }
-
         });
         this.textArea.val(JSON.stringify(serialisation));
     };
@@ -262,13 +265,12 @@ define(['jquery'], function ($) {
     };
 
     DualBlobUi.prototype.handleRunButtonClick = async function (ajax, outputDisplayArea) {
-        // Make sure to use up-to-date serialization.
-        this.sync();
-
-        const htmlOutput = false; //TODO: Ask Richard about this one?
+        this.sync(); // Make sure to use up-to-date serialization.
+        const htmlOutput = this.sbHtmlOutput;
         const maxLen = this.uiParams['max-output-length'] || DEFUALT_MAX_OUTPUT_LEN;
         const preloadString = this.textArea.val();
         const serial = JSON.parse(preloadString);
+        //TODO: Wrap code..?
         const code = this.combineCode(serial.answer_code[0], serial.test_code[0], serial.prefix_ans[0]);
 
         ajax.call([{
@@ -335,13 +337,13 @@ define(['jquery'], function ($) {
         const divHtml = "<div></div>";
         const answerTextHtml = htmlTextArea('answer_code', preload['answer_code']);
         const showButtonHtml = "<a class='coderunner-ui-element' " +
-                "name='show_hide'>▼Scratchpad</a>";
+                `name='show_hide'>▼${this.sbName}</a>`;
         const showButton = $(showButtonHtml);
         const t = this;
         showButton.click(function () {
             const arrow = $(t.scratchpadDiv).is(':visible') ? '▶' : '▼';
             t.scratchpadDiv.toggle();
-            showButton.html(arrow + 'Scratchpad');
+            showButton.html(arrow + t.sbName);
         });
 
         this.blobDiv = $(divHtml);
@@ -352,7 +354,7 @@ define(['jquery'], function ($) {
         this.scratchpadDiv = $(divHtml);
         if (!preload.show_hide[0]) {
             this.scratchpadDiv.hide();
-            showButton.html('▶Scratchpad');
+            showButton.html(`▶${this.sbName}`);
         }
         const testCodeHtml = htmlTextArea('test_code', preload['test_code']);
         const prefixAnsHtml = htmlInput('prefix_ans', 'Prefix Answer?', preload['prefix_ans'], 'checkbox');
@@ -360,7 +362,7 @@ define(['jquery'], function ($) {
         const runButton = $("<button type='button' " +
                 "class='btn btn-secondary' " +
                 "style='margin-bottom:6px;padding:2px 8px;'>" +
-                "run</button>");
+                `${this.sbButtonName}</button>`);
         require(['core/ajax'], function (ajax) {
             runButton.on('click', function () {
                 t.handleRunButtonClick(ajax, outputDisplayArea, preload.test_code[0]);
