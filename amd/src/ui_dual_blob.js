@@ -144,6 +144,7 @@ define(['jquery'], function ($) {
         });
     }
 
+
     /**
      * Concatenates the cmpinfo, stdout and stderr fields of the sandbox
      * response, truncating both stdout and stderr to a given maximum length
@@ -170,6 +171,26 @@ define(['jquery'], function ($) {
                     style='width:100%;height:250px'>${value}</textarea>`;
     }
 
+
+    /**
+     * Create input feild...
+     * @param {string} name The name for the html input.
+     * @param {string} label text.
+     * @param {string} value trype of the html input.
+     * @param {string} type type of the html input.
+     * @return {string} HTML string containing both input and label elements.
+     */
+    function htmlInput(name, label, value, type) {
+        const checked = (value && value[0]) ? 'checked' : '';
+        const labelHtml = `<label for='${name}'>${label}</label>`;
+        const inputHtml = "<input " +
+                `type='${type}' ` +
+                `${checked} ` +
+                "class='coderunner-ui-element' " +
+                `name='${name}' ` +
+                `value='${value}'>`;
+        return inputHtml + labelHtml;
+    }
 
 
     /**
@@ -232,28 +253,6 @@ define(['jquery'], function ($) {
 
     DualBlobUi.prototype.getFields = function () {
         return $(this.blobDiv).find('.coderunner-ui-element');
-    };
-
-
-
-    /**
-     * Create input feild...
-     * @param {string} name The name for the html input.
-     * @param {string} label text.
-     * @param {string} value trype of the html input.
-     * @param {string} type type of the html input.
-     * @return {string} HTML string containing both input and label elements.
-     */
-    DualBlobUi.prototype.html_input = function (name, label, value, type) {
-        const checked = (value && value[0]) ? 'checked' : '';
-        const labelHtml = `<label for='${name}'>${label}</label>`;
-        const inputHtml = "<input " +
-                `type='${type}' ` +
-                `${checked} ` +
-                "class='coderunner-ui-element' " +
-                `name='${name}' ` +
-                `value='${value}'>`;
-        return inputHtml + labelHtml;
     };
 
     DualBlobUi.prototype.combineCode = function (answerCode, testCode, prefixAns) {
@@ -356,7 +355,7 @@ define(['jquery'], function ($) {
             showButton.html('▶Scratchpad');
         }
         const testCodeHtml = htmlTextArea('test_code', preload['test_code']);
-        const prefixAnsHtml = this.html_input('prefix_ans', 'Prefix Answer?', preload['prefix_ans'], 'checkbox');
+        const prefixAnsHtml = htmlInput('prefix_ans', 'Prefix Answer?', preload['prefix_ans'], 'checkbox');
 
         const runButton = $("<button type='button' " +
                 "class='btn btn-secondary' " +
