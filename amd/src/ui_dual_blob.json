@@ -25,6 +25,14 @@
             "type": "string",
             "default": null
         },
+        "sp_run_wrapper": {
+            "type": "string",
+            "defualt": null
+        },
+        "sp_run_wrapper_globalextra": {
+            "type": "boolean",
+            "default": false
+        },
         "sp_html_out": {
             "type": "boolean",
             "default": false
