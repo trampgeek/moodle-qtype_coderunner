@@ -211,7 +211,9 @@ define(['jquery'], function ($) {
         this.spName = uiParams.sp_name || 'Scratchpad';
         this.spButtonName = uiParams.sp_button_name || 'Run!';
         this.spPrefixName = uiParams.sp_prefix_name || 'Prefix Answer?';
+        this.spRunLang = uiParams.sp_run_lang || this.uiParams.lang; // use answer's ace language if not specified.
         this.spHtmlOutput = uiParams.sp_html_out || false;
+
 
         this.blobDiv = null;
         this.scratchpadDiv = null;
@@ -263,6 +265,8 @@ define(['jquery'], function ($) {
         let combined = prefixAns ? (answerCode + '\n') : '';
         combined += testCode;
         return combined;
+        
+        // TODO: Change to template format, something like template = "{student ans} \n {testCode}"
     };
 
     DualBlobUi.prototype.handleRunButtonClick = async function (ajax, outputDisplayArea) {
@@ -279,7 +283,7 @@ define(['jquery'], function ($) {
                 args: {
                     contextid: M.cfg.contextid, // Moodle context ID
                     sourcecode: code,
-                    language: this.uiParams.lang
+                    language: this.spRunLang
                 },
                 done: function (responseJson) {
                     const response = JSON.parse(responseJson);

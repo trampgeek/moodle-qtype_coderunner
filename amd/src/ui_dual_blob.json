@@ -17,6 +17,14 @@
             "type": "string",
             "default": "Prefix Answer?"
         },
+        "sp_ace_lang": {
+            "type": "string",
+            "default": null
+        },
+        "sp_run_lang": {
+            "type": "string",
+            "default": null
+        },
         "sp_html_out": {
             "type": "boolean",
             "default": false
