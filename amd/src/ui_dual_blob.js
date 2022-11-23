@@ -204,9 +204,26 @@ define(['jquery'], function ($) {
         let combined = prefixAns ? (answerCode + '\n') : '';
         combined += testCode;
         return combined;
-
-        // TODO: Change to template format, something like template = "{student ans} \n {testCode}"
     }
+
+
+    /**
+     * Combine the code...
+     * @param {string} answerCode
+     * @param {string} testCode
+     * @param {string} prefixAns
+     * @param {string} template
+     * @returns {string}
+     */
+    function fillWrapper(answerCode, testCode, prefixAns, template) {
+        if (!prefixAns) {
+            answerCode = '';
+        }
+        template = template.replaceAll('{{ STUDENT_ANSWER }}', answerCode);
+        template = template.replaceAll('{{ TEST_CODE }}', testCode);
+        return template;
+    }
+
 
 
     /**
@@ -229,6 +246,7 @@ define(['jquery'], function ($) {
         this.spPrefixName = uiParams.sp_prefix_name || 'Prefix Answer?';
         this.spRunLang = uiParams.sp_run_lang || this.uiParams.lang; // use answer's ace language if not specified.
         this.spHtmlOutput = uiParams.sp_html_out || false;
+        this.spRunWrapper = '{{ STUDENT_ANSWER }}\n{{ TEST_CODE }}\n{{ TEST_CODE }}';
 
 
         this.blobDiv = null;
@@ -284,8 +302,13 @@ define(['jquery'], function ($) {
         const preloadString = this.textArea.val();
         const serial = JSON.parse(preloadString);
         //TODO: Wrap code..?
-        const code = combineCode(serial.answer_code[0], serial.test_code[0], serial.prefix_ans[0]);
-
+        let code = combineCode(serial.answer_code[0], serial.test_code[0], serial.prefix_ans[0]);
+        code = fillWrapper(
+                serial.answer_code[0],
+                serial.test_code[0],
+                serial.prefix_ans[0],
+                this.spRunWrapper
+                );
         ajax.call([{
                 methodname: 'qtype_coderunner_run_in_sandbox',
                 args: {
