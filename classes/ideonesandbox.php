@@ -19,8 +19,7 @@
  * which can be up to a minute. It was developed as a proof of concept of
  * the idea of a remote sandbox and is not recommended for general purpose use.
  *
- * @package    qtype
- * @subpackage coderunner
+ * @package    qtype_coderunner
  * @copyright  2012, 2015 Richard Lobb, University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

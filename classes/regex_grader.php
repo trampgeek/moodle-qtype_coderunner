@@ -30,8 +30,7 @@
  */
 
 /**
- * @package    qtype
- * @subpackage coderunner
+ * @package    qtype_coderunner
  * @copyright  Richard Lobb, 2013, The University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

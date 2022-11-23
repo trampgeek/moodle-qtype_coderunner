@@ -37,8 +37,7 @@
 // question.
 
 /**
- * @package     qtype
- * @subpackage  coderunner
+ * @package    qtype_coderunner
  * @copyright   &copy; 2012, 2013, 2014 Richard Lobb
  * @author       Richard Lobb richard.lobb@canterbury.ac.nz
  */

@@ -16,6 +16,7 @@
 
 /**
  * Twig environment for CodeRunner
+ * @package qtype_coderunner
  */
 
 defined('MOODLE_INTERNAL') || die();

@@ -19,8 +19,7 @@
  * question editing; at all other times the UI parameters are simply JSON
  * objects.
  *
- * @package    qtype
- * @subpackage coderunner
+ * @package    qtype_coderunner
  * @copyright  Richard Lobb, 2021, The University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

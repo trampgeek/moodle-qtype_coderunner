@@ -20,8 +20,7 @@
  * This version doesn't do any authentication; it's assumed the server is
  * firewalled to accept connections only from Moodle.
  *
- * @package    qtype
- * @subpackage coderunner
+ * @package    qtype_coderunner
  * @copyright  2014, 2015 Richard Lobb, University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

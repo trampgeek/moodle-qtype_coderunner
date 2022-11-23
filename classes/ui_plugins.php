@@ -17,8 +17,7 @@
 /** Defines a ui_plugins class which contains a list of available ui_plugins
  * and their attributes.
  *
- * @package    qtype
- * @subpackage coderunner
+ * @package    qtype_coderunner
  * @copyright  Richard Lobb, 2021, The University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

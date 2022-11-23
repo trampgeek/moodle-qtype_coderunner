@@ -16,6 +16,7 @@
 
 /**
  * Macros for the Twig environment.
+ * @package    qtype_coderunner
  */
 
 // Class that simply provides a static method to supply the template

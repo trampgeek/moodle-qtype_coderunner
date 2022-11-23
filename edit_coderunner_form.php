@@ -19,8 +19,7 @@ defined('MOODLE_INTERNAL') || die();
 /*
  * Defines the editing form for the coderunner question type.
  *
- * @package 	questionbank
- * @subpackage 	questiontypes
+ * @package    qtype_coderunner
  * @copyright 	&copy; 2013 Richard Lobb
  * @author 		Richard Lobb richard.lobb@canterbury.ac.nz
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License

@@ -24,7 +24,8 @@
  *
  * The script takes one parameter id which is a questionid as a parameter.
  * Only the latest version of the given question is tested.
- *
+ * 
+ * @package    qtype_coderunner
  * @copyright  2012 the Open University, 2016 Richard Lobb, The University of Canterbury.
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
