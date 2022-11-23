@@ -194,6 +194,22 @@ define(['jquery'], function ($) {
 
 
     /**
+     * Combine the code...
+     * @param {string} answerCode
+     * @param {string} testCode
+     * @param {string} prefixAns
+     * @returns {string}
+     */
+    function combineCode(answerCode, testCode, prefixAns) {
+        let combined = prefixAns ? (answerCode + '\n') : '';
+        combined += testCode;
+        return combined;
+
+        // TODO: Change to template format, something like template = "{student ans} \n {testCode}"
+    }
+
+
+    /**
      * Constructor for the DualBlobUi object.
      * @param {string} textareaId The ID of the html textarea.
      * @param {int} width The width in pixels of the textarea.
@@ -261,14 +277,6 @@ define(['jquery'], function ($) {
         return $(this.blobDiv).find('.coderunner-ui-element');
     };
 
-    DualBlobUi.prototype.combineCode = function (answerCode, testCode, prefixAns) {
-        let combined = prefixAns ? (answerCode + '\n') : '';
-        combined += testCode;
-        return combined;
-        
-        // TODO: Change to template format, something like template = "{student ans} \n {testCode}"
-    };
-
     DualBlobUi.prototype.handleRunButtonClick = async function (ajax, outputDisplayArea) {
         this.sync(); // Make sure to use up-to-date serialization.
         const htmlOutput = this.spHtmlOutput;
@@ -276,7 +284,7 @@ define(['jquery'], function ($) {
         const preloadString = this.textArea.val();
         const serial = JSON.parse(preloadString);
         //TODO: Wrap code..?
-        const code = this.combineCode(serial.answer_code[0], serial.test_code[0], serial.prefix_ans[0]);
+        const code = combineCode(serial.answer_code[0], serial.test_code[0], serial.prefix_ans[0]);
 
         ajax.call([{
                 methodname: 'qtype_coderunner_run_in_sandbox',
