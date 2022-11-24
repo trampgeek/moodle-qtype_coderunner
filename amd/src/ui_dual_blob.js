@@ -195,11 +195,12 @@ define(['jquery'], function ($) {
 
 
     /**
-     * Combine the code...
-     * @param {string} answerCode
-     * @param {string} testCode
-     * @param {string} prefixAns
-     * @returns {string}
+     * Combine answer code with scratchpad code. If prefixAns is false:
+     * only include testCode.
+     * @param {string} answerCode text.
+     * @param {string} testCode text.
+     * @param {string} prefixAns '1' for true, '' for false.
+     * @returns {string} The combined code.
      */
     function combineCode(answerCode, testCode, prefixAns) {
         let combined = prefixAns ? (answerCode + '\n') : '';
@@ -209,12 +210,14 @@ define(['jquery'], function ($) {
 
 
     /**
-     * Combine the code...
-     * @param {string} answerCode
-     * @param {string} testCode
-     * @param {string} prefixAns
-     * @param {string} template
-     * @returns {string}
+     * Insert the answer code and test code into the wrapper. This may
+     * defined by the user, in UI Params or globalextra. If prefixAns is
+     * false: do not include answerCode in final wrapper.
+     * @param {string} answerCode text.
+     * @param {string} testCode text.
+     * @param {string} prefixAns '1' for true, '' for false.
+     * @param {string} template provided in UI Params or globalextra.
+     * @returns {string} filled template.
      */
     function fillWrapper(answerCode, testCode, prefixAns, template) {
         if (!prefixAns) {
@@ -247,10 +250,10 @@ define(['jquery'], function ($) {
         this.spPrefixName = uiParams.sp_prefix_name || 'Prefix Answer?';
         this.spRunLang = uiParams.sp_run_lang || this.uiParams.lang; // use answer's ace language if not specified.
         this.spHtmlOutput = uiParams.sp_html_out || false;
+
         this.spRunWrapper = uiParams.sp_run_wrapper || null;
         if (this.spRunWrapper && this.spRunWrapper === '___GLOBAL_EXTRA___') {
             this.spRunWrapper = this.textArea.attr('data-globalextra');
-            console.log(this.textArea.attr('data-globalextra'));
         }
 
         this.blobDiv = null;
@@ -305,9 +308,10 @@ define(['jquery'], function ($) {
         const maxLen = this.uiParams['max-output-length'] || DEFUALT_MAX_OUTPUT_LEN;
         const preloadString = this.textArea.val();
         const serial = JSON.parse(preloadString);
-        //TODO: Wrap code..?
+        
         let code;
         if (this.spRunWrapper) {
+            // Wrap the code if a wrapper exists.
             code = fillWrapper(
                     serial.answer_code[0],
                     serial.test_code[0],
@@ -315,9 +319,10 @@ define(['jquery'], function ($) {
                     this.spRunWrapper
                     );
         } else {
+            // Combine code if no wrapper.
             code = combineCode(serial.answer_code[0], serial.test_code[0], serial.prefix_ans[0]);
         }
-        
+
         ajax.call([{
                 methodname: 'qtype_coderunner_run_in_sandbox',
                 args: {
