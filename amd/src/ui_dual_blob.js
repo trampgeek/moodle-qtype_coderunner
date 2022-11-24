@@ -246,8 +246,11 @@ define(['jquery'], function ($) {
         this.spPrefixName = uiParams.sp_prefix_name || 'Prefix Answer?';
         this.spRunLang = uiParams.sp_run_lang || this.uiParams.lang; // use answer's ace language if not specified.
         this.spHtmlOutput = uiParams.sp_html_out || false;
-        this.spRunWrapper = '{{ STUDENT_ANSWER }}\n{{ TEST_CODE }}\n{{ TEST_CODE }}';
-
+        this.spRunWrapper = uiParams.sp_run_wrapper || null;
+        if (this.spRunWrapper && this.spRunWrapper === '___GLOBAL_EXTRA___') {
+            this.spRunWrapper = this.textArea.attr('data-globalextra');
+            console.log(this.textArea.attr('data-globalextra'));
+        }
 
         this.blobDiv = null;
         this.scratchpadDiv = null;
@@ -302,13 +305,18 @@ define(['jquery'], function ($) {
         const preloadString = this.textArea.val();
         const serial = JSON.parse(preloadString);
         //TODO: Wrap code..?
-        let code = combineCode(serial.answer_code[0], serial.test_code[0], serial.prefix_ans[0]);
-        code = fillWrapper(
-                serial.answer_code[0],
-                serial.test_code[0],
-                serial.prefix_ans[0],
-                this.spRunWrapper
-                );
+        let code;
+        if (this.spRunWrapper) {
+            code = fillWrapper(
+                    serial.answer_code[0],
+                    serial.test_code[0],
+                    serial.prefix_ans[0],
+                    this.spRunWrapper
+                    );
+        } else {
+            code = combineCode(serial.answer_code[0], serial.test_code[0], serial.prefix_ans[0]);
+        }
+        
         ajax.call([{
                 methodname: 'qtype_coderunner_run_in_sandbox',
                 args: {

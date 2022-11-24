@@ -27,7 +27,7 @@
         },
         "sp_run_wrapper": {
             "type": "string",
-            "defualt": null
+            "default": null
         },
         "sp_run_wrapper_globalextra": {
             "type": "boolean",
