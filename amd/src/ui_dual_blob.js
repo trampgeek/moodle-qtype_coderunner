@@ -154,7 +154,8 @@ define(['jquery'], function ($) {
      */
     function combinedOutput(response, maxLen) {
         const limit = s => s.length <= maxLen ? s : s.substr(0, maxLen) + '... (truncated)';
-        return response.cmpinfo + limit(response.output) + limit(response.stderr);
+        //return response.cmpinfo + limit(response.output) + limit(response.stderr);
+        return response.cmpinfo + (response.output) + (response.stderr);
     }
 
 
