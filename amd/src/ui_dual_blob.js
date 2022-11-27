@@ -153,7 +153,7 @@ define(['jquery'], function ($) {
      * @param {int} maxLen The maximum length of the trimmed stringlen.
      */
     function combinedOutput(response, maxLen) {
-        const limit = s => s.length <= maxLen ? s : s.substr(0, maxLen) + '... (truncated)';
+//        const limit = s => s.length <= maxLen ? s : s.substr(0, maxLen) + '... (truncated)';
         //return response.cmpinfo + limit(response.output) + limit(response.stderr);
         return response.cmpinfo + (response.output) + (response.stderr);
     }
@@ -240,7 +240,7 @@ define(['jquery'], function ($) {
     function DualBlobUi(textareaId, width, height, uiParams) {
         this.textArea = $(document.getElementById(textareaId));
         this.textareaId = textareaId;
-
+        this.height = height;
         this.readOnly = this.textArea.prop('readonly');
         this.uiParams = uiParams;
         this.fail = false;
@@ -308,7 +308,7 @@ define(['jquery'], function ($) {
         const maxLen = this.uiParams['max-output-length'] || DEFUALT_MAX_OUTPUT_LEN;
         const preloadString = this.textArea.val();
         const serial = JSON.parse(preloadString);
-        
+        const params = this.uiParams.params;
         let code;
         if (this.spRunWrapper) {
             // Wrap the code if a wrapper exists.
@@ -328,7 +328,8 @@ define(['jquery'], function ($) {
                 args: {
                     contextid: M.cfg.contextid, // Moodle context ID
                     sourcecode: code,
-                    language: this.spRunLang
+                    language: this.spRunLang,
+                    params: JSON.stringify(params) // todo memlimit? (read the docs)
                 },
                 done: function (responseJson) {
                     const response = JSON.parse(responseJson);
@@ -397,6 +398,11 @@ define(['jquery'], function ($) {
         });
 
         this.blobDiv = $(divHtml);
+        this.blobDiv.css({
+                resize: 'none',
+                height: this.height,
+                width: "100%"
+            });
         this.blobDiv.append([$(answerTextHtml), showButton]);
 
 

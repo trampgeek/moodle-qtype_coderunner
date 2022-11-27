@@ -29,9 +29,9 @@
             "type": "string",
             "default": null
         },
-        "sp_run_wrapper_globalextra": {
-            "type": "boolean",
-            "default": false
+        "params": {
+            "type": "object",
+            "default": null
         },
         "sp_html_out": {
             "type": "boolean",
