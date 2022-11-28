@@ -126,6 +126,7 @@ define(['jquery'], function ($) {
         return 'error_unknown_runtime';
     }
 
+
     /**
      * Get the specified language string using
      * AJAX and plug it into the given textarea
@@ -252,7 +253,7 @@ define(['jquery'], function ($) {
         this.spHtmlOutput = uiParams.sp_html_out || false;
 
         this.spRunWrapper = uiParams.sp_run_wrapper || null;
-        if (this.spRunWrapper && this.spRunWrapper === '___GLOBAL_EXTRA___') {
+        if (this.spRunWrapper && this.spRunWrapper === 'globalextra') {
             this.spRunWrapper = this.textArea.attr('data-globalextra');
         }
 
