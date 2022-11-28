@@ -310,8 +310,14 @@ define(['jquery'], function ($) {
         const serial = JSON.parse(preloadString);
         const params = this.uiParams.params;
         let code;
-        if (this.spRunWrapper) {
-            // Wrap the code if a wrapper exists.
+        
+        outputDisplayArea.html(''); // Clear all output areas.
+        if (htmlOutput) { 
+            outputDisplayArea.hide();
+        }
+        outputDisplayArea.next('div.filter-ace-inline-html').remove();
+        
+        if (this.spRunWrapper) { // Wrap the code if a wrapper exists.
             code = fillWrapper(
                     serial.answer_code[0],
                     serial.test_code[0],
@@ -329,7 +335,7 @@ define(['jquery'], function ($) {
                     contextid: M.cfg.contextid, // Moodle context ID
                     sourcecode: code,
                     language: this.spRunLang,
-                    params: JSON.stringify(params) // todo memlimit? (read the docs)
+                    params: JSON.stringify(params) // todo memlimit? (read the docs)    
                 },
                 done: function (responseJson) {
                     const response = JSON.parse(responseJson);
@@ -344,6 +350,7 @@ define(['jquery'], function ($) {
                         } else { // Valid HTML output - just plug in the raw html to the DOM.
                             // Repeat the deletion of previous output in case of multiple button clicks.
                             outputDisplayArea.next('div.filter-ace-inline-html').remove();
+                            
                             const html = $("<div class='filter-ace-inline-html '" +
                                     "style='background-color:#eff;padding:5px;'>" +
                                     response.output + "</div>");
