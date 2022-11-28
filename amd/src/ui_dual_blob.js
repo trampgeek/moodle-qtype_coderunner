@@ -61,7 +61,7 @@
 
 define(['jquery'], function ($) {
     const RESULT_SUCCESS = 15; // Code for a correct Jobe run.
-    const DEFUALT_MAX_OUTPUT_LEN = 100;
+    const DEFUALT_MAX_OUTPUT_LEN = 30000;
 
 
     /**
@@ -154,8 +154,8 @@ define(['jquery'], function ($) {
      * @param {int} maxLen The maximum length of the trimmed stringlen.
      */
     function combinedOutput(response, maxLen) {
-//        const limit = s => s.length <= maxLen ? s : s.substr(0, maxLen) + '... (truncated)';
-        //return response.cmpinfo + limit(response.output) + limit(response.stderr);
+        const limit = s => s.length <= maxLen ? s : s.substr(0, maxLen) + '... (truncated)';
+        return response.cmpinfo + limit(response.output) + limit(response.stderr);
         return response.cmpinfo + (response.output) + (response.stderr);
     }
 
@@ -224,6 +224,9 @@ define(['jquery'], function ($) {
         if (!prefixAns) {
             answerCode = '';
         }
+        // Make sure stuent code with \n (s) doesn't implode...
+        answerCode = answerCode.replaceAll('\\n', '\\\\n');
+        testCode = testCode.replaceAll('\\n', '\\\\n');
         template = template.replaceAll('{{ STUDENT_ANSWER }}', answerCode);
         template = template.replaceAll('{{ TEST_CODE }}', testCode);
         return template;
@@ -309,15 +312,16 @@ define(['jquery'], function ($) {
         const maxLen = this.uiParams['max-output-length'] || DEFUALT_MAX_OUTPUT_LEN;
         const preloadString = this.textArea.val();
         const serial = JSON.parse(preloadString);
+        console.log("parsed " + JSON.stringify(serial), serial);
         const params = this.uiParams.params;
         let code;
-        
+
         outputDisplayArea.html(''); // Clear all output areas.
-        if (htmlOutput) { 
+        if (htmlOutput) {
             outputDisplayArea.hide();
         }
         outputDisplayArea.next('div.filter-ace-inline-html').remove();
-        
+
         if (this.spRunWrapper) { // Wrap the code if a wrapper exists.
             code = fillWrapper(
                     serial.answer_code[0],
@@ -334,9 +338,9 @@ define(['jquery'], function ($) {
                 methodname: 'qtype_coderunner_run_in_sandbox',
                 args: {
                     contextid: M.cfg.contextid, // Moodle context ID
-                    sourcecode: code,
+                    sourcecode: (console.log("code is " + code), code),
                     language: this.spRunLang,
-                    params: JSON.stringify(params) // todo memlimit? (read the docs)    
+                    params: JSON.stringify(params) // Sandbox params
                 },
                 done: function (responseJson) {
                     const response = JSON.parse(responseJson);
@@ -351,7 +355,7 @@ define(['jquery'], function ($) {
                         } else { // Valid HTML output - just plug in the raw html to the DOM.
                             // Repeat the deletion of previous output in case of multiple button clicks.
                             outputDisplayArea.next('div.filter-ace-inline-html').remove();
-                            
+
                             const html = $("<div class='filter-ace-inline-html '" +
                                     "style='background-color:#eff;padding:5px;'>" +
                                     response.output + "</div>");
@@ -407,10 +411,10 @@ define(['jquery'], function ($) {
 
         this.blobDiv = $(divHtml);
         this.blobDiv.css({
-                resize: 'none',
-                height: this.height,
-                width: "100%"
-            });
+            resize: 'none',
+            height: this.height,
+            width: "100%"
+        });
         this.blobDiv.append([$(answerTextHtml), showButton]);
 
 
