@@ -1221,7 +1221,8 @@ $string['useace'] = 'Template uses ace';
 $string['validateonsave'] = 'Validate on save';
 
 $string['wrongnumberofformats'] = 'Wrong number of test results column formats. Expected {$a->expected}, got {$a->got}';
-$string['wsbadjson'] = 'params and file parameters must be blank or a valid JSON record';
+$string['wsbadjson'] = 'Params and file parameters must be blank or a valid JSON record';
+$string['wscputimeexcess'] = 'CPU time specified exceeds set maximum CPU time';
 $string['wsdisabled'] = 'Sandbox web service disabled. Talk to a sysadmin';
 $string['wsloggingenable'] = 'Log sandbox web service usage';
 $string['wsloggingenable_desc'] = 'If this option is checked, every code execution via the sandbox web service will be logged. This option must be enabled if user rate throttling is to work.';
