@@ -148,7 +148,7 @@ class run_in_sandbox extends external_api {
             }
             $maxcputime = intval(get_config('qtype_coderunner', 'wsmaxcputime'));  // Limit CPU time through this service.
             if (isset($paramsarray['cputime'])) {
-                if ($paramsarray['cputime'] > min($paramsarray['cputime'], $maxcputime)) {
+                if ($paramsarray['cputime'] > $maxcputime) {
                     throw new qtype_coderunner_exception(get_string('wscputimeexcess', 'qtype_coderunner'));
                 }
             }
