@@ -224,11 +224,8 @@ define(['jquery'], function ($) {
         if (!prefixAns) {
             answerCode = '';
         }
-        // Make sure stuent code with \n (s) doesn't implode...
-        answerCode = answerCode.replaceAll('\\n', '\\\\n');
-        testCode = testCode.replaceAll('\\n', '\\\\n');
-        template = template.replaceAll('{{ STUDENT_ANSWER }}', answerCode);
-        template = template.replaceAll('{{ TEST_CODE }}', testCode);
+        template = template.replaceAll('{{ ANSWER_CODE }}', answerCode);
+        template = template.replaceAll('{{ SCRATCHPAD_CODE }}', testCode);
         return template;
     }
 
@@ -312,7 +309,6 @@ define(['jquery'], function ($) {
         const maxLen = this.uiParams['max-output-length'] || DEFUALT_MAX_OUTPUT_LEN;
         const preloadString = this.textArea.val();
         const serial = JSON.parse(preloadString);
-        console.log("parsed " + JSON.stringify(serial), serial);
         const params = this.uiParams.params;
         let code;
 
@@ -338,7 +334,7 @@ define(['jquery'], function ($) {
                 methodname: 'qtype_coderunner_run_in_sandbox',
                 args: {
                     contextid: M.cfg.contextid, // Moodle context ID
-                    sourcecode: (console.log("code is " + code), code),
+                    sourcecode: code,
                     language: this.spRunLang,
                     params: JSON.stringify(params) // Sandbox params
                 },
