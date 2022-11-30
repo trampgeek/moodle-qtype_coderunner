@@ -408,7 +408,7 @@ define(['jquery'], function ($) {
         const answerEditorNode = $(divHtml);
         this.answerEditor = new AceWrapper(answerEditorNode, 
                                             this.textareaId, 
-                                            preload['answer_code'], 
+                                            preload['answer_code'][0], 
                                             500, 
                                             500,
                                             {lang: 'python3'});
@@ -431,7 +431,7 @@ define(['jquery'], function ($) {
         const scratchpadEditorNode = $(divHtml);
         this.scratchpadEditor = new AceWrapper(scratchpadEditorNode, 
                                             this.textareaId, 
-                                            preload['answer_code'], 
+                                            preload['test_code'][0], 
                                             500, 
                                             500,
                                             {lang: 'python3'});
