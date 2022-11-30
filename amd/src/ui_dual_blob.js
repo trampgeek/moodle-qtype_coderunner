@@ -274,7 +274,8 @@ define(['jquery'], function ($) {
     DualBlobUi.prototype.sync = function () {
         const t = this;
         let serialisation = {};
-
+        serialisation['answer_code'] = [this.answerEditor.sync()];
+        serialisation['test_code'] = [this.scratchpadEditor.sync()];
         this.getFields().each(function () {
             const name = $(this).attr('name');
             const type = $(this).attr('type');
@@ -405,7 +406,12 @@ define(['jquery'], function ($) {
             showButton.html(arrow + t.spName);
         });
         const answerEditorNode = $(divHtml);
-        this.answerEditor = new AceWrapper(answerEditorNode, this.textareaId, 'value', 500, 500, {lang: 'python3'});
+        this.answerEditor = new AceWrapper(answerEditorNode, 
+                                            this.textareaId, 
+                                            preload['answer_code'], 
+                                            500, 
+                                            500,
+                                            {lang: 'python3'});
         this.blobDiv = $(divHtml);
         this.blobDiv.css({
             resize: 'none',
@@ -421,7 +427,14 @@ define(['jquery'], function ($) {
             this.scratchpadDiv.hide();
             showButton.html(`▶${this.spName}`);
         }
-        const testCodeHtml = htmlTextArea('test_code', preload['test_code']);
+        //const testCodeHtml = htmlTextArea('test_code', preload['test_code']);
+        const scratchpadEditorNode = $(divHtml);
+        this.scratchpadEditor = new AceWrapper(scratchpadEditorNode, 
+                                            this.textareaId, 
+                                            preload['answer_code'], 
+                                            500, 
+                                            500,
+                                            {lang: 'python3'});
         const prefixAnsHtml = htmlInput('prefix_ans', this.spPrefixName, preload['prefix_ans'], 'checkbox');
 
         const runButton = $("<button type='button' " +
@@ -436,7 +449,7 @@ define(['jquery'], function ($) {
         const outputDisplayArea = $("<pre style='width:100%;white-space:pre-wrap;background-color:#eff;" +
                 "border:1px gray;padding:5px;overflow-wrap:break-word;max-height:600px;overflow:auto;'></pre>");
         outputDisplayArea.hide();
-        this.scratchpadDiv.append([$(testCodeHtml), runButton, $(prefixAnsHtml), outputDisplayArea]);
+        this.scratchpadDiv.append([scratchpadEditorNode, runButton, $(prefixAnsHtml), outputDisplayArea]);
 
         this.blobDiv.append(this.scratchpadDiv);
     };
@@ -570,7 +583,6 @@ define(['jquery'], function ($) {
     AceWrapper.prototype.failMessage = function() {
         return 'ace_ui_notready';
     };
-
 
     // Sync to TextArea
     AceWrapper.prototype.sync = function() {
@@ -713,8 +725,6 @@ define(['jquery'], function ($) {
         this.editNode.outerWidth(w);
         this.editor.resize();
     };
-    
-    
 
     return {
         Constructor: DualBlobUi
