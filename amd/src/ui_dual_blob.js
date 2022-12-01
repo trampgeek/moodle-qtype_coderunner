@@ -161,10 +161,11 @@ define(['jquery'], function ($) {
 
 
     /**
-     * Create text area...
+     * Create HTML for a text area.
+     * @param {string} id for text area.
      * @param {string} name The ID of the html textarea.
      * @param {string} value The ID of the html textarea.
-     * @return {string} value area html string.
+     * @return {string} HTML string.
      */
     function htmlTextArea(id, name, value) {
         return `<textarea
@@ -176,12 +177,12 @@ define(['jquery'], function ($) {
 
 
     /**
-     * Create input feild...
-     * @param {string} name The name for the html input.
+     * Create HTML for an input.
+     * @param {string} name for the html input.
      * @param {string} label text.
      * @param {string} value trype of the html input.
      * @param {string} type type of the html input.
-     * @return {string} HTML string containing both input and label elements.
+     * @return {string} HTML string with iput and label.
      */
     function htmlInput(name, label, value, type) {
         const checked = (value && value[0]) ? 'checked' : '';
@@ -228,6 +229,19 @@ define(['jquery'], function ($) {
         template = template.replaceAll('{{ ANSWER_CODE }}', answerCode);
         template = template.replaceAll('{{ SCRATCHPAD_CODE }}', testCode);
         return template;
+    }
+
+    /**
+     * Returns a new Ace UI that serializes to the text area with provided ID.
+     * @param {string} textAreaId for ace to manage.
+     * @returns {InterfaceWrapper} new user interface wrapper containing Ace UI.
+     */
+    function newAceUiWrapper(textAreaId, params) {
+        let ace;
+        require(['qtype_coderunner/userinterfacewrapper'], function (uiWrapper) {
+            ace = uiWrapper.newUiWrapper('ace', textAreaId);
+        });
+        return ace;
     }
 
 
@@ -378,13 +392,13 @@ define(['jquery'], function ($) {
         const preloadString = $(this.textArea).val();
         const answerTextAreaId = this.textAreaId + '-answer-code';
         const spTextAreaId = this.textAreaId + '-sp-code';
-        const t = this;
         let preload = {
             answer_code: [''],
             test_code: [''],
             show_hide: [''],
             prefix_ans: ['']
         };
+        
         try {
             if (preloadString) {
                 preload = JSON.parse(preloadString);
@@ -395,19 +409,12 @@ define(['jquery'], function ($) {
             return;
         }
 
-        // Main ide.
         this.drawUi(answerTextAreaId, preload);
-
-        // Scratchpad.
         this.drawScratchpadUi(spTextAreaId, preload);
 
-//        this.answerTextArea.attr('id', answerTextAreaId);
-//        this.spCodeTextArea.attr('id', spTextAreaId);
+        this.answerCodeUi = newAceUiWrapper(answerTextAreaId);
+        this.spCodeUi = newAceUiWrapper(spTextAreaId);
 
-        require(['qtype_coderunner/userinterfacewrapper'], function (uiWrapper) {
-            t.answerCodeUi = uiWrapper.newUiWrapper('ace', answerTextAreaId);
-            t.spCodeUi = uiWrapper.newUiWrapper('ace', spTextAreaId);
-        });
     };
 
     DualBlobUi.prototype.drawUi = function (answerTextAreaId, preload) {
