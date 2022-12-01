@@ -236,7 +236,7 @@ define(['jquery'], function ($) {
      * @param {string} textAreaId for ace to manage.
      * @returns {InterfaceWrapper} new user interface wrapper containing Ace UI.
      */
-    function newAceUiWrapper(textAreaId, params) {
+    function newAceUiWrapper(textAreaId) {
         let ace;
         require(['qtype_coderunner/userinterfacewrapper'], function (uiWrapper) {
             ace = uiWrapper.newUiWrapper('ace', textAreaId);
@@ -319,7 +319,8 @@ define(['jquery'], function ($) {
     };
 
     DualBlobUi.prototype.handleRunButtonClick = async function (ajax, outputDisplayArea) {
-        this.sync(); // Make sure to use up-to-date serialization.
+        this.sync(); // Use up-to-date serialization.
+
         const htmlOutput = this.spHtmlOutput;
         const maxLen = this.uiParams['max-output-length'] || DEFUALT_MAX_OUTPUT_LEN;
         const preloadString = this.textArea.val();
@@ -398,7 +399,7 @@ define(['jquery'], function ($) {
             show_hide: [''],
             prefix_ans: ['']
         };
-        
+
         try {
             if (preloadString) {
                 preload = JSON.parse(preloadString);
@@ -439,6 +440,7 @@ define(['jquery'], function ($) {
             width: "100%"
         });
         this.answerTextArea = answerTextArea;
+        this.answerTextArea.attr('data-lang', this.uiParams.lang); //Set language for Ace to use.
         this.blobDiv.append([answerTextArea, showButton]);
         this.scratchpadDiv = $(divHtml);
         if (!preload.show_hide[0]) {
@@ -464,6 +466,7 @@ define(['jquery'], function ($) {
             });
         });
         this.spCodeTextArea = $(testCodeHtml);
+        this.spCodeTextArea.attr('data-lang',  this.uiParams.lang); //Set language for Ace to use.
         this.scratchpadDiv.append([this.spCodeTextArea, runButton, $(prefixAnsHtml), outputDisplayArea]);
         this.blobDiv.append(this.scratchpadDiv);
     };
