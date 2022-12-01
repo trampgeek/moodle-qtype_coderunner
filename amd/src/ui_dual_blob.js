@@ -166,8 +166,9 @@ define(['jquery'], function ($) {
      * @param {string} value The ID of the html textarea.
      * @return {string} value area html string.
      */
-    function htmlTextArea(name, value) {
+    function htmlTextArea(id, name, value) {
         return `<textarea
+                    id='${id}'
                     class='coderunner-ui-element' 
                     name='${name}' 
                     style='width:100%;height:250px'>${value}</textarea>`;
@@ -325,8 +326,7 @@ define(['jquery'], function ($) {
                     serial.prefix_ans[0],
                     this.spRunWrapper
                     );
-        } else {
-            // Combine code if no wrapper.
+        } else { // No wrapper.
             code = combineCode(serial.answer_code[0], serial.test_code[0], serial.prefix_ans[0]);
         }
 
@@ -376,6 +376,9 @@ define(['jquery'], function ($) {
 
     DualBlobUi.prototype.reload = async function () {
         const preloadString = $(this.textArea).val();
+        const answerTextAreaId = this.textAreaId + '-answer-code';
+        const spTextAreaId = this.textAreaId + '-sp-code';
+        const t = this;
         let preload = {
             answer_code: [''],
             test_code: [''],
@@ -393,20 +396,35 @@ define(['jquery'], function ($) {
         }
 
         // Main ide.
+        this.drawUi(answerTextAreaId, preload);
+
+        // Scratchpad.
+        this.drawScratchpadUi(spTextAreaId, preload);
+
+//        this.answerTextArea.attr('id', answerTextAreaId);
+//        this.spCodeTextArea.attr('id', spTextAreaId);
+
+        require(['qtype_coderunner/userinterfacewrapper'], function (uiWrapper) {
+            t.answerCodeUi = uiWrapper.newUiWrapper('ace', answerTextAreaId);
+            t.spCodeUi = uiWrapper.newUiWrapper('ace', spTextAreaId);
+        });
+    };
+
+    DualBlobUi.prototype.drawUi = function (answerTextAreaId, preload) {
+        const t = this;
         const divHtml = "<div></div>";
-        const answerTextAreaHtml = htmlTextArea('answer_code', preload['answer_code']);
-        const showButtonHtml = "<a class='coderunner-ui-element' " +
+        const answerTextAreaHtml = htmlTextArea(answerTextAreaId, 'answer_code', preload['answer_code']);
+        const showButtonHtml = "<a " +
+                "class='coderunner-ui-element' " +
                 `name='show_hide'>▼${this.spName}</a>`;
         const answerTextArea = $(answerTextAreaHtml);
         const showButton = $(showButtonHtml);
-        const t = this;
-        
+
         showButton.click(function () {
             const arrow = $(t.scratchpadDiv).is(':visible') ? '▶' : '▼';
             t.scratchpadDiv.toggle();
             showButton.html(arrow + t.spName);
         });
-
         this.blobDiv = $(divHtml);
         this.blobDiv.css({
             resize: 'none',
@@ -415,43 +433,32 @@ define(['jquery'], function ($) {
         });
         this.answerTextArea = answerTextArea;
         this.blobDiv.append([answerTextArea, showButton]);
-
-
-        // Scratchpad.
         this.scratchpadDiv = $(divHtml);
         if (!preload.show_hide[0]) {
             this.scratchpadDiv.hide();
             showButton.html(`▶${this.spName}`);
         }
-        const testCodeHtml = htmlTextArea('test_code', preload['test_code']);
-        const prefixAnsHtml = htmlInput('prefix_ans', this.spPrefixName, preload['prefix_ans'], 'checkbox');
+    };
 
+    DualBlobUi.prototype.drawScratchpadUi = function (spTextAreaId, preload) {
+        const t = this;
+        const testCodeHtml = htmlTextArea(spTextAreaId, 'test_code', preload['test_code']);
+        const prefixAnsHtml = htmlInput('prefix_ans', this.spPrefixName, preload['prefix_ans'], 'checkbox');
         const runButton = $("<button type='button' " +
                 "class='btn btn-secondary' " +
                 "style='margin-bottom:6px;padding:2px 8px;'>" +
                 `${this.spButtonName}</button>`);
-        require(['core/ajax'], function (ajax) {
-            runButton.on('click', function () {
-                t.handleRunButtonClick(ajax, outputDisplayArea, preload.test_code[0]);
-            });
-        });
         const outputDisplayArea = $("<pre style='width:100%;white-space:pre-wrap;background-color:#eff;" +
                 "border:1px gray;padding:5px;overflow-wrap:break-word;max-height:600px;overflow:auto;'></pre>");
         outputDisplayArea.hide();
+        runButton.on('click', function () {
+            require(['core/ajax'], function (ajax) {
+                t.handleRunButtonClick(ajax, outputDisplayArea, preload.test_code[0]);
+            });
+        });
         this.spCodeTextArea = $(testCodeHtml);
         this.scratchpadDiv.append([this.spCodeTextArea, runButton, $(prefixAnsHtml), outputDisplayArea]);
-
         this.blobDiv.append(this.scratchpadDiv);
-        
-        //console.log(t.answerTextArea.attr('id'));
-        const answerTextAreaId = this.textAreaId = '-answer-code';
-        const spTextAreaId = this.textAreaId = '-sp-code';
-        this.answerTextArea.attr('id', answerTextAreaId);
-        this.spCodeTextArea.attr('id', spTextAreaId);
-        require(['qtype_coderunner/userinterfacewrapper'], function(uiWrapper) {
-            t.answerCodeUi = uiWrapper.newUiWrapper('ace', answerTextAreaId);
-            t.spCodeUi = uiWrapper.newUiWrapper('ace', spTextAreaId);
-        });
     };
 
     DualBlobUi.prototype.resize = function () {}; // Nothing to see here. Move along please.
