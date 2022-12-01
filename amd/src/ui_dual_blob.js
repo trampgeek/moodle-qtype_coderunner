@@ -248,14 +248,14 @@ define(['jquery'], function ($) {
 
     /**
      * Constructor for the DualBlobUi object.
-     * @param {string} textareaId The ID of the html textarea.
+     * @param {string} textAreaId The ID of the html textarea.
      * @param {int} width The width in pixels of the textarea.
      * @param {int} height The height in pixels of the textarea.
      * @param {object} uiParams The UI parameter object.
      */
-    function DualBlobUi(textareaId, width, height, uiParams) {
-        this.textArea = $(document.getElementById(textareaId));
-        this.textareaId = textareaId;
+    function DualBlobUi(textAreaId, width, height, uiParams) {
+        this.textArea = $(document.getElementById(textAreaId));
+        this.textAreaId = textAreaId;
         this.height = height;
         this.readOnly = this.textArea.prop('readonly');
         this.uiParams = uiParams;
