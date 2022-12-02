@@ -231,6 +231,7 @@ define(['jquery'], function ($) {
         return template;
     }
 
+
     /**
      * Returns a new Ace UI that serializes to the text area with provided ID.
      * @param {string} textAreaId for ace to manage.
@@ -328,7 +329,8 @@ define(['jquery'], function ($) {
         const params = this.uiParams.params;
         let code;
 
-        outputDisplayArea.html(''); // Clear all output areas.
+        // Clear all output areas.
+        outputDisplayArea.html('');
         if (htmlOutput) {
             outputDisplayArea.hide();
         }
@@ -416,32 +418,32 @@ define(['jquery'], function ($) {
         this.answerCodeUi = newAceUiWrapper(answerTextAreaId);
         this.spCodeUi = newAceUiWrapper(spTextAreaId);
 
+        // No resizing the outer wrapper! Instead resize the two sub UIs, they
+        // will expand accordingly.
+        $(document.getElementById(this.textAreaId + '_wrapper')).css('resize', 'none');
     };
 
     DualBlobUi.prototype.drawUi = function (answerTextAreaId, preload) {
         const t = this;
-        const divHtml = "<div></div>";
+        const divHtml = "<div style='height:100%' class='qtype-coderunner-sp-outer-div'></div>";
         const answerTextAreaHtml = htmlTextArea(answerTextAreaId, 'answer_code', preload['answer_code']);
         const showButtonHtml = "<a " +
                 "class='coderunner-ui-element' " +
                 `name='show_hide'>▼${this.spName}</a>`;
         const answerTextArea = $(answerTextAreaHtml);
         const showButton = $(showButtonHtml);
-
+        answerTextArea.attr('rows', this.textArea.attr('rows', ));
         showButton.click(function () {
             const arrow = $(t.scratchpadDiv).is(':visible') ? '▶' : '▼';
             t.scratchpadDiv.toggle();
             showButton.html(arrow + t.spName);
         });
         this.blobDiv = $(divHtml);
-        this.blobDiv.css({
-            resize: 'none',
-            height: this.height,
-            width: "100%"
-        });
+
         this.answerTextArea = answerTextArea;
         this.answerTextArea.attr('data-lang', this.uiParams.lang); //Set language for Ace to use.
         this.blobDiv.append([answerTextArea, showButton]);
+
         this.scratchpadDiv = $(divHtml);
         if (!preload.show_hide[0]) {
             this.scratchpadDiv.hide();
@@ -455,7 +457,7 @@ define(['jquery'], function ($) {
         const prefixAnsHtml = htmlInput('prefix_ans', this.spPrefixName, preload['prefix_ans'], 'checkbox');
         const runButton = $("<button type='button' " +
                 "class='btn btn-secondary' " +
-                "style='margin-bottom:6px;padding:2px 8px;'>" +
+                "style='margin:6px;padding:2px 8px;'>" +
                 `${this.spButtonName}</button>`);
         const outputDisplayArea = $("<pre style='width:100%;white-space:pre-wrap;background-color:#eff;" +
                 "border:1px gray;padding:5px;overflow-wrap:break-word;max-height:600px;overflow:auto;'></pre>");
@@ -466,14 +468,14 @@ define(['jquery'], function ($) {
             });
         });
         this.spCodeTextArea = $(testCodeHtml);
-        this.spCodeTextArea.attr('data-lang',  this.uiParams.lang); //Set language for Ace to use.
+        this.spCodeTextArea.attr('data-lang', this.uiParams.lang); //Set language for Ace to use.
         this.scratchpadDiv.append([this.spCodeTextArea, runButton, $(prefixAnsHtml), outputDisplayArea]);
         this.blobDiv.append(this.scratchpadDiv);
     };
 
     DualBlobUi.prototype.resize = function () {}; // Nothing to see here. Move along please.
 
-    DualBlobUi.prototype.hasFocus = function () {
+    DualBlobUi.prototype.hasFocus = function () { //TODO: update this method.
         let focused = false;
         this.blobDiv.find('textarea').each(function () {
             if (this === document.activeElement) {
