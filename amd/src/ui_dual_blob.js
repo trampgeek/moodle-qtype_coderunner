@@ -172,7 +172,8 @@ define(['jquery'], function ($) {
                     id='${id}'
                     class='coderunner-ui-element' 
                     name='${name}' 
-                    style='width:100%;height:250px'>${value}</textarea>`;
+                    style='width: 100%'
+                   >${value}</textarea>`;
     }
 
 
@@ -425,14 +426,14 @@ define(['jquery'], function ($) {
 
     DualBlobUi.prototype.drawUi = function (answerTextAreaId, preload) {
         const t = this;
-        const divHtml = "<div style='height:100%' class='qtype-coderunner-sp-outer-div'></div>";
+        const divHtml = "<div style='min-height:100%' class='qtype-coderunner-sp-outer-div'></div>";
         const answerTextAreaHtml = htmlTextArea(answerTextAreaId, 'answer_code', preload['answer_code']);
         const showButtonHtml = "<a " +
                 "class='coderunner-ui-element' " +
                 `name='show_hide'>▼${this.spName}</a>`;
         const answerTextArea = $(answerTextAreaHtml);
         const showButton = $(showButtonHtml);
-        answerTextArea.attr('rows', this.textArea.attr('rows', ));
+        answerTextArea.attr('rows', this.textArea.attr('rows'));
         showButton.click(function () {
             const arrow = $(t.scratchpadDiv).is(':visible') ? '▶' : '▼';
             t.scratchpadDiv.toggle();
@@ -469,6 +470,7 @@ define(['jquery'], function ($) {
         });
         this.spCodeTextArea = $(testCodeHtml);
         this.spCodeTextArea.attr('data-lang', this.uiParams.lang); //Set language for Ace to use.
+        this.spCodeTextArea.attr('rows', '4'); //Set intial SP size.
         this.scratchpadDiv.append([this.spCodeTextArea, runButton, $(prefixAnsHtml), outputDisplayArea]);
         this.blobDiv.append(this.scratchpadDiv);
     };
