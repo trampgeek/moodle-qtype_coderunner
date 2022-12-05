@@ -185,10 +185,11 @@ define(['jquery'], function ($) {
      * @param {string} type type of the html input.
      * @return {string} HTML string with iput and label.
      */
-    function htmlInput(name, label, value, type) {
+    function htmlInput(id, name, label, value, type) {
         const checked = (value && value[0]) ? 'checked' : '';
         const labelHtml = `<label for='${name}'>${label}</label>`;
         const inputHtml = "<input " +
+                `id='${id}' ` +
                 `type='${type}' ` +
                 `${checked} ` +
                 "class='coderunner-ui-element' " +
@@ -287,28 +288,20 @@ define(['jquery'], function ($) {
         return 'DualBlobUiloadfail';
     };
 
-    // Copy the serialised version of the HTML UI area to the TextArea.
     DualBlobUi.prototype.sync = function () {
-        const t = this;
-        let serialisation = {};
-
-        this.getFields().each(function () {
-            const name = $(this).attr('name');
-            const type = $(this).attr('type');
-            let value;
-            if ((type === 'checkbox' || type === 'radio')) {
-                value = $(this).is(':checked') ? '1' : '';
-            } else if ($(this).is('a')) {
-                value = t.scratchpadDiv.is(':visible') ? '1' : '';
-            } else {
-                value = $(this).val();
-            }
-            if (serialisation.hasOwnProperty(name)) {
-                serialisation[name].push(value);
-            } else {
-                serialisation[name] = [value];
-            }
-        });
+        const prefixAns = $(document.getElementById(this.textAreaId + '-prefix-ans'));
+        let serialisation = {
+            answer_code: this.answerTextArea.val() || '',
+            test_code: this.spCodeTextArea.val() || '',
+            show_hide: '',
+            prefix_ans: ''
+        };
+        if (this.scratchpadDiv.is(':visible')) {
+            serialisation.show_hide = '1';
+        }
+        if (prefixAns.is(':checked')) {
+            serialisation.prefix_ans = '1';
+        }
         this.textArea.val(JSON.stringify(serialisation));
     };
 
@@ -339,13 +332,13 @@ define(['jquery'], function ($) {
 
         if (this.spRunWrapper) { // Wrap the code if a wrapper exists.
             code = fillWrapper(
-                    serial.answer_code[0],
-                    serial.test_code[0],
-                    serial.prefix_ans[0],
+                    serial.answer_code,
+                    serial.test_code,
+                    serial.prefix_ans,
                     this.spRunWrapper
                     );
         } else { // No wrapper.
-            code = combineCode(serial.answer_code[0], serial.test_code[0], serial.prefix_ans[0]);
+            code = combineCode(serial.answer_code, serial.test_code, serial.prefix_ans);
         }
 
         ajax.call([{
@@ -392,15 +385,15 @@ define(['jquery'], function ($) {
             }]);
     };
 
-    DualBlobUi.prototype.reload = async function () {
+    DualBlobUi.prototype.reload = function () {
         const preloadString = $(this.textArea).val();
         const answerTextAreaId = this.textAreaId + '-answer-code';
         const spTextAreaId = this.textAreaId + '-sp-code';
         let preload = {
-            answer_code: [''],
-            test_code: [''],
-            show_hide: [''],
-            prefix_ans: ['']
+            answer_code: '',
+            test_code: '',
+            show_hide: '',
+            prefix_ans: ''
         };
 
         try {
@@ -419,8 +412,8 @@ define(['jquery'], function ($) {
         this.answerCodeUi = newAceUiWrapper(answerTextAreaId);
         this.spCodeUi = newAceUiWrapper(spTextAreaId);
 
-        // No resizing the outer wrapper! Instead resize the two sub UIs, they
-        // will expand accordingly.
+        // No resizing the outer wrapper. Instead, resize the two sub UIs,
+        // they will expand accordingly.
         $(document.getElementById(this.textAreaId + '_wrapper')).css('resize', 'none');
     };
 
@@ -446,7 +439,7 @@ define(['jquery'], function ($) {
         this.blobDiv.append([answerTextArea, showButton]);
 
         this.scratchpadDiv = $(divHtml);
-        if (!preload.show_hide[0]) {
+        if (!preload.show_hide) {
             this.scratchpadDiv.hide();
             showButton.html(`▶${this.spName}`);
         }
@@ -455,7 +448,7 @@ define(['jquery'], function ($) {
     DualBlobUi.prototype.drawScratchpadUi = function (spTextAreaId, preload) {
         const t = this;
         const testCodeHtml = htmlTextArea(spTextAreaId, 'test_code', preload['test_code']);
-        const prefixAnsHtml = htmlInput('prefix_ans', this.spPrefixName, preload['prefix_ans'], 'checkbox');
+        const prefixAnsHtml = htmlInput(this.textAreaId + '-prefix-ans','prefix_ans', this.spPrefixName, preload['prefix_ans'], 'checkbox');
         const runButton = $("<button type='button' " +
                 "class='btn btn-secondary' " +
                 "style='margin:6px;padding:2px 8px;'>" +
@@ -465,7 +458,7 @@ define(['jquery'], function ($) {
         outputDisplayArea.hide();
         runButton.on('click', function () {
             require(['core/ajax'], function (ajax) {
-                t.handleRunButtonClick(ajax, outputDisplayArea, preload.test_code[0]);
+                t.handleRunButtonClick(ajax, outputDisplayArea, preload.test_code);
             });
         });
         this.spCodeTextArea = $(testCodeHtml);
