@@ -314,10 +314,6 @@ define(['jquery'], function ($) {
         return this.blobDiv;
     };
 
-    DualBlobUi.prototype.getFields = function () {
-        return $(this.blobDiv).find('.coderunner-ui-element');
-    };
-
     DualBlobUi.prototype.handleRunButtonClick = async function (ajax, outputDisplayArea) {
         this.sync(); // Use up-to-date serialization.
 
