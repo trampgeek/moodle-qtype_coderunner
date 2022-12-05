@@ -303,7 +303,11 @@ define(['jquery'], function ($) {
         if (prefixAns.is(':checked')) {
             serialisation.prefix_ans = '1';
         }
-        this.textArea.val(JSON.stringify(serialisation));
+        if (Object.values(serialisation).some((val) => val == true)) {
+            this.textArea.val(JSON.stringify(serialisation));
+        } else {
+             this.textArea.val(''); // All feilds empty...
+        }
     };
 
     DualBlobUi.prototype.getElement = function () {
