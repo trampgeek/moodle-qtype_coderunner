@@ -179,6 +179,7 @@ define(['jquery'], function ($) {
 
     /**
      * Create HTML for an input.
+     * @param {string} id for input.
      * @param {string} name for the html input.
      * @param {string} label text.
      * @param {string} value trype of the html input.
@@ -448,7 +449,8 @@ define(['jquery'], function ($) {
     DualBlobUi.prototype.drawScratchpadUi = function (spTextAreaId, preload) {
         const t = this;
         const testCodeHtml = htmlTextArea(spTextAreaId, 'test_code', preload['test_code']);
-        const prefixAnsHtml = htmlInput(this.textAreaId + '-prefix-ans','prefix_ans', this.spPrefixName, preload['prefix_ans'], 'checkbox');
+        const prefixAnsHtml = htmlInput(this.textAreaId + '-prefix-ans','prefix_ans',
+            this.spPrefixName, preload['prefix_ans'], 'checkbox');
         const runButton = $("<button type='button' " +
                 "class='btn btn-secondary' " +
                 "style='margin:6px;padding:2px 8px;'>" +
