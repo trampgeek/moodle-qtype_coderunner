@@ -17,7 +17,7 @@
 /**
  * coderunner question definition classes.
  *
- * @package    qtype
+ * @package    qtype_coderunner
  * @subpackage coderunner
  * @copyright  Richard Lobb, 2011, The University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
