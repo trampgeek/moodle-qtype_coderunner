@@ -472,13 +472,14 @@ define(['jquery'], function ($) {
 
     ScratchpadUi.prototype.resize = function () {}; // Nothing to see here. Move along please.
 
-    ScratchpadUi.prototype.hasFocus = function () { //TODO: update this method.
+    ScratchpadUi.prototype.hasFocus = function () {
         let focused = false;
-        this.outerDiv.find('textarea').each(function () {
-            if (this === document.activeElement) {
-                focused = true;
-            }
-        });
+        if (this.answerCodeUi && this.answerCodeUi.hasFocus()) {
+            focused = true;
+        }
+        if (this.spCodeUi && this.spCodeUi.hasFocus()) {
+            focused = true;
+        }
         return focused;
     };
 
