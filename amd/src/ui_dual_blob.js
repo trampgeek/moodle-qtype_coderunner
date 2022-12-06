@@ -78,7 +78,6 @@ define(['jquery'], function ($) {
             '"': '&quot;',
             "'": '&#039;'
         };
-
         return text.replace(/[&<>"']/g, function (m) {
             return map[m];
         });
@@ -251,13 +250,13 @@ define(['jquery'], function ($) {
 
 
     /**
-     * Constructor for the DualBlobUi object.
+     * Constructor for the ScratchpadUi object.
      * @param {string} textAreaId The ID of the html textarea.
      * @param {int} width The width in pixels of the textarea.
      * @param {int} height The height in pixels of the textarea.
      * @param {object} uiParams The UI parameter object.
      */
-    function DualBlobUi(textAreaId, width, height, uiParams) {
+    function ScratchpadUi(textAreaId, width, height, uiParams) {
         this.textArea = $(document.getElementById(textAreaId));
         this.textAreaId = textAreaId;
         this.height = height;
@@ -265,6 +264,7 @@ define(['jquery'], function ($) {
         this.uiParams = uiParams;
         this.fail = false;
 
+        // Scratchpad instance vars.
         this.spName = uiParams.sp_name || 'Scratchpad';
         this.spButtonName = uiParams.sp_button_name || 'Run!';
         this.spPrefixName = uiParams.sp_prefix_name || 'Prefix Answer?';
@@ -276,20 +276,20 @@ define(['jquery'], function ($) {
             this.spRunWrapper = this.textArea.attr('data-globalextra');
         }
 
-        this.blobDiv = null;
+        this.outerDiv = null;
         this.scratchpadDiv = null;
         this.reload(); // Draw my beautiful blobs.
     }
 
-    DualBlobUi.prototype.failed = function () {
+    ScratchpadUi.prototype.failed = function () {
         return this.fail;
     };
 
-    DualBlobUi.prototype.failMessage = function () {
-        return 'DualBlobUiloadfail';
+    ScratchpadUi.prototype.failMessage = function () {
+        return 'ScratchpadUiloadfail';
     };
 
-    DualBlobUi.prototype.sync = function () {
+    ScratchpadUi.prototype.sync = function () {
         const prefixAns = $(document.getElementById(this.textAreaId + '-prefix-ans'));
         let serialisation = {
             answer_code: this.answerTextArea.val() || '',
@@ -306,15 +306,15 @@ define(['jquery'], function ($) {
         if (Object.values(serialisation).some((val) => val == true)) {
             this.textArea.val(JSON.stringify(serialisation));
         } else {
-             this.textArea.val(''); // All feilds empty...
+            this.textArea.val(''); // All feilds empty...
         }
     };
 
-    DualBlobUi.prototype.getElement = function () {
-        return this.blobDiv;
+    ScratchpadUi.prototype.getElement = function () {
+        return this.outerDiv;
     };
 
-    DualBlobUi.prototype.handleRunButtonClick = async function (ajax, outputDisplayArea) {
+    ScratchpadUi.prototype.handleRunButtonClick = async function (ajax, outputDisplayArea) {
         this.sync(); // Use up-to-date serialization.
 
         const htmlOutput = this.spHtmlOutput;
@@ -386,7 +386,7 @@ define(['jquery'], function ($) {
             }]);
     };
 
-    DualBlobUi.prototype.reload = function () {
+    ScratchpadUi.prototype.reload = function () {
         const preloadString = $(this.textArea).val();
         const answerTextAreaId = this.textAreaId + '-answer-code';
         const spTextAreaId = this.textAreaId + '-sp-code';
@@ -403,7 +403,7 @@ define(['jquery'], function ($) {
             }
         } catch (error) {
             this.fail = true;
-            this.failString = 'blob_ui_invalidserialisation';
+            this.failString = 'scratchpad_ui_invalidserialisation';
             return;
         }
 
@@ -418,7 +418,7 @@ define(['jquery'], function ($) {
         $(document.getElementById(this.textAreaId + '_wrapper')).css('resize', 'none');
     };
 
-    DualBlobUi.prototype.drawUi = function (answerTextAreaId, preload) {
+    ScratchpadUi.prototype.drawUi = function (answerTextAreaId, preload) {
         const t = this;
         const divHtml = "<div style='min-height:100%' class='qtype-coderunner-sp-outer-div'></div>";
         const answerTextAreaHtml = htmlTextArea(answerTextAreaId, 'answer_code', preload['answer_code']);
@@ -433,11 +433,11 @@ define(['jquery'], function ($) {
             t.scratchpadDiv.toggle();
             showButton.html(arrow + t.spName);
         });
-        this.blobDiv = $(divHtml);
+        this.outerDiv = $(divHtml);
 
         this.answerTextArea = answerTextArea;
         this.answerTextArea.attr('data-lang', this.uiParams.lang); //Set language for Ace to use.
-        this.blobDiv.append([answerTextArea, showButton]);
+        this.outerDiv.append([answerTextArea, showButton]);
 
         this.scratchpadDiv = $(divHtml);
         if (!preload.show_hide) {
@@ -446,11 +446,11 @@ define(['jquery'], function ($) {
         }
     };
 
-    DualBlobUi.prototype.drawScratchpadUi = function (spTextAreaId, preload) {
+    ScratchpadUi.prototype.drawScratchpadUi = function (spTextAreaId, preload) {
         const t = this;
         const testCodeHtml = htmlTextArea(spTextAreaId, 'test_code', preload['test_code']);
-        const prefixAnsHtml = htmlInput(this.textAreaId + '-prefix-ans','prefix_ans',
-            this.spPrefixName, preload['prefix_ans'], 'checkbox');
+        const prefixAnsHtml = htmlInput(this.textAreaId + '-prefix-ans', 'prefix_ans',
+                this.spPrefixName, preload['prefix_ans'], 'checkbox');
         const runButton = $("<button type='button' " +
                 "class='btn btn-secondary' " +
                 "style='margin:6px;padding:2px 8px;'>" +
@@ -467,14 +467,14 @@ define(['jquery'], function ($) {
         this.spCodeTextArea.attr('data-lang', this.uiParams.lang); //Set language for Ace to use.
         this.spCodeTextArea.attr('rows', '4'); //Set intial SP size.
         this.scratchpadDiv.append([this.spCodeTextArea, runButton, $(prefixAnsHtml), outputDisplayArea]);
-        this.blobDiv.append(this.scratchpadDiv);
+        this.outerDiv.append(this.scratchpadDiv);
     };
 
-    DualBlobUi.prototype.resize = function () {}; // Nothing to see here. Move along please.
+    ScratchpadUi.prototype.resize = function () {}; // Nothing to see here. Move along please.
 
-    DualBlobUi.prototype.hasFocus = function () { //TODO: update this method.
+    ScratchpadUi.prototype.hasFocus = function () { //TODO: update this method.
         let focused = false;
-        this.blobDiv.find('textarea').each(function () {
+        this.outerDiv.find('textarea').each(function () {
             if (this === document.activeElement) {
                 focused = true;
             }
@@ -483,13 +483,13 @@ define(['jquery'], function ($) {
     };
 
     // Destroy the HTML UI and serialise the result into the original text area.
-    DualBlobUi.prototype.destroy = function () {
+    ScratchpadUi.prototype.destroy = function () {
         this.sync();
-        $(this.blobDiv).remove();
-        this.blobDiv = null;
+        $(this.outerDiv).remove();
+        this.outerDiv = null;
     };
 
     return {
-        Constructor: DualBlobUi
+        Constructor: ScratchpadUi
     };
 });
