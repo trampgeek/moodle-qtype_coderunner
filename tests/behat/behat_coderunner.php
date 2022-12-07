@@ -27,6 +27,17 @@ use WebDriver\Exception\NoAlertOpenError;
 use WebDriver\Exception\UnexpectedAlertOpen;
 
 class behat_coderunner extends behat_base {
+     /**
+     * Sets the webserver sandbox to enabled for testing purposes.
+     *
+     * @Given /^the webserver sandbox is enabled/
+     */
+    public function the_sandbox_is_enabled() {
+        set_config('wsenabled', 1, 'qtype_coderunner');
+        set_config('jobesandbox_enabled', 1, 'qtype_coderunner');
+        set_config('jobe_host', '172.17.0.1:4000', 'qtype_coderunner');
+    }
+
     /**
      * Checks that a given string appears within a visible ins or del element
      * that has a background-color attribute that is not 'inherit'.
@@ -37,6 +48,7 @@ class behat_coderunner extends behat_base {
      * @throws ExpectationException
      * @param string $expected The string that we expect to find
      */
+
     public function i_should_see_highlighted($expected) {
         $delxpath = "//div[contains(@class, 'coderunner-test-results')]//del[contains(text(), '{$expected}')]";
         $msg = "'{$expected}' not found within a highlighted del element";
