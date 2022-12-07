@@ -423,8 +423,10 @@ define(['jquery'], function ($) {
         const divHtml = "<div style='min-height:100%' class='qtype-coderunner-sp-outer-div'></div>";
         const answerTextAreaHtml = htmlTextArea(answerTextAreaId, 'answer_code', preload['answer_code']);
         const showButtonHtml = "<a " +
+                "role='button'"+
+                `id='${this.textAreaId}-show-hide'` +
                 "class='coderunner-ui-element' " +
-                `name='show_hide'>▼${this.spName}</a>`;
+                `title='show_hide'>▼${this.spName}</a>`;
         const answerTextArea = $(answerTextAreaHtml);
         const showButton = $(showButtonHtml);
         answerTextArea.attr('rows', this.textArea.attr('rows'));
