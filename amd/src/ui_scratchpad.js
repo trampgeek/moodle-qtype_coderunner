@@ -303,7 +303,7 @@ define(['jquery'], function ($) {
         if (prefixAns.is(':checked')) {
             serialisation.prefix_ans = '1';
         }
-        if (Object.values(serialisation).some((val) => val == true)) {
+        if (Object.values(serialisation).some((val) => val.length > 0)) {
             this.textArea.val(JSON.stringify(serialisation));
         } else {
             this.textArea.val(''); // All feilds empty...
