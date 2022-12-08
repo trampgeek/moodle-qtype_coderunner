@@ -1,4 +1,4 @@
-@qtype @qtype_coderunner @javascript @scratchpad
+@qtype @qtype_coderunner @javascript @scratchpad @scratchpadmain
 Feature: Test the Scratchpad UI
   In order to use the Scratchpad UI
   As a teacher
@@ -24,7 +24,6 @@ Feature: Test the Scratchpad UI
 
   Scenario: Edit a CodeRunner question into a Scratchpad UI question
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1
-    And I set the field "id_answer" to ""
     And I set the following fields to these values:
       | id_customise   | 1                                     |
       | id_uiplugin    | Scratchpad                            |
@@ -44,53 +43,108 @@ Feature: Test the Scratchpad UI
     Then I should not see "Run!"
     And I should not see "Prefix Answer?"
 
-  Scenario: Edit a CodeRunner question into a Scratchpad UI question, changing UI params for run button name
+  Scenario: Click the run button with program that outputs in Scratchpad Code
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1
-    And I set the field "id_answer" to ""
     And I set the following fields to these values:
       | id_customise   | 1                                     |
       | id_uiplugin    | Scratchpad                            |
-      | id_uiparameters| {"sp_button_name": "superuniquename123"}|
 
     And I press "id_submitbutton"
     Then I should see "Print answer"
 
     When I choose "Preview" action for "Print answer" in the question bank
-    And I should not see "superuniquename123"
-    And I should not see "Run!"
-    And I should see "▶Scratchpad"
+    And I click on "▶Scratchpad" "button"
+    And I set the field "test_code" to "print('hello world')"
     
-    When I click on "▶Scratchpad" "button"
-    Then I should see "superuniquename123"
-    But I should not see "Run!"
-    And I should see "Prefix Answer?"
+    Then I press "Run!"
+    And I should see "hello world"
 
-    When I click on "▼Scratchpad" "button"
-    Then I should not see "superuniquename123"
-    And I should not see "Run!"
-    And I should not see "Prefix Answer?"
-
-  Scenario: Edit a CodeRunner question into a Scratchpad UI question, changing UI params for scratchpad name
+  Scenario: Click the run button with program that outputs in Answer Code 
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1
-    And I set the field "id_answer" to ""
     And I set the following fields to these values:
       | id_customise   | 1                                     |
       | id_uiplugin    | Scratchpad                            |
-      | id_uiparameters| {"sp_name": "superuniquename123"}     |
 
     And I press "id_submitbutton"
     Then I should see "Print answer"
 
     When I choose "Preview" action for "Print answer" in the question bank
-    And I should not see "Run!"
-    And I should not see "▶Scratchpad"
-    But I should see "▶superuniquename123"
+    And I click on "▶Scratchpad" "button"
+    And I set the field "answer_code" to "print('hello world')"
     
-    When I click on "▶superuniquename123" "button"
-    Then I should see "▼superuniquename123"
-    And I should see "Run!"
-    And I should see "Prefix Answer?"
+    Then I press "Run!"
+    And I should not see "hello world"
+    
+    Then I set the field "prefix_ans" to "1"
+    And I press "Run!"
+    And I should see "hello world"
+ 
+  Scenario: Click the run button with program that outputs in Answer Code and Scratchpad Code 
+    When I am on the "Print answer" "core_question > edit" page logged in as teacher1
+    And I set the following fields to these values:
+      | id_customise   | 1                                     |
+      | id_uiplugin    | Scratchpad                            |
 
-    When I click on "▼superuniquename123" "button"
-    And I should not see "Run!"
-    And I should not see "Prefix Answer?"
+    And I press "id_submitbutton"
+    Then I should see "Print answer"
+
+    When I choose "Preview" action for "Print answer" in the question bank
+    And I click on "▶Scratchpad" "button"
+    And I set the field "answer_code" to "print('hello world')"
+    And I set the field "test_code" to "print('goodbye world')"
+    
+    Then I press "Run!"
+    And I should not see "hello world"
+    And I should see "goodbye world"
+    
+    Then I set the field "prefix_ans" to "1"
+    And I press "Run!"
+    And I should see "hello world"
+    And I should see "goodbye world"
+
+  Scenario: Edit a CodeRunner question into a Scratchpad UI question and get empty UI serialization
+    When I am on the "Print answer" "core_question > edit" page logged in as teacher1
+    And I set the field "id_answer" to ""
+    And I set the following fields to these values:
+      | id_customise   | 1                                     |
+      | id_uiplugin    | Scratchpad                            |
+
+    And I press "id_submitbutton"
+    Then I should see "Print answer"
+
+    When I choose "Preview" action for "Print answer" in the question bank
+    And I press the ctrl + alt M key
+    Then I should not see "{\"answer_code\":\"\",\"test_code\":\"\",\"show_hide\":\"\",\"prefix_ans\":\"\"}"
+  
+  Scenario: Edit a CodeRunner question into a Scratchpad UI question and get UI serialization, while Scratchpad Hidden
+    When I am on the "Print answer" "core_question > edit" page logged in as teacher1
+    And I set the field "id_answer" to ""
+    And I set the following fields to these values:
+      | id_customise   | 1                                     |
+      | id_uiplugin    | Scratchpad                            |
+
+    And I press "id_submitbutton"
+    Then I should see "Print answer"
+    
+    When I choose "Preview" action for "Print answer" in the question bank
+    And I set the field "answer_code" to "print('hello world')"
+    
+    Then I press the ctrl + alt M key
+    And I should see "{\"print('hello world')\":\"\",\"test_code\":\"\",\"show_hide\":\"\",\"prefix_ans\":\"\"}"
+
+    Scenario: Edit a CodeRunner question into a Scratchpad UI question and get UI serialization, while Scratchpad Shown
+    When I am on the "Print answer" "core_question > edit" page logged in as teacher1
+    And I set the field "id_answer" to ""
+    And I set the following fields to these values:
+      | id_customise   | 1                                     |
+      | id_uiplugin    | Scratchpad                            |
+
+    And I press "id_submitbutton"
+    Then I should see "Print answer"
+    
+    When I choose "Preview" action for "Print answer" in the question bank
+    And I set the field "answer_code" to "print('hello world')"
+    And I click on "▶Scratchpad" "button"
+    
+    Then I press the ctrl + alt M key
+    And I should see "{\"answer_code\":\"print('hello world')\",\"test_code\":\"\",\"show_hide\":\"1\",\"prefix_ans\":\"\"}"
