@@ -359,7 +359,11 @@ define(['jquery'], function ($) {
                             // Either it's not HTML output or it is but we have compilation or runtime errors.
                             const text = combinedOutput(response, maxLen);
                             outputDisplayArea.show();
-                            outputDisplayArea.html(escapeHtml(text));
+                            if (text.trim() === '') {
+                                outputDisplayArea.html('<span style="color:red">< No output! ></span>');
+                            } else {
+                                outputDisplayArea.html(escapeHtml(text));
+                            }
                         } else { // Valid HTML output - just plug in the raw html to the DOM.
                             // Repeat the deletion of previous output in case of multiple button clicks.
                             outputDisplayArea.next('div.filter-ace-inline-html').remove();
@@ -423,7 +427,7 @@ define(['jquery'], function ($) {
         const divHtml = "<div style='min-height:100%' class='qtype-coderunner-sp-outer-div'></div>";
         const answerTextAreaHtml = htmlTextArea(answerTextAreaId, 'answer_code', preload['answer_code']);
         const showButtonHtml = "<a " +
-                "role='button'"+
+                "role='button'" +
                 `id='${this.textAreaId}-show-hide'` +
                 "class='coderunner-ui-element' " +
                 `title='show_hide'>▼${this.spName}</a>`;
