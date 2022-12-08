@@ -42,6 +42,21 @@ Feature: Test the Scratchpad UI
     When I click on "▼Scratchpad" "button"
     Then I should not see "Run!"
     And I should not see "Prefix Answer?"
+  
+  Scenario: Click the run button with program that outputs nothing.
+    When I am on the "Print answer" "core_question > edit" page logged in as teacher1
+    And I set the following fields to these values:
+      | id_customise   | 1                                     |
+      | id_uiplugin    | Scratchpad                            |
+
+    And I press "id_submitbutton"
+    Then I should see "Print answer"
+
+    When I choose "Preview" action for "Print answer" in the question bank
+    And I click on "▶Scratchpad" "button"
+    
+    Then I press "Run!"
+    And I should see "< No output! >"
 
   Scenario: Click the run button with program that outputs in Scratchpad Code
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1
