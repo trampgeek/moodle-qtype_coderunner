@@ -20,15 +20,16 @@ Feature: Test the Scratchpad UI, UI Params
     And the following "questions" exist:
       | questioncategory | qtype      | name         | template |
       | Test questions   | coderunner | Print answer | printans |
-    And the webserver sandbox is enabled
+    And the CodeRunner sandbox is enabled
     
     And I am on the "Print answer" "core_question > edit" page logged in as teacher1
     
 Scenario: Edit a CodeRunner Scratchpad UI question, changing all available UI params 
     And I set the field "id_answer" to ""
     And I set the following fields to these values:
-      | id_customise   | 1                                       |
-      | id_uiplugin    | Scratchpad                              |
+      | id_customise    | 1                                       |
+      | id_uiplugin     | Scratchpad                              |
+      |id_validateonsave| 0                                       |
     And I set the field "id_uiparameters" to:
     """
     {
@@ -54,6 +55,7 @@ Scenario: Edit a CodeRunner Scratchpad UI question, changing UI params for run b
     And I set the field "id_answer" to ""
     And I set the following fields to these values:
       | id_customise   | 1                                       |
+      |id_validateonsave| 0                                      |
       | id_uiplugin    | Scratchpad                              |
       | id_uiparameters| {"sp_button_name": "superuniquename123"}|
 
@@ -78,6 +80,7 @@ Scenario: Edit a CodeRunner Scratchpad UI question, changing UI params for run b
   Scenario: Edit a CodeRunner question into a Scratchpad UI question, changing UI params for scratchpad name
     When I set the following fields to these values:
       | id_customise   | 1                                       |
+      |id_validateonsave| 0                                      |
       | id_uiplugin    | Scratchpad                              |
       | id_uiparameters| {"sp_name": "superuniquename123"}       |
 
@@ -101,9 +104,10 @@ Scenario: Edit a CodeRunner Scratchpad UI question, changing UI params for run b
   Scenario: Edit a CodeRunner question into a Scratchpad UI question, changing UI params for run button name
     And I set the field "id_answer" to ""
     And I set the following fields to these values:
-      | id_customise   | 1                                       |
-      | id_uiplugin    | Scratchpad                              |
-      | id_uiparameters| {"sp_prefix_name": "superuniquename123"}|
+      | id_customise    | 1                                       |
+      |id_validateonsave| 0                                       |
+      | id_uiplugin     | Scratchpad                              |
+      | id_uiparameters | {"sp_prefix_name": "superuniquename123"}|
 
     And I press "id_submitbutton"
     Then I should see "Print answer"
@@ -127,9 +131,10 @@ Scenario: Edit a CodeRunner Scratchpad UI question, changing UI params for run b
   Scenario: Edit a CodeRunner question into a Scratchpad UI question, changing UI param for run HTML output
     And I set the field "id_answer" to ""
     And I set the following fields to these values:
-      | id_customise   | 1                                       |
-      | id_uiplugin    | Scratchpad                              |
-      | id_uiparameters| {"sp_html_out": true}                   |
+      | id_customise    | 1                                       |
+      | id_uiplugin     | Scratchpad                              |
+      | id_uiparameters | {"sp_html_out": true}                   |
+      |id_validateonsave| 0                                       |
 
     And I press "id_submitbutton"
     Then I should see "Print answer"

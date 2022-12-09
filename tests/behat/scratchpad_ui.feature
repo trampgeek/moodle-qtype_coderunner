@@ -20,19 +20,20 @@ Feature: Test the Scratchpad UI
     And the following "questions" exist:
       | questioncategory | qtype      | name         | template |
       | Test questions   | coderunner | Print answer | printans |
-    And the webserver sandbox is enabled
+    And the CodeRunner sandbox is enabled
 
   Scenario: Edit a CodeRunner question into a Scratchpad UI question
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1
     And I set the following fields to these values:
-      | id_customise   | 1                                     |
-      | id_uiplugin    | Scratchpad                            |
+      | id_customise      | 1                                     |
+      | id_uiplugin       | Scratchpad                            |
+      | id_validateonsave | 0                                     |
 
     And I press "id_submitbutton"
     Then I should see "Print answer"
 
     When I choose "Preview" action for "Print answer" in the question bank
-    And I should not see "Run!"
+    Then I should not see "Run!"
     And I should see "▶Scratchpad"
     
     When I click on "▶Scratchpad" "button"
@@ -46,9 +47,9 @@ Feature: Test the Scratchpad UI
   Scenario: Click the run button with program that outputs nothing.
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1
     And I set the following fields to these values:
-      | id_customise   | 1                                     |
-      | id_uiplugin    | Scratchpad                            |
-
+      | id_customise      | 1                                     |
+      | id_uiplugin       | Scratchpad                            |
+      | id_validateonsave | 0                                     |
     And I press "id_submitbutton"
     Then I should see "Print answer"
 
@@ -61,8 +62,9 @@ Feature: Test the Scratchpad UI
   Scenario: Click the run button with program that outputs in Scratchpad Code
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1
     And I set the following fields to these values:
-      | id_customise   | 1                                     |
-      | id_uiplugin    | Scratchpad                            |
+      | id_customise      | 1                                     |
+      | id_uiplugin       | Scratchpad                            |
+      | id_validateonsave | 0                                     |
 
     And I press "id_submitbutton"
     Then I should see "Print answer"
@@ -77,8 +79,9 @@ Feature: Test the Scratchpad UI
   Scenario: Click the run button with program that outputs in Answer Code 
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1
     And I set the following fields to these values:
-      | id_customise   | 1                                     |
-      | id_uiplugin    | Scratchpad                            |
+      | id_customise      | 1                                     |
+      | id_uiplugin       | Scratchpad                            |
+      | id_validateonsave | 0                                     |
 
     And I press "id_submitbutton"
     Then I should see "Print answer"
@@ -97,8 +100,9 @@ Feature: Test the Scratchpad UI
   Scenario: Click the run button with program that outputs in Answer Code and Scratchpad Code 
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1
     And I set the following fields to these values:
-      | id_customise   | 1                                     |
-      | id_uiplugin    | Scratchpad                            |
+      | id_customise      | 1                                     |
+      | id_uiplugin       | Scratchpad                            |
+      | id_validateonsave | 0                                     |
 
     And I press "id_submitbutton"
     Then I should see "Print answer"
@@ -116,27 +120,31 @@ Feature: Test the Scratchpad UI
     And I press "Run!"
     And I should see "hello world"
     And I should see "goodbye world"
-
+  
+  
   Scenario: Edit a CodeRunner question into a Scratchpad UI question and get empty UI serialization
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1
     And I set the field "id_answer" to ""
     And I set the following fields to these values:
-      | id_customise   | 1                                     |
-      | id_uiplugin    | Scratchpad                            |
+      | id_customise      | 1                                     |
+      | id_uiplugin       | Scratchpad                            |
+      | id_validateonsave | 0                                     |
 
     And I press "id_submitbutton"
     Then I should see "Print answer"
 
     When I choose "Preview" action for "Print answer" in the question bank
     And I press the ctrl + alt M key
-    Then I should not see "{\"answer_code\":\"\",\"test_code\":\"\",\"show_hide\":\"\",\"prefix_ans\":\"\"}"
+    Then I should see "" in answer box
+ 
   
   Scenario: Edit a CodeRunner question into a Scratchpad UI question and get UI serialization, while Scratchpad Hidden
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1
     And I set the field "id_answer" to ""
     And I set the following fields to these values:
-      | id_customise   | 1                                     |
-      | id_uiplugin    | Scratchpad                            |
+      | id_customise      | 1                                     |
+      | id_uiplugin       | Scratchpad                            |
+      | id_validateonsave | 0                                     |
 
     And I press "id_submitbutton"
     Then I should see "Print answer"
@@ -145,14 +153,16 @@ Feature: Test the Scratchpad UI
     And I set the field "answer_code" to "print('hello world')"
     
     Then I press the ctrl + alt M key
-    And I should see "{\"print('hello world')\":\"\",\"test_code\":\"\",\"show_hide\":\"\",\"prefix_ans\":\"\"}"
-
-    Scenario: Edit a CodeRunner question into a Scratchpad UI question and get UI serialization, while Scratchpad Shown
+    And I should see "{\"print('hello world')\":\"\",\"test_code\":\"\",\"show_hide\":\"\",\"prefix_ans\":\"\"}" in answer box
+  
+  @serial
+  Scenario: Edit a CodeRunner question into a Scratchpad UI question and get UI serialization, while Scratchpad Shown
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1
     And I set the field "id_answer" to ""
     And I set the following fields to these values:
-      | id_customise   | 1                                     |
-      | id_uiplugin    | Scratchpad                            |
+      | id_customise      | 1                                     |
+      | id_uiplugin       | Scratchpad                            |
+      | id_validateonsave | 0                                     |
 
     And I press "id_submitbutton"
     Then I should see "Print answer"
@@ -162,4 +172,4 @@ Feature: Test the Scratchpad UI
     And I click on "▶Scratchpad" "button"
     
     Then I press the ctrl + alt M key
-    And I should see "{\"answer_code\":\"print('hello world')\",\"test_code\":\"\",\"show_hide\":\"1\",\"prefix_ans\":\"\"}"
+  
