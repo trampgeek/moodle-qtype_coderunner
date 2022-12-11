@@ -67,7 +67,7 @@ class datafile_test extends \qtype_coderunner_testcase {
 
         $response = array('answer' => $code);
         $result = $q->grade_response($response);
-        list($mark, $grade, $cache) = $result;
+        list(, $grade, ) = $result;
         $this->assertEquals(\question_state::$gradedright, $grade);
 
         // Clean up by deleting the file again.

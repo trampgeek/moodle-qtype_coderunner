@@ -33,7 +33,6 @@ class qtype_coderunner_jobrunner {
     private $question = null;        // The question that we're running code for.
     private $testcases = null;       // The testcases (a subset of those in the question).
     private $allruns = null;         // Array of the source code for all runs.
-    private $precheck = null;        // True if this is a precheck run.
 
     // Check the correctness of a student's code and possible extra attachments
     // as an answer to the given
@@ -44,8 +43,6 @@ class qtype_coderunner_jobrunner {
     // when it is the language selected in the language drop-down menu.
     // Returns a TestingOutcome object.
     public function run_tests($question, $code, $attachments, $testcases, $isprecheck, $answerlanguage) {
-        global $CFG;
-
         if (empty($question->prototype)) {
             // Missing prototype. We can't run this question.
             $outcome = new qtype_coderunner_testing_outcome(0, 0, false);
@@ -365,18 +362,5 @@ class qtype_coderunner_jobrunner {
             }
         }
         return true;
-    }
-
-    // Count the number of errors in the given array of test results.
-    // TODO -- figure out how to eliminate either this one or the identical
-    // version in renderer.php.
-    private function count_errors($testresults) {
-        $errors = 0;
-        foreach ($testresults as $tr) {
-            if (!$tr->iscorrect) {
-                $errors++;
-            }
-        }
-        return $errors;
     }
 }

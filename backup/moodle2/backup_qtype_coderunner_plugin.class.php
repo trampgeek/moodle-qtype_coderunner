@@ -64,7 +64,6 @@ class backup_qtype_coderunner_plugin extends backup_qtype_plugin {
     // Add the testcases table to the coderunner question structure.
     private function add_quest_coderunner_testcases($element) {
         // Check $element is one nested_backup_element.
-        global $DB;
         if (! $element instanceof backup_nested_element) {
             throw new backup_step_exception("quest_testcases_bad_parent_element", $element);
         }

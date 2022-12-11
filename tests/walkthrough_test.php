@@ -294,7 +294,6 @@ EOTEMPLATE;
     public function test_result_table_sanitising() {
         $q = \test_question_maker::make_question('coderunner', 'sqr');
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
-        $qa = $this->get_question_attempt();
 
         // Submit an answer with a <b> tag in it and make sure it's suitably
         // escaped so it appears in the output.

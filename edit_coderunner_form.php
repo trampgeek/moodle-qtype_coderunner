@@ -473,7 +473,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
     // Add to the supplied $mform the panel "Coderunner question type".
     private function make_questiontype_panel($mform) {
-        list($languages, $types) = $this->get_languages_and_types();
+        list(, $types) = $this->get_languages_and_types();
         $hidemethod = method_exists($mform, 'hideIf') ? 'hideIf' : 'disabledIf';
 
         $mform->addElement('header', 'questiontypeheader', get_string('type_header', 'qtype_coderunner'));
@@ -616,10 +616,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->addHelpButton('twigcontrols', 'twigcontrols', 'qtype_coderunner');
 
         // UI parameters.
-        $uiplugin = empty($this->question->options->uiplugin) ? 'none' : $this->question->options->uiplugin;
         $plugins = qtype_coderunner_ui_plugins::get_instance();
-        $pluginswithoutparams = $plugins->all_with_no_params();
-
         $uielements = array();
         $uiparamedescriptionhtml = '<div class="ui_parameters_descr"></div>'; // JavaScript fills this.
         $uielements[] = $mform->createElement('html', $uiparamedescriptionhtml);
@@ -755,7 +752,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $enabled = qtype_coderunner_sandbox::enabled_sandboxes();
         if (count($enabled) > 1) {
             $sandboxes = array_merge(array('DEFAULT' => 'DEFAULT'), $enabled);
-            foreach ($sandboxes as $ext => $class) {
+            foreach (array_keys($sandboxes) as $ext) {
                 $sandboxes[$ext] = $ext;
             }
 
@@ -948,8 +945,6 @@ class qtype_coderunner_edit_form extends question_edit_form {
     // and the JSON evaluated template parameters, which will be empty if there
     // are errors.
     private function validate_template_params() {
-        global $USER;
-        $templateparams = $this->formquestion->templateparams;
         $errormessage = '';
         $json = '';
         $seed = mt_rand();  // TODO use a fixed seed if !evaluate_per_try.
@@ -1006,7 +1001,6 @@ class qtype_coderunner_edit_form extends question_edit_form {
         if (empty($uiparameters)) {
             return $errormessage;
         }
-        $json = '';
         try {
             $decoded = json_decode($uiparameters, true);
         } catch (Exception $e) {
@@ -1216,7 +1210,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
             if ($error) {
                 return $error;
             }
-            list($mark, $state, $cachedata) = $this->formquestion->grade_response($response);
+            list($mark, , $cachedata) = $this->formquestion->grade_response($response);
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -1238,7 +1232,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
     // in the current context (Currently only a single global context is
     // implemented).
     private function is_valid_new_type($typename) {
-        list($langs, $types) = $this->get_languages_and_types();
+        list(, $types) = $this->get_languages_and_types();
         return !array_key_exists($typename, $types);
     }
 
@@ -1267,10 +1261,8 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $types = array();
         foreach ($records as $row) {
             if (($pos = strpos($row->coderunnertype, '_')) !== false) {
-                $subtype = substr($row->coderunnertype, $pos + 1);
                 $language = substr($row->coderunnertype, 0, $pos);
             } else {
-                $subtype = 'Default';
                 $language = $row->coderunnertype;
             }
             $types[$row->coderunnertype] = $row->coderunnertype;

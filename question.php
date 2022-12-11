@@ -513,15 +513,13 @@ class qtype_coderunner_question extends question_graded_automatically {
      * the history of prior submissions.
      * @param bool $isprecheck true iff this grading is occurring because the
      * student clicked the precheck button
-     * @param int $prevtries how many previous tries have been recorded for
-     * this question, not including the current one.
      * @return 3-element array of the mark (0 - 1), the question_state (
      * gradedright, gradedwrong, gradedpartial, invalid) and the full
      * qtype_coderunner_testing_outcome object to be cached. The invalid
      * state is used when a sandbox error occurs.
      * @throws coding_exception
      */
-    public function grade_response(array $response, bool $isprecheck=false, int $prevtries=0) {
+    public function grade_response(array $response, bool $isprecheck=false) {
         if ($isprecheck && empty($this->precheck)) {
             throw new coding_exception("Unexpected precheck");
         }
@@ -647,7 +645,7 @@ class qtype_coderunner_question extends question_graded_automatically {
         if (!empty($this->uiparameters)) {
             $this->uiparameters = $this->twig_expand($this->uiparameters);
         }
-        foreach ($this->testcases as $key => $test) {
+        foreach (array_keys($this->testcases) as $key) {
             foreach (['testcode', 'stdin', 'expected', 'extra'] as $field) {
                 $text = $this->testcases[$key]->$field;
                 $this->testcases[$key]->$field = $this->twig_expand($text);
@@ -807,7 +805,6 @@ class qtype_coderunner_question extends question_graded_automatically {
 
     // Return an instance of the sandbox to be used to run code for this question.
     public function get_sandbox() {
-        global $CFG;
         $sandbox = $this->sandbox; // Get the specified sandbox (if question has one).
         if ($sandbox === null) {   // No sandbox specified. Use best we can find.
             $sandboxinstance = qtype_coderunner_sandbox::get_best_sandbox($this->language);
@@ -827,7 +824,6 @@ class qtype_coderunner_question extends question_graded_automatically {
 
     // Get an instance of the grader to be used to grade this question.
     public function get_grader() {
-        global $CFG;
         $grader = $this->grader == null ? constants::DEFAULT_GRADER : $this->grader;
         if ($grader === 'CombinatorTemplateGrader') { // Legacy grader type.
             $grader = 'TemplateGrader';
@@ -898,7 +894,7 @@ class qtype_coderunner_question extends question_graded_automatically {
      *  The sample answer files are not included in the return value.
      */
     private static function get_support_files($question) {
-        global $DB, $USER;
+        global $USER;
 
         // If not given in the question object get the contextid from the database.
         if (isset($question->contextid)) {

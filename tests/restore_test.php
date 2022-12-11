@@ -108,7 +108,7 @@ class restore_test extends \advanced_testcase {
                 '/question/type/coderunner/tests/fixtures/loadtesting_pseudocourse_backup.mbz');
 
         // Verify some restored questions look OK.
-        list($options, $tests) = $question = $this->load_question_data_by_name('c_to_fpy3');
+        list($options, $tests) = $this->load_question_data_by_name('c_to_fpy3');
         $this->assertCount(3, $tests);
         $this->assertNull($options->template);
 
@@ -124,7 +124,7 @@ class restore_test extends \advanced_testcase {
                 '/question/type/coderunner/tests/fixtures/loadtesting_pseudocourse_backup_V3.0.0.mbz');
 
         // Verify some restored questions look OK.
-        list($options, $tests) = $question = $this->load_question_data_by_name('c_to_fpy3');
+        list($options, $tests) = $this->load_question_data_by_name('c_to_fpy3');
         $this->assertCount(3, $tests);
         $this->assertNull($options->template);
 

@@ -1217,7 +1217,7 @@ EOPROG;
      * field).
      */
     private function get_options(&$question) {
-        global $CFG, $DB;
+        global $DB;
 
         $type = $question->coderunnertype;
         $questiontype = new qtype_coderunner();

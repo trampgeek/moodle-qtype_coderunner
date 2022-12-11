@@ -41,7 +41,6 @@ define('PRELOAD_TEST', "# TEST COMMENT TO CHECK PRELOAD IS WORKING\n");
 class walkthrough_extras_test extends \qbehaviour_walkthrough_test_base {
 
     protected function setUp(): void {
-        global $CFG;
         parent::setUp();
         \qtype_coderunner_testcase::setup_test_sandbox_configuration();
     }
@@ -97,7 +96,7 @@ EOTEMPLATE;
      */
     public function test_misconfigured_jobe() {
         if (!get_config('qtype_coderunner', 'jobesandbox_enabled')) {
-            $this->markTestSkipped("Sandbox $sandbox unavailable: test skipped");
+            $this->markTestSkipped("Jobe sandbox unavailable: test skipped");
         }
         set_config('jobe_host', 'localhostxxx', 'qtype_coderunner');  // Broken jobe_host url.
         $q = \test_question_maker::make_question('coderunner', 'sqr');

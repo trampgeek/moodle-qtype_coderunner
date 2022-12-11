@@ -214,7 +214,7 @@ int sqr(int n) {
 EOANS
         );
         $q->sandboxparams = '{"numprocs": 1}';
-        list($mark, $grade, $cache) = $q->grade_response($response);
+        list(, $grade, $cache) = $q->grade_response($response);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testoutcome = unserialize($cache['_testoutcome']);
         $this->assertTrue(
