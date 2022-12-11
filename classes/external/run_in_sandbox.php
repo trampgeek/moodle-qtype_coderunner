@@ -151,6 +151,8 @@ class run_in_sandbox extends external_api {
                 if ($paramsarray['cputime'] > $maxcputime) {
                     throw new qtype_coderunner_exception(get_string('wscputimeexcess', 'qtype_coderunner'));
                 }
+            } else {
+                $paramsarray['cputime'] = $maxcputime;
             }
             $jobehostws = trim(get_config('qtype_coderunner', 'wsjobeserver'));
             if ($jobehostws !== '') {
