@@ -33,3 +33,5 @@ NonRepoFiles/*
 /amd/src/ui_blockly.js
 /amd/src/ui_blockly.json
 /amd/src/.eslintrc.js
+.grunt
+
