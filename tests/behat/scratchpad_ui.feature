@@ -71,7 +71,7 @@ Feature: Test the Scratchpad UI
 
     When I choose "Preview" action for "Print answer" in the question bank
     And I click on "▶Scratchpad" "button"
-    And I set the field "test_code" to "print('hello world')"
+    And I set the field "test_code" to "print(\"hello world\")"
     
     Then I press "Run!"
     And I should see "hello world"
@@ -88,7 +88,7 @@ Feature: Test the Scratchpad UI
 
     When I choose "Preview" action for "Print answer" in the question bank
     And I click on "▶Scratchpad" "button"
-    And I set the field "answer_code" to "print('hello world')"
+    And I set the field "answer_code" to "print(\"hello world\")"
     
     Then I press "Run!"
     And I should not see "hello world"
@@ -109,8 +109,8 @@ Feature: Test the Scratchpad UI
 
     When I choose "Preview" action for "Print answer" in the question bank
     And I click on "▶Scratchpad" "button"
-    And I set the field "answer_code" to "print('hello world')"
-    And I set the field "test_code" to "print('goodbye world')"
+    And I set the field "answer_code" to "print(\"hello world\")"
+    And I set the field "test_code" to "print(\"goodbye world\")"
     
     Then I press "Run!"
     And I should not see "hello world"
@@ -121,7 +121,7 @@ Feature: Test the Scratchpad UI
     And I should see "hello world"
     And I should see "goodbye world"
   
-  
+  @serial
   Scenario: Edit a CodeRunner question into a Scratchpad UI question and get empty UI serialization
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1
     And I set the field "id_answer" to ""
@@ -129,15 +129,18 @@ Feature: Test the Scratchpad UI
       | id_customise      | 1                                     |
       | id_uiplugin       | Scratchpad                            |
       | id_validateonsave | 0                                     |
-
+      | id_expected_0     | ""                                    |
+    And I set the field "id_template" to "print('''{{ STUDENT_ANSWER }}''')"
     And I press "id_submitbutton"
     Then I should see "Print answer"
 
     When I choose "Preview" action for "Print answer" in the question bank
-    And I press the ctrl + alt M key
-    Then I should see "" in answer box
+    And I press "Check"
+    And I press "Show differences"
+    Then I should not see highlighted "{\"answer_code\":\"\":\"\",\"test_code\":\"\",\"show_hide\":\"\",\"prefix_ans\":\"\"}"
+    And I should see highlighted "\"\""
  
-  
+  @serial
   Scenario: Edit a CodeRunner question into a Scratchpad UI question and get UI serialization, while Scratchpad Hidden
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1
     And I set the field "id_answer" to ""
@@ -145,31 +148,78 @@ Feature: Test the Scratchpad UI
       | id_customise      | 1                                     |
       | id_uiplugin       | Scratchpad                            |
       | id_validateonsave | 0                                     |
-
+      | id_expected_0     | ''                                    |
+    And I set the field "id_template" to "print('''{{ STUDENT_ANSWER }}''')"
     And I press "id_submitbutton"
     Then I should see "Print answer"
     
     When I choose "Preview" action for "Print answer" in the question bank
-    And I set the field "answer_code" to "print('hello world')"
-    
-    Then I press the ctrl + alt M key
-    And I should see "{\"print('hello world')\":\"\",\"test_code\":\"\",\"show_hide\":\"\",\"prefix_ans\":\"\"}" in answer box
+    And I set the field "answer_code" to "print(\"hello world\")"
+    And I press "Check"
+    And I press "Show differences"
+    Then I should see highlighted "{\"answer_code\":\"print(\"hello world\")\":\"\",\"test_code\":\"\",\"show_hide\":\"\",\"prefix_ans\":\"\"}"
   
   @serial
-  Scenario: Edit a CodeRunner question into a Scratchpad UI question and get UI serialization, while Scratchpad Shown
+  Scenario: Edit a CodeRunner question into a Scratchpad UI question and get UI serialization, while Scratchpad Shown and answer code entered
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1
     And I set the field "id_answer" to ""
     And I set the following fields to these values:
       | id_customise      | 1                                     |
       | id_uiplugin       | Scratchpad                            |
       | id_validateonsave | 0                                     |
-
+      | id_expected_0     | ''                                    |
+    And I set the field "id_template" to "print('''{{ STUDENT_ANSWER }}''')"
     And I press "id_submitbutton"
     Then I should see "Print answer"
     
     When I choose "Preview" action for "Print answer" in the question bank
-    And I set the field "answer_code" to "print('hello world')"
+    And I set the field "answer_code" to "print(\"hello world\")"
     And I click on "▶Scratchpad" "button"
     
-    Then I press the ctrl + alt M key
-  
+    And I press "Check"
+    And I press "Show differences"
+    Then I should see highlighted "{\"answer_code\":\"print(\"hello world\")\":\"\",\"test_code\":\"\",\"show_hide\":\"1\",\"prefix_ans\":\"\"}"
+
+  @serial
+  Scenario: Edit a CodeRunner question into a Scratchpad UI question and get UI serialization, while Scratchpad Shown and scratchpad code entered
+    When I am on the "Print answer" "core_question > edit" page logged in as teacher1
+    And I set the field "id_answer" to ""
+    And I set the following fields to these values:
+      | id_customise      | 1                                     |
+      | id_uiplugin       | Scratchpad                            |
+      | id_validateonsave | 0                                     |
+      | id_expected_0     | ''                                    |
+    And I set the field "id_template" to "print('''{{ STUDENT_ANSWER }}''')"
+    And I press "id_submitbutton"
+    Then I should see "Print answer"
+    
+    When I choose "Preview" action for "Print answer" in the question bank
+    And I click on "▶Scratchpad" "button"
+    And I set the field "test_code" to "print(\"hello world\")"
+    
+    And I press "Check"
+    And I press "Show differences"
+    Then I should see highlighted "{\"answer_code\":\"\":\"\",\"test_code\":\"print(\"hello world\")\",\"show_hide\":\"1\",\"prefix_ans\":\"\"}"
+
+  @serial
+  Scenario: Edit a CodeRunner question into a Scratchpad UI question and get UI serialization, while Scratchpad Shown, answer code and test code entered
+    When I am on the "Print answer" "core_question > edit" page logged in as teacher1
+    And I set the field "id_answer" to ""
+    And I set the following fields to these values:
+      | id_customise      | 1                                     |
+      | id_uiplugin       | Scratchpad                            |
+      | id_validateonsave | 0                                     |
+      | id_expected_0     | ''                                    |
+    And I set the field "id_template" to "print('''{{ STUDENT_ANSWER }}''')"
+    And I press "id_submitbutton"
+    Then I should see "Print answer"
+    
+    When I choose "Preview" action for "Print answer" in the question bank
+    And I click on "▶Scratchpad" "button"
+    And I set the field "answer_code" to "print(\"hello world\")"
+    And I set the field "test_code" to "print(\"goodbye world\")"
+
+    
+    And I press "Check"
+    And I press "Show differences"
+    Then I should see highlighted "{\"answer_code\":\"print(\"hello world\")\":\"\",\"test_code\":\"print(\"goodbye world\")\",\"show_hide\":\"1\",\"prefix_ans\":\"\"}"
