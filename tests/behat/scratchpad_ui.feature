@@ -136,9 +136,8 @@ Feature: Test the Scratchpad UI
 
     When I choose "Preview" action for "Print answer" in the question bank
     And I press "Check"
-    And I press "Show differences"
-    Then I should not see highlighted "{\"answer_code\":\"\":\"\",\"test_code\":\"\",\"show_hide\":\"\",\"prefix_ans\":\"\"}"
-    And I should see highlighted "\"\""
+    Then I should not see "{\"answer_code\":\"\":\"\",\"test_code\":\"\",\"show_hide\":\"\",\"prefix_ans\":\"\"}"
+    But I should see "Please provide a non-empty answer"
  
   @serial
   Scenario: Edit a CodeRunner question into a Scratchpad UI question and get UI serialization, while Scratchpad Hidden
@@ -157,7 +156,7 @@ Feature: Test the Scratchpad UI
     And I set the field "answer_code" to "print(\"hello world\")"
     And I press "Check"
     And I press "Show differences"
-    Then I should see highlighted "{\"answer_code\":\"print(\"hello world\")\":\"\",\"test_code\":\"\",\"show_hide\":\"\",\"prefix_ans\":\"\"}"
+    Then I should see highlighted "{\"answer_code\":\"print(\"hello world\")\",\"test_code\":\"\",\"show_hide\":\"\",\"prefix_ans\":\"\"}"
   
   @serial
   Scenario: Edit a CodeRunner question into a Scratchpad UI question and get UI serialization, while Scratchpad Shown and answer code entered
@@ -178,7 +177,7 @@ Feature: Test the Scratchpad UI
     
     And I press "Check"
     And I press "Show differences"
-    Then I should see highlighted "{\"answer_code\":\"print(\"hello world\")\":\"\",\"test_code\":\"\",\"show_hide\":\"1\",\"prefix_ans\":\"\"}"
+    Then I should see highlighted "{\"answer_code\":\"print(\"hello world\")\",\"test_code\":\"\",\"show_hide\":\"1\",\"prefix_ans\":\"\"}"
 
   @serial
   Scenario: Edit a CodeRunner question into a Scratchpad UI question and get UI serialization, while Scratchpad Shown and scratchpad code entered
@@ -199,8 +198,29 @@ Feature: Test the Scratchpad UI
     
     And I press "Check"
     And I press "Show differences"
-    Then I should see highlighted "{\"answer_code\":\"\":\"\",\"test_code\":\"print(\"hello world\")\",\"show_hide\":\"1\",\"prefix_ans\":\"\"}"
-
+    Then I should see highlighted "{\"answer_code\":\"\",\"test_code\":\"print(\"hello world\")\",\"show_hide\":\"1\",\"prefix_ans\":\"\"}"
+  
+  @serial
+  Scenario: Edit a CodeRunner question into a Scratchpad UI question and get UI serialization, while Scratchpad Shown and prefix box ticked
+    When I am on the "Print answer" "core_question > edit" page logged in as teacher1
+    And I set the field "id_answer" to ""
+    And I set the following fields to these values:
+      | id_customise      | 1                                     |
+      | id_uiplugin       | Scratchpad                            |
+      | id_validateonsave | 0                                     |
+      | id_expected_0     | ''                                    |
+    And I set the field "id_template" to "print('''{{ STUDENT_ANSWER }}''')"
+    And I press "id_submitbutton"
+    Then I should see "Print answer"
+    
+    When I choose "Preview" action for "Print answer" in the question bank
+    And I click on "▶Scratchpad" "button"
+    And I set the field "prefix_ans" to "1"
+    
+    And I press "Check"
+    And I press "Show differences"
+    Then I should see highlighted "{\"answer_code\":\"\",\"test_code\":\"\",\"show_hide\":\"1\",\"prefix_ans\":\"1\"}"
+  
   @serial
   Scenario: Edit a CodeRunner question into a Scratchpad UI question and get UI serialization, while Scratchpad Shown, answer code and test code entered
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1
@@ -222,4 +242,4 @@ Feature: Test the Scratchpad UI
     
     And I press "Check"
     And I press "Show differences"
-    Then I should see highlighted "{\"answer_code\":\"print(\"hello world\")\":\"\",\"test_code\":\"print(\"goodbye world\")\",\"show_hide\":\"1\",\"prefix_ans\":\"\"}"
+    Then I should see highlighted "{\"answer_code\":\"print(\"hello world\")\",\"test_code\":\"print(\"goodbye world\")\",\"show_hide\":\"1\",\"prefix_ans\":\"\"}"
