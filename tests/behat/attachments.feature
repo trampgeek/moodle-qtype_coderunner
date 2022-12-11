@@ -37,7 +37,7 @@ Feature: Test editing and using attachments to a CodeRunner question
     And I press "id_submitbutton"
     Then I should see "Question bank"
 
-  @javascript @file_attachments 
+  @javascript @file_attachments
   Scenario: As a teacher I can preview my question but get an error without attachment.
     When I choose "Preview" action for "Square function" in the question bank
     When I set the field "Answer" to "from sqrmodule import sqr"

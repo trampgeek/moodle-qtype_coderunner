@@ -3,7 +3,7 @@ on: [push, pull_request]
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: 'ubuntu-latest'
 
     strategy:
       fail-fast: false
@@ -15,6 +15,7 @@ jobs:
           - php: '7.3'
             moodle-branch: 'MOODLE_400_STABLE'
             database: 'mariadb'
+
     services:
       postgres:
         image: postgres:10
@@ -23,11 +24,8 @@ jobs:
           POSTGRES_HOST_AUTH_METHOD: 'trust'
         ports:
           - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 3
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 3
+
       mariadb:
         image: mariadb:10.5
         env:
@@ -35,28 +33,21 @@ jobs:
           MYSQL_ALLOW_EMPTY_PASSWORD: "true"
         ports:
           - 3306:3306
-        options: >-
-          --health-cmd="mysqladmin ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 3
+        options: --health-cmd="mysqladmin ping" --health-interval 10s --health-timeout 5s --health-retries 3
 
     steps:
       - name: Checkout
         uses: actions/checkout@v2
         with:
           path: plugin
-          
-      - name: Install node
-        uses: actions/setup-node@v1
-        with:
-          node-version: '14.15.0'
 
-      - name: Setup PHP
+      - name: Setup PHP ${{ matrix.php }}
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
           extensions: mbstring, pgsql, mysqli
+          ini-values: max_input_vars=5000
+          coverage: none
 
       - name: Initialise moodle-plugin-ci
         run: |
@@ -73,8 +64,6 @@ jobs:
 
       - name: Test JobeInABox
         run: |
-          # Let Jobe initialise
-          sleep 2
           curl http://localhost:4000/jobe/index.php/restapi/languages
           curl http://localhost:4000/jobe/index.php/restapi/runs -H 'Content-Type: application/json; charset=utf-8' --data-binary '{"run_spec":{"language_id":"python3","sourcecode":"print(\"Hello sandbox!\")","sourcefilename":"__tester__.python3","input":"","file_list":[]}}'
 
@@ -83,7 +72,7 @@ jobs:
           echo "<?php"                                                          >  plugin/tests/fixtures/test-sandbox-config.php
           echo "set_config('jobesandbox_enabled', 1, 'qtype_coderunner');"      >> plugin/tests/fixtures/test-sandbox-config.php
           echo "set_config('jobe_host', 'localhost:4000', 'qtype_coderunner');" >> plugin/tests/fixtures/test-sandbox-config.php
-          # Display it, at least for now, so it is easy to check.
+          # Display it, at least for now, so it is east to check.
           cat plugin/tests/fixtures/test-sandbox-config.php
 
       - name: Install Moodle
