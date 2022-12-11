@@ -383,7 +383,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
                 // Various weird stuff lands here, such as URL blocked.
                 // Hopefully the value of $response is useful.
                 $returncode = -1;
-                $responsebody = json_encode($value);
+                $responsebody = json_encode($response);
             }
         } else {
             $returncode = -1;
