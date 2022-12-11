@@ -61,6 +61,8 @@ jobs:
 
       - name: Start JobeInABox
         run: sudo docker run -d -p 4000:80 --name jobe trampgeek/jobeinabox:latest
+
+      - name: Let JobeInABox settle
         run: sleep 5s
 
       - name: Test JobeInABox
