@@ -39,9 +39,9 @@ class behat_coderunner extends behat_base {
     }
     
     /**
-     * Checks that a given string appears within a visible answer textarea.
+     * Checks that a given string appears within answer textarea.
      * Intended for checking UI serialization
-     * @Then /^I should see in answer box "(?P<expected>(?:[^"]|\\")*)"$/ 
+     * @Then /^I should see in answer field "(?P<expected>(?:[^"]|\\")*)"$/ 
      * @throws ExpectationException
      * @param string $expected The string that we expect to find
      */    
@@ -61,9 +61,9 @@ class behat_coderunner extends behat_base {
     }
     
      /**
-     * Checks that a given string appears within a visible answer textarea.
+     * Checks that a given string appears within answer textarea.
      * Intended for checking UI serialization
-     * @Then /^I should see in answer box:$/
+     * @Then /^I should see in answer field:$/
      */    
      public function i_should_see_in_answer_pystring(Behat\Gherkin\Node\PyStringNode $pystring) {
          $this->i_should_see_in_answer($pystring->getRaw());
