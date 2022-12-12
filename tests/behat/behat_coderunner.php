@@ -60,6 +60,15 @@ class behat_coderunner extends behat_base {
         }
     }
     
+     /**
+     * Checks that a given string appears within a visible answer textarea.
+     * Intended for checking UI serialization
+     * @Then /^I should see in answer box:$/
+     */    
+     public function i_should_see_in_answer_pystring(Behat\Gherkin\Node\PyStringNode $pystring) {
+         $this->i_should_see_in_answer($pystring->getRaw());
+    }
+    
     /**
      * Checks that a given string appears within a visible ins or del element
      * that has a background-color attribute that is not 'inherit'.
