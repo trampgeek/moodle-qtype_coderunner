@@ -30,14 +30,36 @@ class behat_coderunner extends behat_base {
      /**
      * Sets the webserver sandbox to enabled for testing purposes.
      *
-     * @Given /^the webserver sandbox is enabled/
+     * @Given /^the CodeRunner sandbox is enabled/
      */
-    public function the_sandbox_is_enabled() {
+    public function the_coderunner_sandbox_is_enabled() {
         set_config('wsenabled', 1, 'qtype_coderunner');
         set_config('jobesandbox_enabled', 1, 'qtype_coderunner');
         set_config('jobe_host', '172.17.0.1:4000', 'qtype_coderunner');
     }
-
+    
+    /**
+     * Checks that a given string appears within a visible answer textarea.
+     * Intended for checking UI serialization
+     * @Then /^I should see in answer box "(?P<expected>(?:[^"]|\\")*)"$/ 
+     * @throws ExpectationException
+     * @param string $expected The string that we expect to find
+     */    
+     public function i_should_see_in_answer($expected) {
+        $xpath = '//textarea[contains(@class, "coderunner-answer")]';
+        $driver = $this->getSession()->getDriver();
+        if (!$driver->find($xpath)) {
+            $error = "Answer box not found!";
+            throw new ExpectationException($error, $this->getSession());
+        }
+        $page = $this->getSession()->getPage();
+        $val = $page->find('xpath',$xpath)->getValue();;
+        if ($val !== $expected) {
+            $error = "'$val' does not match '$expected'";
+            throw new ExpectationException($error, $this->getSession());
+        }
+    }
+    
     /**
      * Checks that a given string appears within a visible ins or del element
      * that has a background-color attribute that is not 'inherit'.
@@ -48,7 +70,6 @@ class behat_coderunner extends behat_base {
      * @throws ExpectationException
      * @param string $expected The string that we expect to find
      */
-
     public function i_should_see_highlighted($expected) {
         $delxpath = "//div[contains(@class, 'coderunner-test-results')]//del[contains(text(), '{$expected}')]";
         $msg = "'{$expected}' not found within a highlighted del element";
