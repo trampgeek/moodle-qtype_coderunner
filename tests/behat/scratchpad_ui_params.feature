@@ -34,7 +34,7 @@ Scenario: Edit a CodeRunner Scratchpad UI question, changing all available UI pa
     And I set the field "id_uiparameters" to:
     """
     {
-        "sp_button_name": "",
+        "sp_button_name": "Ran!",
         "sp_name":"Scratchblobert",
         "sp_html_out":true,
         "sp_prefix_name":"unhelpful label :)",
@@ -126,7 +126,7 @@ Scenario: Edit a CodeRunner Scratchpad UI question, changing UI params for run b
     And I should not see "Run!"
     And I should not see "Prefix Answer?"
 
-  Scenario: Edit a CodeRunner question into a Scratchpad UI question, changing UI param for run HTML output
+  Scenario: Edit a CodeRunner question into a Scratchpad UI question, setting HTML output to true and 'printing' a button
     And I set the field "id_answer" to ""
     And I set the following fields to these values:
       | id_customise    | 1                                       |
@@ -137,3 +137,86 @@ Scenario: Edit a CodeRunner Scratchpad UI question, changing UI params for run b
     Then I should see "Print answer"
 
     When I choose "Preview" action for "Print answer" in the question bank
+    And I click on "▶Scratchpad" "button"
+    And I set the field "test_code" to "print('<button>Hi</button>')"
+    Then I press "Run!"
+    And I press "Hi"
+  
+  Scenario: Edit a CodeRunner question into a Scratchpad UI question, define wrapper in UI params and click run, only inserting Scratchpad code
+    And I set the field "id_answer" to ""
+    And I set the following fields to these values:
+      | id_customise    | 1                                                             |
+      | id_uiplugin     | Scratchpad                                                    |
+      | id_uiparameters | {"sp_run_wrapper": "print('Hello Wrapper', end=' ')\n{{ ANSWER_CODE }}\n{{ SCRATCHPAD_CODE }}"} |
+
+    And I press "id_submitbutton"
+    Then I should see "Print answer"
+
+    When I choose "Preview" action for "Print answer" in the question bank
+    And I click on "▶Scratchpad" "button"
+    And I set the field "answer_code" to "print('Hello Answercode', end=' ')"
+    And I set the field "test_code" to "print('Hello Scratchpadcode', end=' ')"
+    Then I press "Run!"
+    And I should see "Hello Wrapper Hello Scratchpadcode"
+
+  Scenario: Edit a CodeRunner question into a Scratchpad UI question, define wrapper in UI params and click run, only inserting Scratchpad code    And I set the field "id_answer" to ""
+    And I set the following fields to these values:
+      | id_customise    | 1                                                             |
+      | id_uiplugin     | Scratchpad                                                    |
+      | id_uiparameters | {"sp_run_wrapper": "print('Hello Wrapper', end=' ')\n{{ ANSWER_CODE }}\n{{ SCRATCHPAD_CODE }}"} |
+
+    And I press "id_submitbutton"
+    Then I should see "Print answer"
+
+    When I choose "Preview" action for "Print answer" in the question bank
+    And I click on "▶Scratchpad" "button"
+    And I set the field "answer_code" to "print('Hello Answercode', end=' ')"
+    And I set the field "test_code" to "print('Hello Scratchpadcode', end=' ')"
+    And I set the field "prefix_ans" to "1"
+    Then I press "Run!"
+    And I should see "Hello Wrapper Hello Answercode Hello Scratchpadcode"
+
+    Scenario: Edit a CodeRunner question into a Scratchpad UI question, define wrapper in UI params and click run, only inserting Scratchpad code
+    And I set the field "id_answer" to ""
+    And I set the following fields to these values:
+      | id_customise    | 1                                                             |
+      | id_uiplugin     | Scratchpad                                                    |      
+      | id_uiparameters | {"sp_run_wrapper": "globalextra"}                             |
+    And I set the field "globalextra" to:
+    """
+    print('Hello Wrapper', end=' ')
+    {{ ANSWER_CODE }}
+    {{ SCRATCHPAD_CODE }}
+    """
+    And I press "id_submitbutton"
+    Then I should see "Print answer"
+
+    When I choose "Preview" action for "Print answer" in the question bank
+    And I click on "▶Scratchpad" "button"
+    And I set the field "answer_code" to "print('Hello Answercode', end=' ')"
+    And I set the field "test_code" to "print('Hello Scratchpadcode', end=' ')"
+    Then I press "Run!"
+    And I should see "Hello Wrapper Hello Scratchpadcode"
+
+  Scenario: Edit a CodeRunner question into a Scratchpad UI question, define wrapper in UI params and click run, only inserting Scratchpad code    And I set the field "id_answer" to ""
+    And I set the following fields to these values:
+      | id_customise    | 1                                                             |
+      | id_uiplugin     | Scratchpad                                                    |
+      | id_uiparameters | {"sp_run_wrapper": "globalextra"}                             |
+    And I set the field "globalextra" to:
+    """
+    print('Hello Wrapper', end=' ')
+    {{ ANSWER_CODE }}
+    {{ SCRATCHPAD_CODE }}
+    """
+
+    And I press "id_submitbutton"
+    Then I should see "Print answer"
+
+    When I choose "Preview" action for "Print answer" in the question bank
+    And I click on "▶Scratchpad" "button"
+    And I set the field "answer_code" to "print('Hello Answercode', end=' ')"
+    And I set the field "test_code" to "print('Hello Scratchpadcode', end=' ')"
+    And I set the field "prefix_ans" to "1"
+    Then I press "Run!"
+    And I should see "Hello Wrapper Hello Answercode Hello Scratchpadcode"
