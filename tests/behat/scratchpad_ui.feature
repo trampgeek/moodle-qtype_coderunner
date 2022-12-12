@@ -142,7 +142,7 @@ Feature: Test the Scratchpad UI
     Then I should see "The submission was invalid, and has been disregarded without penalty."
  
   @serial
-  Scenario: Get UI serialization, while Scratchpad Hidden
+  Scenario: Get UI serialization, with answer code, while Scratchpad Hidden
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1
     And I set the field "id_answer" to ""
     And I set the following fields to these values:
@@ -163,7 +163,7 @@ Feature: Test the Scratchpad UI
     """
 
   @serial
-  Scenario: Get UI serialization, while Scratchpad Shown and answer code entered
+  Scenario: Get UI serialization, answer code entered, Scratchpad shown
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1
     And I set the field "id_answer" to ""
     And I set the following fields to these values:
@@ -187,7 +187,7 @@ Feature: Test the Scratchpad UI
   
   
   @serial
-  Scenario: Get UI serialization, while Scratchpad Shown and scratchpad code entered
+  Scenario: Get UI serialization, Scratchpad code entered, Scratchpad shown
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1
     And I set the field "id_answer" to ""
     And I set the following fields to these values:
@@ -238,7 +238,7 @@ Feature: Test the Scratchpad UI
     """  
 
   @serial
-  Scenario: Get UI serialization, while Scratchpad Shown, answer code and test code entered
+  Scenario: Get UI serialization, answer code and test code entered, Scratchpad shown, prefix ticked 
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1
     And I set the field "id_answer" to ""
     And I set the following fields to these values:

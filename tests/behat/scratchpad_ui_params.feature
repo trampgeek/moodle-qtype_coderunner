@@ -25,7 +25,7 @@ Feature: Test the Scratchpad UI, UI Params
     And I am on the "Print answer" "core_question > edit" page logged in as teacher1
     And I set the field "id_validateonsave" to ""
     
-Scenario: Edit a CodeRunner Scratchpad UI question, changing all available UI params 
+Scenario: Edit a CodeRunner Scratchpad UI question, change all available UI params 
     And I set the field "id_answer" to ""
     And I set the following fields to these values:
       | id_customise    | 1                                       |
@@ -52,7 +52,7 @@ Scenario: Edit a CodeRunner Scratchpad UI question, changing all available UI pa
     Then I should not see "The UI parameters for this question or its prototype are broken. Proceed with caution."
 
   
-Scenario: Edit a CodeRunner Scratchpad UI question, changing UI params for run button name
+Scenario: Change UI param for run button name
     And I set the field "id_answer" to ""
     And I set the following fields to these values:
       | id_customise   | 1                                       |
@@ -77,7 +77,7 @@ Scenario: Edit a CodeRunner Scratchpad UI question, changing UI params for run b
     And I should not see "Run!"
     And I should not see "Prefix Answer?"
 
-  Scenario: Edit a CodeRunner question into a Scratchpad UI question, changing UI params for scratchpad name
+  Scenario: Change UI param for Scratchpad name
     When I set the following fields to these values:
       | id_customise   | 1                                       |
       | id_uiplugin    | Scratchpad                              |
@@ -100,7 +100,7 @@ Scenario: Edit a CodeRunner Scratchpad UI question, changing UI params for run b
     And I should not see "Run!"
     And I should not see "Prefix Answer?"
 
-  Scenario: Edit a CodeRunner question into a Scratchpad UI question, changing UI params for run button name
+  Scenario: Change UI param for run button name
     And I set the field "id_answer" to ""
     And I set the following fields to these values:
       | id_customise    | 1                                       |
@@ -126,7 +126,7 @@ Scenario: Edit a CodeRunner Scratchpad UI question, changing UI params for run b
     And I should not see "Run!"
     And I should not see "Prefix Answer?"
 
-  Scenario: Edit a CodeRunner question into a Scratchpad UI question, setting HTML output to true and 'printing' a button
+  Scenario: Set HTML output to true, 'print' a button to output area
     And I set the field "id_answer" to ""
     And I set the following fields to these values:
       | id_customise    | 1                                       |
@@ -142,7 +142,7 @@ Scenario: Edit a CodeRunner Scratchpad UI question, changing UI params for run b
     Then I press "Run!"
     And I press "Hi"
   
-  Scenario: Edit a CodeRunner question into a Scratchpad UI question, define wrapper in UI params and click run, only inserting Scratchpad code
+  Scenario: Define wrapper in UI params and click run, insert both answer and Scratchpad code, NO prefix with answer, click run
     And I set the field "id_answer" to ""
     And I set the following fields to these values:
       | id_customise    | 1                                                             |
@@ -159,7 +159,8 @@ Scenario: Edit a CodeRunner Scratchpad UI question, changing UI params for run b
     Then I press "Run!"
     And I should see "Hello Wrapper Hello Scratchpadcode"
 
-  Scenario: Edit a CodeRunner question into a Scratchpad UI question, define wrapper in UI params and click run, only inserting Scratchpad code    And I set the field "id_answer" to ""
+  Scenario: Define wrapper in UI params and click run, insert both answer and Scratchpad code, prefix with answer, click run   
+    And I set the field "id_answer" to ""
     And I set the following fields to these values:
       | id_customise    | 1                                                             |
       | id_uiplugin     | Scratchpad                                                    |
@@ -176,7 +177,7 @@ Scenario: Edit a CodeRunner Scratchpad UI question, changing UI params for run b
     Then I press "Run!"
     And I should see "Hello Wrapper Hello Answercode Hello Scratchpadcode"
 
-    Scenario: Edit a CodeRunner question into a Scratchpad UI question, define wrapper in UI params and click run, only inserting Scratchpad code
+    Scenario: Define wrapper in global extra, insert both answer and Scratchpad code, NO prefix with answer, click run
     And I set the field "id_answer" to ""
     And I set the following fields to these values:
       | id_customise    | 1                                                             |
@@ -198,7 +199,8 @@ Scenario: Edit a CodeRunner Scratchpad UI question, changing UI params for run b
     Then I press "Run!"
     And I should see "Hello Wrapper Hello Scratchpadcode"
 
-  Scenario: Edit a CodeRunner question into a Scratchpad UI question, define wrapper in UI params and click run, only inserting Scratchpad code    And I set the field "id_answer" to ""
+  Scenario: Define wrapper in global extra, insert both answer and Scratchpad code, prefix with answer, click run   
+    And I set the field "id_answer" to ""
     And I set the following fields to these values:
       | id_customise    | 1                                                             |
       | id_uiplugin     | Scratchpad                                                    |
