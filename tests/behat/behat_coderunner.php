@@ -79,13 +79,14 @@ class behat_coderunner extends behat_base {
      public function i_set_ace_field($elname, $value) {
         $xpath = "//textarea[@name='$elname']/../div/div";
         $driver = $this->getSession()->getDriver();
+        // Verify that elname will give us the correct div
         if (!$driver->find($xpath)) {
             $error = "Ace editor not found!";
             throw new ExpectationException($error, $this->getSession());
         }
         // We inject JS into the browser to set the Ace editor contents...
         // (Gross) JS to take the x-path for the div managed by Ace, 
-        // then set the value of that editor.
+        // open editor for that div, and set the editors value.
         $javascript = "const editorNode = document.evaluate("
                 . "`$xpath`,"
                 . "document,"
