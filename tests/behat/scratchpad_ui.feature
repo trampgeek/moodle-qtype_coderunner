@@ -91,11 +91,11 @@ Feature: Test the Scratchpad UI
     And I set the ace field "answer_code" to "print(\"hello\" + \" \" + \"world\")"
     
     Then I press "Run!"
-    And I should not see "hello world"
-    
-    Then I set the field "prefix_ans" to "1"
-    And I press "Run!"
     And I should see "hello world"
+    
+    Then I set the field "prefix_ans" to ""
+    And I press "Run!"
+    And I should not see "hello world"
  
   Scenario: Click the run button with program that outputs in Answer Code and Scratchpad Code 
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1
@@ -112,13 +112,13 @@ Feature: Test the Scratchpad UI
     And I set the ace field "answer_code" to "print(\"hello\" + \" \" + \"world\")"
     And I set the ace field "test_code" to "print(\"goodbye\" + \" \" + \"world\")"
     
-    Then I press "Run!"
-    And I should not see "hello world"
+    When I press "Run!"
+    Then I should see "hello world"
     And I should see "goodbye world"
     
-    Then I set the field "prefix_ans" to "1"
+    When I set the field "prefix_ans" to ""
     And I press "Run!"
-    And I should see "hello world"
+    Then I should not see "hello world"
     And I should see "goodbye world"
   
   @serial
@@ -229,7 +229,7 @@ Feature: Test the Scratchpad UI
     
     When I choose "Preview" action for "Print answer" in the question bank
     And I click on "▶Scratchpad" "button"
-    And I set the field "prefix_ans" to "1"
+    And I set the field "prefix_ans" to ""
     
     Then I press the CTRL + ALT M key
     And I should see in answer field:
@@ -254,7 +254,7 @@ Feature: Test the Scratchpad UI
     And I click on "▶Scratchpad" "button"
     And I set the ace field "answer_code" to "print('hello world')"
     And I set the ace field "test_code" to "print('goodbye world')"
-    And I set the field "prefix_ans" to "1"
+    And I set the field "prefix_ans" to ""
 
     Then I press the CTRL + ALT M key
     And I should see in answer field:

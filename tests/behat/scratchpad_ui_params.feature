@@ -156,6 +156,7 @@ Scenario: Change UI param for run button name
     And I click on "▶Scratchpad" "button"
     And I set the ace field "answer_code" to "print('Hello Answercode', end=' ')"
     And I set the ace field "test_code" to "print('Hello Scratchpadcode', end=' ')"
+    And I set the field "prefix_ans" to ""
     Then I press "Run!"
     And I should see "Hello Wrapper Hello Scratchpadcode"
 
@@ -173,7 +174,6 @@ Scenario: Change UI param for run button name
     And I click on "▶Scratchpad" "button"
     And I set the ace field "answer_code" to "print('Hello Answercode', end=' ')"
     And I set the ace field "test_code" to "print('Hello Scratchpadcode', end=' ')"
-    And I set the field "prefix_ans" to "1"
     Then I press "Run!"
     And I should see "Hello Wrapper Hello Answercode Hello Scratchpadcode"
 
@@ -196,6 +196,7 @@ Scenario: Change UI param for run button name
     And I click on "▶Scratchpad" "button"
     And I set the ace field "answer_code" to "print('Hello Answercode', end=' ')"
     And I set the ace field "test_code" to "print('Hello Scratchpadcode', end=' ')"
+    And I set the field "prefix_ans" to ""
     Then I press "Run!"
     And I should see "Hello Wrapper Hello Scratchpadcode"
   @testme
