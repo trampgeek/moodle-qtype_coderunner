@@ -70,6 +70,34 @@ class behat_coderunner extends behat_base {
     }
     
     /**
+     * Sets the ace editor content (correlating to supplied text area) to provided string.
+     * Intended as a replacement for I set feild to <value>, for ace fields.
+     * @Then /^I set the ace field "(?P<elname>(?:[^"]|\\")*)" to "(?P<value>(?:[^"]|\\")*)"$/
+     * @throws ExpectationException
+     * @param string $expected The string that we expect to find
+     */    
+     public function i_set_ace_field($elname, $value) {
+        $xpath = "//textarea[@name='$elname']/../div/div";
+        $driver = $this->getSession()->getDriver();
+        if (!$driver->find($xpath)) {
+            $error = "Ace editor not found!";
+            throw new ExpectationException($error, $this->getSession());
+        }
+        // We inject JS into the browser to set the Ace editor contents...
+        // (Gross) JS to take the x-path for the div managed by Ace, 
+        // then set the value of that editor.
+        $javascript = "const editorNode = document.evaluate("
+                . "`$xpath`,"
+                . "document,"
+                . "null,"
+                . "XPathResult.ANY_TYPE,null,"
+                . ");"
+                . "const editor = ace.edit(editorNode.iterateNext());"
+                . "editor.setValue(`$value`);";
+        $this->getSession()->executeScript($javascript);
+    }
+    
+    /**
      * Checks that a given string appears within a visible ins or del element
      * that has a background-color attribute that is not 'inherit'.
      * Intended for use only when checking the behaviour of the
