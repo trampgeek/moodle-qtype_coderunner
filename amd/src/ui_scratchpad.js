@@ -198,6 +198,15 @@ define(['jquery'], function ($) {
         return inputHtml + labelHtml;
     }
 
+    /**
+     * Invert serialisation from '1' to '', vice versa.
+     * @param {string} current serialisation.
+     * @returns {string} inverted serialisation.
+     */
+    function invertSerial(current) {
+        return current == '1' ? '' : '1';
+    }
+
 
     /**
      * Combine answer code with scratchpad code. If prefixAns is false:
@@ -300,9 +309,10 @@ define(['jquery'], function ($) {
         if (this.scratchpadDiv.is(':visible')) {
             serialisation.show_hide = '1';
         }
-        if (!prefixAns.is(':checked')) {
-            serialisation.prefix_ans = '1'; // Inverted: '1' for unchecked, '' for checked.
+        if (prefixAns.is(':checked')) {
+            serialisation.prefix_ans = '1';
         }
+        serialisation.prefix_ans = invertSerial(serialisation.prefix_ans);
         if (Object.values(serialisation).some((val) => val.length > 0)) {
             this.textArea.val(JSON.stringify(serialisation));
         } else {
@@ -323,8 +333,8 @@ define(['jquery'], function ($) {
         const serial = JSON.parse(preloadString);
         const params = this.uiParams.params;
         let code;
-        // Invert prefix with Ans.
-        serial['prefix_ans'] = serial['prefix_ans'] == '1' ? '' : '1';
+
+        serial['prefix_ans'] = invertSerial(serial['prefix_ans']);
 
         // Clear all output areas.
         outputDisplayArea.html('');
