@@ -314,6 +314,7 @@ define(['jquery'], function ($) {
         }
         serialisation.prefix_ans = invertSerial(serialisation.prefix_ans);
         if (Object.values(serialisation).some((val) => val.length > 0)) {
+            serialisation.prefix_ans = invertSerial(serialisation.prefix_ans );
             this.textArea.val(JSON.stringify(serialisation));
         } else {
             this.textArea.val(''); // All feilds empty...
@@ -334,7 +335,7 @@ define(['jquery'], function ($) {
         const params = this.uiParams.params;
         let code;
 
-        serial['prefix_ans'] = invertSerial(serial['prefix_ans']);
+        // serial['prefix_ans'] = invertSerial(serial['prefix_ans']);
 
         // Clear all output areas.
         outputDisplayArea.html('');
@@ -410,7 +411,7 @@ define(['jquery'], function ($) {
             answer_code: '',
             test_code: '',
             show_hide: '',
-            prefix_ans: ''
+            prefix_ans: '1' // Ticked by defualt!
         };
 
         try {
@@ -467,12 +468,11 @@ define(['jquery'], function ($) {
     ScratchpadUi.prototype.drawScratchpadUi = function (spTextAreaId, preload) {
         const t = this;
         const testCodeHtml = htmlTextArea(spTextAreaId, 'test_code', preload['test_code']);
-        const prefixChecked = !(preload['prefix_ans']); // Inverted: '1' for unchecked, '' for checked.
         const prefixAnsHtml = htmlInput(
                 this.textAreaId + '-prefix-ans',
                 'prefix_ans',
                 this.spPrefixName,
-                prefixChecked,
+                preload['prefix_ans'],
                 'checkbox'
                 );
         const runButton = $("<button type='button' " +
