@@ -71,7 +71,7 @@ Feature: Test the Scratchpad UI
 
     When I choose "Preview" action for "Print answer" in the question bank
     And I click on "▶Scratchpad" "button"
-    And I set the field "test_code" to "print(\"hello world\")"
+    And I set the ace field "test_code" to "print(\"hello\" + \" \" + \"world\")"
     
     Then I press "Run!"
     And I should see "hello world"
@@ -88,7 +88,7 @@ Feature: Test the Scratchpad UI
 
     When I choose "Preview" action for "Print answer" in the question bank
     And I click on "▶Scratchpad" "button"
-    And I set the field "answer_code" to "print(\"hello world\")"
+    And I set the ace field "answer_code" to "print(\"hello\" + \" \" + \"world\")"
     
     Then I press "Run!"
     And I should not see "hello world"
@@ -109,8 +109,8 @@ Feature: Test the Scratchpad UI
 
     When I choose "Preview" action for "Print answer" in the question bank
     And I click on "▶Scratchpad" "button"
-    And I set the field "answer_code" to "print(\"hello world\")"
-    And I set the field "test_code" to "print(\"goodbye world\")"
+    And I set the ace field "answer_code" to "print(\"hello\" + \" \" + \"world\")"
+    And I set the ace field "test_code" to "print(\"goodbye\" + \" \" + \"world\")"
     
     Then I press "Run!"
     And I should not see "hello world"
@@ -155,7 +155,7 @@ Feature: Test the Scratchpad UI
     Then I should see "Print answer"
     
     When I choose "Preview" action for "Print answer" in the question bank
-    And I set the field "answer_code" to "print('hello world')"
+    And I set the ace field "answer_code" to "print('hello world')"
     Then I press the CTRL + ALT M key
     And I should see in answer field:
     """
@@ -176,7 +176,7 @@ Feature: Test the Scratchpad UI
     Then I should see "Print answer"
     
     When I choose "Preview" action for "Print answer" in the question bank
-    And I set the field "answer_code" to "print('hello world')"
+    And I set the ace field "answer_code" to "print('hello world')"
     And I click on "▶Scratchpad" "button"
     
     Then I press the CTRL + ALT M key
@@ -200,7 +200,7 @@ Feature: Test the Scratchpad UI
     
     When I choose "Preview" action for "Print answer" in the question bank
     And I click on "▶Scratchpad" "button"
-    And I set the field "test_code" to "print('hello world')"
+    And I set the ace field "test_code" to "print('hello world')"
   
     Then I press the CTRL + ALT M key
     And I should see in answer field:
@@ -252,8 +252,8 @@ Feature: Test the Scratchpad UI
     
     When I choose "Preview" action for "Print answer" in the question bank
     And I click on "▶Scratchpad" "button"
-    And I set the field "answer_code" to "print('hello world')"
-    And I set the field "test_code" to "print('goodbye world')"
+    And I set the ace field "answer_code" to "print('hello world')"
+    And I set the ace field "test_code" to "print('goodbye world')"
     And I set the field "prefix_ans" to "1"
 
     Then I press the CTRL + ALT M key
