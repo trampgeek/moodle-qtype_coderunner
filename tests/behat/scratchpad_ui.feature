@@ -159,7 +159,7 @@ Feature: Test the Scratchpad UI
     Then I press the CTRL + ALT M key
     And I should see in answer field:
     """
-    {"answer_code":"print('hello world')","test_code":"","show_hide":"","prefix_ans":""}
+    {"answer_code":"print('hello world')","test_code":"","show_hide":"","prefix_ans":"1"}
     """
 
   @serial
@@ -182,12 +182,12 @@ Feature: Test the Scratchpad UI
     Then I press the CTRL + ALT M key
     And I should see in answer field:
     """
-    {"answer_code":"print('hello world')","test_code":"","show_hide":"1","prefix_ans":""}
+    {"answer_code":"print('hello world')","test_code":"","show_hide":"1","prefix_ans":"1"}
     """
   
   
   @serial
-  Scenario: Get UI serialization, Scratchpad code entered, Scratchpad shown
+  Scenario: Get UI serialization, Scratchpad code entered, Scratchpad shown, NO prefix 
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1
     And I set the field "id_answer" to ""
     And I set the following fields to these values:
@@ -201,6 +201,7 @@ Feature: Test the Scratchpad UI
     When I choose "Preview" action for "Print answer" in the question bank
     And I click on "▶Scratchpad" "button"
     And I set the ace field "test_code" to "print('hello world')"
+    And I set the field "prefix_ans" to ""
   
     Then I press the CTRL + ALT M key
     And I should see in answer field:
@@ -238,7 +239,7 @@ Feature: Test the Scratchpad UI
     """  
 
   @serial
-  Scenario: Get UI serialization, answer code and test code entered, Scratchpad shown, prefix ticked 
+  Scenario: Get UI serialization, answer code and test code entered, Scratchpad shown, prefix NOT ticked 
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1
     And I set the field "id_answer" to ""
     And I set the following fields to these values:

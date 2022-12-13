@@ -199,7 +199,7 @@ Scenario: Change UI param for run button name
     And I set the field "prefix_ans" to ""
     Then I press "Run!"
     And I should see "Hello Wrapper Hello Scratchpadcode"
-  @testme
+
   Scenario: Define wrapper in global extra, insert both answer and Scratchpad code, prefix with answer, click run   
     And I set the field "id_answer" to ""
     And I set the following fields to these values:
