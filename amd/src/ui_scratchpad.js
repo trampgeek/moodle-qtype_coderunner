@@ -323,13 +323,15 @@ define(['jquery'], function ($) {
         const serial = JSON.parse(preloadString);
         const params = this.uiParams.params;
         let code;
+        // Invert prefix with Ans.
+        serial['prefix_ans'] = serial['prefix_ans'] == '1' ? '' : '1';
 
         // Clear all output areas.
         outputDisplayArea.html('');
         if (htmlOutput) {
             outputDisplayArea.hide();
         }
-        outputDisplayArea.next('div.filter-ace-inline-html').remove();
+        outputDisplayArea.next('div.filter-ace-inline-html').remove(); //TODO: Naming
 
         if (this.spRunWrapper) { // Wrap the code if a wrapper exists.
             code = fillWrapper(
