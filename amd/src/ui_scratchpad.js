@@ -187,7 +187,7 @@ define(['jquery'], function ($) {
      */
     function htmlInput(id, name, label, value, type) {
         const checked = (value && value[0]) ? 'checked' : '';
-        const labelHtml = `<label for='${name}'>${label}</label>`;
+        const labelHtml = `<label for='${id}'>${label}</label>`;
         const inputHtml = "<input " +
                 `id='${id}' ` +
                 `type='${type}' ` +
