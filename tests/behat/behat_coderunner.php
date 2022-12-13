@@ -45,7 +45,7 @@ class behat_coderunner extends behat_base {
      * @throws ExpectationException
      * @param string $expected The string that we expect to find
      */    
-     public function i_should_see_in_answer($expected) {
+    public function i_should_see_in_answer($expected) {
         $xpath = '//textarea[contains(@class, "coderunner-answer")]';
         $driver = $this->getSession()->getDriver();
         if (!$driver->find($xpath)) {
@@ -53,7 +53,7 @@ class behat_coderunner extends behat_base {
             throw new ExpectationException($error, $this->getSession());
         }
         $page = $this->getSession()->getPage();
-        $val = $page->find('xpath',$xpath)->getValue();;
+        $val = $page->find('xpath',$xpath)->getValue();
         if ($val !== $expected) {
             $error = "'$val' does not match '$expected'";
             throw new ExpectationException($error, $this->getSession());
@@ -70,8 +70,10 @@ class behat_coderunner extends behat_base {
     }
     
     /**
-     * Sets the ace editor content (correlating to supplied text area) to provided string.
-     * Intended as a replacement for I set feild to <value>, for ace fields.
+     * Sets the ace editor content to provided string, using name of associated textarea. 
+     * NOTE: this assumes the existence of a text area next to a 
+     * UI wrapper div containing the Ace div!
+     * Intended as a replacement for I set field to <value>, for ace fields.
      * @Then /^I set the ace field "(?P<elname>(?:[^"]|\\")*)" to "(?P<value>(?:[^"]|\\")*)"$/
      * @throws ExpectationException
      * @param string $expected The string that we expect to find
@@ -79,7 +81,7 @@ class behat_coderunner extends behat_base {
      public function i_set_ace_field($elname, $value) {
         $xpath = "//textarea[@name='$elname']/../div/div";
         $driver = $this->getSession()->getDriver();
-        // Verify that elname will give us the correct div
+        // Does the div managed by Ace exist?
         if (!$driver->find($xpath)) {
             $error = "Ace editor not found!";
             throw new ExpectationException($error, $this->getSession());
