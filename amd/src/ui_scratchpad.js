@@ -186,7 +186,7 @@ define(['jquery'], function ($) {
      * @return {string} HTML string with iput and label.
      */
     function htmlInput(id, name, label, value, type) {
-        const checked = (value && value[0]) ? 'checked' : '';
+        const checked = (value && value) ? 'checked' : '';
         const labelHtml = `<label for='${id}'>${label}</label>`;
         const inputHtml = "<input " +
                 `id='${id}' ` +
@@ -300,8 +300,8 @@ define(['jquery'], function ($) {
         if (this.scratchpadDiv.is(':visible')) {
             serialisation.show_hide = '1';
         }
-        if (prefixAns.is(':checked')) {
-            serialisation.prefix_ans = '1';
+        if (!prefixAns.is(':checked')) {
+            serialisation.prefix_ans = '1'; // Inverted: '1' for unchecked, '' for checked.
         }
         if (Object.values(serialisation).some((val) => val.length > 0)) {
             this.textArea.val(JSON.stringify(serialisation));
@@ -455,8 +455,14 @@ define(['jquery'], function ($) {
     ScratchpadUi.prototype.drawScratchpadUi = function (spTextAreaId, preload) {
         const t = this;
         const testCodeHtml = htmlTextArea(spTextAreaId, 'test_code', preload['test_code']);
-        const prefixAnsHtml = htmlInput(this.textAreaId + '-prefix-ans', 'prefix_ans',
-                this.spPrefixName, preload['prefix_ans'], 'checkbox');
+        const prefixChecked = !(preload['prefix_ans']); // Inverted: '1' for unchecked, '' for checked.
+        const prefixAnsHtml = htmlInput(
+                this.textAreaId + '-prefix-ans',
+                'prefix_ans',
+                this.spPrefixName,
+                prefixChecked,
+                'checkbox'
+                );
         const runButton = $("<button type='button' " +
                 "class='btn btn-secondary' " +
                 "style='margin:6px;padding:2px 8px;'>" +
