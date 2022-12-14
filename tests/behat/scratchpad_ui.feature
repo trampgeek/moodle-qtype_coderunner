@@ -217,7 +217,7 @@ Feature: Test the Scratchpad UI
     {"answer_code":"","test_code":"print('hello world')","show_hide":"","prefix_ans":""}
     """
   
-  Scenario: Get UI serialization, while Scratchpad Shown and prefix box ticked
+  Scenario: Get UI serialization, while Scratchpad Shown and prefix box NOT ticked
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1
     And I set the field "id_answer" to ""
     And I set the following fields to these values:
@@ -235,7 +235,7 @@ Feature: Test the Scratchpad UI
     Then I press the CTRL + ALT M key
     And I should see in answer field:
     """
-    {"answer_code":"","test_code":"","show_hide":"1","prefix_ans":"1"}
+    {"answer_code":"","test_code":"","show_hide":"1","prefix_ans":""}
     """  
 
   @serial
@@ -260,5 +260,5 @@ Feature: Test the Scratchpad UI
     Then I press the CTRL + ALT M key
     And I should see in answer field:
     """
-    {"answer_code":"print('hello world')","test_code":"print('goodbye world')","show_hide":"1","prefix_ans":"1"}
+    {"answer_code":"print('hello world')","test_code":"print('goodbye world')","show_hide":"1","prefix_ans":""}
     """  
