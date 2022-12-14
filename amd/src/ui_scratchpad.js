@@ -62,6 +62,9 @@
 define(['jquery'], function ($) {
     const RESULT_SUCCESS = 15; // Code for a correct Jobe run.
     const DEFUALT_MAX_OUTPUT_LEN = 30000;
+    const DEFUALT_HELP_STRING = `You can enter Python code into this panel and click 'Run' to execute it in the Python engine.
+By default, the code in this panel is prefixed with the contents of the answer box, giving you an easy way to test your answer. 
+You can uncheck the 'Prefix with answer' checkbox to run the code in this panel standalone, e.g. to explore how small Python code fragments behave.`;
 
 
     /**
@@ -276,7 +279,7 @@ define(['jquery'], function ($) {
         // Scratchpad instance vars.
         this.spName = uiParams.sp_name || 'Scratchpad';
         this.spButtonName = uiParams.sp_button_name || 'Run!';
-        this.spPrefixName = uiParams.sp_prefix_name || 'Prefix Answer?';
+        this.spPrefixName = uiParams.sp_prefix_name || 'Prefix with Answer';
         this.spRunLang = uiParams.sp_run_lang || this.uiParams.lang; // use answer's ace language if not specified.
         this.spHtmlOutput = uiParams.sp_html_out || false;
 
@@ -314,7 +317,7 @@ define(['jquery'], function ($) {
         }
         serialisation.prefix_ans = invertSerial(serialisation.prefix_ans);
         if (Object.values(serialisation).some((val) => val.length > 0)) {
-            serialisation.prefix_ans = invertSerial(serialisation.prefix_ans );
+            serialisation.prefix_ans = invertSerial(serialisation.prefix_ans);
             this.textArea.val(JSON.stringify(serialisation));
         } else {
             this.textArea.val(''); // All feilds empty...
@@ -334,8 +337,6 @@ define(['jquery'], function ($) {
         const serial = JSON.parse(preloadString);
         const params = this.uiParams.params;
         let code;
-
-        // serial['prefix_ans'] = invertSerial(serial['prefix_ans']);
 
         // Clear all output areas.
         outputDisplayArea.html('');
@@ -465,32 +466,45 @@ define(['jquery'], function ($) {
         }
     };
 
-    ScratchpadUi.prototype.drawScratchpadUi = function (spTextAreaId, preload) {
-        const t = this;
-        const testCodeHtml = htmlTextArea(spTextAreaId, 'test_code', preload['test_code']);
-        const prefixAnsHtml = htmlInput(
+    ScratchpadUi.prototype.scratchpadControls = function (outputDisplayArea, preload) {
+        const controlsDiv = $("<div class='scratchpad-contols'></div>");
+        const prefixAns = $(htmlInput(
                 this.textAreaId + '-prefix-ans',
                 'prefix_ans',
                 this.spPrefixName,
                 preload['prefix_ans'],
                 'checkbox'
-                );
+                ));
         const runButton = $("<button type='button' " +
                 "class='btn btn-secondary' " +
-                "style='margin:6px;padding:2px 8px;'>" +
+                "style='margin:6px; margin-right:10px; padding:2px 8px;'>" +
                 `${this.spButtonName}</button>`);
-        const outputDisplayArea = $("<pre style='width:100%;white-space:pre-wrap;background-color:#eff;" +
-                "border:1px gray;padding:5px;overflow-wrap:break-word;max-height:600px;overflow:auto;'></pre>");
-        outputDisplayArea.hide();
+        const helpButton = $('<a role="button" class="coderunner-ui-element" title="scratchpad_help">What\'s this?</a>');
+        const rightSpan = $('<span style="float:right;color:#0f6cbf;padding:8px"></span>');
+        const t = this;
         runButton.on('click', function () {
             require(['core/ajax'], function (ajax) {
-                t.handleRunButtonClick(ajax, outputDisplayArea, preload.test_code);
+                t.handleRunButtonClick(ajax, outputDisplayArea);
             });
         });
+        helpButton.on('click', function () {
+            window.alert(DEFUALT_HELP_STRING); // TODO: use lang string!
+        });
+        rightSpan.append(helpButton)
+        controlsDiv.append([runButton, prefixAns, rightSpan]);
+        return controlsDiv;
+    };
+
+    ScratchpadUi.prototype.drawScratchpadUi = function (spTextAreaId, preload) {
+        const testCodeHtml = htmlTextArea(spTextAreaId, 'test_code', preload['test_code']);
+        const outputDisplayArea = $("<pre style='width:100%;white-space:pre-wrap;background-color:#eff;" +
+                "border:1px gray;padding:5px;overflow-wrap:break-word;max-height:600px;overflow:auto;'></pre>");
+        const scratchpadControls = this.scratchpadControls(outputDisplayArea, preload);
+        //outputDisplayArea.hide();
         this.spCodeTextArea = $(testCodeHtml);
         this.spCodeTextArea.attr('data-lang', this.uiParams.lang); //Set language for Ace to use.
-        this.spCodeTextArea.attr('rows', '4'); //Set intial SP size.
-        this.scratchpadDiv.append([this.spCodeTextArea, runButton, $(prefixAnsHtml), outputDisplayArea]);
+        this.spCodeTextArea.attr('rows', '6'); //Set intial SP size.
+        this.scratchpadDiv.append([this.spCodeTextArea, scratchpadControls, outputDisplayArea]);
         this.outerDiv.append(this.scratchpadDiv);
     };
 
