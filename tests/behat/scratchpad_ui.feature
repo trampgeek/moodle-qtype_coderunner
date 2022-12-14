@@ -38,7 +38,7 @@ Feature: Test the Scratchpad UI
     
     When I click on "▶Scratchpad" "button"
     Then I should see "Run!"
-    And I should see "Prefix Answer?"
+    And I should see "Prefix with Answer"
 
     When I click on "▼Scratchpad" "button"
     Then I should not see "Run!"

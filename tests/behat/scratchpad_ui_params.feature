@@ -70,7 +70,7 @@ Scenario: Change UI param for run button name
     When I click on "▶Scratchpad" "button"
     Then I should see "superuniquename123"
     But I should not see "Run!"
-    And I should see "Prefix Answer?"
+    And I should see "Prefix with Answer"
 
     When I click on "▼Scratchpad" "button"
     Then I should not see "superuniquename123"
@@ -94,7 +94,7 @@ Scenario: Change UI param for run button name
     When I click on "▶superuniquename123" "button"
     Then I should see "▼superuniquename123"
     And I should see "Run!"
-    And I should see "Prefix Answer?"
+    And I should see "Prefix with Answer"
 
     When I click on "▼superuniquename123" "button"
     And I should not see "Run!"
