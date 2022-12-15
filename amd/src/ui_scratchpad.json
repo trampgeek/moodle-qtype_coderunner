@@ -1,27 +1,23 @@
 {
     "name": "ui_scratchpad",
     "parameters": {
-        "sp_name": {
+        "scratchpad_name": {
             "type": "string",
             "default": "Scratchpad"
         },
-        "sp_button_name": {
+        "button_name": {
             "type": "string",
             "default": "Run!"
         },
-        "sp_prefix_name": {
+        "prefix_name": {
             "type": "string",
             "default": "Prefix Answer?"
         },
-        "sp_ace_lang": {
+        "run_lang": {
             "type": "string",
             "default": null
         },
-        "sp_run_lang": {
-            "type": "string",
-            "default": null
-        },
-        "sp_run_wrapper": {
+        "run_wrapper": {
             "type": "string",
             "default": null
         },
@@ -29,7 +25,7 @@
             "type": "object",
             "default": null
         },
-        "sp_html_out": {
+        "html_output": {
             "type": "boolean",
             "default": false
         }

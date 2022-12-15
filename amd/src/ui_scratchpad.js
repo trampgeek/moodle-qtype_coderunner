@@ -277,13 +277,13 @@ You can uncheck the 'Prefix with answer' checkbox to run the code in this panel 
         this.fail = false;
 
         // Scratchpad instance vars.
-        this.spName = uiParams.sp_name || 'Scratchpad';
-        this.spButtonName = uiParams.sp_button_name || 'Run!';
-        this.spPrefixName = uiParams.sp_prefix_name || 'Prefix with Answer';
-        this.spRunLang = uiParams.sp_run_lang || this.uiParams.lang; // use answer's ace language if not specified.
-        this.spHtmlOutput = uiParams.sp_html_out || false;
+        this.spName = uiParams.scratchpad_name || 'Scratchpad';
+        this.spButtonName = uiParams.button_name || 'Run!';
+        this.spPrefixName = uiParams.prefix_name || 'Prefix with Answer';
+        this.spRunLang = uiParams.run_lang || this.uiParams.lang; // use answer's ace language if not specified.
+        this.spHtmlOutput = uiParams.html_output || false;
 
-        this.spRunWrapper = uiParams.sp_run_wrapper || null;
+        this.spRunWrapper = uiParams.run_wrapper || null;
         if (this.spRunWrapper && this.spRunWrapper === 'globalextra') {
             this.spRunWrapper = this.textArea.attr('data-globalextra');
         }
@@ -467,7 +467,8 @@ You can uncheck the 'Prefix with answer' checkbox to run the code in this panel 
     };
 
     ScratchpadUi.prototype.scratchpadControls = function (outputDisplayArea, preload) {
-        const controlsDiv = $("<div class='scratchpad-contols'></div>");
+        const controlsDiv = $("<div class='scratchpad-contols' " +
+                "style='border-bottom: darkgray solid 1px;'></div>");
         const prefixAns = $(htmlInput(
                 this.textAreaId + '-prefix-ans',
                 'prefix_ans',
@@ -479,7 +480,11 @@ You can uncheck the 'Prefix with answer' checkbox to run the code in this panel 
                 "class='btn btn-secondary' " +
                 "style='margin:6px; margin-right:10px; padding:2px 8px;'>" +
                 `${this.spButtonName}</button>`);
-        const helpButton = $('<a role="button" class="coderunner-ui-element" title="scratchpad_help">What\'s this?</a>');
+        //const helpButton = $('<a role="button" class="coderunner-ui-element" title="help">What\'s this?</a>');
+        const helpButton = $(`<a class="btn btn-link p-0" role="button" data-container="body" ` +
+            `data-toggle="popover" data-placement="right" data-content="<div class=&quot;no-overflow&quot;>`+
+            `<p>${DEFUALT_HELP_STRING}</p></div>" data-html="true" tabindex="0" data-trigger="focus" data-original-title="" title="" id="yui_3_17_2_1_1671049332812_1996">` +
+            `<i class="icon fa fa-question-circle text-info fa-fw " style="margin-right: 0px;" title="Help with Scratchpad" role="img" aria-label="Help with Scratchpad"></i></a>`);
         const rightSpan = $('<span style="float:right;color:#0f6cbf;padding:8px"></span>');
         const t = this;
         runButton.on('click', function () {
@@ -487,10 +492,10 @@ You can uncheck the 'Prefix with answer' checkbox to run the code in this panel 
                 t.handleRunButtonClick(ajax, outputDisplayArea);
             });
         });
-        helpButton.on('click', function () {
-            window.alert(DEFUALT_HELP_STRING); // TODO: use lang string!
-        });
-        rightSpan.append(helpButton)
+//        helpButton.on('click', function () {
+//            window.alert(DEFUALT_HELP_STRING); // TODO: use lang string!
+//        });
+        rightSpan.append(helpButton);
         controlsDiv.append([runButton, prefixAns, rightSpan]);
         return controlsDiv;
     };
