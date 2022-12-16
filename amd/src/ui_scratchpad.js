@@ -62,9 +62,8 @@
 define(['jquery'], function ($) {
     const RESULT_SUCCESS = 15; // Code for a correct Jobe run.
     const DEFUALT_MAX_OUTPUT_LEN = 30000;
-    const DEFUALT_HELP_STRING = `You can enter Python code into this panel and click 'Run' to execute it in the Python engine.
-By default, the code in this panel is prefixed with the contents of the answer box, giving you an easy way to test your answer. 
-You can uncheck the 'Prefix with answer' checkbox to run the code in this panel standalone, e.g. to explore how small Python code fragments behave.`;
+
+
 
 
     /**
@@ -129,23 +128,6 @@ You can uncheck the 'Prefix with answer' checkbox to run the code in this panel 
     }
 
 
-    /**
-     * Get the specified language string using
-     * AJAX and plug it into the given textarea
-     * @param {string} langStringName The language string name.
-     * @param {DOMnode} textarea The textarea into which the error message
-     * should be plugged.
-     * @param {string} additionalText Extra text to follow the result code.
-     */
-    function setLangString(langStringName, textarea, additionalText) {
-        require(['core/str'], function (str) {
-            const promise = str.get_string(langStringName, 'filter_ace_inline');
-            $.when(promise).then(function (message) {
-                textarea.show();
-                textarea.html(escapeHtml("*** " + message + " ***\n" + additionalText));
-            });
-        });
-    }
 
 
     /**
@@ -188,9 +170,9 @@ You can uncheck the 'Prefix with answer' checkbox to run the code in this panel 
      * @param {string} type type of the html input.
      * @return {string} HTML string with iput and label.
      */
-    function htmlInput(id, name, label, value, type) {
+    function htmlInput(id, labelId, name, label, value, type) {
         const checked = (value && value) ? 'checked' : '';
-        const labelHtml = `<label for='${id}'>${label}</label>`;
+        const labelHtml = `<label id='${labelId}' for='${id}'>${label}</label>`;
         const inputHtml = "<input " +
                 `id='${id}' ` +
                 `type='${type}' ` +
@@ -260,6 +242,95 @@ You can uncheck the 'Prefix with answer' checkbox to run the code in this panel 
     }
 
 
+    /**
+     * Turn camelCase to hyphon-case.
+     * @param {String} str camelString.
+     * @returns {String} hyphon-string.
+     */
+    function camelToHyphenated(str) {
+        const isUpperCase = char => char === char.toUpperCase();
+        const isAlpha = char => char.toUpperCase() !== char.toLowerCase();
+        return [...str].map((char) => {
+            if (isAlpha(char) && isUpperCase(char)) {
+                return `-${char.toLowerCase()}`;
+            } else {
+                return char;
+            }
+        }).join("");
+    }
+
+
+
+    function LangStringManager(parentId, nodes) {
+        this.parentId = parentId
+        this.nodes = {};
+        if (nodes) {
+            this.addNodes(nodes);
+        }
+    }
+
+    LangStringManager.prototype.addNode = function (name, key) {
+        if (name in this.nodes) {
+            throw "Can't add a node twice!";
+        }
+        this.nodes[name] = {
+            id: this.parentId + camelToHyphenated(name),
+            key
+        };
+    };
+
+    LangStringManager.prototype.addNodes = function (obj) {
+        for (const [name, key] of Object.entries(obj)) {
+            this.addNode(name, key);
+        }
+    };
+    
+    LangStringManager.prototype.setCallback = function (name, callback) {
+        this.nodes[name].callback = callback;
+    }
+
+    LangStringManager.prototype.getId = function (name) {
+        if (!this.nodes[name].id) {
+            throw `Can't find node: ${obj}`;
+        }
+        return this.nodes[name].id;
+    }
+
+    LangStringManager.prototype.getKey = function (name) {
+        return this.nodes[name].key;
+    }
+
+    LangStringManager.prototype.setLangString = async function (name, str) {
+        const id = this.getId(name);
+        const key = this.getKey(name);
+        const element = document.getElementById(id);
+        let langStr;
+        if (!element) {
+            return;
+        }
+
+        langStr = await str.get_string(key, 'qtype_coderunner');
+        try {
+            
+        } catch (error) {
+            langStr = key;
+        }
+        
+        if (this.nodes[name].callback) {
+            this.nodes[name].callback(element, langStr);
+        } else {
+            element.textContent = langStr;
+        }
+    };
+
+    LangStringManager.prototype.setAllLangStrings = async function (str) {
+        for (const name of Object.keys(this.nodes)) {
+            await this.setLangString(name, str);
+        }
+    }
+
+
+
 
     /**
      * Constructor for the ScratchpadUi object.
@@ -269,6 +340,13 @@ You can uncheck the 'Prefix with answer' checkbox to run the code in this panel 
      * @param {object} uiParams The UI parameter object.
      */
     function ScratchpadUi(textAreaId, width, height, uiParams) {
+        const UI_LANGUAGE_STR = {
+            scratchpadName: 'scratchpadui_def_scratchpad_name',
+            buttonName: 'scratchpadui_def_button_name',
+            prefixName: 'scratchpadui_def_prefix_name',
+            helpText: 'scratchpadui_def_help_text'
+        };
+        
         this.textArea = $(document.getElementById(textAreaId));
         this.textAreaId = textAreaId;
         this.height = height;
@@ -276,12 +354,22 @@ You can uncheck the 'Prefix with answer' checkbox to run the code in this panel 
         this.uiParams = uiParams;
         this.fail = false;
 
+        this.langStringManager = new LangStringManager(this.textAreaId, UI_LANGUAGE_STR);
+        this.langStringManager.setCallback('scratchpadName', (element, langStr) => {
+            element.textContent = '▶' + langStr;
+        });
+        this.langStringManager.setCallback('helpText', (element, langStr) => {
+            element.dataset.content = langStr;
+        });
+
         // Scratchpad instance vars.
-        this.spName = uiParams.scratchpad_name || 'Scratchpad';
-        this.spButtonName = uiParams.button_name || 'Run!';
-        this.spPrefixName = uiParams.prefix_name || 'Prefix with Answer';
+        this.spName = uiParams.scratchpad_name || this.langStringManager.getKey('scratchpadName');
+        this.spButtonName = uiParams.button_name ||this.langStringManager.getKey('buttonName');
+        this.spPrefixName = uiParams.prefix_name || this.langStringManager.getKey('prefixName');
+
         this.spRunLang = uiParams.run_lang || this.uiParams.lang; // use answer's ace language if not specified.
         this.spHtmlOutput = uiParams.html_output || false;
+        this.spHelptext = this.langStringManager.getKey('helpText');
 
         this.spRunWrapper = uiParams.run_wrapper || null;
         if (this.spRunWrapper && this.spRunWrapper === 'globalextra') {
@@ -427,7 +515,10 @@ You can uncheck the 'Prefix with answer' checkbox to run the code in this panel 
 
         this.drawUi(answerTextAreaId, preload);
         this.drawScratchpadUi(spTextAreaId, preload);
-
+        require(['core/str'],  (str) => {
+            this.langStringManager.setAllLangStrings(str)
+                    .then(); 
+        });
         this.answerCodeUi = newAceUiWrapper(answerTextAreaId);
         this.spCodeUi = newAceUiWrapper(spTextAreaId);
 
@@ -442,16 +533,16 @@ You can uncheck the 'Prefix with answer' checkbox to run the code in this panel 
         const answerTextAreaHtml = htmlTextArea(answerTextAreaId, 'answer_code', preload['answer_code']);
         const showButtonHtml = "<a " +
                 "role='button'" +
-                `id='${this.textAreaId}-show-hide'` +
+                `id='${this.langStringManager.getId('scratchpadName')}'` +
                 "class='coderunner-ui-element' " +
-                `title='show_hide'>▼${this.spName}</a>`;
+                `title='show_hide'></a>`;
         const answerTextArea = $(answerTextAreaHtml);
         const showButton = $(showButtonHtml);
         answerTextArea.attr('rows', this.textArea.attr('rows'));
         showButton.click(function () {
-            const arrow = $(t.scratchpadDiv).is(':visible') ? '▶' : '▼';
+            const arrow = $(t.scratchpadDiv).is(':visible') ? '▶': '▼';
             t.scratchpadDiv.toggle();
-            showButton.html(arrow + t.spName);
+            showButton.html(arrow + showButton.html().replace(/[▼▶]/, "")); // Remove the old one.
         });
         this.outerDiv = $(divHtml);
 
@@ -471,20 +562,23 @@ You can uncheck the 'Prefix with answer' checkbox to run the code in this panel 
                 "style='border-bottom: darkgray solid 1px;'></div>");
         const prefixAns = $(htmlInput(
                 this.textAreaId + '-prefix-ans',
+                this.langStringManager.getId('prefixName'),
                 'prefix_ans',
                 this.spPrefixName,
                 preload['prefix_ans'],
                 'checkbox'
                 ));
         const runButton = $("<button type='button' " +
+                `id='${this.langStringManager.getId('buttonName')}'` +
                 "class='btn btn-secondary' " +
                 "style='margin:6px; margin-right:10px; padding:2px 8px;'>" +
-                `${this.spButtonName}</button>`);
+                `${this.buttonName}</button>`);
         //const helpButton = $('<a role="button" class="coderunner-ui-element" title="help">What\'s this?</a>');
-        const helpButton = $(`<a class="btn btn-link p-0" role="button" data-container="body" ` +
-            `data-toggle="popover" data-placement="right" data-content="<div class=&quot;no-overflow&quot;>`+
-            `<p>${DEFUALT_HELP_STRING}</p></div>" data-html="true" tabindex="0" data-trigger="focus" data-original-title="" title="" id="yui_3_17_2_1_1671049332812_1996">` +
-            `<i class="icon fa fa-question-circle text-info fa-fw " style="margin-right: 0px;" title="Help with Scratchpad" role="img" aria-label="Help with Scratchpad"></i></a>`);
+        const helpButton = $(`<a id="${this.langStringManager.getId('helpText')}" class="btn btn-link p-0" role="button" data-container="body"
+data-toggle="popover" data-placement="right" data-content="<div class=&quot;no-overflow&quot;>
+<p>${this.spHelptext}</p></div>" data-html="true" tabindex="0" data-trigger="focus" data-original-title="" title="" id="yui_3_17_2_1_1671049332812_1996">
+<i class="icon fa fa-question-circle text-info fa-fw " style="margin-right: 0px;" title="Help with Scratchpad" role="img" aria-label="Help with Scratchpad"></i></a>`);
+        
         const rightSpan = $('<span style="float:right;color:#0f6cbf;padding:8px"></span>');
         const t = this;
         runButton.on('click', function () {
@@ -492,9 +586,6 @@ You can uncheck the 'Prefix with answer' checkbox to run the code in this panel 
                 t.handleRunButtonClick(ajax, outputDisplayArea);
             });
         });
-//        helpButton.on('click', function () {
-//            window.alert(DEFUALT_HELP_STRING); // TODO: use lang string!
-//        });
         rightSpan.append(helpButton);
         controlsDiv.append([runButton, prefixAns, rightSpan]);
         return controlsDiv;
