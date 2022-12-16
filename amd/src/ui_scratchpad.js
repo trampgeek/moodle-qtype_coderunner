@@ -262,7 +262,7 @@ define(['jquery'], function ($) {
 
 
     function LangStringManager(parentId, nodes) {
-        this.parentId = parentId
+        this.parentId = parentId;
         this.nodes = {};
         if (nodes) {
             this.addNodes(nodes);
@@ -284,21 +284,21 @@ define(['jquery'], function ($) {
             this.addNode(name, key);
         }
     };
-    
+
     LangStringManager.prototype.setCallback = function (name, callback) {
         this.nodes[name].callback = callback;
-    }
+    };
 
     LangStringManager.prototype.getId = function (name) {
         if (!this.nodes[name].id) {
-            throw `Can't find node: ${obj}`;
+            throw `Can't find node: ${name}`;
         }
         return this.nodes[name].id;
-    }
+    };
 
     LangStringManager.prototype.getKey = function (name) {
         return this.nodes[name].key;
-    }
+    };
 
     LangStringManager.prototype.setLangString = async function (name, str) {
         const id = this.getId(name);
@@ -311,14 +311,14 @@ define(['jquery'], function ($) {
 
         langStr = await str.get_string(key, 'qtype_coderunner');
         try {
-            
+
         } catch (error) {
             langStr = key;
         }
-        
+
         if (this.nodes[name].callback) {
             this.nodes[name].callback(element, langStr);
-        } else {
+        } else if (!element.textContent) { // Only replace if not already set.
             element.textContent = langStr;
         }
     };
@@ -327,7 +327,7 @@ define(['jquery'], function ($) {
         for (const name of Object.keys(this.nodes)) {
             await this.setLangString(name, str);
         }
-    }
+    };
 
 
 
@@ -346,7 +346,7 @@ define(['jquery'], function ($) {
             prefixName: 'scratchpadui_def_prefix_name',
             helpText: 'scratchpadui_def_help_text'
         };
-        
+
         this.textArea = $(document.getElementById(textAreaId));
         this.textAreaId = textAreaId;
         this.height = height;
@@ -364,7 +364,7 @@ define(['jquery'], function ($) {
 
         // Scratchpad instance vars.
         this.spName = uiParams.scratchpad_name || this.langStringManager.getKey('scratchpadName');
-        this.spButtonName = uiParams.button_name ||this.langStringManager.getKey('buttonName');
+        this.spButtonName = uiParams.button_name || this.langStringManager.getKey('buttonName');
         this.spPrefixName = uiParams.prefix_name || this.langStringManager.getKey('prefixName');
 
         this.spRunLang = uiParams.run_lang || this.uiParams.lang; // use answer's ace language if not specified.
@@ -515,9 +515,9 @@ define(['jquery'], function ($) {
 
         this.drawUi(answerTextAreaId, preload);
         this.drawScratchpadUi(spTextAreaId, preload);
-        require(['core/str'],  (str) => {
+        require(['core/str'], (str) => {
             this.langStringManager.setAllLangStrings(str)
-                    .then(); 
+                    .then();
         });
         this.answerCodeUi = newAceUiWrapper(answerTextAreaId);
         this.spCodeUi = newAceUiWrapper(spTextAreaId);
@@ -540,7 +540,7 @@ define(['jquery'], function ($) {
         const showButton = $(showButtonHtml);
         answerTextArea.attr('rows', this.textArea.attr('rows'));
         showButton.click(function () {
-            const arrow = $(t.scratchpadDiv).is(':visible') ? '▶': '▼';
+            const arrow = $(t.scratchpadDiv).is(':visible') ? '▶' : '▼';
             t.scratchpadDiv.toggle();
             showButton.html(arrow + showButton.html().replace(/[▼▶]/, "")); // Remove the old one.
         });
@@ -564,7 +564,7 @@ define(['jquery'], function ($) {
                 this.textAreaId + '-prefix-ans',
                 this.langStringManager.getId('prefixName'),
                 'prefix_ans',
-                this.spPrefixName,
+                '',
                 preload['prefix_ans'],
                 'checkbox'
                 ));
@@ -572,13 +572,13 @@ define(['jquery'], function ($) {
                 `id='${this.langStringManager.getId('buttonName')}'` +
                 "class='btn btn-secondary' " +
                 "style='margin:6px; margin-right:10px; padding:2px 8px;'>" +
-                `${this.buttonName}</button>`);
+                `</button>`);
         //const helpButton = $('<a role="button" class="coderunner-ui-element" title="help">What\'s this?</a>');
         const helpButton = $(`<a id="${this.langStringManager.getId('helpText')}" class="btn btn-link p-0" role="button" data-container="body"
 data-toggle="popover" data-placement="right" data-content="<div class=&quot;no-overflow&quot;>
 <p>${this.spHelptext}</p></div>" data-html="true" tabindex="0" data-trigger="focus" data-original-title="" title="" id="yui_3_17_2_1_1671049332812_1996">
 <i class="icon fa fa-question-circle text-info fa-fw " style="margin-right: 0px;" title="Help with Scratchpad" role="img" aria-label="Help with Scratchpad"></i></a>`);
-        
+
         const rightSpan = $('<span style="float:right;color:#0f6cbf;padding:8px"></span>');
         const t = this;
         runButton.on('click', function () {
