@@ -34,13 +34,12 @@ Scenario: Edit a CodeRunner Scratchpad UI question, change all available UI para
     And I set the field "id_uiparameters" to:
     """
     {
-        "sp_button_name": "Ran!",
-        "sp_name":"Scratchblobert",
-        "sp_html_out":true,
-        "sp_prefix_name":"unhelpful label :)",
-        "sp_run_wrapper": "print('hi')",
-        "sp_run_lang": "Python3",
-        "sp_html_out": true,
+        "button_name": "Ran!",
+        "scratchpad_name":"Scratchblobert",
+        "html_output":true,
+        "prefix_name":"unhelpful label :)",
+        "run_wrapper": "print('hi')",
+        "run_lang": "Python3",
         "params": {
             "numprocs":100,
             "memlimit":1000
@@ -57,7 +56,7 @@ Scenario: Change UI param for run button name
     And I set the following fields to these values:
       | id_customise   | 1                                       |
       | id_uiplugin    | Scratchpad                              |
-      | id_uiparameters| {"sp_button_name": "superuniquename123"}|
+      | id_uiparameters| {"button_name": "superuniquename123"}|
 
     And I press "id_submitbutton"
     Then I should see "Print answer"
@@ -81,7 +80,7 @@ Scenario: Change UI param for run button name
     When I set the following fields to these values:
       | id_customise   | 1                                       |
       | id_uiplugin    | Scratchpad                              |
-      | id_uiparameters| {"sp_name": "superuniquename123"}       |
+      | id_uiparameters| {"scratchpad_name": "superuniquename123"}       |
 
     And I press "id_submitbutton"
     Then I should see "Print answer"
@@ -105,7 +104,7 @@ Scenario: Change UI param for run button name
     And I set the following fields to these values:
       | id_customise    | 1                                       |
       | id_uiplugin     | Scratchpad                              |
-      | id_uiparameters | {"sp_prefix_name": "superuniquename123"}|
+      | id_uiparameters | {"prefix_name": "superuniquename123"}|
 
     And I press "id_submitbutton"
     Then I should see "Print answer"
@@ -131,7 +130,7 @@ Scenario: Change UI param for run button name
     And I set the following fields to these values:
       | id_customise    | 1                                       |
       | id_uiplugin     | Scratchpad                              |
-      | id_uiparameters | {"sp_html_out": true}                   |
+      | id_uiparameters | {"html_output": true}                   |
 
     And I press "id_submitbutton"
     Then I should see "Print answer"
@@ -147,7 +146,7 @@ Scenario: Change UI param for run button name
     And I set the following fields to these values:
       | id_customise    | 1                                                             |
       | id_uiplugin     | Scratchpad                                                    |
-      | id_uiparameters | {"sp_run_wrapper": "print('Hello Wrapper', end=' ')\n{{ ANSWER_CODE }}\n{{ SCRATCHPAD_CODE }}"} |
+      | id_uiparameters | {"run_wrapper": "print('Hello Wrapper', end=' ')\n{{ ANSWER_CODE }}\n{{ SCRATCHPAD_CODE }}"} |
 
     And I press "id_submitbutton"
     Then I should see "Print answer"
@@ -165,7 +164,7 @@ Scenario: Change UI param for run button name
     And I set the following fields to these values:
       | id_customise    | 1                                                             |
       | id_uiplugin     | Scratchpad                                                    |
-      | id_uiparameters | {"sp_run_wrapper": "print('Hello Wrapper', end=' ')\n{{ ANSWER_CODE }}\n{{ SCRATCHPAD_CODE }}"} |
+      | id_uiparameters | {"run_wrapper": "print('Hello Wrapper', end=' ')\n{{ ANSWER_CODE }}\n{{ SCRATCHPAD_CODE }}"} |
 
     And I press "id_submitbutton"
     Then I should see "Print answer"
@@ -182,7 +181,7 @@ Scenario: Change UI param for run button name
     And I set the following fields to these values:
       | id_customise    | 1                                                             |
       | id_uiplugin     | Scratchpad                                                    |      
-      | id_uiparameters | {"sp_run_wrapper": "globalextra"}                             |
+      | id_uiparameters | {"run_wrapper": "globalextra"}                             |
     And I set the field "globalextra" to:
     """
     print('Hello Wrapper', end=' ')
@@ -205,7 +204,7 @@ Scenario: Change UI param for run button name
     And I set the following fields to these values:
       | id_customise    | 1                                                             |
       | id_uiplugin     | Scratchpad                                                    |
-      | id_uiparameters | {"sp_run_wrapper": "globalextra"}                             |
+      | id_uiparameters | {"run_wrapper": "globalextra"}                             |
     And I set the field "globalextra" to:
     """
     print('Hello Wrapper', end=' ')
