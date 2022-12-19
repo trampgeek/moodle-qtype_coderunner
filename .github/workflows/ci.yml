@@ -67,7 +67,6 @@ jobs:
 
       - name: Test JobeInABox
         run: |
-          sleep 2
           curl http://localhost:4000/jobe/index.php/restapi/languages
           curl http://localhost:4000/jobe/index.php/restapi/runs -H 'Content-Type: application/json; charset=utf-8' --data-binary '{"run_spec":{"language_id":"python3","sourcecode":"print(\"Hello sandbox!\")","sourcefilename":"__tester__.python3","input":"","file_list":[]}}'
 
