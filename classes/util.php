@@ -31,7 +31,7 @@ class qtype_coderunner_util {
      * $textareaid is the id of the textarea that the UI plugin is to manage.
      */
     public static function load_uiplugin_js($question, $textareaid) {
-        global $CFG, $PAGE;
+        global $PAGE;
 
         $uiplugin = $question->uiplugin === null ? 'ace' : strtolower($question->uiplugin);
         if ($uiplugin !== '' && $uiplugin !== 'none') {
@@ -192,7 +192,8 @@ class qtype_coderunner_util {
         if (count($lines) > 0) {
             $para = html_writer::start_tag('p');
             $para .= $lines[0];
-            for ($i = 1; $i < count($lines); $i++) {
+            $n = count($lines);
+            for ($i = 1; $i < $n; $i++) {
                 $para .= html_writer::empty_tag('br') . $lines[$i];;
             }
             $para .= html_writer::end_tag('p');

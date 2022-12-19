@@ -103,7 +103,7 @@ class qtype_coderunner_ui_plugins {
     // dropdown selector.
     public function dropdownlist() {
         $uiplugins = array();
-        foreach ($this->plugins as $name => $plugin) {
+        foreach (array_values($this->plugins) as $plugin) {
             $uiplugins[$plugin->uiname] = ucfirst($plugin->uiname);
         }
         return $uiplugins;

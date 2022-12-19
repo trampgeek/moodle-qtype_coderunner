@@ -54,7 +54,7 @@ def sqr(n):
 EOCODE;
         $response = array('answer' => $code);
         $result = $q->grade_response($response);
-        list($mark, $grade, $cache) = $result;
+        list(, $grade, ) = $result;
         $this->assertEquals(\question_state::$gradedright, $grade);
     }
 

@@ -105,7 +105,7 @@ class pythonquestions_test extends \qtype_coderunner_testcase {
         $code = "\"\"\"Line1\n\"Line2\"\n'Line3'\nLine4\n\"\"\"";
         $response = array('answer' => $code);
         $result = $q->grade_response($response);
-        list($mark, $grade, $cache) = $result;
+        list($mark, $grade, ) = $result;
         $this->assertEquals(1, $mark);
         $this->assertEquals(\question_state::$gradedright, $grade);
     }

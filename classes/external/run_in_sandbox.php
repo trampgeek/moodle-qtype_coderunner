@@ -118,7 +118,7 @@ class run_in_sandbox extends external_api {
 
         if (get_config('qtype_coderunner', 'wsloggingenabled')) {
             // Check if need to throttle this user, and if not allow the request and log it.
-            $logmanager = get_log_manager();$logmanger = get_log_manager();
+            $logmanger = get_log_manager();
             $readers = $logmanger->get_readers('\core\log\sql_reader');
             $reader = reset($readers);
             $maxhourlyrate = intval(get_config('qtype_coderunner', 'wsmaxhourlyrate'));
