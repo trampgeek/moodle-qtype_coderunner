@@ -136,6 +136,7 @@ $string['downloadquizattemptshelp'] = 'Click the appropriate course and/or downl
         after courses are the number of quizzes in the course with at least
         one submission. The numbers in parentheses after the quiz name
         are the numbers of submissions.';
+$string['duplicateprototype'] = 'This question was defined to be of type \'{$a->crtype}\' but the prototype is non-unique in the following questions: {$a->outputstring}';
 $string['editingcoderunner'] = 'Editing a CodeRunner Question';
 $string['empty_new_prototype_name'] = 'New question type name cannot be empty';
 $string['emptypenaltyregime'] = 'Penalty regime must be defined (since version 3.1)';
@@ -412,7 +413,7 @@ $string['memorylimit'] = 'MemLimit (MB)';
 $string['missinganswers'] = 'missing answers';
 $string['missingorbadfraction'] = 'Bad or missing fraction in output from template grader. Output was: {$a->output}';
 $string['missingoutput'] = 'You must supply the expected output from this test case.';
-$string['missingprototype'] = 'This question was defined to be of type \'{$a->crtype}\' but the prototype does not exist, or is non-unique, or is unavailable in this context. You should Cancel and try to (re)install the prototype.
+$string['missingprototype'] = 'This question was defined to be of type \'{$a->crtype}\' but the prototype does not exist, or is unavailable in this context. You should Cancel and try to (re)install the prototype.
 Proceed to edit only if you know what you are doing!';
 $string['missingprototypes'] = 'Missing prototypes';
 $string['missingprototypewhenrunning'] = 'Broken question (missing or duplicate prototype \'{$a->crtype}\'). Cannot be run.';
@@ -507,6 +508,8 @@ that you rename the question to something like \'PROTOTYPE_for_my_new_question_t
 to make subsequentmaintenance easier.';
 $string['prototype_error'] = '*** PROTOTYPE LOAD FAILURE. DON\'T SAVE THIS! ***';
 $string['prototype_load_failure'] = 'Error loading prototype: ';
+$string['prototype_missing_alert'] = 'Missing prototype: Check if {$a} prototype exists in this context.';
+$string['prototype_duplicate_alert'] = 'Duplicate prototype: Duplicate {$a} prototypes exist. Can only load one.';
 $string['prototypeQ'] = 'Is prototype?';
 
 $string['qtype_c_function'] = '<p>A question type for C write-a-function questions.

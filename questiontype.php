@@ -414,12 +414,12 @@ class qtype_coderunner extends question_type {
      * This is used only to display the customisation panel during authoring.
      * @param object $target the target object whose fields are being set. It should
      * be either a qtype_coderunner_question object or its options field ($question->options).
-     * @param string $prototype the prototype question. Null if non-existent (a broken question).
+     * @param string $prototype the prototype question. Null if non-existent or more than one (a broken question).
      */
     public function set_inherited_fields($target, $prototype) {
         $target->customise = false; // Starting assumption.
 
-        if ($prototype === null) {
+        if ($prototype === null || is_array($prototype)) {
             return;
         }
 
@@ -501,7 +501,7 @@ class qtype_coderunner extends question_type {
         list($contextcondition, $params) = $DB->get_in_or_equal($context->get_parent_context_ids(true));
         $params[] = $coderunnertype;
 
-        $sql = "SELECT q.id
+        $sql = "SELECT q.id, q.name, qc.name as category
                   FROM {question_coderunner_options} qco
                   JOIN {question} q ON qco.questionid = q.id
                   JOIN {question_versions} qv ON qv.questionid = q.id
@@ -518,7 +518,7 @@ class qtype_coderunner extends question_type {
 
         $validprotoids = $DB->get_records_sql($sql, $params);
         if (count($validprotoids) !== 1) {
-            return null;  // Exactly one prototype should be found.
+            return count($validprotoids) === 0 ? null : $validprotoids;  // If either no or too many prototypes are found.
         } else if ($checkexistenceonly) {
             return true;
         } else {
@@ -840,7 +840,7 @@ class qtype_coderunner extends question_type {
 
         // Clear all inherited fields equal in value to the corresponding Prototype field
         // (but only if we found a prototype and this is not a prototype question itself).
-        if ($row && $questiontoexport->options->prototypetype == 0) {
+        if ($row && $questiontoexport->options->prototypetype == 0 && is_array($row)) {
             $noninheritedfields = $this->noninherited_fields();
             $extrafields = $this->extra_question_fields();
             foreach ($row as $field => $value) {

@@ -256,15 +256,17 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
          * the template contents with an error message in case the user
          * saves the question and later wonders why it breaks.
          * @param {string} questionType The CodeRunner (sub) question type.
-         * @param {string} error The error message to be reported.
+         * @param {string} error The error message as a langstring to be reported.
          */
         function reportError(questionType, error) {
-            langStringAlert('prototype_load_failure', error);
             str.get_string('prototype_error', 'qtype_coderunner').then(function(s) {
-                var errorMessage = s + "\n";
-                errorMessage += error + '\n';
-                errorMessage += "CourseId: " + courseId + ", qtype: " + questionType;
-                template.prop('value', errorMessage);
+                str.get_string(error, 'qtype_coderunner', questionType).then(function(str) {
+                    langStringAlert('prototype_load_failure', str);
+                    let errorMessage = s + "\n";
+                    errorMessage += str + '\n';
+                    errorMessage += "CourseId: " + courseId + ", qtype: " + questionType;
+                    template.prop('value', errorMessage);
+                });
             });
         }
 
@@ -334,7 +336,7 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
          * CodeRunner question type currently selected by the combobox.
          */
         function loadCustomisationFields() {
-            var newType = typeCombo.children('option:selected').text();
+            let newType = typeCombo.children('option:selected').text();
 
             if (newType !== '' && newType !== 'Undefined') {
                 // Prevent 'Undefined' ever being reselected.
@@ -348,6 +350,8 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
                         sesskey: M.cfg.sesskey
                     },
                     function (outcome) {
+                        // Clear old broken question fields.
+                        brokenQuestion.prop('value', '');
                         if (outcome.success) {
                             copyFieldsFromQuestionType(newType, outcome);
                             setUis();
@@ -355,7 +359,6 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
                         else {
                             reportError(newType, outcome.error);
                         }
-
                     }
                 ).fail(function () {
                     // AJAX failed. We're dead, Fred. The attempt to get the
@@ -475,7 +478,7 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
          * given message as an error at the top of the question.
          */
         function checkForBrokenQuestion() {
-            var brokenQuestionMessage = brokenQuestion.prop('value'),
+            let brokenQuestionMessage = brokenQuestion.prop('value'),
                 messagePara = null;
             if (brokenQuestionMessage !== '') {
                 messagePara = $('<p>' + brokenQuestion.prop('value') + '</p>');

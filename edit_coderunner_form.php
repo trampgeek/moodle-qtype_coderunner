@@ -355,18 +355,10 @@ class qtype_coderunner_edit_form extends question_edit_form {
         // calling question_bank::loadquestion($question->id).
         global $COURSE;
 
-        if (!isset($question->brokenquestionmessage)) {
-            $question->brokenquestionmessage = '';
-        }
         if (isset($question->options->testcases)) { // Reloading a saved question?
-
-            // Firstly check if we're editing a question with a missing prototype.
-            // Set the broken_question message if so.
             $q = $this->make_question_from_form_data($question);
-            if ($q->prototype === null) {
-                $question->brokenquestionmessage = get_string(
-                        'missingprototype', 'qtype_coderunner', array('crtype' => $question->coderunnertype));
-            }
+            // Loads the error messages into the brokenquestionmessage.
+            $question->brokenquestionmessage =  $this->load_error_messages($question, $q);
 
             // Record the prototype for subsequent use.
             $question->prototype = $q->prototype;
@@ -459,7 +451,33 @@ class qtype_coderunner_edit_form extends question_edit_form {
         return "\n" . $s;
     }
 
-
+    /**
+     * Loads error messages to be put into brokenquestionmessage of the question if needed.
+     * Returns a string of the message to be inserted.
+     *
+     * @param type $question Object with all the question data within.
+     * @param type $q Object with the new question data within.
+     */
+    private function load_error_messages($question, $q) {
+        $errorstring = "";
+        // Firstly check if we're editing a question with a missing prototype or duplicates.
+        // Set the broken_question message if so.
+        if ($q->prototype === null) {
+            $errorstring = get_string(
+                    'missingprototype', 'qtype_coderunner', array('crtype' => $question->coderunnertype));
+        } else if (is_array($q->prototype)) {
+            $outputstring = "</p>";
+            // Output every duplicate Question id, name and category.
+            foreach ($q->prototype as $component) {
+                $outputstring .= "Question ID: {$component->id} <ul><li>Name: {$component->name}</li>"
+                    . "<li>Category: {$component->category}</li></ul>";
+            }
+            $errorstring = get_string(
+                'duplicateprototype', 'qtype_coderunner', ['crtype' => $question->coderunnertype,
+                    'outputstring' => $outputstring]);
+        }
+        return $errorstring;
+    }
 
 
     // FUNCTIONS TO BUILD PARTS OF THE MAIN FORM
@@ -812,9 +830,11 @@ class qtype_coderunner_edit_form extends question_edit_form {
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
         $this->formquestion = $this->make_question_from_form_data($data);
-        if ($data['coderunnertype'] == 'Undefined') {
+        $this->formquestion->brokenquestionmessage = $this->load_error_messages($data, $this->formquestion);
+        if ($data['coderunnertype'] == 'Undefined' || $this->formquestion->brokenquestionmessage !== '') {
             $errors['coderunner_type_group'] = get_string('questiontype_required', 'qtype_coderunner');
-            return $errors;  // Don't continue checking in this case. Template param validation breaks.
+            return $errors;  // Don't continue checking in this case, including missing or extra prototypes.
+            // Else template param validation breaks.
         }
         if ($data['cputimelimitsecs'] != '' &&
              (!ctype_digit($data['cputimelimitsecs']) || intval($data['cputimelimitsecs']) <= 0)) {

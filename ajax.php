@@ -50,10 +50,14 @@ header('Content-type: application/json; charset=utf-8');
 $coursecontext = context_course::instance($courseid);
 if ($qtype) {
     $questiontype = qtype_coderunner::get_prototype($qtype, $coursecontext);
-    if ($questiontype === null) {
+    if ($questiontype === null || is_array($questiontype)) {
         $questiontype = new stdClass();
         $questiontype->success = false;
-        $questiontype->error = "Error fetching prototype '$qtype'.";
+        if ($questiontype === null) {
+            $questiontype->error = "prototype_missing_alert";
+        } else {
+            $questiontype->error = "prototype_duplicate_alert";
+        }
     } else {
         $questiontype->success = true;
         $questiontype->error = '';
