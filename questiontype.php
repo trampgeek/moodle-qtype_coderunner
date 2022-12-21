@@ -455,7 +455,8 @@ class qtype_coderunner extends question_type {
      * Get all available prototypes for the given course.
      * Only the most recent version of each prototype question is returned.
      * @param int $courseid the ID of the course whose prototypes are required.
-     * @return stdClass[] prototype rows from question_coderunner_options.
+     * @return stdClass[] prototype rows from question_coderunner_options,
+     * including count number of occurrences. 
      */
     public static function get_all_prototypes($courseid) {
         global $DB;
@@ -463,7 +464,7 @@ class qtype_coderunner extends question_type {
         list($contextcondition, $params) = $DB->get_in_or_equal($coursecontext->get_parent_context_ids(true));
 
         $rows = $DB->get_records_sql("
-                SELECT qco.*
+                SELECT qco.coderunnertype, count(qco.coderunnertype) as count
                   FROM {question_coderunner_options} qco
                   JOIN {question} q ON q.id = qco.questionid
                   JOIN {question_versions} qv ON qv.questionid = q.id
@@ -475,7 +476,8 @@ class qtype_coderunner extends question_type {
                                        WHERE be.id = qbe.id)
                                      )
                         AND prototypetype != 0
-                        AND qc.contextid $contextcondition", $params);
+                        AND qc.contextid $contextcondition
+                  GROUP BY qco.coderunnertype", $params);
 
         return $rows;
     }

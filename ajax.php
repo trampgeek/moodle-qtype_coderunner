@@ -51,13 +51,22 @@ $coursecontext = context_course::instance($courseid);
 if ($qtype) {
     $questiontype = qtype_coderunner::get_prototype($qtype, $coursecontext);
     if ($questiontype === null || is_array($questiontype)) {
+        $questionprototype = $questiontype;
         $questiontype = new stdClass();
         $questiontype->success = false;
         if ($questiontype === null) {
-            $questiontype->error = "prototype_missing_alert";
+            $questiontype->error = json_encode(["error" => "missingprototype",
+                "alert" => "prototype_missing_alert", "extras" => ""]); 
         } else {
-            $questiontype->error = "prototype_duplicate_alert";
-        }
+            $extras = "";
+            foreach ($questionprototype as $component) {
+                $extras .= get_string('listprototypeduplicates', 'qtype_coderunner',
+                    ['id' => $component->id, 'name' => $component->name,
+                        'category' => $component->category]);
+            }
+            $questiontype->error = json_encode(["error" => "duplicateprototype",
+                "alert" => "prototype_duplicate_alert", "extras" => $extras]);
+        }   
     } else {
         $questiontype->success = true;
         $questiontype->error = '';

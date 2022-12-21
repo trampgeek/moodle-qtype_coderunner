@@ -387,7 +387,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
             // needs to be copied down from the options here.
             $question->customise = $question->options->customise;
 
-            // Save the prototypetype so can see if it changed on post-back.
+            // Save the prototypetype and value so can see if it changed on post-back.
             $question->saved_prototype_type = $question->prototypetype;
             $question->courseid = $COURSE->id;
 
@@ -469,8 +469,8 @@ class qtype_coderunner_edit_form extends question_edit_form {
             $outputstring = "</p>";
             // Output every duplicate Question id, name and category.
             foreach ($q->prototype as $component) {
-                $outputstring .= "Question ID: {$component->id} <ul><li>Name: {$component->name}</li>"
-                    . "<li>Category: {$component->category}</li></ul>";
+                $outputstring .= get_string('listprototypeduplicates', 'qtype_coderunner',
+                    ['id' => $component->id, 'name' => $component->name,  'category' => $component->category]);
             }
             $errorstring = get_string(
                 'duplicateprototype', 'qtype_coderunner', ['crtype' => $question->coderunnertype,
@@ -483,9 +483,10 @@ class qtype_coderunner_edit_form extends question_edit_form {
     // FUNCTIONS TO BUILD PARTS OF THE MAIN FORM
     // =========================================.
 
-    // Create an empty div with id id_qtype_coderunner_error_div for use by
+    // Create 2 empty divs with id id__qtype_coderunner_warning_div, id_qtype_coderunner_error_div for use by
     // JavaScript error handling code.
     private function make_error_div($mform) {
+        $mform->addElement('html', "<div id='id_qtype_coderunner_warning_div' class='qtype_coderunner_warning_message'></div>");
         $mform->addElement('html', "<div id='id_qtype_coderunner_error_div' class='qtype_coderunner_error_message'></div>");
     }
 
@@ -495,17 +496,27 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $hidemethod = method_exists($mform, 'hideIf') ? 'hideIf' : 'disabledIf';
 
         $mform->addElement('header', 'questiontypeheader', get_string('type_header', 'qtype_coderunner'));
+        
+        // Insert the (possible) bad question load message as a hidden field before broken question. JavaScript
+        // will be used to show it if non-empty.
+        $mform->addElement('hidden', 'badquestionload', '',
+                array('id' => 'id_bad_question_load', 'class' => 'badquestionload'));
+        $mform->setType('badquestionload', PARAM_RAW);
+
         // Insert the (possible) missing prototype message as a hidden field. JavaScript
         // will be used to show it if non-empty.
         $mform->addElement('hidden', 'brokenquestionmessage', '',
                 array('id' => 'id_broken_question', 'class' => 'brokenquestionerror'));
         $mform->setType('brokenquestionmessage', PARAM_RAW);
 
-        // The Question Type controls (a group with just a single member).
+        // The Question Type controls (a group with the question type and the custom prototype, if it is one).
         $typeselectorelements = array();
         $expandedtypes = array_merge(array('Undefined' => 'Undefined'), $types);
         $typeselectorelements[] = $mform->createElement('select', 'coderunnertype',
                 null, $expandedtypes);
+        $typeselectorelements[] = $mform->createElement('text', 'userprototypename',
+            null, ['readonly' => 1, 'hidden' => 1]);
+        $mform->setType('userprototypename', PARAM_RAW);
         $mform->addElement('group', 'coderunner_type_group',
                 get_string('coderunnertype', 'qtype_coderunner'), $typeselectorelements, null, false);
         $mform->addHelpButton('coderunner_type_group', 'coderunnertype', 'qtype_coderunner');
@@ -888,7 +899,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
             $typename = trim($data['typename']);
             if ($typename === '') {
                 $errors['prototypecontrols'] = get_string('empty_new_prototype_name', 'qtype_coderunner');
-            } else if (!$this->is_valid_new_type($typename)) {
+            } else if (!$this->is_valid_new_type($typename) && $data['typename'] != $data['userprototypename']) {
                 $errors['prototypecontrols'] = get_string('bad_new_prototype_name', 'qtype_coderunner');
             }
         }
@@ -1265,20 +1276,25 @@ class qtype_coderunner_edit_form extends question_edit_form {
         return isset($data['useasexample']) ? count($data['useasexample']) : 0;
     }
 
+    /**
+     * Return two arrays (language => language_upper_case) and (type => subtype) of
+     * all the coderunner question types available in the current course
+     * context. [If needing to filter duplicates out in future, see here! (row->count)]
+     * The subtype is the suffix of the type in the database,
+     * e.g. for java_method it is 'method'. The language is the bit before
+     * the underscore, and language_upper_case is a capitalised version,
+     * e.g. Java for java. For question types without a
+     * subtype the word 'Default' is used.
+     *
+     * @global type $COURSE The Course in which this query contex will lie.
+     * @return array Language and type arrays as specified.
+     */
     private function get_languages_and_types() {
-        // Return two arrays (language => language_upper_case) and (type => subtype) of
-        // all the coderunner question types available in the current course
-        // context.
-        // The subtype is the suffix of the type in the database,
-        // e.g. for java_method it is 'method'. The language is the bit before
-        // the underscore, and language_upper_case is a capitalised version,
-        // e.g. Java for java. For question types without a
-        // subtype the word 'Default' is used.
-
         global $COURSE;
         $courseid = $COURSE->id;
         $records = qtype_coderunner::get_all_prototypes($courseid);
-        $types = array();
+        $types = [];
+        $languages = [];
         foreach ($records as $row) {
             if (($pos = strpos($row->coderunnertype, '_')) !== false) {
                 $language = substr($row->coderunnertype, 0, $pos);

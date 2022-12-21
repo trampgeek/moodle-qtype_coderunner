@@ -136,7 +136,7 @@ $string['downloadquizattemptshelp'] = 'Click the appropriate course and/or downl
         after courses are the number of quizzes in the course with at least
         one submission. The numbers in parentheses after the quiz name
         are the numbers of submissions.';
-$string['duplicateprototype'] = 'This question was defined to be of type \'{$a->crtype}\' but the prototype is non-unique in the following questions: {$a->outputstring}';
+$string['duplicateprototype'] = 'This question was defined to be of type \'{$a->crtype}\' but the prototype is non-unique in the following questions: {$a->outputstring} Please remove all but one instance, or select another question type.';
 $string['editingcoderunner'] = 'Editing a CodeRunner Question';
 $string['empty_new_prototype_name'] = 'New question type name cannot be empty';
 $string['emptypenaltyregime'] = 'Penalty regime must be defined (since version 3.1)';
@@ -381,6 +381,8 @@ first of the allowed languages otherwise.';
 $string['languageselectlabel'] = 'Language';
 $string['legacyuiparams'] = 'UI parameters can no longer be defined within the template parameters field. Please move the following to the UI parameters field instead: ';
 $string['legacyuiparams2'] = 'UI parameters can no longer be defined within the template parameters field. Please move the following to the UI parameters field instead, removing the \'{$a->uiname}_\' prefix: ';
+$string['listprototypeduplicates'] = 'Question ID: {$a->id} <ul><li>Name: {$a->name}</li><li>Category: {$a->category}</li></ul>';
+$string['loadprototypeerror'] = 'Reverted to question type: \'{$a->oldtype}\' <br>Could not load question type \'{$a->crtype}\' as the prototype is non-unique in the following questions:<br>{$a->outputstring}';
 $string['mark'] = 'Mark';
 $string['marking'] = 'Mark allocation';
 $string['markinggroup'] = 'Marking';
@@ -1220,6 +1222,7 @@ $string['unknownuiplugin'] = 'Information on an unknown plugin ({$a->pluginname}
 $string['unserializefailed'] = 'Stored test results could not be deserialised. Perhaps try regrading?';
 $string['useasexample'] = 'Use as example';
 $string['useace'] = 'Template uses ace';
+$string['userprototypename'] = 'Prototype name:';
 
 $string['validateonsave'] = 'Validate on save';
 

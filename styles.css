@@ -269,7 +269,8 @@ body#page-question-type-coderunner pre.templateparamserror {
     color: #ca3120;
 }
 
-body#page-question-type-coderunner div#id_qtype_coderunner_error_div:empty {
+body#page-question-type-coderunner div#id_qtype_coderunner_error_div:empty,
+body#page-question-type-coderunner div#id_qtype_coderunner_warning_div:empty {
     display: none;
 }
 
@@ -279,6 +280,16 @@ body#page-question-type-coderunner div#id_qtype_coderunner_error_div {
     color: red;
     border: 2px solid red;
     padding: 4px;
+    margin-bottom: 6px;
+}
+
+body#page-question-type-coderunner div#id_qtype_coderunner_warning_div {
+    font-size: 120%;
+    font-weight: bold;
+    color: blue;
+    border: 2px solid blue;
+    padding: 4px;
+    margin-bottom: 6px;
 }
 
 body#page-question-type-coderunner textarea#id_templateparams {
