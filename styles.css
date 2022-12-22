@@ -269,6 +269,10 @@ body#page-question-type-coderunner pre.templateparamserror {
     color: #ca3120;
 }
 
+body#page-question-type-coderunner .qtype_coderunner_prototype_message {
+    color: #ca3120;
+}
+
 body#page-question-type-coderunner div#id_qtype_coderunner_error_div:empty,
 body#page-question-type-coderunner div#id_qtype_coderunner_warning_div:empty {
     display: none;

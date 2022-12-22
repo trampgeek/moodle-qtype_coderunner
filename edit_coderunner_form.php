@@ -509,14 +509,15 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 array('id' => 'id_broken_question', 'class' => 'brokenquestionerror'));
         $mform->setType('brokenquestionmessage', PARAM_RAW);
 
-        // The Question Type controls (a group with the question type and the custom prototype, if it is one).
+        // The Question Type controls (a group with the question type and the warning, if it is one).
         $typeselectorelements = array();
         $expandedtypes = array_merge(array('Undefined' => 'Undefined'), $types);
         $typeselectorelements[] = $mform->createElement('select', 'coderunnertype',
                 null, $expandedtypes);
-        $typeselectorelements[] = $mform->createElement('text', 'userprototypename',
-            null, ['readonly' => 1, 'hidden' => 1]);
-        $mform->setType('userprototypename', PARAM_RAW);
+        $prototypelangstring = get_string('prototypeexists', 'qtype_coderunner');
+        $typeselectorelements[] = $mform->createElement('html',
+            "<div id='id_isprototype' class='qtype_coderunner_prototype_message' hidden>"
+                . "{$prototypelangstring}</div>");
         $mform->addElement('group', 'coderunner_type_group',
                 get_string('coderunnertype', 'qtype_coderunner'), $typeselectorelements, null, false);
         $mform->addHelpButton('coderunner_type_group', 'coderunnertype', 'qtype_coderunner');
@@ -824,10 +825,12 @@ class qtype_coderunner_edit_form extends question_edit_form {
         // status of the testsplitterre and allowmultiplestdins elements
         // after loading a new question type as the following code apparently
         // sets up event handlers only for clicks on the iscombinatortemplate
-        // checkbox.
+        // checkbox. Note, if disabled, the value doesn't exist, so check
+        // properties exist!
         $mform->disabledIf('typename', 'prototypetype', 'neq', '2');
         $mform->disabledIf('testsplitterre', 'iscombinatortemplate', 'eq', 0);
         $mform->disabledIf('allowmultiplestdins', 'iscombinatortemplate', 'eq', 0);
+        $mform->disabledIf('coderunnertype', 'prototypetype', 'eq', '2');
     }
 
 
@@ -899,7 +902,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
             $typename = trim($data['typename']);
             if ($typename === '') {
                 $errors['prototypecontrols'] = get_string('empty_new_prototype_name', 'qtype_coderunner');
-            } else if (!$this->is_valid_new_type($typename) && $data['typename'] != $data['userprototypename']) {
+            } else if (!$this->is_valid_new_type($typename)) {
                 $errors['prototypecontrols'] = get_string('bad_new_prototype_name', 'qtype_coderunner');
             }
         }

@@ -487,6 +487,7 @@ $string['precheckingemptyset'] = 'Prechecking examples, but there aren\'t any!';
 $string['privacy:metadata'] = 'The CodeRunner question type plugin does not store any personal data.';
 $string['proceed_at_own_risk'] = 'Editing a built-in question prototype?! Proceed at your own risk!';
 $string['prototypecontrols'] = 'Prototyping';
+$string['prototypeexists'] = 'This is a prototype; cannot change question type.';
 $string['prototypeextra'] = 'Prototype extra';
 $string['prototypeextra_help'] = 'A field of text for general-purpose use by question type authors, like global extra, but part of the prototype state. Available to the template author as {{ QUESTION.prototypeextra }}.';
 
@@ -1222,7 +1223,6 @@ $string['unknownuiplugin'] = 'Information on an unknown plugin ({$a->pluginname}
 $string['unserializefailed'] = 'Stored test results could not be deserialised. Perhaps try regrading?';
 $string['useasexample'] = 'Use as example';
 $string['useace'] = 'Template uses ace';
-$string['userprototypename'] = 'Prototype name:';
 
 $string['validateonsave'] = 'Validate on save';
 

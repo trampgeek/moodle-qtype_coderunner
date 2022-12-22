@@ -66,7 +66,7 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
      */
     function initEditForm() {
         var typeCombo = $('#id_coderunnertype'),
-            prototypeDisplay = $('#id_userprototypename'),
+            prototypeDisplay = $('#id_isprototype'),
             template = $('#id_template'),
             evaluatePerStudent = $('#id_templateparamsevalpertry'),
             globalextra = $('#id_globalextra'),
@@ -83,7 +83,6 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
             isCustomised = customise.prop('checked'),
             prototypeType = $('#id_prototypetype'),
             preloadHdr = $('#id_answerpreloadhdr'),
-            typeName = $('#id_typename'),
             courseId = $('input[name="courseid"]').prop('value'),
             questiontypeHelpDiv = $('#qtype-help'),
             precheck = $('select#id_precheck'),
@@ -528,20 +527,17 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
          *************************************************************/
 
         if (prototypeType.prop('value') != 0) {
-            prototypeDisplay.prop('value', typeName.prop('value'));
+            // Display the prototype warning if it's a prototype.
             prototypeDisplay.removeAttr('hidden');
-
             if (prototypeType.prop('value') == 1) {
                 // Editing a built-in question type: Dangerous!
                 str.get_string('proceed_at_own_risk', 'qtype_coderunner').then(function(s) {
                     alert(s);
                 });
                 prototypeType.prop('disabled', true);
-                typeCombo.prop('disabled', true);
                 customise.prop('disabled', true);
             }
         }
-
 
         checkForBrokenQuestion();
         badQuestionLoad.prop('hidden'); // Until we check it once.
@@ -631,6 +627,15 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
 
         precheck.on('change', set_testtype_visibilities);
 
+        // Displays and hides the reason for the question type to be disabled.
+        prototypeType.on('change', function () {
+            if (prototypeType.prop('value') == '0') {
+                prototypeDisplay.attr('hidden', '1');
+            } else {
+                prototypeDisplay.removeAttr('hidden');
+            }
+        });
+
         // In order to initialise the Ui plugin when the answer preload section is
         // expanded, we monitor attribute mutations in the Answer Preload
         // header.
@@ -648,6 +653,11 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
             $('#id_fail_expected_' + testCaseId).html(gotPre.text());
             $('.failrow_' + testCaseId).addClass('fixed');  // Fixed row.
             $(this).prop('disabled', true);
+        });
+
+        // On reloading the page, enable the typeCombo so that its value is POSTed.
+        $('.btn-primary').click(function() {
+            typeCombo.prop('disabled', false);
         });
     }
 

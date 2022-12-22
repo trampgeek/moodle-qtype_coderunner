@@ -67,7 +67,7 @@ Feature: missing_prototype
 
   Scenario: As a teacher, I should be able to re-parent the question and have it work correctly
     And I am on the "Prototype tester" "core_question > edit" page
-    Then I should see "This question was defined to be of type 'python3_test_prototype' but the prototype does not exist, or is non-unique, or is unavailable in this context"
+    Then I should see "This question was defined to be of type 'python3_test_prototype' but the prototype does not exist, or is unavailable in this context"
     And I set the field "id_coderunnertype" to "python3"
     And I set the field "id_customise" to "1"
     And I set the field "id_uiplugin" to "None"
