@@ -136,9 +136,9 @@ define(['jquery'], function ($) {
      * @param {string} additionalText Extra text to follow the result code.
      */
     function setLangString(langStringName, textarea, additionalText) {
-        require(['core/str'], function(str) {
+        require(['core/str'], function (str) {
             const promise = str.get_string(langStringName, 'filter_ace_inline');
-            $.when(promise).then(function(message) {
+            $.when(promise).then(function (message) {
                 textarea.show();
                 textarea.html(escapeHtml("*** " + message + " ***\n" + additionalText));
             });
@@ -189,7 +189,7 @@ define(['jquery'], function ($) {
      */
     function htmlInput(id, labelId, name, label, value, type) {
         const checked = (value && value) ? 'checked' : '';
-        const labelHtml = `<label id='${labelId}' for='${id}'>${label}</label>`;
+        const labelHtml = `<label id='${labelId}' for='${id}' style='display:inline-block;'>${label}</label>`;
         const inputHtml = "<input " +
                 `id='${id}' ` +
                 `type='${type}' ` +
@@ -378,10 +378,11 @@ define(['jquery'], function ($) {
 
         this.langStringManager = new LangStringManager(this.textAreaId, UI_LANGUAGE_STR);
         this.langStringManager.setCallback('scratchpadName', (element, langStr) => {
-            const isEmptyLabel = label =>  label === '▶';
+            const isEmptyLabel = label => ['▶', '▼', ''].includes(label);
+            const getArrow = div => $(div).is(':visible') ? '▼' : '▶';
             if (isEmptyLabel(element.textContent)) {
-                element.textContent = '▶' + langStr;
-            }
+                element.textContent = getArrow(this.scratchpadDiv) + langStr;
+            } // TODO: clean this fix up.
         });
         this.langStringManager.setCallback('helpText', (element, langStr) => {
             element.dataset.content = langStr;
@@ -557,16 +558,17 @@ define(['jquery'], function ($) {
         const divHtml = "<div style='min-height:100%' class='qtype-coderunner-sp-outer-div'></div>";
         const answerTextAreaHtml = htmlTextArea(answerTextAreaId, 'answer_code', preload['answer_code']);
         const showButtonHtml = "<a " +
-                "role='button'" +
-                `id='${this.langStringManager.getId('scratchpadName')}'` +
-                "class='coderunner-ui-element' " +
-                `title='show_hide'></a>`;
+                `role='button'
+                id='${this.langStringManager.getId('scratchpadName')}'
+                class='coderunner-ui-element'
+                title='show_hide'></a>`;
         const answerTextArea = $(answerTextAreaHtml);
         const showButton = $(showButtonHtml);
+        const getArrow = div => $(div).is(':visible') ? '▼' : '▶';
         answerTextArea.attr('rows', this.textArea.attr('rows'));
         showButton.click(function () {
-            const arrow = $(t.scratchpadDiv).is(':visible') ? '▶' : '▼';
             t.scratchpadDiv.toggle();
+            const arrow = getArrow(t.scratchpadDiv);
             showButton.html(arrow + showButton.html().replace(/[▼▶]/, "")); // Remove the old one.
         });
         this.outerDiv = $(divHtml);
@@ -578,8 +580,8 @@ define(['jquery'], function ($) {
         this.scratchpadDiv = $(divHtml);
         if (!preload.show_hide) {
             this.scratchpadDiv.hide();
-            showButton.html(`▶${this.spName}`);
         }
+        showButton.html(getArrow(this.scratchpadDiv) + this.spName + '');
     };
 
     ScratchpadUi.prototype.scratchpadControls = function (outputDisplayArea, preload) {
@@ -589,15 +591,15 @@ define(['jquery'], function ($) {
                 this.textAreaId + '-prefix-ans',
                 this.langStringManager.getId('prefixName'),
                 'prefix_ans',
-                '',
+                this.spPrefixName,
                 preload['prefix_ans'],
                 'checkbox'
                 ));
-        const runButton = $("<button type='button' " +
-                `id='${this.langStringManager.getId('buttonName')}'` +
-                "class='btn btn-secondary' " +
-                "style='margin:6px; margin-right:10px; padding:2px 8px;'>" +
-                `</button>`);
+        const runButton = $(`<button type='button'
+                id='${this.langStringManager.getId('buttonName')}'
+                class='btn btn-secondary'
+                style='margin:6px; margin-right:10px; padding:2px 8px;'
+                >${this.spButtonName}</button>`);
         //const helpButton = $('<a role="button" class="coderunner-ui-element" title="help">What\'s this?</a>');
         const helpButton = $(`<a id="${this.langStringManager.getId('helpText')}" 
 class="btn btn-link p-0" role="button" data-container="body"
