@@ -127,7 +127,23 @@ define(['jquery'], function ($) {
         return 'error_unknown_runtime';
     }
 
-
+    /**
+     * Get the specified language string using
+     * AJAX and plug it into the given textarea
+     * @param {string} langStringName The language string name.
+     * @param {DOMnode} textarea The textarea into which the error message
+     * should be plugged.
+     * @param {string} additionalText Extra text to follow the result code.
+     */
+    function setLangString(langStringName, textarea, additionalText) {
+        require(['core/str'], function(str) {
+            const promise = str.get_string(langStringName, 'filter_ace_inline');
+            $.when(promise).then(function(message) {
+                textarea.show();
+                textarea.html(escapeHtml("*** " + message + " ***\n" + additionalText));
+            });
+        });
+    }
 
 
     /**
@@ -164,6 +180,7 @@ define(['jquery'], function ($) {
     /**
      * Create HTML for an input.
      * @param {string} id for input.
+     * @param {string} labelId for label tag.
      * @param {string} name for the html input.
      * @param {string} label text.
      * @param {string} value trype of the html input.
@@ -260,7 +277,11 @@ define(['jquery'], function ($) {
     }
 
 
-
+    /**
+     * ...
+     * @param {String} parentId of parent node.
+     * @param {Object} nodes of DOM to be managed
+     */
     function LangStringManager(parentId, nodes) {
         this.parentId = parentId;
         this.nodes = {};
@@ -271,7 +292,7 @@ define(['jquery'], function ($) {
 
     LangStringManager.prototype.addNode = function (name, key) {
         if (name in this.nodes) {
-            throw "Can't add a node twice!";
+            throw "Cannot add a node twice!";
         }
         this.nodes[name] = {
             id: this.parentId + camelToHyphenated(name),
@@ -289,15 +310,19 @@ define(['jquery'], function ($) {
         this.nodes[name].callback = callback;
     };
 
-    LangStringManager.prototype.getId = function (name) {
-        if (!this.nodes[name].id) {
-            throw `Can't find node: ${name}`;
+    LangStringManager.prototype.getNode = function (name) {
+        if (!this.nodes[name]) {
+            throw `Cannot find node: ${name}`;
         }
-        return this.nodes[name].id;
+        return this.nodes[name];
+    };
+
+    LangStringManager.prototype.getId = function (name) {
+        return this.getNode(name).id;
     };
 
     LangStringManager.prototype.getKey = function (name) {
-        return this.nodes[name].key;
+        return this.getNode(name).key;
     };
 
     LangStringManager.prototype.setLangString = async function (name, str) {
@@ -308,14 +333,11 @@ define(['jquery'], function ($) {
         if (!element) {
             return;
         }
-
-        langStr = await str.get_string(key, 'qtype_coderunner');
         try {
-
+            langStr = await str.get_string(key, 'qtype_coderunner');
         } catch (error) {
             langStr = key;
         }
-
         if (this.nodes[name].callback) {
             this.nodes[name].callback(element, langStr);
         } else if (!element.textContent) { // Only replace if not already set.
@@ -356,16 +378,19 @@ define(['jquery'], function ($) {
 
         this.langStringManager = new LangStringManager(this.textAreaId, UI_LANGUAGE_STR);
         this.langStringManager.setCallback('scratchpadName', (element, langStr) => {
-            element.textContent = '▶' + langStr;
+            const isEmptyLabel = label =>  label === '▶';
+            if (isEmptyLabel(element.textContent)) {
+                element.textContent = '▶' + langStr;
+            }
         });
         this.langStringManager.setCallback('helpText', (element, langStr) => {
             element.dataset.content = langStr;
         });
 
         // Scratchpad instance vars.
-        this.spName = uiParams.scratchpad_name || this.langStringManager.getKey('scratchpadName');
-        this.spButtonName = uiParams.button_name || this.langStringManager.getKey('buttonName');
-        this.spPrefixName = uiParams.prefix_name || this.langStringManager.getKey('prefixName');
+        this.spName = uiParams.scratchpad_name || '';
+        this.spButtonName = uiParams.button_name || '';
+        this.spPrefixName = uiParams.prefix_name || '';
 
         this.spRunLang = uiParams.run_lang || this.uiParams.lang; // use answer's ace language if not specified.
         this.spHtmlOutput = uiParams.html_output || false;
@@ -502,15 +527,15 @@ define(['jquery'], function ($) {
             show_hide: '',
             prefix_ans: '1' // Ticked by defualt!
         };
-
-        try {
-            if (preloadString) {
+        if (preloadString) {
+            try {
                 preload = JSON.parse(preloadString);
+                // TODO: Convert old listy [''] serialisation to new stringy serialization.
+            } catch (error) {
+                this.fail = true;
+                this.failString = 'scratchpad_ui_invalidserialisation';
+                return;
             }
-        } catch (error) {
-            this.fail = true;
-            this.failString = 'scratchpad_ui_invalidserialisation';
-            return;
         }
 
         this.drawUi(answerTextAreaId, preload);
@@ -574,10 +599,14 @@ define(['jquery'], function ($) {
                 "style='margin:6px; margin-right:10px; padding:2px 8px;'>" +
                 `</button>`);
         //const helpButton = $('<a role="button" class="coderunner-ui-element" title="help">What\'s this?</a>');
-        const helpButton = $(`<a id="${this.langStringManager.getId('helpText')}" class="btn btn-link p-0" role="button" data-container="body"
-data-toggle="popover" data-placement="right" data-content="<div class=&quot;no-overflow&quot;>
-<p>${this.spHelptext}</p></div>" data-html="true" tabindex="0" data-trigger="focus" data-original-title="" title="" id="yui_3_17_2_1_1671049332812_1996">
-<i class="icon fa fa-question-circle text-info fa-fw " style="margin-right: 0px;" title="Help with Scratchpad" role="img" aria-label="Help with Scratchpad"></i></a>`);
+        const helpButton = $(`<a id="${this.langStringManager.getId('helpText')}" 
+class="btn btn-link p-0" role="button" data-container="body"
+data-toggle="popover" data-placement="right" data-content="
+<div class=&quot;no-overflow&quot;>
+<p>${this.spHelptext}</p></div>" data-html="true" tabindex="0" data-trigger="focus" 
+data-original-title="" title="" id="yui_3_17_2_1_1671049332812_1996">
+<i class="icon fa fa-question-circle text-info fa-fw " style="margin-right: 0px;" 
+title="Help with Scratchpad" role="img" aria-label="Help with Scratchpad"></i></a>`);
 
         const rightSpan = $('<span style="float:right;color:#0f6cbf;padding:8px"></span>');
         const t = this;
