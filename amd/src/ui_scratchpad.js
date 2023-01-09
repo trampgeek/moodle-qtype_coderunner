@@ -600,15 +600,15 @@ define(['jquery'], function ($) {
                 class='btn btn-secondary'
                 style='margin:6px; margin-right:10px; padding:2px 8px;'
                 >${this.spButtonName}</button>`);
-        //const helpButton = $('<a role="button" class="coderunner-ui-element" title="help">What\'s this?</a>');
+        // Help popover.
         const helpButton = $(`<a id="${this.langStringManager.getId('helpText')}" 
-class="btn btn-link p-0" role="button" data-container="body"
-data-toggle="popover" data-placement="right" data-content="
-<div class=&quot;no-overflow&quot;>
-<p>${this.spHelptext}</p></div>" data-html="true" tabindex="0" data-trigger="focus" 
-data-original-title="" title="" id="yui_3_17_2_1_1671049332812_1996">
-<i class="icon fa fa-question-circle text-info fa-fw " style="margin-right: 0px;" 
-title="Help with Scratchpad" role="img" aria-label="Help with Scratchpad"></i></a>`);
+            class="btn btn-link p-0" role="button" data-container="body"
+            data-toggle="popover" data-placement="right" data-content="
+            <div class=&quot;no-overflow&quot;>
+            <p>${this.spHelptext}</p></div>" data-html="true" tabindex="0" data-trigger="focus" 
+            data-original-title="" title="">
+            <i class="icon fa fa-question-circle text-info" style="margin-right: 0px;" 
+            title="Help with Scratchpad" role="img" aria-label="Help with Scratchpad"></i></a>`);
 
         const rightSpan = $('<span style="float:right;color:#0f6cbf;padding:8px"></span>');
         const t = this;
