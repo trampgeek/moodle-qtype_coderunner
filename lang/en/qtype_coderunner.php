@@ -1241,9 +1241,9 @@ $string['scratchpadui_run_lang_descr'] = 'The language used to run code when the
 $string['scratchpadui_run_wrapper_descr'] = 'The wrapper to be used by the run button: setting to `globalextra` will use text in global extra as the wrapper. Otherwise, the string in this parameter will be used';
 $string['scratchpadui_params_descr'] = 'The prefix with answer check-box label text.';
 $string['scratchpadui_html_output_descr'] = 'Display the output from run as raw HTML instead of text.';
+
 $string['scratchpadui_def_button_name'] = 'Run!';
 $string['scratchpadui_def_scratchpad_name'] = 'Scratchpad';
-
 $string['scratchpadui_def_prefix_name'] = 'Prefix with Answer';
 $string['scratchpadui_def_help_text'] = 'You can enter code into this panel and click \'Run\' to execute it.
 By default, the code in this panel is prefixed with the contents of the answer box, giving you an easy way to test your answer. 
