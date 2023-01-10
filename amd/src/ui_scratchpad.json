@@ -21,7 +21,7 @@
             "type": "string",
             "default": null
         },
-        "run_wrapper": {
+        "wrapper_src": {
             "type": "string",
             "default": null
         },

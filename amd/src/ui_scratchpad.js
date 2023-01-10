@@ -401,10 +401,17 @@ define(['jquery'], function ($) {
         this.spRunLang = uiParams.run_lang || this.uiParams.lang; // use answer's ace language if not specified.
         this.spHtmlOutput = uiParams.html_output || false;
         
-
-        this.spRunWrapper = uiParams.run_wrapper || null;
-        if (this.spRunWrapper && this.spRunWrapper === 'globalextra') {
-            this.spRunWrapper = this.textArea.attr('data-globalextra');
+        // Find the run wrapper source location.
+        this.spRunWrapper = null;
+        const wraperSrc = uiParams.wrapper_src;
+        if (wraperSrc) {
+            if (wraperSrc === 'globalextra' || wraperSrc === 'prototypeextra') {
+                this.spRunWrapper = this.textArea.attr('data-' + wraperSrc);
+            } else {
+                this.spRunWrapper = null;
+                // TODO: raise some sort of exception? Invalid, params.
+            }
+            
         }
 
         this.outerDiv = null;
