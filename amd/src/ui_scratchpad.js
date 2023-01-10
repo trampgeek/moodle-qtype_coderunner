@@ -377,25 +377,30 @@ define(['jquery'], function ($) {
         this.fail = false;
 
         this.langStringManager = new LangStringManager(this.textAreaId, UI_LANGUAGE_STR);
-        this.langStringManager.setCallback('scratchpadName', (element, langStr) => {
-            const isEmptyLabel = label => ['▶', '▼', ''].includes(label);
-            const getArrow = div => $(div).is(':visible') ? '▼' : '▶';
-//            if (isEmptyLabel(element.textContent)) {
-//                element.textContent = getArrow(this.scratchpadDiv) + langStr;
-//            } // TODO: clean this fix up.
-        });
+//        this.langStringManager.setCallback('scratchpadName', (element, langStr) => {
+//            const isEmptyLabel = label => ['▶', '▼', ''].includes(label);
+//            const getArrow = div => $(div).is(':visible') ? '▼' : '▶';
+////            if (isEmptyLabel(element.textContent)) {
+////                element.textContent = getArrow(this.scratchpadDiv) + langStr;
+////            } // TODO: clean this fix up.
+//        });
+        
         this.langStringManager.setCallback('helpText', (element, langStr) => {
-            element.dataset.content = langStr;
+            console.log(element.dataset.content);
+            if (!element.dataset.content) {
+                element.dataset.content = langStr;         
+            }
         });
 
         // Scratchpad instance vars.
         this.spName = uiParams.scratchpad_name || '';
         this.spButtonName = uiParams.button_name || '';
         this.spPrefixName = uiParams.prefix_name || '';
+        this.spHelptext = uiParams.help_text || '';
 
         this.spRunLang = uiParams.run_lang || this.uiParams.lang; // use answer's ace language if not specified.
         this.spHtmlOutput = uiParams.html_output || false;
-        this.spHelptext = this.langStringManager.getKey('helpText');
+        
 
         this.spRunWrapper = uiParams.run_wrapper || null;
         if (this.spRunWrapper && this.spRunWrapper === 'globalextra') {
@@ -614,9 +619,8 @@ define(['jquery'], function ($) {
         // Help popover.
         const helpButton = $(`<a id="${this.langStringManager.getId('helpText')}" 
             class="btn btn-link p-0" role="button" data-container="body"
-            data-toggle="popover" data-placement="right" data-content="
-            <div class=&quot;no-overflow&quot;>
-            <p>${this.spHelptext}</p></div>" data-html="true" tabindex="0" data-trigger="focus" 
+            data-toggle="popover" data-placement="right" data-content="${this.spHelptext}"
+            data-html="true" tabindex="0" data-trigger="focus" 
             data-original-title="" title="">
             <i class="icon fa fa-question-circle text-info" style="margin-right: 0px;" 
             title="Help with Scratchpad" role="img" aria-label="Help with Scratchpad"></i></a>`);

@@ -13,6 +13,10 @@
             "type": "string",
             "default": ""
         },
+        "help_text": {
+            "type": "string",
+            "default": ""
+        },
         "run_lang": {
             "type": "string",
             "default": null
