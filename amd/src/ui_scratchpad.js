@@ -380,9 +380,9 @@ define(['jquery'], function ($) {
         this.langStringManager.setCallback('scratchpadName', (element, langStr) => {
             const isEmptyLabel = label => ['▶', '▼', ''].includes(label);
             const getArrow = div => $(div).is(':visible') ? '▼' : '▶';
-            if (isEmptyLabel(element.textContent)) {
-                element.textContent = getArrow(this.scratchpadDiv) + langStr;
-            } // TODO: clean this fix up.
+//            if (isEmptyLabel(element.textContent)) {
+//                element.textContent = getArrow(this.scratchpadDiv) + langStr;
+//            } // TODO: clean this fix up.
         });
         this.langStringManager.setCallback('helpText', (element, langStr) => {
             element.dataset.content = langStr;
@@ -560,28 +560,39 @@ define(['jquery'], function ($) {
         const showButtonHtml = "<a " +
                 `role='button'
                 id='${this.langStringManager.getId('scratchpadName')}'
-                class='coderunner-ui-element'
-                title='show_hide'></a>`;
+                title='show_hide'
+                data-toggle="collapse" href="#collapseExample11"
+                class="btn btn-sm btn-icon icons-collapse-expand text-info"
+                >
+                <span class="expanded-icon icon-no-margin p-2" title="Collapse">
+                    <i class="icon fa fa-chevron-down fa-fw " aria-hidden="true"></i>
+                </span>
+                <span class="collapsed-icon icon-no-margin p-2" title="Expand">
+                    <span class="dir-rtl-hide"><i class="icon fa fa-chevron-right fa-fw" aria-hidden="true"></i></span>
+                </span>
+                Scratchpad
+                </a>`; // <i class="icon fa fa-chevron-down"><i class="icon fa fa-chevron-right"></i>
+//        const showButtonHtml = `<span data-toggle="collapse" href="#collapseExample11"></span>`;
         const answerTextArea = $(answerTextAreaHtml);
         const showButton = $(showButtonHtml);
         const getArrow = div => $(div).is(':visible') ? '▼' : '▶';
         answerTextArea.attr('rows', this.textArea.attr('rows'));
-        showButton.click(function () {
-            t.scratchpadDiv.toggle();
-            const arrow = getArrow(t.scratchpadDiv);
-            showButton.html(arrow + showButton.html().replace(/[▼▶]/, "")); // Remove the old one.
-        });
+//        showButton.click(function () {
+//            t.scratchpadDiv.toggle();
+            //const arrow = ''//getArrow(t.scratchpadDiv);
+            //showButton.html(arrow + showButton.html().replace(/[▼▶]/, "")); // Remove the old one.
+//        });
         this.outerDiv = $(divHtml);
 
         this.answerTextArea = answerTextArea;
         this.answerTextArea.attr('data-lang', this.uiParams.lang); //Set language for Ace to use.
         this.outerDiv.append([answerTextArea, showButton]);
 
-        this.scratchpadDiv = $(divHtml);
+        this.scratchpadDiv = $(`<fieldset class="collapse show" id="collapseExample11"></fieldset>`);
         if (!preload.show_hide) {
-            this.scratchpadDiv.hide();
+            this.scratchpadDiv.removeClass("show");
         }
-        showButton.html(getArrow(this.scratchpadDiv) + this.spName + '');
+        //showButton.html(getArrow(this.scratchpadDiv) + this.spName + '');
     };
 
     ScratchpadUi.prototype.scratchpadControls = function (outputDisplayArea, preload) {
