@@ -189,14 +189,18 @@ define(['jquery'], function ($) {
      */
     function htmlInput(id, labelId, name, label, value, type) {
         const checked = (value && value) ? 'checked' : '';
-        const labelHtml = `<label id='${labelId}' for='${id}' style='display:inline-block;'>${label}</label>`;
-        const inputHtml = "<input " +
-                `id='${id}' ` +
-                `type='${type}' ` +
-                `${checked} ` +
-                "class='coderunner-ui-element' " +
-                `name='${name}' ` +
-                `value='${value}'>`;
+        const labelHtml = `<label
+            id='${labelId}' 
+            for='${id}' 
+            style='display:inline-block; margin-left: 3px;'
+            >${label}</label>`;
+        const inputHtml = `<input
+                id='${id}'
+                type='${type}'
+                ${checked}
+                class='coderunner-ui-element'
+                name='${name}' 
+                value='${value}'>`;
         return inputHtml + labelHtml;
     }
 
@@ -408,10 +412,10 @@ define(['jquery'], function ($) {
             if (wraperSrc === 'globalextra' || wraperSrc === 'prototypeextra') {
                 this.spRunWrapper = this.textArea.attr('data-' + wraperSrc);
             } else {
-                this.spRunWrapper = null;
                 // TODO: raise some sort of exception? Invalid, params.
-            }
-            
+                //  Bad wrapper src provided by user...
+                this.spRunWrapper = null;
+            } 
         }
 
         this.outerDiv = null;
@@ -569,8 +573,8 @@ define(['jquery'], function ($) {
         const t = this;
         const divHtml = "<div style='min-height:100%' class='qtype-coderunner-sp-outer-div'></div>";
         const answerTextAreaHtml = htmlTextArea(answerTextAreaId, 'answer_code', preload['answer_code']);
-        const showButtonHtml = "<a " +
-                `role='button'
+        const showButtonHtml = `<a 
+                role='button'
                 id='${this.langStringManager.getId('scratchpadName')}'
                 title='show_hide'
                 data-toggle="collapse" href="#collapseExample11"
