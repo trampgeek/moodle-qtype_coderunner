@@ -388,11 +388,10 @@ define(['jquery'], function ($) {
 ////                element.textContent = getArrow(this.scratchpadDiv) + langStr;
 ////            } // TODO: clean this fix up.
 //        });
-        
+
         this.langStringManager.setCallback('helpText', (element, langStr) => {
-            console.log(element.dataset.content);
             if (!element.dataset.content) {
-                element.dataset.content = langStr;         
+                element.dataset.content = langStr;
             }
         });
 
@@ -404,7 +403,7 @@ define(['jquery'], function ($) {
 
         this.spRunLang = uiParams.run_lang || this.uiParams.lang; // use answer's ace language if not specified.
         this.spHtmlOutput = uiParams.html_output || false;
-        
+
         // Find the run wrapper source location.
         this.spRunWrapper = null;
         const wraperSrc = uiParams.wrapper_src;
@@ -415,7 +414,7 @@ define(['jquery'], function ($) {
                 // TODO: raise some sort of exception? Invalid, params.
                 //  Bad wrapper src provided by user...
                 this.spRunWrapper = null;
-            } 
+            }
         }
 
         this.outerDiv = null;
@@ -570,45 +569,41 @@ define(['jquery'], function ($) {
     };
 
     ScratchpadUi.prototype.drawUi = function (answerTextAreaId, preload) {
-        const t = this;
         const divHtml = "<div style='min-height:100%' class='qtype-coderunner-sp-outer-div'></div>";
         const answerTextAreaHtml = htmlTextArea(answerTextAreaId, 'answer_code', preload['answer_code']);
         const showButtonHtml = `<a 
-                role='button'
-                id='${this.langStringManager.getId('scratchpadName')}'
-                title='show_hide'
-                data-toggle="collapse" href="#collapseExample11"
-                class="btn btn-sm btn-icon icons-collapse-expand text-info"
-                >
-                <span class="expanded-icon icon-no-margin p-2" title="Collapse">
-                    <i class="icon fa fa-chevron-down fa-fw " aria-hidden="true"></i>
-                </span>
-                <span class="collapsed-icon icon-no-margin p-2" title="Expand">
-                    <span class="dir-rtl-hide"><i class="icon fa fa-chevron-right fa-fw" aria-hidden="true"></i></span>
-                </span>
-                Scratchpad
-                </a>`; // <i class="icon fa fa-chevron-down"><i class="icon fa fa-chevron-right"></i>
-//        const showButtonHtml = `<span data-toggle="collapse" href="#collapseExample11"></span>`;
+            role='button'
+            id='${this.langStringManager.getId('scratchpadName')}'
+            title='show_hide'
+            data-toggle="collapse"
+            class="btn btn-sm btn-icon icons-collapse-expand text-info"
+            >
+            <span class="expanded-icon icon-no-margin p-2" title="Collapse">
+                <i class="icon fa fa-chevron-down fa-fw " aria-hidden="true"></i>
+            </span>
+            <span class="collapsed-icon icon-no-margin p-2" title="Expand">
+                <span class="dir-rtl-hide"><i class="icon fa fa-chevron-right fa-fw" aria-hidden="true"></i></span>
+            </span>
+            Scratchpad
+            </a>`;
         const answerTextArea = $(answerTextAreaHtml);
         const showButton = $(showButtonHtml);
-        const getArrow = div => $(div).is(':visible') ? '▼' : '▶';
+
         answerTextArea.attr('rows', this.textArea.attr('rows'));
-//        showButton.click(function () {
-//            t.scratchpadDiv.toggle();
-            //const arrow = ''//getArrow(t.scratchpadDiv);
-            //showButton.html(arrow + showButton.html().replace(/[▼▶]/, "")); // Remove the old one.
-//        });
+
         this.outerDiv = $(divHtml);
 
         this.answerTextArea = answerTextArea;
         this.answerTextArea.attr('data-lang', this.uiParams.lang); //Set language for Ace to use.
         this.outerDiv.append([answerTextArea, showButton]);
 
-        this.scratchpadDiv = $(`<fieldset class="collapse show" id="collapseExample11"></fieldset>`);
+        this.scratchpadDiv = $(`<fieldset class="collapse show" id="${this.textAreaId}-scratchpad"></fieldset>`);
+
+        $(showButton).attr('href', `#${$.escapeSelector($(this.scratchpadDiv).attr('id'))}`);
+
         if (!preload.show_hide) {
-            this.scratchpadDiv.removeClass("show");
+            $(this.scratchpadDiv).removeClass("show");
         }
-        //showButton.html(getArrow(this.scratchpadDiv) + this.spName + '');
     };
 
     ScratchpadUi.prototype.scratchpadControls = function (outputDisplayArea, preload) {
@@ -628,13 +623,16 @@ define(['jquery'], function ($) {
                 style='margin:6px; margin-right:10px; padding:2px 8px;'
                 >${this.spButtonName}</button>`);
         // Help popover.
-        const helpButton = $(`<a id="${this.langStringManager.getId('helpText')}" 
+        const helpButton = $(`<a 
+            id="${this.langStringManager.getId('helpText')}" 
             class="btn btn-link p-0" role="button" data-container="body"
             data-toggle="popover" data-placement="right" data-content="${this.spHelptext}"
             data-html="true" tabindex="0" data-trigger="focus" 
             data-original-title="" title="">
-            <i class="icon fa fa-question-circle text-info" style="margin-right: 0px;" 
-            title="Help with Scratchpad" role="img" aria-label="Help with Scratchpad"></i></a>`);
+                <i class="icon fa fa-question-circle text-info" style="margin-right: 0px;" 
+                title="Help with Scratchpad" role="img" aria-label="Help with Scratchpad">
+                </i>
+            </a>`);
 
         const rightSpan = $('<span style="float:right;color:#0f6cbf;padding:8px"></span>');
         const t = this;
@@ -653,7 +651,7 @@ define(['jquery'], function ($) {
         const outputDisplayArea = $("<pre style='width:100%;white-space:pre-wrap;background-color:#eff;" +
                 "border:1px gray;padding:5px;overflow-wrap:break-word;max-height:600px;overflow:auto;'></pre>");
         const scratchpadControls = this.scratchpadControls(outputDisplayArea, preload);
-        //outputDisplayArea.hide();
+
         this.spCodeTextArea = $(testCodeHtml);
         this.spCodeTextArea.attr('data-lang', this.uiParams.lang); //Set language for Ace to use.
         this.spCodeTextArea.attr('rows', '6'); //Set intial SP size.
