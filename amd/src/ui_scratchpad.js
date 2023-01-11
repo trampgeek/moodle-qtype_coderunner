@@ -381,6 +381,11 @@ define(['jquery'], function ($) {
         this.fail = false;
 
         this.langStringManager = new LangStringManager(this.textAreaId, UI_LANGUAGE_STR);
+        this.langStringManager.setCallback('scratchpadName', (element, langStr) => {
+            if (!element.innerText) {
+                element.insertAdjacentText('beforeend',langStr);
+            }
+        });
         this.langStringManager.setCallback('helpText', (element, langStr) => {
             if (!element.dataset.content) {
                 element.dataset.content = langStr;
@@ -469,11 +474,11 @@ define(['jquery'], function ($) {
             code = fillWrapper(
                     serial.answer_code,
                     serial.test_code,
-                    serial.prefix_ans,
+                    serial.prefix_ans[0],
                     this.spRunWrapper
                     );
         } else { // No wrapper.
-            code = combineCode(serial.answer_code, serial.test_code, serial.prefix_ans);
+            code = combineCode(serial.answer_code, serial.test_code, serial.prefix_ans[0]);
         }
 
         ajax.call([{
@@ -574,7 +579,7 @@ define(['jquery'], function ($) {
             <span class="collapsed-icon icon-no-margin p-2" title="Expand">
                 <span class="dir-rtl-hide"><i class="icon fa fa-chevron-right fa-fw" aria-hidden="true"></i></span>
             </span>
-            Scratchpad
+            ${this.spName}
             </a>`;
         const answerTextArea = $(answerTextAreaHtml);
         const showButton = $(showButtonHtml);
