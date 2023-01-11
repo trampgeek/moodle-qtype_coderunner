@@ -210,7 +210,7 @@ define(['jquery'], function ($) {
      * @returns {string} inverted serialisation.
      */
     function invertSerial(current) {
-        return current == '1' ? '' : '1';
+        return current[0] == '1' ? [''] : ['1'];
     }
 
 
@@ -433,19 +433,19 @@ define(['jquery'], function ($) {
     ScratchpadUi.prototype.sync = function () {
         const prefixAns = $(document.getElementById(this.textAreaId + '-prefix-ans'));
         let serialisation = {
-            answer_code: this.answerTextArea.val() || '',
-            test_code: this.spCodeTextArea.val() || '',
-            show_hide: '',
-            prefix_ans: ''
+            answer_code: this.answerTextArea.val() || [''],
+            test_code: this.spCodeTextArea.val() || [''],
+            show_hide: [''],
+            prefix_ans: ['']
         };
         if (this.scratchpadDiv.is(':visible')) {
-            serialisation.show_hide = '1';
+            serialisation.show_hide = ['1'];
         }
         if (prefixAns.is(':checked')) {
-            serialisation.prefix_ans = '1';
+            serialisation.prefix_ans = ['1'];
         }
         serialisation.prefix_ans = invertSerial(serialisation.prefix_ans);
-        if (Object.values(serialisation).some((val) => val.length > 0)) {
+        if (Object.values(serialisation).some((val) => val[0].length > 0)) {
             serialisation.prefix_ans = invertSerial(serialisation.prefix_ans);
             this.textArea.val(JSON.stringify(serialisation));
         } else {
@@ -538,15 +538,14 @@ define(['jquery'], function ($) {
         const answerTextAreaId = this.textAreaId + '-answer-code';
         const spTextAreaId = this.textAreaId + '-sp-code';
         let preload = {
-            answer_code: '',
-            test_code: '',
-            show_hide: '',
-            prefix_ans: '1' // Ticked by defualt!
+            answer_code: [''],
+            test_code: [''],
+            show_hide: [''],
+            prefix_ans: ['1'] // Ticked by defualt!
         };
         if (preloadString) {
             try {
                 preload = JSON.parse(preloadString);
-                // TODO: Convert old listy [''] serialisation to new stringy serialization.
             } catch (error) {
                 this.fail = true;
                 this.failString = 'scratchpad_ui_invalidserialisation';
@@ -556,10 +555,9 @@ define(['jquery'], function ($) {
 
         this.drawUi(answerTextAreaId, preload);
         this.drawScratchpadUi(spTextAreaId, preload);
-        require(['core/str'], (str) => {
+        require(['core/str'], (str) =>
             this.langStringManager.setAllLangStrings(str)
-                    .then();
-        });
+        );
         this.answerCodeUi = newAceUiWrapper(answerTextAreaId);
         this.spCodeUi = newAceUiWrapper(spTextAreaId);
 
@@ -570,7 +568,7 @@ define(['jquery'], function ($) {
 
     ScratchpadUi.prototype.drawUi = function (answerTextAreaId, preload) {
         const divHtml = "<div style='min-height:100%' class='qtype-coderunner-sp-outer-div'></div>";
-        const answerTextAreaHtml = htmlTextArea(answerTextAreaId, 'answer_code', preload['answer_code']);
+        const answerTextAreaHtml = htmlTextArea(answerTextAreaId, 'answer_code', preload['answer_code'][0]);
         const showButtonHtml = `<a 
             role='button'
             id='${this.langStringManager.getId('scratchpadName')}'
@@ -601,7 +599,7 @@ define(['jquery'], function ($) {
 
         $(showButton).attr('href', `#${$.escapeSelector($(this.scratchpadDiv).attr('id'))}`);
 
-        if (!preload.show_hide) {
+        if (!preload['show_hide'][0]) {
             $(this.scratchpadDiv).removeClass("show");
         }
     };
@@ -614,7 +612,7 @@ define(['jquery'], function ($) {
                 this.langStringManager.getId('prefixName'),
                 'prefix_ans',
                 this.spPrefixName,
-                preload['prefix_ans'],
+                preload['prefix_ans'][0],
                 'checkbox'
                 ));
         const runButton = $(`<button type='button'
