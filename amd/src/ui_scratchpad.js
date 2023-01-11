@@ -381,21 +381,12 @@ define(['jquery'], function ($) {
         this.fail = false;
 
         this.langStringManager = new LangStringManager(this.textAreaId, UI_LANGUAGE_STR);
-//        this.langStringManager.setCallback('scratchpadName', (element, langStr) => {
-//            const isEmptyLabel = label => ['▶', '▼', ''].includes(label);
-//            const getArrow = div => $(div).is(':visible') ? '▼' : '▶';
-////            if (isEmptyLabel(element.textContent)) {
-////                element.textContent = getArrow(this.scratchpadDiv) + langStr;
-////            } // TODO: clean this fix up.
-//        });
-
         this.langStringManager.setCallback('helpText', (element, langStr) => {
             if (!element.dataset.content) {
                 element.dataset.content = langStr;
             }
         });
 
-        // Scratchpad instance vars.
         this.spName = uiParams.scratchpad_name || '';
         this.spButtonName = uiParams.button_name || '';
         this.spPrefixName = uiParams.prefix_name || '';
@@ -575,6 +566,7 @@ define(['jquery'], function ($) {
             title='show_hide'
             data-toggle="collapse"
             class="btn btn-sm btn-icon icons-collapse-expand text-info"
+            style="margin-top: 5px;margin-left: 5px;margin-bottom: 5px;width: 30px;height: 30px;"
             >
             <span class="expanded-icon icon-no-margin p-2" title="Collapse">
                 <i class="icon fa fa-chevron-down fa-fw " aria-hidden="true"></i>
@@ -597,7 +589,7 @@ define(['jquery'], function ($) {
 
         this.scratchpadDiv = $(`<fieldset class="collapse show" id="${this.textAreaId}-scratchpad"></fieldset>`);
 
-        $(showButton).attr('href', `#${$.escapeSelector($(this.scratchpadDiv).attr('id'))}`);
+        $(showButton).attr('href', `#${ $.escapeSelector($(this.scratchpadDiv).attr('id')) }`);
 
         if (!preload['show_hide'][0]) {
             $(this.scratchpadDiv).removeClass("show");
