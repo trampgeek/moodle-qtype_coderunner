@@ -429,8 +429,8 @@ define(['jquery'], function ($) {
     ScratchpadUi.prototype.sync = function () {
         const prefixAns = $(document.getElementById(this.textAreaId + '-prefix-ans'));
         let serialisation = {
-            answer_code: this.answerTextArea.val() || [''],
-            test_code: this.spCodeTextArea.val() || [''],
+            answer_code: [this.answerTextArea.val() || ''],
+            test_code: [this.spCodeTextArea.val() || ''],
             show_hide: [''],
             prefix_ans: ['']
         };
