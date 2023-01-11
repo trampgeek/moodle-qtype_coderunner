@@ -34,13 +34,13 @@ Feature: Test the Scratchpad UI
 
     When I choose "Preview" action for "Print answer" in the question bank
     Then I should not see "Run!"
-    And I should see "▶Scratchpad"
+    And I should see "Scratchpad"
     
-    When I click on "▶Scratchpad" "button"
+    When I click on "Scratchpad" "button"
     Then I should see "Run!"
     And I should see "Prefix with Answer"
 
-    When I click on "▼Scratchpad" "button"
+    When I click on "Scratchpad" "button"
     Then I should not see "Run!"
     And I should not see "Prefix Answer?"
   
@@ -54,7 +54,7 @@ Feature: Test the Scratchpad UI
     Then I should see "Print answer"
 
     When I choose "Preview" action for "Print answer" in the question bank
-    And I click on "▶Scratchpad" "button"
+    And I click on "Scratchpad" "button"
     
     Then I press "Run!"
     And I should see "< No output! >"
@@ -70,7 +70,7 @@ Feature: Test the Scratchpad UI
     Then I should see "Print answer"
 
     When I choose "Preview" action for "Print answer" in the question bank
-    And I click on "▶Scratchpad" "button"
+    And I click on "Scratchpad" "button"
     And I set the ace field "test_code" to "print(\"hello\" + \" \" + \"world\")"
     
     Then I press "Run!"
@@ -87,7 +87,7 @@ Feature: Test the Scratchpad UI
     Then I should see "Print answer"
 
     When I choose "Preview" action for "Print answer" in the question bank
-    And I click on "▶Scratchpad" "button"
+    And I click on "Scratchpad" "button"
     And I set the ace field "answer_code" to "print(\"hello\" + \" \" + \"world\")"
     
     Then I press "Run!"
@@ -108,7 +108,7 @@ Feature: Test the Scratchpad UI
     Then I should see "Print answer"
 
     When I choose "Preview" action for "Print answer" in the question bank
-    And I click on "▶Scratchpad" "button"
+    And I click on "Scratchpad" "button"
     And I set the ace field "answer_code" to "print(\"hello\" + \" \" + \"world\")"
     And I set the ace field "test_code" to "print(\"goodbye\" + \" \" + \"world\")"
     
@@ -159,7 +159,7 @@ Feature: Test the Scratchpad UI
     Then I press the CTRL + ALT M key
     And I should see in answer field:
     """
-    {"answer_code":"print('hello world')","test_code":"","show_hide":"","prefix_ans":"1"}
+    {"answer_code":["print('hello world')"],"test_code":[""],"show_hide":[""],"prefix_ans":["1"]}
     """
 
   @serial
@@ -177,12 +177,12 @@ Feature: Test the Scratchpad UI
     
     When I choose "Preview" action for "Print answer" in the question bank
     And I set the ace field "answer_code" to "print('hello world')"
-    And I click on "▶Scratchpad" "button"
+    And I click on "Scratchpad" "button"
     
     Then I press the CTRL + ALT M key
     And I should see in answer field:
     """
-    {"answer_code":"print('hello world')","test_code":"","show_hide":"1","prefix_ans":"1"}
+    {"answer_code":["print('hello world')"],"test_code":[""],"show_hide":["1"],"prefix_ans":["1"]}
     """
   
   
@@ -199,22 +199,22 @@ Feature: Test the Scratchpad UI
     Then I should see "Print answer"
     
     When I choose "Preview" action for "Print answer" in the question bank
-    And I click on "▶Scratchpad" "button"
+    And I click on "Scratchpad" "button"
     And I set the ace field "test_code" to "print('hello world')"
     And I set the field "prefix_ans" to ""
   
     Then I press the CTRL + ALT M key
     And I should see in answer field:
     """
-    {"answer_code":"","test_code":"print('hello world')","show_hide":"1","prefix_ans":""}
+    {"answer_code":[""],"test_code":["print('hello world')"],"show_hide":["1"],"prefix_ans":[""]}
     """
     
     When I press the CTRL + ALT M key
-    And I click on "▼Scratchpad" "button"
+    And I click on "Scratchpad" "button"
     And I press the CTRL + ALT M key
     Then I should see in answer field:
     """
-    {"answer_code":"","test_code":"print('hello world')","show_hide":"","prefix_ans":""}
+    {"answer_code":[""],"test_code":["print('hello world')"],"show_hide":[""],"prefix_ans":[""]}
     """
   
   Scenario: Get UI serialization, while Scratchpad Shown and prefix box NOT ticked
@@ -229,13 +229,13 @@ Feature: Test the Scratchpad UI
     Then I should see "Print answer"
     
     When I choose "Preview" action for "Print answer" in the question bank
-    And I click on "▶Scratchpad" "button"
+    And I click on "Scratchpad" "button"
     And I set the field "prefix_ans" to ""
     
     Then I press the CTRL + ALT M key
     And I should see in answer field:
     """
-    {"answer_code":"","test_code":"","show_hide":"1","prefix_ans":""}
+    {"answer_code":[""],"test_code":[""],"show_hide":["1"],"prefix_ans":[""]}
     """  
 
   @serial
@@ -252,7 +252,7 @@ Feature: Test the Scratchpad UI
     Then I should see "Print answer"
     
     When I choose "Preview" action for "Print answer" in the question bank
-    And I click on "▶Scratchpad" "button"
+    And I click on "Scratchpad" "button"
     And I set the ace field "answer_code" to "print('hello world')"
     And I set the ace field "test_code" to "print('goodbye world')"
     And I set the field "prefix_ans" to ""
@@ -260,5 +260,5 @@ Feature: Test the Scratchpad UI
     Then I press the CTRL + ALT M key
     And I should see in answer field:
     """
-    {"answer_code":"print('hello world')","test_code":"print('goodbye world')","show_hide":"1","prefix_ans":""}
+    {"answer_code":["print('hello world')"],"test_code":["print('goodbye world')"],"show_hide":["1"],"prefix_ans":[""]}
     """  

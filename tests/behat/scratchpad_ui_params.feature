@@ -38,7 +38,7 @@ Scenario: Edit a CodeRunner Scratchpad UI question, change all available UI para
         "scratchpad_name":"Scratchblobert",
         "html_output":true,
         "prefix_name":"unhelpful label :)",
-        "run_wrapper": "print('hi')",
+        "wrapper_src": "globalextra",
         "run_lang": "Python3",
         "params": {
             "numprocs":100,
@@ -64,14 +64,14 @@ Scenario: Change UI param for run button name
     When I choose "Preview" action for "Print answer" in the question bank
     And I should not see "superuniquename123"
     And I should not see "Run!"
-    And I should see "▶Scratchpad"
+    And I should see "Scratchpad"
     
-    When I click on "▶Scratchpad" "button"
+    When I click on "Scratchpad" "button"
     Then I should see "superuniquename123"
     But I should not see "Run!"
     And I should see "Prefix with Answer"
 
-    When I click on "▼Scratchpad" "button"
+    When I click on "Scratchpad" "button"
     Then I should not see "superuniquename123"
     And I should not see "Run!"
     And I should not see "Prefix Answer?"
@@ -87,15 +87,15 @@ Scenario: Change UI param for run button name
 
     When I choose "Preview" action for "Print answer" in the question bank
     Then I should not see "Run!"
-    And I should not see "▶Scratchpad"
-    But I should see "▶superuniquename123"
+    And I should not see "Scratchpad"
+    But I should see "superuniquename123"
     
-    When I click on "▶superuniquename123" "button"
-    Then I should see "▼superuniquename123"
+    When I click on "superuniquename123" "button"
+    Then I should see "superuniquename123"
     And I should see "Run!"
     And I should see "Prefix with Answer"
 
-    When I click on "▼superuniquename123" "button"
+    When I click on "superuniquename123" "button"
     And I should not see "Run!"
     And I should not see "Prefix Answer?"
 
@@ -110,17 +110,17 @@ Scenario: Change UI param for run button name
     Then I should see "Print answer"
 
     When I choose "Preview" action for "Print answer" in the question bank
-    Then I should see "▶Scratchpad"
+    Then I should see "Scratchpad"
     And I should not see "superuniquename123"
     And I should not see "Run!"
     
     
-    When I click on "▶Scratchpad" "button"
+    When I click on "Scratchpad" "button"
     Then I should see "superuniquename123"
     But I should not see "Prefix Answer?"
     And I should see "Run!"
 
-    When I click on "▼Scratchpad" "button"
+    When I click on "Scratchpad" "button"
     Then I should not see "superuniquename123"
     And I should not see "Run!"
     And I should not see "Prefix Answer?"
@@ -136,7 +136,7 @@ Scenario: Change UI param for run button name
     Then I should see "Print answer"
 
     When I choose "Preview" action for "Print answer" in the question bank
-    And I click on "▶Scratchpad" "button"
+    And I click on "Scratchpad" "button"
     And I set the ace field "test_code" to "print('<button>Hi</button>')"
     Then I press "Run!"
     And I press "Hi"
@@ -146,13 +146,19 @@ Scenario: Change UI param for run button name
     And I set the following fields to these values:
       | id_customise    | 1                                                             |
       | id_uiplugin     | Scratchpad                                                    |
-      | id_uiparameters | {"run_wrapper": "print('Hello Wrapper', end=' ')\n{{ ANSWER_CODE }}\n{{ SCRATCHPAD_CODE }}"} |
+      | id_uiparameters | {"wrapper_src": "globalextra"}                                |
+    And I set the field "globalextra" to:
+    """
+    print('Hello Wrapper', end=' ')
+    {{ ANSWER_CODE }}
+    {{ SCRATCHPAD_CODE }}
+    """
 
     And I press "id_submitbutton"
     Then I should see "Print answer"
 
     When I choose "Preview" action for "Print answer" in the question bank
-    And I click on "▶Scratchpad" "button"
+    And I click on "Scratchpad" "button"
     And I set the ace field "answer_code" to "print('Hello Answercode', end=' ')"
     And I set the ace field "test_code" to "print('Hello Scratchpadcode', end=' ')"
     And I set the field "prefix_ans" to ""
@@ -164,13 +170,19 @@ Scenario: Change UI param for run button name
     And I set the following fields to these values:
       | id_customise    | 1                                                             |
       | id_uiplugin     | Scratchpad                                                    |
-      | id_uiparameters | {"run_wrapper": "print('Hello Wrapper', end=' ')\n{{ ANSWER_CODE }}\n{{ SCRATCHPAD_CODE }}"} |
+      | id_uiparameters | {"wrapper_src": "globalextra"}                                |
+    And I set the field "globalextra" to:
+    """
+    print('Hello Wrapper', end=' ')
+    {{ ANSWER_CODE }}
+    {{ SCRATCHPAD_CODE }}
+    """
 
     And I press "id_submitbutton"
     Then I should see "Print answer"
 
     When I choose "Preview" action for "Print answer" in the question bank
-    And I click on "▶Scratchpad" "button"
+    And I click on "Scratchpad" "button"
     And I set the ace field "answer_code" to "print('Hello Answercode', end=' ')"
     And I set the ace field "test_code" to "print('Hello Scratchpadcode', end=' ')"
     Then I press "Run!"
@@ -181,7 +193,7 @@ Scenario: Change UI param for run button name
     And I set the following fields to these values:
       | id_customise    | 1                                                             |
       | id_uiplugin     | Scratchpad                                                    |      
-      | id_uiparameters | {"run_wrapper": "globalextra"}                             |
+      | id_uiparameters | {"wrapper_src": "globalextra"}                             |
     And I set the field "globalextra" to:
     """
     print('Hello Wrapper', end=' ')
@@ -192,7 +204,7 @@ Scenario: Change UI param for run button name
     Then I should see "Print answer"
 
     When I choose "Preview" action for "Print answer" in the question bank
-    And I click on "▶Scratchpad" "button"
+    And I click on "Scratchpad" "button"
     And I set the ace field "answer_code" to "print('Hello Answercode', end=' ')"
     And I set the ace field "test_code" to "print('Hello Scratchpadcode', end=' ')"
     And I set the field "prefix_ans" to ""
@@ -204,7 +216,7 @@ Scenario: Change UI param for run button name
     And I set the following fields to these values:
       | id_customise    | 1                                                             |
       | id_uiplugin     | Scratchpad                                                    |
-      | id_uiparameters | {"run_wrapper": "globalextra"}                             |
+      | id_uiparameters | {"wrapper_src": "globalextra"}                             |
     And I set the field "globalextra" to:
     """
     print('Hello Wrapper', end=' ')
@@ -216,7 +228,7 @@ Scenario: Change UI param for run button name
     Then I should see "Print answer"
 
     When I choose "Preview" action for "Print answer" in the question bank
-    And I click on "▶Scratchpad" "button"
+    And I click on "Scratchpad" "button"
     And I set the ace field "answer_code" to "print('Hello Answercode', end=' ')"
     And I set the ace field "test_code" to "print('Hello Scratchpadcode', end=' ')"
     And I set the field "prefix_ans" to "1"
