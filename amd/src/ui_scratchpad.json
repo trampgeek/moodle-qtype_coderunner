@@ -32,6 +32,10 @@
         "html_output": {
             "type": "boolean",
             "default": false
+        },
+        "disable_scratchpad": {
+            "type": "boolean",
+            "default": false
         }
     }
 }

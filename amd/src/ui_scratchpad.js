@@ -385,6 +385,7 @@ define(['jquery'], function ($) {
             help_text: '',
             run_lang: uiParams.lang, // use answer's ace language if not specified.
             html_output: false,
+            disable_scratchpad: false,
             wrapper_src: null
         };
 
@@ -600,6 +601,10 @@ define(['jquery'], function ($) {
 
         if (!preload['show_hide'][0]) {
             $(this.scratchpadDiv).removeClass("show");
+        }
+        if (this.uiParams.disable_scratchpad) {
+            $(showButton).hide();
+            $(this.scratchpadDiv).hide(); // Prevent showing it using json...
         }
     };
 
