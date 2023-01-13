@@ -235,21 +235,23 @@ define(['jquery'], function ($) {
         template = template.replaceAll('{{ SCRATCHPAD_CODE }}', testCode);
         return template;
     }
-    
+
+
     /**
-     * 
-     * @param {object} defualt
-     * @param {object} prescribed
-     * @returns {object} feids replaced by 
+     * Returns anew object containg default values. If a matching key exists in
+     * prescribed, the corresponding value from prescribed will replace the defualt value.
+     * Does not add keys/values to the result if that key is not in defualts.
+     * @param {object} defaults object with values to be overwritten.
+     * @param {object} prescribed settings, typically set by a user.
+     * @returns {object} filled with defualt values, overwritten by their prescribed value (iff included).
      */
-    function overrideFeilds (defaults, prescribed) {
-        let overridden = {...defaults};
+    function overwriteValues(defaults, prescribed) {
+        let overwritten = {...defaults};
         for (const [key, value] of Object.entries(defaults)) {
-            overridden[key] = prescribed[key] || value;
+            overwritten[key] = prescribed[key] || value;
         }
-        return overridden;
+        return overwritten;
     }
-        
 
 
     /**
@@ -376,18 +378,22 @@ define(['jquery'], function ($) {
             helpText: 'scratchpadui_def_help_text'
         };
 
-
+        const DEF_UI_PARAMS = {
+            scratchpad_name: '',
+            button_name: '',
+            prefix_name: '',
+            help_text: '',
+            run_lang: uiParams.lang, // use answer's ace language if not specified.
+            html_output: false,
+            wrapper_src: null
+        };
 
         this.textArea = $(document.getElementById(textAreaId));
         this.textAreaId = textAreaId;
         this.height = height;
         this.readOnly = $(this.textArea).prop('readonly');
-        this.uiParams = uiParams;
-        //fillUiParams('scratchpad',uiParams);
-//        console.log(this.uiParams);
-//        console.log(uiParams);
         this.fail = false;
-
+        this.uiParams = overwriteValues(DEF_UI_PARAMS, uiParams);
         this.langStringManager = new LangStringManager(this.textAreaId, UI_LANGUAGE_STR);
         this.langStringManager.setCallback('scratchpadName', (element, langStr) => {
             if (!element.innerText) {
@@ -400,26 +406,16 @@ define(['jquery'], function ($) {
             }
         });
 
-
-
-        this.uiParams.spName = uiParams.scratchpad_name || '';
-        this.uiParams.spButtonName = uiParams.button_name || '';
-        this.uiParams.spPrefixName = uiParams.prefix_name || '';
-        this.uiParams.spHelptext = uiParams.help_text || '';
-
-        this.uiParams.spRunLang = uiParams.run_lang || this.uiParams.lang; // use answer's ace language if not specified.
-        this.uiParams.spHtmlOutput = uiParams.html_output || false;
-
         // Find the run wrapper source location.
-        this.spRunWrapper = null;
-        const wraperSrc = uiParams.wrapper_src;
+        this.runWrapper = null;
+        const wraperSrc = this.uiParams.wrapper_src;
         if (wraperSrc) {
             if (wraperSrc === 'globalextra' || wraperSrc === 'prototypeextra') {
-                this.spRunWrapper = $(this.textArea).attr('data-' + wraperSrc);
+                this.runWrapper = $(this.textArea).attr('data-' + wraperSrc);
             } else {
                 // TODO: raise some sort of exception? Invalid, params.
                 //  Bad wrapper src provided by user...
-                this.spRunWrapper = null;
+                this.runWrapper = null;
             }
         }
 
@@ -451,7 +447,7 @@ define(['jquery'], function ($) {
             serialisation.prefix_ans = ['1'];
         }
         serialisation.prefix_ans = invertSerial(serialisation.prefix_ans);
-        if (Object.values(serialisation).some((val) => val[0].length > 0)) {
+        if (Object.values(serialisation).some((val) => val.length === 1 && val[0].length > 0)) {
             serialisation.prefix_ans = invertSerial(serialisation.prefix_ans);
             $(this.textArea).val(JSON.stringify(serialisation));
         } else {
@@ -466,7 +462,7 @@ define(['jquery'], function ($) {
     ScratchpadUi.prototype.handleRunButtonClick = async function (ajax, outputDisplayArea) {
         this.sync(); // Use up-to-date serialization.
 
-        const htmlOutput = this.uiParams.spHtmlOutput;
+        const htmlOutput = this.uiParams.html_output;
         const maxLen = this.uiParams['max-output-length'] || DEFUALT_MAX_OUTPUT_LEN;
         const preloadString = $(this.textArea).val();
         const serial = JSON.parse(preloadString);
@@ -475,7 +471,7 @@ define(['jquery'], function ($) {
                 serial.answer_code,
                 serial.test_code,
                 serial.prefix_ans[0],
-                this.spRunWrapper
+                this.runWrapper
                 );
 
         // Clear all output areas.
@@ -491,7 +487,7 @@ define(['jquery'], function ($) {
                 args: {
                     contextid: M.cfg.contextid, // Moodle context ID
                     sourcecode: code,
-                    language: this.uiParams.spRunLang,
+                    language: this.uiParams.run_lang,
                     params: JSON.stringify(params) // Sandbox params
                 },
                 done: function (responseJson) {
@@ -554,7 +550,7 @@ define(['jquery'], function ($) {
                 return;
             }
         }
-        preload = overrideFeilds(defualtPreload, preload);
+        preload = overwriteValues(defualtPreload, preload);
 
         this.drawUi(answerTextAreaId, preload);
         this.drawScratchpadUi(spTextAreaId, preload);
@@ -585,7 +581,7 @@ define(['jquery'], function ($) {
                 <span class="collapsed-icon icon-no-margin p-2" title="Expand">
                     <span class="dir-rtl-hide"><i class="icon fa fa-chevron-right fa-fw" aria-hidden="true"></i></span>
                 </span>
-                ${this.uiParams.spName}
+                ${this.uiParams.scratchpad_name}
             </a>`;
         const answerTextArea = $(answerTextAreaHtml);
         const showButton = $(showButtonHtml);
@@ -595,7 +591,7 @@ define(['jquery'], function ($) {
         this.outerDiv = $(divHtml);
 
         this.answerTextArea = answerTextArea;
-        this.answerTextArea.attr('data-lang', this.uiParams.lang); //Set language for Ace to use.
+        this.answerTextArea.attr('data-lang', this.uiParams.run_lang); //Set language for Ace to use.
         this.outerDiv.append([answerTextArea, showButton]);
 
         this.scratchpadDiv = $(`<fieldset class="collapse show" id="${this.textAreaId}-scratchpad"></fieldset>`);
@@ -614,7 +610,7 @@ define(['jquery'], function ($) {
                 this.textAreaId + '-prefix-ans',
                 this.langStringManager.getId('prefixName'),
                 'prefix_ans',
-                this.uiParams.spPrefixName,
+                this.uiParams.prefix_name,
                 preload['prefix_ans'][0],
                 'checkbox'
                 ));
@@ -622,12 +618,12 @@ define(['jquery'], function ($) {
                 id='${this.langStringManager.getId('buttonName')}'
                 class='btn btn-secondary'
                 style='margin:6px; margin-right:10px; padding:2px 8px;'
-                >${this.uiParams.spButtonName}</button>`);
+                >${this.uiParams.button_name}</button>`);
         // Help popover.
         const helpButton = $(`<a 
             id="${this.langStringManager.getId('helpText')}" 
             class="btn btn-link p-0" role="button" data-container="body"
-            data-toggle="popover" data-placement="right" data-content="${this.uiParams.spHelptext}"
+            data-toggle="popover" data-placement="right" data-content="${this.uiParams.help_text}"
             data-html="true" tabindex="0" data-trigger="focus" 
             data-original-title="" title="">
                 <i class="icon fa fa-question-circle text-info" style="margin-right: 0px;" 
@@ -654,7 +650,7 @@ define(['jquery'], function ($) {
         const scratchpadControls = this.scratchpadControls(outputDisplayArea, preload);
 
         this.spCodeTextArea = $(testCodeHtml);
-        this.spCodeTextArea.attr('data-lang', this.uiParams.lang); //Set language for Ace to use.
+        this.spCodeTextArea.attr('data-lang', this.uiParams.run_lang); //Set language for Ace to use.
         this.spCodeTextArea.attr('rows', '6'); //Set intial SP size.
         this.scratchpadDiv.append([this.spCodeTextArea, scratchpadControls, outputDisplayArea]);
         this.outerDiv.append(this.scratchpadDiv);
