@@ -262,3 +262,32 @@ Feature: Test the Scratchpad UI
     """
     {"answer_code":["print('hello world')"],"test_code":["print('goodbye world')"],"show_hide":["1"],"prefix_ans":[""]}
     """  
+
+  @serial
+  Scenario: Only enter serialization with answer_code value, no other fields. Useful for converting Ace questions to Scratchpad.
+    When I am on the "Print answer" "core_question > edit" page logged in as teacher1
+    And I set the field "id_answer" to ""
+    And I set the following fields to these values:
+      | id_customise      | 1                                     |
+      | id_uiplugin       | Scratchpad                            |
+      | id_validateonsave | 0                                     |
+      | id_expected_0     | ''                                    |
+    And I set the field "id_template" to "print('''{{ STUDENT_ANSWER }}''')"
+    And I press "id_submitbutton"
+    Then I should see "Print answer"
+    
+    When I choose "Preview" action for "Print answer" in the question bank
+    Then I press the CTRL + ALT M key
+    And I set answer field to:
+    """
+    {"answer_code":["print('hello world')"]}
+    """ 
+    And I press the CTRL + ALT M key
+    Then I should see "print('hello world')"
+    
+    When I press the CTRL + ALT M key
+    Then I should see in answer field:
+    """
+    {"answer_code":["print('hello world')"],"test_code":[""],"show_hide":[""],"prefix_ans":["1"]}
+    """  
+    

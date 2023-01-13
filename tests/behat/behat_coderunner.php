@@ -61,6 +61,33 @@ class behat_coderunner extends behat_base {
     }
     
      /**
+     * Sets answer textarea (seen after presing ctrl+m) to a value
+     * @Then /^I set answer field to "(?P<value>(?:[^"]|\\")*)"$/ 
+     * @throws ExpectationException
+     * @param string $expected The string that we expect to find
+     */    
+    public function i_set_answer($value) {
+        $xpath = '//textarea[contains(@class, "coderunner-answer")]';
+        $driver = $this->getSession()->getDriver();
+        if (!$driver->find($xpath)) {
+            $error = "Answer box not found!";
+            throw new ExpectationException($error, $this->getSession());
+        }
+        $page = $this->getSession()->getPage();
+        $val = $page->find('xpath',$xpath)->setValue($value);
+    }
+    
+    /**
+     * Sets answer textarea (seen after presing ctrl+m) to a value
+     * @Then /^I set answer field to:$/
+     * @throws ExpectationException
+     * @param string $expected The string that we expect to find
+     */    
+    public function i_set_answer_pystring($pystring) {
+        $this->i_set_answer($pystring->getRaw());
+    }
+    
+     /**
      * Checks that a given string appears within answer textarea.
      * Intended for checking UI serialization
      * @Then /^I should see in answer field:$/
