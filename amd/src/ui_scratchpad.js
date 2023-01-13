@@ -213,22 +213,6 @@ define(['jquery'], function ($) {
         return current[0] == '1' ? [''] : ['1'];
     }
 
-
-    /**
-     * Combine answer code with scratchpad code. If prefixAns is false:
-     * only include testCode.
-     * @param {string} answerCode text.
-     * @param {string} testCode text.
-     * @param {string} prefixAns '1' for true, '' for false.
-     * @returns {string} The combined code.
-     */
-    function combineCode(answerCode, testCode, prefixAns) {
-        let combined = prefixAns ? (answerCode + '\n') : '';
-        combined += testCode;
-        return combined;
-    }
-
-
     /**
      * Insert the answer code and test code into the wrapper. This may
      * defined by the user, in UI Params or globalextra. If prefixAns is
@@ -240,6 +224,10 @@ define(['jquery'], function ($) {
      * @returns {string} filled template.
      */
     function fillWrapper(answerCode, testCode, prefixAns, template) {
+        if (!template) {
+            template = '{{ ANSWER_CODE }}\n' +
+                    '{{ SCRATCHPAD_CODE }}';
+        }
         if (!prefixAns) {
             answerCode = '';
         }
@@ -247,6 +235,21 @@ define(['jquery'], function ($) {
         template = template.replaceAll('{{ SCRATCHPAD_CODE }}', testCode);
         return template;
     }
+    
+    /**
+     * 
+     * @param {object} defualt
+     * @param {object} prescribed
+     * @returns {object} feids replaced by 
+     */
+    function overrideFeilds (defaults, prescribed) {
+        let overridden = {...defaults};
+        for (const [key, value] of Object.entries(defaults)) {
+            overridden[key] = prescribed[key] || value;
+        }
+        return overridden;
+    }
+        
 
 
     /**
@@ -373,17 +376,22 @@ define(['jquery'], function ($) {
             helpText: 'scratchpadui_def_help_text'
         };
 
+
+
         this.textArea = $(document.getElementById(textAreaId));
         this.textAreaId = textAreaId;
         this.height = height;
-        this.readOnly = this.textArea.prop('readonly');
+        this.readOnly = $(this.textArea).prop('readonly');
         this.uiParams = uiParams;
+        //fillUiParams('scratchpad',uiParams);
+//        console.log(this.uiParams);
+//        console.log(uiParams);
         this.fail = false;
 
         this.langStringManager = new LangStringManager(this.textAreaId, UI_LANGUAGE_STR);
         this.langStringManager.setCallback('scratchpadName', (element, langStr) => {
             if (!element.innerText) {
-                element.insertAdjacentText('beforeend',langStr);
+                element.insertAdjacentText('beforeend', langStr);
             }
         });
         this.langStringManager.setCallback('helpText', (element, langStr) => {
@@ -392,20 +400,22 @@ define(['jquery'], function ($) {
             }
         });
 
-        this.spName = uiParams.scratchpad_name || '';
-        this.spButtonName = uiParams.button_name || '';
-        this.spPrefixName = uiParams.prefix_name || '';
-        this.spHelptext = uiParams.help_text || '';
 
-        this.spRunLang = uiParams.run_lang || this.uiParams.lang; // use answer's ace language if not specified.
-        this.spHtmlOutput = uiParams.html_output || false;
+
+        this.uiParams.spName = uiParams.scratchpad_name || '';
+        this.uiParams.spButtonName = uiParams.button_name || '';
+        this.uiParams.spPrefixName = uiParams.prefix_name || '';
+        this.uiParams.spHelptext = uiParams.help_text || '';
+
+        this.uiParams.spRunLang = uiParams.run_lang || this.uiParams.lang; // use answer's ace language if not specified.
+        this.uiParams.spHtmlOutput = uiParams.html_output || false;
 
         // Find the run wrapper source location.
         this.spRunWrapper = null;
         const wraperSrc = uiParams.wrapper_src;
         if (wraperSrc) {
             if (wraperSrc === 'globalextra' || wraperSrc === 'prototypeextra') {
-                this.spRunWrapper = this.textArea.attr('data-' + wraperSrc);
+                this.spRunWrapper = $(this.textArea).attr('data-' + wraperSrc);
             } else {
                 // TODO: raise some sort of exception? Invalid, params.
                 //  Bad wrapper src provided by user...
@@ -443,9 +453,9 @@ define(['jquery'], function ($) {
         serialisation.prefix_ans = invertSerial(serialisation.prefix_ans);
         if (Object.values(serialisation).some((val) => val[0].length > 0)) {
             serialisation.prefix_ans = invertSerial(serialisation.prefix_ans);
-            this.textArea.val(JSON.stringify(serialisation));
+            $(this.textArea).val(JSON.stringify(serialisation));
         } else {
-            this.textArea.val(''); // All feilds empty...
+            $(this.textArea).val(''); // All feilds empty...
         }
     };
 
@@ -456,12 +466,17 @@ define(['jquery'], function ($) {
     ScratchpadUi.prototype.handleRunButtonClick = async function (ajax, outputDisplayArea) {
         this.sync(); // Use up-to-date serialization.
 
-        const htmlOutput = this.spHtmlOutput;
+        const htmlOutput = this.uiParams.spHtmlOutput;
         const maxLen = this.uiParams['max-output-length'] || DEFUALT_MAX_OUTPUT_LEN;
-        const preloadString = this.textArea.val();
+        const preloadString = $(this.textArea).val();
         const serial = JSON.parse(preloadString);
         const params = this.uiParams.params;
-        let code;
+        const code = fillWrapper(
+                serial.answer_code,
+                serial.test_code,
+                serial.prefix_ans[0],
+                this.spRunWrapper
+                );
 
         // Clear all output areas.
         outputDisplayArea.html('');
@@ -470,23 +485,13 @@ define(['jquery'], function ($) {
         }
         outputDisplayArea.next('div.filter-ace-inline-html').remove(); //TODO: Naming
 
-        if (this.spRunWrapper) { // Wrap the code if a wrapper exists.
-            code = fillWrapper(
-                    serial.answer_code,
-                    serial.test_code,
-                    serial.prefix_ans[0],
-                    this.spRunWrapper
-                    );
-        } else { // No wrapper.
-            code = combineCode(serial.answer_code, serial.test_code, serial.prefix_ans[0]);
-        }
 
         ajax.call([{
                 methodname: 'qtype_coderunner_run_in_sandbox',
                 args: {
                     contextid: M.cfg.contextid, // Moodle context ID
                     sourcecode: code,
-                    language: this.spRunLang,
+                    language: this.uiParams.spRunLang,
                     params: JSON.stringify(params) // Sandbox params
                 },
                 done: function (responseJson) {
@@ -533,12 +538,13 @@ define(['jquery'], function ($) {
         const preloadString = $(this.textArea).val();
         const answerTextAreaId = this.textAreaId + '-answer-code';
         const spTextAreaId = this.textAreaId + '-sp-code';
-        let preload = {
+        const defualtPreload = {
             answer_code: [''],
             test_code: [''],
             show_hide: [''],
             prefix_ans: ['1'] // Ticked by defualt!
         };
+        let preload = {};
         if (preloadString) {
             try {
                 preload = JSON.parse(preloadString);
@@ -548,6 +554,7 @@ define(['jquery'], function ($) {
                 return;
             }
         }
+        preload = overrideFeilds(defualtPreload, preload);
 
         this.drawUi(answerTextAreaId, preload);
         this.drawScratchpadUi(spTextAreaId, preload);
@@ -571,20 +578,19 @@ define(['jquery'], function ($) {
             title='show_hide'
             data-toggle="collapse"
             class="btn btn-sm btn-icon icons-collapse-expand text-info"
-            style="margin-top: 5px;margin-left: 5px;margin-bottom: 5px;width: 30px;height: 30px;"
-            >
-            <span class="expanded-icon icon-no-margin p-2" title="Collapse">
-                <i class="icon fa fa-chevron-down fa-fw " aria-hidden="true"></i>
-            </span>
-            <span class="collapsed-icon icon-no-margin p-2" title="Expand">
-                <span class="dir-rtl-hide"><i class="icon fa fa-chevron-right fa-fw" aria-hidden="true"></i></span>
-            </span>
-            ${this.spName}
+            style="margin-top: 5px;margin-left: 5px;margin-bottom: 5px;width: 30px;height: 30px;">
+                <span class="expanded-icon icon-no-margin p-2" title="Collapse">
+                    <i class="icon fa fa-chevron-down fa-fw " aria-hidden="true"></i>
+                </span>
+                <span class="collapsed-icon icon-no-margin p-2" title="Expand">
+                    <span class="dir-rtl-hide"><i class="icon fa fa-chevron-right fa-fw" aria-hidden="true"></i></span>
+                </span>
+                ${this.uiParams.spName}
             </a>`;
         const answerTextArea = $(answerTextAreaHtml);
         const showButton = $(showButtonHtml);
 
-        answerTextArea.attr('rows', this.textArea.attr('rows'));
+        answerTextArea.attr('rows', $(this.textArea).attr('rows'));
 
         this.outerDiv = $(divHtml);
 
@@ -608,7 +614,7 @@ define(['jquery'], function ($) {
                 this.textAreaId + '-prefix-ans',
                 this.langStringManager.getId('prefixName'),
                 'prefix_ans',
-                this.spPrefixName,
+                this.uiParams.spPrefixName,
                 preload['prefix_ans'][0],
                 'checkbox'
                 ));
@@ -616,12 +622,12 @@ define(['jquery'], function ($) {
                 id='${this.langStringManager.getId('buttonName')}'
                 class='btn btn-secondary'
                 style='margin:6px; margin-right:10px; padding:2px 8px;'
-                >${this.spButtonName}</button>`);
+                >${this.uiParams.spButtonName}</button>`);
         // Help popover.
         const helpButton = $(`<a 
             id="${this.langStringManager.getId('helpText')}" 
             class="btn btn-link p-0" role="button" data-container="body"
-            data-toggle="popover" data-placement="right" data-content="${this.spHelptext}"
+            data-toggle="popover" data-placement="right" data-content="${this.uiParams.spHelptext}"
             data-html="true" tabindex="0" data-trigger="focus" 
             data-original-title="" title="">
                 <i class="icon fa fa-question-circle text-info" style="margin-right: 0px;" 
