@@ -1,3 +1,5 @@
+# ************ Moodle 3.n queries ***************
+
 List all courses:
 SELECT crs.id as courseid, fullname, path, depth, ctx.contextlevel, ctx.id as ctxid
 FROM `mdl_context` as ctx
@@ -282,3 +284,78 @@ AND catid is null
 AND contextlevel=50
 AND crs.id=31
 ORDER BY cat.name;
+
+Turn on Stop button for all CodeRunner questions in a given category + course.
+Also fill in the General Feedback to display the answer for the various
+different question types.
+
+# ========================================================
+SET @question_category = _utf8mb4'LM6%' COLLATE 'utf8mb4_unicode_ci';
+
+UPDATE mdl_question_coderunner_options cro
+JOIN mdl_question q ON cro.questionid = q.id
+JOIN mdl_question_categories cat ON q.category = cat.id
+JOIN `mdl_context` ctx ON cat.contextid = ctx.id
+JOIN mdl_course crs ON ctx.instanceid = crs.id
+SET giveupallowed=2
+WHERE contextlevel=50
+AND cat.name like @question_category
+AND (cro.coderunnertype = 'python3_scratchpad' OR cro.coderunnertype = 'python3' OR cro.coderunnertype = 'python3_stage1' OR cro.coderunnertype = 'python3_stage1_gapfiller')
+AND shortname like 'COSC131Headstart';
+
+UPDATE mdl_question q
+JOIN mdl_question_coderunner_options cro ON cro.questionid = q.id
+JOIN mdl_question_categories cat ON q.category = cat.id
+JOIN `mdl_context` ctx ON cat.contextid = ctx.id
+JOIN mdl_course crs ON ctx.instanceid = crs.id
+SET generalfeedback = CONCAT('<h4>A possible answer to this question is ...</h4><pre class="ace-highlight-code"><code >',
+    REPLACE(REPLACE(REGEXP_REPLACE(REPLACE(cro.answer, '\{"answer_code":\["', ''), '".,"test_code":.*', ''), '\\"', '"'), "\\n", CHAR(10 using utf8mb4)),
+    '</code></pre>')
+WHERE contextlevel=50
+AND cro.coderunnertype = 'python3_scratchpad'
+AND cat.name like @question_category
+AND shortname like 'COSC131Headstart';
+
+UPDATE mdl_question q
+JOIN mdl_question_coderunner_options cro ON cro.questionid = q.id
+JOIN mdl_question_categories cat ON q.category = cat.id
+JOIN `mdl_context` ctx ON cat.contextid = ctx.id
+JOIN mdl_course crs ON ctx.instanceid = crs.id
+SET generalfeedback = CONCAT('<h4>A possible answer to this question is ...</h4><pre class="ace-highlight-code"><code >',
+    cro.answer,
+    '</code></pre>')
+WHERE contextlevel=50
+AND (cro.coderunnertype = 'python3_stage1' OR cro.coderunnertype = 'python3')
+AND cat.name like @question_category
+AND shortname like 'COSC131Headstart';
+
+
+# Warning - the following works only for 1-gap questions. Questions with multiple
+# gaps need manual fixing.
+UPDATE mdl_question q
+JOIN mdl_question_coderunner_options cro ON cro.questionid = q.id
+JOIN mdl_question_categories cat ON q.category = cat.id
+JOIN `mdl_context` ctx ON cat.contextid = ctx.id
+JOIN mdl_course crs ON ctx.instanceid = crs.id
+SET generalfeedback = CONCAT('<h4>A possible answer to this question is to enter the following into the gap ...</h4><pre><code>',
+    SUBSTR(cro.answer, 3, LENGTH(cro.answer) - 4),
+    '</code></pre>')
+WHERE contextlevel=50
+AND cro.coderunnertype = 'python3_stage1_gapfiller'
+AND cat.name like @question_category
+AND shortname like 'COSC131Headstart';
+
+# =========================================
+Find questions in a given category that aren't of the given coderunner type
+SELECT q.name
+FROM mdl_question_coderunner_options cro
+JOIN mdl_question q ON cro.questionid = q.id
+JOIN mdl_question_categories cat ON q.category = cat.id
+JOIN `mdl_context` ctx ON cat.contextid = ctx.id
+JOIN mdl_course crs ON ctx.instanceid = crs.id
+WHERE contextlevel=50
+AND cat.name like @question_category
+AND shortname like 'COSC131Headstart'
+AND cro.coderunnertype <> 'python3_stage1'
+AND cro.coderunnertype <> 'python3_scratchpad'
+AND cro.coderunnertype <> 'python3';
