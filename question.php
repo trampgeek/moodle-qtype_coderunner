@@ -228,7 +228,11 @@ class qtype_coderunner_question extends question_graded_automatically {
         } else if ($lang == 'none') {
             $jsontemplateparams = $templateparams;
         } else if ($lang == 'twig') {
-            $jsontemplateparams = $this->twig_render_with_seed($templateparams, $seed);
+            try {
+                $jsontemplateparams = $this->twig_render_with_seed($templateparams, $seed);
+            } catch (\Twig\Error\Error $e) {
+                throw new qtype_coderunner_bad_json_exception($e->getMessage());
+            }
         } else if (!$this->templateparamsevalpertry && !empty($this->templateparamsevald)) {
             $jsontemplateparams = $this->templateparamsevald;
         } else {
