@@ -359,6 +359,17 @@ EOTEMPLATE;
         $this->check_output_does_not_contain('Check');
     }
 
+    // Check that a question with an answer preload is not gradable if answer not changed
+    public function test_preload_not_graded() {
+        $q = \test_question_maker::make_question('coderunner', 'sqr');
+        $q->answerpreload = 'def sqr(n):';
+        $this->start_attempt_at_question($q, 'adaptive', 1, 1);
+        $this->check_output_contains('def sqr(n):');
+        $this->process_submission(array('-submit' => 1, 'answer' => 'def sqr(n):'));
+        $this->check_current_state(\question_state::$invalid);
+        $this->check_current_mark(null);
+    }
+
     public function test_stop_button_always() {
         $q = \test_question_maker::make_question('coderunner', 'sqr');
         $q->giveupallowed = constants::GIVEUP_ALWAYS;

@@ -44,6 +44,7 @@ $string['allowmultiplestdins'] = 'Allow multiple stdins';
 $string['answer'] = 'Sample answer';
 $string['answerprompt'] = 'Answer:';
 $string['answer_help'] = 'A sample answer can be entered here and used for checking by the question author and optionally shown to students during review. It is also used by the bulk tester script. The correctness of a non-empty answer is checked when saving unless \'Validate on save\' is unchecked';
+$string['answerunchanged'] = 'You must complete or edit the preloaded answer.';
 $string['answerrequired'] = 'Please provide a non-empty answer';
 $string['answertooshort'] = 'Answer too short. Must be at least {$a} characters.';
 $string['atleastonetest'] = 'You must provide at least one test case for this question.';
