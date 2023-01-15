@@ -52,6 +52,9 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
         $question = $qa->get_question();
         $qid = $question->id;
+        // Answer field.
+        $step = $qa->get_last_step_with_qt_var('answer');
+
         if (empty($USER->coderunnerquestionids)) {
             $USER->coderunnerquestionids = array($qid);  // Record in case of AJAX request.
         } else {
@@ -169,6 +172,18 @@ class qtype_coderunner_renderer extends qtype_renderer {
                     array($responsefieldid));
         }
 
+        if (!empty($options->readonly) && !empty($CFG->enableplagiarism)) {
+            require_once($CFG->libdir . '/plagiarismlib.php');
+
+            $qtext .= plagiarism_get_links([
+                'context' => $options->context->id,
+                'component' => $qa->get_question()->qtype->plugin_name(),
+                'area' => $qa->get_usage_id(),
+                'itemid' => $qa->get_slot(),
+                'userid' => $step->get_user_id(),
+                'content' => $qa->get_response_summary()
+            ]);
+        }
         return $qtext;
     }
 
@@ -558,13 +573,27 @@ class qtype_coderunner_renderer extends qtype_renderer {
      *      not be displayed. Used to get the context.
      */
     public function files_read_only(question_attempt $qa, question_display_options $options) {
+        global $CFG;
         $files = $qa->get_last_qt_files('attachments', $options->context->id);
         $output = array();
-
+        $step = $qa->get_last_step_with_qt_var('attachments');
         foreach ($files as $file) {
-            $output[] = html_writer::tag('p', html_writer::link($qa->get_response_file_url($file),
-                    $this->output->pix_icon(file_file_icon($file), get_mimetype_description($file),
-                    'moodle', array('class' => 'icon')) . ' ' . s($file->get_filename())));
+            $out = html_writer::link($qa->get_response_file_url($file),
+                $this->output->pix_icon(file_file_icon($file), get_mimetype_description($file),
+                    'moodle', array('class' => 'icon')) . ' ' . s($file->get_filename()));
+            if (!empty($CFG->enableplagiarism)) {
+                require_once($CFG->libdir . '/plagiarismlib.php');
+
+                $out .= plagiarism_get_links([
+                    'context' => $options->context->id,
+                    'component' => $qa->get_question()->qtype->plugin_name(),
+                    'area' => $qa->get_usage_id(),
+                    'itemid' => $qa->get_slot(),
+                    'userid' => $step->get_user_id(),
+                    'file' => $file
+                ]);
+            }
+            $output[] = html_writer::tag('p', $out);
         }
         return implode($output);
     }
