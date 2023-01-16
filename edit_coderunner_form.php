@@ -843,13 +843,20 @@ class qtype_coderunner_edit_form extends question_edit_form {
     // Validate the given data and possible files.
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
-        $this->formquestion = $this->make_question_from_form_data($data);
-        $this->formquestion->brokenquestionmessage = $this->load_error_messages($data, $this->formquestion);
-        if ($data['coderunnertype'] == 'Undefined' || $this->formquestion->brokenquestionmessage !== '') {
+        if (!isset($data['coderunnertype'])) {
+            if ($data['prototypetype'] == 2) {
+                // If the questiontype is Undefined or non-existent; still good for user prototype.
+                $data['coderunnertype'] = $data['typename'];
+            } else {
+                $data['coderunnertype'] = 'Undefined';
+            }
+        }
+        if ($data['coderunnertype'] == 'Undefined') {
             $errors['coderunner_type_group'] = get_string('questiontype_required', 'qtype_coderunner');
-            return $errors;  // Don't continue checking in this case, including missing or extra prototypes.
+            return $errors;  // Don't continue checking in these cases, including if there isn't a previous coderunnertype (duplicate, missings).
             // Else template param validation breaks.
         }
+        $this->formquestion = $this->make_question_from_form_data($data);
         if ($data['cputimelimitsecs'] != '' &&
              (!ctype_digit($data['cputimelimitsecs']) || intval($data['cputimelimitsecs']) <= 0)) {
             $errors['sandboxcontrols'] = get_string('badcputime', 'qtype_coderunner');
