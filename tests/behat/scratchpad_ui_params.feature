@@ -21,16 +21,16 @@ Feature: Test the Scratchpad UI, UI Params
       | questioncategory | qtype      | name         | template |
       | Test questions   | coderunner | Print answer | printans |
     And the CodeRunner sandbox is enabled
-    
+
     And I am on the "Print answer" "core_question > edit" page logged in as teacher1
     And I set the field "id_validateonsave" to ""
-    
-Scenario: Edit a CodeRunner Scratchpad UI question, change all available UI params 
+
+  Scenario: Edit a CodeRunner Scratchpad UI question, change all available UI params
     And I set the field "id_answer" to ""
     And I set the following fields to these values:
-      | id_customise    | 1                                       |
-      | id_uiplugin     | Scratchpad                              |
-      
+      | id_customise | 1          |
+      | id_uiplugin  | Scratchpad |
+
     And I set the field "id_uiparameters" to:
     """
     {
@@ -47,16 +47,15 @@ Scenario: Edit a CodeRunner Scratchpad UI question, change all available UI para
     }
     """
     And I press "id_updatebutton"
-    
+
     Then I should not see "The UI parameters for this question or its prototype are broken. Proceed with caution."
 
-  
-Scenario: Change UI param for run button name
+  Scenario: Change UI param for run button name
     And I set the field "id_answer" to ""
     And I set the following fields to these values:
-      | id_customise   | 1                                       |
-      | id_uiplugin    | Scratchpad                              |
-      | id_uiparameters| {"button_name": "superuniquename123"}|
+      | id_customise    | 1                                     |
+      | id_uiplugin     | Scratchpad                            |
+      | id_uiparameters | {"button_name": "superuniquename123"} |
 
     And I press "id_submitbutton"
     Then I should see "Print answer"
@@ -65,7 +64,7 @@ Scenario: Change UI param for run button name
     And I should not see "superuniquename123"
     And I should not see "Run!"
     And I should see "Scratchpad"
-    
+
     When I click on "Scratchpad" "button"
     Then I should see "superuniquename123"
     But I should not see "Run!"
@@ -78,9 +77,9 @@ Scenario: Change UI param for run button name
 
   Scenario: Change UI param for Scratchpad name
     When I set the following fields to these values:
-      | id_customise   | 1                                       |
-      | id_uiplugin    | Scratchpad                              |
-      | id_uiparameters| {"scratchpad_name": "superuniquename123"}       |
+      | id_customise    | 1                                         |
+      | id_uiplugin     | Scratchpad                                |
+      | id_uiparameters | {"scratchpad_name": "superuniquename123"} |
 
     And I press "id_submitbutton"
     Then I should see "Print answer"
@@ -89,7 +88,7 @@ Scenario: Change UI param for run button name
     Then I should not see "Run!"
     And I should not see "Scratchpad"
     But I should see "superuniquename123"
-    
+
     When I click on "superuniquename123" "button"
     Then I should see "superuniquename123"
     And I should see "Run!"
@@ -102,9 +101,9 @@ Scenario: Change UI param for run button name
   Scenario: Change UI param for run button name
     And I set the field "id_answer" to ""
     And I set the following fields to these values:
-      | id_customise    | 1                                       |
-      | id_uiplugin     | Scratchpad                              |
-      | id_uiparameters | {"prefix_name": "superuniquename123"}|
+      | id_customise    | 1                                     |
+      | id_uiplugin     | Scratchpad                            |
+      | id_uiparameters | {"prefix_name": "superuniquename123"} |
 
     And I press "id_submitbutton"
     Then I should see "Print answer"
@@ -113,8 +112,7 @@ Scenario: Change UI param for run button name
     Then I should see "Scratchpad"
     And I should not see "superuniquename123"
     And I should not see "Run!"
-    
-    
+
     When I click on "Scratchpad" "button"
     Then I should see "superuniquename123"
     But I should not see "Prefix Answer?"
@@ -128,9 +126,9 @@ Scenario: Change UI param for run button name
   Scenario: Set HTML output to true, 'print' a button to output area
     And I set the field "id_answer" to ""
     And I set the following fields to these values:
-      | id_customise    | 1                                       |
-      | id_uiplugin     | Scratchpad                              |
-      | id_uiparameters | {"html_output": true}                   |
+      | id_customise    | 1                     |
+      | id_uiplugin     | Scratchpad            |
+      | id_uiparameters | {"html_output": true} |
 
     And I press "id_submitbutton"
     Then I should see "Print answer"
@@ -140,13 +138,13 @@ Scenario: Change UI param for run button name
     And I set the ace field "test_code" to "print('<button>Hi</button>')"
     Then I press "Run!"
     And I press "Hi"
-  
+
   Scenario: Define wrapper in UI params and click run, insert both answer and Scratchpad code, NO prefix with answer, click run
     And I set the field "id_answer" to ""
     And I set the following fields to these values:
-      | id_customise    | 1                                                             |
-      | id_uiplugin     | Scratchpad                                                    |
-      | id_uiparameters | {"wrapper_src": "globalextra"}                                |
+      | id_customise    | 1                              |
+      | id_uiplugin     | Scratchpad                     |
+      | id_uiparameters | {"wrapper_src": "globalextra"} |
     And I set the field "globalextra" to:
     """
     print('Hello Wrapper', end=' ')
@@ -165,12 +163,12 @@ Scenario: Change UI param for run button name
     Then I press "Run!"
     And I should see "Hello Wrapper Hello Scratchpadcode"
 
-  Scenario: Define wrapper in UI params and click run, insert both answer and Scratchpad code, prefix with answer, click run   
+  Scenario: Define wrapper in UI params and click run, insert both answer and Scratchpad code, prefix with answer, click run
     And I set the field "id_answer" to ""
     And I set the following fields to these values:
-      | id_customise    | 1                                                             |
-      | id_uiplugin     | Scratchpad                                                    |
-      | id_uiparameters | {"wrapper_src": "globalextra"}                                |
+      | id_customise    | 1                              |
+      | id_uiplugin     | Scratchpad                     |
+      | id_uiparameters | {"wrapper_src": "globalextra"} |
     And I set the field "globalextra" to:
     """
     print('Hello Wrapper', end=' ')
@@ -188,12 +186,12 @@ Scenario: Change UI param for run button name
     Then I press "Run!"
     And I should see "Hello Wrapper Hello Answercode Hello Scratchpadcode"
 
-    Scenario: Define wrapper in global extra, insert both answer and Scratchpad code, NO prefix with answer, click run
+  Scenario: Define wrapper in global extra, insert both answer and Scratchpad code, NO prefix with answer, click run
     And I set the field "id_answer" to ""
     And I set the following fields to these values:
-      | id_customise    | 1                                                             |
-      | id_uiplugin     | Scratchpad                                                    |      
-      | id_uiparameters | {"wrapper_src": "globalextra"}                             |
+      | id_customise    | 1                              |
+      | id_uiplugin     | Scratchpad                     |
+      | id_uiparameters | {"wrapper_src": "globalextra"} |
     And I set the field "globalextra" to:
     """
     print('Hello Wrapper', end=' ')
@@ -211,12 +209,12 @@ Scenario: Change UI param for run button name
     Then I press "Run!"
     And I should see "Hello Wrapper Hello Scratchpadcode"
 
-  Scenario: Define wrapper in global extra, insert both answer and Scratchpad code, prefix with answer, click run   
+  Scenario: Define wrapper in global extra, insert both answer and Scratchpad code, prefix with answer, click run
     And I set the field "id_answer" to ""
     And I set the following fields to these values:
-      | id_customise    | 1                                                             |
-      | id_uiplugin     | Scratchpad                                                    |
-      | id_uiparameters | {"wrapper_src": "globalextra"}                             |
+      | id_customise    | 1                              |
+      | id_uiplugin     | Scratchpad                     |
+      | id_uiparameters | {"wrapper_src": "globalextra"} |
     And I set the field "globalextra" to:
     """
     print('Hello Wrapper', end=' ')
