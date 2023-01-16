@@ -1,5 +1,12 @@
 # CHANGE HISTORY
 
+### 9 November 2022. 5.1.1
+
+ * Tweak to AJAX code to allow CodeRunner to run in Docker Desktop on Linux
+   (as distinct from Docker Engine).
+ * Refactoring of phpunit tests to facilitate testing of individual classes
+   or methods.
+
 ### 5 November 2022. 5.1.0
 
  * On review page, hide question author's answer by default with a link to

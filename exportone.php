@@ -18,6 +18,7 @@
  * Script to download the export of a single CodeRunner question. It is copied
  * from the stack question type plugin, with relatively trivial changes.
  *
+ * @package    qtype_coderunner
  * @copyright 2015 the Open University
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

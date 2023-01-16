@@ -34,6 +34,7 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 
 /**
  * Unit tests for UI parameters
+ * @coversNothing
  */
 class ui_parameters_test extends \qtype_coderunner_testcase {
 

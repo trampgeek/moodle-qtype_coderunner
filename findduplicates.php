@@ -15,6 +15,8 @@
 // along with CodeRunner.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Find all questions whose question text is exactly duplicated.
+ *
  * This script checks all CodeRunner questions in a given context and
  * prints a list of all exact duplicates. Only the question text itself is
  * checked for equality.

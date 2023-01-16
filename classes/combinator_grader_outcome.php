@@ -17,14 +17,11 @@
 /** Defines a subclass of the normal coderunner testing_outcome for use when
  * a combinator template grader is used.
  *
- * @package    qtype
- * @subpackage coderunner
+ * @package    qtype_coderunner
  * @copyright  Richard Lobb, 2013, The University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
-defined('MOODLE_INTERNAL') || die();
 use qtype_coderunner\constants;
 
 class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testing_outcome {
@@ -104,7 +101,8 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
                 foreach (array_slice($this->testresults, 1) as $row) {
                     if (!$row[$iscorrectcol]) {
                         $error .= "First failing test:<br>";
-                        for ($i = 0; $i < count($row); $i++) {
+                        $n = count($row);
+                        for ($i = 0; $i < $n; $i++) {
                             if ($headerrow[$i] != 'iscorrect' &&
                                     $headerrow[$i] != 'ishidden') {
                                 $cell = htmlspecialchars($row[$i]);
@@ -164,11 +162,13 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
             $formats = $this->columnformats;
             $columnheaders = $table[0];
             $newtable = array($columnheaders);
-            for ($i = 1; $i < count($table); $i++) {
+            $nrows = count($table);
+            for ($i = 1; $i < $nrows; $i++) {
                 $row = $table[$i];
                 $newrow = array();
                 $formatindex = 0;
-                for ($col = 0; $col < count($row); $col++) {
+                $ncols = count($row);
+                for ($col = 0; $col < $ncols; $col++) {
                     $cell = $row[$col];
                     if (in_array($columnheaders[$col], array('ishidden', 'iscorrect'))) {
                         $newrow[] = $cell;  // Copy control column values directly.
@@ -217,7 +217,6 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
                     $numcols += 1;
                 }
             }
-            $blah = count($this->columnformats);
             if (count($this->columnformats) !== $numcols) {
                 $error = get_string('wrongnumberofformats', 'qtype_coderunner',
                         array('expected' => $numcols, 'got' => count($this->columnformats)));
@@ -242,7 +241,8 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
     private static function visible_rows($resulttable) {
         $header = $resulttable[0];
         $ishiddencolumn = -1;
-        for ($i = 0; $i < count($header); $i++) {
+        $n = count($header);
+        for ($i = 0; $i < $n; $i++) {
             if (strtolower($header[$i]) === 'ishidden') {
                 $ishiddencolumn = $i;
             }
@@ -251,7 +251,8 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
             return $resulttable;  // No ishidden column so all rows visible.
         } else {
             $rows = array($header);
-            for ($i = 1; $i < count($resulttable); $i++) {
+            $n = count($resulttable);
+            for ($i = 1; $i < $n; $i++) {
                 $row = $resulttable[$i];
                 if (!$row[$ishiddencolumn]) {
                     $rows[] = $row;

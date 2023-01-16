@@ -34,11 +34,13 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 
 /**
  * Unit tests for the coderunner question definition class. This file tests
- * a simple PHP question
+ * a simple PHP question.
+ * @coversNothing
  */
 class phpquestions_test extends \qtype_coderunner_testcase {
 
     public function test_good_sqr_function() {
+        $this->check_language_available('php');
         $q = $this->make_question('sqrphp');
         $response = array('answer' => "<?php\nfunction sqr(\$n) { return \$n * \$n; }\n");
         list($mark, $grade, $cache) = $q->grade_response($response);
@@ -52,6 +54,7 @@ class phpquestions_test extends \qtype_coderunner_testcase {
 
 
     public function test_bad_sqr_function() {
+        $this->check_language_available('php');
         $q = $this->make_question('sqrphp');
         $response = array('answer' => "<?php\nfunction sqr(\$n) { return \$n; }\n");
         list($mark, $grade, $cache) = $q->grade_response($response);
@@ -65,6 +68,7 @@ class phpquestions_test extends \qtype_coderunner_testcase {
 
 
     public function test_bad_syntax() {
+        $this->check_language_available('php');
         $q = $this->make_question('sqrphp');
         $response = array('answer' => "<?php\nfunction sqr(\$n) { return \$n\n");
         list($mark, $grade, $cache) = $q->grade_response($response);

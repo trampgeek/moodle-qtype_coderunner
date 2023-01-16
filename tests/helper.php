@@ -643,7 +643,7 @@ except ValueError:
 </script>
 QEND
          , 'format' => FORMAT_HTML);
-     return $form;
+        return $form;
     }
 
 
@@ -1217,7 +1217,7 @@ EOPROG;
      * field).
      */
     private function get_options(&$question) {
-        global $CFG, $DB;
+        global $DB;
 
         $type = $question->coderunnertype;
         $questiontype = new qtype_coderunner();

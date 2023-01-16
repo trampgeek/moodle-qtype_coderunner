@@ -24,8 +24,7 @@
  */
 
 /**
- * @package    qtype
- * @subpackage coderunner
+ * @package    qtype_coderunner
  * @copyright  Richard Lobb, 2012, The University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -94,7 +93,7 @@ abstract class qtype_coderunner_sandbox {
     public function __construct($user=null, $pass=null) {
         $this->user = $user;
         $this->pass = $pass;
-        $authenticationerror = false;
+        $this->authenticationerror = false;
     }
 
 
@@ -139,7 +138,7 @@ abstract class qtype_coderunner_sandbox {
         if (count($sandboxes) == 0) {
             throw new qtype_coderunner_exception('No sandboxes available for running code!');
         }
-        foreach ($sandboxes as $extname => $classname) {
+        foreach (array_keys($sandboxes) as $extname) {
             $sb = self::get_instance($extname);
             if ($sb) {
                 if (count($sandboxes) === 1 && !$forcelanguagecheck) {

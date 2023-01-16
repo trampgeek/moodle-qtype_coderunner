@@ -23,8 +23,7 @@
  * question looking for the first match of the requested filename (if given
  * and not empty) or the first filename ending in .pdf (otherwise).
  *
- * @package    qtype
- * @subpackage coderunner
+ * @package    qtype_coderunner
  * @copyright  2019 Richard Lobb, University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

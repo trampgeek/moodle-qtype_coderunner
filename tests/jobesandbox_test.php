@@ -38,7 +38,9 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 
-
+/**
+ * @coversNothing
+ */
 class jobesandbox_test extends \qtype_coderunner_testcase {
 
     public function test_fail_with_bad_key() {

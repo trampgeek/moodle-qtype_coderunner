@@ -35,6 +35,7 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 
 /**
  * Unit tests for coderunner Java questions
+ * @coversNothing
  */
 class java_question_test extends \qtype_coderunner_testcase {
 
@@ -159,7 +160,7 @@ EOCODE
     public function test_java_escape() {
         $q = $this->make_question('printstr');
         $response = array('answer' => '');
-        list($mark, $grade, $cache) = $q->grade_response($response);
+        list($mark, , ) = $q->grade_response($response);
         $this->assertEquals(1, $mark);
     }
 }

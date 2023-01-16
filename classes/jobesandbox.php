@@ -20,8 +20,7 @@
  * This version doesn't do any authentication; it's assumed the server is
  * firewalled to accept connections only from Moodle.
  *
- * @package    qtype
- * @subpackage coderunner
+ * @package    qtype_coderunner
  * @copyright  2014, 2015 Richard Lobb, University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -313,6 +312,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
             $servers = array_values(array_filter(array_map('trim', explode(';', $jobe)), 'strlen'));
             $jobe = $servers[intval($this->currentjobid, 16) % count($servers)];
         }
+        $jobe = trim($jobe); // Remove leading or trailing extra whitespace from the settings.
         $protocol = 'http://';
         $url = (strpos($jobe, 'http') === 0 ? $jobe : $protocol.$jobe)."/jobe/index.php/restapi/$resource";
 
@@ -383,7 +383,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
                 // Various weird stuff lands here, such as URL blocked.
                 // Hopefully the value of $response is useful.
                 $returncode = -1;
-                $responsebody = print_r($response, true);
+                $responsebody = json_encode($response);
             }
         } else {
             $returncode = -1;

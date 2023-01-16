@@ -35,7 +35,8 @@ global $CFG;
 require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 
 /**
- * Unit tests for coderunner C questions
+ * Unit tests for coderunner C++ questions
+ * @coversNothing
  */
 class cpp_questions_test extends \qtype_coderunner_testcase {
 

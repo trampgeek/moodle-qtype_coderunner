@@ -17,8 +17,7 @@
 /**
  * Configuration settings declaration information for the CodeRunner question type.
  *
- * @package    qtype
- * @subpackage coderunner
+ * @package    qtype_coderunner
  * @copyright  2014 Richard Lobb, The University of Canterbury.
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

@@ -38,7 +38,7 @@ require_once($CFG->dirroot . '/question/type/coderunner/edit_coderunner_form.php
 
 /**
  * Unit tests for the coderunner question type class.
- *
+ * @coversNothing
  * @copyright  2021 Richard Lobb, The University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

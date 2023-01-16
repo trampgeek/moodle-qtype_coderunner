@@ -9,8 +9,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - php: '7.4'
-            moodle-branch: 'MOODLE_400_STABLE'
+          - php: '8.0'
+            moodle-branch: 'MOODLE_401_STABLE'
             database: 'pgsql'
           - php: '7.3'
             moodle-branch: 'MOODLE_400_STABLE'
@@ -18,7 +18,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres:10
+        image: postgres:13
         env:
           POSTGRES_USER: 'postgres'
           POSTGRES_HOST_AUTH_METHOD: 'trust'
@@ -61,6 +61,9 @@ jobs:
 
       - name: Start JobeInABox
         run: sudo docker run -d -p 4000:80 --name jobe trampgeek/jobeinabox:latest
+
+      - name: Let JobeInABox settle
+        run: sleep 5s
 
       - name: Test JobeInABox
         run: |
@@ -119,7 +122,7 @@ jobs:
         run: moodle-plugin-ci mustache
 
       - name: Grunt
-        if: ${{ always() }}
+        if: ${{ matrix.moodle-branch == 'MOODLE_400_STABLE' }}
         run: moodle-plugin-ci grunt
 
       - name: PHPUnit tests

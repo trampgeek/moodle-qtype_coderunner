@@ -26,8 +26,6 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
 class qtype_coderunner_bulk_tester {
 
     const PASS = 0;
@@ -183,7 +181,7 @@ class qtype_coderunner_bulk_tester {
      *              array of messages relating to the questions without sample answers
      */
     public function run_all_tests_for_context(context $context, $categoryid=null) {
-        global $DB, $OUTPUT;
+        global $OUTPUT;
 
         // Load the necessary data.
         $categories = $this->get_categories_for_context($context->id);
@@ -212,7 +210,6 @@ class qtype_coderunner_bulk_tester {
             echo "<ul>\n";
             foreach ($questions as $question) {
                 // Output question name before testing, so if something goes wrong, it is clear which question was the problem.
-                $questionname = format_string($question->name);
                 $previewurl = new moodle_url($questiontestsurl,
                         array('questionid' => $question->id));
                 $enhancedname = "{$question->name} (V{$question->version})";
@@ -224,7 +221,7 @@ class qtype_coderunner_bulk_tester {
                 try {
                     list($outcome, $message) = $this->load_and_test_question($question->id);
                 } catch (Exception $e) {
-                    $message = print_r($e, true);
+                    $message = $e->getMessage();
                     $outcome = self::FAIL;
                 }
 

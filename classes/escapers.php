@@ -17,13 +17,10 @@
 /**
  * coderunner escape functions for use with the Twig template library
  *
- * @package    qtype
- * @subpackage coderunner
+ * @package    qtype_coderunner
  * @copyright  Richard Lobb, 2011, The University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-defined('MOODLE_INTERNAL') || die();
 
 // This class wraps the various escaper functions required by Twig.
 class qtype_coderunner_escapers {

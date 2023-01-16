@@ -17,8 +17,7 @@
 /** Defines a ui_plugins class which contains a list of available ui_plugins
  * and their attributes.
  *
- * @package    qtype
- * @subpackage coderunner
+ * @package    qtype_coderunner
  * @copyright  Richard Lobb, 2021, The University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -104,7 +103,7 @@ class qtype_coderunner_ui_plugins {
     // dropdown selector.
     public function dropdownlist() {
         $uiplugins = array();
-        foreach ($this->plugins as $name => $plugin) {
+        foreach (array_values($this->plugins) as $plugin) {
             $uiplugins[$plugin->uiname] = ucfirst($plugin->uiname);
         }
         return $uiplugins;

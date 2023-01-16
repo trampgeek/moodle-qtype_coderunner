@@ -24,7 +24,8 @@
  *
  * The script takes one parameter id which is a questionid as a parameter.
  * Only the latest version of the given question is tested.
- *
+ * 
+ * @package    qtype_coderunner
  * @copyright  2012 the Open University, 2016 Richard Lobb, The University of Canterbury.
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -74,9 +75,7 @@ unset($qbankparams['seed']);
 $qbankparams['qperpage'] = 1000; // Should match MAXIMUM_QUESTIONS_PER_PAGE but that constant is not easily accessible.
 $qbankparams['category'] = $qbe->questioncategoryid . ',' . $question->contextid;
 $qbankparams['lastchanged'] = $questionid;
-//if (isset($questiondata->hidden) && $questiondata->hidden) {
-//    $qbankparams['showhidden'] = 1;
-//}
+
 $questionbanklink = new moodle_url('/question/edit.php', $qbankparams);
 $exportquestionlink = new moodle_url('/question/type/coderunner/exportone.php', $urlparams);
 $exportquestionlink->param('sesskey', sesskey());

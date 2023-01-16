@@ -28,8 +28,7 @@
  */
 
 /**
- * @package    qtype
- * @subpackage coderunner
+ * @package    qtype_coderunner
  * @copyright  Richard Lobb, 2012, The University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -232,7 +231,7 @@ abstract class qtype_coderunner_localsandbox extends qtype_coderunner_sandbox {
      * of nothing going terribly wrong or qtype_coderunner_sandbox::UNKNOWN_SERVER_ERROR
      * otherwise.
      */
-    protected abstract function compile();
+    abstract protected function compile();
 
 
     /** Run the task defined by the source, language, input and params attributes
@@ -245,7 +244,7 @@ abstract class qtype_coderunner_localsandbox extends qtype_coderunner_sandbox {
      * of nothing going terribly wrong or qtype_coderunner_sandbox::UNKNOWN_SERVER_ERROR
      * otherwise.
      */
-    protected abstract function run_in_sandbox();
+    abstract protected function run_in_sandbox();
 
 }
 

@@ -1,6 +1,6 @@
 # CodeRunner
 
-Version: 5.0.0 22 August 2022. Requires **MOODLE V4.0 or later**. Earlier versions
+Version: 5.1.1 9 November 2022. Requires **MOODLE V4.0 or later**. Earlier versions
 of Moodle must use CodeRunner V4.
 
 

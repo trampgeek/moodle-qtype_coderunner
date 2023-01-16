@@ -87,7 +87,7 @@ function get_top_id($systemcontextid) {
     $tops = $DB->get_records('question_categories',
             array('contextid' => $systemcontextid, 'parent' => 0));
 
-    foreach ($tops as $id => $category) {
+    foreach (array_values($tops) as $category) {
         if (strtolower($category->name) === 'top') {
             $topid = $category->id;
         } else if ($category->name === 'CR_PROTOTYPES') {

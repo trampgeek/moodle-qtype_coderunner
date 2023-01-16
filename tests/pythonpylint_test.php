@@ -33,6 +33,7 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 
 /**
  * Unit tests for the coderunner question definition class.
+ * @coversNothing
  */
 class pythonpylint_test extends \qtype_coderunner_testcase {
 
@@ -53,7 +54,7 @@ def sqr(n):
 EOCODE;
         $response = array('answer' => $code);
         $result = $q->grade_response($response);
-        list($mark, $grade, $cache) = $result;
+        list(, $grade, ) = $result;
         $this->assertEquals(\question_state::$gradedright, $grade);
     }
 

@@ -17,12 +17,10 @@
 /**
  * CodeRunner renderer class.
  *
- * @package    qtype
- * @subpackage coderunner
+ * @package    qtype_coderunner
  * @copyright  2012 Richard Lobb, The University of Canterbury.
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-defined('MOODLE_INTERNAL') || die();
 
 use qtype_coderunner\constants;
 
@@ -47,7 +45,6 @@ class qtype_coderunner_renderer extends qtype_renderer {
      * @return string HTML fragment.
      */
     public function formulation_and_controls(question_attempt $qa, question_display_options $options) {
-        global $CFG;
         global $USER;
 
         $question = $qa->get_question();
@@ -332,7 +329,8 @@ class qtype_coderunner_renderer extends qtype_renderer {
             $rowclasses = array();
             $tablerows = array();
 
-            for ($i = 1; $i < count($testresults); $i++) {
+            $n = count($testresults);
+            for ($i = 1; $i < $n; $i++) {
                 $cells = $testresults[$i];
                 $rowclass = $i % 2 == 0 ? 'r0' : 'r1';
                 $tablerow = array();

@@ -30,6 +30,9 @@ global $CFG;
 require_once($CFG->dirroot . '/question/engine/tests/helpers.php');
 require_once($CFG->dirroot . '/question/type/coderunner/question.php');
 
+/**
+ * @coversNothing
+ */
 class qtype_coderunner_testcase extends advanced_testcase {
 
     protected $hasfailed = false; // Set to true when a test fails.

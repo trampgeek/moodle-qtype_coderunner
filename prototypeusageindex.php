@@ -15,6 +15,8 @@
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Find all the uses of all the prototypes.
+ * 
  * This script scans all question categories to which the current user
  * has access and builds a table showing all available prototypes and
  * the questions using those prototypes.
