@@ -86,6 +86,8 @@ define(['jquery'], function($) {
             session = this.editor.getSession();
             session.setValue(this.textarea.val());
 
+            this.fixSlowLoad();
+
             // Set theme if available (not currently enabled).
             if (params.theme) {
                 this.editor.setTheme("ace/theme/" + params.theme);
@@ -175,6 +177,16 @@ define(['jquery'], function($) {
     AceWrapper.prototype.releaseTab = function () {
         this.capturingTab = false;
         this.editor.commands.bindKeys({'Tab': null, 'Shift-Tab': null});
+    };
+
+    // Sometimes Ace editors do not load until the mouse is moved. To fix this,
+    // 'move' the mouse using JQuerry when the editor div enters the viewport.
+    AceWrapper.prototype.fixSlowLoad = function () {
+        const observer = new IntersectionObserver( () => {
+            $(document).trigger('mousemove');
+        });
+        const editNode = this.editNode.get(0); // Non-JQuerry node.
+        observer.observe(editNode);
     };
 
     AceWrapper.prototype.setEventHandlers = function () {
