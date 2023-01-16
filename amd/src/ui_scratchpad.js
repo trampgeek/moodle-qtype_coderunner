@@ -59,11 +59,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['jquery'], function ($) {
+define(['jquery'], function($) {
     const RESULT_SUCCESS = 15; // Code for a correct Jobe run.
     const DEFUALT_MAX_OUTPUT_LEN = 30000;
-
-
 
 
     /**
@@ -80,7 +78,7 @@ define(['jquery'], function ($) {
             '"': '&quot;',
             "'": '&#039;'
         };
-        return text.replace(/[&<>"']/g, function (m) {
+        return text.replace(/[&<>"']/g, function(m) {
             return map[m];
         });
     }
@@ -117,7 +115,7 @@ define(['jquery'], function ($) {
             [0, RESULT_SUCCESS, ''], // RESULT_SUCCESS
             [0, 17, 'error_memory_limit'], // RESULT_MEMORY_LIMIT
             [0, 21, 'error_sandbox_server_overload'], // RESULT_SERVER_OVERLOAD
-            [0, 30, 'error_excessive_output']  // RESULT OUTPUT_LIMIT
+            [0, 30, 'error_excessive_output'] // RESULT OUTPUT_LIMIT
         ];
         for (const row of ERROR_RESPONSES) {
             if (row[0] == response.error && (response.error != 0 || response.result == row[1])) {
@@ -136,9 +134,9 @@ define(['jquery'], function ($) {
      * @param {string} additionalText Extra text to follow the result code.
      */
     function setLangString(langStringName, textarea, additionalText) {
-        require(['core/str'], function (str) {
+        require(['core/str'], function(str) {
             const promise = str.get_string(langStringName, 'filter_ace_inline');
-            $.when(promise).then(function (message) {
+            $.when(promise).then(function(message) {
                 textarea.show();
                 textarea.html(escapeHtml("*** " + message + " ***\n" + additionalText));
             });
@@ -156,7 +154,6 @@ define(['jquery'], function ($) {
     function combinedOutput(response, maxLen) {
         const limit = s => s.length <= maxLen ? s : s.substr(0, maxLen) + '... (truncated)';
         return response.cmpinfo + limit(response.output) + limit(response.stderr);
-        return response.cmpinfo + (response.output) + (response.stderr);
     }
 
 
@@ -261,7 +258,7 @@ define(['jquery'], function ($) {
      */
     function newAceUiWrapper(textAreaId) {
         let ace;
-        require(['qtype_coderunner/userinterfacewrapper'], function (uiWrapper) {
+        require(['qtype_coderunner/userinterfacewrapper'], function(uiWrapper) {
             ace = uiWrapper.newUiWrapper('ace', textAreaId);
         });
         return ace;
@@ -299,7 +296,7 @@ define(['jquery'], function ($) {
         }
     }
 
-    LangStringManager.prototype.addNode = function (name, key) {
+    LangStringManager.prototype.addNode = function(name, key) {
         if (name in this.nodes) {
             throw "Cannot add a node twice!";
         }
@@ -309,32 +306,32 @@ define(['jquery'], function ($) {
         };
     };
 
-    LangStringManager.prototype.addNodes = function (obj) {
+    LangStringManager.prototype.addNodes = function(obj) {
         for (const [name, key] of Object.entries(obj)) {
             this.addNode(name, key);
         }
     };
 
-    LangStringManager.prototype.setCallback = function (name, callback) {
+    LangStringManager.prototype.setCallback = function(name, callback) {
         this.nodes[name].callback = callback;
     };
 
-    LangStringManager.prototype.getNode = function (name) {
+    LangStringManager.prototype.getNode = function(name) {
         if (!this.nodes[name]) {
             throw `Cannot find node: ${name}`;
         }
         return this.nodes[name];
     };
 
-    LangStringManager.prototype.getId = function (name) {
+    LangStringManager.prototype.getId = function(name) {
         return this.getNode(name).id;
     };
 
-    LangStringManager.prototype.getKey = function (name) {
+    LangStringManager.prototype.getKey = function(name) {
         return this.getNode(name).key;
     };
 
-    LangStringManager.prototype.setLangString = async function (name, str) {
+    LangStringManager.prototype.setLangString = async function(name, str) {
         const id = this.getId(name);
         const key = this.getKey(name);
         const element = document.getElementById(id);
@@ -354,13 +351,11 @@ define(['jquery'], function ($) {
         }
     };
 
-    LangStringManager.prototype.setAllLangStrings = async function (str) {
+    LangStringManager.prototype.setAllLangStrings = async function(str) {
         for (const name of Object.keys(this.nodes)) {
             await this.setLangString(name, str);
         }
     };
-
-
 
 
     /**
@@ -383,7 +378,7 @@ define(['jquery'], function ($) {
             button_name: '',
             prefix_name: '',
             help_text: '',
-            run_lang: uiParams.lang, // use answer's ace language if not specified.
+            run_lang: uiParams.lang, // Use answer's ace language if not specified.
             html_output: false,
             disable_scratchpad: false,
             wrapper_src: null
@@ -425,26 +420,26 @@ define(['jquery'], function ($) {
         this.reload(); // Draw my beautiful blobs.
     }
 
-    ScratchpadUi.prototype.failed = function () {
+    ScratchpadUi.prototype.failed = function() {
         return this.fail;
     };
 
-    ScratchpadUi.prototype.failMessage = function () {
+    ScratchpadUi.prototype.failMessage = function() {
         return 'ScratchpadUiloadfail';
     };
 
-    ScratchpadUi.prototype.sync = function () {
+    ScratchpadUi.prototype.sync = function() {
         const prefixAns = $(document.getElementById(this.textAreaId + '-prefix-ans'));
         let serialisation = {
-            answer_code: [this.answerTextArea.val() || ''],
-            test_code: [this.spCodeTextArea.val() || ''],
+            answer_code: [$(this.answerTextArea).val() || ''],
+            test_code: [$(this.spCodeTextArea).val() || ''],
             show_hide: [''],
             prefix_ans: ['']
         };
-        if (this.scratchpadDiv.is(':visible')) {
+        if ($(this.scratchpadDiv).is(':visible')) {
             serialisation.show_hide = ['1'];
         }
-        if (prefixAns.is(':checked')) {
+        if ($(prefixAns).is(':checked')) {
             serialisation.prefix_ans = ['1'];
         }
         serialisation.prefix_ans = invertSerial(serialisation.prefix_ans);
@@ -456,11 +451,11 @@ define(['jquery'], function ($) {
         }
     };
 
-    ScratchpadUi.prototype.getElement = function () {
+    ScratchpadUi.prototype.getElement = function() {
         return this.outerDiv;
     };
 
-    ScratchpadUi.prototype.handleRunButtonClick = async function (ajax, outputDisplayArea) {
+    ScratchpadUi.prototype.handleRunButtonClick = async function(ajax, outputDisplayArea) {
         this.sync(); // Use up-to-date serialization.
 
         const htmlOutput = this.uiParams.html_output;
@@ -480,7 +475,7 @@ define(['jquery'], function ($) {
         if (htmlOutput) {
             outputDisplayArea.hide();
         }
-        outputDisplayArea.next('div.filter-ace-inline-html').remove(); //TODO: Naming
+        outputDisplayArea.next('div.filter-ace-inline-html').remove(); // TODO: Naming
 
 
         ajax.call([{
@@ -491,7 +486,7 @@ define(['jquery'], function ($) {
                     language: this.uiParams.run_lang,
                     params: JSON.stringify(params) // Sandbox params
                 },
-                done: function (responseJson) {
+                done: function(responseJson) {
                     const response = JSON.parse(responseJson);
                     const error = diagnose(response);
                     if (error === '') {
@@ -525,13 +520,13 @@ define(['jquery'], function ($) {
                         setLangString(error, outputDisplayArea, extra);
                     }
                 },
-                fail: function (error) {
+                fail: function(error) {
                     alert(error.message);
                 }
             }]);
     };
 
-    ScratchpadUi.prototype.reload = function () {
+    ScratchpadUi.prototype.reload = function() {
         const preloadString = $(this.textArea).val();
         const answerTextAreaId = this.textAreaId + '-answer-code';
         const spTextAreaId = this.textAreaId + '-sp-code';
@@ -566,9 +561,9 @@ define(['jquery'], function ($) {
         $(document.getElementById(this.textAreaId + '_wrapper')).css('resize', 'none');
     };
 
-    ScratchpadUi.prototype.drawUi = function (answerTextAreaId, preload) {
+    ScratchpadUi.prototype.drawUi = function(answerTextAreaId, preload) {
         const divHtml = "<div style='min-height:100%' class='qtype-coderunner-sp-outer-div'></div>";
-        const answerTextAreaHtml = htmlTextArea(answerTextAreaId, 'answer_code', preload['answer_code'][0]);
+        const answerTextAreaHtml = htmlTextArea(answerTextAreaId, 'answer_code', preload.answer_code[0]);
         const showButtonHtml = `<a 
             role='button'
             id='${this.langStringManager.getId('scratchpadName')}'
@@ -584,22 +579,18 @@ define(['jquery'], function ($) {
                 </span>
                 ${this.uiParams.scratchpad_name}
             </a>`;
-        const answerTextArea = $(answerTextAreaHtml);
         const showButton = $(showButtonHtml);
-
-        answerTextArea.attr('rows', $(this.textArea).attr('rows'));
-
+        this.answerTextArea = $(answerTextAreaHtml);
+        $(this.answerTextArea).attr('rows', $(this.textArea).attr('rows'));
         this.outerDiv = $(divHtml);
-
-        this.answerTextArea = answerTextArea;
-        this.answerTextArea.attr('data-lang', this.uiParams.run_lang); //Set language for Ace to use.
-        this.outerDiv.append([answerTextArea, showButton]);
+        $(this.answerTextArea).attr('data-lang', this.uiParams.run_lang); // Set language for Ace to use.
+        $(this.outerDiv).append([this.answerTextArea, showButton]);
 
         this.scratchpadDiv = $(`<fieldset class="collapse show" id="${this.textAreaId}-scratchpad"></fieldset>`);
 
         $(showButton).attr('href', `#${ $.escapeSelector($(this.scratchpadDiv).attr('id')) }`);
 
-        if (!preload['show_hide'][0]) {
+        if (!preload.show_hide[0]) {
             $(this.scratchpadDiv).removeClass("show");
         }
         if (this.uiParams.disable_scratchpad) {
@@ -608,7 +599,7 @@ define(['jquery'], function ($) {
         }
     };
 
-    ScratchpadUi.prototype.scratchpadControls = function (outputDisplayArea, preload) {
+    ScratchpadUi.prototype.scratchpadControls = function(outputDisplayArea, preload) {
         const controlsDiv = $("<div class='scratchpad-contols' " +
                 "style='border-bottom: darkgray solid 1px;'></div>");
         const prefixAns = $(htmlInput(
@@ -616,7 +607,7 @@ define(['jquery'], function ($) {
                 this.langStringManager.getId('prefixName'),
                 'prefix_ans',
                 this.uiParams.prefix_name,
-                preload['prefix_ans'][0],
+                preload.prefix_ans[0],
                 'checkbox'
                 ));
         const runButton = $(`<button type='button'
@@ -638,32 +629,32 @@ define(['jquery'], function ($) {
 
         const rightSpan = $('<span style="float:right;color:#0f6cbf;padding:8px"></span>');
         const t = this;
-        runButton.on('click', function () {
-            require(['core/ajax'], function (ajax) {
+        runButton.on('click', function() {
+            require(['core/ajax'], function(ajax) {
                 t.handleRunButtonClick(ajax, outputDisplayArea);
             });
         });
-        rightSpan.append(helpButton);
-        controlsDiv.append([runButton, prefixAns, rightSpan]);
+        $(rightSpan).append(helpButton);
+        $(controlsDiv).append([runButton, prefixAns, rightSpan]);
         return controlsDiv;
     };
 
-    ScratchpadUi.prototype.drawScratchpadUi = function (spTextAreaId, preload) {
-        const testCodeHtml = htmlTextArea(spTextAreaId, 'test_code', preload['test_code']);
+    ScratchpadUi.prototype.drawScratchpadUi = function(spTextAreaId, preload) {
+        const testCodeHtml = htmlTextArea(spTextAreaId, 'test_code', preload.test_code);
         const outputDisplayArea = $("<pre style='width:100%;white-space:pre-wrap;background-color:#eff;" +
                 "border:1px gray;padding:5px;overflow-wrap:break-word;max-height:600px;overflow:auto;'></pre>");
         const scratchpadControls = this.scratchpadControls(outputDisplayArea, preload);
 
         this.spCodeTextArea = $(testCodeHtml);
-        this.spCodeTextArea.attr('data-lang', this.uiParams.run_lang); //Set language for Ace to use.
-        this.spCodeTextArea.attr('rows', '6'); //Set intial SP size.
-        this.scratchpadDiv.append([this.spCodeTextArea, scratchpadControls, outputDisplayArea]);
-        this.outerDiv.append(this.scratchpadDiv);
+        $(this.spCodeTextArea).attr('data-lang', this.uiParams.run_lang); // Set language for Ace to use.
+        $(this.spCodeTextArea).attr('rows', '6'); // Set intial SP size.
+        $(this.scratchpadDiv).append([this.spCodeTextArea, scratchpadControls, outputDisplayArea]);
+        $(this.outerDiv).append(this.scratchpadDiv);
     };
 
-    ScratchpadUi.prototype.resize = function () {}; // Nothing to see here. Move along please.
+    ScratchpadUi.prototype.resize = function() {}; // Nothing to see here. Move along please.
 
-    ScratchpadUi.prototype.hasFocus = function () {
+    ScratchpadUi.prototype.hasFocus = function() {
         let focused = false;
         if (this.answerCodeUi && this.answerCodeUi.hasFocus()) {
             focused = true;
@@ -675,7 +666,7 @@ define(['jquery'], function ($) {
     };
 
     // Destroy the HTML UI and serialise the result into the original text area.
-    ScratchpadUi.prototype.destroy = function () {
+    ScratchpadUi.prototype.destroy = function() {
         this.sync();
         $(this.outerDiv).remove();
         this.outerDiv = null;
