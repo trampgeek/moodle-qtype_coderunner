@@ -24,7 +24,7 @@ Feature: Check that the QUESTION.stepinfo record is working.
       | quiz       | Test quiz | C1     | quiz1    |
     And I am on the "Course 1" "core_question > course question bank" page logged in as teacher1
 
-    And I disable UI plugins
+    And I disable UI plugins in the CodeRunner question type
     And I add a "CodeRunner" question filling the form with:
       | id_coderunnertype       | python3                                    |
       | id_customise            | 1                                          |

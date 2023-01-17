@@ -65,3 +65,16 @@ Feature: duplicate_prototypes
     And I am on the "DEMO_duplicate_prototype" "core_question > edit" page logged in as teacher1
     Then I should not see "This question was defined to be of type 'c_via_python' but the prototype is non-unique in the following questions:"
 
+  Scenario: As a teacher, I should not be allowed to save a duplicated prototype
+    When I am on the "Course 1" "core_question > course question bank" page logged in as teacher1
+    And I press "Create a new question ..."
+    And I click on "input#item_qtype_coderunner" "css_element"
+    And I press "submitbutton"
+    And I set the field "id_coderunnertype" to "c_via_python" and dismiss the alert
+    And I set the field "name" to "question"
+    And I set the field "id_questiontext" to "Question text"
+    And I set the field "id_testcode_0" to "null"
+    And I set the field "id_expected_0" to "null"
+    And I should see "Reverted to question type: 'Undefined'"
+    And I press "id_submitbutton"
+    Then I should see "You must select the type of question"

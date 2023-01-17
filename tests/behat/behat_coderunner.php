@@ -83,7 +83,7 @@ class behat_coderunner extends behat_base {
      * Step to set an HTML5 session variable 'disableUis' to true to prevent
      * loading of the usual Ace (or Graph etc) UI plugin.
      *
-     * @When /^I disable UI plugins/
+     * @When /^I disable UI plugins in the CodeRunner question type/
      */
     public function i_disable_ui_plugins() {
         $javascript = "sessionStorage.setItem('disableUis', true);";
@@ -94,7 +94,7 @@ class behat_coderunner extends behat_base {
      * Step to remove the HTML5 session variable 'disableUis' (if present)
      * to re-enable loading of the usual Ace (or Graph etc) UI plugins.
      *
-     * @When /^I enable UI plugins/
+     * @When /^I enable UI plugins in the CodeRunner question type/
      */
     public function i_enable_u_plugins() {
         $javascript = "sessionStorage.removeItem('disableUis');";

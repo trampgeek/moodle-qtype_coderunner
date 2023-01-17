@@ -20,7 +20,7 @@ Feature: Check that a selected UI plugin is saved
     And the following "questions" exist:
       | questioncategory | qtype      | name            | template |
       | Test questions   | coderunner | Square function | sqr      |
-    And I enable UI plugins
+    And I enable UI plugins in the CodeRunner question type
 
   Scenario: Selecting the Graph UI plugin results in a canvas being displayed
     When I am on the "Square function" "core_question > edit" page logged in as teacher1

@@ -23,7 +23,7 @@ Feature: Check that Python and other languages can be used instead of Twig as a 
       | activity   | name      | course | idnumber |
       | quiz       | Test quiz | C1     | quiz1    |
     And I am on the "Course 1" "core_question > course question bank" page logged in as teacher1
-    And I disable UI plugins
+    And I disable UI plugins in the CodeRunner question type
     And I add a "CodeRunner" question filling the form with:
       | id_coderunnertype       | python3                                    |
       | id_customise            | 1                                          |

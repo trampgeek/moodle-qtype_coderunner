@@ -20,7 +20,7 @@ Feature: Check grading with the Python 3 sqr function CodeRunner question
     And the following "questions" exist:
       | questioncategory | qtype      | name            |
       | Test questions   | coderunner | Square function |
-    And I disable UI plugins
+    And I disable UI plugins in the CodeRunner question type
 
   Scenario: Preview the Python3 sqr function CodeRunner question submit two different wrong answers then the right answer
     When I am on the "Square function" "core_question > preview" page logged in as teacher1
