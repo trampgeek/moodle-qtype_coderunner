@@ -61,7 +61,7 @@
 
 define(['jquery'], function($) {
     const RESULT_SUCCESS = 15; // Code for a correct Jobe run.
-    const DEFUALT_MAX_OUTPUT_LEN = 30000;
+    const DEFAULT_MAX_OUTPUT_LEN = 30000;
 
 
     /**
@@ -82,7 +82,6 @@ define(['jquery'], function($) {
             return map[m];
         });
     }
-
 
     /**
      * Analyse the response for errors. There are two sorts of error: sandbox failures,
@@ -143,7 +142,6 @@ define(['jquery'], function($) {
         });
     }
 
-
     /**
      * Concatenates the cmpinfo, stdout and stderr fields of the sandbox
      * response, truncating both stdout and stderr to a given maximum length
@@ -154,51 +152,6 @@ define(['jquery'], function($) {
     function combinedOutput(response, maxLen) {
         const limit = s => s.length <= maxLen ? s : s.substr(0, maxLen) + '... (truncated)';
         return response.cmpinfo + limit(response.output) + limit(response.stderr);
-    }
-
-
-    /**
-     * Create HTML for a text area.
-     * @param {string} id for text area.
-     * @param {string} name The ID of the html textarea.
-     * @param {string} value The ID of the html textarea.
-     * @return {string} HTML string.
-     */
-    function htmlTextArea(id, name, value) {
-        return `<textarea
-                    id='${id}'
-                    class='coderunner-ui-element' 
-                    name='${name}' 
-                    style='width: 100%'
-                   >${value}</textarea>`;
-    }
-
-
-    /**
-     * Create HTML for an input.
-     * @param {string} id for input.
-     * @param {string} labelId for label tag.
-     * @param {string} name for the html input.
-     * @param {string} label text.
-     * @param {string} value trype of the html input.
-     * @param {string} type type of the html input.
-     * @return {string} HTML string with iput and label.
-     */
-    function htmlInput(id, labelId, name, label, value, type) {
-        const checked = (value && value) ? 'checked' : '';
-        const labelHtml = `<label
-            id='${labelId}' 
-            for='${id}' 
-            style='display:inline-block; margin-left: 3px;'
-            >${label}</label>`;
-        const inputHtml = `<input
-                id='${id}'
-                type='${type}'
-                ${checked}
-                class='coderunner-ui-element'
-                name='${name}' 
-                value='${value}'>`;
-        return inputHtml + labelHtml;
     }
 
     /**
@@ -244,9 +197,12 @@ define(['jquery'], function($) {
      */
     function overwriteValues(defaults, prescribed) {
         let overwritten = {...defaults};
-        for (const [key, value] of Object.entries(defaults)) {
-            overwritten[key] = prescribed[key] || value;
+        if (prescribed) {
+            for (const [key, value] of Object.entries(defaults)) {
+                overwritten[key] = prescribed[key] || value;
+            }
         }
+
         return overwritten;
     }
 
@@ -266,99 +222,6 @@ define(['jquery'], function($) {
 
 
     /**
-     * Turn camelCase to hyphon-case.
-     * @param {String} str camelString.
-     * @returns {String} hyphon-string.
-     */
-    function camelToHyphenated(str) {
-        const isUpperCase = char => char === char.toUpperCase();
-        const isAlpha = char => char.toUpperCase() !== char.toLowerCase();
-        return [...str].map((char) => {
-            if (isAlpha(char) && isUpperCase(char)) {
-                return `-${char.toLowerCase()}`;
-            } else {
-                return char;
-            }
-        }).join("");
-    }
-
-
-    /**
-     * ...
-     * @param {String} parentId of parent node.
-     * @param {Object} nodes of DOM to be managed
-     */
-    function LangStringManager(parentId, nodes) {
-        this.parentId = parentId;
-        this.nodes = {};
-        if (nodes) {
-            this.addNodes(nodes);
-        }
-    }
-
-    LangStringManager.prototype.addNode = function(name, key) {
-        if (name in this.nodes) {
-            throw "Cannot add a node twice!";
-        }
-        this.nodes[name] = {
-            id: this.parentId + camelToHyphenated(name),
-            key
-        };
-    };
-
-    LangStringManager.prototype.addNodes = function(obj) {
-        for (const [name, key] of Object.entries(obj)) {
-            this.addNode(name, key);
-        }
-    };
-
-    LangStringManager.prototype.setCallback = function(name, callback) {
-        this.nodes[name].callback = callback;
-    };
-
-    LangStringManager.prototype.getNode = function(name) {
-        if (!this.nodes[name]) {
-            throw `Cannot find node: ${name}`;
-        }
-        return this.nodes[name];
-    };
-
-    LangStringManager.prototype.getId = function(name) {
-        return this.getNode(name).id;
-    };
-
-    LangStringManager.prototype.getKey = function(name) {
-        return this.getNode(name).key;
-    };
-
-    LangStringManager.prototype.setLangString = async function(name, str) {
-        const id = this.getId(name);
-        const key = this.getKey(name);
-        const element = document.getElementById(id);
-        let langStr;
-        if (!element) {
-            return;
-        }
-        try {
-            langStr = await str.get_string(key, 'qtype_coderunner');
-        } catch (error) {
-            langStr = key;
-        }
-        if (this.nodes[name].callback) {
-            this.nodes[name].callback(element, langStr);
-        } else if (!element.textContent) { // Only replace if not already set.
-            element.textContent = langStr;
-        }
-    };
-
-    LangStringManager.prototype.setAllLangStrings = async function(str) {
-        for (const name of Object.keys(this.nodes)) {
-            await this.setLangString(name, str);
-        }
-    };
-
-
-    /**
      * Constructor for the ScratchpadUi object.
      * @param {string} textAreaId The ID of the html textarea.
      * @param {int} width The width in pixels of the textarea.
@@ -366,13 +229,6 @@ define(['jquery'], function($) {
      * @param {object} uiParams The UI parameter object.
      */
     function ScratchpadUi(textAreaId, width, height, uiParams) {
-        const UI_LANGUAGE_STR = {
-            scratchpadName: 'scratchpadui_def_scratchpad_name',
-            buttonName: 'scratchpadui_def_button_name',
-            prefixName: 'scratchpadui_def_prefix_name',
-            helpText: 'scratchpadui_def_help_text'
-        };
-
         const DEF_UI_PARAMS = {
             scratchpad_name: '',
             button_name: '',
@@ -384,30 +240,23 @@ define(['jquery'], function($) {
             wrapper_src: null
         };
 
-        this.textArea = $(document.getElementById(textAreaId));
+        this.textArea = document.getElementById(textAreaId);
         this.textAreaId = textAreaId;
         this.height = height;
         this.readOnly = $(this.textArea).prop('readonly');
         this.fail = false;
+
+        this.lang = uiParams.lang;
+
+        uiParams.num_rows = this.textArea.rows; // Set the height of answer box.
         this.uiParams = overwriteValues(DEF_UI_PARAMS, uiParams);
-        this.langStringManager = new LangStringManager(this.textAreaId, UI_LANGUAGE_STR);
-        this.langStringManager.setCallback('scratchpadName', (element, langStr) => {
-            if (!element.innerText) {
-                element.insertAdjacentText('beforeend', langStr);
-            }
-        });
-        this.langStringManager.setCallback('helpText', (element, langStr) => {
-            if (!element.dataset.content) {
-                element.dataset.content = langStr;
-            }
-        });
 
         // Find the run wrapper source location.
         this.runWrapper = null;
-        const wraperSrc = this.uiParams.wrapper_src;
-        if (wraperSrc) {
-            if (wraperSrc === 'globalextra' || wraperSrc === 'prototypeextra') {
-                this.runWrapper = $(this.textArea).attr('data-' + wraperSrc);
+        const wrapperSrc = this.uiParams.wrapper_src;
+        if (wrapperSrc) {
+            if (wrapperSrc === 'globalextra' || wrapperSrc === 'prototypeextra') {
+                this.runWrapper = this.textArea.dataset[wrapperSrc];
             } else {
                 // TODO: raise some sort of exception? Invalid, params.
                 //  Bad wrapper src provided by user...
@@ -415,7 +264,7 @@ define(['jquery'], function($) {
             }
         }
 
-        this.outerDiv = null;
+        this.outerDiv = null; // TODO: Investigate...
         this.scratchpadDiv = null;
         this.reload(); // Draw my beautiful blobs.
     }
@@ -425,29 +274,40 @@ define(['jquery'], function($) {
     };
 
     ScratchpadUi.prototype.failMessage = function() {
-        return 'ScratchpadUiloadfail';
+        return this.failString;
     };
 
     ScratchpadUi.prototype.sync = function() {
-        const prefixAns = $(document.getElementById(this.textAreaId + '-prefix-ans'));
+        if (!this.context) {
+            return;
+        }
+        const prefixAns = document.getElementById(this.context.prefix_ans.id);
+
         let serialisation = {
-            answer_code: [$(this.answerTextArea).val() || ''],
-            test_code: [$(this.spCodeTextArea).val() || ''],
+            answer_code: [''],
+            test_code: [''],
             show_hide: [''],
             prefix_ans: ['']
         };
-        if ($(this.scratchpadDiv).is(':visible')) {
+        if (this.answerTextarea) {
+            serialisation.answer_code = [this.answerTextarea.value];
+        }
+        if (this.testTextarea) {
+            serialisation.test_code = [this.testTextarea.value];
+        }
+        if ($(this.scratchpadDiv).is(':visible')) { // TODO: fix me!
             serialisation.show_hide = ['1'];
         }
-        if ($(prefixAns).is(':checked')) {
+        if (prefixAns && prefixAns.checked) {
             serialisation.prefix_ans = ['1'];
         }
+
         serialisation.prefix_ans = invertSerial(serialisation.prefix_ans);
         if (Object.values(serialisation).some((val) => val.length === 1 && val[0].length > 0)) {
             serialisation.prefix_ans = invertSerial(serialisation.prefix_ans);
-            $(this.textArea).val(JSON.stringify(serialisation));
+            this.textArea.value = JSON.stringify(serialisation);
         } else {
-            $(this.textArea).val(''); // All feilds empty...
+            this.textArea.value = ''; // All fields empty...
         }
     };
 
@@ -456,12 +316,13 @@ define(['jquery'], function($) {
     };
 
     ScratchpadUi.prototype.handleRunButtonClick = async function(ajax, outputDisplayArea) {
+        outputDisplayArea = $(outputDisplayArea);
         this.sync(); // Use up-to-date serialization.
 
         const htmlOutput = this.uiParams.html_output;
-        const maxLen = this.uiParams['max-output-length'] || DEFUALT_MAX_OUTPUT_LEN;
+        const maxLen = this.uiParams['max-output-length'] || DEFAULT_MAX_OUTPUT_LEN;
         const preloadString = $(this.textArea).val();
-        const serial = JSON.parse(preloadString);
+        const serial = this.serialize(preloadString);
         const params = this.uiParams.params;
         const code = fillWrapper(
                 serial.answer_code,
@@ -526,130 +387,96 @@ define(['jquery'], function($) {
             }]);
     };
 
-    ScratchpadUi.prototype.reload = function() {
-        const preloadString = $(this.textArea).val();
-        const answerTextAreaId = this.textAreaId + '-answer-code';
-        const spTextAreaId = this.textAreaId + '-sp-code';
-        const defualtPreload = {
+    ScratchpadUi.prototype.serialize = function (preloadString) {
+        const defaultSerial = {
             answer_code: [''],
             test_code: [''],
             show_hide: [''],
-            prefix_ans: ['1'] // Ticked by defualt!
+            prefix_ans: ['1'] // Ticked by default!
         };
-        let preload = {};
+        let serial;
         if (preloadString) {
-            try {
-                preload = JSON.parse(preloadString);
-            } catch (error) {
-                this.fail = true;
-                this.failString = 'scratchpad_ui_invalidserialisation';
-                return;
-            }
+            serial = JSON.parse(preloadString);
         }
-        preload = overwriteValues(defualtPreload, preload);
+        serial = overwriteValues(defaultSerial, serial);
+        return serial;
+    };
 
-        this.drawUi(answerTextAreaId, preload);
-        this.drawScratchpadUi(spTextAreaId, preload);
-        require(['core/str'], (str) =>
-            this.langStringManager.setAllLangStrings(str)
-        );
-        this.answerCodeUi = newAceUiWrapper(answerTextAreaId);
-        this.spCodeUi = newAceUiWrapper(spTextAreaId);
+    ScratchpadUi.prototype.reload = function() {
+        const preloadString = this.textArea.value;
+        let preload;
+        try {
+            preload = this.serialize(preloadString);
+        } catch (error) {
+            this.fail = true;
+            this.failString = 'scratchpad_ui_invalidserialisation';
+            return;
+        }
+
+        this.context = {
+            "id": this.textAreaId,
+            "disable_scratchpad": this.uiParams.disable_scratchpad,
+            "scratchpad_name": this.uiParams.scratchpad_name,
+            "button_name": this.uiParams.button_name,
+            "prefix_name": this.uiParams.prefix_name,
+            "help_text": '', // Todo: fix this...
+            "answer_code": {
+                "id": this.textAreaId + '_answer-code',
+                "text": preload.answer_code[0],
+                "lang": this.lang,
+                "rows": this.uiParams.rows
+            },
+            "test_code": {
+                "id": this.textAreaId + '_test-code',
+                "text": preload.test_code[0],
+                "lang": this.lang,
+                "rows": 6
+            },
+            "prefix_ans": {
+                "id": this.textAreaId + '_prefix-ans',
+                "checked": preload.prefix_ans[0]
+            },
+            "output_display": {
+                "id": this.textAreaId + '_output-displayarea'
+            },
+            "jquery_escape": function() {
+                return function(text, render) {
+                    return $.escapeSelector(render(text));
+                };
+            }
+        };
+        require(['core/templates'], (Templates) => {
+            Templates.renderForPromise('qtype_coderunner/scratchpad_ui', this.context)
+                .then(({html, js}) => {
+                    const div = document.createElement('div');
+                    div.innerHTML = html;
+                    document.getElementById(this.textAreaId)
+                        .nextSibling
+                        .innerHTML = html;
+                    this.answerTextarea = document.getElementById(this.context.answer_code.id);
+                    this.testTextarea = document.getElementById(this.context.test_code.id);
+
+                    this.answerCodeUi = newAceUiWrapper(this.context.answer_code.id);
+                    this.testCodeUi = newAceUiWrapper(this.context.test_code.id);
+
+                    const runButton = document.getElementById(this.textAreaId + '_run-btn');
+                    const outputDisplayarea = document.getElementById(this.context.output_display.id);
+                    if (runButton) {
+                        require(['core/ajax'], (ajax) =>
+                            runButton.addEventListener('click', () => this.handleRunButtonClick(ajax, outputDisplayarea))
+                        );
+                    }
+                })
+                .catch(() => {
+                    this.fail = true;
+                    this.failString = "UI template failed to load."; // TODO: Lang-string goes here.
+                });
+        });
+
 
         // No resizing the outer wrapper. Instead, resize the two sub UIs,
         // they will expand accordingly.
         $(document.getElementById(this.textAreaId + '_wrapper')).css('resize', 'none');
-    };
-
-    ScratchpadUi.prototype.drawUi = function(answerTextAreaId, preload) {
-        const divHtml = "<div style='min-height:100%' class='qtype-coderunner-sp-outer-div'></div>";
-        const answerTextAreaHtml = htmlTextArea(answerTextAreaId, 'answer_code', preload.answer_code[0]);
-        const showButtonHtml = `<a 
-            role='button'
-            id='${this.langStringManager.getId('scratchpadName')}'
-            title='show_hide'
-            data-toggle="collapse"
-            class="btn btn-sm btn-icon icons-collapse-expand text-info"
-            style="margin-top: 5px;margin-left: 5px;margin-bottom: 5px;width: 30px;height: 30px;">
-                <span class="expanded-icon icon-no-margin p-2" title="Collapse">
-                    <i class="icon fa fa-chevron-down fa-fw " aria-hidden="true"></i>
-                </span>
-                <span class="collapsed-icon icon-no-margin p-2" title="Expand">
-                    <span class="dir-rtl-hide"><i class="icon fa fa-chevron-right fa-fw" aria-hidden="true"></i></span>
-                </span>
-                ${this.uiParams.scratchpad_name}
-            </a>`;
-        const showButton = $(showButtonHtml);
-        this.answerTextArea = $(answerTextAreaHtml);
-        $(this.answerTextArea).attr('rows', $(this.textArea).attr('rows'));
-        this.outerDiv = $(divHtml);
-        $(this.answerTextArea).attr('data-lang', this.uiParams.run_lang); // Set language for Ace to use.
-        $(this.outerDiv).append([this.answerTextArea, showButton]);
-
-        this.scratchpadDiv = $(`<fieldset class="collapse show" id="${this.textAreaId}-scratchpad"></fieldset>`);
-
-        $(showButton).attr('href', `#${ $.escapeSelector($(this.scratchpadDiv).attr('id')) }`);
-
-        if (!preload.show_hide[0]) {
-            $(this.scratchpadDiv).removeClass("show");
-        }
-        if (this.uiParams.disable_scratchpad) {
-            $(showButton).hide();
-            $(this.scratchpadDiv).hide(); // Prevent showing it using json...
-        }
-    };
-
-    ScratchpadUi.prototype.scratchpadControls = function(outputDisplayArea, preload) {
-        const controlsDiv = $("<div class='scratchpad-contols' " +
-                "style='border-bottom: darkgray solid 1px;'></div>");
-        const prefixAns = $(htmlInput(
-                this.textAreaId + '-prefix-ans',
-                this.langStringManager.getId('prefixName'),
-                'prefix_ans',
-                this.uiParams.prefix_name,
-                preload.prefix_ans[0],
-                'checkbox'
-                ));
-        const runButton = $(`<button type='button'
-                id='${this.langStringManager.getId('buttonName')}'
-                class='btn btn-secondary'
-                style='margin:6px; margin-right:10px; padding:2px 8px;'
-                >${this.uiParams.button_name}</button>`);
-        // Help popover.
-        const helpButton = $(`<a 
-            id="${this.langStringManager.getId('helpText')}" 
-            class="btn btn-link p-0" role="button" data-container="body"
-            data-toggle="popover" data-placement="right" data-content="${this.uiParams.help_text}"
-            data-html="true" tabindex="0" data-trigger="focus" 
-            data-original-title="" title="">
-                <i class="icon fa fa-question-circle text-info" style="margin-right: 0px;" 
-                title="Help with Scratchpad" role="img" aria-label="Help with Scratchpad">
-                </i>
-            </a>`);
-
-        const rightSpan = $('<span style="float:right;color:#0f6cbf;padding:8px"></span>');
-        const t = this;
-        runButton.on('click', function() {
-            require(['core/ajax'], function(ajax) {
-                t.handleRunButtonClick(ajax, outputDisplayArea);
-            });
-        });
-        $(rightSpan).append(helpButton);
-        $(controlsDiv).append([runButton, prefixAns, rightSpan]);
-        return controlsDiv;
-    };
-
-    ScratchpadUi.prototype.drawScratchpadUi = function(spTextAreaId, preload) {
-        const testCodeHtml = htmlTextArea(spTextAreaId, 'test_code', preload.test_code);
-        const outputDisplayArea = $("<pre style='width:100%;white-space:pre-wrap;background-color:#eff;" +
-                "border:1px gray;padding:5px;overflow-wrap:break-word;max-height:600px;overflow:auto;'></pre>");
-        const scratchpadControls = this.scratchpadControls(outputDisplayArea, preload);
-
-        this.spCodeTextArea = $(testCodeHtml);
-        $(this.spCodeTextArea).attr('data-lang', this.uiParams.run_lang); // Set language for Ace to use.
-        $(this.spCodeTextArea).attr('rows', '6'); // Set intial SP size.
-        $(this.scratchpadDiv).append([this.spCodeTextArea, scratchpadControls, outputDisplayArea]);
-        $(this.outerDiv).append(this.scratchpadDiv);
     };
 
     ScratchpadUi.prototype.resize = function() {}; // Nothing to see here. Move along please.
@@ -659,7 +486,7 @@ define(['jquery'], function($) {
         if (this.answerCodeUi && this.answerCodeUi.hasFocus()) {
             focused = true;
         }
-        if (this.spCodeUi && this.spCodeUi.hasFocus()) {
+        if (this.testCodeUi && this.testCodeUi.hasFocus()) {
             focused = true;
         }
         return focused;
