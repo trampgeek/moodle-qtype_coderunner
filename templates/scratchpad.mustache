@@ -42,7 +42,21 @@
         }
     }
 }}
-<div style='min-height:100%' class='qtype-coderunner-sp-outer-div'>
-    {{# answer_code }}{{> qtype_coderunner/answer_textarea }}{{/ answer_code }}
-    {{^ disable_scratchpad }}{{> qtype_coderunner/scratchpad }}{{/ disable_scratchpad }}
-</div>
+<a role='button' id='{{ id }}_show-scratchpad-btn' href="#{{#jquery_escape}}{{ id }}{{/jquery_escape}}_scratchpad" title='show_hide' data-toggle="collapse" class="btn btn-sm btn-icon icons-collapse-expand text-info" style="margin-top: 5px;margin-left: 5px;margin-bottom: 5px;width: 30px;height: 30px;">
+    <span class="expanded-icon icon-no-margin p-2" title="Collapse">
+                    <i class="icon fa fa-chevron-down fa-fw " aria-hidden="true"></i>
+                </span>
+    <span class="collapsed-icon icon-no-margin p-2" title="Expand">
+                    <span class="dir-rtl-hide"><i class="icon fa fa-chevron-right fa-fw" aria-hidden="true"></i></span>
+                </span>
+    {{# str }}scratchpadui_def_scratchpad_name, qtype_coderunner{{/ str }}
+</a>
+<fieldset id="{{id}}_scratchpad" class="collapse show">
+    {{# test_code }}
+        {{> qtype_coderunner/answer_textarea }}
+    {{/ test_code }}
+    {{> qtype_coderunner/scratchpad_controls }}
+    {{# output_display }}
+        {{> qtype_coderunner/output_displayarea }}
+    {{/ output_display }}
+</fieldset>

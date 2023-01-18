@@ -59,6 +59,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+
+
 define(['jquery'], function($) {
     const RESULT_SUCCESS = 15; // Code for a correct Jobe run.
     const DEFAULT_MAX_OUTPUT_LEN = 30000;
@@ -419,7 +421,7 @@ define(['jquery'], function($) {
             "scratchpad_name": this.uiParams.scratchpad_name,
             "button_name": this.uiParams.button_name,
             "prefix_name": this.uiParams.prefix_name,
-            "help_text": '', // Todo: fix this...
+            "help_text": {"text":this.uiParams.help_text}, // TODO: context doesnt match...
             "answer_code": {
                 "id": this.textAreaId + '_answer-code',
                 "text": preload.answer_code[0],
@@ -457,7 +459,9 @@ define(['jquery'], function($) {
                     this.testTextarea = document.getElementById(this.context.test_code.id);
 
                     this.answerCodeUi = newAceUiWrapper(this.context.answer_code.id);
-                    this.testCodeUi = newAceUiWrapper(this.context.test_code.id);
+                    if (this.testTextarea) {
+                        this.testCodeUi = newAceUiWrapper(this.context.test_code.id);
+                    }
 
                     const runButton = document.getElementById(this.textAreaId + '_run-btn');
                     const outputDisplayarea = document.getElementById(this.context.output_display.id);
