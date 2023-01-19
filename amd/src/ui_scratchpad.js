@@ -67,8 +67,6 @@ import Templates from 'core/templates';
 import {newUiWrapper} from 'qtype_coderunner/userinterfacewrapper';
 
 
-
-
 const RESULT_SUCCESS = 15; // Code for a correct Jobe run.
 const DEFAULT_MAX_OUTPUT_LEN = 30000;
 
@@ -141,12 +139,11 @@ const diagnose = response => {
  * should be plugged.
  * @param {string} additionalText Extra text to follow the result code.
  */
-const setLangString = async (langStringName, textarea, additionalText) => {
+const setLangString = async(langStringName, textarea, additionalText) => {
     const message = await getLangString(langStringName, 'filter_ace_inline');
     textarea.show();
     textarea.html(escapeHtml("*** " + message + " ***\n" + additionalText));
 };
-
 
 /**
  * Concatenates the cmpinfo, stdout and stderr fields of the sandbox
@@ -190,7 +187,6 @@ const fillWrapper = (answerCode, testCode, prefixAns, template) => {
     return template;
 };
 
-
 /**
  * Returns anew object containg default values. If a matching key exists in
  * prescribed, the corresponding value from prescribed will replace the defualt value.
@@ -208,7 +204,6 @@ const overwriteValues = (defaults, prescribed) => {
     }
     return overwritten;
 };
-
 
 /**
  * Constructor for the ScratchpadUi object.
@@ -233,12 +228,12 @@ class ScratchpadUi {
         this.textArea = document.getElementById(textAreaId);
         this.textAreaId = textAreaId;
         this.height = height;
-        this.readOnly = $(this.textArea).prop('readonly');
+        this.readOnly = this.textArea.readonly;
         this.fail = false;
 
         this.lang = uiParams.lang;
 
-        uiParams.num_rows = this.textArea.rows; // Set the height of answer box.
+        uiParams.num_rows = this.textArea.readOnly; // Set the height of answer box.
         this.uiParams = overwriteValues(DEF_UI_PARAMS, uiParams);
 
         // Find the run wrapper source location.
@@ -377,32 +372,7 @@ class ScratchpadUi {
             }]);
     }
 
-    serialize(preloadString) {
-        const defaultSerial = {
-            answer_code: [''],
-            test_code: [''],
-            show_hide: [''],
-            prefix_ans: ['1'] // Ticked by default!
-        };
-        let serial;
-        if (preloadString) {
-            serial = JSON.parse(preloadString);
-        }
-        serial = overwriteValues(defaultSerial, serial);
-        return serial;
-    }
-
-    reload() {
-        const preloadString = this.textArea.value;
-        let preload;
-        try {
-            preload = this.serialize(preloadString);
-        } catch (error) {
-            this.fail = true;
-            this.failString = 'scratchpad_ui_invalidserialisation';
-            return;
-        }
-
+    updateContext(preload) {
         this.context = {
             "id": this.textAreaId,
             "disable_scratchpad": this.uiParams.disable_scratchpad,
@@ -435,34 +405,61 @@ class ScratchpadUi {
                 };
             }
         };
+    }
 
+    serialize(preloadString) {
+        const defaultSerial = {
+            answer_code: [''],
+            test_code: [''],
+            show_hide: [''],
+            prefix_ans: ['1'] // Ticked by default!
+        };
+        let serial;
+        if (preloadString) {
+            serial = JSON.parse(preloadString);
+        }
+        serial = overwriteValues(defaultSerial, serial);
+        return serial;
+    }
 
-        Templates.renderForPromise('qtype_coderunner/scratchpad_ui', this.context)
-            .then(({html, js}) => {
-                const div = document.createElement('div');
-                div.innerHTML = html;
-                document.getElementById(this.textAreaId)
-                    .nextSibling
-                    .innerHTML = html;
-                this.answerTextarea = document.getElementById(this.context.answer_code.id);
-                this.testTextarea = document.getElementById(this.context.test_code.id);
+    async reload() {
+        const preloadString = this.textArea.value;
+        let preload;
+        try {
+            preload = this.serialize(preloadString);
+        } catch (error) {
+            this.fail = true;
+            this.failString = 'scratchpad_ui_invalidserialisation';
+            return;
+        }
 
-                this.answerCodeUi = newUiWrapper('ace', this.context.answer_code.id);
-                if (this.testTextarea) {
-                    this.testCodeUi = newUiWrapper('ace', this.context.test_code.id);
-                }
+        this.updateContext(preload);
 
-                const runButton = document.getElementById(this.textAreaId + '_run-btn');
-                const outputDisplayarea = document.getElementById(this.context.output_display.id);
-                if (runButton) {
-                    runButton.addEventListener('click', () => this.handleRunButtonClick(ajax, outputDisplayarea));
-                }
-            })
-            .catch(() => {
-                this.fail = true;
-                this.failString = "UI template failed to load."; // TODO: Lang-string goes here.
-            });
+        try {
+            const {html} = await Templates.renderForPromise('qtype_coderunner/scratchpad_ui', this.context);
 
+            const div = document.createElement('div');
+            div.innerHTML = html;
+            document.getElementById(this.textAreaId)
+                .nextSibling
+                .innerHTML = html;
+            this.answerTextarea = document.getElementById(this.context.answer_code.id);
+            this.testTextarea = document.getElementById(this.context.test_code.id);
+
+            this.answerCodeUi = newUiWrapper('ace', this.context.answer_code.id);
+            if (this.testTextarea) {
+                this.testCodeUi = newUiWrapper('ace', this.context.test_code.id);
+            }
+
+            const runButton = document.getElementById(this.textAreaId + '_run-btn');
+            const outputDisplayarea = document.getElementById(this.context.output_display.id);
+            if (runButton) {
+                runButton.addEventListener('click', () => this.handleRunButtonClick(ajax, outputDisplayarea));
+            }
+        } catch (e) {
+            this.fail = true;
+            this.failString = "UI template failed to load."; // TODO: Lang-string goes here.
+        }
 
         // No resizing the outer wrapper. Instead, resize the two sub UIs,
         // they will expand accordingly.
@@ -482,10 +479,9 @@ class ScratchpadUi {
         return focused;
     }
 
-    // Destroy the HTML UI and serialise the result into the original text area.
     destroy() {
         this.sync();
-        $(this.outerDiv).remove();
+        this.outerDiv.remove();
         this.outerDiv = null;
     }
 }
