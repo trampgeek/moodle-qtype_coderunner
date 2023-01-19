@@ -79,7 +79,7 @@ const DEFAULT_MAX_OUTPUT_LEN = 30000;
  * @returns {string} text with various special chars replaced with equivalent
  * html entities. Newlines are replaced with <br>.
  */
-function escapeHtml(text) {
+const escapeHtml = text => {
     const map = {
         '&': '&amp;',
         '<': '&lt;',
@@ -90,7 +90,7 @@ function escapeHtml(text) {
     return text.replace(/[&<>"']/g, function(m) {
         return map[m];
     });
-}
+};
 
 /**
  * Analyse the response for errors. There are two sorts of error: sandbox failures,
@@ -106,7 +106,7 @@ function escapeHtml(text) {
  * @returns string The language string to use for an error message or '' if
  * no error message.
  */
-function diagnose(response) {
+const diagnose = response => {
     // Table of error conditions.
     // Each row is response.error, response.result, langstring
     // response.result is ignored if response.error is non-zero.
@@ -131,7 +131,7 @@ function diagnose(response) {
         }
     }
     return 'error_unknown_runtime';
-}
+};
 
 /**
  * Get the specified language string using
@@ -141,11 +141,11 @@ function diagnose(response) {
  * should be plugged.
  * @param {string} additionalText Extra text to follow the result code.
  */
-async function setLangString(langStringName, textarea, additionalText) {
+const setLangString = async (langStringName, textarea, additionalText) => {
     const message = await getLangString(langStringName, 'filter_ace_inline');
     textarea.show();
     textarea.html(escapeHtml("*** " + message + " ***\n" + additionalText));
-}
+};
 
 
 /**
@@ -155,19 +155,17 @@ async function setLangString(langStringName, textarea, additionalText) {
  * @param {object} response Sandbox response object
  * @param {int} maxLen The maximum length of the trimmed stringlen.
  */
-function combinedOutput(response, maxLen) {
+const combinedOutput = (response, maxLen) => {
     const limit = s => s.length <= maxLen ? s : s.substr(0, maxLen) + '... (truncated)';
     return response.cmpinfo + limit(response.output) + limit(response.stderr);
-}
+};
 
 /**
  * Invert serialisation from '1' to '', vice versa.
  * @param {string} current serialisation.
  * @returns {string} inverted serialisation.
  */
-function invertSerial(current) {
-    return current[0] == '1' ? [''] : ['1'];
-}
+const invertSerial = current => current[0] == '1' ? [''] : ['1'];
 
 /**
  * Insert the answer code and test code into the wrapper. This may
@@ -179,7 +177,7 @@ function invertSerial(current) {
  * @param {string} template provided in UI Params or globalextra.
  * @returns {string} filled template.
  */
-function fillWrapper(answerCode, testCode, prefixAns, template) {
+const fillWrapper = (answerCode, testCode, prefixAns, template) => {
     if (!template) {
         template = '{{ ANSWER_CODE }}\n' +
                 '{{ SCRATCHPAD_CODE }}';
@@ -190,7 +188,7 @@ function fillWrapper(answerCode, testCode, prefixAns, template) {
     template = template.replaceAll('{{ ANSWER_CODE }}', answerCode);
     template = template.replaceAll('{{ SCRATCHPAD_CODE }}', testCode);
     return template;
-}
+};
 
 
 /**
@@ -201,7 +199,7 @@ function fillWrapper(answerCode, testCode, prefixAns, template) {
  * @param {object} prescribed settings, typically set by a user.
  * @returns {object} filled with defualt values, overwritten by their prescribed value (iff included).
  */
-function overwriteValues(defaults, prescribed) {
+const overwriteValues = (defaults, prescribed) => {
     let overwritten = {...defaults};
     if (prescribed) {
         for (const [key, value] of Object.entries(defaults)) {
@@ -209,7 +207,7 @@ function overwriteValues(defaults, prescribed) {
         }
     }
     return overwritten;
-}
+};
 
 
 /**
@@ -468,7 +466,7 @@ class ScratchpadUi {
 
         // No resizing the outer wrapper. Instead, resize the two sub UIs,
         // they will expand accordingly.
-        $(document.getElementById(this.textAreaId + '_wrapper')).css('resize', 'none');
+        document.getElementById(this.textAreaId + '_wrapper').style.resize = 'none';
     }
 
     resize() {} // Nothing to see here. Move along please.
