@@ -23,6 +23,9 @@
 
 define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function($, ui, str) {
 
+    // We need this to keep track of the current question type.
+    let currentQtype = "";
+
     // Define a mapping from the fields of the JSON object returned by an AJAX
     // 'get question type' request to the form elements. Only fields that
     // belong to the question type should appear here. Keys are JSON field
@@ -63,6 +66,7 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
      */
     function initEditForm() {
         var typeCombo = $('#id_coderunnertype'),
+            prototypeDisplay = $('#id_isprototype'),
             template = $('#id_template'),
             evaluatePerStudent = $('#id_templateparamsevalpertry'),
             globalextra = $('#id_globalextra'),
@@ -79,12 +83,12 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
             isCustomised = customise.prop('checked'),
             prototypeType = $('#id_prototypetype'),
             preloadHdr = $('#id_answerpreloadhdr'),
-            typeName = $('#id_typename'),
             courseId = $('input[name="courseid"]').prop('value'),
             questiontypeHelpDiv = $('#qtype-help'),
             precheck = $('select#id_precheck'),
             testtypedivs = $('div.testtype'),
             brokenQuestion = $('#id_broken_question'),
+            badQuestionLoad = $('#id_bad_question_load'),
             uiplugin = $('#id_uiplugin'),
             uiparameters = $('#id_uiparameters');
 
@@ -240,7 +244,6 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
                 $(formspecifier[0]).prop(formspecifier[1], attrval);
             }
 
-            typeName.prop('value', newType);
             customise.prop('checked', false);
             str.get_string('coderunner_question_type', 'qtype_coderunner').then(function (s) {
                 questiontypeHelpDiv.html(detailsHtml(newType, s, response.questiontext));
@@ -255,17 +258,24 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
          * missing question type. Report the error with an alert, and replace
          * the template contents with an error message in case the user
          * saves the question and later wonders why it breaks.
+         * Returns the JSON error object for further use.
          * @param {string} questionType The CodeRunner (sub) question type.
-         * @param {string} error The error message to be reported.
+         * @param {string} error The error message as JSON encoded error => langstring,
+         * extra => components string.
+         * @return {JSON object} The JSON error object for further parsing.
          */
         function reportError(questionType, error) {
-            langStringAlert('prototype_load_failure', error);
+            const errorObject = JSON.parse(error);
             str.get_string('prototype_error', 'qtype_coderunner').then(function(s) {
-                var errorMessage = s + "\n";
-                errorMessage += error + '\n';
-                errorMessage += "CourseId: " + courseId + ", qtype: " + questionType;
-                template.prop('value', errorMessage);
+                str.get_string(errorObject.alert, 'qtype_coderunner', questionType).then(function(str) {
+                    langStringAlert('prototype_load_failure', str);
+                    let errorMessage = s + "\n";
+                    errorMessage += str + '\n';
+                    errorMessage += "CourseId: " + courseId + ", qtype: " + questionType;
+                    template.prop('value', errorMessage);
+                });
             });
+            return errorObject;
         }
 
         /**
@@ -332,9 +342,10 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
         /**
          * Load the various customisation fields into the form from the
          * CodeRunner question type currently selected by the combobox.
+         * Looks at the preexisting type of the selected field.
          */
         function loadCustomisationFields() {
-            var newType = typeCombo.children('option:selected').text();
+            let newType = typeCombo.children('option:selected').text();
 
             if (newType !== '' && newType !== 'Undefined') {
                 // Prevent 'Undefined' ever being reselected.
@@ -348,14 +359,24 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
                         sesskey: M.cfg.sesskey
                     },
                     function (outcome) {
+                        // Clean all warnings regardless.
+                        $('#id_qtype_coderunner_warning_div').empty();
                         if (outcome.success) {
                             copyFieldsFromQuestionType(newType, outcome);
                             setUis();
+                            // Success, so remove the errors and change the current Qtype.
+                            currentQtype = newType;
+                            $('#id_qtype_coderunner_error_div').empty();
                         }
                         else {
-                            reportError(newType, outcome.error);
+                            const errorObject = reportError(newType, outcome.error);
+                            // Checks to see if there has been a change in type from last saved.
+                            // If so, put up a load error and keep type unchanged.
+                            if (currentQtype !== newType && errorObject.error === 'duplicateprototype') {
+                                showLoadTypeError(currentQtype, errorObject, newType);
+                                $("#id_coderunnertype").val(currentQtype);
+                            }
                         }
-
                     }
                 ).fail(function () {
                     // AJAX failed. We're dead, Fred. The attempt to get the
@@ -393,7 +414,7 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
          * is changed.
          */
         function loadUiParametersDescription() {
-            var newUi = uiplugin.children('option:selected').text();
+            let newUi = uiplugin.children('option:selected').text();
             $.getJSON(M.cfg.wwwroot + '/question/type/coderunner/ajax.php',
                 {
                     uiplugin: newUi,
@@ -473,14 +494,30 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
         /**
          * If the brokenquestionmessage hidden element is not empty, insert the
          * given message as an error at the top of the question.
+         * itself to go back to the last valid value.
          */
         function checkForBrokenQuestion() {
-            var brokenQuestionMessage = brokenQuestion.prop('value'),
+            let brokenQuestionMessage = brokenQuestion.prop('value'),
                 messagePara = null;
             if (brokenQuestionMessage !== '') {
                 messagePara = $('<p>' + brokenQuestion.prop('value') + '</p>');
                 $('#id_qtype_coderunner_error_div').append(messagePara);
             }
+        }
+
+        /**
+         * Shows the load type error of the selected type if the selected type is
+         * faulty.
+         * @param {string} currentType The current type with its errors.
+         * @param {JSON Object} errorObject The JSON object containing a list of all the errors.
+         * @param {string} newType The new type string which it failed to load.
+         */
+        function showLoadTypeError(currentType, errorObject, newType) {
+            str.get_string('loadprototypeerror', 'qtype_coderunner',
+                { oldtype : currentType, crtype : newType, outputstring : errorObject.extras })
+                      .then(function(str) {
+                $('#id_qtype_coderunner_warning_div').append($('<p>' + str + '</p>'));
+            });
         }
 
         /*************************************************************
@@ -489,17 +526,23 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
          *
          *************************************************************/
 
-        if (prototypeType.prop('value') == 1) {
-            // Editing a built-in question type: Dangerous!
-            str.get_string('proceed_at_own_risk', 'qtype_coderunner').then(function(s) {
-                alert(s);
-            });
-            prototypeType.prop('disabled', true);
-            typeCombo.prop('disabled', true);
-            customise.prop('disabled', true);
+        if (prototypeType.prop('value') != 0) {
+            // Display the prototype warning if it's a prototype.
+            prototypeDisplay.removeAttr('hidden');
+            if (prototypeType.prop('value') == 1) {
+                // Editing a built-in question type: Dangerous!
+                str.get_string('proceed_at_own_risk', 'qtype_coderunner').then(function(s) {
+                    alert(s);
+                });
+                prototypeType.prop('disabled', true);
+                customise.prop('disabled', true);
+            }
         }
 
         checkForBrokenQuestion();
+        badQuestionLoad.prop('hidden'); // Until we check it once.
+        // Keep track of the current prototype loaded.
+        currentQtype = typeCombo.children('option:selected').text();
 
         setCustomisationVisibility(isCustomised);
         if (!isCustomised) {
@@ -524,7 +567,7 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
         // Set up event Handlers.
 
         customise.on('change', function() {
-            var isCustomised = customise.prop('checked');
+            let isCustomised = customise.prop('checked');
             if (isCustomised) {
                 // Customisation is being turned on.
                 setCustomisationVisibility(true);
@@ -584,6 +627,15 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
 
         precheck.on('change', set_testtype_visibilities);
 
+        // Displays and hides the reason for the question type to be disabled.
+        prototypeType.on('change', function () {
+            if (prototypeType.prop('value') == '0') {
+                prototypeDisplay.attr('hidden', '1');
+            } else {
+                prototypeDisplay.removeAttr('hidden');
+            }
+        });
+
         // In order to initialise the Ui plugin when the answer preload section is
         // expanded, we monitor attribute mutations in the Answer Preload
         // header.
@@ -601,6 +653,11 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
             $('#id_fail_expected_' + testCaseId).html(gotPre.text());
             $('.failrow_' + testCaseId).addClass('fixed');  // Fixed row.
             $(this).prop('disabled', true);
+        });
+
+        // On reloading the page, enable the typeCombo so that its value is POSTed.
+        $('.btn-primary').click(function() {
+            typeCombo.prop('disabled', false);
         });
     }
 
