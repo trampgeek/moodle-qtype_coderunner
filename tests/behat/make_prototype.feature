@@ -59,3 +59,21 @@ Feature: make_prototype
     Then I should see "Passed all tests!"
     And I should not see "Show differences"
     And I should see "Marks for this submission: 1.00/1.00"
+
+  Scenario: As a teacher, I should not be allowed to edit the question type if it IS a user-defined prototype
+    When I am on the "PROTOTYPE_test_prototype" "core_question > edit" page logged in as teacher1
+    Then I should see "This is a prototype; cannot change question type"
+
+  Scenario: As a teacher, I should be allowed to edit the question type if it USES a user-defined prototype
+    When I am on the "Prototype tester" "core_question > edit" page logged in as teacher1
+    And I should see "python3_test_prototype"
+    And I set the field "id_coderunnertype" to "python3"
+    Then I should not see "This is a prototype; cannot change question type"
+
+  Scenario: As a teacher, I should be able to toggle the prototyping off and be able to edit the question type
+    When I am on the "PROTOTYPE_test_prototype" "core_question > edit" page logged in as teacher1
+    And I should see "This is a prototype; cannot change question type"
+    And I click on "a[aria-controls='id_advancedcustomisationheadercontainer']" "css_element"
+    And I set the field "prototypetype" to "No"
+    And I set the field "id_coderunnertype" to "python3" and dismiss the alert
+    Then I should not see "This is a prototype; cannot change question type"
