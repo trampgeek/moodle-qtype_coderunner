@@ -59,451 +59,438 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+import $ from 'jquery';
+import ajax from 'core/ajax';
+import {get_string as getLangString} from 'core/str';
+import Templates from 'core/templates';
 
-define(['jquery'], function($) {
-    const RESULT_SUCCESS = 15; // Code for a correct Jobe run.
-    const DEFAULT_MAX_OUTPUT_LEN = 30000;
-
-
-    /**
-     * Escape text special HTML characters.
-     * @param {string} text
-     * @returns {string} text with various special chars replaced with equivalent
-     * html entities. Newlines are replaced with <br>.
-     */
-    function escapeHtml(text) {
-        const map = {
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            '"': '&quot;',
-            "'": '&#039;'
-        };
-        return text.replace(/[&<>"']/g, function(m) {
-            return map[m];
-        });
-    }
-
-    /**
-     * Analyse the response for errors. There are two sorts of error: sandbox failures,
-     * for which the field response.error is non-zero meaning the run didn't take
-     * place at all and failures in the run
-     * itself, such as compile errors, timeouts, runtime errors etc. The
-     * various codes are documented in the CodeRunner file sandbox.php.
-     * Some error returns, notably compilation error and runtime error, are not
-     * treated as errors here, since the stdout + stderr should reveal what
-     * happened anyway. More obscure errors are lumped together as 'Unknown
-     * runtime error'.
-     * @param {object} response The response from the web-service sandbox request.
-     * @returns string The language string to use for an error message or '' if
-     * no error message.
-     */
-    function diagnose(response) {
-        // Table of error conditions.
-        // Each row is response.error, response.result, langstring
-        // response.result is ignored if response.error is non-zero.
-        // Any condition not in the table is deemed an "Unknown runtime error".
-        const ERROR_RESPONSES = [
-            [1, 0, 'error_access_denied'], // Sandbox AUTH_ERROR
-            [2, 0, 'error_unknown_language'], // Sandbox WRONG_LANG_ID
-            [3, 0, 'error_access_denied'], // Sandbox ACCESS_DENIED
-            [4, 0, 'error_submission_limit_reached'], // Sandbox SUBMISSION_LIMIT_EXCEEDED
-            [5, 0, 'error_sandbox_server_overload'], // Sandbox SERVER_OVERLOAD
-            [0, 11, ''], // RESULT_COMPILATION_ERROR
-            [0, 12, ''], // RESULT_RUNTIME_ERROR
-            [0, 13, 'error_timeout'], // RESULT TIME_LIMIT
-            [0, RESULT_SUCCESS, ''], // RESULT_SUCCESS
-            [0, 17, 'error_memory_limit'], // RESULT_MEMORY_LIMIT
-            [0, 21, 'error_sandbox_server_overload'], // RESULT_SERVER_OVERLOAD
-            [0, 30, 'error_excessive_output'] // RESULT OUTPUT_LIMIT
-        ];
-        for (const row of ERROR_RESPONSES) {
-            if (row[0] == response.error && (response.error != 0 || response.result == row[1])) {
-                return row[2];
-            }
-        }
-        return 'error_unknown_runtime';
-    }
-
-    /**
-     * Get the specified language string using
-     * AJAX and plug it into the given textarea
-     * @param {string} langStringName The language string name.
-     * @param {DOMnode} textarea The textarea into which the error message
-     * should be plugged.
-     * @param {string} additionalText Extra text to follow the result code.
-     */
-    function setLangString(langStringName, textarea, additionalText) {
-        require(['core/str'], function(str) {
-            const promise = str.get_string(langStringName, 'filter_ace_inline');
-            $.when(promise).then(function(message) {
-                textarea.show();
-                textarea.html(escapeHtml("*** " + message + " ***\n" + additionalText));
-            });
-        });
-    }
-
-    /**
-     * Concatenates the cmpinfo, stdout and stderr fields of the sandbox
-     * response, truncating both stdout and stderr to a given maximum length
-     * if necessary (in which case '... (truncated)' is appended.
-     * @param {object} response Sandbox response object
-     * @param {int} maxLen The maximum length of the trimmed stringlen.
-     */
-    function combinedOutput(response, maxLen) {
-        const limit = s => s.length <= maxLen ? s : s.substr(0, maxLen) + '... (truncated)';
-        return response.cmpinfo + limit(response.output) + limit(response.stderr);
-    }
-
-    /**
-     * Invert serialisation from '1' to '', vice versa.
-     * @param {string} current serialisation.
-     * @returns {string} inverted serialisation.
-     */
-    function invertSerial(current) {
-        return current[0] == '1' ? [''] : ['1'];
-    }
-
-    /**
-     * Insert the answer code and test code into the wrapper. This may
-     * defined by the user, in UI Params or globalextra. If prefixAns is
-     * false: do not include answerCode in final wrapper.
-     * @param {string} answerCode text.
-     * @param {string} testCode text.
-     * @param {string} prefixAns '1' for true, '' for false.
-     * @param {string} template provided in UI Params or globalextra.
-     * @returns {string} filled template.
-     */
-    function fillWrapper(answerCode, testCode, prefixAns, template) {
-        if (!template) {
-            template = '{{ ANSWER_CODE }}\n' +
-                    '{{ SCRATCHPAD_CODE }}';
-        }
-        if (!prefixAns) {
-            answerCode = '';
-        }
-        template = template.replaceAll('{{ ANSWER_CODE }}', answerCode);
-        template = template.replaceAll('{{ SCRATCHPAD_CODE }}', testCode);
-        return template;
-    }
+import {newUiWrapper} from 'qtype_coderunner/userinterfacewrapper';
 
 
-    /**
-     * Returns anew object containg default values. If a matching key exists in
-     * prescribed, the corresponding value from prescribed will replace the defualt value.
-     * Does not add keys/values to the result if that key is not in defualts.
-     * @param {object} defaults object with values to be overwritten.
-     * @param {object} prescribed settings, typically set by a user.
-     * @returns {object} filled with defualt values, overwritten by their prescribed value (iff included).
-     */
-    function overwriteValues(defaults, prescribed) {
-        let overwritten = {...defaults};
-        if (prescribed) {
-            for (const [key, value] of Object.entries(defaults)) {
-                overwritten[key] = prescribed[key] || value;
-            }
-        }
-
-        return overwritten;
-    }
 
 
-    /**
-     * Returns a new Ace UI that serializes to the text area with provided ID.
-     * @param {string} textAreaId for ace to manage.
-     * @returns {InterfaceWrapper} new user interface wrapper containing Ace UI.
-     */
-    function newAceUiWrapper(textAreaId) {
-        let ace;
-        require(['qtype_coderunner/userinterfacewrapper'], function(uiWrapper) {
-            ace = uiWrapper.newUiWrapper('ace', textAreaId);
-        });
-        return ace;
-    }
+const RESULT_SUCCESS = 15; // Code for a correct Jobe run.
+const DEFAULT_MAX_OUTPUT_LEN = 30000;
 
 
-    /**
-     * Constructor for the ScratchpadUi object.
-     * @param {string} textAreaId The ID of the html textarea.
-     * @param {int} width The width in pixels of the textarea.
-     * @param {int} height The height in pixels of the textarea.
-     * @param {object} uiParams The UI parameter object.
-     */
-    class ScratchpadUi {
-        constructor(textAreaId, width, height, uiParams) {
-            const DEF_UI_PARAMS = {
-                scratchpad_name: '',
-                button_name: '',
-                prefix_name: '',
-                help_text: '',
-                run_lang: uiParams.lang, // Use answer's ace language if not specified.
-                html_output: false,
-                disable_scratchpad: false,
-                wrapper_src: null
-            };
-
-            this.textArea = document.getElementById(textAreaId);
-            this.textAreaId = textAreaId;
-            this.height = height;
-            this.readOnly = $(this.textArea).prop('readonly');
-            this.fail = false;
-
-            this.lang = uiParams.lang;
-
-            uiParams.num_rows = this.textArea.rows; // Set the height of answer box.
-            this.uiParams = overwriteValues(DEF_UI_PARAMS, uiParams);
-
-            // Find the run wrapper source location.
-            this.runWrapper = null;
-            const wrapperSrc = this.uiParams.wrapper_src;
-            if (wrapperSrc) {
-                if (wrapperSrc === 'globalextra' || wrapperSrc === 'prototypeextra') {
-                    this.runWrapper = this.textArea.dataset[wrapperSrc];
-                } else {
-                    // TODO: raise some sort of exception? Invalid, params.
-                    //  Bad wrapper src provided by user...
-                    this.runWrapper = null;
-                }
-            }
-
-            this.outerDiv = null; // TODO: Investigate...
-            this.scratchpadDiv = null;
-            this.reload(); // Draw my beautiful blobs.
-        }
-
-        failed() {
-            return this.fail;
-        }
-
-        failMessage() {
-            return this.failString;
-        }
-
-        sync() {
-            if (!this.context) {
-                return;
-            }
-            const prefixAns = document.getElementById(this.context.prefix_ans.id);
-
-            let serialisation = {
-                answer_code: [''],
-                test_code: [''],
-                show_hide: [''],
-                prefix_ans: ['']
-            };
-            if (this.answerTextarea) {
-                serialisation.answer_code = [this.answerTextarea.value];
-            }
-            if (this.testTextarea) {
-                serialisation.test_code = [this.testTextarea.value];
-            }
-            if ($(this.scratchpadDiv).is(':visible')) { // TODO: fix me!
-                serialisation.show_hide = ['1'];
-            }
-            if (prefixAns && prefixAns.checked) {
-                serialisation.prefix_ans = ['1'];
-            }
-
-            serialisation.prefix_ans = invertSerial(serialisation.prefix_ans);
-            if (Object.values(serialisation).some((val) => val.length === 1 && val[0].length > 0)) {
-                serialisation.prefix_ans = invertSerial(serialisation.prefix_ans);
-                this.textArea.value = JSON.stringify(serialisation);
-            } else {
-                this.textArea.value = ''; // All fields empty...
-            }
-        }
-
-        getElement() {
-            return this.outerDiv;
-        }
-
-        async handleRunButtonClick(ajax, outputDisplayArea) {
-            outputDisplayArea = $(outputDisplayArea);
-            this.sync(); // Use up-to-date serialization.
-
-            const htmlOutput = this.uiParams.html_output;
-            const maxLen = this.uiParams['max-output-length'] || DEFAULT_MAX_OUTPUT_LEN;
-            const preloadString = $(this.textArea).val();
-            const serial = this.serialize(preloadString);
-            const params = this.uiParams.params;
-            const code = fillWrapper(
-                    serial.answer_code,
-                    serial.test_code,
-                    serial.prefix_ans[0],
-                    this.runWrapper
-                    );
-
-            // Clear all output areas.
-            outputDisplayArea.html('');
-            if (htmlOutput) {
-                outputDisplayArea.hide();
-            }
-            outputDisplayArea.next('div.filter-ace-inline-html').remove(); // TODO: Naming
-
-
-            ajax.call([{
-                    methodname: 'qtype_coderunner_run_in_sandbox',
-                    args: {
-                        contextid: M.cfg.contextid, // Moodle context ID
-                        sourcecode: code,
-                        language: this.uiParams.run_lang,
-                        params: JSON.stringify(params) // Sandbox params
-                    },
-                    done: function(responseJson) {
-                        const response = JSON.parse(responseJson);
-                        const error = diagnose(response);
-                        if (error === '') {
-                            // If no errors or compilation error or runtime error
-                            if (!htmlOutput || response.result !== RESULT_SUCCESS) {
-                                // Either it's not HTML output or it is but we have compilation or runtime errors.
-                                const text = combinedOutput(response, maxLen);
-                                outputDisplayArea.show();
-                                if (text.trim() === '') {
-                                    outputDisplayArea.html('<span style="color:red">< No output! ></span>');
-                                } else {
-                                    outputDisplayArea.html(escapeHtml(text));
-                                }
-                            } else { // Valid HTML output - just plug in the raw html to the DOM.
-                                // Repeat the deletion of previous output in case of multiple button clicks.
-                                outputDisplayArea.next('div.filter-ace-inline-html').remove();
-
-                                const html = $("<div class='filter-ace-inline-html '" +
-                                        "style='background-color:#eff;padding:5px;'>" +
-                                        response.output + "</div>");
-                                outputDisplayArea.after(html);
-                            }
-                        } else {
-                            // If an error occurs, display the language string in the
-                            // outputDisplayArea plus additional info.
-                            let extra = response.error == 0 ? combinedOutput(response, maxLen) : '';
-                            if (error === 'error_unknown_runtime') {
-                                extra += response.error ? '(Sandbox error code ' + response.error + ')' :
-                                        '(Run result: ' + response.result + ')';
-                            }
-                            setLangString(error, outputDisplayArea, extra);
-                        }
-                    },
-                    fail: function(error) {
-                        alert(error.message);
-                    }
-                }]);
-        }
-
-        serialize(preloadString) {
-            const defaultSerial = {
-                answer_code: [''],
-                test_code: [''],
-                show_hide: [''],
-                prefix_ans: ['1'] // Ticked by default!
-            };
-            let serial;
-            if (preloadString) {
-                serial = JSON.parse(preloadString);
-            }
-            serial = overwriteValues(defaultSerial, serial);
-            return serial;
-        }
-
-        reload() {
-            const preloadString = this.textArea.value;
-            let preload;
-            try {
-                preload = this.serialize(preloadString);
-            } catch (error) {
-                this.fail = true;
-                this.failString = 'scratchpad_ui_invalidserialisation';
-                return;
-            }
-
-            this.context = {
-                "id": this.textAreaId,
-                "disable_scratchpad": this.uiParams.disable_scratchpad,
-                "scratchpad_name": this.uiParams.scratchpad_name,
-                "button_name": this.uiParams.button_name,
-                "prefix_name": this.uiParams.prefix_name,
-                "help_text": {"text": this.uiParams.help_text}, // TODO: context doesnt match...
-                "answer_code": {
-                    "id": this.textAreaId + '_answer-code',
-                    "text": preload.answer_code[0],
-                    "lang": this.lang,
-                    "rows": this.uiParams.rows
-                },
-                "test_code": {
-                    "id": this.textAreaId + '_test-code',
-                    "text": preload.test_code[0],
-                    "lang": this.lang,
-                    "rows": 6
-                },
-                "prefix_ans": {
-                    "id": this.textAreaId + '_prefix-ans',
-                    "checked": preload.prefix_ans[0]
-                },
-                "output_display": {
-                    "id": this.textAreaId + '_output-displayarea'
-                },
-                "jquery_escape": function() {
-                    return function(text, render) {
-                        return $.escapeSelector(render(text));
-                    };
-                }
-            };
-            require(['core/templates'], (Templates) => {
-                Templates.renderForPromise('qtype_coderunner/scratchpad_ui', this.context)
-                    .then(({html, js}) => {
-                        const div = document.createElement('div');
-                        div.innerHTML = html;
-                        document.getElementById(this.textAreaId)
-                            .nextSibling
-                            .innerHTML = html;
-                        this.answerTextarea = document.getElementById(this.context.answer_code.id);
-                        this.testTextarea = document.getElementById(this.context.test_code.id);
-
-                        this.answerCodeUi = newAceUiWrapper(this.context.answer_code.id);
-                        if (this.testTextarea) {
-                            this.testCodeUi = newAceUiWrapper(this.context.test_code.id);
-                        }
-
-                        const runButton = document.getElementById(this.textAreaId + '_run-btn');
-                        const outputDisplayarea = document.getElementById(this.context.output_display.id);
-                        if (runButton) {
-                            require(['core/ajax'], (ajax) =>
-                                runButton.addEventListener('click', () => this.handleRunButtonClick(ajax, outputDisplayarea))
-                            );
-                        }
-                    })
-                    .catch(() => {
-                        this.fail = true;
-                        this.failString = "UI template failed to load."; // TODO: Lang-string goes here.
-                    });
-            });
-
-
-            // No resizing the outer wrapper. Instead, resize the two sub UIs,
-            // they will expand accordingly.
-            $(document.getElementById(this.textAreaId + '_wrapper')).css('resize', 'none');
-        }
-
-        resize() {} // Nothing to see here. Move along please.
-
-        hasFocus() {
-            let focused = false;
-            if (this.answerCodeUi && this.answerCodeUi.hasFocus()) {
-                focused = true;
-            }
-            if (this.testCodeUi && this.testCodeUi.hasFocus()) {
-                focused = true;
-            }
-            return focused;
-        }
-
-        // Destroy the HTML UI and serialise the result into the original text area.
-        destroy() {
-            this.sync();
-            $(this.outerDiv).remove();
-            this.outerDiv = null;
-        }
-    }
-    return {
-        Constructor: ScratchpadUi
+/**
+ * Escape text special HTML characters.
+ * @param {string} text
+ * @returns {string} text with various special chars replaced with equivalent
+ * html entities. Newlines are replaced with <br>.
+ */
+function escapeHtml(text) {
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
     };
-});
+    return text.replace(/[&<>"']/g, function(m) {
+        return map[m];
+    });
+}
+
+/**
+ * Analyse the response for errors. There are two sorts of error: sandbox failures,
+ * for which the field response.error is non-zero meaning the run didn't take
+ * place at all and failures in the run
+ * itself, such as compile errors, timeouts, runtime errors etc. The
+ * various codes are documented in the CodeRunner file sandbox.php.
+ * Some error returns, notably compilation error and runtime error, are not
+ * treated as errors here, since the stdout + stderr should reveal what
+ * happened anyway. More obscure errors are lumped together as 'Unknown
+ * runtime error'.
+ * @param {object} response The response from the web-service sandbox request.
+ * @returns string The language string to use for an error message or '' if
+ * no error message.
+ */
+function diagnose(response) {
+    // Table of error conditions.
+    // Each row is response.error, response.result, langstring
+    // response.result is ignored if response.error is non-zero.
+    // Any condition not in the table is deemed an "Unknown runtime error".
+    const ERROR_RESPONSES = [
+        [1, 0, 'error_access_denied'], // Sandbox AUTH_ERROR
+        [2, 0, 'error_unknown_language'], // Sandbox WRONG_LANG_ID
+        [3, 0, 'error_access_denied'], // Sandbox ACCESS_DENIED
+        [4, 0, 'error_submission_limit_reached'], // Sandbox SUBMISSION_LIMIT_EXCEEDED
+        [5, 0, 'error_sandbox_server_overload'], // Sandbox SERVER_OVERLOAD
+        [0, 11, ''], // RESULT_COMPILATION_ERROR
+        [0, 12, ''], // RESULT_RUNTIME_ERROR
+        [0, 13, 'error_timeout'], // RESULT TIME_LIMIT
+        [0, RESULT_SUCCESS, ''], // RESULT_SUCCESS
+        [0, 17, 'error_memory_limit'], // RESULT_MEMORY_LIMIT
+        [0, 21, 'error_sandbox_server_overload'], // RESULT_SERVER_OVERLOAD
+        [0, 30, 'error_excessive_output'] // RESULT OUTPUT_LIMIT
+    ];
+    for (const row of ERROR_RESPONSES) {
+        if (row[0] == response.error && (response.error != 0 || response.result == row[1])) {
+            return row[2];
+        }
+    }
+    return 'error_unknown_runtime';
+}
+
+/**
+ * Get the specified language string using
+ * AJAX and plug it into the given textarea
+ * @param {string} langStringName The language string name.
+ * @param {DOMnode} textarea The textarea into which the error message
+ * should be plugged.
+ * @param {string} additionalText Extra text to follow the result code.
+ */
+async function setLangString(langStringName, textarea, additionalText) {
+    const message = await getLangString(langStringName, 'filter_ace_inline');
+    textarea.show();
+    textarea.html(escapeHtml("*** " + message + " ***\n" + additionalText));
+}
+
+
+/**
+ * Concatenates the cmpinfo, stdout and stderr fields of the sandbox
+ * response, truncating both stdout and stderr to a given maximum length
+ * if necessary (in which case '... (truncated)' is appended.
+ * @param {object} response Sandbox response object
+ * @param {int} maxLen The maximum length of the trimmed stringlen.
+ */
+function combinedOutput(response, maxLen) {
+    const limit = s => s.length <= maxLen ? s : s.substr(0, maxLen) + '... (truncated)';
+    return response.cmpinfo + limit(response.output) + limit(response.stderr);
+}
+
+/**
+ * Invert serialisation from '1' to '', vice versa.
+ * @param {string} current serialisation.
+ * @returns {string} inverted serialisation.
+ */
+function invertSerial(current) {
+    return current[0] == '1' ? [''] : ['1'];
+}
+
+/**
+ * Insert the answer code and test code into the wrapper. This may
+ * defined by the user, in UI Params or globalextra. If prefixAns is
+ * false: do not include answerCode in final wrapper.
+ * @param {string} answerCode text.
+ * @param {string} testCode text.
+ * @param {string} prefixAns '1' for true, '' for false.
+ * @param {string} template provided in UI Params or globalextra.
+ * @returns {string} filled template.
+ */
+function fillWrapper(answerCode, testCode, prefixAns, template) {
+    if (!template) {
+        template = '{{ ANSWER_CODE }}\n' +
+                '{{ SCRATCHPAD_CODE }}';
+    }
+    if (!prefixAns) {
+        answerCode = '';
+    }
+    template = template.replaceAll('{{ ANSWER_CODE }}', answerCode);
+    template = template.replaceAll('{{ SCRATCHPAD_CODE }}', testCode);
+    return template;
+}
+
+
+/**
+ * Returns anew object containg default values. If a matching key exists in
+ * prescribed, the corresponding value from prescribed will replace the defualt value.
+ * Does not add keys/values to the result if that key is not in defualts.
+ * @param {object} defaults object with values to be overwritten.
+ * @param {object} prescribed settings, typically set by a user.
+ * @returns {object} filled with defualt values, overwritten by their prescribed value (iff included).
+ */
+function overwriteValues(defaults, prescribed) {
+    let overwritten = {...defaults};
+    if (prescribed) {
+        for (const [key, value] of Object.entries(defaults)) {
+            overwritten[key] = prescribed[key] || value;
+        }
+    }
+    return overwritten;
+}
+
+
+/**
+ * Constructor for the ScratchpadUi object.
+ * @param {string} textAreaId The ID of the html textarea.
+ * @param {int} width The width in pixels of the textarea.
+ * @param {int} height The height in pixels of the textarea.
+ * @param {object} uiParams The UI parameter object.
+ */
+class ScratchpadUi {
+    constructor(textAreaId, width, height, uiParams) {
+        const DEF_UI_PARAMS = {
+            scratchpad_name: '',
+            button_name: '',
+            prefix_name: '',
+            help_text: '',
+            run_lang: uiParams.lang, // Use answer's ace language if not specified.
+            html_output: false,
+            disable_scratchpad: false,
+            wrapper_src: null
+        };
+
+        this.textArea = document.getElementById(textAreaId);
+        this.textAreaId = textAreaId;
+        this.height = height;
+        this.readOnly = $(this.textArea).prop('readonly');
+        this.fail = false;
+
+        this.lang = uiParams.lang;
+
+        uiParams.num_rows = this.textArea.rows; // Set the height of answer box.
+        this.uiParams = overwriteValues(DEF_UI_PARAMS, uiParams);
+
+        // Find the run wrapper source location.
+        this.runWrapper = null;
+        const wrapperSrc = this.uiParams.wrapper_src;
+        if (wrapperSrc) {
+            if (wrapperSrc === 'globalextra' || wrapperSrc === 'prototypeextra') {
+                this.runWrapper = this.textArea.dataset[wrapperSrc];
+            } else {
+                // TODO: raise some sort of exception? Invalid, params.
+                //  Bad wrapper src provided by user...
+                this.runWrapper = null;
+            }
+        }
+
+        this.outerDiv = null; // TODO: Investigate...
+        this.scratchpadDiv = null;
+        this.reload(); // Draw my beautiful blobs.
+    }
+
+    failed() {
+        return this.fail;
+    }
+
+    failMessage() {
+        return this.failString;
+    }
+
+    sync() {
+        if (!this.context) {
+            return;
+        }
+        const prefixAns = document.getElementById(this.context.prefix_ans.id);
+
+        let serialisation = {
+            answer_code: [''],
+            test_code: [''],
+            show_hide: [''],
+            prefix_ans: ['']
+        };
+        if (this.answerTextarea) {
+            serialisation.answer_code = [this.answerTextarea.value];
+        }
+        if (this.testTextarea) {
+            serialisation.test_code = [this.testTextarea.value];
+        }
+        if ($(this.scratchpadDiv).is(':visible')) { // TODO: fix me!
+            serialisation.show_hide = ['1'];
+        }
+        if (prefixAns && prefixAns.checked) {
+            serialisation.prefix_ans = ['1'];
+        }
+
+        serialisation.prefix_ans = invertSerial(serialisation.prefix_ans);
+        if (Object.values(serialisation).some((val) => val.length === 1 && val[0].length > 0)) {
+            serialisation.prefix_ans = invertSerial(serialisation.prefix_ans);
+            this.textArea.value = JSON.stringify(serialisation);
+        } else {
+            this.textArea.value = ''; // All fields empty...
+        }
+    }
+
+    getElement() {
+        return this.outerDiv;
+    }
+
+    async handleRunButtonClick(ajax, outputDisplayArea) {
+        outputDisplayArea = $(outputDisplayArea);
+        this.sync(); // Use up-to-date serialization.
+
+        const htmlOutput = this.uiParams.html_output;
+        const maxLen = this.uiParams['max-output-length'] || DEFAULT_MAX_OUTPUT_LEN;
+        const preloadString = $(this.textArea).val();
+        const serial = this.serialize(preloadString);
+        const params = this.uiParams.params;
+        const code = fillWrapper(
+                serial.answer_code,
+                serial.test_code,
+                serial.prefix_ans[0],
+                this.runWrapper
+                );
+
+        // Clear all output areas.
+        outputDisplayArea.html('');
+        if (htmlOutput) {
+            outputDisplayArea.hide();
+        }
+        outputDisplayArea.next('div.filter-ace-inline-html').remove(); // TODO: Naming
+
+
+        ajax.call([{
+                methodname: 'qtype_coderunner_run_in_sandbox',
+                args: {
+                    contextid: M.cfg.contextid, // Moodle context ID
+                    sourcecode: code,
+                    language: this.uiParams.run_lang,
+                    params: JSON.stringify(params) // Sandbox params
+                },
+                done: function(responseJson) {
+                    const response = JSON.parse(responseJson);
+                    const error = diagnose(response);
+                    if (error === '') {
+                        // If no errors or compilation error or runtime error
+                        if (!htmlOutput || response.result !== RESULT_SUCCESS) {
+                            // Either it's not HTML output or it is but we have compilation or runtime errors.
+                            const text = combinedOutput(response, maxLen);
+                            outputDisplayArea.show();
+                            if (text.trim() === '') {
+                                outputDisplayArea.html('<span style="color:red">< No output! ></span>');
+                            } else {
+                                outputDisplayArea.html(escapeHtml(text));
+                            }
+                        } else { // Valid HTML output - just plug in the raw html to the DOM.
+                            // Repeat the deletion of previous output in case of multiple button clicks.
+                            outputDisplayArea.next('div.filter-ace-inline-html').remove();
+
+                            const html = $("<div class='filter-ace-inline-html '" +
+                                    "style='background-color:#eff;padding:5px;'>" +
+                                    response.output + "</div>");
+                            outputDisplayArea.after(html);
+                        }
+                    } else {
+                        // If an error occurs, display the language string in the
+                        // outputDisplayArea plus additional info.
+                        let extra = response.error == 0 ? combinedOutput(response, maxLen) : '';
+                        if (error === 'error_unknown_runtime') {
+                            extra += response.error ? '(Sandbox error code ' + response.error + ')' :
+                                    '(Run result: ' + response.result + ')';
+                        }
+                        setLangString(error, outputDisplayArea, extra);
+                    }
+                },
+                fail: function(error) {
+                    alert(error.message);
+                }
+            }]);
+    }
+
+    serialize(preloadString) {
+        const defaultSerial = {
+            answer_code: [''],
+            test_code: [''],
+            show_hide: [''],
+            prefix_ans: ['1'] // Ticked by default!
+        };
+        let serial;
+        if (preloadString) {
+            serial = JSON.parse(preloadString);
+        }
+        serial = overwriteValues(defaultSerial, serial);
+        return serial;
+    }
+
+    reload() {
+        const preloadString = this.textArea.value;
+        let preload;
+        try {
+            preload = this.serialize(preloadString);
+        } catch (error) {
+            this.fail = true;
+            this.failString = 'scratchpad_ui_invalidserialisation';
+            return;
+        }
+
+        this.context = {
+            "id": this.textAreaId,
+            "disable_scratchpad": this.uiParams.disable_scratchpad,
+            "scratchpad_name": this.uiParams.scratchpad_name,
+            "button_name": this.uiParams.button_name,
+            "prefix_name": this.uiParams.prefix_name,
+            "help_text": {"text": this.uiParams.help_text}, // TODO: context doesnt match...
+            "answer_code": {
+                "id": this.textAreaId + '_answer-code',
+                "text": preload.answer_code[0],
+                "lang": this.lang,
+                "rows": this.uiParams.rows
+            },
+            "test_code": {
+                "id": this.textAreaId + '_test-code',
+                "text": preload.test_code[0],
+                "lang": this.lang,
+                "rows": 6
+            },
+            "prefix_ans": {
+                "id": this.textAreaId + '_prefix-ans',
+                "checked": preload.prefix_ans[0]
+            },
+            "output_display": {
+                "id": this.textAreaId + '_output-displayarea'
+            },
+            "jquery_escape": function() {
+                return function(text, render) {
+                    return $.escapeSelector(render(text));
+                };
+            }
+        };
+
+
+        Templates.renderForPromise('qtype_coderunner/scratchpad_ui', this.context)
+            .then(({html, js}) => {
+                const div = document.createElement('div');
+                div.innerHTML = html;
+                document.getElementById(this.textAreaId)
+                    .nextSibling
+                    .innerHTML = html;
+                this.answerTextarea = document.getElementById(this.context.answer_code.id);
+                this.testTextarea = document.getElementById(this.context.test_code.id);
+
+                this.answerCodeUi = newUiWrapper('ace', this.context.answer_code.id);
+                if (this.testTextarea) {
+                    this.testCodeUi = newUiWrapper('ace', this.context.test_code.id);
+                }
+
+                const runButton = document.getElementById(this.textAreaId + '_run-btn');
+                const outputDisplayarea = document.getElementById(this.context.output_display.id);
+                if (runButton) {
+                    runButton.addEventListener('click', () => this.handleRunButtonClick(ajax, outputDisplayarea));
+                }
+            })
+            .catch(() => {
+                this.fail = true;
+                this.failString = "UI template failed to load."; // TODO: Lang-string goes here.
+            });
+
+
+        // No resizing the outer wrapper. Instead, resize the two sub UIs,
+        // they will expand accordingly.
+        $(document.getElementById(this.textAreaId + '_wrapper')).css('resize', 'none');
+    }
+
+    resize() {} // Nothing to see here. Move along please.
+
+    hasFocus() {
+        let focused = false;
+        if (this.answerCodeUi && this.answerCodeUi.hasFocus()) {
+            focused = true;
+        }
+        if (this.testCodeUi && this.testCodeUi.hasFocus()) {
+            focused = true;
+        }
+        return focused;
+    }
+
+    // Destroy the HTML UI and serialise the result into the original text area.
+    destroy() {
+        this.sync();
+        $(this.outerDiv).remove();
+        this.outerDiv = null;
+    }
+}
+
+
+export {ScratchpadUi as Constructor};
