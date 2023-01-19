@@ -30,11 +30,11 @@ Feature: template_params_error
     When I am on the "Dummy question" "core_question > edit" page logged in as teacher1
     And I set the field "id_templateparamslang" to "twig"
     And I set the following fields to these values:
-      | id_templateparams      | {{ "error" * 3 }} |
-    And I should not see "A non-numeric value encountered in"
+      | id_templateparams      | {{ /error }} |
+    And I should not see "Unexpected token"
     And I press "id_submitbutton"
     And I should see "Template parameters must evaluate to blank or a valid JSON record"
-    Then I should see "A non-numeric value encountered in"
+    Then I should see "Unexpected token"
 
   Scenario: As a teacher, I should be given an informative Python error
     When I am on the "Dummy question" "core_question > edit" page logged in as teacher1
