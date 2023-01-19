@@ -205,6 +205,17 @@ const overwriteValues = (defaults, prescribed) => {
     return overwritten;
 };
 
+
+/**
+ * Is an element currently hidden?
+ * @param {Element} el to check visibility of.
+ * @returns {boolean} true if el is visible.
+ */
+const isVisible = (el) => {
+    const styles = window.getComputedStyle(el);
+    return styles.display === 'none' || styles.visibility === 'hidden';
+};
+
 /**
  * Constructor for the ScratchpadUi object.
  * @param {string} textAreaId The ID of the html textarea.
@@ -233,7 +244,7 @@ class ScratchpadUi {
 
         this.lang = uiParams.lang;
 
-        uiParams.num_rows = this.textArea.readOnly; // Set the height of answer box.
+        uiParams.num_rows = this.textArea.readOnly;
         this.uiParams = overwriteValues(DEF_UI_PARAMS, uiParams);
 
         // Find the run wrapper source location.
@@ -267,6 +278,7 @@ class ScratchpadUi {
             return;
         }
         const prefixAns = document.getElementById(this.context.prefix_ans.id);
+        const showHide = document.getElementById(this.context.show_hide.id);
 
         let serialisation = {
             answer_code: [''],
@@ -280,10 +292,10 @@ class ScratchpadUi {
         if (this.testTextarea) {
             serialisation.test_code = [this.testTextarea.value];
         }
-        if ($(this.scratchpadDiv).is(':visible')) { // TODO: fix me!
+        if (!isVisible(showHide)) {
             serialisation.show_hide = ['1'];
         }
-        if (prefixAns && prefixAns.checked) {
+        if (prefixAns?.checked) {
             serialisation.prefix_ans = ['1'];
         }
 
@@ -392,6 +404,10 @@ class ScratchpadUi {
                 "lang": this.lang,
                 "rows": 6
             },
+            "show_hide": {
+                "id": this.textAreaId + '_scratchpad',
+                "show": preload.show_hide[0]
+            },
             "prefix_ans": {
                 "id": this.textAreaId + '_prefix-ans',
                 "checked": preload.prefix_ans[0]
@@ -470,10 +486,10 @@ class ScratchpadUi {
 
     hasFocus() {
         let focused = false;
-        if (this.answerCodeUi && this.answerCodeUi.hasFocus()) {
+        if (this.answerCodeUi?.uiInstance.hasFocus()) {
             focused = true;
         }
-        if (this.testCodeUi && this.testCodeUi.hasFocus()) {
+        if (this.testCodeUi?.uiInstance.hasFocus()) {
             focused = true;
         }
         return focused;
@@ -481,7 +497,7 @@ class ScratchpadUi {
 
     destroy() {
         this.sync();
-        this.outerDiv.remove();
+        this.outerDiv?.remove();
         this.outerDiv = null;
     }
 }

@@ -50,7 +50,7 @@
                 </span>
     {{# str }}scratchpadui_def_scratchpad_name, qtype_coderunner{{/ str }}
 </a>
-<fieldset id="{{id}}_scratchpad" class="collapse show">
+{{# show_hide }}<fieldset id="{{ id }}" class="collapse {{# show }}show{{/ show }}">{{/ show_hide }}
     {{# test_code }}
         {{> qtype_coderunner/answer_textarea }}
     {{/ test_code }}

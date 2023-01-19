@@ -32,7 +32,7 @@
     </button>
     {{# prefix_ans }}
         <input id="{{ id }}" type="checkbox" {{# checked }}checked{{/ checked }} class="coderunner-ui-element" name="prefix_ans" value="1">
-        <label id="{{ id }}_answerprefix-name" for="{{ id }}" style="display:inline-block; margin-left: 3px;">{{#str}}scratchpadui_def_prefix_name, qtype_coderunner{{/str}}</label>
+        <label id="{{ id }}-name" for="{{ id }}" style="display:inline-block; margin-left: 3px;">{{#str}}scratchpadui_def_prefix_name, qtype_coderunner{{/str}}</label>
     {{/ prefix_ans }}
     <span id="{{ id }}_help" style="float:right;padding:8px">
         {{! TODO: use blocks to clean this mess up.}}
