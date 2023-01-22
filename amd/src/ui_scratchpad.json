@@ -1,0 +1,41 @@
+{
+    "name": "ui_scratchpad",
+    "parameters": {
+        "scratchpad_name": {
+            "type": "string",
+            "default": ""
+        },
+        "button_name": {
+            "type": "string",
+            "default": ""
+        },
+        "prefix_name": {
+            "type": "string",
+            "default": ""
+        },
+        "help_text": {
+            "type": "string",
+            "default": ""
+        },
+        "run_lang": {
+            "type": "string",
+            "default": null
+        },
+        "wrapper_src": {
+            "type": "string",
+            "default": null
+        },
+        "params": {
+            "type": "object",
+            "default": null
+        },
+        "html_output": {
+            "type": "boolean",
+            "default": false
+        },
+        "disable_scratchpad": {
+            "type": "boolean",
+            "default": false
+        }
+    }
+}
