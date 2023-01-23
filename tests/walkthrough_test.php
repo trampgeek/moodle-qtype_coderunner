@@ -24,8 +24,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use qtype_coderunner\constants;
-
 namespace qtype_coderunner;
 
 defined('MOODLE_INTERNAL') || die();
