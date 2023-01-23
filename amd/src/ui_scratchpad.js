@@ -60,6 +60,7 @@
  */
 
 import $ from 'jquery';
+
 import ajax from 'core/ajax';
 import {get_string as getLangString} from 'core/str';
 import Templates from 'core/templates';
@@ -207,7 +208,7 @@ const overwriteValues = (defaults, prescribed) => {
 
 
 /**
- * Is an element currently hidden?
+ * Is an element currently visible?
  * @param {Element} el to check visibility of.
  * @returns {boolean} true if el is visible.
  */
@@ -242,9 +243,10 @@ class ScratchpadUi {
         this.readOnly = this.textArea.readonly;
         this.fail = false;
 
-        this.lang = uiParams.lang;
+        this.lang = uiParams.lang; //todo: this vs this.ui params
+        this.numRows = this.textArea.rows;
 
-        uiParams.num_rows = this.textArea.readOnly;
+        // uiParams.num_rows = this.textArea.readOnly;
         this.uiParams = overwriteValues(DEF_UI_PARAMS, uiParams);
 
         // Find the run wrapper source location.
@@ -260,8 +262,7 @@ class ScratchpadUi {
             }
         }
 
-        this.outerDiv = null; // TODO: Investigate...
-        this.scratchpadDiv = null;
+        this.outerDiv = null;
         this.reload(); // Draw my beautiful blobs.
     }
 
@@ -292,7 +293,7 @@ class ScratchpadUi {
         if (this.testTextarea) {
             serialisation.test_code = [this.testTextarea.value];
         }
-        if (!isVisible(showHide)) {
+        if (showHide && !isVisible(showHide)) {
             serialisation.show_hide = ['1'];
         }
         if (prefixAns?.checked) {
@@ -319,7 +320,7 @@ class ScratchpadUi {
         const htmlOutput = this.uiParams.html_output;
         const maxLen = this.uiParams['max-output-length'] || DEFAULT_MAX_OUTPUT_LEN;
         const preloadString = $(this.textArea).val();
-        const serial = this.serialize(preloadString);
+        const serial = this.readJson(preloadString);
         const params = this.uiParams.params;
         const code = fillWrapper(
                 serial.answer_code,
@@ -396,7 +397,7 @@ class ScratchpadUi {
                 "id": this.textAreaId + '_answer-code',
                 "text": preload.answer_code[0],
                 "lang": this.lang,
-                "rows": this.uiParams.rows
+                "rows": this.numRows // Todo: fix number of rows...
             },
             "test_code": {
                 "id": this.textAreaId + '_test-code',
@@ -417,22 +418,31 @@ class ScratchpadUi {
             },
             "jquery_escape": function() {
                 return function(text, render) {
-                    return $.escapeSelector(render(text));
+                    return CSS.escape(render(text));
                 };
             }
         };
     }
 
-    serialize(preloadString) {
+    readJson(preloadString) {
         const defaultSerial = {
-            answer_code: [''],
-            test_code: [''],
-            show_hide: [''],
-            prefix_ans: ['1'] // Ticked by default!
+            "answer_code": [''],
+            "test_code": [''],
+            "show_hide": [''],
+            "prefix_ans": ['1'] // Ticked by default!
         };
         let serial;
-        if (preloadString) {
-            serial = JSON.parse(preloadString);
+        if (preloadString !== "") {
+            try {
+                serial = JSON.parse(preloadString);
+            } catch {
+                // Preload is not JSON, so use preloaded string as answer_code.
+                serial = {"answer_code": [preloadString]};
+            }
+            if (!serial.hasOwnProperty("answer_code")) {
+                // No student_answer field... something is wrong!
+                throw TypeError("JSON has wrong signature, missing answer_code field.");
+            }
         }
         serial = overwriteValues(defaultSerial, serial);
         return serial;
@@ -442,7 +452,7 @@ class ScratchpadUi {
         const preloadString = this.textArea.value;
         let preload;
         try {
-            preload = this.serialize(preloadString);
+            preload = this.readJson(preloadString);
         } catch (error) {
             this.fail = true;
             this.failString = 'scratchpad_ui_invalidserialisation';
@@ -453,9 +463,6 @@ class ScratchpadUi {
 
         try {
             const {html} = await Templates.renderForPromise('qtype_coderunner/scratchpad_ui', this.context);
-
-            const div = document.createElement('div');
-            div.innerHTML = html;
             document.getElementById(this.textAreaId)
                 .nextSibling
                 .innerHTML = html;
@@ -472,14 +479,15 @@ class ScratchpadUi {
             if (runButton) {
                 runButton.addEventListener('click', () => this.handleRunButtonClick(ajax, outputDisplayarea));
             }
+            // No resizing the outer wrapper. Instead, resize the two sub UIs,
+            // they will expand accordingly.
+            document.getElementById(this.textAreaId + '_wrapper').style.resize = 'none';
         } catch (e) {
             this.fail = true;
             this.failString = "UI template failed to load."; // TODO: Lang-string goes here.
         }
 
-        // No resizing the outer wrapper. Instead, resize the two sub UIs,
-        // they will expand accordingly.
-        document.getElementById(this.textAreaId + '_wrapper').style.resize = 'none';
+
     }
 
     resize() {} // Nothing to see here. Move along please.

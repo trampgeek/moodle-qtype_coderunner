@@ -1252,7 +1252,7 @@ $string['scratchpadui_run_wrapper_descr'] = 'The wrapper to be used by the run b
 $string['scratchpadui_params_descr'] = 'The prefix with answer check-box label text.';
 $string['scratchpadui_html_output_descr'] = 'Display the output from run as raw HTML instead of text.';
 
-$string['scratchpadui_def_button_name'] = 'Run!';
+$string['scratchpadui_def_button_name'] = 'Run';
 $string['scratchpadui_def_scratchpad_name'] = 'Scratchpad';
 $string['scratchpadui_def_prefix_name'] = 'Prefix with Answer';
 $string['scratchpadui_def_help_text'] = 'You can enter code into this panel and click \'Run\' to execute it.
