@@ -178,7 +178,7 @@ const invertSerial = current => current[0] == '1' ? [''] : ['1'];
 const fillWrapper = (answerCode, testCode, prefixAns, template) => {
     if (!template) {
         template = '{{ ANSWER_CODE }}\n' +
-                '{{ SCRATCHPAD_CODE }}';
+                   '{{ SCRATCHPAD_CODE }}';
     }
     if (!prefixAns) {
         answerCode = '';
@@ -189,7 +189,7 @@ const fillWrapper = (answerCode, testCode, prefixAns, template) => {
 };
 
 /**
- * Returns anew object containg default values. If a matching key exists in
+ * Returns a new object contain default values. If a matching key exists in
  * prescribed, the corresponding value from prescribed will replace the defualt value.
  * Does not add keys/values to the result if that key is not in defualts.
  * @param {object} defaults object with values to be overwritten.
@@ -207,9 +207,9 @@ const overwriteValues = (defaults, prescribed) => {
 };
 
 /**
- * Is an element currently visible?
- * @param {Element} el to check visibility of.
- * @returns {boolean} true if el is visible.
+ * Is a collapsed element currently collapsed?
+ * @param {Element} el which is collapsed using a bootstrap collapse.
+ * @returns {boolean} true if el is collapsed.
  */
 const isCollapsed = (el) => {
     if (!el.classList.contains('collapse')) {
@@ -238,7 +238,7 @@ class ScratchpadUi {
             wrapper_src: null
         };
 
-        this.INVERT = uiParams.invert_prefix;
+        this.invertPreload = uiParams.invert_prefix;
 
         this.textArea = document.getElementById(textAreaId);
         this.textAreaId = textAreaId;
@@ -246,10 +246,10 @@ class ScratchpadUi {
         this.readOnly = this.textArea.readonly;
         this.fail = false;
 
-        this.lang = uiParams.lang; //todo: this vs this.ui params
+        this.lang = uiParams.lang; // Todo: this vs this.ui params
         this.numRows = this.textArea.rows;
 
-        // uiParams.num_rows = this.textArea.readOnly;
+        // UiParams.num_rows = this.textArea.readOnly;
         this.uiParams = overwriteValues(DEF_UI_PARAMS, uiParams);
 
         // Find the run wrapper source location.
@@ -281,9 +281,9 @@ class ScratchpadUi {
         if (!this.context) {
             return;
         }
+
         const prefixAns = document.getElementById(this.context.prefix_ans.id);
         const showHide = document.getElementById(this.context.show_hide.id);
-
         let serialisation = {
             answer_code: [''],
             test_code: [''],
@@ -302,7 +302,7 @@ class ScratchpadUi {
         if (prefixAns?.checked) {
             serialisation.prefix_ans = ['1'];
         }
-        if (this.INVERT) {
+        if (this.invertPreload) {
             serialisation.prefix_ans = invertSerial(serialisation.prefix_ans);
         }
 
@@ -454,7 +454,7 @@ class ScratchpadUi {
         }
         serial = overwriteValues(defaultSerial, serial);
 
-        if (this.INVERT) {
+        if (this.invertPreload) {
             serial.prefix_ans = invertSerial(serial.prefix_ans);
         }
         return serial;
@@ -498,8 +498,6 @@ class ScratchpadUi {
             this.fail = true;
             this.failString = "UI template failed to load."; // TODO: Lang-string goes here.
         }
-
-
     }
 
     resize() {} // Nothing to see here. Move along please.
