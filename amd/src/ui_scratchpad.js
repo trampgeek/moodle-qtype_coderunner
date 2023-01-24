@@ -238,6 +238,8 @@ class ScratchpadUi {
             wrapper_src: null
         };
 
+        this.INVERT = uiParams.invert_prefix;
+
         this.textArea = document.getElementById(textAreaId);
         this.textAreaId = textAreaId;
         this.height = height;
@@ -300,10 +302,13 @@ class ScratchpadUi {
         if (prefixAns?.checked) {
             serialisation.prefix_ans = ['1'];
         }
+        if (this.INVERT) {
+            serialisation.prefix_ans = invertSerial(serialisation.prefix_ans);
+        }
 
         serialisation.prefix_ans = invertSerial(serialisation.prefix_ans);
         if (Object.values(serialisation).some((val) => val.length === 1 && val[0].length > 0)) {
-            serialisation.prefix_ans = invertSerial(serialisation.prefix_ans);
+                serialisation.prefix_ans = invertSerial(serialisation.prefix_ans);
             this.textArea.value = JSON.stringify(serialisation);
         } else {
             this.textArea.value = ''; // All fields empty...
@@ -448,6 +453,10 @@ class ScratchpadUi {
             }
         }
         serial = overwriteValues(defaultSerial, serial);
+
+        if (this.INVERT) {
+            serial.prefix_ans = invertSerial(serial.prefix_ans);
+        }
         return serial;
     }
 

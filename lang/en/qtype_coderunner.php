@@ -1248,13 +1248,14 @@ $string['scratchpadui_scratchpad_name_descr'] = 'The display name of the scratch
 $string['scratchpadui_button_name_descr'] = 'The run button text';
 $string['scratchpadui_prefix_name_descr'] = 'The prefix with answer check-box label text.';
 $string['scratchpadui_run_lang_descr'] = 'The language used to run code when the run button is clicked, this should be the language your wrapper is written in (if applicable).';
-$string['scratchpadui_run_wrapper_descr'] = 'The wrapper to be used by the run button: setting to `globalextra` will use text in global extra as the wrapper. Otherwise, the string in this parameter will be used';
 $string['scratchpadui_params_descr'] = 'The prefix with answer check-box label text.';
 $string['scratchpadui_html_output_descr'] = 'Display the output from run as raw HTML instead of text.';
-
+$string['scratchpadui_help_text_descr'] = 'The help text to show';
+$string['scratchpadui_wrapper_src_descr'] = 'the location of wrapper to be used by the run button: setting to \'globalextra\' will use text in global extra field, \'prototypeextra\' will use the prototype extra field.';
+$string['scratchpadui_disable_scratchpad_descr'] = 'Disable the scratchpad, essentially reverts back to Ace UI';
 $string['scratchpadui_def_button_name'] = 'Run';
 $string['scratchpadui_def_scratchpad_name'] = 'Scratchpad';
 $string['scratchpadui_def_prefix_name'] = 'Prefix with Answer';
 $string['scratchpadui_def_help_text'] = 'You can enter code into this panel and click \'Run\' to execute it.
-By default, the code in this panel is prefixed with the contents of the answer box, giving you an easy way to test your answer. 
+By default, the code in this panel is prefixed with the contents of the answer box, giving you an easy way to test your answer.
 You can uncheck the \'Prefix with answer\' checkbox to run the code in this panel standalone, e.g. to explore how small code fragments behave.';
