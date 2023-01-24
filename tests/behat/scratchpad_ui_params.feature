@@ -47,7 +47,6 @@ Feature: Test the Scratchpad UI, UI Params
     }
     """
     And I press "id_updatebutton"
-
     Then I should not see "The UI parameters for this question or its prototype are broken. Proceed with caution."
 
   Scenario: Change UI param for run button name

@@ -210,8 +210,13 @@ Feature: Test the Scratchpad UI
     """
 
     When I press the CTRL + ALT M key
-    And I click on "Scratchpad" "button"
-    And I press the CTRL + ALT M key
+    Then I wait "2" seconds
+    Then I click on "Scratchpad" "button"
+
+    Then I wait "2" seconds
+    Then  I should not see "Run"
+
+    When I press the CTRL + ALT M key
     Then I should see in answer field:
     """
     {"answer_code":[""],"test_code":["print('hello world')"],"show_hide":[""],"prefix_ans":[""]}
@@ -256,7 +261,6 @@ Feature: Test the Scratchpad UI
     And I set the ace field "answer_code" to "print('hello world')"
     And I set the ace field "test_code" to "print('goodbye world')"
     And I set the field "prefix_ans" to ""
-    And I wait "1" seconds
 
     Then I press the CTRL + ALT M key
     And I should see in answer field:
