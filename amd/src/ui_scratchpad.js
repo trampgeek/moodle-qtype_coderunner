@@ -206,15 +206,16 @@ const overwriteValues = (defaults, prescribed) => {
     return overwritten;
 };
 
-
 /**
  * Is an element currently visible?
  * @param {Element} el to check visibility of.
  * @returns {boolean} true if el is visible.
  */
-const isVisible = (el) => {
-    const styles = window.getComputedStyle(el);
-    return styles.display === 'none' || styles.visibility === 'hidden';
+const isCollapsed = (el) => {
+    if (!el.classList.contains('collapse')) {
+        throw Error('Element does not have collapse class');
+    }
+    return !el.classList.contains('show');
 };
 
 /**
@@ -293,7 +294,7 @@ class ScratchpadUi {
         if (this.testTextarea) {
             serialisation.test_code = [this.testTextarea.value];
         }
-        if (showHide && !isVisible(showHide)) {
+        if (showHide && !isCollapsed(showHide)) {
             serialisation.show_hide = ['1'];
         }
         if (prefixAns?.checked) {
@@ -391,16 +392,17 @@ class ScratchpadUi {
             "disable_scratchpad": this.uiParams.disable_scratchpad,
             "scratchpad_name": this.uiParams.scratchpad_name,
             "button_name": this.uiParams.button_name,
-            "prefix_name": this.uiParams.prefix_name,
             "help_text": {"text": this.uiParams.help_text}, // TODO: context doesnt match...
             "answer_code": {
                 "id": this.textAreaId + '_answer-code',
+                "name": "answer_code",
                 "text": preload.answer_code[0],
                 "lang": this.lang,
                 "rows": this.numRows // Todo: fix number of rows...
             },
             "test_code": {
                 "id": this.textAreaId + '_test-code',
+                "name": "test_code",
                 "text": preload.test_code[0],
                 "lang": this.lang,
                 "rows": 6
@@ -411,6 +413,7 @@ class ScratchpadUi {
             },
             "prefix_ans": {
                 "id": this.textAreaId + '_prefix-ans',
+                "label": this.uiParams.prefix_name,
                 "checked": preload.prefix_ans[0]
             },
             "output_display": {

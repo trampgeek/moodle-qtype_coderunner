@@ -62,17 +62,17 @@ Feature: Test the Scratchpad UI, UI Params
 
     When I choose "Preview" action for "Print answer" in the question bank
     And I should not see "superuniquename123"
-    And I should not see "Run!"
+    And I should not see "Run"
     And I should see "Scratchpad"
 
     When I click on "Scratchpad" "button"
     Then I should see "superuniquename123"
-    But I should not see "Run!"
+    But I should not see "Run"
     And I should see "Prefix with Answer"
 
     When I click on "Scratchpad" "button"
     Then I should not see "superuniquename123"
-    And I should not see "Run!"
+    And I should not see "Run"
     And I should not see "Prefix Answer?"
 
   Scenario: Change UI param for Scratchpad name
@@ -85,17 +85,17 @@ Feature: Test the Scratchpad UI, UI Params
     Then I should see "Print answer"
 
     When I choose "Preview" action for "Print answer" in the question bank
-    Then I should not see "Run!"
+    Then I should not see "Run"
     And I should not see "Scratchpad"
     But I should see "superuniquename123"
 
     When I click on "superuniquename123" "button"
     Then I should see "superuniquename123"
-    And I should see "Run!"
+    And I should see "Run"
     And I should see "Prefix with Answer"
 
     When I click on "superuniquename123" "button"
-    And I should not see "Run!"
+    And I should not see "Run"
     And I should not see "Prefix Answer?"
 
   Scenario: Change UI param for run button name
@@ -111,16 +111,16 @@ Feature: Test the Scratchpad UI, UI Params
     When I choose "Preview" action for "Print answer" in the question bank
     Then I should see "Scratchpad"
     And I should not see "superuniquename123"
-    And I should not see "Run!"
+    And I should not see "Run"
 
     When I click on "Scratchpad" "button"
     Then I should see "superuniquename123"
     But I should not see "Prefix Answer?"
-    And I should see "Run!"
+    And I should see "Run"
 
     When I click on "Scratchpad" "button"
     Then I should not see "superuniquename123"
-    And I should not see "Run!"
+    And I should not see "Run"
     And I should not see "Prefix Answer?"
 
   Scenario: Set HTML output to true, 'print' a button to output area
@@ -136,7 +136,7 @@ Feature: Test the Scratchpad UI, UI Params
     When I choose "Preview" action for "Print answer" in the question bank
     And I click on "Scratchpad" "button"
     And I set the ace field "test_code" to "print('<button>Hi</button>')"
-    Then I press "Run!"
+    Then I press "Run"
     And I press "Hi"
 
   Scenario: Define wrapper in UI params and click run, insert both answer and Scratchpad code, NO prefix with answer, click run
@@ -160,7 +160,7 @@ Feature: Test the Scratchpad UI, UI Params
     And I set the ace field "answer_code" to "print('Hello Answercode', end=' ')"
     And I set the ace field "test_code" to "print('Hello Scratchpadcode', end=' ')"
     And I set the field "prefix_ans" to ""
-    Then I press "Run!"
+    Then I press "Run"
     And I should see "Hello Wrapper Hello Scratchpadcode"
 
   Scenario: Define wrapper in UI params and click run, insert both answer and Scratchpad code, prefix with answer, click run
@@ -183,7 +183,7 @@ Feature: Test the Scratchpad UI, UI Params
     And I click on "Scratchpad" "button"
     And I set the ace field "answer_code" to "print('Hello Answercode', end=' ')"
     And I set the ace field "test_code" to "print('Hello Scratchpadcode', end=' ')"
-    Then I press "Run!"
+    Then I press "Run"
     And I should see "Hello Wrapper Hello Answercode Hello Scratchpadcode"
 
   Scenario: Define wrapper in global extra, insert both answer and Scratchpad code, NO prefix with answer, click run
@@ -206,7 +206,7 @@ Feature: Test the Scratchpad UI, UI Params
     And I set the ace field "answer_code" to "print('Hello Answercode', end=' ')"
     And I set the ace field "test_code" to "print('Hello Scratchpadcode', end=' ')"
     And I set the field "prefix_ans" to ""
-    Then I press "Run!"
+    Then I press "Run"
     And I should see "Hello Wrapper Hello Scratchpadcode"
 
   Scenario: Define wrapper in global extra, insert both answer and Scratchpad code, prefix with answer, click run
@@ -230,5 +230,5 @@ Feature: Test the Scratchpad UI, UI Params
     And I set the ace field "answer_code" to "print('Hello Answercode', end=' ')"
     And I set the ace field "test_code" to "print('Hello Scratchpadcode', end=' ')"
     And I set the field "prefix_ans" to "1"
-    Then I press "Run!"
+    Then I press "Run"
     And I should see "Hello Wrapper Hello Answercode Hello Scratchpadcode"
