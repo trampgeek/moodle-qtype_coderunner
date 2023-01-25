@@ -299,7 +299,7 @@ class ScratchpadUi {
         if (showHide && !isCollapsed(showHide)) {
             serialisation.show_hide = ['1'];
         }
-        if (prefixAns?.checked) {
+        if (prefixAns?.checked || this.context.disable_scratchpad) {
             serialisation.prefix_ans = ['1'];
         }
         if (this.invertPreload) {

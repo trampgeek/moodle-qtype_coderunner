@@ -1245,14 +1245,15 @@ $string['xmlcoderunnerformaterror'] = 'XML format error in coderunner question';
 
 
 $string['scratchpadui_scratchpad_name_descr'] = 'The display name of the scratchpad, used to hide/un-hide the scratchpad.';
-$string['scratchpadui_button_name_descr'] = 'The run button text';
+$string['scratchpadui_button_name_descr'] = 'The run button text.';
 $string['scratchpadui_prefix_name_descr'] = 'The prefix with answer check-box label text.';
 $string['scratchpadui_run_lang_descr'] = 'The language used to run code when the run button is clicked, this should be the language your wrapper is written in (if applicable).';
 $string['scratchpadui_params_descr'] = 'The prefix with answer check-box label text.';
 $string['scratchpadui_html_output_descr'] = 'Display the output from run as raw HTML instead of text.';
-$string['scratchpadui_help_text_descr'] = 'The help text to show';
-$string['scratchpadui_wrapper_src_descr'] = 'the location of wrapper to be used by the run button: setting to \'globalextra\' will use text in global extra field, \'prototypeextra\' will use the prototype extra field.';
-$string['scratchpadui_disable_scratchpad_descr'] = 'Disable the scratchpad, essentially reverts back to Ace UI';
+$string['scratchpadui_help_text_descr'] = 'The help text to show.';
+$string['scratchpadui_wrapper_src_descr'] = 'The location of wrapper to be used by the run button: setting to \'globalextra\' will use text in global extra field, \'prototypeextra\' will use the prototype extra field.';
+$string['scratchpadui_disable_scratchpad_descr'] = 'Disable the scratchpad, effectively revert back to Ace UI from student perspective.';
+$string['scratchpadui_invert_prefix_descr'] = 'Inverts meaning of prefix_ans serialisation -- \'1\' means un-ticked, vice versa. This can be used to swap the default state.';
 $string['scratchpadui_def_button_name'] = 'Run';
 $string['scratchpadui_def_scratchpad_name'] = 'Scratchpad';
 $string['scratchpadui_def_prefix_name'] = 'Prefix with Answer';

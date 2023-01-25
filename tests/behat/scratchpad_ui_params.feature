@@ -40,10 +40,13 @@ Feature: Test the Scratchpad UI, UI Params
         "prefix_name":"unhelpful label :)",
         "wrapper_src": "globalextra",
         "run_lang": "Python3",
+        "help_text": "hi",
         "params": {
             "numprocs":100,
             "memlimit":1000
-        }
+        },
+        "disable_scratchpad": false,
+        "invert_prefix": true
     }
     """
     And I press "id_updatebutton"
@@ -162,7 +165,7 @@ Feature: Test the Scratchpad UI, UI Params
     Then I press "Run"
     And I should see "Hello Wrapper Hello Scratchpadcode"
 
-  Scenario: Define wrapper in UI params and click run, insert both answer and Scratchpad code, prefix with answer, click run
+  Scenario: Define wrapper in global extra and click run, insert both answer and Scratchpad code, prefix with answer, click run
     And I set the field "id_answer" to ""
     And I set the following fields to these values:
       | id_customise    | 1                              |
@@ -184,6 +187,36 @@ Feature: Test the Scratchpad UI, UI Params
     And I set the ace field "test_code" to "print('Hello Scratchpadcode', end=' ')"
     Then I press "Run"
     And I should see "Hello Wrapper Hello Answercode Hello Scratchpadcode"
+
+  Scenario: Define wrapper in prototype extra and click run, insert both answer and Scratchpad code, prefix with answer, click run
+    And I set the field "id_answer" to ""
+    And I set the following fields to these values:
+      | id_customise    | 1                              |
+      | id_uiplugin     | Scratchpad                     |
+      | id_uiparameters | {"wrapper_src": "prototypeextra"} |
+      | id_prototypetype |     2                         |
+    And I set the field "globalextra" to:
+    """
+    print('Hello GlobalExtra', end=' ')
+    {{ ANSWER_CODE }}
+    {{ SCRATCHPAD_CODE }}
+    """
+    And I set the field "prototypeextra" to:
+    """
+    print('Hello PrototypeExtra', end=' ')
+    {{ ANSWER_CODE }}
+    {{ SCRATCHPAD_CODE }}
+    """
+    And I press "id_submitbutton"
+    Then I should see "This is a prototype; cannot change question type."
+
+
+    When I click on "Scratchpad" "button"
+    And I set the ace field "answer_code" to "print('Hello Answercode', end=' ')"
+    And I set the ace field "test_code" to "print('Hello Scratchpadcode', end=' ')"
+    Then I press "Run"
+    And I should see "Hello PrototypeExtra Hello Answercode Hello Scratchpadcode"
+    And I should not see "Hello GlobalExtra"
 
   Scenario: Define wrapper in global extra, insert both answer and Scratchpad code, NO prefix with answer, click run
     And I set the field "id_answer" to ""
@@ -231,3 +264,119 @@ Feature: Test the Scratchpad UI, UI Params
     And I set the field "prefix_ans" to "1"
     Then I press "Run"
     And I should see "Hello Wrapper Hello Answercode Hello Scratchpadcode"
+
+  Scenario: I set UI param invert_prefix to true and check serialisation
+    When I am on the "Print answer" "core_question > edit" page logged in as teacher1
+    And I set the field "id_answer" to ""
+    And I set the following fields to these values:
+      | id_customise      | 1          |
+      | id_uiplugin       | Scratchpad |
+      | id_uiparameters   | {"invert_prefix": "true"} |
+    And I press "id_submitbutton"
+    Then I should see "Print answer"
+
+    When I choose "Preview" action for "Print answer" in the question bank
+    And I click on "Scratchpad" "button"
+    And I should see "Run"
+    And I set the field "prefix_ans" to "1"
+
+    Then I press the CTRL + ALT M key
+    And I should see in answer field:
+    """
+    {"answer_code":[""],"test_code":[""],"show_hide":["1"],"prefix_ans":[""]}
+    """
+
+    When I press the CTRL + ALT M key
+    Then I press the CTRL + ALT M key
+    And I should see in answer field:
+    """
+    {"answer_code":[""],"test_code":[""],"show_hide":["1"],"prefix_ans":[""]}
+    """
+
+  Scenario: I set UI param invert_prefix to true and check serialisation
+    When I am on the "Print answer" "core_question > edit" page logged in as teacher1
+    And I set the field "id_answer" to ""
+    And I set the following fields to these values:
+      | id_customise      | 1          |
+      | id_uiplugin       | Scratchpad |
+      | id_uiparameters   | {"invert_prefix": "true"} |
+    And I press "id_submitbutton"
+    Then I should see "Print answer"
+
+    When I choose "Preview" action for "Print answer" in the question bank
+    And I click on "Scratchpad" "button"
+    And I set the field "prefix_ans" to ""
+
+    Then I press the CTRL + ALT M key
+    And I should see in answer field:
+    """
+    {"answer_code":[""],"test_code":[""],"show_hide":["1"],"prefix_ans":["1"]}
+    """
+
+  Scenario: I set UI param invert_prefix to true and check prefix run functionality
+    When I am on the "Print answer" "core_question > edit" page logged in as teacher1
+    And I set the field "id_answer" to ""
+    And I set the following fields to these values:
+      | id_customise      | 1          |
+      | id_uiplugin       | Scratchpad |
+      | id_uiparameters   | {"invert_prefix": "true"} |
+    And I press "id_submitbutton"
+    Then I should see "Print answer"
+
+    When I choose "Preview" action for "Print answer" in the question bank
+    And I click on "Scratchpad" "button"
+    And I set the ace field "answer_code" to "print(\"hello\" + \" \" + \"world\")"
+    And I set the ace field "test_code" to "print(\"goodbye\" + \" \" + \"world\")"
+
+    When I press "Run"
+    Then I should not see "hello world"
+    And I should see "goodbye world"
+
+    When I set the field "prefix_ans" to "1"
+    And I press "Run"
+    Then I should see "hello world"
+    And I should see "goodbye world"
+
+  Scenario: Set UI param for disabling scratchpad and check serialisation.
+    And I set the field "id_answer" to ""
+    And I set the following fields to these values:
+      | id_customise    | 1                                     |
+      | id_uiplugin     | Scratchpad                            |
+      | id_uiparameters | {"disable_scratchpad": "true"} |
+
+    And I press "id_submitbutton"
+    Then I should see "Print answer"
+
+    When I choose "Preview" action for "Print answer" in the question bank
+    Then I should not see "Scratchpad"
+    And I should not see "Run"
+    And I should not see "Prefix with Answer"
+
+    When I press the CTRL + ALT M key
+    Then I should see in answer field ""
+
+    When I press the CTRL + ALT M key
+    Then I wait "2" seconds
+    And I set the ace field "answer_code" to "print('hello world')"
+
+    Then I press the CTRL + ALT M key
+    And I should see in answer field:
+    """
+    {"answer_code":["print('hello world')"],"test_code":[""],"show_hide":[""],"prefix_ans":["1"]}
+    """
+
+  Scenario: Set UI param for help text.
+    And I set the field "id_answer" to ""
+    And I set the following fields to these values:
+      | id_customise    | 1                                     |
+      | id_uiplugin     | Scratchpad                            |
+      | id_uiparameters | {"help_text": "superusefulhelptext"} |
+
+    And I press "id_submitbutton"
+    Then I should see "Print answer"
+
+    When I choose "Preview" action for "Print answer" in the question bank
+    And I click on "Scratchpad" "button"
+    And I set the field "prefix_ans" to ""
+    And I press the tab key
+    Then I should see "superusefulhelptext"
