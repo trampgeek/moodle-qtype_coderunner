@@ -2,7 +2,7 @@
 Feature: Test the Scratchpad UI, UI Params
   In order to use the Scratchpad UI
   As a teacher
-  I should be able specify the UI Paramiters to change the Scratchpad UI
+  I should be able specify the UI Parameters to change the Scratchpad UI
 
   Background:
     Given the following "users" exist:
@@ -191,10 +191,13 @@ Feature: Test the Scratchpad UI, UI Params
   Scenario: Define wrapper in prototype extra and click run, insert both answer and Scratchpad code, prefix with answer, click run
     And I set the field "id_answer" to ""
     And I set the following fields to these values:
-      | id_customise    | 1                              |
-      | id_uiplugin     | Scratchpad                     |
-      | id_uiparameters | {"wrapper_src": "prototypeextra"} |
-      | id_prototypetype |     2                         |
+      | id_customise      | 1                                 |
+      | id_uiplugin       | Scratchpad                        |
+      | id_uiparameters   | {"wrapper_src": "prototypeextra"} |
+      | id_prototypetype  | 2                                 |
+      | id_typename       | typename123                       |
+      | id_validateonsave | 0                                 |
+
     And I set the field "globalextra" to:
     """
     print('Hello GlobalExtra', end=' ')
@@ -208,14 +211,16 @@ Feature: Test the Scratchpad UI, UI Params
     {{ SCRATCHPAD_CODE }}
     """
     And I press "id_submitbutton"
-    Then I should see "This is a prototype; cannot change question type."
+    Then I should see "Print answer"
 
-
-    When I click on "Scratchpad" "button"
+    When I choose "Preview" action for "Print answer" in the question bank
+    And I wait "2" seconds
+    Then I click on "Scratchpad" "button"
     And I set the ace field "answer_code" to "print('Hello Answercode', end=' ')"
     And I set the ace field "test_code" to "print('Hello Scratchpadcode', end=' ')"
     Then I press "Run"
-    And I should see "Hello PrototypeExtra Hello Answercode Hello Scratchpadcode"
+    Then I wait "2" seconds
+    Then I should see "Hello PrototypeExtra Hello Answercode Hello Scratchpadcode"
     And I should not see "Hello GlobalExtra"
 
   Scenario: Define wrapper in global extra, insert both answer and Scratchpad code, NO prefix with answer, click run
@@ -269,9 +274,9 @@ Feature: Test the Scratchpad UI, UI Params
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1
     And I set the field "id_answer" to ""
     And I set the following fields to these values:
-      | id_customise      | 1          |
-      | id_uiplugin       | Scratchpad |
-      | id_uiparameters   | {"invert_prefix": "true"} |
+      | id_customise    | 1                         |
+      | id_uiplugin     | Scratchpad                |
+      | id_uiparameters | {"invert_prefix": "true"} |
     And I press "id_submitbutton"
     Then I should see "Print answer"
 
@@ -297,9 +302,9 @@ Feature: Test the Scratchpad UI, UI Params
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1
     And I set the field "id_answer" to ""
     And I set the following fields to these values:
-      | id_customise      | 1          |
-      | id_uiplugin       | Scratchpad |
-      | id_uiparameters   | {"invert_prefix": "true"} |
+      | id_customise    | 1                         |
+      | id_uiplugin     | Scratchpad                |
+      | id_uiparameters | {"invert_prefix": "true"} |
     And I press "id_submitbutton"
     Then I should see "Print answer"
 
@@ -317,9 +322,9 @@ Feature: Test the Scratchpad UI, UI Params
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1
     And I set the field "id_answer" to ""
     And I set the following fields to these values:
-      | id_customise      | 1          |
-      | id_uiplugin       | Scratchpad |
-      | id_uiparameters   | {"invert_prefix": "true"} |
+      | id_customise    | 1                         |
+      | id_uiplugin     | Scratchpad                |
+      | id_uiparameters | {"invert_prefix": "true"} |
     And I press "id_submitbutton"
     Then I should see "Print answer"
 
@@ -340,8 +345,8 @@ Feature: Test the Scratchpad UI, UI Params
   Scenario: Set UI param for disabling scratchpad and check serialisation.
     And I set the field "id_answer" to ""
     And I set the following fields to these values:
-      | id_customise    | 1                                     |
-      | id_uiplugin     | Scratchpad                            |
+      | id_customise    | 1                              |
+      | id_uiplugin     | Scratchpad                     |
       | id_uiparameters | {"disable_scratchpad": "true"} |
 
     And I press "id_submitbutton"
@@ -368,8 +373,8 @@ Feature: Test the Scratchpad UI, UI Params
   Scenario: Set UI param for help text.
     And I set the field "id_answer" to ""
     And I set the following fields to these values:
-      | id_customise    | 1                                     |
-      | id_uiplugin     | Scratchpad                            |
+      | id_customise    | 1                                    |
+      | id_uiplugin     | Scratchpad                           |
       | id_uiparameters | {"help_text": "superusefulhelptext"} |
 
     And I press "id_submitbutton"

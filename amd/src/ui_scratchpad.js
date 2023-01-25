@@ -475,12 +475,12 @@ class ScratchpadUi {
 
         try {
             const {html} = await Templates.renderForPromise('qtype_coderunner/scratchpad_ui', this.context);
-            document.getElementById(this.textAreaId)
-                .nextSibling
-                .innerHTML = html;
+            const wrapperDiv = document.getElementById(this.textAreaId).nextSibling;
+            wrapperDiv.innerHTML = html;
+
+            this.outerDiv = wrapperDiv.firstChild;
             this.answerTextarea = document.getElementById(this.context.answer_code.id);
             this.testTextarea = document.getElementById(this.context.test_code.id);
-
             this.answerCodeUi = newUiWrapper('ace', this.context.answer_code.id);
             if (this.testTextarea) {
                 this.testCodeUi = newUiWrapper('ace', this.context.test_code.id);
@@ -491,9 +491,10 @@ class ScratchpadUi {
             if (runButton) {
                 runButton.addEventListener('click', () => this.handleRunButtonClick(ajax, outputDisplayarea));
             }
+
             // No resizing the outer wrapper. Instead, resize the two sub UIs,
             // they will expand accordingly.
-            document.getElementById(this.textAreaId + '_wrapper').style.resize = 'none';
+            wrapperDiv.style.resize = 'none';
         } catch (e) {
             this.fail = true;
             this.failString = "UI template failed to load."; // TODO: Lang-string goes here.
@@ -515,6 +516,8 @@ class ScratchpadUi {
 
     destroy() {
         this.sync();
+        this.answerCodeUi?.uiInstance.destroy();
+        this.testCodeUiCodeUi?.uiInstance.destroy();
         this.outerDiv?.remove();
         this.outerDiv = null;
     }

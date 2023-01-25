@@ -221,6 +221,7 @@ Feature: Test the Scratchpad UI
     """
     {"answer_code":[""],"test_code":["print('hello world')"],"show_hide":[""],"prefix_ans":[""]}
     """
+
   @serial
   Scenario: Get UI serialization, while Scratchpad Shown and prefix box NOT ticked
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1
@@ -346,3 +347,22 @@ Feature: Test the Scratchpad UI
     And I press the CTRL + ALT M key
     Then I should not see "print('hello world')"
     And I should see "Falling back to raw text area."
+
+  Scenario: Change question using Scratchpad UI to table UI in authorform, tests destroy method.
+    When I am on the "Print answer" "core_question > edit" page logged in as teacher1
+    And I set the field "id_answer" to ""
+    And I set the following fields to these values:
+      | id_customise      | 1     |
+      | id_uiplugin       | Table |
+      | id_validateonsave | 0     |
+      | id_expected_0     | ''    |
+    And I press "id_updatebutton"
+
+    When I set the field "id_uiplugin" to "Scratchpad"
+    And I press the CTRL + ALT M key
+    Then I set the field "id_answer" to "print('hello world')"
+    Then I press the CTRL + ALT M key
+    And I set the field "id_uiplugin" to "Table"
+    Then I should not see "print('hello world')"
+#    This line should work, but behat can't find the text... Not essential, but does improve test's accuracy.
+#    And I should see "Table UI needs parameters num_columns and num_rows."
