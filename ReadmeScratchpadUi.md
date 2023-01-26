@@ -3,26 +3,32 @@ The **Scratchpad UI** is an extension of the **Ace UI**:
 - The Scratchpad UI is designed to allow the execution of code in the CodeRunner question in a manner similar to an IDE.
 - The Scratchpad UI contains two editor boxes, one on top of another, allowing users to enter and edit code in both.
 
-By default, only the top editor is visible and the bottom editor (Scratchpad Area) is hidden, clicking the **Scratchpad button** shows it.
-The Scratchpad area contains a second editor, a **Run button** and a **Prefix with Answer** checkbox. 
-Additionally, there is a help button that provides information about how to use the Scratchpad. 
+By default, only the top editor is visible and the **Scratchpad Area**, which contains the bottom editor, is hidden. 
+Clicking the **Scratchpad Button** shows the **Scratchpad Area**. 
+This includes a second editor, a **Run button** and a **Prefix with Answer** checkbox and an **Output Display Area**. 
+Additionally, there is a **Help Button** that provides information about how to use the Scratchpad. 
 
 It's possible to run code 'in-browser' by clicking the **Run Button**, _without_ making a submission via the **Check Button**:
-- If **Prefix with Answer** is not checked, only the code in the **Scratchpad** is run -- allowing for a rough working spot to quickly check the result of code.
-- Otherwise, when **Prefix with Answer** is checked, the code in the **Scratchpad** is appended to the code in the first editor before being run.
+- If **Prefix with Answer** is not checked, only the code in the **Scratchpad Editor** is run -- allowing for a rough working spot to quickly check the result of code.
+- Otherwise, when **Prefix with Answer** is checked, the code in the **Scratchpad Editor** is appended to the code in the first editor before being run.
 
-Note: *This behavior can be modified, see wrappers...*
+The Run Button has some limitations when using its default configuration:
+- Does not support programs that use STDIN (by default);
+- Only supports textual STDOUT (by default).
+
+Note: *These features can be supported, see wrappers...*
 
 ### Serialisation
 The UI state serialises to JSON, with fields:
-- `answer_code`: A list containing a string with answer code from the first editor;
-- `test_code`: A list containing a string with containing answer code from the second editor;
+- `answer_code`: `[""]` A list containing a string with answer code from the first editor;
+- `test_code`: `[""]` A list containing a string with containing answer code from the second editor;
 - `show_hide`: `["1"]` when scratchpad is visible, otherwise `[""]`;
 - `prefix_ans`: `["1"]` when **Prefix with Answer** is checked, otherwise `[""]`.
 
-A special case: *if all fields are empty but `prefix_ans` is `'[1]'`, the serialisation itself is the empty string.*
+A special case is the default serialisation: `{"answer_code":[""],"test_code":[""],"show_hide":["1"],"prefix_ans":["1"]}` is converted to `""` (an empty string).
 
-Sample serialisation: `{"answer_code":["print('hello world')"],"test_code":[""],"show_hide":["1"],"prefix_ans":["1"]}`
+The UI will also accept (and convert) JSON with only the field `answer_code` and strings to a valid serialisation.
+A valid serialisation is one with all four specified fields. All other serialisations will be rejected by the interface.
 
 ### UI Parameters
 

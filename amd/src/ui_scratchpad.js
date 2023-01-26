@@ -14,46 +14,52 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Implementation of the html_ui user interface plugin. For overall details
+ * Implementation of the scratchpad_ui user interface plugin. For overall details
  * of the UI plugin architecture, see userinterfacewrapper.js.
  *
- * This plugin replaces the usual textarea answer element with a div
- * containing the author-supplied HTML. The serialisation of that HTML,
- * which is what is essentially copied back into the textarea for submissions
- * as the answer, is a JSON object. The fields of that object are the names
- * of all author-supplied HTML elements with a class 'coderunner-ui-element';
- * all such objects are expected to have a 'name' attribute as well. The
- * associated field values are lists. Each list contains all the values, in
- * document order, of the results of calling the jquery val() method in turn
- * on each of the UI elements with that name.
- * This means that at least input, select and textarea
- * elements are supported. The author is responsible for checking the
- * compatibility of other elements with jquery's val() method.
+ * This plugin replaces the usual textarea answer element with a UI is designed to
+ * allow the execution of code in the CodeRunner question in a manner similar to an IDE.
+ * It contains two editor boxes, one on top of another, allowing users to enter and
+ * edit code in both.
+ *  By default, only the top editor is visible and the bottom editor (Scratchpad Area) is hidden,
+ * clicking the Scratchpad button shows it. The Scratchpad area contains a second editor,
+ * a Run button and a Prefix with Answer checkbox. Additionally, there is a help button that
+ * provides information about how to use the Scratchpad.
+ *  It's possible to run code 'in-browser' by clicking the Run Button,
+ * without making a submission via the Check Button:
+ *          If Prefix with Answer is not checked, only the code in the Scratchpad is run --
+ *      allowing for a rough working spot to quickly check the result of code.
+ *          Otherwise, when Prefix with Answer is checked, the code in the Scratchpad is
+ *      appended to the code in the first editor before being run.
+ *  The Run Button has some limitations when using its default configuration:
+ *     Does not support programs that use STDIN (by default);
+ *     Only supports textual STDOUT (by default).
+ * Note: These features can be supported, see the README section on wrappers...
+ *  The serialisation of this UI is a JSON object with the fields
+ * with fields:
+ *      answer_code: [""] A list containing a string with answer code from the first editor;
+ *      test_code: [""] A list containing a string with containing answer code from the second editor;
+ *      show_hide: ["1"] when scratchpad is visible, otherwise [""];
+ *      prefix_ans: ["1"] when Prefix with Answer is checked, otherwise [""].
+ * . The fields of that object are the names
  *
- * The HTML to use in the answer area must be provided as the contents of
- * either the globalextra field or the prototypeextra field in the question
- * authoring form. The choice of which is set by the html_src UI parameter, which
- * must be either 'globalextra' or 'prototypeextra'.
+ * UI Parameters:
+ *    - scratchpad_name: display name of the scratchpad, used to hide/un-hide the scratchpad.
+ *    - button_name: run button text.
+ *    - prefix_name: prefix with answer check-box label text.
+ *    - help_text: help text to show.
+ *    - run_lang: language used to run code when the run button is clicked,
+ *      this should be the language your wrapper is written in (if applicable).
+ *    - wrapper_src: location of wrapper code to be used by the run button, if applicable:
+ *      setting to globalextra will use text in global extra field,
+ *    - prototypeextra will use the prototype extra field.
+ *    - html_output: when true, the output from run will be displayed as raw HTML instead of text.
+ *    - disable_scratchpad: disable the scratchpad, effectively returning back to Ace UI
+ *      from student perspective.
+ *    - invert_prefix: inverts meaning of prefix_ans serialisation -- '1' means un-ticked, vice versa.
+ *      This can be used to swap the default state.
  *
- * If any fields of the answer html are to be preloaded, these should be specified
- * in the answer preload with json of the form '{"<fieldName>": "<fieldValueList>",...}'
- * where fieldValueList is a list of all the values to be assigned to the fields
- * with the given name, in document order.
- *
- * To accommodate the possibility of dynamic HTML, any leftover preload values,
- * that is, values that cannot be positioned within the HTML either because
- * there is no field of the required name or because, in the case of a list,
- * there are insufficient elements, are assigned to the data['leftovers']
- * attribute of the outer html div, as a sub-object of the original object.
- * This outer div can be located as the 'closest' (in a jQuery sense)
- * div.qtype-coderunner-html-outer-div. The author-supplied HTML must include
- * JavaScript to make use of the 'leftovers'.
- *
- * As a special case of the serialisation, if all values in the serialisation
- * are either empty strings or a list of empty strings, the serialisation is
- * itself the empty string.
- *
- * @module coderunner/ui_html
+ * @module coderunner/ui_scratchpad
  * @copyright  Richard Lobb, 2022, The University of Canterbury
  * @copyright  James Napier, 2022, The University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -427,6 +433,7 @@ class ScratchpadUi {
             "output_display": {
                 "id": this.textAreaId + '_output-displayarea'
             },
+            // Bootstrap collapse requires jQuerry friendly ids to work...
             "jquery_escape": function() {
                 return function(text, render) {
                     return CSS.escape(render(text));
