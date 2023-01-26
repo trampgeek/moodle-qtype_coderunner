@@ -237,36 +237,32 @@ class ScratchpadUi {
             disable_scratchpad: false,
             wrapper_src: null
         };
-
-        this.invertPreload = uiParams.invert_prefix;
-
         this.textArea = document.getElementById(textAreaId);
         this.textAreaId = textAreaId;
         this.height = height;
         this.readOnly = this.textArea.readonly;
         this.fail = false;
-
+        this.outerDiv = null;
+        this.invertPreload = uiParams.invert_prefix;
         this.lang = uiParams.lang; // Todo: this vs this.ui params
         this.numRows = this.textArea.rows;
-
-        // UiParams.num_rows = this.textArea.readOnly;
         this.uiParams = overwriteValues(DEF_UI_PARAMS, uiParams);
+        this.runWrapper = this.getRunWrapper();
+        this.reload(); // Draw my beautiful blobs.
+    }
 
-        // Find the run wrapper source location.
-        this.runWrapper = null;
+    getRunWrapper() {
         const wrapperSrc = this.uiParams.wrapper_src;
+        let runWrapper = null;
         if (wrapperSrc) {
             if (wrapperSrc === 'globalextra' || wrapperSrc === 'prototypeextra') {
-                this.runWrapper = this.textArea.dataset[wrapperSrc];
+                runWrapper = this.textArea.dataset[wrapperSrc];
             } else {
-                // TODO: raise some sort of exception? Invalid, params.
-                //  Bad wrapper src provided by user...
-                this.runWrapper = null;
+                this.fail = true;
+                this.failString = 'scratchpad_ui_badrunwrappersrc';
             }
         }
-
-        this.outerDiv = null;
-        this.reload(); // Draw my beautiful blobs.
+        return runWrapper;
     }
 
     failed() {
@@ -281,7 +277,11 @@ class ScratchpadUi {
         if (!this.context) {
             return;
         }
+        const serialisation = this.getSerialisation();
+        this.setSerialisation(serialisation);
+    }
 
+    getSerialisation() {
         const prefixAns = document.getElementById(this.context.prefix_ans.id);
         const showHide = document.getElementById(this.context.show_hide.id);
         let serialisation = {
@@ -305,10 +305,13 @@ class ScratchpadUi {
         if (this.invertPreload) {
             serialisation.prefix_ans = invertSerial(serialisation.prefix_ans);
         }
+        return serialisation;
+    }
 
+    setSerialisation(serialisation) {
         serialisation.prefix_ans = invertSerial(serialisation.prefix_ans);
         if (Object.values(serialisation).some((val) => val.length === 1 && val[0].length > 0)) {
-                serialisation.prefix_ans = invertSerial(serialisation.prefix_ans);
+            serialisation.prefix_ans = invertSerial(serialisation.prefix_ans);
             this.textArea.value = JSON.stringify(serialisation);
         } else {
             this.textArea.value = ''; // All fields empty...
@@ -333,7 +336,7 @@ class ScratchpadUi {
                 serial.test_code,
                 serial.prefix_ans[0],
                 this.runWrapper
-                );
+        );
 
         // Clear all output areas.
         outputDisplayArea.html('');
@@ -397,13 +400,13 @@ class ScratchpadUi {
             "disable_scratchpad": this.uiParams.disable_scratchpad,
             "scratchpad_name": this.uiParams.scratchpad_name,
             "button_name": this.uiParams.button_name,
-            "help_text": {"text": this.uiParams.help_text}, // TODO: context doesnt match...
+            "help_text": {"text": this.uiParams.help_text},
             "answer_code": {
                 "id": this.textAreaId + '_answer-code',
                 "name": "answer_code",
                 "text": preload.answer_code[0],
                 "lang": this.lang,
-                "rows": this.numRows // Todo: fix number of rows...
+                "rows": this.numRows
             },
             "test_code": {
                 "id": this.textAreaId + '_test-code',
@@ -470,34 +473,42 @@ class ScratchpadUi {
             this.failString = 'scratchpad_ui_invalidserialisation';
             return;
         }
-
         this.updateContext(preload);
-
         try {
             const {html} = await Templates.renderForPromise('qtype_coderunner/scratchpad_ui', this.context);
-            const wrapperDiv = document.getElementById(this.textAreaId).nextSibling;
-            wrapperDiv.innerHTML = html;
-
-            this.outerDiv = wrapperDiv.firstChild;
-            this.answerTextarea = document.getElementById(this.context.answer_code.id);
-            this.testTextarea = document.getElementById(this.context.test_code.id);
-            this.answerCodeUi = newUiWrapper('ace', this.context.answer_code.id);
-            if (this.testTextarea) {
-                this.testCodeUi = newUiWrapper('ace', this.context.test_code.id);
-            }
-
-            const runButton = document.getElementById(this.textAreaId + '_run-btn');
-            const outputDisplayarea = document.getElementById(this.context.output_display.id);
-            if (runButton) {
-                runButton.addEventListener('click', () => this.handleRunButtonClick(ajax, outputDisplayarea));
-            }
-
-            // No resizing the outer wrapper. Instead, resize the two sub UIs,
-            // they will expand accordingly.
-            wrapperDiv.style.resize = 'none';
+            this.drawUi(html);
+            this.addAceUis();
+            this.addEventListeners();
         } catch (e) {
             this.fail = true;
-            this.failString = "UI template failed to load."; // TODO: Lang-string goes here.
+            this.failString = "scratchpad_ui_templateloadfail";
+            return;
+        }
+    }
+
+    drawUi(html) {
+        const wrapperDiv = document.getElementById(this.textAreaId).nextSibling;
+        wrapperDiv.innerHTML = html;
+        this.outerDiv = wrapperDiv.firstChild;
+        // No resizing the outer wrapper. Instead, resize the two sub UIs,
+        // they will expand accordingly.
+        wrapperDiv.style.resize = 'none';
+    }
+
+    addAceUis() {
+        this.answerTextarea = document.getElementById(this.context.answer_code.id);
+        this.testTextarea = document.getElementById(this.context.test_code.id);
+        this.answerCodeUi = newUiWrapper('ace', this.context.answer_code.id);
+        if (this.testTextarea) {
+            this.testCodeUi = newUiWrapper('ace', this.context.test_code.id);
+        }
+    }
+
+    addEventListeners() {
+        const runButton = document.getElementById(this.textAreaId + '_run-btn');
+        const outputDisplayarea = document.getElementById(this.context.output_display.id);
+        if (runButton) {
+            runButton.addEventListener('click', () => this.handleRunButtonClick(ajax, outputDisplayarea));
         }
     }
 

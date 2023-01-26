@@ -1,12 +1,20 @@
 ## Scratchpad UI
-The **Scratchpad UI** is like the **Ace UI**, but with two editors for code entry. By default, only one editor is visible and the Scratchpad is hidden -- clicking the **Scratchpad button** shows it. The Scratchpad area contains a second editor, a **Run button** and a **Prefix with Answer** checkbox. Additionally, there is a help button that provides information about how to use the Scratchpad. It's possible to run code 'in-browser' using the **Run Button**:
-- When prefix with answer is not checked, only the code in the scratchpad is run -- allowing for a rough working spot to quickly check the result of code.
-- When the prefix answer is checked, the code in the scratchpad is appended to the code in the first editor before being run.
+The **Scratchpad UI** is an extension of the **Ace UI**:
+- The Scratchpad UI is designed to allow the execution of code in the CodeRunner question in a manner similar to an IDE.
+- The Scratchpad UI contains two editor boxes, one on top of another, allowing users to enter and edit code in both.
+
+By default, only the top editor is visible and the bottom editor (Scratchpad Area) is hidden, clicking the **Scratchpad button** shows it.
+The Scratchpad area contains a second editor, a **Run button** and a **Prefix with Answer** checkbox. 
+Additionally, there is a help button that provides information about how to use the Scratchpad. 
+
+It's possible to run code 'in-browser' by clicking the **Run Button**, _without_ making a submission via the **Check Button**:
+- If **Prefix with Answer** is not checked, only the code in the **Scratchpad** is run -- allowing for a rough working spot to quickly check the result of code.
+- Otherwise, when **Prefix with Answer** is checked, the code in the **Scratchpad** is appended to the code in the first editor before being run.
 
 Note: *This behavior can be modified, see wrappers...*
 
 ### Serialisation
-The UI serialises to JSON, with fields:
+The UI state serialises to JSON, with fields:
 - `answer_code`: A list containing a string with answer code from the first editor;
 - `test_code`: A list containing a string with containing answer code from the second editor;
 - `show_hide`: `["1"]` when scratchpad is visible, otherwise `[""]`;
@@ -18,12 +26,12 @@ Sample serialisation: `{"answer_code":["print('hello world')"],"test_code":[""],
 
 ### UI Parameters
 
-- `scratchpad_name`: the display name of the scratchpad, used to hide/un-hide the scratchpad.
-- `button_name`: the run button text.
-- `prefix_name`: the prefix with answer check-box label text.
-- `help_text`: the help text to show.
-- `run_lang`: the language used to run code when the run button is clicked, this should be the language your wrapper is written in (if applicable).
-- `wrapper_src`: the location of wrapper to be used by the run button:
+- `scratchpad_name`: display name of the scratchpad, used to hide/un-hide the scratchpad.
+- `button_name`: run button text.
+- `prefix_name`: prefix with answer check-box label text.
+- `help_text`: help text to show.
+- `run_lang`: language used to run code when the run button is clicked, this should be the language your wrapper is written in (if applicable).
+- `wrapper_src`: location of wrapper code to be used by the run button, if applicable:
     - setting to `globalextra` will use text in global extra field,
     - `prototypeextra` will use the prototype extra field.
 - `html_output`: when true, the output from run will be displayed as raw HTML instead of text.
@@ -33,16 +41,24 @@ Sample serialisation: `{"answer_code":["print('hello world')"],"test_code":[""],
 
 
 ### Advanced Customization: Wrappers
-Sometimes the default configuration will not be flexible enough. To run langues installed on jobe but not supported by coderunner, read standard input with run, or to display Matplotlib graphs with run all require the use of a wrapper.
+A wrapper can be used to wrap code before it is run using the sandbox.
+Some tasks that require this include: running languages installed on Jobe but not supported by coderunner; reading standard input during runs; or displaying Matplotlib graphs.
 
-A wrapper can be used to wrap code before it is run using the sandbox. You can insert the answer code and scratchpad code into the wrapper, using `{{ ANSWER_CODE }}` and `{{ SCRATCHPAD_CODE }}` respectively. If the **Prefix with Answer** checkbox is unchecked `{{ ANSWER_CODE }}` will be replaced with an empty string `''`.  The default configuration uses the following wrapper:
+
+You can insert the answer code and scratchpad code into the wrapper using `{{ ANSWER_CODE }}` and `{{ SCRATCHPAD_CODE }}` respectively.
+If the **Prefix with Answer** checkbox is unchecked `{{ ANSWER_CODE }}` will be replaced with an empty string `''`.
+The default configuration uses the following wrapper:
+
+
 ```
 {{ ANSWER_CODE }}
 {{ SCRATCHPAD_CODE }}
 ```
 
-
-You can set the Run language, using `run_lang`. This changes the language the sandbox service uses to run the wrapper; wrappers can be a different language to the question. To the student answering the question this would be invisible. Below is an example of a C program being wrapped using Python (see the multi-language question for further inspiration):
+Wrappers can be in a different language to their question; you can set the Run language, using `run_lang`. 
+This changes the language the sandbox service uses to run the wrapper.
+This would be invisible to the student answering the question. 
+Below is an example of a C program being wrapped using Python (see the multi-language question for further inspiration):
  ```
  import subprocess
  
@@ -62,7 +78,7 @@ exec_command = ["./__tester__"]
  output = subprocess.check_output(exec_command, universal_newlines=True)
 print(output)
  ```
-To expand, it is possible to wrap the scratchpad code inside a main function, or use a modified wrapper to run unsupported code.
+To expand: it is possible to wrap the scratchpad code inside a main function or use a modified wrapper to run unsupported code.
 
 The `html_output` parameter, in conjunction with a wrapper, can be used to display graphical/non-textual output in the output display area. Using HTML output, it is possible to insert images and input boxes.
 
@@ -112,4 +128,4 @@ for fname in os.listdir():
     if fname.endswith('png'):
         print(f'<img src="{make_data_uri(fname)}">')
 ```
-Note: `html_output` *must* be `true` for the image to be displayed.
+Note: `html_output` *must* be set to`true` for the image to be displayed.

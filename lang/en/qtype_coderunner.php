@@ -1257,6 +1257,11 @@ $string['scratchpadui_invert_prefix_descr'] = 'Inverts meaning of prefix_ans ser
 $string['scratchpadui_def_button_name'] = 'Run';
 $string['scratchpadui_def_scratchpad_name'] = 'Scratchpad';
 $string['scratchpadui_def_prefix_name'] = 'Prefix with Answer';
+
 $string['scratchpadui_def_help_text'] = 'You can enter code into this panel and click \'Run\' to execute it.
 By default, the code in this panel is prefixed with the contents of the answer box, giving you an easy way to test your answer.
 You can uncheck the \'Prefix with answer\' checkbox to run the code in this panel standalone, e.g. to explore how small code fragments behave.';
+
+$string['scratchpad_ui_invalidserialisation'] = 'Invalid JSON serialisation provided, must include \"answer_code\" field.';
+$string['scratchpad_ui_templateloadfail'] = 'Scratchpad UI template failed to load, please refresh the page.';
+$string['scratchpad_ui_badrunwrappersrc'] = 'Invalid run wrapper source given, please contact question author.';
