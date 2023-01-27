@@ -324,9 +324,15 @@ class qtype_coderunner_question extends question_graded_automatically {
         return  new qbehaviour_adaptive_adapted_for_coderunner($qa, $preferredbehaviour);
     }
 
+    /**
+     * What data may be included in the form submission when a student submits
+     * this question in its current state?
+     *
+     * @return array|string variable name => PARAM_... constant
+     */
     public function get_expected_data() {
         $expecteddata = array('answer' => PARAM_RAW,
-                     'language' => PARAM_NOTAGS);
+                     'language' => PARAM_NOTAGS); // NOTAGS => any HTML is stripped.
         if ($this->attachments != 0) {
             $expecteddata['attachments'] = question_attempt::PARAM_FILES;
         }
