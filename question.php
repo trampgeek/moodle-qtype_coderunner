@@ -288,7 +288,7 @@ class qtype_coderunner_question extends question_graded_automatically {
 
 
     // Get the default ui parameters for the ui plugin and merge in
-    // both the prototypes and this questions parameters.
+    // both the prototype's and this question's parameters.
     // In order to support the legacy method of including ui parameters
     // within the template parameters, we need to filter out only the
     // valid ui parameters, so need to load the uiplugin json file to find
@@ -301,7 +301,8 @@ class qtype_coderunner_question extends question_graded_automatically {
     private function evaluate_merged_ui_parameters() {
         $uiplugin = $this->uiplugin === null ? 'ace' : strtolower($this->uiplugin);
         $uiparams = new qtype_coderunner_ui_parameters($uiplugin);
-        if (isset($this->prototype->uiparameters)) { // Ensure prototype not missing.
+        // Merge prototype's UI parameters unless prototype is missing or UI plugin has changed.
+        if (isset($this->prototype->uiparameters) && strtolower($this->prototype->uiplugin) === $uiplugin) {
             $uiparams->merge_json($this->prototype->uiparameters);
         }
         $uiparams->merge_json($this->templateparamsjson, true); // Legacy support.
