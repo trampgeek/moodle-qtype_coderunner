@@ -21,7 +21,7 @@
     {
         "id": "question:12",
         "answer_code": {
-            "id": "question:12_answer-code"
+            "id": "question:12_answer-code",
             "rows": 16,
             "name": "answer_code",
             "lang": "C"
@@ -33,22 +33,31 @@
             "lang": "C"
         },
         "prefix_ans": {
-            "id": "question:12_prefix-ans"
+            "id": "question:12_prefix-ans",
             "checked": true
         },
         "output_display": {
-            "id": "question:12",
+            "id": "question:12"
         }
     }
 }}
-<a role='button' id='{{ id }}_show-scratchpad-btn' href="#{{#jquery_escape}}{{ id }}{{/jquery_escape}}_scratchpad" title='show_hide' data-toggle="collapse" class="btn btn-sm btn-icon icons-collapse-expand text-info" style="margin-top: 5px;margin-left: 5px;margin-bottom: 5px;width: 30px;height: 30px;">
-    <span class="expanded-icon icon-no-margin p-2" title="Collapse">
-                    <i class="icon fa fa-chevron-down fa-fw " aria-hidden="true"></i>
-                </span>
+<a role='button'
+   id='{{ id }}_show-scratchpad-btn'
+   href="#{{#jquery_escape}}{{ id }}{{/jquery_escape}}_scratchpad"
+   title='show_hide'
+   data-toggle="collapse"
+   class="btn btn-sm btn-icon icons-collapse-expand {{^ show_hide.show }}collapsed{{/ show_hide.show }} text-info"
+   style="margin-top: 5px;margin-left: 5px;margin-bottom: 5px;width: 30px;height: 30px;">
+        <span class="expanded-icon icon-no-margin p-2" title="Collapse">
+            <i class="icon fa fa-chevron-down fa-fw " aria-hidden="true"></i>
+        </span>
     <span class="collapsed-icon icon-no-margin p-2" title="Expand">
-                    <span class="dir-rtl-hide"><i class="icon fa fa-chevron-right fa-fw" aria-hidden="true"></i></span>
-                </span>
-    {{# str }}scratchpadui_def_scratchpad_name, qtype_coderunner{{/ str }}
+        <span class="dir-rtl-hide">
+            <i class="icon fa fa-chevron-right fa-fw" aria-hidden="true"></i>
+        </span>
+    </span>
+    {{ scratchpad_name }}
+    {{^ scratchpad_name }}{{# str }}scratchpadui_def_scratchpad_name, qtype_coderunner{{/ str }}{{/scratchpad_name}}
 </a>
 {{# show_hide }}<fieldset id="{{ id }}" class="collapse {{# show }}show{{/ show }}">{{/ show_hide }}
     {{# test_code }}
@@ -58,4 +67,4 @@
     {{# output_display }}
         {{> qtype_coderunner/output_displayarea }}
     {{/ output_display }}
-</fieldset>
+{{# show_hide }}</fieldset>{{/ show_hide }}
