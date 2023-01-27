@@ -496,7 +496,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $hidemethod = method_exists($mform, 'hideIf') ? 'hideIf' : 'disabledIf';
 
         $mform->addElement('header', 'questiontypeheader', get_string('type_header', 'qtype_coderunner'));
-        
+
         // Insert the (possible) bad question load message as a hidden field before broken question. JavaScript
         // will be used to show it if non-empty.
         $mform->addElement('hidden', 'badquestionload', '',
