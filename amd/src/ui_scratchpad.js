@@ -65,104 +65,13 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import $ from 'jquery';
 
 import ajax from 'core/ajax';
-import {get_string as getLangString} from 'core/str';
 import Templates from 'core/templates';
 
 import {newUiWrapper} from 'qtype_coderunner/userinterfacewrapper';
+import {OutputDisplayArea} from 'qtype_coderunner/outputdisplayarea';
 
-
-const RESULT_SUCCESS = 15; // Code for a correct Jobe run.
-const DEFAULT_MAX_OUTPUT_LEN = 30000;
-
-
-/**
- * Escape text special HTML characters.
- * @param {string} text
- * @returns {string} text with various special chars replaced with equivalent
- * html entities. Newlines are replaced with <br>.
- */
-const escapeHtml = text => {
-    const map = {
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#039;'
-    };
-    return text.replace(/[&<>"']/g, function(m) {
-        return map[m];
-    });
-};
-
-/**
- * Analyse the response for errors. There are two sorts of error: sandbox failures,
- * for which the field response.error is non-zero meaning the run didn't take
- * place at all and failures in the run
- * itself, such as compile errors, timeouts, runtime errors etc. The
- * various codes are documented in the CodeRunner file sandbox.php.
- * Some error returns, notably compilation error and runtime error, are not
- * treated as errors here, since the stdout + stderr should reveal what
- * happened anyway. More obscure errors are lumped together as 'Unknown
- * runtime error'.
- * @param {object} response The response from the web-service sandbox request.
- * @returns string The language string to use for an error message or '' if
- * no error message.
- */
-const diagnose = response => {
-    // Table of error conditions.
-    // Each row is response.error, response.result, langstring
-    // response.result is ignored if response.error is non-zero.
-    // Any condition not in the table is deemed an "Unknown runtime error".
-    const ERROR_RESPONSES = [
-        [1, 0, 'error_access_denied'], // Sandbox AUTH_ERROR
-        [2, 0, 'error_unknown_language'], // Sandbox WRONG_LANG_ID
-        [3, 0, 'error_access_denied'], // Sandbox ACCESS_DENIED
-        [4, 0, 'error_submission_limit_reached'], // Sandbox SUBMISSION_LIMIT_EXCEEDED
-        [5, 0, 'error_sandbox_server_overload'], // Sandbox SERVER_OVERLOAD
-        [0, 11, ''], // RESULT_COMPILATION_ERROR
-        [0, 12, ''], // RESULT_RUNTIME_ERROR
-        [0, 13, 'error_timeout'], // RESULT TIME_LIMIT
-        [0, RESULT_SUCCESS, ''], // RESULT_SUCCESS
-        [0, 17, 'error_memory_limit'], // RESULT_MEMORY_LIMIT
-        [0, 21, 'error_sandbox_server_overload'], // RESULT_SERVER_OVERLOAD
-        [0, 30, 'error_excessive_output'] // RESULT OUTPUT_LIMIT
-    ];
-    for (const row of ERROR_RESPONSES) {
-        if (row[0] == response.error && (response.error != 0 || response.result == row[1])) {
-            return row[2];
-        }
-    }
-    return 'error_unknown_runtime';
-};
-
-/**
- * Get the specified language string using
- * AJAX and plug it into the given textarea
- * @param {string} langStringName The language string name.
- * @param {DOMnode} textarea The textarea into which the error message
- * should be plugged.
- * @param {string} additionalText Extra text to follow the result code.
- */
-const setLangString = async(langStringName, textarea, additionalText) => {
-    const message = await getLangString(langStringName, 'filter_ace_inline');
-    textarea.show();
-    textarea.html(escapeHtml("*** " + message + " ***\n" + additionalText));
-};
-
-/**
- * Concatenates the cmpinfo, stdout and stderr fields of the sandbox
- * response, truncating both stdout and stderr to a given maximum length
- * if necessary (in which case '... (truncated)' is appended.
- * @param {object} response Sandbox response object
- * @param {int} maxLen The maximum length of the trimmed stringlen.
- */
-const combinedOutput = (response, maxLen) => {
-    const limit = s => s.length <= maxLen ? s : s.substr(0, maxLen) + '... (truncated)';
-    return response.cmpinfo + limit(response.output) + limit(response.stderr);
-};
 
 /**
  * Invert serialisation from '1' to '', vice versa.
@@ -224,6 +133,7 @@ const isCollapsed = (el) => {
     return !el.classList.contains('show');
 };
 
+
 /**
  * Constructor for the ScratchpadUi object.
  * @param {string} textAreaId The ID of the html textarea.
@@ -249,6 +159,7 @@ class ScratchpadUi {
         this.readOnly = this.textArea.readonly;
         this.fail = false;
         this.outerDiv = null;
+        this.outputDisplay = null;
         this.invertPreload = uiParams.invert_prefix;
         this.lang = uiParams.lang; // Todo: this vs this.ui params
         this.numRows = this.textArea.rows;
@@ -328,76 +239,20 @@ class ScratchpadUi {
         return this.outerDiv;
     }
 
-    async handleRunButtonClick(ajax, outputDisplayArea) {
-        outputDisplayArea = $(outputDisplayArea);
+    handleRunButtonClick() {
         this.sync(); // Use up-to-date serialization.
-
-        const htmlOutput = this.uiParams.html_output;
-        const maxLen = this.uiParams['max-output-length'] || DEFAULT_MAX_OUTPUT_LEN;
-        const preloadString = $(this.textArea).val();
+        const preloadString = this.textArea.value;
         const serial = this.readJson(preloadString);
-        const params = this.uiParams.params;
+        const sandboxParams = this.uiParams.params;
+        const language = this.lang;
         const code = fillWrapper(
                 serial.answer_code,
                 serial.test_code,
                 serial.prefix_ans[0],
                 this.runWrapper
         );
-
-        // Clear all output areas.
-        outputDisplayArea.html('');
-        if (htmlOutput) {
-            outputDisplayArea.hide();
-        }
-        outputDisplayArea.next('div.filter-ace-inline-html').remove(); // TODO: Naming
-
-
-        ajax.call([{
-                methodname: 'qtype_coderunner_run_in_sandbox',
-                args: {
-                    contextid: M.cfg.contextid, // Moodle context ID
-                    sourcecode: code,
-                    language: this.uiParams.run_lang,
-                    params: JSON.stringify(params) // Sandbox params
-                },
-                done: function(responseJson) {
-                    const response = JSON.parse(responseJson);
-                    const error = diagnose(response);
-                    if (error === '') {
-                        // If no errors or compilation error or runtime error
-                        if (!htmlOutput || response.result !== RESULT_SUCCESS) {
-                            // Either it's not HTML output or it is but we have compilation or runtime errors.
-                            const text = combinedOutput(response, maxLen);
-                            outputDisplayArea.show();
-                            if (text.trim() === '') {
-                                outputDisplayArea.html('<span style="color:red">< No output! ></span>');
-                            } else {
-                                outputDisplayArea.html(escapeHtml(text));
-                            }
-                        } else { // Valid HTML output - just plug in the raw html to the DOM.
-                            // Repeat the deletion of previous output in case of multiple button clicks.
-                            outputDisplayArea.next('div.filter-ace-inline-html').remove();
-
-                            const html = $("<div class='filter-ace-inline-html '" +
-                                    "style='background-color:#eff;padding:5px;'>" +
-                                    response.output + "</div>");
-                            outputDisplayArea.after(html);
-                        }
-                    } else {
-                        // If an error occurs, display the language string in the
-                        // outputDisplayArea plus additional info.
-                        let extra = response.error == 0 ? combinedOutput(response, maxLen) : '';
-                        if (error === 'error_unknown_runtime') {
-                            extra += response.error ? '(Sandbox error code ' + response.error + ')' :
-                                    '(Run result: ' + response.result + ')';
-                        }
-                        setLangString(error, outputDisplayArea, extra);
-                    }
-                },
-                fail: function(error) {
-                    alert(error.message);
-                }
-            }]);
+        // TODO: handle case where no output display area exists...
+        this.outputDisplay.handleRunButtonClick(code, language, sandboxParams);
     }
 
     updateContext(preload) {
@@ -431,7 +286,7 @@ class ScratchpadUi {
                 "checked": preload.prefix_ans[0]
             },
             "output_display": {
-                "id": this.textAreaId + '_output-displayarea'
+                "id": this.textAreaId + '_run-output'
             },
             // Bootstrap collapse requires jQuerry friendly ids to work...
             "jquery_escape": function() {
@@ -483,12 +338,15 @@ class ScratchpadUi {
         this.updateContext(preload);
         try {
             const {html} = await Templates.renderForPromise('qtype_coderunner/scratchpad_ui', this.context);
+            const outputMode = this.uiParams.html_output ? 'html' : 'text';
             this.drawUi(html);
             this.addAceUis();
+            this.outputDisplay = new OutputDisplayArea(this.context.output_display.id, outputMode); // TODO: change!
             this.addEventListeners();
         } catch (e) {
             this.fail = true;
             this.failString = "scratchpad_ui_templateloadfail";
+
             return;
         }
     }
