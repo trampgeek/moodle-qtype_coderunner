@@ -53,6 +53,7 @@ define(['jquery'], function($) {
             focused = textarea[0] === document.activeElement,
             lang = params.lang,
             session,
+            code,
             t = this;  // For embedded callbacks.
 
         try {
@@ -79,29 +80,38 @@ define(['jquery'], function($) {
 
             this.editor.setOptions({
                 enableBasicAutocompletion: true,
+                enableLiveAutocompletion: params.live_autocompletion,
+                fontSize: params.font_size ? params.font_size : "14px",
                 newLineMode: "unix",
             });
+
             this.editor.$blockScrolling = Infinity;
 
             session = this.editor.getSession();
-            session.setValue(this.textarea.val());
-
-            this.fixSlowLoad();
-
-            // Set theme if available (not currently enabled).
-            if (params.theme) {
-                this.editor.setTheme("ace/theme/" + params.theme);
+            code = this.textarea.val();
+            if (params.import_from_scratchpad === undefined || params.import_from_scratchpad) {
+                code = this.extract_from_json_maybe(code);
             }
-
-            // Set theme to dark if user-prefers-color-scheme is dark,
-            // else use the uiParams theme if provided else use light.
-            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                this.editor.setTheme(ACE_DARK_THEME);
-            } else if (params.theme) {
+            session.setValue(code);
+            if (params.theme) {
                 this.editor.setTheme("ace/theme/" + params.theme);
             } else {
                 this.editor.setTheme(ACE_LIGHT_THEME);
             }
+
+            // If auto dark switching allowed, and user-prefers-color-scheme
+            // is defined, set to the dark theme accordingly.
+            // Logically this should work in both directions, switching from a
+            // dark theme to a light theme if requested. But Chrome under Linux
+            // always matches 'light' so this breaks. As a workaround, only
+            // one way switching (light to dark) is supported.
+            if (params.auto_switch_dark === undefined || params.auto_switch_dark) {
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    this.editor.setTheme(ACE_DARK_THEME);
+                }
+            }
+
+            this.fixSlowLoad();
 
             this.setLanguage(lang);
 
@@ -138,6 +148,16 @@ define(['jquery'], function($) {
         }
     }
 
+    AceWrapper.prototype.extract_from_json_maybe = function(code) {
+        // If the given code looks like JSON from the Scratchpad UI,
+        // extract and return the answer_code attribute.
+        try {
+            const jsonObj = JSON.parse(code);
+            code = jsonObj.answer_code[0];
+        } catch(err) {}
+
+        return code;
+    };
 
     AceWrapper.prototype.failed = function() {
         return this.fail;
@@ -180,7 +200,7 @@ define(['jquery'], function($) {
     };
 
     // Sometimes Ace editors do not load until the mouse is moved. To fix this,
-    // 'move' the mouse using JQuerry when the editor div enters the viewport.
+    // 'move' the mouse using JQuery when the editor div enters the viewport.
     AceWrapper.prototype.fixSlowLoad = function () {
         const observer = new IntersectionObserver( () => {
             $(document).trigger('mousemove');
