@@ -84,7 +84,7 @@ exec_command = ["./__tester__"]
  output = subprocess.check_output(exec_command, universal_newlines=True)
 print(output)
  ```
-To expand: it is possible to wrap the scratchpad code inside a main function or use a modified wrapper to run unsupported code.
+When writing wrappers it is reccomended to use a langauge that makes string processing.
 
 The `html_output` parameter, in conjunction with a wrapper, can be used to display graphical/non-textual output in the output display area. Using HTML output, it is possible to insert images and input boxes.
 
