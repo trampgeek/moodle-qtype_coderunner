@@ -13,7 +13,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 /**
- * @module coderunner/outputdisplayarea
  * @copyright  James Napier, 2023, The University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -23,6 +22,9 @@ import $ from 'jquery';
 import ajax from 'core/ajax';
 import {get_string as getLangString} from 'core/str';
 
+const ENTER_KEY = 13;
+const INPUT_INTERRUPT = 42;
+const INPUT_CLASS = 'coderunner-run-input';
 
 /**
  * Get the specified language string using
@@ -33,7 +35,7 @@ import {get_string as getLangString} from 'core/str';
  * @param {string} additionalText Extra text to follow the result code.
  */
 const setLangString = async(langStringName, textarea, additionalText) => {
-    const message = await getLangString(langStringName, 'filter_ace_inline');
+    const message = await getLangString(langStringName, 'filter_ace_inline'); // TODO: FIX!!
     textarea.show();
     textarea.html(escapeHtml("*** " + message + " ***\n" + additionalText));
 };
@@ -72,22 +74,24 @@ const getImage = base64 => {
 };
 
 /**
- *
+ * Constructor for OutputDisplayArea object.
+ * @param {string} displayAreaId The id of the display area div.
+ * @param {string} outputMode The mode being used for output, must be text, html or json.
  */
 class OutputDisplayArea {
     constructor(displayAreaId, outputMode) {
         this.displayAreaId = displayAreaId;
         this.displayArea = document.getElementById(displayAreaId);
         this.textDisplay = document.getElementById(displayAreaId + '-text');
-        this.htmlDisplay = document.getElementById(displayAreaId + '-html');
         this.imageDisplay = document.getElementById(displayAreaId + '-images');
         this.mode = outputMode;
+
         this.stdIn = [];
+        this.prevRunSettings = null;
     }
 
     clearDisplay() {
         this.textDisplay.innerHTML = "";
-        this.htmlDisplay.innerHTML = "";
         this.imageDisplay.innerHTML = "";
     }
 
@@ -101,12 +105,16 @@ class OutputDisplayArea {
         const output = response.output;
         const error = response.stderr;
         this.textDisplay.innerHTML = output + error;
+        const inputEl = this.textDisplay.querySelector('.' + INPUT_CLASS);
+        if (inputEl) {
+            this.addInputEvents(inputEl);
+        }
     }
 
     displayNoOutput(response) {
         const isNoOutput = response.output === '' && response.stderr === '';
         if (isNoOutput) {
-            this.textDisplay.innerHTML = '<span style="color:red">&lt; No output! &gt;</span>';
+            this.textDisplay.innerHTML = '<span style="color:red">&lt; No output! &gt;</span>'; // TODO: Lang string
         }
         return isNoOutput;
     }
@@ -117,26 +125,28 @@ class OutputDisplayArea {
         }
         if (this.mode === 'json') {
             // TODO: error handling.
-            const json = JSON.parse(response);
-            this.displayJson(json);
+            this.displayJson(response);
         } else if (this.mode === 'html') {
             this.displayHtml(response);
         } else if (this.mode === 'text') {
-            const text = response;
-            this.displayText(text);
+            this.displayText(response);
         } else {
             throw Error(`Invalid outputMode given: "${this.mode}"`);
         }
     }
 
-    async handleRunButtonClick(code, lang, sandboxParams) {
-        this.clearDisplay();
+    async runCode(code, stdin, lang, sandboxParams, shouldClearDisplay = false) {
+        this.prevRunSettings = [code, stdin, lang, sandboxParams];
+        if (shouldClearDisplay) {
+            this.clearDisplay();
+        }
         ajax.call([{
             methodname: 'qtype_coderunner_run_in_sandbox',
             args: {
                 contextid: M.cfg.contextid, // Moodle context ID
                 sourcecode: code,
                 language: lang,
+                stdin: stdin,
                 params: JSON.stringify(sandboxParams) // Sandbox params
             },
             done: (responseJson) => {
@@ -151,52 +161,67 @@ class OutputDisplayArea {
         }]);
     }
 
-    displayJson(json) {
-        var result = json;
+    displayJson(response) {
+        var result = JSON.parse(response.output);
         var text = result.stdout;
 
-        if (result.returncode !== 42) {
+        if (result.returncode !== INPUT_INTERRUPT) {
             text += result.stderr;
         }
         if (result.returncode == 13) { // Timeout
-            text += "\n*** Timeout error ***\n";
+            text += "\n*** Timeout error ***\n"; // TODO: lang string
         }
 
         var numImages = 0;
         if (result.files) {
-            $(this.imageDisplay).empty();
             for (var prop in result.files) {
-                var image = getImage(result.files[prop]);
-                $(this.imageDisplay).append(image);
+                const image = getImage(result.files[prop]);
+                this.imageDisplay.append(image);
                 numImages += 1;
             }
         }
 
-        if (text.trim() === '' && result.returncode !== 42) {
+        if (text.trim() === '' && result.returncode !== INPUT_INTERRUPT) {
             if (numImages == 0) {
-                $(this.textDisplay).html('<span style="color:red">&lt; No output! &gt;</span>');
+                this.textDisplay.innerHTML = '<span style="color:red">&lt; No output! &gt;</span>'; // TODO: Lang string
             }
         } else {
-            $(this.textDisplay).text(text);
+            this.textDisplay.innerText = text;
         }
 
-        if (result.returncode === 42) {
-            var inputId = `${this.displayAreaId}-input-field`;
-            $(this.textDisplay).html($(this.textDisplay).html() + `<input type="text" id="${inputId}">`);
-            var inputEl = $(document.getElementById(inputId));
-            inputEl.focus();
-
-            inputEl.on('keyup', (e) => {
-                if (e.keyCode === 13) {
-                    const line = inputEl.val();
-                    inputEl.remove();
-                    $(this.textDisplay).html($(this.textDisplay).html() + line);
-                    this.handleRunButtonClick();
-                }
-            });
+        if (result.returncode === INPUT_INTERRUPT) {
+            this.addInput();
         }
     }
+
+    addInput() {
+        const inputId = `${this.displayAreaId}-input-field`;
+        this.textDisplay.innerHTML += `<input type="text" id="${inputId}" class="${INPUT_CLASS}">`;
+        const inputEl = document.getElementById(inputId);
+        this.addInputEvents(inputEl);
+    }
+
+    addInputEvents(inputEl) {
+        inputEl.focus();
+
+        inputEl.addEventListener('keydown', (e) => {
+            if (e.keyCode === ENTER_KEY) {
+                e.preventDefault(); // Do NOT form submit.
+            }
+        });
+        inputEl.addEventListener('keyup', (e) => {
+            if (e.keyCode === ENTER_KEY) {
+                const line = inputEl.value;
+                inputEl.remove();
+                this.textDisplay.innterHTML += line; // Perhaps this should be sanitized.
+                this.prevRunSettings[1] += line + '\n';
+                this.runCode(...this.prevRunSettings, false);
+            }
+        });
+
+    }
 }
+
 
 export {
     OutputDisplayArea

@@ -20,7 +20,7 @@
  * This plugin replaces the usual textarea answer element with a UI is designed to
  * allow the execution of code in the CodeRunner question in a manner similar to an IDE.
  * It contains two editor boxes, one on top of another, allowing users to enter and
- * edit code in both.
+ * edit code in both. It contains two embedded Ace UIs.
  *  By default, only the top editor is visible and the bottom editor (Scratchpad Area) is hidden,
  * clicking the Scratchpad button shows it. The Scratchpad area contains a second editor,
  * a Run button and a Prefix with Answer checkbox. Additionally, there is a help button that
@@ -59,7 +59,7 @@
  *    - invert_prefix: inverts meaning of prefix_ans serialisation -- '1' means un-ticked, vice versa.
  *      This can be used to swap the default state.
  *
- * @module coderunner/ui_scratchpad
+ * @module qtype_coderunner/ui_scratchpad
  * @copyright  Richard Lobb, 2022, The University of Canterbury
  * @copyright  James Napier, 2022, The University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -82,7 +82,7 @@ const invertSerial = current => current[0] == '1' ? [''] : ['1'];
 
 /**
  * Insert the answer code and test code into the wrapper. This may
- * defined by the user, in UI Params or globalextra. If prefixAns is
+ * be defined by the user, in UI Params or globalextra. If prefixAns is
  * false: do not include answerCode in final wrapper.
  * @param {string} answerCode text.
  * @param {string} testCode text.
@@ -109,7 +109,7 @@ const fillWrapper = (answerCode, testCode, prefixAns, template) => {
  * Does not add keys/values to the result if that key is not in defualts.
  * @param {object} defaults object with values to be overwritten.
  * @param {object} prescribed settings, typically set by a user.
- * @returns {object} filled with defualt values, overwritten by their prescribed value (iff included).
+ * @returns {object} filled with default values, overwritten by their prescribed value (iff included).
  */
 const overwriteValues = (defaults, prescribed) => {
     let overwritten = {...defaults};
@@ -149,7 +149,7 @@ class ScratchpadUi {
             prefix_name: '',
             help_text: '',
             run_lang: uiParams.lang, // Use answer's ace language if not specified.
-            html_output: false,
+            output_display_mode: 'text',
             disable_scratchpad: false,
             wrapper_src: null
         };
@@ -240,6 +240,9 @@ class ScratchpadUi {
     }
 
     handleRunButtonClick() {
+        if (this.outputDisplay === null) {
+            return;
+        }
         this.sync(); // Use up-to-date serialization.
         const preloadString = this.textArea.value;
         const serial = this.readJson(preloadString);
@@ -252,7 +255,7 @@ class ScratchpadUi {
                 this.runWrapper
         );
         // TODO: handle case where no output display area exists...
-        this.outputDisplay.handleRunButtonClick(code, language, sandboxParams);
+        this.outputDisplay.runCode(code, '', language, sandboxParams);
     }
 
     updateContext(preload) {
@@ -288,7 +291,7 @@ class ScratchpadUi {
             "output_display": {
                 "id": this.textAreaId + '_run-output'
             },
-            // Bootstrap collapse requires jQuerry friendly ids to work...
+            // Bootstrap collapse requires jQuery friendly ids to work...
             "jquery_escape": function() {
                 return function(text, render) {
                     return CSS.escape(render(text));
@@ -338,10 +341,12 @@ class ScratchpadUi {
         this.updateContext(preload);
         try {
             const {html} = await Templates.renderForPromise('qtype_coderunner/scratchpad_ui', this.context);
-            const outputMode = this.uiParams.html_output ? 'html' : 'text';
             this.drawUi(html);
             this.addAceUis();
-            this.outputDisplay = new OutputDisplayArea(this.context.output_display.id, outputMode); // TODO: change!
+            this.outputDisplay = new OutputDisplayArea(
+                this.context.output_display.id,
+                this.uiParams.output_display_mode
+            );
             this.addEventListeners();
         } catch (e) {
             this.fail = true;

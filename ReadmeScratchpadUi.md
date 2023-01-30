@@ -71,7 +71,7 @@ Below is an example of a C program being wrapped using Python (see the multi-lan
 student_answer = """{{ ANSWER_CODE }}"""
 test_code = """{{ SCRATCHPAD_CODE }}"""
 all_code = student_answer + '\n' + test_code
- filename = '__tester__.c
+ filename = '__tester__.c'
  with open(filename, "w") as src:
     print(all_code, file=src)
 

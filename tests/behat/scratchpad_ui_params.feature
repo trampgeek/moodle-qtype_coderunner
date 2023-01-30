@@ -128,9 +128,9 @@ Feature: Test the Scratchpad UI, UI Params
   Scenario: Set HTML output to true, 'print' a button to output area
     And I set the field "id_answer" to ""
     And I set the following fields to these values:
-      | id_customise    | 1                     |
-      | id_uiplugin     | Scratchpad            |
-      | id_uiparameters | {"html_output": true} |
+      | id_customise    | 1                               |
+      | id_uiplugin     | Scratchpad                      |
+      | id_uiparameters | {"output_display_mode": "html"} |
 
     And I press "id_submitbutton"
     Then I should see "Print answer"

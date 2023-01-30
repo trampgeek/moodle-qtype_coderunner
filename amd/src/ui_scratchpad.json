@@ -25,13 +25,13 @@
             "type": "string",
             "default": null
         },
+        "output_display_mode": {
+            "type": "string",
+            "default": false
+        },
         "params": {
             "type": "object",
             "default": null
-        },
-        "html_output": {
-            "type": "boolean",
-            "default": false
         },
         "disable_scratchpad": {
             "type": "boolean",

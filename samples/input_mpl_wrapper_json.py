@@ -2,8 +2,8 @@ import ast, traceback, sys, io, subprocess, base64, os, ast, traceback, json
 MAX_OUTPUT_CHARS = 30000
 
 student_code = """
-{{ STUDENT_ANSWER }}
-{{ TEST_CODE }}
+{{ ANSWER_CODE }}
+{{ SCRATCHPAD_CODE }}
 """
 
 uses_matplotlib = 'matplotlib' in student_code
@@ -56,9 +56,9 @@ if uses_matplotlib:
     subproc_code += """
 figs = _mpl.pyplot.get_fignums()
 for i, fig in enumerate(figs):
-_mpl.pyplot.figure(fig)
-filename = f'image{i}.png'
-_mpl.pyplot.savefig(filename, bbox_inches='tight')
+    _mpl.pyplot.figure(fig)
+    filename = f'image{i}.png'
+    _mpl.pyplot.savefig(filename, bbox_inches='tight')
 """
 
 
@@ -77,7 +77,7 @@ def truncated(s):
 
 def check_syntax():
     try:
-        ast.parse("""${escapedCode}""")
+        ast.parse(student_code)
         return ''
     except SyntaxError:
         catcher = io.StringIO()
@@ -86,8 +86,8 @@ def check_syntax():
 
 stdout = ''
 stderr = check_syntax()
-if stderr == '': # No syntax errors
-    program_code = """${subprocCode}""";
+if stderr == '':  # No syntax errors
+    program_code = subproc_code
     with open('prog.py', 'w') as outfile:
         outfile.write(program_code)
     proc = subprocess.Popen([sys.executable, 'prog.py'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
@@ -108,10 +108,11 @@ image_extensions = ['png', 'jpg', 'jpeg']
 image_files = [fname for fname in os.listdir() if fname.lower().split('.')[-1] in image_extensions]
 files = {fname: b64encode(fname) for fname in image_files}
 
-output = {'returncode': returncode,
-          'stdout' : truncated(stdout),
-          'stderr' : truncated(stderr),
-          'files'  : files,
+output = {
+    'returncode': returncode,
+    'stdout' : truncated(stdout),
+    'stderr' : truncated(stderr),
+    'files'  : files,
 }
 
 print(json.dumps(output))
