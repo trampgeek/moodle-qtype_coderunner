@@ -160,7 +160,7 @@ class ScratchpadUi {
         this.outerDiv = null;
         this.outputDisplay = null;
         this.invertPreload = uiParams.invert_prefix;
-        this.lang = uiParams.lang; // Todo: this vs this.ui params
+        this.lang = uiParams.lang;
         this.numRows = this.textArea.rows;
         this.uiParams = overwriteValues(DEF_UI_PARAMS, uiParams);
         this.runWrapper = this.getRunWrapper();
@@ -252,7 +252,6 @@ class ScratchpadUi {
                 serial.prefix_ans[0],
                 this.runWrapper
         );
-        // TODO: handle case where no output display area exists...
         this.outputDisplay.runCode(code, '', true); // Call with no stdin.
     }
 

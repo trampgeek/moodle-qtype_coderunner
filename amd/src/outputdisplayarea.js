@@ -57,7 +57,7 @@ const JSON_DISPLAY_PROPS = ['returncode', 'stdout', 'stderr', 'files'];
  * @param {string} additionalText Extra text to follow the result code.
  */
 const setLangString = async(langStringName, display, additionalText) => {
-    const message = await getLangString(langStringName, 'qtype_coderunner'); // TODO: FIX!!
+    const message = await getLangString(langStringName, 'qtype_coderunner');
     display.innerText = "*** " + message + " ***\n";
     if (additionalText) {
         display.innerText += additionalText;
@@ -190,20 +190,14 @@ class OutputDisplayArea {
      * with output field containing JSON string.
      */
     displayJson(response) {
-        const result = JSON.parse(response.output);
-        const missing = missingProperties(result, JSON_DISPLAY_PROPS);
-        if (missing.length > 0) {
-            window.alert('Display JSON is missing the following fields:' + missing.join());
-            return;
-        }
-
+        const result = this.validateJson(response.output);
         let text = result.stdout;
 
         if (result.returncode !== INPUT_INTERRUPT) {
             text += result.stderr;
         }
         if (result.returncode == 13) { // Timeout
-            text += "\n*** Timeout error ***\n"; // TODO: lang string, this is part of daignose...
+            text += "\n*** Timeout error ***\n";
         }
 
         let numImages = 0;
@@ -226,6 +220,36 @@ class OutputDisplayArea {
         if (result.returncode === INPUT_INTERRUPT) {
             this.addInput();
         }
+    }
+
+    /**
+     * Validate JSON to display, make sure it is valid json and has required fields.
+     * @param {string} jsonString string of JSON to be displayed.
+     * @returns {object} JSON as object
+     */
+    validateJson(jsonString) {
+        let result = null;
+        try {
+            result = JSON.parse(jsonString);
+        } catch (e) {
+            window.alert(
+                `Error parsing display JSON output: 
+                ${jsonString}
+                JSON Parsing error Msg: 
+                ${e.message}
+                The question author must fix this!`
+            );
+        }
+
+        const missing = missingProperties(result, JSON_DISPLAY_PROPS);
+        if (missing.length > 0) {
+            window.alert(
+                `Display JSON (in response.result) is missing the following fields:
+                ${missing.join()}
+                The question author must fix this!`
+            );
+        }
+        return result;
     }
 
     /**
@@ -257,8 +281,8 @@ class OutputDisplayArea {
         if (this.displayNoOutput(response)) {
             return;
         }
+
         if (this.mode === 'json') {
-            // TODO: error handling.
             this.displayJson(response);
         } else if (this.mode === 'html') {
             this.displayHtml(response);
@@ -293,9 +317,7 @@ class OutputDisplayArea {
                 params: JSON.stringify(this.sandboxParams) // Sandbox params
             },
             done: (responseJson) => {
-                // TODO: error handling.
                 const response = JSON.parse(responseJson);
-                // Const error = diagnoseWebserviceResponse(response);
                 this.display(response);
             },
             fail: (error) => {

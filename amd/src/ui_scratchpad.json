@@ -27,7 +27,7 @@
         },
         "output_display_mode": {
             "type": "string",
-            "default": false
+            "default": "text"
         },
         "params": {
             "type": "object",
