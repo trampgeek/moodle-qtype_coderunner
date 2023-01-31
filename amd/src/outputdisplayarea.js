@@ -43,6 +43,7 @@ import {get_string as getLangString} from 'core/str';
 
 const ENTER_KEY = 13;
 const INPUT_INTERRUPT = 42;
+const RESULT_SUCCESS = 15;
 const INPUT_CLASS = 'coderunner-run-input';
 const JSON_DISPLAY_PROPS = ['returncode', 'stdout', 'stderr', 'files'];
 
@@ -51,14 +52,16 @@ const JSON_DISPLAY_PROPS = ['returncode', 'stdout', 'stderr', 'files'];
  * Get the specified language string using
  * AJAX and plug it into the given textarea
  * @param {string} langStringName The language string name.
- * @param {DOMnode} textarea The textarea into which the error message
+ * @param {DOMnode}  display area into which the error message
  * should be plugged.
  * @param {string} additionalText Extra text to follow the result code.
  */
-const setLangString = async(langStringName, textarea, additionalText) => {
-    const message = await getLangString(langStringName, 'filter_ace_inline'); // TODO: FIX!!
-    textarea.show();
-    textarea.html(escapeHtml("*** " + message + " ***\n" + additionalText));
+const setLangString = async(langStringName, display, additionalText) => {
+    const message = await getLangString(langStringName, 'qtype_coderunner'); // TODO: FIX!!
+    display.innerText = "*** " + message + " ***\n";
+    if (additionalText) {
+        display.innerText += additionalText;
+    }
 };
 
 const diagnoseWebserviceResponse = response => {
@@ -67,18 +70,18 @@ const diagnoseWebserviceResponse = response => {
     // response.result is ignored if response.error is non-zero.
     // Any condition not in the table is deemed an "Unknown runtime error".
     const ERROR_RESPONSES = [
-        [1, 0, 'Sandbox access denied.'], // Sandbox AUTH_ERROR
+        [1, 0, 'error_access_denied'], // Sandbox AUTH_ERROR
         [2, 0, 'error_unknown_language'], // Sandbox WRONG_LANG_ID
-        [3, 0, 'Sandbox access denied.'], // Sandbox ACCESS_DENIED
+        [3, 0, 'error_access_denied'], // Sandbox ACCESS_DENIED
         [4, 0, 'error_submission_limit_reached'], // Sandbox SUBMISSION_LIMIT_EXCEEDED
-        [5, 0, 'Sandbox overload. Please wait and try again later'], // Sandbox SERVER_OVERLOAD
+        [5, 0, 'error_sandbox_server_overload'], // Sandbox SERVER_OVERLOAD
         [0, 11, ''], // RESULT_COMPILATION_ERROR
-        [0, 12, 'Scratchpad crashed. Out of memory, perhaps?'], // RESULT_RUNTIME_ERROR (supervisor process broke)
-        [0, 13, 'Scratchpad time limit error. Please report'], // RESULT TIME_LIMIT (supervisor process broke)
-        [0, 15, ''], // RESULT_SUCCESS
-        [0, 17, 'Scratchpad memory limit error. Please report'], // RESULT_MEMORY_LIMIT
-        [0, 21, 'Sandbox overload. Please wait and try again later'], // RESULT_SERVER_OVERLOAD
-        [0, 30, 'Excessive output.'] // RESULT OUTPUT_LIMIT
+        [0, 12, ''], // RESULT_RUNTIME_ERROR
+        [0, 13, 'error_timeout'], // RESULT TIME_LIMIT
+        [0, RESULT_SUCCESS, ''], // RESULT_SUCCESS
+        [0, 17, 'error_memory_limit'], // RESULT_MEMORY_LIMIT
+        [0, 21, 'error_sandbox_server_overload'], // RESULT_SERVER_OVERLOAD
+        [0, 30, 'error_excessive_output'] // RESULT OUTPUT_LIMIT
     ];
     for (let i = 0; i < ERROR_RESPONSES.length; i++) {
         let row = ERROR_RESPONSES[i];
@@ -87,6 +90,16 @@ const diagnoseWebserviceResponse = response => {
         }
     }
     return 'error_unknown_runtime'; // We're dead, Fred.
+};
+
+/**
+ * Concatenates the cmpinfo, stdout and stderr fields of the sandbox
+ * response, truncating both stdout and stderr to a given maximum length
+ * if necessary (in which case '... (truncated)' is appended.
+ * @param {object} response Sandbox response object
+ */
+const combinedOutput = response => {
+    return response.cmpinfo + response.output + response.stderr;
 };
 
 /**
@@ -106,8 +119,8 @@ const missingProperties = (obj, props) => {
  * @returns {*|jQuery|HTMLElement} image tag containing encoded image from string.
  */
 const getImage = (base64, type = 'png') => {
-    const image = document.createElement('img');
-    image.src = `data:image/${type};base64,${base64}`;
+    const image = document.createElement('img')
+        .src = `data:image/${type};base64,${base64}`;
     return image;
 };
 
@@ -132,6 +145,7 @@ class OutputDisplayArea {
         this.stdIn = [];
         this.prevRunSettings = null;
     }
+
     /**
      * Clear the display of any images and text.
      */
@@ -145,9 +159,7 @@ class OutputDisplayArea {
      * @param {object} response Coderunner webservice response JSON.
      */
     displayText(response) {
-        const output = response.output;
-        const error = response.stderr;
-        this.textDisplay.innerText = output + error;
+        this.textDisplay.innerText = combinedOutput(response);
     }
 
     /**
@@ -158,9 +170,7 @@ class OutputDisplayArea {
      * with output field containing HTML.
      */
     displayHtml(response) {
-        const output = response.output;
-        const error = response.stderr;
-        this.textDisplay.innerHTML = output + error;
+        this.textDisplay.innerHTML = combinedOutput(response);
         const inputEl = this.textDisplay.querySelector('.' + INPUT_CLASS);
         if (inputEl) {
             this.addInputEvents(inputEl);
@@ -224,9 +234,13 @@ class OutputDisplayArea {
      * display of no output message.
      */
     displayNoOutput(response) {
-        const isNoOutput = response?.output === '' && response?.stderr === '';
+        const isNoOutput = combinedOutput(response).length === 0;
         if (isNoOutput || response === null) {
-            this.textDisplay.innerHTML = '<span style="color:red">&lt; No output! &gt;</span>'; // TODO: Lang string
+            const span = document.createElement('span');
+            span.style.color = 'red';
+            span.innerText = '< No output! >';
+            this.clearDisplay();
+            this.textDisplay.append(span);
         }
         return isNoOutput;
     }
@@ -235,6 +249,11 @@ class OutputDisplayArea {
      * @param {object} response Coderunner webservice response JSON.
      */
     display(response) {
+        const error = diagnoseWebserviceResponse(response);
+        if (error !== '') {
+            setLangString(error, this.textDisplay);
+            return;
+        }
         if (this.displayNoOutput(response)) {
             return;
         }
@@ -258,7 +277,6 @@ class OutputDisplayArea {
      * @param {string} stdin to be fed into the program.
      * @param {boolean} shouldClearDisplay will reset the display before displaying.
      * Use false when doing stdin runs.
-     * @returns {Promise<void>}
      */
     runCode(code, stdin, shouldClearDisplay = false) {
         this.prevRunSettings = [code, stdin];

@@ -41,7 +41,6 @@
  *      test_code: [""] A list containing a string with containing answer code from the second editor;
  *      show_hide: ["1"] when scratchpad is visible, otherwise [""];
  *      prefix_ans: ["1"] when Prefix with Answer is checked, otherwise [""].
- * . The fields of that object are the names
  *
  * UI Parameters:
  *    - scratchpad_name: display name of the scratchpad, used to hide/un-hide the scratchpad.
@@ -246,8 +245,7 @@ class ScratchpadUi {
         this.sync(); // Use up-to-date serialization.
         const preloadString = this.textArea.value;
         const serial = this.readJson(preloadString);
-        const sandboxParams = this.uiParams.params;
-        const language = this.lang;
+
         const code = fillWrapper(
                 serial.answer_code,
                 serial.test_code,
@@ -255,7 +253,7 @@ class ScratchpadUi {
                 this.runWrapper
         );
         // TODO: handle case where no output display area exists...
-        this.outputDisplay.runCode(code, '', language, sandboxParams);
+        this.outputDisplay.runCode(code, '', true); // Call with no stdin.
     }
 
     updateContext(preload) {
@@ -345,13 +343,14 @@ class ScratchpadUi {
             this.addAceUis();
             this.outputDisplay = new OutputDisplayArea(
                 this.context.output_display.id,
-                this.uiParams.output_display_mode
+                this.uiParams.output_display_mode,
+                this.uiParams.run_lang,
+                this.uiParams.params
             );
             this.addEventListeners();
         } catch (e) {
             this.fail = true;
             this.failString = "scratchpad_ui_templateloadfail";
-
             return;
         }
     }
