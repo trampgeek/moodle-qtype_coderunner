@@ -64,7 +64,7 @@ const setLangString = async(langStringName, display, additionalText) => {
     }
 };
 
-const diagnoseWebserviceResponse = response => {
+const diagnoseWebserviceResponse = (response) => {
     // Table of error conditions.
     // Each row is response.error, response.result, langstring
     // response.result is ignored if response.error is non-zero.
@@ -98,7 +98,7 @@ const diagnoseWebserviceResponse = response => {
  * if necessary (in which case '... (truncated)' is appended.
  * @param {object} response Sandbox response object
  */
-const combinedOutput = response => {
+const combinedOutput = (response) => {
     return response.cmpinfo + response.output + response.stderr;
 };
 
@@ -136,13 +136,12 @@ class OutputDisplayArea {
     constructor(displayAreaId, outputMode, lang, sandboxParams) {
         this.displayAreaId = displayAreaId;
         this.lang = lang;
+        this.mode = outputMode;
         this.sandboxParams = sandboxParams;
-        this.displayArea = document.getElementById(displayAreaId);
+
         this.textDisplay = document.getElementById(displayAreaId + '-text');
         this.imageDisplay = document.getElementById(displayAreaId + '-images');
-        this.mode = outputMode;
 
-        this.stdIn = [];
         this.prevRunSettings = null;
     }
 

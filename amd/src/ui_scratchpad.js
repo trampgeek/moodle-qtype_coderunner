@@ -52,8 +52,12 @@
  *    - wrapper_src: location of wrapper code to be used by the run button, if applicable:
  *      setting to globalextra will use text in global extra field,
  *    - prototypeextra will use the prototype extra field.
- *    - html_output: when true, the output from run will be displayed as raw HTML instead of text.
- *    - disable_scratchpad: disable the scratchpad, effectively returning back to Ace UI
+ *    - output_display_mode: control how program output is displayed on runs, there are three modes:
+ *          - text: display program output as text, html escaped;
+ *          - json: display program output, when it is json,
+ *          - html: display program output as raw html.
+ *      NOTE: see qtype_coderunner/outputdisplayarea.js for more info...
+ *    - disable_scratchpad: disable the scratchpad, effectively reverting to the Ace UI
  *      from student perspective.
  *    - invert_prefix: inverts meaning of prefix_ans serialisation -- '1' means un-ticked, vice versa.
  *      This can be used to swap the default state.
@@ -65,7 +69,6 @@
  */
 
 
-import ajax from 'core/ajax';
 import Templates from 'core/templates';
 
 import {newUiWrapper} from 'qtype_coderunner/userinterfacewrapper';
@@ -77,7 +80,7 @@ import {OutputDisplayArea} from 'qtype_coderunner/outputdisplayarea';
  * @param {string} current serialisation.
  * @returns {string} inverted serialisation.
  */
-const invertSerial = current => current[0] == '1' ? [''] : ['1'];
+const invertSerial = (current) => current[0] === '1' ? [''] : ['1'];
 
 /**
  * Insert the answer code and test code into the wrapper. This may
@@ -245,7 +248,6 @@ class ScratchpadUi {
         this.sync(); // Use up-to-date serialization.
         const preloadString = this.textArea.value;
         const serial = this.readJson(preloadString);
-
         const code = fillWrapper(
                 serial.answer_code,
                 serial.test_code,
@@ -350,7 +352,6 @@ class ScratchpadUi {
         } catch (e) {
             this.fail = true;
             this.failString = "scratchpad_ui_templateloadfail";
-            return;
         }
     }
 
@@ -374,9 +375,8 @@ class ScratchpadUi {
 
     addEventListeners() {
         const runButton = document.getElementById(this.textAreaId + '_run-btn');
-        const outputDisplayarea = document.getElementById(this.context.output_display.id);
         if (runButton) {
-            runButton.addEventListener('click', () => this.handleRunButtonClick(ajax, outputDisplayarea));
+            runButton.addEventListener('click', () => this.handleRunButtonClick());
         }
     }
 
