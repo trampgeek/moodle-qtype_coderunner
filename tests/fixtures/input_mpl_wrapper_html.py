@@ -124,8 +124,6 @@ if output:
         text_output += '<input type="text" class="coderunner-run-input">'
     print(text_output)
 
-for file in files:
-    if file.endswith('png'):
-        print(f'<img src="{file}">')
-
-
+for fname, contents in files.items():
+    if fname.endswith('png'):
+        print(f'<img src="data:image/png;base64,{contents}">')

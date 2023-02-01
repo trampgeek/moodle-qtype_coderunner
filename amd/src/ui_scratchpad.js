@@ -150,6 +150,7 @@ class ScratchpadUi {
             button_name: '',
             prefix_name: '',
             help_text: '',
+            params: {},
             run_lang: uiParams.lang, // Use answer's ace language if not specified.
             output_display_mode: 'text',
             disable_scratchpad: false,

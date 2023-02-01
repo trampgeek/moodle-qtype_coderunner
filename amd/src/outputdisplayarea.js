@@ -119,8 +119,8 @@ const missingProperties = (obj, props) => {
  * @returns {*|jQuery|HTMLElement} image tag containing encoded image from string.
  */
 const getImage = (base64, type = 'png') => {
-    const image = document.createElement('img')
-        .src = `data:image/${type};base64,${base64}`;
+    const image = document.createElement('img');
+    image.src = `data:image/${type};base64,${base64}`;
     return image;
 };
 
@@ -197,16 +197,9 @@ class OutputDisplayArea {
         }
         if (result.returncode == 13) { // Timeout
             text += "\n*** Timeout error ***\n";
-        }
+        } // TODO: Langstring
 
-        let numImages = 0;
-        if (result.files) {
-            for (const prop in result.files) {
-                const image = getImage(result.files[prop]);
-                this.imageDisplay.append(image);
-                numImages += 1;
-            }
-        }
+        const numImages = this.displayImages(result.files);
 
         if (text.trim() === '' && result.returncode !== INPUT_INTERRUPT) {
             if (numImages == 0) {
@@ -359,6 +352,26 @@ class OutputDisplayArea {
                 this.runCode(...this.prevRunSettings, false);
             }
         });
+    }
+
+    /**
+     * Take the files from a JSON response and display them.
+     * @param {object} files from response, in filename: filecontents pairs.
+     * @returns {number} number of images displayed.
+     */
+    displayImages(files) {
+        let numImages = 0;
+        for (const [fname, fcontents] of Object.entries(files)) {
+            const fileType = fname.split('.')[1];
+            if (fileType) {
+                const image = getImage(fcontents, fileType);
+                this.imageDisplay.append(image);
+                numImages += 1;
+            } else {
+                window.alert(`Could not read filename correctly: ${fname}`);
+            }
+        }
+        return numImages;
     }
 }
 

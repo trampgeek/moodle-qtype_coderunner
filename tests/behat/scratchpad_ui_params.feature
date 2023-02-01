@@ -125,21 +125,6 @@ Feature: Test the Scratchpad UI, UI Params
     And I should not see "Run"
     And I should not see "Prefix Answer?"
 
-  Scenario: Set HTML output to true, 'print' a button to output area
-    And I set the field "id_answer" to ""
-    And I set the following fields to these values:
-      | id_customise    | 1                               |
-      | id_uiplugin     | Scratchpad                      |
-      | id_uiparameters | {"output_display_mode": "html"} |
-
-    And I press "id_submitbutton"
-    Then I should see "Print answer"
-
-    When I choose "Preview" action for "Print answer" in the question bank
-    And I click on "Scratchpad" "button"
-    And I set the ace field "test_code" to "print('<button>Hi</button>')"
-    Then I press "Run"
-    And I press "Hi"
 
   Scenario: Define wrapper in UI params and click run, insert both answer and Scratchpad code, NO prefix with answer, click run
     And I set the field "id_answer" to ""
@@ -385,3 +370,195 @@ Feature: Test the Scratchpad UI, UI Params
     And I set the field "prefix_ans" to ""
     And I press the tab key
     Then I should see "superusefulhelptext"
+
+  @debug1
+  Scenario: Set output_display_mode to text, 'print' a hidden div to output area
+    And I set the field "id_answer" to ""
+    And I set the following fields to these values:
+      | id_customise    | 1                               |
+      | id_uiplugin     | Scratchpad                      |
+      | id_uiparameters | {"output_display_mode": "text"} |
+
+    And I press "id_submitbutton"
+    Then I should see "Print answer"
+
+    When I choose "Preview" action for "Print answer" in the question bank
+    And I click on "Scratchpad" "button"
+    And I set the ace field "test_code" to "print('<div hidden>Hi</div>')"
+    Then I press "Run"
+    And I should see "<div hidden>Hi</div>"
+
+  @debug1
+  Scenario: Set output_display_mode to text, get no output.
+    And I set the field "id_answer" to ""
+    And I set the following fields to these values:
+      | id_customise    | 1                               |
+      | id_uiplugin     | Scratchpad                      |
+      | id_uiparameters | {"output_display_mode": "text"} |
+
+    And I press "id_submitbutton"
+    Then I should see "Print answer"
+
+    When I choose "Preview" action for "Print answer" in the question bank
+    And I click on "Scratchpad" "button"
+    And I press "Run"
+    And I press "Run"
+    Then I should see "< No output! >"
+    And I should not see "< No output! >< No output! >"
+
+  @debug1
+  Scenario: Set output_display_mode to text, get a runtime error, get a compile error.
+    And I set the field "id_answer" to ""
+    And I set the following fields to these values:
+      | id_customise    | 1                               |
+      | id_uiplugin     | Scratchpad                      |
+      | id_uiparameters | {"output_display_mode": "text"} |
+
+    And I press "id_submitbutton"
+    Then I should see "Print answer"
+
+    When I choose "Preview" action for "Print answer" in the question bank
+    And I click on "Scratchpad" "button"
+    And I set the ace field "test_code" to "d"
+    And I press "Run"
+    Then I should see "NameError: name 'd' is not defined."
+
+    When I set the ace field "test_code" to "'d'd'd'"
+    And I press "Run"
+    Then I should see "SyntaxError: invalid syntax"
+
+  @debug1
+  Scenario: Set output_display_mode to json, 'print' a hidden div to output area
+    And I set the field "id_answer" to ""
+    And I set the following fields to these values:
+      | id_customise    | 1                               |
+      | id_uiplugin     | Scratchpad                      |
+      | id_uiparameters | {"output_display_mode": "json"} |
+
+    And I press "id_submitbutton"
+    Then I should see "Print answer"
+
+    When I choose "Preview" action for "Print answer" in the question bank
+    And I click on "Scratchpad" "button"
+    And I set the ace field "test_code" to:
+    """
+    import json
+    output = {'returncode': 0,
+              'stdout' : '<div hidden>Hi</div>',
+              'stderr' : '',
+              'files' : ''
+    }
+    print(json.dumps(output))
+    """
+    Then I press "Run"
+    And I should see "<div hidden>Hi</div>"
+
+  @debug1
+  Scenario: Set output_display_mode to json, get no output.
+    And I set the field "id_answer" to ""
+    And I set the following fields to these values:
+      | id_customise    | 1                               |
+      | id_uiplugin     | Scratchpad                      |
+      | id_uiparameters | {"output_display_mode": "json"} |
+
+    And I press "id_submitbutton"
+    Then I should see "Print answer"
+
+    When I choose "Preview" action for "Print answer" in the question bank
+    And I click on "Scratchpad" "button"
+    And I set the ace field "test_code" to:
+    """
+    import json
+    output = {'returncode': 0,
+              'stdout' : '',
+              'stderr' : '',
+              'files' : ''
+    }
+    print(json.dumps(output))
+    """
+    And I press "Run"
+    And I press "Run"
+    Then I should see "< No output! >"
+    And I should not see "< No output! >< No output! >"
+
+  @debug1
+  Scenario: Set output_display_mode to json, get a runtime error, get a compile error.
+    And I set the field "id_answer" to ""
+    And I set the following fields to these values:
+      | id_customise    | 1                               |
+      | id_uiplugin     | Scratchpad                      |
+      | id_uiparameters | {"output_display_mode": "json"} |
+
+    And I press "id_submitbutton"
+    Then I should see "Print answer"
+
+    When I choose "Preview" action for "Print answer" in the question bank
+    And I click on "Scratchpad" "button"
+    And I set the ace field "test_code" to:
+    """
+    import json
+    output = {'returncode': 0,
+              'stdout' : 'hello wolrd',
+              'stderr' : 'i am error',
+              'files' : ''
+    }
+    print(json.dumps(output))
+    """
+    And I press "Run"
+    Then I should see "hello wolrdi am error"
+
+  @debug1
+  Scenario: Set HTML output_display_mode to html, 'print' a button to output area
+    And I set the field "id_answer" to ""
+    And I set the following fields to these values:
+      | id_customise    | 1                               |
+      | id_uiplugin     | Scratchpad                      |
+      | id_uiparameters | {"output_display_mode": "html"} |
+
+    And I press "id_submitbutton"
+    Then I should see "Print answer"
+
+    When I choose "Preview" action for "Print answer" in the question bank
+    And I click on "Scratchpad" "button"
+    And I set the ace field "test_code" to "print('<button>Hi</button>')"
+    Then I press "Run"
+    And I press "Hi"
+
+  @debug1
+  Scenario: Set HTML output_display_mode to html, get no output.
+    And I set the field "id_answer" to ""
+    And I set the following fields to these values:
+      | id_customise    | 1                               |
+      | id_uiplugin     | Scratchpad                      |
+      | id_uiparameters | {"output_display_mode": "html"} |
+
+    And I press "id_submitbutton"
+    Then I should see "Print answer"
+
+    When I choose "Preview" action for "Print answer" in the question bank
+    And I click on "Scratchpad" "button"
+    And I press "Run"
+    And I press "Run"
+    Then I should see "< No output! >"
+    And I should not see "< No output! >< No output! >"
+
+  @debug1
+  Scenario: Set output_display_mode to html, get a runtime error, get a compile error.
+    And I set the field "id_answer" to ""
+    And I set the following fields to these values:
+      | id_customise    | 1                               |
+      | id_uiplugin     | Scratchpad                      |
+      | id_uiparameters | {"output_display_mode": "html"} |
+
+    And I press "id_submitbutton"
+    Then I should see "Print answer"
+
+    When I choose "Preview" action for "Print answer" in the question bank
+    And I click on "Scratchpad" "button"
+    And I set the ace field "test_code" to "d"
+    And I press "Run"
+    Then I should see "NameError: name 'd' is not defined."
+
+    When I set the ace field "test_code" to "'d'd'd'"
+    And I press "Run"
+    Then I should see "SyntaxError: invalid syntax"
