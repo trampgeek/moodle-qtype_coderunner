@@ -59,7 +59,7 @@ define(['jquery'], function($) {
         try {
             window.ace.require("ace/ext/language_tools");
             this.modelist = window.ace.require('ace/ext/modelist');
-
+            this.textareaId = textareaId;
             this.textarea = textarea;
             this.enabled = false;
             this.contents_changed = false;
@@ -93,22 +93,23 @@ define(['jquery'], function($) {
                 code = this.extract_from_json_maybe(code);
             }
             session.setValue(code);
-            if (params.theme) {
+
+            // If there's a user-defined theme in local storage, use that.
+            // Otherwise use the 'prefers-color-scheme' option if given or
+            // the question/system defaults if not.
+            const userTheme = window.localStorage.getItem('qtype_coderunner.ace.theme');
+            const consider_prefers = (params.auto_switch_light_dark === undefined || params.auto_switch_light_dark)
+                    && window.matchMedia;
+            if (userTheme !== null) {
+                this.editor.setTheme(userTheme);
+            } else if (consider_prefers && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                this.editor.setTheme(ACE_DARK_THEME);
+            } else if (consider_prefers && window.matchMedia('(prefers-color-scheme: light)').matches) {
+                this.editor.setTheme(ACE_LIGHT_THEME);
+            }  else if (params.theme) {
                 this.editor.setTheme("ace/theme/" + params.theme);
             } else {
                 this.editor.setTheme(ACE_LIGHT_THEME);
-            }
-
-            // If auto dark switching allowed, and user-prefers-color-scheme
-            // is defined, set to the dark theme accordingly.
-            // Logically this should work in both directions, switching from a
-            // dark theme to a light theme if requested. But Chrome under Linux
-            // always matches 'light' so this breaks. As a workaround, only
-            // one way switching (light to dark) is supported.
-            if (params.auto_switch_dark === undefined || params.auto_switch_dark) {
-                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                    this.editor.setTheme(ACE_DARK_THEME);
-                }
             }
 
             this.fixSlowLoad();
@@ -167,14 +168,33 @@ define(['jquery'], function($) {
         return 'ace_ui_notready';
     };
 
-
     // Sync to TextArea
     AceWrapper.prototype.sync = function() {
-        // Nothing to do ... always sync'd
+        // The data is always sync'd to the text area. But here we use sync to
+        // poll the value of the current theme and record in browser local
+        // storage if the value for this particular Ace instance has changed
+        // (as recorded in session storage). The theme to use for all Ace windows
+        // from now on in this browser is recorded in browser local storage.
+        const thisThemeNow = this.editor.getOption('theme');
+        const thisEditorKey = `qtype_coderunner.${this.textareaId}.theme`;
+        const lastTheme = window.sessionStorage.getItem(thisEditorKey);
+        const globalKey = 'qtype_coderunner.ace.theme';
+        const globalTheme = window.localStorage.getItem(globalKey);
+
+        if (lastTheme !== null && lastTheme != thisThemeNow) {
+            // The theme in this Ace window has been changed by the user.
+            window.localStorage.setItem(globalKey, thisThemeNow);
+        } else if (globalTheme && globalTheme !== thisThemeNow) {
+            // A theme has been defined by another Ace window since we loaded.
+            // Switch to that theme.
+            this.editor.setOption('theme', globalTheme);
+            thisThemeNow = globalTheme;
+        }
+        window.sessionStorage.setItem(thisEditorKey, thisThemeNow);
     };
 
     AceWrapper.prototype.syncIntervalSecs = function() {
-        return 0;
+        return 2;
     };
 
     AceWrapper.prototype.setLanguage = function(language) {

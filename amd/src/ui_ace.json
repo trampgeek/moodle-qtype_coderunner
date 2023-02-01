@@ -1,7 +1,7 @@
 {
     "name": "ui_ace",
     "parameters": {
-        "auto_switch_dark": {
+        "auto_switch_light_dark": {
             "type": "boolean",
             "default": true
         },
