@@ -14,148 +14,64 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Implementation of the html_ui user interface plugin. For overall details
+ * Implementation of the scratchpad_ui user interface plugin. For overall details
  * of the UI plugin architecture, see userinterfacewrapper.js.
  *
- * This plugin replaces the usual textarea answer element with a div
- * containing the author-supplied HTML. The serialisation of that HTML,
- * which is what is essentially copied back into the textarea for submissions
- * as the answer, is a JSON object. The fields of that object are the names
- * of all author-supplied HTML elements with a class 'coderunner-ui-element';
- * all such objects are expected to have a 'name' attribute as well. The
- * associated field values are lists. Each list contains all the values, in
- * document order, of the results of calling the jquery val() method in turn
- * on each of the UI elements with that name.
- * This means that at least input, select and textarea
- * elements are supported. The author is responsible for checking the
- * compatibility of other elements with jquery's val() method.
+ * This plugin replaces the usual textarea answer element with a UI is designed to
+ * allow the execution of code in the CodeRunner question in a manner similar to an IDE.
+ * It contains two editor boxes, one on top of another, allowing users to enter and
+ * edit code in both.
+ *  By default, only the top editor is visible and the bottom editor (Scratchpad Area) is hidden,
+ * clicking the Scratchpad button shows it. The Scratchpad area contains a second editor,
+ * a Run button and a Prefix with Answer checkbox. Additionally, there is a help button that
+ * provides information about how to use the Scratchpad.
+ *  It's possible to run code 'in-browser' by clicking the Run Button,
+ * without making a submission via the Check Button:
+ *          If Prefix with Answer is not checked, only the code in the Scratchpad is run --
+ *      allowing for a rough working spot to quickly check the result of code.
+ *          Otherwise, when Prefix with Answer is checked, the code in the Scratchpad is
+ *      appended to the code in the first editor before being run.
+ *  The Run Button has some limitations when using its default configuration:
+ *     Does not support programs that use STDIN (by default);
+ *     Only supports textual STDOUT (by default).
+ * Note: These features can be supported, see the README section on wrappers...
+ *  The serialisation of this UI is a JSON object with the fields
+ * with fields:
+ *      answer_code: [""] A list containing a string with answer code from the first editor;
+ *      test_code: [""] A list containing a string with containing answer code from the second editor;
+ *      show_hide: ["1"] when scratchpad is visible, otherwise [""];
+ *      prefix_ans: ["1"] when Prefix with Answer is checked, otherwise [""].
+ * . The fields of that object are the names
  *
- * The HTML to use in the answer area must be provided as the contents of
- * either the globalextra field or the prototypeextra field in the question
- * authoring form. The choice of which is set by the html_src UI parameter, which
- * must be either 'globalextra' or 'prototypeextra'.
+ * UI Parameters:
+ *    - scratchpad_name: display name of the scratchpad, used to hide/un-hide the scratchpad.
+ *    - button_name: run button text.
+ *    - prefix_name: prefix with answer check-box label text.
+ *    - help_text: help text to show.
+ *    - run_lang: language used to run code when the run button is clicked,
+ *      this should be the language your wrapper is written in (if applicable).
+ *    - wrapper_src: location of wrapper code to be used by the run button, if applicable:
+ *      setting to globalextra will use text in global extra field,
+ *    - prototypeextra will use the prototype extra field.
+ *    - html_output: when true, the output from run will be displayed as raw HTML instead of text.
+ *    - disable_scratchpad: disable the scratchpad, effectively returning back to Ace UI
+ *      from student perspective.
+ *    - invert_prefix: inverts meaning of prefix_ans serialisation -- '1' means un-ticked, vice versa.
+ *      This can be used to swap the default state.
  *
- * If any fields of the answer html are to be preloaded, these should be specified
- * in the answer preload with json of the form '{"<fieldName>": "<fieldValueList>",...}'
- * where fieldValueList is a list of all the values to be assigned to the fields
- * with the given name, in document order.
- *
- * To accommodate the possibility of dynamic HTML, any leftover preload values,
- * that is, values that cannot be positioned within the HTML either because
- * there is no field of the required name or because, in the case of a list,
- * there are insufficient elements, are assigned to the data['leftovers']
- * attribute of the outer html div, as a sub-object of the original object.
- * This outer div can be located as the 'closest' (in a jQuery sense)
- * div.qtype-coderunner-html-outer-div. The author-supplied HTML must include
- * JavaScript to make use of the 'leftovers'.
- *
- * As a special case of the serialisation, if all values in the serialisation
- * are either empty strings or a list of empty strings, the serialisation is
- * itself the empty string.
- *
- * @module coderunner/ui_html
+ * @module coderunner/ui_scratchpad
  * @copyright  Richard Lobb, 2022, The University of Canterbury
  * @copyright  James Napier, 2022, The University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import $ from 'jquery';
+
 import ajax from 'core/ajax';
-import {get_string as getLangString} from 'core/str';
 import Templates from 'core/templates';
 
 import {newUiWrapper} from 'qtype_coderunner/userinterfacewrapper';
+import {OutputDisplayArea} from 'qtype_coderunner/outputdisplayarea';
 
-
-const RESULT_SUCCESS = 15; // Code for a correct Jobe run.
-const DEFAULT_MAX_OUTPUT_LEN = 30000;
-
-
-/**
- * Escape text special HTML characters.
- * @param {string} text
- * @returns {string} text with various special chars replaced with equivalent
- * html entities. Newlines are replaced with <br>.
- */
-const escapeHtml = text => {
-    const map = {
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#039;'
-    };
-    return text.replace(/[&<>"']/g, function(m) {
-        return map[m];
-    });
-};
-
-/**
- * Analyse the response for errors. There are two sorts of error: sandbox failures,
- * for which the field response.error is non-zero meaning the run didn't take
- * place at all and failures in the run
- * itself, such as compile errors, timeouts, runtime errors etc. The
- * various codes are documented in the CodeRunner file sandbox.php.
- * Some error returns, notably compilation error and runtime error, are not
- * treated as errors here, since the stdout + stderr should reveal what
- * happened anyway. More obscure errors are lumped together as 'Unknown
- * runtime error'.
- * @param {object} response The response from the web-service sandbox request.
- * @returns string The language string to use for an error message or '' if
- * no error message.
- */
-const diagnose = response => {
-    // Table of error conditions.
-    // Each row is response.error, response.result, langstring
-    // response.result is ignored if response.error is non-zero.
-    // Any condition not in the table is deemed an "Unknown runtime error".
-    const ERROR_RESPONSES = [
-        [1, 0, 'error_access_denied'], // Sandbox AUTH_ERROR
-        [2, 0, 'error_unknown_language'], // Sandbox WRONG_LANG_ID
-        [3, 0, 'error_access_denied'], // Sandbox ACCESS_DENIED
-        [4, 0, 'error_submission_limit_reached'], // Sandbox SUBMISSION_LIMIT_EXCEEDED
-        [5, 0, 'error_sandbox_server_overload'], // Sandbox SERVER_OVERLOAD
-        [0, 11, ''], // RESULT_COMPILATION_ERROR
-        [0, 12, ''], // RESULT_RUNTIME_ERROR
-        [0, 13, 'error_timeout'], // RESULT TIME_LIMIT
-        [0, RESULT_SUCCESS, ''], // RESULT_SUCCESS
-        [0, 17, 'error_memory_limit'], // RESULT_MEMORY_LIMIT
-        [0, 21, 'error_sandbox_server_overload'], // RESULT_SERVER_OVERLOAD
-        [0, 30, 'error_excessive_output'] // RESULT OUTPUT_LIMIT
-    ];
-    for (const row of ERROR_RESPONSES) {
-        if (row[0] == response.error && (response.error != 0 || response.result == row[1])) {
-            return row[2];
-        }
-    }
-    return 'error_unknown_runtime';
-};
-
-/**
- * Get the specified language string using
- * AJAX and plug it into the given textarea
- * @param {string} langStringName The language string name.
- * @param {DOMnode} textarea The textarea into which the error message
- * should be plugged.
- * @param {string} additionalText Extra text to follow the result code.
- */
-const setLangString = async(langStringName, textarea, additionalText) => {
-    const message = await getLangString(langStringName, 'filter_ace_inline');
-    textarea.show();
-    textarea.html(escapeHtml("*** " + message + " ***\n" + additionalText));
-};
-
-/**
- * Concatenates the cmpinfo, stdout and stderr fields of the sandbox
- * response, truncating both stdout and stderr to a given maximum length
- * if necessary (in which case '... (truncated)' is appended.
- * @param {object} response Sandbox response object
- * @param {int} maxLen The maximum length of the trimmed stringlen.
- */
-const combinedOutput = (response, maxLen) => {
-    const limit = s => s.length <= maxLen ? s : s.substr(0, maxLen) + '... (truncated)';
-    return response.cmpinfo + limit(response.output) + limit(response.stderr);
-};
 
 /**
  * Invert serialisation from '1' to '', vice versa.
@@ -177,7 +93,7 @@ const invertSerial = current => current[0] == '1' ? [''] : ['1'];
 const fillWrapper = (answerCode, testCode, prefixAns, template) => {
     if (!template) {
         template = '{{ ANSWER_CODE }}\n' +
-                '{{ SCRATCHPAD_CODE }}';
+                   '{{ SCRATCHPAD_CODE }}';
     }
     if (!prefixAns) {
         answerCode = '';
@@ -188,7 +104,7 @@ const fillWrapper = (answerCode, testCode, prefixAns, template) => {
 };
 
 /**
- * Returns anew object containg default values. If a matching key exists in
+ * Returns a new object contain default values. If a matching key exists in
  * prescribed, the corresponding value from prescribed will replace the defualt value.
  * Does not add keys/values to the result if that key is not in defualts.
  * @param {object} defaults object with values to be overwritten.
@@ -205,16 +121,18 @@ const overwriteValues = (defaults, prescribed) => {
     return overwritten;
 };
 
-
 /**
- * Is an element currently hidden?
- * @param {Element} el to check visibility of.
- * @returns {boolean} true if el is visible.
+ * Is a collapsed element currently collapsed?
+ * @param {Element} el which is collapsed using a bootstrap collapse.
+ * @returns {boolean} true if el is collapsed.
  */
-const isVisible = (el) => {
-    const styles = window.getComputedStyle(el);
-    return styles.display === 'none' || styles.visibility === 'hidden';
+const isCollapsed = (el) => {
+    if (!el.classList.contains('collapse')) {
+        throw Error('Element does not have collapse class');
+    }
+    return !el.classList.contains('show');
 };
+
 
 /**
  * Constructor for the ScratchpadUi object.
@@ -235,34 +153,33 @@ class ScratchpadUi {
             disable_scratchpad: false,
             wrapper_src: null
         };
-
         this.textArea = document.getElementById(textAreaId);
         this.textAreaId = textAreaId;
         this.height = height;
         this.readOnly = this.textArea.readonly;
         this.fail = false;
-
-        this.lang = uiParams.lang;
-
-        uiParams.num_rows = this.textArea.readOnly;
+        this.outerDiv = null;
+        this.outputDisplay = null;
+        this.invertPreload = uiParams.invert_prefix;
+        this.lang = uiParams.lang; // Todo: this vs this.ui params
+        this.numRows = this.textArea.rows;
         this.uiParams = overwriteValues(DEF_UI_PARAMS, uiParams);
+        this.runWrapper = this.getRunWrapper();
+        this.reload(); // Draw my beautiful blobs.
+    }
 
-        // Find the run wrapper source location.
-        this.runWrapper = null;
+    getRunWrapper() {
         const wrapperSrc = this.uiParams.wrapper_src;
+        let runWrapper = null;
         if (wrapperSrc) {
             if (wrapperSrc === 'globalextra' || wrapperSrc === 'prototypeextra') {
-                this.runWrapper = this.textArea.dataset[wrapperSrc];
+                runWrapper = this.textArea.dataset[wrapperSrc];
             } else {
-                // TODO: raise some sort of exception? Invalid, params.
-                //  Bad wrapper src provided by user...
-                this.runWrapper = null;
+                this.fail = true;
+                this.failString = 'scratchpad_ui_badrunwrappersrc';
             }
         }
-
-        this.outerDiv = null; // TODO: Investigate...
-        this.scratchpadDiv = null;
-        this.reload(); // Draw my beautiful blobs.
+        return runWrapper;
     }
 
     failed() {
@@ -277,9 +194,13 @@ class ScratchpadUi {
         if (!this.context) {
             return;
         }
+        const serialisation = this.getSerialisation();
+        this.setSerialisation(serialisation);
+    }
+
+    getSerialisation() {
         const prefixAns = document.getElementById(this.context.prefix_ans.id);
         const showHide = document.getElementById(this.context.show_hide.id);
-
         let serialisation = {
             answer_code: [''],
             test_code: [''],
@@ -292,13 +213,19 @@ class ScratchpadUi {
         if (this.testTextarea) {
             serialisation.test_code = [this.testTextarea.value];
         }
-        if (!isVisible(showHide)) {
+        if (showHide && !isCollapsed(showHide)) {
             serialisation.show_hide = ['1'];
         }
-        if (prefixAns?.checked) {
+        if (prefixAns?.checked || this.context.disable_scratchpad) {
             serialisation.prefix_ans = ['1'];
         }
+        if (this.invertPreload) {
+            serialisation.prefix_ans = invertSerial(serialisation.prefix_ans);
+        }
+        return serialisation;
+    }
 
+    setSerialisation(serialisation) {
         serialisation.prefix_ans = invertSerial(serialisation.prefix_ans);
         if (Object.values(serialisation).some((val) => val.length === 1 && val[0].length > 0)) {
             serialisation.prefix_ans = invertSerial(serialisation.prefix_ans);
@@ -312,76 +239,20 @@ class ScratchpadUi {
         return this.outerDiv;
     }
 
-    async handleRunButtonClick(ajax, outputDisplayArea) {
-        outputDisplayArea = $(outputDisplayArea);
+    handleRunButtonClick() {
         this.sync(); // Use up-to-date serialization.
-
-        const htmlOutput = this.uiParams.html_output;
-        const maxLen = this.uiParams['max-output-length'] || DEFAULT_MAX_OUTPUT_LEN;
-        const preloadString = $(this.textArea).val();
-        const serial = this.serialize(preloadString);
-        const params = this.uiParams.params;
+        const preloadString = this.textArea.value;
+        const serial = this.readJson(preloadString);
+        const sandboxParams = this.uiParams.params;
+        const language = this.lang;
         const code = fillWrapper(
                 serial.answer_code,
                 serial.test_code,
                 serial.prefix_ans[0],
                 this.runWrapper
-                );
-
-        // Clear all output areas.
-        outputDisplayArea.html('');
-        if (htmlOutput) {
-            outputDisplayArea.hide();
-        }
-        outputDisplayArea.next('div.filter-ace-inline-html').remove(); // TODO: Naming
-
-
-        ajax.call([{
-                methodname: 'qtype_coderunner_run_in_sandbox',
-                args: {
-                    contextid: M.cfg.contextid, // Moodle context ID
-                    sourcecode: code,
-                    language: this.uiParams.run_lang,
-                    params: JSON.stringify(params) // Sandbox params
-                },
-                done: function(responseJson) {
-                    const response = JSON.parse(responseJson);
-                    const error = diagnose(response);
-                    if (error === '') {
-                        // If no errors or compilation error or runtime error
-                        if (!htmlOutput || response.result !== RESULT_SUCCESS) {
-                            // Either it's not HTML output or it is but we have compilation or runtime errors.
-                            const text = combinedOutput(response, maxLen);
-                            outputDisplayArea.show();
-                            if (text.trim() === '') {
-                                outputDisplayArea.html('<span style="color:red">< No output! ></span>');
-                            } else {
-                                outputDisplayArea.html(escapeHtml(text));
-                            }
-                        } else { // Valid HTML output - just plug in the raw html to the DOM.
-                            // Repeat the deletion of previous output in case of multiple button clicks.
-                            outputDisplayArea.next('div.filter-ace-inline-html').remove();
-
-                            const html = $("<div class='filter-ace-inline-html '" +
-                                    "style='background-color:#eff;padding:5px;'>" +
-                                    response.output + "</div>");
-                            outputDisplayArea.after(html);
-                        }
-                    } else {
-                        // If an error occurs, display the language string in the
-                        // outputDisplayArea plus additional info.
-                        let extra = response.error == 0 ? combinedOutput(response, maxLen) : '';
-                        if (error === 'error_unknown_runtime') {
-                            extra += response.error ? '(Sandbox error code ' + response.error + ')' :
-                                    '(Run result: ' + response.result + ')';
-                        }
-                        setLangString(error, outputDisplayArea, extra);
-                    }
-                },
-                fail: function(error) {
-                    alert(error.message);
-                }
-            }]);
+        );
+        // TODO: handle case where no output display area exists...
+        this.outputDisplay.handleRunButtonClick(code, language, sandboxParams);
     }
 
     updateContext(preload) {
@@ -390,16 +261,17 @@ class ScratchpadUi {
             "disable_scratchpad": this.uiParams.disable_scratchpad,
             "scratchpad_name": this.uiParams.scratchpad_name,
             "button_name": this.uiParams.button_name,
-            "prefix_name": this.uiParams.prefix_name,
-            "help_text": {"text": this.uiParams.help_text}, // TODO: context doesnt match...
+            "help_text": {"text": this.uiParams.help_text},
             "answer_code": {
                 "id": this.textAreaId + '_answer-code',
+                "name": "answer_code",
                 "text": preload.answer_code[0],
                 "lang": this.lang,
-                "rows": this.uiParams.rows
+                "rows": this.numRows
             },
             "test_code": {
                 "id": this.textAreaId + '_test-code',
+                "name": "test_code",
                 "text": preload.test_code[0],
                 "lang": this.lang,
                 "rows": 6
@@ -410,31 +282,46 @@ class ScratchpadUi {
             },
             "prefix_ans": {
                 "id": this.textAreaId + '_prefix-ans',
+                "label": this.uiParams.prefix_name,
                 "checked": preload.prefix_ans[0]
             },
             "output_display": {
-                "id": this.textAreaId + '_output-displayarea'
+                "id": this.textAreaId + '_run-output'
             },
+            // Bootstrap collapse requires jQuerry friendly ids to work...
             "jquery_escape": function() {
                 return function(text, render) {
-                    return $.escapeSelector(render(text));
+                    return CSS.escape(render(text));
                 };
             }
         };
     }
 
-    serialize(preloadString) {
+    readJson(preloadString) {
         const defaultSerial = {
-            answer_code: [''],
-            test_code: [''],
-            show_hide: [''],
-            prefix_ans: ['1'] // Ticked by default!
+            "answer_code": [''],
+            "test_code": [''],
+            "show_hide": [''],
+            "prefix_ans": ['1'] // Ticked by default!
         };
         let serial;
-        if (preloadString) {
-            serial = JSON.parse(preloadString);
+        if (preloadString !== "") {
+            try {
+                serial = JSON.parse(preloadString);
+            } catch {
+                // Preload is not JSON, so use preloaded string as answer_code.
+                serial = {"answer_code": [preloadString]};
+            }
+            if (!serial.hasOwnProperty("answer_code")) {
+                // No student_answer field... something is wrong!
+                throw TypeError("JSON has wrong signature, missing answer_code field.");
+            }
         }
         serial = overwriteValues(defaultSerial, serial);
+
+        if (this.invertPreload) {
+            serial.prefix_ans = invertSerial(serial.prefix_ans);
+        }
         return serial;
     }
 
@@ -442,44 +329,52 @@ class ScratchpadUi {
         const preloadString = this.textArea.value;
         let preload;
         try {
-            preload = this.serialize(preloadString);
+            preload = this.readJson(preloadString);
         } catch (error) {
             this.fail = true;
             this.failString = 'scratchpad_ui_invalidserialisation';
             return;
         }
-
         this.updateContext(preload);
-
         try {
             const {html} = await Templates.renderForPromise('qtype_coderunner/scratchpad_ui', this.context);
-
-            const div = document.createElement('div');
-            div.innerHTML = html;
-            document.getElementById(this.textAreaId)
-                .nextSibling
-                .innerHTML = html;
-            this.answerTextarea = document.getElementById(this.context.answer_code.id);
-            this.testTextarea = document.getElementById(this.context.test_code.id);
-
-            this.answerCodeUi = newUiWrapper('ace', this.context.answer_code.id);
-            if (this.testTextarea) {
-                this.testCodeUi = newUiWrapper('ace', this.context.test_code.id);
-            }
-
-            const runButton = document.getElementById(this.textAreaId + '_run-btn');
-            const outputDisplayarea = document.getElementById(this.context.output_display.id);
-            if (runButton) {
-                runButton.addEventListener('click', () => this.handleRunButtonClick(ajax, outputDisplayarea));
-            }
+            const outputMode = this.uiParams.html_output ? 'html' : 'text';
+            this.drawUi(html);
+            this.addAceUis();
+            this.outputDisplay = new OutputDisplayArea(this.context.output_display.id, outputMode); // TODO: change!
+            this.addEventListeners();
         } catch (e) {
             this.fail = true;
-            this.failString = "UI template failed to load."; // TODO: Lang-string goes here.
-        }
+            this.failString = "scratchpad_ui_templateloadfail";
 
+            return;
+        }
+    }
+
+    drawUi(html) {
+        const wrapperDiv = document.getElementById(this.textAreaId).nextSibling;
+        wrapperDiv.innerHTML = html;
+        this.outerDiv = wrapperDiv.firstChild;
         // No resizing the outer wrapper. Instead, resize the two sub UIs,
         // they will expand accordingly.
-        document.getElementById(this.textAreaId + '_wrapper').style.resize = 'none';
+        wrapperDiv.style.resize = 'none';
+    }
+
+    addAceUis() {
+        this.answerTextarea = document.getElementById(this.context.answer_code.id);
+        this.testTextarea = document.getElementById(this.context.test_code.id);
+        this.answerCodeUi = newUiWrapper('ace', this.context.answer_code.id);
+        if (this.testTextarea) {
+            this.testCodeUi = newUiWrapper('ace', this.context.test_code.id);
+        }
+    }
+
+    addEventListeners() {
+        const runButton = document.getElementById(this.textAreaId + '_run-btn');
+        const outputDisplayarea = document.getElementById(this.context.output_display.id);
+        if (runButton) {
+            runButton.addEventListener('click', () => this.handleRunButtonClick(ajax, outputDisplayarea));
+        }
     }
 
     resize() {} // Nothing to see here. Move along please.
@@ -497,6 +392,8 @@ class ScratchpadUi {
 
     destroy() {
         this.sync();
+        this.answerCodeUi?.uiInstance.destroy();
+        this.testCodeUiCodeUi?.uiInstance.destroy();
         this.outerDiv?.remove();
         this.outerDiv = null;
     }

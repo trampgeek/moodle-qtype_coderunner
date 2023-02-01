@@ -36,6 +36,10 @@
         "disable_scratchpad": {
             "type": "boolean",
             "default": false
+        },
+        "invert_prefix": {
+            "type": "boolean",
+            "default": false
         }
     }
 }
