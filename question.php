@@ -30,6 +30,7 @@ require_once($CFG->dirroot . '/question/behaviour/adaptive_adapted_for_coderunne
 require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
 
 use qtype_coderunner\constants;
+use qtype_coderunner\coderunner_files;
 
 /**
  * Represents a 'CodeRunner' question.
@@ -469,6 +470,10 @@ class qtype_coderunner_question extends question_graded_automatically {
             return null;
         } else {
             $answer = array('answer' => $this->answer);
+            // Get any sample question files first.
+            $context = qtype_coderunner::question_context($this);
+            $contextid = $context->id;
+            $answer['attachments'] = new coderunner_files($contextid, 'samplefile', $this->id);
             // For multilanguage questions we also need to specify the language.
             // Use the answer_language template parameter value if given, otherwise
             // run with the default.
@@ -581,7 +586,9 @@ class qtype_coderunner_question extends question_graded_automatically {
         if (array_key_exists('attachments', $response) && $response['attachments']) {
             $files = $response['attachments']->get_files();
             foreach ($files as $file) {
-                $attachments[$file->get_filename()] = $file->get_content();
+                if ($file->get_filename() !== ".") {
+                    $attachments[$file->get_filename()] = $file->get_content();
+                }
             }
         }
         return $attachments;
@@ -893,7 +900,6 @@ class qtype_coderunner_question extends question_graded_automatically {
             $this->prototype = null;
         }
     }
-
 
     /**
      *  Return an associative array mapping filename to file contents
