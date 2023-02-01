@@ -1,4 +1,4 @@
-@qtype @qtype_coderunner @javascript @scratchpad @scratchpaduiparam
+@qtype @javascript @scratchpad
 Feature: Test the Scratchpad UI, UI Params
   In order to use the Scratchpad UI
   As a teacher
@@ -124,7 +124,6 @@ Feature: Test the Scratchpad UI, UI Params
     Then I should not see "superuniquename123"
     And I should not see "Run"
     And I should not see "Prefix Answer?"
-
 
   Scenario: Define wrapper in UI params and click run, insert both answer and Scratchpad code, NO prefix with answer, click run
     And I set the field "id_answer" to ""
@@ -371,7 +370,6 @@ Feature: Test the Scratchpad UI, UI Params
     And I press the tab key
     Then I should see "superusefulhelptext"
 
-  @debug1
   Scenario: Set output_display_mode to text, 'print' a hidden div to output area
     And I set the field "id_answer" to ""
     And I set the following fields to these values:
@@ -388,7 +386,6 @@ Feature: Test the Scratchpad UI, UI Params
     Then I press "Run"
     And I should see "<div hidden>Hi</div>"
 
-  @debug1
   Scenario: Set output_display_mode to text, get no output.
     And I set the field "id_answer" to ""
     And I set the following fields to these values:
@@ -406,7 +403,6 @@ Feature: Test the Scratchpad UI, UI Params
     Then I should see "< No output! >"
     And I should not see "< No output! >< No output! >"
 
-  @debug1
   Scenario: Set output_display_mode to text, get a runtime error, get a compile error.
     And I set the field "id_answer" to ""
     And I set the following fields to these values:
@@ -427,7 +423,6 @@ Feature: Test the Scratchpad UI, UI Params
     And I press "Run"
     Then I should see "SyntaxError: invalid syntax"
 
-  @debug1
   Scenario: Set output_display_mode to json, 'print' a hidden div to output area
     And I set the field "id_answer" to ""
     And I set the following fields to these values:
@@ -453,7 +448,6 @@ Feature: Test the Scratchpad UI, UI Params
     Then I press "Run"
     And I should see "<div hidden>Hi</div>"
 
-  @debug1
   Scenario: Set output_display_mode to json, get no output.
     And I set the field "id_answer" to ""
     And I set the following fields to these values:
@@ -481,7 +475,6 @@ Feature: Test the Scratchpad UI, UI Params
     Then I should see "< No output! >"
     And I should not see "< No output! >< No output! >"
 
-  @debug1
   Scenario: Set output_display_mode to json, get a runtime error, get a compile error.
     And I set the field "id_answer" to ""
     And I set the following fields to these values:
@@ -507,7 +500,6 @@ Feature: Test the Scratchpad UI, UI Params
     And I press "Run"
     Then I should see "hello wolrdi am error"
 
-  @debug1
   Scenario: Set HTML output_display_mode to html, 'print' a button to output area
     And I set the field "id_answer" to ""
     And I set the following fields to these values:
@@ -524,7 +516,6 @@ Feature: Test the Scratchpad UI, UI Params
     Then I press "Run"
     And I press "Hi"
 
-  @debug1
   Scenario: Set HTML output_display_mode to html, get no output.
     And I set the field "id_answer" to ""
     And I set the following fields to these values:
@@ -542,7 +533,6 @@ Feature: Test the Scratchpad UI, UI Params
     Then I should see "< No output! >"
     And I should not see "< No output! >< No output! >"
 
-  @debug1
   Scenario: Set output_display_mode to html, get a runtime error, get a compile error.
     And I set the field "id_answer" to ""
     And I set the following fields to these values:

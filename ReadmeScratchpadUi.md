@@ -65,8 +65,9 @@ The default configuration uses the following wrapper:
 {{ SCRATCHPAD_CODE }}
 ```
 
-Two UI parameters are of particular importance when writing wrappers:
+Three UI parameters are of particular importance when writing wrappers:
 
+- `wrapper_src` sets the location of the wrapper code.
 - `run_lang` sets the language the Sandbox Webservice uses to run code when the **Run Button** is pressed.
 - `output_display_mode` controls how run output is displayed, see below. 
 
@@ -77,7 +78,7 @@ There are three modes of displaying program run output, set by `output_display_m
       - `returncode`: Exit code from program run.
       - `stdout`: Stdout text from program run.
       - `stderr`: Error text from program run.
-      - `files`: Images encoded in base64 text encoding. These will be displayed above any stdout text.
+      - `files`: An object containing filenames mapped to base64 encoded images. These will be displayed below any stdout text.
     - When the `returncode` is set to `42`, an HTML input field will be added after the last `stdout` received.
       When the enter key is pressed inside the input, the input's value is added to stdin and the program is run again with this updated stdin.
       This is repeated until `returncode` is not set to `42`.
@@ -88,83 +89,144 @@ There are three modes of displaying program run output, set by `output_display_m
 Note: JSON is the preferred display mode; wrapper debugging is much simpler than HTML mode. 
 HTML output is only recommended if you are trying to display HTML elements and for very advanced users, enter at your own risk...
 
-## Wrapper tutorial (TBD)
-#### Wrappers I: Running code in unsupported languages
-Wrappers can be in a different language to their question; you can set the Run language, using `run_lang`. 
-This changes the language the sandbox service uses to run the wrapper.
-This would be invisible to the student answering the question. 
-Below is an example of a C program being wrapped using Python (see the multi-language question for further inspiration):
- ```
- import subprocess
- 
-student_answer = """{{ ANSWER_CODE }}"""
-test_code = """{{ SCRATCHPAD_CODE }}"""
-all_code = student_answer + '\n' + test_code
- filename = '__tester__.c'
- with open(filename, "w") as src:
-    print(all_code, file=src)
+[//]: # (## Wrapper tutorial &#40;TBD&#41;)
 
-cflags = "-std=c99 -Wall -Werror"
-return_code = subprocess.call("gcc {0} -o __tester__ __tester__.c".format(cflags).split())
-if return_code != 0:
-    raise Exception("** Compilation failed. Testing aborted **")
-exec_command = ["./__tester__"]
- 
- output = subprocess.check_output(exec_command, universal_newlines=True)
-print(output)
- ```
-Note: When writing wrappers it is recommended to use a scripting language with strong string manipulation features.
+[//]: # (#### Wrappers I: Running code in unsupported languages)
 
-#### Wrappers II: Displaying on-textual run output
-The `html_output` parameter, in conjunction with a wrapper, can be used to display graphical/non-textual output in the output display area. Using HTML output, it is possible to insert images and input boxes.
+[//]: # (Wrappers can be in a different language to their question; you can set the Run language, using `run_lang`. )
 
-Example of a wrapper to display `Matplotlib` graphs in the output display area:
-```
-import subprocess, base64, html, os, tempfile
+[//]: # (This changes the language the sandbox service uses to run the wrapper.)
 
+[//]: # (This would be invisible to the student answering the question. )
 
-def make_data_uri(filename):
-    with open(filename, "br") as fin:
-        contents = fin.read()
-    contents_b64 = base64.b64encode(contents).decode("utf8")
-    return "data:image/png;base64,{}".format(contents_b64)
+[//]: # (Below is an example of a C program being wrapped using Python &#40;see the multi-language question for further inspiration&#41;:)
 
+[//]: # ( ```)
 
-code = r"""{{ ANSWER_CODE }}
-{{ SCRATCHPAD_CODE }}
-"""
+[//]: # ( import subprocess)
 
-prefix = """import os, tempfile
-os.environ["MPLCONFIGDIR"] = tempfile.mkdtemp()
-import matplotlib as _mpl
-_mpl.use("Agg")
-"""
+[//]: # ( )
+[//]: # (student_answer = """{{ ANSWER_CODE }}""")
 
-suffix = """
-figs = _mpl.pyplot.get_fignums()
-for i, fig in enumerate(figs):
-    _mpl.pyplot.figure(fig)
-    filename = f'image{i}.png'
-    _mpl.pyplot.savefig(filename, bbox_inches='tight')
-"""
+[//]: # (test_code = """{{ SCRATCHPAD_CODE }}""")
 
-prog_to_exec = prefix + code + suffix
+[//]: # (all_code = student_answer + '\n' + test_code)
 
-with open('prog.py', 'w') as outfile:
-    outfile.write(prog_to_exec)
+[//]: # ( filename = '__tester__.c')
 
-result = subprocess.run(['python3', 'prog.py'], capture_output=True, text=True)
-print('<div>')
-output = result.stdout + result.stderr
-if output:
-    output = html.escape(output).replace(' ', '&nbsp;').replace('\n', '<br>')
-    print(f'<p style="font-family:monospace;font-size:11pt;padding:5px;">{output}</p>')
+[//]: # ( with open&#40;filename, "w"&#41; as src:)
 
-for fname in os.listdir():
-    if fname.endswith('png'):
-        print(f'<img src="{make_data_uri(fname)}">')
-```
-#### Wrappers III: Reading stdin during runs
+[//]: # (    print&#40;all_code, file=src&#41;)
+
+[//]: # ()
+[//]: # (cflags = "-std=c99 -Wall -Werror")
+
+[//]: # (return_code = subprocess.call&#40;"gcc {0} -o __tester__ __tester__.c".format&#40;cflags&#41;.split&#40;&#41;&#41;)
+
+[//]: # (if return_code != 0:)
+
+[//]: # (    raise Exception&#40;"** Compilation failed. Testing aborted **"&#41;)
+
+[//]: # (exec_command = ["./__tester__"])
+
+[//]: # ( )
+[//]: # ( output = subprocess.check_output&#40;exec_command, universal_newlines=True&#41;)
+
+[//]: # (print&#40;output&#41;)
+
+[//]: # ( ```)
+
+[//]: # (Note: When writing wrappers it is recommended to use a scripting language with strong string manipulation features.)
+
+[//]: # ()
+[//]: # (#### Wrappers II: Displaying on-textual run output)
+
+[//]: # (The `html_output` parameter, in conjunction with a wrapper, can be used to display graphical/non-textual output in the output display area. Using HTML output, it is possible to insert images and input boxes.)
+
+[//]: # ()
+[//]: # (Example of a wrapper to display `Matplotlib` graphs in the output display area:)
+
+[//]: # (```)
+
+[//]: # (import subprocess, base64, html, os, tempfile)
+
+[//]: # ()
+[//]: # ()
+[//]: # (def make_data_uri&#40;filename&#41;:)
+
+[//]: # (    with open&#40;filename, "br"&#41; as fin:)
+
+[//]: # (        contents = fin.read&#40;&#41;)
+
+[//]: # (    contents_b64 = base64.b64encode&#40;contents&#41;.decode&#40;"utf8"&#41;)
+
+[//]: # (    return "data:image/png;base64,{}".format&#40;contents_b64&#41;)
+
+[//]: # ()
+[//]: # ()
+[//]: # (code = r"""{{ ANSWER_CODE }})
+
+[//]: # ({{ SCRATCHPAD_CODE }})
+
+[//]: # (""")
+
+[//]: # ()
+[//]: # (prefix = """import os, tempfile)
+
+[//]: # (os.environ["MPLCONFIGDIR"] = tempfile.mkdtemp&#40;&#41;)
+
+[//]: # (import matplotlib as _mpl)
+
+[//]: # (_mpl.use&#40;"Agg"&#41;)
+
+[//]: # (""")
+
+[//]: # ()
+[//]: # (suffix = """)
+
+[//]: # (figs = _mpl.pyplot.get_fignums&#40;&#41;)
+
+[//]: # (for i, fig in enumerate&#40;figs&#41;:)
+
+[//]: # (    _mpl.pyplot.figure&#40;fig&#41;)
+
+[//]: # (    filename = f'image{i}.png')
+
+[//]: # (    _mpl.pyplot.savefig&#40;filename, bbox_inches='tight'&#41;)
+
+[//]: # (""")
+
+[//]: # ()
+[//]: # (prog_to_exec = prefix + code + suffix)
+
+[//]: # ()
+[//]: # (with open&#40;'prog.py', 'w'&#41; as outfile:)
+
+[//]: # (    outfile.write&#40;prog_to_exec&#41;)
+
+[//]: # ()
+[//]: # (result = subprocess.run&#40;['python3', 'prog.py'], capture_output=True, text=True&#41;)
+
+[//]: # (print&#40;'<div>'&#41;)
+
+[//]: # (output = result.stdout + result.stderr)
+
+[//]: # (if output:)
+
+[//]: # (    output = html.escape&#40;output&#41;.replace&#40;' ', '&nbsp;'&#41;.replace&#40;'\n', '<br>'&#41;)
+
+[//]: # (    print&#40;f'<p style="font-family:monospace;font-size:11pt;padding:5px;">{output}</p>'&#41;)
+
+[//]: # ()
+[//]: # (for fname in os.listdir&#40;&#41;:)
+
+[//]: # (    if fname.endswith&#40;'png'&#41;:)
+
+[//]: # (        print&#40;f'<img src="{make_data_uri&#40;fname&#41;}">'&#41;)
+
+[//]: # (```)
+
+[//]: # (#### Wrappers III: Reading stdin during runs)
 
 [//]: # (A module used for running code using the Coderunner webservice &#40;CRWS&#41; and displaying output. Originally)
 

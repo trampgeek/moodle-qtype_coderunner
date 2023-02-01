@@ -21,7 +21,8 @@
  *          - "returncode": Error/return code from running program.
  *          - "stdout": Stdout text from running program.
  *          - "stderr": Error text from running program.
- *          - "files": Images encoded in base64 text encoding. These will be displayed above any stdout text.
+ *          - "files": An object containing filenames mapped to base64 encoded images.
+ *                     These will be displayed below any stdout text.
  *      - When input from stdin is required the returncode 42 should be returned, raise this
  *        any time the program asks for input. An (html) input will be added after the last stdout received.
  *        When enter is pressed, runCode is called with value of the input added to the stdin string.
@@ -182,8 +183,8 @@ class OutputDisplayArea {
      *      - "returncode": Error/return code from running program.
      *      - "stdout": Stdout text from running program.
      *      - "stderr": Error text from running program.
-     *      - "files": Images encoded in base64 text encoding.
-     *                 These will be displayed above any stdout text.
+     *      - "files": An object containing filenames mapped to base64 encoded images.
+     *                 These will be displayed below any stdout text.
      * NOTE: See file header/readme for more info.
      * @param {object} response Coderunner webservice response JSON,
      * with output field containing JSON string.
@@ -250,7 +251,7 @@ class OutputDisplayArea {
      * display of no output message.
      */
     displayNoOutput(response) {
-        const isNoOutput = combinedOutput(response).length === 0;
+        const isNoOutput = response ? combinedOutput(response).length === 0 : true;
         if (isNoOutput || response === null) {
             const span = document.createElement('span');
             span.style.color = 'red';
