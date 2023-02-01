@@ -129,7 +129,7 @@ const overwriteValues = (defaults, prescribed) => {
  * @returns {boolean} true if el is collapsed.
  */
 const isCollapsed = (el) => {
-    if (!(el.classList.contains('collapse') || el.classList.contains('collapsing'))) {
+    if (!el.classList.contains('collapse')) {
         throw Error('Element does not have collapse class');
     }
     return !el.classList.contains('show');
