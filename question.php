@@ -288,7 +288,7 @@ class qtype_coderunner_question extends question_graded_automatically {
 
 
     // Get the default ui parameters for the ui plugin and merge in
-    // both the prototype's and this question's parameters.
+    // both the prototypes and this questions parameters.
     // In order to support the legacy method of including ui parameters
     // within the template parameters, we need to filter out only the
     // valid ui parameters, so need to load the uiplugin json file to find
