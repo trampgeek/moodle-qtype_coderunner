@@ -37,14 +37,14 @@ class behat_coderunner extends behat_base {
         set_config('jobesandbox_enabled', 1, 'qtype_coderunner');
         set_config('jobe_host', '172.17.0.1:4000', 'qtype_coderunner');
     }
-    
+
     /**
      * Checks that a given string appears within answer textarea.
      * Intended for checking UI serialization
-     * @Then /^I should see in answer field "(?P<expected>(?:[^"]|\\")*)"$/ 
+     * @Then /^I should see in answer field "(?P<expected>(?:[^"]|\\")*)"$/
      * @throws ExpectationException
      * @param string $expected The string that we expect to find
-     */    
+     */
     public function i_should_see_in_answer($expected) {
         $xpath = '//textarea[contains(@class, "coderunner-answer")]';
         $driver = $this->getSession()->getDriver();
@@ -59,13 +59,13 @@ class behat_coderunner extends behat_base {
             throw new ExpectationException($error, $this->getSession());
         }
     }
-    
+
      /**
      * Sets answer textarea (seen after presing ctrl+m) to a value
-     * @Then /^I set answer field to "(?P<value>(?:[^"]|\\")*)"$/ 
+     * @Then /^I set answer field to "(?P<value>(?:[^"]|\\")*)"$/
      * @throws ExpectationException
      * @param string $expected The string that we expect to find
-     */    
+     */
     public function i_set_answer($value) {
         $xpath = '//textarea[contains(@class, "coderunner-answer")]';
         $driver = $this->getSession()->getDriver();
@@ -76,35 +76,35 @@ class behat_coderunner extends behat_base {
         $page = $this->getSession()->getPage();
         $val = $page->find('xpath',$xpath)->setValue($value);
     }
-    
+
     /**
      * Sets answer textarea (seen after presing ctrl+m) to a value
      * @Then /^I set answer field to:$/
      * @throws ExpectationException
      * @param string $expected The string that we expect to find
-     */    
+     */
     public function i_set_answer_pystring($pystring) {
         $this->i_set_answer($pystring->getRaw());
     }
-    
+
      /**
      * Checks that a given string appears within answer textarea.
      * Intended for checking UI serialization
      * @Then /^I should see in answer field:$/
-     */    
+     */
      public function i_should_see_in_answer_pystring(Behat\Gherkin\Node\PyStringNode $pystring) {
          $this->i_should_see_in_answer($pystring->getRaw());
     }
-    
+
     /**
-     * Sets the ace editor content to provided string, using name of associated textarea. 
-     * NOTE: this assumes the existence of a text area next to a 
+     * Sets the ace editor content to provided string, using name of associated textarea.
+     * NOTE: this assumes the existence of a text area next to a
      * UI wrapper div containing the Ace div!
      * Intended as a replacement for I set field to <value>, for ace fields.
      * @Then /^I set the ace field "(?P<elname>(?:[^"]|\\")*)" to "(?P<value>(?:[^"]|\\")*)"$/
      * @throws ExpectationException
      * @param string $expected The string that we expect to find
-     */    
+     */
      public function i_set_ace_field($elname, $value) {
         $xpath = "//textarea[@name='$elname']/../div/div";
         $driver = $this->getSession()->getDriver();
@@ -114,7 +114,7 @@ class behat_coderunner extends behat_base {
             throw new ExpectationException($error, $this->getSession());
         }
         // We inject JS into the browser to set the Ace editor contents...
-        // (Gross) JS to take the x-path for the div managed by Ace, 
+        // (Gross) JS to take the x-path for the div managed by Ace,
         // open editor for that div, and set the editors value.
         $javascript = "const editorNode = document.evaluate("
                 . "`$xpath`,"
@@ -126,7 +126,21 @@ class behat_coderunner extends behat_base {
                 . "editor.setValue(`$value`);";
         $this->getSession()->executeScript($javascript);
     }
-    
+
+    /**
+     * Sets the ace editor content to provided string, using name of associated textarea.
+     * NOTE: this assumes the existence of a text area next to a
+     * UI wrapper div containing the Ace div!
+     * Intended as a replacement for I set field to <value>, for ace fields.
+     * @Then /^I set the ace field "(?P<elname>(?:[^"]|\\")*)" to:$/
+     * @throws ExpectationException
+     * @param string $expected The string that we expect to find
+     */
+     public function i_set_ace_field_pystring($elname, $pystring) {
+         $this->i_set_ace_field($elname, $pystring->getRaw());
+    }
+
+
     /**
      * Checks that a given string appears within a visible ins or del element
      * that has a background-color attribute that is not 'inherit'.

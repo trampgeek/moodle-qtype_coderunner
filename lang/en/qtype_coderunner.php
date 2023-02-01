@@ -1266,3 +1266,14 @@ You can uncheck the \'Prefix with answer\' checkbox to run the code in this pane
 $string['scratchpad_ui_invalidserialisation'] = 'Invalid JSON serialisation provided, must include \"answer_code\" field.';
 $string['scratchpad_ui_templateloadfail'] = 'Scratchpad UI template failed to load, please refresh the page.';
 $string['scratchpad_ui_badrunwrappersrc'] = 'Invalid run wrapper source given, please contact question author.';
+
+$string['error_access_denied'] = 'Sandbox server access denied';
+$string['error_excessive_output'] = 'Excessive output';
+$string['error_json_params'] = 'Params set are not in correct JSON format';
+$string['error_jobe_unknown'] = 'Unknown error from Jobe server';
+$string['error_memory_limit'] = 'Memory limit exceeded';
+$string['error_sandbox_server_overload'] = 'Jobe server overload';
+$string['error_submission_limit_reached'] = 'Jobe sandbox submission limit reached';
+$string['error_timeout'] = 'Time limit exceeded';
+$string['error_unknown_language'] = 'Unknown language requested';
+$string['error_unknown_runtime'] = 'Unknown runtime error';
