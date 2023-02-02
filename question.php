@@ -30,6 +30,7 @@ require_once($CFG->dirroot . '/question/behaviour/adaptive_adapted_for_coderunne
 require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
 
 use qtype_coderunner\constants;
+use qtype_coderunner\coderunner_files;
 
 /**
  * Represents a 'CodeRunner' question.
@@ -301,7 +302,8 @@ class qtype_coderunner_question extends question_graded_automatically {
     private function evaluate_merged_ui_parameters() {
         $uiplugin = $this->uiplugin === null ? 'ace' : strtolower($this->uiplugin);
         $uiparams = new qtype_coderunner_ui_parameters($uiplugin);
-        if (isset($this->prototype->uiparameters)) { // Ensure prototype not missing.
+        // Merge prototype's UI parameters unless prototype is missing or UI plugin has changed.
+        if (isset($this->prototype->uiparameters) && strtolower($this->prototype->uiplugin) === $uiplugin) {
             $uiparams->merge_json($this->prototype->uiparameters);
         }
         $uiparams->merge_json($this->templateparamsjson, true); // Legacy support.
@@ -324,9 +326,15 @@ class qtype_coderunner_question extends question_graded_automatically {
         return  new qbehaviour_adaptive_adapted_for_coderunner($qa, $preferredbehaviour);
     }
 
+    /**
+     * What data may be included in the form submission when a student submits
+     * this question in its current state?
+     *
+     * @return array|string variable name => PARAM_... constant
+     */
     public function get_expected_data() {
         $expecteddata = array('answer' => PARAM_RAW,
-                     'language' => PARAM_NOTAGS);
+                     'language' => PARAM_NOTAGS); // NOTAGS => any HTML is stripped.
         if ($this->attachments != 0) {
             $expecteddata['attachments'] = question_attempt::PARAM_FILES;
         }
@@ -469,6 +477,10 @@ class qtype_coderunner_question extends question_graded_automatically {
             return null;
         } else {
             $answer = array('answer' => $this->answer);
+            // Get any sample question files first.
+            $context = qtype_coderunner::question_context($this);
+            $contextid = $context->id;
+            $answer['attachments'] = new coderunner_files($contextid, 'samplefile', $this->id);
             // For multilanguage questions we also need to specify the language.
             // Use the answer_language template parameter value if given, otherwise
             // run with the default.
@@ -581,7 +593,9 @@ class qtype_coderunner_question extends question_graded_automatically {
         if (array_key_exists('attachments', $response) && $response['attachments']) {
             $files = $response['attachments']->get_files();
             foreach ($files as $file) {
-                $attachments[$file->get_filename()] = $file->get_content();
+                if ($file->get_filename() !== ".") {
+                    $attachments[$file->get_filename()] = $file->get_content();
+                }
             }
         }
         return $attachments;
@@ -893,7 +907,6 @@ class qtype_coderunner_question extends question_graded_automatically {
             $this->prototype = null;
         }
     }
-
 
     /**
      *  Return an associative array mapping filename to file contents

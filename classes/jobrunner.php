@@ -23,6 +23,8 @@
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
 
+use qtype_coderunner\constants;
+
 // The qtype_coderunner_jobrunner class contains all code concerned with running a question
 // in the sandbox and grading the result.
 class qtype_coderunner_jobrunner {
@@ -51,6 +53,15 @@ class qtype_coderunner_jobrunner {
             $outcome->set_status(qtype_coderunner_testing_outcome::STATUS_MISSING_PROTOTYPE, $message);
             return $outcome;
         }
+
+        // Extra the code from JSON if this is a Scratchpad UI or similar.
+        if ($question->extractcodefromjson) {
+            $json = json_decode($code, true);
+            if ($json !== null and isset($json[constants::ANSWER_CODE_KEY])) {
+                $code = $json[constants::ANSWER_CODE_KEY][0];
+            }
+        }
+
         $this->question = $question;
         $this->code = $code;
         $this->testcases = array_values($testcases);

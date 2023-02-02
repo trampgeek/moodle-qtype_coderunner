@@ -53,12 +53,13 @@ define(['jquery'], function($) {
             focused = textarea[0] === document.activeElement,
             lang = params.lang,
             session,
+            code,
             t = this;  // For embedded callbacks.
 
         try {
             window.ace.require("ace/ext/language_tools");
             this.modelist = window.ace.require('ace/ext/modelist');
-
+            this.textareaId = textareaId;
             this.textarea = textarea;
             this.enabled = false;
             this.contents_changed = false;
@@ -79,29 +80,39 @@ define(['jquery'], function($) {
 
             this.editor.setOptions({
                 enableBasicAutocompletion: true,
+                enableLiveAutocompletion: params.live_autocompletion,
+                fontSize: params.font_size ? params.font_size : "14px",
                 newLineMode: "unix",
             });
+
             this.editor.$blockScrolling = Infinity;
 
             session = this.editor.getSession();
-            session.setValue(this.textarea.val());
-
-            this.fixSlowLoad();
-
-            // Set theme if available (not currently enabled).
-            if (params.theme) {
-                this.editor.setTheme("ace/theme/" + params.theme);
+            code = this.textarea.val();
+            if (params.import_from_scratchpad === undefined || params.import_from_scratchpad) {
+                code = this.extract_from_json_maybe(code);
             }
+            session.setValue(code);
 
-            // Set theme to dark if user-prefers-color-scheme is dark,
-            // else use the uiParams theme if provided else use light.
-            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            // If there's a user-defined theme in local storage, use that.
+            // Otherwise use the 'prefers-color-scheme' option if given or
+            // the question/system defaults if not.
+            const userTheme = window.localStorage.getItem('qtype_coderunner.ace.theme');
+            const consider_prefers = (params.auto_switch_light_dark === undefined || params.auto_switch_light_dark)
+                    && window.matchMedia;
+            if (userTheme !== null) {
+                this.editor.setTheme(userTheme);
+            } else if (consider_prefers && window.matchMedia('(prefers-color-scheme: dark)').matches) {
                 this.editor.setTheme(ACE_DARK_THEME);
-            } else if (params.theme) {
+            } else if (consider_prefers && window.matchMedia('(prefers-color-scheme: light)').matches) {
+                this.editor.setTheme(ACE_LIGHT_THEME);
+            }  else if (params.theme) {
                 this.editor.setTheme("ace/theme/" + params.theme);
             } else {
                 this.editor.setTheme(ACE_LIGHT_THEME);
             }
+
+            this.fixSlowLoad();
 
             this.setLanguage(lang);
 
@@ -138,6 +149,16 @@ define(['jquery'], function($) {
         }
     }
 
+    AceWrapper.prototype.extract_from_json_maybe = function(code) {
+        // If the given code looks like JSON from the Scratchpad UI,
+        // extract and return the answer_code attribute.
+        try {
+            const jsonObj = JSON.parse(code);
+            code = jsonObj.answer_code[0];
+        } catch(err) {}
+
+        return code;
+    };
 
     AceWrapper.prototype.failed = function() {
         return this.fail;
@@ -147,14 +168,33 @@ define(['jquery'], function($) {
         return 'ace_ui_notready';
     };
 
-
     // Sync to TextArea
     AceWrapper.prototype.sync = function() {
-        // Nothing to do ... always sync'd
+        // The data is always sync'd to the text area. But here we use sync to
+        // poll the value of the current theme and record in browser local
+        // storage if the value for this particular Ace instance has changed
+        // (as recorded in session storage). The theme to use for all Ace windows
+        // from now on in this browser is recorded in browser local storage.
+        const thisThemeNow = this.editor.getOption('theme');
+        const thisEditorKey = `qtype_coderunner.${this.textareaId}.theme`;
+        const lastTheme = window.sessionStorage.getItem(thisEditorKey);
+        const globalKey = 'qtype_coderunner.ace.theme';
+        const globalTheme = window.localStorage.getItem(globalKey);
+
+        if (lastTheme !== null && lastTheme != thisThemeNow) {
+            // The theme in this Ace window has been changed by the user.
+            window.localStorage.setItem(globalKey, thisThemeNow);
+        } else if (globalTheme && globalTheme !== thisThemeNow) {
+            // A theme has been defined by another Ace window since we loaded.
+            // Switch to that theme.
+            this.editor.setOption('theme', globalTheme);
+            thisThemeNow = globalTheme;
+        }
+        window.sessionStorage.setItem(thisEditorKey, thisThemeNow);
     };
 
     AceWrapper.prototype.syncIntervalSecs = function() {
-        return 0;
+        return 2;
     };
 
     AceWrapper.prototype.setLanguage = function(language) {
@@ -180,7 +220,7 @@ define(['jquery'], function($) {
     };
 
     // Sometimes Ace editors do not load until the mouse is moved. To fix this,
-    // 'move' the mouse using JQuerry when the editor div enters the viewport.
+    // 'move' the mouse using JQuery when the editor div enters the viewport.
     AceWrapper.prototype.fixSlowLoad = function () {
         const observer = new IntersectionObserver( () => {
             $(document).trigger('mousemove');

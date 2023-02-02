@@ -151,17 +151,23 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
 
         /**
          * Set the correct Ui controller on both the sample answer and the answer preload.
+         * The sample answer and answer preload have the data-params attribute which contains
+         * the UI params in a JSON from the current question merged with the prototype.
+         * Both of them are identical and are changed simultaneously; only checking
+         * answer as state is identical.
          * As a special case, we don't turn on the Ui controller in the answer
          * and answer preload fields when using Html-Ui and the ui-parameter
          * enable_in_editor is false.
+         *
          */
         function setUis() {
-            var uiname = uiplugin.val();
-            var enableUi = true;
-            if (uiname === 'html' && uiparameters.val().trim() !== '') {
+            let uiname = uiplugin.val();
+            let answer = $('#id_answer');
+            let enableUi = true;
+            if (uiname === 'html' && answer.attr('data-params') !== '') {
                 try {
-                    var uiparams = JSON.parse(uiparameters.val());
-                    if (uiparams.enable_in_editor === false) {
+                    let answerparams = JSON.parse(answer.attr('data-params'));
+                    if (answerparams.enable_in_editor === false) {
                         enableUi = false;
                     }
                 } catch (error) {

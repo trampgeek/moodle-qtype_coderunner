@@ -33,21 +33,21 @@
    within the node, if given, or a string of the form '#nnn' where nnn is
    the number of the node, otherwise. Each edge in the edge list is a tuple of
    (node_name, edge_label).
-   
+
    For some directed graph questions that global variable is sufficient to
    allow the question author to write tests that directly use the graph
    variable. In more complex questions, such as this one, the author must further
    customise the question. In this example an additional allPairsShortestPath
    function is defined that takes the graph as a parameter and returns a
    dictionary that maps from  (source_node_name, target_node_name) to distance.
-   
+
    As an aside, a better solution here would be to have the DirectedGraph
    question type include {{ QUESTION.globalextra }} just before the tests.
    Then the allPairsShortestPath function could be moved into the global
    extra, so that the question would not need to be specifically customised, but
    could use the DirectedGraph question type directly. But at the time Directed
    Graph was developed, the global extra field was not available.
-   
+
 """
 
 # Firstly the code from the DirectedGraph question prototype (more or less)
@@ -81,7 +81,7 @@ try:
 except json.JSONDecodeError as e:
     raise Exception("Oops. Illegal graph received (exception {}). Please report (unless you did something silly yourself)".format(e))
 
-# Now we add Floyd-Warshall 
+# Now we add Floyd-Warshall
 
 def allPairsShortestPath(g):
     """Return distance dictionary (a map from (u, v) to distance) computed
@@ -108,7 +108,7 @@ def allPairsShortestPath(g):
                     dist[u, v] = newlen
 
     return dist
-    
+
 distances = allPairsShortestPath(graph)
 
 {% for TEST in TESTCASES %}
@@ -135,6 +135,7 @@ print(SEPARATOR)
     "isdirected": true
 }]]></templateparams>
     <hoisttemplateparams>1</hoisttemplateparams>
+    <extractcodefromjson>1</extractcodefromjson>
     <twigall>0</twigall>
     <uiplugin></uiplugin>
     <attachments>0</attachments>

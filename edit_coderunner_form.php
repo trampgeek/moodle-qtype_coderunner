@@ -496,7 +496,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $hidemethod = method_exists($mform, 'hideIf') ? 'hideIf' : 'disabledIf';
 
         $mform->addElement('header', 'questiontypeheader', get_string('type_header', 'qtype_coderunner'));
-        
+
         // Insert the (possible) bad question load message as a hidden field before broken question. JavaScript
         // will be used to show it if non-empty.
         $mform->addElement('hidden', 'badquestionload', '',
@@ -618,6 +618,8 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $twigelements = array();
         $twigelements[] = $mform->createElement('advcheckbox', 'hoisttemplateparams', null,
                 get_string('hoisttemplateparams', 'qtype_coderunner'));
+        $twigelements[] = $mform->createElement('advcheckbox', 'extractcodefromjson', null,
+                get_string('extractcodefromjson', 'qtype_coderunner'));
         $twigelements[] = $mform->createElement('advcheckbox', 'twigall', null,
                 get_string('twigall', 'qtype_coderunner'));
         $templateparamlangs = array(
@@ -643,6 +645,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->$hidemethod('templateparamsevalpertry', 'templateparamslang', 'eq', 'None');
         $mform->$hidemethod('templateparamsevalpertry', 'templateparamslang', 'eq', 'twig');
         $mform->setDefault('hoisttemplateparams', true);
+        $mform->setDefault('extractcodefromjson', true);
         $mform->addHelpButton('twigcontrols', 'twigcontrols', 'qtype_coderunner');
 
         // UI parameters.

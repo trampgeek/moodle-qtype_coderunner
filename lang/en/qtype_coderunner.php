@@ -25,6 +25,11 @@
 $string['aborted'] = 'Testing was aborted due to error.';
 $string['ace_gapfillerui_ui_source_descr'] = '"globalextra" to take the code to display from the globalextra field or "test0" to take it from the testcode field of the first test';
 $string['ace_ui_notready'] = 'Ace editor not ready. Perhaps reload page?';
+$string['aceui_auto_switch_light_dark_descr'] = 'Allow a user, browser or OS preference for dark themes to override a preset Ace light theme.';
+$string['aceui_live_autocompletion_descr'] = 'Enable the Ace editor\'s live autocompletion mode.';
+$string['aceui_font_size_descr'] = 'Ace editor font size.';
+$string['aceui_import_from_scratchpad_descr'] = 'True to allow the Ace editor to receive the JSON-format answer used by the scratchpad UI and extract the answer code from it. Facilitates switching UIs. Leave true unless you want Ace to edit JSON objects with an "answer_code" key.';
+$string['aceui_theme_descr'] = 'Ace editor theme. Default is the light theme "textmate". An alternative dark theme is "tomorrow_night". Light theme be overridden by user preferences - see auto_switch_dark.';
 $string['addingcoderunner'] = 'Adding a new CodeRunner Question';
 $string['ajax_error'] = '*** AJAX ERROR. DON\'T SAVE THIS! ***';
 $string['allok'] = 'Passed all tests! ';
@@ -153,6 +158,7 @@ $string['erroroninit'] = '**** ERROR WHEN INITIALISING QUESTION ****<br>{$a->err
 $string['errorstring-ok'] = 'OK';
 $string['errorstring-autherror'] = 'Unauthorised to use sandbox';
 $string['errorstring-blocked-url'] = 'The URL is blocked. Check the Jobe URL and Moodle\'s HTTP security settings.';
+$string['errorstring-duplicate-name'] = 'Rename class name; this name conflicts with support files for this question.';
 $string['errorstring-jobe400'] = 'Error from Jobe sandbox server: ';
 $string['errorstring-jobe-failed'] = 'Jobe server request failed. ';
 $string['errorstring-overload'] = 'Job could not be run due to server overload. Perhaps try again shortly?';
@@ -175,6 +181,7 @@ $string['exportthisquestion'] = 'Export this question';
 $string['exportthisquestion_help'] = 'This will create a Moodle XML export file containing just this one question. One example of when this is useful if you think this question demonstrates a bug in CodeRunner that you would like to report to the developers.';
 $string['extra'] = 'Extra template data';
 $string['extra_help'] = 'A sometimes-useful extra text field for use by the template, accessed as {{TEST.extra}}';
+$string['extractcodefromjson'] = "Ace/Scratchpad compliant";
 
 $string['fail'] = 'Fail';
 $string['fails'] = 'failures';
@@ -1140,6 +1147,10 @@ $string['twigcontrols_help'] = 'Template parameters were traditionally referred 
 {{QUESTION.parameters.someparam}} However, if the Hoist Template Parameters
 checkbox is checked, the parameters are hoisted into the Twig global name space
 and can be referenced simply as {{someparam}}.
+
+Ace/Scratchpad compliance allows seamless switching between the Ace and
+Scratchpad UIs. Leave checked unless you wish Ace to be able to edit a JSON string
+with an "answer_code" key, which would be taken to be a Scratchpad serialisation.
 
 If Twig All is checked, Twig macro expansion is applied to the
 question text, sample answer, answer preload, UI parameters and all test case fields
