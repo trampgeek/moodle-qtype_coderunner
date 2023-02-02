@@ -158,6 +158,7 @@ $string['erroroninit'] = '**** ERROR WHEN INITIALISING QUESTION ****<br>{$a->err
 $string['errorstring-ok'] = 'OK';
 $string['errorstring-autherror'] = 'Unauthorised to use sandbox';
 $string['errorstring-blocked-url'] = 'The URL is blocked. Check the Jobe URL and Moodle\'s HTTP security settings.';
+$string['errorstring-duplicate-name'] = 'Rename class name; this name conflicts with support files for this question.';
 $string['errorstring-jobe400'] = 'Error from Jobe sandbox server: ';
 $string['errorstring-jobe-failed'] = 'Jobe server request failed. ';
 $string['errorstring-overload'] = 'Job could not be run due to server overload. Perhaps try again shortly?';
