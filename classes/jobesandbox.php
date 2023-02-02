@@ -138,14 +138,6 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
             $input .= "\n";  // Force newline on the end if necessary.
         }
 
-        $filelist = array();
-        if ($files !== null) {
-            foreach ($files as $filename => $contents) {
-                $id = md5($contents);
-                $filelist[] = array($id, $filename);
-            }
-        }
-
         if ($language === 'java') {
             $mainclass = $this->get_main_class($sourcecode);
             if ($mainclass) {
@@ -155,6 +147,20 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
             }
         } else {
             $progname = "__tester__.$language";
+        }
+
+        $filelist = array();
+        if ($files !== null) {
+            foreach ($files as $filename => $contents) {
+                if ($filename == $progname) {
+                    // If Jobe has named the progname the same as filename, throw an error.
+                    $badname['error'] = self::JOBE_400_ERROR;
+                    $badname['stderr'] = get_string('errorstring-duplicate-name', 'qtype_coderunner');
+                    return (object) $badname;
+                }
+                $id = md5($contents);
+                $filelist[] = array($id, $filename);
+            }
         }
 
         $runspec = array(
@@ -203,7 +209,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
                 $httpcode = $this->submit($postbody);
             }
         }
-
+        
         $runresult = array();
         $runresult['sandboxinfo'] = array(
             'jobeserver' => $this->jobeserver,
