@@ -1292,7 +1292,7 @@ EOPROG;
         $coderunner->templateparamsevald = null;
         $coderunner->uiparameters = null;
         $coderunner->hoisttemplateparams = 0;
-        $form->extractcodefromjson = 1;
+        $coderunner->extractcodefromjson = 1;
         $coderunner->twigall = 0;
         $coderunner->prototypetype = 0;
         $coderunner->name = $name;
