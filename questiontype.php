@@ -109,6 +109,7 @@ class qtype_coderunner extends question_type {
             'sandboxparams',
             'templateparams',
             'hoisttemplateparams',
+            'extractcodefromjson',
             'templateparamslang',
             'templateparamsevalpertry',
             'templateparamsevald',
@@ -148,6 +149,7 @@ class qtype_coderunner extends question_type {
             'validateonsave',
             'templateparams',
             'hoisttemplateparams',
+            'extractcodefromjson',
             'templateparamslang',
             'templateparamsevalpertry',
             'templateparamsevald',
@@ -456,7 +458,7 @@ class qtype_coderunner extends question_type {
      * Only the most recent version of each prototype question is returned.
      * @param int $courseid the ID of the course whose prototypes are required.
      * @return stdClass[] prototype rows from question_coderunner_options,
-     * including count number of occurrences. 
+     * including count number of occurrences.
      */
     public static function get_all_prototypes($courseid) {
         global $DB;
@@ -726,6 +728,7 @@ class qtype_coderunner extends question_type {
             'uiparameters' => null,
             'hidecheck' => 0,
             'attachments' => 0,
+            'extractcodefromjson' => 1,
             'giveupallowed' => 0,
         );
 

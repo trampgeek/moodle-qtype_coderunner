@@ -50,6 +50,7 @@
     <sandboxparams></sandboxparams>
     <templateparams></templateparams>
     <hoisttemplateparams>1</hoisttemplateparams>
+    <extractcodefromjson>1</extractcodefromjson>
     <twigall>0</twigall>
     <uiplugin></uiplugin>
     <testcases>

@@ -42,6 +42,7 @@
     <templateparams></templateparams>
     <templateparamslang>twig</templateparamslang>
     <hoisttemplateparams>1</hoisttemplateparams>
+    <extractcodefromjson>1</extractcodefromjson>
     <twigall>0</twigall>
     <uiplugin></uiplugin>
     <attachments>1</attachments>

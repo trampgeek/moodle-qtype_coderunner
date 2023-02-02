@@ -24,7 +24,7 @@
     <answerboxcolumns>100</answerboxcolumns>
     <answerpreload><![CDATA[{"edgeGeometry":[{%for edge in edges %}
 {"lineAngleAdjust":0,"parallelPart":0.5,"perpendicularPart":0}{% if not loop.last %},
-{% endif %} 
+{% endif %}
 {% endfor %}
 ],
  "nodeGeometry":[[381,40],[500,131],[500,279],[323,337],[200,235],[223,89]],
@@ -35,7 +35,7 @@
 {% set wt = edge[2] %}
 [{{src}}, {{dest}}, "{{wt}}"]{% if not loop.last %},
 {% endif %}
-{% endfor %}   
+{% endfor %}
 ]}]]></answerpreload>
     <useace></useace>
     <resultcolumns></resultcolumns>
@@ -76,6 +76,7 @@
 
 ]]></templateparams>
     <hoisttemplateparams>1</hoisttemplateparams>
+    <extractcodefromjson>1</extractcodefromjson>
     <twigall>1</twigall>
     <uiplugin></uiplugin>
     <testcases>
@@ -140,6 +141,7 @@
     <sandboxparams></sandboxparams>
     <templateparams><![CDATA[{  "i" :{{ 1 + random(19)}} }]]></templateparams>
     <hoisttemplateparams>1</hoisttemplateparams>
+    <extractcodefromjson>1</extractcodefromjson>
     <twigall>1</twigall>
     <uiplugin></uiplugin>
     <testcases>
@@ -238,12 +240,13 @@ print(new_age)</text>
     <cputimelimitsecs></cputimelimitsecs>
     <memlimitmb></memlimitmb>
     <sandboxparams></sandboxparams>
-    <templateparams><![CDATA[{ 
+    <templateparams><![CDATA[{
     {% set index = random(2) %}
     "animal": "{{ ["Dog", "Cat", "Cow"][index] }}",
     "sound":  "{{ ["Woof", "Miaow", "Moo"][index] }}"
 }]]></templateparams>
     <hoisttemplateparams>1</hoisttemplateparams>
+    <extractcodefromjson>1</extractcodefromjson>
     <twigall>1</twigall>
     <uiplugin></uiplugin>
     <testcases>
@@ -305,7 +308,7 @@ print(new_age)</text>
     <cputimelimitsecs></cputimelimitsecs>
     <memlimitmb></memlimitmb>
     <sandboxparams></sandboxparams>
-    <templateparams><![CDATA[{ 
+    <templateparams><![CDATA[{
     {% set obj = random([
         {'name': 'Dog', 'sound': 'Woof'},
         {'name': 'Cat', 'sound': 'Miaow'},
@@ -315,6 +318,7 @@ print(new_age)</text>
     "sound":  "{{ obj.sound }}"
 }]]></templateparams>
     <hoisttemplateparams>1</hoisttemplateparams>
+    <extractcodefromjson>1</extractcodefromjson>
     <twigall>1</twigall>
     <uiplugin></uiplugin>
     <testcases>
@@ -404,6 +408,7 @@ print(SEPARATOR)
     "blah": 0
 }]]></templateparams>
     <hoisttemplateparams>1</hoisttemplateparams>
+    <extractcodefromjson>1</extractcodefromjson>
     <twigall>1</twigall>
     <uiplugin>ace</uiplugin>
     <testcases>
@@ -540,6 +545,7 @@ print(SEPARATOR)
     "age": {{ 1 + random(30)}}
 }]]></templateparams>
     <hoisttemplateparams>1</hoisttemplateparams>
+    <extractcodefromjson>1</extractcodefromjson>
     <twigall>1</twigall>
     <uiplugin></uiplugin>
     <testcases>
@@ -596,16 +602,16 @@ print(SEPARATOR)
     """A class representing a {{ animal }}"""
     def __init__(self, attribute):
         self.attribute = attribute
-        
+
     def __str__(self):
         return "I am a {{ animal }}. My {{ attribute}} is {}".format(self.attribute)
-        
+
     def get_{{ attribute }}(self):
         return self.attribute
-        
+
     def set_{{ attribute }}(self, value):
         self.attribute = value
-        
+
     def speak(self, times=1):
         print(times * "{{ sound }} ")]]></answer>
     <validateonsave>1</validateonsave>
@@ -623,7 +629,7 @@ print(SEPARATOR)
         {'name': 'Horse', 'sound': 'Neigh'},
         {'name': 'Dog', 'sound': 'Woof'},
         {'name': 'Pig', 'sound': 'Oink'},
-        {'name': 'Cat', 'sound': 'Miaow'}]) %}    
+        {'name': 'Cat', 'sound': 'Miaow'}]) %}
     "animal": "{{ obj.name }}",
     "sound":  "{{ obj.sound }}",
     "attribute": "{{ random(["weight", "height", "age"]) }}",
@@ -631,6 +637,7 @@ print(SEPARATOR)
     "value2": {{ 50 + random(10)}}
 }]]></templateparams>
     <hoisttemplateparams>1</hoisttemplateparams>
+    <extractcodefromjson>1</extractcodefromjson>
     <twigall>1</twigall>
     <uiplugin></uiplugin>
     <testcases>
@@ -695,16 +702,16 @@ Now my {{ attribute }} is {{ value2}}
     """A class representing a {{ animal }}"""
     def __init__(self, attribute):
         self.attribute = attribute
-        
+
     def __str__(self):
         return "I am a {{ animal }}. My {{ attribute}} is {}".format(self.attribute)
-        
+
     def get_{{ attribute }}(self):
         return self.attribute
-        
+
     def set_{{ attribute }}(self, value):
         self.attribute = value
-        
+
     def speak(self, times=1):
         print(times * "{{ sound }} ")]]></answer>
     <validateonsave>1</validateonsave>
@@ -725,6 +732,7 @@ Now my {{ attribute }} is {{ value2}}
     "value2": {{ 50 + random(10)}}
 }]]></templateparams>
     <hoisttemplateparams>1</hoisttemplateparams>
+    <extractcodefromjson>1</extractcodefromjson>
     <twigall>1</twigall>
     <uiplugin></uiplugin>
     <testcases>

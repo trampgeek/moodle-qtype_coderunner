@@ -131,6 +131,7 @@ class walkthrough_randomisation_test extends \qbehaviour_walkthrough_test_base {
         $q->templateparamsevald = null;
         $q->uiparameters = null;
         $q->hoisttemplateparams = 1;
+        $q->extractcodefromjson = 1;
         $q->twigall = 1;
         $q->questiontext = 'Write a function {{ func }}';
         $q->template = "{{ STUDENT_ANSWER }}\n{{ TEST.testcode }}\n{{ TEST.extra }}\n";

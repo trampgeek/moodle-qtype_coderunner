@@ -432,6 +432,23 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2022012703, 'qtype', 'coderunner');
     }
 
+    if ($oldversion < 2023013002) {
+
+        // Define field extractcodefromjson to be added to question_coderunner_options.
+        $table = new xmldb_table('question_coderunner_options');
+        $field = new xmldb_field('extractcodefromjson', XMLDB_TYPE_INTEGER, '1', null, null, null, '1', 'hoisttemplateparams');
+
+        // Conditionally launch add field extractcodefromjson.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        } else {
+            $dbman->change_field_type($table, $field); // Change from NOTNULL to NULL if already there.
+        }
+
+        // Coderunner savepoint reached.
+        upgrade_plugin_savepoint(true, 2023013002, 'qtype', 'coderunner');
+    }
+
     require_once(__DIR__ . '/upgradelib.php');
     update_question_types();
 

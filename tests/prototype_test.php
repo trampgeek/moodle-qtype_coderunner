@@ -148,6 +148,7 @@ EOTEMPLATE;
     <sandboxparams></sandboxparams>
     <templateparams><![CDATA[{"xxx":1, "zzz":2}]]></templateparams>
     <hoisttemplateparams>0</hoisttemplateparams>
+    <extractcodefromjson>1</extractcodefromjson>
     <templateparamslang>twig</templateparamslang>
     <templateparamsevalpertry>0</templateparamsevalpertry>
     <templateparamsevald></templateparamsevald>

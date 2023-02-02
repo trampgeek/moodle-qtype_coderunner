@@ -108,6 +108,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $qdata->options->answerboxlines = 5;
         $qdata->options->displayfeedback = 1;
         $qdata->options->giveupallowed = 0;
+        $qdata->options->extractcodefromjson = 1;
         // Exclude precheck as it defaults to null.
         $qdata->options->useace = 0;
         $qdata->options->penaltyregime = '10, 20, ...';
@@ -146,6 +147,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $form->penaltyregime = "10, 20, ...";
         $form->templateparams = "";
         $form->hoisttemplateparams = 1;
+        $form->extractcodefromjson = 1;
         $form->templateparamslang = 'twig';
         $form->templateparamsevalpertry = 0;
         $form->templateparamsevald = null;
@@ -211,6 +213,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $form->penaltyregime = "10, 20, ...";
         $form->templateparams = "";
         $form->hoisttemplateparams = 1;
+        $form->extractcodefromjson = 1;
         $form->templateparamslang = 'twig';
         $form->templateparamsevalpertry = 0;
         $form->templateparamsevald = null;
@@ -578,6 +581,7 @@ except ValueError:
         $form->penaltyregime = "10, 20, ...";
         $form->templateparams = "";
         $form->hoisttemplateparams = 1;
+        $form->extractcodefromjson = 1;
         $form->templateparamslang = 'twig';
         $form->templateparamsevalpertry = 0;
         $form->templateparamsevald = null;
@@ -1288,6 +1292,7 @@ EOPROG;
         $coderunner->templateparamsevald = null;
         $coderunner->uiparameters = null;
         $coderunner->hoisttemplateparams = 0;
+        $form->extractcodefromjson = 1;
         $coderunner->twigall = 0;
         $coderunner->prototypetype = 0;
         $coderunner->name = $name;

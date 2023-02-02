@@ -76,7 +76,7 @@ PREFIX = ["import matplotlib",
 ]
 
 def make_data_uri(filename):
-    """Given a png or jpeg image filename (which must end in .png or .jpg/.jpeg 
+    """Given a png or jpeg image filename (which must end in .png or .jpg/.jpeg
        resp.) return a data URI as a UTF-8 string.
     """
     with open(filename, 'br') as fin:
@@ -88,8 +88,8 @@ def make_data_uri(filename):
         return "data:image/jpeg;base64,{}".format(contents_b64)
     else:
         raise Exception("Unknown file type passed to make_data_uri")
-        
-    
+
+
 def tweak_line_numbers(error):
     """Adjust the line numbers in the error message to account for extra lines"""
     new_error = ''
@@ -108,7 +108,7 @@ student_code += """\nif __plt__.get_fignums():
 inputfile = None
 if 'stdin.txt' in os.listdir():
     inputfile = open('stdin.txt')
-    
+
 output = ''
 failed = False
 try:
@@ -157,7 +157,7 @@ print(json.dumps({'epiloguehtml': html,
     <allowmultiplestdins>0</allowmultiplestdins>
     <answer><![CDATA["""Demo of the generic python code runner pseudo-question"""
 import matplotlib.pyplot as plt
-from graphviz import Graph 
+from graphviz import Graph
 
 # First some simple text output.
 vertices = [(0, 0), (100, 0), (1, 50), (100, 100), (0, 100), (0,0)]
@@ -195,6 +195,7 @@ g.render('graph', format='png', view=False)]]></answer>
     <sandboxparams></sandboxparams>
     <templateparams></templateparams>
     <hoisttemplateparams>1</hoisttemplateparams>
+    <extractcodefromjson>1</extractcodefromjson>
     <twigall>0</twigall>
     <uiplugin>ace</uiplugin>
     <attachments>2</attachments>
