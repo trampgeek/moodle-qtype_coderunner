@@ -446,7 +446,52 @@ Feature: Test the Scratchpad UI, UI Params
     print(json.dumps(output))
     """
     Then I press "Run"
+    And I set the ace field "test_code" to ""
     And I should see "<div hidden>Hi</div>"
+
+  Scenario: Set output_display_mode to json, 'print' a hidden div to output area
+    And I set the field "id_answer" to ""
+    And I set the following fields to these values:
+      | id_customise    | 1                               |
+      | id_uiplugin     | Scratchpad                      |
+      | id_uiparameters | {"output_display_mode": "json"} |
+
+    And I press "id_submitbutton"
+    Then I should see "Print answer"
+
+    When I choose "Preview" action for "Print answer" in the question bank
+    And I click on "Scratchpad" "button"
+    And I set the ace field "test_code" to:
+    """
+        output = {'returncode': 0,
+              'stdout' : '<div hidden>Hi</div>',
+              'stderr' : '',
+              'files' : ''
+    """
+    Then I should see an alert of "Error parsing display JSON output:" when I press "Run"
+
+  Scenario: Set output_display_mode to json, 'print' a hidden div to output area
+    And I set the field "id_answer" to ""
+    And I set the following fields to these values:
+      | id_customise    | 1                               |
+      | id_uiplugin     | Scratchpad                      |
+      | id_uiparameters | {"output_display_mode": "json"} |
+
+    And I press "id_submitbutton"
+    Then I should see "Print answer"
+
+    When I choose "Preview" action for "Print answer" in the question bank
+    And I click on "Scratchpad" "button"
+    And I set the ace field "test_code" to:
+    """
+    import json
+    output = {'returncode': 0,
+              'stdout' : '<div hidden>Hi</div>',
+              'files' : ''
+    }
+    print(json.dumps(output))
+    """
+    Then I should see an alert of "stderr" when I press "Run"
 
   Scenario: Set output_display_mode to json, get no output.
     And I set the field "id_answer" to ""

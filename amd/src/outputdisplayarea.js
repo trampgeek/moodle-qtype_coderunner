@@ -226,20 +226,20 @@ class OutputDisplayArea {
             result = JSON.parse(jsonString);
         } catch (e) {
             window.alert(
-                `Error parsing display JSON output: 
-                ${jsonString}
-                JSON Parsing error Msg: 
-                ${e.message}
-                The question author must fix this!`
+                `Error parsing display JSON output: \n` +
+                `'${jsonString}\n'` +
+                `Error Msg: \n` +
+                ` ${e.message} \n` +
+                `The question author must fix this!`
             );
         }
 
         const missing = missingProperties(result, JSON_DISPLAY_PROPS);
         if (missing.length > 0) {
             window.alert(
-                `Display JSON (in response.result) is missing the following fields:
-                ${missing.join()}
-                The question author must fix this!`
+                `Display JSON (in response.result) is missing the following fields: \n` +
+                `${missing.join()} \n` +
+                `The question author must fix this!`
             );
         }
         return result;

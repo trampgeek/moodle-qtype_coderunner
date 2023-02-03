@@ -99,14 +99,15 @@ class behat_coderunner extends behat_base {
     /**
      * Sets the ace editor content to provided string, using name of associated textarea.
      * NOTE: this assumes the existence of a text area next to a
-     * UI wrapper div containing the Ace div!
+     * UI wrapper div containing the Ace div! Also works on partial matches,
+     * i.e. value as _answer will work for Ace UI
      * Intended as a replacement for I set field to <value>, for ace fields.
      * @Then /^I set the ace field "(?P<elname>(?:[^"]|\\")*)" to "(?P<value>(?:[^"]|\\")*)"$/
      * @throws ExpectationException
      * @param string $expected The string that we expect to find
      */
      public function i_set_ace_field($elname, $value) {
-        $xpath = "//textarea[@name='$elname']/../div/div";
+        $xpath = "//textarea[@name='$elname' or (contains(@name, '$elname') and contains(@class, 'edit_code'))]/../div/div ";
         $driver = $this->getSession()->getDriver();
         // Does the div managed by Ace exist?
         if (!$driver->find($xpath)) {
@@ -281,4 +282,46 @@ class behat_coderunner extends behat_base {
             throw new ExpectationException("No alert was triggered appropriately", $this->getSession());
         }
     }
+
+
+
+    /**
+     * Presses a named button. Checks if there is a specified error text displayed.
+     *
+     * @Then I should see an alert of :error when I press :button
+     * @param string $errortext The expected error message when alerted
+     * @param string $button The name of the alert button.
+     */
+    public function there_is_an_alert_when_i_click($errortext, $button) {
+        // Gets the item of the button.
+        $xpath = "//button[@type='button' and contains(text(), '$button')]";
+        $session = $this->getSession();
+        $item = $session->getSelectorsHandler()->selectorToXpath('xpath', $xpath);
+        $element = $session->getPage()->find('xpath', $item);
+
+        // Makes sure there is an element before continuing.
+        if ($element) {
+            $element->click();
+        } else {
+            throw new ExpectationException("No button '{$button}'", $this->getSession());
+        }
+        try {
+            // Gets you to wait for the pending JS alert by sleeping.
+            sleep(1);
+            // Gets the alert and its text.
+            $alert = $this->getSession()->getDriver()->getWebDriver()->switchTo()->alert();
+            $alerttext = $alert->getText();
+        } catch (NoSuchAlertException $ex) {
+            throw new ExpectationException("No alert was triggered appropriately", $this->getSession());
+        }
+
+        // Throws an error if expected error text doesn't match alert.
+        if (!str_contains($alerttext, $errortext)) {
+            throw new ExpectationException("Wrong alert; alert given: {$alerttext}", $this->getSession());
+        } else {
+            // To stop the Behat tests from throwing their own errors.
+            $alert->accept();
+        }
+    }
 }
+
