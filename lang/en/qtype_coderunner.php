@@ -169,6 +169,18 @@ $string['errorstring-submissionlimitexceeded'] = 'Sandbox submission limit reach
 $string['errorstring-submissionfailed'] = 'Submission to sandbox failed';
 $string['errorstring-unknown'] = 'Unexpected error while executing your code. The sandbox server may be down or overloaded. Perhaps try again shortly?';
 
+# Webservice errors for output display area.
+$string['error_access_denied'] = 'Sandbox server access denied';
+$string['error_excessive_output'] = 'Excessive output';
+$string['error_json_params'] = 'Params set are not in correct JSON format';
+$string['error_jobe_unknown'] = 'Unknown error from Jobe server';
+$string['error_memory_limit'] = 'Memory limit exceeded';
+$string['error_sandbox_server_overload'] = 'Jobe server overload';
+$string['error_submission_limit_reached'] = 'Jobe sandbox submission limit reached';
+$string['error_timeout'] = 'Time limit exceeded';
+$string['error_unknown_language'] = 'Unknown language requested';
+$string['error_unknown_runtime'] = 'Unknown runtime error';
+
 $string['event_sandboxwebserviceexec'] = 'CR sandbox exec';
 $string['event_sandboxwebserviceexec_desc'] = 'A job was executed via the CodeRunner sandbox web service.';
 
@@ -993,6 +1005,47 @@ $string['submitbuttons'] = 'Submit buttons';
 $string['supportscripts'] = 'Support scripts';
 $string['syntax_errors'] = 'Syntax Error(s)';
 
+# SCRATCHPAD UI Default text
+$string['scratchpadui_def_button_name'] = 'Run';
+$string['scratchpadui_def_scratchpad_name'] = 'Scratchpad';
+$string['scratchpadui_def_prefix_name'] = 'Prefix with Answer';
+$string['scratchpadui_def_help_text'] = '<p>You can enter code into this panel and click \'Run\' to execute it.</p>
+<p>By default, the code in this panel is prefixed with the contents of the answer box, giving you an easy way to test your answer.</p>
+<p>You can uncheck the \'Prefix with answer\' checkbox to run the code in this panel standalone, e.g. to explore how small code fragments behave.</p>';
+# SCRATCHPAD UI Parameter descriptions
+$string['scratchpadui_scratchpad_name_descr'] = 'Display name of the scratchpad, used to hide/un-hide the scratchpad.';
+$string['scratchpadui_button_name_descr'] = 'Run button text.';
+$string['scratchpadui_prefix_name_descr'] = 'Prefix with answer check-box label text.';
+$string['scratchpadui_run_lang_descr'] = 'Language used to run code when the run button is clicked, this should be the language your wrapper is written in (if applicable).';
+$string['scratchpadui_params_descr'] = 'Parameters for the sandbox webservice.';
+$string['scratchpadui_output_display_mode_descr'] = 'Control how program output is displayed on runs, there are three modes:
+    <ul>
+        <li>text: Display the output as text, html escaped. (default)</li>
+        <li>json: Display programs that output JSON, useful for capturing stdin and displaying images. (recommended)</li>
+        <ul>
+            <li>Accepts JSON in run output with the fields:</li>
+            <ul>
+                <li>returncode: Exit code from program run.</li>
+                <li>stdout: Stdout text from program run.</li>
+                <li>stderr: Error text from program run.</li>
+                <li>files: An object containing filenames mapped to base64 encoded images. These will be displayed below any stdout text.</li>
+            </ul>
+           <li>When the returncode is set to 42, an HTML input field will be added after the last stdout received. When the enter key is pressed inside the input, the input\'s value is added to stdin and the program is run again with this updated stdin. This is repeated until returncode is not set to 42. </li></ul>
+        <li>html: Display program output as raw html inside the output area. (advanced)</li>
+            <ul>
+                <li>This can be used to show images and insert other HTML.</li>
+                <li>Giving an &lt;input&gt; element the class coderunner-run-input will add an event: when the enter key is pressed inside the input, the input\'s value is added to stdin and the program is run again with this updated stdin.</li>
+            </ul>
+    </ul>';
+$string['scratchpadui_help_text_descr'] = 'The help text to show.';
+$string['scratchpadui_wrapper_src_descr'] = 'The location of wrapper to be used by the run button: setting to \'globalextra\' will use text in global extra field, \'prototypeextra\' will use the prototype extra field.';
+$string['scratchpadui_disable_scratchpad_descr'] = 'Disable the scratchpad, effectively revert back to Ace UI from student perspective.';
+$string['scratchpadui_invert_prefix_descr'] = 'Inverts meaning of prefix_ans serialisation: \'1\' means un-ticked -- and vice versa. This can be used to swap the default state.';
+# SCRATCHPAD UI Errors
+$string['scratchpad_ui_badrunwrappersrc'] = 'Invalid run wrapper source given, please contact question author.';
+$string['scratchpad_ui_invalidserialisation'] = 'Invalid JSON serialisation provided, must include \"answer_code\" field.';
+$string['scratchpad_ui_templateloadfail'] = 'Scratchpad UI template failed to load, please refresh the page. If this persists please report.';
+
 $string['tableui_num_rows_descr'] = 'The (initial) number of rows in the table, excluding the top header row (if headers are given). Required.';
 $string['tableui_num_columns_descr'] = 'The number of columns in the table, excluding the left-most label column (if labels are given). Required.';
 $string['tableui_column_headers_descr'] = 'A list of strings for the column headers.';
@@ -1254,36 +1307,3 @@ $string['wssubmissionrateexceeded'] = 'You have exceeded the maximum hourly \'Tr
 
 $string['xmlcoderunnerformaterror'] = 'XML format error in coderunner question';
 
-
-$string['scratchpadui_scratchpad_name_descr'] = 'The display name of the scratchpad, used to hide/un-hide the scratchpad.';
-$string['scratchpadui_button_name_descr'] = 'The run button text.';
-$string['scratchpadui_prefix_name_descr'] = 'The prefix with answer check-box label text.';
-$string['scratchpadui_run_lang_descr'] = 'The language used to run code when the run button is clicked, this should be the language your wrapper is written in (if applicable).';
-$string['scratchpadui_params_descr'] = 'The prefix with answer check-box label text.';
-$string['scratchpadui_html_output_descr'] = 'Display the output from run as raw HTML instead of text.';
-$string['scratchpadui_help_text_descr'] = 'The help text to show.';
-$string['scratchpadui_wrapper_src_descr'] = 'The location of wrapper to be used by the run button: setting to \'globalextra\' will use text in global extra field, \'prototypeextra\' will use the prototype extra field.';
-$string['scratchpadui_disable_scratchpad_descr'] = 'Disable the scratchpad, effectively revert back to Ace UI from student perspective.';
-$string['scratchpadui_invert_prefix_descr'] = 'Inverts meaning of prefix_ans serialisation -- \'1\' means un-ticked, vice versa. This can be used to swap the default state.';
-$string['scratchpadui_def_button_name'] = 'Run';
-$string['scratchpadui_def_scratchpad_name'] = 'Scratchpad';
-$string['scratchpadui_def_prefix_name'] = 'Prefix with Answer';
-
-$string['scratchpadui_def_help_text'] = 'You can enter code into this panel and click \'Run\' to execute it.
-By default, the code in this panel is prefixed with the contents of the answer box, giving you an easy way to test your answer.
-You can uncheck the \'Prefix with answer\' checkbox to run the code in this panel standalone, e.g. to explore how small code fragments behave.';
-
-$string['scratchpad_ui_invalidserialisation'] = 'Invalid JSON serialisation provided, must include \"answer_code\" field.';
-$string['scratchpad_ui_templateloadfail'] = 'Scratchpad UI template failed to load, please refresh the page.';
-$string['scratchpad_ui_badrunwrappersrc'] = 'Invalid run wrapper source given, please contact question author.';
-
-$string['error_access_denied'] = 'Sandbox server access denied';
-$string['error_excessive_output'] = 'Excessive output';
-$string['error_json_params'] = 'Params set are not in correct JSON format';
-$string['error_jobe_unknown'] = 'Unknown error from Jobe server';
-$string['error_memory_limit'] = 'Memory limit exceeded';
-$string['error_sandbox_server_overload'] = 'Jobe server overload';
-$string['error_submission_limit_reached'] = 'Jobe sandbox submission limit reached';
-$string['error_timeout'] = 'Time limit exceeded';
-$string['error_unknown_language'] = 'Unknown language requested';
-$string['error_unknown_runtime'] = 'Unknown runtime error';
