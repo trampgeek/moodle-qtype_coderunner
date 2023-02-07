@@ -344,7 +344,14 @@ class qtype_coderunner_question extends question_graded_automatically {
 
     public function summarise_response(array $response) {
         if (isset($response['answer'])) {
-            return $response['answer'];
+            $ans = $response['answer'];
+            if ($this->extractcodefromjson) {
+                $json = json_decode($ans, true);
+                if ($json !== null and isset($json[constants::ANSWER_CODE_KEY])) {
+                    $ans = $json[constants::ANSWER_CODE_KEY][0];
+                }
+            }
+            return $ans;
         } else {
             return null;
         }
