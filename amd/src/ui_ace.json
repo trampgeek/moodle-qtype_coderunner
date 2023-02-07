@@ -3,7 +3,7 @@
     "parameters": {
         "auto_switch_light_dark": {
             "type": "boolean",
-            "default": true
+            "default": false
         },
         "font_size": {
             "type": "string",

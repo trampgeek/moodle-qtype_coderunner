@@ -98,8 +98,7 @@ define(['jquery'], function($) {
             // Otherwise use the 'prefers-color-scheme' option if given or
             // the question/system defaults if not.
             const userTheme = window.localStorage.getItem('qtype_coderunner.ace.theme');
-            const consider_prefers = (params.auto_switch_light_dark === undefined || params.auto_switch_light_dark)
-                    && window.matchMedia;
+            const consider_prefers = params.auto_switch_light_dark && window.matchMedia;
             if (userTheme !== null) {
                 this.editor.setTheme(userTheme);
             } else if (consider_prefers && window.matchMedia('(prefers-color-scheme: dark)').matches) {
