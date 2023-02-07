@@ -1,7 +1,7 @@
 ## Scratchpad UI
-The **Scratchpad UI** is an extension of the **Ace UI**:
-- The Scratchpad UI is designed to allow the execution of code in the CodeRunner question in a manner similar to an IDE.
-- The Scratchpad UI contains two editor boxes, one on top of another, allowing users to enter and edit code in both.
+The **Scratchpad UI** is an extension to the **Ace UI**:
+- It is designed to allow the execution of code in the CodeRunner question in a manner similar to an IDE.
+- It contains two editor boxes, one on top of another, allowing users to enter and edit code in both.
 
 By default, only the top editor is visible and the **Scratchpad Area**, which contains the bottom editor, is hidden. 
 Clicking the **Scratchpad Button** shows the **Scratchpad Area**. 
@@ -46,8 +46,9 @@ A valid serialisation is one with all four specified fields. All other serialisa
   - `html`: display program output as raw html.
 - `disable_scratchpad`:	disable the scratchpad, effectively revert back to Ace UI from student perspective.
 - `invert_prefix`: inverts meaning of prefix_ans serialisation -- `'1'` means un-ticked, vice versa. This can be used to swap the default state.
-- `params` : **THESE ARE NOT WELL DOCUMENTED**
-
+- `escape_chars`: array of characters to escape within `answer_code` and `test_code` before insertion into wrapper. Useful when inserting code into a string.
+- `escape_char`: character to escape the characters in `escape_chars` with. The default is `\`.
+- `params` : parameters for the sandbox webservice.
 
 ### Advanced Customization: Wrappers
 A wrapper is be used to wrap code before it is run using the sandbox.
