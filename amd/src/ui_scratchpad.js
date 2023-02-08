@@ -83,21 +83,6 @@ import {OutputDisplayArea} from 'qtype_coderunner/outputdisplayarea';
 const invertSerial = (current) => current[0] === '1' ? [''] : ['1'];
 
 /**
- * Escape all characters in code that are in charsToEscape with the escapeChar by
- * replacing each occurrence with the char from charsToEscape with escapeChar + char.
- * @param {string} code to escape chars in.
- * @param {string} escapeChar the escape character to put before each char in charsToEscape.
- * @param {array} charsToEscape array of characters to escape.
- * @returns {string} The escaped code.
- */
-const escape = (code, escapeChar, charsToEscape) => {
-    for (const char of charsToEscape) {
-        code = code.replaceAll(char, escapeChar + char);
-    }
-    return code;
-};
-
-/**
  * Insert the answer code and test code into the wrapper. This may
  * be defined by the user, in UI Params or globalextra. If prefixAns is
  * false: do not include answerCode in final wrapper.
@@ -171,8 +156,7 @@ class ScratchpadUi {
             output_display_mode: 'text',
             disable_scratchpad: false,
             wrapper_src: null,
-            escape_chars: [],
-            escape_char: '\\' // '\'
+            escape: false
         };
         this.textArea = document.getElementById(textAreaId);
         this.textAreaId = textAreaId;
@@ -267,8 +251,9 @@ class ScratchpadUi {
         this.sync(); // Use up-to-date serialization.
         const preloadString = this.textArea.value;
         const serial = this.readJson(preloadString);
-        const answerCode = escape(serial.answer_code[0], this.uiParams.escape_char, this.uiParams.escape_chars);
-        const testCode = escape(serial.test_code[0], this.uiParams.escape_char, this.uiParams.escape_chars);
+        const escape = (code) => this.uiParams.escape ? JSON.stringify(code).slice(1, -1) : code;
+        const answerCode = escape(serial.answer_code[0]);
+        const testCode = escape(serial.test_code[0]);
         const code = fillWrapper(
                 answerCode,
                 testCode,

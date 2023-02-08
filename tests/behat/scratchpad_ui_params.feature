@@ -597,3 +597,27 @@ Feature: Test the Scratchpad UI, UI Params
     When I set the ace field "test_code" to "'d'd'd'"
     And I press "Run"
     Then I should see "SyntaxError: invalid syntax"
+
+  Scenario: Create a wrapper with student code in single double-quote string (python) and enter program containing many quotes.
+    And I set the field "id_answer" to ""
+    And I set the following fields to these values:
+      | id_customise    | 1                  |
+      | id_uiplugin     | Scratchpad         |
+      | id_uiparameters | {"escape": "true", "wrapper_src": "globalextra"} |
+    And I set the field "globalextra" to "exec(\"{{ ANSWER_CODE }}\n{{ SCRATCHPAD_CODE }}\")"
+
+    And I press "id_submitbutton"
+    Then I should see "Print answer"
+
+    When I choose "Preview" action for "Print answer" in the question bank
+    And I click on "Scratchpad" "button"
+    And I set the ace field "answer_code" to "print(\"\"\"h\"\"\", end='')"
+    And I set the ace field "test_code" to:
+    """
+    print("i", end='')
+    print('1', end='')
+    print('''2''', end='')
+    print('3', end='')
+    """
+    And I press "Run"
+    Then I should see "hi123"

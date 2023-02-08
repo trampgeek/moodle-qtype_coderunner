@@ -18,6 +18,16 @@ The Run Button has some limitations when using its default configuration:
 
 Note: *These features can be supported, see wrappers...*
 
+
+### Switching a Question to Use the Scratchpad UI
+
+To switch an Ace UI question to use the Scratchpad UI:
+   1. edit the question;
+   2. make sure the "Ace/Scratchpad compliant" tick-box is checked;
+   3. tick customise (second option, in first section);
+   4. in the "Customisation" section, change "Input UIs" from "Ace" to "Scratchpad";
+   5. save the question.
+
 ### Serialisation
 The UI state serialises to JSON, with fields:
 - `answer_code`: `[""]` A list containing a string with answer code from the first editor;
@@ -46,8 +56,7 @@ A valid serialisation is one with all four specified fields. All other serialisa
   - `html`: display program output as raw html.
 - `disable_scratchpad`:	disable the scratchpad, effectively revert back to Ace UI from student perspective.
 - `invert_prefix`: inverts meaning of prefix_ans serialisation -- `'1'` means un-ticked, vice versa. This can be used to swap the default state.
-- `escape_chars`: array of characters to escape within `answer_code` and `test_code` before insertion into wrapper. Useful when inserting code into a string.
-- `escape_char`: character to escape the characters in `escape_chars` with. The default is `\`.
+- `escape`: when `true` code will be JSON escaped (minus outer qoutes `"`) before being inserted into the wrapper.
 - `params` : parameters for the sandbox webservice.
 
 ### Advanced Customization: Wrappers
@@ -66,11 +75,12 @@ The default configuration uses the following wrapper:
 {{ SCRATCHPAD_CODE }}
 ```
 
-Three UI parameters are of particular importance when writing wrappers:
+Four UI parameters are of particular importance when writing wrappers:
 
 - `wrapper_src` sets the location of the wrapper code.
 - `run_lang` sets the language the Sandbox Webservice uses to run code when the **Run Button** is pressed.
 - `output_display_mode` controls how run output is displayed, see below. 
+- `escape` will escape (JSON escape with `"` removed from start and end) `ANSWER_CODE` and `SCRATCHPAD_CODE` before insertion into wrapper. Useful when inserting code into a string. NOTE: _single quotes `'` are NOT escaped._
 
 There are three modes of displaying program run output, set by `output_display_mode`:
   - `text`: Display the output as text, html escaped. **(default)**

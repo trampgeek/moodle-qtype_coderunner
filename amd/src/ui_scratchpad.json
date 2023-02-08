@@ -41,13 +41,9 @@
             "type": "boolean",
             "default": false
         },
-        "escape_chars": {
-            "type": "array",
-            "default": []
-        },
-        "escape_char": {
-            "type": "char",
-            "default": "\\"
+        "escape": {
+            "type": "boolean",
+            "default": false
         }
     }
 }
