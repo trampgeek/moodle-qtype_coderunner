@@ -112,7 +112,7 @@ output = {
     'returncode': returncode,
     'stdout' : truncated(stdout),
     'stderr' : truncated(stderr),
-    'files'  : files,
+    'files'  : files
 }
 
 print(json.dumps(output))
