@@ -90,8 +90,8 @@ const invertSerial = (current) => current[0] === '1' ? [''] : ['1'];
  * @param {string} testCode text from second editor.
  * @param {string} prefixAns '1' for true, '' for false.
  * @param {string} template provided in UI Params or globalextra.
- * @param {string} open
- * @param {string} close
+ * @param {string} open delimiter to look for, e.g. '[['
+ * @param {string} close delimiter to look for, e.g. ']]'
  * @returns {string} filled template.
  */
 const fillWrapper = (answerCode, testCode, prefixAns, template, open = '\\(', close = '\\)') => {
