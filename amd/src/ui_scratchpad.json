@@ -29,6 +29,14 @@
             "type": "string",
             "default": "text"
         },
+        "open_delimiter": {
+            "type": "string",
+            "default": "\\("
+        },
+        "close_delimiter": {
+            "type": "string",
+            "default": "\\)"
+        },
         "params": {
             "type": "object",
             "default": null

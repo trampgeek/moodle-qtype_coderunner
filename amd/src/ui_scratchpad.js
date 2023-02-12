@@ -86,25 +86,37 @@ const invertSerial = (current) => current[0] === '1' ? [''] : ['1'];
  * Insert the answer code and test code into the wrapper. This may
  * be defined by the user, in UI Params or globalextra. If prefixAns is
  * false: do not include answerCode in final wrapper.
- * @param {string} answerCode text.
- * @param {string} testCode text.
+ * @param {string} answerCode text from first editor.
+ * @param {string} testCode text from second editor.
  * @param {string} prefixAns '1' for true, '' for false.
  * @param {string} template provided in UI Params or globalextra.
+ * @param {string} open
+ * @param {string} close
  * @returns {string} filled template.
  */
-const fillWrapper = (answerCode, testCode, prefixAns, template) => {
-
+const fillWrapper = (answerCode, testCode, prefixAns, template, open = '\\(', close = '\\)') => {
     if (!template) {
-        template = '{{ ANSWER_CODE }}\n' +
-                   '{{ SCRATCHPAD_CODE }}';
+        template = `${open} ANSWER_CODE ${close}\n` +
+                   `${open} SCRATCHPAD_CODE ${close}`;
     }
     if (!prefixAns) {
         answerCode = '';
     }
-    template = template.replaceAll('{{ ANSWER_CODE }}', answerCode);
-    template = template.replaceAll('{{ SCRATCHPAD_CODE }}', testCode);
+    const escOpen = escapeRegExp(open);
+    const escClose = escapeRegExp(close);
+    const answerRegex = new RegExp(`${escOpen}\\s*ANSWER_CODE\\s*${escClose}`, 'g');
+    const scratchpadRegex = new RegExp(`${escOpen}\\s*SCRATCHPAD_CODE\\s*${escClose}`, 'g');
+    template = template.replaceAll(answerRegex, answerCode);
+    template = template.replaceAll(scratchpadRegex, testCode);
     return template;
 };
+
+/**
+ * Escapes a string for use in regex.
+ * @param {string} string to escape.
+ * @returns {string} RegEx escaped string
+ */
+const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
 
 /**
  * Returns a new object contain default values. If a matching key exists in
@@ -156,6 +168,8 @@ class ScratchpadUi {
             output_display_mode: 'text',
             disable_scratchpad: false,
             wrapper_src: null,
+            open_delimiter: '{|', // \(
+            close_delimiter: '|}', // \)
             escape: false
         };
         this.textArea = document.getElementById(textAreaId);
@@ -255,10 +269,12 @@ class ScratchpadUi {
         const answerCode = escape(serial.answer_code[0]);
         const testCode = escape(serial.test_code[0]);
         const code = fillWrapper(
-                answerCode,
-                testCode,
-                serial.prefix_ans[0],
-                this.runWrapper
+            answerCode,
+            testCode,
+            serial.prefix_ans[0],
+            this.runWrapper,
+            this.uiParams.open_delimiter,
+            this.uiParams.close_delimiter
         );
         this.outputDisplay.runCode(code, '', true); // Call with no stdin.
     }

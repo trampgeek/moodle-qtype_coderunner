@@ -134,8 +134,8 @@ Feature: Test the Scratchpad UI, UI Params
     And I set the field "globalextra" to:
     """
     print('Hello Wrapper', end=' ')
-    {{ ANSWER_CODE }}
-    {{ SCRATCHPAD_CODE }}
+    {| ANSWER_CODE |}
+    {| SCRATCHPAD_CODE |}
     """
 
     And I press "id_submitbutton"
@@ -158,8 +158,8 @@ Feature: Test the Scratchpad UI, UI Params
     And I set the field "globalextra" to:
     """
     print('Hello Wrapper', end=' ')
-    {{ ANSWER_CODE }}
-    {{ SCRATCHPAD_CODE }}
+    {| ANSWER_CODE |}
+    {| SCRATCHPAD_CODE |}
     """
 
     And I press "id_submitbutton"
@@ -185,14 +185,14 @@ Feature: Test the Scratchpad UI, UI Params
     And I set the field "globalextra" to:
     """
     print('Hello GlobalExtra', end=' ')
-    {{ ANSWER_CODE }}
-    {{ SCRATCHPAD_CODE }}
+    {| ANSWER_CODE |}
+    {| SCRATCHPAD_CODE |}
     """
     And I set the field "prototypeextra" to:
     """
     print('Hello PrototypeExtra', end=' ')
-    {{ ANSWER_CODE }}
-    {{ SCRATCHPAD_CODE }}
+    {| ANSWER_CODE |}
+    {| SCRATCHPAD_CODE |}
     """
     And I press "id_submitbutton"
     Then I should see "Print answer"
@@ -216,8 +216,8 @@ Feature: Test the Scratchpad UI, UI Params
     And I set the field "globalextra" to:
     """
     print('Hello Wrapper', end=' ')
-    {{ ANSWER_CODE }}
-    {{ SCRATCHPAD_CODE }}
+    {| ANSWER_CODE |}
+    {| SCRATCHPAD_CODE |}
     """
     And I press "id_submitbutton"
     Then I should see "Print answer"
@@ -239,8 +239,8 @@ Feature: Test the Scratchpad UI, UI Params
     And I set the field "globalextra" to:
     """
     print('Hello Wrapper', end=' ')
-    {{ ANSWER_CODE }}
-    {{ SCRATCHPAD_CODE }}
+    {| ANSWER_CODE |}
+    {| SCRATCHPAD_CODE |}
     """
 
     And I press "id_submitbutton"
@@ -604,7 +604,7 @@ Feature: Test the Scratchpad UI, UI Params
       | id_customise    | 1                  |
       | id_uiplugin     | Scratchpad         |
       | id_uiparameters | {"escape": "true", "wrapper_src": "globalextra"} |
-    And I set the field "globalextra" to "exec(\"{{ ANSWER_CODE }}\n{{ SCRATCHPAD_CODE }}\")"
+    And I set the field "globalextra" to "exec(\"{| ANSWER_CODE |}\n{| SCRATCHPAD_CODE |}\")"
 
     And I press "id_submitbutton"
     Then I should see "Print answer"

@@ -2,8 +2,8 @@ import ast, traceback, sys, io, subprocess, base64, os, ast, traceback, json
 MAX_OUTPUT_CHARS = 30000
 
 student_code = """
-{{ ANSWER_CODE }}
-{{ SCRATCHPAD_CODE }}
+\( ANSWER_CODE \)
+\( SCRATCHPAD_CODE \)
 """
 
 uses_matplotlib = 'matplotlib' in student_code
