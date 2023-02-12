@@ -2502,8 +2502,15 @@ with any other named HTML elements in the page. It is recommended that a prefix
 of some sort, such as `crui_`, be used with all names.
 
 When authoring a question that uses the Html UI, the answer and answer preload
-fields are *not* controlled by the UI, but are displayed as raw text.
-If data is to be entered into these fields,
+fields are by default also controlled by the UI. While this is most user-friendly presentation,
+it does not allow you to include Twig code in those fields. If you need
+to use Twig there, you must turn off the use of the UI within the question
+editing page by setting the UI parameter `enable_in_editor` to false:
+
+    {"enable_in_editor": false}
+
+The underlying serialisation is then displayed as raw JSON text.
+If data is to be entered into the HTML fields,
 it must be of the form
 
     {"<fieldName>": "<fieldValueList>",...}
@@ -2512,7 +2519,9 @@ where fieldValueList is a list of all the values to be assigned to the fields
 with the given name, in document order. For complex UIs it is easiest to turn
 off validate on save, save the question, preview it, enter the right answers into
 all fields, type CTRL-ALT-M to switch off the UI and expose the serialisation,
-then copy that serialisation back into the author form.
+then copy that serialisation back into the author form. But this rigmarole is
+only necessary when you need to use Twig within the answer or sample answer,
+which is rare.
 
 It is possible that the question author might want a dynamic answer box in
 which the student can add extra fields. A simple example of this is the Table UI,
