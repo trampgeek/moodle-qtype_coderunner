@@ -52,7 +52,7 @@ class ui_parameters_test extends \qtype_coderunner_testcase {
         $this->assertContains('noderadius', array_keys($paramsarray));
         $this->assertEquals(30, $paramsarray['noderadius']);
         $aceparams = new \qtype_coderunner_ui_parameters('ace');
-        $this->assertEquals(true, $aceparams->value('auto_switch_light_dark'));
+        $this->assertEquals(false, $aceparams->value('auto_switch_light_dark'));
         $this->assertEquals("14px", $aceparams->value('font_size'));
         $this->assertEquals(true, $aceparams->value('import_from_scratchpad'));
         $this->assertEquals(false, $aceparams->value('live_autocompletion'));
