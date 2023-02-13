@@ -74,14 +74,14 @@ A wrapper could be used to enclose the code in a function call, or to run the pr
 Some tasks that require this are: running languages installed on Jobe but not supported by coderunner; reading standard input during runs; or displaying Matplotlib graphs.
 
 
-You can insert the answer code and scratchpad code into the wrapper using `{{ ANSWER_CODE }}` and `{{ SCRATCHPAD_CODE }}` respectively.
-If the **Prefix with Answer** checkbox is unchecked `{{ ANSWER_CODE }}` will be replaced with an empty string `''`.
+You can insert the answer code and scratchpad code into the wrapper using `{| ANSWER_CODE |}` and `{| SCRATCHPAD_CODE |}` respectively.
+If the **Prefix with Answer** checkbox is unchecked `{| ANSWER_CODE |}` will be replaced with an empty string `''`.
 The default configuration uses the following wrapper:
 
 
 ```
-{{ ANSWER_CODE }}
-{{ SCRATCHPAD_CODE }}
+{| ANSWER_CODE |}
+{| SCRATCHPAD_CODE |}
 ```
 
 Four UI parameters are of particular importance when writing wrappers:
