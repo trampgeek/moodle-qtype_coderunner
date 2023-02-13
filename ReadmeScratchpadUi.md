@@ -68,7 +68,7 @@ A valid serialisation is one with all four specified fields. All other serialisa
 - `escape`: when `true` code will be JSON escaped (minus outer quotes `"`) before being inserted into the wrapper.
 - `params` : parameters for the sandbox webservice.
 
-### Advanced Customization: Wrappers
+### Wrappers
 A wrapper is used to wrap code before it is run using the sandbox.
 A wrapper could be used to enclose the code in a function call, or to run the program as a subprocess after manipulation.
 Some tasks that require this are: running languages installed on Jobe but not supported by coderunner; reading standard input during runs; or displaying Matplotlib graphs.
