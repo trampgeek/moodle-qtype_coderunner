@@ -120,8 +120,8 @@ const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); 
 
 /**
  * Returns a new object contain default values. If a matching key exists in
- * prescribed, the corresponding value from prescribed will replace the defualt value.
- * Does not add keys/values to the result if that key is not in defualts.
+ * prescribed, the corresponding value from prescribed will replace the default value.
+ * Does not add keys/values to the result if that key is not in defaults.
  * @param {object} defaults object with values to be overwritten.
  * @param {object} prescribed settings, typically set by a user.
  * @returns {object} filled with default values, overwritten by their prescribed value (iff included).
@@ -168,8 +168,8 @@ class ScratchpadUi {
             output_display_mode: 'text',
             disable_scratchpad: false,
             wrapper_src: null,
-            open_delimiter: '{|', // \(
-            close_delimiter: '|}', // \)
+            open_delimiter: '{|',
+            close_delimiter: '|}',
             escape: false
         };
         this.textArea = document.getElementById(textAreaId);

@@ -1037,6 +1037,8 @@ $string['scratchpadui_output_display_mode_descr'] = 'Control how program output 
                 <li>Giving an &lt;input&gt; element the class coderunner-run-input will add an event: when the enter key is pressed inside the input, the input\'s value is added to stdin and the program is run again with this updated stdin.</li>
             </ul>
     </ul>';
+$string['scratchpadui_open_delimiter_descr'] = 'The opening delimiter to use when inserting answer or Scratchpad code into the wrapper. It will replace the default value \'{|\'.';
+$string['scratchpadui_close_delimiter_descr'] = 'The closing delimiter to use when inserting answer or Scratchpad code into the wrapper. It will replace the default value \'|}\'.';
 $string['scratchpadui_help_text_descr'] = 'The help text to show.';
 $string['scratchpadui_wrapper_src_descr'] = 'The location of wrapper to be used by the run button: setting to \'globalextra\' will use text in global extra field, \'prototypeextra\' will use the prototype extra field.';
 $string['scratchpadui_disable_scratchpad_descr'] = 'Disable the scratchpad, effectively revert back to Ace UI from student perspective.';

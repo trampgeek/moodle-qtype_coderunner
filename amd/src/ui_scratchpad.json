@@ -31,11 +31,11 @@
         },
         "open_delimiter": {
             "type": "string",
-            "default": "\\("
+            "default": "{|"
         },
         "close_delimiter": {
             "type": "string",
-            "default": "\\)"
+            "default": "|}"
         },
         "params": {
             "type": "object",

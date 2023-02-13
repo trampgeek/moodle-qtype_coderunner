@@ -61,7 +61,9 @@ A valid serialisation is one with all four specified fields. All other serialisa
   - `text`: display program output as text, html escaped;
   - `json`: display program output, when it is json, see next section...
   - `html`: display program output as raw html.
-- `disable_scratchpad`:	disable the scratchpad, effectively revert to Ace UI from student perspective.
+- `open_delimiter`: The opening delimiter to use when inserting answer or Scratchpad code. It will replace the default value `{|`.
+- `close_delimiter`: The closing delimiter to use when inserting answer or Scratchpad code. It will replace the default value `|}`.
+- `disable_scratchpad`:	disable the scratchpad, reverting to Ace UI from student perspective.
 - `invert_prefix`: inverts meaning of prefix_ans serialisation -- `'1'` means un-ticked, vice versa. This can be used to swap the default state.
 - `escape`: when `true` code will be JSON escaped (minus outer quotes `"`) before being inserted into the wrapper.
 - `params` : parameters for the sandbox webservice.
