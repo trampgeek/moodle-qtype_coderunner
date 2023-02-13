@@ -83,13 +83,16 @@ The default configuration uses the following wrapper:
 {| ANSWER_CODE |}
 {| SCRATCHPAD_CODE |}
 ```
+Whitespace is ignored between the delimiters (`{|`,`|}`) and the variable name, e.g. `{|ANSWER_CODE   |}` will be replaced.
+You can change the delimiters using the `open_delimiter` and `close_delimiter` UI Parameters. 
+
 
 Four UI parameters are of particular importance when writing wrappers:
 
 - `wrapper_src` sets the location of the wrapper code.
 - `run_lang` sets the language the Sandbox Webservice uses to run code when the **Run Button** is pressed.
 - `output_display_mode` controls how run output is displayed, see below. 
-- `escape` will escape (JSON escape with `"` removed from start and end) `ANSWER_CODE` and `SCRATCHPAD_CODE` before insertion into wrapper. Useful when inserting code into a string. NOTE: _single quotes `'` are NOT escaped._
+- `escape` will escape (JSON escape with `"` removed from start and end) `ANSWER_CODE` and `SCRATCHPAD_CODE` before insertion into wrapper. Useful when inserting code into a string. NOTE: _single quotes `'` are NOT escaped.
 
 There are three modes of displaying program run output, set by `output_display_mode`:
   - `text`: Display the output as text, html escaped. **(default)**
