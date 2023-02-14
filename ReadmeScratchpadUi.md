@@ -1,7 +1,7 @@
 ## Scratchpad UI
-The **Scratchpad UI** is an extension of the **Ace UI**:
-- The Scratchpad UI is designed to allow the execution of code in the CodeRunner question in a manner similar to an IDE.
-- The Scratchpad UI contains two editor boxes, one on top of another, allowing users to enter and edit code in both.
+The **Scratchpad UI** is an extension to the **Ace UI**:
+- It is designed to allow the execution of code in the CodeRunner question in a manner similar to an IDE.
+- It contains two editor boxes, one on top of another, allowing users to enter and edit code in both.
 
 By default, only the top editor is visible and the **Scratchpad Area**, which contains the bottom editor, is hidden. 
 Clicking the **Scratchpad Button** shows the **Scratchpad Area**. 
@@ -18,8 +18,25 @@ The Run Button has some limitations when using its default configuration:
 
 Note: *These features can be supported, see wrappers...*
 
+
+### Switching a Question to Use the Scratchpad UI
+
+To switch an Ace UI question to use the Scratchpad UI:
+   1. edit the question;
+   2. make sure the "Ace/Scratchpad compliant" tick-box is checked;
+   3. tick customise (second option, in first section);
+   4. in the "Customisation" section, change "Input UIs" from "Ace" to "Scratchpad";
+   5. save the question.
+
 ### Serialisation
-The UI state serialises to JSON, with fields:
+
+Pressing CTRL ALT M will disable the plugin, exposing the underlying serialisation.
+For most UIs this serialisation is passed into the question template as STUDENT_ANSWER. 
+When "Ace/Scratchpad compliant" is ticked STUDENT_ANSWER is set to the value of the first editor instead.
+
+Note: The following information is not relevant unless you un-tick the "Ace/Scratchpad compliant" tick-box.
+
+The serialisation for this plugin is JSON, with fields:
 - `answer_code`: `[""]` A list containing a string with answer code from the first editor;
 - `test_code`: `[""]` A list containing a string with containing answer code from the second editor;
 - `show_hide`: `["1"]` when scratchpad is visible, otherwise `[""]`;
@@ -44,32 +61,38 @@ A valid serialisation is one with all four specified fields. All other serialisa
   - `text`: display program output as text, html escaped;
   - `json`: display program output, when it is json, see next section...
   - `html`: display program output as raw html.
-- `disable_scratchpad`:	disable the scratchpad, effectively revert back to Ace UI from student perspective.
+- `open_delimiter`: The opening delimiter to use when inserting answer or Scratchpad code. It will replace the default value `{|`.
+- `close_delimiter`: The closing delimiter to use when inserting answer or Scratchpad code. It will replace the default value `|}`.
+- `disable_scratchpad`:	disable the scratchpad, reverting to Ace UI from student perspective.
 - `invert_prefix`: inverts meaning of prefix_ans serialisation -- `'1'` means un-ticked, vice versa. This can be used to swap the default state.
-- `params` : **THESE ARE NOT WELL DOCUMENTED**
+- `escape`: when `true` code will be JSON escaped (minus outer quotes `"`) before being inserted into the wrapper.
+- `params` : parameters for the sandbox webservice.
 
-
-### Advanced Customization: Wrappers
-A wrapper is be used to wrap code before it is run using the sandbox.
+### Wrappers
+A wrapper is used to wrap code before it is run using the sandbox.
 A wrapper could be used to enclose the code in a function call, or to run the program as a subprocess after manipulation.
-Some tasks that require this include: running languages installed on Jobe but not supported by coderunner; reading standard input during runs; or displaying Matplotlib graphs.
+Some tasks that require this are: running languages installed on Jobe but not supported by coderunner; reading standard input during runs; or displaying Matplotlib graphs.
 
 
-You can insert the answer code and scratchpad code into the wrapper using `{{ ANSWER_CODE }}` and `{{ SCRATCHPAD_CODE }}` respectively.
-If the **Prefix with Answer** checkbox is unchecked `{{ ANSWER_CODE }}` will be replaced with an empty string `''`.
+You can insert the answer code and scratchpad code into the wrapper using `{| ANSWER_CODE |}` and `{| SCRATCHPAD_CODE |}` respectively.
+If the **Prefix with Answer** checkbox is unchecked `{| ANSWER_CODE |}` will be replaced with an empty string `''`.
 The default configuration uses the following wrapper:
 
 
 ```
-{{ ANSWER_CODE }}
-{{ SCRATCHPAD_CODE }}
+{| ANSWER_CODE |}
+{| SCRATCHPAD_CODE |}
 ```
+Whitespace is ignored between the delimiters (`{|`,`|}`) and the variable name, e.g. `{|ANSWER_CODE   |}` will be replaced.
+You can change the delimiters using the `open_delimiter` and `close_delimiter` UI Parameters. 
 
-Three UI parameters are of particular importance when writing wrappers:
+
+Four UI parameters are of particular importance when writing wrappers:
 
 - `wrapper_src` sets the location of the wrapper code.
 - `run_lang` sets the language the Sandbox Webservice uses to run code when the **Run Button** is pressed.
 - `output_display_mode` controls how run output is displayed, see below. 
+- `escape` will escape (JSON escape with `"` removed from start and end) `ANSWER_CODE` and `SCRATCHPAD_CODE` before insertion into wrapper. Useful when inserting code into a string. NOTE: _single quotes `'` are NOT escaped.
 
 There are three modes of displaying program run output, set by `output_display_mode`:
   - `text`: Display the output as text, html escaped. **(default)**
@@ -88,178 +111,3 @@ There are three modes of displaying program run output, set by `output_display_m
 
 Note: JSON is the preferred display mode; wrapper debugging is much simpler than HTML mode. 
 HTML output is only recommended if you are trying to display HTML elements and for very advanced users, enter at your own risk...
-
-[//]: # (## Wrapper tutorial &#40;TBD&#41;)
-
-[//]: # (#### Wrappers I: Running code in unsupported languages)
-
-[//]: # (Wrappers can be in a different language to their question; you can set the Run language, using `run_lang`. )
-
-[//]: # (This changes the language the sandbox service uses to run the wrapper.)
-
-[//]: # (This would be invisible to the student answering the question. )
-
-[//]: # (Below is an example of a C program being wrapped using Python &#40;see the multi-language question for further inspiration&#41;:)
-
-[//]: # ( ```)
-
-[//]: # ( import subprocess)
-
-[//]: # ( )
-[//]: # (student_answer = """{{ ANSWER_CODE }}""")
-
-[//]: # (test_code = """{{ SCRATCHPAD_CODE }}""")
-
-[//]: # (all_code = student_answer + '\n' + test_code)
-
-[//]: # ( filename = '__tester__.c')
-
-[//]: # ( with open&#40;filename, "w"&#41; as src:)
-
-[//]: # (    print&#40;all_code, file=src&#41;)
-
-[//]: # ()
-[//]: # (cflags = "-std=c99 -Wall -Werror")
-
-[//]: # (return_code = subprocess.call&#40;"gcc {0} -o __tester__ __tester__.c".format&#40;cflags&#41;.split&#40;&#41;&#41;)
-
-[//]: # (if return_code != 0:)
-
-[//]: # (    raise Exception&#40;"** Compilation failed. Testing aborted **"&#41;)
-
-[//]: # (exec_command = ["./__tester__"])
-
-[//]: # ( )
-[//]: # ( output = subprocess.check_output&#40;exec_command, universal_newlines=True&#41;)
-
-[//]: # (print&#40;output&#41;)
-
-[//]: # ( ```)
-
-[//]: # (Note: When writing wrappers it is recommended to use a scripting language with strong string manipulation features.)
-
-[//]: # ()
-[//]: # (#### Wrappers II: Displaying on-textual run output)
-
-[//]: # (The `html_output` parameter, in conjunction with a wrapper, can be used to display graphical/non-textual output in the output display area. Using HTML output, it is possible to insert images and input boxes.)
-
-[//]: # ()
-[//]: # (Example of a wrapper to display `Matplotlib` graphs in the output display area:)
-
-[//]: # (```)
-
-[//]: # (import subprocess, base64, html, os, tempfile)
-
-[//]: # ()
-[//]: # ()
-[//]: # (def make_data_uri&#40;filename&#41;:)
-
-[//]: # (    with open&#40;filename, "br"&#41; as fin:)
-
-[//]: # (        contents = fin.read&#40;&#41;)
-
-[//]: # (    contents_b64 = base64.b64encode&#40;contents&#41;.decode&#40;"utf8"&#41;)
-
-[//]: # (    return "data:image/png;base64,{}".format&#40;contents_b64&#41;)
-
-[//]: # ()
-[//]: # ()
-[//]: # (code = r"""{{ ANSWER_CODE }})
-
-[//]: # ({{ SCRATCHPAD_CODE }})
-
-[//]: # (""")
-
-[//]: # ()
-[//]: # (prefix = """import os, tempfile)
-
-[//]: # (os.environ["MPLCONFIGDIR"] = tempfile.mkdtemp&#40;&#41;)
-
-[//]: # (import matplotlib as _mpl)
-
-[//]: # (_mpl.use&#40;"Agg"&#41;)
-
-[//]: # (""")
-
-[//]: # ()
-[//]: # (suffix = """)
-
-[//]: # (figs = _mpl.pyplot.get_fignums&#40;&#41;)
-
-[//]: # (for i, fig in enumerate&#40;figs&#41;:)
-
-[//]: # (    _mpl.pyplot.figure&#40;fig&#41;)
-
-[//]: # (    filename = f'image{i}.png')
-
-[//]: # (    _mpl.pyplot.savefig&#40;filename, bbox_inches='tight'&#41;)
-
-[//]: # (""")
-
-[//]: # ()
-[//]: # (prog_to_exec = prefix + code + suffix)
-
-[//]: # ()
-[//]: # (with open&#40;'prog.py', 'w'&#41; as outfile:)
-
-[//]: # (    outfile.write&#40;prog_to_exec&#41;)
-
-[//]: # ()
-[//]: # (result = subprocess.run&#40;['python3', 'prog.py'], capture_output=True, text=True&#41;)
-
-[//]: # (print&#40;'<div>'&#41;)
-
-[//]: # (output = result.stdout + result.stderr)
-
-[//]: # (if output:)
-
-[//]: # (    output = html.escape&#40;output&#41;.replace&#40;' ', '&nbsp;'&#41;.replace&#40;'\n', '<br>'&#41;)
-
-[//]: # (    print&#40;f'<p style="font-family:monospace;font-size:11pt;padding:5px;">{output}</p>'&#41;)
-
-[//]: # ()
-[//]: # (for fname in os.listdir&#40;&#41;:)
-
-[//]: # (    if fname.endswith&#40;'png'&#41;:)
-
-[//]: # (        print&#40;f'<img src="{make_data_uri&#40;fname&#41;}">'&#41;)
-
-[//]: # (```)
-
-[//]: # (#### Wrappers III: Reading stdin during runs)
-
-[//]: # (A module used for running code using the Coderunner webservice &#40;CRWS&#41; and displaying output. Originally)
-
-[//]: # (developed for use in the Scratchpad UI. It has three modes of operation:)
-
-[//]: # (- 'text': Just display the output as text, html escaped.)
-
-[//]: # (- 'json': The recommended way to display programs that use stdin or output images &#40;or both&#41;.)
-
-[//]: # (  - Accepts JSON in the CRWS response output with fields:)
-
-[//]: # (    - `"returncode"`: Error/return code from running program.)
-
-[//]: # (    - `"stdout"`: Stdout text from running program.)
-
-[//]: # (    - `"stderr"`: Error text from running program.)
-
-[//]: # (    - `"files"`: Images encoded in base64 text encoding. These will be displayed above any stdout text.)
-
-[//]: # (  - When input from stdin is required the returncode 42 should be returned, raise this)
-
-[//]: # (    any time the program asks for input. An &#40;html&#41; input will be added after the last stdout received.)
-
-[//]: # (    When enter is pressed, runCode is called with value of the input added to the stdin string.)
-
-[//]: # (    This repeats until returncode is no longer 42.)
-
-[//]: # (- 'html': Display program output as raw html inside the output area.)
-
-[//]: # (  - This can be used to show images and insert other HTML tags &#40;and beyond&#41;.)
-
-[//]: # (  - Giving an `<input>` tag the class 'coderunner-run-input' will add an event that)
-
-[//]: # (    on pressing enter will call the runCode method again with the value of that input field added to stdin.)
-
-[//]: # (    This method of receiving stdin is harder to use but more flexible than JSON, enter at your own risk.)

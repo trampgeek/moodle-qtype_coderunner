@@ -1,12 +1,10 @@
-import ast, traceback, sys, io, subprocess, base64, os, ast, traceback, json
+import sys, io, subprocess, ast, traceback, json
 MAX_OUTPUT_CHARS = 30000
 
 student_code = """
-\( ANSWER_CODE \)
-\( SCRATCHPAD_CODE \)
+{{ ANSWER_CODE }}
+{{ SCRATCHPAD_CODE }}
 """
-
-uses_matplotlib = 'matplotlib' in student_code
 
 subproc_code = """
 import sys
@@ -42,35 +40,7 @@ def print(*params, **keyparams):
         __saved_print__(*params, **keyparams)
 """
 
-if uses_matplotlib:
-    subproc_code += """
-import os, tempfile, sys
-os.environ["MPLCONFIGDIR"] = tempfile.mkdtemp()
-import matplotlib as _mpl
-_mpl.use("Agg")
-"""
-
 subproc_code += student_code
-
-if uses_matplotlib:
-    subproc_code += """
-figs = _mpl.pyplot.get_fignums()
-for i, fig in enumerate(figs):
-    _mpl.pyplot.figure(fig)
-    filename = f'image{i}.png'
-    _mpl.pyplot.savefig(filename, bbox_inches='tight')
-"""
-
-
-
-
-
-def b64encode(filename):
-    """Return the contents of the given file in base64"""
-    with open(filename, "br") as fin:
-        contents = fin.read()
-    contents_b64 = base64.b64encode(contents).decode("utf8")
-    return contents_b64
 
 def truncated(s):
     return s if len(s) < MAX_OUTPUT_CHARS else s[:MAX_OUTPUT_CHARS] + ' ... (truncated)'
@@ -103,16 +73,11 @@ if stderr == '':  # No syntax errors
 else:
     returncode = 1 # Syntax errors
 
-# Pick up any .png or .jpg image files.
-image_extensions = ['png', 'jpg', 'jpeg']
-image_files = [fname for fname in os.listdir() if fname.lower().split('.')[-1] in image_extensions]
-files = {fname: b64encode(fname) for fname in image_files}
-
 output = {
     'returncode': returncode,
     'stdout' : truncated(stdout),
     'stderr' : truncated(stderr),
-    'files'  : files
+    'files'  : [],
 }
 
 print(json.dumps(output))

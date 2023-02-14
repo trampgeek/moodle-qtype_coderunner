@@ -53,15 +53,23 @@ const JSON_DISPLAY_PROPS = ['returncode', 'stdout', 'stderr', 'files'];
  * Get the specified language string using
  * AJAX and plug it into the given textarea
  * @param {string} langStringName The language string name.
- * @param {DOMnode}  display area into which the error message
+ * @param {DOMnode} node area into which the error message
  * should be plugged.
+ * @param  {function} callback Callback function, with two arguments: node, message.
  * @param {string} additionalText Extra text to follow the result code.
  */
-const setLangString = async(langStringName, display, additionalText) => {
-    const message = await getLangString(langStringName, 'qtype_coderunner');
-    display.innerText = "*** " + message + " ***\n";
+const setLangString = async(langStringName, node, callback, additionalText = '') => {
+    let message = await getLangString(langStringName, 'qtype_coderunner');
+    if (langStringName.includes('error')) {
+        message = "*** " + message + " ***\n";
+    }
     if (additionalText) {
-        display.innerText += additionalText;
+        message += additionalText;
+    }
+    if (callback instanceof Function) {
+        callback(node, message);
+    } else {
+        node.innerText = message;
     }
 };
 
@@ -191,17 +199,19 @@ class OutputDisplayArea {
      */
     displayJson(response) {
         const result = this.validateJson(response.output);
+
         let text = result.stdout;
 
         if (result.returncode !== INPUT_INTERRUPT) {
             text += result.stderr;
         }
         if (result.returncode == 13) { // Timeout
-            text += "\n*** Timeout error ***\n";
-        } // TODO: Langstring
+            setLangString('error_timeout', this.textDisplay, (node, msg) => {
+             node.innerText += msg;
+            });
+        }
 
         const numImages = this.displayImages(result.files);
-
         if (text.trim() === '' && result.returncode !== INPUT_INTERRUPT) {
             if (numImages == 0) {
                 this.displayNoOutput(null);
@@ -209,7 +219,6 @@ class OutputDisplayArea {
         } else {
             this.textDisplay.innerText = text;
         }
-
         if (result.returncode === INPUT_INTERRUPT) {
             this.addInput();
         }
@@ -226,20 +235,20 @@ class OutputDisplayArea {
             result = JSON.parse(jsonString);
         } catch (e) {
             window.alert(
-                `Error parsing display JSON output: 
-                ${jsonString}
-                JSON Parsing error Msg: 
-                ${e.message}
-                The question author must fix this!`
+                `Error parsing display JSON output: \n` +
+                `'${jsonString}\n'` +
+                `Error Msg: \n` +
+                ` ${e.message} \n` +
+                `The question author must fix this!`
             );
         }
 
         const missing = missingProperties(result, JSON_DISPLAY_PROPS);
         if (missing.length > 0) {
             window.alert(
-                `Display JSON (in response.result) is missing the following fields:
-                ${missing.join()}
-                The question author must fix this!`
+                `Display JSON (in response.result) is missing the following fields: \n` +
+                `${missing.join()} \n` +
+                `The question author must fix this!`
             );
         }
         return result;
@@ -255,7 +264,7 @@ class OutputDisplayArea {
         if (isNoOutput || response === null) {
             const span = document.createElement('span');
             span.style.color = 'red';
-            span.innerText = '< No output! >';
+            setLangString('nooutput', span);
             this.clearDisplay();
             this.textDisplay.append(span);
         }
@@ -327,6 +336,9 @@ class OutputDisplayArea {
         const inputId = `${this.displayAreaId}-input-field`;
         this.textDisplay.innerHTML += `<input type="text" id="${inputId}" class="${INPUT_CLASS}">`;
         const inputEl = document.getElementById(inputId);
+        setLangString('enter_to_submit', inputEl, (node, msg) => {
+            node.placeholder += msg;
+        });
         this.addInputEvents(inputEl);
     }
 
@@ -369,7 +381,7 @@ class OutputDisplayArea {
                 this.imageDisplay.append(image);
                 numImages += 1;
             } else {
-                window.alert(`Could not read filename correctly: ${fname}`);
+                window.alert(`Could not read filename correctly: "${fname}"`);
             }
         }
         return numImages;
