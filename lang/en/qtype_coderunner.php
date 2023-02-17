@@ -98,6 +98,7 @@ $string['bulktestindextitle'] = 'CodeRunner bulk testing';
 $string['bulktestrun'] = 'Run all the question tests for all the questions in the system (slow, admin only)';
 $string['bulktesttitle'] = 'Testing questions in {$a}';
 
+$string['cannotrunprototype'] = 'This is a prototype and cannot be run. If you wish to use this prototype, create a new question and change question type.';
 $string['coderunnercategories'] = 'Categories with CodeRunner questions';
 $string['coderunnercontexts'] = 'Contexts with CodeRunner questions';
 $string['coderunner'] = 'Program Code';
