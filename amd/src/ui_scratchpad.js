@@ -86,29 +86,42 @@ const invertSerial = (current) => current[0] === '1' ? [''] : ['1'];
  * Insert the answer code and test code into the wrapper. This may
  * be defined by the user, in UI Params or globalextra. If prefixAns is
  * false: do not include answerCode in final wrapper.
- * @param {string} answerCode text.
- * @param {string} testCode text.
+ * @param {string} answerCode text from first editor.
+ * @param {string} testCode text from second editor.
  * @param {string} prefixAns '1' for true, '' for false.
  * @param {string} template provided in UI Params or globalextra.
+ * @param {string} open delimiter to look for, e.g. '[['
+ * @param {string} close delimiter to look for, e.g. ']]'
  * @returns {string} filled template.
  */
-const fillWrapper = (answerCode, testCode, prefixAns, template) => {
+const fillWrapper = (answerCode, testCode, prefixAns, template, open = '\\(', close = '\\)') => {
     if (!template) {
-        template = '{{ ANSWER_CODE }}\n' +
-                   '{{ SCRATCHPAD_CODE }}';
+        template = `${open} ANSWER_CODE ${close}\n` +
+                   `${open} SCRATCHPAD_CODE ${close}`;
     }
     if (!prefixAns) {
         answerCode = '';
     }
-    template = template.replaceAll('{{ ANSWER_CODE }}', answerCode);
-    template = template.replaceAll('{{ SCRATCHPAD_CODE }}', testCode);
+    const escOpen = escapeRegExp(open);
+    const escClose = escapeRegExp(close);
+    const answerRegex = new RegExp(`${escOpen}\\s*ANSWER_CODE\\s*${escClose}`, 'g');
+    const scratchpadRegex = new RegExp(`${escOpen}\\s*SCRATCHPAD_CODE\\s*${escClose}`, 'g');
+    template = template.replaceAll(answerRegex, answerCode);
+    template = template.replaceAll(scratchpadRegex, testCode);
     return template;
 };
 
 /**
+ * Escapes a string for use in regex.
+ * @param {string} string to escape.
+ * @returns {string} RegEx escaped string
+ */
+const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
+
+/**
  * Returns a new object contain default values. If a matching key exists in
- * prescribed, the corresponding value from prescribed will replace the defualt value.
- * Does not add keys/values to the result if that key is not in defualts.
+ * prescribed, the corresponding value from prescribed will replace the default value.
+ * Does not add keys/values to the result if that key is not in defaults.
  * @param {object} defaults object with values to be overwritten.
  * @param {object} prescribed settings, typically set by a user.
  * @returns {object} filled with default values, overwritten by their prescribed value (iff included).
@@ -129,7 +142,7 @@ const overwriteValues = (defaults, prescribed) => {
  * @returns {boolean} true if el is collapsed.
  */
 const isCollapsed = (el) => {
-    if (!el.classList.contains('collapse')) {
+    if (!(el.classList.contains('collapse') || el.classList.contains('collapsing'))) {
         throw Error('Element does not have collapse class');
     }
     return !el.classList.contains('show');
@@ -154,7 +167,10 @@ class ScratchpadUi {
             run_lang: uiParams.lang, // Use answer's ace language if not specified.
             output_display_mode: 'text',
             disable_scratchpad: false,
-            wrapper_src: null
+            wrapper_src: null,
+            open_delimiter: '{|',
+            close_delimiter: '|}',
+            escape: false
         };
         this.textArea = document.getElementById(textAreaId);
         this.textAreaId = textAreaId;
@@ -249,11 +265,16 @@ class ScratchpadUi {
         this.sync(); // Use up-to-date serialization.
         const preloadString = this.textArea.value;
         const serial = this.readJson(preloadString);
+        const escape = (code) => this.uiParams.escape ? JSON.stringify(code).slice(1, -1) : code;
+        const answerCode = escape(serial.answer_code[0]);
+        const testCode = escape(serial.test_code[0]);
         const code = fillWrapper(
-                serial.answer_code,
-                serial.test_code,
-                serial.prefix_ans[0],
-                this.runWrapper
+            answerCode,
+            testCode,
+            serial.prefix_ans[0],
+            this.runWrapper,
+            this.uiParams.open_delimiter,
+            this.uiParams.close_delimiter
         );
         this.outputDisplay.runCode(code, '', true); // Call with no stdin.
     }

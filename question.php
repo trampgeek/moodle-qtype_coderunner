@@ -342,10 +342,16 @@ class qtype_coderunner_question extends question_graded_automatically {
     }
 
 
-
     public function summarise_response(array $response) {
         if (isset($response['answer'])) {
-            return $response['answer'];
+            $ans = $response['answer'];
+            if ($this->extractcodefromjson) {
+                $json = json_decode($ans, true);
+                if ($json !== null and isset($json[constants::ANSWER_CODE_KEY])) {
+                    $ans = $json[constants::ANSWER_CODE_KEY][0];
+                }
+            }
+            return $ans;
         } else {
             return null;
         }
@@ -467,7 +473,11 @@ class qtype_coderunner_question extends question_graded_automatically {
 
 
     public function get_correct_response() {
-        return $this->get_correct_answer();
+        $response = $this->get_correct_answer();
+        if ($this->attachments) {
+            $response['attachments'] = $this->make_attachments_saver();
+        }
+        return $response;
     }
 
 
@@ -480,7 +490,6 @@ class qtype_coderunner_question extends question_graded_automatically {
             // Get any sample question files first.
             $context = qtype_coderunner::question_context($this);
             $contextid = $context->id;
-            $answer['attachments'] = new coderunner_files($contextid, 'samplefile', $this->id);
             // For multilanguage questions we also need to specify the language.
             // Use the answer_language template parameter value if given, otherwise
             // run with the default.
@@ -493,6 +502,90 @@ class qtype_coderunner_question extends question_graded_automatically {
                 $answer['language'] = $default;
             }
             return $answer;
+        }
+    }
+
+
+    /**
+     * Creates an empty draft area for attachments.
+     * @return int The draft area's itemid.
+     */
+    protected function make_attachment_draft_area() {
+        $draftid = 0;
+        $contextid = 0;
+
+        $component = 'question';
+        $filearea = 'response_attachments';
+
+        // Create an empty file area.
+        file_prepare_draft_area($draftid, $contextid, $component, $filearea, null);
+        return $draftid;
+    }
+
+
+    /**
+     * Adds the given file to the given draft area.
+     * @param int $draftid The itemid for the draft area in which the file should be created.
+     * @param string $file The file to be added.
+     */
+    protected function make_attachment($draftid, $file) {
+        global $USER;
+
+        $fs = get_file_storage();
+        $usercontext = context_user::instance($USER->id);
+
+        // Create the file in the provided draft area.
+        $fileinfo = array(
+            'contextid' => $usercontext->id,
+            'component' => 'user',
+            'filearea'  => 'draft',
+            'itemid'    => $draftid,
+            'filepath'  => '/',
+            'filename'  => $file->get_filename(),
+        );
+        $fs->create_file_from_string($fileinfo, $file->get_content());
+    }
+
+
+    /**
+     * Generates a draft file area that contains the sample answer attachments.
+     * @return int The itemid of the generated draft file area or null if there are
+     * no sample answer attachments.
+     */
+    public function make_attachments() {
+        $fs = get_file_storage();
+        $files = $fs->get_area_files($this->contextid, 'qtype_coderunner', 'samplefile', $this->id);
+        $usefulfiles = [];
+        foreach ($files as $file) {  // Filter out useless '.' files.
+            if ($file->get_filename() !== '.') {
+                $usefulfiles[] = $file;
+            }
+        }
+
+        if (count($usefulfiles) > 0) {
+            $draftid = $this->make_attachment_draft_area();
+            foreach ($usefulfiles as $file) {
+                $this->make_attachment($draftid, $file);
+            }
+            return $draftid;
+        } else {
+            return null;
+        }
+    }
+
+
+    /**
+     * Generates a question_file_saver that contains all the sample answer attachments.
+     *
+     * @return question_file_saver a question_file_saver that contains the
+     * sample answer attachments.
+     */
+    public function make_attachments_saver() {
+        $attachments = $this->make_attachments();
+        if ($attachments) {
+            return new question_file_saver($attachments, 'question', 'response_attachments');
+        } else {
+            return null;
         }
     }
 

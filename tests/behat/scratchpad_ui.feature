@@ -130,7 +130,7 @@ Feature: Test the Scratchpad UI
       | id_uiplugin       | Scratchpad |
       | id_validateonsave | 0          |
       | id_expected_0     | ""         |
-    And I set the field "id_template" to "print('''{{ STUDENT_ANSWER }}''')"
+    And I set the field "id_template" to "print('''{| STUDENT_ANSWER |}''')"
     And I press "id_submitbutton"
     Then I should see "Print answer"
 
@@ -150,7 +150,7 @@ Feature: Test the Scratchpad UI
       | id_uiplugin       | Scratchpad |
       | id_validateonsave | 0          |
       | id_expected_0     | ''         |
-    And I set the field "id_template" to "print('''{{ STUDENT_ANSWER }}''')"
+    And I set the field "id_template" to "print('''{| STUDENT_ANSWER |}''')"
     And I press "id_submitbutton"
     Then I should see "Print answer"
 
@@ -171,7 +171,7 @@ Feature: Test the Scratchpad UI
       | id_uiplugin       | Scratchpad |
       | id_validateonsave | 0          |
       | id_expected_0     | ''         |
-    And I set the field "id_template" to "print('''{{ STUDENT_ANSWER }}''')"
+    And I set the field "id_template" to "print('''{| STUDENT_ANSWER |}''')"
     And I press "id_submitbutton"
     Then I should see "Print answer"
 
@@ -253,7 +253,7 @@ Feature: Test the Scratchpad UI
       | id_uiplugin       | Scratchpad |
       | id_validateonsave | 0          |
       | id_expected_0     | ''         |
-    And I set the field "id_template" to "print('''{{ STUDENT_ANSWER }}''')"
+    And I set the field "id_template" to "print('''{| STUDENT_ANSWER |}''')"
     And I press "id_submitbutton"
     Then I should see "Print answer"
 
@@ -278,7 +278,7 @@ Feature: Test the Scratchpad UI
       | id_uiplugin       | Scratchpad |
       | id_validateonsave | 0          |
       | id_expected_0     | ''         |
-    And I set the field "id_template" to "print('''{{ STUDENT_ANSWER }}''')"
+    And I set the field "id_template" to "print('''{| STUDENT_ANSWER |}''')"
     And I press "id_submitbutton"
     Then I should see "Print answer"
 
@@ -306,7 +306,7 @@ Feature: Test the Scratchpad UI
       | id_uiplugin       | Scratchpad |
       | id_validateonsave | 0          |
       | id_expected_0     | ''         |
-    And I set the field "id_template" to "print('''{{ STUDENT_ANSWER }}''')"
+    And I set the field "id_template" to "print('''{| STUDENT_ANSWER |}''')"
     And I press "id_submitbutton"
     Then I should see "Print answer"
 
@@ -334,7 +334,7 @@ Feature: Test the Scratchpad UI
       | id_uiplugin       | Scratchpad |
       | id_validateonsave | 0          |
       | id_expected_0     | ''         |
-    And I set the field "id_template" to "print('''{{ STUDENT_ANSWER }}''')"
+    And I set the field "id_template" to "print('''{| STUDENT_ANSWER |}''')"
     And I press "id_submitbutton"
     Then I should see "Print answer"
 
