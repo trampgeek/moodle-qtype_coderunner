@@ -96,7 +96,10 @@ $options->suppressruntestslink = true;
 
 // Test the question with its sample answer.
 $response = $question->get_correct_response();
-$runparams = array('-submit' => 'Submit', 'answer' => $response['answer'], 'attachments' => $response['attachments']);
+$runparams = array('-submit' => 'Submit', 'answer' => $response['answer']);
+if (isset($response['attachments'])) {
+    $runparams['attachments'] = $response['attachments'];
+}
 $templateparams = isset($question->templateparams) ? json_decode($question->templateparams, true) : array();
 if (isset($templateparams['answer_language'])) {
     $runparams['language'] = $templateparams['answer_language'];
