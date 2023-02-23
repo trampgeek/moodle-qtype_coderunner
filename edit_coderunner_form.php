@@ -1006,7 +1006,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
         if ($errormessage === '') {
             // Check for legacy case of ui parameters defined within the template params.
-            $uiplugin = $this->formquestion->uiplugin;
+            $uiplugin = $this->formquestion->uiplugin ? $this->formquestion->uiplugin : 'ace';
             $uiparams = new qtype_coderunner_ui_parameters($uiplugin);
             $templateparamsnoprototype = json_decode($this->formquestion->template_params_json($seed), true);
             $alluiparamnames = $uiparams->all_names();
