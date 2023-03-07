@@ -87,6 +87,7 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
             questiontypeHelpDiv = $('#qtype-help'),
             precheck = $('select#id_precheck'),
             testtypedivs = $('div.testtype'),
+            testsection = $('#id_testcasehdr'),
             brokenQuestion = $('#id_broken_question'),
             badQuestionLoad = $('#id_bad_question_load'),
             uiplugin = $('#id_uiplugin'),
@@ -533,7 +534,8 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
          *************************************************************/
 
         if (prototypeType.prop('value') != 0) {
-            // Display the prototype warning if it's a prototype.
+            // Display the prototype warning if it's a prototype and hide testboxes.
+            testsection.css('display', 'none');
             prototypeDisplay.removeAttr('hidden');
             if (prototypeType.prop('value') == 1) {
                 // Editing a built-in question type: Dangerous!
@@ -634,10 +636,13 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
         precheck.on('change', set_testtype_visibilities);
 
         // Displays and hides the reason for the question type to be disabled.
+        // Also hides/shows the test cases section if prototype/not prototype.
         prototypeType.on('change', function () {
             if (prototypeType.prop('value') == '0') {
+                testsection.css('display', 'block');
                 prototypeDisplay.attr('hidden', '1');
             } else {
+                testsection.css('display', 'none');
                 prototypeDisplay.removeAttr('hidden');
             }
         });
