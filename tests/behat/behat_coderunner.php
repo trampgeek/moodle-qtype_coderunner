@@ -288,7 +288,7 @@ class behat_coderunner extends behat_base {
     /**
      * Presses a named button. Checks if there is a specified error text displayed.
      *
-     * @Then I should see an alert of :error when I press :button
+     * @Then I should see the alert :error when I press :button
      * @param string $errortext The expected error message when alerted
      * @param string $button The name of the alert button.
      */

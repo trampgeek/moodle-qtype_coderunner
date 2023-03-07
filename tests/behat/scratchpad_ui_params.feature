@@ -468,7 +468,7 @@ Feature: Test the Scratchpad UI, UI Params
               'stderr' : '',
               'files' : ''
     """
-    Then I should see an alert of "Error parsing display JSON output:" when I press "Run"
+    Then I should see the alert "Error parsing display JSON output:" when I press "Run"
 
   Scenario: Set output_display_mode to json, 'print' a hidden div to output area
     And I set the field "id_answer" to ""
@@ -491,7 +491,7 @@ Feature: Test the Scratchpad UI, UI Params
     }
     print(json.dumps(output))
     """
-    Then I should see an alert of "stderr" when I press "Run"
+    Then I should see the alert "stderr" when I press "Run"
 
   Scenario: Set output_display_mode to json, get no output.
     And I set the field "id_answer" to ""
