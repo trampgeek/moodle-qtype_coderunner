@@ -37,6 +37,9 @@
 // module is used, as it assumes window.ace exists.
 
 define(['jquery'], function($) {
+    const GLOBAL_THEME_KEY = 'qtype_coderunner.ace.theme';
+    const ACE_DARK_THEME = 'ace/theme/tomorrow_night';
+    const ACE_LIGHT_THEME = 'ace/theme/textmate';
     /**
      * Constructor for the Ace interface object.
      * @param {string} textareaId The ID of the HTML textarea element to be wrapped.
@@ -45,9 +48,6 @@ define(['jquery'], function($) {
      * @param {object} params The UI parameter object.
      */
     function AceWrapper(textareaId, w, h, params) {
-        const ACE_DARK_THEME = 'ace/theme/tomorrow_night';
-        const ACE_LIGHT_THEME = 'ace/theme/textmate';
-
         var textarea = $(document.getElementById(textareaId)),
             wrapper = $(document.getElementById(textareaId + '_wrapper')),
             focused = textarea[0] === document.activeElement,
@@ -97,7 +97,7 @@ define(['jquery'], function($) {
             // If there's a user-defined theme in local storage, use that.
             // Otherwise use the 'prefers-color-scheme' option if given or
             // the question/system defaults if not.
-            const userTheme = window.localStorage.getItem('qtype_coderunner.ace.theme');
+            const userTheme = window.localStorage.getItem(GLOBAL_THEME_KEY);
             const consider_prefers = params.auto_switch_light_dark && window.matchMedia;
             if (userTheme !== null) {
                 this.editor.setTheme(userTheme);
@@ -110,6 +110,7 @@ define(['jquery'], function($) {
             } else {
                 this.editor.setTheme(ACE_LIGHT_THEME);
             }
+            this.currentTheme = this.editor.getTheme();
 
             this.fixSlowLoad();
 
@@ -172,24 +173,24 @@ define(['jquery'], function($) {
         // The data is always sync'd to the text area. But here we use sync to
         // poll the value of the current theme and record in browser local
         // storage if the value for this particular Ace instance has changed
-        // (as recorded in session storage). The theme to use for all Ace windows
-        // from now on in this browser is recorded in browser local storage.
-        const thisThemeNow = this.editor.getOption('theme');
-        const thisEditorKey = `qtype_coderunner.${this.textareaId}.theme`;
-        const lastTheme = window.sessionStorage.getItem(thisEditorKey);
-        const globalKey = 'qtype_coderunner.ace.theme';
-        const globalTheme = window.localStorage.getItem(globalKey);
-
-        if (lastTheme !== null && lastTheme != thisThemeNow) {
-            // The theme in this Ace window has been changed by the user.
-            window.localStorage.setItem(globalKey, thisThemeNow);
-        } else if (globalTheme && globalTheme !== thisThemeNow) {
-            // A theme has been defined by another Ace window since we loaded.
-            // Switch to that theme.
-            this.editor.setOption('theme', globalTheme);
-            thisThemeNow = globalTheme;
+        // from the current working theme (set by code),
+        // implying a user menu action. If that happens the global user theme
+        // is set and is subsequently used by all Ace windows.
+        const thisThemeNow = this.editor.getTheme();
+        const globalTheme = window.localStorage.getItem(GLOBAL_THEME_KEY);
+        if (thisThemeNow !== this.currentTheme) {
+            // User has changed the theme via menu. Record in global storage so
+            // other editor instances can switch to it.
+            this.currentTheme = thisThemeNow;
+            window.localStorage.setItem(GLOBAL_THEME_KEY, thisThemeNow);
+            // console.log(`Menu theme change. Global theme now ${thisThemeNow}`);
+        } else if (globalTheme && thisThemeNow != globalTheme) {
+            // Another window has set the theme (since if there had been a
+            // global theme when we started, we'd have used it.
+            this.editor.setTheme(globalTheme);
+            this.currentTheme = globalTheme;
+            // console.log(`Global theme change found: ${globalTheme}`);
         }
-        window.sessionStorage.setItem(thisEditorKey, thisThemeNow);
     };
 
     AceWrapper.prototype.syncIntervalSecs = function() {
