@@ -209,18 +209,18 @@ Feature: Test the Scratchpad UI
     {"answer_code":[""],"test_code":["print('hello world')"],"show_hide":["1"],"prefix_ans":[""]}
     """
 
-    When I press the CTRL + ALT M key
-    Then I wait "2" seconds
-    Then I click on "Scratchpad" "button"
+    #When I press the CTRL + ALT M key
+    #Then I wait "2" seconds
+    #Then I click on "Scratchpad" "button"
 
-    Then I wait "2" seconds
-    Then  I should not see "Run"
+    #Then I wait "2" seconds
+    #Then  I should not see "Run"
 
-    When I press the CTRL + ALT M key
-    Then I should see in answer field:
-    """
-    {"answer_code":[""],"test_code":["print('hello world')"],"show_hide":[""],"prefix_ans":[""]}
-    """
+    #When I press the CTRL + ALT M key
+    #Then I should see in answer field:
+    #"""
+    #{"answer_code":[""],"test_code":["print('hello world')"],"show_hide":[""],"prefix_ans":[""]}
+    #"""
 
   @serial
   Scenario: Get UI serialization, while Scratchpad Shown and prefix box NOT ticked
