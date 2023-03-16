@@ -230,12 +230,14 @@ class ScratchpadUi {
     getSerialisation() {
         const prefixAns = document.getElementById(this.context.prefix_ans.id);
         const showHide = document.getElementById(this.context.show_hide.id);
+        // Initialise using the JSON string from the server.
         let serialisation = {
             answer_code: [this.context.answer_code.text],
             test_code: [this.context.test_code.text],
             show_hide: [this.context.show_hide.show],
-            prefix_ans: [!this.context.prefix_ans.checked]
+            prefix_ans: [invertSerial(this.context.prefix_ans.checked)]
         };
+        // If the UI is up and running, update elements from the UI.
         if (this.answerTextarea) {
             serialisation.answer_code = [this.answerTextarea.value];
         }
@@ -244,9 +246,13 @@ class ScratchpadUi {
         }
         if (showHide && !isCollapsed(showHide)) {
             serialisation.show_hide = ['1'];
+        } else {
+            serialisation.show_hide = [''];
         }
         if (prefixAns?.checked || this.context.disable_scratchpad) {
             serialisation.prefix_ans = ['1'];
+        } else {
+            serialisation.prefix_ans = [''];
         }
         if (this.invertPreload) {
             serialisation.prefix_ans = invertSerial(serialisation.prefix_ans);
