@@ -234,7 +234,7 @@ class ScratchpadUi {
             answer_code: [this.context.answer_code.text],
             test_code: [this.context.test_code.text],
             show_hide: [this.context.show_hide.show],
-            prefix_ans: [this.context.prefix_ans.checked]
+            prefix_ans: [!this.context.prefix_ans.checked]
         };
         if (this.answerTextarea) {
             serialisation.answer_code = [this.answerTextarea.value];
