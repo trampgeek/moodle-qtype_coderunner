@@ -184,6 +184,16 @@ class ScratchpadUi {
         this.numRows = this.textArea.rows;
         this.uiParams = overwriteValues(DEF_UI_PARAMS, uiParams);
         this.runWrapper = this.getRunWrapper();
+        const preloadString = this.textArea.value;
+        let preload;
+        try {
+            preload = this.readJson(preloadString);
+        } catch (error) {
+            this.fail = true;
+            this.failString = 'scratchpad_ui_invalidserialisation';
+            return;
+        }
+        this.updateContext(preload);
         this.reload(); // Draw my beautiful blobs.
     }
 
@@ -221,10 +231,10 @@ class ScratchpadUi {
         const prefixAns = document.getElementById(this.context.prefix_ans.id);
         const showHide = document.getElementById(this.context.show_hide.id);
         let serialisation = {
-            answer_code: [''],
-            test_code: [''],
-            show_hide: [''],
-            prefix_ans: ['']
+            answer_code: [this.context.answer_code.text],
+            test_code: [this.context.test_code.text],
+            show_hide: [this.context.show_hide.show],
+            prefix_ans: [this.context.prefix_ans.checked]
         };
         if (this.answerTextarea) {
             serialisation.answer_code = [this.answerTextarea.value];
@@ -350,16 +360,6 @@ class ScratchpadUi {
     }
 
     async reload() {
-        const preloadString = this.textArea.value;
-        let preload;
-        try {
-            preload = this.readJson(preloadString);
-        } catch (error) {
-            this.fail = true;
-            this.failString = 'scratchpad_ui_invalidserialisation';
-            return;
-        }
-        this.updateContext(preload);
         try {
             const {html} = await Templates.renderForPromise('qtype_coderunner/scratchpad_ui', this.context);
             this.drawUi(html);
