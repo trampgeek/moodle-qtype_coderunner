@@ -385,6 +385,9 @@ define(['jquery'], function($) {
 
     // Sync to TextArea
     AceGapfillerUi.prototype.sync = function() {
+        if (this.fail) {
+            return; // Leave the text area alone if Ace load failed.
+        }
         let serialisation = [];  // A list of field values.
         let empty = true;
 
@@ -402,6 +405,10 @@ define(['jquery'], function($) {
             this.textArea.val(JSON.stringify(serialisation));
         }
     };
+
+    // Sync every 2 seconds in case quiz closes automatically without user
+    // action.
+    AceGapfillerUi.prototype.syncIntervalSecs = (() => 2);
 
     // Reload the HTML fields from the given serialisation.
     AceGapfillerUi.prototype.reload = function() {
