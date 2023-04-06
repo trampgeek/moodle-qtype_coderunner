@@ -209,7 +209,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
                 $httpcode = $this->submit($postbody);
             }
         }
-        
+
         $runresult = array();
         $runresult['sandboxinfo'] = array(
             'jobeserver' => $this->jobeserver,
@@ -313,10 +313,16 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
      */
     private function get_jobe_connection_info($resource) {
         $jobe = $this->jobeserver;
-        if (!empty($this->currentjobid) && strpos($jobe, ';') !== false) {
+        if (strpos($jobe, ';') !== false) {
             // Support multiple servers - thanks Khang Pham Nguyen KHANG: 2021/10/18.
             $servers = array_values(array_filter(array_map('trim', explode(';', $jobe)), 'strlen'));
-            $jobe = $servers[intval($this->currentjobid, 16) % count($servers)];
+            if ($this->currentjobid) {
+                // Make sure to use the same jobe server when files are involved.
+                $rand = intval($this->currentjobid, 16);
+            } else {
+                $rand = mt_rand();
+            }
+            $jobe = $servers[$rand % count($servers)];
         }
         $jobe = trim($jobe); // Remove leading or trailing extra whitespace from the settings.
         $protocol = 'http://';
