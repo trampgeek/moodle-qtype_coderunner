@@ -24,6 +24,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace qtype_coderunner;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -41,12 +42,12 @@ require_once($CFG->dirroot . '/question/type/coderunner/edit_coderunner_form.php
  * @copyright  2021 Richard Lobb, The University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class qtype_coderunner_questiontype_testcase extends advanced_testcase {
+class questiontype_test extends \advanced_testcase {
     protected $qtype;
 
     protected function setUp(): void {
         $this->resetAfterTest(true);
-        $this->qtype = new qtype_coderunner();
+        $this->qtype = new \qtype_coderunner();
     }
 
     protected function tearDown(): void {
@@ -54,7 +55,7 @@ class qtype_coderunner_questiontype_testcase extends advanced_testcase {
     }
 
     protected function get_test_question_data() {
-        $q = new stdClass();
+        $q = new \stdClass();
         $q->id = 1;
 
         return $q;

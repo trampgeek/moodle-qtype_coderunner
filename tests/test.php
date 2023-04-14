@@ -50,11 +50,12 @@ class qtype_coderunner_testcase extends advanced_testcase {
      */
     public static function setup_test_sandbox_configuration(): void {
         global $CFG, $USER;
-        require($CFG->dirroot . '/question/type/coderunner/tests/fixtures/test-sandbox-config-dist.php');
+
         $localconfig = $CFG->dirroot . '/question/type/coderunner/tests/fixtures/test-sandbox-config.php';
         if (is_readable($localconfig)) {
             require($localconfig);
         }
+
         $USER->username  = 'tester';
         $USER->email     = 'tester@nowhere.com';
         $USER->firstname = 'Test';

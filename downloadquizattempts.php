@@ -19,9 +19,9 @@
  * user is currently browsing and provides buttons for downloading each script
  * as either a csv (flakey at handling program code), ods or Excel spreadsheet.
  *
- * This script should be regarded as experimental - the output format may
- * change in the future. And some of the code, particularly the JavaScript
- * and jQuery for handling hiding of quiz tables, is downright nasty.
+ * Although this script has been around for some years, it should be regarded
+ * as somewhat experimental as the output format may
+ * change in the future.
  *
  * @package   qtype_coderunner
  * @copyright 2017 Richard Lobb, The University of Canterbury

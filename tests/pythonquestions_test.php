@@ -24,6 +24,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace qtype_coderunner;
+
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
@@ -34,7 +36,7 @@ require_once($CFG->dirroot . '/lib/accesslib.php');
 /**
  * Unit tests for the coderunner question definition class.
  */
-class qtype_coderunner_pythonquestions_testcase extends qtype_coderunner_testcase {
+class pythonquestions_test extends \qtype_coderunner_testcase {
     protected function setUp(): void {
         parent::setUp();
         $this->goodcode = "def sqr(n): return n * n";
@@ -51,7 +53,7 @@ class qtype_coderunner_pythonquestions_testcase extends qtype_coderunner_testcas
         $response = array('answer' => $this->goodcode);
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(1, $mark);
-        $this->assertEquals(question_state::$gradedright, $grade);
+        $this->assertEquals(\question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testoutcome = unserialize($cache['_testoutcome']);
         $this->assertFalse($testoutcome->has_syntax_error());
@@ -66,7 +68,7 @@ class qtype_coderunner_pythonquestions_testcase extends qtype_coderunner_testcas
         $response = array('answer' => $code);
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(0, $mark);
-        $this->assertEquals(question_state::$gradedwrong, $grade);
+        $this->assertEquals(\question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
     }
 
@@ -76,7 +78,7 @@ class qtype_coderunner_pythonquestions_testcase extends qtype_coderunner_testcas
         $response = array('answer' => $code);
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(0, $mark);
-        $this->assertEquals(question_state::$gradedwrong, $grade);
+        $this->assertEquals(\question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testoutcome = unserialize($cache['_testoutcome']);
         $this->assertTrue($testoutcome->has_syntax_error());
@@ -90,7 +92,7 @@ class qtype_coderunner_pythonquestions_testcase extends qtype_coderunner_testcas
         $result = $q->grade_response($response);
         list($mark, $grade, $cache) = $result;
         $this->assertEquals(0, $mark);
-        $this->assertEquals(question_state::$gradedwrong, $grade);
+        $this->assertEquals(\question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testoutcome = unserialize($cache['_testoutcome']);
         $this->assertEquals(1, count($testoutcome->testresults));
@@ -104,7 +106,7 @@ class qtype_coderunner_pythonquestions_testcase extends qtype_coderunner_testcas
         $result = $q->grade_response($response);
         list($mark, $grade, $cache) = $result;
         $this->assertEquals(1, $mark);
-        $this->assertEquals(question_state::$gradedright, $grade);
+        $this->assertEquals(\question_state::$gradedright, $grade);
     }
 
     public function test_illegal_open_error() {
@@ -114,7 +116,7 @@ class qtype_coderunner_pythonquestions_testcase extends qtype_coderunner_testcas
         $result = $q->grade_response($response);
         list($mark, $grade, $cache) = $result;
         $this->assertEquals(0, $mark);
-        $this->assertEquals(question_state::$gradedwrong, $grade);
+        $this->assertEquals(\question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testoutcome = unserialize($cache['_testoutcome']);
         $this->assertEquals(1, count($testoutcome->testresults));
@@ -128,7 +130,7 @@ class qtype_coderunner_pythonquestions_testcase extends qtype_coderunner_testcas
         $result = $q->grade_response($response);
         list($mark, $grade, $cache) = $result;
         $this->assertEquals(0, $mark);
-        $this->assertEquals(question_state::$gradedwrong, $grade);
+        $this->assertEquals(\question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testoutcome = unserialize($cache['_testoutcome']);
         $this->assertEquals(3, count($testoutcome->testresults));
@@ -148,7 +150,7 @@ EOCODE;
         $result = $q->grade_response($response);
         list($mark, $grade, $cache) = $result;
         $this->assertEquals(1, $mark);
-        $this->assertEquals(question_state::$gradedright, $grade);
+        $this->assertEquals(\question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testoutcome = unserialize($cache['_testoutcome']);
         $this->assertEquals(5, count($testoutcome->testresults));
@@ -165,7 +167,7 @@ EOCODE;
         $result = $q->grade_response($response);
         list($mark, $grade, $cache) = $result;
         $this->assertEquals(1, $mark);
-        $this->assertEquals(question_state::$gradedright, $grade);
+        $this->assertEquals(\question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testoutcome = unserialize($cache['_testoutcome']);
         $this->assertEquals(4, count($testoutcome->testresults));
@@ -187,7 +189,7 @@ EOCODE;
         $result = $q->grade_response($response);
         list($mark, $grade, $cache) = $result;
         $this->assertEquals(0, $mark);
-        $this->assertEquals(question_state::$gradedwrong, $grade);
+        $this->assertEquals(\question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testoutcome = unserialize($cache['_testoutcome']);
         $this->assertEquals(5, count($testoutcome->testresults));
@@ -207,7 +209,7 @@ EOCODE;
         $result = $q->grade_response($response);
         list($mark, $grade, $cache) = $result;
         $this->assertEquals(0, $mark);
-        $this->assertEquals(question_state::$gradedwrong, $grade);
+        $this->assertEquals(\question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testoutcome = unserialize($cache['_testoutcome']);
         $this->assertEquals(1, count($testoutcome->testresults));
@@ -223,7 +225,7 @@ EOCODE;
         $result = $q->grade_response($response);
         list($mark, $grade, $cache) = $result;
         $this->assertEquals(1, $mark);
-        $this->assertEquals(question_state::$gradedright, $grade);
+        $this->assertEquals(\question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testoutcome = unserialize($cache['_testoutcome']);
         $this->assertEquals(2, count($testoutcome->testresults));
@@ -239,28 +241,28 @@ EOCODE;
         $response = array('answer' => $code);
         $result = $q->grade_response($response);
         list($mark, $grade, $cache) = $result;
-        $this->assertEquals(question_state::$gradedpartial, $grade);
+        $this->assertEquals(\question_state::$gradedpartial, $grade);
         $this->assertEquals(0, $mark);
 
         $code = "def sqr(n):\n  return 0";  // Passes first test only.
         $response = array('answer' => $code);
         $result = $q->grade_response($response);
         list($mark, $grade, $cache) = $result;
-        $this->assertEquals(question_state::$gradedpartial, $grade);
+        $this->assertEquals(\question_state::$gradedpartial, $grade);
         $this->assertTrue(abs($mark - 0.5 / 7.5) < 0.00001);
 
         $code = "def sqr(n):\n  return n * n if n <= 0 else -17.995";  // Passes first test and last two only.
         $response = array('answer' => $code);
         $result = $q->grade_response($response);
         list($mark, $grade, $cache) = $result;
-        $this->assertEquals(question_state::$gradedpartial, $grade);
+        $this->assertEquals(\question_state::$gradedpartial, $grade);
         $this->assertTrue(abs($mark - 5.0 / 7.5) < 0.00001);
 
         $code = "def sqr(n):\n    return n * n if n <= 0 else 1 / 0";  // Passes first test then aborts.
         $response = array('answer' => $code);
         $result = $q->grade_response($response);
         list($mark, $grade, $cache) = $result;
-        $this->assertEquals(question_state::$gradedpartial, $grade);
+        $this->assertEquals(\question_state::$gradedpartial, $grade);
         $this->assertTrue(abs($mark - 0.5 / 7.5) < 0.00001);
     }
 
@@ -274,10 +276,10 @@ EOT;
         $response = array('answer' => $slowsquare);  // Should time out.
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(0, $mark);
-        $this->assertEquals(question_state::$gradedwrong, $grade);
+        $this->assertEquals(\question_state::$gradedwrong, $grade);
         $q->cputimelimitsecs = 20;  // This should fix it.
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(1, $mark);
-        $this->assertEquals(question_state::$gradedright, $grade);
+        $this->assertEquals(\question_state::$gradedright, $grade);
     }
 }

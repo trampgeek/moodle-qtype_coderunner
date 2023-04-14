@@ -24,6 +24,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace qtype_coderunner;
+
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
@@ -33,16 +35,16 @@ require_once($CFG->dirroot . '/question/type/coderunner/question.php');
 
 use qtype_coderunner\constants;
 
-class qtype_coderunner_precheckwalkthrough_testcase extends qbehaviour_walkthrough_test_base {
+class precheckwalkthrough_test extends \qbehaviour_walkthrough_test_base {
 
     protected function setUp(): void {
         global $CFG;
         parent::setUp();
-        qtype_coderunner_testcase::setup_test_sandbox_configuration();
+        \qtype_coderunner_testcase::setup_test_sandbox_configuration();
     }
 
     protected function make_precheck_question() {
-                $q = test_question_maker::make_question('coderunner', 'sqr');
+                $q = \test_question_maker::make_question('coderunner', 'sqr');
         $q->testcases = array(
             (object) array('testtype'     => 2, // Both.
                           'testcode'  => 'print(sqr(-11))',

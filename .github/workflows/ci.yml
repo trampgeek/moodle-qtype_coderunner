@@ -9,8 +9,11 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - php: '8.0'
+            moodle-branch: 'master'
+            database: 'pgsql'
           - php: '7.4'
-            moodle-branch: 'MOODLE_400_STABLE'
+            moodle-branch: 'MOODLE_401_STABLE'
             database: 'pgsql'
           - php: '7.3'
             moodle-branch: 'MOODLE_400_STABLE'
@@ -18,7 +21,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres:10
+        image: postgres:13
         env:
           POSTGRES_USER: 'postgres'
           POSTGRES_HOST_AUTH_METHOD: 'trust'
@@ -119,7 +122,7 @@ jobs:
         run: moodle-plugin-ci mustache
 
       - name: Grunt
-        if: ${{ always() }}
+        if: ${{ matrix.moodle-branch == 'MOODLE_400_STABLE' }}
         run: moodle-plugin-ci grunt
 
       - name: PHPUnit tests

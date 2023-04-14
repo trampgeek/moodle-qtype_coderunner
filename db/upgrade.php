@@ -51,7 +51,7 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         }
 
         // Coderunner savepoint reached.
-        upgrade_plugin_savepoint(true, '2016111200', 'qtype', 'coderunner');
+        upgrade_plugin_savepoint(true, 2016111200, 'qtype', 'coderunner');
     }
 
     if ($oldversion < 2016111201) {

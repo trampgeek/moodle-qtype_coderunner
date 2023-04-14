@@ -35,7 +35,7 @@
 
 define('AJAX_SCRIPT', true);
 
-require_once('../../../config.php');
+require_once(__DIR__ . '/../../../config.php');
 require_once($CFG->dirroot . '/question/engine/lib.php');
 require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
 

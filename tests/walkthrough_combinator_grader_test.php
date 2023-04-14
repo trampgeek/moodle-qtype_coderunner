@@ -25,6 +25,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace qtype_coderunner;
+
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
@@ -39,12 +41,12 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
  */
 
 
-class qtype_coderunner_walkthrough_combinator_grader_testcase extends qbehaviour_walkthrough_test_base {
+class walkthrough_combinator_grader_test extends \qbehaviour_walkthrough_test_base {
 
     protected function setUp(): void {
         global $CFG;
         parent::setUp();
-        qtype_coderunner_testcase::setup_test_sandbox_configuration();
+        \qtype_coderunner_testcase::setup_test_sandbox_configuration();
     }
 
     public function test_combinator_template_grading() {
@@ -52,7 +54,7 @@ class qtype_coderunner_walkthrough_combinator_grader_testcase extends qbehaviour
         // Mostly ignore it. This question wants an answer with exactly
         // two occurrences of each of the tokens 'hi' and 'ho' and awards
         // a mark according to how well this criterion is satisfied.
-        $q = test_question_maker::make_question('coderunner', 'sqrnoprint');
+        $q = \test_question_maker::make_question('coderunner', 'sqrnoprint');
         $q->template = <<<EOTEMPLATE
 import json
 answer = """{{ STUDENT_ANSWER | e('py') }}"""
@@ -79,20 +81,20 @@ EOTEMPLATE;
         $this->process_submission(array('-submit' => 1,
             'answer' => "hi di hi and HO DI HO"));
         $this->check_current_mark(1.0);
-        $this->check_current_output( new question_pattern_expectation('|<h2>Well done</h2>|') );
+        $this->check_current_output( new \question_pattern_expectation('|<h2>Well done</h2>|') );
 
         // Submit a partially right  answer.
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
         $this->process_submission(array('-submit' => 1,
             'answer' => "hi di nothi and HO DI NOTHO"));
         $this->check_current_mark(0.5);
-        $this->check_current_output( new question_pattern_expectation('|<h2>Wrong numbers of hi and/or ho</h2>|') );
+        $this->check_current_output( new \question_pattern_expectation('|<h2>Wrong numbers of hi and/or ho</h2>|') );
     }
 
 
     // Test the new template grader testresults, prologuehtml and columnformats fields.
     public function test_combinator_template_grading2() {
-        $q = test_question_maker::make_question('coderunner', 'sqr');
+        $q = \test_question_maker::make_question('coderunner', 'sqr');
         $q->template = <<<EOTEMPLATE
 import json
 {{ STUDENT_ANSWER }}
@@ -144,7 +146,7 @@ EOTEMPLATE;
     // Test that if the combinator output fails to yield the expected number
     // of test case outputs, we get an appropriate error message.
     public function test_bad_combinator_error() {
-        $q = test_question_maker::make_question('coderunner', 'sqr');
+        $q = \test_question_maker::make_question('coderunner', 'sqr');
         $q->template = <<<EOTEMPLATE
 {{ STUDENT_ANSWER }}
 __SEPARATOR__ = "#<ab@17943918#@>#"
@@ -166,7 +168,7 @@ EOTEMPLATE;
     // Test that if the combinator grader outputs bad JSON, we get an
     // appropriate error message
     public function test_bad_json() {
-        $q = test_question_maker::make_question('coderunner', 'sqr');
+        $q = \test_question_maker::make_question('coderunner', 'sqr');
         $q->template = <<<EOTEMPLATE
 import json
 {{ STUDENT_ANSWER }}
@@ -186,7 +188,7 @@ EOTEMPLATE;
     // Test that if the combinator grader output has a missing fraction attribute
     // an error is generated.
     public function test_missing_fraction() {
-        $q = test_question_maker::make_question('coderunner', 'sqr');
+        $q = \test_question_maker::make_question('coderunner', 'sqr');
         $q->template = <<<EOTEMPLATE
 import json
 {{ STUDENT_ANSWER }}
@@ -208,7 +210,7 @@ EOTEMPLATE;
     // Test that if the combinator grader output has a fraction attribute > 1.0
     // an error is generated.
     public function test_bad_fraction() {
-        $q = test_question_maker::make_question('coderunner', 'sqr');
+        $q = \test_question_maker::make_question('coderunner', 'sqr');
         $q->template = <<<EOTEMPLATE
 import json
 {{ STUDENT_ANSWER }}
@@ -232,7 +234,7 @@ EOTEMPLATE;
     // and no fraction, no error is generated, the mark is 1.0 and there is
     // no Passed all tests message.
     public function test_show_output_only() {
-        $q = test_question_maker::make_question('coderunner', 'sqr');
+        $q = \test_question_maker::make_question('coderunner', 'sqr');
         $q->template = <<<EOTEMPLATE
 import json
 {{ STUDENT_ANSWER }}
@@ -257,7 +259,7 @@ EOTEMPLATE;
     // Test that if the combinator grader output has a columnformats with
     // the wrong number of values, an appropriate error is issued.
     public function test_bad_combinator_grader_error() {
-        $q = test_question_maker::make_question('coderunner', 'sqr');
+        $q = \test_question_maker::make_question('coderunner', 'sqr');
         $q->template = <<<EOTEMPLATE
 import json
 {{ STUDENT_ANSWER }}
@@ -291,7 +293,7 @@ EOTEMPLATE;
     // Test that if the combinator output has a misspelled columnformats
     // field, an appropriate error is issued.
     public function test_bad_combinator_grader_error2() {
-        $q = test_question_maker::make_question('coderunner', 'sqr');
+        $q = \test_question_maker::make_question('coderunner', 'sqr');
         $q->template = <<<EOTEMPLATE
 import json
 {{ STUDENT_ANSWER }}
@@ -325,7 +327,7 @@ EOTEMPLATE;
     // Test that if the combinator output has a bad value in the columnformats
     // field, an appropriate error is issued.
     public function test_bad_combinator_grader_error3() {
-        $q = test_question_maker::make_question('coderunner', 'sqr');
+        $q = \test_question_maker::make_question('coderunner', 'sqr');
         $q->template = <<<EOTEMPLATE
 import json
 {{ STUDENT_ANSWER }}
@@ -359,7 +361,7 @@ EOTEMPLATE;
     // a combinator template grader, that value is available to the
     // question author on the next submission of an answer.
     public function test_graderstate_in_stepinfo() {
-        $q = test_question_maker::make_question('coderunner', 'sqr');
+        $q = \test_question_maker::make_question('coderunner', 'sqr');
         $q->template = <<<EOTEMPLATE
 import json
 {{ STUDENT_ANSWER }}

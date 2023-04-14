@@ -509,7 +509,8 @@ public class __tester__ {
     <answerpreload></answerpreload>
     <useace>1</useace>
     <resultcolumns></resultcolumns>
-    <template><![CDATA[{{ STUDENT_ANSWER }}
+    <template><![CDATA[1; % Dummy statement to make a script
+{{ STUDENT_ANSWER }}
 
 format free
 
@@ -531,7 +532,7 @@ disp('#<ab@17943918#@>#');
     <grader>EqualityGrader</grader>
     <cputimelimitsecs>3</cputimelimitsecs>
     <memlimitmb>1000</memlimitmb>
-    <sandboxparams></sandboxparams>
+    <sandboxparams>{"sourcefilename": "prog"}</sandboxparams>
     <templateparams></templateparams>
     <hoisttemplateparams>0</hoisttemplateparams>
     <twigall>0</twigall>

@@ -68,6 +68,8 @@ class behat_coderunner extends behat_base {
      * Step to set a global variable 'behattesting' to true to prevent
      * textarea autoindent, which messes up behat's setting of the textarea
      * value. [See module.js]
+     * Also used to prevent alerts, since Chrome doesn't currently seem
+     * to process "And I dismiss alert" correctly.
      *
      * @When /^I set CodeRunner behat testing flag/
      */

@@ -27,6 +27,8 @@
  */
 
 
+namespace qtype_coderunner;
+
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
@@ -36,16 +38,16 @@ require_once($CFG->dirroot . '/question/type/coderunner/question.php');
 
 define('PRELOAD_TEST', "# TEST COMMENT TO CHECK PRELOAD IS WORKING\n");
 
-class qtype_coderunner_walkthrough_extras_testcase extends qbehaviour_walkthrough_test_base {
+class walkthrough_extras_test extends \qbehaviour_walkthrough_test_base {
 
     protected function setUp(): void {
         global $CFG;
         parent::setUp();
-        qtype_coderunner_testcase::setup_test_sandbox_configuration();
+        \qtype_coderunner_testcase::setup_test_sandbox_configuration();
     }
 
     public function test_extra_testcase_field() {
-        $q = test_question_maker::make_question('coderunner', 'sqr');
+        $q = \test_question_maker::make_question('coderunner', 'sqr');
         $q->testcases = array(
             (object) array('type'     => 0,
                           'testcode'  => 'print("Oops")',
@@ -67,23 +69,23 @@ EOTEMPLATE;
 
         // Submit a right answer.
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
-        $this->check_current_output( new question_pattern_expectation('/' . PRELOAD_TEST . '/') );
+        $this->check_current_output( new \question_pattern_expectation('/' . PRELOAD_TEST . '/') );
         $this->process_submission(array('-submit' => 1, 'answer' => "def sqr(n): return n * n\n"));
         $this->check_current_mark(1.0);
     }
 
     public function test_result_column_selection() {
         // Make sure can relabel result table columns.
-        $q = test_question_maker::make_question('coderunner', 'sqr');
+        $q = \test_question_maker::make_question('coderunner', 'sqr');
         $q->resultcolumns = '[["Blah", "testcode"], ["Thing", "expected"], ["Gottim", "got"]]';
 
         // Submit a right answer.
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
         $this->process_submission(array('-submit' => 1, 'answer' => "def sqr(n): return n * n\n"));
         $this->check_current_mark(1.0);
-        $this->check_current_output( new question_pattern_expectation('/Blah/') );
-        $this->check_current_output( new question_pattern_expectation('/Thing/') );
-        $this->check_current_output( new question_pattern_expectation('/Gottim/') );
+        $this->check_current_output( new \question_pattern_expectation('/Blah/') );
+        $this->check_current_output( new \question_pattern_expectation('/Thing/') );
+        $this->check_current_output( new \question_pattern_expectation('/Gottim/') );
     }
 
     /** Make sure that if the Jobe URL is wrong we get "jobesandbox is down
@@ -98,7 +100,7 @@ EOTEMPLATE;
             $this->markTestSkipped("Sandbox $sandbox unavailable: test skipped");
         }
         set_config('jobe_host', 'localhostxxx', 'qtype_coderunner');  // Broken jobe_host url.
-        $q = test_question_maker::make_question('coderunner', 'sqr');
+        $q = \test_question_maker::make_question('coderunner', 'sqr');
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
         $this->process_submission(array('-submit' => 1, 'answer' => "def sqr(n): return n * n\n"));
     }
@@ -108,7 +110,7 @@ EOTEMPLATE;
      *  cases when allowmutliplestdins is true.
      */
     public function test_multiplestdins() {
-        $q = test_question_maker::make_question('coderunner', 'sqr');
+        $q = \test_question_maker::make_question('coderunner', 'sqr');
         $q->testcases[0]->stdin = 'A bit of standard input to trigger one-at-a-time mode';
         $q->showsource = true;
 

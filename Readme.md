@@ -1,6 +1,6 @@
 # CodeRunner
 
-Version: 5.0.0 22 August 2022. Requires **MOODLE V4.0 or later**. Earlier versions
+Version: 5.1.1 9 November 2022. Requires **MOODLE V4.0 or later**. Earlier versions
 of Moodle must use CodeRunner V4.
 
 
@@ -1327,21 +1327,34 @@ Then Twig can simply select a specific variant from a set of variants as shown
 in the section [Miscellaneous tips](#miscellaneous-tips).
 
 An alternative approach is to compute the
-template parameters in the same language as that of the question, e.g. Python,
-Java etc. This can be done by setting the template parameter Preprocessor
-to your language of choice and writing a program in that language in the
-template parameters field. This is a powerful and still somewhat experimental method.
-Furthermore it suffers from a potentially major disadvantage. The evaluation
-of the template parameters takes place on the sandbox server, and when a student
+template parameters in an alternative language of your choice - one that is supported
+by the sandbox (Jobe) server, e.g. Python
+Java etc. You set the template parameter Preprocessor language
+to your chosen language and fill the template parameters field with a program
+in that language. The standard output from that program must be a JSON string
+containing all the required template parameters. This is a very powerful method and makes
+complex randomisation much easier than in Twig.
+
+However, using a template preprocessor other than Twig suffers from one major disadvantage.
+The evaluation of the template parameters takes place on the sandbox server, and when a student
 starts a quiz, all their questions using this form of randomisation initiate a run
 on the sandbox server and cannot even be displayed until the run completes. If
 you are running a large test or exam, and students all start at the same time,
 there can be thousands of jobs hitting the sandbox server within a few seconds.
-This is almost certain to overload it! Caveat emptor! The approach should,
-however, be safe for lab and assignment use, when students are not all
-starting the quiz at the same time.
+This is almost certain to overload it! Caveat emptor!
 
-If you still wish to use this approach , here's how to do it.
+Using a template preprocessor other than Twig should be safe for lab and assignment use,
+when students are not all starting the quiz at the same time. We have also used
+it cautiously in exams
+at the University of Canterbury with courses of a few hundred students, but have
+been careful to ensure that not too many questions in the exam use this
+randomisation method. We have also mitigated the sandbox server overload risk by spreading
+the exam start times for students over several minutes. Lastly, we have two
+separate 8-core sandbox (Jobe) servers to give us a high throughput. Multiple
+Jobe servers are supported by listing them all, separated by a semicolon, in
+the CodeRunner settings Jobe server URL field.
+
+If, despite the above warnings, you still wish to use this approach, here's how.
 
 #### The template parameter preprocessor program
 
@@ -1383,9 +1396,15 @@ The question text could then say
 Write a function {{ func_name }}() that prints a welcome message of the
 form "Hello {{ first_name }}!".
 
-However, please realise that that is an extremely bad example of when to use
+Note that this simple example is chosen only to illustrate
+the technique. It is a very bad example of *when* to use
 a preprocessor, as the job is more easily and more efficiently done in Twig,
 as explained in the section [Randomising questions](#randomising-questions).
+Use of a non-Twig preprocessor is best suited to complex randomisation that is
+difficult or impossible in Twig, or when you need to use the same language
+as that of the question itself to ensure that the evaluation of any
+expression is exactly correct.
+
 Note, too, that *Twig All* must be set.
 
 #### The Evaluate per run option
@@ -2436,7 +2455,7 @@ not recommended.
 
 ### The Ace Gap Filler UI
 
-This is a new and still experimental variant on the Gap Filler UI in which
+This is a variant on the Gap Filler UI in which
 the text is rendered by the Ace editor with all usual syntax highlighting
 but the user can edit only the text in the gaps.
 
@@ -2810,8 +2829,6 @@ first of the allowed languages otherwise.
 
 ## The 'qtype_coderunner_run_in_sandbox' web service
 
-Note: This feature is experimental and may change in the future.
-
 CodeRunner provides an Ajax-accessible web service that allows JavaScript code
 to directly run jobs on the Jobe server. (More precisely, it runs jobs
 on whatever sandbox has been configured for the specified language, but
@@ -2972,7 +2989,7 @@ The three scripts are:
     usage within that category.
 
  1. &lt;moodle_home&gt;/question/type/coderunner/downloadquizattempts.php
-    This script, which is still experimental,
+    This script
     displays a list of all quizzes available to the logged in user,
     allowing them to download a spreadsheet of all submissions to a selected quiz
     by all students. The downloaded spreadsheet is suitable for off-line analysis,
@@ -2980,9 +2997,7 @@ The three scripts are:
     file, such as all intermediate submisssions and prechecks and the time of
     each such action.
 
-    The download can be in either csv or excel format; the
-    latter is recommended for most cases because a long-standing bug in PHP's
-    `fputcsv` function can cause corrupted csv output files. The exported
+    The download can be in either csv or excel format. The exported
     Excel spreadsheet can then be opened in Excel or Open Office and saved as
     csv.
 
@@ -3053,6 +3068,11 @@ The three scripts are:
     Lots of other information, such as the student's name, all intermediate
     submissions and prechecks and their times etc is available.
     See `quizsubmissions.py` for  more information.
+
+    **Note** the script requires large amounts of memory and you may find it
+    fails with large classes. Increasing the *memory_limit* setting in *php.ini*
+    may solve the problem if you have administrative rights on the server to
+    change this.
 
 
 ## A note on accessibility

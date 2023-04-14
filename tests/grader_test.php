@@ -28,6 +28,8 @@
  */
 
 
+namespace qtype_coderunner;
+
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
@@ -36,7 +38,7 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 /**
  * Unit tests for the RegexGrader class.
  */
-class qtype_coderunner_grader_testcase extends qtype_coderunner_testcase {
+class grader_test extends \qtype_coderunner_testcase {
 
     public function test_regex_grader() {
         // Check using a question that reads stdin and writes to stdout.
@@ -65,7 +67,7 @@ EOCODE;
         list($mark, $grade, $cache) = $result;
         $testoutcome = unserialize($cache['_testoutcome']); // For debugging test.
         $this->assertEquals(1, $mark);
-        $this->assertEquals(question_state::$gradedright, $grade);
+        $this->assertEquals(\question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
 
     }
@@ -97,7 +99,7 @@ EOCODE;
         list($mark, $grade, $cache) = $result;
         $testoutcome = unserialize($cache['_testoutcome']); // For debugging test.
         $this->assertEquals(1, $mark);
-        $this->assertEquals(question_state::$gradedright, $grade);
+        $this->assertEquals(\question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
     }
 
@@ -128,7 +130,7 @@ EOCODE;
         list($mark, $grade, $cache) = $result;
         $testoutcome = unserialize($cache['_testoutcome']); // For debugging test.
         $this->assertEquals(0, $mark);
-        $this->assertEquals(question_state::$gradedwrong, $grade);
+        $this->assertEquals(\question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
     }
 }

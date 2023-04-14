@@ -25,19 +25,21 @@
  */
 
 
+namespace qtype_coderunner;
+
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 
-class qtype_coderunner_customise_testcase extends qtype_coderunner_testcase {
+class customise_test extends \qtype_coderunner_testcase {
 
     public function test_grade_response_right() {
         $q = $this->make_question('sqr_customised');
         $response = array('answer' => 'def sqr(n): return times(n, n)');
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(1, $mark);
-        $this->assertEquals(question_state::$gradedright, $grade);
+        $this->assertEquals(\question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testoutcome = unserialize($cache['_testoutcome']);
         $this->assertFalse($testoutcome->has_syntax_error());

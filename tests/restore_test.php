@@ -24,6 +24,8 @@
  */
 
 
+namespace qtype_coderunner;
+
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
@@ -37,7 +39,7 @@ require_once($CFG->dirroot . '/backup/util/includes/restore_includes.php');
  * @copyright  2016 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class qtype_coderunner_restore_testcase extends advanced_testcase {
+class restore_test extends \advanced_testcase {
     /**
      * @var stdClass generated question category to restore into.
      */
@@ -69,11 +71,11 @@ class qtype_coderunner_restore_testcase extends advanced_testcase {
         $fb->extract_to_pathname($backupfile, $folderpath);
 
         // Restore one of the example backups.
-        $newcourseid = restore_dbops::create_new_course(
+        $newcourseid = \restore_dbops::create_new_course(
                 'Restore test', 'RT100', $this->category->id);
-        $rc = new restore_controller($folder, $newcourseid,
-                backup::INTERACTIVE_NO, backup::MODE_GENERAL, $USER->id,
-                backup::TARGET_NEW_COURSE);
+        $rc = new \restore_controller($folder, $newcourseid,
+                \backup::INTERACTIVE_NO, \backup::MODE_GENERAL, $USER->id,
+                \backup::TARGET_NEW_COURSE);
         $this->assertTrue($rc->execute_precheck());
         $rc->execute_plan();
         $rc->destroy();

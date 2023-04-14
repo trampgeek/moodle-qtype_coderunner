@@ -963,7 +963,7 @@ end
 {{STUDENT_ANSWER}}
 EOT;
         if ($qtype === 'octave_function') {
-            $options['template'] .= "\n\ntester()\n";
+            $options['template'] = "1; % Dummy to make a script\n" . $options['template'] . "\ntester()\n";
         }
         $options['iscombinatortemplate'] = false;
 

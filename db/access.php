@@ -23,6 +23,8 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+defined('MOODLE_INTERNAL') || die();
+
 $capabilities = [
     // When reviewing questions, whether the hidden testcases are shown. Intended for teacher-like roles.
     'qtype/coderunner:viewhiddentestcases' => [
