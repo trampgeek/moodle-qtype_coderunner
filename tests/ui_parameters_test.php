@@ -25,6 +25,8 @@
  */
 
 
+namespace qtype_coderunner;
+
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
@@ -33,11 +35,11 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 /**
  * Unit tests for UI parameters
  */
-class qtype_coderunner_ui_parameters_testcase extends qtype_coderunner_testcase {
+class ui_parameters_test extends \qtype_coderunner_testcase {
 
     // Test that the json specifier for the graph_ui class can be loaded.
     public function test_params() {
-        $graphuiparams = new qtype_coderunner_ui_parameters('graph');
+        $graphuiparams = new \qtype_coderunner_ui_parameters('graph');
         $this->assertEquals("boolean", $graphuiparams->type('isdirected'));
         $this->assertEquals(true, $graphuiparams->value('isdirected'));
         $this->assertEquals("int", $graphuiparams->type('noderadius'));
@@ -48,13 +50,13 @@ class qtype_coderunner_ui_parameters_testcase extends qtype_coderunner_testcase 
         $paramsarray = json_decode($json, true);
         $this->assertContains('noderadius', array_keys($paramsarray));
         $this->assertEquals(30, $paramsarray['noderadius']);
-        $aceparams = new qtype_coderunner_ui_parameters('ace');
+        $aceparams = new \qtype_coderunner_ui_parameters('ace');
         $this->assertEmpty($aceparams->all_names());
     }
 
     // Test that we can get a list of all plugins and their parameter lists.
     public function test_plugin_list() {
-        $plugins = qtype_coderunner_ui_plugins::get_instance();
+        $plugins = \qtype_coderunner_ui_plugins::get_instance();
         $names = $plugins->all_names();
         $this->assertContains('ace', $names);
         $this->assertContains('graph', $names);
@@ -67,7 +69,7 @@ class qtype_coderunner_ui_parameters_testcase extends qtype_coderunner_testcase 
 
     // Test the dropdown list for the plugins.
     public function test_dropdown() {
-        $plugins = qtype_coderunner_ui_plugins::get_instance();
+        $plugins = \qtype_coderunner_ui_plugins::get_instance();
         $dropdowns = $plugins->dropdownlist();
         $this->assertEquals('None', $dropdowns['none']);
         $this->assertEquals('Graph', $dropdowns['graph']);

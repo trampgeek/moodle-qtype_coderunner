@@ -25,6 +25,8 @@
  */
 
 
+namespace qtype_coderunner;
+
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
@@ -33,7 +35,7 @@ require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
 require_once($CFG->dirroot . '/question/format/xml/format.php');
 require_once($CFG->dirroot . '/question/engine/tests/helpers.php');
 
-class qtype_coderunner_prototype_testcase extends qtype_coderunner_testcase {
+class prototype_test extends \qtype_coderunner_testcase {
     protected function setUp(): void {
         parent::setUp();
         $this->resetAfterTest(true);
@@ -96,7 +98,7 @@ EOTEMPLATE;
     public function test_export() {
         $q = $this->make_parent_and_child();
         $q->qtype = $q->qtype->name(); // TODO: Why does qformat_xml expect this field to be a string?!
-        $exporter = new qformat_xml();
+        $exporter = new \qformat_xml();
         $xml = $exporter->writequestion($q);
         $bits = preg_split("/<!-- question: [0-9]*  -->/", $xml);
         $xmlnoline1 = $bits[1];
@@ -233,16 +235,16 @@ Line 2</text>
 
         // Save the prototype to the DB so it has an accessible context for
         // retrieving associated files.
-        question_bank::load_question_definition_classes('coderunner');
-        $row = new qtype_coderunner_question();
-        test_question_maker::initialise_a_question($row);
+        \question_bank::load_question_definition_classes('coderunner');
+        $row = new \qtype_coderunner_question();
+        \test_question_maker::initialise_a_question($row);
         $catrow = $DB->get_record_select(  // Find the question category for system context (1).
                    'question_categories',
                    "contextid=1 limit 1");
         $q->category = $catrow->id;
         $row->qtype = 'coderunner';
 
-        $qtype = new qtype_coderunner();
+        $qtype = new \qtype_coderunner();
         $qtype->save_question($row, $q);
 
         if ($fileattachmentreqd) {

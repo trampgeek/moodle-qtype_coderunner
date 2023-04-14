@@ -24,6 +24,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace qtype_coderunner;
+
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
@@ -34,11 +36,11 @@ require_once($CFG->dirroot . '/question/type/coderunner/classes/twigmacros.php')
 /**
  * Unit tests for the coderunner question definition class.
  */
-class qtype_coderunner_template_testcase extends qtype_coderunner_testcase {
+class template_test extends \qtype_coderunner_testcase {
 
     public function test_template_engine() {
         // Check if the template engine is installed and working OK.
-        $macros = qtype_coderunner_twigmacros::macros();
+        $macros = \qtype_coderunner_twigmacros::macros();
         $twigloader = new \Twig\Loader\ArrayLoader($macros);
         $twigoptions = array(
                 'cache' => false,
@@ -81,7 +83,7 @@ EOTEMPLATE;
         $response = array('answer' => $code);
         $result = $q->grade_response($response);
         list($mark, $grade, $cache) = $result;
-        $this->assertEquals(question_state::$gradedright, $grade);
+        $this->assertEquals(\question_state::$gradedright, $grade);
     }
 
     public function test_grading_template() {
@@ -149,6 +151,6 @@ EOTEMPLATE;
         $response = array('answer' => $code);
         $result = $q->grade_response($response);
         list($mark, $grade, $cache) = $result;
-        $this->assertEquals(question_state::$gradedright, $grade);
+        $this->assertEquals(\question_state::$gradedright, $grade);
     }
 }

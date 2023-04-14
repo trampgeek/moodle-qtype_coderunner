@@ -26,6 +26,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace qtype_coderunner;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -35,14 +36,14 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 /**
  * Unit tests for coderunner Java questions
  */
-class qtype_coderunner_java_question_testcase extends qtype_coderunner_testcase {
+class java_question_test extends \qtype_coderunner_testcase {
 
     public function test_good_sqr_function() {
         $q = $this->make_question('sqrjava');
         $response = array('answer' => "int sqr(int n) { return n * n; }\n");
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(1, $mark);
-        $this->assertEquals(question_state::$gradedright, $grade);
+        $this->assertEquals(\question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testoutcome = unserialize($cache['_testoutcome']);
         $this->assertEquals(4, count($testoutcome->testresults));
@@ -55,7 +56,7 @@ class qtype_coderunner_java_question_testcase extends qtype_coderunner_testcase 
         $response = array('answer' => "int sqr(int n) { return n; }\n");
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(0, $mark);
-        $this->assertEquals(question_state::$gradedwrong, $grade);
+        $this->assertEquals(\question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testoutcome = unserialize($cache['_testoutcome']);
         $this->assertEquals(4, count($testoutcome->testresults));
@@ -68,7 +69,7 @@ class qtype_coderunner_java_question_testcase extends qtype_coderunner_testcase 
         $response = array('answer' => "int sqr(n) { return n * n; }\n");
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(0, $mark);
-        $this->assertEquals(question_state::$gradedwrong, $grade);
+        $this->assertEquals(\question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testoutcome = unserialize($cache['_testoutcome']);
         $this->assertTrue($testoutcome->has_syntax_error());
@@ -94,7 +95,7 @@ EOCODE
         );
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(1, $mark);
-        $this->assertEquals(question_state::$gradedright, $grade);
+        $this->assertEquals(\question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testoutcome = unserialize($cache['_testoutcome']);
         $this->assertEquals(2, count($testoutcome->testresults));
@@ -120,7 +121,7 @@ EOCODE
         );
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(1, $mark);
-        $this->assertEquals(question_state::$gradedright, $grade);
+        $this->assertEquals(\question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testoutcome = unserialize($cache['_testoutcome']);
         $this->assertEquals(2, count($testoutcome->testresults));
@@ -146,7 +147,7 @@ EOCODE
         );
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(1, $mark);
-        $this->assertEquals(question_state::$gradedright, $grade);
+        $this->assertEquals(\question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testoutcome = unserialize($cache['_testoutcome']);
         $this->assertEquals(2, count($testoutcome->testresults));
@@ -162,4 +163,3 @@ EOCODE
         $this->assertEquals(1, $mark);
     }
 }
-

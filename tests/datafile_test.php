@@ -24,13 +24,15 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace qtype_coderunner;
+
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 
 
-class qtype_coderunner_datafile_testcase extends qtype_coderunner_testcase {
+class datafile_test extends \qtype_coderunner_testcase {
 
     // Test loading of files in the jobe sandbox.
     public function test_datafile_jobesandbox() {
@@ -63,7 +65,7 @@ class qtype_coderunner_datafile_testcase extends qtype_coderunner_testcase {
         $response = array('answer' => $code);
         $result = $q->grade_response($response);
         list($mark, $grade, $cache) = $result;
-        $this->assertEquals(question_state::$gradedright, $grade);
+        $this->assertEquals(\question_state::$gradedright, $grade);
 
         // Clean up by deleting the file again.
         $file = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'],

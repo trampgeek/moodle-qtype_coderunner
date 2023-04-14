@@ -25,27 +25,29 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace qtype_coderunner;
+
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
 
-class qtype_coderunner_graphui_save_testcase extends qtype_coderunner_testcase {
+class graphui_save_test extends \qtype_coderunner_testcase {
 
     protected $qtype;
 
     protected function setUp(): void {
         $this->resetAfterTest(true);
-        $this->qtype = new qtype_coderunner();
+        $this->qtype = new \qtype_coderunner();
     }
 
     public function test_question_saving_graph_ui() {
         $this->setAdminUser();
 
-        $questiondata = test_question_maker::get_question_data('coderunner');
+        $questiondata = \test_question_maker::get_question_data('coderunner');
         $questiondata->options->uiplugin = 'graph';
-        $formdata = test_question_maker::get_question_form_data('coderunner');
+        $formdata = \test_question_maker::get_question_form_data('coderunner');
         $formdata->uiplugin = 'graph';
 
         $generator = $this->getDataGenerator()->get_plugin_generator('core_question');
@@ -53,9 +55,9 @@ class qtype_coderunner_graphui_save_testcase extends qtype_coderunner_testcase {
 
         // Mock submit a form with form data.
         $formdata->category = "{$cat->id},{$cat->contextid}";
-        qtype_coderunner_edit_form::mock_submit((array)$formdata);
+        \qtype_coderunner_edit_form::mock_submit((array)$formdata);
 
-        $form = qtype_coderunner_test_helper::get_question_editing_form($cat, $questiondata);
+        $form = \qtype_coderunner_test_helper::get_question_editing_form($cat, $questiondata);
         $this->assertTrue($form->is_validated());
 
         $fromform = $form->get_data();
