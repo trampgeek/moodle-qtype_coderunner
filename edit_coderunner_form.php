@@ -1192,7 +1192,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 if ($mark != '') {
                     if (!is_numeric($mark)) {
                         $errors["testcode[$i]"] = get_string('nonnumericmark', 'qtype_coderunner');
-                    } else if (floatval($mark) <= 0) {
+                    } else if (floatval($mark) < 0) {
                         $errors["testcode[$i]"] = get_string('negativeorzeromark', 'qtype_coderunner');
                     }
                 }
