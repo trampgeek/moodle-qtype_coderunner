@@ -106,8 +106,9 @@ const fillWrapper = (answerCode, testCode, prefixAns, template, open = '\\(', cl
     const escClose = escapeRegExp(close);
     const answerRegex = new RegExp(`${escOpen}\\s*ANSWER_CODE\\s*${escClose}`, 'g');
     const scratchpadRegex = new RegExp(`${escOpen}\\s*SCRATCHPAD_CODE\\s*${escClose}`, 'g');
-    template = template.replaceAll(answerRegex, answerCode);
-    template = template.replaceAll(scratchpadRegex, testCode);
+    // Use arrow functions in replace operations to avoid special-case treatment of $.
+    template = template.replaceAll(answerRegex, () => answerCode);
+    template = template.replaceAll(scratchpadRegex, () => testCode);
     return template;
 };
 
