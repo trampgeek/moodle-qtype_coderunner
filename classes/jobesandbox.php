@@ -135,6 +135,9 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
 
     public function execute($sourcecode, $language, $input, $files=null, $params=null) {
         $language = strtolower($language);
+        if (is_null($input)) {
+            $input = '';
+        }
         if ($input !== '' && substr($input, -1) != "\n") {
             $input .= "\n";  // Force newline on the end if necessary.
         }

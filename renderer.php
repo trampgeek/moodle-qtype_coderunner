@@ -508,7 +508,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
         }
         $fieldname = $qa->get_qt_field_name('sampleanswer');
         $currentlanguage = $question->acelang ? $question->acelang : $question->language;
-        if (strpos($question->acelang, ',') !== false) {
+        if (strpos($question->acelang ?? '', ',') !== false) {
             // Case of a multilanguage question sample answer. Find the language,
             // which is specified by the template parameter answer_language if
             // given, or the default (starred) language in the language list
