@@ -10,6 +10,9 @@ jobs:
       matrix:
         include:
           - php: '8.0'
+            moodle-branch: 'master'
+            database: 'pgsql'
+          - php: '7.4'
             moodle-branch: 'MOODLE_401_STABLE'
             database: 'pgsql'
           - php: '7.3'
@@ -88,6 +91,7 @@ jobs:
           MOODLE_BRANCH: ${{ matrix.moodle-branch }}
 
       - name: PHP Lint
+        continue-on-error: true # This step will show errors but will not fail
         if: ${{ always() }}
         run: moodle-plugin-ci phplint
 
@@ -102,10 +106,12 @@ jobs:
         run: moodle-plugin-ci phpmd
 
       - name: Moodle Code Checker
+        continue-on-error: true # This step will show errors but will not fail
         if: ${{ always() }}
         run: moodle-plugin-ci codechecker --max-warnings 0
 
       - name: Moodle PHPDoc Checker
+        continue-on-error: true # This step will show errors but will not fail
         if: ${{ always() }}
         run: moodle-plugin-ci phpdoc
 

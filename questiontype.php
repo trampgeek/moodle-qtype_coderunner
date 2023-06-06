@@ -343,7 +343,7 @@ class qtype_coderunner extends question_type {
             }
         }
 
-        if (trim($question->sandbox) === 'DEFAULT') {
+        if (trim($question->sandbox ?? '') === 'DEFAULT') {
             $question->sandbox = null;
         }
 

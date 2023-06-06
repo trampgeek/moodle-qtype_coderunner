@@ -538,7 +538,7 @@ f_tk2.close()
 {{ STUDENT_ANSWER }}
 
 from tkinter import *
-{{ TEST.stdin }}]]></template>
+{{ TEST.extra }}]]></template>
     <iscombinatortemplate>0</iscombinatortemplate>
     <allowmultiplestdins></allowmultiplestdins>
     <answer></answer>
@@ -555,7 +555,7 @@ from tkinter import *
     <hoisttemplateparams>0</hoisttemplateparams>
     <extractcodefromjson>1</extractcodefromjson>
     <twigall>0</twigall>
-    <uiplugin></uiplugin>
+    <uiplugin>ace</uiplugin>
     <testcases>
     </testcases>
   </question>
