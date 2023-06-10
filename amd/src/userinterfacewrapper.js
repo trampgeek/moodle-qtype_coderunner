@@ -90,7 +90,7 @@
  *    calls to the sync() method. 0 for no sync calls. The userinterfacewrapper
  *    provides all instances with a generic (base-class) version that returns
  *    the value of a UI parameter sync_interval_secs if given else uses the
- *    UI interface wrapper default (currently 10).
+ *    UI interface wrapper default (currently 5).
  *
  * The return value from the module define is a record with a single field
  * 'Constructor' that references the constructor (e.g. Graph, AceWrapper etc)
