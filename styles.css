@@ -270,7 +270,7 @@ body#page-question-type-coderunner pre.templateparamserror {
 }
 
 body#page-question-type-coderunner .qtype_coderunner_prototype_message {
-    color: #ca3120;
+    color: #7e7f7f;
 }
 
 body#page-question-type-coderunner div#id_qtype_coderunner_error_div:empty,
