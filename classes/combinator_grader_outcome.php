@@ -193,14 +193,20 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
     }
 
     public function get_epilogue() {
+        if (empty($this->instructorhtml)) {
+            $this->instructorhtml = ''
+        }
+        if (empty($this->epiloguehtml)) {
+            $this->epiloguehtml = ''
+        }
         if (self::can_view_hidden()) {
-            return empty($this->epiloguehtml) ? $this->instructorhtml.'' : $this->instructorhtml.$this->epiloguehtml;
+            return $this->instructorhtml.$this->epiloguehtml;
         }
         else {
-            return empty($this->epiloguehtml) ? '' : $this->epiloguehtml;
+            return $this->epiloguehtml;
         }
     }
-    
+
     public function show_differences() {
         return $this->actualmark != 1.0 && isset($this->showdifferences) &&
                $this->showdifferences &&  isset($this->testresults);
