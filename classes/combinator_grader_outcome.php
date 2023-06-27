@@ -29,7 +29,7 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
     // A list of the allowed attributes in the combinator template grader return value.
     public $allowedfields = array('fraction', 'prologuehtml', 'testresults', 'epiloguehtml',
                     'feedbackhtml', 'columnformats', 'showdifferences',
-                    'showoutputonly', 'graderstate'
+                    'showoutputonly', 'graderstate', 'instructorhtml'
     );
 
     public function __construct($isprecheck) {
@@ -40,6 +40,7 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
         $this->testresults = null;
         $this->columnformats = null;
         $this->outputonly = false;
+        $this->instructorhtml = null;
     }
 
 
@@ -192,7 +193,18 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
     }
 
     public function get_epilogue() {
-        return empty($this->epiloguehtml) ? '' : $this->epiloguehtml;
+        if (empty($this->instructorhtml)) {
+            $this->instructorhtml = ''
+        }
+        if (empty($this->epiloguehtml)) {
+            $this->epiloguehtml = ''
+        }
+        if (self::can_view_hidden()) {
+            return $this->instructorhtml.$this->epiloguehtml;
+        }
+        else {
+            return $this->epiloguehtml;
+        }
     }
 
     public function show_differences() {
