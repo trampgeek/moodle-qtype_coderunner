@@ -194,10 +194,10 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
 
     public function get_epilogue() {
         if (empty($this->instructorhtml)) {
-            $this->instructorhtml = ''
+            $this->instructorhtml = '';
         }
         if (empty($this->epiloguehtml)) {
-            $this->epiloguehtml = ''
+            $this->epiloguehtml = '';
         }
         if (self::can_view_hidden()) {
             return $this->instructorhtml.$this->epiloguehtml;
