@@ -358,7 +358,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
             $fb .= html_writer::table($table);
 
         }
-        $fb .= empty($outcome->epiloguehtml) ? '' : $outcome->epiloguehtml;
+        $fb .= $outcome->get_epilogue();
 
         // Issue a bright yellow warning if using jobe2, except when running behat.
         $sandboxinfo = $outcome->get_sandbox_info();
