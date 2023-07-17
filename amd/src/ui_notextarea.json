@@ -1,0 +1,9 @@
+{
+    "name": "ui_notextarea",
+    "parameters": {
+        "submitBtnText": {
+            "type": "string",
+            "default": "Проверить"
+        }
+    }
+}
