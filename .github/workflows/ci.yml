@@ -10,7 +10,7 @@ jobs:
       matrix:
         include:
           - php: '8.0'
-            moodle-branch: 'master'
+            moodle-branch: 'MOODLE_402_STABLE'
             database: 'pgsql'
           - php: '7.4'
             moodle-branch: 'MOODLE_401_STABLE'
