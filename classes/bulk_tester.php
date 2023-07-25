@@ -256,7 +256,7 @@ class qtype_coderunner_bulk_tester {
     private function load_and_test_question($questionid) {
         try {
             $question = question_bank::load_question($questionid);
-            if (empty(trim($question->answer))) {
+            if (empty(trim($question->answer ?? ''))) {
                 $message = get_string('nosampleanswer', 'qtype_coderunner');
                 $status = self::MISSINGANSWER;
             } else {
