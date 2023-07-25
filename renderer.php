@@ -671,13 +671,13 @@ class qtype_coderunner_renderer extends qtype_renderer {
         $numtests = 0;
         $numextras = 0;
         foreach ($tests as $test) {
-            if (trim($test->stdin) !== '') {
+            if (trim($test->stdin ?? '') !== '') {
                 $numstds++;
             }
-            if (trim($test->testcode) !== '') {
+            if (trim($test->testcode ?? '') !== '') {
                 $numtests++;
             }
-            if (trim($test->extra) !== '') {
+            if (trim($test->extra ?? '') !== '') {
                 $numextras++;
             }
         }
@@ -717,7 +717,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
     private function column_format($field, $resultcolumns) {
         foreach ($resultcolumns as $columnspecifier) {
             if (count($columnspecifier) > 2 && $columnspecifier[1] === $field) {
-                return trim($columnspecifier[2]);
+                return trim($columnspecifier[2] ?? '');
             }
         }
         return '%s';

@@ -693,7 +693,7 @@ class qtype_coderunner_question extends question_graded_automatically {
      * @param string $text Text to be twig expanded.
      */
     public function twig_expand($text, $context=array()) {
-        if (empty(trim($text))) {
+        if (empty(trim($text ?? ''))) {
             return $text;
         } else {
             $context['QUESTION'] = $this->sanitised_clone_of_this();

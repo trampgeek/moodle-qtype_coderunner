@@ -50,7 +50,7 @@ class qtype_coderunner_regex_grader extends qtype_coderunner_grader {
      *  etc).
      */
     public function grade_known_good(&$output, &$testcase) {
-        $regex = '/' . str_replace('/', '\/', rtrim($testcase->expected)) . '/ms';
+        $regex = '/' . str_replace('/', '\/', rtrim($testcase->expected ?? '')) . '/ms';
         $iscorrect = preg_match($regex, $output);
         $awardedmark = $iscorrect ? $testcase->mark : 0.0;
         return new qtype_coderunner_test_result($testcase, $iscorrect, $awardedmark, $output);

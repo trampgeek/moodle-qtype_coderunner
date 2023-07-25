@@ -869,7 +869,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         if ($data['prototypetype'] == 2 && ($data['saved_prototype_type'] != 2 ||
                    $data['typename'] != $data['coderunnertype'])) {
             // User-defined prototype, either newly created or undergoing a name change.
-            $typename = trim($data['typename']);
+            $typename = trim($data['typename'] ?? '');
             if ($typename === '') {
                 $errors['prototypecontrols'] = get_string('empty_new_prototype_name', 'qtype_coderunner');
             } else if (!$this->is_valid_new_type($typename)) {
@@ -882,7 +882,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
              $errors['markinggroup'] = $penaltyregimeerror;
         }
 
-        $resultcolumnsjson = trim($data['resultcolumns']);
+        $resultcolumnsjson = trim($data['resultcolumns'] ?? '');
         if ($resultcolumnsjson !== '') {
             $resultcolumns = json_decode($resultcolumnsjson);
             if ($resultcolumns === null) {
@@ -924,7 +924,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
             }
         }
 
-        $acelangs = trim($data['acelang']);
+        $acelangs = trim($data['acelang'] ?? '');
         if ($acelangs !== '' && strpos($acelangs, ',') !== false) {
             $parsedlangs = qtype_coderunner_util::extract_languages($acelangs);
             if ($parsedlangs === false) {
@@ -1052,7 +1052,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         // Check the penalty regime and return an error string or an empty string if OK.
         $errorstring = '';
         $expectedpr = '/[0-9]+(\.[0-9]*)?%?([, ] *[0-9]+(\.[0-9]*)?%?)*([, ] *...)?/';
-        $penaltyregime = trim($data['penaltyregime']);
+        $penaltyregime = trim($data['penaltyregime'] ?? '');
         if ($penaltyregime == '') {
             $errorstring = get_string('emptypenaltyregime', 'qtype_coderunner');
         } else if (!preg_match($expectedpr, $penaltyregime)) {
@@ -1143,15 +1143,15 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $numnonemptytests = 0;
         $num = max(count($testcodes), count($stdins), count($expecteds));
         for ($i = 0; $i < $num; $i++) {
-            $testcode = trim($testcodes[$i]);
+            $testcode = trim($testcodes[$i] ?? '');
             if ($testcode != '') {
                 $numnonemptytests++;
             }
-            $stdin = trim($stdins[$i]);
-            $expected = trim($expecteds[$i]);
+            $stdin = trim($stdins[$i] ?? '');
+            $expected = trim($expecteds[$i] ?? '');
             if ($testcode !== '' || $stdin != '' || $expected !== '') {
                 $count++;
-                $mark = trim($marks[$i]);
+                $mark = trim($marks[$i] ?? '');
                 if ($mark != '') {
                     if (!is_numeric($mark)) {
                         $errors["testcode[$i]"] = get_string('nonnumericmark', 'qtype_coderunner');
@@ -1179,14 +1179,14 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $attachmentssaver = $this->get_sample_answer_file_saver();
         $files = $attachmentssaver ? $attachmentssaver->get_files() : array();
         $answer = $this->formquestion->answer;
-        if (trim($answer) === '' && count($files) == 0) {
+        if (trim($answer ?? '') === '' && count($files) == 0) {
             return ''; // Empty answer and no attachments.
         }
         // Check if it's a multilanguage question; if so need to determine
         // what language to use. If there is a specific answer_language template
         // parameter, that is used. Otherwise the default language (if specified)
         // or the first in the list is used.
-        $acelang = trim($this->formquestion->acelang);
+        $acelang = trim($this->formquestion->acelang ?? '');
         if ($acelang !== '' && strpos($acelang, ',') !== false) {
             if (empty($this->formquestion->parameters['answer_language'])) {
                 list($languages, $answerlang) = qtype_coderunner_util::extract_languages($acelang);
