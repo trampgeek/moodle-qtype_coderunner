@@ -75,7 +75,7 @@ class qtype_coderunner_ideonesandbox extends qtype_coderunner_sandbox {
         if ($this->langserror == self::OK) {
             foreach ($response['languages'] as $id => $lang) {
                 $endofname = strpos($lang, ' (');
-                $shortlangname = strtolower(trim(substr($lang, 0, $endofname)));
+                $shortlangname = strtolower(trim(substr($lang ?? '', 0, $endofname)));
                 if (empty($this->langmap[$shortlangname])) {
                     $this->langmap[$shortlangname] = $id;
                 }

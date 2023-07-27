@@ -119,14 +119,14 @@ class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
 
             // Convert pre-version 3.1 fields to post 3.1.
             if (isset($data->pertesttemplate) &&
-                    trim($data->pertesttemplate) != '' &&
+                    trim($data->pertesttemplate ?? '') != '' &&
                     empty($data->enablecombinator) &&
                     $data->grader != 'CombinatorTemplateGrader') {
                 $data->template = $data->pertesttemplate;
                 $data->iscombinatortemplate = 0;
             }
             if (isset($data->combinatortemplate) &&
-                    trim($data->combinatortemplate) != '' &&
+                    trim($data->combinatortemplate ?? '') != '' &&
                     ((isset($data->enablecombinator) && $data->enablecombinator == 1 )
                             || $data->grader == 'CombinatorTemplateGrader')) {
                 $data->template = $data->combinatortemplate;
