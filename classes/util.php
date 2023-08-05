@@ -219,7 +219,7 @@ class qtype_coderunner_util {
         $filteredlangs = array();
         $defaultlang = '';
         foreach ($langs as $lang) {
-            $lang = trim($lang);
+            $lang = trim($lang ?? '');
             if ($lang === '') {
                 continue;
             }

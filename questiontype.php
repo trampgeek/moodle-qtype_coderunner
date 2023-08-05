@@ -196,8 +196,8 @@ class qtype_coderunner extends question_type {
             $stdin = $this->filter_crs($question->stdin[$i]);
             $expected = $this->filter_crs($question->expected[$i]);
             $extra = $this->filter_crs($question->extra[$i]);
-            if (trim($testcode) === '' && trim($stdin) === '' &&
-                    trim($expected) === '' && trim($extra) === '') {
+            if (trim($testcode ?? '') === '' && trim($stdin ?? '') === '' &&
+                    trim($expected ?? '') === '' && trim($extra ?? '') === '') {
                 continue; // Ignore testcases with only whitespace in them.
             }
             $testcase = new stdClass;
@@ -337,7 +337,7 @@ class qtype_coderunner extends question_type {
         foreach ($fields as $field) {
             $isinherited = !in_array($field, $this->noninherited_fields());
             $isblankstring = !isset($question->$field) ||
-               (is_string($question->$field) && trim($question->$field) === '');
+               (is_string($question->$field) && trim($question->$field ?? '') === '');
             if ($isinherited && ($isblankstring || $questioninherits)) {
                 $question->$field = null;
             }
@@ -448,7 +448,7 @@ class qtype_coderunner extends question_type {
             $target->grader = null;
         }
 
-        if (!isset($target->sandboxparams) || trim($target->sandboxparams) === '') {
+        if (!isset($target->sandboxparams) || trim($target->sandboxparams ?? '') === '') {
             $target->sandboxparams = null;
         }
     }

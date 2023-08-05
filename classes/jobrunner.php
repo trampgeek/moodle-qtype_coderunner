@@ -333,7 +333,7 @@ class qtype_coderunner_jobrunner {
     private function merge($sep, $strings) {
         $s = '';
         foreach ($strings as $el) {
-            if (trim($el)) {
+            if (trim($el ?? '')) {
                 if ($s !== '') {
                     $s .= $sep;
                 }

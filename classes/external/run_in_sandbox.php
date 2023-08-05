@@ -154,7 +154,7 @@ class run_in_sandbox extends external_api {
             } else {
                 $paramsarray['cputime'] = $maxcputime;
             }
-            $jobehostws = trim(get_config('qtype_coderunner', 'wsjobeserver'));
+            $jobehostws = trim(get_config('qtype_coderunner', 'wsjobeserver') ?? '');
             if ($jobehostws !== '') {
                 $paramsarray['jobeserver'] = $jobehostws;
             }
