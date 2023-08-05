@@ -111,8 +111,8 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
      *         If the $params array is null, sandbox defaults are used.
      * @return an object with at least the attribute 'error'.
      *         The error attribute is one of the
-     *         values 0 through 8 (OK to UNKNOWN_SERVER_ERROR) as defined in the
-     *         base class. If
+     *         values 0 through 9 (OK to UNKNOWN_SERVER_ERROR, OVERLOAD)
+     *         as defined in the base class. If
      *         error is 0 (OK), the returned object has additional attributes
      *         result, output, stderr, signal and cmpinfo as follows:
      *             result: one of the result_* constants defined in the base class
