@@ -39,8 +39,11 @@ Feature: duplicate_prototypes
     And I press "Continue"
 
     # Now delete the latest version of the first prototype, leaving you with two identical prototypes
-    And I choose "Delete" action for "DEMO_PROTOTYPE_C_using_python" in the question bank
-    And I press "Delete"
+    # Semantics of delete changed between Moodle 4.1 and 4.2 so need to go via history now.
+    And I choose "History" action for "DEMO_PROTOTYPE_C_using_python" in the question bank
+    And I click on "table#categoryquestions tr.r1 td.checkbox input" "css_element"
+    And I click on "button#bulkactionsui-selector" "css_element"
+    And I click on "input.submit[name='deleteselected']" "css_element"
 
   Scenario: As a teacher, if I edit a question with a duplicate prototype I should see a duplicate prototype error
     When I am on the "DEMO_duplicate_prototype" "core_question > edit" page logged in as teacher1
