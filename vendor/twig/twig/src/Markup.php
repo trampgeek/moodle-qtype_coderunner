@@ -32,11 +32,13 @@ class Markup implements \Countable, \JsonSerializable
         return $this->content;
     }
 
+    #[\ReturnTypeWillChange]
     public function count()
     {
         return mb_strlen($this->content, $this->charset);
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return $this->content;
