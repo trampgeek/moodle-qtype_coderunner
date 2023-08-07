@@ -43,7 +43,8 @@ Feature: duplicate_prototypes
     And I choose "History" action for "DEMO_PROTOTYPE_C_using_python" in the question bank
     And I click on "table#categoryquestions tr.r1 td.checkbox input" "css_element"
     And I click on "button#bulkactionsui-selector" "css_element"
-    And I click on "input.submit[name='deleteselected']" "css_element"
+    And I click on "input.dropdown-item[name='deleteselected']" "css_element"
+    And I press "Delete"
 
   Scenario: As a teacher, if I edit a question with a duplicate prototype I should see a duplicate prototype error
     When I am on the "DEMO_duplicate_prototype" "core_question > edit" page logged in as teacher1
