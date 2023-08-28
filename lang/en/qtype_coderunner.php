@@ -25,7 +25,7 @@
 $string['aborted'] = 'Testing was aborted due to error.';
 $string['ace_gapfillerui_ui_source_descr'] = '"globalextra" to take the code to display from the globalextra field or "test0" to take it from the testcode field of the first test';
 $string['ace_ui_notready'] = 'Ace editor not ready. Perhaps reload page?';
-$string['aceui_auto_switch_light_dark_descr'] = 'Allow a user, browser or OS preference for dark themes to override a preset Ace light theme.';
+$string['aceui_auto_switch_light_dark_descr'] = 'Allow a browser or OS preference for dark themes to override a preset Ace light theme.';
 $string['aceui_live_autocompletion_descr'] = 'Enable the Ace editor\'s live autocompletion mode.';
 $string['aceui_font_size_descr'] = 'Ace editor font size.';
 $string['aceui_import_from_scratchpad_descr'] = 'True to allow the Ace editor to receive the JSON-format answer used by the scratchpad UI and extract the answer code from it. Facilitates switching UIs. Leave true unless you want Ace to edit JSON objects with an "answer_code" key.';
