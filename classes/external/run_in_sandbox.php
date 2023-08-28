@@ -30,6 +30,7 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once($CFG->libdir . '/externallib.php');
+require_once($CFG->dirroot . '/question/type/coderunner/classes/wsthrottle.php');
 use external_api;
 use external_function_parameters;
 use external_value;
@@ -89,7 +90,7 @@ class run_in_sandbox extends external_api {
      */
     public static function execute($contextid, $sourcecode, $language='python3',
             $stdin='', $files='', $params='') {
-        global $USER;
+        global $USER, $SESSION;
         // First, see if the web service is enabled.
         if (!get_config('qtype_coderunner', 'wsenabled')) {
             throw new qtype_coderunner_exception(get_string('wsdisabled', 'qtype_coderunner'));
@@ -117,20 +118,19 @@ class run_in_sandbox extends external_api {
         }
 
         if (get_config('qtype_coderunner', 'wsloggingenabled')) {
-            // Check if need to throttle this user, and if not allow the request and log it.
-            $logmanger = get_log_manager();
-            $readers = $logmanger->get_readers('\core\log\sql_reader');
-            $reader = reset($readers);
+            // Check if need to throttle this user, and if not or if rate
+            // sufficiently low, allow the request and log it.
             $maxhourlyrate = intval(get_config('qtype_coderunner', 'wsmaxhourlyrate'));
-            if ($maxhourlyrate > 0) {
-                $hourago = strtotime('-1 hour');
-                $select = "userid = :userid AND eventname = :eventname AND timecreated > :since";
-                $logparams = array('userid' => $USER->id, 'since' => $hourago,
-                    'eventname' => '\qtype_coderunner\event\sandbox_webservice_exec');
-                $currentrate = $reader->get_events_select_count($select, $logparams);
-                if ($currentrate >= $maxhourlyrate) {
+            if ($maxhourlyrate > 0) { // Throttling enabled?
+                if (!isset($SESSION->throttle)) {
+                    $throttle = new \qtype_coderunner_wsthrottle();
+                } else {
+                    $throttle = unserialize($SESSION->throttle);
+                }
+                if (!$throttle->logrunok()) {
                     throw new qtype_coderunner_exception(get_string('wssubmissionrateexceeded', 'qtype_coderunner'));
                 }
+                $SESSION->throttle = serialize($throttle);
             }
 
             $event = \qtype_coderunner\event\sandbox_webservice_exec::create([

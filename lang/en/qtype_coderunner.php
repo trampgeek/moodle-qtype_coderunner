@@ -15,10 +15,10 @@
 // along with CodeRunner.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Strings for component 'qtype_coderunner', language 'en', branch 'MOODLE_20_STABLE'
+ * Strings for component 'qtype_coderunner', language 'en', branch 'MOODLE_40_STABLE'
  *
  * @package   qtype_coderunner
- * @copyright Richard Lobb 2012
+ * @copyright Richard Lobb 2012-2023
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -134,7 +134,6 @@ $string['datafiles'] = 'Support files';
 $string['datafiles_help'] = 'Any files uploaded here will be added to the working directory when the expanded template program is executed. This allows large data or support files to be conveniently added.';
 $string['default_penalty_regime'] = 'Default penalty regime';
 $string['default_penalty_regime_desc'] = 'The default penalty regime to apply to new questions, consisting of a comma separated list of penalty percentages, optionally ending in ", ..." to signify an on-going arithmetic progression.';
-
 
 $string['display'] = 'Display';
 $string['downloadquizattempts'] = 'Download quiz attempts';
@@ -1306,7 +1305,7 @@ $string['wsloggingenable_desc'] = 'If this option is checked, every code executi
 $string['wsmaxcputime'] = 'Max CPU time (secs)';
 $string['wsmaxcputime_desc'] = 'Limits the maximum CPU time that a web service job can use, even if it explicitly sets the CPU time sandbox parameter.';
 $string['wsmaxhourlyrate'] = 'Max hourly rate of submissions';
-$string['wsmaxhourlyrate_desc'] = 'If a user attempts to exceed this rate of submissions in any given hour their submissions will be disallowed. 0 for no rate throttling. Requires that logging of web service usage be enabled.';
+$string['wsmaxhourlyrate_desc'] = 'If a user attempts to exceed this rate of submissions in any given hour their submissions will be disallowed. 0 for no rate throttling.';
 $string['wsnoaccess'] = 'Only logged-in non-guest users can access this functionality';
 $string['wsnolanguage'] = 'Language "{$a}" is not known';
 $string['wssubmissionrateexceeded'] = 'You have exceeded the maximum hourly \'Try it!\' submission rate. Request denied.';
