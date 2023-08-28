@@ -23,10 +23,125 @@
  */
 
 use Behat\Mink\Exception\ExpectationException as ExpectationException;
-use WebDriver\Exception\NoAlertOpenError;
-use WebDriver\Exception\UnexpectedAlertOpen;
+use Facebook\WebDriver\Exception\NoSuchAlertException as NoSuchAlertException;
+
 
 class behat_coderunner extends behat_base {
+     /**
+     * Sets the webserver sandbox to enabled for testing purposes.
+     *
+     * @Given /^the CodeRunner sandbox is enabled/
+     */
+    public function the_coderunner_sandbox_is_enabled() {
+        set_config('wsenabled', 1, 'qtype_coderunner');
+        set_config('jobesandbox_enabled', 1, 'qtype_coderunner');
+        set_config('jobe_host', '172.17.0.1:4000', 'qtype_coderunner');
+    }
+
+    /**
+     * Checks that a given string appears within answer textarea.
+     * Intended for checking UI serialization
+     * @Then /^I should see in answer field "(?P<expected>(?:[^"]|\\")*)"$/
+     * @throws ExpectationException
+     * @param string $expected The string that we expect to find
+     */
+    public function i_should_see_in_answer($expected) {
+        $xpath = '//textarea[contains(@class, "coderunner-answer")]';
+        $driver = $this->getSession()->getDriver();
+        if (!$driver->find($xpath)) {
+            $error = "Answer box not found!";
+            throw new ExpectationException($error, $this->getSession());
+        }
+        $page = $this->getSession()->getPage();
+        $val = $page->find('xpath',$xpath)->getValue();
+        if ($val !== $expected) {
+            $error = "'$val' does not match '$expected'";
+            throw new ExpectationException($error, $this->getSession());
+        }
+    }
+
+     /**
+     * Sets answer textarea (seen after presing ctrl+m) to a value
+     * @Then /^I set answer field to "(?P<value>(?:[^"]|\\")*)"$/
+     * @throws ExpectationException
+     * @param string $expected The string that we expect to find
+     */
+    public function i_set_answer($value) {
+        $xpath = '//textarea[contains(@class, "coderunner-answer")]';
+        $driver = $this->getSession()->getDriver();
+        if (!$driver->find($xpath)) {
+            $error = "Answer box not found!";
+            throw new ExpectationException($error, $this->getSession());
+        }
+        $page = $this->getSession()->getPage();
+        $val = $page->find('xpath',$xpath)->setValue($value);
+    }
+
+    /**
+     * Sets answer textarea (seen after presing ctrl+m) to a value
+     * @Then /^I set answer field to:$/
+     * @throws ExpectationException
+     * @param string $expected The string that we expect to find
+     */
+    public function i_set_answer_pystring($pystring) {
+        $this->i_set_answer($pystring->getRaw());
+    }
+
+     /**
+     * Checks that a given string appears within answer textarea.
+     * Intended for checking UI serialization
+     * @Then /^I should see in answer field:$/
+     */
+     public function i_should_see_in_answer_pystring(Behat\Gherkin\Node\PyStringNode $pystring) {
+         $this->i_should_see_in_answer($pystring->getRaw());
+    }
+
+    /**
+     * Sets the ace editor content to provided string, using name of associated textarea.
+     * NOTE: this assumes the existence of a text area next to a
+     * UI wrapper div containing the Ace div! Also works on partial matches,
+     * i.e. value as _answer will work for Ace UI
+     * Intended as a replacement for I set field to <value>, for ace fields.
+     * @Then /^I set the ace field "(?P<elname>(?:[^"]|\\")*)" to "(?P<value>(?:[^"]|\\")*)"$/
+     * @throws ExpectationException
+     * @param string $expected The string that we expect to find
+     */
+     public function i_set_ace_field($elname, $value) {
+        $xpath = "//textarea[@name='$elname' or (contains(@name, '$elname') and contains(@class, 'edit_code'))]/../div/div ";
+        $driver = $this->getSession()->getDriver();
+        // Does the div managed by Ace exist?
+        if (!$driver->find($xpath)) {
+            $error = "Ace editor not found!";
+            throw new ExpectationException($error, $this->getSession());
+        }
+        // We inject JS into the browser to set the Ace editor contents...
+        // (Gross) JS to take the x-path for the div managed by Ace,
+        // open editor for that div, and set the editors value.
+        $javascript = "const editorNode = document.evaluate("
+                . "`$xpath`,"
+                . "document,"
+                . "null,"
+                . "XPathResult.ANY_TYPE,null,"
+                . ");"
+                . "const editor = ace.edit(editorNode.iterateNext());"
+                . "editor.setValue(`$value`);";
+        $this->getSession()->executeScript($javascript);
+    }
+
+    /**
+     * Sets the ace editor content to provided string, using name of associated textarea.
+     * NOTE: this assumes the existence of a text area next to a
+     * UI wrapper div containing the Ace div!
+     * Intended as a replacement for I set field to <value>, for ace fields.
+     * @Then /^I set the ace field "(?P<elname>(?:[^"]|\\")*)" to:$/
+     * @throws ExpectationException
+     * @param string $expected The string that we expect to find
+     */
+     public function i_set_ace_field_pystring($elname, $pystring) {
+         $this->i_set_ace_field($elname, $pystring->getRaw());
+    }
+
+
     /**
      * Checks that a given string appears within a visible ins or del element
      * that has a background-color attribute that is not 'inherit'.
@@ -83,7 +198,7 @@ class behat_coderunner extends behat_base {
      * Step to set an HTML5 session variable 'disableUis' to true to prevent
      * loading of the usual Ace (or Graph etc) UI plugin.
      *
-     * @When /^I disable UI plugins/
+     * @When /^I disable UI plugins in the CodeRunner question type/
      */
     public function i_disable_ui_plugins() {
         $javascript = "sessionStorage.setItem('disableUis', true);";
@@ -94,7 +209,7 @@ class behat_coderunner extends behat_base {
      * Step to remove the HTML5 session variable 'disableUis' (if present)
      * to re-enable loading of the usual Ace (or Graph etc) UI plugins.
      *
-     * @When /^I enable UI plugins/
+     * @When /^I enable UI plugins in the CodeRunner question type/
      */
     public function i_enable_u_plugins() {
         $javascript = "sessionStorage.removeItem('disableUis');";
@@ -146,16 +261,67 @@ class behat_coderunner extends behat_base {
     /**
      * Sets the given field to a given value and dismisses the expected alert.
      * @When /^I set the field "(?P<field_string>(?:[^"]|\\")*)" to "(?P<field_value_string>(?:[^"]|\\")*)" and dismiss the alert$/
-     *
-     * This is currently just a hack. I used to be able to catch UnexpectedAlertOpen
-     * but that's not working any more. I can catch a general exception
      */
     public function i_set_the_field_and_dismiss_the_alert($field, $value) {
+        // Gets the field.
+        $fielditem = behat_field_manager::get_form_field_from_label($field, $this);
+
+        // Makes sure there is a field before continuing.
+        if ($fielditem) {
+            $fielditem->set_value($value);
+        } else {
+            throw new ExpectationException("No field '{$field}' found.", $this->getSession());
+        }
+        // Gets you to wait for the pending JS alert by sleeping.
+        sleep(1);
         try {
-            $this->execute('behat_forms::i_set_the_field_to', array($field, $this->escape($value)));
-            $this->getSession()->getDriver()->getWebDriver()->switchTo()->alert()->dismiss(); // This has started working again!
-        } catch (Exception $e) {  // For some reason UnexpectedAlertOpen can't be caught.
-            return;
+            // Gets the alert and its text.
+            $alert = $this->getSession()->getDriver()->getWebDriver()->switchTo()->alert();
+            $alert->accept();
+        } catch (NoSuchAlertException $ex) {
+            throw new ExpectationException("No alert was triggered appropriately", $this->getSession());
+        }
+    }
+
+
+
+    /**
+     * Presses a named button. Checks if there is a specified error text displayed.
+     *
+     * @Then I should see the alert :error when I press :button
+     * @param string $errortext The expected error message when alerted
+     * @param string $button The name of the alert button.
+     */
+    public function there_is_an_alert_when_i_click($errortext, $button) {
+        // Gets the item of the button.
+        $xpath = "//button[@type='button' and contains(text(), '$button')]";
+        $session = $this->getSession();
+        $item = $session->getSelectorsHandler()->selectorToXpath('xpath', $xpath);
+        $element = $session->getPage()->find('xpath', $item);
+
+        // Makes sure there is an element before continuing.
+        if ($element) {
+            $element->click();
+        } else {
+            throw new ExpectationException("No button '{$button}'", $this->getSession());
+        }
+        try {
+            // Gets you to wait for the pending JS alert by sleeping.
+            sleep(1);
+            // Gets the alert and its text.
+            $alert = $this->getSession()->getDriver()->getWebDriver()->switchTo()->alert();
+            $alerttext = $alert->getText();
+        } catch (NoSuchAlertException $ex) {
+            throw new ExpectationException("No alert was triggered appropriately", $this->getSession());
+        }
+
+        // Throws an error if expected error text doesn't match alert.
+        if (!str_contains($alerttext, $errortext)) {
+            throw new ExpectationException("Wrong alert; alert given: {$alerttext}", $this->getSession());
+        } else {
+            // To stop the Behat tests from throwing their own errors.
+            $alert->accept();
         }
     }
 }
+

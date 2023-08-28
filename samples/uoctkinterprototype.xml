@@ -553,6 +553,7 @@ from tkinter import *
     <sandboxparams></sandboxparams>
     <templateparams></templateparams>
     <hoisttemplateparams>0</hoisttemplateparams>
+    <extractcodefromjson>1</extractcodefromjson>
     <twigall>0</twigall>
     <uiplugin>ace</uiplugin>
     <testcases>

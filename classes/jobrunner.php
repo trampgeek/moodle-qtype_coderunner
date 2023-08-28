@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with CodeRunner.  If not, see <http://www.gnu.org/licenses/>.
 /*
- * @package    qtype
- * @subpackage coderunner
+ * @package    qtype_coderunner
  * @copyright  2016 Richard Lobb, University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -23,6 +22,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
+
+use qtype_coderunner\constants;
 
 // The qtype_coderunner_jobrunner class contains all code concerned with running a question
 // in the sandbox and grading the result.
@@ -34,7 +35,6 @@ class qtype_coderunner_jobrunner {
     private $question = null;        // The question that we're running code for.
     private $testcases = null;       // The testcases (a subset of those in the question).
     private $allruns = null;         // Array of the source code for all runs.
-    private $precheck = null;        // True if this is a precheck run.
 
     // Check the correctness of a student's code and possible extra attachments
     // as an answer to the given
@@ -45,16 +45,27 @@ class qtype_coderunner_jobrunner {
     // when it is the language selected in the language drop-down menu.
     // Returns a TestingOutcome object.
     public function run_tests($question, $code, $attachments, $testcases, $isprecheck, $answerlanguage) {
-        global $CFG;
-
         if (empty($question->prototype)) {
             // Missing prototype. We can't run this question.
             $outcome = new qtype_coderunner_testing_outcome(0, 0, false);
-            $message = get_string('missingprototypewhenrunning', 'qtype_coderunner',
+            if ($question->prototypetype != 0) {
+                $message = get_string('cannotrunprototype', 'qtype_coderunner');
+            } else {
+                $message = get_string('missingprototypewhenrunning', 'qtype_coderunner',
                     array('crtype' => $question->coderunnertype));
+            }
             $outcome->set_status(qtype_coderunner_testing_outcome::STATUS_MISSING_PROTOTYPE, $message);
             return $outcome;
         }
+
+        // Extra the code from JSON if this is a Scratchpad UI or similar.
+        if ($question->extractcodefromjson) {
+            $json = json_decode($code, true);
+            if ($json !== null and isset($json[constants::ANSWER_CODE_KEY])) {
+                $code = $json[constants::ANSWER_CODE_KEY][0];
+            }
+        }
+
         $this->question = $question;
         $this->code = $code;
         $this->testcases = array_values($testcases);
@@ -366,18 +377,5 @@ class qtype_coderunner_jobrunner {
             }
         }
         return true;
-    }
-
-    // Count the number of errors in the given array of test results.
-    // TODO -- figure out how to eliminate either this one or the identical
-    // version in renderer.php.
-    private function count_errors($testresults) {
-        $errors = 0;
-        foreach ($testresults as $tr) {
-            if (!$tr->iscorrect) {
-                $errors++;
-            }
-        }
-        return $errors;
     }
 }

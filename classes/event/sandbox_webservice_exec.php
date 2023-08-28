@@ -24,8 +24,6 @@
 
 namespace qtype_coderunner\event;
 
-defined('MOODLE_INTERNAL') || die();
-
 class sandbox_webservice_exec extends \core\event\base {
     /**
      * Init method.

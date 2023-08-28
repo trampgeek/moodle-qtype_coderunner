@@ -2039,11 +2039,11 @@ A template grader for this situation might be the following
                 else:
                     comment += "Line {} wrong\n".format(i)
 
-        print(json.dumps({'got': got, 'comment': comment, 'fraction': mark / 5, 'awarded': mark}))
+        print(json.dumps({'got': got, 'comment': comment, 'fraction': mark / 5}))
 
 Note that in the above program the Python *dictionary*
 
-    {'got': got, 'comment': comment, 'fraction': mark / 5, 'awarded': mark}
+    {'got': got, 'comment': comment, 'fraction': mark / 5}
 
 gets converted by the call to json.dumps to a JSON object string, which looks
 syntactically similar but is in fact a different sort of entity altogether.
@@ -2051,11 +2051,18 @@ You should always use json.dumps, or its equivalent in other languages, to
 generate a valid JSON string, handling details like escaping of embedded
 newlines.
 
-In order to display the *comment* and *awarded* columns in the output JSON,
+In order to display the *comment* column in the output JSON,
 the 'Result columns' field of the question (in the 'customisation' part of
-the question authoring form) should include those field and their column headers, e.g.
+the question authoring form) should include that field and its column header, e.g.
 
         [["Expected", "expected"], ["Got", "got"], ["Comment", "comment"], ["Mark", "awarded"]]
+
+Note that the 'awarded' value, which is what is displayed in the 'Mark' column,
+is by default computed as the product of the
+faction and the number of marks allocated to the particular test case. You can
+alternatively include an 'awarded' attribute in the JSON but this is not
+generally recommended; if you do this, make sure that you award a mark in the
+range 0 to the number of marks allocated to the test case.
 
 The following two images show the student's result table after submitting
 a fully correct answer and a partially correct answer, respectively.
@@ -2070,8 +2077,9 @@ usual graders (e.g. exact or regular-expression matching of the program's
 output) are inadequate.
 
 As a simple example, suppose the student has to write their own Python square
-root function (perhaps as an exercise in Newton-Raphson iteration?), such
-that their answer, when squared, is within an absolute tolerance of 0.000001
+root function (perhaps as an exercise in Newton-Raphson iteration?), which is
+to be named *my_sqrt*. Their function is required to return an answer that
+is within an absolute tolerance of 0.000001
 of the correct answer. To prevent them from using the math module, any use
 of an import statement would need to be disallowed but we'll ignore that aspect
 in order to focus on the grading aspect.
@@ -2079,7 +2087,7 @@ in order to focus on the grading aspect.
 The simplest way to deal with this issue is to write a series of testcases
 of the form
 
-        approx = student_sqrt(2)
+        approx = my_sqrt(2)
         right_answer = math.sqrt(2)
         if math.abs(approx - right_answer) < 0.00001:
             print("OK")
@@ -2089,7 +2097,7 @@ of the form
 where the expected output is "OK". However, if one wishes to test the student's
 code with a large number of values - say 100 or more - this approach becomes
 impracticable. For that, we need to write our own tester, which we can do
-using a template grade.
+using a template grader.
 
 Template graders that run student-supplied code are somewhat tricky to write
 correctly, as they need to output a valid JSON record under all situations,
@@ -2098,7 +2106,7 @@ errors or syntax error. The safest approach is usually to run the student's
 code in a subprocess and then grade the output.
 
 A per-test template grader for the student square root question, which tests
-the student's *student_sqrt* function with 1000 random numbers in the range
+the student's *my_sqrt* function with 1000 random numbers in the range
 0 to 1000, might be as follows:
 
         import subprocess, json, sys
@@ -2118,7 +2126,7 @@ the student's *student_sqrt* function with 1000 random numbers in the range
         ok = True
         for i in range(NUM_TESTS):
             x = uniform(0, 1000)
-            stud_answer = student_sqrt(n)
+            stud_answer = my_sqrt(n)
             right = math.sqrt(x)
             if abs(right - stud_answer) > TOLERANCE:
                 print("Wrong sqrt for {}. Expected {}, got {}".format(x, right, stud_answer))
@@ -2502,8 +2510,15 @@ with any other named HTML elements in the page. It is recommended that a prefix
 of some sort, such as `crui_`, be used with all names.
 
 When authoring a question that uses the Html UI, the answer and answer preload
-fields are *not* controlled by the UI, but are displayed as raw text.
-If data is to be entered into these fields,
+fields are by default also controlled by the UI. While this is most user-friendly presentation,
+it does not allow you to include Twig code in those fields. If you need
+to use Twig there, you must turn off the use of the UI within the question
+editing page by setting the UI parameter `enable_in_editor` to false:
+
+    {"enable_in_editor": false}
+
+The underlying serialisation is then displayed as raw JSON text.
+If data is to be entered into the HTML fields,
 it must be of the form
 
     {"<fieldName>": "<fieldValueList>",...}
@@ -2512,7 +2527,9 @@ where fieldValueList is a list of all the values to be assigned to the fields
 with the given name, in document order. For complex UIs it is easiest to turn
 off validate on save, save the question, preview it, enter the right answers into
 all fields, type CTRL-ALT-M to switch off the UI and expose the serialisation,
-then copy that serialisation back into the author form.
+then copy that serialisation back into the author form. But this rigmarole is
+only necessary when you need to use Twig within the answer or sample answer,
+which is rare.
 
 It is possible that the question author might want a dynamic answer box in
 which the student can add extra fields. A simple example of this is the Table UI,

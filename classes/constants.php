@@ -14,15 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with CodeRunner.  If not, see <http://www.gnu.org/licenses/>.
 /*
- * @package    qtype
- * @subpackage coderunner
+ * @package    qtype_coderunner
  * @copyright  2012, 2015 Richard Lobb, University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace qtype_coderunner;
-defined('MOODLE_INTERNAL') || die();
-
 
 class constants {
     const TEMPLATE_LANGUAGE = 0;
@@ -56,4 +53,6 @@ class constants {
     const JOBE_HOST_DEFAULT_API_KEY = '2AAA7A5415B4A9B394B54BF1D2E9D';
 
     const DEFAULT_NUM_ROWS = 18;     // Default answerbox size.
+
+    const ANSWER_CODE_KEY = 'answer_code'; // The key to the code in a Scratchpad UI question .
 }

@@ -19,7 +19,7 @@ Feature: twigprefix
       | Course       | C1        | Top              | Behat Testing |
     And I am on the "Course 1" "core_question > course question bank" page logged in as teacher1
     And I set CodeRunner behat testing flag
-    And I disable UI plugins
+    And I disable UI plugins in the CodeRunner question type
     And I press "Create a new question ..."
     And I click on "input#item_qtype_coderunner" "css_element"
     And I press "submitbutton"

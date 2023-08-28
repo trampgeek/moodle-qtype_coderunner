@@ -36,6 +36,7 @@ require_once($CFG->dirroot . '/backup/util/includes/restore_includes.php');
 /**
  * Unit tests for CodeRunner restore code.
  *
+ * @coversNothing
  * @copyright  2016 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -107,7 +108,7 @@ class restore_test extends \advanced_testcase {
                 '/question/type/coderunner/tests/fixtures/loadtesting_pseudocourse_backup.mbz');
 
         // Verify some restored questions look OK.
-        list($options, $tests) = $question = $this->load_question_data_by_name('c_to_fpy3');
+        list($options, $tests) = $this->load_question_data_by_name('c_to_fpy3');
         $this->assertCount(3, $tests);
         $this->assertNull($options->template);
 
@@ -123,7 +124,7 @@ class restore_test extends \advanced_testcase {
                 '/question/type/coderunner/tests/fixtures/loadtesting_pseudocourse_backup_V3.0.0.mbz');
 
         // Verify some restored questions look OK.
-        list($options, $tests) = $question = $this->load_question_data_by_name('c_to_fpy3');
+        list($options, $tests) = $this->load_question_data_by_name('c_to_fpy3');
         $this->assertCount(3, $tests);
         $this->assertNull($options->template);
 

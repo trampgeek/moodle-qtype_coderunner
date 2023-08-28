@@ -34,12 +34,10 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 
 /**
  * Unit tests for the coderunner question type.
- *
+ * @coversNothing
  * @copyright  2011 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-
 class walkthrough_test extends \qbehaviour_walkthrough_test_base {
 
     protected function setUp(): void {
@@ -294,7 +292,6 @@ EOTEMPLATE;
     public function test_result_table_sanitising() {
         $q = \test_question_maker::make_question('coderunner', 'sqr');
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
-        $qa = $this->get_question_attempt();
 
         // Submit an answer with a <b> tag in it and make sure it's suitably
         // escaped so it appears in the output.
@@ -358,6 +355,17 @@ EOTEMPLATE;
         $q->hidecheck = 1;
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
         $this->check_output_does_not_contain('Check');
+    }
+
+    // Check that a question with an answer preload is not gradable if answer not changed
+    public function test_preload_not_graded() {
+        $q = \test_question_maker::make_question('coderunner', 'sqr');
+        $q->answerpreload = 'def sqr(n):';
+        $this->start_attempt_at_question($q, 'adaptive', 1, 1);
+        $this->check_output_contains('def sqr(n):');
+        $this->process_submission(array('-submit' => 1, 'answer' => 'def sqr(n):'));
+        $this->check_current_state(\question_state::$invalid);
+        $this->check_current_mark(null);
     }
 
     public function test_stop_button_always() {

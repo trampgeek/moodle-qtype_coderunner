@@ -33,8 +33,11 @@
  *   5. width_percents: a list of the percentages of the width occupied
  *      by each column. This list must include a value for the row labels, if present.
  *
+ * Individual cells are textareas except when the number of rows per cell is set to
+ * 1, in which case input elements are used instead.
+ *
  * The serialisation of the table, which is what is essentially copied back
- * into the textarea for submissions as the answer, is a JSON array. Each
+ * into the original answer box textarea for submissions as the answer, is a JSON array. Each
  * element in the array is itself an array containing the values of one row
  * of the table. Empty cells are empty strings. The table header row and row
  * label columns are not provided in the serialisation.
@@ -133,7 +136,7 @@ define(['jquery'], function($) {
 
         tableRows.each(function () {
             var rowValues = [];
-            $(this).find('textarea').each(function () {
+            $(this).find('.table_ui_cell').each(function () {
                 var cellVal = $(this).val();
                 rowValues.push(cellVal);
                 if (cellVal) {
@@ -152,7 +155,8 @@ define(['jquery'], function($) {
 
     // Return the HTML for row number iRow.
     TableUi.prototype.tableRow = function(iRow, preload) {
-        var html = '<tr>', widthIndex = 0, width;
+        const cellStyle = "width:100%;padding:0;font-family:monospace;";
+        let html = '<tr>', widthIndex = 0, width, disabled, value;
 
         // Insert the row label if required.
         if (this.hasRowLabels) {
@@ -165,20 +169,24 @@ define(['jquery'], function($) {
             html += "</th>";
         }
 
-        for (var iCol = 0; iCol < this.numDataColumns; iCol++) {
+        for (let iCol = 0; iCol < this.numDataColumns; iCol++) {
             width = this.columnWidths[widthIndex++];
-            html += "<td style='padding:2px;margin:0,width:" + width + "'%>";
-            html += '<textarea rows="' + this.rowsPerCell + '"';
-            html += ' style="width:100%;padding:0;resize:vertical;font-family: monospace"';
-            if (this.isLockedCell(iRow, iCol)) {
-                html += ' disabled>';
-            } else {
-                html += '>';
-            }
+            disabled = this.isLockedCell(iRow, iCol) ? ' disabled;' : '';
+            value = iRow < preload.length ? preload[iRow][iCol] : '';
+
             if (iRow < preload.length) {
-                html += preload[iRow][iCol];
+                value = preload[iRow][iCol];
             }
-            html += '</textarea>';
+            html += "<td style='padding:2px;margin:0,width:" + width + "'%>";
+            if (this.rowsPerCell == 1) {
+                // Use input element for 1-row cells.
+                html += `<input type="text" class="table_ui_cell" style="${cellStyle}" value="${value}"${disabled}>`;
+
+            } else {
+                // Use textarea elements everywhere else.
+                html += `<textarea class="table_ui_cell" rows="${this.rowsPerCell}"`;
+                html += ` style="${cellStyle}resize:vertical;"${disabled}>${value}</textarea>`;
+            }
             html += "</td>";
         }
         html += '</tr>';
@@ -187,7 +195,7 @@ define(['jquery'], function($) {
 
     // Return the HTML for the table's head section.
     TableUi.prototype.tableHeadSection = function() {
-        var html = "<thead>\n",
+        let html = "<thead>\n",
             colIndex = 0;  // Column index including row label if present.
 
         if (this.hasHeader) {
@@ -198,7 +206,7 @@ define(['jquery'], function($) {
                 colIndex += 1;
             }
 
-            for(var iCol = 0; iCol < this.numDataColumns; iCol++) {
+            for(let iCol = 0; iCol < this.numDataColumns; iCol++) {
                 html += "<th style='width:" + this.columnWidths[colIndex] + "%'>";
                 if (iCol < this.uiParams.column_headers.length) {
                     html += this.uiParams.column_headers[iCol];
@@ -235,7 +243,8 @@ define(['jquery'], function($) {
             // Build the table head section.
             divHtml += this.tableHeadSection();
 
-            // Build the table body. Each table cell has a textarea inside it,
+            // Build the table body. Each table cell has a textarea inside it
+            // except when the number of rows is 1, when input elements are used instead.
             // except for row labels (if present).
             divHtml += "<tbody>\n";
             var num_rows_required = Math.max(this.uiParams.num_rows, preload.length);
@@ -248,6 +257,19 @@ define(['jquery'], function($) {
             if (this.uiParams.dynamic_rows) {
                 this.addButtons();
             }
+
+            // When using input elements, prevent Enter from submitting form.
+            if (this.rowsPerCell == 1) {
+                const ENTER = 13;
+                $(this.tableDiv).find('.table_ui_cell').each(function() {
+                    $(this).on('keydown', (e) => {
+                        if (e.keyCode === ENTER) {
+                            e.preventDefault();
+                        }
+                    });
+                });
+            }
+
         } catch (error) {
             this.fail = true;
             this.failString = 'table_ui_invalidserialisation';
@@ -281,7 +303,7 @@ define(['jquery'], function($) {
             var lastRow, newRow;
             lastRow = t.tableDiv.find('table tbody tr:last');
             newRow = lastRow.clone();  // Copy the last row of the table.
-            newRow.find('textarea').each(function() {  // Clear all td elements in it.
+            newRow.find('.table_ui_cell').each(function() {  // Clear all td elements in it.
                 $(this).val('');
             });
             lastRow.after(newRow);
@@ -293,7 +315,7 @@ define(['jquery'], function($) {
 
     TableUi.prototype.hasFocus = function() {
         var focused = false;
-        $(this.tableDiv).find('textarea').each(function() {
+        $(this.tableDiv).find('.table_ui_cell').each(function() {
             if (this === document.activeElement) {
                 focused = true;
             }

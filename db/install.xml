@@ -35,6 +35,7 @@
         <FIELD NAME="templateparamsevalpertry" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Set true to re-evaluate the template parameters every time on every new question attempt. Essential for randomisation or if the Student variable is used. Not relevant if templateparamslang is None (no evaluation) or Twig (runs on Moodle and re-evaluates)"/>
         <FIELD NAME="templateparamsevald" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="The evaluated template parameters (JSON) if templateparamslang is neither None nor Twig and templateparamsevaleverytry is false."/>
         <FIELD NAME="hoisttemplateparams" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="True to hoist templateparams into Twig global namespace."/>
+        <FIELD NAME="extractcodefromjson" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="1" SEQUENCE="false" COMMENT="True to accept JSON from UIs like scratchpad, and extract the answer_code field as the student answer."/>
         <FIELD NAME="twigall" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="True to apply Twig macro expansion to question text and testcases."/>
         <FIELD NAME="uiparameters" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="A JSON encoded representation of the UI parameters for this question that override the inherited values."/>
         <FIELD NAME="language" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="The programming language, to be passed to the sandbox"/>

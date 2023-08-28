@@ -30,6 +30,7 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once($CFG->libdir . '/externallib.php');
+require_once($CFG->dirroot . '/question/type/coderunner/classes/wsthrottle.php');
 use external_api;
 use external_function_parameters;
 use external_value;
@@ -89,7 +90,7 @@ class run_in_sandbox extends external_api {
      */
     public static function execute($contextid, $sourcecode, $language='python3',
             $stdin='', $files='', $params='') {
-        global $USER;
+        global $USER, $SESSION;
         // First, see if the web service is enabled.
         if (!get_config('qtype_coderunner', 'wsenabled')) {
             throw new qtype_coderunner_exception(get_string('wsdisabled', 'qtype_coderunner'));
@@ -111,26 +112,25 @@ class run_in_sandbox extends external_api {
             throw new qtype_coderunner_exception(get_string('wsnoaccess', 'qtype_coderunner'));
         }
 
-        $sandbox = qtype_coderunner_sandbox::get_best_sandbox($language);
+        $sandbox = qtype_coderunner_sandbox::get_best_sandbox($language, true);
         if ($sandbox === null) {
-            throw new qtype_coderunner_exception("Language {$language} is not available on this system");
+            throw new qtype_coderunner_exception(get_string('wsnolanguage', 'qtype_coderunner', $language));
         }
 
         if (get_config('qtype_coderunner', 'wsloggingenabled')) {
-            // Check if need to throttle this user, and if not allow the request and log it.
-            $logmanager = get_log_manager();$logmanger = get_log_manager();
-            $readers = $logmanger->get_readers('\core\log\sql_reader');
-            $reader = reset($readers);
+            // Check if need to throttle this user, and if not or if rate
+            // sufficiently low, allow the request and log it.
             $maxhourlyrate = intval(get_config('qtype_coderunner', 'wsmaxhourlyrate'));
-            if ($maxhourlyrate > 0) {
-                $hour_ago = strtotime('-1 hour');
-                $select = "userid = :userid AND eventname = :eventname AND timecreated > :since";
-                $log_params = array('userid' => $USER->id, 'since' => $hour_ago,
-                    'eventname' => '\qtype_coderunner\event\sandbox_webservice_exec');
-                $currentrate = $reader->get_events_select_count($select, $log_params);
-                if ($currentrate >= $maxhourlyrate) {
+            if ($maxhourlyrate > 0) { // Throttling enabled?
+                if (!isset($SESSION->throttle)) {
+                    $throttle = new \qtype_coderunner_wsthrottle();
+                } else {
+                    $throttle = unserialize($SESSION->throttle);
+                }
+                if (!$throttle->logrunok()) {
                     throw new qtype_coderunner_exception(get_string('wssubmissionrateexceeded', 'qtype_coderunner'));
                 }
+                $SESSION->throttle = serialize($throttle);
             }
 
             $event = \qtype_coderunner\event\sandbox_webservice_exec::create([
@@ -139,11 +139,18 @@ class run_in_sandbox extends external_api {
         }
 
         try {
-            $filesarray = $files ? json_decode($files, true) : null;
+            $filesarray = $files ? json_decode($files, true) : array();
             $paramsarray = $params ? json_decode($params, true) : array();
+
+            // Throws error for incorrect JSON formatting.
+            if ($filesarray === null || $paramsarray === null) {
+                throw new qtype_coderunner_exception(get_string('wsbadjson', 'qtype_coderunner'));
+            }
             $maxcputime = intval(get_config('qtype_coderunner', 'wsmaxcputime'));  // Limit CPU time through this service.
             if (isset($paramsarray['cputime'])) {
-                $paramsarray['cputime'] = min($paramsarray['cputime'], $maxcputime);
+                if ($paramsarray['cputime'] > $maxcputime) {
+                    throw new qtype_coderunner_exception(get_string('wscputimeexcess', 'qtype_coderunner'));
+                }
             } else {
                 $paramsarray['cputime'] = $maxcputime;
             }

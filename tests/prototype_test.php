@@ -35,6 +35,9 @@ require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
 require_once($CFG->dirroot . '/question/format/xml/format.php');
 require_once($CFG->dirroot . '/question/engine/tests/helpers.php');
 
+/**
+ * @coversNothing
+ */
 class prototype_test extends \qtype_coderunner_testcase {
     protected function setUp(): void {
         parent::setUp();
@@ -56,7 +59,7 @@ class prototype_test extends \qtype_coderunner_testcase {
         $code = "print(open('data.txt').read())";
         $response = array('answer' => $code);
         $result = $q->grade_response($response);
-        list($mark, $grade, $cache) = $result;
+        list(, , $cache) = $result;
         $testoutcome = unserialize($cache['_testoutcome']);
         $this->assertTrue($testoutcome->all_correct());
     }
@@ -145,6 +148,7 @@ EOTEMPLATE;
     <sandboxparams></sandboxparams>
     <templateparams><![CDATA[{"xxx":1, "zzz":2}]]></templateparams>
     <hoisttemplateparams>0</hoisttemplateparams>
+    <extractcodefromjson>1</extractcodefromjson>
     <templateparamslang>twig</templateparamslang>
     <templateparamsevalpertry>0</templateparamsevalpertry>
     <templateparamsevald></templateparamsevald>

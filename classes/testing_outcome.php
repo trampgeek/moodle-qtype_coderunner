@@ -17,13 +17,11 @@
 /** Defines a testing_outcome class which contains the complete set of
  *  results from running all the tests on a particular submission.
  *
- * @package    qtype
- * @subpackage coderunner
+ * @package    qtype_coderunner
  * @copyright  Richard Lobb, 2013, The University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
 use qtype_coderunner\constants;
 
 class qtype_coderunner_testing_outcome {

@@ -14,17 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with CodeRunner.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Further walkthrough tests for the CodeRunner plugin, testing recently
- * added features like the 'extra' field for use by the template and the
- * relabelling of output columns.
- * @group qtype_coderunner
- *
- * @package    qtype
- * @subpackage coderunner
- * @copyright  2012, 2014 Richard Lobb, The University of Canterbury
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
 
 
 namespace qtype_coderunner;
@@ -38,10 +27,20 @@ require_once($CFG->dirroot . '/question/type/coderunner/question.php');
 
 define('PRELOAD_TEST', "# TEST COMMENT TO CHECK PRELOAD IS WORKING\n");
 
+/**
+ * Further walkthrough tests for the CodeRunner plugin, testing recently
+ * added features like the 'extra' field for use by the template and the
+ * relabelling of output columns.
+ * @group qtype_coderunner
+ * @coversNothing
+ * @package    qtype
+ * @subpackage coderunner
+ * @copyright  2012, 2014 Richard Lobb, The University of Canterbury
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class walkthrough_extras_test extends \qbehaviour_walkthrough_test_base {
 
     protected function setUp(): void {
-        global $CFG;
         parent::setUp();
         \qtype_coderunner_testcase::setup_test_sandbox_configuration();
     }
@@ -97,7 +96,7 @@ EOTEMPLATE;
      */
     public function test_misconfigured_jobe() {
         if (!get_config('qtype_coderunner', 'jobesandbox_enabled')) {
-            $this->markTestSkipped("Sandbox $sandbox unavailable: test skipped");
+            $this->markTestSkipped("Jobe sandbox unavailable: test skipped");
         }
         set_config('jobe_host', 'localhostxxx', 'qtype_coderunner');  // Broken jobe_host url.
         $q = \test_question_maker::make_question('coderunner', 'sqr');

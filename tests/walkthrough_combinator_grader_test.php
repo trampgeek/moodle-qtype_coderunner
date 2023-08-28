@@ -36,11 +36,10 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 /**
  * Unit tests for the coderunner question type.
  *
+ * @coversNothing
  * @copyright  2011, 2020 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-
 class walkthrough_combinator_grader_test extends \qbehaviour_walkthrough_test_base {
 
     protected function setUp(): void {
@@ -166,7 +165,7 @@ EOTEMPLATE;
     }
 
     // Test that if the combinator grader outputs bad JSON, we get an
-    // appropriate error message
+    // appropriate error message.
     public function test_bad_json() {
         $q = \test_question_maker::make_question('coderunner', 'sqr');
         $q->template = <<<EOTEMPLATE

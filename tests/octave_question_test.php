@@ -36,6 +36,7 @@ require_once($CFG->dirroot . '/question/type/coderunner/question.php');
 
 /**
  * Unit tests for coderunner octave questions.
+ * @coversNothing
  */
 class octave_question_test extends \qtype_coderunner_testcase {
 
@@ -94,7 +95,7 @@ end
 EOT
             );
 
-        list($mark, $grade, $cache) = $q->grade_response($response);
+        list($mark, $grade, ) = $q->grade_response($response);
         $this->assertEquals(1, $mark);
         $this->assertEquals(\question_state::$gradedright, $grade);
     }

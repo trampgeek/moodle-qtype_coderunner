@@ -20,6 +20,7 @@
  * as URL parameter quizid. The 'format' (csv or excel) is a required parameter
  * too.
  * The user must have grade:viewall permissions to run the script.
+ * 
  * @package   qtype_coderunner
  * @copyright 2017 Richard Lobb, The University of Canterbury
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later

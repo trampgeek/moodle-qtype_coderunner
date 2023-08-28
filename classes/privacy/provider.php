@@ -23,8 +23,6 @@
 
 namespace qtype_coderunner\privacy;
 
-defined('MOODLE_INTERNAL') || die();
-
 class provider implements \core_privacy\local\metadata\null_provider {
     // This polyfill allows the provider to work on both old (pre-7) and new PHP versions.
     use \core_privacy\local\legacy_polyfill;

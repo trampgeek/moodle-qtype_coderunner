@@ -1,0 +1,25 @@
+{
+    "name": "ui_ace",
+    "parameters": {
+        "auto_switch_light_dark": {
+            "type": "boolean",
+            "default": false
+        },
+        "font_size": {
+            "type": "string",
+            "default": "14px"
+        },
+        "import_from_scratchpad": {
+            "type": "boolean",
+            "default": true
+        },
+        "live_autocompletion": {
+            "type": "boolean",
+            "default": false
+        },
+        "theme": {
+            "type": "string",
+            "default": "textmate"
+        }
+    }
+}

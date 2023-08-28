@@ -14,17 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with CodeRunner.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Use a walkthrough test to validate the new (2019) display-feedback options.
- * @group qtype_coderunner
- *
- * @package    qtype
- * @subpackage coderunner
- * @copyright  2019 Richard Lobb, The University of Canterbury
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
-
 namespace qtype_coderunner;
 
 defined('MOODLE_INTERNAL') || die();
@@ -34,10 +23,19 @@ require_once($CFG->dirroot . '/question/engine/tests/helpers.php');
 require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 require_once($CFG->dirroot . '/question/type/coderunner/question.php');
 
+
+/**
+ * Use a walkthrough test to validate the new (2019) display-feedback options.
+ * @group qtype_coderunner
+ * @coversNothing
+ * @package    qtype
+ * @subpackage coderunner
+ * @copyright  2019 Richard Lobb, The University of Canterbury
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class walkthrough_display_feedback_test extends \qbehaviour_walkthrough_test_base {
 
     protected function setUp(): void {
-        global $CFG;
         parent::setUp();
         \qtype_coderunner_testcase::setup_test_sandbox_configuration();
     }

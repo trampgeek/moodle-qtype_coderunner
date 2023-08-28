@@ -1,0 +1,44 @@
+{{!
+    This file is part of Moodle - https://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template qtype_coderunner/scratchpad_controls
+
+    Example context (json):
+    {
+        "id": "question:12",
+        "prefix_ans": {
+            "id": "question:12_prefix-ans",
+            "checked": true
+        }
+    }
+}}
+<div class='scratchpad-contols' style='border-bottom: darkgray solid 1px;'>
+    <button class='btn btn-secondary' id='{{ id }}_run-btn' style='margin:6px; margin-right:10px; padding:2px 8px;' type='button'>
+        {{ button_name }}
+        {{^ button_name }}{{# str }}scratchpadui_def_button_name, qtype_coderunner{{/str}}{{/ button_name }}
+    </button>
+    {{# prefix_ans }}
+        <input id="{{ id }}" type="checkbox" {{# checked }}checked{{/ checked }} class="coderunner-ui-element" name="prefix_ans" value="1">
+        <label id="{{ id }}-name" for="{{ id }}" style="display:inline-block; margin-left: 3px;">{{ label }}{{^ label }}{{# str }}scratchpadui_def_prefix_name, qtype_coderunner{{/ str }}{{/ label }}</label>
+    {{/ prefix_ans }}
+    <span id="{{ id }}_help" style="float:right;padding:8px">
+        {{! TODO: use blocks to clean this mess up.}}
+        {{# help_text}}
+            {{> qtype_coderunner/help_icon }}
+        {{/ help_text }}
+    </span>
+</div>

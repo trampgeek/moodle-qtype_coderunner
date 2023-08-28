@@ -31,7 +31,10 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 
-
+/**
+ * Unit tests for attaching datafiles to questions.
+ * @coversNothing
+ */
 class datafile_test extends \qtype_coderunner_testcase {
 
     // Test loading of files in the jobe sandbox.
@@ -64,7 +67,7 @@ class datafile_test extends \qtype_coderunner_testcase {
 
         $response = array('answer' => $code);
         $result = $q->grade_response($response);
-        list($mark, $grade, $cache) = $result;
+        list(, $grade, ) = $result;
         $this->assertEquals(\question_state::$gradedright, $grade);
 
         // Clean up by deleting the file again.

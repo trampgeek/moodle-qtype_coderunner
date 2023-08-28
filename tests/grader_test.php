@@ -18,7 +18,7 @@
 // is extensively tested by the other tests.
 
 /**
- * Unit tests for the coderunner question definition class.
+ * Unit tests for various CodeRunner graders.
  * @group qtype_coderunner
  *
  * @package    qtype
@@ -36,7 +36,8 @@ global $CFG;
 require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 
 /**
- * Unit tests for the RegexGrader class.
+ * Unit tests for various CodeRunner graders.
+ * @coversNothing
  */
 class grader_test extends \qtype_coderunner_testcase {
 

@@ -37,8 +37,7 @@
 // question.
 
 /**
- * @package     qtype
- * @subpackage  coderunner
+ * @package    qtype_coderunner
  * @copyright   &copy; 2012, 2013, 2014 Richard Lobb
  * @author       Richard Lobb richard.lobb@canterbury.ac.nz
  */
@@ -110,6 +109,7 @@ class qtype_coderunner extends question_type {
             'sandboxparams',
             'templateparams',
             'hoisttemplateparams',
+            'extractcodefromjson',
             'templateparamslang',
             'templateparamsevalpertry',
             'templateparamsevald',
@@ -149,6 +149,7 @@ class qtype_coderunner extends question_type {
             'validateonsave',
             'templateparams',
             'hoisttemplateparams',
+            'extractcodefromjson',
             'templateparamslang',
             'templateparamsevalpertry',
             'templateparamsevald',
@@ -177,22 +178,6 @@ class qtype_coderunner extends question_type {
     public function questionid_column_name() {
         return 'questionid';
     }
-
-
-    /**
-     * Abstract function implemented by each question type. It runs all the code
-     * required to set up and save a question of any type for testing purposes.
-     * Alternate DB table prefix may be used to facilitate data deletion.
-     */
-    public function generate_test($name, $courseid=null) {
-        // Closer inspection shows that this method isn't actually implemented
-        // by even the standard question types and wouldn't be called for any
-        // non-standard ones even if implemented. I'm leaving the stub in, in
-        // case it's ever needed, but have set it to throw an exception, and
-        // I've removed the actual test code.
-        throw new coding_exception('Unexpected call to generate_test. Read code for details.');
-    }
-
 
     // Function to copy testcases from form fields into question->testcases.
     // If $validation true, we're just validating and need to add an extra
@@ -279,7 +264,7 @@ class qtype_coderunner extends question_type {
             } else {
                 // A new testcase.
                 $tc->questionid = $question->id;
-                $id = $DB->insert_record($testcasetable, $tc);
+                $DB->insert_record($testcasetable, $tc);
             }
         }
 
@@ -398,7 +383,7 @@ class qtype_coderunner extends question_type {
     // by any non-null values in the specific question.
     // As a side effect, the question->prototype field is set to the prototype.
     public function get_question_options($question) {
-        global $CFG, $DB, $OUTPUT;
+        global $DB;
         parent::get_question_options($question);
         $options =& $question->options;
         if ($options->prototypetype != 0) { // Question prototype?
@@ -431,12 +416,12 @@ class qtype_coderunner extends question_type {
      * This is used only to display the customisation panel during authoring.
      * @param object $target the target object whose fields are being set. It should
      * be either a qtype_coderunner_question object or its options field ($question->options).
-     * @param string $prototype the prototype question. Null if non-existent (a broken question).
+     * @param string $prototype the prototype question. Null if non-existent or more than one (a broken question).
      */
     public function set_inherited_fields($target, $prototype) {
         $target->customise = false; // Starting assumption.
 
-        if ($prototype === null) {
+        if ($prototype === null || is_array($prototype)) {
             return;
         }
 
@@ -472,7 +457,8 @@ class qtype_coderunner extends question_type {
      * Get all available prototypes for the given course.
      * Only the most recent version of each prototype question is returned.
      * @param int $courseid the ID of the course whose prototypes are required.
-     * @return stdClass[] prototype rows from question_coderunner_options.
+     * @return stdClass[] prototype rows from question_coderunner_options,
+     * including count number of occurrences.
      */
     public static function get_all_prototypes($courseid) {
         global $DB;
@@ -480,7 +466,7 @@ class qtype_coderunner extends question_type {
         list($contextcondition, $params) = $DB->get_in_or_equal($coursecontext->get_parent_context_ids(true));
 
         $rows = $DB->get_records_sql("
-                SELECT qco.*
+                SELECT qco.coderunnertype, count(qco.coderunnertype) as count
                   FROM {question_coderunner_options} qco
                   JOIN {question} q ON q.id = qco.questionid
                   JOIN {question_versions} qv ON qv.questionid = q.id
@@ -492,7 +478,8 @@ class qtype_coderunner extends question_type {
                                        WHERE be.id = qbe.id)
                                      )
                         AND prototypetype != 0
-                        AND qc.contextid $contextcondition", $params);
+                        AND qc.contextid $contextcondition
+                  GROUP BY qco.coderunnertype", $params);
 
         return $rows;
     }
@@ -518,7 +505,7 @@ class qtype_coderunner extends question_type {
         list($contextcondition, $params) = $DB->get_in_or_equal($context->get_parent_context_ids(true));
         $params[] = $coderunnertype;
 
-        $sql = "SELECT q.id
+        $sql = "SELECT q.id, q.name, qc.name as category
                   FROM {question_coderunner_options} qco
                   JOIN {question} q ON qco.questionid = q.id
                   JOIN {question_versions} qv ON qv.questionid = q.id
@@ -535,7 +522,7 @@ class qtype_coderunner extends question_type {
 
         $validprotoids = $DB->get_records_sql($sql, $params);
         if (count($validprotoids) !== 1) {
-            return null;  // Exactly one prototype should be found.
+            return count($validprotoids) === 0 ? null : $validprotoids;  // If either no or too many prototypes are found.
         } else if ($checkexistenceonly) {
             return true;
         } else {
@@ -741,6 +728,7 @@ class qtype_coderunner extends question_type {
             'uiparameters' => null,
             'hidecheck' => 0,
             'attachments' => 0,
+            'extractcodefromjson' => 1,
             'giveupallowed' => 0,
         );
 

@@ -19,8 +19,7 @@ defined('MOODLE_INTERNAL') || die();
 /*
  * Defines the editing form for the coderunner question type.
  *
- * @package 	questionbank
- * @subpackage 	questiontypes
+ * @package    qtype_coderunner
  * @copyright 	&copy; 2013 Richard Lobb
  * @author 		Richard Lobb richard.lobb@canterbury.ac.nz
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License
@@ -356,18 +355,10 @@ class qtype_coderunner_edit_form extends question_edit_form {
         // calling question_bank::loadquestion($question->id).
         global $COURSE;
 
-        if (!isset($question->brokenquestionmessage)) {
-            $question->brokenquestionmessage = '';
-        }
         if (isset($question->options->testcases)) { // Reloading a saved question?
-
-            // Firstly check if we're editing a question with a missing prototype.
-            // Set the broken_question message if so.
             $q = $this->make_question_from_form_data($question);
-            if ($q->prototype === null) {
-                $question->brokenquestionmessage = get_string(
-                        'missingprototype', 'qtype_coderunner', array('crtype' => $question->coderunnertype));
-            }
+            // Loads the error messages into the brokenquestionmessage.
+            $question->brokenquestionmessage =  $this->load_error_messages($question, $q);
 
             // Record the prototype for subsequent use.
             $question->prototype = $q->prototype;
@@ -396,7 +387,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
             // needs to be copied down from the options here.
             $question->customise = $question->options->customise;
 
-            // Save the prototypetype so can see if it changed on post-back.
+            // Save the prototypetype and value so can see if it changed on post-back.
             $question->saved_prototype_type = $question->prototypetype;
             $question->courseid = $COURSE->id;
 
@@ -460,35 +451,73 @@ class qtype_coderunner_edit_form extends question_edit_form {
         return "\n" . $s;
     }
 
-
+    /**
+     * Loads error messages to be put into brokenquestionmessage of the question if needed.
+     * Returns a string of the message to be inserted.
+     *
+     * @param type $question Object with all the question data within.
+     * @param type $q Object with the new question data within.
+     */
+    private function load_error_messages($question, $q) {
+        $errorstring = "";
+        // Firstly check if we're editing a question with a missing prototype or duplicates.
+        // Set the broken_question message if so.
+        if ($q->prototype === null) {
+            $errorstring = get_string(
+                    'missingprototype', 'qtype_coderunner', array('crtype' => $question->coderunnertype));
+        } else if (is_array($q->prototype)) {
+            $outputstring = "</p>";
+            // Output every duplicate Question id, name and category.
+            foreach ($q->prototype as $component) {
+                $outputstring .= get_string('listprototypeduplicates', 'qtype_coderunner',
+                    ['id' => $component->id, 'name' => $component->name,  'category' => $component->category]);
+            }
+            $errorstring = get_string(
+                'duplicateprototype', 'qtype_coderunner', ['crtype' => $question->coderunnertype,
+                    'outputstring' => $outputstring]);
+        }
+        return $errorstring;
+    }
 
 
     // FUNCTIONS TO BUILD PARTS OF THE MAIN FORM
     // =========================================.
 
-    // Create an empty div with id id_qtype_coderunner_error_div for use by
+    // Create 2 empty divs with id id__qtype_coderunner_warning_div, id_qtype_coderunner_error_div for use by
     // JavaScript error handling code.
     private function make_error_div($mform) {
+        $mform->addElement('html', "<div id='id_qtype_coderunner_warning_div' class='qtype_coderunner_warning_message'></div>");
         $mform->addElement('html', "<div id='id_qtype_coderunner_error_div' class='qtype_coderunner_error_message'></div>");
     }
 
     // Add to the supplied $mform the panel "Coderunner question type".
     private function make_questiontype_panel($mform) {
-        list($languages, $types) = $this->get_languages_and_types();
+        list(, $types) = $this->get_languages_and_types();
         $hidemethod = method_exists($mform, 'hideIf') ? 'hideIf' : 'disabledIf';
 
         $mform->addElement('header', 'questiontypeheader', get_string('type_header', 'qtype_coderunner'));
+
+        // Insert the (possible) bad question load message as a hidden field before broken question. JavaScript
+        // will be used to show it if non-empty.
+        $mform->addElement('hidden', 'badquestionload', '',
+                array('id' => 'id_bad_question_load', 'class' => 'badquestionload'));
+        $mform->setType('badquestionload', PARAM_RAW);
+
         // Insert the (possible) missing prototype message as a hidden field. JavaScript
         // will be used to show it if non-empty.
         $mform->addElement('hidden', 'brokenquestionmessage', '',
                 array('id' => 'id_broken_question', 'class' => 'brokenquestionerror'));
         $mform->setType('brokenquestionmessage', PARAM_RAW);
 
-        // The Question Type controls (a group with just a single member).
+        // The Question Type controls (a group with the question type and the warning, if it is one).
         $typeselectorelements = array();
         $expandedtypes = array_merge(array('Undefined' => 'Undefined'), $types);
         $typeselectorelements[] = $mform->createElement('select', 'coderunnertype',
                 null, $expandedtypes);
+        $prototypelangstring = get_string('prototypeexists', 'qtype_coderunner');
+        $typeselectorelements[] = $mform->createElement('html',
+            "<div id='id_isprototype' class='qtype_coderunner_prototype_message' hidden>"
+                . "{$prototypelangstring}</div>");
         $mform->addElement('group', 'coderunner_type_group',
                 get_string('coderunnertype', 'qtype_coderunner'), $typeselectorelements, null, false);
         $mform->addHelpButton('coderunner_type_group', 'coderunnertype', 'qtype_coderunner');
@@ -589,6 +618,8 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $twigelements = array();
         $twigelements[] = $mform->createElement('advcheckbox', 'hoisttemplateparams', null,
                 get_string('hoisttemplateparams', 'qtype_coderunner'));
+        $twigelements[] = $mform->createElement('advcheckbox', 'extractcodefromjson', null,
+                get_string('extractcodefromjson', 'qtype_coderunner'));
         $twigelements[] = $mform->createElement('advcheckbox', 'twigall', null,
                 get_string('twigall', 'qtype_coderunner'));
         $templateparamlangs = array(
@@ -614,13 +645,11 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->$hidemethod('templateparamsevalpertry', 'templateparamslang', 'eq', 'None');
         $mform->$hidemethod('templateparamsevalpertry', 'templateparamslang', 'eq', 'twig');
         $mform->setDefault('hoisttemplateparams', true);
+        $mform->setDefault('extractcodefromjson', true);
         $mform->addHelpButton('twigcontrols', 'twigcontrols', 'qtype_coderunner');
 
         // UI parameters.
-        $uiplugin = empty($this->question->options->uiplugin) ? 'none' : $this->question->options->uiplugin;
         $plugins = qtype_coderunner_ui_plugins::get_instance();
-        $pluginswithoutparams = $plugins->all_with_no_params();
-
         $uielements = array();
         $uiparamedescriptionhtml = '<div class="ui_parameters_descr"></div>'; // JavaScript fills this.
         $uielements[] = $mform->createElement('html', $uiparamedescriptionhtml);
@@ -756,7 +785,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $enabled = qtype_coderunner_sandbox::enabled_sandboxes();
         if (count($enabled) > 1) {
             $sandboxes = array_merge(array('DEFAULT' => 'DEFAULT'), $enabled);
-            foreach ($sandboxes as $ext => $class) {
+            foreach (array_keys($sandboxes) as $ext) {
                 $sandboxes[$ext] = $ext;
             }
 
@@ -799,10 +828,12 @@ class qtype_coderunner_edit_form extends question_edit_form {
         // status of the testsplitterre and allowmultiplestdins elements
         // after loading a new question type as the following code apparently
         // sets up event handlers only for clicks on the iscombinatortemplate
-        // checkbox.
+        // checkbox. Note, if disabled, the value doesn't exist, so check
+        // properties exist!
         $mform->disabledIf('typename', 'prototypetype', 'neq', '2');
         $mform->disabledIf('testsplitterre', 'iscombinatortemplate', 'eq', 0);
         $mform->disabledIf('allowmultiplestdins', 'iscombinatortemplate', 'eq', 0);
+        $mform->disabledIf('coderunnertype', 'prototypetype', 'eq', '2');
     }
 
 
@@ -815,11 +846,20 @@ class qtype_coderunner_edit_form extends question_edit_form {
     // Validate the given data and possible files.
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
-        $this->formquestion = $this->make_question_from_form_data($data);
+        if (!isset($data['coderunnertype'])) {
+            if ($data['prototypetype'] == 2) {
+                // If the questiontype is Undefined or non-existent; still good for user prototype.
+                $data['coderunnertype'] = $data['typename'];
+            } else {
+                $data['coderunnertype'] = 'Undefined';
+            }
+        }
         if ($data['coderunnertype'] == 'Undefined') {
             $errors['coderunner_type_group'] = get_string('questiontype_required', 'qtype_coderunner');
-            return $errors;  // Don't continue checking in this case. Template param validation breaks.
+            return $errors;  // Don't continue checking in these cases, including if there isn't a previous coderunnertype (duplicate, missings).
+            // Else template param validation breaks.
         }
+        $this->formquestion = $this->make_question_from_form_data($data);
         if ($data['cputimelimitsecs'] != '' &&
              (!ctype_digit($data['cputimelimitsecs']) || intval($data['cputimelimitsecs']) <= 0)) {
             $errors['sandboxcontrols'] = get_string('badcputime', 'qtype_coderunner');
@@ -949,8 +989,6 @@ class qtype_coderunner_edit_form extends question_edit_form {
     // and the JSON evaluated template parameters, which will be empty if there
     // are errors.
     private function validate_template_params() {
-        global $USER;
-        $templateparams = $this->formquestion->templateparams;
         $errormessage = '';
         $json = '';
         $seed = mt_rand();  // TODO use a fixed seed if !evaluate_per_try.
@@ -968,7 +1006,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
         if ($errormessage === '') {
             // Check for legacy case of ui parameters defined within the template params.
-            $uiplugin = $this->formquestion->uiplugin;
+            $uiplugin = $this->formquestion->uiplugin ? $this->formquestion->uiplugin : 'ace';
             $uiparams = new qtype_coderunner_ui_parameters($uiplugin);
             $templateparamsnoprototype = json_decode($this->formquestion->template_params_json($seed), true);
             $alluiparamnames = $uiparams->all_names();
@@ -1007,7 +1045,6 @@ class qtype_coderunner_edit_form extends question_edit_form {
         if (empty($uiparameters)) {
             return $errormessage;
         }
-        $json = '';
         try {
             $decoded = json_decode($uiparameters, true);
         } catch (Exception $e) {
@@ -1155,7 +1192,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 if ($mark != '') {
                     if (!is_numeric($mark)) {
                         $errors["testcode[$i]"] = get_string('nonnumericmark', 'qtype_coderunner');
-                    } else if (floatval($mark) <= 0) {
+                    } else if (floatval($mark) < 0) {
                         $errors["testcode[$i]"] = get_string('negativeorzeromark', 'qtype_coderunner');
                     }
                 }
@@ -1217,7 +1254,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
             if ($error) {
                 return $error;
             }
-            list($mark, $state, $cachedata) = $this->formquestion->grade_response($response);
+            list($mark, , $cachedata) = $this->formquestion->grade_response($response);
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -1239,7 +1276,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
     // in the current context (Currently only a single global context is
     // implemented).
     private function is_valid_new_type($typename) {
-        list($langs, $types) = $this->get_languages_and_types();
+        list(, $types) = $this->get_languages_and_types();
         return !array_key_exists($typename, $types);
     }
 
@@ -1252,26 +1289,29 @@ class qtype_coderunner_edit_form extends question_edit_form {
         return isset($data['useasexample']) ? count($data['useasexample']) : 0;
     }
 
+    /**
+     * Return two arrays (language => language_upper_case) and (type => subtype) of
+     * all the coderunner question types available in the current course
+     * context. [If needing to filter duplicates out in future, see here! (row->count)]
+     * The subtype is the suffix of the type in the database,
+     * e.g. for java_method it is 'method'. The language is the bit before
+     * the underscore, and language_upper_case is a capitalised version,
+     * e.g. Java for java. For question types without a
+     * subtype the word 'Default' is used.
+     *
+     * @global type $COURSE The Course in which this query contex will lie.
+     * @return array Language and type arrays as specified.
+     */
     private function get_languages_and_types() {
-        // Return two arrays (language => language_upper_case) and (type => subtype) of
-        // all the coderunner question types available in the current course
-        // context.
-        // The subtype is the suffix of the type in the database,
-        // e.g. for java_method it is 'method'. The language is the bit before
-        // the underscore, and language_upper_case is a capitalised version,
-        // e.g. Java for java. For question types without a
-        // subtype the word 'Default' is used.
-
         global $COURSE;
         $courseid = $COURSE->id;
         $records = qtype_coderunner::get_all_prototypes($courseid);
-        $types = array();
+        $types = [];
+        $languages = [];
         foreach ($records as $row) {
             if (($pos = strpos($row->coderunnertype, '_')) !== false) {
-                $subtype = substr($row->coderunnertype, $pos + 1);
                 $language = substr($row->coderunnertype, 0, $pos);
             } else {
-                $subtype = 'Default';
                 $language = $row->coderunnertype;
             }
             $types[$row->coderunnertype] = $row->coderunnertype;

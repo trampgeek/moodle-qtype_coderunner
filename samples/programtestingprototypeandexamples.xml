@@ -48,6 +48,7 @@
     <sandboxparams></sandboxparams>
     <templateparams></templateparams>
     <hoisttemplateparams>1</hoisttemplateparams>
+    <extractcodefromjson>1</extractcodefromjson>
     <twigall>0</twigall>
     <uiplugin></uiplugin>
     <testcases>
@@ -222,6 +223,7 @@
     <sandboxparams></sandboxparams>
     <templateparams></templateparams>
     <hoisttemplateparams>1</hoisttemplateparams>
+    <extractcodefromjson>1</extractcodefromjson>
     <twigall>0</twigall>
     <uiplugin></uiplugin>
     <testcases>
@@ -450,6 +452,7 @@
     <sandboxparams></sandboxparams>
     <templateparams></templateparams>
     <hoisttemplateparams>1</hoisttemplateparams>
+    <extractcodefromjson>1</extractcodefromjson>
     <twigall>0</twigall>
     <uiplugin></uiplugin>
     <testcases>
@@ -1104,6 +1107,7 @@ print(SEPARATOR)
     "table_dynamic_rows": true
 }]]></templateparams>
     <hoisttemplateparams>1</hoisttemplateparams>
+    <extractcodefromjson>1</extractcodefromjson>
     <twigall>0</twigall>
     <uiplugin>table</uiplugin>
     <testcases>

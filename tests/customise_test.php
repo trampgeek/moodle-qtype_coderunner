@@ -32,6 +32,10 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 
+/**
+ * Unit tests for the coderunner question customistation capability.
+ * @coversNothing
+ */
 class customise_test extends \qtype_coderunner_testcase {
 
     public function test_grade_response_right() {

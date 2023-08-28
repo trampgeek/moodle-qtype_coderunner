@@ -19,18 +19,13 @@
  * which can be up to a minute. It was developed as a proof of concept of
  * the idea of a remote sandbox and is not recommended for general purpose use.
  *
- * @package    qtype
- * @subpackage coderunner
+ * @package    qtype_coderunner
  * @copyright  2012, 2015 Richard Lobb, University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
-
 class qtype_coderunner_ideonesandbox extends qtype_coderunner_sandbox {
 
-    private $client = null;       // The soap client referencing ideone.com.
     private $langserror = null;   // The error attribute from the last call to getLanguages.
     private $langmap = null;      // Languages supported by this sandbox: map from name to id.
     //
@@ -61,7 +56,7 @@ class qtype_coderunner_ideonesandbox extends qtype_coderunner_sandbox {
                      'Python *3 *\(python.*'        => 'python3',
                      'Java.*sun-jdk.*'              => 'java');
 
-        $this->client = $client = new SoapClient("http://ideone.com/api/1/service.wsdl");
+        $this->client = new SoapClient("http://ideone.com/api/1/service.wsdl");
         $this->langmap = array();  // Construct a map from language name to id.
 
         // Build a table mapping from language name to Ideone language ID.

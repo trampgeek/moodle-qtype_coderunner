@@ -82,7 +82,6 @@ class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
         global $DB;
 
         $data = (object)$data;
-        $oldid = $data->id;
 
         // Detect if the question is created or mapped.
         $oldquestionid   = $this->get_old_parentid('question');
@@ -93,7 +92,7 @@ class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
         if ($questioncreated) {
             $data->questionid = $newquestionid;
             // Insert record.
-            $newitemid = $DB->insert_record("question_coderunner_tests", $data);
+            $DB->insert_record("question_coderunner_tests", $data);
         }
         // Nothing to remap if the question already existed.
     }
@@ -106,7 +105,6 @@ class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
         global $DB;
 
         $data = (object)$data;
-        $oldid = $data->id;
 
         // Detect if the question is created or mapped.
         $oldquestionid   = $this->get_old_parentid('question');
@@ -137,7 +135,7 @@ class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
             }
 
             // Insert the record.
-            $newitemid = $DB->insert_record("question_coderunner_options", $data);
+            $DB->insert_record("question_coderunner_options", $data);
         }
         // Nothing to remap if the question already existed.
 

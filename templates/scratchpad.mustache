@@ -1,0 +1,70 @@
+{{!
+    This file is part of Moodle - https://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template qtype_coderunner/scratchpad
+
+    Example context (json):
+    {
+        "id": "question:12",
+        "answer_code": {
+            "id": "question:12_answer-code",
+            "rows": 16,
+            "name": "answer_code",
+            "lang": "C"
+        },
+        "test_code": {
+            "id": "question:12_test-code",
+            "rows": 4,
+            "name": "test_code",
+            "lang": "C"
+        },
+        "prefix_ans": {
+            "id": "question:12_prefix-ans",
+            "checked": true
+        },
+        "output_display": {
+            "id": "question:12"
+        }
+    }
+}}
+<a role='button'
+   id='{{ id }}_show-scratchpad-btn'
+   href="#{{#jquery_escape}}{{ id }}{{/jquery_escape}}_scratchpad"
+   title='show_hide'
+   data-toggle="collapse"
+   class="btn btn-sm btn-icon icons-collapse-expand {{^ show_hide.show }}collapsed{{/ show_hide.show }} text-info"
+   style="margin-top: 5px;margin-left: 5px;margin-bottom: 5px;width: 30px;height: 30px;">
+        <span class="expanded-icon icon-no-margin p-2" title="Collapse">
+            <i class="icon fa fa-chevron-down fa-fw " aria-hidden="true"></i>
+        </span>
+    <span class="collapsed-icon icon-no-margin p-2" title="Expand">
+        <span class="dir-rtl-hide">
+            <i class="icon fa fa-chevron-right fa-fw" aria-hidden="true"></i>
+        </span>
+    </span>
+    {{ scratchpad_name }}
+    {{^ scratchpad_name }}{{# str }}scratchpadui_def_scratchpad_name, qtype_coderunner{{/ str }}{{/scratchpad_name}}
+</a>
+{{# show_hide }}<fieldset id="{{ id }}" class="collapse {{# show }}show{{/ show }}">{{/ show_hide }}
+    {{# test_code }}
+        {{> qtype_coderunner/answer_textarea }}
+    {{/ test_code }}
+    {{> qtype_coderunner/scratchpad_controls }}
+    {{# output_display }}
+        {{> qtype_coderunner/output_displayarea }}
+    {{/ output_display }}
+{{# show_hide }}</fieldset>{{/ show_hide }}

@@ -18,13 +18,10 @@
 /**
  * Student class to access user details without exposing all properties of global $USER.
  *
- * @package    qtype
- * @subpackage coderunner
+ * @package    qtype_coderunner
  * @copyright  2017 David Bowes <d.h.bowes@herts.ac.uk>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-defined('MOODLE_INTERNAL') || die();
 
 class qtype_coderunner_student {
 

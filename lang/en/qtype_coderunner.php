@@ -15,16 +15,21 @@
 // along with CodeRunner.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Strings for component 'qtype_coderunner', language 'en', branch 'MOODLE_20_STABLE'
+ * Strings for component 'qtype_coderunner', language 'en', branch 'MOODLE_40_STABLE'
  *
  * @package   qtype_coderunner
- * @copyright Richard Lobb 2012
+ * @copyright Richard Lobb 2012-2023
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 $string['aborted'] = 'Testing was aborted due to error.';
 $string['ace_gapfillerui_ui_source_descr'] = '"globalextra" to take the code to display from the globalextra field or "test0" to take it from the testcode field of the first test';
 $string['ace_ui_notready'] = 'Ace editor not ready. Perhaps reload page?';
+$string['aceui_auto_switch_light_dark_descr'] = 'Allow a user, browser or OS preference for dark themes to override a preset Ace light theme.';
+$string['aceui_live_autocompletion_descr'] = 'Enable the Ace editor\'s live autocompletion mode.';
+$string['aceui_font_size_descr'] = 'Ace editor font size.';
+$string['aceui_import_from_scratchpad_descr'] = 'True to allow the Ace editor to receive the JSON-format answer used by the scratchpad UI and extract the answer code from it. Facilitates switching UIs. Leave true unless you want Ace to edit JSON objects with an "answer_code" key.';
+$string['aceui_theme_descr'] = 'Ace editor theme. Default is the light theme "textmate". An alternative dark theme is "tomorrow_night". Light theme be overridden by user preferences - see auto_switch_dark.';
 $string['addingcoderunner'] = 'Adding a new CodeRunner Question';
 $string['ajax_error'] = '*** AJAX ERROR. DON\'T SAVE THIS! ***';
 $string['allok'] = 'Passed all tests! ';
@@ -44,6 +49,7 @@ $string['allowmultiplestdins'] = 'Allow multiple stdins';
 $string['answer'] = 'Sample answer';
 $string['answerprompt'] = 'Answer:';
 $string['answer_help'] = 'A sample answer can be entered here and used for checking by the question author and optionally shown to students during review. It is also used by the bulk tester script. The correctness of a non-empty answer is checked when saving unless \'Validate on save\' is unchecked';
+$string['answerunchanged'] = 'You must complete or edit the preloaded answer.';
 $string['answerrequired'] = 'Please provide a non-empty answer';
 $string['answertooshort'] = 'Answer too short. Must be at least {$a} characters.';
 $string['atleastonetest'] = 'You must provide at least one test case for this question.';
@@ -73,7 +79,7 @@ $string['bad_empty_splitter'] = 'Test splitter cannot be empty when using a comb
 $string['badfilenamesregex'] = 'Invalid regular expression';
 $string['badfiles'] = 'Disallowed file name(s): {$a}';
 $string['badjsonfunc'] = 'Unknown JSON embedded func ({$a->func})';
-$string['badjson'] = 'Bad JSON output from combinator grader output. Output was: {$a->output}';
+$string['badjson'] = 'Bad JSON output from combinator grader. Output was: {$a->output}';
 $string['badmemlimit'] = 'Memory limit must either be left blank or must be a non-negative integer';
 $string['bad_new_prototype_name'] = 'Illegal name for new prototype: already in use';
 $string['badpenalties'] = 'Penalty regime must be a comma separated list of numbers in the range [0, 100]';
@@ -92,6 +98,7 @@ $string['bulktestindextitle'] = 'CodeRunner bulk testing';
 $string['bulktestrun'] = 'Run all the question tests for all the questions in the system (slow, admin only)';
 $string['bulktesttitle'] = 'Testing questions in {$a}';
 
+$string['cannotrunprototype'] = 'This is a prototype and cannot be run. If you wish to use this prototype, create a new question and set this question type.';
 $string['coderunnercategories'] = 'Categories with CodeRunner questions';
 $string['coderunnercontexts'] = 'Contexts with CodeRunner questions';
 $string['coderunner'] = 'Program Code';
@@ -128,7 +135,6 @@ $string['datafiles_help'] = 'Any files uploaded here will be added to the workin
 $string['default_penalty_regime'] = 'Default penalty regime';
 $string['default_penalty_regime_desc'] = 'The default penalty regime to apply to new questions, consisting of a comma separated list of penalty percentages, optionally ending in ", ..." to signify an on-going arithmetic progression.';
 
-
 $string['display'] = 'Display';
 $string['downloadquizattempts'] = 'Download quiz attempts';
 $string['downloadquizattemptshelp'] = 'Click the appropriate course and/or download button
@@ -136,6 +142,7 @@ $string['downloadquizattemptshelp'] = 'Click the appropriate course and/or downl
         after courses are the number of quizzes in the course with at least
         one submission. The numbers in parentheses after the quiz name
         are the numbers of submissions.';
+$string['duplicateprototype'] = 'This question was defined to be of type \'{$a->crtype}\' but the prototype is non-unique in the following questions: {$a->outputstring} Please remove all but one instance, or select another question type.';
 $string['editingcoderunner'] = 'Editing a CodeRunner Question';
 $string['empty_new_prototype_name'] = 'New question type name cannot be empty';
 $string['emptypenaltyregime'] = 'Penalty regime must be defined (since version 3.1)';
@@ -144,6 +151,7 @@ $string['enablecombinator'] = 'Enable combinator';
 $string['enable_diff_check'] = 'Enable \'Show differences\' button';
 $string['enable_diff_check_desc'] = 'Present students with a \'Show differences\' button if their answer is wrong and an exact-match validator is being used';
 $string['enable_sandbox_desc'] = 'Permit use of the specified sandbox for running student submissions';
+$string['enter_to_submit'] = 'Enter to submit...';
 $string['equalitygrader'] = 'Exact match';
 $string['error_loading_prototype'] = 'Error loading prototype. Network problems or server down, perhaps?';
 $string['error_loading_ui_descr'] = 'Error loading UI description. Network problems or server down, perhaps?';
@@ -151,6 +159,7 @@ $string['erroroninit'] = '**** ERROR WHEN INITIALISING QUESTION ****<br>{$a->err
 $string['errorstring-ok'] = 'OK';
 $string['errorstring-autherror'] = 'Unauthorised to use sandbox';
 $string['errorstring-blocked-url'] = 'The URL is blocked. Check the Jobe URL and Moodle\'s HTTP security settings.';
+$string['errorstring-duplicate-name'] = 'Rename class name; this name conflicts with support files for this question.';
 $string['errorstring-jobe400'] = 'Error from Jobe sandbox server: ';
 $string['errorstring-jobe-failed'] = 'Jobe server request failed. ';
 $string['errorstring-overload'] = 'Job could not be run due to server overload. Perhaps try again shortly?';
@@ -160,6 +169,18 @@ $string['errorstring-accessdenied'] = 'Access to sandbox denied';
 $string['errorstring-submissionlimitexceeded'] = 'Sandbox submission limit reached';
 $string['errorstring-submissionfailed'] = 'Submission to sandbox failed';
 $string['errorstring-unknown'] = 'Unexpected error while executing your code. The sandbox server may be down or overloaded. Perhaps try again shortly?';
+
+# Webservice errors for output display area.
+$string['error_access_denied'] = 'Sandbox server access denied';
+$string['error_excessive_output'] = 'Excessive output';
+$string['error_json_params'] = 'Params set are not in correct JSON format';
+$string['error_jobe_unknown'] = 'Unknown error from Jobe server';
+$string['error_memory_limit'] = 'Memory limit exceeded';
+$string['error_sandbox_server_overload'] = 'Jobe server overload';
+$string['error_submission_limit_reached'] = 'Jobe sandbox submission limit reached';
+$string['error_timeout'] = 'Time limit exceeded';
+$string['error_unknown_language'] = 'Unknown language requested';
+$string['error_unknown_runtime'] = 'Unknown runtime error';
 
 $string['event_sandboxwebserviceexec'] = 'CR sandbox exec';
 $string['event_sandboxwebserviceexec_desc'] = 'A job was executed via the CodeRunner sandbox web service.';
@@ -173,6 +194,7 @@ $string['exportthisquestion'] = 'Export this question';
 $string['exportthisquestion_help'] = 'This will create a Moodle XML export file containing just this one question. One example of when this is useful if you think this question demonstrates a bug in CodeRunner that you would like to report to the developers.';
 $string['extra'] = 'Extra template data';
 $string['extra_help'] = 'A sometimes-useful extra text field for use by the template, accessed as {{TEST.extra}}';
+$string['extractcodefromjson'] = "Ace/Scratchpad compliant";
 
 $string['fail'] = 'Fail';
 $string['fails'] = 'failures';
@@ -380,6 +402,8 @@ first of the allowed languages otherwise.';
 $string['languageselectlabel'] = 'Language';
 $string['legacyuiparams'] = 'UI parameters can no longer be defined within the template parameters field. Please move the following to the UI parameters field instead: ';
 $string['legacyuiparams2'] = 'UI parameters can no longer be defined within the template parameters field. Please move the following to the UI parameters field instead, removing the \'{$a->uiname}_\' prefix: ';
+$string['listprototypeduplicates'] = 'Question ID: {$a->id} <ul><li>Name: {$a->name}</li><li>Category: {$a->category}</li></ul>';
+$string['loadprototypeerror'] = 'Reverted to question type: \'{$a->oldtype}\' <br>Could not load question type \'{$a->crtype}\' as the prototype is non-unique in the following questions:</p>{$a->outputstring}';
 $string['mark'] = 'Mark';
 $string['marking'] = 'Mark allocation';
 $string['markinggroup'] = 'Marking';
@@ -412,7 +436,7 @@ $string['memorylimit'] = 'MemLimit (MB)';
 $string['missinganswers'] = 'missing answers';
 $string['missingorbadfraction'] = 'Bad or missing fraction in output from template grader. Output was: {$a->output}';
 $string['missingoutput'] = 'You must supply the expected output from this test case.';
-$string['missingprototype'] = 'This question was defined to be of type \'{$a->crtype}\' but the prototype does not exist, or is non-unique, or is unavailable in this context. You should Cancel and try to (re)install the prototype.
+$string['missingprototype'] = 'This question was defined to be of type \'{$a->crtype}\' but the prototype does not exist, or is unavailable in this context. You should Cancel and try to (re)install the prototype.
 Proceed to edit only if you know what you are doing!';
 $string['missingprototypes'] = 'Missing prototypes';
 $string['missingprototypewhenrunning'] = 'Broken question (missing or duplicate prototype \'{$a->crtype}\'). Cannot be run.';
@@ -429,6 +453,7 @@ $string['morehidden'] = 'Some hidden test cases failed, too.';
 $string['noerrorsallowed'] = 'Your code must pass all tests to earn any marks. Try again.';
 $string['nonnumericmark'] = 'Non-numeric mark';
 $string['nosampleanswer'] = 'No sample answer';
+$string['nooutput'] = '< No output! >';
 $string['negativeorzeromark'] = 'Mark must be greater than zero';
 
 $string['options'] = 'Options';
@@ -484,6 +509,7 @@ $string['precheckingemptyset'] = 'Prechecking examples, but there aren\'t any!';
 $string['privacy:metadata'] = 'The CodeRunner question type plugin does not store any personal data.';
 $string['proceed_at_own_risk'] = 'Editing a built-in question prototype?! Proceed at your own risk!';
 $string['prototypecontrols'] = 'Prototyping';
+$string['prototypeexists'] = 'This is a prototype; cannot change question type.';
 $string['prototypeextra'] = 'Prototype extra';
 $string['prototypeextra_help'] = 'A field of text for general-purpose use by question type authors, like global extra, but part of the prototype state. Available to the template author as {{ QUESTION.prototypeextra }}.';
 
@@ -507,6 +533,8 @@ that you rename the question to something like \'PROTOTYPE_for_my_new_question_t
 to make subsequentmaintenance easier.';
 $string['prototype_error'] = '*** PROTOTYPE LOAD FAILURE. DON\'T SAVE THIS! ***';
 $string['prototype_load_failure'] = 'Error loading prototype: ';
+$string['prototype_missing_alert'] = 'Missing prototype: Check if {$a} prototype exists in this context.';
+$string['prototype_duplicate_alert'] = 'Duplicate prototype: Duplicate {$a} prototypes exist. Can only load one.';
 $string['prototypeQ'] = 'Is prototype?';
 
 $string['qtype_c_function'] = '<p>A question type for C write-a-function questions.
@@ -979,6 +1007,50 @@ $string['submitbuttons'] = 'Submit buttons';
 $string['supportscripts'] = 'Support scripts';
 $string['syntax_errors'] = 'Syntax Error(s)';
 
+# SCRATCHPAD UI Default text
+$string['scratchpadui_def_button_name'] = 'Run';
+$string['scratchpadui_def_scratchpad_name'] = 'Scratchpad';
+$string['scratchpadui_def_prefix_name'] = 'Prefix with Answer';
+$string['scratchpadui_def_help_text'] = '<p>You can enter code into this panel and click \'Run\' to execute it.</p>
+<p>By default, the code in this panel is prefixed with the contents of the answer box, giving you an easy way to test your answer.</p>
+<p>You can uncheck the \'Prefix with answer\' checkbox to run the code in this panel standalone, e.g. to explore how small code fragments behave.</p>';
+# SCRATCHPAD UI Parameter descriptions
+$string['scratchpadui_scratchpad_name_descr'] = 'Display name of the scratchpad, used to hide/un-hide the scratchpad.';
+$string['scratchpadui_button_name_descr'] = 'Run button text.';
+$string['scratchpadui_prefix_name_descr'] = 'Prefix with answer check-box label text.';
+$string['scratchpadui_run_lang_descr'] = 'Language used to run code when the run button is clicked, this should be the language your wrapper is written in (if applicable).';
+$string['scratchpadui_params_descr'] = 'Parameters for the sandbox webservice.';
+$string['scratchpadui_output_display_mode_descr'] = 'Control how program output is displayed on runs, there are three modes:
+    <ul>
+        <li>text: Display the output as text, html escaped. (default)</li>
+        <li>json: Display programs that output JSON, useful for capturing stdin and displaying images. (recommended)</li>
+        <ul>
+            <li>Accepts JSON in run output with the fields:</li>
+            <ul>
+                <li>returncode: Exit code from program run.</li>
+                <li>stdout: Stdout text from program run.</li>
+                <li>stderr: Error text from program run.</li>
+                <li>files: An object containing filenames mapped to base64 encoded images. These will be displayed below any stdout text.</li>
+            </ul>
+           <li>When the returncode is set to 42, an HTML input field will be added after the last stdout received. When the enter key is pressed inside the input, the input\'s value is added to stdin and the program is run again with this updated stdin. This is repeated until returncode is not set to 42. </li></ul>
+        <li>html: Display program output as raw html inside the output area. (advanced)</li>
+            <ul>
+                <li>This can be used to show images and insert other HTML.</li>
+                <li>Giving an &lt;input&gt; element the class coderunner-run-input will add an event: when the enter key is pressed inside the input, the input\'s value is added to stdin and the program is run again with this updated stdin.</li>
+            </ul>
+    </ul>';
+$string['scratchpadui_open_delimiter_descr'] = 'The opening delimiter to use when inserting answer or Scratchpad code into the wrapper. It will replace the default value \'{|\'.';
+$string['scratchpadui_close_delimiter_descr'] = 'The closing delimiter to use when inserting answer or Scratchpad code into the wrapper. It will replace the default value \'|}\'.';
+$string['scratchpadui_help_text_descr'] = 'The help text to show.';
+$string['scratchpadui_wrapper_src_descr'] = 'The location of wrapper to be used by the run button: setting to \'globalextra\' will use text in global extra field, \'prototypeextra\' will use the prototype extra field.';
+$string['scratchpadui_disable_scratchpad_descr'] = 'Disable the scratchpad, effectively revert back to Ace UI from student perspective.';
+$string['scratchpadui_invert_prefix_descr'] = 'Inverts meaning of prefix_ans serialisation: \'1\' means un-ticked -- and vice versa. This can be used to swap the default state.';
+$string['scratchpadui_escape_descr'] = 'Escape (JSON with " removed from start and end) ANSWER_CODE and SCRATCHPAD_CODE before insertion into wrapper. Useful when inserting code into a string. NOTE: single quotes \' are NOT escaped.';
+# SCRATCHPAD UI Errors
+$string['scratchpad_ui_badrunwrappersrc'] = 'Invalid run wrapper source given, please contact question author.';
+$string['scratchpad_ui_invalidserialisation'] = 'Invalid JSON serialisation provided, must include \"answer_code\" field.';
+$string['scratchpad_ui_templateloadfail'] = 'Scratchpad UI template failed to load, please refresh the page. If this persists please report.';
+
 $string['tableui_num_rows_descr'] = 'The (initial) number of rows in the table, excluding the top header row (if headers are given). Required.';
 $string['tableui_num_columns_descr'] = 'The number of columns in the table, excluding the left-most label column (if labels are given). Required.';
 $string['tableui_column_headers_descr'] = 'A list of strings for the column headers.';
@@ -1134,6 +1206,10 @@ $string['twigcontrols_help'] = 'Template parameters were traditionally referred 
 checkbox is checked, the parameters are hoisted into the Twig global name space
 and can be referenced simply as {{someparam}}.
 
+Ace/Scratchpad compliance allows seamless switching between the Ace and
+Scratchpad UIs. Leave checked unless you wish Ace to be able to edit a JSON string
+with an "answer_code" key, which would be taken to be a Scratchpad serialisation.
+
 If Twig All is checked, Twig macro expansion is applied to the
 question text, sample answer, answer preload, UI parameters and all test case fields
 using the template parameters as an environment. You will usually
@@ -1221,14 +1297,18 @@ $string['useace'] = 'Template uses ace';
 $string['validateonsave'] = 'Validate on save';
 
 $string['wrongnumberofformats'] = 'Wrong number of test results column formats. Expected {$a->expected}, got {$a->got}';
+$string['wsbadjson'] = 'Params and file parameters must be blank or a valid JSON record';
+$string['wscputimeexcess'] = 'CPU time specified exceeds set maximum CPU time';
 $string['wsdisabled'] = 'Sandbox web service disabled. Talk to a sysadmin';
 $string['wsloggingenable'] = 'Log sandbox web service usage';
 $string['wsloggingenable_desc'] = 'If this option is checked, every code execution via the sandbox web service will be logged. This option must be enabled if user rate throttling is to work.';
-$string['wsnoaccess'] = 'Only logged-in non-guest users can access this functionality';
 $string['wsmaxcputime'] = 'Max CPU time (secs)';
 $string['wsmaxcputime_desc'] = 'Limits the maximum CPU time that a web service job can use, even if it explicitly sets the CPU time sandbox parameter.';
 $string['wsmaxhourlyrate'] = 'Max hourly rate of submissions';
-$string['wsmaxhourlyrate_desc'] = 'If a user attempts to exceed this rate of submissions in any given hour their submissions will be disallowed. 0 for no rate throttling. Requires that logging of web service usage be enabled.';
+$string['wsmaxhourlyrate_desc'] = 'If a user attempts to exceed this rate of submissions in any given hour their submissions will be disallowed. 0 for no rate throttling.';
+$string['wsnoaccess'] = 'Only logged-in non-guest users can access this functionality';
+$string['wsnolanguage'] = 'Language "{$a}" is not known';
 $string['wssubmissionrateexceeded'] = 'You have exceeded the maximum hourly \'Try it!\' submission rate. Request denied.';
 
 $string['xmlcoderunnerformaterror'] = 'XML format error in coderunner question';
+

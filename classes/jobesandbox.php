@@ -20,8 +20,7 @@
  * This version doesn't do any authentication; it's assumed the server is
  * firewalled to accept connections only from Moodle.
  *
- * @package    qtype
- * @subpackage coderunner
+ * @package    qtype_coderunner
  * @copyright  2014, 2015 Richard Lobb, University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -112,8 +111,8 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
      *         If the $params array is null, sandbox defaults are used.
      * @return an object with at least the attribute 'error'.
      *         The error attribute is one of the
-     *         values 0 through 8 (OK to UNKNOWN_SERVER_ERROR) as defined in the
-     *         base class. If
+     *         values 0 through 9 (OK to UNKNOWN_SERVER_ERROR, OVERLOAD)
+     *         as defined in the base class. If
      *         error is 0 (OK), the returned object has additional attributes
      *         result, output, stderr, signal and cmpinfo as follows:
      *             result: one of the result_* constants defined in the base class
@@ -142,14 +141,6 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
             $input .= "\n";  // Force newline on the end if necessary.
         }
 
-        $filelist = array();
-        if ($files !== null) {
-            foreach ($files as $filename => $contents) {
-                $id = md5($contents);
-                $filelist[] = array($id, $filename);
-            }
-        }
-
         if ($language === 'java') {
             $mainclass = $this->get_main_class($sourcecode);
             if ($mainclass) {
@@ -159,6 +150,20 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
             }
         } else {
             $progname = "__tester__.$language";
+        }
+
+        $filelist = array();
+        if ($files !== null) {
+            foreach ($files as $filename => $contents) {
+                if ($filename == $progname) {
+                    // If Jobe has named the progname the same as filename, throw an error.
+                    $badname['error'] = self::JOBE_400_ERROR;
+                    $badname['stderr'] = get_string('errorstring-duplicate-name', 'qtype_coderunner');
+                    return (object) $badname;
+                }
+                $id = md5($contents);
+                $filelist[] = array($id, $filename);
+            }
         }
 
         $runspec = array(
@@ -311,11 +316,18 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
      */
     private function get_jobe_connection_info($resource) {
         $jobe = $this->jobeserver;
-        if (!empty($this->currentjobid) && strpos($jobe, ';') !== false) {
+        if (strpos($jobe, ';') !== false) {
             // Support multiple servers - thanks Khang Pham Nguyen KHANG: 2021/10/18.
             $servers = array_values(array_filter(array_map('trim', explode(';', $jobe)), 'strlen'));
-            $jobe = $servers[intval($this->currentjobid, 16) % count($servers)];
+            if ($this->currentjobid) {
+                // Make sure to use the same jobe server when files are involved.
+                $rand = intval($this->currentjobid, 16);
+            } else {
+                $rand = mt_rand();
+            }
+            $jobe = $servers[$rand % count($servers)];
         }
+        $jobe = trim($jobe); // Remove leading or trailing extra whitespace from the settings.
         $protocol = 'http://';
         $url = (strpos($jobe, 'http') === 0 ? $jobe : $protocol.$jobe)."/jobe/index.php/restapi/$resource";
 
@@ -386,7 +398,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
                 // Various weird stuff lands here, such as URL blocked.
                 // Hopefully the value of $response is useful.
                 $returncode = -1;
-                $responsebody = print_r($response, true);
+                $responsebody = json_encode($response);
             }
         } else {
             $returncode = -1;

@@ -27,8 +27,7 @@
  * Assumed to be run after python questions have been tested, so focuses
  * only on C-specific aspects.
  *
- * @package    qtype
- * @subpackage coderunner
+ * @package    qtype_coderunner
  * @copyright  2015 Richard Lobb, University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -51,10 +50,23 @@ header('Content-type: application/json; charset=utf-8');
 $coursecontext = context_course::instance($courseid);
 if ($qtype) {
     $questiontype = qtype_coderunner::get_prototype($qtype, $coursecontext);
-    if ($questiontype === null) {
+    if ($questiontype === null || is_array($questiontype)) {
+        $questionprototype = $questiontype;
         $questiontype = new stdClass();
         $questiontype->success = false;
-        $questiontype->error = "Error fetching prototype '$qtype'.";
+        if ($questiontype === null) {
+            $questiontype->error = json_encode(["error" => "missingprototype",
+                "alert" => "prototype_missing_alert", "extras" => ""]); 
+        } else {
+            $extras = "";
+            foreach ($questionprototype as $component) {
+                $extras .= get_string('listprototypeduplicates', 'qtype_coderunner',
+                    ['id' => $component->id, 'name' => $component->name,
+                        'category' => $component->category]);
+            }
+            $questiontype->error = json_encode(["error" => "duplicateprototype",
+                "alert" => "prototype_duplicate_alert", "extras" => $extras]);
+        }   
     } else {
         $questiontype->success = true;
         $questiontype->error = '';
