@@ -1,5 +1,40 @@
 # CHANGE HISTORY
 
+### 31 August 2023. 5.2.1
+
+ * Major change: add scratchpad UI (thanks James Napier). This provides students
+   with a mini IDE within each question, where they can test their code without
+   making actual Moodle submissions. Requires the coderunner web service to be
+   enabled.
+ * Added several UI parameters to Ace editor: auto_switch_light_dark, font_size,
+   import_from_scratchpad, live_autocompletion, theme.
+ * Better error messages for missing/duplicate prototypes.
+ * Changes to better support the ace-inline filter (e.g. language checking
+   to improve error message if question author has a typo).
+ * Make Ace user changes to theme (via Ctrl + ',') sticky.
+ * Reduce sync interval time in Ace UI from 5 secs to 2 secs to reduce data loss
+   if a quiz times out. Also, reduce default timeout for all UIs from 10s to 5s.
+ * Use HTML input elements in the Table UI rather than textareas when there is
+   only 1 row per cell to reduce confusion when student hits Enter.
+ * Set specific column widths for SQL questions for compatibility with latest
+   sqlite3.
+ * Prevent grading of an unchanged preloaded answer.
+ * Add instructorhtml functionality to combinator grader so that a teacher can
+   see HTML feedback that's hidden from student.
+ * Changed implementation of per-user rate throttling for web-service traffic
+   to reduce the risk of log-manager SQL queries causing hangs (if that was
+   indeed happening - problem was never fully diagnosed).
+ * Issue a specific "URL blocked" error message when Moodle HTML security
+   is blocking outgoing HTTP requests.
+ * Some changes for PHP 8.1/8.2 compatibility.
+ * Various code tidying.
+ * Bug fix: the UI parameters were not being loaded correctly for non-Ace UIs
+   when the question type was first selected.
+ * Bug fix: the UI parameters from the prototype should be ignored if
+    the UI has changed from that of the prototype.
+ * Bug fix: sample answer attachments were not being included when previewing
+   or bulk testing.
+
 ### 9 November 2022. 5.1.1
 
  * Tweak to AJAX code to allow CodeRunner to run in Docker Desktop on Linux

@@ -1,6 +1,6 @@
 # CodeRunner
 
-Version: 5.1.1 9 November 2022. Requires **MOODLE V4.0 or later**. Earlier versions
+Version: 5.2.1 31 August 2023. Requires **MOODLE V4.0 or later**. Earlier versions
 of Moodle must use CodeRunner V4.
 
 
@@ -2270,8 +2270,9 @@ unchecking a *Use Ace* checkbox, but this disabled it both for student answers
 and for the author's template.
 
 Since version 3.3.0, CodeRunner now supports pluggable user interfaces,
-although an administrator has to install the plugin. The two user interfaces
-currently built in to CodeRunner are Ace and Graph. The question author selects the required
+although an administrator has to install the plugin. The user interfaces
+currently built in to CodeRunner are Ace, Ace-gapfiller, Gapfiller, Graph,
+Scratchpad and Table. The question author selects the required
 user interface via a dropdown menu in the customisation section of the question
 author form. The selection controls editing of the sample answer and answer
 preload fields of the authoring form and the student's answer in the live
@@ -2279,144 +2280,103 @@ quiz. The Ace editor is always used for editing the template itself, unless
 turned off with the *Template uses ace* checkbox in the authoring
 form.
 
-### The Graph UI
+The value of the STUDENT_ANSWER variable seen by the template code is different
+for the various UI plugins. For example, with the Ace editor the STUDENT_ANSWER
+is simply the raw text edited by Ace, while for the Ace-gapfiller it's a JSON
+list of the string values that the student entered into the gaps.
 
-The Graph UI plugin
-provides simple graph-drawing capabilities to support
-questions where the student is asked to draw or edit a graph. By default the
-Graph UI, which was developed for Finite State Machines, draws directed graphs,
-allows nodes to be marked as *Accept* states and allows incoming start edges.
-For example:
-
-<img src="http://coderunner.org.nz/pluginfile.php/56/mod_page/content/30/Selection_309.png" />
-
-Clicking the Help button on the graph canvas displays information on how to
-draw graphs.
-
-Some limited control of the Graph UI is available to the question author
-via template parameters as follows:
-
-  1. isdirected - defaults to true. Set it to false for a non-directed graph.
-
-  1. isfsm - defaults to false. Set it to true to allow edges to enter the
-graph from space, i.e., without a start node. It also allows nodes to be marked
-as accept states by double clicking.
-
-  1. noderadius - defaults to 26. The radius of nodes, in pixels.
-
-  1. fontsize - defaults to 20. The size of the Arial font, in px.
-
-  1. textoffset. An offset in pixels used when positioning link label text.
-      Default 4.
-
-  1. locknodes. True to prevent the user from moving nodes. Useful when the
-answer box is preloaded with a graph that the student has to annotate by
-changing node or edge labels or by adding/removing edges. Note, though that
-nodes can still be added and deleted.
-
-  1. lockedges. True to prevent the user from dragging edges to change
-their curvature. Possibly useful if the
-answer box is preloaded with a graph that the student has to annotate by
-changing node or edge labels or by adding/removing edges. Also ensures that
-edges added by a student are straight, e.g. to draw a polygon on a set of
-given points. Note, though that edges can still be added and deleted.
-
-  1. helpmenutext - text to replace the default help menu text. Must be a
-     single JSON string written on line using "\n" to separate lines in the menu.
-     For example:
-
-        {"helpmenutext": "Line1\nLine2\nLine3"}
-
-    The default value, written here in multiple lines for readability, is:
-
-        - Double click at a blank space to create a new node/state.
-        - Double click an existing node to "mark" it e.g. as an accept state for Finite State Machines
-          (FSMs). Double click again to unmark it.
-        - Click and drag to move a node.
-        - Alt click (or Ctrl alt click) and drag on a node to move a (sub)graph.
-        - Shift click inside one node and drag to another to create a link.
-        - Shift click on a blank space, drag to a node to create a start link (FSMs only).
-        - Click and drag a link to alter its curve.
-        - Click on a link/node to edit its text.
-        - Typing _ followed by a digit makes that digit a subscript.
-        - Typing \\epsilon creates an epsilon character (and similarly for \\alpha, \\beta etc).
-        - Click on a link/node then press the Delete key to remove it (or function-delete on a Mac).
-
-For example, for a non-directed non-fsm graph set the template parameters field to
-
-        {"isdirected": false, "isfsm": false}
-
-or merge those values into any other template parameters required by the
-question.
-
-Other template parameters may be added as required by specific questions.
-
-Many thanks to Emily Price for the original implementation of the Graph UI.
+Most UI plugins support a few configuration options via a UI parameters entry
+field in the question authoring form.
 
 All active CodeRunner user interface plugins in both the question authoring
 form and the student's quiz page can be toggled off and on with a
 CTRL-ALT-M keypress, alternately exposing and hiding the underlying textarea element.
 
-### The Table UI
+The general behaviour, serialisation and UI parameters of the supported plugins
+are as follows.
 
-The table UI plug-in replaces the usual textarea answer element with an HTML table,
-into which the student must enter text data. All cells in the table are
-HTML *textarea* elements. The question author can enable *Add row* and
-*Delete row* buttons that allow the student to add or delete rows. The configuration
-of the table is set by the following template parameters, where the first two
-are required and the rest are optional.
+### Ace UI
 
- * `num_rows` (required): sets the (initial) number of table rows, excluding the header.
- * `num_columns` (required): sets the number of table columns.
- * `column_headers` (optional): a list of strings used for column headers. By default
-   no column headers are used.
- * `row_labels` (optional): a list of strings used for row labels. By
-   default no row labels are used.
- * `lines_per_cell` (optional): the initial number of rows for each of the
-   table text-area cells. Default 2.
- * `column_width_percents` (optional): a list of numeric percentage widths of the different
-   columns. For example, if there are two columns, and the first one is to
-   occupy one-quarter of the available width, the list should be \[25, 75\].
-   By default all columns have the same width.
- * `dynamic_rows` (optional): set `true` to enable the addition of *Add row*
-   and *Delete row* buttons through which the student can alter the number of
-   rows. The number of rows can never be less than the initial `num_rows` value.
- * `locked_cells` (optional): an array of 2-element [row, column] cell specifiers.
-   The specified cells are rendered to HTML with the *disabled* attribute, so
-   cannot be changed by the user. For example
+This is the default UI interface and is the one most-commonly used for programming
+questions.
 
-        "locked_cells": [[0, 0], [1, 0]]
+#### Serialisation
+The serialisation is simply the raw text that the Ace editor is displaying.
 
-   to lock the leftmost column of rows 0 and 1.
-   This is primarily for use in conjunction with
-   an answer preload in which some cells are defined by the question author.
-   The preload answer must be defined before the locked_cells template
-   parameter is defined, or the question author will not be able to define
-   the required values in the first place.
+#### UI parameters
+Mostly the default configuration options will be used but a few
+specialised UI parameters exist:
 
-For example, the `python3\_program\_testing` question type uses the following
-UI parameter setting:
+    1. auto_switch_light_dark. If true, this parameter allows a browser or OS
+       colour-scheme preference for a dark theme to override the default Ace
+       theme setting for a question. Default: false.
 
-    {
-        "num_rows": 3,
-        "num_columns": 2,
-        "column_headers": ["Test", "Result"],
-        "dynamic_rows": true
-    }
+    1. font_size. The font-size for the Ace editor. Default: 14 px.
 
- The table serialisation is simply a JSON array of arrays containing all the
-table cells excluding the header row.
+    1. import_from_scratchpad. True to allow the Ace editor to detect that a
+       question appears to have been configured for the scratchpad UI, and
+       extract the actual code from the JSON. Should not be changed from its
+       default of true unless you want students to edit JSON objects with an
+       'answer_code' key. Default: true.
 
-As a special case of the serialisation, if all values in the serialisation
-are empty strings, the serialisation is
-itself the empty string.
+    1. live_autocompletion. Turns on the Ace editor auto-complete function.
 
-An example of the use of this UI type can be seen in the
-*python3_program_testing* prototype in the *samples* folder.
+    1. theme. The theme to be used by the ace editor. Type ctrl + ',' within
+       the Ace editor to see a list of available themes. Default: textmate.
 
-### The Gap Filler UI
+If a user uses the ctrl + ',' option to select a theme, this theme will be used
+in all Ace editor windows within that browser until changed back.
 
-This plugin replaces the usual textarea answer box with a div
+
+### Ace-gapfiller UI
+The closing delimiter to use when inserting answer or Scratchpad code into the wrapper. It will replace the default value '|}'.
+A UI that presents the user with an Ace editor window containing code with some
+gaps in it. The user is expected to fill in the gaps. Only simple gaps at most
+one line in length are supported.
+
+The text to be displayed in the editor window is by default the contents of the
+globalextra field in the question author form, but can alternatively be set
+from the code in the first test case (see the ui_source UI parameter below).
+The text will normally be most of a program but with one or more bits replaced by a
+gap specifier of the form
+
+        {[20-40]}
+
+where the two numbers are the default field width and maximum field width
+respectively. It the second number (and the preceding '-') is omitted,
+the field width can expand arbitrarily.
+
+For example (a case in which the source is test0):
+
+<img src="https://coderunner.org.nz/pluginfile.php/56/mod_page/content/31/Screenshot%20from%202023-08-29%2016-50-18.png" />
+
+#### Serialisation
+
+The serialisation is a
+JSON list of strings, which are the values entered by the student into the
+gaps.
+
+#### UI parameters
+
+    1. ui_source. This parameter specifies where to get the source text
+       to be displayed in the editor (with gaps as specified above).
+       The default value is "globalextra" but the alternative is "test0".
+       In the latter case, the contents of the test code field of the first
+       test is used. In this latter case, all other test cases should contain
+       corresponding gap fillers and the result table will substitute the
+       student's gap fillers into all tests with syntax colouring to denote
+       the substitution. In this mode, you can't use the "Use as example"
+       feature because the test code isn't defined until the student has
+       filled in the gaps.
+
+### Gap Filler UI
+
+This plugin is an older version of the Ace gapfiller UI and has largely been
+superseded by it. It does have one advantage over the Ace gapfiller: it
+allows for multiline HTML text area gaps as well as single line HTML input
+elements. But the program is displayed as simple non-syntax-coloured text.
+
+This UI replaces the usual textarea answer box with a div
 consisting of pre-formatted text supplied by the question author in either the
 "globalextra" field or the testcode field of the first test case, according
 to the ui parameter ui_source (default: globalextra).  HTML
@@ -2442,6 +2402,8 @@ where size, rows and column are integer literals. These respectively
 inject an HTML input element or a textarea element of the
 specified size.
 
+#### Serialisation
+
 The serialisation of the answer box contents, i.e. the text that is
 copied back into the textarea for submission
 as the answer, is simply a list of all the field values (strings), in order.
@@ -2449,30 +2411,122 @@ as the answer, is simply a list of all the field values (strings), in order.
 As a special case of the serialisation, if the value list is empty, the
 serialisation itself is the empty string.
 
-The delimiters for the input element insertion tags are by default '{[' and
-']}', but can be changed by an optional UI parameter delimiters,
-which must be a 2-element array of strings. For example:
+#### UI parameters
 
-    {"delimiters": ["{{", "}}"]}
+    1. ui_source. As with the Ace gapfiller, this sets the source for the program
+       source with the inserted gaps. It can be set to "globalextra" to take
+       the HTML from the globalextra field or to "test0" to take if from the
+       test code of the first test case.
 
-Note that the double-brace delimiters in that example are the same as those
-used by Twig, so using them instead of the default would prevent you from
-ever adding Twig expansion (e.g. for randomisation) to the question. This is
-not recommended.
+    1. delimiters. A 2-element array of the strings used to open and close the gap
+       description. Default ["{[", "]}"]
+
+    1. sync_interval_secs. The time interval in seconds between calls to sync the
+       UI contents back to the question answer. 0 for no such auto-syncing.
 
 
-### The Ace Gap Filler UI
+### Graph UI
 
-This is a variant on the Gap Filler UI in which
-the text is rendered by the Ace editor with all usual syntax highlighting
-but the user can edit only the text in the gaps.
+The Graph UI plugin
+provides simple graph-drawing capabilities to support
+questions where the student is asked to draw or edit a graph. By default the
+Graph UI, which was developed for Finite State Machines, draws directed graphs,
+allows nodes to be marked as *Accept* states and allows incoming start edges.
+For example:
 
-It behaves exactly like the Gap Filler UI, above, except that it does not
-currently support the {[ rows, columns ]} syntax for multiline gaps. Only
-in-line gaps are supported. In addition, the field width can have a maximum
-width set, with a syntax like {[20-40]}, meaning the initial field width
-is 20 characters but can expand up to 40. If the maximum value is omitted, the
-field can expand to an arbitrary width.
+<img src="https://coderunner.org.nz/pluginfile.php/56/mod_page/content/30/Selection_309.png" />
+
+Clicking the Help button on the graph canvas displays information on how to
+draw graphs.
+
+#### Serialisation
+
+The serialised Graph UI STUDENT_ANSWER is a JSON object with the following attributes:
+
+    1. nodes. An array of 2-element arrays [nodelabel, is_acceptor]. The 'is_acceptor'
+       value is a boolean that's true for accept state nodes in FSM graphs,
+       false otherwise.
+
+    1. edges. An array of 3-element arrays [from_node_num, to_node_num, edge_label].
+       Node numbers are indices into the nodes array (0-origin).
+
+    1. nodeGeometry. An array of 2-element arrays that are the coordinates of
+       the nodes.
+
+    1. edgeGeometry. An array of JSON objects, that define the shape of the
+       in-general-circular arcs connecting two nodes. Hopefully you never need
+       to understand this attribute.
+
+#### UI Parameters
+
+Some limited control of the Graph UI is available to the question author
+via template parameters as follows:
+
+  1. isdirected - defaults to true. Set it to false for a non-directed graph.
+
+  1. isfsm - defaults to false. Set it to true to allow edges to enter the
+graph from space, i.e., without a start node. It also allows nodes to be marked
+as accept states by double clicking.
+
+  1. noderadius - defaults to 26. The radius of nodes, in pixels.
+
+  1. fontsize - defaults to 20. The size of the Arial font, in px.
+
+  1. textoffset. An offset in pixels used when positioning link label text.
+      Default 4.
+
+  1. locknodepositions. True to prevent the user from moving nodes. Useful when the
+answer box is preloaded with a graph that the student has to annotate by
+changing node or edge labels or by adding/removing edges. Note, though that
+nodes can still be added and deleted. See locknodeset. Default false.
+
+  1. locknodelabels. True to prevent the user from editing node labels. Also
+     prevents any new nodes having non-empty labels. Default false.
+
+  1. locknodeset. True to prevent user from adding or deleting nodes or toggling
+     node types to/from acceptors. Default false.
+
+  1. lockedgepositions. True to prevent the user from dragging edges to change
+     their curvature. Possibly useful if the
+     answer box is preloaded with a graph that the student has to annotate by
+     changing node or edge labels or by adding/removing edges. Also ensures that
+     edges added by a student are straight, e.g. to draw a polygon on a set of
+     given points. Note, though that edges can still be added and deleted. See lockedgeset.
+     Default false.
+
+  1. lockedgelabels. True to prevent the user from editing edge labels. Also
+     prevents any new edges from having labels. Default false.
+
+  1. lockedgeset. True to prevent the user from adding or deleting edges.
+     Default false.
+
+  1. helpmenutext - text to replace the default help menu text. Must be a
+     single JSON string written on line using "\n" to separate lines in the menu.
+     For example:
+
+        {"helpmenutext": "Line1\nLine2\nLine3"}
+
+    The default value, written here in multiple lines for readability, is:
+
+        - Double click at a blank space to create a new node/state.
+        - Double click an existing node to "mark" it e.g. as an accept state for Finite State Machines
+          (FSMs). Double click again to unmark it.
+        - Click and drag to move a node.
+        - Alt click (or Ctrl alt click) and drag on a node to move a (sub)graph.
+        - Shift click inside one node and drag to another to create a link.
+        - Shift click on a blank space, drag to a node to create a start link (FSMs only).
+        - Click and drag a link to alter its curve.
+        - Click on a link/node to edit its text.
+        - Typing _ followed by a digit makes that digit a subscript.
+        - Typing \\epsilon creates an epsilon character (and similarly for \\alpha, \\beta etc).
+        - Click on a link/node then press the Delete key to remove it (or function-delete on a Mac).
+
+For example, for a non-directed non-fsm graph set the UI parameters field to
+
+        {"isdirected": false, "isfsm": false}
+
+Many thanks to Emily Price for the original implementation of the Graph UI.
+
 
 ### The Html UI
 
@@ -2480,36 +2534,65 @@ The Html UI plug-in replaces the answer box with custom HTML provided by the
 question author. The HTML will usually include data entry fields such as
 html input and text area elements and it is the values that the user enters
 into these fields that constitutes the student answer. The HTML can
-also include JavaScript in `<script>` elements. Although
-very powerful, the mechanism is complex and there are several pitfalls. Caveat
-emptor!
-
-When the answer is submitted by the student, the UI extracts the values of all
-UI elements within the HTML that have the class 'coderunner-ui-element'.
-Each such element
-is expected to have a 'name' attribute as well and (name, value) pairs of all
-such elements are used to construct a single JSON object which is copied into
-the underlying textarea answerbox and returned as the answer. Since multiple
-UI elements can have the same name, the values in the JSON represention of
-the answer are always lists.  Each list contains all the values, in
-document order, of the results of calling the jquery val() method in turn
-on each of the UI elements with that name.
-This means that at least input, select and textarea
-elements are supported. Twig macros
-are provided to simplify entry of those elements; see [this section](#twig-macros).
-
-The author is responsible for checking the
-compatibility of any other elements entered using raw HTML with jquery's val() method.
-If an element lacks a *val* method, jquery *valHooks* can be used to define one.
+also include JavaScript in `<script>` elements.
 
 The HTML to use in the answer area must be provided as the contents of
-the `globalextra` field in the question authoring form.
+either the `globalextra` field  or the `prototypeextra` field (see UI parameters
+below) in the question authoring form.
 
-Care must be taken when using the Html UI to avoid using field names that conflict
+The CodeRunner-relevant HTML elements are required to have a name and the class
+'coderunner-ui-element'. They also need to support a call to the jquery *val()*
+method to get their values. HTML *input*, *select* and *textarea* elements are
+the most commonly used. If an element lacks a *val* method,
+jquery *valHooks* can be used to define one.
+
+Care must be taken when using the HTML UI to avoid using field names that conflict
 with any other named HTML elements in the page. It is recommended that a prefix
-of some sort, such as `crui_`, be used with all names.
+of some sort, such as `crui_` (for "CodeRunner UI"), be used with all names.
 
-When authoring a question that uses the Html UI, the answer and answer preload
+Although very powerful, and capable of implementing almost any custom user interface,
+the mechanism is complex and there are several pitfalls. Caveat
+emptor!
+
+#### UI parameters
+
+    1. enable_in_editor. By default, when editing questions the UI manages
+       both the question answer and answer-preload fields. While this is
+       by far the most user-friendly way to operate, it doesn't allow for the
+       use of Twig in those fields, since Twig processing takes place on the
+       server, not in JavaScript in the client. If you wish to use Twig you
+       must set this UI parameter to false. Default: true.
+
+    1. html_src. This parameter specifies where the HTML code comes from.
+       It must be either "globalextra" to get the code from the current
+       question or "prototypeextra" to get it from the question's prototype
+       prototypeextra field.
+
+    1. sync_interval_secs. This sests the time interval in seconds between
+       calls to sync the UI contents serialisation back into the question
+       answer. 0 for no such auto-syncing.
+
+#### Serialisation
+
+The STUDENT_ANSWER is a JSON object with an attribute for every name used by
+CodeRunner-relevant elements
+within the HTML. Since multiple HTML
+elements can have the same name, the *value* of each named attribute
+is a *list* of strings, not a single string. The strings are in DOM
+order. Each individual value is extracted using the jquery *val()* method.
+
+As a trivial example, if the HTML supplied by the question author in the
+globalextra field were simply:
+
+    <input type="text" name="crui_input" class="coderunner-ui-element"
+     placeholder="Enter the word 'floodle' here">
+
+and the student entered 'floodle' in the text area as instructed, the serialisation
+would be
+
+    {"crui_input":["floodle"]}
+
+When authoring a question that uses the HTML UI, the answer and answer preload
 fields are by default also controlled by the UI. While this is most user-friendly presentation,
 it does not allow you to include Twig code in those fields. If you need
 to use Twig there, you must turn off the use of the UI within the question
@@ -2517,15 +2600,9 @@ editing page by setting the UI parameter `enable_in_editor` to false:
 
     {"enable_in_editor": false}
 
-The underlying serialisation is then displayed as raw JSON text.
-If data is to be entered into the HTML fields,
-it must be of the form
-
-    {"<fieldName>": "<fieldValueList>",...}
-
-where fieldValueList is a list of all the values to be assigned to the fields
-with the given name, in document order. For complex UIs it is easiest to turn
-off validate on save, save the question, preview it, enter the right answers into
+The underlying serialisation is then displayed as raw JSON text. In this case
+editing the answer and answer preload text is difficult; the easiest approach
+is to save the question, preview it, enter the right answers into
 all fields, type CTRL-ALT-M to switch off the UI and expose the serialisation,
 then copy that serialisation back into the author form. But this rigmarole is
 only necessary when you need to use Twig within the answer or sample answer,
@@ -2604,23 +2681,189 @@ be unique. For more information, see this CodeRunner author's forum thread
 where Markus Gafner (who contributed this workaround) shows a HtmlUI question
 with an embedded GraphUI question, plus other embedded questions.
 
+### Scratchpad UI
+This UI is an extension of the Ace UI. In addition to the usual Ace code edit
+window for the question answer, an optional extra "scratchpad" Ace edit window
+is available. If the student opens the scratchpad, they can add code to test
+their answer (or any other code they wish to run) and are presented with a *Run*
+button that submits the code from the scratchpad to the Jobe server using the
+CodeRunner webservice (which must be enabled for the UI to be usable). This
+essentially gives them a mini-IDE for each question. Their test code is
+saved alongside their answer when they submit ("Check") their question answer.
 
-### Other UI plugins
+Prior to opening the scratchpad, the student sees something like the following
+(where they have already written their answer):
 
-Question authors who have admin access to the Moodle server can write their
-own user-interface plugins; a JavaScript
-file with a name of the form `ui_something.js` in the
-folder
+<img src="https://coderunner.org.nz/pluginfile.php/56/mod_page/content/33/ScratchpadUI1.png">
 
-        <moodlehome>/question/type/coderunner/amd/src
+In use, the scratchpad UI looks like this:
 
-is assumed to be a user interface plugin and is automatically added to
-the drop-down menu of available plugins. Such plugin files must be AMD modules
-and must implement the interface defined in the file
+<img src="https://coderunner.org.nz/pluginfile.php/56/mod_page/content/33/ScratchpadUI2.png">
 
-        <moodlehome>/question/type/coderunner/amd/src/userinterfacewrapper.js
+Note that the student has the choice of running the scratchpad code in isolation
+or of running code consisting of their question answer followed by their
+scratchpad code.
 
-Writing UI plugins is, however, not a job for the faint hearted.
+In the simplest use cases, a question author can flip between the Ace-UI
+and the Scratchpad UI transparently. However, for question types like
+"Java write a function", the test needs boiler-plate code that is hidden
+from the student, so simply clicking the *Run* button won't behave the same
+as when the *Check* button is clicked. The question author can customise the
+behaviour of the scratchpad UI using the UI parameters below, but the process
+can be complex, particularly for question types that might need to collect
+images from the Jobe server. Some examples are given
+[here](https://coderunner.org.nz/mod/quiz/edit.php?cmid=548)
+on the CodeRunner demo site.
+
+#### Serialisation
+The serialisation is a JSON object with the following attributes. The values
+of all attributes are lists of strings, rather than just the strings themselves,
+for compatibility with the HTML UI, where there can be multiple HTML data-entry
+elements with the same name. (The original scratchpad question type at the
+University of Canterbury was implemented with the HTML UI, and we wanted
+compatibility with that).
+
+    1. answer_code: a singleton list containing the contents of the main
+       question answer box.
+
+    1. test_code: a singleton list containing the contents of the scratchpad.
+
+    1. show_hide: a singleton list containing either '0' or '1' depending
+       on whether the scratchpad is hidden or shown respectively.
+
+    1. prefix_ans: a singleton list containing either '0' or '1' depending on
+       whether or not the "Prefix with ans" checkbox is checked or not.
+
+#### UI parameters
+
+The set of UI parameters for the scratchpad is rather complex and you probably
+need to study the examples on the CodeRunner demo site (see above link) to understand
+these.
+
+    1. scratchpad_name. The text in the link used to open/close the scratchpad.
+       Default: "scratchpad".
+
+    1. button_name. The text in the Run button. Default: "Run".
+
+    1. prefix_name. Prefix with answer check-box label text. Default: "Prefix with answer".
+
+    1. help_text. The help text to show when a student clicks the help icon.
+
+    1. run_lang. The language to use when running the code on the Jobe server.
+       Default: null
+
+    1. wrapper_src. The location of wrapper to be used by the run button:
+       setting to 'globalextra' will use text in global extra field,
+       'prototypeextra' will use the prototype extra field. The wrapper is
+       code that wraps the student's scratchpad code; it can be used to
+       support additional functionality like boilerplate code for initialising
+       libraries, fetching images, etc. See
+
+    1. output_display_mode. Control how program output is displayed on runs.
+       There are three modes:
+            1. text: Display the output as text, html escaped. (default)
+            1. json: Display programs that output JSON, useful for capturing stdin
+                and displaying images. (recommended). Accepts JSON in the run
+                output with the fields:
+                     + returncode: Exit code from program run.
+                     + stdout: Stdout text from program run.
+                     + stderr: Error text from program run.
+                     + files: An object containing filenames mapped to base64
+                       encoded images. These will be displayed below any stdout text.
+                When the returncode is set to 42, an HTML input field will be
+                added after the last stdout received. When the enter key is
+                pressed inside the input, the input's value is added to stdin
+                and the program is run again with this updated stdin.
+                This is repeated until returncode is not set to 42. This allows
+                simulation of interactive keyboard standard input within the
+                run (with considerable effort - see CodeRunner demo website).
+            1. html: Display program output as raw html inside the output area. (advanced)
+                + This can be used to show images and insert other HTML.
+                + Giving an <input> element the class coderunner-run-input will
+               add an event: when the enter key is pressed inside the input,
+               the input's value is added to stdin and the program is run again
+               with this updated stdin.
+
+    1. open_delimiter. The opening delimiter to use when inserting answer or
+       Scratchpad code into the wrapper. It will replace the default value '{|'.
+
+    1. close_delimieter. The closing delimiter to use when inserting answer or
+       Scratchpad code into the wrapper. It will replace the default value '|}'.
+
+    1. params. Parameter for the sandbox webservice (e.g. to set timelimit).
+
+    1. disable_scratchpad. Disable the scratchpad, resulting in what looks to
+       the student like the Ace UI. This allows question authors to turn off
+       the scratchpad without having to customise the question (which when
+       becomes disassociated from the original question) or changing the
+       question type altogether.
+
+    1. invert_prefix. Inverts meaning of prefix_ans serialisation: '1' means
+       un-ticked -- and vice versa. This can be used to swap the default state.
+
+    1. escape. Escape the JSON ANSWER_CODE and
+       SCRATCHPAD_CODE strings by removing the double quotes from the start and end
+       and escaping all internal double quotes with backslash before insertion
+       into the wrapper. Useful when inserting
+       code into a string. NOTE: single quotes ' are NOT escaped.
+
+### Table UI
+
+The table UI plug-in replaces the usual textarea answer element with an HTML table,
+into which the student must enter text data. All cells in the table are
+HTML *textarea* elements. The question author can enable *Add row* and
+*Delete row* buttons that allow the student to add or delete rows. The configuration
+of the table is set by the following template parameters, where the first two
+are required and the rest are optional.
+
+ * `num_rows` (required): sets the (initial) number of table rows, excluding the header.
+ * `num_columns` (required): sets the number of table columns.
+ * `column_headers` (optional): a list of strings used for column headers. By default
+   no column headers are used.
+ * `row_labels` (optional): a list of strings used for row labels. By
+   default no row labels are used.
+ * `lines_per_cell` (optional): the initial number of rows for each of the
+   table text-area cells. Default 2.
+ * `column_width_percents` (optional): a list of numeric percentage widths of the different
+   columns. For example, if there are two columns, and the first one is to
+   occupy one-quarter of the available width, the list should be \[25, 75\].
+   By default all columns have the same width.
+ * `dynamic_rows` (optional): set `true` to enable the addition of *Add row*
+   and *Delete row* buttons through which the student can alter the number of
+   rows. The number of rows can never be less than the initial `num_rows` value.
+ * `locked_cells` (optional): an array of 2-element [row, column] cell specifiers.
+   The specified cells are rendered to HTML with the *disabled* attribute, so
+   cannot be changed by the user. For example
+
+        "locked_cells": [[0, 0], [1, 0]]
+
+   to lock the leftmost column of rows 0 and 1.
+   This is primarily for use in conjunction with
+   an answer preload in which some cells are defined by the question author.
+   The preload answer must be defined before the locked_cells template
+   parameter is defined, or the question author will not be able to define
+   the required values in the first place.
+
+For example, the `python3\_program\_testing` question type uses the following
+UI parameter setting:
+
+    {
+        "num_rows": 3,
+        "num_columns": 2,
+        "column_headers": ["Test", "Result"],
+        "dynamic_rows": true
+    }
+
+ The table serialisation is simply a JSON array of arrays containing all the
+table cells excluding the header row.
+
+As a special case of the serialisation, if all values in the serialisation
+are empty strings, the serialisation is
+itself the empty string.
+
+An example of the use of this UI type can be seen in the
+*python3_program_testing* prototype in the *samples* folder.
+
 
 ## User-defined question types
 
