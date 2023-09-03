@@ -22,11 +22,11 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version  = 2023083100;
+$plugin->version  = 2023090400;
 $plugin->requires = 2022041900;
 $plugin->cron = 0;
 $plugin->component = 'qtype_coderunner';
-$plugin->maturity = MATURITY_STABLE;
+$plugin->maturity = MATURITY_RC;
 $plugin->release = '5.2.1';
 
 $plugin->dependencies = array(
