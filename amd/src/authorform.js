@@ -371,6 +371,7 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
                         if (outcome.success) {
                             copyFieldsFromQuestionType(newType, outcome);
                             setUis();
+                            loadUiParametersDescription();
                             // Success, so remove the errors and change the current Qtype.
                             currentQtype = newType;
                             $('#id_qtype_coderunner_error_div').empty();
@@ -417,8 +418,8 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
         }
 
         /**
-         * Load the UI parameter description field by Ajax when the UI plugin
-         * is changed.
+         * Load the UI parameter description field by Ajax initially or
+         * when the UI plugin is changed.
          */
         function loadUiParametersDescription() {
             let newUi = uiplugin.children('option:selected').text();
