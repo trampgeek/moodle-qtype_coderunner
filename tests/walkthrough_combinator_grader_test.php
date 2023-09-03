@@ -181,7 +181,7 @@ EOTEMPLATE;
         $this->process_submission(array('-submit' => 1,
             'answer' => 'def sqr(n): return n * n'));
         $this->check_current_mark(0.0);
-        $this->check_output_contains('Bad JSON output from combinator grader output. Output was: twaddle');
+        $this->check_output_contains('Bad JSON output from combinator grader. Output was: twaddle');
     }
 
     // Test that if the combinator grader output has a missing fraction attribute
