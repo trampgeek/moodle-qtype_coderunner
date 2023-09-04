@@ -2307,21 +2307,21 @@ The serialisation is simply the raw text that the Ace editor is displaying.
 Mostly the default configuration options will be used but a few
 specialised UI parameters exist:
 
-    1. auto_switch_light_dark. If true, this parameter allows a browser or OS
+ 1. auto_switch_light_dark. If true, this parameter allows a browser or OS
        colour-scheme preference for a dark theme to override the default Ace
        theme setting for a question. Default: false.
 
-    1. font_size. The font-size for the Ace editor. Default: 14 px.
+ 1. font_size. The font-size for the Ace editor. Default: 14 px.
 
-    1. import_from_scratchpad. True to allow the Ace editor to detect that a
+ 1. import_from_scratchpad. True to allow the Ace editor to detect that a
        question appears to have been configured for the scratchpad UI, and
        extract the actual code from the JSON. Should not be changed from its
        default of true unless you want students to edit JSON objects with an
        'answer_code' key. Default: true.
 
-    1. live_autocompletion. Turns on the Ace editor auto-complete function.
+ 1. live_autocompletion. Turns on the Ace editor auto-complete function.
 
-    1. theme. The theme to be used by the ace editor. Type ctrl + ',' within
+ 1. theme. The theme to be used by the ace editor. Type ctrl + ',' within
        the Ace editor to see a list of available themes. Default: textmate.
 
 If a user uses the ctrl + ',' option to select a theme, this theme will be used
@@ -2358,7 +2358,7 @@ gaps.
 
 #### UI parameters
 
-    1. ui_source. This parameter specifies where to get the source text
+ 1. ui_source. This parameter specifies where to get the source text
        to be displayed in the editor (with gaps as specified above).
        The default value is "globalextra" but the alternative is "test0".
        In the latter case, the contents of the test code field of the first
@@ -2413,15 +2413,15 @@ serialisation itself is the empty string.
 
 #### UI parameters
 
-    1. ui_source. As with the Ace gapfiller, this sets the source for the program
+ 1. ui_source. As with the Ace gapfiller, this sets the source for the program
        source with the inserted gaps. It can be set to "globalextra" to take
        the HTML from the globalextra field or to "test0" to take if from the
        test code of the first test case.
 
-    1. delimiters. A 2-element array of the strings used to open and close the gap
+ 1. delimiters. A 2-element array of the strings used to open and close the gap
        description. Default ["{[", "]}"]
 
-    1. sync_interval_secs. The time interval in seconds between calls to sync the
+ 1. sync_interval_secs. The time interval in seconds between calls to sync the
        UI contents back to the question answer. 0 for no such auto-syncing.
 
 
@@ -2443,17 +2443,17 @@ draw graphs.
 
 The serialised Graph UI STUDENT_ANSWER is a JSON object with the following attributes:
 
-    1. nodes. An array of 2-element arrays [nodelabel, is_acceptor]. The 'is_acceptor'
+ 1. nodes. An array of 2-element arrays [nodelabel, is_acceptor]. The 'is_acceptor'
        value is a boolean that's true for accept state nodes in FSM graphs,
        false otherwise.
 
-    1. edges. An array of 3-element arrays [from_node_num, to_node_num, edge_label].
+ 1. edges. An array of 3-element arrays [from_node_num, to_node_num, edge_label].
        Node numbers are indices into the nodes array (0-origin).
 
-    1. nodeGeometry. An array of 2-element arrays that are the coordinates of
+ 1. nodeGeometry. An array of 2-element arrays that are the coordinates of
        the nodes.
 
-    1. edgeGeometry. An array of JSON objects, that define the shape of the
+ 1. edgeGeometry. An array of JSON objects, that define the shape of the
        in-general-circular arcs connecting two nodes. Hopefully you never need
        to understand this attribute.
 
@@ -2556,19 +2556,19 @@ emptor!
 
 #### UI parameters
 
-    1. enable_in_editor. By default, when editing questions the UI manages
+  1. enable_in_editor. By default, when editing questions the UI manages
        both the question answer and answer-preload fields. While this is
        by far the most user-friendly way to operate, it doesn't allow for the
        use of Twig in those fields, since Twig processing takes place on the
        server, not in JavaScript in the client. If you wish to use Twig you
        must set this UI parameter to false. Default: true.
 
-    1. html_src. This parameter specifies where the HTML code comes from.
+  1. html_src. This parameter specifies where the HTML code comes from.
        It must be either "globalextra" to get the code from the current
        question or "prototypeextra" to get it from the question's prototype
        prototypeextra field.
 
-    1. sync_interval_secs. This sests the time interval in seconds between
+  1. sync_interval_secs. This sests the time interval in seconds between
        calls to sync the UI contents serialisation back into the question
        answer. 0 for no such auto-syncing.
 
@@ -2723,15 +2723,15 @@ elements with the same name. (The original scratchpad question type at the
 University of Canterbury was implemented with the HTML UI, and we wanted
 compatibility with that).
 
-    1. answer_code: a singleton list containing the contents of the main
+  1. answer_code: a singleton list containing the contents of the main
        question answer box.
 
-    1. test_code: a singleton list containing the contents of the scratchpad.
+  1. test_code: a singleton list containing the contents of the scratchpad.
 
-    1. show_hide: a singleton list containing either '0' or '1' depending
+  1. show_hide: a singleton list containing either '0' or '1' depending
        on whether the scratchpad is hidden or shown respectively.
 
-    1. prefix_ans: a singleton list containing either '0' or '1' depending on
+  1. prefix_ans: a singleton list containing either '0' or '1' depending on
        whether or not the "Prefix with ans" checkbox is checked or not.
 
 #### UI parameters
@@ -2740,36 +2740,36 @@ The set of UI parameters for the scratchpad is rather complex and you probably
 need to study the examples on the CodeRunner demo site (see above link) to understand
 these.
 
-    1. scratchpad_name. The text in the link used to open/close the scratchpad.
+  1. scratchpad_name. The text in the link used to open/close the scratchpad.
        Default: "scratchpad".
 
-    1. button_name. The text in the Run button. Default: "Run".
+  1. button_name. The text in the Run button. Default: "Run".
 
-    1. prefix_name. Prefix with answer check-box label text. Default: "Prefix with answer".
+  1. prefix_name. Prefix with answer check-box label text. Default: "Prefix with answer".
 
-    1. help_text. The help text to show when a student clicks the help icon.
+  1. help_text. The help text to show when a student clicks the help icon.
 
-    1. run_lang. The language to use when running the code on the Jobe server.
+  1. run_lang. The language to use when running the code on the Jobe server.
        Default: null
 
-    1. wrapper_src. The location of wrapper to be used by the run button:
+  1. wrapper_src. The location of wrapper to be used by the run button:
        setting to 'globalextra' will use text in global extra field,
        'prototypeextra' will use the prototype extra field. The wrapper is
        code that wraps the student's scratchpad code; it can be used to
        support additional functionality like boilerplate code for initialising
        libraries, fetching images, etc. See
 
-    1. output_display_mode. Control how program output is displayed on runs.
+  1. output_display_mode. Control how program output is displayed on runs.
        There are three modes:
-            1. text: Display the output as text, html escaped. (default)
-            1. json: Display programs that output JSON, useful for capturing stdin
+   1. text: Display the output as text, html escaped. (default)
+   1. json: Display programs that output JSON, useful for capturing stdin
                 and displaying images. (recommended). Accepts JSON in the run
                 output with the fields:
-                     + returncode: Exit code from program run.
-                     + stdout: Stdout text from program run.
-                     + stderr: Error text from program run.
-                     + files: An object containing filenames mapped to base64
-                       encoded images. These will be displayed below any stdout text.
+      + returncode: Exit code from program run.
+      + stdout: Stdout text from program run.
+      + stderr: Error text from program run.
+      + files: An object containing filenames mapped to base64
+                encoded images. These will be displayed below any stdout text.
                 When the returncode is set to 42, an HTML input field will be
                 added after the last stdout received. When the enter key is
                 pressed inside the input, the input's value is added to stdin
@@ -2777,31 +2777,31 @@ these.
                 This is repeated until returncode is not set to 42. This allows
                 simulation of interactive keyboard standard input within the
                 run (with considerable effort - see CodeRunner demo website).
-            1. html: Display program output as raw html inside the output area. (advanced)
+  1. html: Display program output as raw html inside the output area. (advanced)
                 + This can be used to show images and insert other HTML.
                 + Giving an <input> element the class coderunner-run-input will
                add an event: when the enter key is pressed inside the input,
                the input's value is added to stdin and the program is run again
                with this updated stdin.
 
-    1. open_delimiter. The opening delimiter to use when inserting answer or
+  1. open_delimiter. The opening delimiter to use when inserting answer or
        Scratchpad code into the wrapper. It will replace the default value '{|'.
 
-    1. close_delimieter. The closing delimiter to use when inserting answer or
+  1. close_delimieter. The closing delimiter to use when inserting answer or
        Scratchpad code into the wrapper. It will replace the default value '|}'.
 
-    1. params. Parameter for the sandbox webservice (e.g. to set timelimit).
+  1. params. Parameter for the sandbox webservice (e.g. to set timelimit).
 
-    1. disable_scratchpad. Disable the scratchpad, resulting in what looks to
+  1. disable_scratchpad. Disable the scratchpad, resulting in what looks to
        the student like the Ace UI. This allows question authors to turn off
        the scratchpad without having to customise the question (which when
        becomes disassociated from the original question) or changing the
        question type altogether.
 
-    1. invert_prefix. Inverts meaning of prefix_ans serialisation: '1' means
+  1. invert_prefix. Inverts meaning of prefix_ans serialisation: '1' means
        un-ticked -- and vice versa. This can be used to swap the default state.
 
-    1. escape. Escape the JSON ANSWER_CODE and
+  1. escape. Escape the JSON ANSWER_CODE and
        SCRATCHPAD_CODE strings by removing the double quotes from the start and end
        and escaping all internal double quotes with backslash before insertion
        into the wrapper. Useful when inserting
