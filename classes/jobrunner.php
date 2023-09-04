@@ -59,15 +59,12 @@ class qtype_coderunner_jobrunner {
         }
 
         // Extract the code from JSON if this is a Scratchpad UI or similar.
-        // Hack alert: to preserve compatibility with the original
-        // HTML-UI based python3_scratchpad question type (prior to the development
-        // of the scratchpad-ui) we explicitly do not extract the code in that case.
-        // If a question author has renamed the question type this won't work;
-        // they will have to update their question type to use the scratchpad-ui
-        // or will have to explicitly uncheck the Ace/Scratchpad compliant
-        // checkbox on all questions.
-        $handsoff = $question->coderunnertype == 'python3_scratchpad' && $question->uiplugin == 'html';
-        if ($question->extractcodefromjson && !$handsoff) {
+        // Note that this breaks the old python3_scratchpad question type
+        // where the template expects the full JSON string to be presented as
+        // the value of STUDENT_ANSWER. The fix is simply to change the template
+        // to use the value of STUDENT_ANSWER as given, rather than trying
+        // to extract the student answer itself.
+        if ($question->extractcodefromjson) {
             $json = json_decode($code, true);
             if ($json !== null and isset($json[constants::ANSWER_CODE_KEY])) {
                 $code = $json[constants::ANSWER_CODE_KEY][0];
