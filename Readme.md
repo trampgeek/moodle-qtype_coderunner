@@ -1,6 +1,6 @@
 # CodeRunner
 
-Version: 5.2.1 31 August 2023. Requires **MOODLE V4.0 or later**. Earlier versions
+Version: 5.2.1 5 September 2023. Requires **MOODLE V4.0 or later**. Earlier versions
 of Moodle must use CodeRunner V4.
 
 
@@ -69,13 +69,26 @@ unusual question type.
   - [Extended column specifier syntax (*obsolescent*)](#extended-column-specifier-syntax-obsolescent)
   - [Default result columns](#default-result-columns)
 - [User-interface selection](#user-interface-selection)
-  - [The Graph UI](#the-graph-ui)
-  - [The Table UI](#the-table-ui)
-  - [The Gap Filler UI](#the-gap-filler-ui)
-  - [The Ace Gap Filler UI](#the-ace-gap-filler-ui)
+  - [Ace UI](#ace-ui)
+    - [Serialisation](#serialisation)
+    - [UI parameters](#ui-parameters)
+  - [Ace-gapfiller UI](#ace-gapfiller-ui)
+    - [Serialisation](#serialisation-1)
+    - [UI parameters](#ui-parameters-1)
+  - [Gap Filler UI](#gap-filler-ui)
+    - [Serialisation](#serialisation-2)
+    - [UI parameters](#ui-parameters-2)
+  - [Graph UI](#graph-ui)
+    - [Serialisation](#serialisation-3)
+    - [UI Parameters](#ui-parameters)
   - [The Html UI](#the-html-ui)
+    - [UI parameters](#ui-parameters-3)
+    - [Serialisation](#serialisation-4)
     - [The textareaId macro](#the-textareaid-macro)
-  - [Other UI plugins](#other-ui-plugins)
+  - [Scratchpad UI](#scratchpad-ui)
+    - [Serialisation](#serialisation-5)
+    - [UI parameters](#ui-parameters-4)
+  - [Table UI](#table-ui)
 - [User-defined question types](#user-defined-question-types)
   - [Prototype template parameters](#prototype-template-parameters)
 - [Supporting or implementing new languages](#supporting-or-implementing-new-languages)
@@ -2723,15 +2736,15 @@ elements with the same name. (The original scratchpad question type at the
 University of Canterbury was implemented with the HTML UI, and we wanted
 compatibility with that).
 
-  1. answer_code: a singleton list containing the contents of the main
+  1. `answer_code`: a singleton list containing the contents of the main
        question answer box.
 
-  1. test_code: a singleton list containing the contents of the scratchpad.
+  1. `test_code`: a singleton list containing the contents of the scratchpad.
 
-  1. show_hide: a singleton list containing either '0' or '1' depending
+  1. `show_hide`: a singleton list containing either '0' or '1' depending
        on whether the scratchpad is hidden or shown respectively.
 
-  1. prefix_ans: a singleton list containing either '0' or '1' depending on
+  1. `prefix_ans`: a singleton list containing either '0' or '1' depending on
        whether or not the "Prefix with ans" checkbox is checked or not.
 
 #### UI parameters
@@ -2740,35 +2753,37 @@ The set of UI parameters for the scratchpad is rather complex and you probably
 need to study the examples on the CodeRunner demo site (see above link) to understand
 these.
 
-  1. scratchpad_name. The text in the link used to open/close the scratchpad.
+  1. `scratchpad_name`. The text in the link used to open/close the scratchpad.
        Default: "scratchpad".
 
-  1. button_name. The text in the Run button. Default: "Run".
+  1. `button_name`. The text in the Run button. Default: "Run".
 
-  1. prefix_name. Prefix with answer check-box label text. Default: "Prefix with answer".
+  1. `prefix_name`. Prefix with answer check-box label text. Default: "Prefix with answer".
 
-  1. help_text. The help text to show when a student clicks the help icon.
+  1. `help_text`. The help text to show when a student clicks the help icon.
 
-  1. run_lang. The language to use when running the code on the Jobe server.
+  1. `run_lang`. The language to use when running the code on the Jobe server.
        Default: null
 
-  1. wrapper_src. The location of wrapper to be used by the run button:
+  1. `wrapper_src`. The location of wrapper to be used by the run button:
        setting to 'globalextra' will use text in global extra field,
        'prototypeextra' will use the prototype extra field. The wrapper is
        code that wraps the student's scratchpad code; it can be used to
        support additional functionality like boilerplate code for initialising
        libraries, fetching images, etc. See
 
-  1. output_display_mode. Control how program output is displayed on runs.
+  1. `output_display_mode`. Control how program output is displayed on runs.
        There are three modes:
-   1. text: Display the output as text, html escaped. (default)
-   1. json: Display programs that output JSON, useful for capturing stdin
+
+     * `text`: Display the output as text, html escaped. (default)
+     * `json`: Display programs that output JSON, useful for capturing stdin
                 and displaying images. (recommended). Accepts JSON in the run
                 output with the fields:
-      + returncode: Exit code from program run.
-      + stdout: Stdout text from program run.
-      + stderr: Error text from program run.
-      + files: An object containing filenames mapped to base64
+
+        + `returncode`: Exit code from program run.
+        + `stdout`: Stdout text from program run.
+        + `stderr`: Error text from program run.
+        + `files`: An object containing filenames mapped to base64
                 encoded images. These will be displayed below any stdout text.
                 When the returncode is set to 42, an HTML input field will be
                 added after the last stdout received. When the enter key is
@@ -2777,31 +2792,32 @@ these.
                 This is repeated until returncode is not set to 42. This allows
                 simulation of interactive keyboard standard input within the
                 run (with considerable effort - see CodeRunner demo website).
-  1. html: Display program output as raw html inside the output area. (advanced)
+
+     * `html`: Display program output as raw html inside the output area. (advanced)
                 + This can be used to show images and insert other HTML.
                 + Giving an <input> element the class coderunner-run-input will
                add an event: when the enter key is pressed inside the input,
                the input's value is added to stdin and the program is run again
                with this updated stdin.
 
-  1. open_delimiter. The opening delimiter to use when inserting answer or
+  1. `open_delimiter`. The opening delimiter to use when inserting answer or
        Scratchpad code into the wrapper. It will replace the default value '{|'.
 
-  1. close_delimieter. The closing delimiter to use when inserting answer or
+  1. `close_delimiter`. The closing delimiter to use when inserting answer or
        Scratchpad code into the wrapper. It will replace the default value '|}'.
 
-  1. params. Parameter for the sandbox webservice (e.g. to set timelimit).
+  1. `params`. Parameter for the sandbox webservice (e.g. to set timelimit).
 
-  1. disable_scratchpad. Disable the scratchpad, resulting in what looks to
+  1. `disable_scratchpad`. Disable the scratchpad, resulting in what looks to
        the student like the Ace UI. This allows question authors to turn off
        the scratchpad without having to customise the question (which when
        becomes disassociated from the original question) or changing the
        question type altogether.
 
-  1. invert_prefix. Inverts meaning of prefix_ans serialisation: '1' means
+  1. `invert_prefix`. Inverts meaning of prefix\_ans serialisation: '1' means
        un-ticked -- and vice versa. This can be used to swap the default state.
 
-  1. escape. Escape the JSON ANSWER_CODE and
+  1. `escape`. Escape the JSON ANSWER_CODE and
        SCRATCHPAD_CODE strings by removing the double quotes from the start and end
        and escaping all internal double quotes with backslash before insertion
        into the wrapper. Useful when inserting
