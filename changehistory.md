@@ -1,6 +1,6 @@
 # CHANGE HISTORY
 
-### 31 August 2023. 5.2.1
+### 8 September 2023. 5.2.1
 
  * Major change: add scratchpad UI (thanks James Napier). This provides students
    with a mini IDE within each question, where they can test their code without
@@ -18,6 +18,9 @@
    only 1 row per cell to reduce confusion when student hits Enter.
  * Set specific column widths for SQL questions for compatibility with latest
    sqlite3.
+ * Change multilanguage question type so that answer code cannot be entered
+   until a language has been selected but the user can step through
+   the question (unanswered) without being required to select a language.
  * Prevent grading of an unchanged preloaded answer.
  * Add instructorhtml functionality to combinator grader so that a teacher can
    see HTML feedback that's hidden from student.

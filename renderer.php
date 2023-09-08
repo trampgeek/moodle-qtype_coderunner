@@ -765,7 +765,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
                 array('for' => $selectid));
         $html .= html_writer::start_tag('select',
                 array('id' => $selectid, 'name' => $selectname,
-                      'class' => 'coderunner-lang-select', 'required' => ''));
+                      'class' => 'coderunner-lang-select'));
         if (empty($currentlanguage)) {
             $html .= html_writer::tag('option', '', array('value' => ''));
         }

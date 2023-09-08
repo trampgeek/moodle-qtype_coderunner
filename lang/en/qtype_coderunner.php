@@ -449,6 +449,7 @@ $string['nearequalitygrader'] = 'Nearly exact match';
 $string['nodetailsavailable'] = 'Select a question type to see detailed help.';
 $string['nouiparameters'] = 'The {$a->uiname} UI does not take parameters.';
 $string['noqtype'] = 'No question type selected';
+$string['nolanguage'] = 'Please select language first'; 
 $string['morehidden'] = 'Some hidden test cases failed, too.';
 $string['noerrorsallowed'] = 'Your code must pass all tests to earn any marks. Try again.';
 $string['nonnumericmark'] = 'Non-numeric mark';

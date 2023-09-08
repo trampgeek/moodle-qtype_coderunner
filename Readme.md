@@ -2810,7 +2810,7 @@ these.
 
   1. `disable_scratchpad`. Disable the scratchpad, resulting in what looks to
        the student like the Ace UI. This allows question authors to turn off
-       the scratchpad without having to customise the question (which when
+       the scratchpad without having to customise the question (which then
        becomes disassociated from the original question) or changing the
        question type altogether.
 
