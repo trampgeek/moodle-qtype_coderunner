@@ -1,5 +1,9 @@
 # CHANGE HISTORY
 
+### 18 September 2023. 5.2.2
+
+ * Upgrade from MATURITY_RELEASE_CANDIDATE to MATURITY_STABLE
+
 ### 8 September 2023. 5.2.1
 
  * Major change: add scratchpad UI (thanks James Napier). This provides students
