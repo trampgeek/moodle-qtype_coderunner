@@ -92,7 +92,7 @@ class qtype_coderunner_twig {
         try {
             $renderedstring = $template->render($parameters);
         } catch (ValueError $e) {
-            throw new \Twig\Error\Error("Twig error: " . $e);
+            throw new \Twig\Error\Error("Twig error: " . $e->getMessage());
         }
         return $renderedstring;
     }
