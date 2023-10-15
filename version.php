@@ -22,7 +22,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version  = 2023091800;
+$plugin->version  = 202309180004;
 $plugin->requires = 2022041900;
 $plugin->cron = 0;
 $plugin->component = 'qtype_coderunner';
