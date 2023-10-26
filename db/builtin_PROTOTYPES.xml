@@ -1124,7 +1124,7 @@ print(SEPARATOR)
     <useace>1</useace>
     <resultcolumns></resultcolumns>
     <template><![CDATA["""The template for a "write a program" question type that accepts answers
-    in C, C++, Java or Python3 according to the value in the language select
+    in C, C++, Java,Python3,Perl,PHP,Ruby,JavaScript,C# or Golang according to the value in the language select
     dropdown menu.
 """
 
@@ -1132,7 +1132,20 @@ import subprocess
 import re
 student_answer = """{{ STUDENT_ANSWER | e('py') }}"""
 language = """{{ ANSWER_LANGUAGE | e('py') }}""".lower()
-language_extension_map = {'c':'c', 'cpp':'cpp', 'java':'java', 'python3':'py'}
+language_extension_map = {
+      'c':'c'
+    , 'cpp':'cpp'
+    , 'java':'java'
+    , 'python3':'py' 
+    , 'perl':'pl'
+    , 'php':'php'
+    , 'ruby':'rb'
+    , 'javascript':'js'
+    , 'c#':'cs'
+    , 'golang':'go'
+    
+    
+}
 
 if language not in language_extension_map.keys():
     raise Exception('Error in question. Unknown/unexpected language ({})'.format(language))
@@ -1145,6 +1158,8 @@ if language == 'java':
         raise Exception("Unable to determine class name. Does the file include 'public class name'?")
     classname = match.group(1)
     filename = classname + '.java'
+elif language == 'golang':
+    filename = 'tester.' + language_extension_map[language]
 else:
     filename = '__tester__.' + language_extension_map[language]
 
@@ -1171,6 +1186,27 @@ elif language == 'java':
     if return_code != 0:
         raise Exception("** Compilation failed. Testing aborted **")
     exec_command = ["java", "-Xss16m", "-Xmx500m", classname]
+elif language == 'perl':
+    exec_command = ["perl", "-w", "./__tester__.pl" ]
+elif language == 'ruby':
+    exec_command = ["ruby", "-w", "./__tester__.rb" ]
+elif language == 'php':
+    exec_command = ["php", "./__tester__.php" ]
+elif language == 'javascript':
+    exec_command = ["node", "./__tester__.js" ]
+elif language == 'golang':
+    go_env = {}
+    go_env["GOCACHE"]="/tmp/.go-cache"
+    completedProc = subprocess.run([ "go", "build", "-o", "tester.exe",  filename ],env=go_env  )
+    if completedProc.returncode != 0:
+        raise Exception("** Golang Compilation failed. Testing aborted **")
+    exec_command = ["./tester.exe"]
+elif language == 'c#':
+    cs_env = {}
+    completedProc = subprocess.run([ "mcs",  "-out:tester.exe", filename ],env=cs_env  )
+    if completedProc.returncode != 0:
+        raise Exception("** C# Compilation failed. Testing aborted **")
+    exec_command = ["./tester.exe"]
 else: # Python doesn't need a compile phase
     exec_command = ["python3", "./__tester__.py"]
 
@@ -1199,7 +1235,7 @@ except subprocess.CalledProcessError as e:
     <validateonsave>0</validateonsave>
     <testsplitterre></testsplitterre>
     <language>python3</language>
-    <acelang>c,cpp,java,python3</acelang>
+    <acelang>c,cpp,java,python3,perl,php,ruby,javascript,c#,golang</acelang>
     <sandbox></sandbox>
     <grader>EqualityGrader</grader>
     <cputimelimitsecs></cputimelimitsecs>
