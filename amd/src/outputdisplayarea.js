@@ -38,38 +38,48 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import ajax from 'core/ajax';
-import {get_string as getLangString} from 'core/str';
+import ajax from "core/ajax";
+import { get_string } from "core/str";
 
-
-const ENTER_KEY = 13;
 const INPUT_INTERRUPT = 42;
 const RESULT_SUCCESS = 15;
-const INPUT_CLASS = 'coderunner-run-input';
-const JSON_DISPLAY_PROPS = ['returncode', 'stdout', 'stderr', 'files'];
-
+const INPUT_CLASS = "coderunner-run-input";
+const DEFAULT_DISPLAY_COLOUR = "#eff";
+const ERROR_DISPLAY_COLOUR = "#faa";
+const JSON_DISPLAY_PROPS = ["returncode", "stdout", "stderr", "files"];
 
 /**
- * Get the specified language string using
- * AJAX and plug it into the given textarea
- * @param {string} langStringName The language string name.
- * @param {DOMnode} node area into which the error message
- * should be plugged.
- * @param  {function} callback Callback function, with two arguments: node, message.
- * @param {string} additionalText Extra text to follow the result code.
+ * Retrieve a language string from qtype_coderunner.
+ * @param {string} stringName of language string to retrieve.
+ * @returns {string} a language string from qtype_coderunner.
  */
-const setLangString = async(langStringName, node, callback, additionalText = '') => {
-    let message = await getLangString(langStringName, 'qtype_coderunner');
-    if (langStringName.includes('error')) {
-        message = "*** " + message + " ***\n";
-    }
-    if (additionalText) {
-        message += additionalText;
-    }
+const getLangString = async (stringName) => {
+    const string = await get_string(stringName, "qtype_coderunner");
+    return string;
+};
+
+/**
+ * Get the specified language string using. If callback is provided then pass
+ * the language string into that function, otherwise plug it into the given node.
+ * @param {Object} settings The settings
+ * @param {string} settings.stringName The language string name to retrieve.
+ * @param {Function} settings.callback Callback function, with langString as arg.
+ * @param {Element} settings.node text area into which the error message should be plugged.
+ * @example
+ * // Set a div element's text to be a language string
+ * setLangString({stringName: 'nooutput', node: div})
+ * @example
+ * // Set a div element's text to be a language string with *** on either side
+ * setLangString setLangString({stringName: 'error_timeout', callback: (langString) => {
+ *      div.innerText += `*** ${langString} ***\n`;
+ * }});
+ */
+const setLangString = async ({ stringName, callback, node }) => {
+    const langString = await getLangString(stringName);
     if (callback instanceof Function) {
-        callback(node, message);
+        callback(langString);
     } else {
-        node.innerText = message;
+        node.innerText = langString;
     }
 };
 
@@ -79,18 +89,18 @@ const diagnoseWebserviceResponse = (response) => {
     // response.result is ignored if response.error is non-zero.
     // Any condition not in the table is deemed an "Unknown runtime error".
     const ERROR_RESPONSES = [
-        [1, 0, 'error_access_denied'], // Sandbox AUTH_ERROR
-        [2, 0, 'error_unknown_language'], // Sandbox WRONG_LANG_ID
-        [3, 0, 'error_access_denied'], // Sandbox ACCESS_DENIED
-        [4, 0, 'error_submission_limit_reached'], // Sandbox SUBMISSION_LIMIT_EXCEEDED
-        [5, 0, 'error_sandbox_server_overload'], // Sandbox SERVER_OVERLOAD
-        [0, 11, ''], // RESULT_COMPILATION_ERROR
-        [0, 12, ''], // RESULT_RUNTIME_ERROR
-        [0, 13, 'error_timeout'], // RESULT TIME_LIMIT
-        [0, RESULT_SUCCESS, ''], // RESULT_SUCCESS
-        [0, 17, 'error_memory_limit'], // RESULT_MEMORY_LIMIT
-        [0, 21, 'error_sandbox_server_overload'], // RESULT_SERVER_OVERLOAD
-        [0, 30, 'error_excessive_output'] // RESULT OUTPUT_LIMIT
+        [1, 0, "error_access_denied"], // Sandbox AUTH_ERROR
+        [2, 0, "error_unknown_language"], // Sandbox WRONG_LANG_ID
+        [3, 0, "error_access_denied"], // Sandbox ACCESS_DENIED
+        [4, 0, "error_submission_limit_reached"], // Sandbox SUBMISSION_LIMIT_EXCEEDED
+        [5, 0, "error_sandbox_server_overload"], // Sandbox SERVER_OVERLOAD
+        [0, 11, ""], // RESULT_COMPILATION_ERROR
+        [0, 12, ""], // RESULT_RUNTIME_ERROR
+        [0, 13, "error_timeout"], // RESULT TIME_LIMIT
+        [0, RESULT_SUCCESS, ""], // RESULT_SUCCESS
+        [0, 17, "error_memory_limit"], // RESULT_MEMORY_LIMIT
+        [0, 21, "error_sandbox_server_overload"], // RESULT_SERVER_OVERLOAD
+        [0, 30, "error_excessive_output"], // RESULT OUTPUT_LIMIT
     ];
     for (let i = 0; i < ERROR_RESPONSES.length; i++) {
         let row = ERROR_RESPONSES[i];
@@ -98,7 +108,7 @@ const diagnoseWebserviceResponse = (response) => {
             return row[2];
         }
     }
-    return 'error_unknown_runtime'; // We're dead, Fred.
+    return "error_unknown_runtime"; // We're dead, Fred.
 };
 
 /**
@@ -118,17 +128,17 @@ const combinedOutput = (response) => {
  * @returns {array} of missing properties.
  */
 const missingProperties = (obj, props) => {
-    return props.filter(prop => !obj.hasOwnProperty(prop));
+    return props.filter((prop) => !obj.hasOwnProperty(prop));
 };
 
 /**
  * Insert a base64 encoded string into HTML image.
  * @param {string} base64 encoded string.
  * @param {string} type of encoded image file.
- * @returns {*|jQuery|HTMLElement} image tag containing encoded image from string.
+ * @returns {HTMLImageElement} image tag containing encoded image from string.
  */
-const getImage = (base64, type = 'png') => {
-    const image = document.createElement('img');
+const getImage = (base64, type = "png") => {
+    const image = document.createElement("img");
     image.src = `data:image/${type};base64,${base64}`;
     return image;
 };
@@ -148,8 +158,8 @@ class OutputDisplayArea {
         this.mode = outputMode;
         this.sandboxParams = sandboxParams;
 
-        this.textDisplay = document.getElementById(displayAreaId + '-text');
-        this.imageDisplay = document.getElementById(displayAreaId + '-images');
+        this.textDisplay = document.getElementById(displayAreaId + "-text");
+        this.imageDisplay = document.getElementById(displayAreaId + "-images");
 
         this.prevRunSettings = null;
     }
@@ -160,6 +170,8 @@ class OutputDisplayArea {
     clearDisplay() {
         this.textDisplay.innerHTML = "";
         this.imageDisplay.innerHTML = "";
+        this.textDisplay.style.backgroundColor = DEFAULT_DISPLAY_COLOUR;
+        this.imageDisplay.style.backgroundColor = DEFAULT_DISPLAY_COLOUR;
     }
 
     /**
@@ -179,7 +191,7 @@ class OutputDisplayArea {
      */
     displayHtml(response) {
         this.textDisplay.innerHTML = combinedOutput(response);
-        const inputEl = this.textDisplay.querySelector('.' + INPUT_CLASS);
+        const inputEl = this.textDisplay.querySelector("." + INPUT_CLASS);
         if (inputEl) {
             this.addInputEvents(inputEl);
         }
@@ -199,20 +211,27 @@ class OutputDisplayArea {
      */
     displayJson(response) {
         const result = this.validateJson(response.output);
+        if (result === null) {
+            return;
+        } // Invalid JSON response received from wrapper.
 
         let text = result.stdout;
 
         if (result.returncode !== INPUT_INTERRUPT) {
             text += result.stderr;
         }
-        if (result.returncode == 13) { // Timeout
-            setLangString('error_timeout', this.textDisplay, (node, msg) => {
-             node.innerText += msg;
+        if (result.returncode == 13) {
+            // Timeout
+            setLangString({
+                stringName: "error_timeout",
+                callback: (langString) => {
+                    this.textDisplay.innerText += `*** ${langString} ***\n`;
+                },
             });
         }
 
         const numImages = this.displayImages(result.files);
-        if (text.trim() === '' && result.returncode !== INPUT_INTERRUPT) {
+        if (text.trim() === "" && result.returncode !== INPUT_INTERRUPT) {
             if (numImages == 0) {
                 this.displayNoOutput(null);
             }
@@ -225,31 +244,44 @@ class OutputDisplayArea {
     }
 
     /**
+     * Display an error message, with red background.
+     * Typically, these would be caused by the wrapper.
+     * But they can also happen when the webservice responds with an error.
+     * @param {string} error_msg to be displayed.
+     */
+    displayError(error_msg) {
+        this.textDisplay.style.backgroundColor = ERROR_DISPLAY_COLOUR;
+        this.textDisplay.innerText = error_msg;
+    }
+
+    /**
      * Validate JSON to display, make sure it is valid json and has required fields.
+     * Return null if malformed JSON or or required fields are missing.
      * @param {string} jsonString string of JSON to be displayed.
-     * @returns {object} JSON as object
+     * @returns {object | null} JSON as object, or null if invalid.
      */
     validateJson(jsonString) {
         let result = null;
         try {
             result = JSON.parse(jsonString);
         } catch (e) {
-            window.alert(
-                `Error parsing display JSON output: \n` +
-                `'${jsonString}\n'` +
-                `Error Msg: \n` +
-                ` ${e.message} \n` +
-                `The question author must fix this!`
-            );
+            setLangString({
+                stringName: "outputdisplayarea_invalid_json",
+                callback: (langString) => {
+                    this.displayError(`${langString}\n` + `${jsonString}\n` + `${e.message} \n`);
+                },
+            });
+            return null;
         }
-
         const missing = missingProperties(result, JSON_DISPLAY_PROPS);
         if (missing.length > 0) {
-            window.alert(
-                `Display JSON (in response.result) is missing the following fields: \n` +
-                `${missing.join()} \n` +
-                `The question author must fix this!`
-            );
+            setLangString({
+                stringName: "outputdisplayarea_missing_json_fields",
+                callback: (langString) => {
+                    this.displayError(`${langString}\n` + `${missing.join()}`);
+                },
+            });
+            return null;
         }
         return result;
     }
@@ -262,9 +294,9 @@ class OutputDisplayArea {
     displayNoOutput(response) {
         const isNoOutput = response ? combinedOutput(response).length === 0 : true;
         if (isNoOutput || response === null) {
-            const span = document.createElement('span');
-            span.style.color = 'red';
-            setLangString('nooutput', span);
+            const span = document.createElement("span");
+            span.style.color = "red";
+            setLangString({ stringName: "nooutput", node: span });
             this.clearDisplay();
             this.textDisplay.append(span);
         }
@@ -276,22 +308,32 @@ class OutputDisplayArea {
      */
     display(response) {
         const error = diagnoseWebserviceResponse(response);
-        if (error !== '') {
-            setLangString(error, this.textDisplay);
+        if (error !== "") {
+            setLangString({
+                stringName: error,
+                callback: (langString) => {
+                    this.textDisplay.innerText = `*** ${langString} ***\n`;
+                },
+            });
             return;
         }
         if (this.displayNoOutput(response)) {
             return;
         }
 
-        if (this.mode === 'json') {
+        if (this.mode === "json") {
             this.displayJson(response);
-        } else if (this.mode === 'html') {
+        } else if (this.mode === "html") {
             this.displayHtml(response);
-        } else if (this.mode === 'text') {
+        } else if (this.mode === "text") {
             this.displayText(response);
         } else {
-            throw Error(`Invalid outputMode given: "${this.mode}"`);
+            setLangString({
+                stringName: "outputdisplayarea_invalid_mode",
+                callback: (langString) => {
+                    this.displayError(langString + " " + this.mode);
+                },
+            });
         }
     }
 
@@ -309,23 +351,25 @@ class OutputDisplayArea {
         if (shouldClearDisplay) {
             this.clearDisplay();
         }
-        ajax.call([{
-            methodname: 'qtype_coderunner_run_in_sandbox',
-            args: {
-                contextid: M.cfg.contextid, // Moodle context ID
-                sourcecode: code,
-                language: this.lang,
-                stdin: stdin,
-                params: JSON.stringify(this.sandboxParams) // Sandbox params
+        ajax.call([
+            {
+                methodname: "qtype_coderunner_run_in_sandbox",
+                args: {
+                    contextid: M.cfg.contextid, // Moodle context ID
+                    sourcecode: code,
+                    language: this.lang,
+                    stdin: stdin,
+                    params: JSON.stringify(this.sandboxParams), // Sandbox params
+                },
+                done: (responseJson) => {
+                    const response = JSON.parse(responseJson);
+                    this.display(response);
+                },
+                fail: (error) => {
+                    this.displayError(error.message);
+                },
             },
-            done: (responseJson) => {
-                const response = JSON.parse(responseJson);
-                this.display(response);
-            },
-            fail: (error) => {
-                alert(error.message);
-            }
-        }]);
+        ]);
     }
 
     /**
@@ -336,9 +380,13 @@ class OutputDisplayArea {
         const inputId = `${this.displayAreaId}-input-field`;
         this.textDisplay.innerHTML += `<input type="text" id="${inputId}" class="${INPUT_CLASS}">`;
         const inputEl = document.getElementById(inputId);
-        setLangString('enter_to_submit', inputEl, (node, msg) => {
-            node.placeholder += msg;
+        setLangString({
+            stringName: "enter_to_submit",
+            callback: (langString) => {
+                inputEl.placeholder += langString;
+            },
         });
+
         this.addInputEvents(inputEl);
     }
 
@@ -346,22 +394,22 @@ class OutputDisplayArea {
      * Add event listeners to inputEl overriding enter key to:
      *  - Prevent form-submit.
      *  - Call runCode again, adding value in inputEl to stdin.
-     * @param {node} inputEl to add event listeners to.
+     * @param {HTMLInputElement} inputEl to add event listeners to.
      */
     addInputEvents(inputEl) {
         inputEl.focus();
 
-        inputEl.addEventListener('keydown', (e) => {
-            if (e.keyCode === ENTER_KEY) {
+        inputEl.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
                 e.preventDefault(); // Do NOT form submit.
             }
         });
-        inputEl.addEventListener('keyup', (e) => {
-            if (e.keyCode === ENTER_KEY) {
+        inputEl.addEventListener("keyup", (e) => {
+            if (e.key === "Enter") {
                 const line = inputEl.value;
                 inputEl.remove();
                 this.textDisplay.innterHTML += line; // Perhaps this should be sanitized.
-                this.prevRunSettings[1] += line + '\n';
+                this.prevRunSettings[1] += line + "\n";
                 this.runCode(...this.prevRunSettings, false);
             }
         });
@@ -375,20 +423,22 @@ class OutputDisplayArea {
     displayImages(files) {
         let numImages = 0;
         for (const [fname, fcontents] of Object.entries(files)) {
-            const fileType = fname.split('.')[1];
+            const fileType = fname.split(".")[1];
             if (fileType) {
                 const image = getImage(fcontents, fileType);
                 this.imageDisplay.append(image);
                 numImages += 1;
             } else {
-                window.alert(`Could not read filename correctly: "${fname}"`);
+                setLangString({
+                    stringName: "outputdisplayarea_missing_image_extension",
+                    callback: (langString) => {
+                        this.imageDisplay(`${langString} ` + fname);
+                    },
+                });
             }
         }
         return numImages;
     }
 }
 
-
-export {
-    OutputDisplayArea
-};
+export { OutputDisplayArea };

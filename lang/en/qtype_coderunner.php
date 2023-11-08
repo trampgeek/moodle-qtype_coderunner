@@ -462,6 +462,12 @@ $string['ordering'] = 'Ordering';
 $string['overallresult'] = 'Overall result';
 $string['overloadoninit'] = 'Sandbox server overload prevented question initialisation';
 
+// Output Display Area Errors (Used in Scratchpad UI) for displaying code output. See outputdisplayarea.js
+$string['outputdisplayarea_invalid_mode'] = 'Invalid output display mode:';
+$string['outputdisplayarea_invalid_json'] = 'Error parsing JSON. Output from wrapper:';
+$string['outputdisplayarea_missing_json_fields'] = 'Output display JSON is missing required fields:';
+$string['outputdisplayarea_missing_image_extension'] = 'Cannot display image, include file extension in filename:';
+
 $string['passes'] = 'passes';
 $string['penaltyregime'] = '(penalty regime: {$a} %)';
 $string['penaltyregimelabel'] = 'Penalty regime:';
