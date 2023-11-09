@@ -632,7 +632,7 @@ public class __tester__ {
     <hidden>0</hidden>
     <idnumber></idnumber>
     <coderunnertype>multilanguage</coderunnertype>
-    <prototypetype>2</prototypetype>
+    <prototypetype>1</prototypetype>
     <allornothing>1</allornothing>
     <penaltyregime>10, 20, ...</penaltyregime>
     <precheck>0</precheck>
@@ -657,15 +657,15 @@ language_extension_map = {
       'c':'c'
     , 'cpp':'cpp'
     , 'java':'java'
-    , 'python3':'py' 
+    , 'python3':'py'
     , 'perl':'pl'
     , 'php':'php'
     , 'ruby':'rb'
     , 'javascript':'js'
     , 'c#':'cs'
     , 'golang':'go'
-    
-    
+
+
 }
 
 if language not in language_extension_map.keys():
