@@ -449,7 +449,7 @@ $string['nearequalitygrader'] = 'Nearly exact match';
 $string['nodetailsavailable'] = 'Select a question type to see detailed help.';
 $string['nouiparameters'] = 'The {$a->uiname} UI does not take parameters.';
 $string['noqtype'] = 'No question type selected';
-$string['nolanguage'] = 'Please select language first'; 
+$string['nolanguage'] = 'Please select language first';
 $string['morehidden'] = 'Some hidden test cases failed, too.';
 $string['noerrorsallowed'] = 'Your code must pass all tests to earn any marks. Try again.';
 $string['nonnumericmark'] = 'Non-numeric mark';
@@ -692,8 +692,23 @@ For details of this approach, see the question author forum on
 coderunner.org.nz.</p>';
 
 $string['qtype_multilanguage'] = '<p>A "write a program" style
-of question in which the student can submit an answer in any of the
-following languages: C, C++, Java, Python3. The student\'s question answer
+of question in which the student can submit an answer in any one of several
+different languages. The languages C, C++, Java, Python3, PHP and JavaScript (nodejs)
+are standard on Jobe servers so should all work directly. The question type also
+allows for the use of perl, ruby, golang and C# but these require the
+appropriate additional compilers and/or interpreters to be installed on Jobe.
+For example, <code>sudo apt-get install mono-mcs</code> to install the mono C#
+compiler, mcs.</p>
+<p>If the question author supplies a sample answer, they can specify the language
+of their answer in one of three ways. <ol><li>By adding a template parameter like
+<code>{"answer_language": "cpp"}</code> to specify the language they are using.</li>
+<li>By using the default language, if one is set. The default languages is denoted
+by an asterisk after the language name in the "Ace language" field in the
+Advanced Customisation panel, if the author is using a customised question. There
+is no default language otherwise.</li>
+<li>By using the first language listed in the "Ace language" field in the
+Advanced Customisation panel - default is C.</li></ol></p>
+<p>The student\'s question answer
 box has a drop-down menu at the top, with which the student must select
 the language in which their answer is written.</p>
 <p>Further languages can be added, if supported on the Jobe server, by
