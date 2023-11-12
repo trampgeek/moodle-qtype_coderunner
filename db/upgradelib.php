@@ -65,7 +65,7 @@ function delete_existing_prototypes($systemcontextid) {
               JOIN {question} q ON q.id = qv.questionid
               WHERE ctx.id=?
               AND qc.name='CR_PROTOTYPES'
-              AND q.name LIKE '%PROTOTYPE_%'";
+              AND q.name LIKE 'BUILT%IN_PROTOTYPE_%'";
     $prototypes = $DB->get_records_sql($query, array($systemcontextid));
     foreach ($prototypes as $question) {
         $DB->delete_records('question_coderunner_options', array('questionid' => $question->id));
