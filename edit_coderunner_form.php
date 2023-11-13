@@ -1134,7 +1134,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $parameters['QUESTION'] = $question;
 
         // Try twig expanding everything (see question::twig_all), with strict_variables true.
-        foreach (['questiontext', 'answer', 'answerpreload', 'globalextra'] as $field) {
+        foreach (['questiontext', 'answer', 'answerpreload', 'globalextra', 'prototypeextra'] as $field) {
             $text = $question->$field;
             if (is_array($text)) {
                 $text = $text['text'];
