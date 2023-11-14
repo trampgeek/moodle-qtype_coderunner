@@ -82,12 +82,92 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
         return isset($this->outputonly) && $this->outputonly;
     }
 
+
+    /**
+     * Return a message describing the first failing test, to the extent
+     * possible. Only called if there is a valid 'correct' column.
+     * @return string HTML error message describing the first validation failure.
+     */
+    private function format_first_failing_test($correctcol) {
+        $error = '';
+        foreach (array_slice($this->testresults, 1) as $row) {
+            if (!$row[$hascorrect]) {
+                $n = count($row);
+                for ($i = 0; $i < $n; $i++) {
+                    if ($headerrow[$i] != 'iscorrect') {
+                        $cell = htmlspecialchars($row[$i]);
+                        $error .= "{$headerrow[$i]}: <pre>$cell</pre>";
+                    }
+                }
+                break;
+            }
+        }
+        return $error;
+    }
+
+
+    /**
+     * Return a table describing all the validation failures.
+     * @param int $correctcol The table column number of the 'iscorrect' column.
+     * @param int $expectedcol The table column number of the 'Expected' column.
+     * @param int $gotcol The table column number of the 'Got' column.
+     * @return string An HTML table with one row for each failed test case, and
+     * a button to copy the 'got' column into the 'expected' column of the test
+     * case.
+     */
+    private function make_validation_fail_table($correctcol, $expectedcol, $gotcol, $sanitise) {
+        $error = '';
+        $rownum = 0;
+        $codecol = array_search(get_string('testcolhdr', 'qtype_coderunner'), $this->testresults[0]);
+        foreach (array_slice($this->testresults, 1) as $row) {
+            if (!$row[$correctcol]) {
+                if ($codecol !== false) {
+                    $code = $row[$codecol];
+                } else {
+                    $code = '';
+                }
+            }
+            $this->add_failed_test($rownum, $code, $row[$expectedcol], $row[$gotcol], $sanitise);
+            $rownum += 1;
+        }
+        return html_writer::table($this->failures) . get_string('replaceexpectedwithgot', 'qtype_coderunner');
+    }
+
+
+    /**
+     * Check if a column is formatted in raw HTML. Messy, because the column
+     * formats array does not include is ishidden and iscorrect fields.
+
+     * @param int $col
+     * @return bool true if the given column is to be displayed in html
+     */
+    private function is_html_column($col) {
+        $hdrs = $this->testresults[0];
+        $formats = $this->columnformats;
+        if (!$formats) {
+            return False;
+        }
+        $i = 0;    // Column number.
+        $icol = 0; // Column number excluding ishidden and iscorrect
+        while ($i < count($hdrs)) {
+            if ($hdrs[$i] != 'iscorrect' && $hdrs[$i] != 'ishidden') {
+                if ($i == $col) {
+                    $ishtml = $formats[$icol] == '%h';
+                    return $ishtml;
+                }
+                $icol += 1;
+            }
+            $i++;
+        }
+        return false;
+    }
+
     /**
      * Construct a customised error message for combinator grading outcomes if
-     * practicable. Use the prologuehtml field (if given) followed by the first
-     * wrong row of the result table if this table has been defined and if it
-     * contains an 'iscorrect' column.
-     * @return type
+     * practicable. Use the prologuehtml field (if given) followed by a table
+     * of all the failing tests in the result table if this table has been defined
+     * and if it contains an 'iscorrect' column.
+     * @return string An HTML error message.
      */
     public function validation_error_message() {
         $error = '';
@@ -96,26 +176,27 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
         }
         if (!empty($this->testresults)) {
             $headerrow = $this->testresults[0];
-            $iscorrectcol = array_search('iscorrect', $headerrow);
-            if ($iscorrectcol !== false) {
-                // Table has the optional 'iscorrect' column so find first fail.
-                foreach (array_slice($this->testresults, 1) as $row) {
-                    if (!$row[$iscorrectcol]) {
-                        $error .= "First failing test:<br>";
-                        $n = count($row);
-                        for ($i = 0; $i < $n; $i++) {
-                            if ($headerrow[$i] != 'iscorrect' &&
-                                    $headerrow[$i] != 'ishidden') {
-                                $cell = htmlspecialchars($row[$i]);
-                                $error .= "{$headerrow[$i]}: <pre>$cell</pre>";
-                            }
-                        }
-                        break;
-                    }
-                }
+            $correctcol = array_search('iscorrect', $headerrow);
+            $expectedcol = array_search(get_string('expectedcolhdr', 'qtype_coderunner'), $headerrow);
+            $gotcol = array_search(get_string('gotcolhdr', 'qtype_coderunner'), $headerrow);
+            $sanitise = true;
+            if ($correctcol !== false and $expectedcol !== false and $gotcol !== false) {
+                // This looks like a pretty conventional results table, so we can
+                // try using the parent way of formatting the failed test cases, with
+                // copy-got-to-expected button.
+
+                $sanitise = !$this->is_html_column($gotcol);
+                $error .= $this->make_validation_fail_table($correctcol, $expectedcol, $gotcol, $sanitise);
+            } else if ($correctcol) {
+                // Can't use the fancy table presentation as missing got and/or
+                // expected. So just make a simple 'first failing test' string.
+                $error .= $this->format_first_failing_test($correctcol, $sanitise);
             }
         }
-        return $error . parent::validation_error_message();
+
+        $error .= '<br>' . parent::validation_error_message();
+        //debugging($error);
+        return $error;
     }
 
     // Getter methods for use by renderer.

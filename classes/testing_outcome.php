@@ -57,6 +57,14 @@ class qtype_coderunner_testing_outcome {
         $this->sourcecodelist = null;     // Array of all test runs on the sandbox.
         $this->sandboxinfo = array();
         $this->graderstate = '';  // For passing state between runs using combinator grader.
+        $this->numerrors = 0;
+        $this->failures = new html_table(); // A table for reporting validation errors.
+        $this->failures->attributes['class'] = 'coderunner-test-results';
+        $this->failures->head = array(get_string('testcolhdr', 'qtype_coderunner'),
+                get_string('expectedcolhdr', 'qtype_coderunner'),
+                get_string('gotcolhdr', 'qtype_coderunner'));
+        $this->failures->data = array();
+        $this->failures->rowclasses = array();
     }
 
     public function set_status($status, $errormessage='') {
@@ -153,6 +161,55 @@ class qtype_coderunner_testing_outcome {
         $this->sandboxinfo = array_merge($this->sandboxinfo, $info);
     }
 
+
+    /**
+     * Add to the $this->failures table a report on a failed testcase, including
+     * a button to copy the got back into the expected
+     * @param type $rownum
+     * @param type $code
+     * @param type $expected
+     * @param type $got
+     */
+    protected function add_failed_test($rownum, $code, $expected, $got, $sanitise=true) {
+        $this->failures->data[] = $this->format_failed_test($rownum, $code, $expected, $got, $sanitise);
+        $this->failures->rowclasses[] = 'coderunner-failed-test failrow_' . $rownum;
+    }
+
+    /**
+     * Return an array of 3-elements for placing in a row of a table containing
+     * all the failed tests during validation. The first element is the failed
+     * test (including a link to it), the second is the expected result (including
+     * a link to it) and the third is what we actually got, together with a
+     * button that, if clicked, copies the got back into the test case's
+     * expected field.
+     * @param int $rownum The row number of the test that failed
+     * @param string $code The test code that failed.
+     * @param string $expected The expected result.
+     * @param string $got The actual output from the test.
+     * @param bool $sanitise True to apply the usual htmlspecialcharacter translations
+     * on expected and got. This translation is always done on code regardless of
+     * this parameter setting.Sanitising should be turned off when formatting
+     * columns with an 'h' column specifier.
+     * @return array The three HTML strings to be inserted into the pseudo result table.
+     */
+    protected function format_failed_test($rownum, $code, $expected, $got, $sanitise=true) {
+        $nl = html_writer::empty_tag('br');
+        if ($sanitise) {
+            $expected = s($expected);
+            $got = s($got);
+        }
+        $testcode = html_writer::link('#id_testcode_' . $rownum,
+                get_string('testcase', 'qtype_coderunner', $rownum + 1)) . "$nl<pre>$code</pre>";
+        $expected= html_writer::link('#id_expected_' . $rownum,
+                html_writer::tag('pre', $expected,
+                array('id' => 'id_fail_expected_' . $rownum)));
+        $got_pre = html_writer::tag('pre', $got, array('id' => 'id_got_' . $rownum));
+        $button = html_writer::tag('button', '&lt;&lt;', array(
+                                   'type' => 'button',  // To suppress form submission.
+                                   'class' => 'replaceexpectedwithgot'));
+        return array($testcode, $expected, $got_pre . $button);
+    }
+
     // Return a message summarising the nature of the error if this outcome
     // is not all correct.
     public function validation_error_message() {
@@ -164,42 +221,23 @@ class qtype_coderunner_testing_outcome {
             return get_string('syntax_errors', 'qtype_coderunner') . html_writer::tag('pre', $this->errormessage);
         } else if ($this->combinator_error()) {
             return get_string('badquestion', 'qtype_coderunner') . html_writer::tag('pre', $this->errormessage);
-        } else if (!$this->iscombinatorgrader()) {  // Combinator grader results table can't be used.
-            $numerrors = 0;
-            $failures = new html_table();
-            $failures->attributes['class'] = 'coderunner-test-results';
-            $failures->head = array(get_string('testcolhdr', 'qtype_coderunner'),
-                get_string('expectedcolhdr', 'qtype_coderunner'),
-                get_string('gotcolhdr', 'qtype_coderunner'));
-            $failures->data = array();
-            $failures->rowclasses = array();
-
+        } else if (!$this->iscombinatorgrader()) {  // See combinator_grader_outcome for this more complex case.
             foreach ($this->testresults as $i => $testresult) {
                 if (!$testresult->iscorrect) {
-                    $numerrors += 1;
+                    $this->numerrors += 1;
                     $rownum = isset($testresult->rownum) ? intval($testresult->rownum) : $i;
                     if (isset($testresult->expected) && isset($testresult->got)) {
-                        $failures->data[] = array(
-                            html_writer::link('#id_testcode_' . $rownum,
-                                    get_string('testcase', 'qtype_coderunner', $rownum + 1) .
-                                        html_writer::empty_tag('br') . s($testresult->testcode)),
-                            html_writer::link('#id_expected_' . $rownum, html_writer::tag('pre', s($testresult->expected),
-                                    array('id' => 'id_fail_expected_' . $rownum))),
-                            html_writer::tag('pre', s($testresult->got), array('id' => 'id_got_' . $rownum)) .
-                                html_writer::tag('button', '&lt;&lt;', array(
-                                    'type' => 'button',  // To suppress form submission.
-                                    'class' => 'replaceexpectedwithgot')),
-                        );
-                        $failures->rowclasses[] = 'coderunner-failed-test failrow_' . $rownum;
+                        $code = $testresult->testcode;
+                        $expected = $testresult->expected;
+                        $got = $testresult->got;
+                        $this->add_failed_test($rownum, $code, $expected, $got);
                     }
                 }
             }
             $message = get_string('failedntests', 'qtype_coderunner', array(
-                'numerrors' => $numerrors));
-            if ($failures->data) {
-                $message .= html_writer::table($failures) . get_string('replaceexpectedwithgot', 'qtype_coderunner');
-            } else {
-                $message .= get_string('failedtesting', 'qtype_coderunner');
+                'numerrors' => $this->numerrors));
+            if ($this->failures->data) {
+                $message .= html_writer::table($this->failures) . get_string('replaceexpectedwithgot', 'qtype_coderunner');
             }
         } else {
             $message = get_string('failedtesting', 'qtype_coderunner');
