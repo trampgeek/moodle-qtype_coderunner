@@ -285,7 +285,15 @@ class qtype_coderunner_renderer extends qtype_renderer {
         }
         $fb .= html_writer::end_tag('div');
 
-        return $fb;
+        // Need to pass the feedback through format_text to activate filters.
+        // Try to ensure it makes minimal changes.
+        $formatoptions = new stdClass();
+        $formatoptions->trusted = true;
+        $formatoptions->noclean = true;
+        $formatoptions->para = false;
+        $formatoptions->newlines = false;
+        $formatoptions->allowid = true;
+        return format_text($fb, get_string('formathtml'), $formatoptions);
     }
 
     /**
