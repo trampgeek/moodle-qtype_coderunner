@@ -219,13 +219,15 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
             'jobeapikey' => $this->apikey
         );
 
-        if ($httpcode != 200   // We don't deal with Jobe servers that return 202!
-                || !is_object($this->response)  // Or any sort of broken ...
+        $okresponse = in_array($httpcode, [200, 203]);  // Allow 203, which can result from an intevening proxy server.
+        if (!$okresponse                        // If it's not an OK response...
+                || !is_object($this->response)  // .. or there's any sort of broken ...
                 || !isset($this->response->outcome)) {     // ... communication with server.
-            $errorcode = $httpcode == 200 ? self::UNKNOWN_SERVER_ERROR : $this->get_error_code($httpcode);
+            // Return with errorcode set and as much extra info as possible in stderr.
+            $errorcode = $okresponse ? self::UNKNOWN_SERVER_ERROR : $this->get_error_code($httpcode);
             $this->currentjobid = null;
             $runresult['error'] = $errorcode;
-            $runresult['stderr'] = "HTTP return code from Jobe was $httpcode. Response was: " . print_r($this->response, true); // Pass back as much info as possible.
+            $runresult['stderr'] = "HTTP return code from Jobe was $httpcode, response = " . print_r($this->response, true);
         } else if ($this->response->outcome == self::RESULT_SERVER_OVERLOAD) {
             $runresult['error'] = self::SERVER_OVERLOAD;
         } else {
