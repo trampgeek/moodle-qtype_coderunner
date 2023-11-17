@@ -225,7 +225,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
             $errorcode = $httpcode == 200 ? self::UNKNOWN_SERVER_ERROR : $this->get_error_code($httpcode);
             $this->currentjobid = null;
             $runresult['error'] = $errorcode;
-            $runresult['stderr'] = $this->response;
+            $runresult['stderr'] = "HTTP return code from Jobe was $httpcode. Response was: " . print_r($this->response, true); // Pass back as much info as possible.
         } else if ($this->response->outcome == self::RESULT_SERVER_OVERLOAD) {
             $runresult['error'] = self::SERVER_OVERLOAD;
         } else {
@@ -369,6 +369,9 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
     // array containing the http response code and the response body (decoded
     // from json).
     // The code is -1 if the request fails utterly.
+    // Note that the Moodle curl class documentation lies when it says the
+    // return value from get and post is a bool. It's either the value false
+    // if the request failed or the actual string response, otherwise.
     private function http_request($resource, $method, $body=null) {
         list($url, $headers) = $this->get_jobe_connection_info($resource);
 
@@ -391,6 +394,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
         }
 
         if ($response !== false) {
+            // We got a response rather than a completely failed request.
             if (isset($curl->info['http_code'])) {
                 $returncode = $curl->info['http_code'];
                 $responsebody = $response === '' ? '' : json_decode($response);
@@ -401,6 +405,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
                 $responsebody = json_encode($response);
             }
         } else {
+            // Request failed.
             $returncode = -1;
             $responsebody = '';
         }
