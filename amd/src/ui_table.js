@@ -171,7 +171,7 @@ define(['jquery'], function($) {
 
         for (let iCol = 0; iCol < this.numDataColumns; iCol++) {
             width = this.columnWidths[widthIndex++];
-            disabled = this.isLockedCell(iRow, iCol) ? ' disabled;' : '';
+            disabled = this.isLockedCell(iRow, iCol) ? ' disabled' : '';
             value = iRow < preload.length ? preload[iRow][iCol] : '';
 
             if (iRow < preload.length) {
