@@ -40,6 +40,9 @@ Feature: duplicate_prototypes
 
     # Now delete the latest version of the first prototype, leaving you with two identical prototypes
     # Semantics of delete changed between Moodle 4.1 and 4.2 so need to go via history now.
+    #And I wait "180" seconds
+    And I am on the "DEMO_duplicate_prototype" "core_question > edit" page logged in as teacher1
+    And I press "Cancel"
     And I choose "History" action for "DEMO_PROTOTYPE_C_using_python" in the question bank
     And I click on "table#categoryquestions tr.r1 td.checkbox input" "css_element"
     And I click on "button#bulkactionsui-selector" "css_element"
