@@ -51,7 +51,7 @@ Feature: twigprefix
     When I choose "Preview" action for "Prototype tester" in the question bank
     And I click on "a[aria-controls='id_attemptoptionsheadercontainer']" "css_element"
     And I set the field "id_behaviour" to "Adaptive mode"
-    And I press "Start again with these options"
+    And I press "id_saverestart"
     And I set the field with xpath "//textarea[contains(@name, 'answer')]" to "print('BingleyBeep')"
     And I press "Check"
     Then I should see "Passed all tests!"

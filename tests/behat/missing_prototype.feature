@@ -60,7 +60,7 @@ Feature: missing_prototype
     And I am on the "Prototype tester" "core_question > preview" page
     And I click on "a[aria-controls='id_attemptoptionsheadercontainer']" "css_element"
     And I set the field "id_behaviour" to "Adaptive mode"
-    And I press "Start again with these options"
+    And I press "id_saverestart"
     And I set the field with xpath "//textarea[contains(@name, 'answer')]" to "def sqr(n): return n * n"
     And I press "Check"
     Then I should see "Broken question (missing or duplicate prototype 'python3_test_prototype'). Cannot be run."
@@ -75,7 +75,7 @@ Feature: missing_prototype
     And I choose "Preview" action for "Prototype tester" in the question bank
     And I click on "a[aria-controls='id_attemptoptionsheadercontainer']" "css_element"
     And I set the field "id_behaviour" to "Adaptive mode"
-    And I press "Start again with these options"
+    And I press "id_saverestart"
     And I set the field with xpath "//textarea[contains(@name, 'answer')]" to "def sqr(n): return n * n"
     And I press "Check"
     Then I should see "Passed all tests!"

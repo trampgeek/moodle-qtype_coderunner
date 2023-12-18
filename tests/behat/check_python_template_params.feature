@@ -34,11 +34,11 @@ Feature: Check that Python and other languages can be used instead of Twig as a 
       | id_templateparams       | {"firstname": "twaddle", "lastname" : "twaddle" } |
       | id_templateparamslang   | None                                       |
       | id_template             |                                            |
-      | id_answer               | # Unused                                   |
       | id_iscombinatortemplate | 0                                          |
       | id_testcode_0           | # Unused                                   |
-      | id_expected_0           | True {{ firstname }} {{ lastname }}       |
-      | id_twigall              | 1                                          |
+      | id_expected_0           | True {{ firstname }} {{ lastname }}        |
+      | id_uiplugin             | none                                       |
+
     When I choose "Edit question" action for "Python preprocessor" in the question bank
     And I set the field "id_templateparams" to "import sys, json; keyvalues = {param.split('=')[0]: param.split('=')[1] for param in sys.argv[1:]}; print(json.dumps(keyvalues))"
     And I set the field "id_twigall" to "1"

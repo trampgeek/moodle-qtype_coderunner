@@ -13,6 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/* jshint esversion: 6 */
+
 /**
  * JavaScript for handling UI actions in the question authoring form.
  *
@@ -417,54 +419,69 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
             return html;
         }
 
+
+
+        /**
+         * Plug the UI info received by getJSON into the author form.
+         * @param {object} uiInfo The response data from the getJSON call
+         * @returns {undefined}
+         */
+        function updateUiParamsDescription(uiInfo) {
+            let currentuiparameters = uiparameters.val();
+            let paramDescriptionDiv = $('.ui_parameters_descr');
+            let hideUiParamsDescription = function() {
+                uiparameters.val(''); // Remove stray white space.
+                $('#fgroup_id_uiparametergroup').hide();
+            };
+            paramDescriptionDiv.empty();
+            if (uiInfo === null || (uiInfo.uiparamstable.length == 0 && currentuiparameters.trim() === '')) {
+                hideUiParamsDescription();
+            } else {
+                paramDescriptionDiv.append(uiInfo.header);
+                let showhidebutton = $('<button type="button" class="toggleuidetails">' + uiInfo.showdetails + '</button>');
+                if (uiInfo.uiparamstable.length != 0) {
+                    paramDescriptionDiv.append(showhidebutton);
+                    let table = $(UiParameterDescriptionTable(uiInfo));
+                    paramDescriptionDiv.append(table);
+                    table.hide();
+                    showhidebutton.click(function () {
+                        if (showhidebutton.html() == uiInfo.showdetails) {
+                            table.show();
+                            showhidebutton.html(uiInfo.hidedetails);
+                        } else {
+                            table.hide();
+                            showhidebutton.html(uiInfo.showdetails);
+                        }
+                    });
+                }
+                $('#fgroup_id_uiparametergroup').show();
+                if (useace.prop('checked')) {
+                    setUi('id_uiparameters', 'ace');
+                }
+            }
+        }
+
         /**
          * Load the UI parameter description field by Ajax initially or
          * when the UI plugin is changed.
          */
         function loadUiParametersDescription() {
             let newUi = uiplugin.children('option:selected').text();
-            $.getJSON(M.cfg.wwwroot + '/question/type/coderunner/ajax.php',
-                {
-                    uiplugin: newUi,
-                    courseid: courseId,
-                    sesskey: M.cfg.sesskey
-                },
-                function (uiInfo) {
-                    var currentuiparameters = uiparameters.val(),
-                        paramDescriptionDiv = $('.ui_parameters_descr'),
-                        showhidebutton = $('<button type="button" class="toggleuidetails">' + uiInfo.showdetails + '</button>'),
-                        table;
-                    paramDescriptionDiv.empty();
-                    paramDescriptionDiv.append(uiInfo.header);
-                    if (uiInfo.uiparamstable.length == 0 && currentuiparameters.trim() === '') {
-                        uiparameters.val(''); // Remove stray white space.
-                        $('#fgroup_id_uiparametergroup').hide();
-                    } else {
-                        if (uiInfo.uiparamstable.length != 0) {
-                            paramDescriptionDiv.append(showhidebutton);
-                            table = $(UiParameterDescriptionTable(uiInfo));
-                            paramDescriptionDiv.append(table);
-                            table.hide();
-                            showhidebutton.click(function () {
-                                if (showhidebutton.html() == uiInfo.showdetails) {
-                                    table.show();
-                                    showhidebutton.html(uiInfo.hidedetails);
-                                } else {
-                                    table.hide();
-                                    showhidebutton.html(uiInfo.showdetails);
-                                }
-                            });
-                        }
-                        $('#fgroup_id_uiparametergroup').show();
-                        if (useace.prop('checked')) {
-                            setUi('id_uiparameters', 'ace');
-                        }
-                    }
-                }
-            ).fail(function () {
-                // AJAX failed.
-                langStringAlert('error_loading_ui_descr');
-            });
+            if (newUi === '' || newUi === 'none') {
+                updateUiParamsDescription(null);
+            } else {
+                $.getJSON(M.cfg.wwwroot + '/question/type/coderunner/ajax.php',
+                    {
+                        uiplugin: newUi,
+                        courseid: courseId,
+                        sesskey: M.cfg.sesskey
+                    },
+                    updateUiParamsDescription
+                ).fail(function () {
+                    // AJAX failed.
+                    langStringAlert('error_loading_ui_descr', `UI: ${newUi}`);
+                });
+            }
         }
 
         /**

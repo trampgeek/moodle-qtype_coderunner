@@ -82,6 +82,9 @@ class qtype_coderunner_twig {
     // Since Twig range functions can result in PHP ValueError being thrown (grr)
     // ValueErrors are caught and re-thrown as TwigErrors.
     public static function render($s, $student, $parameters=array(), $isstrict=false) {
+        if ($s === null || trim($s) === '') {
+            return '';
+        }
         $twig = self::get_twig_environment($isstrict);
         $parameters['STUDENT'] = new qtype_coderunner_student($student);
         if (array_key_exists('__twigprefix__', $parameters)) {

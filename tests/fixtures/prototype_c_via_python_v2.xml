@@ -1,13 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <quiz>
-<!-- question: 0  -->
-  <question type="category">
-    <category>
-        <text>$system$/EXPORT_UOC_PROTOTYPES</text>
-
-    </category>
-  </question>
-
 <!-- question: 25784  -->
   <question type="coderunner">
     <name>
@@ -34,7 +26,7 @@
     <useace>1</useace>
     <resultcolumns></resultcolumns>
     <template><![CDATA[""" The template for a question type that compiles and runs a student-submitted
-    C program. 
+    C program.
 """
 
 import subprocess, sys
@@ -53,7 +45,7 @@ cflags = "-std=c99 -Wall -Werror"
 return_code = subprocess.call("gcc {0} -o prog prog.c".format(cflags).split())
 if return_code != 0:
     print("** Compilation failed. Testing aborted **", file=sys.stderr)
-    
+
 # If compile succeeded, run the code. Since this is a per-test template,
 # stdin is already set up for the stdin text specified in the test case,
 # so we can run the compiled program directly.
