@@ -134,6 +134,12 @@ abstract class qtype_coderunner_sandbox {
      * or null if no enabled sandboxes support this language.
      */
     public static function get_best_sandbox($language, $forcelanguagecheck=false) {
+
+        $hidec = false;  // set True when testing if language is skipped in php tests
+        if ($hidec && $language == 'c'){
+            return null;
+        }
+
         $sandboxes = self::enabled_sandboxes();
         if (count($sandboxes) == 0) {
             throw new qtype_coderunner_exception('No sandboxes available for running code!');

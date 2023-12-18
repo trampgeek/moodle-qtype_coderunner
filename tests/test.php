@@ -58,7 +58,7 @@ class qtype_coderunner_testcase extends advanced_testcase {
         if (is_readable($localconfig)) {
             require($localconfig);
         } else {
-            throw new CodingException('tests/fixtures/test-sandbox-config.php must exist to define test configuration');
+            throw new coding_exception('tests/fixtures/test-sandbox-config.php must exist to define test configuration');
         }
         $USER->username  = 'tester';
         $USER->email     = 'tester@nowhere.com';

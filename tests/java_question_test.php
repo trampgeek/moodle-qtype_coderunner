@@ -39,6 +39,13 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
  */
 class java_question_test extends \qtype_coderunner_testcase {
 
+    protected function setUp(): void {
+        parent::setUp();
+
+        // Each test will be skipped if java not available on jobe server
+        $this->check_language_available('java');
+    }
+
     public function test_good_sqr_function() {
         $q = $this->make_question('sqrjava');
         $response = array('answer' => "int sqr(int n) { return n * n; }\n");

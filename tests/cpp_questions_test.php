@@ -40,6 +40,13 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
  */
 class cpp_questions_test extends \qtype_coderunner_testcase {
 
+    protected function setUp(): void {
+        parent::setUp();
+
+        // Each test will be skipped if cpp not installed on jobe server
+        $this->check_language_available('cpp');
+    }
+
     public function test_good_sqr_function() {
         $q = $this->make_question('sqr_cpp');
         $response = array('answer' => "int sqr(int n) { return n * n;}\n");

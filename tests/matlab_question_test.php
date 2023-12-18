@@ -41,6 +41,13 @@ require_once($CFG->dirroot . '/question/type/coderunner/question.php');
  */
 class matlab_question_test extends \qtype_coderunner_testcase {
 
+    protected function setUp(): void {
+        parent::setUp();
+
+        // Each test will be skipped if matlab not available on jobe server
+        $this->check_language_available('matlab');
+    }
+
     public function test_good_sqr_function() {
         $this->check_language_available('matlab');
         $q = $this->make_question('sqrmatlab');

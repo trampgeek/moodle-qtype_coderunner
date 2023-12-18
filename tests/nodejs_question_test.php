@@ -40,6 +40,13 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
  */
 class nodejs_question_test extends \qtype_coderunner_testcase {
 
+    protected function setUp(): void {
+        parent::setUp();
+
+        // Each test will be skipped if nodejs not available on jobe server
+        $this->check_language_available('nodejs');
+    }
+
     public function test_good_sqr_function() {
         $this->check_language_available('nodejs');
         $q = $this->make_question('sqrnodejs');

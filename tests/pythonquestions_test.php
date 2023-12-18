@@ -40,6 +40,10 @@ require_once($CFG->dirroot . '/lib/accesslib.php');
 class pythonquestions_test extends \qtype_coderunner_testcase {
     protected function setUp(): void {
         parent::setUp();
+
+        // Each test will be skipped if python3 not available on jobe server
+        $this->check_language_available('python3');
+
         $this->goodcode = "def sqr(n): return n * n";
     }
 

@@ -39,8 +39,16 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
  */
 class phpquestions_test extends \qtype_coderunner_testcase {
 
-    public function test_good_sqr_function() {
+
+    protected function setUp(): void {
+        parent::setUp();
+
+        // Each test will be skipped if php not available on jobe server
         $this->check_language_available('php');
+    }
+
+
+    public function test_good_sqr_function() {
         $q = $this->make_question('sqrphp');
         $response = array('answer' => "<?php\nfunction sqr(\$n) { return \$n * \$n; }\n");
         list($mark, $grade, $cache) = $q->grade_response($response);
@@ -54,7 +62,6 @@ class phpquestions_test extends \qtype_coderunner_testcase {
 
 
     public function test_bad_sqr_function() {
-        $this->check_language_available('php');
         $q = $this->make_question('sqrphp');
         $response = array('answer' => "<?php\nfunction sqr(\$n) { return \$n; }\n");
         list($mark, $grade, $cache) = $q->grade_response($response);
@@ -68,7 +75,6 @@ class phpquestions_test extends \qtype_coderunner_testcase {
 
 
     public function test_bad_syntax() {
-        $this->check_language_available('php');
         $q = $this->make_question('sqrphp');
         $response = array('answer' => "<?php\nfunction sqr(\$n) { return \$n\n");
         list($mark, $grade, $cache) = $q->grade_response($response);

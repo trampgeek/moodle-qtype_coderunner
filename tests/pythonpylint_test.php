@@ -37,6 +37,13 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
  */
 class pythonpylint_test extends \qtype_coderunner_testcase {
 
+    protected function setUp(): void {
+        parent::setUp();
+
+        // Each test will be skipped if python3 not available on jobe server
+        $this->check_language_available('python3');
+    }
+
     public function test_pylint_func_good() {
         // Test that a python3_pylint question with a good pylint-compatible.
         // submission passes.
