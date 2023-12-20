@@ -27,7 +27,7 @@ require_once($CFG->dirroot . '/question/type/coderunner/classes/twigmacros.php')
 
 // Class that provides a singleton instance of the twig environment.
 class qtype_coderunner_twig {
-    private static $twigenvironments = array(true => null, false => null);
+    private static $twigenvironments = [true => null, false => null];
 
     // Set up a twig loader and the twig environment. Return the
     // singleton twig loader. There are two different environments:
@@ -37,12 +37,12 @@ class qtype_coderunner_twig {
             // On the first call, build the required environment.
             $macros = qtype_coderunner_twigmacros::macros();
             $twigloader = new \Twig\Loader\ArrayLoader($macros);
-            $twigoptions = array(
+            $twigoptions = [
                 'cache' => false,
                 'optimisations' => 0,
                 'autoescape' => false,
                 'strict_variables' => $isstrict,
-                'debug' => $isdebug);
+                'debug' => $isdebug];
             $twig = new \Twig\Environment($twigloader, $twigoptions);
             $policy = self::get_policy();
             $twig->addExtension(new \Twig\Extension\SandboxExtension($policy, true));
@@ -52,13 +52,13 @@ class qtype_coderunner_twig {
 
             // Add some functions to twig: random (modified to use seed), randomseed, shuffle.
             $newrandom = new \Twig\TwigFunction('random', 'qtype_coderunner_twig_random',
-                array('needs_environment' => true));
+                ['needs_environment' => true]);
             $setrandomseed = new \Twig\TwigFunction('set_random_seed', 'qtype_coderunner_set_random_seed',
-                array('needs_environment' => true));
+                ['needs_environment' => true]);
             $twig->addFunction($newrandom);
             $twig->addFunction($setrandomseed);
             $shuffle = new \Twig\TwigFilter('shuffle', 'qtype_coderunner_twig_shuffle',
-                array('needs_environment' => true));
+                ['needs_environment' => true]);
             $twig->addFilter($shuffle);
             self::$twigenvironments[$isstrict] = $twig;
 
@@ -81,7 +81,7 @@ class qtype_coderunner_twig {
     // Any Twig exceptions raised must be caught higher up.
     // Since Twig range functions can result in PHP ValueError being thrown (grr)
     // ValueErrors are caught and re-thrown as TwigErrors.
-    public static function render($s, $student, $parameters=array(), $isstrict=false) {
+    public static function render($s, $student, $parameters=[], $isstrict=false) {
         if ($s === null || trim($s) === '') {
             return '';
         }
@@ -104,10 +104,10 @@ class qtype_coderunner_twig {
     // Return a security policy object for Twig. This version whitelists
     // all "reasonable" filters, functions and attributes.
     private static function get_policy() {
-        $tags = array('apply', 'block', 'cache', 'deprecated', 'do', 'embed', 'extends',
+        $tags = ['apply', 'block', 'cache', 'deprecated', 'do', 'embed', 'extends',
             'flush', 'for', 'from', 'if', 'import', 'include', 'macro', 'set',
-            'use', 'verbatim', 'with');
-        $filters = array('abs', 'batch', 'capitalize', 'column', 'convert_encoding',
+            'use', 'verbatim', 'with'];
+        $filters = ['abs', 'batch', 'capitalize', 'column', 'convert_encoding',
             'country_name', 'currency_name', 'currency_symbol', 'data_uri',
             'date', 'date_modify', 'default', 'e', 'escape', 'filter', 'first',
             'format', 'format_currency', 'format_date', 'format_datetime',
@@ -117,20 +117,20 @@ class qtype_coderunner_twig {
             'merge', 'nl2br', 'number_format', 'raw', 'reduce', 'replace',
             'reverse', 'round', 'shuffle', 'slice', 'slug', 'sort', 'spaceless', 'split',
             'striptags', 'timezone_name', 'title', 'trim', 'u', 'upper',
-            'url_encode');
-        $functions = array('attribute', 'block', 'constant', 'country_timezones',
+            'url_encode'];
+        $functions = ['attribute', 'block', 'constant', 'country_timezones',
             'cycle', 'date', 'dump', 'html_classes', 'include', 'max', 'min',
             'parent', 'random', 'range', 'source', 'template_from_string',
-            'set_random_seed');
-        $methods = array(
-            'stdClass' => array(),
-            'qtype_coderunner_student' => '*'
-        );
-        $properties = array(
+            'set_random_seed'];
+        $methods = [
+            'stdClass' => [],
+            'qtype_coderunner_student' => '*',
+        ];
+        $properties = [
             'stdClass' => '*',
             'qtype_coderunner_student' => '*',
-            'qtype_coderunner_question' => '*'
-        );
+            'qtype_coderunner_question' => '*',
+        ];
         $policy = new qtype_coderunner_twig_security_policy($tags, $filters, $methods, $properties, $functions);
         return $policy;
     }

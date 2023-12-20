@@ -55,7 +55,7 @@ class qtype_coderunner_ui_parameters {
         global $CFG;
         $filename = $CFG->dirroot . "/question/type/coderunner/amd/src/ui_{$uiname}.json";
         $this->uiname = $uiname;
-        $this->params = array();
+        $this->params = [];
         if (file_exists($filename)) {
             $json = file_get_contents($filename);
             $spec = json_decode($json);
@@ -161,7 +161,7 @@ class qtype_coderunner_ui_parameters {
      * Return a list of all parameter names with star to denote required.
      */
     public function all_names_starred() {
-        $names = array();
+        $names = [];
         foreach ($this->params as $param) {
             $names[] = $param->required ? $param->name . '*' : $param->name;
         }
@@ -174,7 +174,7 @@ class qtype_coderunner_ui_parameters {
      * Used only in testing.
      */
     public function to_json() {
-        $paramsarray = array();
+        $paramsarray = [];
         foreach ($this->params as $param) {
             if ($param->value !== null) {
                 $paramsarray[$param->name] = $param->value;
@@ -188,7 +188,7 @@ class qtype_coderunner_ui_parameters {
      * Return an associative array of all parameters. Currently unused.
      */
     public function params_as_array() {
-        $paramsarray = array();
+        $paramsarray = [];
         foreach ($this->params as $param) {
             $paramsarray[$param->name] = $param->value;
         }
@@ -202,7 +202,7 @@ class qtype_coderunner_ui_parameters {
      * been defined within the prototype or the question itself).
      */
     public function updated_params() {
-        $paramsarray = array();
+        $paramsarray = [];
         foreach ($this->params as $param) {
             if ($param->updated) {
                 $paramsarray[$param->name] = $param->value;
@@ -215,10 +215,10 @@ class qtype_coderunner_ui_parameters {
     // Return a table (array of arrays) of parameters, each row containing
     // the parameter name, description, default value and boolean 'isrequired'.
     public function table() {
-        $table = array();
+        $table = [];
         foreach ($this->params as $param) {
             $descr = get_string("{$this->uiname}ui_{$param->name}_descr", 'qtype_coderunner');
-            $table[] = array($param->name, $descr, $param->value, $param->required);
+            $table[] = [$param->name, $descr, $param->value, $param->required];
         }
         return $table;
     }

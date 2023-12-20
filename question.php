@@ -59,7 +59,7 @@ class qtype_coderunner_question extends question_graded_automatically {
         if ($step !== null) {
             parent::start_attempt($step, $variant);
             $userid = $step->get_user_id();
-            $this->student = new qtype_coderunner_student($DB->get_record('user', array('id' => $userid)));
+            $this->student = new qtype_coderunner_student($DB->get_record('user', ['id' => $userid]));
             $step->set_qt_var('_STUDENT', serialize($this->student));
         } else {  // Validation, so just use the global $USER as student.
             $this->student = new qtype_coderunner_student($USER);
@@ -118,9 +118,9 @@ class qtype_coderunner_question extends question_graded_automatically {
             $this->mergeduiparameters = $this->evaluate_merged_ui_parameters();
         } catch (Exception $e) {
             $error = $e->getMessage();
-            $this->parameters = array("initerror" => "' . $error . '");
+            $this->parameters = ["initerror" => "' . $error . '"];
             $this->templateparamsjson = json_encode($this->parameters);
-            $erroroninit = get_string('erroroninit', 'qtype_coderunner', array('error' => $error));
+            $erroroninit = get_string('erroroninit', 'qtype_coderunner', ['error' => $error]);
             $this->initialisationerrormessage = $erroroninit;
         }
     }
@@ -223,7 +223,7 @@ class qtype_coderunner_question extends question_graded_automatically {
         if (empty($templateparams)) {
             $jsontemplateparams = '{}';
         } else if (isset($this->cachedfuncparams) &&
-                $this->cachedfuncparams === array('lang' => $lang, 'seed' => $seed)) {
+                $this->cachedfuncparams === ['lang' => $lang, 'seed' => $seed]) {
             // Use previously cached result if possible.
             $jsontemplateparams = $this->cachedevaldtemplateparams;
         } else if ($lang == 'none') {
@@ -240,7 +240,7 @@ class qtype_coderunner_question extends question_graded_automatically {
             $jsontemplateparams = $this->evaluate_template_params_on_jobe($templateparams, $lang, $seed);
         }
         // Cache in this to avoid multiple evaluations during question editing and validation.
-        $this->cachedfuncparams = array('lang' => $lang, 'seed' => $seed);
+        $this->cachedfuncparams = ['lang' => $lang, 'seed' => $seed];
         $this->cachedevaldtemplateparams = $jsontemplateparams;
         return $jsontemplateparams;
     }
@@ -257,12 +257,12 @@ class qtype_coderunner_question extends question_graded_automatically {
     private function evaluate_template_params_on_jobe($templateparams, $lang, $seed) {
         $files = $this->get_files();
         $input = '';
-        $runargs = array("seed=$seed");
-        foreach (array('id', 'username', 'firstname', 'lastname', 'email') as $key) {
+        $runargs = ["seed=$seed"];
+        foreach (['id', 'username', 'firstname', 'lastname', 'email'] as $key) {
             $value = preg_replace("/[^A-Za-z0-9]/", '', $this->student->$key);
             $runargs[] = "$key=" . $value;
         }
-        $sandboxparams = array("runargs" => $runargs, "cputime" => 10);
+        $sandboxparams = ["runargs" => $runargs, "cputime" => 10];
         $sandbox = $this->get_sandbox();
         $run = $sandbox->execute($templateparams, $lang, $input, $files, $sandboxparams);
         if ($run->error === qtype_coderunner_sandbox::SERVER_OVERLOAD) {
@@ -333,8 +333,8 @@ class qtype_coderunner_question extends question_graded_automatically {
      * @return array|string variable name => PARAM_... constant
      */
     public function get_expected_data() {
-        $expecteddata = array('answer' => PARAM_RAW,
-                     'language' => PARAM_NOTAGS); // NOTAGS => any HTML is stripped.
+        $expecteddata = ['answer' => PARAM_RAW,
+                     'language' => PARAM_NOTAGS]; // NOTAGS => any HTML is stripped.
         if ($this->attachments != 0) {
             $expecteddata['attachments'] = question_attempt::PARAM_FILES;
         }
@@ -347,7 +347,7 @@ class qtype_coderunner_question extends question_graded_automatically {
             $ans = $response['answer'];
             if ($this->extractcodefromjson) {
                 $json = json_decode($ans, true);
-                if ($json !== null and isset($json[constants::ANSWER_CODE_KEY])) {
+                if ($json !== null && isset($json[constants::ANSWER_CODE_KEY])) {
                     $ans = $json[constants::ANSWER_CODE_KEY][0];
                 }
             }
@@ -369,7 +369,7 @@ class qtype_coderunner_question extends question_graded_automatically {
             $attachmentfiles = $response['attachments']->get_files();
             $attachcount = count($attachmentfiles);
             // Check the filetypes.
-            $invalidfiles = array();
+            $invalidfiles = [];
             $regex = $this->filenamesregex;
             $supportfiles = $this->get_files();
             foreach ($attachmentfiles as $file) {
@@ -412,7 +412,7 @@ class qtype_coderunner_question extends question_graded_automatically {
         if (strpos($filename, '__') === 0) {
             return false;  // Dunder names are reserved for runtime task.
         }
-        if (!ctype_alnum(str_replace(array('-', '_', '.'), '', $filename))) {
+        if (!ctype_alnum(str_replace(['-', '_', '.'], '', $filename))) {
             return false;  // Filenames must be alphanumeric plus '.', '-', or '_'.
         }
         if (!empty($regex) && preg_match('=^' . $this->filenamesregex . '$=', $filename) !== 1) {
@@ -486,7 +486,7 @@ class qtype_coderunner_question extends question_graded_automatically {
         if (!isset($this->answer)) {
             return null;
         } else {
-            $answer = array('answer' => $this->answer);
+            $answer = ['answer' => $this->answer];
             // Get any sample question files first.
             $context = qtype_coderunner::question_context($this);
             $contextid = $context->id;
@@ -535,14 +535,14 @@ class qtype_coderunner_question extends question_graded_automatically {
         $usercontext = context_user::instance($USER->id);
 
         // Create the file in the provided draft area.
-        $fileinfo = array(
+        $fileinfo = [
             'contextid' => $usercontext->id,
             'component' => 'user',
             'filearea'  => 'draft',
             'itemid'    => $draftid,
             'filepath'  => '/',
             'filename'  => $file->get_filename(),
-        );
+        ];
         $fs->create_file_from_string($fileinfo, $file->get_content());
     }
 
@@ -663,18 +663,18 @@ class qtype_coderunner_question extends question_graded_automatically {
             $testoutcomeserial = serialize($testoutcome);
         }
 
-        $datatocache = array('_testoutcome' => $testoutcomeserial);
+        $datatocache = ['_testoutcome' => $testoutcomeserial];
         if ($testoutcome->run_failed()) {
-            return array(0, question_state::$invalid, $datatocache);
+            return [0, question_state::$invalid, $datatocache];
         } else if ($testoutcome->all_correct()) {
-             return array(1, question_state::$gradedright, $datatocache);
+             return [1, question_state::$gradedright, $datatocache];
         } else if ($this->allornothing &&
                 !($this->grader === 'TemplateGrader' && $this->iscombinatortemplate)) {
-            return array(0, question_state::$gradedwrong, $datatocache);
+            return [0, question_state::$gradedwrong, $datatocache];
         } else {
             // Allow partial marks if not allornothing or if it's a combinator template grader.
-            return array($testoutcome->mark_as_fraction(),
-                    question_state::$gradedpartial, $datatocache);
+            return [$testoutcome->mark_as_fraction(),
+                    question_state::$gradedpartial, $datatocache];
         }
     }
 
@@ -682,7 +682,7 @@ class qtype_coderunner_question extends question_graded_automatically {
     // Return a map from filename to file contents for all the attached files
     // in the given response.
     private function get_attached_files($response) {
-        $attachments = array();
+        $attachments = [];
         if (array_key_exists('attachments', $response) && $response['attachments']) {
             $files = $response['attachments']->get_files();
             foreach ($files as $file) {
@@ -724,12 +724,12 @@ class qtype_coderunner_question extends question_graded_automatically {
         } else {
             // Use default column headers, equivalent to json_decode of (in English):
             // '[["Test", "testcode"], ["Input", "stdin"], ["Expected", "expected"], ["Got", "got"]]'.
-            $resultcolumns = array(
-                array(get_string('testcolhdr', 'qtype_coderunner'), 'testcode'),
-                array(get_string('inputcolhdr', 'qtype_coderunner'), 'stdin'),
-                array(get_string('expectedcolhdr', 'qtype_coderunner'), 'expected'),
-                array(get_string('gotcolhdr', 'qtype_coderunner'), 'got'),
-            );
+            $resultcolumns = [
+                [get_string('testcolhdr', 'qtype_coderunner'), 'testcode'],
+                [get_string('inputcolhdr', 'qtype_coderunner'), 'stdin'],
+                [get_string('expectedcolhdr', 'qtype_coderunner'), 'expected'],
+                [get_string('gotcolhdr', 'qtype_coderunner'), 'got'],
+            ];
         }
         return $resultcolumns;
     }
@@ -775,14 +775,14 @@ class qtype_coderunner_question extends question_graded_automatically {
     // of the prototype and the question].
     protected function sanitised_clone_of_this() {
         $clone = new stdClass();
-        $fieldsrequired = array('id', 'name', 'questiontext', 'generalfeedback',
+        $fieldsrequired = ['id', 'name', 'questiontext', 'generalfeedback',
             'generalfeedbackformat', 'testcases',
             'answer', 'answerpreload', 'language', 'globalextra', 'useace', 'sandbox',
             'grader', 'cputimelimitsecs', 'memlimitmb', 'sandboxparams',
             'parameters', 'resultcolumns', 'allornothing', 'precheck',
             'hidecheck', 'penaltyregime', 'iscombinatortemplate',
             'allowmultiplestdins', 'acelang', 'uiplugin', 'attachments',
-            'attachmentsrequired', 'displayfeedback', 'stepinfo');
+            'attachmentsrequired', 'displayfeedback', 'stepinfo'];
         foreach ($fieldsrequired as $field) {
             if (isset($this->$field)) {
                 $clone->$field = $this->$field;
@@ -803,7 +803,7 @@ class qtype_coderunner_question extends question_graded_automatically {
      * parameters are to be hoisted, the (key, value) pairs in $this->parameters.
      * @param string $text Text to be twig expanded.
      */
-    public function twig_expand($text, $context=array()) {
+    public function twig_expand($text, $context=[]) {
         if (empty(trim($text ?? ''))) {
             return $text;
         } else {
@@ -832,7 +832,7 @@ class qtype_coderunner_question extends question_graded_automatically {
             }
         } else { // This is a precheck run.
             if ($prechecksetting == constants::PRECHECK_EMPTY) {
-                return array($this->empty_testcase());
+                return [$this->empty_testcase()];
             } else if ($prechecksetting == constants::PRECHECK_EXAMPLES) {
                 return $this->example_testcases();
             } else if ($prechecksetting == constants::PRECHECK_SELECTED) {
@@ -849,7 +849,7 @@ class qtype_coderunner_question extends question_graded_automatically {
     // Return the appropriate subset of questions in the case that the question
     // precheck setting is "selected", given whether or not this is a precheckrun.
     protected function selected_testcases($isprecheckrun) {
-        $testcases = array();
+        $testcases = [];
         foreach ($this->testcases as $testcase) {
             if (($isprecheckrun && $testcase->testtype != constants::TESTTYPE_NORMAL) ||
                 (!$isprecheckrun && $testcase->testtype != constants::TESTTYPE_PRECHECK)) {
@@ -863,7 +863,7 @@ class qtype_coderunner_question extends question_graded_automatically {
     // Return an empty testcase - an artifical testcase with all fields
     // empty or zero except for a mark of 1.
     private function empty_testcase() {
-        return (object) array(
+        return (object) [
             'testtype' => 0,
             'testcode' => '',
             'stdin'    => '',
@@ -872,8 +872,8 @@ class qtype_coderunner_question extends question_graded_automatically {
             'display'  => 'HIDE',
             'useasexample' => 0,
             'hiderestiffail' => 0,
-            'mark'     => 1
-        );
+            'mark'     => 1,
+        ];
     }
 
 
@@ -957,7 +957,7 @@ class qtype_coderunner_question extends question_graded_automatically {
     // Returns an associative array mapping filenames to filecontents.
     public function get_files() {
         if ($this->prototypetype != 0) { // Is this a prototype question?
-            $files = array(); // Don't load the files twice.
+            $files = []; // Don't load the files twice.
         } else {
             // Load any files from the prototype.
             $this->get_prototype();
@@ -973,7 +973,7 @@ class qtype_coderunner_question extends question_graded_automatically {
         if (isset($this->sandboxparams)) {
             $sandboxparams = json_decode($this->sandboxparams, true);
         } else {
-            $sandboxparams = array();
+            $sandboxparams = [];
         }
 
         if (isset($this->cputimelimitsecs)) {
@@ -1018,7 +1018,7 @@ class qtype_coderunner_question extends question_graded_automatically {
         }
 
         $fs = get_file_storage();
-        $filemap = array();
+        $filemap = [];
 
         if (isset($question->supportfilemanagerdraftid)) {
             // If we're just validating a question, get files from user draft area.

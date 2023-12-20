@@ -42,13 +42,13 @@ class java_question_test extends \qtype_coderunner_testcase {
     protected function setUp(): void {
         parent::setUp();
 
-        // Each test will be skipped if java not available on jobe server
+        // Each test will be skipped if java not available on jobe server.
         $this->check_language_available('java');
     }
 
     public function test_good_sqr_function() {
         $q = $this->make_question('sqrjava');
-        $response = array('answer' => "int sqr(int n) { return n * n; }\n");
+        $response = ['answer' => "int sqr(int n) { return n * n; }\n"];
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(1, $mark);
         $this->assertEquals(\question_state::$gradedright, $grade);
@@ -61,7 +61,7 @@ class java_question_test extends \qtype_coderunner_testcase {
 
     public function test_bad_sqr_function() {
         $q = $this->make_question('sqrjava');
-        $response = array('answer' => "int sqr(int n) { return n; }\n");
+        $response = ['answer' => "int sqr(int n) { return n; }\n"];
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(0, $mark);
         $this->assertEquals(\question_state::$gradedwrong, $grade);
@@ -74,7 +74,7 @@ class java_question_test extends \qtype_coderunner_testcase {
 
     public function test_bad_syntax() {
         $q = $this->make_question('sqrjava');
-        $response = array('answer' => "int sqr(n) { return n * n; }\n");
+        $response = ['answer' => "int sqr(n) { return n * n; }\n"];
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(0, $mark);
         $this->assertEquals(\question_state::$gradedwrong, $grade);
@@ -87,7 +87,7 @@ class java_question_test extends \qtype_coderunner_testcase {
 
     public function test_class_type() {
         $q = $this->make_question('nameclass');
-        $response = array('answer' => <<<EOCODE
+        $response = ['answer' => <<<EOCODE
 class Name {
   String first;
   String last;
@@ -100,7 +100,8 @@ class Name {
   }
 }
 EOCODE
-        );
+,
+        ];
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(1, $mark);
         $this->assertEquals(\question_state::$gradedright, $grade);
@@ -112,7 +113,7 @@ EOCODE
 
     public function test_program_type() {
         $q = $this->make_question('printsquares');
-        $response = array('answer' => <<<EOCODE
+        $response = ['answer' => <<<EOCODE
 import java.util.Scanner;
 public class PrintNames {
     public static void main(String[] args) {
@@ -126,7 +127,8 @@ public class PrintNames {
     }
 }
 EOCODE
-        );
+,
+        ];
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(1, $mark);
         $this->assertEquals(\question_state::$gradedright, $grade);
@@ -138,7 +140,7 @@ EOCODE
 
     public function test_program_type_alternate_syntax() {
         $q = $this->make_question('printsquares');
-        $response = array('answer' => <<<EOCODE
+        $response = ['answer' => <<<EOCODE
 import java.util.Scanner;
 public class PrintNames {
     static public void main(String[] args) {
@@ -152,7 +154,8 @@ public class PrintNames {
     }
 }
 EOCODE
-        );
+,
+        ];
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(1, $mark);
         $this->assertEquals(\question_state::$gradedright, $grade);
@@ -166,7 +169,7 @@ EOCODE
     // Checks if the Java Twig escape filter works.
     public function test_java_escape() {
         $q = $this->make_question('printstr');
-        $response = array('answer' => '');
+        $response = ['answer' => ''];
         list($mark, , ) = $q->grade_response($response);
         $this->assertEquals(1, $mark);
     }

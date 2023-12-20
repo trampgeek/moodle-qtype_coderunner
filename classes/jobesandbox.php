@@ -84,17 +84,17 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
             list($this->httpcode, $this->response) = $this->http_request(
                 'languages', self::HTTP_GET);
             if ($this->httpcode == 200 && is_array($this->response)) {
-                $this->languages = array();
+                $this->languages = [];
                 foreach ($this->response as $lang) {
                     $this->languages[] = $lang[0];
                 }
             } else {
-                $this->languages = array();
+                $this->languages = [];
             }
         }
-        return (object) array(
+        return (object) [
             'error'     => $this->get_error_code($this->httpcode),
-            'languages' => $this->languages);
+            'languages' => $this->languages];
     }
 
     /** Execute the given source code in the given language with the given
@@ -152,7 +152,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
             $progname = "__tester__.$language";
         }
 
-        $filelist = array();
+        $filelist = [];
         if ($files !== null) {
             foreach ($files as $filename => $contents) {
                 if ($filename == $progname) {
@@ -162,17 +162,17 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
                     return (object) $badname;
                 }
                 $id = md5($contents);
-                $filelist[] = array($id, $filename);
+                $filelist[] = [$id, $filename];
             }
         }
 
-        $runspec = array(
+        $runspec = [
                 'language_id'       => $language,
                 'sourcecode'        => $sourcecode,
                 'sourcefilename'    => $progname,
                 'input'             => $input,
-                'file_list'         => $filelist
-            );
+                'file_list'         => $filelist,
+            ];
 
         if (self::DEBUGGING) {
             $runspec['debug'] = 1;
@@ -195,7 +195,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
             }
         }
 
-        $postbody = array('run_spec' => $runspec);
+        $postbody = ['run_spec' => $runspec];
         $this->currentjobid = sprintf('%08x', mt_rand());
 
         // Try submitting the job. If we get a 404, try again after
@@ -213,21 +213,21 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
             }
         }
 
-        $runresult = array();
-        $runresult['sandboxinfo'] = array(
+        $runresult = [];
+        $runresult['sandboxinfo'] = [
             'jobeserver' => $this->jobeserver,
-            'jobeapikey' => $this->apikey
-        );
+            'jobeapikey' => $this->apikey,
+        ];
 
         $okresponse = in_array($httpcode, [200, 203]);  // Allow 203, which can result from an intevening proxy server.
         if (!$okresponse                        // If it's not an OK response...
-                || !is_object($this->response)  // .. or there's any sort of broken ...
+                || !is_object($this->response)  // ... or there's any sort of broken ...
                 || !isset($this->response->outcome)) {     // ... communication with server.
             // Return with errorcode set and as much extra info as possible in stderr.
             $errorcode = $okresponse ? self::UNKNOWN_SERVER_ERROR : $this->get_error_code($httpcode);
             $this->currentjobid = null;
             $runresult['error'] = $errorcode;
-            $runresult['stderr'] = "HTTP response from Jobe was $httpcode: " . print_r($this->response, true);
+            $runresult['stderr'] = "HTTP response from Jobe was $httpcode: " . json_encode($this->response);
         } else if ($this->response->outcome == self::RESULT_SERVER_OVERLOAD) {
             $runresult['error'] = self::SERVER_OVERLOAD;
         } else {
@@ -266,14 +266,14 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
 
     // Return the sandbox error code corresponding to the given httpcode.
     private function get_error_code($httpcode) {
-        $codemap = array(
+        $codemap = [
             '200' => self::OK,
             '202' => self::OK,
             '204' => self::OK,
             '400' => self::JOBE_400_ERROR,
             '401' => self::SUBMISSION_LIMIT_EXCEEDED,
-            '403' => self::AUTH_ERROR
-        );
+            '403' => self::AUTH_ERROR,
+        ];
         if (isset($codemap[$httpcode])) {
             return $codemap[$httpcode];
         } else {
@@ -293,7 +293,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
 
         list($url, $headers) = $this->get_jobe_connection_info($resource);
 
-        $body = array('file_contents' => $contentsb64);
+        $body = ['file_contents' => $contentsb64];
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PUT");
@@ -333,12 +333,12 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
         $protocol = 'http://';
         $url = (strpos($jobe, 'http') === 0 ? $jobe : $protocol.$jobe)."/jobe/index.php/restapi/$resource";
 
-        $headers = array(
+        $headers = [
                 'User-Agent: CodeRunner',
                 'Content-Type: application/json; charset=utf-8',
                 'Accept-Charset: utf-8',
                 'Accept: application/json',
-        );
+        ];
         if (!empty($this->apikey)) {
             $headers[] = "X-API-KEY: $this->apikey";
         }
@@ -346,7 +346,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
             $headers[] = "X-CodeRunner-Job-Id: $this->currentjobid";
         }
 
-        return array($url, $headers);
+        return [$url, $headers];
     }
 
     // Submit the given job, which must be an associative array with at
@@ -412,7 +412,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
             $responsebody = '';
         }
 
-        return array($returncode, $responsebody);
+        return [$returncode, $responsebody];
     }
 
 

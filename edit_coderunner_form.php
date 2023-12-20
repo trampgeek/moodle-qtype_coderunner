@@ -99,7 +99,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         // I believe this is a bug in the underlying Moodle question type, not
         // mine, but ... how to be sure?
         $mform->setDefault('mark', array_fill(0, $numtestcases + 5 * self::NUM_TESTCASES_ADD, 1.0));
-        $ordering = array();
+        $ordering = [];
         for ($i = 0; $i < $numtestcases + 5 * self::NUM_TESTCASES_ADD; $i++) {
             $ordering[] = 10 * ($i + 1);
         }
@@ -136,7 +136,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->addHelpButton('attachmentsrequired', 'attachmentsrequired', 'qtype_coderunner');
         $mform->disabledIf('attachmentsrequired', 'attachments', 'eq', 0);
 
-        $filenamecontrols = array();
+        $filenamecontrols = [];
         $filenamecontrols[] = $mform->createElement('text', 'filenamesregex',
                 get_string('filenamesregex', 'qtype_coderunner'));
         $mform->disabledIf('filenamesregex', 'attachments', 'eq', 0);
@@ -177,11 +177,11 @@ class qtype_coderunner_edit_form extends question_edit_form {
                     get_string('answer', 'qtype_coderunner'), '');
         $mform->setExpanded('answerhdr', 1);
 
-        $attributes = array(
+        $attributes = [
             'rows' => 9,
             'class' => 'answer edit_code',
             'data-params' => $this->get_merged_ui_params(),
-            'data-lang' => $this->acelang);
+            'data-lang' => $this->acelang];
         $mform->addElement('textarea', 'answer',
                 get_string('answer', 'qtype_coderunner'),
                 $attributes);
@@ -213,11 +213,11 @@ class qtype_coderunner_edit_form extends question_edit_form {
                     get_string('answerpreload', 'qtype_coderunner'), '');
         $expanded = !empty($this->formquestion->options->answerpreload);
         $mform->setExpanded('answerpreloadhdr', $expanded);
-        $attributes = array(
+        $attributes = [
             'rows' => 5,
             'class' => 'preloadanswer edit_code',
             'data-params' => $this->get_merged_ui_params(),
-            'data-lang' => $this->acelang);
+            'data-lang' => $this->acelang];
         $mform->addElement('textarea', 'answerpreload',
                 get_string('answerpreload', 'qtype_coderunner'),
                 $attributes);
@@ -234,9 +234,9 @@ class qtype_coderunner_edit_form extends question_edit_form {
                     get_string('globalextra', 'qtype_coderunner'), '');
         $expanded = !empty($this->question->options->globalextra);
         $mform->setExpanded('globalextrahdr', $expanded);
-        $attributes = array(
+        $attributes = [
             'rows' => 5,
-            'class' => 'globalextra edit_code');
+            'class' => 'globalextra edit_code'];
         $mform->addElement('textarea', 'globalextra',
                 get_string('globalextra', 'qtype_coderunner'),
                 $attributes);
@@ -259,7 +259,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->addElement('header', 'testcasehdr',
                     get_string('testcases', 'qtype_coderunner'), '');
         $mform->setExpanded('testcasehdr', 1);
-        $repeatedoptions = array();
+        $repeatedoptions = [];
         $repeated = $this->get_per_testcase_fields($mform, $label, $repeatedoptions);
         $this->repeat_elements($repeated, $numtestcases, $repeatedoptions,
                 'numtestcases', 'addanswers', QUESTION_NUMANS_ADD,
@@ -275,24 +275,24 @@ class qtype_coderunner_edit_form extends question_edit_form {
      *  A rewritten version of get_per_answer_fields specific to test cases.
      */
     public function get_per_testcase_fields($mform, $label, &$repeatedoptions) {
-        $repeated = array();
+        $repeated = [];
         $repeated[] = $mform->createElement('textarea', 'testcode',
                 $label,
-                array('rows' => 3, 'class' => 'testcaseexpression edit_code'));
+                ['rows' => 3, 'class' => 'testcaseexpression edit_code']);
         $repeated[] = $mform->createElement('textarea', 'stdin',
                 get_string('stdin', 'qtype_coderunner'),
-                array('rows' => 3, 'class' => 'testcasestdin edit_code'));
+                ['rows' => 3, 'class' => 'testcasestdin edit_code']);
         $repeated[] = $mform->createElement('textarea', 'expected',
                 get_string('expected', 'qtype_coderunner'),
-                array('rows' => 3, 'class' => 'testcaseresult edit_code'));
+                ['rows' => 3, 'class' => 'testcaseresult edit_code']);
 
         $repeated[] = $mform->createElement('textarea', 'extra',
                 get_string('extra', 'qtype_coderunner'),
-                array('rows' => 3, 'class' => 'testcaseresult edit_code'));
+                ['rows' => 3, 'class' => 'testcaseresult edit_code']);
         $group[] = $mform->createElement('checkbox', 'useasexample', null,
                 get_string('useasexample', 'qtype_coderunner'));
 
-        $options = array();
+        $options = [];
         foreach ($this->displayoptions() as $opt) {
             $options[$opt] = get_string($opt, 'qtype_coderunner');
         }
@@ -303,25 +303,25 @@ class qtype_coderunner_edit_form extends question_edit_form {
                         get_string('hiderestiffail', 'qtype_coderunner'));
         $group[] = $mform->createElement('text', 'mark',
                 get_string('mark', 'qtype_coderunner'),
-                array('size' => 5, 'class' => 'testcasemark'));
+                ['size' => 5, 'class' => 'testcasemark']);
         $group[] = $mform->createElement('text', 'ordering',
                 get_string('ordering', 'qtype_coderunner'),
-                array('size' => 3, 'class' => 'testcaseordering'));
+                ['size' => 3, 'class' => 'testcaseordering']);
 
         $repeated[] = $mform->createElement('group', 'testcasecontrols',
                         get_string('testcasecontrols', 'qtype_coderunner'),
                         $group, null, false);
 
-        $typevalues = array(
+        $typevalues = [
             constants::TESTTYPE_NORMAL   => get_string('testtype_normal',   'qtype_coderunner'),
             constants::TESTTYPE_PRECHECK => get_string('testtype_precheck', 'qtype_coderunner'),
             constants::TESTTYPE_BOTH     => get_string('testtype_both',     'qtype_coderunner'),
-        );
+        ];
 
         $repeated[] = $mform->createElement('select', 'testtype',
                 get_string('testtype', 'qtype_coderunner'),
                 $typevalues,
-                array('class' => 'testtype'));
+                ['class' => 'testtype']);
 
         $repeatedoptions['expected']['type'] = PARAM_RAW;
         $repeatedoptions['testcode']['type'] = PARAM_RAW;
@@ -331,8 +331,8 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $repeatedoptions['ordering']['type'] = PARAM_INT;
         $repeatedoptions['testtype']['type'] = PARAM_RAW;
 
-        foreach (array('testcode', 'stdin', 'expected', 'extra', 'testcasecontrols', 'testtype') as $field) {
-            $repeatedoptions[$field]['helpbutton'] = array($field, 'qtype_coderunner');
+        foreach (['testcode', 'stdin', 'expected', 'extra', 'testcasecontrols', 'testtype'] as $field) {
+            $repeatedoptions[$field]['helpbutton'] = [$field, 'qtype_coderunner'];
         }
 
         // Here I expected to be able to use: $repeatedoptions['mark']['default'] = 1.000
@@ -344,7 +344,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
     // A list of the allowed values of the DB 'display' field for each testcase.
     protected function displayoptions() {
-        return array('SHOW', 'HIDE', 'HIDE_IF_FAIL', 'HIDE_IF_SUCCEED');
+        return ['SHOW', 'HIDE', 'HIDE_IF_FAIL', 'HIDE_IF_SUCCEED'];
     }
 
 
@@ -358,18 +358,18 @@ class qtype_coderunner_edit_form extends question_edit_form {
         if (isset($question->options->testcases)) { // Reloading a saved question?
             $q = $this->make_question_from_form_data($question);
             // Loads the error messages into the brokenquestionmessage.
-            $question->brokenquestionmessage =  $this->load_error_messages($question, $q);
+            $question->brokenquestionmessage = $this->load_error_messages($question, $q);
 
             // Record the prototype for subsequent use.
             $question->prototype = $q->prototype;
 
             // Next flatten all the question->options down into the question itself.
-            $question->testcode = array();
-            $question->expected = array();
-            $question->useasexample = array();
-            $question->display = array();
-            $question->extra = array();
-            $question->hiderestifail = array();
+            $question->testcode = [];
+            $question->expected = [];
+            $question->useasexample = [];
+            $question->display = [];
+            $question->extra = [];
+            $question->hiderestifail = [];
 
             foreach ($question->options->testcases as $tc) {
                 $question->testcode[] = $this->newline_hack($tc->testcode);
@@ -425,8 +425,8 @@ class qtype_coderunner_edit_form extends question_edit_form {
             $question->penaltyregime = get_config('qtype_coderunner', 'default_penalty_regime');
         }
 
-        foreach (array('datafiles' => 'datafile',
-                'sampleanswerattachments' => 'samplefile') as $fileset => $filearea) {
+        foreach (['datafiles' => 'datafile',
+                'sampleanswerattachments' => 'samplefile'] as $fileset => $filearea) {
             $draftid = file_get_submitted_draft_itemid($fileset);
             $options = $this->fileoptions;
             $options['subdirs'] = false;
@@ -464,7 +464,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         // Set the broken_question message if so.
         if ($q->prototype === null) {
             $errorstring = get_string(
-                    'missingprototype', 'qtype_coderunner', array('crtype' => $question->coderunnertype));
+                    'missingprototype', 'qtype_coderunner', ['crtype' => $question->coderunnertype]);
         } else if (is_array($q->prototype)) {
             $outputstring = "</p>";
             // Output every duplicate Question id, name and category.
@@ -500,18 +500,18 @@ class qtype_coderunner_edit_form extends question_edit_form {
         // Insert the (possible) bad question load message as a hidden field before broken question. JavaScript
         // will be used to show it if non-empty.
         $mform->addElement('hidden', 'badquestionload', '',
-                array('id' => 'id_bad_question_load', 'class' => 'badquestionload'));
+                ['id' => 'id_bad_question_load', 'class' => 'badquestionload']);
         $mform->setType('badquestionload', PARAM_RAW);
 
         // Insert the (possible) missing prototype message as a hidden field. JavaScript
         // will be used to show it if non-empty.
         $mform->addElement('hidden', 'brokenquestionmessage', '',
-                array('id' => 'id_broken_question', 'class' => 'brokenquestionerror'));
+                ['id' => 'id_broken_question', 'class' => 'brokenquestionerror']);
         $mform->setType('brokenquestionmessage', PARAM_RAW);
 
         // The Question Type controls (a group with the question type and the warning, if it is one).
-        $typeselectorelements = array();
-        $expandedtypes = array_merge(array('Undefined' => 'Undefined'), $types);
+        $typeselectorelements = [];
+        $expandedtypes = array_merge(['Undefined' => 'Undefined'], $types);
         $typeselectorelements[] = $mform->createElement('select', 'coderunnertype',
                 null, $expandedtypes);
         $prototypelangstring = get_string('prototypeexists', 'qtype_coderunner');
@@ -523,7 +523,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->addHelpButton('coderunner_type_group', 'coderunnertype', 'qtype_coderunner');
 
         // Customisation checkboxes.
-        $typeselectorcheckboxes = array();
+        $typeselectorcheckboxes = [];
         $typeselectorcheckboxes[] = $mform->createElement('advcheckbox', 'customise', null,
                 get_string('customise', 'qtype_coderunner'));
         $typeselectorcheckboxes[] = $mform->createElement('advcheckbox', 'showsource', null,
@@ -534,10 +534,10 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->addHelpButton('coderunner_type_checkboxes', 'questioncheckboxes', 'qtype_coderunner');
 
         // Answerbox controls.
-        $answerboxelements = array();
+        $answerboxelements = [];
         $answerboxelements[] = $mform->createElement('text', 'answerboxlines',
                 get_string('answerboxlines', 'qtype_coderunner'),
-                array('size' => 3, 'class' => 'coderunner_answerbox_size'));
+                ['size' => 3, 'class' => 'coderunner_answerbox_size']);
         $mform->setType('answerboxlines', PARAM_INT);
         $mform->setDefault('answerboxlines', self::DEFAULT_NUM_ROWS);
         $mform->addElement('group', 'answerbox_group', get_string('answerbox_group', 'qtype_coderunner'),
@@ -545,14 +545,14 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->addHelpButton('answerbox_group', 'answerbox_group', 'qtype_coderunner');
 
         // Precheck control group (precheck + hide check).
-        $precheckelements = array();
-        $precheckvalues = array(
+        $precheckelements = [];
+        $precheckvalues = [
             constants::PRECHECK_DISABLED => get_string('precheck_disabled', 'qtype_coderunner'),
             constants::PRECHECK_EMPTY    => get_string('precheck_empty', 'qtype_coderunner'),
             constants::PRECHECK_EXAMPLES => get_string('precheck_examples', 'qtype_coderunner'),
             constants::PRECHECK_SELECTED => get_string('precheck_selected', 'qtype_coderunner'),
-            constants::PRECHECK_ALL      => get_string('precheck_all', 'qtype_coderunner')
-        );
+            constants::PRECHECK_ALL      => get_string('precheck_all', 'qtype_coderunner'),
+        ];
         $precheckelements[] = $mform->createElement('select', 'precheck',
                 get_string('precheck', 'qtype_coderunner'), $precheckvalues);
         $precheckelements[] = $mform->createElement('advcheckbox', 'hidecheck', null,
@@ -563,11 +563,11 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
         // Whether to show the 'Stop and read feedback' button.
         $giveupelements = [];
-        $giveupvalues = array(
+        $giveupvalues = [
                 constants::GIVEUP_NEVER => get_string('giveup_never', 'qtype_coderunner'),
                 constants::GIVEUP_AFTER_MAX_MARKS => get_string('giveup_aftermaxmarks', 'qtype_coderunner'),
                 constants::GIVEUP_ALWAYS => get_string('giveup_always', 'qtype_coderunner'),
-        );
+        ];
 
         $giveupelements[] = $mform->createElement('select', 'giveupallowed', null, $giveupvalues);
         $mform->addElement('group', 'coderunner_giveup_group',
@@ -576,12 +576,12 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->setDefault('giveupallowed', constants::GIVEUP_NEVER);
 
         // Feedback control (a group with only one element).
-        $feedbackelements = array();
-        $feedbackvalues = array(
+        $feedbackelements = [];
+        $feedbackvalues = [
             constants::FEEDBACK_USE_QUIZ => get_string('feedback_quiz', 'qtype_coderunner'),
             constants::FEEDBACK_SHOW    => get_string('feedback_show', 'qtype_coderunner'),
             constants::FEEDBACK_HIDE => get_string('feedback_hide', 'qtype_coderunner'),
-        );
+        ];
 
         $feedbackelements[] = $mform->createElement('select', 'displayfeedback', null, $feedbackvalues);
         $mform->addElement('group', 'coderunner_feedback_group',
@@ -591,12 +591,12 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->setType('displayfeedback', PARAM_INT);
 
         // Marking controls.
-        $markingelements = array();
+        $markingelements = [];
         $markingelements[] = $mform->createElement('advcheckbox', 'allornothing', null,
                 get_string('allornothing', 'qtype_coderunner'));
         $markingelements[] = $mform->CreateElement('text', 'penaltyregime',
             get_string('penaltyregimelabel', 'qtype_coderunner'),
-            array('size' => 20));
+            ['size' => 20]);
         $mform->addElement('group', 'markinggroup', get_string('markinggroup', 'qtype_coderunner'),
                 $markingelements, null, false);
         $mform->setDefault('allornothing', true);
@@ -606,23 +606,23 @@ class qtype_coderunner_edit_form extends question_edit_form {
         // Template params.
         $mform->addElement('textarea', 'templateparams',
             get_string('templateparams', 'qtype_coderunner'),
-            array('rows' => self::TEMPLATE_PARAM_ROWS,
+            ['rows' => self::TEMPLATE_PARAM_ROWS,
                   'class' => 'edit_code',
-                  'data-lang' => '' // Don't syntax colour template params.
-            )
+                  'data-lang' => '', // Don't syntax colour template params.
+            ]
         );
         $mform->setType('templateparams', PARAM_RAW);
         $mform->addHelpButton('templateparams', 'templateparams', 'qtype_coderunner');
 
         // Twig controls.
-        $twigelements = array();
+        $twigelements = [];
         $twigelements[] = $mform->createElement('advcheckbox', 'hoisttemplateparams', null,
                 get_string('hoisttemplateparams', 'qtype_coderunner'));
         $twigelements[] = $mform->createElement('advcheckbox', 'extractcodefromjson', null,
                 get_string('extractcodefromjson', 'qtype_coderunner'));
         $twigelements[] = $mform->createElement('advcheckbox', 'twigall', null,
                 get_string('twigall', 'qtype_coderunner'));
-        $templateparamlangs = array(
+        $templateparamlangs = [
             'None' => 'None',
             'twig' => 'Twig',
             'python3' => 'Python3',
@@ -631,8 +631,8 @@ class qtype_coderunner_edit_form extends question_edit_form {
             'java' => 'Java',
             'php' => 'php',
             'octave' => 'Octave',
-            'pascal' => 'Pascal'
-            );
+            'pascal' => 'Pascal',
+            ];
         $twigelements[] = $mform->createElement('select', 'templateparamslang',
                 get_string('templateparamslang', 'qtype_coderunner'), $templateparamlangs);
         $twigelements[] = $mform->createElement('advcheckbox', 'templateparamsevalpertry', null,
@@ -650,15 +650,15 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
         // UI parameters.
         $plugins = qtype_coderunner_ui_plugins::get_instance();
-        $uielements = array();
+        $uielements = [];
         $uiparamedescriptionhtml = '<div class="ui_parameters_descr"></div>'; // JavaScript fills this.
         $uielements[] = $mform->createElement('html', $uiparamedescriptionhtml);
         $uielements[] = $mform->createElement('textarea', 'uiparameters',
             get_string('uiparameters', 'qtype_coderunner'),
-            array('rows' => self::UI_PARAM_ROWS,
+            ['rows' => self::UI_PARAM_ROWS,
                   'class' => 'edit_code',
-                  'data-lang' => '' // Don't syntax colour ui params.
-            )
+                  'data-lang' => '', // Don't syntax colour ui params.
+            ]
         );
         $mform->setType('uiparameters', PARAM_RAW);
 
@@ -687,16 +687,16 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
         $mform->addElement('header', 'customisationheader',
                 get_string('customisation', 'qtype_coderunner'));
-        $attributes = array('rows'  => 8,
+        $attributes = ['rows'  => 8,
             'class' => 'template edit_code',
             'name'  => 'template',
-            'data-lang' => $this->lang);
+            'data-lang' => $this->lang];
         $mform->addElement('textarea', 'template',
                 get_string('template', 'qtype_coderunner'),
                 $attributes);
         $mform->addHelpButton('template', 'template', 'qtype_coderunner');
 
-        $templatecontrols = array();
+        $templatecontrols = [];
         $templatecontrols[] = $mform->createElement('advcheckbox', 'iscombinatortemplate', null,
                 get_string('iscombinatortemplate', 'qtype_coderunner'));
         $templatecontrols[] = $mform->createElement('advcheckbox', 'allowmultiplestdins', null,
@@ -704,17 +704,17 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
         $templatecontrols[] = $mform->createElement('text', 'testsplitterre',
                 get_string('testsplitterre', 'qtype_coderunner'),
-                array('size' => 45));
+                ['size' => 45]);
         $mform->setType('testsplitterre', PARAM_RAW);
         $mform->addElement('group', 'templatecontrols', get_string('templatecontrols', 'qtype_coderunner'),
                 $templatecontrols, null, false);
         $mform->addHelpButton('templatecontrols', 'templatecontrols', 'qtype_coderunner');
 
-        $gradingcontrols = array();
-        $gradertypes = array('EqualityGrader' => get_string('equalitygrader', 'qtype_coderunner'),
+        $gradingcontrols = [];
+        $gradertypes = ['EqualityGrader' => get_string('equalitygrader', 'qtype_coderunner'),
                 'NearEqualityGrader' => get_string('nearequalitygrader', 'qtype_coderunner'),
                 'RegexGrader'    => get_string('regexgrader', 'qtype_coderunner'),
-                'TemplateGrader' => get_string('templategrader', 'qtype_coderunner'));
+                'TemplateGrader' => get_string('templategrader', 'qtype_coderunner')];
         $gradingcontrols[] = $mform->createElement('select', 'grader', null, $gradertypes);
         $mform->addElement('group', 'gradingcontrols',
                 get_string('grading', 'qtype_coderunner'), $gradingcontrols,
@@ -723,11 +723,11 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
         $mform->addElement('text', 'resultcolumns',
             get_string('resultcolumns', 'qtype_coderunner'),
-            array('size' => self::RESULT_COLUMNS_SIZE));
+            ['size' => self::RESULT_COLUMNS_SIZE]);
         $mform->setType('resultcolumns', PARAM_RAW);
         $mform->addHelpButton('resultcolumns', 'resultcolumns', 'qtype_coderunner');
 
-        $uicontrols = array();
+        $uicontrols = [];
         $plugins = qtype_coderunner_ui_plugins::get_instance();
         $uitypes = $plugins->dropdownlist();
 
@@ -742,9 +742,9 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 null, false);
         $mform->addHelpButton('uicontrols', 'uicontrols', 'qtype_coderunner');
 
-        $attributes = array(
+        $attributes = [
             'rows' => 5,
-            'class' => 'prototypeextra edit_code');
+            'class' => 'prototypeextra edit_code'];
         $mform->addElement('textarea', 'prototypeextra',
                 get_string('prototypeextra', 'qtype_coderunner'),
                 $attributes);
@@ -761,16 +761,16 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->addElement('header', 'advancedcustomisationheader',
                 get_string('advanced_customisation', 'qtype_coderunner'));
 
-        $prototypecontrols = array();
+        $prototypecontrols = [];
 
         $prototypeselect = $mform->createElement('select', 'prototypetype',
                 get_string('prototypeQ', 'qtype_coderunner'));
         $prototypeselect->addOption('No', '0');
-        $prototypeselect->addOption('Yes (built-in)', '1', array('disabled' => 'disabled'));
+        $prototypeselect->addOption('Yes (built-in)', '1', ['disabled' => 'disabled']);
         $prototypeselect->addOption('Yes (user defined)', '2');
         $prototypecontrols[] = $prototypeselect;
         $prototypecontrols[] = $mform->createElement('text', 'typename',
-                get_string('typename', 'qtype_coderunner'), array('size' => 30));
+                get_string('typename', 'qtype_coderunner'), ['size' => 30]);
         $mform->addElement('group', 'prototypecontrols',
                 get_string('prototypecontrols', 'qtype_coderunner'),
                 $prototypecontrols, null, false);
@@ -780,11 +780,11 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->setType('saved_prototype_type', PARAM_RAW_TRIMMED);
         $mform->addHelpButton('prototypecontrols', 'prototypecontrols', 'qtype_coderunner');
 
-        $sandboxcontrols = array();
+        $sandboxcontrols = [];
 
         $enabled = qtype_coderunner_sandbox::enabled_sandboxes();
         if (count($enabled) > 1) {
-            $sandboxes = array_merge(array('DEFAULT' => 'DEFAULT'), $enabled);
+            $sandboxes = array_merge(['DEFAULT' => 'DEFAULT'], $enabled);
             foreach (array_keys($sandboxes) as $ext) {
                 $sandboxes[$ext] = $ext;
             }
@@ -796,11 +796,11 @@ class qtype_coderunner_edit_form extends question_edit_form {
         }
 
         $sandboxcontrols[] = $mform->createElement('text', 'cputimelimitsecs',
-                get_string('cputime', 'qtype_coderunner'), array('size' => 3));
+                get_string('cputime', 'qtype_coderunner'), ['size' => 3]);
         $sandboxcontrols[] = $mform->createElement('text', 'memlimitmb',
-                get_string('memorylimit', 'qtype_coderunner'), array('size' => 5));
+                get_string('memorylimit', 'qtype_coderunner'), ['size' => 5]);
         $sandboxcontrols[] = $mform->createElement('text', 'sandboxparams',
-                get_string('sandboxparams', 'qtype_coderunner'), array('size' => 15));
+                get_string('sandboxparams', 'qtype_coderunner'), ['size' => 15]);
         $mform->addElement('group', 'sandboxcontrols',
                 get_string('sandboxcontrols', 'qtype_coderunner'),
                 $sandboxcontrols, null, false);
@@ -810,14 +810,14 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->setType('sandboxparams', PARAM_RAW);
         $mform->addHelpButton('sandboxcontrols', 'sandboxcontrols', 'qtype_coderunner');
 
-        $languages = array();
+        $languages = [];
         $languages[]  = $mform->createElement('text', 'language',
             get_string('language', 'qtype_coderunner'),
-            array('size' => 10));
+            ['size' => 10]);
         $mform->setType('language', PARAM_RAW_TRIMMED);
         $languages[]  = $mform->createElement('text', 'acelang',
             get_string('ace-language', 'qtype_coderunner'),
-            array('size' => 20));
+            ['size' => 20]);
         $mform->setType('acelang', PARAM_RAW_TRIMMED);
         $mform->addElement('group', 'languages',
             get_string('languages', 'qtype_coderunner'),
@@ -856,8 +856,10 @@ class qtype_coderunner_edit_form extends question_edit_form {
         }
         if ($data['coderunnertype'] == 'Undefined') {
             $errors['coderunner_type_group'] = get_string('questiontype_required', 'qtype_coderunner');
-            return $errors;  // Don't continue checking in these cases, including if there isn't a previous coderunnertype (duplicate, missings).
-            // Else template param validation breaks.
+            /* Don't continue checking in these cases, including
+               if there isn't a previous coderunnertype (duplicate, missings),
+               else template param validation breaks. */
+            return $errors;
         }
         $this->formquestion = $this->make_question_from_form_data($data);
         if ($data['cputimelimitsecs'] != '' &&
@@ -1010,7 +1012,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
             $uiparams = new qtype_coderunner_ui_parameters($uiplugin);
             $templateparamsnoprototype = json_decode($this->formquestion->template_params_json($seed), true);
             $alluiparamnames = $uiparams->all_names();
-            $badparams = array();
+            $badparams = [];
             foreach (array_keys($templateparamsnoprototype) as $paramname) {
                 if (in_array($paramname, $alluiparamnames)) {
                     $badparams[] = $paramname;
@@ -1027,14 +1029,14 @@ class qtype_coderunner_edit_form extends question_edit_form {
                         $badparams[] = $paramname;
                     }
                     if ($badparams) {
-                        $extra = array('uiname' => $uiplugin);
+                        $extra = ['uiname' => $uiplugin];
                         $errormessage = get_string('legacyuiparams2', 'qtype_coderunner', $extra) . implode(', ', $badparams);
                     }
                 }
             }
         }
 
-        return array($errormessage, $json);
+        return [$errormessage, $json];
     }
 
     // Check that the uiparameters field, if present and non-empty, is valid.
@@ -1058,7 +1060,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
             $uiplugins = qtype_coderunner_ui_plugins::get_instance();
             $uiparams = $uiplugins->parameters($uipluginname);
             $alluiparamnames = $uiparams->all_names();
-            $badparams = array();
+            $badparams = [];
             foreach (array_keys($decoded) as $paramname) {
                 if (!in_array($paramname, $alluiparamnames)) {
                     $badparams[] = $paramname;
@@ -1066,10 +1068,10 @@ class qtype_coderunner_edit_form extends question_edit_form {
             }
             if ($badparams) {
                 $errormessage = get_string('illegaluiparamname', 'qtype_coderunner',
-                        array('uiname' => $uipluginname)) . implode(', ', $badparams);
+                        ['uiname' => $uipluginname]) . implode(', ', $badparams);
             } else if ($checkmissing) {
                 // Make sure any required ui parameters are defined.
-                $missingparams = array();
+                $missingparams = [];
                 foreach ($alluiparamnames as $uiname) {
                     if ($uiparams->is_required($uiname) && !in_array($uiname, array_keys($decoded))) {
                         $missingparams[] = $uiname;
@@ -1127,7 +1129,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
     // form fields to error messages.
     // Should only be called if twig all is set.
     private function validate_twigables() {
-        $errors = array();
+        $errors = [];
         $question = $this->formquestion;
         $jsonparams = $question->templateparamsevald;
         $parameters = json_decode($jsonparams, true);
@@ -1171,7 +1173,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
     // Validate the test cases.
     private function validate_test_cases($data) {
-        $errors = array(); // Return value.
+        $errors = []; // Return value.
         $testcodes = $data['testcode'];
         $stdins = $data['stdin'];
         $expecteds = $data['expected'];
@@ -1214,7 +1216,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
     // Otherwise return a suitable error message for display in the form.
     private function validate_sample_answer() {
         $attachmentssaver = $this->get_sample_answer_file_saver();
-        $files = $attachmentssaver ? $attachmentssaver->get_files() : array();
+        $files = $attachmentssaver ? $attachmentssaver->get_files() : [];
         $answer = $this->formquestion->answer;
         if (trim($answer ?? '') === '' && count($files) == 0) {
             return ''; // Empty answer and no attachments.
@@ -1243,7 +1245,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
             $this->formquestion->templateparamsevalpertry = 0; // Save an extra evaluation.
             $this->formquestion->start_attempt();
             $this->formquestion->templateparamsevalpertry = $savedevalpertry;
-            $response = array('answer' => $this->formquestion->answer);
+            $response = ['answer' => $this->formquestion->answer];
             if (!empty($answerlang)) {
                 $response['language'] = $answerlang;
             }
@@ -1319,13 +1321,13 @@ class qtype_coderunner_edit_form extends question_edit_form {
         }
         asort($types);
         asort($languages);
-        return array($languages, $types);
+        return [$languages, $types];
     }
 
     // Render the given Twig text with the given params, using the global
     // $USER variable (the question author) as a dummy student.
     // @return Rendered text.
-    private function twig_render($text, $params=array(), $isstrict=false) {
+    private function twig_render($text, $params=[], $isstrict=false) {
         global $USER;
         $student = new qtype_coderunner_student($USER);
         return qtype_coderunner_twig::render($text, $student, (array) $params, $isstrict);
@@ -1354,7 +1356,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $qtype->clean_question_form($question, true);
         $questiontype = $question->coderunnertype;
         list($category) = explode(',', $question->category);
-        $contextid = $DB->get_field('question_categories', 'contextid', array('id' => $category));
+        $contextid = $DB->get_field('question_categories', 'contextid', ['id' => $category]);
         $question->contextid = $contextid;
         $context = context::instance_by_id($contextid, IGNORE_MISSING);
         $question->prototype = $qtype->get_prototype($questiontype, $context);

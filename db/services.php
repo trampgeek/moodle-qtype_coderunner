@@ -33,7 +33,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$functions = array(
+$functions = [
     'qtype_coderunner_run_in_sandbox' => [
         'classname'   => 'qtype_coderunner\external\run_in_sandbox',
         'classpath'   => '',
@@ -42,6 +42,6 @@ $functions = array(
         'type'        => '',          // No DB access allowed.
         'ajax'        => true,        // The service is available to 'internal' ajax calls.
         'capabilities' => 'qtype/coderunner:sandboxwsaccess',
-        'services'    => [MOODLE_OFFICIAL_MOBILE_SERVICE]
+        'services'    => [MOODLE_OFFICIAL_MOBILE_SERVICE],
     ],
-);
+];

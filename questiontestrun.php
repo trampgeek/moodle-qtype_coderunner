@@ -42,7 +42,7 @@ $qbe = get_question_bank_entry($questionid);
 $question = question_bank::load_question($questionid);
 
 // Setup the context to whatever was specified by the tester.
-$urlparams = array('questionid' => $questionid);
+$urlparams = ['questionid' => $questionid];
 if ($cmid = optional_param('cmid', 0, PARAM_INT)) {
     $cm = get_coursemodule_from_id(false, $cmid);
     require_login($cm->course, false, $cm);
@@ -96,11 +96,11 @@ $options->suppressruntestslink = true;
 
 // Test the question with its sample answer.
 $response = $question->get_correct_response();
-$runparams = array('-submit' => 'Submit', 'answer' => $response['answer']);
+$runparams = ['-submit' => 'Submit', 'answer' => $response['answer']];
 if (isset($response['attachments'])) {
     $runparams['attachments'] = $response['attachments'];
 }
-$templateparams = isset($question->templateparams) ? json_decode($question->templateparams, true) : array();
+$templateparams = isset($question->templateparams) ? json_decode($question->templateparams, true) : [];
 if (isset($templateparams['answer_language'])) {
     $runparams['language'] = $templateparams['answer_language'];
 }

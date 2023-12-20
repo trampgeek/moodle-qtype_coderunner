@@ -97,7 +97,7 @@ abstract class qtype_coderunner_localsandbox extends qtype_coderunner_sandbox {
         $savedcurrentdir = getcwd();
         $language = strtolower($language);
         if (!in_array($language, $this->get_languages()->languages)) {
-            return (object) array('error' => self::WRONG_LANG_ID);  // Should be impossible.
+            return (object) ['error' => self::WRONG_LANG_ID];  // Should be impossible.
         }
         if ($input !== '' && substr($input, -1) != "\n") {
             $input .= "\n";  // Force newline on the end if necessary.
@@ -134,15 +134,15 @@ abstract class qtype_coderunner_localsandbox extends qtype_coderunner_sandbox {
 
         chdir($savedcurrentdir);
         if ($error === self::OK) {
-            return (object) array(
+            return (object) [
                 'error'     => self::OK,
                 'cmpinfo'   => $this->cmpinfo,
                 'result'    => $this->result,
                 'stderr'    => $this->stderr,
                 'output'    => $this->output,
-                'signal'    => $this->signal);
+                'signal'    => $this->signal];
         } else {
-            return (object) array('error' => $error);
+            return (object) ['error' => $error];
         }
     }
 
@@ -194,7 +194,7 @@ abstract class qtype_coderunner_localsandbox extends qtype_coderunner_sandbox {
 
     // Delete a given directory tree.
     private static function del_tree($dir) {
-        $files = array_diff(scandir($dir), array('.', '..'));
+        $files = array_diff(scandir($dir), ['.', '..']);
         foreach ($files as $file) {
             (is_dir("$dir/$file")) ? self::del_tree("$dir/$file") : unlink("$dir/$file");
         }
@@ -206,7 +206,7 @@ abstract class qtype_coderunner_localsandbox extends qtype_coderunner_sandbox {
     // default, or gcc misbehaves. Thanks to Binoj D for this bug fix,
     // needed on his CentOS system.
     private static function set_path() {
-        $envvars = array();
+        $envvars = [];
         exec('printenv', $envvars);
         $haspath = false;
         foreach ($envvars as $var) {

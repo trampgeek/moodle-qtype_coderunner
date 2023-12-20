@@ -44,14 +44,14 @@ class octave_question_test extends \qtype_coderunner_testcase {
     protected function setUp(): void {
         parent::setUp();
 
-        // Each test will be skipped if octave not available on jobe server
+        // Each test will be skipped if octave not available on jobe server.
         $this->check_language_available('octave');
     }
 
 
     public function test_good_sqr_function() {
         $q = $this->make_question('sqroctave');
-        $response = array('answer' => "function sq = sqr(n)\n  sq = n * n;\nend\n");
+        $response = ['answer' => "function sq = sqr(n)\n  sq = n * n;\nend\n"];
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(1, $mark);
         $this->assertEquals(\question_state::$gradedright, $grade);
@@ -64,7 +64,7 @@ class octave_question_test extends \qtype_coderunner_testcase {
 
     public function test_bad_sqr_function() {
         $q = $this->make_question('sqroctave');
-        $response = array('answer' => "function sq = sqr(n)\n  sq = n;\nend\n");
+        $response = ['answer' => "function sq = sqr(n)\n  sq = n;\nend\n"];
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(0, $mark);
         $this->assertEquals(\question_state::$gradedwrong, $grade);
@@ -77,7 +77,7 @@ class octave_question_test extends \qtype_coderunner_testcase {
 
     public function test_bad_syntax() {
         $q = $this->make_question('sqroctave');
-        $response = array('answer' => "function sq = sqr(n)\n  sq = n:\nend\n");
+        $response = ['answer' => "function sq = sqr(n)\n  sq = n:\nend\n"];
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(0, $mark);
         $this->assertEquals(\question_state::$gradedwrong, $grade);
@@ -90,7 +90,7 @@ class octave_question_test extends \qtype_coderunner_testcase {
 
     public function test_student_answer_macro() {
         $q = $this->make_question('teststudentanswermacrooctave');
-        $response = array('answer' => <<<EOT
+        $response = ['answer' => <<<EOT
 function mytest()
     s1 = '"Hi!" he said'; % a comment
     s2 = '''Hi!'' he said';
@@ -98,7 +98,8 @@ function mytest()
     disp(s2);
 end
 EOT
-            );
+,
+            ];
 
         list($mark, $grade, ) = $q->grade_response($response);
         $this->assertEquals(1, $mark);

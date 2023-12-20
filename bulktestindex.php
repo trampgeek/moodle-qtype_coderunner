@@ -43,7 +43,7 @@ echo $OUTPUT->heading(get_string('coderunnercontexts', 'qtype_coderunner'));
 
 // Find in which contexts the user can edit questions.
 $questionsbycontext = $bulktester->get_num_coderunner_questions_by_context();
-$availablequestionsbycontext = array();
+$availablequestionsbycontext = [];
 foreach ($questionsbycontext as $contextid => $numcoderunnerquestions) {
     $context = context::instance_by_id($contextid);
     if (has_capability('moodle/question:editall', $context)) {
@@ -56,9 +56,9 @@ foreach ($questionsbycontext as $contextid => $numcoderunnerquestions) {
                 $name = $course->get_context_name(true, true) . ': ' . $name;
             }
         }
-        $availablequestionsbycontext[$name] = array(
+        $availablequestionsbycontext[$name] = [
             'contextid' => $contextid,
-            'numquestions' => $numcoderunnerquestions);
+            'numquestions' => $numcoderunnerquestions];
     }
 }
 
@@ -75,16 +75,16 @@ if (count($availablequestionsbycontext) == 0) {
         $contextid = $info['contextid'];
         $numcoderunnerquestions = $info['numquestions'];
 
-        $testallurl = new moodle_url('/question/type/coderunner/bulktest.php', array('contextid' => $contextid));
+        $testallurl = new moodle_url('/question/type/coderunner/bulktest.php', ['contextid' => $contextid]);
         $testalllink = html_writer::link($testallurl,
                 get_string('bulktestallincontext', 'qtype_coderunner'),
-                array('title' => get_string('testalltitle', 'qtype_coderunner'),
-                       'style' => $buttonstyle));
+                ['title' => get_string('testalltitle', 'qtype_coderunner'),
+                       'style' => $buttonstyle]);
         $expandlink = html_writer::link('#expand',
                 get_string('expand', 'qtype_coderunner'),
-                array('class' => 'expander',
+                ['class' => 'expander',
                       'title' => get_string('expandtitle', 'qtype_coderunner'),
-                      'style' => $buttonstyle));
+                      'style' => $buttonstyle]);
         $litext = $name . ' (' . $numcoderunnerquestions . ') ' . $testalllink . ' ' . $expandlink;
         if (strpos($name, 'Quiz:') === 0) {
             $class = 'bulktest coderunner context quiz';
@@ -97,19 +97,19 @@ if (count($availablequestionsbycontext) == 0) {
         } else {
             $class = 'bulktest coderunner context quiz';
         }
-        echo html_writer::start_tag('li', array('class' => $class));
+        echo html_writer::start_tag('li', ['class' => $class]);
         echo $litext;
 
         $categories = $bulktester->get_categories_for_context($contextid);
-        echo html_writer::start_tag('ul', array('class' => 'expandable'));
+        echo html_writer::start_tag('ul', ['class' => 'expandable']);
         foreach ($categories as $cat) {
             if ($cat->count > 0) {
                 $url = new moodle_url('/question/type/coderunner/bulktest.php',
-                                    array('contextid' => $contextid, 'categoryid' => $cat->id));
+                                    ['contextid' => $contextid, 'categoryid' => $cat->id]);
                 $linktext = $cat->name . ' (' . $cat->count . ')';
-                $link = html_writer::link($url, $linktext, array('style' => $buttonstyle));
+                $link = html_writer::link($url, $linktext, ['style' => $buttonstyle]);
                 echo html_writer::tag('li', $link,
-                        array('title' => get_string('testallincategory', 'qtype_coderunner')));
+                        ['title' => get_string('testallincategory', 'qtype_coderunner')]);
             }
         }
         echo html_writer::end_tag('ul');

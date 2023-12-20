@@ -54,7 +54,7 @@ class graphui_save_test extends \qtype_coderunner_testcase {
         $formdata->uiplugin = 'graph';
 
         $generator = $this->getDataGenerator()->get_plugin_generator('core_question');
-        $cat = $generator->create_question_category(array());
+        $cat = $generator->create_question_category([]);
 
         // Mock submit a form with form data.
         $formdata->category = "{$cat->id},{$cat->contextid}";
@@ -66,12 +66,12 @@ class graphui_save_test extends \qtype_coderunner_testcase {
         $fromform = $form->get_data();
         $returnedfromsave = $this->qtype->save_question($questiondata, $fromform);
 
-        $actualquestionsdata = question_load_questions(array($returnedfromsave->id));
+        $actualquestionsdata = question_load_questions([$returnedfromsave->id]);
         $actualquestiondata = end($actualquestionsdata);
 
         foreach ($questiondata as $property => $value) {
-            if (!in_array($property, array('id', 'idnumber', 'version', 'timemodified',
-                'timecreated', 'options', 'testcases'))) {
+            if (!in_array($property, ['id', 'idnumber', 'version', 'timemodified',
+                'timecreated', 'options', 'testcases'])) {
                 $this->assertEquals($value, $actualquestiondata->$property);
             }
         }

@@ -69,13 +69,13 @@ final class Mbstring
 {
     const MB_CASE_FOLD = PHP_INT_MAX;
 
-    private static $encodingList = array('ASCII', 'UTF-8');
+    private static $encodingList = ['ASCII', 'UTF-8'];
     private static $language = 'neutral';
     private static $internalEncoding = 'UTF-8';
-    private static $caseFold = array(
-        array('µ', 'ſ', "\xCD\x85", 'ς', "\xCF\x90", "\xCF\x91", "\xCF\x95", "\xCF\x96", "\xCF\xB0", "\xCF\xB1", "\xCF\xB5", "\xE1\xBA\x9B", "\xE1\xBE\xBE"),
-        array('μ', 's', 'ι',        'σ', 'β',        'θ',        'φ',        'π',        'κ',        'ρ',        'ε',        "\xE1\xB9\xA1", 'ι'),
-    );
+    private static $caseFold = [
+        ['µ', 'ſ', "\xCD\x85", 'ς', "\xCF\x90", "\xCF\x91", "\xCF\x95", "\xCF\x96", "\xCF\xB0", "\xCF\xB1", "\xCF\xB5", "\xE1\xBA\x9B", "\xE1\xBE\xBE"],
+        ['μ', 's', 'ι',        'σ', 'β',        'θ',        'φ',        'π',        'κ',        'ρ',        'ε',        "\xE1\xB9\xA1", 'ι'],
+    ];
 
     public static function mb_convert_encoding($s, $toEncoding, $fromEncoding = null)
     {
@@ -104,7 +104,7 @@ final class Mbstring
                 $s = iconv($fromEncoding, 'UTF-8//IGNORE', $s);
             }
 
-            return preg_replace_callback('/[\x80-\xFF]+/', array(__CLASS__, 'html_encoding_callback'), $s);
+            return preg_replace_callback('/[\x80-\xFF]+/', [__CLASS__, 'html_encoding_callback'], $s);
         }
 
         if ('HTML-ENTITIES' === $fromEncoding) {
@@ -237,7 +237,7 @@ final class Mbstring
             $s = iconv($encoding, 'UTF-8//IGNORE', $s);
         }
 
-        static $ulenMask = array("\xC0" => 2, "\xD0" => 2, "\xE0" => 3, "\xF0" => 4);
+        static $ulenMask = ["\xC0" => 2, "\xD0" => 2, "\xE0" => 3, "\xF0" => 4];
 
         $cnt = floor(\count($convmap) / 4) * 4;
         $i = 0;
@@ -290,7 +290,7 @@ final class Mbstring
             if (null === $titleRegexp) {
                 $titleRegexp = self::getData('titleCaseRegexp');
             }
-            $s = preg_replace_callback($titleRegexp, array(__CLASS__, 'title_case'), $s);
+            $s = preg_replace_callback($titleRegexp, [__CLASS__, 'title_case'], $s);
         } else {
             if (MB_CASE_UPPER == $mode) {
                 static $upper = null;
@@ -310,7 +310,7 @@ final class Mbstring
                 $map = $lower;
             }
 
-            static $ulenMask = array("\xC0" => 2, "\xD0" => 2, "\xE0" => 3, "\xF0" => 4);
+            static $ulenMask = ["\xC0" => 2, "\xD0" => 2, "\xE0" => 3, "\xF0" => 4];
 
             $i = 0;
             $len = \strlen($s);
@@ -381,7 +381,7 @@ final class Mbstring
 
     public static function mb_list_encodings()
     {
-        return array('UTF-8');
+        return ['UTF-8'];
     }
 
     public static function mb_encoding_aliases($encoding)
@@ -389,7 +389,7 @@ final class Mbstring
         switch (strtoupper($encoding)) {
             case 'UTF8':
             case 'UTF-8':
-                return array('utf8');
+                return ['utf8'];
         }
 
         return false;
@@ -404,7 +404,7 @@ final class Mbstring
             $encoding = self::$internalEncoding;
         }
 
-        return self::mb_detect_encoding($var, array($encoding)) || false !== @iconv($encoding, $encoding, $var);
+        return self::mb_detect_encoding($var, [$encoding]) || false !== @iconv($encoding, $encoding, $var);
     }
 
     public static function mb_detect_encoding($str, $encodingList = null, $strict = false)
@@ -553,7 +553,7 @@ final class Mbstring
             return preg_split($rx, $string, null, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
         }
 
-        $result = array();
+        $result = [];
         $length = mb_strlen($string, $encoding);
 
         for ($i = 0; $i < $length; $i += $split_length) {
@@ -667,7 +667,7 @@ final class Mbstring
 
     public static function mb_get_info($type = 'all')
     {
-        $info = array(
+        $info = [
             'internal_encoding' => self::$internalEncoding,
             'http_output' => 'pass',
             'http_output_conv_mimetypes' => '^(text/|application/xhtml\+xml)',
@@ -682,7 +682,7 @@ final class Mbstring
             'detect_order' => self::$encodingList,
             'substitute_character' => 'none',
             'strict_detection' => 'Off',
-        );
+        ];
 
         if ('all' === $type) {
             return $info;

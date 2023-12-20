@@ -250,7 +250,7 @@ class Lexer
                 if (preg_match($this->regexes['lex_block_raw'], $this->code, $match, 0, $this->cursor)) {
                     $this->moveCursor($match[0]);
                     $this->lexRawData();
-                // {% line \d+ %}
+                    // {% line \d+ %}
                 } elseif (preg_match($this->regexes['lex_block_line'], $this->code, $match, 0, $this->cursor)) {
                     $this->moveCursor($match[0]);
                     $this->lineno = (int) $match[1];

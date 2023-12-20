@@ -54,7 +54,7 @@ class qtype_coderunner_template_grader extends qtype_coderunner_grader {
                 $errorcode = 'missingorbadfraction';
             }
             $errormessage = get_string($errorcode, 'qtype_coderunner',
-                    array('output' => $output));
+                    ['output' => $output]);
             $testresultobj = new qtype_coderunner_test_result($testcase, false, 0.0, $errormessage);
         } else {
             $iscorrect = abs($result->fraction - 1.0) < 0.000001;

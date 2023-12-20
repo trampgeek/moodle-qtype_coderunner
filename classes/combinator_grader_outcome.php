@@ -27,10 +27,10 @@ use qtype_coderunner\constants;
 class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testing_outcome {
 
     // A list of the allowed attributes in the combinator template grader return value.
-    public $allowedfields = array('fraction', 'prologuehtml', 'testresults', 'epiloguehtml',
+    public $allowedfields = ['fraction', 'prologuehtml', 'testresults', 'epiloguehtml',
                     'feedbackhtml', 'columnformats', 'showdifferences',
-                    'showoutputonly', 'graderstate', 'instructorhtml'
-    );
+                    'showoutputonly', 'graderstate', 'instructorhtml',
+    ];
 
     public function __construct($isprecheck) {
         parent::__construct(1, 0, $isprecheck);
@@ -145,10 +145,10 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
         $hdrs = $this->testresults[0];
         $formats = $this->columnformats;
         if (!$formats) {
-            return False;
+            return false;
         }
         $i = 0;    // Column number.
-        $icol = 0; // Column number excluding ishidden and iscorrect
+        $icol = 0; // Column number excluding ishidden and iscorrect.
         while ($i < count($hdrs)) {
             if ($hdrs[$i] != 'iscorrect' && $hdrs[$i] != 'ishidden') {
                 if ($i == $col) {
@@ -180,7 +180,7 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
             $expectedcol = array_search(get_string('expectedcolhdr', 'qtype_coderunner'), $headerrow);
             $gotcol = array_search(get_string('gotcolhdr', 'qtype_coderunner'), $headerrow);
             $sanitise = true;
-            if ($correctcol !== false and $expectedcol !== false and $gotcol !== false) {
+            if ($correctcol !== false && $expectedcol !== false && $gotcol !== false) {
                 // This looks like a pretty conventional results table, so we can
                 // try using the parent way of formatting the failed test cases, with
                 // copy-got-to-expected button.
@@ -195,7 +195,6 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
         }
 
         $error .= '<br>' . parent::validation_error_message();
-        //debugging($error);
         return $error;
     }
 
@@ -243,16 +242,16 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
         } else {
             $formats = $this->columnformats;
             $columnheaders = $table[0];
-            $newtable = array($columnheaders);
+            $newtable = [$columnheaders];
             $nrows = count($table);
             for ($i = 1; $i < $nrows; $i++) {
                 $row = $table[$i];
-                $newrow = array();
+                $newrow = [];
                 $formatindex = 0;
                 $ncols = count($row);
                 for ($col = 0; $col < $ncols; $col++) {
                     $cell = $row[$col];
-                    if (in_array($columnheaders[$col], array('ishidden', 'iscorrect'))) {
+                    if (in_array($columnheaders[$col], ['ishidden', 'iscorrect'])) {
                         $newrow[] = $cell;  // Copy control column values directly.
                     } else {
                         // Non-control columns are either '%s' or '%h' format.
@@ -282,8 +281,7 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
         }
         if (self::can_view_hidden()) {
             return $this->instructorhtml.$this->epiloguehtml;
-        }
-        else {
+        } else {
             return $this->epiloguehtml;
         }
     }
@@ -312,13 +310,13 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
             }
             if (count($this->columnformats) !== $numcols) {
                 $error = get_string('wrongnumberofformats', 'qtype_coderunner',
-                        array('expected' => $numcols, 'got' => count($this->columnformats)));
+                        ['expected' => $numcols, 'got' => count($this->columnformats)]);
                 $this->set_status(self::STATUS_BAD_COMBINATOR, $error);
             } else {
                 foreach ($this->columnformats as $format) {
                     if ($format !== '%s' && $format !== '%h') {
                         $error = get_string('illegalformat', 'qtype_coderunner',
-                            array('format' => $format));
+                            ['format' => $format]);
                         $this->set_status(self::STATUS_BAD_COMBINATOR, $error);
                         break;
                     }
@@ -343,7 +341,7 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
         if ($ishiddencolumn === -1) {
             return $resulttable;  // No ishidden column so all rows visible.
         } else {
-            $rows = array($header);
+            $rows = [$header];
             $n = count($resulttable);
             for ($i = 1; $i < $n; $i++) {
                 $row = $resulttable[$i];

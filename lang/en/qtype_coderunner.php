@@ -170,7 +170,7 @@ $string['errorstring-submissionlimitexceeded'] = 'Sandbox submission limit reach
 $string['errorstring-submissionfailed'] = 'Submission to sandbox failed';
 $string['errorstring-unknown'] = 'Unexpected error while executing your code. The sandbox server may be down or overloaded. Perhaps try again shortly?';
 
-# Webservice errors for output display area.
+// Webservice errors for output display area.
 $string['error_access_denied'] = 'Sandbox server access denied';
 $string['error_excessive_output'] = 'Excessive output';
 $string['error_json_params'] = 'Params set are not in correct JSON format';
@@ -462,7 +462,7 @@ $string['ordering'] = 'Ordering';
 $string['overallresult'] = 'Overall result';
 $string['overloadoninit'] = 'Sandbox server overload prevented question initialisation';
 
-// Output Display Area Errors (Used in Scratchpad UI) for displaying code output. See outputdisplayarea.js
+// Output Display Area Errors (Used in Scratchpad UI) for displaying code output. See outputdisplayarea.js.
 $string['outputdisplayarea_invalid_mode'] = 'Invalid output display mode:';
 $string['outputdisplayarea_invalid_json'] = 'Error parsing JSON. Output from wrapper:';
 $string['outputdisplayarea_missing_json_fields'] = 'Output display JSON is missing required fields:';
@@ -1029,14 +1029,14 @@ $string['submitbuttons'] = 'Submit buttons';
 $string['supportscripts'] = 'Support scripts';
 $string['syntax_errors'] = 'Syntax Error(s)';
 
-# SCRATCHPAD UI Default text
+// SCRATCHPAD UI Default text.
 $string['scratchpadui_def_button_name'] = 'Run';
 $string['scratchpadui_def_scratchpad_name'] = 'Scratchpad';
 $string['scratchpadui_def_prefix_name'] = 'Prefix with Answer';
 $string['scratchpadui_def_help_text'] = '<p>You can enter code into this panel and click \'Run\' to execute it.</p>
 <p>By default, the code in this panel is prefixed with the contents of the answer box, giving you an easy way to test your answer.</p>
 <p>You can uncheck the \'Prefix with answer\' checkbox to run the code in this panel standalone, e.g. to explore how small code fragments behave.</p>';
-# SCRATCHPAD UI Parameter descriptions
+// SCRATCHPAD UI Parameter descriptions.
 $string['scratchpadui_scratchpad_name_descr'] = 'Display name of the scratchpad, used to hide/un-hide the scratchpad.';
 $string['scratchpadui_button_name_descr'] = 'Run button text.';
 $string['scratchpadui_prefix_name_descr'] = 'Prefix with answer check-box label text.';
@@ -1068,7 +1068,7 @@ $string['scratchpadui_wrapper_src_descr'] = 'The location of wrapper to be used 
 $string['scratchpadui_disable_scratchpad_descr'] = 'Disable the scratchpad, effectively revert back to Ace UI from student perspective.';
 $string['scratchpadui_invert_prefix_descr'] = 'Inverts meaning of prefix_ans serialisation: \'1\' means un-ticked -- and vice versa. This can be used to swap the default state.';
 $string['scratchpadui_escape_descr'] = 'Escape (JSON with " removed from start and end) ANSWER_CODE and SCRATCHPAD_CODE before insertion into wrapper. Useful when inserting code into a string. NOTE: single quotes \' are NOT escaped.';
-# SCRATCHPAD UI Errors
+// SCRATCHPAD UI Errors.
 $string['scratchpad_ui_badrunwrappersrc'] = 'Invalid run wrapper source given, please contact question author.';
 $string['scratchpad_ui_invalidserialisation'] = 'Invalid JSON serialisation provided, must include \"answer_code\" field.';
 $string['scratchpad_ui_templateloadfail'] = 'Scratchpad UI template failed to load, please refresh the page. If this persists please report.';

@@ -47,8 +47,8 @@ class walkthrough_extras_test extends \qbehaviour_walkthrough_test_base {
 
     public function test_extra_testcase_field() {
         $q = \test_question_maker::make_question('coderunner', 'sqr');
-        $q->testcases = array(
-            (object) array('type'     => 0,
+        $q->testcases = [
+            (object) ['type'     => 0,
                           'testcode'  => 'print("Oops")',
                           'extra'     => 'print(sqr(-11))',
                           'expected'  => '121',
@@ -56,8 +56,8 @@ class walkthrough_extras_test extends \qbehaviour_walkthrough_test_base {
                           'useasexample' => 0,
                           'display'   => 'SHOW',
                           'mark'      => 1.0,
-                          'hiderestiffail'  => 0)
-            );
+                          'hiderestiffail'  => 0],
+            ];
         $q->template = <<<EOTEMPLATE
 {{ STUDENT_ANSWER }}
 {{ TEST.extra }}  # Use this instead of the normal testcode field
@@ -69,7 +69,7 @@ EOTEMPLATE;
         // Submit a right answer.
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
         $this->check_current_output( new \question_pattern_expectation('/' . PRELOAD_TEST . '/') );
-        $this->process_submission(array('-submit' => 1, 'answer' => "def sqr(n): return n * n\n"));
+        $this->process_submission(['-submit' => 1, 'answer' => "def sqr(n): return n * n\n"]);
         $this->check_current_mark(1.0);
     }
 
@@ -80,7 +80,7 @@ EOTEMPLATE;
 
         // Submit a right answer.
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
-        $this->process_submission(array('-submit' => 1, 'answer' => "def sqr(n): return n * n\n"));
+        $this->process_submission(['-submit' => 1, 'answer' => "def sqr(n): return n * n\n"]);
         $this->check_current_mark(1.0);
         $this->check_current_output( new \question_pattern_expectation('/Blah/') );
         $this->check_current_output( new \question_pattern_expectation('/Thing/') );
@@ -101,7 +101,7 @@ EOTEMPLATE;
         set_config('jobe_host', 'localhostxxx', 'qtype_coderunner');  // Broken jobe_host url.
         $q = \test_question_maker::make_question('coderunner', 'sqr');
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
-        $this->process_submission(array('-submit' => 1, 'answer' => "def sqr(n): return n * n\n"));
+        $this->process_submission(['-submit' => 1, 'answer' => "def sqr(n): return n * n\n"]);
     }
 
     /** Check that a combinator template is run once per test case when stdin
@@ -115,13 +115,13 @@ EOTEMPLATE;
 
         // Submit a right answer.
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
-        $this->process_submission(array('-submit' => 1, 'answer' => "def sqr(n): return n * n\n"));
+        $this->process_submission(['-submit' => 1, 'answer' => "def sqr(n): return n * n\n"]);
         $this->check_output_contains('Run 4');
 
         // Now turn on allowmultiplestdins and try again.
         $q->allowmultiplestdins = true;
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
-        $this->process_submission(array('-submit' => 1, 'answer' => "def sqr(n): return n * n\n"));
+        $this->process_submission(['-submit' => 1, 'answer' => "def sqr(n): return n * n\n"]);
         $this->check_output_does_not_contain('Run 4');
     }
 }

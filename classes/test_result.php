@@ -30,7 +30,7 @@ class qtype_coderunner_test_result {
     public function __construct($testcase, $iscorrect, $awardedmark, $got) {
         // Flatten testcase into this, tidying up text fields.
         foreach (get_object_vars($testcase) as $key => $value) {
-            if (in_array($key, array('expected', 'testcode', 'stdin', 'extra'))) {
+            if (in_array($key, ['expected', 'testcode', 'stdin', 'extra'])) {
                 $this->$key = qtype_coderunner_util::tidy($value);
             } else {
                 $this->$key = $value;
@@ -50,7 +50,7 @@ class qtype_coderunner_test_result {
     // used to provide a Show Differences button but that functionality is
     // now provided in JavaScript.
     public function gettrimmedvalue($fieldspecifier) {
-        $matches = array();
+        $matches = [];
         if (preg_match('|diff\((\w+), ?(\w+)\)|', $fieldspecifier, $matches)) {
             $fieldspecifier = $matches[1];
         }

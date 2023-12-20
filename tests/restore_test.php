@@ -93,12 +93,12 @@ class restore_test extends \advanced_testcase {
      */
     protected function load_question_data_by_name($name) {
         global $DB;
-        $questionid = $DB->get_field('question', 'id', array('name' => $name), MUST_EXIST);
-        return array(
+        $questionid = $DB->get_field('question', 'id', ['name' => $name], MUST_EXIST);
+        return [
                 $DB->get_record('question_coderunner_options',
-                        array('questionid' => $questionid), '*', MUST_EXIST),
+                        ['questionid' => $questionid], '*', MUST_EXIST),
                 $DB->get_records('question_coderunner_tests',
-                        array('questionid' => $questionid)));
+                        ['questionid' => $questionid])];
     }
 
     public function test_restore() {

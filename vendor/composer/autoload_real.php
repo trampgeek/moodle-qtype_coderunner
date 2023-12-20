@@ -22,9 +22,9 @@ class ComposerAutoloaderInita94a015043d83dd17aa9648c7dab3aaf
             return self::$loader;
         }
 
-        spl_autoload_register(array('ComposerAutoloaderInita94a015043d83dd17aa9648c7dab3aaf', 'loadClassLoader'), true, true);
+        spl_autoload_register(['ComposerAutoloaderInita94a015043d83dd17aa9648c7dab3aaf', 'loadClassLoader'], true, true);
         self::$loader = $loader = new \Composer\Autoload\ClassLoader();
-        spl_autoload_unregister(array('ComposerAutoloaderInita94a015043d83dd17aa9648c7dab3aaf', 'loadClassLoader'));
+        spl_autoload_unregister(['ComposerAutoloaderInita94a015043d83dd17aa9648c7dab3aaf', 'loadClassLoader']);
 
         $useStaticLoader = PHP_VERSION_ID >= 50600 && !defined('HHVM_VERSION') && (!function_exists('zend_loader_file_encoded') || !zend_loader_file_encoded());
         if ($useStaticLoader) {

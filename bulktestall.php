@@ -38,7 +38,7 @@ $context = context_system::instance();
 require_login();
 require_capability('moodle/site:config', $context);  // Administrators only.
 $PAGE->set_url('/question/type/coderunner/bulktestall.php',
-        array('startfromcontextid' => $startfromcontextid));
+        ['startfromcontextid' => $startfromcontextid]);
 $PAGE->set_context($context);
 $title = get_string('bulktesttitle', 'qtype_coderunner', $context->get_context_name());
 $PAGE->set_title($title);
@@ -46,8 +46,8 @@ $PAGE->set_title($title);
 // Create the helper class.
 $bulktester = new qtype_coderunner_bulk_tester();
 $numpasses = 0;
-$allfailingtests = array();
-$allmissinganswers = array();
+$allfailingtests = [];
+$allmissinganswers = [];
 $skipping = $startfromcontextid != 0;
 
 // Release the session, so the user can do other things while this runs.
@@ -69,7 +69,7 @@ foreach ($bulktester->get_num_coderunner_questions_by_context() as $contextid =>
         echo $OUTPUT->heading(get_string('bulktesttitle', 'qtype_coderunner', $testcontext->get_context_name()));
         echo html_writer::tag('p', html_writer::link(
                 new moodle_url('/question/type/coderunner/bulktestall.php',
-                    array('startfromcontextid' => $testcontext->id)),
+                    ['startfromcontextid' => $testcontext->id]),
                 get_string('bulktestcontinuefromhere', 'qtype_coderunner')));
 
         list($passes, $failingtests, $missinganswers) = $bulktester->run_all_tests_for_context($testcontext);

@@ -48,8 +48,8 @@ class qtype_coderunner_escapers {
      */
     public static function matlab($environ, $s, $charset) {
         return str_replace(
-                    array("'",  "\n", "\r", '%'),
-                    array("''", '\\n',  '',  '%%'),
+                    ["'",  "\n", "\r", '%'],
+                    ["''", '\\n',  '',  '%%'],
                     str_replace('\\n', '\\\\n', $s));
     }
 
@@ -64,8 +64,8 @@ class qtype_coderunner_escapers {
      */
     public static function java($environ, $s, $charset) {
         return str_replace(
-                    array("'",    '"',  "\n",  "\r",   "\t",  "\f",  "\b"),
-                    array("\\'", '\\"', "\\n", "\\r", "\\t", "\\f", "\\b"),
+                    ["'",    '"',  "\n",  "\r",   "\t",  "\f",  "\b"],
+                    ["\\'", '\\"', "\\n", "\\r", "\\t", "\\f", "\\b"],
                     str_replace("\\", "\\\\", $s));
     }
 }

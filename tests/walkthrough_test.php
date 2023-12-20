@@ -64,7 +64,7 @@ class walkthrough_test extends \qbehaviour_walkthrough_test_base {
         $this->assertEquals('Started', $qa->summarise_action($qa->get_last_step()));
 
         // Submit blank.
-        $this->process_submission(array('-submit' => 1, 'answer' => ''));
+        $this->process_submission(['-submit' => 1, 'answer' => '']);
 
         // Verify.
         $this->check_current_state(\question_state::$invalid);
@@ -80,7 +80,7 @@ class walkthrough_test extends \qbehaviour_walkthrough_test_base {
         $this->assertEquals('Submit: ', $qa->summarise_action($qa->get_last_step()));
 
         // Submit a wrong answer.
-        $this->process_submission(array('-submit' => 1, 'answer' => 'def sqr(n): return n'));
+        $this->process_submission(['-submit' => 1, 'answer' => 'def sqr(n): return n']);
 
         // Verify.
         $this->check_current_state(\question_state::$todo);
@@ -92,7 +92,7 @@ class walkthrough_test extends \qbehaviour_walkthrough_test_base {
         $this->assertEquals('Submit: def sqr(n): return n', $qa->summarise_action($qa->get_last_step()));
 
         // Now get it right.
-        $this->process_submission(array('-submit' => 1, 'answer' => 'def sqr(n): return n * n'));
+        $this->process_submission(['-submit' => 1, 'answer' => 'def sqr(n): return n * n']);
 
         // Verify.
         $this->check_current_state(\question_state::$complete);
@@ -124,7 +124,7 @@ class walkthrough_test extends \qbehaviour_walkthrough_test_base {
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
 
         // Submit a wrong answer.
-        $this->process_submission(array('-submit' => 1, 'answer' => 'def sqr(n): return n'));
+        $this->process_submission(['-submit' => 1, 'answer' => 'def sqr(n): return n']);
 
         // This is not what we are really testing, but just to make what the test is doing clear.
         $this->assertTrue(has_capability('qtype/coderunner:viewhiddentestcases', $coursecontext));
@@ -150,7 +150,7 @@ class walkthrough_test extends \qbehaviour_walkthrough_test_base {
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
 
          // Submit a totally wrong answer.
-        $this->process_submission(array('-submit' => 1, 'answer' => 'def sqr(n): return -19'));
+        $this->process_submission(['-submit' => 1, 'answer' => 'def sqr(n): return -19']);
 
         // Verify.
         $this->check_current_state(\question_state::$todo);
@@ -161,7 +161,7 @@ class walkthrough_test extends \qbehaviour_walkthrough_test_base {
               );
 
         // Submit a partially right answer.
-        $this->process_submission(array('-submit' => 1, 'answer' => 'def sqr(n): return n * n if n < 0 else -19'));
+        $this->process_submission(['-submit' => 1, 'answer' => 'def sqr(n): return n * n if n < 0 else -19']);
         $this->check_current_mark(0.54);  // 4.5/7.5 * 90%.
         $this->check_current_output(
                 new \question_pattern_expectation('/' .
@@ -169,7 +169,7 @@ class walkthrough_test extends \qbehaviour_walkthrough_test_base {
               );
 
         // Now get it right.
-        $this->process_submission(array('-submit' => 1, 'answer' => 'def sqr(n): return n * n'));
+        $this->process_submission(['-submit' => 1, 'answer' => 'def sqr(n): return n * n']);
 
         // Verify.
         $this->check_current_state(\question_state::$complete);
@@ -205,7 +205,7 @@ class walkthrough_test extends \qbehaviour_walkthrough_test_base {
         $q = \test_question_maker::make_question('coderunner', 'sqr');
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
         $answer = "def sqr(n): return n * n if n != 11 else x * x\n";
-        $this->process_submission(array('-submit' => 1, 'answer' => $answer));
+        $this->process_submission(['-submit' => 1, 'answer' => $answer]);
         $this->check_output_contains('print(sqr(0))');
         $this->check_output_contains('print(sqr(1))');
         $this->check_output_contains('print(sqr(11))');
@@ -237,7 +237,7 @@ EOTEMPLATE;
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
 
          // Submit a totally wrong answer.
-        $this->process_submission(array('-submit' => 1, 'answer' => 'def sqr(n): return -19'));
+        $this->process_submission(['-submit' => 1, 'answer' => 'def sqr(n): return -19']);
 
         // Verify.
         $this->check_current_state(\question_state::$todo);
@@ -251,7 +251,7 @@ EOTEMPLATE;
         // Have to restart as the behaviour of the test system with regard to
         // per-submission penalties doesn't seem to work.
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
-        $this->process_submission(array('-submit' => 1, 'answer' => "def sqr(n): return n * n\n"));
+        $this->process_submission(['-submit' => 1, 'answer' => "def sqr(n): return n * n\n"]);
         $this->check_current_mark(23.0 / 31.0);
         $this->check_current_output( new \question_pattern_expectation('/Tiddlypom/') );
         $this->check_current_output( new \question_pattern_expectation('/Twiddlydee/') );
@@ -281,7 +281,7 @@ EOTEMPLATE;
         // test cases (0, 1, 11). The sqr(11) case will be awarded zero marks
         // despite being given a fraction of 1.0.
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
-        $this->process_submission(array('-submit' => 1, 'answer' => "def sqr(n): return n * n\n"));
+        $this->process_submission(['-submit' => 1, 'answer' => "def sqr(n): return n * n\n"]);
         $this->check_current_mark(3.0 / 31.0);
         $this->check_current_output( new \question_pattern_expectation('/Twiddlydum/') );
     }
@@ -295,8 +295,8 @@ EOTEMPLATE;
 
         // Submit an answer with a <b> tag in it and make sure it's suitably
         // escaped so it appears in the output.
-        $this->process_submission(array('-submit' => 1,
-            'answer' => "def sqr(n):\n    print('<b>')\n    return n * n"));
+        $this->process_submission(['-submit' => 1,
+            'answer' => "def sqr(n):\n    print('<b>')\n    return n * n"]);
         $this->check_output_does_not_contain('<b>');
     }
 
@@ -326,8 +326,8 @@ EOTEMPLATE;
 
         // Submit an answer that's right for all except one test case.
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
-        $this->process_submission(array('-submit' => 1,
-            'answer' => "def sqr(n): return -1 if n == 1 else n * n \n"));
+        $this->process_submission(['-submit' => 1,
+            'answer' => "def sqr(n): return -1 if n == 1 else n * n \n"]);
         $this->check_current_mark(21.0 / 31.0);
         $this->check_current_output( new \question_pattern_expectation("|<svg width=.100. height=.200.></svg>|") );
         $this->check_current_output( new \question_pattern_expectation('/YeeHa/') );
@@ -340,8 +340,8 @@ EOTEMPLATE;
         $q = \test_question_maker::make_question('coderunner', 'sqr');
         $q->showsource = 1;
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
-        $this->process_submission(array('-submit' => 1,
-            'answer' => 'def sqr(n): return n * n'));
+        $this->process_submission(['-submit' => 1,
+            'answer' => 'def sqr(n): return n * n']);
         $this->check_output_contains('Debug: source code from all test runs');
         $this->check_output_contains('Run 1');
         $this->check_output_contains('SEPARATOR = &quot;#&lt;ab@17943918#@&gt;#&quot;');
@@ -357,13 +357,13 @@ EOTEMPLATE;
         $this->check_output_does_not_contain('Check');
     }
 
-    // Check that a question with an answer preload is not gradable if answer not changed
+    // Check that a question with an answer preload is not gradable if answer not changed.
     public function test_preload_not_graded() {
         $q = \test_question_maker::make_question('coderunner', 'sqr');
         $q->answerpreload = 'def sqr(n):';
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
         $this->check_output_contains('def sqr(n):');
-        $this->process_submission(array('-submit' => 1, 'answer' => 'def sqr(n):'));
+        $this->process_submission(['-submit' => 1, 'answer' => 'def sqr(n):']);
         $this->check_current_state(\question_state::$invalid);
         $this->check_current_mark(null);
     }
@@ -388,7 +388,7 @@ EOTEMPLATE;
         $this->assertEquals('Started', $qa->summarise_action($qa->get_last_step()));
 
         // Submit blank.
-        $this->process_submission(array('-submit' => 1, 'answer' => ''));
+        $this->process_submission(['-submit' => 1, 'answer' => '']);
 
         // Verify.
         $this->check_current_state(\question_state::$invalid);
@@ -404,7 +404,7 @@ EOTEMPLATE;
         $this->assertEquals('Submit: ', $qa->summarise_action($qa->get_last_step()));
 
         // Submit a wrong answer.
-        $this->process_submission(array('-submit' => 1, 'answer' => 'def sqr(n): return n'));
+        $this->process_submission(['-submit' => 1, 'answer' => 'def sqr(n): return n']);
 
         // Verify.
         $this->check_current_state(\question_state::$todo);
@@ -416,7 +416,7 @@ EOTEMPLATE;
         $this->assertEquals('Submit: def sqr(n): return n', $qa->summarise_action($qa->get_last_step()));
 
         // Now get it right.
-        $this->process_submission(array('-submit' => 1, 'answer' => 'def sqr(n): return n * n'));
+        $this->process_submission(['-submit' => 1, 'answer' => 'def sqr(n): return n * n']);
 
         // Verify.
         $this->check_current_state(\question_state::$complete);
@@ -429,7 +429,7 @@ EOTEMPLATE;
         $this->assertEquals('Submit: def sqr(n): return n * n', $qa->summarise_action($qa->get_last_step()));
 
         // Now click the Stop button.
-        $this->process_submission(array('-finish' => 1, 'answer' => 'def sqr(n): return n * n'));
+        $this->process_submission(['-finish' => 1, 'answer' => 'def sqr(n): return n * n']);
         $this->check_current_state(\question_state::$gradedright);
         $this->check_current_mark(0.9);
         $this->check_current_output(
@@ -452,7 +452,7 @@ EOTEMPLATE;
         $this->check_current_state(\question_state::$todo);
 
         // Click the Stop button.
-        $this->process_submission(array('-finish' => 1, 'answer' => ''));
+        $this->process_submission(['-finish' => 1, 'answer' => '']);
         $this->check_current_state(\question_state::$gaveup);
         $this->check_current_mark(0);
         $this->check_current_output(
@@ -491,7 +491,7 @@ EOTEMPLATE;
         $this->assertEquals('Started', $qa->summarise_action($qa->get_last_step()));
 
         // Submit blank.
-        $this->process_submission(array('-submit' => 1, 'answer' => ''));
+        $this->process_submission(['-submit' => 1, 'answer' => '']);
 
         // Verify.
         $this->check_current_state(\question_state::$invalid);
@@ -507,7 +507,7 @@ EOTEMPLATE;
         $this->assertEquals('Submit: ', $qa->summarise_action($qa->get_last_step()));
 
         // Submit a wrong answer.
-        $this->process_submission(array('-submit' => 1, 'answer' => 'def sqr(n): return n'));
+        $this->process_submission(['-submit' => 1, 'answer' => 'def sqr(n): return n']);
 
         // Verify.
         $this->check_current_state(\question_state::$todo);
@@ -519,7 +519,7 @@ EOTEMPLATE;
         $this->assertEquals('Submit: def sqr(n): return n', $qa->summarise_action($qa->get_last_step()));
 
         // Now get it right.
-        $this->process_submission(array('-submit' => 1, 'answer' => 'def sqr(n): return n * n'));
+        $this->process_submission(['-submit' => 1, 'answer' => 'def sqr(n): return n * n']);
 
         // Verify.
         $this->check_current_state(\question_state::$complete);
@@ -532,7 +532,7 @@ EOTEMPLATE;
         $this->assertEquals('Submit: def sqr(n): return n * n', $qa->summarise_action($qa->get_last_step()));
 
         // Submit something invalid again..
-        $this->process_submission(array('-submit' => 1, 'answer' => 'wrong'));
+        $this->process_submission(['-submit' => 1, 'answer' => 'wrong']);
 
         // Verify.
         $this->check_current_state(\question_state::$complete);
@@ -546,7 +546,7 @@ EOTEMPLATE;
         $this->assertEquals('Submit: wrong', $qa->summarise_action($qa->get_last_step()));
 
         // Now click the Stop button.
-        $this->process_submission(array('-finish' => 1, 'answer' => 'wrong'));
+        $this->process_submission(['-finish' => 1, 'answer' => 'wrong']);
         $this->check_current_state(\question_state::$gradedwrong);
         $this->check_current_mark(0.9);
         $this->check_current_output(
@@ -578,7 +578,7 @@ EOTEMPLATE;
         $this->check_current_mark(null);
 
         // Submit a wrong answer.
-        $this->process_submission(array('-submit' => 1, 'answer' => 'def sqr(n): return n'));
+        $this->process_submission(['-submit' => 1, 'answer' => 'def sqr(n): return n']);
 
         // Verify.
         $this->check_current_state(\question_state::$todo);
@@ -587,7 +587,7 @@ EOTEMPLATE;
                 $this->get_does_not_contain_stop_button_expectation());
 
         // Submit a different wrong answer.
-        $this->process_submission(array('-submit' => 1, 'answer' => 'def sqr(n): return 2 * n'));
+        $this->process_submission(['-submit' => 1, 'answer' => 'def sqr(n): return 2 * n']);
 
         // Verify - now not possible to improve.
         $this->check_current_state(\question_state::$todo);
@@ -599,7 +599,7 @@ EOTEMPLATE;
                 $this->get_no_hint_visible_expectation());
 
         // Now click the Stop button.
-        $this->process_submission(array('-finish' => 1, 'answer' => 'def sqr(n): return 2 * n'));
+        $this->process_submission(['-finish' => 1, 'answer' => 'def sqr(n): return 2 * n']);
         $this->check_current_state(\question_state::$gradedwrong);
         $this->check_current_mark(0);
         $this->check_current_output(
@@ -612,11 +612,11 @@ EOTEMPLATE;
     }
 
     protected function get_contains_stop_button_expectation($enabled = null): \question_contains_tag_with_attributes {
-        $expectedattributes = array(
+        $expectedattributes = [
             'type' => 'submit',
             'name' => $this->quba->get_field_prefix($this->slot) . '-finish',
-        );
-        $forbiddenattributes = array();
+        ];
+        $forbiddenattributes = [];
         if ($enabled === true) {
             $forbiddenattributes['disabled'] = 'disabled';
         } else if ($enabled === false) {

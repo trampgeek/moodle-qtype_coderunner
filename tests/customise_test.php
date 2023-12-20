@@ -40,7 +40,7 @@ class customise_test extends \qtype_coderunner_testcase {
 
     public function test_grade_response_right() {
         $q = $this->make_question('sqr_customised');
-        $response = array('answer' => 'def sqr(n): return times(n, n)');
+        $response = ['answer' => 'def sqr(n): return times(n, n)'];
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(1, $mark);
         $this->assertEquals(\question_state::$gradedright, $grade);

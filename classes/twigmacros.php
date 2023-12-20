@@ -64,6 +64,6 @@ class qtype_coderunner_twigmacros {
 <textarea name="crui_{{ name }}" rows="{{ rows }}" cols="{{ cols }}" class="coderunner-ui-element"></textarea>{% endmacro %}
 
 EOMACROS;
-        return array('html' => $htmlmacros);
+        return ['html' => $htmlmacros];
     }
 }

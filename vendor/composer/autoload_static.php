@@ -6,37 +6,37 @@ namespace Composer\Autoload;
 
 class ComposerStaticInita94a015043d83dd17aa9648c7dab3aaf
 {
-    public static $files = array (
+    public static $files =  [
         '320cde22f66dd4f5d3fd621d3e88b98f' => __DIR__ . '/..' . '/symfony/polyfill-ctype/bootstrap.php',
         '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
-    );
+    ];
 
-    public static $prefixLengthsPsr4 = array (
-        'T' => 
-        array (
+    public static $prefixLengthsPsr4 =  [
+        'T' =>
+         [
             'Twig\\' => 5,
-        ),
-        'S' => 
-        array (
+        ],
+        'S' =>
+         [
             'Symfony\\Polyfill\\Mbstring\\' => 26,
             'Symfony\\Polyfill\\Ctype\\' => 23,
-        ),
-    );
+        ],
+    ];
 
-    public static $prefixDirsPsr4 = array (
-        'Twig\\' => 
-        array (
+    public static $prefixDirsPsr4 =  [
+        'Twig\\' =>
+         [
             0 => __DIR__ . '/..' . '/twig/twig/src',
-        ),
-        'Symfony\\Polyfill\\Mbstring\\' => 
-        array (
+        ],
+        'Symfony\\Polyfill\\Mbstring\\' =>
+         [
             0 => __DIR__ . '/..' . '/symfony/polyfill-mbstring',
-        ),
-        'Symfony\\Polyfill\\Ctype\\' => 
-        array (
+        ],
+        'Symfony\\Polyfill\\Ctype\\' =>
+         [
             0 => __DIR__ . '/..' . '/symfony/polyfill-ctype',
-        ),
-    );
+        ],
+    ];
 
     public static function getInitializer(ClassLoader $loader)
     {

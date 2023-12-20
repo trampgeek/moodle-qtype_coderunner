@@ -43,13 +43,13 @@ class cpp_questions_test extends \qtype_coderunner_testcase {
     protected function setUp(): void {
         parent::setUp();
 
-        // Each test will be skipped if cpp not installed on jobe server
+        // Each test will be skipped if cpp not installed on jobe server.
         $this->check_language_available('cpp');
     }
 
     public function test_good_sqr_function() {
         $q = $this->make_question('sqr_cpp');
-        $response = array('answer' => "int sqr(int n) { return n * n;}\n");
+        $response = ['answer' => "int sqr(int n) { return n * n;}\n"];
         list($mark, $grade, $cache) = $q->grade_response($response);
         $testoutcome = unserialize($cache['_testoutcome']);
 
@@ -63,8 +63,8 @@ class cpp_questions_test extends \qtype_coderunner_testcase {
 
     public function test_good_hello_world() {
         $q = $this->make_question('hello_prog_cpp');
-        $response = array('answer' => "#include <iostream>\nusing namespace std;\n" .
-            "int main() { cout << \"Hello ENCE260\\n\";\nreturn 0;}\n");
+        $response = ['answer' => "#include <iostream>\nusing namespace std;\n" .
+            "int main() { cout << \"Hello ENCE260\\n\";\nreturn 0;}\n"];
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(1, $mark);
         $this->assertEquals(\question_state::$gradedright, $grade);
@@ -78,13 +78,13 @@ class cpp_questions_test extends \qtype_coderunner_testcase {
 
     public function test_copy_stdin_cpp() {
         $q = $this->make_question('copy_stdin_cpp');
-        $response = array('answer' => "#include <iostream>
+        $response = ['answer' => "#include <iostream>
 using namespace std;
 int main() {
    cout << cin.rdbuf();
    return 0;
 }
-");
+"];
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testoutcome = unserialize($cache['_testoutcome']);
@@ -97,9 +97,9 @@ int main() {
 
     public function test_runtime_error() {
         $q = $this->make_question('hello_prog_cpp');
-        $response = array('answer' => "#include <iostream>\n" .
+        $response = ['answer' => "#include <iostream>\n" .
             "using namespace std;\n" .
-            "int main() { char* p = NULL; *p = 10; return 0; }\n");
+            "int main() { char* p = NULL; *p = 10; return 0; }\n"];
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(0, $mark);
         $this->assertEquals(\question_state::$gradedwrong, $grade);
@@ -114,13 +114,13 @@ int main() {
     public function test_cpp_strings() {
         // Trivial test that the C++ string class is being included.
         $q = $this->make_question('str_to_upper_cpp');
-        $response = array('answer' => "string str_to_upper(string s) {
+        $response = ['answer' => "string str_to_upper(string s) {
     string result;
     for (size_t i = 0; i != s.length(); i++) {
         result += toupper(s[i]);
     }
     return result;
-}");
+}"];
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testoutcome = unserialize($cache['_testoutcome']);

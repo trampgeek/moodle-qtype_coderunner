@@ -45,15 +45,15 @@ class grader_test extends \qtype_coderunner_testcase {
         // Check using a question that reads stdin and writes to stdout.
         $q = $this->make_question('copy_stdin');
         $q->grader = 'RegexGrader';
-        $q->testcases = array(
-            (object) array('testcode' => 'copy_stdin()',
+        $q->testcases = [
+            (object) ['testcode' => 'copy_stdin()',
                           'stdin'       => "Line1\n  Line2  \n /123Line 3456/ \n",
                           'extra'       => '',
                           'expected'    => "^ *Line1 *\n +Line2 +. /[1-3]{3}Line *3[4-6]{3}/ *\n$",
                           'useasexample' => 0,
                           'display' => 'SHOW',
                           'mark' => 1.0,
-                          'hiderestiffail' => 0));
+                          'hiderestiffail' => 0]];
         $code = <<<EOCODE
 def copy_stdin():
   try:
@@ -63,7 +63,7 @@ def copy_stdin():
   except EOFError:
     pass
 EOCODE;
-        $response = array('answer' => $code);
+        $response = ['answer' => $code];
         $result = $q->grade_response($response);
         list($mark, $grade, $cache) = $result;
         $testoutcome = unserialize($cache['_testoutcome']); // For debugging test.
@@ -77,15 +77,15 @@ EOCODE;
         // Check using a question that reads stdin and writes to stdout.
         $q = $this->make_question('copy_stdin');
         $q->grader = 'NearEqualityGrader';
-        $q->testcases = array(
-            (object) array('testcode' => 'copy_stdin()',
+        $q->testcases = [
+            (object) ['testcode' => 'copy_stdin()',
                           'stdin'       => "line 1 \nline  2  \nline   3   \n\n\n",
                           'extra'       => '',
                           'expected'    => "Line 1\nLine 2\nLine 3\n",
                           'useasexample' => 0,
                           'display' => 'SHOW',
                           'mark' => 1.0,
-                          'hiderestiffail' => 0));
+                          'hiderestiffail' => 0]];
         $code = <<<EOCODE
 def copy_stdin():
   try:
@@ -95,7 +95,7 @@ def copy_stdin():
   except EOFError:
     pass
 EOCODE;
-        $response = array('answer' => $code);
+        $response = ['answer' => $code];
         $result = $q->grade_response($response);
         list($mark, $grade, $cache) = $result;
         $testoutcome = unserialize($cache['_testoutcome']); // For debugging test.
@@ -108,15 +108,15 @@ EOCODE;
         // Check using a question that reads stdin and writes to stdout.
         $q = $this->make_question('copy_stdin');
         $q->grader = 'NearEqualityGrader';
-        $q->testcases = array(
-            (object) array('testcode' => 'copy_stdin()',
+        $q->testcases = [
+            (object) ['testcode' => 'copy_stdin()',
                           'stdin'       => " line 1 \n line  2  \n line   3   \n\n\n",
                           'extra'       => '',
                           'expected'    => "Line 1\nLine 2\nLine 3\n",
                           'useasexample' => 0,
                           'display' => 'SHOW',
                           'mark' => 1.0,
-                          'hiderestiffail' => 0));
+                          'hiderestiffail' => 0]];
         $code = <<<EOCODE
 def copy_stdin():
   try:
@@ -126,7 +126,7 @@ def copy_stdin():
   except EOFError:
     pass
 EOCODE;
-        $response = array('answer' => $code);
+        $response = ['answer' => $code];
         $result = $q->grade_response($response);
         list($mark, $grade, $cache) = $result;
         $testoutcome = unserialize($cache['_testoutcome']); // For debugging test.

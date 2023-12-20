@@ -35,8 +35,9 @@ class qtype_coderunner_util {
 
         $uiplugin = $question->uiplugin === null ? 'ace' : strtolower($question->uiplugin);
         if ($uiplugin !== '' && $uiplugin !== 'none') {
-            $params = array($uiplugin, $textareaid);  // Params to plugin's init function.
-            if (strpos($uiplugin, 'ace') !== false || strpos($uiplugin, 'html') !== false ||strpos($uiplugin, 'scratchpad') !== false ) {
+            $params = [$uiplugin, $textareaid];  // Params to plugin's init function.
+            if (strpos($uiplugin, 'ace') !== false || strpos($uiplugin, 'html') !== false ||
+                    strpos($uiplugin, 'scratchpad') !== false ) {
                 self::load_ace();
             }
             $PAGE->requires->js_call_amd('qtype_coderunner/userinterfacewrapper', 'newUiWrapper', $params);
@@ -216,7 +217,7 @@ class qtype_coderunner_util {
      */
     public static function extract_languages($acelangstring) {
         $langs = preg_split('/ *, */', $acelangstring);
-        $filteredlangs = array();
+        $filteredlangs = [];
         $defaultlang = '';
         foreach ($langs as $lang) {
             $lang = trim($lang ?? '');
@@ -233,7 +234,7 @@ class qtype_coderunner_util {
             }
             $filteredlangs[] = $lang;
         }
-        return array($filteredlangs, $defaultlang);
+        return [$filteredlangs, $defaultlang];
     }
 
 
@@ -259,7 +260,7 @@ class qtype_coderunner_util {
     // If given invalid JSON, throws an bad_json_exception with the bad json as the message.
     public static function template_params($jsonparams) {
         if (empty($jsonparams)) {
-            return array();
+            return [];
         } else {
             $params = json_decode($jsonparams, true);
             if ($params === null) {

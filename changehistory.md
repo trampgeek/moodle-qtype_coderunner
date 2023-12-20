@@ -1,5 +1,22 @@
 # CHANGE HISTORY
 
+### 20 December 2023. 5.2.4
+
+ * Extensive code tidying to conform to latest Moodle PHP coding standards.
+ * Issue #145: some testcases didn't check if the sandbox were available before running the
+   test, causing test failure.
+ * Bug fix: locked_cell functionality in table UI was not working (regression mid-year)
+ * Improve error reporting when Jobe request fails. 
+ * Issue #182: LaTeX embedded in question feedback was not being processed by MathJax
+ * Extended the copy-got-to-expected functionality when a saved question failed validation
+   to include combinator graders under certain specified conditions.
+ * Criterion to delete prototypes from system context tighten to delete only prototypes with
+   the string BUILT_IN in their names.
+ * Issue #181: Scratchpad UI errors were displayed as JavaScript alerts. Changed to show inline.
+ * Issue #179: Multilanguage question type extended to handle Perl, Ruby, C# and Golang
+ * Improve twig error messages
+ * Strip white space from node and edge labels in GraphUI
+
 ### 18 September 2023. 5.2.2
 
  * Upgrade from MATURITY_RELEASE_CANDIDATE to MATURITY_STABLE

@@ -57,7 +57,7 @@ class prototype_test extends \qtype_coderunner_testcase {
     public function test_files_inherited() {
         $q = $this->make_parent_and_child();
         $code = "print(open('data.txt').read())";
-        $response = array('answer' => $code);
+        $response = ['answer' => $code];
         $result = $q->grade_response($response);
         list(, , $cache) = $result;
         $testoutcome = unserialize($cache['_testoutcome']);
@@ -75,8 +75,8 @@ print( {{QUESTION.parameters.xxx}}, {{QUESTION.parameters.yyy}}, {{QUESTION.para
 EOTEMPLATE;
         $q->allornothing = false;
         $q->iscombinatortemplate = false;
-        $q->testcases = array(
-                       (object) array('type' => 0,
+        $q->testcases = [
+                       (object) ['type' => 0,
                          'testcode'       => '',
                          'expected'       => "1 200 2",
                          'stdin'          => '',
@@ -84,12 +84,12 @@ EOTEMPLATE;
                          'useasexample'   => 0,
                          'display'        => 'SHOW',
                          'mark'           => 1.0,
-                         'hiderestiffail' => 0),
-        );
+                         'hiderestiffail' => 0],
+        ];
         $q->allornothing = false;
         $q->iscombinatortemplate = false;
         $code = "";
-        $response = array('answer' => $code);
+        $response = ['answer' => $code];
         $q->start_attempt(null);
         $result = $q->grade_response($response);
         list($mark, $grade, $cache) = $result;
@@ -196,13 +196,13 @@ Line 2</text>
         $fs = get_file_storage();
 
         // Prepare file record object.
-        $fileinfo = array(
+        $fileinfo = [
             'contextid' => 1, // ID of context for prototype.
             'component' => 'qtype_coderunner',
             'filearea' => 'datafile',
             'itemid' => $id,
             'filepath' => '/',
-            'filename' => 'data.txt');
+            'filename' => 'data.txt'];
 
         // Create file (deleting any existing version first).
         $file = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'],
@@ -229,7 +229,7 @@ Line 2</text>
         global $DB;
         $q = $this->make_question('sqr');
         $q->name = 'PROTOTYPE_sqr_user_prototype';
-        $q->testcases = array();  // No testcases in a prototype.
+        $q->testcases = [];  // No testcases in a prototype.
         $q->prototypetype = 2;
         $q->coderunnertype = "sqr_user_prototype";
         $q->cputimelimitsecs = 29; // Arbitrary test value.
@@ -254,13 +254,13 @@ Line 2</text>
         if ($fileattachmentreqd) {
             // Attach a file.
             $fs = get_file_storage();
-            $fileinfo = array(
+            $fileinfo = [
                 'contextid' => 1,
                 'component' => 'qtype_coderunner',
                 'filearea'  => 'datafile',
                 'itemid'    => $q->id,
                 'filepath'  => '/',
-                'filename'  => 'data.txt');
+                'filename'  => 'data.txt'];
 
             // Create file.
             $fs->create_file_from_string($fileinfo, "This is data\nLine 2");

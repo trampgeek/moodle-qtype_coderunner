@@ -32,7 +32,7 @@ require_once($CFG->dirroot . '/question/format/xml/format.php');
 $questionid = required_param('questionid', PARAM_INT);
 
 // Load the necessary data.
-$questiondata = $DB->get_record('question', array('id' => $questionid), '*', MUST_EXIST);
+$questiondata = $DB->get_record('question', ['id' => $questionid], '*', MUST_EXIST);
 get_question_options($questiondata);
 $question = question_bank::load_question($questionid);
 
@@ -40,7 +40,7 @@ $question = question_bank::load_question($questionid);
 //
 // Setup the context to whatever was specified by the tester.
 // TODO - this appears also in questiontestrun.php - pull it out.
-$urlparams = array('questionid' => $question->id);
+$urlparams = ['questionid' => $question->id];
 if ($cmid = optional_param('cmid', 0, PARAM_INT)) {
     $cm = get_coursemodule_from_id(false, $cmid);
     require_login($cm->course, false, $cm);
@@ -72,7 +72,7 @@ $filename = question_default_export_filename($COURSE, $questiondata) .
         $qformat->export_file_extension();
 $qformat->setContexts($contexts->having_one_edit_tab_cap('export'));
 $qformat->setCourse($COURSE);
-$qformat->setQuestions(array($questiondata));
+$qformat->setQuestions([$questiondata]);
 $qformat->setCattofile(false);
 $qformat->setContexttofile(false);
 

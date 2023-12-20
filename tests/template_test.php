@@ -43,16 +43,16 @@ class template_test extends \qtype_coderunner_testcase {
         // Check if the template engine is installed and working OK.
         $macros = \qtype_coderunner_twigmacros::macros();
         $twigloader = new \Twig\Loader\ArrayLoader($macros);
-        $twigoptions = array(
+        $twigoptions = [
                 'cache' => false,
                 'optimizations' => 0,
                 'autoescape' => false,
                 'strict_variables' => true,
-                'debug' => true);
+                'debug' => true];
         $twig = new \Twig\Environment($twigloader, $twigoptions);
 
         $template = $twig->createTemplate('Hello {{ name }}!');
-        $renderedstring = $template->render(array('name' => 'Fabien'));
+        $renderedstring = $template->render(['name' => 'Fabien']);
         $this->assertEquals('Hello Fabien!', $renderedstring);
     }
 
@@ -69,8 +69,8 @@ print( '{{QUESTION.sandboxparams}}')
 EOTEMPLATE;
         $q->iscombinatortemplate = false;
         $q->allornothing = false;
-        $q->testcases = array(
-           (object) array('testtype'      => 0,
+        $q->testcases = [
+           (object) ['testtype'      => 0,
                          'testcode'       => 'print(sqr(-3))',
                          'expected'       => "9\ntwiddle-twaddle",
                          'stdin'          => '',
@@ -78,10 +78,10 @@ EOTEMPLATE;
                          'useasexample'   => 0,
                          'display'        => 'SHOW',
                          'mark'           => 1.0,
-                         'hiderestiffail' => 0),
-        );
+                         'hiderestiffail' => 0],
+        ];
         $code = "def sqr(n): return n * n\n";
-        $response = array('answer' => $code);
+        $response = ['answer' => $code];
         $result = $q->grade_response($response);
         list($mark, $grade, $cache) = $result;
         $this->assertEquals(\question_state::$gradedright, $grade);
@@ -111,7 +111,7 @@ EOTEMPLATE;
         $q->iscombinatortemplate = false;
         $q->allornothing = false;
         $code = "def sqr(n): return n * n\n";
-        $response = array('answer' => $code);
+        $response = ['answer' => $code];
         $result = $q->grade_response($response);
         list($mark, $grade, $cache) = $result;
         $this->assertTrue(abs($mark - 24.0 / 31.0) < 0.000001);
@@ -135,8 +135,8 @@ print( {{QUESTION.parameters.age}}, '{{QUESTION.parameters.string}}')
 EOTEMPLATE;
         $q->allornothing = false;
         $q->iscombinatortemplate = false;
-        $q->testcases = array(
-                       (object) array('type' => 0,
+        $q->testcases = [
+                       (object) ['type' => 0,
                          'testcode'       => '',
                          'expected'       => "23 blah",
                          'stdin'          => '',
@@ -144,12 +144,12 @@ EOTEMPLATE;
                          'useasexample'   => 0,
                          'display'        => 'SHOW',
                          'mark'           => 1.0,
-                         'hiderestiffail' => 0),
-        );
+                         'hiderestiffail' => 0],
+        ];
         $q->allornothing = false;
         $q->iscombinatortemplate = false;
         $code = "";
-        $response = array('answer' => $code);
+        $response = ['answer' => $code];
         $result = $q->grade_response($response);
         list($mark, $grade, $cache) = $result;
         $this->assertEquals(\question_state::$gradedright, $grade);

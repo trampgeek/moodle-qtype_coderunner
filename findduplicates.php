@@ -38,7 +38,7 @@ $contextid = required_param('contextid', PARAM_INT);
 $context = context::instance_by_id($contextid);
 require_login();
 require_capability('moodle/question:editall', $context);
-$PAGE->set_url('/question/type/coderunner/findduplicates.php', array('contextid' => $context->id));
+$PAGE->set_url('/question/type/coderunner/findduplicates.php', ['contextid' => $context->id]);
 $PAGE->set_context($context);
 $title = 'Duplicated CodeRunner questions';
 $PAGE->set_title($title);
@@ -47,7 +47,7 @@ if ($context->contextlevel == CONTEXT_MODULE) {
     // Calling $PAGE->set_context should be enough, but it seems that it is not.
     // Therefore, we get the right $cm and $course, and set things up ourselves.
     $cm = get_coursemodule_from_id(false, $context->instanceid, 0, false, MUST_EXIST);
-    $PAGE->set_cm($cm, $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST));
+    $PAGE->set_cm($cm, $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST));
 }
 
 // Create the helper class.

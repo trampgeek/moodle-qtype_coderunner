@@ -36,7 +36,7 @@ class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
      */
     public function define_question_plugin_structure() {
 
-        $paths = array();
+        $paths = [];
 
         // Add options and testcases to the restore structure.
         $this->add_question_options($paths);

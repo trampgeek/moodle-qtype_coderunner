@@ -38,7 +38,7 @@ class qtype_coderunner_ui_plugins {
         global $CFG;
 
         $files = scandir($CFG->dirroot . '/question/type/coderunner/amd/src');
-        $this->plugins = array();
+        $this->plugins = [];
         foreach ($files as $file) {
             if (substr($file, 0, 3) === 'ui_' && substr($file, -3) === '.js') {
                 $uiname = substr($file, 3, -3);
@@ -72,7 +72,7 @@ class qtype_coderunner_ui_plugins {
     // parameters. Used to suppress the ui parameter panel in the question
     // editing form.
     public function all_with_no_params() {
-        $result = array();
+        $result = [];
         foreach ($this->plugins as $plugin) {
             if ($plugin->parameters()->length() == 0) {
                 $result[] = $plugin->uiname;
@@ -102,7 +102,7 @@ class qtype_coderunner_ui_plugins {
     // and including a None => None entry, suitable for use in the plugin
     // dropdown selector.
     public function dropdownlist() {
-        $uiplugins = array();
+        $uiplugins = [];
         foreach (array_values($this->plugins) as $plugin) {
             $uiplugins[$plugin->uiname] = ucfirst($plugin->uiname);
         }

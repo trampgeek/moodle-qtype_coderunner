@@ -43,7 +43,7 @@ class qtype_coderunner_testcase extends advanced_testcase {
         $this->resetAfterTest(false);
         $this->setAdminUser();
         $generator = $this->getDataGenerator()->get_plugin_generator('core_question');
-        $this->category = $generator->create_question_category(array());
+        $this->category = $generator->create_question_category([]);
     }
 
     /**

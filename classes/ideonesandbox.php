@@ -51,13 +51,13 @@ class qtype_coderunner_ideonesandbox extends qtype_coderunner_sandbox {
         // A map from Ideone language names (regular expressions) to their
         // local short name, where appropriate.
 
-        $aliases = array('C99 .*'                   => 'c',
+        $aliases = ['C99 .*'                   => 'c',
                      '.*python *2\.[789]\.[0-9].*'  => 'python2',
                      'Python *3 *\(python.*'        => 'python3',
-                     'Java.*sun-jdk.*'              => 'java');
+                     'Java.*sun-jdk.*'              => 'java'];
 
         $this->client = new SoapClient("http://ideone.com/api/1/service.wsdl");
-        $this->langmap = array();  // Construct a map from language name to id.
+        $this->langmap = [];  // Construct a map from language name to id.
 
         // Build a table mapping from language name to Ideone language ID.
         // Names are the Ideone names up to but not including the ' (',
@@ -81,15 +81,15 @@ class qtype_coderunner_ideonesandbox extends qtype_coderunner_sandbox {
                 }
             }
         } else {
-            $this->langmap = array();
+            $this->langmap = [];
         }
     }
 
 
     public function get_languages() {
-        return (object) array(
+        return (object) [
             'error'     => $this->langserror,
-            'languages' => array_keys($this->langmap));
+            'languages' => array_keys($this->langmap)];
     }
 
 
@@ -137,7 +137,7 @@ class qtype_coderunner_ideonesandbox extends qtype_coderunner_sandbox {
         }
 
         if ($error != self::OK) {
-            return (object) array('error' => $error);
+            return (object) ['error' => $error];
         } else {
             $count = 0;
             while ($state->error === self::OK &&
@@ -159,13 +159,13 @@ class qtype_coderunner_ideonesandbox extends qtype_coderunner_sandbox {
 
             $details = $this->get_submission_details($result->link);
 
-            return (object) array(
+            return (object) [
                 'error'   => self::OK,
                 'result'  => $details->result,
                 'output'  => $details->output,
                 'stderr'  => $details->stderr,
                 'signal'  => $details->signal,
-                'cmpinfo' => $details->cmpinfo);
+                'cmpinfo' => $details->cmpinfo];
         }
     }
 
@@ -197,7 +197,7 @@ class qtype_coderunner_ideonesandbox extends qtype_coderunner_sandbox {
         if ($error !== 'OK') {
             throw new moodle_exception("IdeoneSandbox::get_submission_status: error ($error)");
         } else {
-            return (object) array('error' => self::OK, 'link' => $response['link']);
+            return (object) ['error' => self::OK, 'link' => $response['link']];
         }
     }
 
@@ -207,11 +207,11 @@ class qtype_coderunner_ideonesandbox extends qtype_coderunner_sandbox {
         if ($error !== "OK") {
                 throw new coding_exception("IdeoneSandbox::get_submission_status: error ($error)");
         } else {
-            return (object) array(
+            return (object) [
                 'error'  => self::OK,
                 'status' => $response['status'],
-                'result' => $response['result']
-            );
+                'result' => $response['result'],
+            ];
         }
     }
 
@@ -230,15 +230,15 @@ class qtype_coderunner_ideonesandbox extends qtype_coderunner_sandbox {
         if ($error !== 'OK') {
             throw new coding_exception("IdeoneSandbox::getSubmissionStatus: error ($error)");
         } else {
-            return (object) array(
+            return (object) [
                 'error'   => self::OK,
                 'result'  => $response['result'],
                 'signal'  => $response['signal'],
                 'cmpinfo' => $response['cmpinfo'],
                 'output'  => $response['output'],
-                'stderr'  => $response['stderr']
+                'stderr'  => $response['stderr'],
 
-            );
+            ];
         }
     }
 }

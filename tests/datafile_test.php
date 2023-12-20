@@ -52,20 +52,20 @@ class datafile_test extends \qtype_coderunner_testcase {
         $fs = get_file_storage();
 
         // Prepare file record object.
-        $fileinfo = array(
+        $fileinfo = [
             'contextid' => $q->contextid,
             'component' => 'qtype_coderunner',
             'filearea'  => 'datafile',
             'itemid'    => $q->id,
             'filepath'  => '/',
-            'filename'  => 'data.txt');
+            'filename'  => 'data.txt'];
 
         // Create file.
         $fs->create_file_from_string($fileinfo, "This is data\nLine 2");
 
         // Now test it.
 
-        $response = array('answer' => $code);
+        $response = ['answer' => $code];
         $result = $q->grade_response($response);
         list(, $grade, ) = $result;
         $this->assertEquals(\question_state::$gradedright, $grade);

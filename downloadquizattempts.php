@@ -53,7 +53,7 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('downloadquizattempts', 'qtype_coderunner'));
 echo html_writer::tag('p', get_string('downloadquizattemptshelp', 'qtype_coderunner'));
 
-$coursequizzes = array();
+$coursequizzes = [];
 
 $i = 0;
 if (count($courses) > 2) {
@@ -83,36 +83,36 @@ foreach ($courses as $course) {
         ON sub.quizid = {quiz}.id
         WHERE course=:courseid
         AND sub.numattempts > 0
-        ORDER BY name", array('courseid' => $courseid));
+        ORDER BY name", ['courseid' => $courseid]);
 
     if (!empty($quizzes)) {
         $numquizzes = count($quizzes);
 
         echo html_writer::tag('h6',
                 html_writer::tag('a', "{$course->name} ($numquizzes)",
-                array('class' => 'expander sectionname',
+                ['class' => 'expander sectionname',
                       'id'    => 'expander-' . $i,
-                      'href'  => '#')
+                      'href'  => '#']
                       )
                 );
         echo html_writer::start_tag('div',
-                array('class' => 'content' . $i . ' container-fluid',
-                      'style' => $initialcontentstate));
+                ['class' => 'content' . $i . ' container-fluid',
+                      'style' => $initialcontentstate]);
 
-        $rows = array();
+        $rows = [];
         foreach ($quizzes as $quiz) {
             $quizname = "{$quiz->name} ({$quiz->numattempts})";
             $csvurl = new moodle_url('/question/type/coderunner/getallattempts.php',
-                    array('quizid' => $quiz->id, 'format' => 'csv'));
+                    ['quizid' => $quiz->id, 'format' => 'csv']);
             $excelurl = new moodle_url('/question/type/coderunner/getallattempts.php',
-                    array('quizid' => $quiz->id, 'format' => 'excel'));
+                    ['quizid' => $quiz->id, 'format' => 'excel']);
             $odsurl = new moodle_url('/question/type/coderunner/getallattempts.php',
-                    array('quizid' => $quiz->id, 'format' => 'ods'));
-            $rows[] = array($quizname,
-                    html_writer::link($csvurl, 'csv', array('class' => 'btn-sm')),
-                    html_writer::link($odsurl, 'ods', array('class' => 'btn-sm')),
-                    html_writer::link($excelurl, 'excel', array('class' => 'btn-sm'))
-            );
+                    ['quizid' => $quiz->id, 'format' => 'ods']);
+            $rows[] = [$quizname,
+                    html_writer::link($csvurl, 'csv', ['class' => 'btn-sm']),
+                    html_writer::link($odsurl, 'ods', ['class' => 'btn-sm']),
+                    html_writer::link($excelurl, 'excel', ['class' => 'btn-sm']),
+            ];
         }
 
         $table = new html_table();

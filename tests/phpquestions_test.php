@@ -43,14 +43,14 @@ class phpquestions_test extends \qtype_coderunner_testcase {
     protected function setUp(): void {
         parent::setUp();
 
-        // Each test will be skipped if php not available on jobe server
+        // Each test will be skipped if php not available on jobe server.
         $this->check_language_available('php');
     }
 
 
     public function test_good_sqr_function() {
         $q = $this->make_question('sqrphp');
-        $response = array('answer' => "<?php\nfunction sqr(\$n) { return \$n * \$n; }\n");
+        $response = ['answer' => "<?php\nfunction sqr(\$n) { return \$n * \$n; }\n"];
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(1, $mark);
         $this->assertEquals(\question_state::$gradedright, $grade);
@@ -63,7 +63,7 @@ class phpquestions_test extends \qtype_coderunner_testcase {
 
     public function test_bad_sqr_function() {
         $q = $this->make_question('sqrphp');
-        $response = array('answer' => "<?php\nfunction sqr(\$n) { return \$n; }\n");
+        $response = ['answer' => "<?php\nfunction sqr(\$n) { return \$n; }\n"];
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(0, $mark);
         $this->assertEquals(\question_state::$gradedwrong, $grade);
@@ -76,7 +76,7 @@ class phpquestions_test extends \qtype_coderunner_testcase {
 
     public function test_bad_syntax() {
         $q = $this->make_question('sqrphp');
-        $response = array('answer' => "<?php\nfunction sqr(\$n) { return \$n\n");
+        $response = ['answer' => "<?php\nfunction sqr(\$n) { return \$n\n"];
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(0, $mark);
         $this->assertEquals(\question_state::$gradedwrong, $grade);

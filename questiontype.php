@@ -80,7 +80,7 @@ class qtype_coderunner extends question_type {
      * @return mixed array as above, or null to tell the base class to do nothing.
      */
     public function extra_question_fields() {
-        return array('question_coderunner_options',
+        return ['question_coderunner_options',
             'coderunnertype',
             'prototypetype',
             'allornothing',
@@ -123,8 +123,8 @@ class qtype_coderunner extends question_type {
             'filenamesexplain',
             'displayfeedback',
             'giveupallowed',
-            'prototypeextra'
-        );
+            'prototypeextra',
+        ];
     }
 
     /** A list of the extra question fields that are NOT inheritable from
@@ -133,7 +133,7 @@ class qtype_coderunner extends question_type {
      * @return array of strings
      */
     public static function noninherited_fields() {
-        return array(
+        return [
             'coderunnertype',
             'prototypetype',
             'allornothing',
@@ -162,11 +162,11 @@ class qtype_coderunner extends question_type {
             'filenamesexplain',
             'displayfeedback',
             'giveupallowed',
-        );
+        ];
     }
 
     public function response_file_areas() {
-        return array('attachments');
+        return ['attachments'];
     }
 
     /**
@@ -184,7 +184,7 @@ class qtype_coderunner extends question_type {
     // rownum attribute to the testcase to allow failed test case results
     // to be copied back to the form with a mouse click.
     private function copy_testcases_from_form(&$question, $validation) {
-        $testcases = array();
+        $testcases = [];
         if (empty($question->testcode)) {
             $numtests = 0;  // Must be a combinator template grader with no tests.
         } else {
@@ -253,8 +253,8 @@ class qtype_coderunner extends question_type {
         // Write test cases to DB, reusing old ones where possible.
         $testcasetable = "question_coderunner_tests";
         if (!$oldtestcases = $DB->get_records($testcasetable,
-                array('questionid' => $question->id), 'id ASC')) {
-            $oldtestcases = array();
+                ['questionid' => $question->id], 'id ASC')) {
+            $oldtestcases = [];
         }
 
         foreach ($question->testcases as $tc) {
@@ -270,7 +270,7 @@ class qtype_coderunner extends question_type {
 
         // Delete old testcase records.
         foreach ($oldtestcases as $otc) {
-            $DB->delete_records($testcasetable, array('id' => $otc->id));
+            $DB->delete_records($testcasetable, ['id' => $otc->id]);
         }
 
         $this->notify_prototype_children_if_any($question);
@@ -278,8 +278,8 @@ class qtype_coderunner extends question_type {
         // Lastly, save any datafiles (support files + sample answer files).
         if ($USER->id) {
             // The id check is a hack to deal with phpunit initialisation, when no user exists.
-            foreach (array('datafiles' => 'datafile',
-                'sampleanswerattachments' => 'samplefile') as $fileset => $filearea) {
+            foreach (['datafiles' => 'datafile',
+                'sampleanswerattachments' => 'samplefile'] as $fileset => $filearea) {
                 if (isset($question->$fileset)) {
                     file_save_draft_area_files($question->$fileset, $question->context->id,
                         'qtype_coderunner', $filearea, (int) $question->id, $this->fileoptions);
@@ -371,7 +371,7 @@ class qtype_coderunner extends question_type {
     public function move_files($questionid, $oldcontextid, $newcontextid) {
         parent::move_files($questionid, $oldcontextid, $newcontextid);
         $fs = get_file_storage();
-        foreach (array('datafile', 'samplefile') as $filetype) {
+        foreach (['datafile', 'samplefile'] as $filetype) {
             $fs->move_area_files_to_new_context($oldcontextid,
                 $newcontextid, 'qtype_coderunner', $filetype, $questionid);
         }
@@ -398,10 +398,10 @@ class qtype_coderunner extends question_type {
 
         // Add in any testcases.
         if ($testcases = $DB->get_records('question_coderunner_tests',
-                array('questionid' => $question->id), 'id ASC')) {
+                ['questionid' => $question->id], 'id ASC')) {
             $options->testcases = array_values($testcases); // Reindex tests from zero.
         } else {
-            $options->testcases = array();
+            $options->testcases = [];
         }
 
         return true;
@@ -561,7 +561,7 @@ class qtype_coderunner extends question_type {
                         JOIN {question_versions} qv ON qv.questionbankentryid = qbe.id
                         JOIN {question} q ON qv.questionid = q.id
                     WHERE q.id = ?";
-            return $DB->get_field_sql($sql, array($questionid), MUST_EXIST);
+            return $DB->get_field_sql($sql, [$questionid], MUST_EXIST);
         }
     }
 
@@ -609,11 +609,11 @@ class qtype_coderunner extends question_type {
 
         $question = $DB->get_record(
                 'question_coderunner_options',
-                array('questionid' => $questionid));
+                ['questionid' => $questionid]);
 
         $this->notify_prototype_children_if_any($question);
         $success = $DB->delete_records("question_coderunner_tests",
-                array('questionid' => $questionid));
+                ['questionid' => $questionid]);
         return $success && parent::delete_question($questionid, $contextid);
     }
 
@@ -629,8 +629,8 @@ class qtype_coderunner extends question_type {
         if ($question->prototypetype != 0) {
             $typename = $question->coderunnertype;
             $children = $DB->get_records('question_coderunner_options',
-                    array('prototypetype' => 0,
-                          'coderunnertype' => $typename)
+                    ['prototypetype' => 0,
+                          'coderunnertype' => $typename]
             );
             foreach ($children as $child) {
                 question_bank::notify_question_edited($child->questionid);
@@ -644,39 +644,39 @@ class qtype_coderunner extends question_type {
      * @return array the choices that should be offered for the number of attachments.
      */
     public function attachment_options() {
-        return array(
+        return [
             0 => get_string('no'),
             1 => '1',
             2 => '2',
             3 => '3',
             -1 => get_string('unlimited'),
-        );
+        ];
     }
 
     /**
      * @return array the choices that should be offered for the number of required attachments.
      */
     public function attachments_required_options() {
-        return array(
+        return [
             0 => get_string('attachmentsoptional', 'qtype_coderunner'),
             1 => '1',
             2 => '2',
-            3 => '3'
-        );
+            3 => '3',
+        ];
     }
 
     /**
      * @return array the options for maximum file size
      */
     public function attachment_filesize_max() {
-        return array(
+        return [
             1024 => '1 kB',
             10240 => '10 kB',
             102400 => '100 kB',
             1048576 => '1 MB',
             10485760 => '10 MB',
-            104857600 => '100 MB'
-        );
+            104857600 => '100 MB',
+        ];
     }
 
 
@@ -711,7 +711,7 @@ class qtype_coderunner extends question_type {
         $qo = $format->import_headers($data);
         $qo->qtype = $questiontype;
 
-        $newdefaults = array(
+        $newdefaults = [
             'allornothing' => 1,
             'precheck' => 0,
             'answerboxlines' => 15,
@@ -730,16 +730,16 @@ class qtype_coderunner extends question_type {
             'attachments' => 0,
             'extractcodefromjson' => 1,
             'giveupallowed' => 0,
-        );
+        ];
 
         foreach ($extraquestionfields as $field) {
             if ($field === 'template'  && isset($data['#']['pertesttemplate'])) {
                 // Import from pre-version 3.1.
-                if ($format->getpath($data, array('#', 'enablecombinator', 0, '#'), 0) != 0) {
-                    $qo->template = $format->getpath($data, array('#', 'combinatortemplate', 0, '#'), '');
+                if ($format->getpath($data, ['#', 'enablecombinator', 0, '#'], 0) != 0) {
+                    $qo->template = $format->getpath($data, ['#', 'combinatortemplate', 0, '#'], '');
                     $qo->iscombinatortemplate = 1;
                 } else {
-                    $qo->template = $format->getpath($data, array('#', 'pertesttemplate', 0, '#'), '');
+                    $qo->template = $format->getpath($data, ['#', 'pertesttemplate', 0, '#'], '');
                     $qo->iscombinatortemplate = 0;
                 }
             } else {
@@ -751,13 +751,13 @@ class qtype_coderunner extends question_type {
                 } else {
                     $default = '';
                 }
-                $qo->$field = $format->getpath($data, array('#', $field, 0, '#'), $default);
+                $qo->$field = $format->getpath($data, ['#', $field, 0, '#'], $default);
             }
         }
 
         $qo->isnew = true;
 
-        $qo->testcases = array();
+        $qo->testcases = [];
 
         if (isset($data['#']['testcases'][0]['#']['testcase']) &&
                 is_array($data['#']['testcases'][0]['#']['testcase'])) {
@@ -800,14 +800,14 @@ class qtype_coderunner extends question_type {
 
         // Import any support files.
         $datafiles = $format->getpath($data,
-                array('#', 'testcases', 0, '#', 'file'), array());
+                ['#', 'testcases', 0, '#', 'file'], []);
         if (is_array($datafiles)) { // Seems like a non-array does occur in some versions of PHP!
             $qo->datafiles = $format->import_files_as_draft($datafiles);
         }
 
         // Import any sample answer attachments.
         if (isset($data['#']['answerfiles'])) {
-            $samplefiles = $format->getpath($data, array('#', 'answerfiles', 0, '#', 'file'), array());
+            $samplefiles = $format->getpath($data, ['#', 'answerfiles', 0, '#', 'file'], []);
             if (is_array($samplefiles)) {
                 $qo->sampleanswerattachments = $format->import_files_as_draft($samplefiles);
             }
@@ -868,7 +868,7 @@ class qtype_coderunner extends question_type {
             $mark = sprintf("%.7f", $testcase->mark);
             $expout .= "      <testcase testtype=\"$testtype\" useasexample=\"$useasexample\"";
             $expout .= " hiderestiffail=\"$hiderestiffail\" mark=\"$mark\" >\n";
-            foreach (array('testcode', 'stdin', 'expected', 'extra', 'display') as $field) {
+            foreach (['testcode', 'stdin', 'expected', 'extra', 'display'] as $field) {
                 $exportedvalue = $format->writetext($testcase->$field, 4);
                 $expout .= "      <{$field}>\n        {$exportedvalue}      </{$field}>\n";
             }

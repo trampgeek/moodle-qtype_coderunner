@@ -46,7 +46,7 @@ class run_in_sandbox extends external_api {
      */
     public static function execute_parameters(): external_function_parameters {
         return new external_function_parameters(
-            array(
+            [
                 'contextid' => new external_value(PARAM_INT,
                         'The Moodle context ID of the originating web page',
                         VALUE_REQUIRED),
@@ -61,8 +61,8 @@ class run_in_sandbox extends external_api {
                         VALUE_DEFAULT, ''),
                 'params' => new external_value(PARAM_TEXT,
                         'A JSON object defining any sandbox parameters',
-                        VALUE_DEFAULT, '')
-            )
+                        VALUE_DEFAULT, ''),
+            ]
         );
     }
 
@@ -98,13 +98,13 @@ class run_in_sandbox extends external_api {
 
         // Parameters validation.
         self::validate_parameters(self::execute_parameters(),
-                array('contextid' => $contextid,
+                ['contextid' => $contextid,
                       'sourcecode' => $sourcecode,
                       'language' => $language,
                       'stdin' => $stdin,
                       'files' => $files,
-                      'params' => $params
-                    ));
+                      'params' => $params,
+                    ]);
 
         // Now check if the user has the capability (usually meaning is logged in and not a guest).
         $context = context::instance_by_id($contextid);
@@ -139,8 +139,8 @@ class run_in_sandbox extends external_api {
         }
 
         try {
-            $filesarray = $files ? json_decode($files, true) : array();
-            $paramsarray = $params ? json_decode($params, true) : array();
+            $filesarray = $files ? json_decode($files, true) : [];
+            $paramsarray = $params ? json_decode($params, true) : [];
 
             // Throws error for incorrect JSON formatting.
             if ($filesarray === null || $paramsarray === null) {

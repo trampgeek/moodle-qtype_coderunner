@@ -40,7 +40,7 @@ class pythonpylint_test extends \qtype_coderunner_testcase {
     protected function setUp(): void {
         parent::setUp();
 
-        // Each test will be skipped if python3 not available on jobe server
+        // Each test will be skipped if python3 not available on jobe server.
         $this->check_language_available('python3');
     }
 
@@ -59,7 +59,7 @@ def sqr(n):
         return 0
 
 EOCODE;
-        $response = array('answer' => $code);
+        $response = ['answer' => $code];
         $result = $q->grade_response($response);
         list(, $grade, ) = $result;
         $this->assertEquals(\question_state::$gradedright, $grade);
@@ -75,7 +75,7 @@ def sqr(n):
   return n * n
 
 EOCODE;
-        $response = array('answer' => $code);
+        $response = ['answer' => $code];
         $result = $q->grade_response($response);
         list($mark, $grade, $cache) = $result;
         $this->assertEquals(\question_state::$gradedwrong, $grade);

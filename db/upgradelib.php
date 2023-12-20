@@ -66,10 +66,10 @@ function delete_existing_prototypes($systemcontextid) {
               WHERE ctx.id=?
               AND qc.name='CR_PROTOTYPES'
               AND q.name LIKE 'BUILT%IN_PROTOTYPE_%'";
-    $prototypes = $DB->get_records_sql($query, array($systemcontextid));
+    $prototypes = $DB->get_records_sql($query, [$systemcontextid]);
     foreach ($prototypes as $question) {
-        $DB->delete_records('question_coderunner_options', array('questionid' => $question->id));
-        $DB->delete_records('question', array('id' => $question->id));
+        $DB->delete_records('question_coderunner_options', ['questionid' => $question->id]);
+        $DB->delete_records('question', ['id' => $question->id]);
     }
 }
 
@@ -85,7 +85,7 @@ function get_top_id($systemcontextid) {
     $topid = 0;
     $prototypecategoryid = 0;
     $tops = $DB->get_records('question_categories',
-            array('contextid' => $systemcontextid, 'parent' => 0));
+            ['contextid' => $systemcontextid, 'parent' => 0]);
 
     foreach (array_values($tops) as $category) {
         if (strtolower($category->name) === 'top') {
@@ -119,21 +119,21 @@ function get_top_id($systemcontextid) {
 function find_or_make_prototype_category($systemcontextid, $parentid) {
     global $DB;
     $category = $DB->get_record('question_categories',
-                array('contextid' => $systemcontextid, 'name' => 'CR_PROTOTYPES'));
+                ['contextid' => $systemcontextid, 'name' => 'CR_PROTOTYPES']);
     if (!$category) {
-        $category = array(
+        $category = [
             'name'       => 'CR_PROTOTYPES',
             'contextid'  => $systemcontextid,
             'info'       => 'Category for CodeRunner question built-in prototypes. FOR SYSTEM USE ONLY.',
             'parent'     => $parentid,
             'sortorder'  => 999,
-            'stamp'      => make_unique_id_code()
-        );
+            'stamp'      => make_unique_id_code(),
+        ];
         $prototypecategoryid = $DB->insert_record('question_categories', $category);
         if (!$prototypecategoryid) {
             throw new coding_exception("Upgrade failed: couldn't create CR_PROTOTYPES category");
         }
-        $category = $DB->get_record('question_categories', array('id' => $prototypecategoryid));
+        $category = $DB->get_record('question_categories', ['id' => $prototypecategoryid]);
     }
     return $category;
 }

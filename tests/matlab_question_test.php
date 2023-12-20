@@ -44,14 +44,14 @@ class matlab_question_test extends \qtype_coderunner_testcase {
     protected function setUp(): void {
         parent::setUp();
 
-        // Each test will be skipped if matlab not available on jobe server
+        // Each test will be skipped if matlab not available on jobe server.
         $this->check_language_available('matlab');
     }
 
     public function test_good_sqr_function() {
         $this->check_language_available('matlab');
         $q = $this->make_question('sqrmatlab');
-        $response = array('answer' => "function sq = sqr(n)\n  sq = n * n;\nend\n");
+        $response = ['answer' => "function sq = sqr(n)\n  sq = n * n;\nend\n"];
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(1, $mark);
         $this->assertEquals(\question_state::$gradedright, $grade);
@@ -65,7 +65,7 @@ class matlab_question_test extends \qtype_coderunner_testcase {
     public function test_bad_sqr_function() {
         $this->check_language_available('matlab');
         $q = $this->make_question('sqrmatlab');
-        $response = array('answer' => "function sq = sqr(n)\n  sq = n;\nend\n");
+        $response = ['answer' => "function sq = sqr(n)\n  sq = n;\nend\n"];
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(0, $mark);
         $this->assertEquals(\question_state::$gradedwrong, $grade);
@@ -79,7 +79,7 @@ class matlab_question_test extends \qtype_coderunner_testcase {
     public function test_bad_syntax() {
         $this->check_language_available('matlab');
         $q = $this->make_question('sqrmatlab');
-        $response = array('answer' => "function sq = sqr(n)\n  sq = n;\nendd\n");
+        $response = ['answer' => "function sq = sqr(n)\n  sq = n;\nendd\n"];
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(0, $mark);
         $this->assertEquals(\question_state::$gradedwrong, $grade);
@@ -92,7 +92,7 @@ class matlab_question_test extends \qtype_coderunner_testcase {
     public function test_student_answer_macro() {
         $this->check_language_available('matlab');
         $q = $this->make_question('teststudentanswermacro');
-        $response = array('answer' => <<<EOT
+        $response = ['answer' => <<<EOT
 function mytest()
     s1 = '"Hi!" he said'; % a comment
     s2 = '''Hi!'' he said';
@@ -100,7 +100,8 @@ function mytest()
     disp(s2);
 end
 EOT
-        );
+,
+        ];
         list($mark, $grade, $cache) = $q->grade_response($response);
         $this->assertEquals(1, $mark);
         $this->assertEquals(\question_state::$gradedright, $grade);

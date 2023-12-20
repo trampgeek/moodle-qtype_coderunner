@@ -357,10 +357,10 @@ class ExpressionParser
 
             // a hash key can be:
             //
-            //  * a number -- 12
-            //  * a string -- 'a'
-            //  * a name, which is equivalent to a string -- a
-            //  * an expression, which must be enclosed in parentheses -- (1 + 2)
+            // * a number -- 12
+            // * a string -- 'a'
+            // * a name, which is equivalent to a string -- a
+            // * an expression, which must be enclosed in parentheses -- (1 + 2)
             if ($token = $stream->nextIf(/* Token::NAME_TYPE */ 5)) {
                 $key = new ConstantExpression($token->getValue(), $token->getLine());
 

@@ -64,7 +64,7 @@ foreach ($files as $filename => $contents) {
                 $base = basename($name);
                 if ($base === $reqdfilename || ($reqdfilename === "" && strpos($base, '.pdf', -4) !== false)) {
                     $filecontents = zip_entry_read($file, zip_entry_filesize($file));
-                    $json = json_encode(array('filecontentsb64' => base64_encode($filecontents)));
+                    $json = json_encode(['filecontentsb64' => base64_encode($filecontents)]);
                     if ($json != null) {
                         echo $json;
                         unlink($tempfilename);

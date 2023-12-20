@@ -135,8 +135,8 @@ abstract class qtype_coderunner_sandbox {
      */
     public static function get_best_sandbox($language, $forcelanguagecheck=false) {
 
-        $hidec = false;  // set True when testing if language is skipped in php tests
-        if ($hidec && $language == 'c'){
+        $hidec = false;  // Set true when testing if language is skipped in php tests.
+        if ($hidec && $language == 'c') {
             return null;
         }
 
@@ -162,7 +162,7 @@ abstract class qtype_coderunner_sandbox {
                     $pseudorunobj->error = $langs->error;
                     $errorstring = $sb->error_string($pseudorunobj);
                     throw new qtype_coderunner_exception('sandboxerror',
-                            array('sandbox' => $extname, 'message' => $errorstring));
+                            ['sandbox' => $extname, 'message' => $errorstring]);
                 }
             }
         }
@@ -178,9 +178,9 @@ abstract class qtype_coderunner_sandbox {
      * @return array
      */
     public static function available_sandboxes() {
-        return array('jobesandbox'      => 'qtype_coderunner_jobesandbox',
-                     'ideonesandbox'    => 'qtype_coderunner_ideonesandbox'
-        );
+        return ['jobesandbox'      => 'qtype_coderunner_jobesandbox',
+                     'ideonesandbox'    => 'qtype_coderunner_ideonesandbox',
+        ];
     }
 
 
@@ -194,7 +194,7 @@ abstract class qtype_coderunner_sandbox {
      */
     public static function enabled_sandboxes() {
         $available = self::available_sandboxes();
-        $enabled = array();
+        $enabled = [];
         foreach ($available as $extname => $classname) {
             if (get_config('qtype_coderunner', $extname . '_enabled')) {
                 $enabled[$extname] = $classname;
@@ -221,7 +221,7 @@ abstract class qtype_coderunner_sandbox {
      * @throws coding_exception
      */
     public static function error_string($runresult) {
-        $errorstrings = array(
+        $errorstrings = [
             self::OK              => 'errorstring-ok',
             self::AUTH_ERROR      => 'errorstring-autherror',
             self::PASTE_NOT_FOUND => 'errorstring-pastenotfound',
@@ -232,7 +232,7 @@ abstract class qtype_coderunner_sandbox {
             self::UNKNOWN_SERVER_ERROR  => 'errorstring-unknown',
             self::JOBE_400_ERROR  => 'errorstring-jobe400',
             self::SERVER_OVERLOAD => 'errorstring-overload',
-        );
+        ];
         $errorcode = $runresult->error;
         if (!isset($errorstrings[$errorcode])) {
             throw new coding_exception("Bad call to sandbox.errorString");
@@ -261,7 +261,7 @@ abstract class qtype_coderunner_sandbox {
 
     // Strings corresponding to the RESULT_* defines above.
     public static function result_string($resultcode) {
-        $resultstrings = array(
+        $resultstrings = [
             self::RESULT_NO_RUN               => 'resultstring-norun',
             self::RESULT_COMPILATION_ERROR    => 'resultstring-compilationerror',
             self::RESULT_RUNTIME_ERROR        => 'resultstring-runtimeerror',
@@ -273,7 +273,7 @@ abstract class qtype_coderunner_sandbox {
             self::RESULT_OUTPUT_LIMIT         => 'resultstring-outputlimit',
             self::RESULT_ABNORMAL_TERMINATION => 'resultstring-abnormaltermination',
             self::RESULT_SERVER_OVERLOAD      => 'resultstring-sandboxoverload',
-        );
+        ];
         if (!isset($resultstrings[$resultcode])) {
             throw new coding_exception("Bad call to sandbox.resultString");
         }
@@ -347,15 +347,15 @@ abstract class qtype_coderunner_sandbox {
      */
     public function test_function() {
         if ($this->authenticationerror) {
-            return (object) array('error' => self::AUTH_ERROR);
+            return (object) ['error' => self::AUTH_ERROR];
         } else {
-            return (object) array(
+            return (object) [
                 'error' => self::OK,
                 'moreHelp' => 'No more help available',
                 'pi' => 3.14,
                 'answerToLifeAndEverything' => 42,
-                'oOok' => true
-            );
+                'oOok' => true,
+            ];
         }
     }
 

@@ -101,7 +101,7 @@ class qtype_coderunner_bulk_tester {
                                 WHERE be.id = qbe.id)
                               )
             AND qbe.questioncategoryid=:categoryid",
-                array('categoryid' => $categoryid));
+                ['categoryid' => $categoryid]);
         return $rec;
     }
 
@@ -128,7 +128,7 @@ class qtype_coderunner_bulk_tester {
                 FROM {question_categories} qc
                 WHERE qc.contextid = :contextid
                 ORDER BY qc.name",
-            array('contextid' => $contextid));
+            ['contextid' => $contextid]);
     }
 
 
@@ -163,7 +163,7 @@ class qtype_coderunner_bulk_tester {
                               )
               $exclprototypes
               AND ctx.id = :contextid
-              ORDER BY name", array('contextid' => $contextid));
+              ORDER BY name", ['contextid' => $contextid]);
     }
 
     /**
@@ -194,8 +194,8 @@ class qtype_coderunner_bulk_tester {
             $questiontestsurl->param('courseid', SITEID);
         }
         $numpasses = 0;
-        $failingtests = array();
-        $missinganswers = array();
+        $failingtests = [];
+        $missinganswers = [];
 
         foreach ($categories as $currentcategoryid => $nameandcount) {
             if ($categoryid !== null && $currentcategoryid != $categoryid) {
@@ -211,9 +211,9 @@ class qtype_coderunner_bulk_tester {
             foreach ($questions as $question) {
                 // Output question name before testing, so if something goes wrong, it is clear which question was the problem.
                 $previewurl = new moodle_url($questiontestsurl,
-                        array('questionid' => $question->id));
+                        ['questionid' => $question->id]);
                 $enhancedname = "{$question->name} (V{$question->version})";
-                $questionnamelink = html_writer::link($previewurl, $enhancedname, array('target' => '_blank'));
+                $questionnamelink = html_writer::link($previewurl, $enhancedname, ['target' => '_blank']);
                 echo "<li>$questionnamelink:";
                 flush(); // Force output to prevent timeouts and show progress.
 
@@ -239,7 +239,7 @@ class qtype_coderunner_bulk_tester {
             echo "</ul>\n";
         }
 
-        return array($numpasses, $failingtests, $missinganswers);
+        return [$numpasses, $failingtests, $missinganswers];
     }
 
 
@@ -276,7 +276,7 @@ class qtype_coderunner_bulk_tester {
                     $questionname . '. ' . $e->getMessage() . ' ****';
             $status = self::EXCEPTION;
         }
-        return array($status, $message);
+        return [$status, $message];
     }
 
     /**
@@ -293,7 +293,7 @@ class qtype_coderunner_bulk_tester {
         // Check if it's a multilanguage question; if so need to determine
         // what language (either specified by answer_language template param, or
         // the AceLang default or the first).
-        $params = empty($question->templateparams) ? array() : json_decode($question->templateparams, true);
+        $params = empty($question->templateparams) ? [] : json_decode($question->templateparams, true);
         if (!empty($params['answer_language'])) {
             $response['language'] = $params['answer_language'];
         } else if (!empty($question->acelang) && strpos($question->acelang, ',') !== false) {
@@ -377,7 +377,7 @@ class qtype_coderunner_bulk_tester {
             echo $OUTPUT->heading(get_string('missingprototypes', 'qtype_coderunner'), 3);
             echo html_writer::start_tag('ul');
             foreach ($missingprototypes as $name => $questions) {
-                $links = array();
+                $links = [];
                 foreach ($questions as $question) {
                     $links[] = self::make_question_link($courseid, $question);
                 }
@@ -396,12 +396,12 @@ class qtype_coderunner_bulk_tester {
      * @return html link to the question in the question bank
      */
     private static function make_question_link($courseid, $question) {
-        $qbankparams = array('qperpage' => 1000); // Can't easily get the true value.
+        $qbankparams = ['qperpage' => 1000]; // Can't easily get the true value.
         $qbankparams['category'] = $question->category . ',' . $question->contextid;
         $qbankparams['lastchanged'] = $question->questionid;
         $qbankparams['courseid'] = $courseid;
         $qbankparams['showhidden'] = 1;
         $questionbanklink = new moodle_url('/question/edit.php', $qbankparams);
-        return html_writer::link($questionbanklink, $question->name, array('target' => '_blank'));
+        return html_writer::link($questionbanklink, $question->name, ['target' => '_blank']);
     }
 }

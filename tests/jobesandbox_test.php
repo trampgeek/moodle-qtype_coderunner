@@ -107,8 +107,8 @@ print(open('second.bb').read())
 ";
         $sandbox = new \qtype_coderunner_jobesandbox();
         $result = $sandbox->execute($source, 'python3', '',
-                array('first.a' => "Line1\nLine2",
-                      'second.bb' => 'Otherfile'));
+                ['first.a' => "Line1\nLine2",
+                      'second.bb' => 'Otherfile']);
         $this->assertEquals(\qtype_coderunner_sandbox::OK, $result->error);
         $this->assertEquals(\qtype_coderunner_sandbox::RESULT_SUCCESS, $result->result);
         $this->assertEquals('', $result->stderr);
@@ -197,7 +197,7 @@ EOCODE;
             $sandbox = new \qtype_coderunner_jobesandbox();
             $source = 'print("Hello sandbox!")';
             for ($i = 0; $i < $maxnumtries; $i++) {
-                $result = $sandbox->execute($source, 'python3', '', null, array('debug' => 1));
+                $result = $sandbox->execute($source, 'python3', '', null, ['debug' => 1]);
                 if ($result->error === $sandbox::SUBMISSION_LIMIT_EXCEEDED) {
                     return;
                 } else {

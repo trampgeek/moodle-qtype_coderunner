@@ -44,9 +44,9 @@ class table_dataformat_export_format_fixed extends table_dataformat_export_forma
      * @param array $row One record of data
      */
     public function add_data($row) {
-        //if (!$this->supports_html()) {
-        //    $row = $this->format_data($row);
-        //}
+        // Broken code was ....... ........ ........>  if (!$this->supports_html()) {
+        // Broken code was ...... ....... ..... .....> $row = $this->format_data($row);
+        // Broken code was ...... .. ...... ..... ....> };     .
         $this->dataformat->write_record($row, $this->rownum++);
         return true;
     }
@@ -86,7 +86,7 @@ if (class_exists('mod_quiz\access_manager')) {
     require_once($CFG->libdir.'/../mod/quiz/accessmanager.php');
     $quiz = quiz_access_manager::load_quiz_and_settings($quizid);
 }
-$course = $DB->get_record('course', array('id' => $quiz->course), '*', MUST_EXIST);
+$course = $DB->get_record('course', ['id' => $quiz->course], '*', MUST_EXIST);
 $coursecontext = context_course::instance($course->id);
 
 // I'm not sure if the next three lines are ever relevant but ... what's to lose?
@@ -132,7 +132,7 @@ if (!has_capability('moodle/grade:viewall', $coursecontext)) {
     AND quest.length > 0
     ORDER BY quiza.uniqueid, timestamp";
 
-    $params = array('quizid' => $quizid);
+    $params = ['quizid' => $quizid];
     $table->define_baseurl($PAGE->url);
     $table->set_sql($fields, $from, $where, $params);
     $table->is_downloading($format, "allattemptson$quizid", "All quiz attempts $quizid");

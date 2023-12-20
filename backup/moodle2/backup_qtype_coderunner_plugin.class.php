@@ -49,7 +49,7 @@ class backup_qtype_coderunner_plugin extends backup_qtype_plugin {
         $options = new backup_nested_element('coderunner_options');
         $optionfields = $dummycoderunnerq->extra_question_fields(); // It's not static :-(.
         array_shift($optionfields);
-        $option = new backup_nested_element('coderunner_option', array('id'),
+        $option = new backup_nested_element('coderunner_option', ['id'],
                 $optionfields);
 
         // Build the tree.
@@ -57,7 +57,7 @@ class backup_qtype_coderunner_plugin extends backup_qtype_plugin {
         $options->add_child($option);
 
         // Set the source.
-        $option->set_source_table('question_coderunner_options', array('questionid' => backup::VAR_PARENTID));
+        $option->set_source_table('question_coderunner_options', ['questionid' => backup::VAR_PARENTID]);
     }
 
 
@@ -70,15 +70,15 @@ class backup_qtype_coderunner_plugin extends backup_qtype_plugin {
 
         // Define the elements.
         $testcases = new backup_nested_element('coderunner_testcases');
-        $testcase = new backup_nested_element('coderunner_testcase', array('id'), array(
-            'testcode', 'testtype', 'expected', 'useasexample', 'display', 'hiderestiffail', 'mark', 'stdin', 'extra'));
+        $testcase = new backup_nested_element('coderunner_testcase', ['id'], [
+            'testcode', 'testtype', 'expected', 'useasexample', 'display', 'hiderestiffail', 'mark', 'stdin', 'extra']);
 
         // Build the tree.
         $element->add_child($testcases);
         $testcases->add_child($testcase);
 
         // Set the source.
-        $testcase->set_source_table("question_coderunner_tests", array('questionid' => backup::VAR_PARENTID), 'id ASC');
+        $testcase->set_source_table("question_coderunner_tests", ['questionid' => backup::VAR_PARENTID], 'id ASC');
     }
 
 
@@ -115,7 +115,7 @@ class backup_qtype_coderunner_plugin extends backup_qtype_plugin {
      * files to be processed both in backup and restore.
      */
     public static function get_qtype_fileareas() {
-        return array('datafile' => 'question_created',
-                     'samplefile' => 'question_created');
+        return ['datafile' => 'question_created',
+                     'samplefile' => 'question_created'];
     }
 }

@@ -16,7 +16,7 @@
 
 /**
  * Find all the uses of all the prototypes.
- * 
+ *
  * This script scans all question categories to which the current user
  * has access and builds a table showing all available prototypes and
  * the questions using those prototypes.
@@ -57,9 +57,9 @@ foreach ($allcourses as $course) {
     echo html_writer::tag('li',
         html_writer::link(
             new moodle_url('/question/type/coderunner/prototypeusage.php',
-                array('courseid' => $course->id,
+                ['courseid' => $course->id,
                       'contextid' => $contextid,
-                      'coursename' => $course->name)),
+                      'coursename' => $course->name]),
                 $course->name
             ));
 }

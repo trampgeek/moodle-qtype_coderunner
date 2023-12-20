@@ -46,7 +46,7 @@ class walkthrough_multilang_test extends \qbehaviour_walkthrough_test_base {
 
     public function test_echostdin() {
 
-        $answers = array(
+        $answers = [
             'python3' => "try:\n    while 1:\n        print(input())\n\nexcept:\n    pass\n",
             'c' => "#include <stdio.h>\nint main() { int c; while ((c = getchar()) != EOF) { putchar(c); }}",
             'cpp' => "#include <iostream>\nint main () { std::cout << std::cin.rdbuf();}",
@@ -62,19 +62,19 @@ public class InOut {
             System.out.write(buffer, 0, bytesRead);
         }
     }
-}"
-        );
+}",
+        ];
         $q = \test_question_maker::make_question('coderunner', 'multilang_echo_stdin');
 
         // Submit a right answer in all languages.
         foreach ($answers as $lang => $answer) {
             $this->start_attempt_at_question($q, 'adaptive', 1, 1);
             $this->process_submission(
-                    array(
+                    [
                         '-submit'  => 1,
                         'answer'   => $answer,
-                        'language' => $lang
-                    )
+                        'language' => $lang,
+                    ]
             );
             $this->check_current_mark(1.0);
         }

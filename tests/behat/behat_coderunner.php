@@ -28,10 +28,10 @@ use Facebook\WebDriver\Exception\NoSuchAlertException as NoSuchAlertException;
 
 class behat_coderunner extends behat_base {
      /**
-     * Sets the webserver sandbox to enabled for testing purposes.
-     *
-     * @Given /^the CodeRunner sandbox is enabled/
-     */
+      * Sets the webserver sandbox to enabled for testing purposes.
+      *
+      * @Given /^the CodeRunner sandbox is enabled/
+      */
     public function the_coderunner_sandbox_is_enabled() {
         set_config('wsenabled', 1, 'qtype_coderunner');
         set_config('jobesandbox_enabled', 1, 'qtype_coderunner');
@@ -53,7 +53,7 @@ class behat_coderunner extends behat_base {
             throw new ExpectationException($error, $this->getSession());
         }
         $page = $this->getSession()->getPage();
-        $val = $page->find('xpath',$xpath)->getValue();
+        $val = $page->find('xpath', $xpath)->getValue();
         if ($val !== $expected) {
             $error = "'$val' does not match '$expected'";
             throw new ExpectationException($error, $this->getSession());
@@ -61,11 +61,11 @@ class behat_coderunner extends behat_base {
     }
 
      /**
-     * Sets answer textarea (seen after presing ctrl+m) to a value
-     * @Then /^I set answer field to "(?P<value>(?:[^"]|\\")*)"$/
-     * @throws ExpectationException
-     * @param string $expected The string that we expect to find
-     */
+      * Sets answer textarea (seen after presing ctrl+m) to a value
+      * @Then /^I set answer field to "(?P<value>(?:[^"]|\\")*)"$/
+      * @throws ExpectationException
+      * @param string $expected The string that we expect to find
+      */
     public function i_set_answer($value) {
         $xpath = '//textarea[contains(@class, "coderunner-answer")]';
         $driver = $this->getSession()->getDriver();
@@ -74,7 +74,7 @@ class behat_coderunner extends behat_base {
             throw new ExpectationException($error, $this->getSession());
         }
         $page = $this->getSession()->getPage();
-        $val = $page->find('xpath',$xpath)->setValue($value);
+        $val = $page->find('xpath', $xpath)->setValue($value);
     }
 
     /**
@@ -88,12 +88,12 @@ class behat_coderunner extends behat_base {
     }
 
      /**
-     * Checks that a given string appears within answer textarea.
-     * Intended for checking UI serialization
-     * @Then /^I should see in answer field:$/
-     */
-     public function i_should_see_in_answer_pystring(Behat\Gherkin\Node\PyStringNode $pystring) {
-         $this->i_should_see_in_answer($pystring->getRaw());
+      * Checks that a given string appears within answer textarea.
+      * Intended for checking UI serialization
+      * @Then /^I should see in answer field:$/
+      */
+    public function i_should_see_in_answer_pystring(Behat\Gherkin\Node\PyStringNode $pystring) {
+        $this->i_should_see_in_answer($pystring->getRaw());
     }
 
     /**
@@ -106,7 +106,7 @@ class behat_coderunner extends behat_base {
      * @throws ExpectationException
      * @param string $expected The string that we expect to find
      */
-     public function i_set_ace_field($elname, $value) {
+    public function i_set_ace_field($elname, $value) {
         $xpath = "//textarea[@name='$elname' or (contains(@name, '$elname') and contains(@class, 'edit_code'))]/../div/div ";
         $driver = $this->getSession()->getDriver();
         // Does the div managed by Ace exist?
@@ -118,13 +118,13 @@ class behat_coderunner extends behat_base {
         // (Gross) JS to take the x-path for the div managed by Ace,
         // open editor for that div, and set the editors value.
         $javascript = "const editorNode = document.evaluate("
-                . "`$xpath`,"
-                . "document,"
-                . "null,"
-                . "XPathResult.ANY_TYPE,null,"
-                . ");"
-                . "const editor = ace.edit(editorNode.iterateNext());"
-                . "editor.setValue(`$value`);";
+               . "`$xpath`,"
+               . "document,"
+               . "null,"
+               . "XPathResult.ANY_TYPE,null,"
+               . ");"
+               . "const editor = ace.edit(editorNode.iterateNext());"
+               . "editor.setValue(`$value`);";
         $this->getSession()->executeScript($javascript);
     }
 
@@ -137,8 +137,8 @@ class behat_coderunner extends behat_base {
      * @throws ExpectationException
      * @param string $expected The string that we expect to find
      */
-     public function i_set_ace_field_pystring($elname, $pystring) {
-         $this->i_set_ace_field($elname, $pystring->getRaw());
+    public function i_set_ace_field_pystring($elname, $pystring) {
+        $this->i_set_ace_field($elname, $pystring->getRaw());
     }
 
 
@@ -224,7 +224,7 @@ class behat_coderunner extends behat_base {
      * From https://moodle.org/mod/forum/discuss.php?d=283216
      */
     public function i_set_the_field_to_pystring($fieldlocator, Behat\Gherkin\Node\PyStringNode $value) {
-        $this->execute('behat_forms::i_set_the_field_to', array($fieldlocator, $this->escape($value)));
+        $this->execute('behat_forms::i_set_the_field_to', [$fieldlocator, $this->escape($value)]);
     }
 
     /**

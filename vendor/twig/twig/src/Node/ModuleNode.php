@@ -368,9 +368,9 @@ final class ModuleNode extends Node
     protected function compileIsTraitable(Compiler $compiler)
     {
         // A template can be used as a trait if:
-        //   * it has no parent
-        //   * it has no macros
-        //   * it has no body
+        // * it has no parent
+        // * it has no macros
+        // * it has no body
         //
         // Put another way, a template can be used as a trait if it
         // only contains blocks and use statements.

@@ -52,7 +52,7 @@ class qtype_coderunner_jobrunner {
                 $message = get_string('cannotrunprototype', 'qtype_coderunner');
             } else {
                 $message = get_string('missingprototypewhenrunning', 'qtype_coderunner',
-                    array('crtype' => $question->coderunnertype));
+                    ['crtype' => $question->coderunnertype]);
             }
             $outcome->set_status(qtype_coderunner_testing_outcome::STATUS_MISSING_PROTOTYPE, $message);
             return $outcome;
@@ -66,7 +66,7 @@ class qtype_coderunner_jobrunner {
         // to extract the student answer itself.
         if ($question->extractcodefromjson) {
             $json = json_decode($code, true);
-            if ($json !== null and isset($json[constants::ANSWER_CODE_KEY])) {
+            if ($json !== null && isset($json[constants::ANSWER_CODE_KEY])) {
                 $code = $json[constants::ANSWER_CODE_KEY][0];
             }
         }
@@ -82,15 +82,15 @@ class qtype_coderunner_jobrunner {
         $this->sandboxparams = $question->get_sandbox_params();
         $this->language = $question->get_language();
 
-        $this->allruns = array();
-        $this->templateparams = array(
+        $this->allruns = [];
+        $this->templateparams = [
             'STUDENT_ANSWER' => $code,
             'ESCAPED_STUDENT_ANSWER' => qtype_coderunner_escapers::python(null, $code, null), // LEGACY SUPPORT.
             'MATLAB_ESCAPED_STUDENT_ANSWER' => qtype_coderunner_escapers::matlab(null, $code, null), // LEGACY SUPPORT.
             'IS_PRECHECK' => $isprecheck ? "1" : "0",
             'ANSWER_LANGUAGE' => $answerlanguage,
-            'ATTACHMENTS' => $attachedfilenames
-         );
+            'ATTACHMENTS' => $attachedfilenames,
+         ];
 
         if ($question->get_is_combinator() &&
                 ($this->has_no_stdins() || $question->allow_multiple_stdins() ||
@@ -170,7 +170,7 @@ class qtype_coderunner_jobrunner {
                 }
             } else {  // Error: wrong number of tests after splitting.
                 $error = get_string('brokencombinator', 'qtype_coderunner',
-                        array('numtests' => $numtests, 'numresults' => count($outputs)));
+                        ['numtests' => $numtests, 'numresults' => count($outputs)]);
                 $outcome->set_status(qtype_coderunner_testing_outcome::STATUS_BAD_COMBINATOR, $error);
             }
         } else {
@@ -194,7 +194,7 @@ class qtype_coderunner_jobrunner {
         $question = $this->question;
         foreach ($this->testcases as $testcase) {
             if ($this->question->iscombinatortemplate) {
-                $this->templateparams['TESTCASES'] = array($testcase);
+                $this->templateparams['TESTCASES'] = [$testcase];
             } else {
                 $this->templateparams['TEST'] = $testcase;
             }
@@ -272,15 +272,15 @@ class qtype_coderunner_jobrunner {
             if ($run->result !== qtype_coderunner_sandbox::RESULT_SUCCESS) {
                 $resulterror = qtype_coderunner_sandbox::result_string($run->result);
                 $error = get_string('brokentemplategrader', 'qtype_coderunner',
-                        array('output' => "\nRun result: $resulterror" . "\nOutput: " .
-                            $run->cmpinfo . "\n" . $run->output . "\n" . $run->stderr));
+                        ['output' => "\nRun result: $resulterror" . "\nOutput: " .
+                            $run->cmpinfo . "\n" . $run->output . "\n" . $run->stderr]);
                 throw new Exception($error);
             }
 
             $result = json_decode($run->output);
             if ($result === null) {
                 $error = get_string('badjson', 'qtype_coderunner',
-                    array('output' => $run->output));
+                    ['output' => $run->output]);
                 throw new Exception($error);
             }
 
@@ -288,13 +288,13 @@ class qtype_coderunner_jobrunner {
                 $outcome->set_output_only();
             } else if ($this->missing_or_bad_fraction($result)) {
                 $error = get_string('missingorbadfraction', 'qtype_coderunner',
-                    array('output' => $run->output));
+                    ['output' => $run->output]);
                 throw new Exception($error);
             }
 
             // A successful combinator run (so far).
             $fract = $outcome->is_output_only() ? 1.0 : $result->fraction;
-            $feedback = array();
+            $feedback = [];
             if (isset($result->feedback_html)) {  // Legacy combinator grader?
                 $result->feedbackhtml = $result->feedback_html; // Change to modern version.
                 unset($result->feedback_html);
@@ -302,7 +302,7 @@ class qtype_coderunner_jobrunner {
             foreach ($result as $key => $value) {
                 if (!in_array($key, $outcome->allowedfields)) {
                     $error = get_string('unknowncombinatorgraderfield', 'qtype_coderunner',
-                        array('fieldname' => $key));
+                        ['fieldname' => $key]);
                     throw new Exception($error);
                 }
                 if ($key === 'feedbackhtml' || $key === 'feedback_html') {
@@ -370,7 +370,7 @@ class qtype_coderunner_jobrunner {
                 $err .= " (signal $sig)";
             }
         }
-        return $this->merge("\n", array($run->cmpinfo, $run->output, $err, $run->stderr));
+        return $this->merge("\n", [$run->cmpinfo, $run->output, $err, $run->stderr]);
     }
 
 

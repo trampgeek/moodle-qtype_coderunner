@@ -56,7 +56,7 @@ if ($qtype) {
         $questiontype->success = false;
         if ($questiontype === null) {
             $questiontype->error = json_encode(["error" => "missingprototype",
-                "alert" => "prototype_missing_alert", "extras" => ""]); 
+                "alert" => "prototype_missing_alert", "extras" => ""]);
         } else {
             $extras = "";
             foreach ($questionprototype as $component) {
@@ -66,7 +66,7 @@ if ($qtype) {
             }
             $questiontype->error = json_encode(["error" => "duplicateprototype",
                 "alert" => "prototype_duplicate_alert", "extras" => $extras]);
-        }   
+        }
     } else {
         $questiontype->success = true;
         $questiontype->error = '';
@@ -75,29 +75,29 @@ if ($qtype) {
 } else if ($uiplugin) {
     $uiplugins = qtype_coderunner_ui_plugins::get_instance();
     $allnames = $uiplugins->all_names();
-    $uiparamstable = array();
-    $columnheaders = array();
+    $uiparamstable = [];
+    $columnheaders = [];
     if (!in_array($uiplugin, $allnames)) {
-        $uiheader = get_string('unknownuiplugin', 'qtype_coderunner', array('pluginname' => $uiplugin));
+        $uiheader = get_string('unknownuiplugin', 'qtype_coderunner', ['pluginname' => $uiplugin]);
     } else {
         $uiparams = $uiplugins->parameters($uiplugin);
         if ($uiparams->length() === 0) {
-            $uiheader = get_string('nouiparameters', 'qtype_coderunner', array('uiname' => $uiplugin));
+            $uiheader = get_string('nouiparameters', 'qtype_coderunner', ['uiname' => $uiplugin]);
         } else {
             $csv = implode(', ', $uiparams->all_names_starred());
             $uiheader = get_string('uiparametertablehead', 'qtype_coderunner',
-                    array('uiname' => $uiplugin)) . $csv . '.';
+                    ['uiname' => $uiplugin]) . $csv . '.';
             $uiparamstable = $uiparams->table();
             $namehdr = get_string('uiparamname', 'qtype_coderunner');
             $descrhdr = get_string('uiparamdesc', 'qtype_coderunner');
             $defaulthdr = get_string('uiparamdefault', 'qtype_coderunner');
-            $columnheaders = array($namehdr, $descrhdr, $defaulthdr);
+            $columnheaders = [$namehdr, $descrhdr, $defaulthdr];
         }
     }
-    echo json_encode(array('header' => $uiheader,
+    echo json_encode(['header' => $uiheader,
         'uiparamstable' => $uiparamstable,
         'columnheaders' => $columnheaders,
         'showdetails' => get_string('showdetails', 'qtype_coderunner'),
-        'hidedetails' => get_string('hidedetails', 'qtype_coderunner')));
+        'hidedetails' => get_string('hidedetails', 'qtype_coderunner')]);
 }
 die();

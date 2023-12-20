@@ -47,8 +47,8 @@ class precheckwalkthrough_test extends \qbehaviour_walkthrough_test_base {
 
     protected function make_precheck_question() {
                 $q = \test_question_maker::make_question('coderunner', 'sqr');
-        $q->testcases = array(
-            (object) array('testtype'     => 2, // Both.
+        $q->testcases = [
+            (object) ['testtype'     => 2, // Both.
                           'testcode'  => 'print(sqr(-11))',
                           'expected'  => '121',
                           'stdin'     => '',
@@ -56,8 +56,8 @@ class precheckwalkthrough_test extends \qbehaviour_walkthrough_test_base {
                           'display'   => 'SHOW',
                           'extra'     => '',
                           'mark'      => 1.0,
-                          'hiderestiffail'  => 0),
-            (object) array('testtype'     => 2, // Both.
+                          'hiderestiffail'  => 0],
+            (object) ['testtype'     => 2, // Both.
                           'testcode'  => 'print(sqr(12))',
                           'expected'  => '144',
                           'stdin'     => '',
@@ -65,8 +65,8 @@ class precheckwalkthrough_test extends \qbehaviour_walkthrough_test_base {
                           'display'   => 'SHOW',
                           'extra'     => '',
                           'mark'      => 1.0,
-                          'hiderestiffail'  => 0),
-            (object) array('testtype'     => 0, // Normal (i.e. not precheck).
+                          'hiderestiffail'  => 0],
+            (object) ['testtype'     => 0, // Normal (i.e. not precheck).
                           'testcode'  => 'print(sqr(-7))',
                           'expected'  => '49',
                           'stdin'     => '',
@@ -74,8 +74,8 @@ class precheckwalkthrough_test extends \qbehaviour_walkthrough_test_base {
                           'display'   => 'SHOW',
                           'extra'     => '',
                           'mark'      => 1.0,
-                          'hiderestiffail'  => 0),
-            (object) array('testtype'     => 1, // Precheck only.
+                          'hiderestiffail'  => 0],
+            (object) ['testtype'     => 1, // Precheck only.
                           'testcode'  => 'print(sqr(-5))',
                           'expected'  => '25',
                           'stdin'     => '',
@@ -83,8 +83,8 @@ class precheckwalkthrough_test extends \qbehaviour_walkthrough_test_base {
                           'display'   => 'SHOW',
                           'extra'     => '',
                           'mark'      => 1.0,
-                          'hiderestiffail'  => 0)
-            );
+                          'hiderestiffail'  => 0],
+            ];
         $q->template = <<<EOTEMPLATE
 {{ STUDENT_ANSWER }}
 {{ TEST.testcode }}
@@ -105,7 +105,7 @@ EOTEMPLATE;
         $this->assertEquals('Not complete', $qa->get_state_string(true));
 
         // Precheck with a wrong answer.
-        $this->process_submission(array('-precheck' => 1, 'answer' => "def sqr(n): return n\n"));
+        $this->process_submission(['-precheck' => 1, 'answer' => "def sqr(n): return n\n"]);
         $this->check_output_contains("Precheck only");
         $this->check_output_contains('print(sqr(-11))');
         $this->check_output_contains('print(sqr(12))');
@@ -119,7 +119,7 @@ EOTEMPLATE;
         $this->assertEquals("Prechecked: def sqr(n): return n\n", $qa->summarise_action($qa->get_last_step()));
 
         // Now re-precheck with a right answer.
-        $this->process_submission(array('-precheck' => 1, 'answer' => "def sqr(n): return n * n\n"));
+        $this->process_submission(['-precheck' => 1, 'answer' => "def sqr(n): return n * n\n"]);
         $this->check_output_contains("Precheck only");
         $this->check_output_contains('print(sqr(-11))');
         $this->check_output_contains('print(sqr(12))');
@@ -132,7 +132,7 @@ EOTEMPLATE;
         $this->save_quba();
 
         // Now click check with a wrong answer.
-        $this->process_submission(array('-submit' => 1, 'answer' => "def sqr(n): return n\n"));
+        $this->process_submission(['-submit' => 1, 'answer' => "def sqr(n): return n\n"]);
         $this->check_output_does_not_contain("Precheck only");
         $this->check_output_contains('print(sqr(-11))');
         $this->check_output_contains('print(sqr(12))');
@@ -144,7 +144,7 @@ EOTEMPLATE;
         $this->check_current_mark(0.0);
 
         // Lastly check with a right answer, verify that a single 20% penalty was incurred.
-        $this->process_submission(array('-submit' => 1, 'answer' => "def sqr(n): return n * n\n"));
+        $this->process_submission(['-submit' => 1, 'answer' => "def sqr(n): return n * n\n"]);
         $this->check_output_does_not_contain("Precheck only");
         $this->check_output_contains('print(sqr(-11))');
         $this->check_output_contains('print(sqr(12))');
@@ -166,7 +166,7 @@ EOTEMPLATE;
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
 
         // Precheck with a wrong answer.
-        $this->process_submission(array('-precheck' => 1, 'answer' => "def sqr(n): return n\n"));
+        $this->process_submission(['-precheck' => 1, 'answer' => "def sqr(n): return n\n"]);
         $this->check_output_contains("Precheck only");
         $this->check_output_contains('print(sqr(-11))');
         $this->check_output_contains('print(sqr(12))');
@@ -178,7 +178,7 @@ EOTEMPLATE;
         $this->check_current_mark(null);
 
         // Now re-precheck with a right answer.
-        $this->process_submission(array('-precheck' => 1, 'answer' => "def sqr(n): return n * n\n"));
+        $this->process_submission(['-precheck' => 1, 'answer' => "def sqr(n): return n * n\n"]);
         $this->check_output_contains('print(sqr(-11))');
         $this->check_output_contains('print(sqr(12))');
         $this->check_output_does_not_contain('print(sqr(-7))');
@@ -189,7 +189,7 @@ EOTEMPLATE;
         $this->save_quba();
 
         // Now click check with a wrong answer.
-        $this->process_submission(array('-submit' => 1, 'answer' => "def sqr(n): return n\n"));
+        $this->process_submission(['-submit' => 1, 'answer' => "def sqr(n): return n\n"]);
         $this->check_output_contains('print(sqr(-11))');
         $this->check_output_contains('print(sqr(12))');
         $this->check_output_contains('print(sqr(-7))');
@@ -199,7 +199,7 @@ EOTEMPLATE;
         $this->check_current_mark(0.0);
 
         // Lastly check with a right answer, verify that a single 20% penalty was incurred.
-        $this->process_submission(array('-submit' => 1, 'answer' => "def sqr(n): return n * n\n"));
+        $this->process_submission(['-submit' => 1, 'answer' => "def sqr(n): return n * n\n"]);
         $this->check_output_contains('print(sqr(-11))');
         $this->check_output_contains('print(sqr(12))');
         $this->check_output_contains('print(sqr(-7))');
@@ -228,7 +228,7 @@ EOTEMPLATE;
 
         // Precheck with a right answer, but because IS_PRECHECK is true
         // all answers should have been doubled.
-        $this->process_submission(array('-precheck' => 1, 'answer' => "def sqr2(n): return n * n\n"));
+        $this->process_submission(['-precheck' => 1, 'answer' => "def sqr2(n): return n * n\n"]);
         $this->check_output_contains("Precheck only");
         $this->check_output_contains('242');
         $this->check_output_contains('288');
@@ -236,7 +236,7 @@ EOTEMPLATE;
         $this->check_output_contains('50');
 
         // Now check with a right answer.
-        $this->process_submission(array('-submit' => 1, 'answer' => "def sqr2(n): return n * n\n"));
+        $this->process_submission(['-submit' => 1, 'answer' => "def sqr2(n): return n * n\n"]);
         $this->check_output_contains('121');
         $this->check_output_contains('144');
         $this->check_output_contains('49');

@@ -53,18 +53,18 @@ class qtype_coderunner_testing_outcome {
         $this->actualmark = 0;
         $this->maxpossmark = $maxpossmark;
         $this->numtestsexpected = $numtestsexpected;
-        $this->testresults = array();
+        $this->testresults = [];
         $this->sourcecodelist = null;     // Array of all test runs on the sandbox.
-        $this->sandboxinfo = array();
+        $this->sandboxinfo = [];
         $this->graderstate = '';  // For passing state between runs using combinator grader.
         $this->numerrors = 0;
         $this->failures = new html_table(); // A table for reporting validation errors.
         $this->failures->attributes['class'] = 'coderunner-test-results';
-        $this->failures->head = array(get_string('testcolhdr', 'qtype_coderunner'),
+        $this->failures->head = [get_string('testcolhdr', 'qtype_coderunner'),
                 get_string('expectedcolhdr', 'qtype_coderunner'),
-                get_string('gotcolhdr', 'qtype_coderunner'));
-        $this->failures->data = array();
-        $this->failures->rowclasses = array();
+                get_string('gotcolhdr', 'qtype_coderunner')];
+        $this->failures->data = [];
+        $this->failures->rowclasses = [];
     }
 
     public function set_status($status, $errormessage='') {
@@ -200,14 +200,14 @@ class qtype_coderunner_testing_outcome {
         }
         $testcode = html_writer::link('#id_testcode_' . $rownum,
                 get_string('testcase', 'qtype_coderunner', $rownum + 1)) . "$nl<pre>$code</pre>";
-        $expected= html_writer::link('#id_expected_' . $rownum,
+        $expected = html_writer::link('#id_expected_' . $rownum,
                 html_writer::tag('pre', $expected,
-                array('id' => 'id_fail_expected_' . $rownum)));
-        $got_pre = html_writer::tag('pre', $got, array('id' => 'id_got_' . $rownum));
-        $button = html_writer::tag('button', '&lt;&lt;', array(
+                ['id' => 'id_fail_expected_' . $rownum]));
+        $gotpre = html_writer::tag('pre', $got, ['id' => 'id_got_' . $rownum]);
+        $button = html_writer::tag('button', '&lt;&lt;', [
                                    'type' => 'button',  // To suppress form submission.
-                                   'class' => 'replaceexpectedwithgot'));
-        return array($testcode, $expected, $got_pre . $button);
+                                   'class' => 'replaceexpectedwithgot']);
+        return [$testcode, $expected, $gotpre . $button];
     }
 
     // Return a message summarising the nature of the error if this outcome
@@ -234,8 +234,8 @@ class qtype_coderunner_testing_outcome {
                     }
                 }
             }
-            $message = get_string('failedntests', 'qtype_coderunner', array(
-                'numerrors' => $this->numerrors));
+            $message = get_string('failedntests', 'qtype_coderunner', [
+                'numerrors' => $this->numerrors]);
             if ($this->failures->data) {
                 $message .= html_writer::table($this->failures) . get_string('replaceexpectedwithgot', 'qtype_coderunner');
             }
@@ -284,8 +284,8 @@ class qtype_coderunner_testing_outcome {
         // Build the table header, containing all the specified field headers,
         // unless all rows in that column would be blank.
 
-        $columnheaders = array('iscorrect'); // First column is a tick or cross, like last column.
-        $hiddencolumns = array();  // Array of true/false for each element of $colspec.
+        $columnheaders = ['iscorrect']; // First column is a tick or cross, like last column.
+        $hiddencolumns = [];  // Array of true/false for each element of $colspec.
         $numvisiblecolumns = 0;
 
         foreach ($resultcolumns as $colspec) {
@@ -310,7 +310,7 @@ class qtype_coderunner_testing_outcome {
         }
         $columnheaders[] = 'ishidden';   // Last column controls if row hidden or not.
 
-        $table = array($columnheaders);
+        $table = [$columnheaders];
 
         // Process each row of the results table.
         $hidingrest = false;
@@ -318,7 +318,7 @@ class qtype_coderunner_testing_outcome {
             $testisvisible = $this->should_display_result($testresult) && !$hidingrest;
             if ($canviewhidden || $testisvisible) {
                 $fraction = $testresult->awarded / $testresult->mark;
-                $tablerow = array($fraction);   // Will be rendered as tick or cross.
+                $tablerow = [$fraction];   // Will be rendered as tick or cross.
                 $icol = 0;
                 foreach ($resultcolumns as $colspec) {
                     $len = count($colspec);
@@ -332,7 +332,7 @@ class qtype_coderunner_testing_outcome {
                             $value = $testresult->gettrimmedvalue($colspec[1]);
                             $tablerow[] = new qtype_coderunner_html_wrapper($value);
                         } else if ($format !== '') {  // Else if it's a non-null column.
-                            $args = array($format);
+                            $args = [$format];
                             for ($j = 1; $j < $len - 1; $j++) {
                                 $value = $testresult->gettrimmedvalue($colspec[$j]);
                                 $args[] = $value;
@@ -415,9 +415,9 @@ class qtype_coderunner_testing_outcome {
     protected static function make_error_html($expected, $got) {
         $table = new html_table();
         $table->attributes['class'] = 'coderunner-test-results';
-        $table->head = array(get_string('expectedcolhdr', 'qtype_coderunner'),
-                             get_string('gotcolhdr', 'qtype_coderunner'));
-        $table->data = array(array(html_writer::tag('pre', s($expected)), html_writer::tag('pre', s($got))));
+        $table->head = [get_string('expectedcolhdr', 'qtype_coderunner'),
+                             get_string('gotcolhdr', 'qtype_coderunner')];
+        $table->data = [[html_writer::tag('pre', s($expected)), html_writer::tag('pre', s($got))]];
         return html_writer::table($table);
     }
 
