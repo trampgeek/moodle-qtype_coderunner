@@ -39,7 +39,6 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
  * @coversNothing
  */
 class nodejs_question_test extends \qtype_coderunner_testcase {
-
     protected function setUp(): void {
         parent::setUp();
 
@@ -51,7 +50,7 @@ class nodejs_question_test extends \qtype_coderunner_testcase {
         $this->check_language_available('nodejs');
         $q = $this->make_question('sqrnodejs');
         $response = ['answer' => "function sqr(n) {\n  return n * n;\n}\n"];
-        list($mark, $grade, $cache) = $q->grade_response($response);
+        [$mark, $grade, $cache] = $q->grade_response($response);
         $this->assertEquals(1, $mark);
         $this->assertEquals(\question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
@@ -66,7 +65,7 @@ class nodejs_question_test extends \qtype_coderunner_testcase {
         $this->check_language_available('nodejs');
         $q = $this->make_question('sqrnodejs');
         $response = ['answer' => "function sqr(n) {\n  return n\n}\n"];
-        list($mark, $grade, $cache) = $q->grade_response($response);
+        [$mark, $grade, $cache] = $q->grade_response($response);
         $this->assertEquals(0, $mark);
         $this->assertEquals(\question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
@@ -74,4 +73,3 @@ class nodejs_question_test extends \qtype_coderunner_testcase {
         $this->assertFalse($testoutcome->all_correct());
     }
 }
-

@@ -22,7 +22,6 @@
 // Class that simply provides a static method to supply the template
 // of macros for the Twig_Loader_Array() class.
 class qtype_coderunner_twigmacros {
-
     public static function macros() {
         $htmlmacros = <<<EOMACROS
 {% macro input(name, size = 10) %}

@@ -30,7 +30,6 @@ require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
  * Restore plugin class for coderunner questions.
  */
 class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
-
     /**
      * Returns the paths to be handled by the plugin at question level.
      */
@@ -116,17 +115,22 @@ class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
             $data->questionid = $newquestionid;
 
             // Convert pre-version 3.1 fields to post 3.1.
-            if (isset($data->pertesttemplate) &&
+            if (
+                isset($data->pertesttemplate) &&
                     trim($data->pertesttemplate ?? '') != '' &&
                     empty($data->enablecombinator) &&
-                    $data->grader != 'CombinatorTemplateGrader') {
+                    $data->grader != 'CombinatorTemplateGrader'
+            ) {
                 $data->template = $data->pertesttemplate;
                 $data->iscombinatortemplate = 0;
             }
-            if (isset($data->combinatortemplate) &&
+            if (
+                isset($data->combinatortemplate) &&
                     trim($data->combinatortemplate ?? '') != '' &&
-                    ((isset($data->enablecombinator) && $data->enablecombinator == 1 )
-                            || $data->grader == 'CombinatorTemplateGrader')) {
+                    ((isset($data->enablecombinator) &&
+                    $data->enablecombinator == 1 ) ||
+                            $data->grader == 'CombinatorTemplateGrader')
+            ) {
                 $data->template = $data->combinatortemplate;
                 $data->iscombinatortemplate = 1;
             }
@@ -138,6 +142,5 @@ class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
             $DB->insert_record("question_coderunner_options", $data);
         }
         // Nothing to remap if the question already existed.
-
     }
 }

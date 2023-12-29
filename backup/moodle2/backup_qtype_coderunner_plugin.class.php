@@ -29,7 +29,6 @@ require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
  * Provides the information to backup coderunner questions.
  */
 class backup_qtype_coderunner_plugin extends backup_qtype_plugin {
-
     // Legacy code, for supporting a subclassing of coderunner.
     protected function qtype() {
         return 'coderunner';
@@ -49,8 +48,11 @@ class backup_qtype_coderunner_plugin extends backup_qtype_plugin {
         $options = new backup_nested_element('coderunner_options');
         $optionfields = $dummycoderunnerq->extra_question_fields(); // It's not static :-(.
         array_shift($optionfields);
-        $option = new backup_nested_element('coderunner_option', ['id'],
-                $optionfields);
+        $option = new backup_nested_element(
+            'coderunner_option',
+            ['id'],
+            $optionfields
+        );
 
         // Build the tree.
         $element->add_child($options);

@@ -40,7 +40,6 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
  * @coversNothing
  */
 class grader_test extends \qtype_coderunner_testcase {
-
     public function test_regex_grader() {
         // Check using a question that reads stdin and writes to stdout.
         $q = $this->make_question('copy_stdin');
@@ -65,12 +64,11 @@ def copy_stdin():
 EOCODE;
         $response = ['answer' => $code];
         $result = $q->grade_response($response);
-        list($mark, $grade, $cache) = $result;
+        [$mark, $grade, $cache] = $result;
         $testoutcome = unserialize($cache['_testoutcome']); // For debugging test.
         $this->assertEquals(1, $mark);
         $this->assertEquals(\question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
-
     }
 
     public function test_nearequality_grader_right_answer() {
@@ -97,7 +95,7 @@ def copy_stdin():
 EOCODE;
         $response = ['answer' => $code];
         $result = $q->grade_response($response);
-        list($mark, $grade, $cache) = $result;
+        [$mark, $grade, $cache] = $result;
         $testoutcome = unserialize($cache['_testoutcome']); // For debugging test.
         $this->assertEquals(1, $mark);
         $this->assertEquals(\question_state::$gradedright, $grade);
@@ -128,7 +126,7 @@ def copy_stdin():
 EOCODE;
         $response = ['answer' => $code];
         $result = $q->grade_response($response);
-        list($mark, $grade, $cache) = $result;
+        [$mark, $grade, $cache] = $result;
         $testoutcome = unserialize($cache['_testoutcome']); // For debugging test.
         $this->assertEquals(0, $mark);
         $this->assertEquals(\question_state::$gradedwrong, $grade);

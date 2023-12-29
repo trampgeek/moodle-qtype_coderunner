@@ -25,7 +25,8 @@
  */
 
 
-define(['jquery'], function ($) {
+//define(['jquery'], function ($) {
+// define([], function () {
     /**
      * Append to the question text div in the question a data-URL containing
      * the contents of the question specification file (usu. a pdf).
@@ -34,14 +35,42 @@ define(['jquery'], function ($) {
      * @param {string} questionFilename The name of the problem spec file within
      * the problem zip file.
      */
-    function loadQuestionText(qid, divId, questionFilename) {
-        var questionTextDiv = $('#' + divId),
-            errorDiv = '<div style="colour:red">Failed to load problem spec<div>';
-        if (questionTextDiv.length != 1) {
-            questionTextDiv.append(errorDiv);
+export function loadQuestionText(qid, divId, questionFilename) {
+        // var questionTextDiv = $('#' + divId),
+        var questionTextDiv = document.getElementById(divId),
+            error = 'Failed to load problem spec',
+            errorElem = document.createTextNode(error),
+            url = M.cfg.wwwroot + '/question/type/coderunner/problemspec.php?questionid=' + qid +
+            '&sesskey='+M.cfg.sesskey+'&filename='+questionFilename;
+
+/*         if (questionTextDiv.length != 1) {  //  is this useful?
+            questionTextDiv.innerText.append(errorDiv);
             return;
         }
-        $.getJSON(M.cfg.wwwroot + '/question/type/coderunner/problemspec.php',
+ */
+        fetch(url)
+            .then((response) => {
+                if (response.ok) {
+                    return response.json();}
+                else {
+                    throw new Error(error);  // fetch failed for some reason
+                }
+            })
+            .then(function (data) {
+                var anchorElem = document.createElement('a');
+                if (data.filecontentsb64) {
+                    anchorElem.href = 'data:application/pdf;base64,'+data.filecontentsb64;
+                    anchorElem.text = 'Problem Spec';
+                    anchorElem.download = "problem_spec";  // suggested filename for download
+                    questionTextDiv.appendChild(anchorElem);
+                } else {
+                    throw new Error(error);  // didn't get expected contents
+                }
+            })
+            .catch(() =>  {questionTextDiv.appendChild(errorElem);});
+
+
+/*         $.getJSON(M.cfg.wwwroot + '/question/type/coderunner/problemspec.php',
                 {
                     questionid: qid,
                     sesskey: M.cfg.sesskey,
@@ -61,10 +90,12 @@ define(['jquery'], function ($) {
         ).fail(function () {
             // AJAX failed. We're dead, Fred.
             questionTextDiv.append(errorDiv);
-        });
+        }); */
+
+
     }
 
-    return {
-        loadQuestionText: loadQuestionText
-    };
-});
+//    return {
+//       loadQuestionText: loadQuestionText
+//    };
+//});

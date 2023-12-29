@@ -33,7 +33,6 @@ use qtype_coderunner\constants;
 
 
 class qtype_coderunner_renderer extends qtype_renderer {
-
     /**
      * Generate the display of the formulation part of the question. This is the
      * area that contains the question text, and the controls for students to
@@ -65,8 +64,11 @@ class qtype_coderunner_renderer extends qtype_renderer {
             // Special case hack for programming contest problems.
             $qtext .= "<div id='$divid'></div>";
             $probspecfilename = isset($params->problem_spec_filename) ? $params->problem_spec_filename : '';
-            $this->page->requires->js_call_amd('qtype_coderunner/ajaxquestionloader',
-                    'loadQuestionText', [$qid, $divid, $probspecfilename]);
+            $this->page->requires->js_call_amd(
+                'qtype_coderunner/ajaxquestionloader',
+                'loadQuestionText',
+                [$qid, $divid, $probspecfilename]
+            );
         }
         $examples = $question->example_testcases();
         if (count($examples) > 0) {
@@ -82,15 +84,20 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
         $responsefieldname = $qa->get_qt_field_name('answer');
         $responsefieldid = 'id_' . $responsefieldname;
-        $answerprompt = html_writer::tag('label',
-                get_string('answerprompt', 'qtype_coderunner'),
-                ['class' => 'answerprompt', 'for' => $responsefieldid]);
+        $answerprompt = html_writer::tag(
+            'label',
+            get_string('answerprompt', 'qtype_coderunner'),
+            ['class' => 'answerprompt', 'for' => $responsefieldid]
+        );
         $qtext .= $answerprompt;
         $behaviour = $qa->get_behaviour(true);
         if ($behaviour->penaltiesenabled && $qa->has_marks()) {
             $penaltystring = $this->penalty_regime_string($qa);
-            $htmlpenalties = html_writer::tag('span', $penaltystring,
-                ['class' => 'penaltyregime']);
+            $htmlpenalties = html_writer::tag(
+                'span',
+                $penaltystring,
+                ['class' => 'penaltyregime']
+            );
             $qtext .= $htmlpenalties;
         }
 
@@ -100,7 +107,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
             $currentlanguage = $question->acelang;
             if (strpos($currentlanguage, ',') !== false) {
                 $qtext .= $this->language_dropdown($qa);
-                list($langs, $default) = qtype_coderunner_util::extract_languages($currentlanguage);
+                [$langs, $default] = qtype_coderunner_util::extract_languages($currentlanguage);
                 $currentlanguage = $default ? $default : $langs[0];
             }
         }
@@ -124,15 +131,22 @@ class qtype_coderunner_renderer extends qtype_renderer {
         }
 
         $rows = isset($question->answerboxlines) ? $question->answerboxlines : constants::DEFAULT_NUM_ROWS;
-        $taattributes = $this->answerbox_attributes($responsefieldname, $rows,
-                $question, $currentlanguage, $options->readonly);
+        $taattributes = $this->answerbox_attributes(
+            $responsefieldname,
+            $rows,
+            $question,
+            $currentlanguage,
+            $options->readonly
+        );
 
         $qtext .= html_writer::tag('textarea', s($currentanswer), $taattributes);
 
         if ($qa->get_state() == question_state::$invalid) {
-            $qtext .= html_writer::nonempty_tag('div',
-                    $question->get_validation_error($qa->get_last_qt_data()),
-                    ['class' => 'validationerror']);
+            $qtext .= html_writer::nonempty_tag(
+                'div',
+                $question->get_validation_error($qa->get_last_qt_data()),
+                ['class' => 'validationerror']
+            );
         }
 
         // Add file upload controls if attachments are allowed.
@@ -140,12 +154,14 @@ class qtype_coderunner_renderer extends qtype_renderer {
         if ($question->attachments) {
             if (empty($options->readonly)) {
                 $files = $this->files_input($qa, $question->attachments, $options);
-
             } else {
                 $files = $this->files_read_only($qa, $options);
             }
-            $qtext .= html_writer::tag('div', $files,
-                    ['class' => 'form-filemanager', 'data-fieldtype' => 'filemanager']);
+            $qtext .= html_writer::tag(
+                'div',
+                $files,
+                ['class' => 'form-filemanager', 'data-fieldtype' => 'filemanager']
+            );
             // Class and data-fieldtype are so behat can find the filemanager in both boost and clean themes.
         }
 
@@ -158,12 +174,18 @@ class qtype_coderunner_renderer extends qtype_renderer {
             if (!empty($question->acelang) && strpos($question->acelang, ',') != false) {
                 // For multilanguage questions, add javascript to switch the
                 // Ace language when the user changes the selected language.
-                $this->page->requires->js_call_amd('qtype_coderunner/multilanguagequestion',
-                        'initLangSelector', [$responsefieldid]);
+                $this->page->requires->js_call_amd(
+                    'qtype_coderunner/multilanguagequestion',
+                    'initLangSelector',
+                    [$responsefieldid]
+                );
             }
         } else {
-            $this->page->requires->js_call_amd('qtype_coderunner/textareas', 'initQuestionTA',
-                    [$responsefieldid]);
+            $this->page->requires->js_call_amd(
+                'qtype_coderunner/textareas',
+                'initQuestionTA',
+                [$responsefieldid]
+            );
         }
 
         return $qtext;
@@ -243,23 +265,34 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
         $fb .= html_writer::start_tag('div', ['class' => $resultsclass]);
         if ($outcome->invalid()) {
-            $fb .= html_writer::tag('h5', get_string('unserializefailed', 'qtype_coderunner'),
-                    ['class' => 'run_failed_error']);
+            $fb .= html_writer::tag(
+                'h5',
+                get_string('unserializefailed', 'qtype_coderunner'),
+                ['class' => 'run_failed_error']
+            );
         } else if ($outcome->run_failed()) {
-            $fb .= html_writer::tag('h5', get_string('run_failed', 'qtype_coderunner'));;
-            $fb .= html_writer::tag('p', s($outcome->errormessage),
-                    ['class' => 'run_failed_error']);
+            $fb .= html_writer::tag('h5', get_string('run_failed', 'qtype_coderunner'));
+            ;
+            $fb .= html_writer::tag(
+                'p',
+                s($outcome->errormessage),
+                ['class' => 'run_failed_error']
+            );
         } else if ($outcome->has_syntax_error()) {
             $fb .= html_writer::tag('h5', get_string('syntax_errors', 'qtype_coderunner'));
-            $fb .= html_writer::tag('pre', s($outcome->errormessage),
-                    ['class' => 'pre_syntax_error']);
+            $fb .= html_writer::tag(
+                'pre',
+                s($outcome->errormessage),
+                ['class' => 'pre_syntax_error']
+            );
         } else if ($outcome->combinator_error()) {
             $fb .= html_writer::tag('h5', get_string('badquestion', 'qtype_coderunner'));
-            $fb .= html_writer::tag('pre', s($outcome->errormessage),
-                    ['class' => 'pre_question_error']);
-
+            $fb .= html_writer::tag(
+                'pre',
+                s($outcome->errormessage),
+                ['class' => 'pre_question_error']
+            );
         } else {
-
             // The run was successful (i.e didn't crash, but may be wrong answer). Display results.
             if ($isprecheck) {
                 $fb .= html_writer::tag('h3', get_string('precheck_only', 'qtype_coderunner'));
@@ -275,12 +308,13 @@ class qtype_coderunner_renderer extends qtype_renderer {
         // Summarise the status of the response in a paragraph at the end.
         // Suppress when previous errors have already said enough or it's
         // an output only question.
-        if (!$outcome->has_syntax_error() &&
+        if (
+            !$outcome->has_syntax_error() &&
              !$isprecheck &&
              !$isoutputonly &&
              !$outcome->is_ungradable() &&
-             !$outcome->run_failed()) {
-
+             !$outcome->run_failed()
+        ) {
             $fb .= $this->build_feedback_summary($qa, $outcome);
         }
         $fb .= html_writer::end_tag('div');
@@ -306,14 +340,19 @@ class qtype_coderunner_renderer extends qtype_renderer {
         $output = $outcome->get_raw_output();
         if (!empty($output)) {
             $fb = html_writer::tag('p', get_string('bademptyprecheck', 'qtype_coderunner'));
-            $fb .= html_writer::tag('pre', qtype_coderunner_util::format_cell($output),
-                    ['class' => 'bad_empty_precheck']);
+            $fb .= html_writer::tag(
+                'pre',
+                qtype_coderunner_util::format_cell($output),
+                ['class' => 'bad_empty_precheck']
+            );
         } else {
-            $fb = html_writer::tag('p', get_string('goodemptyprecheck', 'qtype_coderunner'),
-                    ['class' => 'good_empty_precheck']);
+            $fb = html_writer::tag(
+                'p',
+                get_string('goodemptyprecheck', 'qtype_coderunner'),
+                ['class' => 'good_empty_precheck']
+            );
         }
         return $fb;
-
     }
 
     // Generate the main feedback, consisting of (in order) any prologuehtml,
@@ -364,7 +403,6 @@ class qtype_coderunner_renderer extends qtype_renderer {
             $table->data = $tablerows;
             $table->rowclasses = $rowclasses;
             $fb .= html_writer::table($table);
-
         }
         $fb .= $outcome->get_epilogue();
 
@@ -423,10 +461,12 @@ class qtype_coderunner_renderer extends qtype_renderer {
             }
 
             // Provide a show differences button if answer wrong and equality grader used.
-            if ((empty($question->grader) ||
+            if (
+                (empty($question->grader) ||
                  $question->grader == 'EqualityGrader' ||
                  $question->grader == 'NearEqualityGrader') &&
-                    !$onlyhiddenfailed) {
+                    !$onlyhiddenfailed
+            ) {
                 $lines[] = $this->diff_button($qa);
             }
         }
@@ -519,7 +559,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
             // which is specified by the template parameter answer_language if
             // given, or the default (starred) language in the language list
             // if given or the first language listed, whichever comes first.
-            list($languages, $default) = qtype_coderunner_util::extract_languages($question->acelang);
+            [$languages, $default] = qtype_coderunner_util::extract_languages($question->acelang);
             $params = $question->parameters;
             if (property_exists($params, 'answer_language')) {
                 $currentlanguage = $params->answer_language;
@@ -550,8 +590,13 @@ class qtype_coderunner_renderer extends qtype_renderer {
         } else {
             $rows = $answerboxlines;
         }
-        $taattributes = $this->answerbox_attributes($fieldname, $rows, $question,
-                $currentlanguage, true);
+        $taattributes = $this->answerbox_attributes(
+            $fieldname,
+            $rows,
+            $question,
+            $currentlanguage,
+            true
+        );
 
         $html .= html_writer::tag('textarea', s($answer), $taattributes);
         $html .= html_writer::end_tag('div');
@@ -561,11 +606,17 @@ class qtype_coderunner_renderer extends qtype_renderer {
         if ($uiplugin !== '' && $uiplugin !== 'none') {
             qtype_coderunner_util::load_uiplugin_js($question, $fieldid);
         } else {
-            $this->page->requires->js_call_amd('qtype_coderunner/textareas',
-                    'initQuestionTA', [$fieldid]);
+            $this->page->requires->js_call_amd(
+                'qtype_coderunner/textareas',
+                'initQuestionTA',
+                [$fieldid]
+            );
         }
-        $this->page->requires->js_call_amd('qtype_coderunner/textareas',
-                'setupShowHideAnswer', [$answerlinkid, $divid]);
+        $this->page->requires->js_call_amd(
+            'qtype_coderunner/textareas',
+            'setupShowHideAnswer',
+            [$answerlinkid, $divid]
+        );
         return $html;
     }
 
@@ -581,9 +632,15 @@ class qtype_coderunner_renderer extends qtype_renderer {
         $output = [];
 
         foreach ($files as $file) {
-            $output[] = html_writer::tag('p', html_writer::link($qa->get_response_file_url($file),
-                    $this->output->pix_icon(file_file_icon($file), get_mimetype_description($file),
-                    'moodle', ['class' => 'icon']) . ' ' . s($file->get_filename())));
+            $output[] = html_writer::tag('p', html_writer::link(
+                $qa->get_response_file_url($file),
+                $this->output->pix_icon(
+                    file_file_icon($file),
+                    get_mimetype_description($file),
+                    'moodle',
+                    ['class' => 'icon']
+                ) . ' ' . s($file->get_filename())
+            ));
         }
         return implode($output);
     }
@@ -595,8 +652,11 @@ class qtype_coderunner_renderer extends qtype_renderer {
      * @param question_display_options $options controls what should and should
      *      not be displayed. Used to get the context.
      */
-    public function files_input(question_attempt $qa, $numallowed,
-            question_display_options $options) {
+    public function files_input(
+        question_attempt $qa,
+        $numallowed,
+        question_display_options $options
+    ) {
         global $CFG;
         require_once($CFG->dirroot . '/lib/form/filemanager.php');
 
@@ -609,7 +669,9 @@ class qtype_coderunner_renderer extends qtype_renderer {
         $pickeroptions->return_types = FILE_INTERNAL | FILE_CONTROLLED_LINK;
         $pickeroptions->accepted_types = '*';  // Accept anything - names checked on upload.
         $pickeroptions->itemid = $qa->prepare_response_files_draft_itemid(
-                'attachments', $options->context->id);
+            'attachments',
+            $options->context->id
+        );
 
         $fm = new form_filemanager($pickeroptions);
         $filesrenderer = $this->page->get_renderer('core', 'files');
@@ -622,9 +684,11 @@ class qtype_coderunner_renderer extends qtype_renderer {
                     . ': ' . $question->filenamesregex);
         }
 
-        return $filesrenderer->render($fm). html_writer::empty_tag(
-                'input', ['type' => 'hidden', 'name' => $qa->get_qt_field_name('attachments'),
-                'value' => $pickeroptions->itemid]) . $text;
+        return $filesrenderer->render($fm) . html_writer::empty_tag(
+            'input',
+            ['type' => 'hidden', 'name' => $qa->get_qt_field_name('attachments'),
+            'value' => $pickeroptions->itemid]
+        ) . $text;
     }
 
 
@@ -641,7 +705,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
 
         // Record counts of non-empty cells in each column so empty columns are suppressed.
         // But always show the 'expected' column (renaming it to 'result').
-        list($numtests, $numstds, $numextras) = $this->count_bits($examples);
+        [$numtests, $numstds, $numextras] = $this->count_bits($examples);
         $counts = ['testcode' => $numtests, 'stdin' => $numstds, 'extra' => $numextras, 'expected' => 1];
 
         $table->head = [];
@@ -730,8 +794,13 @@ class qtype_coderunner_renderer extends qtype_renderer {
     }
 
     // Return the text area attributes for an answer box.
-    private function answerbox_attributes($fieldname, $rows, $question,
-            $currentlanguage, $readonly=false) {
+    private function answerbox_attributes(
+        $fieldname,
+        $rows,
+        $question,
+        $currentlanguage,
+        $readonly = false
+    ) {
         if ($question->mergeduiparameters) {
             $uiparamsjson = json_encode($question->mergeduiparameters);
         } else {
@@ -760,7 +829,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
     // Return the HTML for a language dropdown list for the given question attempt.
     private function language_dropdown($qa) {
         $question = $qa->get_question();
-        list($languages, $default) = qtype_coderunner_util::extract_languages($question->acelang);
+        [$languages, $default] = qtype_coderunner_util::extract_languages($question->acelang);
         $currentlanguage = $qa->get_last_qt_var('language');
         if (empty($currentlanguage) && $default !== '') {
             $currentlanguage = $default;
@@ -768,12 +837,16 @@ class qtype_coderunner_renderer extends qtype_renderer {
         $selectname = $qa->get_qt_field_name('language');
         $selectid = 'id_' . $selectname;
         $html = html_writer::start_tag('div', ['class' => 'coderunner-lang-select-div']);
-        $html .= html_writer::tag('label',
-                get_string('languageselectlabel', 'qtype_coderunner'),
-                ['for' => $selectid]);
-        $html .= html_writer::start_tag('select',
-                ['id' => $selectid, 'name' => $selectname,
-                      'class' => 'coderunner-lang-select']);
+        $html .= html_writer::tag(
+            'label',
+            get_string('languageselectlabel', 'qtype_coderunner'),
+            ['for' => $selectid]
+        );
+        $html .= html_writer::start_tag(
+            'select',
+            ['id' => $selectid, 'name' => $selectname,
+            'class' => 'coderunner-lang-select']
+        );
         if (empty($currentlanguage)) {
             $html .= html_writer::tag('option', '', ['value' => '']);
         }
@@ -821,7 +894,8 @@ class qtype_coderunner_renderer extends qtype_renderer {
         ];
         $html = html_writer::empty_tag('input', $attributes);
 
-        $this->page->requires->js_call_amd('qtype_coderunner/showdiff',
+        $this->page->requires->js_call_amd(
+            'qtype_coderunner/showdiff',
             'initDiffButton',
             [$attributes['id'],
                 get_string('showdifferences', 'qtype_coderunner'),
@@ -857,7 +931,8 @@ class qtype_coderunner_renderer extends qtype_renderer {
             'data-reload-text' => $preload];
         $html = html_writer::empty_tag('input', $attributes);
 
-        $this->page->requires->js_call_amd('qtype_coderunner/resetbutton',
+        $this->page->requires->js_call_amd(
+            'qtype_coderunner/resetbutton',
             'initResetButton',
             [$buttonid,
                   $responsefieldid,

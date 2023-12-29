@@ -41,7 +41,6 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class walkthrough_combinator_grader_test extends \qbehaviour_walkthrough_test_base {
-
     protected function setUp(): void {
         global $CFG;
         parent::setUp();
@@ -80,14 +79,14 @@ EOTEMPLATE;
         $this->process_submission(['-submit' => 1,
             'answer' => "hi di hi and HO DI HO"]);
         $this->check_current_mark(1.0);
-        $this->check_current_output( new \question_pattern_expectation('|<h2>Well done</h2>|') );
+        $this->check_current_output(new \question_pattern_expectation('|<h2>Well done</h2>|'));
 
         // Submit a partially right  answer.
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
         $this->process_submission(['-submit' => 1,
             'answer' => "hi di nothi and HO DI NOTHO"]);
         $this->check_current_mark(0.5);
-        $this->check_current_output( new \question_pattern_expectation('|<h2>Wrong numbers of hi and/or ho</h2>|') );
+        $this->check_current_output(new \question_pattern_expectation('|<h2>Wrong numbers of hi and/or ho</h2>|'));
     }
 
 

@@ -1333,4 +1333,3 @@ $string['wsnolanguage'] = 'Language "{$a}" is not known';
 $string['wssubmissionrateexceeded'] = 'You have exceeded the maximum hourly \'Try it!\' submission rate. Request denied.';
 
 $string['xmlcoderunnerformaterror'] = 'XML format error in coderunner question';
-

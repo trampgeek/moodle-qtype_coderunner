@@ -34,7 +34,6 @@ require_once($CFG->dirroot . '/question/type/coderunner/question.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class walkthrough_randomisation_test extends \qbehaviour_walkthrough_test_base {
-
     protected function setUp(): void {
         parent::setUp();
         \qtype_coderunner_testcase::setup_test_sandbox_configuration();
@@ -110,13 +109,13 @@ class walkthrough_randomisation_test extends \qbehaviour_walkthrough_test_base {
                 $this->add_fields($q, $seed);
                 $this->start_attempt_at_question($q, 'adaptive', 1, 1);
                 $this->render();
-                $this->assertTrue (strpos($this->currentoutput, $test['searchfor']) !== false);
+                $this->assertTrue(strpos($this->currentoutput, $test['searchfor']) !== false);
             }
         }
     }
 
 
-    private function add_fields($q, $seed=false) {
+    private function add_fields($q, $seed = false) {
         if ($seed !== false) {
             $seeding = "{{- set_random_seed($seed) -}}\n";
         } else {
@@ -147,6 +146,5 @@ class walkthrough_randomisation_test extends \qbehaviour_walkthrough_test_base {
                           'mark'      => 1.0,
                           'hiderestiffail'  => 0],
         ];
-
     }
 }

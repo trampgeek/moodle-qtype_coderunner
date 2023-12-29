@@ -37,7 +37,6 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
  * @coversNothing
  */
 class c_questions_test extends \qtype_coderunner_testcase {
-
     protected function setUp(): void {
         parent::setUp();
 
@@ -48,7 +47,7 @@ class c_questions_test extends \qtype_coderunner_testcase {
     public function test_good_sqr_function() {
         $q = $this->make_question('sqr_c');
         $response = ['answer' => "int sqr(int n) { return n * n;}\n"];
-        list($mark, $grade, $cache) = $q->grade_response($response);
+        [$mark, $grade, $cache] = $q->grade_response($response);
         $this->assertEquals(1, $mark);
         $this->assertEquals(\question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
@@ -60,7 +59,7 @@ class c_questions_test extends \qtype_coderunner_testcase {
     public function test_compile_error() {
         $q = $this->make_question('sqr_c');
         $response = ['answer' => "int sqr(int n) { return n * n; /* No closing brace */"];
-        list($mark, $grade, $cache) = $q->grade_response($response);
+        [$mark, $grade, $cache] = $q->grade_response($response);
         $this->assertEquals(0, $mark);
         $this->assertEquals(\question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
@@ -72,7 +71,7 @@ class c_questions_test extends \qtype_coderunner_testcase {
     public function test_good_hello_world() {
         $q = $this->make_question('hello_prog_c');
         $response = ['answer' => "#include <stdio.h>\nint main() { printf(\"Hello ENCE260\\n\");return 0;}\n"];
-        list($mark, $grade, $cache) = $q->grade_response($response);
+        [$mark, $grade, $cache] = $q->grade_response($response);
         $this->assertEquals(1, $mark);
         $this->assertEquals(\question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
@@ -85,7 +84,7 @@ class c_questions_test extends \qtype_coderunner_testcase {
     public function test_bad_hello_world() {
         $q = $this->make_question('hello_prog_c');
         $response = ['answer' => "#include <stdio.h>\nint main() { printf(\"Hello ENCE260!\\n\");return 0;}\n"];
-        list($mark, $grade, $cache) = $q->grade_response($response);
+        [$mark, $grade, $cache] = $q->grade_response($response);
         $this->assertEquals(0, $mark);
         $this->assertEquals(\question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
@@ -104,7 +103,7 @@ class c_questions_test extends \qtype_coderunner_testcase {
             "putchar(c);\n" .
             "}\n" .
             "return 0;}\n"];
-        list($mark, $grade, $cache) = $q->grade_response($response);
+        [$mark, $grade, $cache] = $q->grade_response($response);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testoutcome = unserialize($cache['_testoutcome']);
         $this->assertEquals(1, $mark);
@@ -128,7 +127,7 @@ class c_questions_test extends \qtype_coderunner_testcase {
             "}\n" .
             "}\n",
         ];
-        list($mark, $grade, $cache) = $q->grade_response($response);
+        [$mark, $grade, $cache] = $q->grade_response($response);
         $this->assertEquals(1, $mark);
         $this->assertEquals(\question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
@@ -143,7 +142,7 @@ class c_questions_test extends \qtype_coderunner_testcase {
         $response = ['answer' => "#include <stdio.h>\n" .
             "#include <stdlib.h>\n" .
             "int main() { char* p = NULL; *p = 10; return 0; }\n"];
-        list($mark, $grade, $cache) = $q->grade_response($response);
+        [$mark, $grade, $cache] = $q->grade_response($response);
         $this->assertEquals(0, $mark);
         $this->assertEquals(\question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
@@ -157,7 +156,7 @@ class c_questions_test extends \qtype_coderunner_testcase {
     public function test_timelimit_exceeded() {
         $q = $this->make_question('hello_prog_c');
         $response = ['answer' => "#include <stdio.h>\nint main() { while(1) {};return 0;}\n"];
-        list($mark, $grade, $cache) = $q->grade_response($response);
+        [$mark, $grade, $cache] = $q->grade_response($response);
         $this->assertEquals(0, $mark);
         $this->assertEquals(\question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
@@ -171,7 +170,7 @@ class c_questions_test extends \qtype_coderunner_testcase {
     public function test_outputlimit_exceeded() {
         $q = $this->make_question('hello_prog_c');
         $response = ['answer' => "#include <stdio.h>\nint main() { while(1) { printf(\"Hello\"); };return 0;}\n"];
-        list($mark, $grade, $cache) = $q->grade_response($response);
+        [$mark, $grade, $cache] = $q->grade_response($response);
         $this->assertEquals(0, $mark);
         $this->assertEquals(\question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
@@ -191,7 +190,7 @@ class c_questions_test extends \qtype_coderunner_testcase {
         // test cases and a correct solution.
         $q = $this->make_question('sqr_no_semicolons');
         $response = ['answer' => "int sqr(int n) { return n * n;}\n"];
-        list($mark, $grade, $cache) = $q->grade_response($response);
+        [$mark, $grade, $cache] = $q->grade_response($response);
         $this->assertEquals(1, $mark);
         $this->assertEquals(\question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
@@ -222,13 +221,15 @@ EOANS
 ,
         ];
         $q->sandboxparams = '{"numprocs": 1}';
-        list(, $grade, $cache) = $q->grade_response($response);
+        [, $grade, $cache] = $q->grade_response($response);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testoutcome = unserialize($cache['_testoutcome']);
         $this->assertTrue(
-                strpos($testoutcome->testresults[0]->got,
-                    "***Illegal function call***") !== false ||
+            strpos(
+                $testoutcome->testresults[0]->got,
+                "***Illegal function call***"
+            ) !== false ||
                 $grade == \question_state::$gradedright
-                );
+        );
     }
 }

@@ -32,4 +32,3 @@ $plugin->release = '5.2.4';
 $plugin->dependencies = [
     'qbehaviour_adaptive_adapted_for_coderunner' => 2021112300,
 ];
-

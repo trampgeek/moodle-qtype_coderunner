@@ -31,7 +31,6 @@
  */
 
 class qtype_coderunner_equality_grader extends qtype_coderunner_grader {
-
     public function name() {
         return 'EqualityGrader';
     }

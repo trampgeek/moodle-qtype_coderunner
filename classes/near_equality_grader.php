@@ -29,7 +29,6 @@
  */
 
 class qtype_coderunner_near_equality_grader extends qtype_coderunner_grader {
-
     /** This grader tests if the expected output matches the actual
      *  output after removing all empty lines and trailing white space,
      *  collapsing all sequences of space or tab characters to a single

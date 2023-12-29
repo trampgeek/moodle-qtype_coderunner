@@ -39,7 +39,6 @@ use qtype_coderunner_sandbox;
 use qtype_coderunner_exception;
 
 class run_in_sandbox extends external_api {
-
     /**
      * Returns description of method parameters. Used for validation.
      * @return external_function_parameters
@@ -47,21 +46,40 @@ class run_in_sandbox extends external_api {
     public static function execute_parameters(): external_function_parameters {
         return new external_function_parameters(
             [
-                'contextid' => new external_value(PARAM_INT,
-                        'The Moodle context ID of the originating web page',
-                        VALUE_REQUIRED),
-                'sourcecode' => new external_value(PARAM_RAW,
-                        'The source code to be run', VALUE_REQUIRED),
-                'language' => new external_value(PARAM_TEXT,
-                        'The computer language of the sourcecode', VALUE_DEFAULT, 'python3'),
-                'stdin' => new external_value(PARAM_RAW,
-                        'The standard input to use for the run', VALUE_DEFAULT, ''),
-                'files' => new external_value(PARAM_RAW,
-                        'A JSON object in which attributes are filenames and values file contents',
-                        VALUE_DEFAULT, ''),
-                'params' => new external_value(PARAM_TEXT,
-                        'A JSON object defining any sandbox parameters',
-                        VALUE_DEFAULT, ''),
+                'contextid' => new external_value(
+                    PARAM_INT,
+                    'The Moodle context ID of the originating web page',
+                    VALUE_REQUIRED
+                ),
+                'sourcecode' => new external_value(
+                    PARAM_RAW,
+                    'The source code to be run',
+                    VALUE_REQUIRED
+                ),
+                'language' => new external_value(
+                    PARAM_TEXT,
+                    'The computer language of the sourcecode',
+                    VALUE_DEFAULT,
+                    'python3'
+                ),
+                'stdin' => new external_value(
+                    PARAM_RAW,
+                    'The standard input to use for the run',
+                    VALUE_DEFAULT,
+                    ''
+                ),
+                'files' => new external_value(
+                    PARAM_RAW,
+                    'A JSON object in which attributes are filenames and values file contents',
+                    VALUE_DEFAULT,
+                    ''
+                ),
+                'params' => new external_value(
+                    PARAM_TEXT,
+                    'A JSON object defining any sandbox parameters',
+                    VALUE_DEFAULT,
+                    ''
+                ),
             ]
         );
     }
@@ -88,8 +106,14 @@ class run_in_sandbox extends external_api {
      * @return string JSON-encoded Jobe run-result object.
      * @throws qtype_coderunner_exception
      */
-    public static function execute($contextid, $sourcecode, $language='python3',
-            $stdin='', $files='', $params='') {
+    public static function execute(
+        $contextid,
+        $sourcecode,
+        $language = 'python3',
+        $stdin = '',
+        $files = '',
+        $params = ''
+    ) {
         global $USER, $SESSION;
         // First, see if the web service is enabled.
         if (!get_config('qtype_coderunner', 'wsenabled')) {
@@ -97,14 +121,16 @@ class run_in_sandbox extends external_api {
         }
 
         // Parameters validation.
-        self::validate_parameters(self::execute_parameters(),
-                ['contextid' => $contextid,
+        self::validate_parameters(
+            self::execute_parameters(),
+            ['contextid' => $contextid,
                       'sourcecode' => $sourcecode,
                       'language' => $language,
                       'stdin' => $stdin,
                       'files' => $files,
                       'params' => $params,
-                    ]);
+            ]
+        );
 
         // Now check if the user has the capability (usually meaning is logged in and not a guest).
         $context = context::instance_by_id($contextid);

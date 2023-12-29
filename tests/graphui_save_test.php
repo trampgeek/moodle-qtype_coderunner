@@ -37,7 +37,6 @@ require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
  * @coversNothing
  */
 class graphui_save_test extends \qtype_coderunner_testcase {
-
     protected $qtype;
 
     protected function setUp(): void {
@@ -70,16 +69,21 @@ class graphui_save_test extends \qtype_coderunner_testcase {
         $actualquestiondata = end($actualquestionsdata);
 
         foreach ($questiondata as $property => $value) {
-            if (!in_array($property, ['id', 'idnumber', 'version', 'timemodified',
-                'timecreated', 'options', 'testcases'])) {
+            if (
+                !in_array($property, ['id', 'idnumber', 'version', 'timemodified',
+                'timecreated', 'options', 'testcases'])
+            ) {
                 $this->assertEquals($value, $actualquestiondata->$property);
             }
         }
 
         foreach ($questiondata->options as $optionname => $value) {
             if ($optionname != 'testcases') {
-                $this->assertEquals($value, $actualquestiondata->options->$optionname,
-                        'For property ' . $optionname);
+                $this->assertEquals(
+                    $value,
+                    $actualquestiondata->options->$optionname,
+                    'For property ' . $optionname
+                );
             }
         }
 

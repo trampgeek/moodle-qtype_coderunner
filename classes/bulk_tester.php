@@ -27,7 +27,6 @@
  */
 
 class qtype_coderunner_bulk_tester {
-
     const PASS = 0;
     const MISSINGANSWER = 1;
     const FAIL = 2;
@@ -89,7 +88,8 @@ class qtype_coderunner_bulk_tester {
      */
     public function coderunner_questions_in_category($categoryid) {
         global $DB;
-        $rec = $DB->get_records_sql("
+        $rec = $DB->get_records_sql(
+            "
             SELECT q.id, q.name, qv.version
             FROM {question} q
             JOIN {question_versions} qv ON qv.questionid = q.id
@@ -101,7 +101,8 @@ class qtype_coderunner_bulk_tester {
                                 WHERE be.id = qbe.id)
                               )
             AND qbe.questioncategoryid=:categoryid",
-                ['categoryid' => $categoryid]);
+            ['categoryid' => $categoryid]
+        );
         return $rec;
     }
 
@@ -118,7 +119,8 @@ class qtype_coderunner_bulk_tester {
     public function get_categories_for_context($contextid) {
         global $DB;
 
-        return $DB->get_records_sql("
+        return $DB->get_records_sql(
+            "
                 SELECT qc.id, qc.parent, qc.name as name,
                        (SELECT count(1)
                         FROM {question} q
@@ -128,7 +130,8 @@ class qtype_coderunner_bulk_tester {
                 FROM {question_categories} qc
                 WHERE qc.contextid = :contextid
                 ORDER BY qc.name",
-            ['contextid' => $contextid]);
+            ['contextid' => $contextid]
+        );
     }
 
 
@@ -139,7 +142,7 @@ class qtype_coderunner_bulk_tester {
      * @param includeprototypes true to include prototypes in the returned list.
      * @return array qid => question
      */
-    public function get_all_coderunner_questions_in_context($contextid, $includeprototypes=0) {
+    public function get_all_coderunner_questions_in_context($contextid, $includeprototypes = 0) {
         global $DB;
 
         if ($includeprototypes) {
@@ -180,7 +183,7 @@ class qtype_coderunner_bulk_tester {
      *              array of messages relating to the questions with failures
      *              array of messages relating to the questions without sample answers
      */
-    public function run_all_tests_for_context(context $context, $categoryid=null) {
+    public function run_all_tests_for_context(context $context, $categoryid = null) {
         global $OUTPUT;
 
         // Load the necessary data.
@@ -210,8 +213,10 @@ class qtype_coderunner_bulk_tester {
             echo "<ul>\n";
             foreach ($questions as $question) {
                 // Output question name before testing, so if something goes wrong, it is clear which question was the problem.
-                $previewurl = new moodle_url($questiontestsurl,
-                        ['questionid' => $question->id]);
+                $previewurl = new moodle_url(
+                    $questiontestsurl,
+                    ['questionid' => $question->id]
+                );
                 $enhancedname = "{$question->name} (V{$question->version})";
                 $questionnamelink = html_writer::link($previewurl, $enhancedname, ['target' => '_blank']);
                 echo "<li>$questionnamelink:";
@@ -219,7 +224,7 @@ class qtype_coderunner_bulk_tester {
 
                 // Now run the test.
                 try {
-                    list($outcome, $message) = $this->load_and_test_question($question->id);
+                    [$outcome, $message] = $this->load_and_test_question($question->id);
                 } catch (Exception $e) {
                     $message = $e->getMessage();
                     $outcome = self::FAIL;
@@ -297,14 +302,14 @@ class qtype_coderunner_bulk_tester {
         if (!empty($params['answer_language'])) {
             $response['language'] = $params['answer_language'];
         } else if (!empty($question->acelang) && strpos($question->acelang, ',') !== false) {
-            list($languages, $defaultlang) = qtype_coderunner_util::extract_languages($question->acelang);
+            [$languages, $defaultlang] = qtype_coderunner_util::extract_languages($question->acelang);
             if ($defaultlang === '') {
                 $defaultlang = $languages[0];
             }
             $response['language'] = $defaultlang;
         }
         try {
-            list($fraction, $state) = $question->grade_response($response, false);
+            [$fraction, $state] = $question->grade_response($response, false);
             $ok = $state == question_state::$gradedright;
         } catch (qtype_coderunner_exception $e) {
             $ok = false; // If user clicks link to see why, they'll get the same exception.
@@ -344,8 +349,10 @@ class qtype_coderunner_bulk_tester {
             echo html_writer::end_tag('ul');
         }
 
-        echo html_writer::tag('p', html_writer::link(new moodle_url('/question/type/coderunner/bulktestindex.php'),
-                get_string('back')));
+        echo html_writer::tag('p', html_writer::link(
+            new moodle_url('/question/type/coderunner/bulktestindex.php'),
+            get_string('back')
+        ));
     }
 
 

@@ -25,7 +25,6 @@
 use qtype_coderunner\constants;
 
 class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testing_outcome {
-
     // A list of the allowed attributes in the combinator template grader return value.
     public $allowedfields = ['fraction', 'prologuehtml', 'testresults', 'epiloguehtml',
                     'feedbackhtml', 'columnformats', 'showdifferences',
@@ -280,7 +279,7 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
             $this->epiloguehtml = '';
         }
         if (self::can_view_hidden()) {
-            return $this->instructorhtml.$this->epiloguehtml;
+            return $this->instructorhtml . $this->epiloguehtml;
         } else {
             return $this->epiloguehtml;
         }
@@ -309,14 +308,20 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
                 }
             }
             if (count($this->columnformats) !== $numcols) {
-                $error = get_string('wrongnumberofformats', 'qtype_coderunner',
-                        ['expected' => $numcols, 'got' => count($this->columnformats)]);
+                $error = get_string(
+                    'wrongnumberofformats',
+                    'qtype_coderunner',
+                    ['expected' => $numcols, 'got' => count($this->columnformats)]
+                );
                 $this->set_status(self::STATUS_BAD_COMBINATOR, $error);
             } else {
                 foreach ($this->columnformats as $format) {
                     if ($format !== '%s' && $format !== '%h') {
-                        $error = get_string('illegalformat', 'qtype_coderunner',
-                            ['format' => $format]);
+                        $error = get_string(
+                            'illegalformat',
+                            'qtype_coderunner',
+                            ['format' => $format]
+                        );
                         $this->set_status(self::STATUS_BAD_COMBINATOR, $error);
                         break;
                     }
@@ -351,6 +356,5 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
             }
             return $rows;
         }
-
     }
 }

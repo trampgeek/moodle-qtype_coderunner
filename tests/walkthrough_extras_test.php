@@ -39,7 +39,6 @@ define('PRELOAD_TEST', "# TEST COMMENT TO CHECK PRELOAD IS WORKING\n");
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class walkthrough_extras_test extends \qbehaviour_walkthrough_test_base {
-
     protected function setUp(): void {
         parent::setUp();
         \qtype_coderunner_testcase::setup_test_sandbox_configuration();
@@ -68,7 +67,7 @@ EOTEMPLATE;
 
         // Submit a right answer.
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
-        $this->check_current_output( new \question_pattern_expectation('/' . PRELOAD_TEST . '/') );
+        $this->check_current_output(new \question_pattern_expectation('/' . PRELOAD_TEST . '/'));
         $this->process_submission(['-submit' => 1, 'answer' => "def sqr(n): return n * n\n"]);
         $this->check_current_mark(1.0);
     }
@@ -82,9 +81,9 @@ EOTEMPLATE;
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
         $this->process_submission(['-submit' => 1, 'answer' => "def sqr(n): return n * n\n"]);
         $this->check_current_mark(1.0);
-        $this->check_current_output( new \question_pattern_expectation('/Blah/') );
-        $this->check_current_output( new \question_pattern_expectation('/Thing/') );
-        $this->check_current_output( new \question_pattern_expectation('/Gottim/') );
+        $this->check_current_output(new \question_pattern_expectation('/Blah/'));
+        $this->check_current_output(new \question_pattern_expectation('/Thing/'));
+        $this->check_current_output(new \question_pattern_expectation('/Gottim/'));
     }
 
     /** Make sure that if the Jobe URL is wrong we get "jobesandbox is down

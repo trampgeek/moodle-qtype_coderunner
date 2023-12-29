@@ -79,5 +79,4 @@ class qtype_coderunner_wsthrottle {
     private function expired($timestamp, $now) {
         return ($timestamp !== 0) && ($now - $timestamp) > 3600;
     }
-
-};
+}

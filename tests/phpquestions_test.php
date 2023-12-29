@@ -38,8 +38,6 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
  * @coversNothing
  */
 class phpquestions_test extends \qtype_coderunner_testcase {
-
-
     protected function setUp(): void {
         parent::setUp();
 
@@ -51,7 +49,7 @@ class phpquestions_test extends \qtype_coderunner_testcase {
     public function test_good_sqr_function() {
         $q = $this->make_question('sqrphp');
         $response = ['answer' => "<?php\nfunction sqr(\$n) { return \$n * \$n; }\n"];
-        list($mark, $grade, $cache) = $q->grade_response($response);
+        [$mark, $grade, $cache] = $q->grade_response($response);
         $this->assertEquals(1, $mark);
         $this->assertEquals(\question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
@@ -64,7 +62,7 @@ class phpquestions_test extends \qtype_coderunner_testcase {
     public function test_bad_sqr_function() {
         $q = $this->make_question('sqrphp');
         $response = ['answer' => "<?php\nfunction sqr(\$n) { return \$n; }\n"];
-        list($mark, $grade, $cache) = $q->grade_response($response);
+        [$mark, $grade, $cache] = $q->grade_response($response);
         $this->assertEquals(0, $mark);
         $this->assertEquals(\question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
@@ -77,7 +75,7 @@ class phpquestions_test extends \qtype_coderunner_testcase {
     public function test_bad_syntax() {
         $q = $this->make_question('sqrphp');
         $response = ['answer' => "<?php\nfunction sqr(\$n) { return \$n\n"];
-        list($mark, $grade, $cache) = $q->grade_response($response);
+        [$mark, $grade, $cache] = $q->grade_response($response);
         $this->assertEquals(0, $mark);
         $this->assertEquals(\question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
@@ -86,4 +84,3 @@ class phpquestions_test extends \qtype_coderunner_testcase {
         $this->assertEquals(0, count($testoutcome->testresults));
     }
 }
-

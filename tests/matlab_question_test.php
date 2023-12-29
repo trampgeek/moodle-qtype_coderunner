@@ -40,7 +40,6 @@ require_once($CFG->dirroot . '/question/type/coderunner/question.php');
  * @coversNothing
  */
 class matlab_question_test extends \qtype_coderunner_testcase {
-
     protected function setUp(): void {
         parent::setUp();
 
@@ -52,7 +51,7 @@ class matlab_question_test extends \qtype_coderunner_testcase {
         $this->check_language_available('matlab');
         $q = $this->make_question('sqrmatlab');
         $response = ['answer' => "function sq = sqr(n)\n  sq = n * n;\nend\n"];
-        list($mark, $grade, $cache) = $q->grade_response($response);
+        [$mark, $grade, $cache] = $q->grade_response($response);
         $this->assertEquals(1, $mark);
         $this->assertEquals(\question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
@@ -66,7 +65,7 @@ class matlab_question_test extends \qtype_coderunner_testcase {
         $this->check_language_available('matlab');
         $q = $this->make_question('sqrmatlab');
         $response = ['answer' => "function sq = sqr(n)\n  sq = n;\nend\n"];
-        list($mark, $grade, $cache) = $q->grade_response($response);
+        [$mark, $grade, $cache] = $q->grade_response($response);
         $this->assertEquals(0, $mark);
         $this->assertEquals(\question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
@@ -80,7 +79,7 @@ class matlab_question_test extends \qtype_coderunner_testcase {
         $this->check_language_available('matlab');
         $q = $this->make_question('sqrmatlab');
         $response = ['answer' => "function sq = sqr(n)\n  sq = n;\nendd\n"];
-        list($mark, $grade, $cache) = $q->grade_response($response);
+        [$mark, $grade, $cache] = $q->grade_response($response);
         $this->assertEquals(0, $mark);
         $this->assertEquals(\question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
@@ -102,9 +101,8 @@ end
 EOT
 ,
         ];
-        list($mark, $grade, $cache) = $q->grade_response($response);
+        [$mark, $grade, $cache] = $q->grade_response($response);
         $this->assertEquals(1, $mark);
         $this->assertEquals(\question_state::$gradedright, $grade);
     }
-
 }

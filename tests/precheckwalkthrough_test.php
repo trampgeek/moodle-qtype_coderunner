@@ -39,7 +39,6 @@ use qtype_coderunner\constants;
  * @coversNothing
  */
 class precheckwalkthrough_test extends \qbehaviour_walkthrough_test_base {
-
     protected function setUp(): void {
         parent::setUp();
         \qtype_coderunner_testcase::setup_test_sandbox_configuration();
@@ -245,4 +244,3 @@ EOTEMPLATE;
         $this->save_quba();
     }
 }
-

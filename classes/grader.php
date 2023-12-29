@@ -73,5 +73,4 @@ abstract class qtype_coderunner_grader {
 
 
     abstract protected function grade_known_good(&$output, &$testcase);
-
 }

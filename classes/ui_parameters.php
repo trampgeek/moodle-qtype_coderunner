@@ -29,7 +29,7 @@ defined('MOODLE_INTERNAL') || die();
 
 // A class to represent a single parameter with a name, type and value.
 class qtype_coderunner_ui_parameter {
-    public function __construct($name, $type, $value, $required=false) {
+    public function __construct($name, $type, $value, $required = false) {
         $this->name = $name;
         $this->type = $type;
         $this->value = $value;
@@ -43,7 +43,6 @@ class qtype_coderunner_ui_parameter {
  * a particular ui plugin.
  */
 class qtype_coderunner_ui_parameters {
-
     /**
      * Construct a ui_parameters object by reading the json file for the
      * specified ui_plugin.
@@ -109,7 +108,7 @@ class qtype_coderunner_ui_parameters {
      * @param boolean $ignorebad If a parameter in the json string does not
      * already have a key, ignore it. Otherwise an exception is raised.
      */
-    public function merge_json($json, $ignorebad=false) {
+    public function merge_json($json, $ignorebad = false) {
         $newvalues = json_decode($json ?? '');
         if ($newvalues !== null) {  // If $json is valid.
             foreach ($newvalues as $key => $value) {
@@ -119,7 +118,8 @@ class qtype_coderunner_ui_parameters {
                         continue;
                     } else {
                         throw new qtype_coderunner_exception(
-                            "Unexpected key value ($key) when merging json for ui {$this->uiname}");
+                            "Unexpected key value ($key) when merging json for ui {$this->uiname}"
+                        );
                     }
                 }
                 $this->params[$matchingkey]->value = $value;
