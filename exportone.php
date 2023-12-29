@@ -23,7 +23,7 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(__DIR__.'/../../../config.php');
+require_once(__DIR__ . '/../../../config.php');
 
 require_once($CFG->libdir . '/questionlib.php');
 require_once($CFG->dirroot . '/question/format/xml/format.php');
@@ -46,7 +46,6 @@ if ($cmid = optional_param('cmid', 0, PARAM_INT)) {
     require_login($cm->course, false, $cm);
     $context = context_module::instance($cmid);
     $urlparams['cmid'] = $cmid;
-
 } else if ($courseid = optional_param('courseid', 0, PARAM_INT)) {
     require_login($courseid);
     $context = context_course::instance($courseid);

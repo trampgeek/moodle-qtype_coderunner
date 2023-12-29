@@ -24,7 +24,6 @@
  */
 
 class qtype_coderunner_student {
-
     public $username;
     public $email;
     public $firstname;
@@ -40,6 +39,4 @@ class qtype_coderunner_student {
             $this->canviewhidden = qtype_coderunner_testing_outcome::can_view_hidden();
         }
     }
-
 }
-

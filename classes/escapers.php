@@ -24,7 +24,6 @@
 
 // This class wraps the various escaper functions required by Twig.
 class qtype_coderunner_escapers {
-
     /**
      * An escaper for use with Python. Escapes only
      * double quote characters plus backslashes.
@@ -48,9 +47,10 @@ class qtype_coderunner_escapers {
      */
     public static function matlab($environ, $s, $charset) {
         return str_replace(
-                    ["'",  "\n", "\r", '%'],
-                    ["''", '\\n',  '',  '%%'],
-                    str_replace('\\n', '\\\\n', $s));
+            ["'", "\n", "\r", '%'],
+            ["''", '\\n', '', '%%'],
+            str_replace('\\n', '\\\\n', $s)
+        );
     }
 
 
@@ -64,9 +64,9 @@ class qtype_coderunner_escapers {
      */
     public static function java($environ, $s, $charset) {
         return str_replace(
-                    ["'",    '"',  "\n",  "\r",   "\t",  "\f",  "\b"],
-                    ["\\'", '\\"', "\\n", "\\r", "\\t", "\\f", "\\b"],
-                    str_replace("\\", "\\\\", $s));
+            ["'", '"', "\n", "\r", "\t", "\f", "\b"],
+            ["\\'", '\\"', "\\n", "\\r", "\\t", "\\f", "\\b"],
+            str_replace("\\", "\\\\", $s)
+        );
     }
 }
-

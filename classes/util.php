@@ -36,8 +36,10 @@ class qtype_coderunner_util {
         $uiplugin = $question->uiplugin === null ? 'ace' : strtolower($question->uiplugin);
         if ($uiplugin !== '' && $uiplugin !== 'none') {
             $params = [$uiplugin, $textareaid];  // Params to plugin's init function.
-            if (strpos($uiplugin, 'ace') !== false || strpos($uiplugin, 'html') !== false ||
-                    strpos($uiplugin, 'scratchpad') !== false ) {
+            if (
+                strpos($uiplugin, 'ace') !== false || strpos($uiplugin, 'html') !== false ||
+                    strpos($uiplugin, 'scratchpad') !== false
+            ) {
                 self::load_ace();
             }
             $PAGE->requires->js_call_amd('qtype_coderunner/userinterfacewrapper', 'newUiWrapper', $params);
@@ -101,7 +103,7 @@ class qtype_coderunner_util {
         $spaces = '';  // Unused space characters.
         $pointer = 0;
         $c = self::next_char($s, $pointer);
-        while ( $c !== false) {
+        while ($c !== false) {
             if ($c === ' ') {
                 $spaces .= $c;
             } else if ($c === "\n") {
@@ -170,8 +172,8 @@ class qtype_coderunner_util {
     // and outputing the (supposedly) cleaned up HTML.
     public static function clean_html($html) {
         libxml_use_internal_errors(true);
-        $html = "<div>". $html . "</div>"; // Wrap it in a div (seems to help libxml).
-        $doc = new DOMDocument;
+        $html = "<div>" . $html . "</div>"; // Wrap it in a div (seems to help libxml).
+        $doc = new DOMDocument();
         if ($doc->loadHTML($html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD)) {
             return $doc->saveHTML();
         } else {
@@ -195,7 +197,8 @@ class qtype_coderunner_util {
             $para .= $lines[0];
             $n = count($lines);
             for ($i = 1; $i < $n; $i++) {
-                $para .= html_writer::empty_tag('br') . $lines[$i];;
+                $para .= html_writer::empty_tag('br') . $lines[$i];
+                ;
             }
             $para .= html_writer::end_tag('p');
         } else {

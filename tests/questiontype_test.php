@@ -75,5 +75,4 @@ class questiontype_test extends \advanced_testcase {
         $q = $this->get_test_question_data();
         $this->assertEquals([], $this->qtype->get_possible_responses($q));
     }
-
 }

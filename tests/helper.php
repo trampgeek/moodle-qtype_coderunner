@@ -42,7 +42,6 @@ class qtype_coderunner_missing_question_type extends Exception {
  *
  */
 class qtype_coderunner_test_helper extends question_test_helper {
-
     public function get_test_questions() {
         return ['sqr', 'sqr_pylint', 'printans',
             'hello_func', 'copy_stdin', 'timeout', 'exceptions',
@@ -300,12 +299,13 @@ class qtype_coderunner_test_helper extends question_test_helper {
      */
     public function make_coderunner_question_generic_python3() {
         return $this->make_coderunner_question(
-                'python3',
-                'GenericName',
-                'Generic question',
-                [
+            'python3',
+            'GenericName',
+            'Generic question',
+            [
                     ['expected'  => "Success!\n"],
-                ]);
+            ]
+        );
     }
 
     /**
@@ -313,12 +313,13 @@ class qtype_coderunner_test_helper extends question_test_helper {
      */
     public function make_coderunner_question_generic_c() {
         return $this->make_coderunner_question(
-                'C_program',
-                'GenericName',
-                'Generic question',
-                [
+            'C_program',
+            'GenericName',
+            'Generic question',
+            [
                     ['expected'  => "Success!\n"],
-                ]);
+            ]
+        );
     }
 
     /**
@@ -329,10 +330,10 @@ class qtype_coderunner_test_helper extends question_test_helper {
      */
     private function make_coderunner_question_sqr_subtype($coderunnertype, $extras = []) {
         $coderunner = $this->make_coderunner_question(
-                $coderunnertype,
-                'Function to square a number n',
-                'Write a function sqr(n) that returns n squared',
-                [
+            $coderunnertype,
+            'Function to square a number n',
+            'Write a function sqr(n) that returns n squared',
+            [
                     ['testcode' => 'print(sqr(0))',
                           'expected' => '0',
                           'mark'     => 1.0],
@@ -349,7 +350,9 @@ class qtype_coderunner_test_helper extends question_test_helper {
                           'expected' => '36',
                           'display'  => 'HIDE', // The last testcase must be hidden.
                           'mark'     => 16.0],
-                ], $extras);
+            ],
+            $extras
+        );
 
         return $coderunner;
     }
@@ -361,10 +364,10 @@ class qtype_coderunner_test_helper extends question_test_helper {
      */
     public function make_coderunner_question_sqrnoprint() {
         $coderunner = $this->make_coderunner_question(
-                'python3',
-                'Function to square a number n',
-                'Write a function sqr(n) that returns n squared',
-                [
+            'python3',
+            'Function to square a number n',
+            'Write a function sqr(n) that returns n squared',
+            [
                     ['testcode' => 'sqr(0)',
                           'expected' => '0',
                           'mark'     => 1.0],
@@ -381,16 +384,18 @@ class qtype_coderunner_test_helper extends question_test_helper {
                           'expected' => '36',
                           'display'  => 'HIDE', // The last testcase must be hidden.
                           'mark'     => 16.0],
-                ]);
+            ]
+        );
         return $coderunner;
     }
 
     public function make_coderunner_question_sqr_customised() {
-        $q = $this->make_coderunner_question_sqr_subtype('python3',
-          [
+        $q = $this->make_coderunner_question_sqr_subtype(
+            'python3',
+            [
             'template' => "def times(a, b): return a * b\n\n{{STUDENT_ANSWER}}\n\n{{TEST.testcode}}\n",
             'iscombinatortemplate' => false]
-          );
+        );
         return $q;
     }
 
@@ -398,10 +403,10 @@ class qtype_coderunner_test_helper extends question_test_helper {
         // Make a version of the sqr question where testcase[i] carries a
         // mark of i / 2.0 for i in range 1 .. 5.
         $coderunner = $this->make_coderunner_question(
-                'python3',
-                'Function to square a number n',
-                'Write a function sqr(n) that returns n squared',
-                [
+            'python3',
+            'Function to square a number n',
+            'Write a function sqr(n) that returns n squared',
+            [
                     ['testcode' => 'print(sqr(0))',
                           'expected' => '0',
                           'mark'     => 0.5],
@@ -418,7 +423,9 @@ class qtype_coderunner_test_helper extends question_test_helper {
                           'expected' => '36',
                           'display'  => 'HIDE', // The last testcase must be hidden.
                           'mark'     => 2.5],
-                ], ['allornothing' => false]);
+            ],
+            ['allornothing' => false]
+        );
         return $coderunner;
     }
 
@@ -429,10 +436,10 @@ class qtype_coderunner_test_helper extends question_test_helper {
      */
     public function make_coderunner_question_hello_func() {
         $coderunner = $this->make_coderunner_question(
-                'python3',
-                'Function to print hello to someone',
-                'Write a function sayHello(name) that prints "Hello <name>"',
-                [
+            'python3',
+            'Function to print hello to someone',
+            'Write a function sayHello(name) that prints "Hello <name>"',
+            [
                     ['testcode' => 'sayHello("")',
                           'expected' => 'Hello '],
                     ['testcode' => 'sayHello("Angus")',
@@ -441,7 +448,8 @@ class qtype_coderunner_test_helper extends question_test_helper {
                           'expected' => 'Hello Angus'],
                     ['testcode' => "name = \"'Angus'\"\nprint(name)\nsayHello(name)",
                           'expected' => "'Angus'\nHello 'Angus'"],
-                ]);
+            ]
+        );
 
         return $coderunner;
     }
@@ -453,10 +461,10 @@ class qtype_coderunner_test_helper extends question_test_helper {
      */
     public function make_coderunner_question_copy_stdin() {
         $coderunner = $this->make_coderunner_question(
-                'python3',
-                'Function to copy n lines of stdin to stdout',
-                'Write a function copyLines(n) that reads n lines from stdin and writes them to stdout. ',
-                [
+            'python3',
+            'Function to copy n lines of stdin to stdout',
+            'Write a function copyLines(n) that reads n lines from stdin and writes them to stdout. ',
+            [
                     ['testcode' => 'copy_stdin(0)',
                           'expected' => ''],
                     ['testcode' => 'copy_stdin(1)',
@@ -474,7 +482,8 @@ class qtype_coderunner_test_helper extends question_test_helper {
                     ['testcode' => 'copy_stdin(3)',
                           'stdin'    => "Line1\nLine2\n",
                           'expected' => "Line1\nLine2\n"], // Irrelevant - runtime error.
-                ]);
+            ]
+        );
 
         return $coderunner;
     }
@@ -486,12 +495,13 @@ class qtype_coderunner_test_helper extends question_test_helper {
      */
     public function make_coderunner_question_timeout() {
         $coderunner = $this->make_coderunner_question(
-                'python3',
-                'Function to generate a timeout',
-                'Write a function that loops forever',
-                [
+            'python3',
+            'Function to generate a timeout',
+            'Write a function that loops forever',
+            [
                     ['testcode' => 'timeout()'],
-                ]);
+            ]
+        );
 
         return $coderunner;
     }
@@ -503,13 +513,14 @@ class qtype_coderunner_test_helper extends question_test_helper {
      */
     public function make_coderunner_question_studentanswervar() {
         $coderunner = $this->make_coderunner_question(
-                'python3',
-                'Function to generate a timeout',
-                'Write a bit of code',
-                [
+            'python3',
+            'Function to generate a timeout',
+            'Write a bit of code',
+            [
                     ['testcode' => 'print(__student_answer__)',
                           'expected'      => "\"\"\"Line1\n\"Line2\"\n'Line3'\nLine4\n\"\"\""],
-                ]);
+            ]
+        );
 
         return $coderunner;
     }
@@ -522,10 +533,10 @@ class qtype_coderunner_test_helper extends question_test_helper {
      */
     public function make_coderunner_question_exceptions() {
         $coderunner = $this->make_coderunner_question(
-                'python3',
-                'Function to conditionally throw an exception',
-                'Write a function isOdd(n) that throws a ValueError exception iff n is odd',
-                [
+            'python3',
+            'Function to conditionally throw an exception',
+            'Write a function isOdd(n) that throws a ValueError exception iff n is odd',
+            [
                   ['testcode' => 'try:
   checkOdd(91)
   print("No exception")
@@ -539,7 +550,8 @@ except ValueError:
   except ValueError:
      print("Yes")',
                         'expected'      => "Yes\nYes\nNo\nNo\nYes\nNo\n"],
-                ]);
+            ]
+        );
 
         return $coderunner;
     }
@@ -550,13 +562,14 @@ except ValueError:
      */
     public function make_coderunner_question_hello_python() {
         $coderunner = $this->make_coderunner_question(
-                'python3',
-                'Program to print "Hello Python"',
-                'Write a program that prints "Hello Python"',
-                [
+            'python3',
+            'Program to print "Hello Python"',
+            'Write a program that prints "Hello Python"',
+            [
                     ['testcode' => '',
                           'expected'    => 'Hello Python'],
-                ]);
+            ]
+        );
 
         return $coderunner;
     }
@@ -658,13 +671,13 @@ QEND
      */
     public function make_coderunner_question_sqr_user_prototype_child() {
         $coderunner = $this->make_coderunner_question(
-                'sqr_user_prototype',
-                'Program to test prototype',
-                'Answer should (somehow) produce the expected answer below',
-                [
+            'sqr_user_prototype',
+            'Program to test prototype',
+            'Answer should (somehow) produce the expected answer below',
+            [
                     ['expected'   => "This is data\nLine 2"],
                 ],
-                ['templateparams' => '{"xxx":1, "zzz":2}']
+            ['templateparams' => '{"xxx":1, "zzz":2}']
         );
         return $coderunner;
     }
@@ -678,10 +691,10 @@ QEND
      */
     public function make_coderunner_question_sqr_c() {
         $coderunner = $this->make_coderunner_question(
-                'c_function',
-                'Function to square a number n',
-                'Write a function int sqr(int n) that returns n squared.',
-                [
+            'c_function',
+            'Function to square a number n',
+            'Write a function int sqr(int n) that returns n squared.',
+            [
                     ['testcode'       => 'printf("%d", sqr(0));',
                          'expected'        => '0'],
                     ['testcode'       => 'printf("%d", sqr(7));',
@@ -690,7 +703,8 @@ QEND
                           'expected'       => '121'],
                     ['testcode'       => 'printf("%d", sqr(-16));',
                           'expected'       => '256'],
-                ]);
+            ]
+        );
 
         return $coderunner;
     }
@@ -705,13 +719,14 @@ QEND
      */
     public function make_coderunner_question_sqr_c_single_test() {
         $coderunner = $this->make_coderunner_question(
-                'c_function',
-                'Function to square a number n',
-                'Write a function int sqr(int n) that returns n squared.',
-                [
+            'c_function',
+            'Function to square a number n',
+            'Write a function int sqr(int n) that returns n squared.',
+            [
                     ['testcode'       => 'printf("%d", sqr(-11)); fflush(stdout);',
                           'expected'       => '121'],
-                ]);
+            ]
+        );
 
         return $coderunner;
     }
@@ -723,10 +738,10 @@ QEND
      */
     public function make_coderunner_question_sqr_no_semicolons() {
         $coderunner = $this->make_coderunner_question(
-                'c_function',
-                'Function to square a number n',
-                'Write a function int sqr(int n) that returns n squared.',
-                [
+            'c_function',
+            'Function to square a number n',
+            'Write a function int sqr(int n) that returns n squared.',
+            [
                     ['testcode'       => 'printf("%d", sqr(0))',
                           'expected'       => '0'],
                     ['testcode'       => 'printf("%d", sqr(7))',
@@ -735,7 +750,8 @@ QEND
                           'expected'       => '121'],
                     ['testcode'       => 'printf("%d", sqr(-16))',
                           'expected'       => '256'],
-                ]);
+            ]
+        );
 
         return $coderunner;
     }
@@ -746,13 +762,14 @@ QEND
      */
     public function make_coderunner_question_hello_prog_c() {
         $coderunner = $this->make_coderunner_question(
-                'c_program',
-                'Program to print "Hello ENCE260"',
-                'Write a program that prints "Hello ENCE260"',
-                [
+            'c_program',
+            'Program to print "Hello ENCE260"',
+            'Write a program that prints "Hello ENCE260"',
+            [
                     ['testcode' => '',
                           'expected' => 'Hello ENCE260'],
-                ]);
+            ]
+        );
 
         return $coderunner;
     }
@@ -764,17 +781,18 @@ QEND
      */
     public function make_coderunner_question_copy_stdin_c() {
         $coderunner = $this->make_coderunner_question(
-                'c_program',
-                'Function to copy n lines of stdin to stdout',
-                'Write a function copyLines(n) that reads stdin to stdout',
-                [
+            'c_program',
+            'Function to copy n lines of stdin to stdout',
+            'Write a function copyLines(n) that reads stdin to stdout',
+            [
                     ['stdin'    => '',
                           'expected' => ''],
                     ['stdin'    => "Line1\n",
                           'expected' => "Line1\n"],
                     ['stdin'    => "Line1\nLine2\n",
                           'expected' => "Line1\nLine2\n"],
-                ]);
+            ]
+        );
 
         return $coderunner;
     }
@@ -782,10 +800,10 @@ QEND
 
     public function make_coderunner_question_str_to_upper() {
         $coderunner = $this->make_coderunner_question(
-                'c_function',
-                'Function to convert string to uppercase',
-                'Write a function void str_to_upper(char s[]) that converts s to uppercase',
-                [
+            'c_function',
+            'Function to convert string to uppercase',
+            'Write a function void str_to_upper(char s[]) that converts s to uppercase',
+            [
                     ['testcode' => "
 char s[] = {'1','@','a','B','c','d','E',';', 0};
 str_to_upper(s);
@@ -798,7 +816,8 @@ str_to_upper(s);
 printf(\"%s\\n\", s);
 ",
                           'expected'    => '1@ABCDE;'],
-                ]);
+            ]
+        );
 
         return $coderunner;
     }
@@ -813,19 +832,20 @@ printf(\"%s\\n\", s);
      */
     public function make_coderunner_question_string_delete() {
         $coderunner = $this->make_coderunner_question(
-                'c_function',
-                'Function to delete from a source string all chars present in another string',
-                'Write a function void string_delete(char *s, const char *charsToDelete) '.
+            'c_function',
+            'Function to delete from a source string all chars present in another string',
+            'Write a function void string_delete(char *s, const char *charsToDelete) ' .
                 'that takes any two C strings as parameters and modifies the ' .
                 'string s by deleting from it all characters that are present in charsToDelete.',
-                [
+            [
                     ['testcode'  => "char s[] = \"abcdefg\";\nstring_delete(s, \"xcaye\");\nprintf(\"%s\\n\", s);",
                           'expected'  => 'bdfg'],
                     ['testcode'  => "char s[] = \"abcdefg\";\nstring_delete(s, \"\");\nprintf(\"%s\\n\", s);",
                           'expected'  => 'abcdefg'],
                     ['testcode'  => "char s[] = \"aaaaabbbbb\";\nstring_delete(s, \"x\");\nprintf(\"%s\\n\", s);",
                           'expected'  => 'aaaaabbbbb'],
-                ]);
+            ]
+        );
 
         return $coderunner;
     }
@@ -839,10 +859,10 @@ printf(\"%s\\n\", s);
      */
     public function make_coderunner_question_sqr_cpp() {
         $coderunner = $this->make_coderunner_question(
-                'cpp_function',
-                'Function to square a number n',
-                'Write a function int sqr(int n) that returns n squared.',
-                [
+            'cpp_function',
+            'Function to square a number n',
+            'Write a function int sqr(int n) that returns n squared.',
+            [
                     ['testcode'       => 'cout << sqr(0);',
                          'expected'        => '0'],
                     ['testcode'       => 'cout << sqr(7);',
@@ -851,7 +871,8 @@ printf(\"%s\\n\", s);
                           'expected'       => '121'],
                     ['testcode'       => 'cout << sqr(-16);',
                           'expected'       => '256'],
-                ]);
+            ]
+        );
 
         return $coderunner;
     }
@@ -864,13 +885,14 @@ printf(\"%s\\n\", s);
      */
     public function make_coderunner_question_hello_prog_cpp() {
         $coderunner = $this->make_coderunner_question(
-                'cpp_program',
-                'Program to print "Hello ENCE260"',
-                'Write a program that prints "Hello ENCE260"',
-                [
+            'cpp_program',
+            'Program to print "Hello ENCE260"',
+            'Write a program that prints "Hello ENCE260"',
+            [
                     ['testcode' => '',
                           'expected' => 'Hello ENCE260'],
-                ]);
+            ]
+        );
 
         return $coderunner;
     }
@@ -882,17 +904,18 @@ printf(\"%s\\n\", s);
      */
     public function make_coderunner_question_copy_stdin_cpp() {
         $coderunner = $this->make_coderunner_question(
-                'cpp_program',
-                'Program to copies stdin to stdout',
-                'Write a program that reads stdin to stdout',
-                [
+            'cpp_program',
+            'Program to copies stdin to stdout',
+            'Write a program that reads stdin to stdout',
+            [
                     ['stdin'    => '',
                           'expected' => ''],
                     ['stdin'    => "Line1\n",
                           'expected' => "Line1\n"],
                     ['stdin'    => "Line1\nLine2\n",
                           'expected' => "Line1\nLine2\n"],
-                ]);
+            ]
+        );
 
         return $coderunner;
     }
@@ -900,11 +923,11 @@ printf(\"%s\\n\", s);
 
     public function make_coderunner_question_str_to_upper_cpp() {
         $coderunner = $this->make_coderunner_question(
-                'cpp_function',
-                'Function to convert string to uppercase',
-                'Write a function str_to_upper(string s) that converts s to uppercase'
+            'cpp_function',
+            'Function to convert string to uppercase',
+            'Write a function str_to_upper(string s) that converts s to uppercase'
                 . 'and returns the ',
-                [
+            [
                     ['testcode' => "
 string s = \"1@aBcdE;\";
 cout << str_to_upper(s);
@@ -915,7 +938,8 @@ string s = \"1@aBcDe;\";
 cout << str_to_upper(s);
 ",
                           'expected'    => '1@ABCDE;'],
-                ]);
+            ]
+        );
 
         return $coderunner;
     }
@@ -942,7 +966,8 @@ cout << str_to_upper(s);
                       'expected'       => '   121'],
                 ['testcode'       => 'disp(sqr(-16));',
                      'expected'        => '   256'],
-            ]);
+            ]
+        );
 
         return $coderunner;
     }
@@ -997,9 +1022,11 @@ function mytest()
     disp(s2);
 end
 EOT
-,
+            ,
                 ],
-            ], $options);
+            ],
+            $options
+        );
 
         return $coderunner;
     }
@@ -1027,7 +1054,8 @@ EOT
                       'expected'       => '121'],
                 ['testcode'       => 'disp(sqr(-16));',
                       'expected'       => '256'],
-            ]);
+            ]
+        );
 
         return $coderunner;
     }
@@ -1050,7 +1078,8 @@ EOT
                       'expected'  => '121'],
                 ['testcode'  => 'console.log(sqr(-16));',
                      'expected'   => '256'],
-            ]);
+            ]
+        );
         return $coderunner;
     }
 
@@ -1068,10 +1097,10 @@ EOT
      */
     public function make_coderunner_question_sqrjava() {
         $coderunner = $this->make_coderunner_question(
-                'java_method',
-                'Method to square a number n',
-                'Write a method int sqr(int n) that returns n squared.',
-                [
+            'java_method',
+            'Method to square a number n',
+            'Write a method int sqr(int n) that returns n squared.',
+            [
                     ['testcode'  => 'System.out.println(sqr(0))',
                           'expected'  => '0'],
                     ['testcode'  => 'System.out.println(sqr(7))',
@@ -1080,7 +1109,8 @@ EOT
                           'expected'  => '121'],
                     ['testcode'  => 'System.out.println(sqr(16))',
                           'expected'  => '256'],
-                ]);
+            ]
+        );
 
         return $coderunner;
     }
@@ -1091,17 +1121,18 @@ EOT
      */
     public function make_coderunner_question_nameclass() {
         $coderunner = $this->make_coderunner_question(
-                'java_class',
-                'Name class',
-                'Write a class Name with a constructor ' .
+            'java_class',
+            'Name class',
+            'Write a class Name with a constructor ' .
                 'that has firstName and lastName parameters with a toString ' .
                 'method that returns firstName space lastName',
-                [
+            [
                     ['testcode'   => 'System.out.println(new Name("Joe", "Brown"))',
                           'expected'   => 'Joe Brown'],
                     ['testcode'   => 'System.out.println(new Name("a", "b"))',
                           'expected'   => 'a b'],
-                ]);
+            ]
+        );
 
         return $coderunner;
     }
@@ -1113,16 +1144,17 @@ EOT
      */
     public function make_coderunner_question_printsquares() {
         $coderunner = $this->make_coderunner_question(
-                'java_program',
-                'Name class',
-                'Write a program squares that reads an integer from stdin and prints ' .
+            'java_program',
+            'Name class',
+            'Write a program squares that reads an integer from stdin and prints ' .
                 'the squares of all integers from 1 up to that number, all on one line, space separated.',
-                [
+            [
                     ['stdin'      => "5\n",
                           'expected'   => "1 4 9 16 25\n"],
                     ['stdin'      => "1\n",
                           'expected'   => "1\n"],
-                ]);
+            ]
+        );
         return $coderunner;
     }
 
@@ -1131,15 +1163,15 @@ EOT
      */
     public function make_coderunner_question_multilang_echo_stdin() {
         return $this->make_coderunner_question(
-                'multilanguage',
-                'Multilang Echo',
-                'Write a program in your language of choice to echo stdin to stdout',
-                [
+            'multilanguage',
+            'Multilang Echo',
+            'Write a program in your language of choice to echo stdin to stdout',
+            [
                     [
                         'stdin'     => "Line1\nLine2",
                         'expected'  => "Line1\nLine2"],
                     ]
-                );
+        );
     }
 
     /**
@@ -1165,15 +1197,15 @@ public class Test
 }
 EOPROG;
         $q = $this->make_coderunner_question(
-                'java_program',
-                'Print string',
-                'No question answer required',
-                [
+            'java_program',
+            'Print string',
+            'No question answer required',
+            [
                   ['testcode' => $code,
                         'stdin'    => "5\n",
                         'expected' => "a0\nb\t\nc\f\nd'This is a string'\n\"So is this\""],
                 ],
-                ['template' => $template,
+            ['template' => $template,
                       'iscombinatortemplate' => false]
         );
         return $q;
@@ -1187,10 +1219,10 @@ EOPROG;
      */
     public function make_coderunner_question_sqrphp() {
         $coderunner = $this->make_coderunner_question(
-                'php',
-                'Function to square a number n',
-                'Write a function sqr($n) that returns $n squared.',
-                [
+            'php',
+            'Function to square a number n',
+            'Write a function sqr($n) that returns $n squared.',
+            [
                     ['testcode'  => 'print(sqr(0))',
                           'expected'  => '0'],
                     ['testcode'  => 'print(sqr(7))',
@@ -1199,7 +1231,8 @@ EOPROG;
                           'expected'  => '121'],
                     ['testcode'  => 'print(sqr(16))',
                           'expected'  => '256'],
-                ]);
+            ]
+        );
 
         return $coderunner;
     }
@@ -1226,9 +1259,12 @@ EOPROG;
 
         $type = $question->coderunnertype;
         $questiontype = new qtype_coderunner();
-        if (!$row = $DB->get_record_select(
-                   'question_coderunner_options',
-                   "coderunnertype = '$type' and prototypetype != 0")) {
+        if (
+            !$row = $DB->get_record_select(
+                'question_coderunner_options',
+                "coderunnertype = '$type' and prototypetype != 0"
+            )
+        ) {
                $error = "TestHelper: failed to load type info for question with type $type";
                throw new qtype_coderunner_missing_question_type($error);
         }
@@ -1280,8 +1316,13 @@ EOPROG;
     // Return a CodeRunner question of a given (sub)type with given testcases
     // and other options. Further fields might be added by
     // coderunnertestcase::make_question (q.v.).
-    private function make_coderunner_question($type, $name, $questiontext,
-            $testcases, $otheroptions = []) {
+    private function make_coderunner_question(
+        $type,
+        $name,
+        $questiontext,
+        $testcases,
+        $otheroptions = []
+    ) {
         question_bank::load_question_definition_classes('coderunner');
         $coderunner = new qtype_coderunner_question();
         test_question_maker::initialise_a_question($coderunner);

@@ -33,9 +33,9 @@
  * the flawed function that adds data to the table.
  */
 
-require_once(__DIR__.'/../../../config.php');
+require_once(__DIR__ . '/../../../config.php');
 require_once($CFG->libdir . '/questionlib.php');
-require_once($CFG->libdir.'/tablelib.php');
+require_once($CFG->libdir . '/tablelib.php');
 
 class table_dataformat_export_format_fixed extends table_dataformat_export_format {
     /**
@@ -50,7 +50,7 @@ class table_dataformat_export_format_fixed extends table_dataformat_export_forma
         $this->dataformat->write_record($row, $this->rownum++);
         return true;
     }
-};
+}
 
 class UnscrewedSqlTable extends table_sql {
     /**
@@ -58,6 +58,10 @@ class UnscrewedSqlTable extends table_sql {
      * @param $exportclass (optional) if passed, set the table to use this export class.
      * @return table_default_export_format_parent the export class in use (after any set).
      */
+    /* Excluding the visibility error on this function as we need to keep it the same
+       as the function that is being fixed/overidden.
+    */
+    // phpcs:disable Squiz.Scope.MethodScope.Missing
     function export_class_instance($exportclass = null) {
         if (!is_null($exportclass)) {
             $this->started_output = true;
@@ -71,6 +75,7 @@ class UnscrewedSqlTable extends table_sql {
         }
         return $this->exportclass;
     }
+    //phpcs:enable
 }
 
 // Get the quiz-id and format parameters from the URL.
@@ -83,7 +88,7 @@ require_login();
 if (class_exists('mod_quiz\access_manager')) {
     $quiz = mod_quiz\access_manager::load_quiz_and_settings($quizid);
 } else { // Older versions of Moodle.
-    require_once($CFG->libdir.'/../mod/quiz/accessmanager.php');
+    require_once($CFG->libdir . '/../mod/quiz/accessmanager.php');
     $quiz = quiz_access_manager::load_quiz_and_settings($quizid);
 }
 $course = $DB->get_record('course', ['id' => $quiz->course], '*', MUST_EXIST);
@@ -140,4 +145,3 @@ if (!has_capability('moodle/grade:viewall', $coursecontext)) {
     raise_memory_limit(MEMORY_EXTRA);
     $table->out($pagesize, false); // And out it goes.
 }
-

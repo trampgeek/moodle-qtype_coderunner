@@ -59,7 +59,7 @@ class prototype_test extends \qtype_coderunner_testcase {
         $code = "print(open('data.txt').read())";
         $response = ['answer' => $code];
         $result = $q->grade_response($response);
-        list(, , $cache) = $result;
+        [, , $cache] = $result;
         $testoutcome = unserialize($cache['_testoutcome']);
         $this->assertTrue($testoutcome->all_correct());
     }
@@ -92,7 +92,7 @@ EOTEMPLATE;
         $response = ['answer' => $code];
         $q->start_attempt(null);
         $result = $q->grade_response($response);
-        list($mark, $grade, $cache) = $result;
+        [$mark, $grade, $cache] = $result;
         $testoutcome = unserialize($cache['_testoutcome']);
         $this->assertTrue($testoutcome->all_correct());
     }
@@ -205,8 +205,14 @@ Line 2</text>
             'filename' => 'data.txt'];
 
         // Create file (deleting any existing version first).
-        $file = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'],
-            $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename']);
+        $file = $fs->get_file(
+            $fileinfo['contextid'],
+            $fileinfo['component'],
+            $fileinfo['filearea'],
+            $fileinfo['itemid'],
+            $fileinfo['filepath'],
+            $fileinfo['filename']
+        );
         $file->delete();
         $fs->create_file_from_string($fileinfo, "This is data\nLine 2");
 
@@ -215,8 +221,10 @@ Line 2</text>
     }
 
     public function assert_same_xml($expectedxml, $xml) {
-        $this->assertEquals(str_replace("\r\n", "\n", $expectedxml),
-                str_replace("\r\n", "\n", $xml));
+        $this->assertEquals(
+            str_replace("\r\n", "\n", $expectedxml),
+            str_replace("\r\n", "\n", $xml)
+        );
     }
 
     // Support function to make and save a prototype question.
@@ -243,8 +251,9 @@ Line 2</text>
         $row = new \qtype_coderunner_question();
         \test_question_maker::initialise_a_question($row);
         $catrow = $DB->get_record_select(  // Find the question category for system context (1).
-                   'question_categories',
-                   "contextid=1 limit 1");
+            'question_categories',
+            "contextid=1 limit 1"
+        );
         $q->category = $catrow->id;
         $row->qtype = 'coderunner';
 

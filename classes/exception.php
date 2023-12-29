@@ -24,7 +24,7 @@ class qtype_coderunner_exception extends moodle_exception {
      * @param string $errorcode exception description identifier
      * @param mixed $debuginfo debugging data to display
      */
-    public function __construct($errorcode, $a=null, $debuginfo=null) {
+    public function __construct($errorcode, $a = null, $debuginfo = null) {
         parent::__construct($errorcode, 'qtype_coderunner', '', $a, $debuginfo);
     }
 }

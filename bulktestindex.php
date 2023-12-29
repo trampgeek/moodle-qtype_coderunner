@@ -23,7 +23,7 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(__DIR__.'/../../../config.php');
+require_once(__DIR__ . '/../../../config.php');
 require_once($CFG->libdir . '/questionlib.php');
 
 // Login and check permissions.
@@ -76,15 +76,19 @@ if (count($availablequestionsbycontext) == 0) {
         $numcoderunnerquestions = $info['numquestions'];
 
         $testallurl = new moodle_url('/question/type/coderunner/bulktest.php', ['contextid' => $contextid]);
-        $testalllink = html_writer::link($testallurl,
-                get_string('bulktestallincontext', 'qtype_coderunner'),
-                ['title' => get_string('testalltitle', 'qtype_coderunner'),
-                       'style' => $buttonstyle]);
-        $expandlink = html_writer::link('#expand',
-                get_string('expand', 'qtype_coderunner'),
-                ['class' => 'expander',
+        $testalllink = html_writer::link(
+            $testallurl,
+            get_string('bulktestallincontext', 'qtype_coderunner'),
+            ['title' => get_string('testalltitle', 'qtype_coderunner'),
+            'style' => $buttonstyle]
+        );
+        $expandlink = html_writer::link(
+            '#expand',
+            get_string('expand', 'qtype_coderunner'),
+            ['class' => 'expander',
                       'title' => get_string('expandtitle', 'qtype_coderunner'),
-                      'style' => $buttonstyle]);
+            'style' => $buttonstyle]
+        );
         $litext = $name . ' (' . $numcoderunnerquestions . ') ' . $testalllink . ' ' . $expandlink;
         if (strpos($name, 'Quiz:') === 0) {
             $class = 'bulktest coderunner context quiz';
@@ -104,12 +108,17 @@ if (count($availablequestionsbycontext) == 0) {
         echo html_writer::start_tag('ul', ['class' => 'expandable']);
         foreach ($categories as $cat) {
             if ($cat->count > 0) {
-                $url = new moodle_url('/question/type/coderunner/bulktest.php',
-                                    ['contextid' => $contextid, 'categoryid' => $cat->id]);
+                $url = new moodle_url(
+                    '/question/type/coderunner/bulktest.php',
+                    ['contextid' => $contextid, 'categoryid' => $cat->id]
+                );
                 $linktext = $cat->name . ' (' . $cat->count . ')';
                 $link = html_writer::link($url, $linktext, ['style' => $buttonstyle]);
-                echo html_writer::tag('li', $link,
-                        ['title' => get_string('testallincategory', 'qtype_coderunner')]);
+                echo html_writer::tag(
+                    'li',
+                    $link,
+                    ['title' => get_string('testallincategory', 'qtype_coderunner')]
+                );
             }
         }
         echo html_writer::end_tag('ul');
@@ -120,7 +129,9 @@ if (count($availablequestionsbycontext) == 0) {
 
     if (has_capability('moodle/site:config', context_system::instance())) {
         echo html_writer::tag('p', html_writer::link(
-                new moodle_url('/question/type/coderunner/bulktestall.php'), get_string('bulktestrun', 'qtype_coderunner')));
+            new moodle_url('/question/type/coderunner/bulktestall.php'),
+            get_string('bulktestrun', 'qtype_coderunner')
+        ));
     }
 }
 

@@ -30,7 +30,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(__DIR__.'/../../../config.php');
+require_once(__DIR__ . '/../../../config.php');
 
 require_once($CFG->libdir . '/questionlib.php');
 
@@ -48,7 +48,6 @@ if ($cmid = optional_param('cmid', 0, PARAM_INT)) {
     require_login($cm->course, false, $cm);
     $context = context_module::instance($cmid);
     $urlparams['cmid'] = $cmid;
-
 } else if ($courseid = optional_param('courseid', 0, PARAM_INT)) {
     require_login($courseid);
     $context = context_course::instance($courseid);
@@ -114,13 +113,17 @@ $renderer = $PAGE->get_renderer('qtype_coderunner');
 // Display the question.
 echo $OUTPUT->heading(get_string('questionpreview', 'qtype_coderunner'), 3);
 
-echo html_writer::tag('p', html_writer::link($questionbanklink,
-        get_string('seethisquestioninthequestionbank', 'qtype_coderunner')));
+echo html_writer::tag('p', html_writer::link(
+    $questionbanklink,
+    get_string('seethisquestioninthequestionbank', 'qtype_coderunner')
+));
 
 if ($canedit) {
-    echo html_writer::tag('p',
-            html_writer::link($exportquestionlink, get_string('exportthisquestion', 'qtype_coderunner')) .
-            $OUTPUT->help_icon('exportthisquestion', 'qtype_coderunner'));
+    echo html_writer::tag(
+        'p',
+        html_writer::link($exportquestionlink, get_string('exportthisquestion', 'qtype_coderunner')) .
+        $OUTPUT->help_icon('exportthisquestion', 'qtype_coderunner')
+    );
 }
 
 echo $quba->render_question($slot, $options);

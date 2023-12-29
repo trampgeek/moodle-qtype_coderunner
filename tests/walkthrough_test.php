@@ -39,7 +39,6 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class walkthrough_test extends \qbehaviour_walkthrough_test_base {
-
     protected function setUp(): void {
         parent::setUp();
         \qtype_coderunner_testcase::setup_test_sandbox_configuration();
@@ -54,13 +53,14 @@ class walkthrough_test extends \qbehaviour_walkthrough_test_base {
         $this->check_current_state(\question_state::$todo);
         $this->check_current_mark(null);
         $this->check_current_output(
-                $this->get_contains_marked_out_of_summary(),
-                $this->get_contains_submit_button_expectation(true),
-                $this->get_does_not_contain_feedback_expectation(),
-                $this->get_does_not_contain_validation_error_expectation(),
-                $this->get_does_not_contain_stop_button_expectation(),
-                $this->get_does_not_contain_try_again_button_expectation(),
-                $this->get_no_hint_visible_expectation());
+            $this->get_contains_marked_out_of_summary(),
+            $this->get_contains_submit_button_expectation(true),
+            $this->get_does_not_contain_feedback_expectation(),
+            $this->get_does_not_contain_validation_error_expectation(),
+            $this->get_does_not_contain_stop_button_expectation(),
+            $this->get_does_not_contain_try_again_button_expectation(),
+            $this->get_no_hint_visible_expectation()
+        );
         $this->assertEquals('Started', $qa->summarise_action($qa->get_last_step()));
 
         // Submit blank.
@@ -70,13 +70,14 @@ class walkthrough_test extends \qbehaviour_walkthrough_test_base {
         $this->check_current_state(\question_state::$invalid);
         $this->check_current_mark(null);
         $this->check_current_output(
-                $this->get_contains_marked_out_of_summary(),
-                $this->get_contains_submit_button_expectation(true),
-                $this->get_does_not_contain_feedback_expectation(),
-                $this->get_contains_validation_error_expectation(),
-                $this->get_does_not_contain_stop_button_expectation(),
-                $this->get_does_not_contain_try_again_button_expectation(),
-                $this->get_no_hint_visible_expectation());
+            $this->get_contains_marked_out_of_summary(),
+            $this->get_contains_submit_button_expectation(true),
+            $this->get_does_not_contain_feedback_expectation(),
+            $this->get_contains_validation_error_expectation(),
+            $this->get_does_not_contain_stop_button_expectation(),
+            $this->get_does_not_contain_try_again_button_expectation(),
+            $this->get_no_hint_visible_expectation()
+        );
         $this->assertEquals('Submit: ', $qa->summarise_action($qa->get_last_step()));
 
         // Submit a wrong answer.
@@ -86,9 +87,9 @@ class walkthrough_test extends \qbehaviour_walkthrough_test_base {
         $this->check_current_state(\question_state::$todo);
         $this->check_current_mark(0);
         $this->check_current_output(
-                new \question_pattern_expectation('/' .
+            new \question_pattern_expectation('/' .
                         preg_quote(get_string('noerrorsallowed', 'qtype_coderunner') . '/'))
-              );
+        );
         $this->assertEquals('Submit: def sqr(n): return n', $qa->summarise_action($qa->get_last_step()));
 
         // Now get it right.
@@ -98,12 +99,12 @@ class walkthrough_test extends \qbehaviour_walkthrough_test_base {
         $this->check_current_state(\question_state::$complete);
         $this->check_current_mark(0.9);
         $this->check_current_output(
-                $this->get_contains_correct_expectation(),
-                $this->get_does_not_contain_validation_error_expectation(),
-                $this->get_does_not_contain_stop_button_expectation(),
-                $this->get_no_hint_visible_expectation());
+            $this->get_contains_correct_expectation(),
+            $this->get_does_not_contain_validation_error_expectation(),
+            $this->get_does_not_contain_stop_button_expectation(),
+            $this->get_no_hint_visible_expectation()
+        );
         $this->assertEquals('Submit: def sqr(n): return n * n', $qa->summarise_action($qa->get_last_step()));
-
     }
 
     public function test_view_hidden_testcases_capability() {
@@ -136,8 +137,12 @@ class walkthrough_test extends \qbehaviour_walkthrough_test_base {
         $this->assertStringContainsString('print(sqr(-6))', $this->currentoutput);
 
         // Change users permission and check.
-        role_change_permission($DB->get_field('role', 'id', ['shortname' => 'editingteacher']),
-                $coursecontext, 'qtype/coderunner:viewhiddentestcases', CAP_PREVENT);
+        role_change_permission(
+            $DB->get_field('role', 'id', ['shortname' => 'editingteacher']),
+            $coursecontext,
+            'qtype/coderunner:viewhiddentestcases',
+            CAP_PREVENT
+        );
         $this->assertFalse(has_capability('qtype/coderunner:viewhiddentestcases', $coursecontext));
 
         // Verify hidden cases hidden.
@@ -156,17 +161,17 @@ class walkthrough_test extends \qbehaviour_walkthrough_test_base {
         $this->check_current_state(\question_state::$todo);
         $this->check_current_mark(0);
         $this->check_current_output(
-                new \question_pattern_expectation('/' .
+            new \question_pattern_expectation('/' .
                         preg_quote(get_string('incorrect', 'question') . '/'))
-              );
+        );
 
         // Submit a partially right answer.
         $this->process_submission(['-submit' => 1, 'answer' => 'def sqr(n): return n * n if n < 0 else -19']);
         $this->check_current_mark(0.54);  // 4.5/7.5 * 90%.
         $this->check_current_output(
-                new \question_pattern_expectation('/' .
+            new \question_pattern_expectation('/' .
                         preg_quote(get_string('partiallycorrect', 'question') . '/'))
-              );
+        );
 
         // Now get it right.
         $this->process_submission(['-submit' => 1, 'answer' => 'def sqr(n): return n * n']);
@@ -175,9 +180,10 @@ class walkthrough_test extends \qbehaviour_walkthrough_test_base {
         $this->check_current_state(\question_state::$complete);
         $this->check_current_mark(0.8); // Full marks but 20% penalty after 2 wrong submissions.
         $this->check_current_output(
-                $this->get_contains_correct_expectation(),
-                $this->get_does_not_contain_validation_error_expectation(),
-                $this->get_no_hint_visible_expectation());
+            $this->get_contains_correct_expectation(),
+            $this->get_does_not_contain_validation_error_expectation(),
+            $this->get_no_hint_visible_expectation()
+        );
     }
 
 
@@ -243,9 +249,9 @@ EOTEMPLATE;
         $this->check_current_state(\question_state::$todo);
         $this->check_current_mark(0);
         $this->check_current_output(
-                new \question_pattern_expectation('/' .
+            new \question_pattern_expectation('/' .
                         preg_quote(get_string('incorrect', 'question') . '/'))
-              );
+        );
 
         // Submit a right answer - because of the broken grader it should only get 0.77
         // Have to restart as the behaviour of the test system with regard to
@@ -253,8 +259,8 @@ EOTEMPLATE;
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
         $this->process_submission(['-submit' => 1, 'answer' => "def sqr(n): return n * n\n"]);
         $this->check_current_mark(23.0 / 31.0);
-        $this->check_current_output( new \question_pattern_expectation('/Tiddlypom/') );
-        $this->check_current_output( new \question_pattern_expectation('/Twiddlydee/') );
+        $this->check_current_output(new \question_pattern_expectation('/Tiddlypom/'));
+        $this->check_current_output(new \question_pattern_expectation('/Twiddlydee/'));
     }
 
     /* Test that if a template grader sets an abort attribute in the returned
@@ -283,7 +289,7 @@ EOTEMPLATE;
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
         $this->process_submission(['-submit' => 1, 'answer' => "def sqr(n): return n * n\n"]);
         $this->check_current_mark(3.0 / 31.0);
-        $this->check_current_output( new \question_pattern_expectation('/Twiddlydum/') );
+        $this->check_current_output(new \question_pattern_expectation('/Twiddlydum/'));
     }
 
     /**
@@ -329,9 +335,9 @@ EOTEMPLATE;
         $this->process_submission(['-submit' => 1,
             'answer' => "def sqr(n): return -1 if n == 1 else n * n \n"]);
         $this->check_current_mark(21.0 / 31.0);
-        $this->check_current_output( new \question_pattern_expectation("|<svg width=.100. height=.200.></svg>|") );
-        $this->check_current_output( new \question_pattern_expectation('/YeeHa/') );
-        $this->check_current_output( new \question_pattern_expectation('|<h2>Header</h2>|') );
+        $this->check_current_output(new \question_pattern_expectation("|<svg width=.100. height=.200.></svg>|"));
+        $this->check_current_output(new \question_pattern_expectation('/YeeHa/'));
+        $this->check_current_output(new \question_pattern_expectation('|<h2>Header</h2>|'));
     }
 
 
@@ -378,13 +384,14 @@ EOTEMPLATE;
         $this->check_current_state(\question_state::$todo);
         $this->check_current_mark(null);
         $this->check_current_output(
-                $this->get_contains_marked_out_of_summary(),
-                $this->get_contains_submit_button_expectation(true),
-                $this->get_does_not_contain_feedback_expectation(),
-                $this->get_does_not_contain_validation_error_expectation(),
-                $this->get_contains_stop_button_expectation(),
-                $this->get_does_not_contain_try_again_button_expectation(),
-                $this->get_no_hint_visible_expectation());
+            $this->get_contains_marked_out_of_summary(),
+            $this->get_contains_submit_button_expectation(true),
+            $this->get_does_not_contain_feedback_expectation(),
+            $this->get_does_not_contain_validation_error_expectation(),
+            $this->get_contains_stop_button_expectation(),
+            $this->get_does_not_contain_try_again_button_expectation(),
+            $this->get_no_hint_visible_expectation()
+        );
         $this->assertEquals('Started', $qa->summarise_action($qa->get_last_step()));
 
         // Submit blank.
@@ -394,13 +401,14 @@ EOTEMPLATE;
         $this->check_current_state(\question_state::$invalid);
         $this->check_current_mark(null);
         $this->check_current_output(
-                $this->get_contains_marked_out_of_summary(),
-                $this->get_contains_submit_button_expectation(true),
-                $this->get_does_not_contain_feedback_expectation(),
-                $this->get_contains_validation_error_expectation(),
-                $this->get_contains_stop_button_expectation(),
-                $this->get_does_not_contain_try_again_button_expectation(),
-                $this->get_no_hint_visible_expectation());
+            $this->get_contains_marked_out_of_summary(),
+            $this->get_contains_submit_button_expectation(true),
+            $this->get_does_not_contain_feedback_expectation(),
+            $this->get_contains_validation_error_expectation(),
+            $this->get_contains_stop_button_expectation(),
+            $this->get_does_not_contain_try_again_button_expectation(),
+            $this->get_no_hint_visible_expectation()
+        );
         $this->assertEquals('Submit: ', $qa->summarise_action($qa->get_last_step()));
 
         // Submit a wrong answer.
@@ -410,9 +418,10 @@ EOTEMPLATE;
         $this->check_current_state(\question_state::$todo);
         $this->check_current_mark(0);
         $this->check_current_output(
-                new \question_pattern_expectation('/' .
+            new \question_pattern_expectation('/' .
                         preg_quote(get_string('noerrorsallowed', 'qtype_coderunner') . '/')),
-                $this->get_contains_stop_button_expectation());
+            $this->get_contains_stop_button_expectation()
+        );
         $this->assertEquals('Submit: def sqr(n): return n', $qa->summarise_action($qa->get_last_step()));
 
         // Now get it right.
@@ -422,10 +431,11 @@ EOTEMPLATE;
         $this->check_current_state(\question_state::$complete);
         $this->check_current_mark(0.9);
         $this->check_current_output(
-                $this->get_contains_correct_expectation(),
-                $this->get_does_not_contain_validation_error_expectation(),
-                $this->get_contains_stop_button_expectation(),
-                $this->get_no_hint_visible_expectation());
+            $this->get_contains_correct_expectation(),
+            $this->get_does_not_contain_validation_error_expectation(),
+            $this->get_contains_stop_button_expectation(),
+            $this->get_no_hint_visible_expectation()
+        );
         $this->assertEquals('Submit: def sqr(n): return n * n', $qa->summarise_action($qa->get_last_step()));
 
         // Now click the Stop button.
@@ -433,13 +443,16 @@ EOTEMPLATE;
         $this->check_current_state(\question_state::$gradedright);
         $this->check_current_mark(0.9);
         $this->check_current_output(
-                $this->get_contains_correct_expectation(),
-                $this->get_does_not_contain_validation_error_expectation(),
-                $this->get_does_not_contain_stop_button_expectation(),
-                $this->get_no_hint_visible_expectation(),
-                $this->get_contains_general_feedback_expectation($q));
-        $this->assertEquals('Attempt finished submitting: def sqr(n): return n * n',
-                $qa->summarise_action($qa->get_last_step()));
+            $this->get_contains_correct_expectation(),
+            $this->get_does_not_contain_validation_error_expectation(),
+            $this->get_does_not_contain_stop_button_expectation(),
+            $this->get_no_hint_visible_expectation(),
+            $this->get_contains_general_feedback_expectation($q)
+        );
+        $this->assertEquals(
+            'Attempt finished submitting: def sqr(n): return n * n',
+            $qa->summarise_action($qa->get_last_step())
+        );
     }
 
     public function test_stop_button_always_never_answered() {
@@ -456,10 +469,11 @@ EOTEMPLATE;
         $this->check_current_state(\question_state::$gaveup);
         $this->check_current_mark(0);
         $this->check_current_output(
-                $this->get_does_not_contain_validation_error_expectation(),
-                $this->get_does_not_contain_stop_button_expectation(),
-                $this->get_no_hint_visible_expectation(),
-                $this->get_contains_general_feedback_expectation($q));
+            $this->get_does_not_contain_validation_error_expectation(),
+            $this->get_does_not_contain_stop_button_expectation(),
+            $this->get_no_hint_visible_expectation(),
+            $this->get_contains_general_feedback_expectation($q)
+        );
         $this->assertEquals('Attempt finished submitting: ', $qa->summarise_action($qa->get_last_step()));
 
         // Also check what happens in Quiz deferred feedback mode, when all the quiz display
@@ -468,7 +482,8 @@ EOTEMPLATE;
         $this->displayoptions->feedback = false;
         $this->displayoptions->generalfeedback = false;
         $this->check_current_output(
-                $this->get_contains_general_feedback_expectation($q));
+            $this->get_contains_general_feedback_expectation($q)
+        );
     }
 
     public function test_stop_button_after_max() {
@@ -481,13 +496,14 @@ EOTEMPLATE;
         $this->check_current_state(\question_state::$todo);
         $this->check_current_mark(null);
         $this->check_current_output(
-                $this->get_contains_marked_out_of_summary(),
-                $this->get_contains_submit_button_expectation(true),
-                $this->get_does_not_contain_feedback_expectation(),
-                $this->get_does_not_contain_validation_error_expectation(),
-                $this->get_does_not_contain_stop_button_expectation(),
-                $this->get_does_not_contain_try_again_button_expectation(),
-                $this->get_no_hint_visible_expectation());
+            $this->get_contains_marked_out_of_summary(),
+            $this->get_contains_submit_button_expectation(true),
+            $this->get_does_not_contain_feedback_expectation(),
+            $this->get_does_not_contain_validation_error_expectation(),
+            $this->get_does_not_contain_stop_button_expectation(),
+            $this->get_does_not_contain_try_again_button_expectation(),
+            $this->get_no_hint_visible_expectation()
+        );
         $this->assertEquals('Started', $qa->summarise_action($qa->get_last_step()));
 
         // Submit blank.
@@ -497,13 +513,14 @@ EOTEMPLATE;
         $this->check_current_state(\question_state::$invalid);
         $this->check_current_mark(null);
         $this->check_current_output(
-                $this->get_contains_marked_out_of_summary(),
-                $this->get_contains_submit_button_expectation(true),
-                $this->get_does_not_contain_feedback_expectation(),
-                $this->get_contains_validation_error_expectation(),
-                $this->get_does_not_contain_stop_button_expectation(),
-                $this->get_does_not_contain_try_again_button_expectation(),
-                $this->get_no_hint_visible_expectation());
+            $this->get_contains_marked_out_of_summary(),
+            $this->get_contains_submit_button_expectation(true),
+            $this->get_does_not_contain_feedback_expectation(),
+            $this->get_contains_validation_error_expectation(),
+            $this->get_does_not_contain_stop_button_expectation(),
+            $this->get_does_not_contain_try_again_button_expectation(),
+            $this->get_no_hint_visible_expectation()
+        );
         $this->assertEquals('Submit: ', $qa->summarise_action($qa->get_last_step()));
 
         // Submit a wrong answer.
@@ -513,9 +530,10 @@ EOTEMPLATE;
         $this->check_current_state(\question_state::$todo);
         $this->check_current_mark(0);
         $this->check_current_output(
-                new \question_pattern_expectation('/' .
+            new \question_pattern_expectation('/' .
                         preg_quote(get_string('noerrorsallowed', 'qtype_coderunner') . '/')),
-                $this->get_does_not_contain_stop_button_expectation());
+            $this->get_does_not_contain_stop_button_expectation()
+        );
         $this->assertEquals('Submit: def sqr(n): return n', $qa->summarise_action($qa->get_last_step()));
 
         // Now get it right.
@@ -525,10 +543,11 @@ EOTEMPLATE;
         $this->check_current_state(\question_state::$complete);
         $this->check_current_mark(0.9);
         $this->check_current_output(
-                $this->get_contains_correct_expectation(),
-                $this->get_does_not_contain_validation_error_expectation(),
-                $this->get_contains_stop_button_expectation(),
-                $this->get_no_hint_visible_expectation());
+            $this->get_contains_correct_expectation(),
+            $this->get_does_not_contain_validation_error_expectation(),
+            $this->get_contains_stop_button_expectation(),
+            $this->get_no_hint_visible_expectation()
+        );
         $this->assertEquals('Submit: def sqr(n): return n * n', $qa->summarise_action($qa->get_last_step()));
 
         // Submit something invalid again..
@@ -538,11 +557,12 @@ EOTEMPLATE;
         $this->check_current_state(\question_state::$complete);
         $this->check_current_mark(0.9);
         $this->check_current_output(
-                $this->get_contains_mark_summary(0.9),
-                $this->get_contains_submit_button_expectation(true),
-                $this->get_contains_stop_button_expectation(),
-                $this->get_does_not_contain_try_again_button_expectation(),
-                $this->get_no_hint_visible_expectation());
+            $this->get_contains_mark_summary(0.9),
+            $this->get_contains_submit_button_expectation(true),
+            $this->get_contains_stop_button_expectation(),
+            $this->get_does_not_contain_try_again_button_expectation(),
+            $this->get_no_hint_visible_expectation()
+        );
         $this->assertEquals('Submit: wrong', $qa->summarise_action($qa->get_last_step()));
 
         // Now click the Stop button.
@@ -550,12 +570,15 @@ EOTEMPLATE;
         $this->check_current_state(\question_state::$gradedwrong);
         $this->check_current_mark(0.9);
         $this->check_current_output(
-                $this->get_contains_incorrect_expectation(),
-                $this->get_does_not_contain_stop_button_expectation(),
-                $this->get_no_hint_visible_expectation(),
-                $this->get_contains_general_feedback_expectation($q));
-        $this->assertEquals('Attempt finished submitting: wrong',
-                $qa->summarise_action($qa->get_last_step()));
+            $this->get_contains_incorrect_expectation(),
+            $this->get_does_not_contain_stop_button_expectation(),
+            $this->get_no_hint_visible_expectation(),
+            $this->get_contains_general_feedback_expectation($q)
+        );
+        $this->assertEquals(
+            'Attempt finished submitting: wrong',
+            $qa->summarise_action($qa->get_last_step())
+        );
 
         // Also check what happens in Quiz deferred feedback mode, when all the quiz display
         // options are false, but the question is set to override that.
@@ -563,7 +586,8 @@ EOTEMPLATE;
         $this->displayoptions->feedback = false;
         $this->displayoptions->generalfeedback = false;
         $this->check_current_output(
-                $this->get_contains_general_feedback_expectation($q));
+            $this->get_contains_general_feedback_expectation($q)
+        );
     }
 
     public function test_stop_button_after_max_repeatedly_wrong() {
@@ -584,7 +608,8 @@ EOTEMPLATE;
         $this->check_current_state(\question_state::$todo);
         $this->check_current_mark(0);
         $this->check_current_output(
-                $this->get_does_not_contain_stop_button_expectation());
+            $this->get_does_not_contain_stop_button_expectation()
+        );
 
         // Submit a different wrong answer.
         $this->process_submission(['-submit' => 1, 'answer' => 'def sqr(n): return 2 * n']);
@@ -593,22 +618,26 @@ EOTEMPLATE;
         $this->check_current_state(\question_state::$todo);
         $this->check_current_mark(0);
         $this->check_current_output(
-                $this->get_contains_correct_expectation(),
-                $this->get_does_not_contain_validation_error_expectation(),
-                $this->get_contains_stop_button_expectation(),
-                $this->get_no_hint_visible_expectation());
+            $this->get_contains_correct_expectation(),
+            $this->get_does_not_contain_validation_error_expectation(),
+            $this->get_contains_stop_button_expectation(),
+            $this->get_no_hint_visible_expectation()
+        );
 
         // Now click the Stop button.
         $this->process_submission(['-finish' => 1, 'answer' => 'def sqr(n): return 2 * n']);
         $this->check_current_state(\question_state::$gradedwrong);
         $this->check_current_mark(0);
         $this->check_current_output(
-                $this->get_contains_incorrect_expectation(),
-                $this->get_does_not_contain_stop_button_expectation(),
-                $this->get_no_hint_visible_expectation(),
-                $this->get_contains_general_feedback_expectation($q));
-        $this->assertEquals('Attempt finished submitting: def sqr(n): return 2 * n',
-                $qa->summarise_action($qa->get_last_step()));
+            $this->get_contains_incorrect_expectation(),
+            $this->get_does_not_contain_stop_button_expectation(),
+            $this->get_no_hint_visible_expectation(),
+            $this->get_contains_general_feedback_expectation($q)
+        );
+        $this->assertEquals(
+            'Attempt finished submitting: def sqr(n): return 2 * n',
+            $qa->summarise_action($qa->get_last_step())
+        );
     }
 
     protected function get_contains_stop_button_expectation($enabled = null): \question_contains_tag_with_attributes {

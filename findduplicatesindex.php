@@ -24,7 +24,7 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(__DIR__.'/../../../config.php');
+require_once(__DIR__ . '/../../../config.php');
 require_once($CFG->libdir . '/questionlib.php');
 
 // Login and check permissions.
@@ -65,10 +65,12 @@ if (count($availablequestionsbycontext) == 0) {
         if (strpos($name, 'Course:') === 0) {
             $class = 'bulktest coderunner context quiz';
             $findduplicatesurl = new moodle_url('/question/type/coderunner/findduplicates.php', ['contextid' => $contextid]);
-            $findduplicateslink = html_writer::link($findduplicatesurl,
-                    'Find duplicates',
-                    ['title' => 'Find all duplicates in this context',
-                          'style' => $buttonstyle]);
+            $findduplicateslink = html_writer::link(
+                $findduplicatesurl,
+                'Find duplicates',
+                ['title' => 'Find all duplicates in this context',
+                'style' => $buttonstyle]
+            );
             $litext = $name . ' (' . $numcoderunnerquestions . ') ' . $findduplicateslink;
             echo html_writer::start_tag('li', ['class' => $class]);
             echo $litext;

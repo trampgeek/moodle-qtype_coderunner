@@ -73,10 +73,18 @@ class restore_test extends \advanced_testcase {
 
         // Restore one of the example backups.
         $newcourseid = \restore_dbops::create_new_course(
-                'Restore test', 'RT100', $this->category->id);
-        $rc = new \restore_controller($folder, $newcourseid,
-                \backup::INTERACTIVE_NO, \backup::MODE_GENERAL, $USER->id,
-                \backup::TARGET_NEW_COURSE);
+            'Restore test',
+            'RT100',
+            $this->category->id
+        );
+        $rc = new \restore_controller(
+            $folder,
+            $newcourseid,
+            \backup::INTERACTIVE_NO,
+            \backup::MODE_GENERAL,
+            $USER->id,
+            \backup::TARGET_NEW_COURSE
+        );
         $this->assertTrue($rc->execute_precheck());
         $rc->execute_plan();
         $rc->destroy();
@@ -95,10 +103,16 @@ class restore_test extends \advanced_testcase {
         global $DB;
         $questionid = $DB->get_field('question', 'id', ['name' => $name], MUST_EXIST);
         return [
-                $DB->get_record('question_coderunner_options',
-                        ['questionid' => $questionid], '*', MUST_EXIST),
-                $DB->get_records('question_coderunner_tests',
-                        ['questionid' => $questionid])];
+                $DB->get_record(
+                    'question_coderunner_options',
+                    ['questionid' => $questionid],
+                    '*',
+                    MUST_EXIST
+                ),
+                $DB->get_records(
+                    'question_coderunner_tests',
+                    ['questionid' => $questionid]
+                )];
     }
 
     public function test_restore() {
@@ -108,11 +122,11 @@ class restore_test extends \advanced_testcase {
                 '/question/type/coderunner/tests/fixtures/loadtesting_pseudocourse_backup.mbz');
 
         // Verify some restored questions look OK.
-        list($options, $tests) = $this->load_question_data_by_name('c_to_fpy3');
+        [$options, $tests] = $this->load_question_data_by_name('c_to_fpy3');
         $this->assertCount(3, $tests);
         $this->assertNull($options->template);
 
-        list($options, $tests) = $this->load_question_data_by_name('PROTOTYPE_clojure_with_combinator');
+        [$options, $tests] = $this->load_question_data_by_name('PROTOTYPE_clojure_with_combinator');
         $this->assertCount(1, $tests);
         $this->assertStringStartsWith('import subprocess', $options->template);
     }
@@ -124,11 +138,11 @@ class restore_test extends \advanced_testcase {
                 '/question/type/coderunner/tests/fixtures/loadtesting_pseudocourse_backup_V3.0.0.mbz');
 
         // Verify some restored questions look OK.
-        list($options, $tests) = $this->load_question_data_by_name('c_to_fpy3');
+        [$options, $tests] = $this->load_question_data_by_name('c_to_fpy3');
         $this->assertCount(3, $tests);
         $this->assertNull($options->template);
 
-        list($options, $tests) = $this->load_question_data_by_name('PROTOTYPE_clojure_with_combinator');
+        [$options, $tests] = $this->load_question_data_by_name('PROTOTYPE_clojure_with_combinator');
         $this->assertCount(1, $tests);
         $this->assertStringStartsWith('import subprocess', $options->template);
     }

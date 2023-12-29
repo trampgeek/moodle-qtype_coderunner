@@ -31,7 +31,6 @@ global $CFG;
 require_once($CFG->libdir . '/filelib.php'); // Needed when run as web service.
 
 class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
-
     const DEBUGGING = 0;
     const HTTP_GET = 1;
     const HTTP_POST = 2;
@@ -81,8 +80,10 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
     // List of supported languages.
     public function get_languages() {
         if ($this->languages === null) {
-            list($this->httpcode, $this->response) = $this->http_request(
-                'languages', self::HTTP_GET);
+            [$this->httpcode, $this->response] = $this->http_request(
+                'languages',
+                self::HTTP_GET
+            );
             if ($this->httpcode == 200 && is_array($this->response)) {
                 $this->languages = [];
                 foreach ($this->response as $lang) {
@@ -132,7 +133,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
      *         showing which jobeserver was used and what key was used (if any).
      */
 
-    public function execute($sourcecode, $language, $input, $files=null, $params=null) {
+    public function execute($sourcecode, $language, $input, $files = null, $params = null) {
         $language = strtolower($language);
         if (is_null($input)) {
             $input = '';
@@ -220,9 +221,11 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
         ];
 
         $okresponse = in_array($httpcode, [200, 203]);  // Allow 203, which can result from an intevening proxy server.
-        if (!$okresponse                        // If it's not an OK response...
+        if (
+            !$okresponse                        // If it's not an OK response...
                 || !is_object($this->response)  // ... or there's any sort of broken ...
-                || !isset($this->response->outcome)) {     // ... communication with server.
+                || !isset($this->response->outcome)
+        ) {     // ... communication with server.
             // Return with errorcode set and as much extra info as possible in stderr.
             $errorcode = $okresponse ? self::UNKNOWN_SERVER_ERROR : $this->get_error_code($httpcode);
             $this->currentjobid = null;
@@ -291,7 +294,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
         $contentsb64 = base64_encode($contents);
         $resource = "files/$id";
 
-        list($url, $headers) = $this->get_jobe_connection_info($resource);
+        [$url, $headers] = $this->get_jobe_connection_info($resource);
 
         $body = ['file_contents' => $contentsb64];
         $curl = curl_init();
@@ -331,7 +334,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
         }
         $jobe = trim($jobe); // Remove leading or trailing extra whitespace from the settings.
         $protocol = 'http://';
-        $url = (strpos($jobe, 'http') === 0 ? $jobe : $protocol.$jobe)."/jobe/index.php/restapi/$resource";
+        $url = (strpos($jobe, 'http') === 0 ? $jobe : $protocol . $jobe) . "/jobe/index.php/restapi/$resource";
 
         $headers = [
                 'User-Agent: CodeRunner',
@@ -358,10 +361,9 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
     // We don't at this stage deal with Jobe servers that may defer requests
     // i.e. that return 202 Accepted rather than 200 OK.
     private function submit($job) {
-        list($returncode, $response) = $this->http_request('runs', self::HTTP_POST, $job);
+        [$returncode, $response] = $this->http_request('runs', self::HTTP_POST, $job);
         $this->response = $response;
         return $returncode;
-
     }
 
     // Send an http request to the Jobe server at the given
@@ -374,8 +376,8 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
     // Note that the Moodle curl class documentation lies when it says the
     // return value from get and post is a bool. It's either the value false
     // if the request failed or the actual string response, otherwise.
-    private function http_request($resource, $method, $body=null) {
-        list($url, $headers) = $this->get_jobe_connection_info($resource);
+    private function http_request($resource, $method, $body = null) {
+        [$url, $headers] = $this->get_jobe_connection_info($resource);
 
         $curl = new curl();
         $curl->setHeader($headers);
@@ -422,4 +424,3 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
         return preg_replace('|(/home/jobe/runs/jobe_[a-zA-Z0-9_]+/)([a-zA-Z0-9_]+)|', '$2', $s);
     }
 }
-
