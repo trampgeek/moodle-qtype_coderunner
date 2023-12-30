@@ -20,82 +20,44 @@
  * with the problem spec within it.
  *
  * @module qtype_coderunner/ajaxquestionloader
- * @copyright  Richard Lobb, 2019, The University of Canterbury
+ * @copyright  Richard Lobb, 2019; Paul McKeown 2023. The University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+// jshint esversion:6
 
-
-//define(['jquery'], function ($) {
-// define([], function () {
-    /**
-     * Append to the question text div in the question a data-URL containing
-     * the contents of the question specification file (usu. a pdf).
-     * @param {int} qid The question ID in the database.
-     * @param {string} divId The ID of the question text <div> element.
-     * @param {string} questionFilename The name of the problem spec file within
-     * the problem zip file.
-     */
-export function loadQuestionText(qid, divId, questionFilename) {
-        // var questionTextDiv = $('#' + divId),
-        var questionTextDiv = document.getElementById(divId),
-            error = 'Failed to load problem spec',
-            errorElem = document.createTextNode(error),
-            url = M.cfg.wwwroot + '/question/type/coderunner/problemspec.php?questionid=' + qid +
-            '&sesskey='+M.cfg.sesskey+'&filename='+questionFilename;
-
-/*         if (questionTextDiv.length != 1) {  //  is this useful?
-            questionTextDiv.innerText.append(errorDiv);
-            return;
-        }
+/**
+ * Append to the question text div in the question a data-URL containing
+ * the contents of the question specification file (usu. a pdf).
+ * @param {int} qid The question ID in the database.
+ * @param {string} divId The ID of the question text <div> element.
+ * @param {string} questionFilename The name of the problem spec file within
+ * the problem zip file.
  */
-        fetch(url)
-            .then((response) => {
-                if (response.ok) {
-                    return response.json();}
-                else {
-                    throw new Error(error);  // fetch failed for some reason
-                }
-            })
-            .then(function (data) {
-                var anchorElem = document.createElement('a');
-                if (data.filecontentsb64) {
-                    anchorElem.href = 'data:application/pdf;base64,'+data.filecontentsb64;
-                    anchorElem.text = 'Problem Spec';
-                    anchorElem.download = "problem_spec";  // suggested filename for download
-                    questionTextDiv.appendChild(anchorElem);
-                } else {
-                    throw new Error(error);  // didn't get expected contents
-                }
-            })
-            .catch(() =>  {questionTextDiv.appendChild(errorElem);});
+export function loadQuestionText(qid, divId, questionFilename) {
+    const questionTextDiv = document.getElementById(divId),
+        error = 'Failed to load problem spec',
+        errorElem = document.createTextNode(error),
+        url = M.cfg.wwwroot + '/question/type/coderunner/problemspec.php?questionid=' + qid +
+        '&sesskey='+M.cfg.sesskey+'&filename='+questionFilename;
 
-
-/*         $.getJSON(M.cfg.wwwroot + '/question/type/coderunner/problemspec.php',
-                {
-                    questionid: qid,
-                    sesskey: M.cfg.sesskey,
-                    filename: questionFilename
-                },
-                function (response) {
-                    if (response.filecontentsb64) {
-
-                        questionTextDiv.append(
-                          '<div><a download href="data:application/pdf;base64,' +
-                          response.filecontentsb64 + '">Problem spec</a></div>');
-                    } else {
-                        questionTextDiv.append(errorDiv);
-                    }
-
-                }
-        ).fail(function () {
-            // AJAX failed. We're dead, Fred.
-            questionTextDiv.append(errorDiv);
-        }); */
-
-
-    }
-
-//    return {
-//       loadQuestionText: loadQuestionText
-//    };
-//});
+    fetch(url)
+        .then((response) => {
+            if (response.ok) {
+                return response.json();}
+            else {
+                throw new Error(error);  // fetch failed for some reason
+            }
+        })
+        .then(function (data) {
+            const anchorElem = document.createElement('a');
+            if (data.filecontentsb64) {
+                anchorElem.href = 'data:application/pdf;base64,'+data.filecontentsb64;
+                anchorElem.text = 'Problem Spec';
+                anchorElem.download = "problem_spec";  // suggested filename for download
+                questionTextDiv.appendChild(anchorElem);
+            } else {
+                throw new Error(error);  // didn't get expected contents
+            }
+        })
+        .catch(() =>  {questionTextDiv.appendChild(errorElem);});
+}
