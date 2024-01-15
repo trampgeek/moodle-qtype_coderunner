@@ -1616,7 +1616,11 @@ class qtype_coderunner_edit_form extends question_edit_form {
             if ($error) {
                 return $error;
             }
-            [$mark, , $cachedata] = $this->formquestion->grade_response($response);
+            [$mark, , $cachedata] = $this->formquestion->grade_response(
+                $response,
+                isprecheck:false,
+                validating:true
+            );
         } catch (Exception $e) {
             return $e->getMessage();
         }

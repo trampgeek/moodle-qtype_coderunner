@@ -36,15 +36,32 @@ class qtype_coderunner_jobrunner {
     private $testcases = null;       // The testcases (a subset of those in the question).
     private $allruns = null;         // Array of the source code for all runs.
 
-    // Check the correctness of a student's code and possible extra attachments
-    // as an answer to the given
-    // question and and a given set of test cases (which may be empty or a
-    // subset of the question's set of testcases. $isprecheck is true if
-    // this is a run triggered by the student clicking the Precheck button.
-    // $answerlanguage will be the empty string except for multilanguage questions,
-    // when it is the language selected in the language drop-down menu.
-    // Returns a TestingOutcome object.
-    public function run_tests($question, $code, $attachments, $testcases, $isprecheck, $answerlanguage) {
+    /**
+     * Check the correctness of a student's code and possible extra attachments
+     * as an answer to the given question and and a given set of test cases (which may be empty or a
+     * subset of the question's set of testcases.
+     * @param qtype_coderunner_question $question object relevant to this step of the attempt
+     * @param string $code is the JSON repr of the code
+     * @param array $attachments is the array of attachments given by student, if any
+     * @param
+     * @param boolean $isprecheck is true if
+     * this is a run triggered by the student clicking the Precheck button.
+     * @param string $answerlanguage will be the empty string except for multilanguage questions,
+     *      when it is the language selected in the language drop-down menu.
+     * @param boolean $validating Set to true if this is a validate on grading. Otherwise the
+     *      validate on save uses the qid of the last version.
+     * @return qtype_coderunner_combinator_grader_outcome $testoutcome that contains the outcome
+     *      of the grading.
+     */
+    public function run_tests(
+        $question,
+        $code,
+        $attachments,
+        $testcases,
+        $isprecheck,
+        $answerlanguage,
+        $validating = false
+    ) {
         if (empty($question->prototype)) {
             // Missing prototype. We can't run this question.
             $outcome = new qtype_coderunner_testing_outcome(0, 0, false);
@@ -57,8 +74,43 @@ class qtype_coderunner_jobrunner {
                     ['crtype' => $question->coderunnertype]
                 );
             }
-            $outcome->set_status(qtype_coderunner_testing_outcome::STATUS_MISSING_PROTOTYPE, $message);
+            $status = qtype_coderunner_testing_outcome::STATUS_MISSING_PROTOTYPE;
+            $outcome->set_status($status, $message);
             return $outcome;
+        }
+
+        /* Validate on save will set validating to true.
+           This is needed otherwise the validate run uses the old question id
+           and the cache wouldn't think there was any change.
+           Note: Could add a coderunner config variable to allow for ignoring
+           cache - and maybe updating with the newly calculated outcomes.
+           This would guarantee no hash collisions but would only be used
+           when not under time pressue, eg, after a test/exam has finished.
+           Coul just purge the coderunner cache but this would nuke caches
+           for all quizzes...
+        */
+        if (!$validating  && false) {
+            // Use cached outcome if we have one.
+            $cache = cache::make('qtype_coderunner', 'coderunner_grading_cache');
+
+            // With same qid and prototype id the question text and test cases can't have changed.
+            // Maybe the answerlanguage can't have changed either? so we could remove that from the hash.
+            $qdetails = "qid=" . $question->id . ",prototype_id=" . $question->prototype->id;
+            $qdetails .= ",isprecheck=" . $isprecheck . ",answerlanguage=" . $answerlanguage;
+
+            // Most student answers won't have attachments but if they do then ...
+            // ... include the hash of the attachments (which will be slow).
+            if ($attachments) {
+                $qdetails .= "attachmentshash=" . hash(" xxh64", serialize($attachments));
+            }
+
+            $rawkey = $qdetails . ",code=" . $code;
+            $key = hash("xxh64", $rawkey);  // Fast with digest small enough to be used directly as key in DB.
+            $outcome = $cache->get($key);
+            if ($outcome) {
+                // echo ("-from cache- " . $question->id . ", " . $question->prototype->id . "<br>");
+                return unserialize($outcome);
+            }
         }
 
         // Extract the code from JSON if this is a Scratchpad UI or similar.
@@ -119,9 +171,16 @@ class qtype_coderunner_jobrunner {
         if ($question->get_show_source()) {
             $outcome->sourcecodelist = $this->allruns;
         }
+
+        // Only cache result if not doing a validate on save.
+        if (!$validating && false) {
+            // Cache the result for this qid+protid+code+isprecheck+language so we can use it again if needed.
+            $cache->set($key, serialize($outcome));
+        }
+        // echo ("-not from cache- " . $question->id . ", " . $question->prototype->id . "<br>");
+
         return $outcome;
     }
-
 
     // If the template is a combinator, try running all the tests in a single
     // go.

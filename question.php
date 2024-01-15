@@ -69,6 +69,7 @@ class qtype_coderunner_question extends question_graded_automatically {
             $step->set_qt_var('_mtrandseed', $seed);
         }
         $this->evaluate_question_for_display($seed, $step);
+        $this->mtrandseed = $seed;  // so we can see it when checking
     }
 
     // Retrieve the saved random number seed and reconstruct the template
@@ -84,6 +85,7 @@ class qtype_coderunner_question extends question_graded_automatically {
             $seed = mt_rand();
         }
         $this->evaluate_question_for_display($seed, $step);
+        $this->mtrandseed = $seed;  // so we can see it when checking
     }
 
 
@@ -643,19 +645,22 @@ class qtype_coderunner_question extends question_graded_automatically {
      * state is used when a sandbox error occurs.
      * @throws coding_exception
      */
-    public function grade_response(array $response, bool $isprecheck = false) {
+    public function grade_response(array $response, bool $isprecheck = false, $validating = false) {
         if ($isprecheck && empty($this->precheck)) {
             throw new coding_exception("Unexpected precheck");
         }
         $language = empty($response['language']) ? '' : $response['language'];
+
+        // QUESTION: Could we replace this with the new cached version?
         $gradingreqd = true;
+        $testoutcomeserial = null;
         if (!empty($response['_testoutcome'])) {
             $testoutcomeserial = $response['_testoutcome'];
             $testoutcome = unserialize($testoutcomeserial);
             if (
                 $testoutcome instanceof qtype_coderunner_testing_outcome  // Ignore legacy-format outcomes.
                     && $testoutcome->isprecheck == $isprecheck
-            ) {
+            ) { 
                 $gradingreqd = false;  // Already graded and with same precheck state.
             }
         }
@@ -674,8 +679,49 @@ class qtype_coderunner_question extends question_graded_automatically {
             } else {
                 $this->stepinfo->graderstate = '';
             }
-            $testoutcome = $runner->run_tests($this, $code, $attachments, $testcases, $isprecheck, $language);
-            $testoutcomeserial = serialize($testoutcome);
+
+            // Use cached outcome if we have one.
+            $cache = cache::make('qtype_coderunner', 'coderunner_grading_cache');
+
+            // QUESTION: Should we raise an error on missing prototype here?...
+            // ...          Rather than in jobrunner?.
+            if (!empty($this->prototype)) {
+                $protoid = $this->prototype->id;
+            } else {
+                $protoid = "";
+            }
+            $seed = $this->mtrandseed;
+            // With same qid and prototype id the question text and seed, test cases can't have changed.
+            $qdetails = "qid=" . $this->id . "ren,prototype_id=" . $protoid;
+            $qdetails .= ",mtrandomseed=" . $seed . ",isprecheck=" . $isprecheck;
+            // Most student answers won't have attachments but if they do then ...
+            // ... include the hash of the attachments (which will be slow).
+            if ($attachments) {
+                $qdetails .= ",attachmentshash=" . hash("xxh64", serialize($attachments));
+            }
+            $rawkey = $qdetails . ",code=" . $code;
+            $key = hash("xxh64", $rawkey);  // Fast with digest small enough to be used directly as key in DB.
+            if (!$validating) {
+                $testoutcomeserial = $cache->get($key);
+                if ($testoutcomeserial) {
+                    $testoutcome = unserialize($testoutcomeserial);
+                }
+            }
+            if ($testoutcomeserial == null) {
+                $testoutcome = $runner->run_tests(
+                    $this,
+                    $code,
+                    $attachments,
+                    $testcases,
+                    $isprecheck,
+                    $language,
+                    $validating
+                );
+                $testoutcomeserial = serialize($testoutcome);
+                if (!$validating) {
+                    $cache->set($key, $testoutcomeserial);
+                }
+            }
         }
 
         $datatocache = ['_testoutcome' => $testoutcomeserial];
