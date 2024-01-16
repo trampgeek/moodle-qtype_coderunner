@@ -257,6 +257,44 @@ div.coderunner-test-results.partial {
     margin-top: -1px;
 }
 
+.que.coderunner .button-exit-fullscreen {
+    bottom: -5px;
+    right: 12px;
+}
+
+.que.coderunner .button-fullscreen {
+    bottom: -4px;
+    right: 12px;
+}
+
+.que.coderunner .button-fullscreen,
+.que.coderunner .button-exit-fullscreen {
+    border: none;
+    background: transparent;
+    margin-right: 4px;
+    z-index: 10;
+}
+
+.que.coderunner .button-fullscreen img.icon:hover,
+.que.coderunner .button-exit-fullscreen img.icon:hover {
+    animation: scaletooriginalsize 0.3s ease-in-out 0.1s forwards;
+    transform: scale(1.2);
+}
+
+@keyframes scaletooriginalsize {
+    to {
+        transform: scale(1);
+    }
+}
+
+.que.coderunner .button-exit-fullscreen img.icon,
+.que.coderunner .button-fullscreen img.icon {
+    margin-right: unset;
+    margin-bottom: 2px;
+    width: 15px;
+    height: 15px;
+}
+
 /* Editing form. */
 body#page-question-type-coderunner div.edit_code textarea {
     width: 100%;
