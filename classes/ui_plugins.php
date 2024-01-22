@@ -26,6 +26,8 @@ defined('MOODLE_INTERNAL') || die();
 
 class qtype_coderunner_ui_plugins {
     private static $instance = null;
+    /** @var array ui_plugins object. */
+    public $plugins;
 
     /**
      * Construct a ui_plugins object by reading amd/src directory to identify
@@ -113,6 +115,13 @@ class qtype_coderunner_ui_plugins {
 // A class to represent a single plugin. The uiname is the lower case
 // plugin name, e.g. 'ace', 'graph'.
 class qtype_coderunner_ui_plugin {
+
+    /** @var string  */
+    public $uiname;
+
+    /** @var qtype_coderunner_ui_parameters */
+    public $params;
+
     /**
      *
      * @param string-or-null $filename the ui plugins filename or null for 'None'

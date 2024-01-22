@@ -29,6 +29,22 @@ defined('MOODLE_INTERNAL') || die();
 
 // A class to represent a single parameter with a name, type and value.
 class qtype_coderunner_ui_parameter {
+
+    /** @var string The name of the parameter. */
+    public $name;
+
+    /** @var string The type of the parameter, e.g. 'int', 'float', 'string', 'bool', 'list'. */
+    public $type;
+
+    /** @var mixed The value of the parameter. */
+    public $value;
+
+    /** @var bool Whether the parameter is required. */
+    public $required;
+
+    /** @var bool Whether the parameter has been updated since the initial load. */
+    public $updated;
+
     public function __construct($name, $type, $value, $required = false) {
         $this->name = $name;
         $this->type = $type;
@@ -43,6 +59,13 @@ class qtype_coderunner_ui_parameter {
  * a particular ui plugin.
  */
 class qtype_coderunner_ui_parameters {
+
+    /** @var string The name of the ui plugin, e.g. ace, graph, etc. */
+    public $uiname;
+
+    /** @var array An associative array of parameter name => qtype_coderunner_ui_parameter */
+    public $params;
+
     /**
      * Construct a ui_parameters object by reading the json file for the
      * specified ui_plugin.
