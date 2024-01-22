@@ -9,6 +9,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - php: '8.2'
+            moodle-branch: 'master'
+            database: 'pgsql'
+          - php: '8.1'
+            moodle-branch: 'MOODLE_403_STABLE'
+            database: 'mariadb'
           - php: '8.0'
             moodle-branch: 'MOODLE_402_STABLE'
             database: 'pgsql'
@@ -30,7 +36,7 @@ jobs:
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 3
 
       mariadb:
-        image: mariadb:10.5
+        image: mariadb:10.6
         env:
           MYSQL_USER: 'root'
           MYSQL_ALLOW_EMPTY_PASSWORD: "true"
