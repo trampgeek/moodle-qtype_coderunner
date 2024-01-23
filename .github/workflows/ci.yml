@@ -83,7 +83,7 @@ jobs:
 
       - name: Install Moodle
         run: |
-          moodle-plugin-ci add-plugin trampgeek/moodle-qbehaviour_adaptive_adapted_for_coderunner
+          moodle-plugin-ci add-plugin --branch wip753140_adaptive AnupamaSarjoshi/moodle-qbehaviour_adaptive_adapted_for_coderunner
           moodle-plugin-ci install --plugin ./plugin --db-host=127.0.0.1
           moodle-plugin-ci add-config 'define("QTYPE_CODERUNNER_JOBE_HOST", "localhost:4000");'
         env:
