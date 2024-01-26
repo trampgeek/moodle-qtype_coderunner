@@ -293,7 +293,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
         $formatoptions->para = false;
         $formatoptions->newlines = false;
         $formatoptions->allowid = true;
-        return format_text($fb, get_string('formathtml'), $formatoptions);
+        return format_text($fb, FORMAT_HTML, $formatoptions);
     }
 
     /**
