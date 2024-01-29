@@ -64,7 +64,11 @@ def copy_stdin():
 EOCODE;
         $response = ['answer' => $code];
         // Moodle's test helper question uses an id of zero so turn off cache!
-        $result = $q->grade_response($response, usecache:false);
+        $result = $q->grade_response(
+            $response,
+            false, // Not a precheck.
+            false // Here usecache is set to false.
+        );
         [$mark, $grade, $cache] = $result;
         $testoutcome = unserialize($cache['_testoutcome']); // For debugging test.
         $this->assertEquals(1, $mark);
@@ -96,7 +100,11 @@ def copy_stdin():
 EOCODE;
         $response = ['answer' => $code];
         // Moodle's test helper question uses an id of zero so turn off cache!
-        $result = $q->grade_response($response, usecache:false);
+        $result = $q->grade_response(
+            $response,
+            false, // Not a precheck.
+            false // Here usecache is set to false.
+          );
         [$mark, $grade, $cache] = $result;
         $testoutcome = unserialize($cache['_testoutcome']); // For debugging test.
         $this->assertEquals(1, $mark);
@@ -128,7 +136,11 @@ def copy_stdin():
 EOCODE;
         $response = ['answer' => $code];
         // Moodle's test helper question uses an id of zero so turn off cache!
-        $result = $q->grade_response($response, usecache:false);
+        $result = $q->grade_response(
+            $response,
+            false, // Not a precheck.
+            false // Here usecache is set to false.
+        );
         [$mark, $grade, $cache] = $result;
         $testoutcome = unserialize($cache['_testoutcome']); // For debugging test.
         $this->assertEquals(0, $mark);

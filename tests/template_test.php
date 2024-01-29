@@ -112,12 +112,20 @@ EOTEMPLATE;
         $code = "def sqr(n): return n * n\n";
         $response = ['answer' => $code];
         // Don't use cache as qid of zero is reused with different question!
-        $result = $q->grade_response($response, usecache:false);
+        $result = $q->grade_response(
+            $response,
+            false, // Not a precheck.
+            false // Here usecache is set to false.
+        );
         [$mark, $grade, $cache] = $result;
         $this->assertTrue(abs($mark - 24.0 / 31.0) < 0.000001);
         $q->allornothing = true;
         // Don't use cache as qid of zero is reused with different question!
-        $result = $q->grade_response($response, usecache:false);
+        $result = $q->grade_response(
+            $response,
+            false, // Not a precheck.
+            false // Here usecache is set to false.
+        );
         [$mark, $grade, $cache] = $result;
         $this->assertTrue($mark == 0.0);
     }
