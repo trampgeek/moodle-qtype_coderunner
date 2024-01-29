@@ -1616,10 +1616,10 @@ class qtype_coderunner_edit_form extends question_edit_form {
             if ($error) {
                 return $error;
             }
-            [$mark, , $cachedata] = $this->formquestion->grade_response(
+            [$mark, $state, $cachedata] = $this->formquestion->grade_response(
                 $response,
-                isprecheck:false,
-                validating:true
+                false, // Not a precheck.
+                false  // Don't use cache as it the old question id is used and would give old outcome.
             );
         } catch (Exception $e) {
             return $e->getMessage();

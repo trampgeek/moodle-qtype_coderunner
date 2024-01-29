@@ -1334,3 +1334,6 @@ $string['wssubmissionrateexceeded'] = 'You have exceeded the maximum hourly \'Tr
 
 $string['xmlcoderunnerformaterror'] = 'XML format error in coderunner question';
 $string['coderunner_grading_cache'] = 'Caches grading results so we can avoid going to Jobe so often';
+$string['cachedef_coderunner_grading_cache'] = 'Caches grading results so we can avoid going to Jobe so often';
+$string['cachegradingresultsenable'] = 'Cache results when grading answers.';
+$string['cachegradingresults_desc'] = 'Uses a local Moodle cache (currently file cache) to store results of grading questions. Mainly to speed up regrading by using cached results for steps where the same quesiton and answer have already been graded.';
