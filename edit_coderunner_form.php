@@ -1618,13 +1618,8 @@ class qtype_coderunner_edit_form extends question_edit_form {
             }
             [$mark, $state, $cachedata] = $this->formquestion->grade_response(
                 $response,
-<<<<<<< HEAD
                 false, // Not a precheck.
                 false  // Don't use cache as it the old question id is used and would give old outcome.
-=======
-                isprecheck:false,
-                usecache:false
->>>>>>> 2fdb0ea5fab7097a367876998ce7df42376dd84c
             );
         } catch (Exception $e) {
             return $e->getMessage();
