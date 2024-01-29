@@ -14,25 +14,22 @@
 // You should have received a copy of the GNU General Public License
 // along with CodeRunner.  If not, see <http://www.gnu.org/licenses/>.
 
-/** Defines a simple class used to wrap an HTML string as a way of flagging
- * to code that tries to use it that further conversion to HTML must not be done.
+namespace qtype_coderunner;
+
+defined('MOODLE_INTERNAL') || die();
+require_once($CFG->dirroot . '/question/engine/lib.php');
+
+/**
+ * An extension of question_display_options that includes the extra options used by the coderunner.
  *
- * @package    qtype_coderunner
- * @copyright  Richard Lobb, 2016, The University of Canterbury
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   qtype_coderunner
+ * @copyright 2024 The Open University
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+class display_options extends \question_display_options {
 
-class qtype_coderunner_html_wrapper {
-
-    /** @var string */
-    private $html;
-
-    public function __construct($html) {
-        $this->html = $html;
-    }
-
-    // Access the wrapped html.
-    public function value() {
-        return $this->html;
-    }
+    /**
+     * @var bool
+     */
+    public $suppressruntestslink = false;
 }

@@ -34,16 +34,47 @@ class qtype_coderunner_testing_outcome {
 
     const TOLERANCE = 0.00001;       // Allowable difference between actual and max marks for a correct outcome.
 
-    public $status;                  // One of the STATUS_ constants above.
-                                     // If this is not 1, subsequent fields may not be meaningful.
-    public $isprecheck;              // True if this was a precheck run.
-    public $errorcount;              // The number of failing test cases.
-    public $errormessage;            // The error message to display if there are errors.
-    public $maxpossmark;             // The maximum possible mark.
-    public $actualmark;              // Actual mark (meaningful only if this is not an all-or-nothing question).
-    public $testresults;             // An array of TestResult objects.
-    public $sourcecodelist;          // Array of all test runs.
-    public $sandboxinfo;             // An associative array of sandbox info, e.g. Jobe server name.
+    /**
+     * @var int One of the STATUS_ constants above.
+     * If this is not 1, subsequent fields may not be meaningful.
+     */
+    public $status;
+
+    /** @var bool True if this was a precheck run. */
+    public $isprecheck;
+
+    /** @var int The number of failing test cases. */
+    public $errorcount;
+
+    /** @var string The error message to display if there are errors. */
+    public $errormessage;
+
+    /** @var int The maximum possible mark. */
+    public $maxpossmark;
+
+    /** @var int Actual mark (meaningful only if this is not an all-or-nothing question). */
+    public $actualmark;
+
+    /** @var array An array of TestResult objects. */
+    public $testresults;
+
+    /** @var ?array Array of all test runs. */
+    public $sourcecodelist;
+
+    /** @var array An associative array of sandbox info, e.g. Jobe server name. */
+    public $sandboxinfo;
+
+    /** @var int The number of failed tests. */
+    public $numerrors;
+
+    /** @var int|void Number of test results expected. */
+    public $numtestsexpected;
+
+    /** @var string For use by combinator template graders, allowing to customise grade and feedback. */
+    public $graderstate;
+
+    /** @var html_table Table for reporting validation errors. */
+    public $failures;
 
     public function __construct($maxpossmark, $numtestsexpected, $isprecheck) {
         $this->status = self::STATUS_VALID;

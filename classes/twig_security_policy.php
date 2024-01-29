@@ -47,11 +47,21 @@ use Twig\Template;
  * @author Fabien Potencier <fabien@symfony.com>
  */
 class qtype_coderunner_twig_security_policy implements Twig\Sandbox\SecurityPolicyInterface {
-    private $allowedtags;
-    private $allowedfilters;
-    private $allowedmethods;
-    private $allowedproperties;
-    private $allowedfunctions;
+
+    /** @var array */
+    private $allowedTags;
+
+    /** @var array */
+    private $allowedFilters;
+
+    /** @var array */
+    private $allowedMethods;
+
+    /** @var array */
+    private $allowedProperties;
+
+    /** @var array */
+    private $allowedFunctions;
 
     public function __construct(
         array $allowedtags = [],
