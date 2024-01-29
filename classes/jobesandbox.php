@@ -57,10 +57,10 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
     private $httpcode = null;    // HTTP response code.
     private $response = null;    // Response from HTTP request to server.
 
-    /** @var mixed Jobe server host name. */
+    /** @var ?string Jobe server host name. */
     private $jobeserver;
 
-    /** @var mixed Jobe server API-key. */
+    /** @var ?string Jobe server API-key. */
     private $apikey;
 
     // Constructor gets languages from Jobe and stores them.

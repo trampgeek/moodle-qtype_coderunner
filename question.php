@@ -42,22 +42,28 @@ class qtype_coderunner_question extends question_graded_automatically {
     /** @var string containing the language for coderunner type. */
     public $coderunnertype;
 
-    /** @var string Whether the question is a Prototype or not. */
+    /** @var int 0, 1 or 2 for not-a-prototype, built-in prototype and user-defined prototype */
     public $prototypetype;
 
-    /** @var string All-or-nothing grading */
+    /** @var bool True for All-or-nothing grading */
     public $allornothing;
 
     /** @var string The penalty regime of the question. */
     public $penaltyregime;
 
-    /** @var int Precheck for the question. */
+    /** @var int Precheck for the question.
+     *  0 = 'disable': no pretest button available,
+     *  1 = 'empty' for no actual tests,
+     *  2 = 'examples' for all use-as-example tests,
+     *  3 = 'selected' for specific selected tests,
+     *  4 = 'all' for all tests.
+     */
     public $precheck;
 
-    /** @var int Hide check. */
+    /** @var int Hide check. Non-zero to hide the Check button. */
     public $hidecheck;
 
-    /** @var bool Show source. Template debugging. */
+    /** @var bool Show source. If true, the Twigged template output is displayed for each run. */
     public $showsource;
 
     /** @var int|string The number of lines for the answer box. */
@@ -69,7 +75,7 @@ class qtype_coderunner_question extends question_graded_automatically {
     /** @var string Extra data for use by template authors, global to all tests. */
     public $globalextra;
 
-    /** @var bool if template uses ace or not. */
+    /** @var bool True if template uses ace. */
     public $useace;
 
     /** @var string JSON-encoded list of column specifiers. */
@@ -78,17 +84,17 @@ class qtype_coderunner_question extends question_graded_automatically {
     /** @var string The question template. */
     public $template;
 
-    /** @var ?bool Checking the combinator template. */
+    /** @var ?bool True if a combinator template is being used. */
     public $iscombinatortemplate;
 
-    /** @var bool If multiple tests are allowed. */
+    /** @var bool True if multiple tests are allowed. */
     public $allowmultiplestdins;
 
     /** @var string The answer of the question. */
     public $answer;
 
-    /** Validate on save. */
-    public $validateonsave = '';
+    /** @var int True to validate the question on save. */
+    public $validateonsave = 1;
 
     /** @var string The regular expression to split output from the combinator run into the basic tests again. */
     public $testsplitterre;
@@ -114,16 +120,16 @@ class qtype_coderunner_question extends question_graded_automatically {
     /** @var string The JSON string used to specify the sandbox parameters. */
     public $sandboxparams;
 
-    /** @var string The template parameter. */
+    /** @var string The template parameters. */
     public $templateparams;
 
-    /** @var bool The hoist template parameters. */
+    /** @var bool The hoisted template parameters. */
     public $hoisttemplateparams;
 
-    /** @var bool The extract code from json. */
+    /** @var bool True if the response is json from which the actual code attribute should be extracted */
     public $extractcodefromjson;
 
-    /** @var ?string The template parameters lang. */
+    /** @var ?string The template parameters language. */
     public $templateparamslang;
 
     /** @var bool The template parameters eval per try. */
@@ -132,13 +138,13 @@ class qtype_coderunner_question extends question_graded_automatically {
     /** @var string The evaluated template parameters (JSON). */
     public $templateparamsevald;
 
-    /** @var ?string T */
+    /** @var ?int True if all question fields need Twig expansion. */
     public $twigall;
 
     /** @var ?string The UI plugin in use. */
     public $uiplugin;
 
-    /** @var ?string */
+    /** @var ?string The parameters to pass to the UI plugin*/
     public $uiparameters;
 
     /** @var ?string The attachments of the question. */
@@ -162,13 +168,13 @@ class qtype_coderunner_question extends question_graded_automatically {
      */
     public $displayfeedback;
 
-    /** @var int */
+    /** @var int True if Stop button is to be displayed. */
     public $giveupallowed;
 
     /** @var ?string Extra data for use by prototype or customised code. */
     public $prototypeextra;
 
-    /** @var ?array The answers of the question. */
+    /** @var ?array The answers of the question (unused - for superclass compatibility only) */
     public $answers;
 
     /** @var bool Whether the question is customised or not. */
@@ -186,10 +192,10 @@ class qtype_coderunner_question extends question_graded_automatically {
     /** @var ?array Cache in this to avoid multiple evaluations during question editing and validation.*/
     public $cachedfuncparams;
 
-    /** @var ?string */
+    /** @var ?string Cache for evaluated template parameters field */
     public $cachedevaldtemplateparams;
 
-    /** @var ?string merged template parameters */
+    /** @var ?string merged UI parameters */
     public $mergeduiparameters;
 
     /** @var string The json string of template params. */

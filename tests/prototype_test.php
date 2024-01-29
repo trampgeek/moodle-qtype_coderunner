@@ -137,7 +137,7 @@ EOTEMPLATE;
     <iscombinatortemplate></iscombinatortemplate>
     <allowmultiplestdins></allowmultiplestdins>
     <answer></answer>
-    <validateonsave></validateonsave>
+    <validateonsave>1</validateonsave>
     <testsplitterre></testsplitterre>
     <language></language>
     <acelang></acelang>

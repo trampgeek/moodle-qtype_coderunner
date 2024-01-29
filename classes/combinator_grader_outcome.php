@@ -32,7 +32,7 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
     /** @var ?string Html that is displayed after the result table. */
     public $prologuehtml;
 
-    /** @var array */
+    /** @var array A per-column array of %s (string) or %h (html) values to control column formatting */
     public $columnformats;
 
     /** @var bool If true, the question does not display the result table and no grading. */
