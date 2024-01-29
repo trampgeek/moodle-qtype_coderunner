@@ -134,3 +134,10 @@ $settings->add(new admin_setting_configtext(
     get_string('wsmaxcputime_desc', 'qtype_coderunner'),
     '5'
 ));
+
+$settings->add(new admin_setting_configcheckbox(
+    "qtype_coderunner/cachegradingresults",
+    get_string('cachegradingresultsenable', 'qtype_coderunner'),
+    get_string('cachegradingresults_desc', 'qtype_coderunner'),
+    false
+));

@@ -59,8 +59,7 @@ class qtype_coderunner_jobrunner {
         $attachments,
         $testcases,
         $isprecheck,
-        $answerlanguage,
-        $validating = false
+        $answerlanguage
     ) {
         if (empty($question->prototype)) {
             // Missing prototype. We can't run this question.
@@ -77,40 +76,6 @@ class qtype_coderunner_jobrunner {
             $status = qtype_coderunner_testing_outcome::STATUS_MISSING_PROTOTYPE;
             $outcome->set_status($status, $message);
             return $outcome;
-        }
-
-        /* Validate on save will set validating to true.
-           This is needed otherwise the validate run uses the old question id
-           and the cache wouldn't think there was any change.
-           Note: Could add a coderunner config variable to allow for ignoring
-           cache - and maybe updating with the newly calculated outcomes.
-           This would guarantee no hash collisions but would only be used
-           when not under time pressue, eg, after a test/exam has finished.
-           Coul just purge the coderunner cache but this would nuke caches
-           for all quizzes...
-        */
-        if (!$validating  && false) {
-            // Use cached outcome if we have one.
-            $cache = cache::make('qtype_coderunner', 'coderunner_grading_cache');
-
-            // With same qid and prototype id the question text and test cases can't have changed.
-            // Maybe the answerlanguage can't have changed either? so we could remove that from the hash.
-            $qdetails = "qid=" . $question->id . ",prototype_id=" . $question->prototype->id;
-            $qdetails .= ",isprecheck=" . $isprecheck . ",answerlanguage=" . $answerlanguage;
-
-            // Most student answers won't have attachments but if they do then ...
-            // ... include the hash of the attachments (which will be slow).
-            if ($attachments) {
-                $qdetails .= "attachmentshash=" . hash(" xxh64", serialize($attachments));
-            }
-
-            $rawkey = $qdetails . ",code=" . $code;
-            $key = hash("xxh64", $rawkey);  // Fast with digest small enough to be used directly as key in DB.
-            $outcome = $cache->get($key);
-            if ($outcome) {
-                // echo ("-from cache- " . $question->id . ", " . $question->prototype->id . "<br>");
-                return unserialize($outcome);
-            }
         }
 
         // Extract the code from JSON if this is a Scratchpad UI or similar.
@@ -172,12 +137,6 @@ class qtype_coderunner_jobrunner {
             $outcome->sourcecodelist = $this->allruns;
         }
 
-        // Only cache result if not doing a validate on save.
-        if (!$validating && false) {
-            // Cache the result for this qid+protid+code+isprecheck+language so we can use it again if needed.
-            $cache->set($key, serialize($outcome));
-        }
-        // echo ("-not from cache- " . $question->id . ", " . $question->prototype->id . "<br>");
 
         return $outcome;
     }

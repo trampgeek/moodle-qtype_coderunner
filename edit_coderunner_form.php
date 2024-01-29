@@ -1619,7 +1619,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
             [$mark, , $cachedata] = $this->formquestion->grade_response(
                 $response,
                 isprecheck:false,
-                validating:true
+                usecache:false
             );
         } catch (Exception $e) {
             return $e->getMessage();
