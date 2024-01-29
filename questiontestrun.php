@@ -33,6 +33,7 @@
 require_once(__DIR__ . '/../../../config.php');
 
 require_once($CFG->libdir . '/questionlib.php');
+use qtype_coderunner\display_options;
 
 // Get the parameters from the URL.
 $questionid = required_param('questionid', PARAM_INT);
@@ -88,7 +89,7 @@ $slot = $quba->add_question($question, $question->defaultmark);
 $quba->start_question($slot);
 
 // Prepare the display options.
-$options = new question_display_options();
+$options = new display_options();
 $options->readonly = true;
 $options->flags = question_display_options::HIDDEN;
 $options->suppressruntestslink = true;

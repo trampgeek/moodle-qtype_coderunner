@@ -24,7 +24,7 @@
  * @copyright  Richard Lobb, 2013, The University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
+#[AllowDynamicProperties]
 class qtype_coderunner_test_result {
     public function __construct($testcase, $iscorrect, $awardedmark, $got) {
         // Flatten testcase into this, tidying up text fields.

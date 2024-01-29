@@ -36,6 +36,9 @@ require_once($CFG->dirroot . '/question/type/coderunner/question.php');
 class qtype_coderunner_testcase extends advanced_testcase {
     protected $hasfailed = false; // Set to true when a test fails.
 
+    /** @var stdClass Holds question category.*/
+    protected $category;
+
     protected function setUp(): void {
         parent::setUp();
         self::setup_test_sandbox_configuration();
