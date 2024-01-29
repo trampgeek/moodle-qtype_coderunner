@@ -51,7 +51,7 @@ class qtype_coderunner_question extends question_graded_automatically {
     /** @var string The penalty regime of the question. */
     public $penaltyregime;
 
-    /** @var int Precheck for the question. 
+    /** @var int Precheck for the question.
      *  0 = 'disable': no pretest button available,
      *  1 = 'empty' for no actual tests,
      *  2 = 'examples' for all use-as-example tests,
