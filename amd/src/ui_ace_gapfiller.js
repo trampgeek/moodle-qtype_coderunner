@@ -58,7 +58,7 @@ define(['jquery'], function($) {
 
     var Range;  // Can't load this until ace has loaded.
     const fillChar = " ";
-    const validChars = /[ !"#$%&'()*+,`\-./0-9:;<=>?@A-Z\[\]\\^_a-z{}|~]/;
+    const validChars = /[ !"#$%&'()*+,`\-./0-9\p{L}:;<=>?@\[\]\\^_{}|~]/u;
     const ACE_LIGHT_THEME = 'ace/theme/textmate';
 
     /**
