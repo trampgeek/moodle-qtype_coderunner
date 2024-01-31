@@ -38,6 +38,10 @@ require_once($CFG->dirroot . '/lib/accesslib.php');
  * @coversNothing
  */
 class pythonquestions_test extends \qtype_coderunner_testcase {
+
+    /** @var string  */
+    private $goodcode;
+
     protected function setUp(): void {
         parent::setUp();
 

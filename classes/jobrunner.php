@@ -36,6 +36,21 @@ class qtype_coderunner_jobrunner {
     private $testcases = null;       // The testcases (a subset of those in the question).
     private $allruns = null;         // Array of the source code for all runs.
 
+
+    /** @var ?array Array of sandbox params. */
+    private $sandboxparams = null;
+
+    /** @var ?string Language used to run the code. */
+    private $language = null;
+
+    /** @var ?array An associative array of template params.*/
+    private $templateparams = null;
+
+    /** @var bool True if this grading is occurring because the student clicked the precheck button. */
+    private $isprecheck = false;
+
+
+
     /**
      * Check the correctness of a student's code and possible extra attachments
      * as an answer to the given question and and a given set of test cases (which may be empty or a
@@ -61,6 +76,7 @@ class qtype_coderunner_jobrunner {
         $isprecheck,
         $answerlanguage
     ) {
+
         if (empty($question->prototype)) {
             // Missing prototype. We can't run this question.
             $outcome = new qtype_coderunner_testing_outcome(0, 0, false);

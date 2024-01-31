@@ -90,9 +90,9 @@ abstract class qtype_coderunner_sandbox {
 
 
 
-    public function __construct($user = null, $pass = null) {
+    public function __construct($user = null, $password = null) {
         $this->user = $user;
-        $this->pass = $pass;
+        $this->password = $password;
         $this->authenticationerror = false;
     }
 

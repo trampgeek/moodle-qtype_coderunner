@@ -24,10 +24,24 @@
  */
 
 class qtype_coderunner_student {
+
+    /** @var int */
+    public $id;
+
+    /** @var string */
     public $username;
+
+    /** @var string */
     public $email;
+
+    /** @var string */
     public $firstname;
+
+    /** @var string */
     public $lastname;
+
+    /** @var bool Whether the user can view hidden test cases. */
+    public $canviewhidden;
 
     public function __construct($user) {
         if (!empty($user->username)) {

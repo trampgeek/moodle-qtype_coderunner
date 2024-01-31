@@ -35,9 +35,192 @@ use qtype_coderunner\coderunner_files;
 /**
  * Represents a 'CodeRunner' question.
  */
+#[AllowDynamicProperties]
 class qtype_coderunner_question extends question_graded_automatically {
     public $testcases = null; // Array of testcases.
 
+<<<<<<< HEAD
+=======
+    /** @var string containing the language for coderunner type. */
+    public $coderunnertype;
+
+    /** @var int 0, 1 or 2 for not-a-prototype, built-in prototype and user-defined prototype */
+    public $prototypetype;
+
+    /** @var bool True for All-or-nothing grading */
+    public $allornothing;
+
+    /** @var string The penalty regime of the question. */
+    public $penaltyregime;
+
+    /** @var int Precheck for the question.
+     *  0 = 'disable': no pretest button available,
+     *  1 = 'empty' for no actual tests,
+     *  2 = 'examples' for all use-as-example tests,
+     *  3 = 'selected' for specific selected tests,
+     *  4 = 'all' for all tests.
+     */
+    public $precheck;
+
+    /** @var int Hide check. Non-zero to hide the Check button. */
+    public $hidecheck;
+
+    /** @var bool Show source. If true, the Twigged template output is displayed for each run. */
+    public $showsource;
+
+    /** @var int|string The number of lines for the answer box. */
+    public $answerboxlines = '';
+
+    /** @var string The string that is preloaded into the answer box. */
+    public $answerpreload;
+
+    /** @var string Extra data for use by template authors, global to all tests. */
+    public $globalextra;
+
+    /** @var bool True if template uses ace. */
+    public $useace;
+
+    /** @var string JSON-encoded list of column specifiers. */
+    public $resultcolumns;
+
+    /** @var string The question template. */
+    public $template;
+
+    /** @var ?bool True if a combinator template is being used. */
+    public $iscombinatortemplate;
+
+    /** @var bool True if multiple tests are allowed. */
+    public $allowmultiplestdins;
+
+    /** @var string The answer of the question. */
+    public $answer;
+
+    /** @var int True to validate the question on save. */
+    public $validateonsave = 1;
+
+    /** @var string The regular expression to split output from the combinator run into the basic tests again. */
+    public $testsplitterre;
+
+    /** @var string The language of the question. */
+    public $language;
+
+    /** @var string The language for the Ace editor */
+    public $acelang;
+
+    /** @var mixed The question sandbox. */
+    public $sandbox;
+
+    /** @var string The grader instance. */
+    public $grader;
+
+    /** @var ?double The allowed CPU time (null unless explicitly set). */
+    public $cputimelimitsecs;
+
+    /** @var ?int The allowed memory in MB (null unless explicitly set). */
+    public $memlimitmb;
+
+    /** @var string The JSON string used to specify the sandbox parameters. */
+    public $sandboxparams;
+
+    /** @var string The template parameters. */
+    public $templateparams;
+
+    /** @var bool The hoisted template parameters. */
+    public $hoisttemplateparams;
+
+    /** @var bool True if the response is json from which the actual code attribute should be extracted */
+    public $extractcodefromjson;
+
+    /** @var ?string The template parameters language. */
+    public $templateparamslang;
+
+    /** @var bool The template parameters eval per try. */
+    public $templateparamsevalpertry;
+
+    /** @var string The evaluated template parameters (JSON). */
+    public $templateparamsevald;
+
+    /** @var ?int True if all question fields need Twig expansion. */
+    public $twigall;
+
+    /** @var ?string The UI plugin in use. */
+    public $uiplugin;
+
+    /** @var ?string The parameters to pass to the UI plugin*/
+    public $uiparameters;
+
+    /** @var ?string The attachments of the question. */
+    public $attachments;
+
+    /** @var ?int The number of attachments required. */
+    public $attachmentsrequired;
+
+    /** @var ?int Max allowed file size (bytes) */
+    public $maxfilesize;
+
+    /** @var ?string Allowed file names (regular expression) */
+    public $filenamesregex;
+
+    /** @var ?string Description of file name. */
+    public $filenamesexplain;
+
+    /**
+     * @var ?int Set to 0 or 1, feedback (result table) is shown.
+     * Not if display feedback is set to 2.
+     */
+    public $displayfeedback;
+
+    /** @var int True if Stop button is to be displayed. */
+    public $giveupallowed;
+
+    /** @var ?string Extra data for use by prototype or customised code. */
+    public $prototypeextra;
+
+    /** @var ?array The answers of the question (unused - for superclass compatibility only) */
+    public $answers;
+
+    /** @var bool Whether the question is customised or not. */
+    public $customise;
+
+    /** @var \qtype_coderunner_student Holds student details. */
+    public $student;
+
+    /** @var ?\qtype_coderunner_question The question prototype. */
+    public $prototype;
+
+    /** @var ?string The initialisation error message. */
+    public $initialisationerrormessage;
+
+    /** @var ?array Cache in this to avoid multiple evaluations during question editing and validation.*/
+    public $cachedfuncparams;
+
+    /** @var ?string Cache for evaluated template parameters field */
+    public $cachedevaldtemplateparams;
+
+    /** @var ?string merged UI parameters */
+    public $mergeduiparameters;
+
+    /** @var string The json string of template params. */
+    public $templateparamsjson;
+
+    /** @var ?array PHP associative array containing Twig environment variables plus UI plugin parameters*/
+    public $parameters;
+
+    /** @var stdClass Object containing step information of the response. */
+    public $stepinfo;
+
+    /** @var question_display_options the question options that control display of the question.*/
+    public $options;
+
+    /** @var bool */
+    public $isnew;
+
+    /** @var int question context id. */
+    public $context;
+
+    /** @var int questionid. */
+    public $questionid;
+>>>>>>> origin/development
 
     /**
      * Start a new attempt at this question, storing any information that will
