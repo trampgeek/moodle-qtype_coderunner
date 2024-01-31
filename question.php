@@ -32,15 +32,14 @@ require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
 use qtype_coderunner\constants;
 use qtype_coderunner\coderunner_files;
 
-/**
+ /**
  * Represents a 'CodeRunner' question.
  */
+
 #[AllowDynamicProperties]
 class qtype_coderunner_question extends question_graded_automatically {
     public $testcases = null; // Array of testcases.
 
-<<<<<<< HEAD
-=======
     /** @var string containing the language for coderunner type. */
     public $coderunnertype;
 
@@ -220,7 +219,6 @@ class qtype_coderunner_question extends question_graded_automatically {
 
     /** @var int questionid. */
     public $questionid;
->>>>>>> origin/development
 
     /**
      * Start a new attempt at this question, storing any information that will
@@ -897,7 +895,7 @@ class qtype_coderunner_question extends question_graded_automatically {
             }
 
 
-            if ($usecache && get_config('qtype_coderunner')->cachegradingresults) {
+            if ($usecache && get_config('qtype_coderunner', "cachegradingresults")) {
                 // Use cached outcome if we have one.
                 $cache = cache::make('qtype_coderunner', 'coderunner_grading_cache');
 
@@ -945,7 +943,7 @@ class qtype_coderunner_question extends question_graded_automatically {
                 );
                 $testoutcomeserial = serialize($testoutcome);
                 // echo ("-not from cache- " . $question->id . ", " . $question->prototype->id . "<br>");
-                if ($usecache && get_config('qtype_coderunner')->cachegradingresults) {
+                if ($usecache && get_config('qtype_coderunner', "cachegradingresults")) {
                     $cache->set($key, $testoutcomeserial);
                 }
             }
