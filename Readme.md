@@ -2342,7 +2342,6 @@ in all Ace editor windows within that browser until changed back.
 
 
 ### Ace-gapfiller UI
-The closing delimiter to use when inserting answer or Scratchpad code into the wrapper. It will replace the default value '|}'.
 A UI that presents the user with an Ace editor window containing code with some
 gaps in it. The user is expected to fill in the gaps. Only simple gaps at most
 one line in length are supported.
