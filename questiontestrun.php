@@ -77,7 +77,10 @@ $qbankparams['category'] = $qbe->questioncategoryid . ',' . $question->contextid
 $qbankparams['lastchanged'] = $questionid;
 
 $questionbanklink = new moodle_url('/question/edit.php', $qbankparams);
-$exportquestionlink = new moodle_url('/question/type/coderunner/exportone.php', $urlparams);
+$exporttoxmlparams = $urlparams;
+unset($exporttoxmlparams['questionid']);
+$exporttoxmlparams['id'] = $questionid;
+$exportquestionlink = new moodle_url('/question/bank/exporttoxml/exportone.php', $exporttoxmlparams);
 $exportquestionlink->param('sesskey', sesskey());
 
 // Create the question usage we will use.

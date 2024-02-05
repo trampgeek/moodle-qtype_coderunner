@@ -185,6 +185,7 @@ $string['error_unknown_runtime'] = 'Unknown runtime error';
 $string['event_sandboxwebserviceexec'] = 'CR sandbox exec';
 $string['event_sandboxwebserviceexec_desc'] = 'A job was executed via the CodeRunner sandbox web service.';
 
+$string['exit_fullscreen'] = 'Exit full screen';
 $string['expand'] = 'Expand';
 $string['expandtitle'] = 'Show question categories';
 $string['expected'] = 'Expected output';
@@ -214,6 +215,7 @@ $string['filloutoneanswer'] = 'You must enter source code that satisfies the spe
 $string['firstfailure'] = 'First failing test case: {$a}';
 $string['forexample'] = 'For example';
 
+$string['fullscreen'] = 'Full screen';
 $string['gapfillerui_delimiters_descr'] = 'A 2-element array of the strings used to open and close the gap description';
 $string['gapfillerui_ui_source_descr'] = '"globalextra" to take the HTML to display from the globalextra field or "test0" to take it from the testcode field of the first test';
 $string['gapfillerui_sync_interval_secs_descr'] = 'The time interval in seconds between calls to sync the UI contents back to the question answer. 0 for no such auto-syncing.';
