@@ -600,7 +600,7 @@ define(['jquery'], function($) {
         // Update any gaps that come after this one on the same line
         for (let i=0; i < gaps.length; i++) {
             let other = gaps[i];
-            if (other.range.start.row === this.range.start.row && other.range.start.column > this.range.end.column) {
+            if (other.range.start.row === this.range.start.row && other.range.start.column > this.range.start.column) {
                 other.range.start.column += delta;
                 other.range.end.column += delta;
             }
