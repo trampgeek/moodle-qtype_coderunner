@@ -888,49 +888,46 @@ class qtype_coderunner_question extends question_graded_automatically {
 
             // QUESTION: Should we raise an error on missing prototype here?...
             // ...          Rather than in jobrunner?.
-            if (!empty($this->prototype)) {
-                $protoid = $this->prototype->id;
-            } else {
-                $protoid = "";
-            }
+            // if (!empty($this->prototype)) {
+            //     $protoid = $this->prototype->id;
+            // } else {
+            //     $protoid = "";
+            // }
 
 
-            if ($usecache && get_config('qtype_coderunner', "cachegradingresults")) {
-                // Use cached outcome if we have one.
-                $cache = cache::make('qtype_coderunner', 'coderunner_grading_cache');
+            // if ($usecache && get_config('qtype_coderunner', "cachegradingresults")) {
+            //     // Use cached outcome if we have one.
+            //     $cache = cache::make('qtype_coderunner', 'coderunner_grading_cache');
 
-                $qid = $this->id;
-                $seed = $this->mtrandseed;
-                // With same qid and prototype id the question text and seed, test cases can't have changed.
-                $qdetails = "qid=" . $qid . ",prototype_id=" . $protoid;
-                $qdetails .= ",mtrandomseed=" . $seed . ",isprecheck=" . $isprecheck;
-                $qdetails .= ",language=" . $language;
-                // Also note that prechecksetting can only change if qid or prototype id has changed.
+            //     $qid = $this->id;
+            //     $seed = $this->mtrandseed;
+            //     // With same qid and prototype id the question text and seed, test cases can't have changed.
+            //     $qdetails = "qid=" . $qid . ",prototype_id=" . $protoid;
+            //     $qdetails .= ",mtrandomseed=" . $seed . ",isprecheck=" . $isprecheck;
+            //     $qdetails .= ",language=" . $language;
+            //     // Also note that prechecksetting can only change if qid or prototype id has changed.
 
-                // Most student answers won't have attachments but if they do then ...
-                // ... include the hash of the attachments (which will be slow).
-                if ($attachments) {  // was xxh64
-                    $qdetails .= ",attachmentshash=" . hash("md5", serialize($attachments));
-                }
-                $rawkey = $qdetails . ",code=" . $code;
-                $key = hash("md5", $rawkey);  // Fast with digest small enough to be used directly as key in DB.
-                // Can't use cache for validate on save as it uses the old question id ...
-                // ... rather than the new one. And caching would be pointless anyway!
+            //     // Most student answers won't have attachments but if they do then ...
+            //     // ... include the hash of the attachments (which will be slow).
+            //     if ($attachments) {  // was xxh64
+            //         $qdetails .= ",attachmentshash=" . hash("md5", serialize($attachments));
+            //     }
+            //     $rawkey = $qdetails . ",code=" . $code;
+            //     $key = hash("md5", $rawkey);  // Fast with digest small enough to be used directly as key in DB.
+            //     // Can't use cache for validate on save as it uses the old question id ...
+            //     // ... rather than the new one. And caching would be pointless anyway!
 
-                $testoutcomeserial = $cache->get($key);
-                if ($testoutcomeserial) {
-                    $testoutcome = unserialize($testoutcomeserial);
-                }
-            }
+            //     $testoutcomeserial = $cache->get($key);
+            //     if ($testoutcomeserial) {
+            //         // QUESTION: Could be extra safe and not use the cached value
+            //         // if is contains/implies an invalid state?
+            //         $testoutcome = unserialize($testoutcomeserial);
+            //     }
+            // }
 
-            if ($testoutcomeserial == null) {
+            if ($testoutcomeserial == null) {  // We didn't find it in the cache.
                 $this->stepinfo = self::step_info($response);
                 $this->stepinfo->graderstate = $response['graderstate'] ?? "";
-                // if (isset($response['graderstate'])) {
-                // $this->stepinfo->graderstate = $response['graderstate'];
-                // } else {
-                // $this->stepinfo->graderstate = '';
-                // }
                 $testcases = $this->filter_testcases($isprecheck, $this->precheck);
                 $runner = new qtype_coderunner_jobrunner();
                 $testoutcome = $runner->run_tests(
@@ -943,9 +940,12 @@ class qtype_coderunner_question extends question_graded_automatically {
                 );
                 $testoutcomeserial = serialize($testoutcome);
                 // echo ("-not from cache- " . $question->id . ", " . $question->prototype->id . "<br>");
-                if ($usecache && get_config('qtype_coderunner', "cachegradingresults")) {
-                    $cache->set($key, $testoutcomeserial);
-                }
+
+                // QUESTION: Should we only cache if the question state isn't invalid?
+                // This would prevent us polluting the cache.
+                // if ($usecache && get_config('qtype_coderunner', "cachegradingresults")) {
+                //     $cache->set($key, $testoutcomeserial);
+                // }
             }
         }
 
@@ -1117,23 +1117,24 @@ class qtype_coderunner_question extends question_graded_automatically {
     protected function filter_testcases($isprecheckrun, $prechecksetting) {
         if (!$isprecheckrun) {
             if ($prechecksetting != constants::PRECHECK_SELECTED) {
-                return $this->testcases;
+                $relevanttestcases = $this->testcases;
             } else {
-                return $this->selected_testcases(false);
+                $relevanttestcases = $this->selected_testcases(false);
             }
         } else { // This is a precheck run.
             if ($prechecksetting == constants::PRECHECK_EMPTY) {
-                return [$this->empty_testcase()];
+                $relevanttestcases = [$this->empty_testcase()];
             } else if ($prechecksetting == constants::PRECHECK_EXAMPLES) {
-                return $this->example_testcases();
+                $relevanttestcases = $this->example_testcases();
             } else if ($prechecksetting == constants::PRECHECK_SELECTED) {
-                return $this->selected_testcases(true);
+                $relevanttestcases = $this->selected_testcases(true);
             } else if ($prechecksetting == constants::PRECHECK_ALL) {
-                return $this->testcases;
+                $relevanttestcases = $this->testcases;
             } else {
                 throw new coding_exception('Precheck clicked but no precheck button?!');
             }
         }
+        return $relevanttestcases;
     }
 
 

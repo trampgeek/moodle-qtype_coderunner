@@ -30,6 +30,9 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->libdir . '/filelib.php'); // Needed when run as web service.
 
+const READ_FROM_CACHE = true;
+const WRITE_TO_CACHE = true;
+
 class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
     const DEBUGGING = 0;
     const HTTP_GET = 1;
@@ -201,57 +204,98 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
                 $this->apikey = $params['jobeapikey'];
             }
         }
-
-        $postbody = ['run_spec' => $runspec];
+        // QUESTION: Do we need this when using cached result?
         $this->currentjobid = sprintf('%08x', mt_rand());
 
-        // Try submitting the job. If we get a 404, try again after
-        // putting all the files on the server. Anything else is an error.
-        $httpcode = $this->submit($postbody);
-        if ($httpcode == 404) { // If it's a file not found error ...
-            foreach ($files as $filename => $contents) {
-                if (($httpcode = $this->put_file($contents)) != 204) {
-                    break;
-                }
-            }
-            if ($httpcode == 204) {
-                // Try again if put_files all worked.
-                $httpcode = $this->submit($postbody);
+        $cache = cache::make('qtype_coderunner', 'coderunner_grading_cache');
+        $runresult = null;
+        if (READ_FROM_CACHE) {
+            // NOTE: Changing jobeserver setting will effectively flush the cache
+            // eg, adding another jobeserver to a list of servers will mean the
+            // jobeserver parameter has changed and therefore the key will change.
+
+            // QUESTION: Do we want the cache to ignore the jobeserver setting?
+            // eg, adding a new, presumeably equal jobeserver to the mix shouldn't
+            // change the result (unless it isn't equal!)
+            // But, remember that the server is chosen at random from the pool!
+
+            // NOTE: Changing model answer will mean key changes.
+            // This shouldn't matter if we are not using the answer in tests.
+            // QUESTION: Is there a way to see if useanswerfortests is set?
+            // Although this is really at the prototype level.
+            // Could add this as an option in the question type itself?
+            // This would make it consistent across languages, etc.
+            // If people set it and don't use the answer for tests then
+            // it will just mean that changing the answer doesn't affect
+            // the cache which is ok. But if they don't set it and do
+            // use the answer for tests anyway they might get into trouble
+            // when changing the answer doesn't prevent the cached result
+            // being used!
+            $key = hash("md5", serialize($runspec));
+            // echo '<pre>' . serialize($runspec) . '</pre>';
+            $runresult = $cache->get($key);  // unersializes the returned value :)
+            if ($runresult) {
+                //echo $key . '----------->   FOUND' . '<br>';
             }
         }
 
-        $runresult = [];
-        $runresult['sandboxinfo'] = [
-            'jobeserver' => $this->jobeserver,
-            'jobeapikey' => $this->apikey,
-        ];
-
-        $okresponse = in_array($httpcode, [200, 203]);  // Allow 203, which can result from an intevening proxy server.
-        if (
-            !$okresponse                        // If it's not an OK response...
-                || !is_object($this->response)  // ... or there's any sort of broken ...
-                || !isset($this->response->outcome)
-        ) {     // ... communication with server.
-            // Return with errorcode set and as much extra info as possible in stderr.
-            $errorcode = $okresponse ? self::UNKNOWN_SERVER_ERROR : $this->get_error_code($httpcode);
-            $this->currentjobid = null;
-            $runresult['error'] = $errorcode;
-            $runresult['stderr'] = "HTTP response from Jobe was $httpcode: " . json_encode($this->response);
-        } else if ($this->response->outcome == self::RESULT_SERVER_OVERLOAD) {
-            $runresult['error'] = self::SERVER_OVERLOAD;
-        } else {
-            $stderr = $this->filter_file_path($this->response->stderr);
-            // Any stderr output is treated as a runtime error.
-            if (trim($stderr ?? '') !== '') {
-                $this->response->outcome = self::RESULT_RUNTIME_ERROR;
+        if ($runresult == null) {
+            $postbody = ['run_spec' => $runspec];
+            // Try submitting the job. If we get a 404, try again after
+            // putting all the files on the server. Anything else is an error.
+            $httpcode = $this->submit($postbody);
+            if ($httpcode == 404) { // If it's a file not found error ...
+                foreach ($files as $filename => $contents) {
+                    if (($httpcode = $this->put_file($contents)) != 204) {
+                        break;
+                    }
+                }
+                if ($httpcode == 204) {
+                    // Try again if put_files all worked.
+                    $httpcode = $this->submit($postbody);
+                }
             }
-            $this->currentjobid = null;
-            $runresult['error'] = self::OK;
-            $runresult['stderr'] = $stderr;
-            $runresult['result'] = $this->response->outcome;
-            $runresult['signal'] = 0; // Jobe doesn't return signals.
-            $runresult['cmpinfo'] = $this->response->cmpinfo;
-            $runresult['output'] = $this->filter_file_path($this->response->stdout);
+
+            $runresult = [];
+            $runresult['sandboxinfo'] = [
+                'jobeserver' => $this->jobeserver,
+                'jobeapikey' => $this->apikey,
+            ];
+
+            $okresponse = in_array($httpcode, [200, 203]);  // Allow 203, which can result from an intevening proxy server.
+            if (
+                !$okresponse                        // If it's not an OK response...
+                    || !is_object($this->response)  // ... or there's any sort of broken ...
+                    || !isset($this->response->outcome)
+            ) {     // ... communication with server.
+                // Return with errorcode set and as much extra info as possible in stderr.
+                $errorcode = $okresponse ? self::UNKNOWN_SERVER_ERROR : $this->get_error_code($httpcode);
+                $this->currentjobid = null;
+                $runresult['error'] = $errorcode;
+                $runresult['stderr'] = "HTTP response from Jobe was $httpcode: " . json_encode($this->response);
+            } else if ($this->response->outcome == self::RESULT_SERVER_OVERLOAD) {
+                $runresult['error'] = self::SERVER_OVERLOAD;
+            } else {
+                $stderr = $this->filter_file_path($this->response->stderr);
+                // Any stderr output is treated as a runtime error.
+                if (trim($stderr ?? '') !== '') {
+                    $this->response->outcome = self::RESULT_RUNTIME_ERROR;
+                }
+                $this->currentjobid = null;
+                $runresult['error'] = self::OK;
+                $runresult['stderr'] = $stderr;
+                $runresult['result'] = $this->response->outcome;
+                $runresult['signal'] = 0; // Jobe doesn't return signals.
+                $runresult['cmpinfo'] = $this->response->cmpinfo;
+                $runresult['output'] = $this->filter_file_path($this->response->stdout);
+
+                // Got a useable result from Jobe server so cache it if required
+                if (WRITE_TO_CACHE) {
+                    $key = hash("md5", serialize($runspec));
+                    $cache->set($key, $runresult); // set serializes the result, get will unserialize
+                    // echo 'CACHE WRITE for ---> ' . $key . '<br>';
+                }
+            }
         }
         return (object) $runresult;
     }

@@ -165,6 +165,13 @@ class qtype_coderunner_jobrunner {
     // a list of all the test cases and QUESTION, the original question object.
     // Return the testing outcome object if successful else null.
     private function run_combinator($isprecheck) {
+        // Remove id and questionid keys+values from testcases so they don't
+        // affect caching. For example the questionid will change each time
+        // the question is saved thanks to question versioning - urgh!
+        foreach ($this->testcases as $tc) {
+            unset($tc->id);
+            unset($tc->questionid);
+        }
         $numtests = count($this->testcases);
         $this->templateparams['TESTCASES'] = $this->testcases;
         $maxmark = $this->maximum_possible_mark();
@@ -238,6 +245,13 @@ class qtype_coderunner_jobrunner {
         $maxmark = $this->maximum_possible_mark($this->testcases);
         if ($maxmark == 0) {
             $maxmark = 1; // Something silly is happening. Probably running a prototype with no tests.
+        }
+        // Remove id and questionid keys+values from testcases so they don't
+        // affect caching. For example the questionid will change each time
+        // the question is saved thanks to question versioning - urgh!
+        foreach ($this->testcases as $tc) {
+            unset($tc->id);
+            unset($tc->questionid);
         }
         $numtests = count($this->testcases);
         $outcome = new qtype_coderunner_testing_outcome($maxmark, $numtests, $isprecheck);
