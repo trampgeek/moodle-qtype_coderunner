@@ -924,33 +924,35 @@ class qtype_coderunner_question extends question_graded_automatically {
             //         $testoutcome = unserialize($testoutcomeserial);
             //     }
             // }
-
-            if ($testoutcomeserial == null) {  // We didn't find it in the cache.
-                $this->stepinfo = self::step_info($response);
-                $this->stepinfo->graderstate = $response['graderstate'] ?? "";
-                $testcases = $this->filter_testcases($isprecheck, $this->precheck);
-                $runner = new qtype_coderunner_jobrunner();
-                $testoutcome = $runner->run_tests(
-                    $this,
-                    $code,
-                    $attachments,
-                    $testcases,
-                    $isprecheck,
-                    $language
-                );
-                $testoutcomeserial = serialize($testoutcome);
-                // echo ("-not from cache- " . $question->id . ", " . $question->prototype->id . "<br>");
-
-                // QUESTION: Should we only cache if the question state isn't invalid?
-                // This would prevent us polluting the cache.
-                // if ($usecache && get_config('qtype_coderunner', "cachegradingresults")) {
-                //     $cache->set($key, $testoutcomeserial);
-                // }
+            // if ($testoutcomeserial == null) {  // We didn't find it in the cache.
+            $this->stepinfo = self::step_info($response);
+            $this->stepinfo->graderstate = $response['graderstate'] ?? "";
+            $testcases = $this->filter_testcases($isprecheck, $this->precheck);
+            $runner = new qtype_coderunner_jobrunner();
+            // QUESTION why are we reading the graderstate??
+            if (isset($response['graderstate'])) {
+                $this->stepinfo->graderstate = $response['graderstate'];
+            } else {
+                $this->stepinfo->graderstate = '';
             }
+            $testoutcome = $runner->run_tests(
+                $this,
+                $code,
+                $attachments,
+                $testcases,
+                $isprecheck,
+                $language
+            );
+            $testoutcomeserial = serialize($testoutcome);
+            // echo ("-not from cache- " . $question->id . ", " . $question->prototype->id . "<br>");
+            // QUESTION: Should we only cache if the question state isn't invalid?
+            // This would prevent us polluting the cache.
+            // if ($usecache && get_config('qtype_coderunner', "cachegradingresults")) {
+            //     $cache->set($key, $testoutcomeserial);
+            // }   
         }
-
         // To be saved in question step data.
-        // Note: This is used to render test results too so it's not just a cache.
+        // Note: This is used to render test results too so it's not just a cache. 
         $datatocache = ['_testoutcome' => $testoutcomeserial];
 
         if ($testoutcome->run_failed()) {

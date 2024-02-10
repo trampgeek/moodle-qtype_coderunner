@@ -233,13 +233,13 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
             // being used!
             $key = hash("md5", serialize($runspec));
             // echo '<pre>' . serialize($runspec) . '</pre>';
-            $runresult = $cache->get($key);  // unersializes the returned value :)
+            $runresult = $cache->get($key);  // unersializes the returned value :) false if not found.
             if ($runresult) {
-                //echo $key . '----------->   FOUND' . '<br>';
+                echo $key . '----------->   FOUND' . '<br>';
             }
         }
 
-        if ($runresult == null) {
+        if (!$runresult) {
             $postbody = ['run_spec' => $runspec];
             // Try submitting the job. If we get a 404, try again after
             // putting all the files on the server. Anything else is an error.
@@ -293,7 +293,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
                 if (WRITE_TO_CACHE) {
                     $key = hash("md5", serialize($runspec));
                     $cache->set($key, $runresult); // set serializes the result, get will unserialize
-                    // echo 'CACHE WRITE for ---> ' . $key . '<br>';
+                    echo 'CACHE WRITE for ---> ' . $key . '<br>';
                 }
             }
         }
