@@ -34,6 +34,10 @@ global $CFG;
  */
 class qtype_coderunner_wsthrottle {
     private $timestamps;
+    private $maxhourlyrate;
+    private $head;
+    private $tail;
+
     public function __construct() {
         $this->init();
     }
@@ -79,5 +83,4 @@ class qtype_coderunner_wsthrottle {
     private function expired($timestamp, $now) {
         return ($timestamp !== 0) && ($now - $timestamp) > 3600;
     }
-
-};
+}

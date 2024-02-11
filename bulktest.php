@@ -60,7 +60,7 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading($title);
 
 // Run the tests.
-list($numpasses, $failingtests, $missinganswers) = $bulktester->run_all_tests_for_context($context, $categoryid);
+[$numpasses, $failingtests, $missinganswers] = $bulktester->run_all_tests_for_context($context, $categoryid);
 
 // Display the final summary.
 $bulktester->print_overall_result($numpasses, $failingtests, $missinganswers);

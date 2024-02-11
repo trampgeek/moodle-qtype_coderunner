@@ -42,7 +42,6 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/helper.php');
  */
 
 class penaltyregime_test extends \qbehaviour_walkthrough_test_base {
-
     protected function setUp(): void {
         parent::setUp();
         \qtype_coderunner_testcase::setup_test_sandbox_configuration();

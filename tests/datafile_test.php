@@ -36,7 +36,6 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
  * @coversNothing
  */
 class datafile_test extends \qtype_coderunner_testcase {
-
     // Test loading of files in the jobe sandbox.
     public function test_datafile_jobesandbox() {
         $code = $this->python_solution();
@@ -67,12 +66,18 @@ class datafile_test extends \qtype_coderunner_testcase {
 
         $response = ['answer' => $code];
         $result = $q->grade_response($response);
-        list(, $grade, ) = $result;
+        [, $grade, ] = $result;
         $this->assertEquals(\question_state::$gradedright, $grade);
 
         // Clean up by deleting the file again.
-        $file = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'],
-            $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename']);
+        $file = $fs->get_file(
+            $fileinfo['contextid'],
+            $fileinfo['component'],
+            $fileinfo['filearea'],
+            $fileinfo['itemid'],
+            $fileinfo['filepath'],
+            $fileinfo['filename']
+        );
         $file->delete();
     }
 
@@ -116,5 +121,4 @@ int main() {
 EOCODE;
         return $code;
     }
-
 }

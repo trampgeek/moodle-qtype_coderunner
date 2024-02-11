@@ -36,7 +36,6 @@
  */
 
 class qtype_coderunner_regex_grader extends qtype_coderunner_grader {
-
     public function name() {
         return 'RegexGrader';
     }

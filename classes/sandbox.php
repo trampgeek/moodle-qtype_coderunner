@@ -90,9 +90,9 @@ abstract class qtype_coderunner_sandbox {
 
 
 
-    public function __construct($user=null, $pass=null) {
+    public function __construct($user = null, $password = null) {
         $this->user = $user;
-        $this->pass = $pass;
+        $this->password = $password;
         $this->authenticationerror = false;
     }
 
@@ -133,7 +133,7 @@ abstract class qtype_coderunner_sandbox {
      * @return an instance of the preferred sandbox for the given language
      * or null if no enabled sandboxes support this language.
      */
-    public static function get_best_sandbox($language, $forcelanguagecheck=false) {
+    public static function get_best_sandbox($language, $forcelanguagecheck = false) {
 
         $hidec = false;  // Set true when testing if language is skipped in php tests.
         if ($hidec && $language == 'c') {
@@ -161,8 +161,10 @@ abstract class qtype_coderunner_sandbox {
                     $pseudorunobj = new stdClass();
                     $pseudorunobj->error = $langs->error;
                     $errorstring = $sb->error_string($pseudorunobj);
-                    throw new qtype_coderunner_exception('sandboxerror',
-                            ['sandbox' => $extname, 'message' => $errorstring]);
+                    throw new qtype_coderunner_exception(
+                        'sandboxerror',
+                        ['sandbox' => $extname, 'message' => $errorstring]
+                    );
                 }
             }
         }
@@ -337,7 +339,7 @@ abstract class qtype_coderunner_sandbox {
      *          If error is anything other than OK, the returned object may
      *          optionally include an error message in the stderr field.
      */
-    abstract public function execute($sourcecode, $language, $input, $files=null, $params=null);
+    abstract public function execute($sourcecode, $language, $input, $files = null, $params = null);
 
     /** Function called by the tester as a simple sanity check on the
      *  existence of a particular sandbox subclass.
@@ -366,4 +368,3 @@ abstract class qtype_coderunner_sandbox {
     public function close() {
     }
 }
-

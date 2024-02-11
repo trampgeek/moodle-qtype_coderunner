@@ -34,7 +34,6 @@ require_once($CFG->dirroot . '/question/type/coderunner/question.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class walkthrough_display_feedback_test extends \qbehaviour_walkthrough_test_base {
-
     protected function setUp(): void {
         parent::setUp();
         \qtype_coderunner_testcase::setup_test_sandbox_configuration();

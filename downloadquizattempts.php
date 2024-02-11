@@ -30,7 +30,7 @@
 
 define('NO_OUTPUT_BUFFERING', true);
 
-require_once(__DIR__.'/../../../config.php');
+require_once(__DIR__ . '/../../../config.php');
 require_once($CFG->libdir . '/questionlib.php');
 
 // Login and check permissions.
@@ -88,26 +88,37 @@ foreach ($courses as $course) {
     if (!empty($quizzes)) {
         $numquizzes = count($quizzes);
 
-        echo html_writer::tag('h6',
-                html_writer::tag('a', "{$course->name} ($numquizzes)",
+        echo html_writer::tag(
+            'h6',
+            html_writer::tag(
+                'a',
+                "{$course->name} ($numquizzes)",
                 ['class' => 'expander sectionname',
                       'id'    => 'expander-' . $i,
                       'href'  => '#']
-                      )
-                );
-        echo html_writer::start_tag('div',
-                ['class' => 'content' . $i . ' container-fluid',
-                      'style' => $initialcontentstate]);
+            )
+        );
+        echo html_writer::start_tag(
+            'div',
+            ['class' => 'content' . $i . ' container-fluid',
+            'style' => $initialcontentstate]
+        );
 
         $rows = [];
         foreach ($quizzes as $quiz) {
             $quizname = "{$quiz->name} ({$quiz->numattempts})";
-            $csvurl = new moodle_url('/question/type/coderunner/getallattempts.php',
-                    ['quizid' => $quiz->id, 'format' => 'csv']);
-            $excelurl = new moodle_url('/question/type/coderunner/getallattempts.php',
-                    ['quizid' => $quiz->id, 'format' => 'excel']);
-            $odsurl = new moodle_url('/question/type/coderunner/getallattempts.php',
-                    ['quizid' => $quiz->id, 'format' => 'ods']);
+            $csvurl = new moodle_url(
+                '/question/type/coderunner/getallattempts.php',
+                ['quizid' => $quiz->id, 'format' => 'csv']
+            );
+            $excelurl = new moodle_url(
+                '/question/type/coderunner/getallattempts.php',
+                ['quizid' => $quiz->id, 'format' => 'excel']
+            );
+            $odsurl = new moodle_url(
+                '/question/type/coderunner/getallattempts.php',
+                ['quizid' => $quiz->id, 'format' => 'ods']
+            );
             $rows[] = [$quizname,
                     html_writer::link($csvurl, 'csv', ['class' => 'btn-sm']),
                     html_writer::link($odsurl, 'ods', ['class' => 'btn-sm']),
@@ -122,7 +133,6 @@ foreach ($courses as $course) {
         echo html_writer::end_tag('div');
         $i += 1;
     }
-
 }
 
 $script = '$(".expander").click(function (e) { $(".content" + e.target.id.split("-")[1]).slideToggle("fast");});';

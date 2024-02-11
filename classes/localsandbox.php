@@ -44,7 +44,6 @@ global $CFG;
  ******************************************************************/
 
 abstract class qtype_coderunner_localsandbox extends qtype_coderunner_sandbox {
-
     const SOURCE_FILE_NAME = 'sourcefile';
 
     protected $source = null;       // Source code for the current task.
@@ -62,7 +61,7 @@ abstract class qtype_coderunner_localsandbox extends qtype_coderunner_sandbox {
 
     protected $workdir = null;      // The current temporary working directory.
 
-    public function __construct($user=null, $pass=null) {
+    public function __construct($user = null, $pass = null) {
         qtype_coderunner_sandbox::__construct($user, $pass);
     }
 
@@ -93,7 +92,7 @@ abstract class qtype_coderunner_localsandbox extends qtype_coderunner_sandbox {
      *             cmpinfo: the output from the compilation run (usually empty
      *                     unless the result code is for a compilation error).
      */
-    public function execute($sourcecode, $language, $input, $files=null, $params=null) {
+    public function execute($sourcecode, $language, $input, $files = null, $params = null) {
         $savedcurrentdir = getcwd();
         $language = strtolower($language);
         if (!in_array($language, $this->get_languages()->languages)) {
@@ -245,6 +244,4 @@ abstract class qtype_coderunner_localsandbox extends qtype_coderunner_sandbox {
      * otherwise.
      */
     abstract protected function run_in_sandbox();
-
 }
-

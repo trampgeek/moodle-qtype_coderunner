@@ -22,8 +22,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use Behat\Mink\Exception\ExpectationException as ExpectationException;
-use Facebook\WebDriver\Exception\NoSuchAlertException as NoSuchAlertException;
+use Behat\Mink\Exception\ExpectationException;
+use Facebook\WebDriver\Exception\NoSuchAlertException;
 
 
 class behat_coderunner extends behat_base {
@@ -234,7 +234,7 @@ class behat_coderunner extends behat_base {
         $xpath = "//canvas";
         $driver = $this->getSession()->getDriver();
         if (! $driver->find($xpath)) {
-            throw new ExpectationException("Couldn't find canvas",  $this->getSession());
+            throw new ExpectationException("Couldn't find canvas", $this->getSession());
         }
     }
 
@@ -245,7 +245,7 @@ class behat_coderunner extends behat_base {
         $xpath = "//canvas";
         $driver = $this->getSession()->getDriver();
         if ($driver->find($xpath)) {
-            throw new ExpectationException("Found a canvas",  $this->getSession());
+            throw new ExpectationException("Found a canvas", $this->getSession());
         }
     }
 
@@ -255,7 +255,6 @@ class behat_coderunner extends behat_base {
     public function i_fill_in_my_template() {
         $dfatemplate = file_get_contents("dfa_template.txt", FILE_USE_INCLUDE_PATH);
         $this->getSession()->getPage()->fillField('id_template', $dfatemplate);
-
     }
 
     /**
@@ -324,4 +323,3 @@ class behat_coderunner extends behat_base {
         }
     }
 }
-

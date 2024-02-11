@@ -84,8 +84,10 @@ function get_top_id($systemcontextid) {
     global $DB;
     $topid = 0;
     $prototypecategoryid = 0;
-    $tops = $DB->get_records('question_categories',
-            ['contextid' => $systemcontextid, 'parent' => 0]);
+    $tops = $DB->get_records(
+        'question_categories',
+        ['contextid' => $systemcontextid, 'parent' => 0]
+    );
 
     foreach (array_values($tops) as $category) {
         if (strtolower($category->name) === 'top') {
@@ -118,8 +120,10 @@ function get_top_id($systemcontextid) {
 // Return CR_PROTOTYPES category, creating it if it doesn't exist.
 function find_or_make_prototype_category($systemcontextid, $parentid) {
     global $DB;
-    $category = $DB->get_record('question_categories',
-                ['contextid' => $systemcontextid, 'name' => 'CR_PROTOTYPES']);
+    $category = $DB->get_record(
+        'question_categories',
+        ['contextid' => $systemcontextid, 'name' => 'CR_PROTOTYPES']
+    );
     if (!$category) {
         $category = [
             'name'       => 'CR_PROTOTYPES',

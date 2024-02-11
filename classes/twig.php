@@ -32,7 +32,7 @@ class qtype_coderunner_twig {
     // Set up a twig loader and the twig environment. Return the
     // singleton twig loader. There are two different environments:
     // one with strict_variables true and one with it false.
-    private static function get_twig_environment($isstrict=false, $isdebug=false) {
+    private static function get_twig_environment($isstrict = false, $isdebug = false) {
         if (self::$twigenvironments[$isstrict] === null) {
             // On the first call, build the required environment.
             $macros = qtype_coderunner_twigmacros::macros();
@@ -51,14 +51,23 @@ class qtype_coderunner_twig {
             }
 
             // Add some functions to twig: random (modified to use seed), randomseed, shuffle.
-            $newrandom = new \Twig\TwigFunction('random', 'qtype_coderunner_twig_random',
-                ['needs_environment' => true]);
-            $setrandomseed = new \Twig\TwigFunction('set_random_seed', 'qtype_coderunner_set_random_seed',
-                ['needs_environment' => true]);
+            $newrandom = new \Twig\TwigFunction(
+                'random',
+                'qtype_coderunner_twig_random',
+                ['needs_environment' => true]
+            );
+            $setrandomseed = new \Twig\TwigFunction(
+                'set_random_seed',
+                'qtype_coderunner_set_random_seed',
+                ['needs_environment' => true]
+            );
             $twig->addFunction($newrandom);
             $twig->addFunction($setrandomseed);
-            $shuffle = new \Twig\TwigFilter('shuffle', 'qtype_coderunner_twig_shuffle',
-                ['needs_environment' => true]);
+            $shuffle = new \Twig\TwigFilter(
+                'shuffle',
+                'qtype_coderunner_twig_shuffle',
+                ['needs_environment' => true]
+            );
             $twig->addFilter($shuffle);
             self::$twigenvironments[$isstrict] = $twig;
 
@@ -66,7 +75,7 @@ class qtype_coderunner_twig {
             $escaperextension = $twig->getExtension(\Twig\Extension\EscaperExtension::class);
             $escaperextension->setEscaper('py', 'qtype_coderunner_escapers::python');
             $escaperextension->setEscaper('python', 'qtype_coderunner_escapers::python');
-            $escaperextension->setEscaper('c',  'qtype_coderunner_escapers::java');
+            $escaperextension->setEscaper('c', 'qtype_coderunner_escapers::java');
             $escaperextension->setEscaper('java', 'qtype_coderunner_escapers::java');
             $escaperextension->setEscaper('ml', 'qtype_coderunner_escapers::matlab');
             $escaperextension->setEscaper('matlab', 'qtype_coderunner_escapers::matlab');
@@ -81,7 +90,7 @@ class qtype_coderunner_twig {
     // Any Twig exceptions raised must be caught higher up.
     // Since Twig range functions can result in PHP ValueError being thrown (grr)
     // ValueErrors are caught and re-thrown as TwigErrors.
-    public static function render($s, $student, $parameters=[], $isstrict=false) {
+    public static function render($s, $student, $parameters = [], $isstrict = false) {
         if ($s === null || trim($s) === '') {
             return '';
         }
@@ -224,4 +233,3 @@ function qtype_coderunner_twig_shuffle(Twig\Environment $env, $array) {
     shuffle($array);
     return $array;
 }
-

@@ -24,6 +24,9 @@
 
 class qtype_coderunner_html_wrapper {
 
+    /** @var string */
+    private $html;
+
     public function __construct($html) {
         $this->html = $html;
     }
@@ -33,5 +36,3 @@ class qtype_coderunner_html_wrapper {
         return $this->html;
     }
 }
-
-

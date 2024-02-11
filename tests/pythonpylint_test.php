@@ -36,7 +36,6 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
  * @coversNothing
  */
 class pythonpylint_test extends \qtype_coderunner_testcase {
-
     protected function setUp(): void {
         parent::setUp();
 
@@ -61,7 +60,7 @@ def sqr(n):
 EOCODE;
         $response = ['answer' => $code];
         $result = $q->grade_response($response);
-        list(, $grade, ) = $result;
+        [, $grade, ] = $result;
         $this->assertEquals(\question_state::$gradedright, $grade);
     }
 
@@ -77,7 +76,7 @@ def sqr(n):
 EOCODE;
         $response = ['answer' => $code];
         $result = $q->grade_response($response);
-        list($mark, $grade, $cache) = $result;
+        [$mark, $grade, $cache] = $result;
         $this->assertEquals(\question_state::$gradedwrong, $grade);
     }
 }

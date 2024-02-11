@@ -14,21 +14,22 @@
 // You should have received a copy of the GNU General Public License
 // along with CodeRunner.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * @package   qtype_coderunner
- * @copyright Richard Lobb, The University of Canterbury, New Zealand.
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+namespace qtype_coderunner;
 
 defined('MOODLE_INTERNAL') || die();
+require_once($CFG->dirroot . '/question/engine/lib.php');
 
-$plugin->version  = 2024021000;
-$plugin->requires = 2022041900;
-$plugin->cron = 0;
-$plugin->component = 'qtype_coderunner';
-$plugin->maturity = MATURITY_STABLE;
-$plugin->release = '5.3.0';
+/**
+ * An extension of question_display_options that includes the extra options used by the coderunner.
+ *
+ * @package   qtype_coderunner
+ * @copyright 2024 The Open University
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class display_options extends \question_display_options {
 
-$plugin->dependencies = [
-    'qbehaviour_adaptive_adapted_for_coderunner' => 2021112300,
-];
+    /**
+     * @var bool
+     */
+    public $suppressruntestslink = false;
+}

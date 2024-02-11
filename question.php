@@ -35,9 +35,189 @@ use qtype_coderunner\coderunner_files;
 /**
  * Represents a 'CodeRunner' question.
  */
+#[AllowDynamicProperties]
 class qtype_coderunner_question extends question_graded_automatically {
-
     public $testcases = null; // Array of testcases.
+
+    /** @var string containing the language for coderunner type. */
+    public $coderunnertype;
+
+    /** @var int 0, 1 or 2 for not-a-prototype, built-in prototype and user-defined prototype */
+    public $prototypetype;
+
+    /** @var bool True for All-or-nothing grading */
+    public $allornothing;
+
+    /** @var string The penalty regime of the question. */
+    public $penaltyregime;
+
+    /** @var int Precheck for the question.
+     *  0 = 'disable': no pretest button available,
+     *  1 = 'empty' for no actual tests,
+     *  2 = 'examples' for all use-as-example tests,
+     *  3 = 'selected' for specific selected tests,
+     *  4 = 'all' for all tests.
+     */
+    public $precheck;
+
+    /** @var int Hide check. Non-zero to hide the Check button. */
+    public $hidecheck;
+
+    /** @var bool Show source. If true, the Twigged template output is displayed for each run. */
+    public $showsource;
+
+    /** @var int|string The number of lines for the answer box. */
+    public $answerboxlines = '';
+
+    /** @var string The string that is preloaded into the answer box. */
+    public $answerpreload;
+
+    /** @var string Extra data for use by template authors, global to all tests. */
+    public $globalextra;
+
+    /** @var bool True if template uses ace. */
+    public $useace;
+
+    /** @var string JSON-encoded list of column specifiers. */
+    public $resultcolumns;
+
+    /** @var string The question template. */
+    public $template;
+
+    /** @var ?bool True if a combinator template is being used. */
+    public $iscombinatortemplate;
+
+    /** @var bool True if multiple tests are allowed. */
+    public $allowmultiplestdins;
+
+    /** @var string The answer of the question. */
+    public $answer;
+
+    /** @var int True to validate the question on save. */
+    public $validateonsave = 1;
+
+    /** @var string The regular expression to split output from the combinator run into the basic tests again. */
+    public $testsplitterre;
+
+    /** @var string The language of the question. */
+    public $language;
+
+    /** @var string The language for the Ace editor */
+    public $acelang;
+
+    /** @var mixed The question sandbox. */
+    public $sandbox;
+
+    /** @var string The grader instance. */
+    public $grader;
+
+    /** @var ?double The allowed CPU time (null unless explicitly set). */
+    public $cputimelimitsecs;
+
+    /** @var ?int The allowed memory in MB (null unless explicitly set). */
+    public $memlimitmb;
+
+    /** @var string The JSON string used to specify the sandbox parameters. */
+    public $sandboxparams;
+
+    /** @var string The template parameters. */
+    public $templateparams;
+
+    /** @var bool The hoisted template parameters. */
+    public $hoisttemplateparams;
+
+    /** @var bool True if the response is json from which the actual code attribute should be extracted */
+    public $extractcodefromjson;
+
+    /** @var ?string The template parameters language. */
+    public $templateparamslang;
+
+    /** @var bool The template parameters eval per try. */
+    public $templateparamsevalpertry;
+
+    /** @var string The evaluated template parameters (JSON). */
+    public $templateparamsevald;
+
+    /** @var ?int True if all question fields need Twig expansion. */
+    public $twigall;
+
+    /** @var ?string The UI plugin in use. */
+    public $uiplugin;
+
+    /** @var ?string The parameters to pass to the UI plugin*/
+    public $uiparameters;
+
+    /** @var ?string The attachments of the question. */
+    public $attachments;
+
+    /** @var ?int The number of attachments required. */
+    public $attachmentsrequired;
+
+    /** @var ?int Max allowed file size (bytes) */
+    public $maxfilesize;
+
+    /** @var ?string Allowed file names (regular expression) */
+    public $filenamesregex;
+
+    /** @var ?string Description of file name. */
+    public $filenamesexplain;
+
+    /**
+     * @var ?int Set to 0 or 1, feedback (result table) is shown.
+     * Not if display feedback is set to 2.
+     */
+    public $displayfeedback;
+
+    /** @var int True if Stop button is to be displayed. */
+    public $giveupallowed;
+
+    /** @var ?string Extra data for use by prototype or customised code. */
+    public $prototypeextra;
+
+    /** @var ?array The answers of the question (unused - for superclass compatibility only) */
+    public $answers;
+
+    /** @var bool Whether the question is customised or not. */
+    public $customise;
+
+    /** @var \qtype_coderunner_student Holds student details. */
+    public $student;
+
+    /** @var ?\qtype_coderunner_question The question prototype. */
+    public $prototype;
+
+    /** @var ?string The initialisation error message. */
+    public $initialisationerrormessage;
+
+    /** @var ?array Cache in this to avoid multiple evaluations during question editing and validation.*/
+    public $cachedfuncparams;
+
+    /** @var ?string Cache for evaluated template parameters field */
+    public $cachedevaldtemplateparams;
+
+    /** @var ?string merged UI parameters */
+    public $mergeduiparameters;
+
+    /** @var string The json string of template params. */
+    public $templateparamsjson;
+
+    /** @var ?array PHP associative array containing Twig environment variables plus UI plugin parameters*/
+    public $parameters;
+
+    /** @var stdClass Object containing step information of the response. */
+    public $stepinfo;
+
+    /** @var question_display_options the question options that control display of the question.*/
+    public $options;
+
+    /** @var bool */
+    public $isnew;
+
+    /** @var int question context id. */
+    public $context;
+
+    /** @var int questionid. */
+    public $questionid;
 
     /**
      * Start a new attempt at this question, storing any information that will
@@ -54,7 +234,7 @@ class qtype_coderunner_question extends question_graded_automatically {
      * @param int $varant which variant of this question to start. Will be between
      *      1 and {@link get_num_variants()} inclusive.
      */
-    public function start_attempt(question_attempt_step $step=null, $variant=null) {
+    public function start_attempt(question_attempt_step $step = null, $variant = null) {
         global $DB, $USER;
         if ($step !== null) {
             parent::start_attempt($step, $variant);
@@ -156,7 +336,7 @@ class qtype_coderunner_question extends question_graded_automatically {
      * @return string The json string of the merged template parameters.
      */
 
-    public function evaluate_merged_parameters($seed, $step=null) {
+    public function evaluate_merged_parameters($seed, $step = null) {
         assert(isset($this->templateparams));
         $paramsjson = $this->template_params_json($seed, $step, '_template_params');
         $prototype = $this->prototype;
@@ -185,7 +365,7 @@ class qtype_coderunner_question extends question_graded_automatically {
      * json (with suffix '_json').
      * @return string The Json template parameters.
      */
-    public function template_params_json($seed=0, $step=null, $qtvar='') {
+    public function template_params_json($seed = 0, $step = null, $qtvar = '') {
         $params = $this->templateparams;
         $lang = $this->templateparamslang;
         if ($step === null) {
@@ -222,8 +402,10 @@ class qtype_coderunner_question extends question_graded_automatically {
         $lang = strtolower($lang); // Just in case some old legacy DB entries escaped.
         if (empty($templateparams)) {
             $jsontemplateparams = '{}';
-        } else if (isset($this->cachedfuncparams) &&
-                $this->cachedfuncparams === ['lang' => $lang, 'seed' => $seed]) {
+        } else if (
+            isset($this->cachedfuncparams) &&
+                $this->cachedfuncparams === ['lang' => $lang, 'seed' => $seed]
+        ) {
             // Use previously cached result if possible.
             $jsontemplateparams = $this->cachedevaldtemplateparams;
         } else if ($lang == 'none') {
@@ -462,9 +644,15 @@ class qtype_coderunner_question extends question_graded_automatically {
      */
     public function is_same_response(array $prevresponse, array $newresponse) {
         $sameanswer = question_utils::arrays_same_at_key_missing_is_blank(
-                        $prevresponse, $newresponse, 'answer') &&
+            $prevresponse,
+            $newresponse,
+            'answer'
+        ) &&
                 question_utils::arrays_same_at_key_missing_is_blank(
-                        $prevresponse, $newresponse, 'language');
+                    $prevresponse,
+                    $newresponse,
+                    'language'
+                );
         $attachments1 = $this->get_attached_files($prevresponse);
         $attachments2 = $this->get_attached_files($newresponse);
         $sameattachments = $attachments1 === $attachments2;
@@ -497,7 +685,7 @@ class qtype_coderunner_question extends question_graded_automatically {
             if (!empty($params->answer_language)) {
                 $answer['language'] = $params->answer_language;
             } else if (!empty($this->acelang) && strpos($this->acelang, ',') !== false) {
-                list($langs, $defaultlang) = qtype_coderunner_util::extract_languages($this->acelang);
+                [$langs, $defaultlang] = qtype_coderunner_util::extract_languages($this->acelang);
                 $default = empty($defaultlang) ? $langs[0] : $defaultlang;
                 $answer['language'] = $default;
             }
@@ -595,8 +783,14 @@ class qtype_coderunner_question extends question_graded_automatically {
             // Response attachments visible if the question has them.
             return $this->attachments != 0;
         } else {
-            return parent::check_file_access($qa, $options, $component,
-                    $filearea, $args, $forcedownload);
+            return parent::check_file_access(
+                $qa,
+                $options,
+                $component,
+                $filearea,
+                $args,
+                $forcedownload
+            );
         }
     }
 
@@ -630,7 +824,7 @@ class qtype_coderunner_question extends question_graded_automatically {
      * state is used when a sandbox error occurs.
      * @throws coding_exception
      */
-    public function grade_response(array $response, bool $isprecheck=false) {
+    public function grade_response(array $response, bool $isprecheck = false) {
         if ($isprecheck && empty($this->precheck)) {
             throw new coding_exception("Unexpected precheck");
         }
@@ -639,8 +833,10 @@ class qtype_coderunner_question extends question_graded_automatically {
         if (!empty($response['_testoutcome'])) {
             $testoutcomeserial = $response['_testoutcome'];
             $testoutcome = unserialize($testoutcomeserial);
-            if ($testoutcome instanceof qtype_coderunner_testing_outcome  // Ignore legacy-format outcomes.
-                    && $testoutcome->isprecheck == $isprecheck) {
+            if (
+                $testoutcome instanceof qtype_coderunner_testing_outcome  // Ignore legacy-format outcomes.
+                    && $testoutcome->isprecheck == $isprecheck
+            ) {
                 $gradingreqd = false;  // Already graded and with same precheck state.
             }
         }
@@ -668,8 +864,10 @@ class qtype_coderunner_question extends question_graded_automatically {
             return [0, question_state::$invalid, $datatocache];
         } else if ($testoutcome->all_correct()) {
              return [1, question_state::$gradedright, $datatocache];
-        } else if ($this->allornothing &&
-                !($this->grader === 'TemplateGrader' && $this->iscombinatortemplate)) {
+        } else if (
+            $this->allornothing &&
+                !($this->grader === 'TemplateGrader' && $this->iscombinatortemplate)
+        ) {
             return [0, question_state::$gradedwrong, $datatocache];
         } else {
             // Allow partial marks if not allornothing or if it's a combinator template grader.
@@ -737,7 +935,7 @@ class qtype_coderunner_question extends question_graded_automatically {
 
     // Return an array of all the use_as_example testcases.
     public function example_testcases() {
-        return array_filter($this->testcases, function($tc) {
+        return array_filter($this->testcases, function ($tc) {
                     return $tc->useasexample;
         });
     }
@@ -803,7 +1001,7 @@ class qtype_coderunner_question extends question_graded_automatically {
      * parameters are to be hoisted, the (key, value) pairs in $this->parameters.
      * @param string $text Text to be twig expanded.
      */
-    public function twig_expand($text, $context=[]) {
+    public function twig_expand($text, $context = []) {
         if (empty(trim($text ?? ''))) {
             return $text;
         } else {
@@ -851,8 +1049,10 @@ class qtype_coderunner_question extends question_graded_automatically {
     protected function selected_testcases($isprecheckrun) {
         $testcases = [];
         foreach ($this->testcases as $testcase) {
-            if (($isprecheckrun && $testcase->testtype != constants::TESTTYPE_NORMAL) ||
-                (!$isprecheckrun && $testcase->testtype != constants::TESTTYPE_PRECHECK)) {
+            if (
+                ($isprecheckrun && $testcase->testtype != constants::TESTTYPE_NORMAL) ||
+                (!$isprecheckrun && $testcase->testtype != constants::TESTTYPE_PRECHECK)
+            ) {
                 $testcases[] = $testcase;
             }
         }

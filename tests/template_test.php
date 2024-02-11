@@ -38,7 +38,6 @@ require_once($CFG->dirroot . '/question/type/coderunner/classes/twigmacros.php')
  * @coversNothing
  */
 class template_test extends \qtype_coderunner_testcase {
-
     public function test_template_engine() {
         // Check if the template engine is installed and working OK.
         $macros = \qtype_coderunner_twigmacros::macros();
@@ -83,7 +82,7 @@ EOTEMPLATE;
         $code = "def sqr(n): return n * n\n";
         $response = ['answer' => $code];
         $result = $q->grade_response($response);
-        list($mark, $grade, $cache) = $result;
+        [$mark, $grade, $cache] = $result;
         $this->assertEquals(\question_state::$gradedright, $grade);
     }
 
@@ -113,11 +112,11 @@ EOTEMPLATE;
         $code = "def sqr(n): return n * n\n";
         $response = ['answer' => $code];
         $result = $q->grade_response($response);
-        list($mark, $grade, $cache) = $result;
+        [$mark, $grade, $cache] = $result;
         $this->assertTrue(abs($mark - 24.0 / 31.0) < 0.000001);
         $q->allornothing = true;
         $result = $q->grade_response($response);
-        list($mark, $grade, $cache) = $result;
+        [$mark, $grade, $cache] = $result;
         $this->assertTrue($mark == 0.0);
     }
 
@@ -151,7 +150,7 @@ EOTEMPLATE;
         $code = "";
         $response = ['answer' => $code];
         $result = $q->grade_response($response);
-        list($mark, $grade, $cache) = $result;
+        [$mark, $grade, $cache] = $result;
         $this->assertEquals(\question_state::$gradedright, $grade);
     }
 }

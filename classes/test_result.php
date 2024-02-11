@@ -24,9 +24,8 @@
  * @copyright  Richard Lobb, 2013, The University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
+#[AllowDynamicProperties]
 class qtype_coderunner_test_result {
-
     public function __construct($testcase, $iscorrect, $awardedmark, $got) {
         // Flatten testcase into this, tidying up text fields.
         foreach (get_object_vars($testcase) as $key => $value) {
@@ -39,7 +38,6 @@ class qtype_coderunner_test_result {
         $this->iscorrect = $iscorrect;
         $this->awarded = $awardedmark;
         $this->got = qtype_coderunner_util::tidy($got);
-
     }
 
     // Return the value from this testresult as specified by the given
@@ -62,5 +60,3 @@ class qtype_coderunner_test_result {
         return $value;
     }
 }
-
-

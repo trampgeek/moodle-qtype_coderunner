@@ -54,7 +54,6 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
     }
 
     if ($oldversion < 2016111201) {
-
         // Rename field type on table question_coderunner_tests to testtype.
         $table = new xmldb_table('question_coderunner_tests');
         $field = new xmldb_field('type', XMLDB_TYPE_INTEGER, '8', null, null, null, null, 'questionid');
@@ -67,7 +66,6 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
     }
 
     if ($oldversion < 2016112107) {
-
         // Add fields 'template' and 'iscombinator'. Leave old pertesttemplate
         // and combinatortemplate fields in the DB for now, but they're defunct.
         $table = new xmldb_table('question_coderunner_options');
@@ -112,7 +110,6 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
     }
 
     if ($oldversion < 2016120101) {
-
         // Define field answerpreload to be added to question_coderunner_options.
         $table = new xmldb_table('question_coderunner_options');
         $field = new xmldb_field('answerpreload', XMLDB_TYPE_TEXT, null, null, null, null, null, 'answerboxcolumns');
@@ -159,7 +156,6 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
     }
 
     if ($oldversion < 2016123001) {
-
         // Define field validateonsave to be added to question_coderunner_options.
         $table = new xmldb_table('question_coderunner_options');
         $field = new xmldb_field('validateonsave', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'answer');
@@ -174,7 +170,6 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
     }
 
     if ($oldversion < 2017071100) {
-
         // Define field allowmultiplestdins to be added to question_coderunner_options.
         $table = new xmldb_table('question_coderunner_options');
         $field = new xmldb_field('allowmultiplestdins', XMLDB_TYPE_INTEGER, '1', null, null, null, null, 'combinatortemplate');
@@ -188,7 +183,6 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
     }
 
     if ($oldversion < 2017072800) {
-
         // Changing type of field templateparams on table question_coderunner_options to text.
         $table = new xmldb_table('question_coderunner_options');
         $field = new xmldb_field('templateparams', XMLDB_TYPE_TEXT, null, null, null, null, null, 'pertesttemplate');
@@ -222,7 +216,6 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
     }
 
     if ($oldversion < 2018040400) {
-
         // Define field hoisttemplateparams to be added to question_coderunner_options.
         $table = new xmldb_table('question_coderunner_options');
         $field = new xmldb_field('hoisttemplateparams', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'templateparams');
@@ -237,7 +230,6 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
     }
 
     if ($oldversion < 2018041700) {
-
         // Define field twigall to be added to question_coderunner_options.
         $table = new xmldb_table('question_coderunner_options');
         $field = new xmldb_field('twigall', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'hoisttemplateparams');
@@ -266,7 +258,7 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
 
-        $field = new xmldb_field('maxfilesize',  XMLDB_TYPE_INTEGER, '11', null, XMLDB_NOTNULL, null, '0', 'attachmentsrequired');
+        $field = new xmldb_field('maxfilesize', XMLDB_TYPE_INTEGER, '11', null, XMLDB_NOTNULL, null, '0', 'attachmentsrequired');
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
@@ -298,7 +290,6 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
     }
 
     if ($oldversion < 2019051600) {
-
         // Changing the default of field useace on table question_coderunner_options to 1.
         $table = new xmldb_table('question_coderunner_options');
         $field = new xmldb_field('useace', XMLDB_TYPE_INTEGER, '1', null, null, null, '1', 'answerpreload');
@@ -311,7 +302,6 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
     }
 
     if ($oldversion < 2019080500) {
-
         // Define field globalextra to be added to question_coderunner_options.
         $table = new xmldb_table('question_coderunner_options');
         $field = new xmldb_field('globalextra', XMLDB_TYPE_TEXT, null, null, null, null, null, 'answerpreload');
@@ -338,7 +328,6 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
     }
 
     if ($oldversion < 2020120701) {
-
         // Define field templateparamslang to be added to question_coderunner_options.
         $table = new xmldb_table('question_coderunner_options');
         $field = new xmldb_field('templateparamslang', XMLDB_TYPE_CHAR, '50', null, null, null, 'twig', 'templateparams');
@@ -373,7 +362,6 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
     }
 
     if ($oldversion < 2021010113) {
-
         // Define field uiparameters to be added to question_coderunner_options.
         $table = new xmldb_table('question_coderunner_options');
         $field = new xmldb_field('uiparameters', XMLDB_TYPE_TEXT, null, null, null, null, null, 'twigall');
@@ -388,7 +376,6 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
     }
 
     if ($oldversion < 2021012200) {
-
         // Define field hidecheck to be added to question_coderunner_options.
         $table = new xmldb_table('question_coderunner_options');
         $field = new xmldb_field('hidecheck', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'precheck');
@@ -403,7 +390,6 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
     }
 
     if ($oldversion < 2021111000) {
-
         // Define field giveupallowed to be added to question_coderunner_options.
         $table = new xmldb_table('question_coderunner_options');
         $field = new xmldb_field('giveupallowed', XMLDB_TYPE_INTEGER, '4', null, XMLDB_NOTNULL, null, '0', 'displayfeedback');
@@ -418,7 +404,6 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
     }
 
     if ($oldversion < 2022012703) {
-
         // Define field prototypeextra to be added to question_coderunner_options.
         $table = new xmldb_table('question_coderunner_options');
         $field = new xmldb_field('prototypeextra', XMLDB_TYPE_TEXT, null, null, null, null, null, 'giveupallowed');
@@ -433,7 +418,6 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
     }
 
     if ($oldversion < 2023013002) {
-
         // Define field extractcodefromjson to be added to question_coderunner_options.
         $table = new xmldb_table('question_coderunner_options');
         $field = new xmldb_field('extractcodefromjson', XMLDB_TYPE_INTEGER, '1', null, null, null, '1', 'hoisttemplateparams');

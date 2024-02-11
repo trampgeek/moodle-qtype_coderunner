@@ -37,8 +37,10 @@ $startfromcontextid = optional_param('startfromcontextid', 0, PARAM_INT);
 $context = context_system::instance();
 require_login();
 require_capability('moodle/site:config', $context);  // Administrators only.
-$PAGE->set_url('/question/type/coderunner/bulktestall.php',
-        ['startfromcontextid' => $startfromcontextid]);
+$PAGE->set_url(
+    '/question/type/coderunner/bulktestall.php',
+    ['startfromcontextid' => $startfromcontextid]
+);
 $PAGE->set_context($context);
 $title = get_string('bulktesttitle', 'qtype_coderunner', $context->get_context_name());
 $PAGE->set_title($title);
@@ -68,11 +70,14 @@ foreach ($bulktester->get_num_coderunner_questions_by_context() as $contextid =>
     if (has_capability('moodle/question:editall', $context)) {
         echo $OUTPUT->heading(get_string('bulktesttitle', 'qtype_coderunner', $testcontext->get_context_name()));
         echo html_writer::tag('p', html_writer::link(
-                new moodle_url('/question/type/coderunner/bulktestall.php',
-                    ['startfromcontextid' => $testcontext->id]),
-                get_string('bulktestcontinuefromhere', 'qtype_coderunner')));
+            new moodle_url(
+                '/question/type/coderunner/bulktestall.php',
+                ['startfromcontextid' => $testcontext->id]
+            ),
+            get_string('bulktestcontinuefromhere', 'qtype_coderunner')
+        ));
 
-        list($passes, $failingtests, $missinganswers) = $bulktester->run_all_tests_for_context($testcontext);
+        [$passes, $failingtests, $missinganswers] = $bulktester->run_all_tests_for_context($testcontext);
         $numpasses += $passes;
         $allfailingtests = array_merge($allfailingtests, $failingtests);
         $allmissinganswers = array_merge($allmissinganswers, $missinganswers);

@@ -25,7 +25,6 @@
  */
 
 class qtype_coderunner_ideonesandbox extends qtype_coderunner_sandbox {
-
     private $langserror = null;   // The error attribute from the last call to getLanguages.
     private $langmap = null;      // Languages supported by this sandbox: map from name to id.
     //
@@ -37,7 +36,7 @@ class qtype_coderunner_ideonesandbox extends qtype_coderunner_sandbox {
     const STATUS_RUNNING     = 3;
 
 
-    public function __construct($user=null, $pass=null) {
+    public function __construct($user = null, $pass = null) {
         if ($user == null) {
             $user = get_config('qtype_coderunner', 'ideone_user');
         }
@@ -120,7 +119,7 @@ class qtype_coderunner_ideonesandbox extends qtype_coderunner_sandbox {
      *             cmpinfo: the output from the compilation run (usually empty
      *                     unless the result code is for a compilation error).
      */
-    public function execute($sourcecode, $language, $input, $files=null, $params=null) {
+    public function execute($sourcecode, $language, $input, $files = null, $params = null) {
         $language = strtolower($language);
         if (!in_array($language, $this->get_languages()->languages)) {
             throw new qtype_coderunner_exception('Executing an unsupported language in sandbox');
@@ -128,8 +127,15 @@ class qtype_coderunner_ideonesandbox extends qtype_coderunner_sandbox {
         if ($input !== '' && substr($input, -1) != "\n") {
             $input .= "\n";  // Force newline on the end if necessary.
         }
-        $result = $this->create_submission($sourcecode, $language, $input,
-                true, true, $files, $params);
+        $result = $this->create_submission(
+            $sourcecode,
+            $language,
+            $input,
+            true,
+            true,
+            $files,
+            $params
+        );
         $error = $result->error;
         if ($error === self::OK) {
             $state = $this->get_submission_status($result->link);
@@ -140,9 +146,11 @@ class qtype_coderunner_ideonesandbox extends qtype_coderunner_sandbox {
             return (object) ['error' => $error];
         } else {
             $count = 0;
-            while ($state->error === self::OK &&
+            while (
+                $state->error === self::OK &&
                    $state->status !== self::STATUS_DONE &&
-                   $count < self::MAX_NUM_POLLS) {
+                   $count < self::MAX_NUM_POLLS
+            ) {
                 $count += 1;
                 sleep(self::POLL_INTERVAL);
                 $state = $this->get_submission_status($result->link);
@@ -152,8 +160,10 @@ class qtype_coderunner_ideonesandbox extends qtype_coderunner_sandbox {
                 throw new qtype_coderunner_exception("Timed out waiting for sandbox");
             }
 
-            if ($state->error !== self::OK ||
-                    $state->status !== self::STATUS_DONE) {
+            if (
+                $state->error !== self::OK ||
+                    $state->status !== self::STATUS_DONE
+            ) {
                 throw new coding_exception("Error response or bad status from sandbox");
             }
 
@@ -175,8 +185,15 @@ class qtype_coderunner_ideonesandbox extends qtype_coderunner_sandbox {
     // the handle for the submission, for use in the following two calls.
     // TODO: come up with a better way of handling non-null $files and
     // $params.
-    public function create_submission($sourcecode, $language, $input,
-            $run=true, $private=true, $files=null, $params=null) {
+    public function create_submission(
+        $sourcecode,
+        $language,
+        $input,
+        $run = true,
+        $private = true,
+        $files = null,
+        $params = null
+    ) {
         // Check language is valid.
         assert(in_array($language, $this->get_languages()->languages));
         if ($files !== null && count($files) !== 0) {
@@ -191,8 +208,15 @@ class qtype_coderunner_ideonesandbox extends qtype_coderunner_sandbox {
         // the fact that parameters like cpu_time, memory_limit etc are being ignored.
 
         $langid = $this->langmap[$language];
-        $response = $this->client->createSubmission($this->user, $this->pass,
-                $sourcecode, $langid, $input, $run, $private);
+        $response = $this->client->createSubmission(
+            $this->user,
+            $this->pass,
+            $sourcecode,
+            $langid,
+            $input,
+            $run,
+            $private
+        );
         $error = $response['error'];
         if ($error !== 'OK') {
             throw new moodle_exception("IdeoneSandbox::get_submission_status: error ($error)");
@@ -218,13 +242,25 @@ class qtype_coderunner_ideonesandbox extends qtype_coderunner_sandbox {
 
     // Should only be called if the status is STATUS_DONE. Returns an object
     // with fields error, result, time, memory, signal, cmpinfo, stderr, output.
-    public function get_submission_details($link, $withsource=false,
-            $withinput=false, $withoutput=true, $withstderr=true,
-            $withcmpinfo=true) {
+    public function get_submission_details(
+        $link,
+        $withsource = false,
+        $withinput = false,
+        $withoutput = true,
+        $withstderr = true,
+        $withcmpinfo = true
+    ) {
 
-        $response = $this->client->getSubmissionDetails($this->user, $this->pass,
-                $link, $withsource, $withinput, $withoutput,
-                $withstderr, $withcmpinfo);
+        $response = $this->client->getSubmissionDetails(
+            $this->user,
+            $this->pass,
+            $link,
+            $withsource,
+            $withinput,
+            $withoutput,
+            $withstderr,
+            $withcmpinfo
+        );
 
         $error = $response['error'];
         if ($error !== 'OK') {
@@ -242,4 +278,3 @@ class qtype_coderunner_ideonesandbox extends qtype_coderunner_sandbox {
         }
     }
 }
-

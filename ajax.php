@@ -60,9 +60,12 @@ if ($qtype) {
         } else {
             $extras = "";
             foreach ($questionprototype as $component) {
-                $extras .= get_string('listprototypeduplicates', 'qtype_coderunner',
+                $extras .= get_string(
+                    'listprototypeduplicates',
+                    'qtype_coderunner',
                     ['id' => $component->id, 'name' => $component->name,
-                        'category' => $component->category]);
+                    'category' => $component->category]
+                );
             }
             $questiontype->error = json_encode(["error" => "duplicateprototype",
                 "alert" => "prototype_duplicate_alert", "extras" => $extras]);
@@ -85,8 +88,11 @@ if ($qtype) {
             $uiheader = get_string('nouiparameters', 'qtype_coderunner', ['uiname' => $uiplugin]);
         } else {
             $csv = implode(', ', $uiparams->all_names_starred());
-            $uiheader = get_string('uiparametertablehead', 'qtype_coderunner',
-                    ['uiname' => $uiplugin]) . $csv . '.';
+            $uiheader = get_string(
+                'uiparametertablehead',
+                'qtype_coderunner',
+                ['uiname' => $uiplugin]
+            ) . $csv . '.';
             $uiparamstable = $uiparams->table();
             $namehdr = get_string('uiparamname', 'qtype_coderunner');
             $descrhdr = get_string('uiparamdesc', 'qtype_coderunner');

@@ -38,7 +38,6 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
  * @coversNothing
  */
 class java_question_test extends \qtype_coderunner_testcase {
-
     protected function setUp(): void {
         parent::setUp();
 
@@ -49,7 +48,7 @@ class java_question_test extends \qtype_coderunner_testcase {
     public function test_good_sqr_function() {
         $q = $this->make_question('sqrjava');
         $response = ['answer' => "int sqr(int n) { return n * n; }\n"];
-        list($mark, $grade, $cache) = $q->grade_response($response);
+        [$mark, $grade, $cache] = $q->grade_response($response);
         $this->assertEquals(1, $mark);
         $this->assertEquals(\question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
@@ -62,7 +61,7 @@ class java_question_test extends \qtype_coderunner_testcase {
     public function test_bad_sqr_function() {
         $q = $this->make_question('sqrjava');
         $response = ['answer' => "int sqr(int n) { return n; }\n"];
-        list($mark, $grade, $cache) = $q->grade_response($response);
+        [$mark, $grade, $cache] = $q->grade_response($response);
         $this->assertEquals(0, $mark);
         $this->assertEquals(\question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
@@ -75,7 +74,7 @@ class java_question_test extends \qtype_coderunner_testcase {
     public function test_bad_syntax() {
         $q = $this->make_question('sqrjava');
         $response = ['answer' => "int sqr(n) { return n * n; }\n"];
-        list($mark, $grade, $cache) = $q->grade_response($response);
+        [$mark, $grade, $cache] = $q->grade_response($response);
         $this->assertEquals(0, $mark);
         $this->assertEquals(\question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
@@ -102,7 +101,7 @@ class Name {
 EOCODE
 ,
         ];
-        list($mark, $grade, $cache) = $q->grade_response($response);
+        [$mark, $grade, $cache] = $q->grade_response($response);
         $this->assertEquals(1, $mark);
         $this->assertEquals(\question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
@@ -129,7 +128,7 @@ public class PrintNames {
 EOCODE
 ,
         ];
-        list($mark, $grade, $cache) = $q->grade_response($response);
+        [$mark, $grade, $cache] = $q->grade_response($response);
         $this->assertEquals(1, $mark);
         $this->assertEquals(\question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
@@ -156,7 +155,7 @@ public class PrintNames {
 EOCODE
 ,
         ];
-        list($mark, $grade, $cache) = $q->grade_response($response);
+        [$mark, $grade, $cache] = $q->grade_response($response);
         $this->assertEquals(1, $mark);
         $this->assertEquals(\question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
@@ -170,7 +169,7 @@ EOCODE
     public function test_java_escape() {
         $q = $this->make_question('printstr');
         $response = ['answer' => ''];
-        list($mark, , ) = $q->grade_response($response);
+        [$mark, , ] = $q->grade_response($response);
         $this->assertEquals(1, $mark);
     }
 }
