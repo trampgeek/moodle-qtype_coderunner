@@ -904,6 +904,11 @@ class qtype_coderunner_edit_form extends question_edit_form {
             $errors = array_merge($errors, $testcaseerrors);
         }
 
+        if ($data['prototypetype'] == 2 && empty($data['language'])) {
+            // Language cannot be empty when it is a prototype template.
+            $errors['languages'] = get_string('emptysandboxlanguage', 'qtype_coderunner');
+        }
+
         if ($data['iscombinatortemplate'] && empty($data['testsplitterre'])) {
             $errors['templatecontrols'] = get_string('bad_empty_splitter', 'qtype_coderunner');
         }
