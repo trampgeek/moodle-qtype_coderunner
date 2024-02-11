@@ -146,6 +146,7 @@ $string['duplicateprototype'] = 'This question was defined to be of type \'{$a->
 $string['editingcoderunner'] = 'Editing a CodeRunner Question';
 $string['empty_new_prototype_name'] = 'New question type name cannot be empty';
 $string['emptypenaltyregime'] = 'Penalty regime must be defined (since version 3.1)';
+$string['emptysandboxlanguage'] = 'Sandbox language cannot be empty when creating a prototype.';
 $string['enable'] = 'Enable';
 $string['enablecombinator'] = 'Enable combinator';
 $string['enable_diff_check'] = 'Enable \'Show differences\' button';

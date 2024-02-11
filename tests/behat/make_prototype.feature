@@ -77,3 +77,13 @@ Feature: make_prototype
     And I set the field "prototypetype" to "No"
     And I set the field "id_coderunnertype" to "python3" and dismiss the alert
     Then I should not see "This is a prototype; cannot change question type"
+
+  Scenario: As a teacher, when I try to create the prototype with empty Sandbox language I should see the validation error
+    Given I am on the "PROTOTYPE_test_prototype" "core_question > edit" page logged in as teacher1
+    And I click on "a[aria-controls='id_advancedcustomisationheadercontainer']" "css_element"
+    When I set the field "language" to ""
+    And I press "id_submitbutton"
+    Then I should see "Sandbox language cannot be empty when creating a prototype."
+    And I set the field "language" to "python3"
+    And I press "id_submitbutton"
+    And I should see "Question bank"
