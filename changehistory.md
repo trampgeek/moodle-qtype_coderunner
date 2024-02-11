@@ -3,6 +3,7 @@
 ### 11 February 2024. 5.3.0
 
  * Significant refactoring to improve PHP8.2 compatibility, particularly with regard to dynamic attributes (thanks Anupama).
+ * Improve code to identify Java main class (thanks zupanibla).
  * Bug fix: ace-gapfiller UI did not allow non-ASCII alphabetic characters (e.g. Maori macrons)
 
 ### 20 December 2023. 5.2.4
