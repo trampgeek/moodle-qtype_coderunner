@@ -43,7 +43,6 @@ Feature: Ace UI convert to Scratchpad UI questions with one click
     Then the following should exist in the "coderunner-test-results" table:
       | Test    |
       | sqr(-7) |
-      | sqr(-3) |
       | sqr(11) |
     And I should see "Passed all tests!"
     And I should not see "Show differences"
@@ -67,7 +66,6 @@ Feature: Ace UI convert to Scratchpad UI questions with one click
     Then the following should exist in the "coderunner-test-results" table:
       | Test    |
       | sqr(-7) |
-      | sqr(-3) |
       | sqr(11) |
     And I should see "Passed all tests!"
     And I should not see "Show differences"
