@@ -1,5 +1,10 @@
 # CHANGE HISTORY
 
+### 11 February 2024. 5.3.0
+
+ * Significant refactoring to improve PHP8.2 compatibility, particularly with regard to dynamic attributes (thanks Anupama).
+ * Bug fix: ace-gapfiller UI did not allow non-ASCII alphabetic characters (e.g. Maori macrons)
+
 ### 20 December 2023. 5.2.4
 
  * Extensive code tidying to conform to latest Moodle PHP coding standards.
