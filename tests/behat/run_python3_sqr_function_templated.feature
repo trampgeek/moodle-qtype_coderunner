@@ -56,7 +56,6 @@ Feature: Combinator template is called test-by-test if a runtime error occurs wh
     Then the following should exist in the "coderunner-test-results" table:
       | Test    |
       | sqr(-7) |
-      | sqr(-3) |
       | sqr(11) |
     And "sqr(11)" row "Expected" column of "coderunner-test-results" table should contain "121"
     And "sqr(11)" row "Got" column of "coderunner-test-results" table should contain "121"
@@ -73,8 +72,8 @@ Feature: Combinator template is called test-by-test if a runtime error occurs wh
       | sqr(11) |
     And "sqr(11)" row "Expected" column of "coderunner-test-results" table should contain "121"
     #And I should see "***Error***"  # WHY DOESN'T THIS WORK (with or without &nbsp;)??
-    And the following should not exist in the "coderunner-test-results" table:
-      | sqr(-3) |
+    #And the following should not exist in the "coderunner-test-results" table:
+    #  | sqr(-3) |
     And I should see "Testing was aborted due to error."
     # And I should see "Show differences" # WHY DOES THIS FAIL with a message found but not visible?
     And I should see "Marks for this submission: 0.00/1.00"

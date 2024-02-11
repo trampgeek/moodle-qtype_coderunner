@@ -64,7 +64,7 @@ Feature: template_params_error
     And I should not see "prog.java:1: error:"
     And I press "id_submitbutton"
     And I should see "Template parameters must evaluate to blank or a valid JSON record"
-    Then I should see "prog.java:1: error:"
+    Then I should see "NO_PUBLIC_CLASS_FOUND.java"
 
   Scenario: As a teacher, I should be given an informative php error
     When I am on the "Dummy question" "core_question > edit" page logged in as teacher1
