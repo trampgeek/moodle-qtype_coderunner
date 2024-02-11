@@ -127,7 +127,7 @@ However, it is also possible to configure CodeRunner questions so
 that the mark is determined by how many of the tests the code successfully passed.
 
 CodeRunner has been in use at the University of Canterbury for over ten years
-running many millions of student quiz question submissions in Python, C , JavaScript,
+running many millions of student quiz question submissions in Python, C, JavaScript,
 PHP, Octave and Matlab. It is used in laboratory work, assignments, tests and
 exams in multiple courses. In recent years CodeRunner has spread around the
 world and as of January 2021 is installed on over 1800 Moodle sites worldwide
@@ -374,7 +374,7 @@ the code or OS features within the Jobe container, e.g. to install new languages
 
 If you intend running unit tests you
 will also need to copy the file `tests/fixtures/test-sandbox-config-dist.php`
-to 'tests/fixtures/test-sandbox-config.php', then edit it to set the correct
+to `tests/fixtures/test-sandbox-config.php`, then edit it to set the correct
 host and any other necessary configuration for the Jobe server.
 
 Assuming you have built *Jobe* on a separate server, suitably firewalled,
@@ -399,7 +399,7 @@ are installed.
 
 Before running any tests you first need to copy the file
 `<moodlehome>/question/type/coderunner/tests/fixtures/test-sandbox-config-dist.php`
-to '<moodlehome>/question/type/coderunner/tests/fixtures/test-sandbox-config.php',
+to `<moodlehome>/question/type/coderunner/tests/fixtures/test-sandbox-config.php`,
 then edit it to set whatever configuration of sandboxes you wish to test,
 and to set the jobe host, if appropriate. You should then initialise
 the phpunit environment with the commands
@@ -805,7 +805,7 @@ where a 'match' is defined by the chosen grader: an exact match,
 a nearly exact match or a regular-expression match. There is also the possibility
 to perform grading with the the template itself using a 'template grader';
 this possibility is discussed later, in the section
-'[Grading with templates'](#grading-with-templates).
+[Grading with templates](#grading-with-templates).
 
 Expansion of the template is done by the
 [Twig](http://twig.sensiolabs.org/) template engine. The engine is given both
@@ -1404,10 +1404,10 @@ student's first name:
     first_name = args['firstname']
     print(json.dumps({'func_name': func_name, 'first_name': first_name}))
 
-The question text could then say
+The question text could then say:
 
-Write a function {{ func_name }}() that prints a welcome message of the
-form "Hello {{ first_name }}!".
+`Write a function {{ func_name }}() that prints a welcome message of the
+form "Hello {{ first_name }}!".`
 
 Note that this simple example is chosen only to illustrate
 the technique. It is a very bad example of *when* to use
@@ -1502,9 +1502,9 @@ they are not available as global variables.
 Other fields are:
 
  * `QUESTION.name` The name of the question.
- * `QUESTION.generalfeedback The contents of the general feedback field in the
+ * `QUESTION.generalfeedback` The contents of the general feedback field in the
     question authoring form.
- * `QUESTION.generalfeedbackformat. The format of the general feedback. 0 = moodle,
+ * `QUESTION.generalfeedbackformat` The format of the general feedback. 0 = moodle,
    1 = HTML, 2 = Plain, 3 = Wiki, 4 = Markdown.
  * `QUESTION.questiontext` The question text itself
  * `QUESTION.answerpreload` The string that is preloaded into the answer box.
@@ -3252,19 +3252,19 @@ a course before attempting to run the scripts.
 
 The three scripts are:
 
- 1. &lt;moodle_home&gt;/question/type/coderunner/bulktestindex.php
+ 1. `&lt;moodle_home&gt;/question/type/coderunner/bulktestindex.php`
     This script displays a list of all question categories accessible to the
     user who is currently logged into Moodle on the machine running the script.
     Each category is displayed as a clickable link that then runs a script that
     tests the sample answers on all questions in that category, reporting
     all successes and failures.
 
- 1. &lt;moodle_home&gt;/question/type/coderunner/prototypeusageindex.php
+ 1. `&lt;moodle_home&gt;/question/type/coderunner/prototypeusageindex.php`
     This scripts displays an index like the one above except that the
     clickable links now run a script that reports on the question prototype
     usage within that category.
 
- 1. &lt;moodle_home&gt;/question/type/coderunner/downloadquizattempts.php
+ 1. `&lt;moodle_home&gt;/question/type/coderunner/downloadquizattempts.php`
     This script
     displays a list of all quizzes available to the logged in user,
     allowing them to download a spreadsheet of all submissions to a selected quiz
@@ -3356,7 +3356,7 @@ The three scripts are:
 To assist the use of screen readers for visually impaired students,
 text area inputs now have two modes:
 
-* When keyboard focus first enters them via Tab or Shift+TAb, they are
+* When keyboard focus first enters them via Tab or Shift+TAB, they are
   in 'non-capturing' mode, and pressing TAB or Shift+TAB moves to the
   next or previous form control.
 
