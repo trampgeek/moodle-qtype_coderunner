@@ -52,6 +52,14 @@
         "escape": {
             "type": "boolean",
             "default": false
+        },
+        "jobe_servers": {
+            "type": "string[]",
+            "default": ""
+        },
+        "api_keys": {
+            "type": "string[]",
+            "default": ""
         }
     }
 }
