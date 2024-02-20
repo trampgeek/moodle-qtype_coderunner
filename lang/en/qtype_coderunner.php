@@ -1076,7 +1076,10 @@ $string['scratchpadui_api_keys_descr'] = 'A list of API keys to use with the job
 
 // SCRATCHPAD UI Errors.
 $string['scratchpad_ui_badrunwrappersrc'] = 'Invalid run wrapper source given, please contact question author.';
+$string['scratchpad_ui_bad_api_keys'] = 'Misconfigured scratchpad-direct. API key list length must equal jobe server list length.';
 $string['scratchpad_ui_invalidserialisation'] = 'Invalid JSON serialisation provided, must include \"answer_code\" field.';
+$string['scratchpad_ui_no_protocol'] = 'jobe server name must start with http:// or https://.';
+$string['scratchpad_ui_request_failed'] = 'Request to sandbox server failed';
 $string['scratchpad_ui_templateloadfail'] = 'Scratchpad UI template failed to load, please refresh the page. If this persists please report.';
 
 $string['tableui_num_rows_descr'] = 'The (initial) number of rows in the table, excluding the top header row (if headers are given). Required.';

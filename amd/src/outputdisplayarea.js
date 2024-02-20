@@ -417,27 +417,42 @@ class OutputDisplayArea {
                     const sandboxResponse = t.convertToSandboxFormat(xhr.responseText);
                     t.display(sandboxResponse);
                 } else {
-                    t.displayError(`Request to sandbox server failed ${xhr.status}: ${xhr.statusText} ${xhr.responseText}`);
+                    setLangString({
+                        stringName: 'scratchpad_ui_request_failed',
+                        callback: (langString) => {
+                            t.displayError(langString +  ` ${xhr.status}: ${xhr.statusText} ${xhr.responseText}`);
+                        }
+                    });
                 }
             }
         };
 
-        if (apiKeys) {
-            if (jobeServers.length != apiKeys.length) {
-                alert("Misconfigured scratchpad-direct. API key list length must equal jobe server list length");
-                jobeServers = [jobeServers[0]];
-                apiKeys = [apiKeys[0]];
-            }
-        }
         const index = Math.floor(Math.random() * jobeServers.length);
+        const jobeServer = jobeServers[index].toLowerCase();
 
-        xhr.open('POST', `${jobeServers[index]}/jobe/index.php/restapi/runs`, true);
-        xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
-        xhr.setRequestHeader('Accept', 'application/json');
-        if (apiKeys) {
-            xhr.setRequestHeader('X-API-KEY', apiKeys[index]);
+        if (!jobeServer.startsWith('http://') && !jobeServer.startsWith('https://')) {
+            setLangString({
+                stringName: 'scratchpad_ui_no_protocol',
+                callback: (langString) => {
+                    t.displayError(langString);
+                }
+            });
+        } else if (apiKeys && jobeServers.length != apiKeys.length) {
+            setLangString({
+                stringName: 'scratchpad_ui_bad_api_keys',
+                callback: (langString) => {
+                    t.displayError(langString);
+                }
+            });
+        } else {
+            xhr.open('POST', `${jobeServer}/jobe/index.php/restapi/runs`, true);
+            xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+            xhr.setRequestHeader('Accept', 'application/json');
+            if (apiKeys) {
+                xhr.setRequestHeader('X-API-KEY', apiKeys[index]);
+            }
+            xhr.send(JSON.stringify(runspec));
         }
-        xhr.send(JSON.stringify(runspec));
     }
 
     /**
