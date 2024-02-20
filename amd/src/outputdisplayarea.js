@@ -431,7 +431,7 @@ class OutputDisplayArea {
         }
         const index = Math.floor(Math.random() * jobeServers.length);
 
-        xhr.open('POST', `http://${jobeServers[index]}/jobe/index.php/restapi/runs`, true);
+        xhr.open('POST', `${jobeServers[index]}/jobe/index.php/restapi/runs`, true);
         xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
         xhr.setRequestHeader('Accept', 'application/json');
         if (apiKeys) {
