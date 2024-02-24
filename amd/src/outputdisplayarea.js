@@ -420,11 +420,20 @@ class OutputDisplayArea {
                     setLangString({
                         stringName: 'scratchpad_ui_request_failed',
                         callback: (langString) => {
-                            t.displayError(langString +  ` ${xhr.status}: ${xhr.statusText} ${xhr.responseText}`);
+                            t.displayError(langString +  `. ${xhr.status}: ${xhr.statusText}. ${xhr.responseText}`);
                         }
                     });
                 }
             }
+        };
+
+        xhr.onerror = function() {
+            setLangString({
+                stringName: 'scratchpad_ui_error',
+                callback: (langString) => {
+                    t.displayError(langString);
+                }
+            });
         };
 
         const index = Math.floor(Math.random() * jobeServers.length);
