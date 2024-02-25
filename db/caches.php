@@ -30,9 +30,9 @@ defined('MOODLE_INTERNAL') || die();
 $definitions = [
     'coderunner_grading_cache' => [
         'mode' => cache_store::MODE_APPLICATION,
-        'maxsize' => 10000000,
+        'maxsize' => 50000000,
         'simplekeys' => true,
-        'simpledata' => true,
+        'simpledata' => false,
         'canuselocalstore' => true,
         'staticacceleration' => true,
         'staticaccelerationsize' => 1000000,

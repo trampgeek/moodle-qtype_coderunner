@@ -220,6 +220,9 @@ class qtype_coderunner_question extends question_graded_automatically {
     /** @var int questionid. */
     public $questionid;
 
+    /** @var int randomseed in case we want to see the seed for a question */
+    public $randomseed;
+
     /**
      * Start a new attempt at this question, storing any information that will
      * be needed later in the step. It is retrieved and applied by
@@ -251,7 +254,7 @@ class qtype_coderunner_question extends question_graded_automatically {
             $step->set_qt_var('_mtrandseed', $seed);
         }
         $this->evaluate_question_for_display($seed, $step);
-        $this->mtrandseed = $seed;  // so we can see it when checking
+        $this->randomseed = $seed;  // so we can see it when checking
     }
 
     // Retrieve the saved random number seed and reconstruct the template
@@ -267,7 +270,7 @@ class qtype_coderunner_question extends question_graded_automatically {
             $seed = mt_rand();
         }
         $this->evaluate_question_for_display($seed, $step);
-        $this->mtrandseed = $seed;  // so we can see it when checking
+        $this->randomseed = $seed;  // so we can see it when checking
     }
 
 
@@ -419,38 +422,33 @@ class qtype_coderunner_question extends question_graded_automatically {
      * valid json).
      */
     public function evaluate_template_params($templateparams, $lang, $seed) {
-        $lang = strtolower($lang); // Just in case some old legacy DB entries escaped.
-        if (empty($templateparams)) {
-            $jsontemplateparams = '{}';
-        } else if (
+        if (
             isset($this->cachedfuncparams) &&
                 $this->cachedfuncparams === ['lang' => $lang, 'seed' => $seed]
         ) {
             // Use previously cached result if possible.
             $jsontemplateparams = $this->cachedevaldtemplateparams;
-        } else if ($lang == 'none') {
-            $jsontemplateparams = $templateparams;
-        } else if ($lang == 'twig') {
-            try {
-                $jsontemplateparams = $this->twig_render_with_seed($templateparams, $seed);
-            } catch (\Twig\Error\Error $e) {
-                throw new qtype_coderunner_bad_json_exception($e->getMessage());
-            }
-        } else if (!$this->templateparamsevalpertry && !empty($this->templateparamsevald)) {
-            $jsontemplateparams = $this->templateparamsevald;
         } else {
-            $jsontemplateparams = $this->evaluate_template_params_on_jobe($templateparams, $lang, $seed);
+            $lang = strtolower($lang); // Just in case some old legacy DB entries escaped.
+            if (empty($templateparams)) {
+                $jsontemplateparams = '{}';
+            } else if ($lang == 'none') {
+                $jsontemplateparams = $templateparams;
+            } else if ($lang == 'twig') {
+                try {
+                    $jsontemplateparams = $this->twig_render_with_seed($templateparams, $seed);
+                } catch (\Twig\Error\Error $e) {
+                    throw new qtype_coderunner_bad_json_exception($e->getMessage());
+                }
+            } else if (!$this->templateparamsevalpertry && !empty($this->templateparamsevald)) {
+                $jsontemplateparams = $this->templateparamsevald;
+            } else {
+                $jsontemplateparams = $this->evaluate_template_params_on_jobe($templateparams, $lang, $seed);
+            }
+            // Cache in this to avoid multiple evaluations during question editing and validation.
+            $this->cachedfuncparams = ['lang' => $lang, 'seed' => $seed];
+            $this->cachedevaldtemplateparams = $jsontemplateparams;
         }
-
-
-        // Cache in this to avoid multiple evaluations during question editing and validation.
-        /*
-        **************
-        QUESTION: Seems to always store in cache even when it was read from cache in the first place.
-        **************
-        */
-        $this->cachedfuncparams = ['lang' => $lang, 'seed' => $seed];
-        $this->cachedevaldtemplateparams = $jsontemplateparams;
         return $jsontemplateparams;
     }
 
@@ -853,18 +851,14 @@ class qtype_coderunner_question extends question_graded_automatically {
      * state is used when a sandbox error occurs.
      * @throws coding_exception
      */
-    public function grade_response(array $response, bool $isprecheck = false, $usecache = true) {
+    public function grade_response(array $response, bool $isprecheck = false) {
         if ($isprecheck && empty($this->precheck)) {
             throw new coding_exception("Unexpected precheck");
         }
 
-        // Trying ?? $language = empty($response['language']) ? '' : $response['language'];.
-        $language = $response['language'] ?? "";
-        // Was $language = empty($response['language']) ? '' : $response['language'];.
-
-        // QUESTION: Could we replace this with the new cached version?
+        $language = empty($response['language']) ? '' : $response['language'];
         $gradingreqd = true;
-        $testoutcomeserial = null;
+        $testoutcomeserial = false;
 
         // Use _testoutcome if it's already in $response.
         // This should be even quicker than the file cache.
@@ -885,46 +879,6 @@ class qtype_coderunner_question extends question_graded_automatically {
             // filenames and values being file contents.
             $code = $response['answer'];
             $attachments = $this->get_attached_files($response);
-
-            // QUESTION: Should we raise an error on missing prototype here?...
-            // ...          Rather than in jobrunner?.
-            // if (!empty($this->prototype)) {
-            //     $protoid = $this->prototype->id;
-            // } else {
-            //     $protoid = "";
-            // }
-
-
-            // if ($usecache && get_config('qtype_coderunner', "cachegradingresults")) {
-            //     // Use cached outcome if we have one.
-            //     $cache = cache::make('qtype_coderunner', 'coderunner_grading_cache');
-
-            //     $qid = $this->id;
-            //     $seed = $this->mtrandseed;
-            //     // With same qid and prototype id the question text and seed, test cases can't have changed.
-            //     $qdetails = "qid=" . $qid . ",prototype_id=" . $protoid;
-            //     $qdetails .= ",mtrandomseed=" . $seed . ",isprecheck=" . $isprecheck;
-            //     $qdetails .= ",language=" . $language;
-            //     // Also note that prechecksetting can only change if qid or prototype id has changed.
-
-            //     // Most student answers won't have attachments but if they do then ...
-            //     // ... include the hash of the attachments (which will be slow).
-            //     if ($attachments) {  // was xxh64
-            //         $qdetails .= ",attachmentshash=" . hash("md5", serialize($attachments));
-            //     }
-            //     $rawkey = $qdetails . ",code=" . $code;
-            //     $key = hash("md5", $rawkey);  // Fast with digest small enough to be used directly as key in DB.
-            //     // Can't use cache for validate on save as it uses the old question id ...
-            //     // ... rather than the new one. And caching would be pointless anyway!
-
-            //     $testoutcomeserial = $cache->get($key);
-            //     if ($testoutcomeserial) {
-            //         // QUESTION: Could be extra safe and not use the cached value
-            //         // if is contains/implies an invalid state?
-            //         $testoutcome = unserialize($testoutcomeserial);
-            //     }
-            // }
-            // if ($testoutcomeserial == null) {  // We didn't find it in the cache.
             $this->stepinfo = self::step_info($response);
             $this->stepinfo->graderstate = $response['graderstate'] ?? "";
             $testcases = $this->filter_testcases($isprecheck, $this->precheck);
@@ -944,15 +898,9 @@ class qtype_coderunner_question extends question_graded_automatically {
                 $language
             );
             $testoutcomeserial = serialize($testoutcome);
-            // echo ("-not from cache- " . $question->id . ", " . $question->prototype->id . "<br>");
-            // QUESTION: Should we only cache if the question state isn't invalid?
-            // This would prevent us polluting the cache.
-            // if ($usecache && get_config('qtype_coderunner', "cachegradingresults")) {
-            //     $cache->set($key, $testoutcomeserial);
-            // }   
         }
         // To be saved in question step data.
-        // Note: This is used to render test results too so it's not just a cache. 
+        // Note: This is used to render test results too so it's not just a cache.
         $datatocache = ['_testoutcome' => $testoutcomeserial];
 
         if ($testoutcome->run_failed()) {
@@ -970,8 +918,6 @@ class qtype_coderunner_question extends question_graded_automatically {
                     question_state::$gradedpartial, $datatocache];
         }
     }
-
-
     // Return a map from filename to file contents for all the attached files
     // in the given response.
     private function get_attached_files($response) {

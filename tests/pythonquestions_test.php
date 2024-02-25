@@ -214,11 +214,10 @@ EOCODE;
         $q = $this->make_question('timeout');
         $code = "def timeout():\n  while (1):\n    pass";
         $response = ['answer' => $code];
-        // Don't use cache as qid of zero is reused with different question!
+        // NOTE: qid of zero is reused with different question!
         $result = $q->grade_response(
             $response,
             false, // Not a precheck.
-            false // Here usecache is set to false.
         );
         [$mark, $grade, $cache] = $result;
         $this->assertEquals(0, $mark);
@@ -235,11 +234,10 @@ EOCODE;
         $q = $this->make_question('exceptions');
         $code = "def checkOdd(n):\n  if n & 1:\n    raise ValueError()";
         $response = ['answer' => $code];
-        // Don't use cache as qid of zero is reused with different question!
+        // NOTE: qid of zero is reused with different question!
         $result = $q->grade_response(
             $response,
             false, // Not a precheck.
-            false // Here usecache is set to false.
         );
         [$mark, $grade, $cache] = $result;
         $this->assertEquals(1, $mark);
@@ -266,11 +264,10 @@ EOCODE;
 
         $code = "def sqr(n):\n  return 0";  // Passes first test only.
         $response = ['answer' => $code];
-        // Don't use cache as qid of zero is reused with different question!
+        // NOTE: qid of zero is reused with different question!
         $result = $q->grade_response(
             $response,
             false, // Not a precheck.
-            false // Here usecache is set to false.
         );
         [$mark, $grade, $cache] = $result;
         $this->assertEquals(\question_state::$gradedpartial, $grade);
@@ -278,11 +275,10 @@ EOCODE;
 
         $code = "def sqr(n):\n  return n * n if n <= 0 else -17.995";  // Passes first test and last two only.
         $response = ['answer' => $code];
-        // Don't use cache as qid of zero is reused with different question!
+        // NOTE: qid of zero is reused with different question!
         $result = $q->grade_response(
             $response,
             false, // Not a precheck.
-            false // Here usecache is set to false.
         );
         [$mark, $grade, $cache] = $result;
         $this->assertEquals(\question_state::$gradedpartial, $grade);
@@ -290,11 +286,10 @@ EOCODE;
 
         $code = "def sqr(n):\n    return n * n if n <= 0 else 1 / 0";  // Passes first test then aborts.
         $response = ['answer' => $code];
-        // Don't use cache as qid of zero is reused with different question!
+        // NOTE: qid of zero is reused with different question!
         $result = $q->grade_response(
             $response,
             false, // Not a precheck.
-            false // Here usecache is set to false.
         );
         [$mark, $grade, $cache] = $result;
         $this->assertEquals(\question_state::$gradedpartial, $grade);
@@ -309,21 +304,19 @@ sleep(10)  # Wait 10 seconds
 print("Hello Python")
 EOT;
         $response = ['answer' => $slowsquare];  // Should time out.
-        // Don't use cache as qid of zero is reused with different question!
+        // NOTE: qid of zero is reused with different question!
         $result = $q->grade_response(
             $response,
             false, // Not a precheck.
-            false // Here usecache is set to false.
         );
         [$mark, $grade, $cache] = $result;
         $this->assertEquals(0, $mark);
         $this->assertEquals(\question_state::$gradedwrong, $grade);
         $q->cputimelimitsecs = 20;  // This should fix it.
-        // Don't use cache as qid of zero is reused with different question!
+        // NOTE: qid of zero is reused with different question!
         $result = $q->grade_response(
             $response,
             false, // Not a precheck.
-            false // Here usecache is set to false.
         );
         [$mark, $grade, $cache] = $result;
         $this->assertEquals(1, $mark);

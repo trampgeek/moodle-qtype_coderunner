@@ -219,27 +219,15 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
             // change the result (unless it isn't equal!)
             // But, remember that the server is chosen at random from the pool!
 
-            // NOTE: Changing model answer will mean key changes.
-            // This shouldn't matter if we are not using the answer in tests.
-            // QUESTION: Is there a way to see if useanswerfortests is set?
-            // Although this is really at the prototype level.
-            // Could add this as an option in the question type itself?
-            // This would make it consistent across languages, etc.
-            // If people set it and don't use the answer for tests then
-            // it will just mean that changing the answer doesn't affect
-            // the cache which is ok. But if they don't set it and do
-            // use the answer for tests anyway they might get into trouble
-            // when changing the answer doesn't prevent the cached result
-            // being used!
             $key = hash("md5", serialize($runspec));
             // echo '<pre>' . serialize($runspec) . '</pre>';
             $runresult = $cache->get($key);  // unersializes the returned value :) false if not found.
             if ($runresult) {
-                echo $key . '----------->   FOUND' . '<br>';
+                // echo $key . '----------->   FOUND' . '<br>';
             }
         }
 
-        if (!$runresult) {
+        if (!$runresult) {  // if cache read failed regrade to be safe
             $postbody = ['run_spec' => $runspec];
             // Try submitting the job. If we get a 404, try again after
             // putting all the files on the server. Anything else is an error.
@@ -293,7 +281,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
                 if (WRITE_TO_CACHE) {
                     $key = hash("md5", serialize($runspec));
                     $cache->set($key, $runresult); // set serializes the result, get will unserialize
-                    echo 'CACHE WRITE for ---> ' . $key . '<br>';
+                    // echo 'CACHE WRITE for ---> ' . $key . '<br>';
                 }
             }
         }
