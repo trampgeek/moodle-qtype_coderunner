@@ -344,6 +344,15 @@ define(['jquery'], function($) {
         this.editor.resize();
     };
 
+    /**
+     * Allow fullscreen mode for the Ace editor.
+     *
+     * @return {Boolean} True if fullscreen mode is allowed, false otherwise.
+     */
+    AceWrapper.prototype.allowFullScreen = function() {
+        return true;
+    };
+
      return {
         Constructor: AceWrapper
     };
