@@ -63,8 +63,6 @@ class qtype_coderunner_jobrunner {
      * this is a run triggered by the student clicking the Precheck button.
      * @param string $answerlanguage will be the empty string except for multilanguage questions,
      *      when it is the language selected in the language drop-down menu.
-     * @param boolean $validating Set to true if this is a validate on grading. Otherwise the
-     *      validate on save uses the qid of the last version.
      * @return qtype_coderunner_combinator_grader_outcome $testoutcome that contains the outcome
      *      of the grading.
      */
