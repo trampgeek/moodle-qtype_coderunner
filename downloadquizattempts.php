@@ -29,6 +29,9 @@
  */
 
 define('NO_OUTPUT_BUFFERING', true);
+if (!defined('ANONYMISE')) {
+    define('ANONYMISE', 0);
+}
 
 require_once(__DIR__ . '/../../../config.php');
 require_once($CFG->libdir . '/questionlib.php');
@@ -109,15 +112,15 @@ foreach ($courses as $course) {
             $quizname = "{$quiz->name} ({$quiz->numattempts})";
             $csvurl = new moodle_url(
                 '/question/type/coderunner/getallattempts.php',
-                ['quizid' => $quiz->id, 'format' => 'csv']
+                ['quizid' => $quiz->id, 'format' => 'csv', 'anonymise' => ANONYMISE]
             );
             $excelurl = new moodle_url(
                 '/question/type/coderunner/getallattempts.php',
-                ['quizid' => $quiz->id, 'format' => 'excel']
+                ['quizid' => $quiz->id, 'format' => 'excel', 'anonymise' => ANONYMISE]
             );
             $odsurl = new moodle_url(
                 '/question/type/coderunner/getallattempts.php',
-                ['quizid' => $quiz->id, 'format' => 'ods']
+                ['quizid' => $quiz->id, 'format' => 'ods', 'anonymise' => ANONYMISE]
             );
             $rows[] = [$quizname,
                     html_writer::link($csvurl, 'csv', ['class' => 'btn-sm']),
