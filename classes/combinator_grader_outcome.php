@@ -147,8 +147,8 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
                 } else {
                     $code = '';
                 }
+                $this->add_failed_test($rownum, $code, $row[$expectedcol], $row[$gotcol], $sanitise);
             }
-            $this->add_failed_test($rownum, $code, $row[$expectedcol], $row[$gotcol], $sanitise);
             $rownum += 1;
         }
         return html_writer::table($this->failures) . get_string('replaceexpectedwithgot', 'qtype_coderunner');
