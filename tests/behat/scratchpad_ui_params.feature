@@ -20,7 +20,7 @@ Feature: Test the Scratchpad UI, UI Params
     And the following "questions" exist:
       | questioncategory | qtype      | name         | template |
       | Test questions   | coderunner | Print answer | printans |
-    And the CodeRunner sandbox is enabled
+    And the CodeRunner scratchpad is enabled
 
     And I am on the "Print answer" "core_question > edit" page logged in as teacher1
     And I set the field "id_validateonsave" to ""

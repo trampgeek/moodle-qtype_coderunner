@@ -5,7 +5,8 @@ Feature: Check that Python and other languages can be used instead of Twig as a 
   I should be able to write a function that prints the seed and my username it should be marked right
 
   Background:
-    Given the following "users" exist:
+    Given the CodeRunner jobe sandbox is enabled
+    And the following "users" exist:
       | username | firstname       | lastname  | email            |
       | teacher1 | Teacher         | Last      | teacher1@asd.com |
       | student1 | Student First   | O'Connell | student@asd.com  |

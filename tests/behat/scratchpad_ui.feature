@@ -5,7 +5,8 @@ Feature: Test the Scratchpad UI
   I should be able specify the required html in either globalextra or prototypeextra
 
   Background:
-    Given the following "users" exist:
+    Given the CodeRunner scratchpad is enabled
+    And the following "users" exist:
       | username | firstname | lastname | email            |
       | teacher1 | Teacher   | 1        | teacher1@asd.com |
     And the following "courses" exist:
@@ -20,7 +21,6 @@ Feature: Test the Scratchpad UI
     And the following "questions" exist:
       | questioncategory | qtype      | name         | template |
       | Test questions   | coderunner | Print answer | printans |
-    And the CodeRunner sandbox is enabled
 
   Scenario: Edit a CodeRunner question into a Scratchpad UI question
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1

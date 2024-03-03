@@ -5,7 +5,8 @@ Feature: Test the HTML_UI
   I should be able specify the required html in either globalextra or prototypeextra
 
   Background:
-    Given the following "users" exist:
+    Given the CodeRunner jobe sandbox is enabled
+    And the following "users" exist:
       | username | firstname | lastname | email            |
       | teacher1 | Teacher   | 1        | teacher1@asd.com |
     And the following "courses" exist:

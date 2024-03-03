@@ -30,13 +30,37 @@ class behat_coderunner extends behat_base {
      /**
       * Sets the webserver sandbox to enabled for testing purposes.
       *
-      * @Given /^the CodeRunner sandbox is enabled/
+      * @Given /^the CodeRunner jobe sandbox is enabled/
       */
     public function the_coderunner_sandbox_is_enabled() {
+        set_config('jobesandbox_enabled', 1, 'qtype_coderunner');
+        set_config('jobe_host', '172.17.0.1:4000', 'qtype_coderunner');
+    }
+
+
+     /**
+      * Sets the webserver scratchpad to enabled for testing purposes.
+      *
+      * @Given /^the CodeRunner scratchpad is enabled/
+      */
+    public function the_coderunner_scratchpad_is_enabled() {
         set_config('wsenabled', 1, 'qtype_coderunner');
         set_config('jobesandbox_enabled', 1, 'qtype_coderunner');
         set_config('jobe_host', '172.17.0.1:4000', 'qtype_coderunner');
     }
+
+
+     /**
+      * Sets the webserver scratchpad to disabled for testing purposes.
+      *
+      * @Given /^the CodeRunner scratchpad is disabled/
+      */
+    public function the_coderunner_scratchpad_is_disabled() {
+        set_config('wsenabled', 0, 'qtype_coderunner');
+        set_config('jobesandbox_enabled', 1, 'qtype_coderunner');
+        set_config('jobe_host', '172.17.0.1:4000', 'qtype_coderunner');
+    }
+
 
     /**
      * Checks that a given string appears within answer textarea.

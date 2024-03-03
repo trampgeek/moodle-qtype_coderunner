@@ -75,12 +75,27 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
         qtype_coderunner_sandbox::__construct();
 
         // Hack to force use of a local jobe host when behat testing.
-        if ($CFG->prefix == "bht_") {
-            $this->jobeserver = "localhost";
-        } else {
-            $this->jobeserver = get_config('qtype_coderunner', 'jobe_host');
-        }
+        // if ($CFG->prefix == "bht_") {
+        //     $this->jobeserver = "localhost";  // Should it be :4000 ?
+        // } else if ($CFG->prefix == "b_") {
+        //     $this->jobeserver = "172.17.0.1:4000";  // For local moodle-docker usage.
+        // } else {
+        //     $this->jobeserver = get_config('qtype_coderunner', 'jobe_host');
+        // }
 
+        // use Given the CodeRunner jobe sandbox is enabled
+        // or Given the CodeRunner jobe scratchpad is enabled
+        // in each feature to make sure the right jobe_host string is used
+        // adjust behat_coderunner.php to set the appropriate server
+        // eg, in a local docker we usually have 172.17.0.1:4000
+
+        $jobefromconfig = get_config('qtype_coderunner', 'jobe_host');
+        $this->jobeserver = $jobefromconfig;
+        $keyenabled = get_config('qtype_coderunner', 'jobe_apikey_enabled');
+        // $this->jobeserver = $jobefromconfig;
+        if ($jobefromconfig != "172.17.0.1:4000") {
+            $banana = 'what?';
+        }
         $this->apikey = get_config('qtype_coderunner', 'jobe_apikey');
         $this->languages = null;
     }
@@ -220,10 +235,10 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
             // But, remember that the server is chosen at random from the pool!
 
             $key = hash("md5", serialize($runspec));
-            // echo '<pre>' . serialize($runspec) . '</pre>';
-            $runresult = $cache->get($key);  // unersializes the returned value :) false if not found.
+            // Debugger: echo '<pre>' . serialize($runspec) . '</pre>';.
+            $runresult = $cache->get($key);  // Unserializes the returned value :) false if not found.
             if ($runresult) {
-                // echo $key . '----------->   FOUND' . '<br>';
+                // echo $key . '----------->   FOUND' . '<br>'; .
             }
         }
 
@@ -277,10 +292,10 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
                 $runresult['cmpinfo'] = $this->response->cmpinfo;
                 $runresult['output'] = $this->filter_file_path($this->response->stdout);
 
-                // Got a useable result from Jobe server so cache it if required
+                // Got a useable result from Jobe server so cache it if required.
                 if (WRITE_TO_CACHE) {
                     $key = hash("md5", serialize($runspec));
-                    $cache->set($key, $runresult); // set serializes the result, get will unserialize
+                    $cache->set($key, $runresult); // set serializes the result, get will unserialize.
                     // echo 'CACHE WRITE for ---> ' . $key . '<br>';
                 }
             }
@@ -292,58 +307,61 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
     // such class found. Removes comments, strings and nested code and then
     // uses a regexp to find a public class.
     private function get_main_class($prog) {
-        // filter out comments and strings
+        // Filter out comments and strings.
         $prog = $prog . ' ';
-        $filteredProg = array();
-        $skipTo = -1;
+        $filteredprog = [];
+        $skipto = -1;
 
         for ($i = 0; $i < strlen($prog) - 1; $i++) {
-            if ($skipTo == false) break;  // an unclosed comment/string - bail out
-            if ($i < $skipTo) continue;
-
-            // skip "//" comments
-            if ($prog[$i].$prog[$i+1] == '//') {
-                $skipTo = strpos($prog, "\n", $i + 2);
+            if ($skipto == false) {
+                break;  // An unclosed comment/string - bail out.
             }
-
-            // skip "/**/" comments
-            else if ($prog[$i].$prog[$i+1] == '/*') {
-                $skipTo = strpos($prog, '*/', $i + 2) + 2;
-                $filteredProg[] = ' ';  // '/**/' is a token delimiter
+            if ($i < $skipto) {
+                continue;
             }
-
-            // skip strings
-            else if ($prog[$i] == '"') {
-                // matches the whole string
+            // Skip "//" comments.
+            if ($prog[$i] . $prog[$i + 1] == '//') {
+                $skipto = strpos($prog, "\n", $i + 2);
+            // Skip "/**/" comments.
+            } else if ($prog[$i] . $prog[$i + 1] == '/*') {
+                $skipto = strpos($prog, '*/', $i + 2) + 2;
+                $filteredprog[] = ' ';  // The string '/**/' is a token delimiter.
+            // Skip strings.
+            } else if ($prog[$i] == '"') {
+                // Matches the whole string.
                 if (preg_match('/"((\\.)|[^\\"])*"/', $prog, $matches, 0, $i)) {
-                    $skipTo = $i + strlen($matches[0]);
+                    $skipto = $i + strlen($matches[0]);
+                } else {
+                    $skipto = false;
                 }
-                else $skipTo = false;
+            // Copy everything else.
+            } else {
+                $filteredprog[] = $prog[$i];
             }
-
-            // copy everything else
-            else $filteredProg[] = $prog[$i];
         }
 
-        // remove nested code
+        // Remove nested code.
         $depth = 0;
-        for ($i = 0; $i < count($filteredProg); $i++) {
-            if ($filteredProg[$i] == '{') $depth++;
-            if ($filteredProg[$i] == '}') $depth--;
-            if ($filteredProg[$i] != "\n" && $depth > 0 && !($depth == 1 && $filteredProg[$i] == '{')) {
-                $filteredProg[$i] = ' ';
+        for ($i = 0; $i < count($filteredprog); $i++) {
+            if ($filteredprog[$i] == '{') {
+                $depth++;
+            }
+            if ($filteredprog[$i] == '}') {
+                $depth--;
+            }
+            if ($filteredprog[$i] != "\n" && $depth > 0 && !($depth == 1 && $filteredprog[$i] == '{')) {
+                $filteredprog[$i] = ' ';
             }
         }
 
-        // search for a public class
-        if (preg_match('/public\s(\w*\s)*class\s*(\w+)[^\w]/', implode('', $filteredProg), $matches) !== 1) {
+        // Search for a public class.
+        if (preg_match('/public\s(\w*\s)*class\s*(\w+)[^\w]/', implode('', $filteredprog), $matches) !== 1) {
             return false;
         } else {
             return $matches[2];
         }
     }
 
-	
 
     // Return the sandbox error code corresponding to the given httpcode.
     private function get_error_code($httpcode) {
