@@ -5,8 +5,7 @@ Feature: Export CodeRunner questions
   I need to export them
 
   Background:
-    Given the CodeRunner jobe sandbox is enabled
-    And the following "users" exist:
+    Given the following "users" exist:
       | username |
       | teacher  |
     And the following "courses" exist:

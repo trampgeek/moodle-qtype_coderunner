@@ -5,8 +5,7 @@ Feature: Create a CodeRunner question (the sqr function example)
   I need to create a new CodeRunner question
 
   Background:
-    Given the CodeRunner jobe sandbox is enabled
-    And the following "users" exist:
+    Given the following "users" exist:
       | username | firstname | lastname | email            |
       | teacher1 | Teacher   | 1        | teacher1@asd.com |
     And the following "courses" exist:

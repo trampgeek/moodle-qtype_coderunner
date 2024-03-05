@@ -5,8 +5,7 @@ Feature: Combinator template is called test-by-test if a runtime error occurs wh
   I need the combinator template to be used test-by-test if my answer gives a runtime error
 
   Background:
-    Given the CodeRunner jobe sandbox is enabled
-    And the following "users" exist:
+    Given the following "users" exist:
       | username | firstname | lastname | email            |
       | teacher1 | Teacher   | 1        | teacher1@asd.com |
     And the following "courses" exist:

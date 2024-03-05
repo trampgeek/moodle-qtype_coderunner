@@ -73,29 +73,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
     public function __construct() {
         global $CFG;
         qtype_coderunner_sandbox::__construct();
-
-        // Hack to force use of a local jobe host when behat testing.
-        // if ($CFG->prefix == "bht_") {
-        //     $this->jobeserver = "localhost";  // Should it be :4000 ?
-        // } else if ($CFG->prefix == "b_") {
-        //     $this->jobeserver = "172.17.0.1:4000";  // For local moodle-docker usage.
-        // } else {
-        //     $this->jobeserver = get_config('qtype_coderunner', 'jobe_host');
-        // }
-
-        // use Given the CodeRunner jobe sandbox is enabled
-        // or Given the CodeRunner jobe scratchpad is enabled
-        // in each feature to make sure the right jobe_host string is used
-        // adjust behat_coderunner.php to set the appropriate server
-        // eg, in a local docker we usually have 172.17.0.1:4000
-
-        $jobefromconfig = get_config('qtype_coderunner', 'jobe_host');
-        $this->jobeserver = $jobefromconfig;
-        $keyenabled = get_config('qtype_coderunner', 'jobe_apikey_enabled');
-        // $this->jobeserver = $jobefromconfig;
-        if ($jobefromconfig != "172.17.0.1:4000") {
-            $banana = 'what?';
-        }
+        $this->jobeserver = get_config('qtype_coderunner', 'jobe_host');
         $this->apikey = get_config('qtype_coderunner', 'jobe_apikey');
         $this->languages = null;
     }

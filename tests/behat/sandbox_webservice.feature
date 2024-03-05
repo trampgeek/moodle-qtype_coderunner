@@ -4,7 +4,7 @@ Feature: Test sandbox web service
   server (Jobe) via Ajax.
 
   Background:
-    And the following "users" exist:
+    Given the following "users" exist:
       | username | firstname | lastname | email           |
       | teacher  | Teacher   | 1        | teacher@asd.com |
       | student  | Student   | 1        | student@asd.com |

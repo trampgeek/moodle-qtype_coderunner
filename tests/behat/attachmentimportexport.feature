@@ -5,8 +5,7 @@ Feature: Test importing and exporting of question with attachments
   I need to be able to import and export them
 
   Background:
-    Given the CodeRunner jobe sandbox is enabled
-    And the following "users" exist:
+    Given the following "users" exist:
       | username |
       | teacher  |
     And the following "courses" exist:
