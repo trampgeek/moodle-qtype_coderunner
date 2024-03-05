@@ -236,7 +236,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
             $errorcode = $okresponse ? self::UNKNOWN_SERVER_ERROR : $this->get_error_code($httpcode);
             $this->currentjobid = null;
             $runresult['error'] = $errorcode;
-            $runresult['stderr'] = "HTTP response from Jobe was $httpcode: " . json_encode($this->response);
+            $runresult['stderr'] = "HTTP response from Jobe ({$this->jobeserver}) was $httpcode: " . json_encode($this->response);
         } else if ($this->response->outcome == self::RESULT_SERVER_OVERLOAD) {
             $runresult['error'] = self::SERVER_OVERLOAD;
         } else {
