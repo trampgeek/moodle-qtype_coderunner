@@ -307,7 +307,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
         }
     }
 
-	
+
 
     // Return the sandbox error code corresponding to the given httpcode.
     private function get_error_code($httpcode) {

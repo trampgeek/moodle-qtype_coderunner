@@ -5,7 +5,7 @@ Feature: Duplicate a course containing a CodeRunner question
   I need to be able to back them up and restore them
 
   Background:
-    And the following "courses" exist:
+    Given the following "courses" exist:
       | fullname | shortname | category |
       | Course 1 | C1        | 0        |
     And the following "question categories" exist:

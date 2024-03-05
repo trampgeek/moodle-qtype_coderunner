@@ -34,4 +34,4 @@ NonRepoFiles/*
 /amd/src/ui_blockly.json
 /amd/src/.eslintrc.js
 .grunt
-
+.vscode
