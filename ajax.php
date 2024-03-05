@@ -37,7 +37,7 @@ require_once(__DIR__ . '/../../../config.php');
 
 // Hack to prevent AJAX calls from overwriting the test-sandbox-config during behat testing
 if ($CFG->prefix === $CFG->behat_prefix) {
-    require_once('/var/www/html/moodle/question/type/coderunner/tests/fixtures/test-sandbox-config.php');
+    require_once($CFG->dirroot .'/question/type/coderunner/tests/fixtures/test-sandbox-config.php');
 }
 
 require_once($CFG->dirroot . '/question/engine/lib.php');
