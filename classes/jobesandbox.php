@@ -30,6 +30,9 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->libdir . '/filelib.php'); // Needed when run as web service.
 
+const READ_FROM_CACHE = true;
+const WRITE_TO_CACHE = true;
+
 class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
     const DEBUGGING = 0;
     const HTTP_GET = 1;
@@ -71,9 +74,12 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
         global $CFG;
         qtype_coderunner_sandbox::__construct();
         $this->jobeserver = get_config('qtype_coderunner', 'jobe_host');
+<<<<<<< HEAD
         if ($this->jobeserver === 'jobe2.cosc.canterbury.ac.nz') {
             throw new Exception("PLease don't use the Canterbury jobe server for test runs");
         }
+=======
+>>>>>>> grade_cache_for_merging
         $this->apikey = get_config('qtype_coderunner', 'jobe_apikey');
         $this->languages = null;
     }
@@ -197,57 +203,86 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
                 $this->apikey = $params['jobeapikey'];
             }
         }
-
-        $postbody = ['run_spec' => $runspec];
+        // QUESTION: Do we need this when using cached result?
         $this->currentjobid = sprintf('%08x', mt_rand());
 
-        // Try submitting the job. If we get a 404, try again after
-        // putting all the files on the server. Anything else is an error.
-        $httpcode = $this->submit($postbody);
-        if ($httpcode == 404) { // If it's a file not found error ...
-            foreach ($files as $filename => $contents) {
-                if (($httpcode = $this->put_file($contents)) != 204) {
-                    break;
-                }
-            }
-            if ($httpcode == 204) {
-                // Try again if put_files all worked.
-                $httpcode = $this->submit($postbody);
+        $cache = cache::make('qtype_coderunner', 'coderunner_grading_cache');
+        $runresult = null;
+        if (READ_FROM_CACHE) {
+            // NOTE: Changing jobeserver setting will effectively flush the cache
+            // eg, adding another jobeserver to a list of servers will mean the
+            // jobeserver parameter has changed and therefore the key will change.
+
+            // QUESTION: Do we want the cache to ignore the jobeserver setting?
+            // eg, adding a new, presumeably equal jobeserver to the mix shouldn't
+            // change the result (unless it isn't equal!)
+            // But, remember that the server is chosen at random from the pool!
+
+            $key = hash("md5", serialize($runspec));
+            // Debugger: echo '<pre>' . serialize($runspec) . '</pre>';.
+            $runresult = $cache->get($key);  // Unserializes the returned value :) false if not found.
+            if ($runresult) {
+                // echo $key . '----------->   FOUND' . '<br>'; .
             }
         }
 
-        $runresult = [];
-        $runresult['sandboxinfo'] = [
-            'jobeserver' => $this->jobeserver,
-            'jobeapikey' => $this->apikey,
-        ];
-
-        $okresponse = in_array($httpcode, [200, 203]);  // Allow 203, which can result from an intevening proxy server.
-        if (
-            !$okresponse                        // If it's not an OK response...
-                || !is_object($this->response)  // ... or there's any sort of broken ...
-                || !isset($this->response->outcome)
-        ) {     // ... communication with server.
-            // Return with errorcode set and as much extra info as possible in stderr.
-            $errorcode = $okresponse ? self::UNKNOWN_SERVER_ERROR : $this->get_error_code($httpcode);
-            $this->currentjobid = null;
-            $runresult['error'] = $errorcode;
-            $runresult['stderr'] = "HTTP response from Jobe ({$this->jobeserver}) was $httpcode: " . json_encode($this->response);
-        } else if ($this->response->outcome == self::RESULT_SERVER_OVERLOAD) {
-            $runresult['error'] = self::SERVER_OVERLOAD;
-        } else {
-            $stderr = $this->filter_file_path($this->response->stderr);
-            // Any stderr output is treated as a runtime error.
-            if (trim($stderr ?? '') !== '') {
-                $this->response->outcome = self::RESULT_RUNTIME_ERROR;
+        if (!$runresult) {  // if cache read failed regrade to be safe
+            $postbody = ['run_spec' => $runspec];
+            // Try submitting the job. If we get a 404, try again after
+            // putting all the files on the server. Anything else is an error.
+            $httpcode = $this->submit($postbody);
+            if ($httpcode == 404) { // If it's a file not found error ...
+                foreach ($files as $filename => $contents) {
+                    if (($httpcode = $this->put_file($contents)) != 204) {
+                        break;
+                    }
+                }
+                if ($httpcode == 204) {
+                    // Try again if put_files all worked.
+                    $httpcode = $this->submit($postbody);
+                }
             }
-            $this->currentjobid = null;
-            $runresult['error'] = self::OK;
-            $runresult['stderr'] = $stderr;
-            $runresult['result'] = $this->response->outcome;
-            $runresult['signal'] = 0; // Jobe doesn't return signals.
-            $runresult['cmpinfo'] = $this->response->cmpinfo;
-            $runresult['output'] = $this->filter_file_path($this->response->stdout);
+
+            $runresult = [];
+            $runresult['sandboxinfo'] = [
+                'jobeserver' => $this->jobeserver,
+                'jobeapikey' => $this->apikey,
+            ];
+
+            $okresponse = in_array($httpcode, [200, 203]);  // Allow 203, which can result from an intevening proxy server.
+            if (
+                !$okresponse                        // If it's not an OK response...
+                    || !is_object($this->response)  // ... or there's any sort of broken ...
+                    || !isset($this->response->outcome)
+            ) {     // ... communication with server.
+                // Return with errorcode set and as much extra info as possible in stderr.
+                $errorcode = $okresponse ? self::UNKNOWN_SERVER_ERROR : $this->get_error_code($httpcode);
+                $this->currentjobid = null;
+                $runresult['error'] = $errorcode;
+                $runresult['stderr'] = "HTTP response from Jobe was $httpcode: " . json_encode($this->response);
+            } else if ($this->response->outcome == self::RESULT_SERVER_OVERLOAD) {
+                $runresult['error'] = self::SERVER_OVERLOAD;
+            } else {
+                $stderr = $this->filter_file_path($this->response->stderr);
+                // Any stderr output is treated as a runtime error.
+                if (trim($stderr ?? '') !== '') {
+                    $this->response->outcome = self::RESULT_RUNTIME_ERROR;
+                }
+                $this->currentjobid = null;
+                $runresult['error'] = self::OK;
+                $runresult['stderr'] = $stderr;
+                $runresult['result'] = $this->response->outcome;
+                $runresult['signal'] = 0; // Jobe doesn't return signals.
+                $runresult['cmpinfo'] = $this->response->cmpinfo;
+                $runresult['output'] = $this->filter_file_path($this->response->stdout);
+
+                // Got a useable result from Jobe server so cache it if required.
+                if (WRITE_TO_CACHE) {
+                    $key = hash("md5", serialize($runspec));
+                    $cache->set($key, $runresult); // set serializes the result, get will unserialize.
+                    // echo 'CACHE WRITE for ---> ' . $key . '<br>';
+                }
+            }
         }
         return (object) $runresult;
     }
@@ -256,57 +291,60 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
     // such class found. Removes comments, strings and nested code and then
     // uses a regexp to find a public class.
     private function get_main_class($prog) {
-        // filter out comments and strings
+        // Filter out comments and strings.
         $prog = $prog . ' ';
-        $filteredProg = array();
-        $skipTo = -1;
+        $filteredprog = [];
+        $skipto = -1;
 
         for ($i = 0; $i < strlen($prog) - 1; $i++) {
-            if ($skipTo == false) break;  // an unclosed comment/string - bail out
-            if ($i < $skipTo) continue;
-
-            // skip "//" comments
-            if ($prog[$i].$prog[$i+1] == '//') {
-                $skipTo = strpos($prog, "\n", $i + 2);
+            if ($skipto == false) {
+                break;  // An unclosed comment/string - bail out.
             }
-
-            // skip "/**/" comments
-            else if ($prog[$i].$prog[$i+1] == '/*') {
-                $skipTo = strpos($prog, '*/', $i + 2) + 2;
-                $filteredProg[] = ' ';  // '/**/' is a token delimiter
+            if ($i < $skipto) {
+                continue;
             }
-
-            // skip strings
-            else if ($prog[$i] == '"') {
-                // matches the whole string
+            // Skip "//" comments.
+            if ($prog[$i] . $prog[$i + 1] == '//') {
+                $skipto = strpos($prog, "\n", $i + 2);
+            // Skip "/**/" comments.
+            } else if ($prog[$i] . $prog[$i + 1] == '/*') {
+                $skipto = strpos($prog, '*/', $i + 2) + 2;
+                $filteredprog[] = ' ';  // The string '/**/' is a token delimiter.
+            // Skip strings.
+            } else if ($prog[$i] == '"') {
+                // Matches the whole string.
                 if (preg_match('/"((\\.)|[^\\"])*"/', $prog, $matches, 0, $i)) {
-                    $skipTo = $i + strlen($matches[0]);
+                    $skipto = $i + strlen($matches[0]);
+                } else {
+                    $skipto = false;
                 }
-                else $skipTo = false;
+            // Copy everything else.
+            } else {
+                $filteredprog[] = $prog[$i];
             }
-
-            // copy everything else
-            else $filteredProg[] = $prog[$i];
         }
 
-        // remove nested code
+        // Remove nested code.
         $depth = 0;
-        for ($i = 0; $i < count($filteredProg); $i++) {
-            if ($filteredProg[$i] == '{') $depth++;
-            if ($filteredProg[$i] == '}') $depth--;
-            if ($filteredProg[$i] != "\n" && $depth > 0 && !($depth == 1 && $filteredProg[$i] == '{')) {
-                $filteredProg[$i] = ' ';
+        for ($i = 0; $i < count($filteredprog); $i++) {
+            if ($filteredprog[$i] == '{') {
+                $depth++;
+            }
+            if ($filteredprog[$i] == '}') {
+                $depth--;
+            }
+            if ($filteredprog[$i] != "\n" && $depth > 0 && !($depth == 1 && $filteredprog[$i] == '{')) {
+                $filteredprog[$i] = ' ';
             }
         }
 
-        // search for a public class
-        if (preg_match('/public\s(\w*\s)*class\s*(\w+)[^\w]/', implode('', $filteredProg), $matches) !== 1) {
+        // Search for a public class.
+        if (preg_match('/public\s(\w*\s)*class\s*(\w+)[^\w]/', implode('', $filteredprog), $matches) !== 1) {
             return false;
         } else {
             return $matches[2];
         }
     }
-
 
 
     // Return the sandbox error code corresponding to the given httpcode.

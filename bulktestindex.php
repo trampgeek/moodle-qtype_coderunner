@@ -150,7 +150,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
                 expander.innerHTML = 'Collapse';
                 expander.nextSibling.style.display = 'inline';
             } else {
-                expander.innerTHML = 'Expand';
+                expander.innerHTML = 'Expand';
                 expander.nextSibling.style.display = 'none';
             }
         });

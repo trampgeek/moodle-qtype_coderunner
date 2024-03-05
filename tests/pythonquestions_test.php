@@ -38,7 +38,6 @@ require_once($CFG->dirroot . '/lib/accesslib.php');
  * @coversNothing
  */
 class pythonquestions_test extends \qtype_coderunner_testcase {
-
     /** @var string  */
     private $goodcode;
 
@@ -215,7 +214,11 @@ EOCODE;
         $q = $this->make_question('timeout');
         $code = "def timeout():\n  while (1):\n    pass";
         $response = ['answer' => $code];
-        $result = $q->grade_response($response);
+        // NOTE: qid of zero is reused with different question!
+        $result = $q->grade_response(
+            $response,
+            false, // Not a precheck.
+        );
         [$mark, $grade, $cache] = $result;
         $this->assertEquals(0, $mark);
         $this->assertEquals(\question_state::$gradedwrong, $grade);
@@ -231,7 +234,11 @@ EOCODE;
         $q = $this->make_question('exceptions');
         $code = "def checkOdd(n):\n  if n & 1:\n    raise ValueError()";
         $response = ['answer' => $code];
-        $result = $q->grade_response($response);
+        // NOTE: qid of zero is reused with different question!
+        $result = $q->grade_response(
+            $response,
+            false, // Not a precheck.
+        );
         [$mark, $grade, $cache] = $result;
         $this->assertEquals(1, $mark);
         $this->assertEquals(\question_state::$gradedright, $grade);
@@ -257,21 +264,33 @@ EOCODE;
 
         $code = "def sqr(n):\n  return 0";  // Passes first test only.
         $response = ['answer' => $code];
-        $result = $q->grade_response($response);
+        // NOTE: qid of zero is reused with different question!
+        $result = $q->grade_response(
+            $response,
+            false, // Not a precheck.
+        );
         [$mark, $grade, $cache] = $result;
         $this->assertEquals(\question_state::$gradedpartial, $grade);
         $this->assertTrue(abs($mark - 0.5 / 7.5) < 0.00001);
 
         $code = "def sqr(n):\n  return n * n if n <= 0 else -17.995";  // Passes first test and last two only.
         $response = ['answer' => $code];
-        $result = $q->grade_response($response);
+        // NOTE: qid of zero is reused with different question!
+        $result = $q->grade_response(
+            $response,
+            false, // Not a precheck.
+        );
         [$mark, $grade, $cache] = $result;
         $this->assertEquals(\question_state::$gradedpartial, $grade);
         $this->assertTrue(abs($mark - 5.0 / 7.5) < 0.00001);
 
         $code = "def sqr(n):\n    return n * n if n <= 0 else 1 / 0";  // Passes first test then aborts.
         $response = ['answer' => $code];
-        $result = $q->grade_response($response);
+        // NOTE: qid of zero is reused with different question!
+        $result = $q->grade_response(
+            $response,
+            false, // Not a precheck.
+        );
         [$mark, $grade, $cache] = $result;
         $this->assertEquals(\question_state::$gradedpartial, $grade);
         $this->assertTrue(abs($mark - 0.5 / 7.5) < 0.00001);
@@ -285,11 +304,21 @@ sleep(10)  # Wait 10 seconds
 print("Hello Python")
 EOT;
         $response = ['answer' => $slowsquare];  // Should time out.
-        [$mark, $grade, $cache] = $q->grade_response($response);
+        // NOTE: qid of zero is reused with different question!
+        $result = $q->grade_response(
+            $response,
+            false, // Not a precheck.
+        );
+        [$mark, $grade, $cache] = $result;
         $this->assertEquals(0, $mark);
         $this->assertEquals(\question_state::$gradedwrong, $grade);
         $q->cputimelimitsecs = 20;  // This should fix it.
-        [$mark, $grade, $cache] = $q->grade_response($response);
+        // NOTE: qid of zero is reused with different question!
+        $result = $q->grade_response(
+            $response,
+            false, // Not a precheck.
+        );
+        [$mark, $grade, $cache] = $result;
         $this->assertEquals(1, $mark);
         $this->assertEquals(\question_state::$gradedright, $grade);
     }
