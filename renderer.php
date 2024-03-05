@@ -424,7 +424,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
         if (isset($sandboxinfo['jobeserver'])) {
             $jobeserver = $sandboxinfo['jobeserver'];
             $apikey = $sandboxinfo['jobeapikey'];
-            if ($jobeserver == constants::JOBE_HOST_DEFAULT && $CFG->prefix !== 'b_') {
+            if ($jobeserver == constants::JOBE_HOST_DEFAULT && $CFG->prefix !== $CFG->behat_prefix) {
                 if ($apikey == constants::JOBE_HOST_DEFAULT_API_KEY) {
                     $fb .= get_string('jobe_warning_html', 'qtype_coderunner');
                 } else {
