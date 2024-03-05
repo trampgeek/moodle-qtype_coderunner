@@ -70,14 +70,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
     public function __construct() {
         global $CFG;
         qtype_coderunner_sandbox::__construct();
-
-        // Hack to force use of a local jobe host when behat testing.
-        if ($CFG->prefix == "bht_") {
-            $this->jobeserver = "localhost";
-        } else {
-            $this->jobeserver = get_config('qtype_coderunner', 'jobe_host');
-        }
-
+        $this->jobeserver = get_config('qtype_coderunner', 'jobe_host');
         $this->apikey = get_config('qtype_coderunner', 'jobe_apikey');
         $this->languages = null;
     }
