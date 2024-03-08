@@ -167,7 +167,7 @@ class qtype_coderunner_jobrunner {
         // affect caching. For example the questionid will change each time
         // the question is saved thanks to question versioning - urgh!
         foreach ($this->testcases as $tc) {
-            // unset($tc->id);   May be ok to leave in there????
+            unset($tc->id);
             unset($tc->questionid);
         }
         $numtests = count($this->testcases);
@@ -248,7 +248,7 @@ class qtype_coderunner_jobrunner {
         // affect caching. For example the questionid will change each time
         // the question is saved thanks to question versioning - urgh!
         foreach ($this->testcases as $tc) {
-            // unset($tc->id);    May be Ok to leave there?
+            unset($tc->id);
             unset($tc->questionid);
         }
         $numtests = count($this->testcases);
