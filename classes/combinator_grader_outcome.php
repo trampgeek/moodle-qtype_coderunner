@@ -47,6 +47,15 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
     /** @var bool If true, is used when the question is to be used only to display the output and perhaps images from a run, with no mark. */
     public $showoutputonly;
 
+    /** @var array Array where each item is a rows of test result table  */
+    public $testresults;
+
+    /** @var ?string The feedback for a given question attempt */
+    public $feedbackhtml;
+
+    /** @var bool Whether or no show differences is selected */
+    public $showdifferences;
+
     // A list of the allowed attributes in the combinator template grader return value.
     public $allowedfields = ['fraction', 'prologuehtml', 'testresults', 'epiloguehtml',
                     'feedbackhtml', 'columnformats', 'showdifferences',

@@ -63,7 +63,11 @@ def copy_stdin():
     pass
 EOCODE;
         $response = ['answer' => $code];
-        $result = $q->grade_response($response);
+        // Note: Moodle's test helper question always uses an id of zero!
+        $result = $q->grade_response(
+            $response,
+            false, // Not a precheck.
+        );
         [$mark, $grade, $cache] = $result;
         $testoutcome = unserialize($cache['_testoutcome']); // For debugging test.
         $this->assertEquals(1, $mark);
@@ -94,7 +98,11 @@ def copy_stdin():
     pass
 EOCODE;
         $response = ['answer' => $code];
-        $result = $q->grade_response($response);
+        // Note: Moodle's test helper question always uses an id of zero!
+        $result = $q->grade_response(
+            $response,
+            false, // Not a precheck.
+        );
         [$mark, $grade, $cache] = $result;
         $testoutcome = unserialize($cache['_testoutcome']); // For debugging test.
         $this->assertEquals(1, $mark);
@@ -125,7 +133,11 @@ def copy_stdin():
     pass
 EOCODE;
         $response = ['answer' => $code];
-        $result = $q->grade_response($response);
+        // Note: Moodle's test helper question always uses an id of zero!
+        $result = $q->grade_response(
+            $response,
+            false, // Not a precheck.
+        );
         [$mark, $grade, $cache] = $result;
         $testoutcome = unserialize($cache['_testoutcome']); // For debugging test.
         $this->assertEquals(0, $mark);
