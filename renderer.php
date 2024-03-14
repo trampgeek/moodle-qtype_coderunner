@@ -139,10 +139,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
             $options->readonly
         );
 
-        // Add the position-relative div to allow the styling of the fullscreen button.
-        $qtext .= html_writer::start_div('position-relative');
         $qtext .= html_writer::tag('textarea', s($currentanswer), $taattributes);
-        $qtext .= html_writer::end_div();
 
         if ($qa->get_state() == question_state::$invalid) {
             $qtext .= html_writer::nonempty_tag(

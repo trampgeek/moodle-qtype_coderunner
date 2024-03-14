@@ -92,6 +92,15 @@
  *    the value of a UI parameter sync_interval_secs if given else uses the
  *    UI interface wrapper default (currently 5).
  *
+ * 10. An allowFullScreen() method that returns True if the UI supports
+ *    use of the full-screen button in the bottom right of the UI wrapper.
+ *    Defaults to False if not implemented.
+ *
+ * 11. A setAllowFullScreen(allow) method that takes a boolean parameter that
+ *    allows or disallows the use of full screening. This overrides the setting
+ *    from the allowFullScreen() method and is provided to allow parent UIs
+ *    such as Scratchpad to override the default settings of a child UI.
+ *
  * The return value from the module define is a record with a single field
  * 'Constructor' that references the constructor (e.g. Graph, AceWrapper etc)
  *
@@ -172,7 +181,7 @@ define(['jquery', 'core/templates', 'core/notification'], function($, Templates,
          * Construct an empty hidden wrapper div, inserted directly after the
          * textArea, ready to contain the actual UI.
          */
-        this.wrapperNode = $("<div id='" + this.taId + "_wrapper' class='ui_wrapper'></div>");
+        this.wrapperNode = $("<div id='" + this.taId + "_wrapper' class='ui_wrapper position-relative'></div>");
         this.textArea.after(this.wrapperNode);
         this.wrapperNode.hide();
         this.wrapperNode.css({
@@ -382,8 +391,7 @@ define(['jquery', 'core/templates', 'core/notification'], function($, Templates,
         }
 
         Templates.renderForPromise('qtype_coderunner/screenmode_button', {}).then(({html}) => {
-            const screenModeButton = Templates.appendNodeContents(wrapperEditor.parentNode, html, '')[0];
-
+            const screenModeButton = Templates.appendNodeContents(wrapperEditor, html, '')[0];
             const fullscreenButton = screenModeButton.querySelector('.button-fullscreen');
             const exitFullscreenButton = screenModeButton.querySelector('.button-exit-fullscreen');
 

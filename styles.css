@@ -265,7 +265,7 @@ body#page-question-type-coderunner .button-exit-fullscreen {
 
 .que.coderunner .button-fullscreen,
 body#page-question-type-coderunner .button-fullscreen {
-    bottom: -4px;
+    bottom: -6px;
 }
 
 body#page-question-type-coderunner .col-md-9 .button-fullscreen {
