@@ -36,6 +36,10 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 
+if ($CFG->prefix == $CFG->behat_prefix) {
+    require_once($CFG->dirroot .'/question/type/coderunner/tests/fixtures/test-sandbox-config.php');
+}
+
 abstract class qtype_coderunner_sandbox {
     protected $user;     // Username supplied when constructing.
     protected $password; // Password supplied when constructing.

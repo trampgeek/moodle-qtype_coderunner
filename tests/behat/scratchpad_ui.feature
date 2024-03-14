@@ -20,7 +20,7 @@ Feature: Test the Scratchpad UI
     And the following "questions" exist:
       | questioncategory | qtype      | name         | template |
       | Test questions   | coderunner | Print answer | printans |
-    And the CodeRunner sandbox is enabled
+    And the CodeRunner webservice is enabled
 
   Scenario: Edit a CodeRunner question into a Scratchpad UI question
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1

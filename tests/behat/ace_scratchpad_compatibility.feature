@@ -20,7 +20,7 @@ Feature: Ace UI convert to Scratchpad UI questions with one click
     And the following "questions" exist:
       | questioncategory | qtype      | name            |
       | Test questions   | coderunner | Square function |
-    And the CodeRunner sandbox is enabled
+    And the CodeRunner webservice is enabled
 
     When I am on the "Square function" "core_question > edit" page logged in as teacher1
     And I set the following fields to these values:

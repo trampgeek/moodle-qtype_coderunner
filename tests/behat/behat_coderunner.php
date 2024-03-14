@@ -30,12 +30,10 @@ class behat_coderunner extends behat_base {
      /**
       * Sets the webserver sandbox to enabled for testing purposes.
       *
-      * @Given /^the CodeRunner sandbox is enabled/
+      * @Given /^the CodeRunner webservice is enabled/
       */
-    public function the_coderunner_sandbox_is_enabled() {
+    public function the_coderunner_webservice_is_enabled() {
         set_config('wsenabled', 1, 'qtype_coderunner');
-        set_config('jobesandbox_enabled', 1, 'qtype_coderunner');
-        set_config('jobe_host', '172.17.0.1:4000', 'qtype_coderunner');
     }
 
     /**
