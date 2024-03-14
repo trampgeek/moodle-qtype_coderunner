@@ -71,6 +71,9 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
         global $CFG;
         qtype_coderunner_sandbox::__construct();
         $this->jobeserver = get_config('qtype_coderunner', 'jobe_host');
+        if ($this->jobeserver === 'jobe2.cosc.canterbury.ac.nz' && $CFG->prefix === $CFG->behat_prefix) {
+            throw new Exception("Please don't use the Canterbury jobe server for test runs");
+        }
         $this->apikey = get_config('qtype_coderunner', 'jobe_apikey');
         $this->languages = null;
     }
