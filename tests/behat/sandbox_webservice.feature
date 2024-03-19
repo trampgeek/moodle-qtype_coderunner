@@ -30,7 +30,7 @@ Feature: Test sandbox web service
 
   @javascript
   Scenario: As a student if I try to initiate a WS request I get an error if the service is disabled.
-    Given the CodeRunner scratchpad is disabled
+    Given the CodeRunner webservice is disabled
     And I am on the "Quiz 1" "mod_quiz > View" page logged in as student
     And I press "Attempt quiz"
     And I press "Click me"
@@ -39,13 +39,7 @@ Feature: Test sandbox web service
 
   @javascript
   Scenario: As a student I can initiate a WS request and see the outcome if the service is enabled.
-#    When I log in as "admin"
-#    And I navigate to "Plugins > CodeRunner" in site administration
-#    And I set the following fields to these values:
-#    | Enable sandbox web service | Yes |
-#    And I press "Save changes"
-#    And I log out
-    Given the CodeRunner scratchpad is enabled
+    Given the CodeRunner webservice is enabled
     When I am on the "Quiz 1" "mod_quiz > View" page logged in as student
     And I press "Attempt quiz"
     And I press "Click me"

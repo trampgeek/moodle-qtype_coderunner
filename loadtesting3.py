@@ -36,8 +36,8 @@ import sys
 import shelve
 import random
 
-SERVER = 'https://quiz2021.csse.canterbury.ac.nz/login/index.php?theme=clean'
-COURSE = 'LoadTesting'
+SERVER = 'https://quiz2024.csse.canterbury.ac.nz/login/index.php?theme=clean'
+COURSE = 'LoadTestingByRichard'
 LANGUAGE = 'PYTHON3'
 NUM_QUESTIONS = 4
 FIRST_QUESTION = 0
@@ -46,6 +46,7 @@ DEBUGGING = False
 INTER_SUBMISSION_GAP_SECS = 0
 SIMULATION_DURATION_SECS = 300
 NUM_STUDENTS = 40
+START_STUDENT = 0
 PASSWORD = 'S-tudent0'
 
 # Correct answers to the four one-question quizzes for each language.
@@ -199,6 +200,11 @@ def loop_doing_questions(browser, student_num, sim_gap, duration, result_q):
 
     while time.time() < time_end:
         for question in range(FIRST_QUESTION, LAST_QUESTION + 1):
+            try:
+                br.follow_link(text_regex='Home')
+            except mech.LinkNotFoundError:
+                pass
+            
             debug(student_num, 'Following link to ' + COURSE)
             try:
                 br.follow_link(text_regex='Site home')
@@ -214,7 +220,8 @@ def loop_doing_questions(browser, student_num, sim_gap, duration, result_q):
             br.submit()
             forms = list(br.forms())
             main_form = forms[0]
-            textarea = main_form.controls[4]
+            controls = main_form.controls
+            textarea = controls[4]
 
             debug(student_num, 'Entering code into textarea')
             quiz_answer = randomise(quiz_answers[LANGUAGE][question], LANGUAGE)
@@ -225,10 +232,12 @@ def loop_doing_questions(browser, student_num, sim_gap, duration, result_q):
             debug(student_num, 'submit %s code' % LANGUAGE)
             start = time.time()
 
+            # Mechanize wrongly identifies the new Ace window maximise/window-ise buttons as submit buttons,
+            # so we have to filter them out to find the actual Check button.
+            submit_buttons = [control for control in controls if control.type == 'submitbutton' and control.name.endswith('submit')]
+            br.submit(name=submit_buttons[0].name)
 
-            br.submit()
             res = br.response()
-
             data = res.get_data().decode('utf-8')
             dt = time.time() - start
             if 'coderunner-test-results' in data:
@@ -248,10 +257,10 @@ def loop_doing_questions(browser, student_num, sim_gap, duration, result_q):
 
             result_q.put((student_num, question, dt, err))
 
-
-
             if sim_gap != 0:
-                time.sleep(random.expovariate(lamb))
+                sleep_time = random.expovariate(lamb)
+                max_sleep = time_end - time.time()
+                time.sleep(min(max_sleep, sleep_time))
 
     err_outfile.close()
 
@@ -295,14 +304,14 @@ def simulate(num_students, avg_gap, sim_length):
     start = time.time()
     finish = start + sim_length
 
-    for student in range(0, NUM_STUDENTS):
+    for student in range(START_STUDENT, START_STUDENT + NUM_STUDENTS):
         proc = Process(target=quiz_runner, args = ((student, avg_gap, sim_length, result_q)))
-        print('START STUDENT {}'.format(student))
+        print('STARTING STUDENT {}'.format(student))
         proc.start()
         processes.append(proc)
 
     # Loop reading result queue and displaying status
-    while time.time() < finish:
+    while time.time() < finish + 10:
         try:
             (student, question, delta_t, error) = result_q.get(timeout=1)
             print('Student{}, Q{}: dt = {:.2f} {}'.format(student, question, delta_t, 'FAIL' if error else 'OK'))

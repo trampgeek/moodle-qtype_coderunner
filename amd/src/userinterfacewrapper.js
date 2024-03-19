@@ -92,6 +92,15 @@
  *    the value of a UI parameter sync_interval_secs if given else uses the
  *    UI interface wrapper default (currently 5).
  *
+ * 10. An allowFullScreen() method that returns True if the UI supports
+ *    use of the full-screen button in the bottom right of the UI wrapper.
+ *    Defaults to False if not implemented.
+ *
+ * 11. A setAllowFullScreen(allow) method that takes a boolean parameter that
+ *    allows or disallows the use of full screening. This overrides the setting
+ *    from the allowFullScreen() method and is provided to allow parent UIs
+ *    such as Scratchpad to override the default settings of a child UI.
+ *
  * The return value from the module define is a record with a single field
  * 'Constructor' that references the constructor (e.g. Graph, AceWrapper etc)
  *
@@ -115,7 +124,7 @@
  */
 
 
-define(['jquery'], function($) {
+define(['jquery', 'core/templates', 'core/notification'], function($, Templates, Notification) {
     /**
      * Constructor for a new user interface.
      * @param {string} uiname The name of the interface element (e.g. ace, graph, etc)
@@ -142,7 +151,7 @@ define(['jquery'], function($) {
         const PIXELS_PER_ROW = 19;  // For estimating height of textareas.
         const MAX_GROWN_ROWS = 50;  // Upper limit to artifically grown textarea rows.
         const MIN_WRAPPER_HEIGHT = 50;
-
+        this.isFullScreenEnable = null;
         this.taId = textareaId;
         this.loadFailId = textareaId + '_loadfailerr';
         const ta = document.getElementById(textareaId);
@@ -172,7 +181,7 @@ define(['jquery'], function($) {
          * Construct an empty hidden wrapper div, inserted directly after the
          * textArea, ready to contain the actual UI.
          */
-        this.wrapperNode = $("<div id='" + this.taId + "_wrapper' class='ui_wrapper'></div>");
+        this.wrapperNode = $("<div id='" + this.taId + "_wrapper' class='ui_wrapper position-relative'></div>");
         this.textArea.after(this.wrapperNode);
         this.wrapperNode.hide();
         this.wrapperNode.css({
@@ -221,6 +230,17 @@ define(['jquery'], function($) {
             }
         });
     }
+
+    /**
+     * Set the value of the allowFullScreen property.
+     * If the value is true, the fullscreen mode will be shown.
+     * If the value is false, the fullscreen will be hidden.
+     *
+     * @param {Boolean} enableFullScreen The value to set.
+     */
+    InterfaceWrapper.prototype.setAllowFullScreen = function(enableFullScreen) {
+        this.isFullScreenEnable = enableFullScreen;
+    };
 
     /**
      * Load the specified UI element (which in the case of Ace will need
@@ -331,12 +351,116 @@ define(['jquery'], function($) {
                         let uiInstancePrototype = Object.getPrototypeOf(uiInstance);
                         uiInstancePrototype.syncIntervalSecs = uiInstancePrototype.syncIntervalSecs || syncIntervalSecsBase;
                         t.startSyncTimer(uiInstance);
+                        let canDoFullScreen = t.isFullScreenEnable !== null ?
+                            t.isFullScreenEnable : uiInstance.allowFullScreen?.();
+                        if (canDoFullScreen) {
+                            t.initFullScreenToggle(t.taId);
+                        } else {
+                            t.removeFullScreenButton(t.taId);
+                        }
                     }
                     t.isLoading = false;
                 });
         }
     };
 
+
+    /**
+     * Remove the fullscreen button from the wrapper editor.
+     *
+     * @param {String} fieldId The id of answer field.
+     */
+    InterfaceWrapper.prototype.removeFullScreenButton = function(fieldId) {
+        const wrapperEditor = document.getElementById(`${fieldId}_wrapper`);
+        const screenModeButton = wrapperEditor.parentNode.querySelector('.screen-mode-button');
+        if (screenModeButton) {
+            screenModeButton.remove();
+        }
+    };
+
+    /**
+     * Initialize elements and event listeners for the fullscreen mode.
+     *
+     * @param {String} fieldId The id of answer field.
+     */
+    InterfaceWrapper.prototype.initFullScreenToggle = function(fieldId) {
+        const wrapperEditor = document.getElementById(`${fieldId}_wrapper`);
+        const screenModeButton = wrapperEditor.parentNode.querySelector('.screen-mode-button');
+        if (screenModeButton) {
+            return;
+        }
+
+        Templates.renderForPromise('qtype_coderunner/screenmode_button', {}).then(({html}) => {
+            const screenModeButton = Templates.appendNodeContents(wrapperEditor, html, '')[0];
+            const fullscreenButton = screenModeButton.querySelector('.button-fullscreen');
+            const exitFullscreenButton = screenModeButton.querySelector('.button-exit-fullscreen');
+
+            // When load successfully, show the fullscreen button.
+            fullscreenButton.classList.remove('d-none');
+
+            // Add event listeners to the fullscreen/exit-fullscreen button.
+            fullscreenButton.addEventListener('click', enterFullscreen.bind(this,
+                fullscreenButton, exitFullscreenButton));
+            exitFullscreenButton.addEventListener('click', exitFullscreen.bind(this));
+        });
+
+        /**
+         * Make the editor fullscreen.
+         *
+         * @param {HTMLElement} fullscreenButton The fullscreen button.
+         * @param {HTMLElement} exitFullscreenButton The exit fullscreen button.
+         * @param {Event} e The click event.
+         */
+        function enterFullscreen(fullscreenButton, exitFullscreenButton, e) {
+            let t = this;
+            e.preventDefault();
+            // The editor can stretch out.
+            // So we need to save the original height and width of the editor before going fullscreen.
+            t.wrapperHeight = t.wrapperNode.innerHeight();
+            t.heightEditNode = t.hLast - t.GUTTER;
+            t.widthEditNode = t.wLast;
+
+            fullscreenButton.classList.add('d-none');
+            // Append exit fullscreen button to the wrapper editor.
+            // So that when in the fullscreen mode, the exit fullscreen button will be in the wrapper editor.
+            wrapperEditor.append(exitFullscreenButton);
+
+            // Handle fullscreen event.
+            wrapperEditor.addEventListener('fullscreenchange', () => {
+                if (document.fullscreenElement === null) {
+                    // When exit fullscreen using ESC key or press exit fullscreen button.
+                    // We need to reset the editor to the original size.
+                    t.uiInstance.resize(t.widthEditNode, t.heightEditNode);
+
+                    // We need to reset the wrapper height to the original height.
+                    // In fullscreen mode, the wrapper height can change by stretching it out.
+                    wrapperEditor.style.height = t.wrapperHeight + 'px';
+
+                    // Add and remove the d-none class to show and hide the buttons.
+                    exitFullscreenButton.classList.add('d-none');
+                    fullscreenButton.classList.remove('d-none');
+                } else {
+                    exitFullscreenButton.classList.remove('d-none');
+                }
+            });
+            wrapperEditor.requestFullscreen().catch(Notification.exception);
+        }
+
+        /**
+         * Exit the fullscreen mode.
+         *
+         * @param {Event} e the click event.
+         */
+        function exitFullscreen(e) {
+            let t = this;
+            e.preventDefault();
+            document.exitFullscreen();
+
+            // Reset the editor to the original size before going fullscreen.
+            wrapperEditor.style.height = t.wrapperHeight + 'px';
+            t.uiInstance.resize(t.widthEditNode, t.heightEditNode);
+        }
+    };
 
     /**
      * Start a sync timer on the given uiInstance, unless its time interval is 0.

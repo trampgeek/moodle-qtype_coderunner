@@ -30,29 +30,19 @@ class behat_coderunner extends behat_base {
      /**
       * Sets the webserver sandbox to enabled for testing purposes.
       *
-      * @Given /^the CodeRunner jobe sandbox is enabled/
+      * @Given /^the CodeRunner webservice is enabled/
       */
-    public function the_coderunner_sandbox_is_enabled() {
-        set_config('jobesandbox_enabled', 1, 'qtype_coderunner');
-    }
-
-
-     /**
-      * Sets the webserver scratchpad to enabled for testing purposes.
-      *
-      * @Given /^the CodeRunner scratchpad is enabled/
-      */
-    public function the_coderunner_scratchpad_is_enabled() {
+    public function the_coderunner_webservice_is_enabled() {
         set_config('wsenabled', 1, 'qtype_coderunner');
     }
 
 
-     /**
-      * Sets the webserver scratchpad to disabled for testing purposes.
+    /**
+      * Sets the webserver webservice to disabled for testing purposes.
       *
-      * @Given /^the CodeRunner scratchpad is disabled/
+      * @Given /^the CodeRunner webservice is disabled/
       */
-    public function the_coderunner_scratchpad_is_disabled() {
+    public function the_coderunner_webservice_is_disabled() {
         set_config('wsenabled', 0, 'qtype_coderunner');
     }
 

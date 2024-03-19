@@ -405,8 +405,10 @@ class ScratchpadUi {
         this.answerTextarea = document.getElementById(this.context.answer_code.id);
         this.testTextarea = document.getElementById(this.context.test_code.id);
         this.answerCodeUi = newUiWrapper('ace', this.context.answer_code.id);
+        this.answerCodeUi.setAllowFullScreen(true);
         if (this.testTextarea) {
             this.testCodeUi = newUiWrapper('ace', this.context.test_code.id);
+            this.testCodeUi.setAllowFullScreen(true);
         }
     }
 
@@ -437,6 +439,8 @@ class ScratchpadUi {
         this.outerDiv?.remove();
         this.outerDiv = null;
     }
+
+
 }
 
 

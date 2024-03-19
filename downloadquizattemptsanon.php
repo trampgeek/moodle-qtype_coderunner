@@ -1,5 +1,5 @@
 <?php
-// This file is part of CodeRunner - http://coderunner.org.nz/
+// This file is part of CodeRunner - http://coderunner.org.nz
 //
 // CodeRunner is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -12,23 +12,16 @@
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with CodeRunner.  If not, see <http://www.gnu.org/licenses/>.
+// along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * This admin script is a variant of downloadquizattempts.php (q.v.) that
+ * differs only in that the user name and email are replaced by a single
+ * hashed_email field.
+ *
  * @package   qtype_coderunner
- * @copyright Richard Lobb, The University of Canterbury, New Zealand.
+ * @copyright 2017 Richard Lobb, The University of Canterbury
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-defined('MOODLE_INTERNAL') || die();
-
-$plugin->version  = 2024031500;
-$plugin->requires = 2022041900;
-$plugin->cron = 0;
-$plugin->component = 'qtype_coderunner';
-$plugin->maturity = MATURITY_STABLE;
-$plugin->release = '5.3.1';
-
-$plugin->dependencies = [
-    'qbehaviour_adaptive_adapted_for_coderunner' => 2021112300,
-];
+define('ANONYMISE', 1);
+include(__DIR__ . '/downloadquizattempts.php');

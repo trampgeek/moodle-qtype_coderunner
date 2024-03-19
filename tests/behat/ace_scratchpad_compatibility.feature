@@ -5,7 +5,7 @@ Feature: Ace UI convert to Scratchpad UI questions with one click
   I should be able to change a question from using Ace to Scratchpad in one click
 
   Background:
-    Given the CodeRunner scratchpad is enabled
+    Given the CodeRunner webservice is enabled
     And the following "users" exist:
       | username | firstname | lastname | email            |
       | teacher1 | Teacher   | 1        | teacher1@asd.com |

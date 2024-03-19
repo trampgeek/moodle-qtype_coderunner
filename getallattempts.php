@@ -81,6 +81,7 @@ class UnscrewedSqlTable extends table_sql {
 // Get the quiz-id and format parameters from the URL.
 $quizid = required_param('quizid', PARAM_INT);
 $format = required_param('format', PARAM_RAW);  // Csv or excel.
+$anonymise = optional_param('anonymise', 0, PARAM_INT);
 
 // Login and check permissions.
 require_login();
@@ -106,10 +107,18 @@ if (!has_capability('moodle/grade:viewall', $coursecontext)) {
     $fields = "concat(quiza.uniqueid, qasd.attemptstepid, qasd.id) as uniquekey,
         quiza.uniqueid as quizattemptid,
         timestart,
-        timefinish,
+        timefinish,";
+    if (!$anonymise) {
+        $fields .= "
         u.firstname,
         u.lastname,
-        u.email,
+        u.email,";
+    } else {
+        $fields .= "
+        SHA2(u.email, 256) as hashed_email,
+        ";
+    }
+    $fields .= "
         qatt.slot,
         qatt.questionid,
         qatt.questionsummary,

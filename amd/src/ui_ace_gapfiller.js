@@ -563,6 +563,15 @@ define(['jquery'], function($) {
     };
 
     /**
+     * Allow fullscreen mode for the Ace Gapfiller UI.
+     *
+     * @return {Boolean} True if fullscreen mode is allowed, false otherwise.
+     */
+    AceGapfillerUi.prototype.allowFullScreen = function() {
+        return true;
+    };
+
+    /**
      * Constructor for the Gap object that represents a gap in the source code
      * that the user is expected to fill.
      * @param {object} editor The Ace Editor object.
