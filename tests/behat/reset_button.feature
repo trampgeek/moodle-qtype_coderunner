@@ -5,7 +5,8 @@ Feature: Preview the Python 3 sqr function CodeRunner question with a preload
   I should see a Reset answer button that resets the preload,
 
   Background:
-    Given the following "users" exist:
+    Given the CodeRunner test configuration file is loaded
+    And the following "users" exist:
       | username | firstname | lastname | email            |
       | teacher1 | Teacher   | 1        | teacher1@asd.com |
     And the following "courses" exist:

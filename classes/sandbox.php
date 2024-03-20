@@ -38,10 +38,6 @@ use qtype_coderunner\constants;
 
 global $CFG;
 
-if (qtype_coderunner_sandbox::is_using_test_sandbox()) {
-    require_once($CFG->dirroot .'/question/type/coderunner/tests/fixtures/test-sandbox-config.php');
-}
-
 abstract class qtype_coderunner_sandbox {
     protected $user;     // Username supplied when constructing.
     protected $password; // Password supplied when constructing.

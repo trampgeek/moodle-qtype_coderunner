@@ -5,7 +5,9 @@ Feature: Ace UI convert to Scratchpad UI questions with one click
   I should be able to change a question from using Ace to Scratchpad in one click
 
   Background:
-    Given the following "users" exist:
+    Given the CodeRunner test configuration file is loaded
+    And the CodeRunner webservice is enabled
+    And the following "users" exist:
       | username | firstname | lastname | email            |
       | teacher1 | Teacher   | 1        | teacher1@asd.com |
     And the following "courses" exist:
@@ -20,7 +22,7 @@ Feature: Ace UI convert to Scratchpad UI questions with one click
     And the following "questions" exist:
       | questioncategory | qtype      | name            |
       | Test questions   | coderunner | Square function |
-    And the CodeRunner webservice is enabled
+
 
     When I am on the "Square function" "core_question > edit" page logged in as teacher1
     And I set the following fields to these values:

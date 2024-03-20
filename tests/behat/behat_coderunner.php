@@ -27,13 +27,34 @@ use Facebook\WebDriver\Exception\NoSuchAlertException;
 
 
 class behat_coderunner extends behat_base {
-     /**
-      * Sets the webserver sandbox to enabled for testing purposes.
-      *
-      * @Given /^the CodeRunner webservice is enabled/
-      */
+
+    /**
+     * Loads the default coderunner settings file for testing.
+     * It seems silly that I have to do that. Why is there not
+     * a global behat configuration option apply to all features?
+     * @Given /^the CodeRunner test configuration file is loaded/
+     */
+    public function the_coderunner_test_configuration_file_is_loaded() {
+        global $CFG;
+        require($CFG->dirroot .'/question/type/coderunner/tests/fixtures/test-sandbox-config.php');
+    }
+
+    /**
+     * Enables the CodeRunner webservice for testing purposes.
+     *
+     * @Given /^the CodeRunner webservice is enabled/
+     */
     public function the_coderunner_webservice_is_enabled() {
         set_config('wsenabled', 1, 'qtype_coderunner');
+    }
+
+    /**
+     * Disables the Jobe sandbox. Currently unused/untested.
+     *
+     * @Given /^the Jobe sandbox is disabled/
+     */
+    public function the_jobe_sandbox_is_disabled() {
+        set_config('jobesandbox_enabled', 0, 'qtype_coderunner');
     }
 
     /**

@@ -5,7 +5,9 @@ Feature: Test the Scratchpad UI, UI Params
   I should be able specify the UI Parameters to change the Scratchpad UI
 
   Background:
-    Given the following "users" exist:
+    Given the CodeRunner test configuration file is loaded
+    And the CodeRunner webservice is enabled
+    And the following "users" exist:
       | username | firstname | lastname | email            |
       | teacher1 | Teacher   | 1        | teacher1@asd.com |
     And the following "courses" exist:
@@ -20,7 +22,6 @@ Feature: Test the Scratchpad UI, UI Params
     And the following "questions" exist:
       | questioncategory | qtype      | name         | template |
       | Test questions   | coderunner | Print answer | printans |
-    And the CodeRunner webservice is enabled
 
     And I am on the "Print answer" "core_question > edit" page logged in as teacher1
     And I set the field "id_validateonsave" to ""

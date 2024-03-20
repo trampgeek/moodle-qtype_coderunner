@@ -5,7 +5,8 @@ Feature: make_combinator_prototype
   I must be able to create new combinator templates
 
   Background:
-    Given the following "users" exist:
+    Given the CodeRunner test configuration file is loaded
+    And the following "users" exist:
       | username | firstname | lastname | email            |
       | teacher1 | Teacher   | 1        | teacher1@asd.com |
     And the following "courses" exist:
@@ -50,8 +51,19 @@ Feature: make_combinator_prototype
       | id_questiontext   | Write the inevitable sqr function |
       | id_testcode_0     | sqr(-11)                          |
       | id_expected_0     | 121                               |
+      | id_ordering_0     | 20                                |
       | id_testcode_1     | sqr(9)                            |
-      | id_expected_1     | 81                                |
+      | id_expected_1     | 80                                |
+      | id_ordering_1     | 10                                |
+      | id_answer         | def sqr(n): return n * n          |
+
+    Then I should see "Failed 1 test(s)"
+    And I should see "Click on the << button to replace the expected output of this testcase with actual output."
+    When I press "<<"
+    And I press "id_submitbutton"
+    Then I should not see "Save changes"
+    And I should not see "Write a sqr function"
+    And I should see "Combinator prototype tester"
 
   Scenario: As a teacher, I get marked right (using combinator template) if I submit a correct answer to a CodeRunner question
     When I choose "Preview" action for "Combinator prototype tester" in the question bank

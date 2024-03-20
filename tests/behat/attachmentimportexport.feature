@@ -5,7 +5,9 @@ Feature: Test importing and exporting of question with attachments
   I need to be able to import and export them
 
   Background:
-    Given the following "users" exist:
+    Given the CodeRunner test configuration file is loaded
+    And the CodeRunner webservice is enabled
+    And the following "users" exist:
       | username |
       | teacher  |
     And the following "courses" exist:
@@ -20,7 +22,6 @@ Feature: Test importing and exporting of question with attachments
     And the following "questions" exist:
       | questioncategory | qtype      | name            |
       | Test questions   | coderunner | Square function |
-    And the CodeRunner webservice is enabled
     And I am on the "Square function" "core_question > edit" page logged in as teacher
     And I click on "a[aria-controls='id_attachmentoptionscontainer']" "css_element"
     And I set the field "Answer" to "from sqrmodule import sqr"
