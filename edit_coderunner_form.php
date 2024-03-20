@@ -250,7 +250,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->addHelpButton('sampleanswerattachments', 'sampleanswerattachments', 'qtype_coderunner');
         // Unless behat is running, hide the attachments file picker.
         // behat barfs if it's hidden.
-        if ($CFG->prefix !== $CFG->behat_prefix) {
+        if (!qtype_coderunner_sandbox::is_using_test_sandbox()) {
             $method = method_exists($mform, 'hideIf') ? 'hideIf' : 'disabledIf';
             $mform->$method('sampleanswerattachments', 'attachments', 'eq', 0);
         }
