@@ -818,13 +818,15 @@ class qtype_coderunner_question extends question_graded_automatically {
      * the history of prior submissions.
      * @param bool $isprecheck true iff this grading is occurring because the
      * student clicked the precheck button
+     * @param bool $isvalidationrun true iff this is a validation run when saving 
+     * a question.
      * @return 3-element array of the mark (0 - 1), the question_state (
      * gradedright, gradedwrong, gradedpartial, invalid) and the full
      * qtype_coderunner_testing_outcome object to be cached. The invalid
      * state is used when a sandbox error occurs.
      * @throws coding_exception
      */
-    public function grade_response(array $response, bool $isprecheck = false) {
+    public function grade_response(array $response, bool $isprecheck = false, $isvalidationrun = false) {
         if ($isprecheck && empty($this->precheck)) {
             throw new coding_exception("Unexpected precheck");
         }
@@ -847,7 +849,11 @@ class qtype_coderunner_question extends question_graded_automatically {
             // filenames and values being file contents.
             $code = $response['answer'];
             $attachments = $this->get_attached_files($response);
-            $testcases = $this->filter_testcases($isprecheck, $this->precheck);
+            if ($isvalidationrun) {
+                $testcases = $this->testcases;
+            } else {
+                $testcases = $this->filter_testcases($isprecheck, $this->precheck);
+            }
             $runner = new qtype_coderunner_jobrunner();
             $this->stepinfo = self::step_info($response);
             if (isset($response['graderstate'])) {
