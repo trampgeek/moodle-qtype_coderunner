@@ -5,7 +5,8 @@ Feature: Check the STUDENT Twig variable allows access to current username in Co
   I should be able to write a function that prints my username it should be marked right
 
   Background:
-    Given the following "users" exist:
+    Given the CodeRunner test configuration file is loaded
+    And the following "users" exist:
       | username | firstname | lastname | email            |
       | teacher1 | Teacher   | 1        | teacher1@asd.com |
       | student1 | Student   | 1        | student@asd.com  |

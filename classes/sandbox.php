@@ -34,11 +34,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-global $CFG;
+use qtype_coderunner\constants;
 
-if ($CFG->prefix == $CFG->behat_prefix) {
-    require_once($CFG->dirroot .'/question/type/coderunner/tests/fixtures/test-sandbox-config.php');
-}
+global $CFG;
 
 abstract class qtype_coderunner_sandbox {
     protected $user;     // Username supplied when constructing.
@@ -207,6 +205,24 @@ abstract class qtype_coderunner_sandbox {
             }
         }
         return $enabled;
+    }
+
+    /**
+     * Returns true if sandbox is being used for tests.
+     * @return bool
+     */
+    public static function is_using_test_sandbox(): bool {
+        global $CFG;
+        return !empty($CFG->behat_prefix) && $CFG->prefix === $CFG->behat_prefix;
+    }
+
+    /**
+     * Returns true if canterbury jobe server is being used.
+     * @param string jobeserver being used.
+     * @return bool
+     */
+    public static function is_canterbury_server(string $jobeserver): bool {
+        return $jobeserver === constants::JOBE_HOST_DEFAULT;
     }
 
     /**

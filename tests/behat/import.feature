@@ -5,7 +5,8 @@ Feature: Import CodeRunner questions
   I need to import them
 
   Background:
-    Given the following "users" exist:
+    Given the CodeRunner test configuration file is loaded
+    And the following "users" exist:
       | username |
       | teacher  |
     And the following "courses" exist:

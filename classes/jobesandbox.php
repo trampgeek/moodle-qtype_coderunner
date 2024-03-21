@@ -53,6 +53,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
      *  - with haproxy try "balance hdr(X-CodeRunner-Job-Id)" (not tested)
      *  - with a Netscaler use rule-based persistence with expression
      *    HTTP.REQ.HEADER(“X-CodeRunner-Job-Id”)
+     *  - with cookies support
      */
     private $currentjobid = null;
 
@@ -74,7 +75,8 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
         global $CFG;
         qtype_coderunner_sandbox::__construct();
         $this->jobeserver = get_config('qtype_coderunner', 'jobe_host');
-        if ($this->jobeserver === 'jobe2.cosc.canterbury.ac.nz' && $CFG->prefix === $CFG->behat_prefix) {
+        if (qtype_coderunner_sandbox::is_canterbury_server($this->jobeserver)
+                && qtype_coderunner_sandbox::is_using_test_sandbox()) {
             throw new Exception("Please don't use the Canterbury jobe server for test runs");
         }
         $this->apikey = get_config('qtype_coderunner', 'jobe_apikey');
@@ -139,6 +141,8 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
      */
 
     public function execute($sourcecode, $language, $input, $files = null, $params = null) {
+        global $CFG;
+
         $language = strtolower($language);
         if (is_null($input)) {
             $input = '';
@@ -203,6 +207,18 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
         // QUESTION: Do we need this when using cached result?
         $this->currentjobid = sprintf('%08x', mt_rand());
 
+        // Create a single curl object here, with support for cookies, and use it for all requests.
+        // This supports Jobe back-ends that use cookies for sticky load-balancing.
+        // Make a place to store the cookies.
+        make_temp_directory('qtype_coderunner');
+        $cookiefile = $CFG->tempdir . '/qtype_coderunner/session_cookies_' . $this->currentjobid . '.txt';
+
+        $curl = new curl();
+        $curl->setopt([
+                'CURLOPT_COOKIEJAR' => $cookiefile,
+                'CURLOPT_COOKIEFILE' => $cookiefile,
+        ]);
+
         $cache = cache::make('qtype_coderunner', 'coderunner_grading_cache');
         $runresult = null;
         if (READ_FROM_CACHE) {
@@ -227,18 +243,21 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
             $postbody = ['run_spec' => $runspec];
             // Try submitting the job. If we get a 404, try again after
             // putting all the files on the server. Anything else is an error.
-            $httpcode = $this->submit($postbody);
+            $httpcode = $this->submit($postbody, $curl);
             if ($httpcode == 404) { // If it's a file not found error ...
                 foreach ($files as $filename => $contents) {
-                    if (($httpcode = $this->put_file($contents)) != 204) {
+                    if (($httpcode = $this->put_file($contents, $curl)) != 204) {
                         break;
                     }
                 }
                 if ($httpcode == 204) {
                     // Try again if put_files all worked.
-                    $httpcode = $this->submit($postbody);
+                    $httpcode = $this->submit($postbody, $curl);
                 }
             }
+
+        // Delete the cookie file.
+        unlink($cookiefile);
 
             $runresult = [];
             $runresult['sandboxinfo'] = [
@@ -362,11 +381,10 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
     }
 
     // Put the given file to the server, using its MD5 checksum as the id.
+    // If you pass a curl object, this will be used to make the request.
     // Returns the HTTP response code, or -1 if the HTTP request fails
     // altogether.
-    // Moodle curl class doesn't support an appropriate form of PUT so
-    // we use raw PHP curl here.
-    private function put_file($contents) {
+    private function put_file($contents, $curl) {
         $id = md5($contents);
         $contentsb64 = base64_encode($contents);
         $resource = "files/$id";
@@ -374,16 +392,9 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
         [$url, $headers] = $this->get_jobe_connection_info($resource);
 
         $body = ['file_contents' => $contentsb64];
-        $curl = curl_init();
-        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PUT");
-        curl_setopt($curl, CURLOPT_URL, $url);
-        curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($body));
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-        $result = curl_exec($curl);
-        $info = curl_getinfo($curl);
-        curl_close($curl);
-        return $result === false ? -1 : $info['http_code'];
+        $result = $curl->put($url, json_encode($body));
+        $returncode = $curl->info['http_code'];
+        return $result === false ? -1 : $returncode;
     }
 
     /**
@@ -437,8 +448,9 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
     // response was 400 Bad Parameter.
     // We don't at this stage deal with Jobe servers that may defer requests
     // i.e. that return 202 Accepted rather than 200 OK.
-    private function submit($job) {
-        [$returncode, $response] = $this->http_request('runs', self::HTTP_POST, $job);
+    // If you pass a curl object, this will be used to make the request.
+    private function submit($job, $curl) {
+        [$returncode, $response] = $this->http_request('runs', self::HTTP_POST, $job, $curl);
         $this->response = $response;
         return $returncode;
     }
@@ -453,10 +465,13 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
     // Note that the Moodle curl class documentation lies when it says the
     // return value from get and post is a bool. It's either the value false
     // if the request failed or the actual string response, otherwise.
-    private function http_request($resource, $method, $body = null) {
+    // If you pass a curl object, this will be used to make the request.
+    private function http_request($resource, $method, $body = null, $curl = null) {
         [$url, $headers] = $this->get_jobe_connection_info($resource);
 
-        $curl = new curl();
+        if ($curl == null) {
+            $curl = new curl();
+        }
         $curl->setHeader($headers);
 
         if ($method === self::HTTP_GET) {

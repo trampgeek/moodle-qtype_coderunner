@@ -5,7 +5,8 @@ Feature: Test the GapFiller_UI
   I should be able specify the required gaps in the global extra or test0 fields
 
   Background:
-    Given the following "users" exist:
+    Given the CodeRunner test configuration file is loaded
+    And the following "users" exist:
       | username | firstname | lastname | email            |
       | teacher1 | Teacher   | 1        | teacher1@asd.com |
     And the following "courses" exist:

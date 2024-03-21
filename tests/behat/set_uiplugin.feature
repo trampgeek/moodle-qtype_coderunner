@@ -5,7 +5,8 @@ Feature: Check that a selected UI plugin is saved
   I should be able to select a UI plugin and save the form
 
   Background:
-    Given the following "users" exist:
+    Given the CodeRunner test configuration file is loaded
+    And the following "users" exist:
       | username | firstname | lastname | email            |
       | teacher1 | Teacher   | 1        | teacher1@asd.com |
     And the following "courses" exist:

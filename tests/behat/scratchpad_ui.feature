@@ -5,7 +5,8 @@ Feature: Test the Scratchpad UI
   I should be able specify the required html in either globalextra or prototypeextra
 
   Background:
-    Given the CodeRunner webservice is enabled
+    Given the CodeRunner test configuration file is loaded
+    And the CodeRunner webservice is enabled
     And the following "users" exist:
       | username | firstname | lastname | email            |
       | teacher1 | Teacher   | 1        | teacher1@asd.com |

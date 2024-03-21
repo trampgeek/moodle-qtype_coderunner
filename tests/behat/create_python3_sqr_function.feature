@@ -5,7 +5,8 @@ Feature: Create a CodeRunner question (the sqr function example)
   I need to create a new CodeRunner question
 
   Background:
-    Given the following "users" exist:
+    Given the CodeRunner test configuration file is loaded
+    And the following "users" exist:
       | username | firstname | lastname | email            |
       | teacher1 | Teacher   | 1        | teacher1@asd.com |
     And the following "courses" exist:
@@ -27,8 +28,10 @@ Feature: Create a CodeRunner question (the sqr function example)
       | id_questiontext   | Write a sqr function    |
       | id_testcode_0     | print(sqr(-7))          |
       | id_expected_0     | 49                      |
+      | id_ordering_0     | 20                      |
       | id_testcode_1     | print(sqr(11))          |
       | id_expected_1     | 120                     |
+      | id_ordering_1     | 10                      |
     Then I should see "Failed 1 test(s)"
     And I should see "Click on the << button to replace the expected output of this testcase with actual output."
     And the field "Customise" matches value "0"
