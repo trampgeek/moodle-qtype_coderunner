@@ -204,20 +204,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
                 $this->apikey = $params['jobeapikey'];
             }
         }
-        // QUESTION: Do we need this when using cached result?
-        $this->currentjobid = sprintf('%08x', mt_rand());
 
-        // Create a single curl object here, with support for cookies, and use it for all requests.
-        // This supports Jobe back-ends that use cookies for sticky load-balancing.
-        // Make a place to store the cookies.
-        make_temp_directory('qtype_coderunner');
-        $cookiefile = $CFG->tempdir . '/qtype_coderunner/session_cookies_' . $this->currentjobid . '.txt';
-
-        $curl = new curl();
-        $curl->setopt([
-                'CURLOPT_COOKIEJAR' => $cookiefile,
-                'CURLOPT_COOKIEFILE' => $cookiefile,
-        ]);
 
         $cache = cache::make('qtype_coderunner', 'coderunner_grading_cache');
         $runresult = null;
@@ -239,7 +226,20 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
             }
         }
 
-        if (!$runresult) {  // if cache read failed regrade to be safe
+        if (!$runresult) {  // if cache read failed regrade, to be safe.
+            $this->currentjobid = sprintf('%08x', mt_rand());
+
+            // Create a single curl object here, with support for cookies, and use it for all requests.
+            // This supports Jobe back-ends that use cookies for sticky load-balancing.
+            // Make a place to store the cookies.
+            make_temp_directory('qtype_coderunner');
+            $cookiefile = $CFG->tempdir . '/qtype_coderunner/session_cookies_' . $this->currentjobid . '.txt';
+
+            $curl = new curl();
+            $curl->setopt([
+                    'CURLOPT_COOKIEJAR' => $cookiefile,
+                    'CURLOPT_COOKIEFILE' => $cookiefile,
+            ]);
             $postbody = ['run_spec' => $runspec];
             // Try submitting the job. If we get a 404, try again after
             // putting all the files on the server. Anything else is an error.
@@ -256,8 +256,8 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
                 }
             }
 
-        // Delete the cookie file.
-        unlink($cookiefile);
+            // Delete the cookie file.
+            unlink($cookiefile);
 
             $runresult = [];
             $runresult['sandboxinfo'] = [
@@ -269,8 +269,8 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
             if (
                 !$okresponse                        // If it's not an OK response...
                     || !is_object($this->response)  // ... or there's any sort of broken ...
-                    || !isset($this->response->outcome)
-            ) {     // ... communication with server.
+                    || !isset($this->response->outcome) // ... communication with server.
+            ) {
                 // Return with errorcode set and as much extra info as possible in stderr.
                 $errorcode = $okresponse ? self::UNKNOWN_SERVER_ERROR : $this->get_error_code($httpcode);
                 $this->currentjobid = null;
@@ -295,7 +295,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
                 // Got a useable result from Jobe server so cache it if required.
                 if (WRITE_TO_CACHE) {
                     $key = hash("md5", serialize($runspec));
-                    $cache->set($key, $runresult); // set serializes the result, get will unserialize.
+                    $cache->set($key, $runresult); // Set serializes the result, get will unserialize.
                     // echo 'CACHE WRITE for ---> ' . $key . '<br>';
                 }
             }
