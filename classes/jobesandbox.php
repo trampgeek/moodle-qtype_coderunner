@@ -233,7 +233,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
         }
 
         // Delete the cookie file.
-        unlink($cookiefile);
+        @unlink($cookiefile);
 
         $runresult = [];
         $runresult['sandboxinfo'] = [

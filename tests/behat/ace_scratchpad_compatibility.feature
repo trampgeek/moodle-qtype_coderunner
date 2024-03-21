@@ -23,7 +23,6 @@ Feature: Ace UI convert to Scratchpad UI questions with one click
       | questioncategory | qtype      | name            |
       | Test questions   | coderunner | Square function |
 
-
     When I am on the "Square function" "core_question > edit" page logged in as teacher1
     And I set the following fields to these values:
       | id_customise | 1                        |
