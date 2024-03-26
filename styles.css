@@ -260,16 +260,12 @@ div.coderunner-test-results.partial {
 /* Fullscreen and exit fullscreen */
 .que.coderunner .button-exit-fullscreen,
 body#page-question-type-coderunner .button-exit-fullscreen {
-    bottom: -5px;
+    bottom: 0;
 }
 
 .que.coderunner .button-fullscreen,
 body#page-question-type-coderunner .button-fullscreen {
-    bottom: -6px;
-}
-
-body#page-question-type-coderunner .col-md-9 .button-fullscreen {
-    margin-right: 15px;
+    bottom: -1px;
 }
 
 .que.coderunner .button-fullscreen,
@@ -278,9 +274,21 @@ body#page-question-type-coderunner .button-fullscreen,
 body#page-question-type-coderunner .button-exit-fullscreen {
     border: none;
     background: transparent;
-    margin-right: 4px;
-    right: 12px;
+    margin: 0 0 2px 0;
+    height: 15px;
+    width: 20px;
+    padding: 0;
+    right: 15px;
     z-index: 10;
+}
+
+.que.coderunner .button-fullscreen:focus,
+.que.coderunner .button-exit-fullscreen:focus,
+body#page-question-type-coderunner .button-fullscreen:focus,
+body#page-question-type-coderunner .button-exit-fullscreen:focus {
+    display: flex;
+    justify-content: center;
+    outline: 2px solid black;
 }
 
 .que.coderunner .button-fullscreen img.icon:hover,
@@ -302,7 +310,7 @@ body#page-question-type-coderunner .button-exit-fullscreen img.icon:hover {
 body#page-question-type-coderunner .button-exit-fullscreen img.icon,
 body#page-question-type-coderunner .button-fullscreen img.icon {
     margin-right: unset;
-    margin-bottom: 2px;
+    margin-bottom: 10px;
     width: 15px;
     height: 15px;
 }
