@@ -141,8 +141,8 @@ if (!has_capability('moodle/grade:viewall', $coursecontext)) {
     JOIN {quiz_slots} slot ON qatt.slot = slot.slot AND slot.quizid = quiza.quiz";
 
     $where = "quiza.preview = 0
-    AND (qasd.name NOT LIKE '-_%' OR qasd.name = '-_rawfraction')
-    AND (qasd.name NOT LIKE '^_%' OR qasd.name = '_testoutcome')
+    AND (qasd.name NOT LIKE '-\_%' OR qasd.name = '-_rawfraction')
+    AND (qasd.name NOT LIKE '\_%' OR qasd.name = '_testoutcome')
     AND quest.length > 0
     ORDER BY quiza.uniqueid, timestamp";
 
