@@ -145,7 +145,7 @@ define(['jquery', 'core/templates', 'core/notification'], function($, Templates,
     function InterfaceWrapper(uiname, textareaId) {
         let t = this; // For use by embedded functions.
 
-        this.GUTTER = 14;  // Size of gutter at base of wrapper Node (pixels)
+        this.GUTTER = 16;  // Size of gutter at base of wrapper Node (pixels)
         this.DEFAULT_SYNC_INTERVAL_SECS = 5;
 
         const PIXELS_PER_ROW = 19;  // For estimating height of textareas.
