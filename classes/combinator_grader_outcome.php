@@ -32,6 +32,12 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
     /** @var ?string Html that is displayed after the result table. */
     public $prologuehtml;
 
+    /** @var array A map from filename to feedback file contents, base64 */
+    public $files;
+
+    /** @var array A map from filename to the URLs of the saved files */
+    public $fileurls;
+
     /** @var array A per-column array of %s (string) or %h (html) values to control column formatting */
     public $columnformats;
 
@@ -50,14 +56,14 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
     /** @var array Array where each item is a rows of test result table  */
     public $testresults;
 
-    /** @var ?string The feedback for a given question attempt */
+    /** @var ?string The feedback for a given question attempt (legacy support only) */
     public $feedbackhtml;
 
     /** @var bool Whether or no show differences is selected */
     public $showdifferences;
 
     // A list of the allowed attributes in the combinator template grader return value.
-    public $allowedfields = ['fraction', 'prologuehtml', 'testresults', 'epiloguehtml',
+    public $allowedfields = ['fraction', 'prologuehtml', 'testresults', 'files', 'epiloguehtml',
                     'feedbackhtml', 'columnformats', 'showdifferences',
                     'showoutputonly', 'graderstate', 'instructorhtml',
     ];
@@ -75,19 +81,108 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
 
 
     /**
+     * Process all the files in $files, saving them to the Moodle file area
+     * and generating an URL to reference the saved file. The URLs are
+     * time-stamped to allow re-use of the same name over
+     * multiple submissions of a question.
+     * @param array $files An associate array mapping filenames to base64-encoded contents.
+     * @param array An associate array mapping filenames to URLs that reference that file.
+     */
+    private function save_files($files) {
+        global $USER;
+
+        $fileurls = [];
+        foreach ($files as $filename => $base64) {
+            $decoded = base64_decode($base64);
+
+            // Prepare file record object
+            $contextid = context_user::instance($USER->id)->id;
+            $fileinfo = array(
+                'contextid' => $contextid,
+                'component' => 'qtype_coderunner', 
+                'filearea'  => 'feedbackfiles',     // Custom file area for your plugin
+                'itemid'    => time(),   // Item ID - use Unix time stamp
+                'filepath'  => '/', // File path within the context
+                'filename'  => $filename); // Desired name of the file
+
+            // Get the file storage object
+            $fs = get_file_storage();
+
+            // Check if the file already exists to avoid duplicates
+            if (!$fs->file_exists($contextid, $fileinfo['component'], $fileinfo['filearea'],
+                $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename'])) {
+
+                // Create the file in Moodle's filesystem
+                $file = $fs->create_file_from_string($fileinfo, $decoded);
+            }
+
+            // Generate a URL to the saved file
+            $url = moodle_url::make_pluginfile_url($contextid, $fileinfo['component'], $fileinfo['filearea'],
+                                $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename'], false);
+
+            $fileurls[$filename] = $url;
+        }
+        return $fileurls;
+    }
+
+
+    /**
+     * Replace any occurrences of substrings of the form src="filename" or
+     * href=filename within the given html string to reference the URL of
+     * the file, if the filename is found in $this->fileurls.
+     * No action is taken for non-matching filename.
+     * @param string html The html string to be updates.
+     * @param array $urls An associative array mapping from filenames to URLs
+     * @return string The html string with the above-described substitutions made.
+     */
+    private function insert_file_urls($html, $urls) {
+        if ($urls) {
+            foreach($urls as $filename => $url) {
+                $filename = preg_quote($filename, '/');
+                $patterns = [
+                    "src *= *'$filename'",
+                    "src *= *\"$filename\"",
+                    "href *= *'$filename'",
+                    "href *= *\"$filename\""
+                ];
+                foreach($patterns as $pat) {
+                    if (strpos($pat, 'src') !== false) {
+                        $html = preg_replace("/$pat/", "src=\"$url\"", $html);
+                    } else {
+                        $html = preg_replace("/$pat/", "href=\"$url\"", $html);
+                    }
+                }
+            }
+        }
+        return $html; // return the modified HTML
+    }
+
+
+    /**
      * Method to set the mark and the various feedback values (prologuehtml,
      * testresults, columnformats, epiloguehtml, graderstate).
      * @param float $markfraction the mark in the range 0 - 1
-     * @param array $feedback Associative array of attributes to add to the
-     * outcome object, usually zero or more of prologuehtml, testresults,
-     * columnformats and epiloguehtml.
+     * @param array $feedback Associative array of additional attributes as
+     * listed in the $this->allowedfields.
      */
     public function set_mark_and_feedback($markfraction, $feedback) {
         $this->actualmark = $markfraction;  // Combinators work in the range 0 - 1.
-        foreach ($feedback as $key => $value) {
-            $this->$key = $value;
+        $columnformats = $feedback['columnformats'] ?? null;
+        $testresults = $feedback['testresults'] ?? null;
+        $files = $feedback['files'] ?? null;
+        $urls = null;
+        if ($this->valid_table_formats($testresults, $columnformats)) {
+            if ($files) {
+                $urls = $this->save_files($files);
+                $htmlfields = ['feedbackhtml', 'prologuehtml', 'epiloguehtml', 'instructorhtml'];
+                foreach($htmlfields as $field) {
+                    if ($this->$field) {
+                        $this->$field = $this->insert_file_urls($this->$field, $urls);
+                    }
+                };
+            }
+            $this->format_results_table($testresults, $columnformats, $urls);
         }
-        $this->validate_table_formats();
     }
 
 
@@ -253,29 +348,33 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
      */
     public function get_test_results(qtype_coderunner_question $q) {
         if (empty($this->testresults) || self::can_view_hidden()) {
-            return $this->format_table($this->testresults);
+            return $this->testresults;
         } else {
-            return $this->format_table($this->visible_rows($this->testresults));
+            return self::visible_rows($this->testresults);
         }
     }
 
-    // Function to apply the formatting specified in $this->columnformats
-    // to the given table. This simply wraps cells in columns with a '%h' format
-    // specifier in html_wrapper objects leaving other cells unchanged.
-    // ishidden and iscorrect columns are copied across unchanged.
-    private function format_table($table) {
-        if (empty($table)) {
-            return $table;
-        }
-        if (!$this->columnformats) {
-            $newtable = $table;
+    /**
+     * Build the testresults table from the initial given testresults by
+     * applying all the column formats. Cells with '%h' format are first
+     * processed to replace any src or href assignments with references to
+     * the $urls of the saved files. Then the cells are wrapped in 
+     * html_wrapper objects. All other cells are unchanged.
+     * ishidden and iscorrect columns are copied across unchanged.
+     * @param array $testresults The 'raw' $testresults from the run.
+     * @param array $columnformats The array of '%s' or '%h' column formats
+     * @param array $urls. The map from filename to URL
+     */
+    private function format_results_table($testresults, $columnformats, $urls) {
+        if (!$testresults || !$columnformats) {
+            $this->testresults = $testresults;
         } else {
-            $formats = $this->columnformats;
-            $columnheaders = $table[0];
+            $formats = $columnformats;
+            $columnheaders = $testresults[0];
             $newtable = [$columnheaders];
-            $nrows = count($table);
+            $nrows = count($testresults);
             for ($i = 1; $i < $nrows; $i++) {
-                $row = $table[$i];
+                $row = $testresults[$i];
                 $newrow = [];
                 $formatindex = 0;
                 $ncols = count($row);
@@ -284,8 +383,10 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
                     if (in_array($columnheaders[$col], ['ishidden', 'iscorrect'])) {
                         $newrow[] = $cell;  // Copy control column values directly.
                     } else {
+
                         // Non-control columns are either '%s' or '%h' format.
                         if ($formats[$formatindex++] === '%h') {
+                            $cell = $this->insert_file_urls($cell, $urls);
                             $newrow[] = new qtype_coderunner_html_wrapper($cell);
                         } else {
                             $newrow[] = $cell;
@@ -295,7 +396,7 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
                 $newtable[] = $newrow;
             }
         }
-        return $newtable;
+        $this->testresults = $newtable;
     }
 
     public function get_prologue() {
@@ -326,27 +427,43 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
     }
 
 
-    // Check that if a columnformats field is supplied
-    // the number of entries is correct and that each entry is either '%s'
-    // or '%h'. If not, an appropriate status error message is set.
-    private function validate_table_formats() {
-        if ($this->columnformats && $this->testresults) {
+    /**
+     * Check if the given values of column formats and test results are
+     * valid in the sense that the number of entries in column formats 
+     * matches the number of columns in the table and that each column
+     * foramt is either '%s'
+     * or '%h'. If not, an appropriate status error message is set and
+     * the return value is false. Otherwise the return value is true.
+     * @param array $testresults An array of test results, where the
+     * first row is the column headers and the remaining rows are the
+     * results of each test.
+     * @param array $columnformats An array of strings specifying the
+     * column formats, each either %s or %h.
+     * @return bool True if either of $columnformats or $testresults is 
+     * null or empty or if all column formats are valid. Otherwise
+     * return false, and set an error status.
+     */
+
+    private static function valid_table_formats($testresults,$columnformats, ) {
+        $ok = true;
+        if ($columnformats && $testresults) {
             $numcols = 0;
-            foreach ($this->testresults[0] as $colhdr) {
+            foreach ($testresults[0] as $colhdr) {
                 // Count columns in header, excluding iscorrect and ishidden.
                 if ($colhdr !== 'iscorrect' && $colhdr !== 'ishidden') {
                     $numcols += 1;
                 }
             }
-            if (count($this->columnformats) !== $numcols) {
+            if (count($columnformats) !== $numcols) {
                 $error = get_string(
                     'wrongnumberofformats',
                     'qtype_coderunner',
-                    ['expected' => $numcols, 'got' => count($this->columnformats)]
+                    ['expected' => $numcols, 'got' => count($columnformats)]
                 );
                 $this->set_status(self::STATUS_BAD_COMBINATOR, $error);
+                $ok = false;
             } else {
-                foreach ($this->columnformats as $format) {
+                foreach ($columnformats as $format) {
                     if ($format !== '%s' && $format !== '%h') {
                         $error = get_string(
                             'illegalformat',
@@ -354,17 +471,21 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
                             ['format' => $format]
                         );
                         $this->set_status(self::STATUS_BAD_COMBINATOR, $error);
+                        $ok = false;
                         break;
                     }
                 }
             }
         }
+        return $ok;
     }
 
 
-    // Private method to filter result table so only visible rows are shown
-    // to students. Only called if the user is not allowed to see hidden rows
-    // And if there is a non-null non-empty resulttable.
+    /**
+     * Filter the given result table to return only the visible rows.
+     * Only called if the user is not allowed to see hidden rows
+     * And if there is a non-null non-empty resulttable.
+     * */
     private static function visible_rows($resulttable) {
         $header = $resulttable[0];
         $ishiddencolumn = -1;

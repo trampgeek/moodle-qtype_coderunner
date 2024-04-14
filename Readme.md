@@ -1954,7 +1954,7 @@ template grader", i.e. a TemplateGrader with the `Is combinator` checkbox checke
 In this mode, the JSON string output by the template grader
 should again contain a 'fraction' field, this time for the total mark,
 and may contain zero or more of 'prologuehtml', 'testresults', 'columnformats',
-'epiloguehtml', 'showoutputonly', 'showdifferences' and 'graderstate'.
+'epiloguehtml', 'instructorhtml', 'files', 'showoutputonly', 'showdifferences' and 'graderstate'.
 attributes.
 The 'prologuehtml' and 'epiloguehtml' fields are html
 that is displayed respectively before and after the (optional) result table. The
@@ -1966,6 +1966,9 @@ crosses for 1 or 0 row values respectively. The 'ishidden' column isn't
 actually displayed but 0 or 1 values in the column can be used to turn on and
 off row visibility. Students do not see hidden rows but markers and other
 staff do.
+
+'instructorhtml' is a special version of 'epiloguehtml' that is displayed only
+to teachers.
 
 If a 'testresults' field is present, there can also be a 'columnformats' field.
 This should have one format specifier per table column and each format specifier
@@ -1989,6 +1992,18 @@ The 'showdifferences' attribute can be added to the JSON outcome to render
 the standard 'Show differences' button after the result table; it is displayed
 only if there is actually a result table present and if full marks were not
 awarded to the question.
+
+The 'files' attribute is a JSON object mapping from filenames to the corresponding
+base4 encoded
+file contents. This parameter is intended primarily for returning image files
+that will be displayed in the feedback, but could have other uses. If a 'files'
+attribute is present, the files are written to the Moodle file area and download
+URLs generated. files are timestamped so the same filename can be used unambiguously
+in multiple grade responses. The URLs are then used to update any occurrences of the strings
+ `src="filename"` or `href="filename"` within the 'prologuehtml', 'testresults',
+ 'epiloguehtml' and 'instructorhtml' attributes to use the full URL instead of just the
+ filename. Unmatched filenames are disregarded. Single quotes instead of double 
+ quotes can also be used in the 'src' and 'href' attribute assignments.
 
 The 'graderstate' attribute is a string value that is stored in the database
 with the question attempt and is passed back to the combinator template grader
