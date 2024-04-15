@@ -32,7 +32,7 @@ require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
 use qtype_coderunner\constants;
 use qtype_coderunner\coderunner_files;
 
-/**
+/*
  * Represents a 'CodeRunner' question.
  */
 
@@ -254,7 +254,7 @@ class qtype_coderunner_question extends question_graded_automatically {
             $step->set_qt_var('_mtrandseed', $seed);
         }
         $this->evaluate_question_for_display($seed, $step);
-        $this->randomseed = $seed;  // so we can see it when checking
+        $this->randomseed = $seed;  // So we can see it when checking.
     }
 
     // Retrieve the saved random number seed and reconstruct the template
@@ -270,7 +270,7 @@ class qtype_coderunner_question extends question_graded_automatically {
             $seed = mt_rand();
         }
         $this->evaluate_question_for_display($seed, $step);
-        $this->randomseed = $seed;  // so we can see it when checking
+        $this->randomseed = $seed;  // So we can see it when checking.
     }
 
 
@@ -843,7 +843,7 @@ class qtype_coderunner_question extends question_graded_automatically {
      * the history of prior submissions.
      * @param bool $isprecheck true iff this grading is occurring because the
      * student clicked the precheck button
-     * @param bool $isvalidationrun true iff this is a validation run when saving 
+     * @param bool $isvalidationrun true iff this is a validation run when saving
      * a question.
      * @return 3-element array of the mark (0 - 1), the question_state (
      * gradedright, gradedwrong, gradedpartial, invalid) and the full
@@ -939,7 +939,7 @@ class qtype_coderunner_question extends question_graded_automatically {
 
 
     /** Pulls out the step information in the response, added by the CodeRunner
-    /*  custom behaviour, for use by the question author in issuing feedback.
+     *  custom behaviour, for use by the question author in issuing feedback.
      *
      * @param type $response The usual response array enhanced by the addition of
      * numchecks, numprechecks and fraction values relating to the current step.
