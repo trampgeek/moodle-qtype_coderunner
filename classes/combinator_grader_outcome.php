@@ -161,7 +161,7 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
                 }
             }
         }
-        return $html; // return the modified HTML.
+        return $html; // Return the modified HTML.
     }
 
 
@@ -181,12 +181,13 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
         if ($this->valid_table_formats($testresults, $columnformats)) {
             if ($files) {
                 $urls = $this->save_files($files);
-                $htmlfields = ['feedbackhtml', 'prologuehtml', 'epiloguehtml', 'instructorhtml'];
-                foreach ($htmlfields as $field) {
-                    if ($this->$field) {
-                        $this->$field = $this->insert_file_urls($this->$field, $urls);
-                    }
-                };
+            }
+            foreach ($feedback as $field => $value) {
+                if ($urls && in_array($field, ['prologuehtml', 'epiloguehtml', 'instructorhtml', 'feedbackhtml'])) {
+                    $this->$field = $this->insert_file_urls($value, $urls);
+                } else {
+                    $this->$field = $value;
+                }
             }
             $this->format_results_table($testresults, $columnformats, $urls);
         }
@@ -401,8 +402,8 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
                 }
                 $newtable[] = $newrow;
             }
+            $this->testresults = $newtable;
         }
-        $this->testresults = $newtable;
     }
 
     public function get_prologue() {
