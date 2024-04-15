@@ -25,18 +25,11 @@
 use qtype_coderunner\constants;
 
 class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testing_outcome {
-
     /** @var ?string Html that is displayed before the result table. */
     public $epiloguehtml;
 
     /** @var ?string Html that is displayed after the result table. */
     public $prologuehtml;
-
-    /** @var array A map from filename to feedback file contents, base64 */
-    public $files;
-
-    /** @var array A map from filename to the URLs of the saved files */
-    public $fileurls;
 
     /** @var array A per-column array of %s (string) or %h (html) values to control column formatting */
     public $columnformats;
@@ -95,30 +88,44 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
         foreach ($files as $filename => $base64) {
             $decoded = base64_decode($base64);
 
-            // Prepare file record object
+            // Prepare file record object.
             $contextid = context_user::instance($USER->id)->id;
-            $fileinfo = array(
+            $fileinfo = [
                 'contextid' => $contextid,
-                'component' => 'qtype_coderunner', 
-                'filearea'  => 'feedbackfiles',     // Custom file area for your plugin
-                'itemid'    => time(),   // Item ID - use Unix time stamp
-                'filepath'  => '/', // File path within the context
-                'filename'  => $filename); // Desired name of the file
+                'component' => 'qtype_coderunner',
+                'filearea'  => 'feedbackfiles', // Custom file area for your plugin.
+                'itemid'    => time(), // Item ID - use Unix time stamp.
+                'filepath'  => '/', // File path within the context.
+                'filename'  => $filename]; // Desired name of the file.
 
-            // Get the file storage object
+            // Get the file storage object.
             $fs = get_file_storage();
 
-            // Check if the file already exists to avoid duplicates
-            if (!$fs->file_exists($contextid, $fileinfo['component'], $fileinfo['filearea'],
-                $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename'])) {
-
-                // Create the file in Moodle's filesystem
+            // Check if the file already exists to avoid duplicates.
+            if (
+                !$fs->file_exists(
+                    $contextid,
+                    $fileinfo['component'],
+                    $fileinfo['filearea'],
+                    $fileinfo['itemid'],
+                    $fileinfo['filepath'],
+                    $fileinfo['filename']
+                )
+            ) {
+                // Create the file in Moodle's filesystem.
                 $file = $fs->create_file_from_string($fileinfo, $decoded);
             }
 
-            // Generate a URL to the saved file
-            $url = moodle_url::make_pluginfile_url($contextid, $fileinfo['component'], $fileinfo['filearea'],
-                                $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename'], false);
+            // Generate a URL to the saved file.
+            $url = moodle_url::make_pluginfile_url(
+                $contextid,
+                $fileinfo['component'],
+                $fileinfo['filearea'],
+                $fileinfo['itemid'],
+                $fileinfo['filepath'],
+                $fileinfo['filename'],
+                false
+            );
 
             $fileurls[$filename] = $url;
         }
@@ -137,15 +144,15 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
      */
     private function insert_file_urls($html, $urls) {
         if ($urls) {
-            foreach($urls as $filename => $url) {
+            foreach ($urls as $filename => $url) {
                 $filename = preg_quote($filename, '/');
                 $patterns = [
                     "src *= *'$filename'",
                     "src *= *\"$filename\"",
                     "href *= *'$filename'",
-                    "href *= *\"$filename\""
+                    "href *= *\"$filename\"",
                 ];
-                foreach($patterns as $pat) {
+                foreach ($patterns as $pat) {
                     if (strpos($pat, 'src') !== false) {
                         $html = preg_replace("/$pat/", "src=\"$url\"", $html);
                     } else {
@@ -154,7 +161,7 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
                 }
             }
         }
-        return $html; // return the modified HTML
+        return $html; // return the modified HTML.
     }
 
 
@@ -175,7 +182,7 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
             if ($files) {
                 $urls = $this->save_files($files);
                 $htmlfields = ['feedbackhtml', 'prologuehtml', 'epiloguehtml', 'instructorhtml'];
-                foreach($htmlfields as $field) {
+                foreach ($htmlfields as $field) {
                     if ($this->$field) {
                         $this->$field = $this->insert_file_urls($this->$field, $urls);
                     }
@@ -358,7 +365,7 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
      * Build the testresults table from the initial given testresults by
      * applying all the column formats. Cells with '%h' format are first
      * processed to replace any src or href assignments with references to
-     * the $urls of the saved files. Then the cells are wrapped in 
+     * the $urls of the saved files. Then the cells are wrapped in
      * html_wrapper objects. All other cells are unchanged.
      * ishidden and iscorrect columns are copied across unchanged.
      * @param array $testresults The 'raw' $testresults from the run.
@@ -383,7 +390,6 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
                     if (in_array($columnheaders[$col], ['ishidden', 'iscorrect'])) {
                         $newrow[] = $cell;  // Copy control column values directly.
                     } else {
-
                         // Non-control columns are either '%s' or '%h' format.
                         if ($formats[$formatindex++] === '%h') {
                             $cell = $this->insert_file_urls($cell, $urls);
@@ -429,7 +435,7 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
 
     /**
      * Check if the given values of column formats and test results are
-     * valid in the sense that the number of entries in column formats 
+     * valid in the sense that the number of entries in column formats
      * matches the number of columns in the table and that each column
      * foramt is either '%s'
      * or '%h'. If not, an appropriate status error message is set and
@@ -439,12 +445,12 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
      * results of each test.
      * @param array $columnformats An array of strings specifying the
      * column formats, each either %s or %h.
-     * @return bool True if either of $columnformats or $testresults is 
+     * @return bool True if either of $columnformats or $testresults is
      * null or empty or if all column formats are valid. Otherwise
      * return false, and set an error status.
      */
 
-    private static function valid_table_formats($testresults,$columnformats, ) {
+    private function valid_table_formats($testresults, $columnformats) {
         $ok = true;
         if ($columnformats && $testresults) {
             $numcols = 0;
