@@ -374,9 +374,11 @@ class qtype_coderunner_jobrunner {
             // A successful combinator run (so far).
             $fract = $outcome->is_output_only() ? 1.0 : $result->fraction;
             $feedback = [];
-            if (isset($result->feedback_html)) {  // Legacy combinator grader?
-                $result->feedbackhtml = $result->feedback_html; // Change to modern version.
-                unset($result->feedback_html);
+            foreach (['feedback_html', 'feedbackhtml'] as $legacykey) {
+                if (isset($result->$legacykey)) {  // Legacy combinator grader?
+                    $result->epiloguehtml = $result->$legacykey; // Use it as epiloguehtml.
+                    unset($result->$legacykey);
+                }
             }
             foreach ($result as $key => $value) {
                 if (!in_array($key, $outcome->allowedfields)) {
@@ -387,12 +389,7 @@ class qtype_coderunner_jobrunner {
                     );
                     throw new Exception($error);
                 }
-                if ($key === 'feedbackhtml' || $key === 'feedback_html') {
-                    // For compatibility with older combinator graders.
-                    $feedback['epiloguehtml'] = $result->$key;
-                } else {
-                    $feedback[$key] = $value;
-                }
+                $feedback[$key] = $value;
             }
             $outcome->set_mark_and_feedback($fract, $feedback);  // Further valididty checks done in here.
         } catch (Exception $except) {

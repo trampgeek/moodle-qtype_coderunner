@@ -57,8 +57,7 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
 
     // A list of the allowed attributes in the combinator template grader return value.
     public $allowedfields = ['fraction', 'prologuehtml', 'testresults', 'files', 'epiloguehtml',
-                    'feedbackhtml', 'columnformats', 'showdifferences',
-                    'showoutputonly', 'graderstate', 'instructorhtml',
+                    'columnformats', 'showdifferences', 'showoutputonly', 'graderstate', 'instructorhtml',
     ];
 
     public function __construct($isprecheck) {
@@ -174,22 +173,20 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
      */
     public function set_mark_and_feedback($markfraction, $feedback) {
         $this->actualmark = $markfraction;  // Combinators work in the range 0 - 1.
-        $columnformats = $feedback['columnformats'] ?? null;
         $testresults = $feedback['testresults'] ?? null;
         $files = $feedback['files'] ?? null;
-        $urls = null;
-        if ($this->valid_table_formats($testresults, $columnformats)) {
-            if ($files) {
-                $urls = $this->save_files($files);
+        $urls = $files ? $this->save_files($files) : null;
+
+        foreach ($feedback as $field => $value) {
+            if ($urls && in_array($field, ['prologuehtml', 'epiloguehtml', 'instructorhtml'])) {
+                $this->$field = $this->insert_file_urls($value, $urls);
+            } else if (! in_array($field, ['files', 'testresults'])) {
+                $this->$field = $value;
             }
-            foreach ($feedback as $field => $value) {
-                if ($urls && in_array($field, ['prologuehtml', 'epiloguehtml', 'instructorhtml', 'feedbackhtml'])) {
-                    $this->$field = $this->insert_file_urls($value, $urls);
-                } else {
-                    $this->$field = $value;
-                }
-            }
-            $this->format_results_table($testresults, $columnformats, $urls);
+        }
+
+        if ($this->valid_table_formats($testresults, $this->columnformats)) {
+            $this->format_results_table($testresults, $this->columnformats, $urls);
         }
     }
 
@@ -212,7 +209,7 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
     // but just output to be displayed as supplied. There is no message
     // regarding success or failure with such questions.
     public function is_output_only() {
-        return isset($this->outputonly) && $this->outputonly;
+        return $this->outputonly ?? false;
     }
 
 
