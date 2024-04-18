@@ -949,10 +949,10 @@ class qtype_coderunner_question extends question_graded_automatically {
 
     private static function step_info($response) {
         $stepinfo = new stdClass();
-        foreach (['numchecks', 'numprechecks', 'fraction', 'preferredbehaviour'] as $key) {
-            $value = isset($response[$key]) ? $response[$key] : 0;
-            $stepinfo->$key = $value;
+        foreach (['numchecks', 'numprechecks', 'fraction'] as $key) {
+            $stepinfo->$key = $response[$key] ?? 0;
         }
+        $stepinfo->preferredbehaviour = $response['preferredbehaviour'] ?? 'adaptive';
         $stepinfo->coderunnerversion = get_config('qtype_coderunner')->version;
         return $stepinfo;
     }
