@@ -187,15 +187,17 @@ class qtype_coderunner_bulk_tester {
         global $OUTPUT;
 
         // Load the necessary data.
+        $coursename = $context->get_context_name(true, true);
         $categories = $this->get_categories_for_context($context->id);
         $questiontestsurl = new moodle_url('/question/type/coderunner/questiontestrun.php');
         if ($context->contextlevel == CONTEXT_COURSE) {
-            $questiontestsurl->param('courseid', $context->instanceid);
+            $qparams['courseid'] = $context->instanceid;
         } else if ($context->contextlevel == CONTEXT_MODULE) {
-            $questiontestsurl->param('cmid', $context->instanceid);
+            $qparams['cmid'] = $context->instanceid;
         } else {
-            $questiontestsurl->param('courseid', SITEID);
+            $qparams['courseid'] = SITEID;
         }
+        $questiontestsurl->params($qparams);
         $numpasses = 0;
         $failingtests = [];
         $missinganswers = [];
@@ -233,12 +235,17 @@ class qtype_coderunner_bulk_tester {
                 // Report the result, and record failures for the summary.
                 echo " $message</li>";
                 flush(); // Force output to prevent timeouts and show progress.
+                $qparams['category'] = $currentcategoryid . ',' . $context->id;
+                $qparams['lastchanged'] = $question->id;
+                $qparams['qperpage'] = 1000;
+                $questionbankurl = new moodle_url('/question/edit.php', $qparams);
+                $questionbanklink = html_writer::link($questionbankurl, $nameandcount->name, ['target' => '_blank']);
                 if ($outcome === self::PASS) {
                     $numpasses += 1;
                 } else if ($outcome === self::MISSINGANSWER) {
-                    $missinganswers[] = $questionnamelink;
+                    $missinganswers[] = "$coursename / $questionbanklink / $questionnamelink";
                 } else {
-                    $failingtests[] = "$questionnamelink: $message";
+                    $failingtests[] = "$coursename / $questionbanklink / $questionnamelink: $message";
                 }
             }
             echo "</ul>\n";
