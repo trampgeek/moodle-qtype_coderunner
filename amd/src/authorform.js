@@ -107,7 +107,6 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
         function setUi(taId, uiname) {
             var ta = $(document.getElementById(taId)),  // The jquery text area element(s).
                 lang,
-                currentLang = ta.attr('data-lang'),     // Language set by PHP.
                 paramsJson = ta.attr('data-params'),    // Ui params set by PHP.
                 params = {},
                 uiWrapper;
@@ -135,10 +134,6 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
             }
 
             uiWrapper = ta.data('current-ui-wrapper'); // Currently-active UI wrapper on this ta.
-
-            if (uiWrapper && uiWrapper.uiname === uiname && currentLang == lang) {
-                return; // We already have what we want - give up.
-            }
 
             ta.attr('data-lang', lang);
 
