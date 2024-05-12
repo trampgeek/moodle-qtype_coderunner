@@ -69,7 +69,7 @@ EOCODE;
             false, // Not a precheck.
         );
         [$mark, $grade, $cache] = $result;
-        $testoutcome = unserialize($cache['_testoutcome']); // For debugging test.
+        $testoutcome = $q->unserialize_outcome($cache['_testoutcome']); // For debugging test.
         $this->assertEquals(1, $mark);
         $this->assertEquals(\question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
@@ -104,7 +104,7 @@ EOCODE;
             false, // Not a precheck.
         );
         [$mark, $grade, $cache] = $result;
-        $testoutcome = unserialize($cache['_testoutcome']); // For debugging test.
+        $testoutcome = $q->unserialize_outcome($cache['_testoutcome']); // For debugging test.
         $this->assertEquals(1, $mark);
         $this->assertEquals(\question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
@@ -139,7 +139,7 @@ EOCODE;
             false, // Not a precheck.
         );
         [$mark, $grade, $cache] = $result;
-        $testoutcome = unserialize($cache['_testoutcome']); // For debugging test.
+        $testoutcome = $q->unserialize_outcome($cache['_testoutcome']); // For debugging test.
         $this->assertEquals(0, $mark);
         $this->assertEquals(\question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));

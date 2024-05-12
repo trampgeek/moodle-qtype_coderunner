@@ -25,7 +25,7 @@
 class qtype_coderunner_html_wrapper {
 
     /** @var string */
-    private $html;
+    public $html;  // Public so it can be JSON encoded.
 
     public function __construct($html) {
         $this->html = $html;

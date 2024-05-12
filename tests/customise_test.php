@@ -44,7 +44,7 @@ class customise_test extends \qtype_coderunner_testcase {
         $this->assertEquals(1, $mark);
         $this->assertEquals(\question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
-        $testoutcome = unserialize($cache['_testoutcome']);
+        $testoutcome = $q->unserialize_outcome($cache['_testoutcome']);
         $this->assertFalse($testoutcome->has_syntax_error());
         foreach ($testoutcome->testresults as $tr) {
             $this->assertTrue($tr->iscorrect);

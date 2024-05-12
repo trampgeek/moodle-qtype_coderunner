@@ -864,7 +864,7 @@ class qtype_coderunner_question extends question_graded_automatically {
         // This should be even quicker than the file cache.
         if (!empty($response['_testoutcome'])) {
             $testoutcomeserial = $response['_testoutcome'];
-            $testoutcome = unserialize($testoutcomeserial);
+            $testoutcome = $this->unserialize_outcome($testoutcomeserial);
             if (
                 $testoutcome instanceof qtype_coderunner_testing_outcome  // Ignore legacy-format outcomes.
                     && $testoutcome->isprecheck == $isprecheck
@@ -887,12 +887,6 @@ class qtype_coderunner_question extends question_graded_automatically {
             $this->stepinfo = self::step_info($response);
             $this->stepinfo->graderstate = $response['graderstate'] ?? "";
             $runner = new qtype_coderunner_jobrunner();
-            // QUESTION why are we reading the graderstate??
-            if (isset($response['graderstate'])) {
-                $this->stepinfo->graderstate = $response['graderstate'];
-            } else {
-                $this->stepinfo->graderstate = '';
-            }
             $testoutcome = $runner->run_tests(
                 $this,
                 $code,
@@ -901,7 +895,7 @@ class qtype_coderunner_question extends question_graded_automatically {
                 $isprecheck,
                 $language
             );
-            $testoutcomeserial = serialize($testoutcome);
+            $testoutcomeserial = json_encode($testoutcome);
         }
         // To be saved in question step data.
         // Note: This is used to render test results too so it's not just a cache.
@@ -935,6 +929,25 @@ class qtype_coderunner_question extends question_graded_automatically {
             }
         }
         return $attachments;
+    }
+
+
+    /**
+     * Given a serialised outcome as stored in the question-attempt-step table, return
+     * the unserialised version. The serialisation has changed (mid-2024) from using PHP
+     * serialize to JSON in order to accommodate embedded URLs to Moodle files (which
+     * were corrupted by backup/restore). This function handles both the current
+     * and legacy verions.
+     * @param string $serialisedoutcome The coderunner testing outcome result, serialised.
+     * @return qtype_coderunner_testing_outcome The unserialised result, or null if the
+     * unserialisation fails.
+     */
+    public function unserialize_outcome($serializedoutcome) {
+        $outcome = qtype_coderunner_testing_outcome::unserialise_from_json($serializedoutcome);
+        if (is_null($outcome)) {
+            $outcome = unserialize($serializedoutcome);
+        }
+        return $outcome;
     }
 
 
@@ -1021,7 +1034,7 @@ class qtype_coderunner_question extends question_graded_automatically {
         $fieldsrequired = ['id', 'name', 'questiontext', 'generalfeedback',
             'generalfeedbackformat', 'testcases',
             'answer', 'answerpreload', 'language', 'globalextra', 'prototypeextra',
-            'useace', 'sandbox','grader', 'cputimelimitsecs', 'memlimitmb',
+            'useace', 'sandbox', 'grader', 'cputimelimitsecs', 'memlimitmb',
             'sandboxparams', 'parameters', 'resultcolumns', 'allornothing',
             'precheck', 'hidecheck', 'penaltyregime', 'iscombinatortemplate',
             'allowmultiplestdins', 'acelang', 'uiplugin', 'attachments',

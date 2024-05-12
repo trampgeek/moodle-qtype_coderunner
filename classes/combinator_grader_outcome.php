@@ -73,6 +73,31 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
 
 
     /**
+     * Define the attributes of this object from the given associative array that results
+     * from decoding the JSON-encoded version. The base-class method handles
+     * everything except the testresults table, which in this subclass is a simple
+     * 2D table rather than an array of TestResult objects.
+     */
+    public function load_attributes($decodedoutcome) {
+        $this->testresults = $decodedoutcome['testresults'];
+        // If we have non-null testresults, some cells might originally have been of
+        // type qtype_coderunner_html_wrapper. They willnow be associative arrays with an html attribute.
+        // Find these and replace them with the appropriate type object.
+        if ($this->testresults) {
+            for ($i = 1; $i < count($this->testresults); $i++) {
+                for ($j = 0; $j < count($this->testresults[$i]); $j++) {
+                    if (is_array($this->testresults[$i][$j])) {
+                        $this->testresults[$i][$j] = new qtype_coderunner_html_wrapper($this->testresults[$i][$j]['html'] ?? '');
+                    }
+                }
+            }
+        }
+        unset($decodedoutcome['testresults']); // Hide it from superclass.
+        parent::load_attributes($decodedoutcome);
+    }
+
+
+    /**
      * Process all the files in $files, saving them to the Moodle file area
      * and generating an URL to reference the saved file. The URLs are
      * time-stamped to allow re-use of the same name over
@@ -134,7 +159,7 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
 
     /**
      * Replace any occurrences of substrings of the form src="filename" or
-     * href=filename within the given html string to reference the URL of
+     * href="filename" within the given html string to reference the URL of
      * the file, if the filename is found in $this->fileurls.
      * No action is taken for non-matching filename.
      * @param string html The html string to be updates.

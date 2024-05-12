@@ -75,8 +75,10 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
         global $CFG;
         qtype_coderunner_sandbox::__construct();
         $this->jobeserver = get_config('qtype_coderunner', 'jobe_host');
-        if (qtype_coderunner_sandbox::is_canterbury_server($this->jobeserver)
-                && qtype_coderunner_sandbox::is_using_test_sandbox()) {
+        if (
+            qtype_coderunner_sandbox::is_canterbury_server($this->jobeserver)
+            && qtype_coderunner_sandbox::is_using_test_sandbox()
+        ) {
             throw new Exception("Please don't use the Canterbury jobe server for test runs");
         }
         $this->apikey = get_config('qtype_coderunner', 'jobe_apikey');
@@ -226,7 +228,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
             }
         }
 
-        if (!$runresult) {  // if cache read failed regrade, to be safe.
+        if (!$runresult) {  // If cache read failed regrade, to be safe.
             $this->currentjobid = sprintf('%08x', mt_rand());
 
             // Create a single curl object here, with support for cookies, and use it for all requests.

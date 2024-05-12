@@ -50,7 +50,7 @@ class cpp_questions_test extends \qtype_coderunner_testcase {
         $q = $this->make_question('sqr_cpp');
         $response = ['answer' => "int sqr(int n) { return n * n;}\n"];
         [$mark, $grade, $cache] = $q->grade_response($response);
-        $testoutcome = unserialize($cache['_testoutcome']);
+        $testoutcome = $q->unserialize_outcome($cache['_testoutcome']);
 
         $this->assertEquals(1, $mark);
         $this->assertEquals(\question_state::$gradedright, $grade);
@@ -68,7 +68,7 @@ class cpp_questions_test extends \qtype_coderunner_testcase {
         $this->assertEquals(1, $mark);
         $this->assertEquals(\question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
-        $testoutcome = unserialize($cache['_testoutcome']);
+        $testoutcome = $q->unserialize_outcome($cache['_testoutcome']);
         $this->assertFalse($testoutcome->has_syntax_error());
         $this->assertEquals(1, count($testoutcome->testresults));
         $this->assertTrue($testoutcome->all_correct());
@@ -86,7 +86,7 @@ int main() {
 "];
         [$mark, $grade, $cache] = $q->grade_response($response);
         $this->assertTrue(isset($cache['_testoutcome']));
-        $testoutcome = unserialize($cache['_testoutcome']);
+        $testoutcome = $q->unserialize_outcome($cache['_testoutcome']);
         $this->assertFalse($testoutcome->has_syntax_error());
         $this->assertEquals(1, $mark);
         $this->assertEquals(\question_state::$gradedright, $grade);
@@ -103,7 +103,7 @@ int main() {
         $this->assertEquals(0, $mark);
         $this->assertEquals(\question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
-        $testoutcome = unserialize($cache['_testoutcome']);
+        $testoutcome = $q->unserialize_outcome($cache['_testoutcome']);
         $this->assertFalse($testoutcome->has_syntax_error());
         $this->assertEquals(1, count($testoutcome->testresults));
         $this->assertFalse($testoutcome->all_correct());
@@ -122,7 +122,7 @@ int main() {
 }"];
         [$mark, $grade, $cache] = $q->grade_response($response);
         $this->assertTrue(isset($cache['_testoutcome']));
-        $testoutcome = unserialize($cache['_testoutcome']);
+        $testoutcome = $q->unserialize_outcome($cache['_testoutcome']);
         $this->assertFalse($testoutcome->has_syntax_error());
         $this->assertEquals(1, $mark);
         $this->assertEquals(\question_state::$gradedright, $grade);

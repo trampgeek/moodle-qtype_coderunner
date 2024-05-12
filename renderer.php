@@ -241,11 +241,13 @@ class qtype_coderunner_renderer extends qtype_renderer {
         }
 
         $q = $qa->get_question();
-        $outcome = unserialize($toserialised);
-        if ($outcome === false) {
+        $outcome = $q->unserialize_outcome($toserialised);
+
+        if (is_null($outcome)) {
             $outcome = new qtype_coderunner_testing_outcome(0, 0, false);
             $outcome->set_status(qtype_coderunner_testing_outcome::STATUS_UNSERIALIZE_FAILED);
         }
+
         $resultsclass = $this->results_class($outcome, $q->allornothing);
 
         $isoutputonly = $outcome->is_output_only();
@@ -411,8 +413,10 @@ class qtype_coderunner_renderer extends qtype_renderer {
         if (isset($sandboxinfo['jobeserver'])) {
             $jobeserver = $sandboxinfo['jobeserver'];
             $apikey = $sandboxinfo['jobeapikey'];
-            if (qtype_coderunner_sandbox::is_canterbury_server($jobeserver)
-                    && (!qtype_coderunner_sandbox::is_using_test_sandbox())) {
+            if (
+                qtype_coderunner_sandbox::is_canterbury_server($jobeserver)
+                    && (!qtype_coderunner_sandbox::is_using_test_sandbox())
+            ) {
                 if ($apikey == constants::JOBE_HOST_DEFAULT_API_KEY) {
                     $fb .= get_string('jobe_warning_html', 'qtype_coderunner');
                 } else {

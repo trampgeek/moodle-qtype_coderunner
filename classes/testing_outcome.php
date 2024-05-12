@@ -89,14 +89,53 @@ class qtype_coderunner_testing_outcome {
         $this->sandboxinfo = [];
         $this->graderstate = '';  // For passing state between runs using combinator grader.
         $this->numerrors = 0;
-        $this->failures = new html_table(); // A table for reporting validation errors.
-        $this->failures->attributes['class'] = 'coderunner-test-results';
-        $this->failures->head = [get_string('testcolhdr', 'qtype_coderunner'),
-                get_string('expectedcolhdr', 'qtype_coderunner'),
-                get_string('gotcolhdr', 'qtype_coderunner')];
-        $this->failures->data = [];
-        $this->failures->rowclasses = [];
+        $this->failuresdata = [];      // Info for an HTML table to present ...
+        $this->failuresrowclasses = []; // ... failures during validation.
     }
+
+
+    /**
+     * Construct a testing outcome (or combinator grader testing outcome) from
+     * serialised JSON.
+     * @return qtype_coderunner_testing_outcome The unserialised testing outcome (which may
+     * be of the subtype class qtype_coderunner_combinator_grader_outcome) or null if the
+     * unserialisation fails.
+     */
+    public static function unserialise_from_json($json) {
+        $decodedoutcome = json_decode($json, true);
+        if (is_null($decodedoutcome)) {
+            return null;
+        }
+        // Check if we should return the combinator_grader_outcome instead. Check two expected fields in case of changes.
+        if (array_key_exists('epiloguehtml', $decodedoutcome) || array_key_exists('outputonly', $decodedoutcome)) {
+            $outcome = new qtype_coderunner_combinator_grader_outcome(false);
+        } else {
+            $outcome = new qtype_coderunner_testing_outcome(0, 0, false);
+        }
+        $outcome->load_attributes($decodedoutcome);
+        return $outcome;
+    }
+
+    /**
+     * Define the attributes of this object from the given associative array that results
+     * from decoding the JSON-encoded version.
+     */
+    public function load_attributes($decodedoutcome) {
+        foreach ($decodedoutcome as $key => $value) {
+            if ($key === 'testresults') {
+                foreach ($decodedoutcome['testresults'] as $tr) {
+                    $row = new qtype_coderunner_test_result(new StdClass(), false, 0, '');
+                    foreach ($tr as $key => $value) {
+                        $row->$key = $value;
+                    }
+                    $this->testresults[] = $row;
+                }
+            } else {
+                $this->$key = $value;
+            }
+        }
+    }
+
 
     public function set_status($status, $errormessage = '') {
         $this->status = $status;
@@ -202,8 +241,8 @@ class qtype_coderunner_testing_outcome {
      * @param type $got
      */
     protected function add_failed_test($rownum, $code, $expected, $got, $sanitise = true) {
-        $this->failures->data[] = $this->format_failed_test($rownum, $code, $expected, $got, $sanitise);
-        $this->failures->rowclasses[] = 'coderunner-failed-test failrow_' . $rownum;
+        $this->failuresdata[] = $this->format_failed_test($rownum, $code, $expected, $got, $sanitise);
+        $this->failuresrowclasses[] = 'coderunner-failed-test failrow_' . $rownum;
     }
 
     /**
@@ -274,8 +313,17 @@ class qtype_coderunner_testing_outcome {
             }
             $message = get_string('failedntests', 'qtype_coderunner', [
                 'numerrors' => $this->numerrors]);
-            if ($this->failures->data) {
-                $message .= html_writer::table($this->failures) . get_string('replaceexpectedwithgot', 'qtype_coderunner');
+            if ($this->failuresdata) {
+                $htmltable = new html_table();
+                $htmltable->attributes['class'] = 'coderunner-test-results';
+                $htmltable->head = [
+                    get_string('testcolhdr', 'qtype_coderunner'),
+                    get_string('expectedcolhdr', 'qtype_coderunner'),
+                    get_string('gotcolhdr', 'qtype_coderunner'),
+                ];
+                $htmltable->data = $this->failuresdata;
+                $htmltable->rowclasses = $this->failuresrowclasses;
+                $message .= html_writer::table($htmltable) . get_string('replaceexpectedwithgot', 'qtype_coderunner');
             }
         } else {
             $message = get_string('failedtesting', 'qtype_coderunner');
@@ -442,21 +490,6 @@ class qtype_coderunner_testing_outcome {
             }
         }
         return $n;
-    }
-
-
-    /**
-     * Make an HTML table describing a single failing test case
-     * @param string $expected the expected output from the test
-     * @param string $got the actual output from the test
-     */
-    protected static function make_error_html($expected, $got) {
-        $table = new html_table();
-        $table->attributes['class'] = 'coderunner-test-results';
-        $table->head = [get_string('expectedcolhdr', 'qtype_coderunner'),
-                             get_string('gotcolhdr', 'qtype_coderunner')];
-        $table->data = [[html_writer::tag('pre', s($expected)), html_writer::tag('pre', s($got))]];
-        return html_writer::table($table);
     }
 
 

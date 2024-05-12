@@ -51,7 +51,7 @@ class c_questions_test extends \qtype_coderunner_testcase {
         $this->assertEquals(1, $mark);
         $this->assertEquals(\question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
-        $testoutcome = unserialize($cache['_testoutcome']);
+        $testoutcome = $q->unserialize_outcome($cache['_testoutcome']);
         $this->assertEquals(4, count($testoutcome->testresults));
         $this->assertTrue($testoutcome->all_correct());
     }
@@ -63,7 +63,7 @@ class c_questions_test extends \qtype_coderunner_testcase {
         $this->assertEquals(0, $mark);
         $this->assertEquals(\question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
-        $testoutcome = unserialize($cache['_testoutcome']);
+        $testoutcome = $q->unserialize_outcome($cache['_testoutcome']);
         $this->assertTrue($testoutcome->has_syntax_error());
         $this->assertEquals(0, count($testoutcome->testresults));
     }
@@ -75,7 +75,7 @@ class c_questions_test extends \qtype_coderunner_testcase {
         $this->assertEquals(1, $mark);
         $this->assertEquals(\question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
-        $testoutcome = unserialize($cache['_testoutcome']);
+        $testoutcome = $q->unserialize_outcome($cache['_testoutcome']);
         $this->assertFalse($testoutcome->has_syntax_error());
         $this->assertEquals(1, count($testoutcome->testresults));
         $this->assertTrue($testoutcome->all_correct());
@@ -88,7 +88,7 @@ class c_questions_test extends \qtype_coderunner_testcase {
         $this->assertEquals(0, $mark);
         $this->assertEquals(\question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
-        $testoutcome = unserialize($cache['_testoutcome']);
+        $testoutcome = $q->unserialize_outcome($cache['_testoutcome']);
         $this->assertFalse($testoutcome->has_syntax_error());
         $this->assertEquals(1, count($testoutcome->testresults));
         $this->assertFalse($testoutcome->all_correct());
@@ -105,7 +105,7 @@ class c_questions_test extends \qtype_coderunner_testcase {
             "return 0;}\n"];
         [$mark, $grade, $cache] = $q->grade_response($response);
         $this->assertTrue(isset($cache['_testoutcome']));
-        $testoutcome = unserialize($cache['_testoutcome']);
+        $testoutcome = $q->unserialize_outcome($cache['_testoutcome']);
         $this->assertEquals(1, $mark);
         $this->assertEquals(\question_state::$gradedright, $grade);
         $this->assertFalse($testoutcome->has_syntax_error());
@@ -131,7 +131,7 @@ class c_questions_test extends \qtype_coderunner_testcase {
         $this->assertEquals(1, $mark);
         $this->assertEquals(\question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
-        $testoutcome = unserialize($cache['_testoutcome']);
+        $testoutcome = $q->unserialize_outcome($cache['_testoutcome']);
         $this->assertFalse($testoutcome->has_syntax_error());
         $this->assertEquals(2, count($testoutcome->testresults));
         $this->assertTrue($testoutcome->all_correct());
@@ -146,7 +146,7 @@ class c_questions_test extends \qtype_coderunner_testcase {
         $this->assertEquals(0, $mark);
         $this->assertEquals(\question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
-        $testoutcome = unserialize($cache['_testoutcome']);
+        $testoutcome = $q->unserialize_outcome($cache['_testoutcome']);
         $this->assertFalse($testoutcome->has_syntax_error());
         $this->assertEquals(1, count($testoutcome->testresults));
         $this->assertFalse($testoutcome->all_correct());
@@ -160,7 +160,7 @@ class c_questions_test extends \qtype_coderunner_testcase {
         $this->assertEquals(0, $mark);
         $this->assertEquals(\question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
-        $testoutcome = unserialize($cache['_testoutcome']);
+        $testoutcome = $q->unserialize_outcome($cache['_testoutcome']);
         $this->assertFalse($testoutcome->has_syntax_error());
         $this->assertEquals(1, count($testoutcome->testresults));
         $this->assertFalse($testoutcome->all_correct());
@@ -174,7 +174,7 @@ class c_questions_test extends \qtype_coderunner_testcase {
         $this->assertEquals(0, $mark);
         $this->assertEquals(\question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
-        $testoutcome = unserialize($cache['_testoutcome']);
+        $testoutcome = $q->unserialize_outcome($cache['_testoutcome']);
         $this->assertFalse($testoutcome->has_syntax_error());
         $this->assertEquals(1, count($testoutcome->testresults));
         $this->assertFalse($testoutcome->all_correct());
@@ -194,7 +194,7 @@ class c_questions_test extends \qtype_coderunner_testcase {
         $this->assertEquals(1, $mark);
         $this->assertEquals(\question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
-        $testoutcome = unserialize($cache['_testoutcome']);
+        $testoutcome = $q->unserialize_outcome($cache['_testoutcome']);
         $this->assertEquals(4, count($testoutcome->testresults));
         $this->assertTrue($testoutcome->all_correct());
     }
@@ -223,7 +223,7 @@ EOANS
         $q->sandboxparams = '{"numprocs": 1}';
         [, $grade, $cache] = $q->grade_response($response);
         $this->assertTrue(isset($cache['_testoutcome']));
-        $testoutcome = unserialize($cache['_testoutcome']);
+        $testoutcome = $q->unserialize_outcome($cache['_testoutcome']);
         $this->assertTrue(
             strpos(
                 $testoutcome->testresults[0]->got,

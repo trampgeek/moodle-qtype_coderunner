@@ -60,7 +60,7 @@ class prototype_test extends \qtype_coderunner_testcase {
         $response = ['answer' => $code];
         $result = $q->grade_response($response);
         [, , $cache] = $result;
-        $testoutcome = unserialize($cache['_testoutcome']);
+        $testoutcome = $q->unserialize_outcome($cache['_testoutcome']);
         $this->assertTrue($testoutcome->all_correct());
     }
 
@@ -93,7 +93,7 @@ EOTEMPLATE;
         $q->start_attempt(null);
         $result = $q->grade_response($response);
         [$mark, $grade, $cache] = $result;
-        $testoutcome = unserialize($cache['_testoutcome']);
+        $testoutcome = $q->unserialize_outcome($cache['_testoutcome']);
         $this->assertTrue($testoutcome->all_correct());
     }
 

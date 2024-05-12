@@ -1646,7 +1646,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         if ($mark == 1.0) {
             return '';
         } else {
-            $outcome = unserialize($cachedata['_testoutcome']);
+            $outcome = $this->formquestion->unserialize_outcome($cachedata['_testoutcome']);
             $error = $outcome->validation_error_message();
             return $error;
         }
