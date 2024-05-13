@@ -250,7 +250,7 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
                 $n = count($row);
                 for ($i = 0; $i < $n; $i++) {
                     if ($headerrow[$i] != 'iscorrect') {
-                        $cell = htmlspecialchars($row[$i]);
+                        $cell = htmlspecialchars($row[$i], ENT_COMPAT | ENT_HTML401);
                         $error .= "{$headerrow[$i]}: <pre>$cell</pre>";
                     }
                 }

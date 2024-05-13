@@ -548,10 +548,8 @@ class qtype_coderunner_edit_form extends question_edit_form {
             $question->penaltyregime = get_config('qtype_coderunner', 'default_penalty_regime');
         }
 
-        foreach (
-            ['datafiles' => 'datafile',
-                'sampleanswerattachments' => 'samplefile'] as $fileset => $filearea
-        ) {
+        $filesets = ['datafiles' => 'datafile', 'sampleanswerattachments' => 'samplefile'];
+        foreach ($filesets as $fileset => $filearea) {
             $draftid = file_get_submitted_draft_itemid($fileset);
             $options = $this->fileoptions;
             $options['subdirs'] = false;
