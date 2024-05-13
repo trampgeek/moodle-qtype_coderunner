@@ -575,7 +575,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
             }
         }
 
-        $uclang = ucwords($currentlanguage);
+        $uclang = ucwords($currentlanguage ?? '');  // Current language can be null when prototype missing.
         $heading = get_string('asolutionis', 'qtype_coderunner');
         $heading = substr($heading, 0, strlen($heading) - 1) . ' (' . $uclang . ')';
         $divid = 'id_div_' . $fieldname;
