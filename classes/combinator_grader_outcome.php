@@ -270,7 +270,7 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
      * a button to copy the 'got' column into the 'expected' column of the test
      * case.
      */
-    private function make_validation_fail_table($correctcol, $expectedcol, $gotcol, $sanitise) {
+    private function combinator_validation_failures($correctcol, $expectedcol, $gotcol, $sanitise) {
         $error = '';
         $rownum = 0;
         $codecol = array_search(get_string('testcolhdr', 'qtype_coderunner'), $this->testresults[0]);
@@ -285,7 +285,7 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
             }
             $rownum += 1;
         }
-        return html_writer::table($this->failures) . get_string('replaceexpectedwithgot', 'qtype_coderunner');
+        return $this->validation_failures_table();
     }
 
 
@@ -341,7 +341,7 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
                 // copy-got-to-expected button.
 
                 $sanitise = !$this->is_html_column($gotcol);
-                $error .= $this->make_validation_fail_table($correctcol, $expectedcol, $gotcol, $sanitise);
+                $error .= $this->combinator_validation_failures($correctcol, $expectedcol, $gotcol, $sanitise);
             } else if ($correctcol) {
                 // Can't use the fancy table presentation as missing got and/or
                 // expected. So just make a simple 'first failing test' string.

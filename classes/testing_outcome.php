@@ -73,8 +73,11 @@ class qtype_coderunner_testing_outcome {
     /** @var string For use by combinator template graders, allowing to customise grade and feedback. */
     public $graderstate;
 
-    /** @var html_table Table for reporting validation errors. */
-    public $failures;
+    /** @var array Table for reporting validation errors. */
+    public $failuresdata;
+
+    /** @var array Table for reporting validation errors. */
+    public $failuresrowclasses;
 
     public function __construct($maxpossmark, $numtestsexpected, $isprecheck) {
         $this->status = self::STATUS_VALID;
@@ -313,22 +316,33 @@ class qtype_coderunner_testing_outcome {
             }
             $message = get_string('failedntests', 'qtype_coderunner', [
                 'numerrors' => $this->numerrors]);
-            if ($this->failuresdata) {
-                $htmltable = new html_table();
-                $htmltable->attributes['class'] = 'coderunner-test-results';
-                $htmltable->head = [
-                    get_string('testcolhdr', 'qtype_coderunner'),
-                    get_string('expectedcolhdr', 'qtype_coderunner'),
-                    get_string('gotcolhdr', 'qtype_coderunner'),
-                ];
-                $htmltable->data = $this->failuresdata;
-                $htmltable->rowclasses = $this->failuresrowclasses;
-                $message .= html_writer::table($htmltable) . get_string('replaceexpectedwithgot', 'qtype_coderunner');
-            }
+            $message .= $this->validation_failures_table();
         } else {
             $message = get_string('failedtesting', 'qtype_coderunner');
         }
         return $message . html_writer::empty_tag('br') . get_string('howtogetmore', 'qtype_coderunner');
+    }
+
+
+    /**
+     * Build an HTML table of all the validation failures.
+     * @return string An HTML table containing all the failures, or an empty string if no failures found.
+     */
+    public function validation_failures_table() {
+        $html = '';
+        if ($this->failuresdata) {
+            $htmltable = new html_table();
+            $htmltable->attributes['class'] = 'coderunner-test-results';
+            $htmltable->head = [
+                get_string('testcolhdr', 'qtype_coderunner'),
+                get_string('expectedcolhdr', 'qtype_coderunner'),
+                get_string('gotcolhdr', 'qtype_coderunner'),
+            ];
+            $htmltable->data = $this->failuresdata;
+            $htmltable->rowclasses = $this->failuresrowclasses;
+            $html = html_writer::table($htmltable) . get_string('replaceexpectedwithgot', 'qtype_coderunner');
+        }
+        return $html;
     }
 
     /**
