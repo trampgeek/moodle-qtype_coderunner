@@ -143,22 +143,22 @@ class run_in_sandbox extends external_api {
             throw new qtype_coderunner_exception(get_string('wsnolanguage', 'qtype_coderunner', $language));
         }
 
-        if (get_config('qtype_coderunner', 'wsloggingenabled')) {
-            // Check if need to throttle this user, and if not or if rate
-            // sufficiently low, allow the request and log it.
-            $maxhourlyrate = intval(get_config('qtype_coderunner', 'wsmaxhourlyrate'));
-            if ($maxhourlyrate > 0) { // Throttling enabled?
-                if (!isset($SESSION->throttle)) {
-                    $throttle = new \qtype_coderunner_wsthrottle();
-                } else {
-                    $throttle = unserialize($SESSION->throttle);
-                }
-                if (!$throttle->logrunok()) {
-                    throw new qtype_coderunner_exception(get_string('wssubmissionrateexceeded', 'qtype_coderunner'));
-                }
-                $SESSION->throttle = serialize($throttle);
+        // Check if need to throttle this submission.
+        $maxhourlyrate = intval(get_config('qtype_coderunner', 'wsmaxhourlyrate'));
+        if ($maxhourlyrate > 0) { // Throttling enabled?
+            if (!isset($SESSION->throttle)) {
+                $throttle = new \qtype_coderunner_wsthrottle();
+            } else {
+                $throttle = unserialize($SESSION->throttle);
             }
+            if (!$throttle->logrunok()) {
+                throw new qtype_coderunner_exception(get_string('wssubmissionrateexceeded', 'qtype_coderunner'));
+            }
+            $SESSION->throttle = serialize($throttle);
+        }
 
+        // If logging enabled, log the run.
+        if (get_config('qtype_coderunner', 'wsloggingenabled')) {
             $event = \qtype_coderunner\event\sandbox_webservice_exec::create([
                 'contextid' => $context->id]);
             $event->trigger();

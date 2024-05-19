@@ -1333,14 +1333,14 @@ $string['wsbadjson'] = 'Params and file parameters must be blank or a valid JSON
 $string['wscputimeexcess'] = 'CPU time specified exceeds set maximum CPU time';
 $string['wsdisabled'] = 'Sandbox web service disabled. Talk to a sysadmin';
 $string['wsloggingenable'] = 'Log sandbox web service usage';
-$string['wsloggingenable_desc'] = 'If this option is checked, every code execution via the sandbox web service will be logged. This option must be enabled if user rate throttling is to work.';
+$string['wsloggingenable_desc'] = 'If this option is checked, every code execution via the sandbox web service will be logged.';
 $string['wsmaxcputime'] = 'Max CPU time (secs)';
 $string['wsmaxcputime_desc'] = 'Limits the maximum CPU time that a web service job can use, even if it explicitly sets the CPU time sandbox parameter.';
 $string['wsmaxhourlyrate'] = 'Max hourly rate of submissions';
-$string['wsmaxhourlyrate_desc'] = 'If a user attempts to exceed this rate of submissions in any given hour their submissions will be disallowed. 0 for no rate throttling.';
+$string['wsmaxhourlyrate_desc'] = 'A burst of submissions of up to this value will be accepted but thereafter, if a user attempts to exceed this average rate of submissions, their submissions will be rejected. 0 for no rate throttling.';
 $string['wsnoaccess'] = 'Only logged-in non-guest users can access this functionality';
 $string['wsnolanguage'] = 'Language "{$a}" is not known';
-$string['wssubmissionrateexceeded'] = 'You have exceeded the maximum hourly \'Try it!\' submission rate. Request denied.';
+$string['wssubmissionrateexceeded'] = 'You have exceeded the maximum web-service job submission rate. Request denied.';
 
 $string['xmlcoderunnerformaterror'] = 'XML format error in coderunner question';
 $string['coderunner_grading_cache'] = 'Caches grading results so we can avoid going to Jobe so often';

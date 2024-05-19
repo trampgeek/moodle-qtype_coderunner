@@ -31,12 +31,16 @@ global $CFG;
 /**
  * Class to manage the throttling of an individual webservice user to the rate given
  * in the wsmaxhourlyrate config parameter.
+ * Uses the "leaky bucket" algorithm (https://en.wikipedia.org/wiki/Leaky_bucket). This allows
+ * a surge of run requests equal to the maxhourlyrate but thereafter the rate is limited
+ * to maxhourlyrate / 3600 runs per second.
+ * This class must be instantiated within the SESSION variable.
  */
 class qtype_coderunner_wsthrottle {
     private $timestamps;
     private $maxhourlyrate;
-    private $head;
-    private $tail;
+    private $bucketlevel;
+    private $timestamp;
 
     public function __construct() {
         $this->init();
@@ -44,12 +48,13 @@ class qtype_coderunner_wsthrottle {
 
     private function init() {
         $this->maxhourlyrate = intval(get_config('qtype_coderunner', 'wsmaxhourlyrate'));
-        $this->timestamps = array_fill(0, $this->maxhourlyrate, 0);
-        $this->head = $this->tail = 0; // Head and tail indices for circular list.
+        $this->bucketlevel = 0; // Current level of virtual fluid in the bucket (runs in last hour).
+        $this->timestamp = time(); // When the bucket level was last updated.
     }
+
     /**
-     * Add a log entry to the circular list of timestamps, clearing any
-     * expired entries (i.e. entries more than 1 hour ago).
+     * Allow any drainage to occur from the bucket. Then, if it's still full,
+     * disallow the run, otherwise allow it.
      * Return true if logging succeeds, false if user has reached their limit.
      */
     public function logrunok() {
@@ -57,30 +62,20 @@ class qtype_coderunner_wsthrottle {
             // Rate has been changed. Restart throttle.
             $this->init();
         }
-        $now = strtotime('now');
 
-        // Purge any non-zero entries older than 1 hour.
-        while ($this->expired($this->timestamps[$this->tail], $now)) {
-            $this->timestamps[$this->tail] = 0;
-            $this->tail = ($this->tail + 1) % $this->maxhourlyrate;
-        }
-        if ($this->timestamps[$this->head] == 0) { // Empty entry available?
-            $this->timestamps[$this->head] = $now;
-            $this->head = ($this->head + 1) % $this->maxhourlyrate;
+        // Allow any fluid to drain since the last time the level was computed.
+        $now = time();
+        $elapsedseconds = $now - $this->timestamp;
+        $drainage = $this->maxhourlyrate * $elapsedseconds / (60 * 60); // Change in bucket level.
+        $this->bucketlevel = max(0.0, $this->bucketlevel - $drainage);
+        $this->timestamp = $now;
+
+        // Now if there's enough space for 1 more run, allow it.
+        if ($this->bucketlevel + 1 <= $this->maxhourlyrate) { // Enough space in bucket?
+            $this->bucketlevel += 1;  // Yes, another quantum of fluid gets added.
             return true;
-        } else {
-            // List of timestamps is full. Need to throttle user.
+        } else {  // Not enough space.
             return false;
         }
-    }
-
-    /**
-     *
-     * @param int $timestamp the timestamp of interest
-     * @param int $now current timestamp
-     * @return bool true if the timestamp is non-zero and older than 1 hour
-     */
-    private function expired($timestamp, $now) {
-        return ($timestamp !== 0) && ($now - $timestamp) > 3600;
     }
 }
