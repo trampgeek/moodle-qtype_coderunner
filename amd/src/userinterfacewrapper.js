@@ -353,7 +353,9 @@ define(['jquery', 'core/templates', 'core/notification'], function($, Templates,
                         t.startSyncTimer(uiInstance);
                         let canDoFullScreen = t.isFullScreenEnable !== null ?
                             t.isFullScreenEnable : uiInstance.allowFullScreen?.();
-                        if (canDoFullScreen) {
+                        const isMobile = /Android|iPhone/i.test(navigator.userAgent);
+                        // Fullscreen button must be hidden on mobile devices.
+                        if (canDoFullScreen && !isMobile) {
                             t.initFullScreenToggle(t.taId);
                         } else {
                             t.removeFullScreenButton(t.taId);
