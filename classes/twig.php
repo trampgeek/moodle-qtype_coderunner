@@ -88,8 +88,9 @@ class qtype_coderunner_twig {
     // which is added the STUDENT parameter.
     // Return the Twig-expanded string.
     // Any Twig exceptions raised must be caught higher up.
-    // Since Twig range functions can result in PHP ValueError being thrown (grr)
-    // ValueErrors are caught and re-thrown as TwigErrors.
+    // Since Twig range functions can result in PHP ValueError being thrown, and
+    // a call to the slice filter with a string parameter gives an error.
+    // So all errors are caught and re-thrown as TwigErrors.
     public static function render($s, $student, $parameters = [], $isstrict = false) {
         if ($s === null || trim($s) === '') {
             return '';
@@ -103,7 +104,7 @@ class qtype_coderunner_twig {
         $template = $twig->createTemplate($s);
         try {
             $renderedstring = $template->render($parameters);
-        } catch (ValueError $e) {
+        } catch (Error $e) {
             throw new \Twig\Error\Error("Twig error: " . $e->getMessage());
         }
         return $renderedstring;
