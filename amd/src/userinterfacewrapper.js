@@ -225,7 +225,13 @@ define(['jquery', 'core/templates', 'core/notification'], function($, Templates,
                 if (t.uiInstance !== null || t.loadFailed) {
                     t.stop();
                 } else {
-                    t.restart();        // Reactivate
+                    // If the wrapper still exists (which won't be the case for
+                    // userinterfacewrappers embedded within another userinterface wrapper)
+                    // restart the UI within the wrapper.
+                    const wrapper = document.getElementById(`${t.taId}_wrapper`);
+                    if (wrapper) {
+                        t.restart();        // Reactivate
+                    }
                 }
             }
         });
