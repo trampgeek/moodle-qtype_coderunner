@@ -148,6 +148,7 @@ define(['jquery', 'core/templates', 'core/notification'], function($, Templates,
         this.GUTTER = 16;  // Size of gutter at base of wrapper Node (pixels)
         this.DEFAULT_SYNC_INTERVAL_SECS = 5;
 
+        this.uniqueId = Math.random();
         const PIXELS_PER_ROW = 19;  // For estimating height of textareas.
         const MAX_GROWN_ROWS = 50;  // Upper limit to artifically grown textarea rows.
         const MIN_WRAPPER_HEIGHT = 50;
@@ -182,6 +183,7 @@ define(['jquery', 'core/templates', 'core/notification'], function($, Templates,
          * textArea, ready to contain the actual UI.
          */
         this.wrapperNode = $("<div id='" + this.taId + "_wrapper' class='ui_wrapper position-relative'></div>");
+        this.wrapperNode.uniqueId = this.uniqueId;
         this.textArea.after(this.wrapperNode);
         this.wrapperNode.hide();
         this.wrapperNode.css({
@@ -219,7 +221,7 @@ define(['jquery', 'core/templates', 'core/notification'], function($, Templates,
                 t.uiInstance.sync();
             }
         });
-        $(document.body).on('keydown', function(e) {
+        $(document.body).on('keydown', function keyDown(e) {
             const KEY_M = 77;
             if (e.keyCode === KEY_M && e.ctrlKey && e.altKey) {
                 if (t.uiInstance !== null || t.loadFailed) {
@@ -229,8 +231,12 @@ define(['jquery', 'core/templates', 'core/notification'], function($, Templates,
                     // userinterfacewrappers embedded within another userinterface wrapper)
                     // restart the UI within the wrapper.
                     const wrapper = document.getElementById(`${t.taId}_wrapper`);
-                    if (wrapper) {
+                    if (wrapper && wrapper.uniqueId === this.uniqueId) {
                         t.restart();        // Reactivate
+                    } else {
+                        // This wrapper has apparently been killed. Stop listening.
+                        // Should now be garbage collectable, too.
+                        document.removeEventListener('keydown', keyDown);
                     }
                 }
             }
