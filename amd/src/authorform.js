@@ -133,7 +133,7 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
                 }
             }
 
-            uiWrapper = ta.data('current-ui-wrapper'); // Currently-active UI wrapper on this ta.
+            uiWrapper = ta[0].current_ui_wrapper; // Currently-active UI wrapper on this ta.
 
             ta.attr('data-lang', lang);
 
