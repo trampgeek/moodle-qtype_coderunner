@@ -277,6 +277,7 @@ Feature: Test the Scratchpad UI, UI Params
     """
 
     When I press the CTRL + ALT M key
+    And I wait "1" seconds
     Then I press the CTRL + ALT M key
     And I should see in answer field:
     """
