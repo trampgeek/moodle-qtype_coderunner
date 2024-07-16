@@ -73,8 +73,10 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
         global $CFG;
         qtype_coderunner_sandbox::__construct();
         $this->jobeserver = get_config('qtype_coderunner', 'jobe_host');
-        if (qtype_coderunner_sandbox::is_canterbury_server($this->jobeserver)
-                && qtype_coderunner_sandbox::is_using_test_sandbox()) {
+        if (
+            qtype_coderunner_sandbox::is_canterbury_server($this->jobeserver)
+                && qtype_coderunner_sandbox::is_using_test_sandbox()
+        ) {
             throw new Exception("Please don't use the Canterbury jobe server for test runs");
         }
         $this->apikey = get_config('qtype_coderunner', 'jobe_apikey');
@@ -122,10 +124,10 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
      *         will be used. This is true by default (which is usually for normal
      *         grading runs) but is typically set to false by calls from the
      *         web-service/sandbox (eg, scratchpad or try-it box runs, as these are never
-     *         going to be regraded). Note, the coderunner settings for enabling
-     *         cache reads and writes are combined with this argument to determine
+     *         going to be regraded). Note, the coderunner setting for enabling
+     *         cache are combined with this argument to determine
      *         if cache reading and writing are done. For example, if usecache
-     *         is true and enablegradecachereads is true then this function
+     *         is true and enablegradecache is true then this function
      *         will try to read the result from the grading cache but if
      *         either is false then it won't.
      * @return an object with at least the attribute 'error'.
@@ -198,7 +200,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
         if (self::DEBUGGING) {
             $runspec['debug'] = 1;
         }
-        //echo "<br> $sourcecode";
+
         if ($params !== null) {
             // Process any given sandbox parameters.
             $runspec['parameters'] = $params;
@@ -219,7 +221,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
 
         $cache = cache::make('qtype_coderunner', 'coderunner_grading_cache');
         $runresult = null;
-        if (get_config('qtype_coderunner', 'enablegradecachereads') && $usecache) {
+        if (get_config('qtype_coderunner', 'enablegradecache') && $usecache) {
             // NOTE: Changing jobeserver setting will effectively flush the cache
             // eg, adding another jobeserver to a list of servers will mean the
             // jobeserver parameter has changed and therefore the key will change.
@@ -227,9 +229,6 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
             $key = hash("md5", serialize($runspec));
             // Debugger: echo '<pre>' . serialize($runspec) . '</pre>';.
             $runresult = $cache->get($key);  // Unserializes the returned value :) false if not found.
-            if ($runresult) {
-                // echo $key . '----------->   FOUND' . '<br>'; .
-            }
         }
 
         if (!$runresult) {  // if cache read failed regrade, to be safe.
@@ -299,10 +298,9 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
                 $runresult['output'] = $this->filter_file_path($this->response->stdout);
 
                 // Got a useable result from Jobe server so cache it if required.
-                if (get_config('qtype_coderunner', 'enablegradecachewrites') && $usecache) {
+                if (get_config('qtype_coderunner', 'enablegradecache') && $usecache) {
                     $key = hash("md5", serialize($runspec));
                     $cache->set($key, $runresult); // Set serializes the result, get will unserialize.
-                    // echo 'CACHE WRITE for ---> ' . $key . '<br>';
                 }
             }
         }

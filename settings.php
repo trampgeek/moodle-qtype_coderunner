@@ -85,35 +85,20 @@ $settings->add(new admin_setting_configtext(
     ''
 ));
 
+
+$settings->add(new admin_setting_configcheckbox(
+    "qtype_coderunner/enablegradecache",
+    get_string('enablegradecache', 'qtype_coderunner'),
+    get_string('enablegradecache_desc', 'qtype_coderunner'),
+    false
+));
+
 $settings->add(new admin_setting_configtext(
     "qtype_coderunner/ideone_password",
     get_string('ideone_pass', 'qtype_coderunner'),
     get_string('ideone_pass_desc', 'qtype_coderunner'),
     ''
 ));
-
-
-$settings->add(new admin_setting_heading(
-    'codeRunnercachesettings',
-    get_string('coderunnercachesettingsheading', 'qtype_coderunner'),
-    ''
-));
-
-$settings->add(new admin_setting_configcheckbox(
-    "qtype_coderunner/enablegradecachereads",
-    get_string('enablegradecachereads', 'qtype_coderunner'),
-    get_string('enablegradecachereads_desc', 'qtype_coderunner'),
-    false
-));
-
-$settings->add(new admin_setting_configcheckbox(
-    "qtype_coderunner/enablegradecachewrites",
-    get_string('enablegradecachewrites', 'qtype_coderunner'),
-    get_string('enablegradecachewrites_desc', 'qtype_coderunner'),
-    false
-));
-
-
 
 
 $settings->add(new admin_setting_heading(
@@ -158,4 +143,3 @@ $settings->add(new admin_setting_configtext(
     get_string('wsmaxcputime_desc', 'qtype_coderunner'),
     '5'
 ));
-
