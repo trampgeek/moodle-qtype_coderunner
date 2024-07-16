@@ -92,6 +92,30 @@ $settings->add(new admin_setting_configtext(
     ''
 ));
 
+
+$settings->add(new admin_setting_heading(
+    'codeRunnercachesettings',
+    get_string('coderunnercachesettingsheading', 'qtype_coderunner'),
+    ''
+));
+
+$settings->add(new admin_setting_configcheckbox(
+    "qtype_coderunner/enablegradecachereads",
+    get_string('enablegradecachereads', 'qtype_coderunner'),
+    get_string('enablegradecachereads_desc', 'qtype_coderunner'),
+    false
+));
+
+$settings->add(new admin_setting_configcheckbox(
+    "qtype_coderunner/enablegradecachewrites",
+    get_string('enablegradecachewrites', 'qtype_coderunner'),
+    get_string('enablegradecachewrites_desc', 'qtype_coderunner'),
+    false
+));
+
+
+
+
 $settings->add(new admin_setting_heading(
     'codeRunnerwssettings',
     get_string('coderunnerwssettings', 'qtype_coderunner'),
@@ -135,13 +159,3 @@ $settings->add(new admin_setting_configtext(
     '5'
 ));
 
-/*
-Currently left out so we can test
-
-$settings->add(new admin_setting_configcheckbox(
-    "qtype_coderunner/cachegradingresults",
-    get_string('cachegradingresultsenable', 'qtype_coderunner'),
-    get_string('cachegradingresults_desc', 'qtype_coderunner'),
-    false
-));
-*/
