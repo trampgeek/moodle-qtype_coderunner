@@ -78,6 +78,14 @@ $settings->add(new admin_setting_configtext(
     constants::JOBE_HOST_DEFAULT_API_KEY
 ));
 
+$settings->add(new admin_setting_configcheckbox(
+    "qtype_coderunner/enablegradecache",
+    get_string('enablegradecache', 'qtype_coderunner'),
+    get_string('enablegradecache_desc', 'qtype_coderunner'),
+    false
+));
+
+
 $settings->add(new admin_setting_configtext(
     "qtype_coderunner/ideone_user",
     get_string('ideone_user', 'qtype_coderunner'),
@@ -85,13 +93,6 @@ $settings->add(new admin_setting_configtext(
     ''
 ));
 
-
-$settings->add(new admin_setting_configcheckbox(
-    "qtype_coderunner/enablegradecache",
-    get_string('enablegradecache', 'qtype_coderunner'),
-    get_string('enablegradecache_desc', 'qtype_coderunner'),
-    false
-));
 
 $settings->add(new admin_setting_configtext(
     "qtype_coderunner/ideone_password",
