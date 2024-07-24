@@ -228,7 +228,7 @@ define(['core/templates', 'core/notification'], function(Templates, Notification
         });
 
         const form = this.textArea.closest('form');
-        if (form) {
+        if (form) {  // There may not be a form, e.g. when reviewing a submission.
             form.addEventListener('submit', function() {
                 if (t.uiInstance !== null) {
                     t.uiInstance.sync();
