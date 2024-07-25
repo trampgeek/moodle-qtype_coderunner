@@ -666,7 +666,7 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
         var observer = new MutationObserver( function () {
             setUis();
         });
-        observer.observe(preloadHdr.get(0), {'attributes': true});
+        observer.observe(preloadHdr.get(0), {'attributes': true, 'attributeFilter':['class']});
 
         // Setup click handler for the buttons that allow users to replace the
         // expected output  with the output got from testing the answer program.
