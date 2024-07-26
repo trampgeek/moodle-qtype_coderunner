@@ -204,7 +204,7 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
             if (useace.prop('checked')) {
                 for(var i = 0; i < taIds.length; i++) {
                     ta = $(document.getElementById(taIds[i]));
-                    uiWrapper = ta.data('current-ui-wrapper');
+                    uiWrapper = ta.get(0).current_ui_wrapper;
                     if (uiWrapper && stateOn) {
                         uiWrapper.restart();
                     } else if (uiWrapper && !stateOn) {
