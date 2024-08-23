@@ -243,8 +243,8 @@ class qtype_coderunner_testing_outcome {
         );
         $gotpre = html_writer::tag(
             'pre',
-             $got instanceof qtype_coderunner_html_wrapper ? $got->value() : $got,
-             ['id' => 'id_got_' . $rownum]
+            $got instanceof qtype_coderunner_html_wrapper ? $got->value() : $got,
+            ['id' => 'id_got_' . $rownum]
         );
         $button = html_writer::tag('button', '&lt;&lt;', [
                                    'type' => 'button', // To suppress form submission.
