@@ -312,7 +312,8 @@ define(['jquery'], function($) {
             nameMap = {
                 'octave': 'matlab',
                 'nodejs': 'javascript',
-                'c#': 'cs'
+                'c#': 'cs',
+                'pypy3': 'python'
             };
 
         if (typeof language !== 'string') {
