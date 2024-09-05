@@ -255,7 +255,7 @@ Feature: Test the Scratchpad UI, UI Params
     Then I press "Run"
     And I should see "Hello Wrapper Hello Answercode Hello Scratchpadcode"
 
-  Scenario: I set UI param invert_prefix to true and check serialisation
+  Scenario: I set UI param invert_prefix to true and prefix_ans to '1' and check serialisation
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1
     And I set the field "id_answer" to ""
     And I set the following fields to these values:
@@ -277,13 +277,14 @@ Feature: Test the Scratchpad UI, UI Params
     """
 
     When I press the CTRL + ALT M key
+    And I wait "1" seconds
     Then I press the CTRL + ALT M key
     And I should see in answer field:
     """
     {"answer_code":[""],"test_code":[""],"show_hide":["1"],"prefix_ans":[""]}
     """
 
-  Scenario: I set UI param invert_prefix to true and check serialisation
+  Scenario: I set UI param invert_prefix to true and prefix_ans to '' and check serialisation
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1
     And I set the field "id_answer" to ""
     And I set the following fields to these values:

@@ -212,8 +212,7 @@ abstract class qtype_coderunner_sandbox {
      * @return bool
      */
     public static function is_using_test_sandbox(): bool {
-        global $CFG;
-        return !empty($CFG->behat_prefix) && $CFG->prefix === $CFG->behat_prefix;
+        return defined('BEHAT_SITE_RUNNING');
     }
 
     /**

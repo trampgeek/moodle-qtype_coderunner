@@ -35,6 +35,24 @@
  */
 function qtype_coderunner_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options = []) {
     global $CFG;
+    if ($filearea === 'feedbackfiles') {
+        require_login($course, false, $cm);
+
+        // Note: Implement additional checks here, as needed, to ensure users are authorized to access the file
+
+        // Serve the file
+        $fs = get_file_storage();
+        $filename = array_pop($args);
+        $itemid = intval(array_shift($args));
+        $filepath = '/';
+        $contextid = $context->id;
+        $file = $fs->get_file($contextid, 'qtype_coderunner', $filearea, $itemid, $filepath, $filename);
+        if (!$file) {
+            send_file_not_found();
+        }
+        send_stored_file($file, 0, 0, $forcedownload, $options); // Adjust options as necessary
+    }
     require_once($CFG->libdir . '/questionlib.php');
     question_pluginfile($course, $context, 'qtype_coderunner', $filearea, $args, $forcedownload, $options);
 }
+

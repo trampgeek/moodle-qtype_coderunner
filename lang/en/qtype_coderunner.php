@@ -152,7 +152,7 @@ $string['enablecombinator'] = 'Enable combinator';
 $string['enable_diff_check'] = 'Enable \'Show differences\' button';
 $string['enable_diff_check_desc'] = 'Present students with a \'Show differences\' button if their answer is wrong and an exact-match validator is being used';
 $string['enable_sandbox_desc'] = 'Permit use of the specified sandbox for running student submissions';
-$string['enter_to_submit'] = 'Enter to submit...';
+$string['enter_to_submit'] = 'Press Enter to submit...';
 $string['equalitygrader'] = 'Exact match';
 $string['error_loading_prototype'] = 'Error loading prototype. Network problems or server down, perhaps?';
 $string['error_loading_ui_descr'] = 'Error loading UI description. Network problems or server down, perhaps?';
@@ -1071,9 +1071,16 @@ $string['scratchpadui_wrapper_src_descr'] = 'The location of wrapper to be used 
 $string['scratchpadui_disable_scratchpad_descr'] = 'Disable the scratchpad, effectively revert back to Ace UI from student perspective.';
 $string['scratchpadui_invert_prefix_descr'] = 'Inverts meaning of prefix_ans serialisation: \'1\' means un-ticked -- and vice versa. This can be used to swap the default state.';
 $string['scratchpadui_escape_descr'] = 'Escape (JSON with " removed from start and end) ANSWER_CODE and SCRATCHPAD_CODE before insertion into wrapper. Useful when inserting code into a string. NOTE: single quotes \' are NOT escaped.';
+$string['scratchpadui_jobe_servers_descr'] = 'A list of Jobe servers, one of which will be randomly selected as a direct target for AJAX requests, rather than going via Moodle. EXPERIMENTAL and potentially insecure.';
+$string['scratchpadui_api_keys_descr'] = 'A list of API keys to use with the jobe_servers (if given). If empty, no API key is used. EXPERIMENTAL and potentially insecure.';
+
 // SCRATCHPAD UI Errors.
 $string['scratchpad_ui_badrunwrappersrc'] = 'Invalid run wrapper source given, please contact question author.';
+$string['scratchpad_ui_bad_api_keys'] = 'Misconfigured scratchpad-direct. API key list length must equal jobe server list length.';
+$string['scratchpad_ui_error'] = 'XML HTTP request failed. Network error or CORS.';
 $string['scratchpad_ui_invalidserialisation'] = 'Invalid JSON serialisation provided, must include \"answer_code\" field.';
+$string['scratchpad_ui_no_protocol'] = 'jobe server name must start with http:// or https://.';
+$string['scratchpad_ui_request_failed'] = 'Request to sandbox server failed.';
 $string['scratchpad_ui_templateloadfail'] = 'Scratchpad UI template failed to load, please refresh the page. If this persists please report.';
 
 $string['tableui_num_rows_descr'] = 'The (initial) number of rows in the table, excluding the top header row (if headers are given). Required.';
@@ -1336,3 +1343,5 @@ $string['wsnolanguage'] = 'Language "{$a}" is not known';
 $string['wssubmissionrateexceeded'] = 'You have exceeded the maximum hourly \'Try it!\' submission rate. Request denied.';
 
 $string['xmlcoderunnerformaterror'] = 'XML format error in coderunner question';
+$string['enablegradecache'] = 'Enable reading/writing of job,result pairs from/to the Coderunner grading cache.';
+$string['enablegradecache_desc'] = 'Experimental. The cache is a local Moodle cache (currently file cache) to store results of grading questions. Mainly to speed up regrading by using cached results for jobe runs where the same jobe submission has already been graded. Currently WS jobs (eg, try-it boxes and scratchpad runs) will never be cached. NOTE: If you turn off grade caching then it is usually good to empty the Coderunner grade cache before you turn it on again so you have a known state for the cache. You should also clear the cache if you change the Jobe back-end (eg, installing a new version of Python there) as results may now differ from what is in the cache.';

@@ -33,7 +33,7 @@ class qtype_coderunner_escapers {
      * @return typestudentanswervar
      */
     public static function python($environ, $s, $charset) {
-        return str_replace('"', '\"', str_replace('\\', '\\\\', $s));
+        return str_replace('"', '\"', str_replace('\\', '\\\\', $s ?? ''));
     }
 
     /**

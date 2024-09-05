@@ -32,9 +32,10 @@ require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
 use qtype_coderunner\constants;
 use qtype_coderunner\coderunner_files;
 
-/**
+/*
  * Represents a 'CodeRunner' question.
  */
+
 #[AllowDynamicProperties]
 class qtype_coderunner_question extends question_graded_automatically {
     public $testcases = null; // Array of testcases.
@@ -219,6 +220,9 @@ class qtype_coderunner_question extends question_graded_automatically {
     /** @var int questionid. */
     public $questionid;
 
+    /** @var int randomseed in case we want to see the seed for a question */
+    public $randomseed;
+
     /**
      * Start a new attempt at this question, storing any information that will
      * be needed later in the step. It is retrieved and applied by
@@ -250,6 +254,7 @@ class qtype_coderunner_question extends question_graded_automatically {
             $step->set_qt_var('_mtrandseed', $seed);
         }
         $this->evaluate_question_for_display($seed, $step);
+        $this->randomseed = $seed;  // So we can see it when checking.
     }
 
     // Retrieve the saved random number seed and reconstruct the template
@@ -265,6 +270,7 @@ class qtype_coderunner_question extends question_graded_automatically {
             $seed = mt_rand();
         }
         $this->evaluate_question_for_display($seed, $step);
+        $this->randomseed = $seed;  // So we can see it when checking.
     }
 
 
@@ -329,6 +335,19 @@ class qtype_coderunner_question extends question_graded_automatically {
      * md5 hash of the template parameters within the question attempt step
      * record in the database, re-evaluating only if the hash changes.
      *
+     *
+     * QUESTION
+     * With question versioning the question's template paremters can't
+     * change between steps because the question id will be fixed.
+     * So, do we need the md5 for the question's template params?
+     * I'm not sure if the prototype id is fixed at the start of the question
+     * attempt. If so then we wouldn't be able to change the template
+     * during an attempt either
+     *
+     * Of course, doing a regrade will potentially change everything but
+     * this will work it's way through as the regrade will start from the
+     * first step and work through again...
+     *
      * If the prototype is missing, process just the template parameters from
      * this question; an error message will be given later.
      * @param int $seed The random number seed to set for Twig randomisation
@@ -357,6 +376,9 @@ class qtype_coderunner_question extends question_graded_automatically {
     /**
      * Evaluate the template parameter field for this question alone (i.e.
      * not including its prototype).
+     * Note: the prototype is also a question and will cache it's own jsontemplateparams
+     *       eg, we call $prototype->template_params_json(..,.., '_prototype_template_params') in
+     *           the evaulate_merged_parameters method.
      *
      * @param int $seed the random number seed for this instance of the question
      * @param question_attempt_step $step the current attempt step
@@ -369,6 +391,7 @@ class qtype_coderunner_question extends question_graded_automatically {
         $params = $this->templateparams;
         $lang = $this->templateparamslang;
         if ($step === null) {
+            // Step is null when validating question so evaluate params.
             $jsontemplateparams = $this->evaluate_template_params($params, $lang, $seed);
         } else {
             $previousparamsmd5 = $step->get_qt_var($qtvar . '_md5');
@@ -399,31 +422,33 @@ class qtype_coderunner_question extends question_graded_automatically {
      * valid json).
      */
     public function evaluate_template_params($templateparams, $lang, $seed) {
-        $lang = strtolower($lang); // Just in case some old legacy DB entries escaped.
-        if (empty($templateparams)) {
-            $jsontemplateparams = '{}';
-        } else if (
+        if (
             isset($this->cachedfuncparams) &&
                 $this->cachedfuncparams === ['lang' => $lang, 'seed' => $seed]
         ) {
             // Use previously cached result if possible.
             $jsontemplateparams = $this->cachedevaldtemplateparams;
-        } else if ($lang == 'none') {
-            $jsontemplateparams = $templateparams;
-        } else if ($lang == 'twig') {
-            try {
-                $jsontemplateparams = $this->twig_render_with_seed($templateparams, $seed);
-            } catch (\Twig\Error\Error $e) {
-                throw new qtype_coderunner_bad_json_exception($e->getMessage());
-            }
-        } else if (!$this->templateparamsevalpertry && !empty($this->templateparamsevald)) {
-            $jsontemplateparams = $this->templateparamsevald;
         } else {
-            $jsontemplateparams = $this->evaluate_template_params_on_jobe($templateparams, $lang, $seed);
+            $lang = strtolower($lang); // Just in case some old legacy DB entries escaped.
+            if (empty($templateparams)) {
+                $jsontemplateparams = '{}';
+            } else if ($lang == 'none') {
+                $jsontemplateparams = $templateparams;
+            } else if ($lang == 'twig') {
+                try {
+                    $jsontemplateparams = $this->twig_render_with_seed($templateparams, $seed);
+                } catch (\Twig\Error\Error $e) {
+                    throw new qtype_coderunner_bad_json_exception($e->getMessage());
+                }
+            } else if (!$this->templateparamsevalpertry && !empty($this->templateparamsevald)) {
+                $jsontemplateparams = $this->templateparamsevald;
+            } else {
+                $jsontemplateparams = $this->evaluate_template_params_on_jobe($templateparams, $lang, $seed);
+            }
+            // Cache in this to avoid multiple evaluations during question editing and validation.
+            $this->cachedfuncparams = ['lang' => $lang, 'seed' => $seed];
+            $this->cachedevaldtemplateparams = $jsontemplateparams;
         }
-        // Cache in this to avoid multiple evaluations during question editing and validation.
-        $this->cachedfuncparams = ['lang' => $lang, 'seed' => $seed];
-        $this->cachedevaldtemplateparams = $jsontemplateparams;
         return $jsontemplateparams;
     }
 
@@ -818,7 +843,7 @@ class qtype_coderunner_question extends question_graded_automatically {
      * the history of prior submissions.
      * @param bool $isprecheck true iff this grading is occurring because the
      * student clicked the precheck button
-     * @param bool $isvalidationrun true iff this is a validation run when saving 
+     * @param bool $isvalidationrun true iff this is a validation run when saving
      * a question.
      * @return 3-element array of the mark (0 - 1), the question_state (
      * gradedright, gradedwrong, gradedpartial, invalid) and the full
@@ -830,8 +855,13 @@ class qtype_coderunner_question extends question_graded_automatically {
         if ($isprecheck && empty($this->precheck)) {
             throw new coding_exception("Unexpected precheck");
         }
+
         $language = empty($response['language']) ? '' : $response['language'];
         $gradingreqd = true;
+        $testoutcomeserial = false;
+
+        // Use _testoutcome if it's already in $response.
+        // This should be even quicker than the file cache.
         if (!empty($response['_testoutcome'])) {
             $testoutcomeserial = $response['_testoutcome'];
             $testoutcome = unserialize($testoutcomeserial);
@@ -854,18 +884,29 @@ class qtype_coderunner_question extends question_graded_automatically {
             } else {
                 $testcases = $this->filter_testcases($isprecheck, $this->precheck);
             }
-            $runner = new qtype_coderunner_jobrunner();
             $this->stepinfo = self::step_info($response);
+            $this->stepinfo->graderstate = $response['graderstate'] ?? "";
+            $runner = new qtype_coderunner_jobrunner();
+            // QUESTION why are we reading the graderstate??
             if (isset($response['graderstate'])) {
                 $this->stepinfo->graderstate = $response['graderstate'];
             } else {
                 $this->stepinfo->graderstate = '';
             }
-            $testoutcome = $runner->run_tests($this, $code, $attachments, $testcases, $isprecheck, $language);
+            $testoutcome = $runner->run_tests(
+                $this,
+                $code,
+                $attachments,
+                $testcases,
+                $isprecheck,
+                $language
+            );
             $testoutcomeserial = serialize($testoutcome);
         }
-
+        // To be saved in question step data.
+        // Note: This is used to render test results too so it's not just a cache.
         $datatocache = ['_testoutcome' => $testoutcomeserial];
+
         if ($testoutcome->run_failed()) {
             return [0, question_state::$invalid, $datatocache];
         } else if ($testoutcome->all_correct()) {
@@ -881,8 +922,6 @@ class qtype_coderunner_question extends question_graded_automatically {
                     question_state::$gradedpartial, $datatocache];
         }
     }
-
-
     // Return a map from filename to file contents for all the attached files
     // in the given response.
     private function get_attached_files($response) {
@@ -900,7 +939,7 @@ class qtype_coderunner_question extends question_graded_automatically {
 
 
     /** Pulls out the step information in the response, added by the CodeRunner
-    /*  custom behaviour, for use by the question author in issuing feedback.
+     *  custom behaviour, for use by the question author in issuing feedback.
      *
      * @param type $response The usual response array enhanced by the addition of
      * numchecks, numprechecks and fraction values relating to the current step.
@@ -910,10 +949,10 @@ class qtype_coderunner_question extends question_graded_automatically {
 
     private static function step_info($response) {
         $stepinfo = new stdClass();
-        foreach (['numchecks', 'numprechecks', 'fraction', 'preferredbehaviour'] as $key) {
-            $value = isset($response[$key]) ? $response[$key] : 0;
-            $stepinfo->$key = $value;
+        foreach (['numchecks', 'numprechecks', 'fraction'] as $key) {
+            $stepinfo->$key = $response[$key] ?? 0;
         }
+        $stepinfo->preferredbehaviour = $response['preferredbehaviour'] ?? 'adaptive';
         $stepinfo->coderunnerversion = get_config('qtype_coderunner')->version;
         return $stepinfo;
     }
@@ -981,10 +1020,10 @@ class qtype_coderunner_question extends question_graded_automatically {
         $clone = new stdClass();
         $fieldsrequired = ['id', 'name', 'questiontext', 'generalfeedback',
             'generalfeedbackformat', 'testcases',
-            'answer', 'answerpreload', 'language', 'globalextra', 'prototypeextra', 'useace', 'sandbox',
-            'grader', 'cputimelimitsecs', 'memlimitmb', 'sandboxparams',
-            'parameters', 'resultcolumns', 'allornothing', 'precheck',
-            'hidecheck', 'penaltyregime', 'iscombinatortemplate',
+            'answer', 'answerpreload', 'language', 'globalextra', 'prototypeextra',
+            'useace', 'sandbox','grader', 'cputimelimitsecs', 'memlimitmb',
+            'sandboxparams', 'parameters', 'resultcolumns', 'allornothing',
+            'precheck', 'hidecheck', 'penaltyregime', 'iscombinatortemplate',
             'allowmultiplestdins', 'acelang', 'uiplugin', 'attachments',
             'attachmentsrequired', 'displayfeedback', 'stepinfo'];
         foreach ($fieldsrequired as $field) {
@@ -1030,23 +1069,24 @@ class qtype_coderunner_question extends question_graded_automatically {
     protected function filter_testcases($isprecheckrun, $prechecksetting) {
         if (!$isprecheckrun) {
             if ($prechecksetting != constants::PRECHECK_SELECTED) {
-                return $this->testcases;
+                $relevanttestcases = $this->testcases;
             } else {
-                return $this->selected_testcases(false);
+                $relevanttestcases = $this->selected_testcases(false);
             }
         } else { // This is a precheck run.
             if ($prechecksetting == constants::PRECHECK_EMPTY) {
-                return [$this->empty_testcase()];
+                $relevanttestcases = [$this->empty_testcase()];
             } else if ($prechecksetting == constants::PRECHECK_EXAMPLES) {
-                return $this->example_testcases();
+                $relevanttestcases = $this->example_testcases();
             } else if ($prechecksetting == constants::PRECHECK_SELECTED) {
-                return $this->selected_testcases(true);
+                $relevanttestcases = $this->selected_testcases(true);
             } else if ($prechecksetting == constants::PRECHECK_ALL) {
-                return $this->testcases;
+                $relevanttestcases = $this->testcases;
             } else {
                 throw new coding_exception('Precheck clicked but no precheck button?!');
             }
         }
+        return $relevanttestcases;
     }
 
 

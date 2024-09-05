@@ -36,6 +36,7 @@ class qtype_coderunner_jobrunner {
     private $testcases = null;       // The testcases (a subset of those in the question).
     private $allruns = null;         // Array of the source code for all runs.
 
+
     /** @var ?array Array of sandbox params. */
     private $sandboxparams = null;
 
@@ -48,15 +49,32 @@ class qtype_coderunner_jobrunner {
     /** @var bool True if this grading is occurring because the student clicked the precheck button. */
     private $isprecheck = false;
 
-    // Check the correctness of a student's code and possible extra attachments
-    // as an answer to the given
-    // question and and a given set of test cases (which may be empty or a
-    // subset of the question's set of testcases. $isprecheck is true if
-    // this is a run triggered by the student clicking the Precheck button.
-    // $answerlanguage will be the empty string except for multilanguage questions,
-    // when it is the language selected in the language drop-down menu.
-    // Returns a TestingOutcome object.
-    public function run_tests($question, $code, $attachments, $testcases, $isprecheck, $answerlanguage) {
+
+
+    /**
+     * Check the correctness of a student's code and possible extra attachments
+     * as an answer to the given question and and a given set of test cases (which may be empty or a
+     * subset of the question's set of testcases.
+     * @param qtype_coderunner_question $question object relevant to this step of the attempt
+     * @param string $code is the JSON repr of the code
+     * @param array $attachments is the array of attachments given by student, if any
+     * @param
+     * @param boolean $isprecheck is true if
+     * this is a run triggered by the student clicking the Precheck button.
+     * @param string $answerlanguage will be the empty string except for multilanguage questions,
+     *      when it is the language selected in the language drop-down menu.
+     * @return qtype_coderunner_combinator_grader_outcome $testoutcome that contains the outcome
+     *      of the grading.
+     */
+    public function run_tests(
+        $question,
+        $code,
+        $attachments,
+        $testcases,
+        $isprecheck,
+        $answerlanguage
+    ) {
+
         if (empty($question->prototype)) {
             // Missing prototype. We can't run this question.
             $outcome = new qtype_coderunner_testing_outcome(0, 0, false);
@@ -69,7 +87,8 @@ class qtype_coderunner_jobrunner {
                     ['crtype' => $question->coderunnertype]
                 );
             }
-            $outcome->set_status(qtype_coderunner_testing_outcome::STATUS_MISSING_PROTOTYPE, $message);
+            $status = qtype_coderunner_testing_outcome::STATUS_MISSING_PROTOTYPE;
+            $outcome->set_status($status, $message);
             return $outcome;
         }
 
@@ -131,9 +150,10 @@ class qtype_coderunner_jobrunner {
         if ($question->get_show_source()) {
             $outcome->sourcecodelist = $this->allruns;
         }
+
+
         return $outcome;
     }
-
 
     // If the template is a combinator, try running all the tests in a single
     // go.
@@ -143,6 +163,13 @@ class qtype_coderunner_jobrunner {
     // a list of all the test cases and QUESTION, the original question object.
     // Return the testing outcome object if successful else null.
     private function run_combinator($isprecheck) {
+        // Remove id and questionid keys+values from testcases so they don't
+        // affect caching. For example the questionid will change each time
+        // the question is saved thanks to question versioning - urgh!
+        foreach ($this->testcases as $tc) {
+            unset($tc->id);
+            unset($tc->questionid);
+        }
         $numtests = count($this->testcases);
         $this->templateparams['TESTCASES'] = $this->testcases;
         $maxmark = $this->maximum_possible_mark();
@@ -216,6 +243,13 @@ class qtype_coderunner_jobrunner {
         $maxmark = $this->maximum_possible_mark($this->testcases);
         if ($maxmark == 0) {
             $maxmark = 1; // Something silly is happening. Probably running a prototype with no tests.
+        }
+        // Remove id and questionid keys+values from testcases so they don't
+        // affect caching. For example the questionid will change each time
+        // the question is saved thanks to question versioning - urgh!
+        foreach ($this->testcases as $tc) {
+            unset($tc->id);
+            unset($tc->questionid);
         }
         $numtests = count($this->testcases);
         $outcome = new qtype_coderunner_testing_outcome($maxmark, $numtests, $isprecheck);
@@ -340,9 +374,11 @@ class qtype_coderunner_jobrunner {
             // A successful combinator run (so far).
             $fract = $outcome->is_output_only() ? 1.0 : $result->fraction;
             $feedback = [];
-            if (isset($result->feedback_html)) {  // Legacy combinator grader?
-                $result->feedbackhtml = $result->feedback_html; // Change to modern version.
-                unset($result->feedback_html);
+            foreach (['feedback_html', 'feedbackhtml'] as $legacykey) {
+                if (isset($result->$legacykey)) {  // Legacy combinator grader?
+                    $result->epiloguehtml = $result->$legacykey; // Use it as epiloguehtml.
+                    unset($result->$legacykey);
+                }
             }
             foreach ($result as $key => $value) {
                 if (!in_array($key, $outcome->allowedfields)) {
@@ -353,12 +389,7 @@ class qtype_coderunner_jobrunner {
                     );
                     throw new Exception($error);
                 }
-                if ($key === 'feedbackhtml' || $key === 'feedback_html') {
-                    // For compatibility with older combinator graders.
-                    $feedback['epiloguehtml'] = $result->$key;
-                } else {
-                    $feedback[$key] = $value;
-                }
+                $feedback[$key] = $value;
             }
             $outcome->set_mark_and_feedback($fract, $feedback);  // Further valididty checks done in here.
         } catch (Exception $except) {

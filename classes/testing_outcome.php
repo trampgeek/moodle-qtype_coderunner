@@ -233,19 +233,23 @@ class qtype_coderunner_testing_outcome {
             '#id_testcode_' . $rownum,
             get_string('testcase', 'qtype_coderunner', $rownum + 1)
         ) . "$nl<pre>$code</pre>";
-        $expected = html_writer::link(
+        $expectedlink = html_writer::link(
             '#id_expected_' . $rownum,
             html_writer::tag(
                 'pre',
-                $expected,
+                $expected instanceof qtype_coderunner_html_wrapper ? $expected->value() : $expected,
                 ['id' => 'id_fail_expected_' . $rownum]
             )
         );
-        $gotpre = html_writer::tag('pre', $got, ['id' => 'id_got_' . $rownum]);
+        $gotpre = html_writer::tag(
+            'pre',
+            $got instanceof qtype_coderunner_html_wrapper ? $got->value() : $got,
+            ['id' => 'id_got_' . $rownum]
+        );
         $button = html_writer::tag('button', '&lt;&lt;', [
                                    'type' => 'button', // To suppress form submission.
                                    'class' => 'replaceexpectedwithgot']);
-        return [$testcode, $expected, $gotpre . $button];
+        return [$testcode, $expectedlink, $gotpre . $button];
     }
 
     // Return a message summarising the nature of the error if this outcome

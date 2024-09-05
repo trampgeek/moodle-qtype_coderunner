@@ -48,6 +48,17 @@ class behat_coderunner extends behat_base {
         set_config('wsenabled', 1, 'qtype_coderunner');
     }
 
+
+    /**
+      * Sets the webserver webservice to disabled for testing purposes.
+      *
+      * @Given /^the CodeRunner webservice is disabled/
+      */
+    public function the_coderunner_webservice_is_disabled() {
+        set_config('wsenabled', 0, 'qtype_coderunner');
+    }
+
+
     /**
      * Disables the Jobe sandbox. Currently unused/untested.
      *

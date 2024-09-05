@@ -107,7 +107,6 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
         function setUi(taId, uiname) {
             var ta = $(document.getElementById(taId)),  // The jquery text area element(s).
                 lang,
-                currentLang = ta.attr('data-lang'),     // Language set by PHP.
                 paramsJson = ta.attr('data-params'),    // Ui params set by PHP.
                 params = {},
                 uiWrapper;
@@ -134,11 +133,7 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
                 }
             }
 
-            uiWrapper = ta.data('current-ui-wrapper'); // Currently-active UI wrapper on this ta.
-
-            if (uiWrapper && uiWrapper.uiname === uiname && currentLang == lang) {
-                return; // We already have what we want - give up.
-            }
+            uiWrapper = ta[0].current_ui_wrapper; // Currently-active UI wrapper on this ta.
 
             ta.attr('data-lang', lang);
 
@@ -209,7 +204,7 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
             if (useace.prop('checked')) {
                 for(var i = 0; i < taIds.length; i++) {
                     ta = $(document.getElementById(taIds[i]));
-                    uiWrapper = ta.data('current-ui-wrapper');
+                    uiWrapper = ta.get(0).current_ui_wrapper;
                     if (uiWrapper && stateOn) {
                         uiWrapper.restart();
                     } else if (uiWrapper && !stateOn) {
@@ -671,7 +666,7 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
         var observer = new MutationObserver( function () {
             setUis();
         });
-        observer.observe(preloadHdr.get(0), {'attributes': true});
+        observer.observe(preloadHdr.get(0), {'attributes': true, 'attributeFilter':['class']});
 
         // Setup click handler for the buttons that allow users to replace the
         // expected output  with the output got from testing the answer program.

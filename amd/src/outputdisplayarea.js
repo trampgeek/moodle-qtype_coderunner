@@ -42,11 +42,24 @@ import ajax from "core/ajax";
 import { get_string } from "core/str";
 
 const INPUT_INTERRUPT = 42;
-const RESULT_SUCCESS = 15;
 const INPUT_CLASS = "coderunner-run-input";
 const DEFAULT_DISPLAY_COLOUR = "#eff";
 const ERROR_DISPLAY_COLOUR = "#faa";
 const JSON_DISPLAY_PROPS = ["returncode", "stdout", "stderr", "files"];
+
+/**
+ * Error codes returned by the CodeRunner sandbox web service
+ */
+const UNKNOWN_SERVER_ERROR = 7;
+const SERVER_OVERLOAD   = 9;
+
+/**
+ * RESULT status values from a direct call to a Jobe server
+ */
+const RESULT_RUNTIME_ERROR      = 12;
+const RESULT_SUCCESS            = 15;
+const RESULT_SERVER_OVERLOAD    = 21;
+
 
 /**
  * Retrieve a language string from qtype_coderunner.
@@ -371,6 +384,136 @@ class OutputDisplayArea {
             },
         ]);
     }
+
+    /**
+     * Run code by connecting directly with AJAX to one of the given Jobe
+     * servers, selected randomly.
+     * @param {string} code to be run.
+     * @param {string} stdin to be fed into the program.
+     * @param {list} jobeServers a non-empty list of jobe servers
+     * @param {list} apiKeys a possibly empty list of API keys for the jobe-servers
+     * @param {boolean} shouldClearDisplay will reset the display before displaying.
+     * Use false when doing stdin runs.
+     */
+    runCodeDirect(code, stdin, jobeServers, apiKeys, shouldClearDisplay = false) {
+        this.prevRunSettings = [code, stdin];
+        if (shouldClearDisplay) {
+            this.clearDisplay();
+        }
+        const lang = this.lang.toLowerCase();
+        const runspec = {
+            "run_spec": {
+                'language_id': lang,
+                'sourcecode': code,
+                'sourcefilename': lang === 'java' ? this.getJavaFilename(code) : `__tester__.${lang}`,
+                'input': stdin
+            }
+        };
+        const xhr = new XMLHttpRequest();
+        const t = this;
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == XMLHttpRequest.DONE) {
+                if (xhr.status === 200 || xhr.status === 203) {
+                    const sandboxResponse = t.convertToSandboxFormat(xhr.responseText);
+                    t.display(sandboxResponse);
+                } else {
+                    setLangString({
+                        stringName: 'scratchpad_ui_request_failed',
+                        callback: (langString) => {
+                            t.displayError(langString +  ` ${xhr.status}: ${xhr.statusText}. ${xhr.responseText}`);
+                        }
+                    });
+                }
+            }
+        };
+
+        xhr.onerror = function() {
+            setLangString({
+                stringName: 'scratchpad_ui_error',
+                callback: (langString) => {
+                    t.displayError(langString);
+                }
+            });
+        };
+
+        const index = Math.floor(Math.random() * jobeServers.length);
+        const jobeServer = jobeServers[index].toLowerCase();
+
+        if (!jobeServer.startsWith('http://') && !jobeServer.startsWith('https://')) {
+            setLangString({
+                stringName: 'scratchpad_ui_no_protocol',
+                callback: (langString) => {
+                    t.displayError(langString);
+                }
+            });
+        } else if (apiKeys && jobeServers.length != apiKeys.length) {
+            setLangString({
+                stringName: 'scratchpad_ui_bad_api_keys',
+                callback: (langString) => {
+                    t.displayError(langString);
+                }
+            });
+        } else {
+            xhr.open('POST', `${jobeServer}/jobe/index.php/restapi/runs`, true);
+            xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+            xhr.setRequestHeader('Accept', 'application/json');
+            if (apiKeys) {
+                xhr.setRequestHeader('X-API-KEY', apiKeys[index]);
+            }
+            xhr.send(JSON.stringify(runspec));
+        }
+    }
+
+    /**
+     * Try to come up with the right filename for a Java program by using regular
+     * expressions to find the main class. This is by no means guaranteed to work in all cases
+     * but it handles the most common ways of writing a Java program.
+     * @param {string} code The java sourcecode
+     * @return The main class name with '.java' appended.
+     */
+    getJavaFilename(code) {
+        // eslint-disable-next-line max-len
+        let pattern = /(^|\W)public\s+class\s+(\w+)[^{]*\{.*?((public\s([a-z]*\s)*static)|(static\s([a-z]*\s)*public))\s([a-z]*\s)*void\s+main\s*\(\s*String/ms;
+        const matches = code.match(pattern);
+        if (!matches) {
+            return 'NO_PUBLIC_CLASS_FOUND.java';
+        } else {
+            return matches[2] + '.java';
+        }
+    }
+
+    /**
+     * Convert the response from a direct AJAX request to a web server to roughly match the
+     * object returned from a webservice request to the CodeRunner run-in-sandbox service.
+     * @param {string} responseText The JSON-encoded response from Jobe
+     */
+    convertToSandboxFormat(responseText) {
+        let response = '';
+        try {
+            response = JSON.parse(responseText);
+        } catch (e) {
+            return {
+                'error': UNKNOWN_SERVER_ERROR,
+                'stderr': `HTTP response was ${JSON.stringify(responseText)}`
+            };
+        }
+        if (response.outcome === RESULT_SERVER_OVERLOAD) {
+            return {
+                'error': SERVER_OVERLOAD
+            };
+        } else {
+            const stderr = response.stderr.trim();
+            return {
+                'error': 0,
+                'stderr': stderr,
+                'result': stderr ? RESULT_RUNTIME_ERROR : response.outcome,
+                'signal': 0,
+                'cmpinfo': response.cmpinfo,
+                'output': response.stdout
+            };
+        }
+    }
+
 
     /**
      * Add an input field with event listeners to support running again

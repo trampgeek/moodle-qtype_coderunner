@@ -30,6 +30,7 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->libdir . '/filelib.php'); // Needed when run as web service.
 
+
 class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
     const DEBUGGING = 0;
     const HTTP_GET = 1;
@@ -72,8 +73,10 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
         global $CFG;
         qtype_coderunner_sandbox::__construct();
         $this->jobeserver = get_config('qtype_coderunner', 'jobe_host');
-        if (qtype_coderunner_sandbox::is_canterbury_server($this->jobeserver)
-                && qtype_coderunner_sandbox::is_using_test_sandbox()) {
+        if (
+            qtype_coderunner_sandbox::is_canterbury_server($this->jobeserver)
+                && qtype_coderunner_sandbox::is_using_test_sandbox()
+        ) {
             throw new Exception("Please don't use the Canterbury jobe server for test runs");
         }
         $this->apikey = get_config('qtype_coderunner', 'jobe_apikey');
@@ -109,11 +112,21 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
      * @param string $language  One of the languages recognised by the sandbox
      * @param string $input A string to use as standard input during execution
      * @param associative array $files either null or a map from filename to
-     *         file contents, defining a file context at execution time
+     *         file contents, defining a file context at execution time.
      * @param associative array $params Sandbox parameters, depends on
      *         particular sandbox but most sandboxes should recognise
      *         at least cputime (secs) and memorylimit (Megabytes).
      *         If the $params array is null, sandbox defaults are used.
+     * @param bool $usecache determines if result caching (both reads and writes)
+     *         will be used. This is true by default (which is usually for normal
+     *         grading runs) but is typically set to false by calls from the
+     *         web-service/sandbox (eg, scratchpad or try-it box runs, as these are never
+     *         going to be regraded). Note, the coderunner setting for enabling
+     *         cache are combined with this argument to determine
+     *         if cache reading and writing are done. For example, if usecache
+     *         is true and enablegradecache is true then this function
+     *         will try to read the result from the grading cache but if
+     *         either is false then it won't.
      * @return an object with at least the attribute 'error'.
      *         The error attribute is one of the
      *         values 0 through 9 (OK to UNKNOWN_SERVER_ERROR, OVERLOAD)
@@ -137,7 +150,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
      *         showing which jobeserver was used and what key was used (if any).
      */
 
-    public function execute($sourcecode, $language, $input, $files = null, $params = null) {
+    public function execute($sourcecode, $language, $input, $files = null, $params = null, $usecache = true) {
         global $CFG;
 
         $language = strtolower($language);
@@ -202,71 +215,91 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
             }
         }
 
-        $postbody = ['run_spec' => $runspec];
-        $this->currentjobid = sprintf('%08x', mt_rand());
 
-        // Create a single curl object here, with support for cookies, and use it for all requests.
-        // This supports Jobe back-ends that use cookies for sticky load-balancing.
-        // Make a place to store the cookies.
-        make_temp_directory('qtype_coderunner');
-        $cookiefile = $CFG->tempdir . '/qtype_coderunner/session_cookies_' . $this->currentjobid . '.txt';
+        $cache = cache::make('qtype_coderunner', 'coderunner_grading_cache');
+        $runresult = null;
+        if (get_config('qtype_coderunner', 'enablegradecache') && $usecache) {
+            // NOTE: Changing jobeserver setting will effectively flush the cache
+            // eg, adding another jobeserver to a list of servers will mean the
+            // jobeserver parameter has changed and therefore the key will change.
 
-        $curl = new curl();
-        $curl->setopt([
-                'CURLOPT_COOKIEJAR' => $cookiefile,
-                'CURLOPT_COOKIEFILE' => $cookiefile,
-        ]);
-
-        // Try submitting the job. If we get a 404, try again after
-        // putting all the files on the server. Anything else is an error.
-        $httpcode = $this->submit($postbody, $curl);
-        if ($httpcode == 404) { // If it's a file not found error ...
-            foreach ($files as $filename => $contents) {
-                if (($httpcode = $this->put_file($contents, $curl)) != 204) {
-                    break;
-                }
-            }
-            if ($httpcode == 204) {
-                // Try again if put_files all worked.
-                $httpcode = $this->submit($postbody, $curl);
-            }
+            $key = hash("md5", serialize($runspec));
+            // Debugger: echo '<pre>' . serialize($runspec) . '</pre>';.
+            $runresult = $cache->get($key);  // Unserializes the returned value :) false if not found.
         }
 
-        // Delete the cookie file.
-        @unlink($cookiefile);
+        if (!$runresult) {  // if cache read failed regrade, to be safe.
+            $this->currentjobid = sprintf('%08x', mt_rand());
 
-        $runresult = [];
-        $runresult['sandboxinfo'] = [
-            'jobeserver' => $this->jobeserver,
-            'jobeapikey' => $this->apikey,
-        ];
+            // Create a single curl object here, with support for cookies, and use it for all requests.
+            // This supports Jobe back-ends that use cookies for sticky load-balancing.
+            // Make a place to store the cookies.
+            make_temp_directory('qtype_coderunner');
+            $cookiefile = $CFG->tempdir . '/qtype_coderunner/session_cookies_' . $this->currentjobid . '.txt';
 
-        $okresponse = in_array($httpcode, [200, 203]);  // Allow 203, which can result from an intevening proxy server.
-        if (
-            !$okresponse                        // If it's not an OK response...
-                || !is_object($this->response)  // ... or there's any sort of broken ...
-                || !isset($this->response->outcome)
-        ) {     // ... communication with server.
-            // Return with errorcode set and as much extra info as possible in stderr.
-            $errorcode = $okresponse ? self::UNKNOWN_SERVER_ERROR : $this->get_error_code($httpcode);
-            $this->currentjobid = null;
-            $runresult['error'] = $errorcode;
-            $runresult['stderr'] = "HTTP response from Jobe was $httpcode: " . json_encode($this->response);
-        } else if ($this->response->outcome == self::RESULT_SERVER_OVERLOAD) {
-            $runresult['error'] = self::SERVER_OVERLOAD;
-        } else {
-            $stderr = $this->filter_file_path($this->response->stderr);
-            // Any stderr output is treated as a runtime error.
-            if (trim($stderr ?? '') !== '') {
-                $this->response->outcome = self::RESULT_RUNTIME_ERROR;
+            $curl = new curl();
+            $curl->setopt([
+                    'CURLOPT_COOKIEJAR' => $cookiefile,
+                    'CURLOPT_COOKIEFILE' => $cookiefile,
+            ]);
+            $postbody = ['run_spec' => $runspec];
+            // Try submitting the job. If we get a 404, try again after
+            // putting all the files on the server. Anything else is an error.
+            $httpcode = $this->submit($postbody, $curl);
+            if ($httpcode == 404) { // If it's a file not found error ...
+                foreach ($files as $filename => $contents) {
+                    if (($httpcode = $this->put_file($contents, $curl)) != 204) {
+                        break;
+                    }
+                }
+                if ($httpcode == 204) {
+                    // Try again if put_files all worked.
+                    $httpcode = $this->submit($postbody, $curl);
+                }
             }
-            $this->currentjobid = null;
-            $runresult['error'] = self::OK;
-            $runresult['stderr'] = $stderr;
-            $runresult['result'] = $this->response->outcome;
-            $runresult['signal'] = 0; // Jobe doesn't return signals.
-            $runresult['cmpinfo'] = $this->response->cmpinfo;
-            $runresult['output'] = $this->filter_file_path($this->response->stdout);
+
+            // Delete the cookie file.
+            @unlink($cookiefile);
+
+            $runresult = [];
+            $runresult['sandboxinfo'] = [
+                'jobeserver' => $this->jobeserver,
+                'jobeapikey' => $this->apikey,
+            ];
+
+            $okresponse = in_array($httpcode, [200, 203]);  // Allow 203, which can result from an intevening proxy server.
+            if (
+                !$okresponse                        // If it's not an OK response...
+                    || !is_object($this->response)  // ... or there's any sort of broken ...
+                    || !isset($this->response->outcome) // ... communication with server.
+            ) {
+                // Return with errorcode set and as much extra info as possible in stderr.
+                $errorcode = $okresponse ? self::UNKNOWN_SERVER_ERROR : $this->get_error_code($httpcode);
+                $this->currentjobid = null;
+                $runresult['error'] = $errorcode;
+                $runresult['stderr'] = "HTTP response from Jobe was $httpcode: " . json_encode($this->response);
+            } else if ($this->response->outcome == self::RESULT_SERVER_OVERLOAD) {
+                $runresult['error'] = self::SERVER_OVERLOAD;
+            } else {
+                $stderr = $this->filter_file_path($this->response->stderr);
+                // Any stderr output is treated as a runtime error.
+                if (trim($stderr ?? '') !== '') {
+                    $this->response->outcome = self::RESULT_RUNTIME_ERROR;
+                }
+                $this->currentjobid = null;
+                $runresult['error'] = self::OK;
+                $runresult['stderr'] = $stderr;
+                $runresult['result'] = $this->response->outcome;
+                $runresult['signal'] = 0; // Jobe doesn't return signals.
+                $runresult['cmpinfo'] = $this->response->cmpinfo;
+                $runresult['output'] = $this->filter_file_path($this->response->stdout);
+
+                // Got a useable result from Jobe server so cache it if required.
+                if (get_config('qtype_coderunner', 'enablegradecache') && $usecache) {
+                    $key = hash("md5", serialize($runspec));
+                    $cache->set($key, $runresult); // Set serializes the result, get will unserialize.
+                }
+            }
         }
         return (object) $runresult;
     }
@@ -275,58 +308,61 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
     // such class found. Removes comments, strings and nested code and then
     // uses a regexp to find a public class.
     private function get_main_class($prog) {
-        // filter out comments and strings
+        // Filter out comments and strings.
         $prog = $prog . ' ';
-        $filteredProg = array();
-        $skipTo = -1;
+        $filteredprog = [];
+        $skipto = -1;
 
         for ($i = 0; $i < strlen($prog) - 1; $i++) {
-            if ($skipTo == false) break;  // an unclosed comment/string - bail out
-            if ($i < $skipTo) continue;
-
-            // skip "//" comments
-            if ($prog[$i].$prog[$i+1] == '//') {
-                $skipTo = strpos($prog, "\n", $i + 2);
+            if ($skipto == false) {
+                break;  // An unclosed comment/string - bail out.
             }
-
-            // skip "/**/" comments
-            else if ($prog[$i].$prog[$i+1] == '/*') {
-                $skipTo = strpos($prog, '*/', $i + 2) + 2;
-                $filteredProg[] = ' ';  // '/**/' is a token delimiter
+            if ($i < $skipto) {
+                continue;
             }
-
-            // skip strings
-            else if ($prog[$i] == '"') {
-                // matches the whole string
+            // Skip "//" comments.
+            if ($prog[$i] . $prog[$i + 1] == '//') {
+                $skipto = strpos($prog, "\n", $i + 2);
+            // Skip "/**/" comments.
+            } else if ($prog[$i] . $prog[$i + 1] == '/*') {
+                $skipto = strpos($prog, '*/', $i + 2) + 2;
+                $filteredprog[] = ' ';  // The string '/**/' is a token delimiter.
+            // Skip strings.
+            } else if ($prog[$i] == '"') {
+                // Matches the whole string.
                 if (preg_match('/"((\\.)|[^\\"])*"/', $prog, $matches, 0, $i)) {
-                    $skipTo = $i + strlen($matches[0]);
+                    $skipto = $i + strlen($matches[0]);
+                } else {
+                    $skipto = false;
                 }
-                else $skipTo = false;
+            // Copy everything else.
+            } else {
+                $filteredprog[] = $prog[$i];
             }
-
-            // copy everything else
-            else $filteredProg[] = $prog[$i];
         }
 
-        // remove nested code
+        // Remove nested code.
         $depth = 0;
-        for ($i = 0; $i < count($filteredProg); $i++) {
-            if ($filteredProg[$i] == '{') $depth++;
-            if ($filteredProg[$i] == '}') $depth--;
-            if ($filteredProg[$i] != "\n" && $depth > 0 && !($depth == 1 && $filteredProg[$i] == '{')) {
-                $filteredProg[$i] = ' ';
+        for ($i = 0; $i < count($filteredprog); $i++) {
+            if ($filteredprog[$i] == '{') {
+                $depth++;
+            }
+            if ($filteredprog[$i] == '}') {
+                $depth--;
+            }
+            if ($filteredprog[$i] != "\n" && $depth > 0 && !($depth == 1 && $filteredprog[$i] == '{')) {
+                $filteredprog[$i] = ' ';
             }
         }
 
-        // search for a public class
-        if (preg_match('/public\s(\w*\s)*class\s*(\w+)[^\w]/', implode('', $filteredProg), $matches) !== 1) {
+        // Search for a public class.
+        if (preg_match('/public\s(\w*\s)*class\s*(\w+)[^\w]/', implode('', $filteredprog), $matches) !== 1) {
             return false;
         } else {
             return $matches[2];
         }
     }
 
-	
 
     // Return the sandbox error code corresponding to the given httpcode.
     private function get_error_code($httpcode) {

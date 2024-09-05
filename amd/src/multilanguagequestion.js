@@ -63,7 +63,7 @@ define(['jquery', 'core/str'], function($, str) {
             // Set the language for the Ace plugin (or any other plugin if it
             // has a setLanguage method).
             const lang = selector.value;
-            const uiWrapper = ta.data('current-ui-wrapper'); // Currently-active UI wrapper on reqd ta.
+            const uiWrapper = ta[0].current_ui_wrapper; // Currently-active UI wrapper on reqd ta.
 
             if (uiWrapper && uiWrapper.uiInstance && typeof uiWrapper.uiInstance.setLanguage === 'function') {
                 uiWrapper.uiInstance.setLanguage(lang);

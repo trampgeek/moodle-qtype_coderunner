@@ -15,20 +15,26 @@
 // along with CodeRunner.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package   qtype_coderunner
- * @copyright Richard Lobb, The University of Canterbury, New Zealand.
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * Defines cache used to store results of quiz attempt steps.
+ * If a jobe submission is cached we don't need to call jobe again
+ * as the result will be known :)
+ *
+ * @package    qtype
+ * @subpackage coderunner
+ * @copyright  2023 Paul McKeown, University of Canterbury
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version  = 2024072400;
-$plugin->requires = 2022041900;
-$plugin->cron = 0;
-$plugin->component = 'qtype_coderunner';
-$plugin->maturity = MATURITY_STABLE;
-$plugin->release = '5.4.0';
-
-$plugin->dependencies = [
-    'qbehaviour_adaptive_adapted_for_coderunner' => 2024041800,
+$definitions = [
+    'coderunner_grading_cache' => [
+        'mode' => cache_store::MODE_APPLICATION,
+        'maxsize' => 50000000,
+        'simplekeys' => true,
+        'simpledata' => false,
+        'canuselocalstore' => true,
+        'staticacceleration' => true,
+        'staticaccelerationsize' => 1000000,
+    ],
 ];

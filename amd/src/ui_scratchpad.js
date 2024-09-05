@@ -171,7 +171,9 @@ class ScratchpadUi {
             wrapper_src: null,
             open_delimiter: '{|',
             close_delimiter: '|}',
-            escape: false
+            escape: false,
+            jobe_servers: [],
+            api_keys: []
         };
         this.textArea = document.getElementById(textAreaId);
         this.textAreaId = textAreaId;
@@ -181,6 +183,8 @@ class ScratchpadUi {
         this.outerDiv = null;
         this.outputDisplay = null;
         this.invertPreload = uiParams.invert_prefix;
+        this.jobeServers = uiParams.jobe_servers;
+        this.apiKeys = uiParams.api_keys;
         this.lang = uiParams.lang;
         this.numRows = this.textArea.rows;
         this.uiParams = overwriteValues(DEF_UI_PARAMS, uiParams);
@@ -293,7 +297,11 @@ class ScratchpadUi {
             this.uiParams.open_delimiter,
             this.uiParams.close_delimiter
         );
-        this.outputDisplay.runCode(code, '', true); // Call with no stdin.
+        if (this.jobeServers) {
+            this.outputDisplay.runCodeDirect(code, '', this.jobeServers, this.apiKeys, true);
+        } else {
+            this.outputDisplay.runCode(code, '', true); // Call with no stdin.
+        }
     }
 
     updateContext(preload) {
