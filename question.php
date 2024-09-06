@@ -220,9 +220,6 @@ class qtype_coderunner_question extends question_graded_automatically {
     /** @var int questionid. */
     public $questionid;
 
-    /** @var int randomseed in case we want to see the seed for a question */
-    public $randomseed;
-
     /**
      * Start a new attempt at this question, storing any information that will
      * be needed later in the step. It is retrieved and applied by
@@ -254,7 +251,6 @@ class qtype_coderunner_question extends question_graded_automatically {
             $step->set_qt_var('_mtrandseed', $seed);
         }
         $this->evaluate_question_for_display($seed, $step);
-        $this->randomseed = $seed;  // So we can see it when checking.
     }
 
     // Retrieve the saved random number seed and reconstruct the template
@@ -270,7 +266,6 @@ class qtype_coderunner_question extends question_graded_automatically {
             $seed = mt_rand();
         }
         $this->evaluate_question_for_display($seed, $step);
-        $this->randomseed = $seed;  // So we can see it when checking.
     }
 
 
@@ -334,19 +329,6 @@ class qtype_coderunner_question extends question_graded_automatically {
      * then need to be re-evaluated. This is handled by recording the
      * md5 hash of the template parameters within the question attempt step
      * record in the database, re-evaluating only if the hash changes.
-     *
-     *
-     * QUESTION
-     * With question versioning the question's template paremters can't
-     * change between steps because the question id will be fixed.
-     * So, do we need the md5 for the question's template params?
-     * I'm not sure if the prototype id is fixed at the start of the question
-     * attempt. If so then we wouldn't be able to change the template
-     * during an attempt either
-     *
-     * Of course, doing a regrade will potentially change everything but
-     * this will work it's way through as the regrade will start from the
-     * first step and work through again...
      *
      * If the prototype is missing, process just the template parameters from
      * this question; an error message will be given later.
@@ -887,12 +869,6 @@ class qtype_coderunner_question extends question_graded_automatically {
             $this->stepinfo = self::step_info($response);
             $this->stepinfo->graderstate = $response['graderstate'] ?? "";
             $runner = new qtype_coderunner_jobrunner();
-            // QUESTION why are we reading the graderstate??
-            if (isset($response['graderstate'])) {
-                $this->stepinfo->graderstate = $response['graderstate'];
-            } else {
-                $this->stepinfo->graderstate = '';
-            }
             $testoutcome = $runner->run_tests(
                 $this,
                 $code,
@@ -1021,7 +997,7 @@ class qtype_coderunner_question extends question_graded_automatically {
         $fieldsrequired = ['id', 'name', 'questiontext', 'generalfeedback',
             'generalfeedbackformat', 'testcases',
             'answer', 'answerpreload', 'language', 'globalextra', 'prototypeextra',
-            'useace', 'sandbox','grader', 'cputimelimitsecs', 'memlimitmb',
+            'useace', 'sandbox', 'grader', 'cputimelimitsecs', 'memlimitmb',
             'sandboxparams', 'parameters', 'resultcolumns', 'allornothing',
             'precheck', 'hidecheck', 'penaltyregime', 'iscombinatortemplate',
             'allowmultiplestdins', 'acelang', 'uiplugin', 'attachments',
