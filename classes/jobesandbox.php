@@ -228,7 +228,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
             $runresult = $cache->get($key);  // Unserializes the returned value :) false if not found.
         }
 
-        if (!$runresult) {  // if cache read failed regrade, to be safe.
+        if (!$runresult) {  // If cache read failed regrade, to be safe.
             $this->currentjobid = sprintf('%08x', mt_rand());
 
             // Create a single curl object here, with support for cookies, and use it for all requests.
