@@ -1,5 +1,23 @@
 # CHANGE HISTORY
 
+### September 2024. 5.4.1
+
+ * New features:
+     * a Jobe-run cache stores run results, which dramatically
+   speeds up regrading of quizzes. Experimental, so off by default but has been
+   used extensively on our production server. One caution: cache can consume
+   a lot of disk space and clearing the cache on system upgrades can be slow.
+     * Support for Jobe server load balancing using cookies added (#206).
+     * Category and course shortname have been added to the bulk test report (#212).
+     * Full screen mode for Ace editor.
+ * Various code tidying and Behat testing improvements.
+ * Bug fixes:
+    * The prototypeextra field was missing from the Twig QUESTION variable (#211).
+    * PHP was issuing warnings "undefined property behat_prefix" (#208).
+    * The getallattempts script that was suppressing -precheck, -submit etc rows.
+    * Testcases marked as Precheck Only were not being validating on save.
+    * With combinator grader, all test cases were being displayed when a question didn't validate, rather than just the failed ones.
+
 ### 11 February 2024. 5.3.0
 
  * Significant refactoring to improve PHP8.2 compatibility, particularly with regard to dynamic attributes (thanks Anupama).

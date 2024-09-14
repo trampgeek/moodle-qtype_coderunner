@@ -1521,8 +1521,8 @@ Other fields are:
    author. See under Combinator-template grading.
  * `QUESTION.language` The language being used to run the question in the sandbox,
 e.g. "Python3".
- * `QUESTION.precheck` The setting of the precheck dropdown: 0 = no precheck
-1 = precheck examples, 2 = precheck selected.
+ * `QUESTION.precheck` The setting of the precheck dropdown: 0 = no precheck, 1 = empty,
+2 = precheck examples, 3 = precheck selected, 4 = all.
  * `QUESTION.hidecheck` True if the *Hide check* checkbox is set.
  * `QUESTION.iscombinatortemplate` True if this is a combinator question.
  * `QUESTION.penaltyregime` The penalty regime for this question.
