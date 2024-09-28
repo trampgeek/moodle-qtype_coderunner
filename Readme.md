@@ -814,7 +814,7 @@ call the *Twig Context*. The default set of context variables is:
 
  * STUDENT\_ANSWER, which is the text that the student entered into the answer box.
  * TEST, which is a record containing the testcase. See [The Twig TEST variable](#the-twig-test-variable).
- * IS\_PRECHECK, which has the value 1 (True) if the template is being evaluated asY
+ * IS\_PRECHECK, which has the value 1 (True) if the template is being evaluated as
 a result of a student clicking the *Precheck* button or 0 (False) otherwise.
  * ANSWER\_LANGUAGE, which is meaningful only for multilanguage questions, for
 which it contains the language chosen by the student from a drop-down list. See
