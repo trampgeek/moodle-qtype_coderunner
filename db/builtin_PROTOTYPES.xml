@@ -1257,9 +1257,8 @@ prelude = '\n'.join(controls) + '\n'
 
 {% for TEST in TESTCASES %}
 shutil.copyfile(db_files[0], db_working)  # Copy clean writeable db file
-testcode = """{{ TEST.testcode | e('py') }}"""
 extra = """{{ TEST.extra | e('py') }}"""
-code_to_run = '\n'.join([prelude, extra, student_answer, testcode])
+code_to_run = '\n'.join([prelude, extra, student_answer])
 with open('commands', 'w') as sqlite_commands:
     sqlite_commands.write(code_to_run)
 
