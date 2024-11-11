@@ -143,4 +143,15 @@ class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
         }
         // Nothing to remap if the question already existed.
     }
+
+    /**
+     * Return the contents of this qtype to be processed by the links decoder.
+     */
+    public static function define_decode_contents() {
+        $contents = [];
+        $contents[] = new restore_decode_content('question_coderunner_tests', ['expected']);
+        $contents[] = new restore_decode_content('question_attempt_step_data', ['value']);
+
+        return $contents;
+    }
 }

@@ -24,8 +24,11 @@
 
 class qtype_coderunner_html_wrapper {
 
-    /** @var string */
-    private $html;
+    /** @var string $html The wrapped html. */
+    // Public because PHP's serialise uses null bytes when serialising non-public attributes,
+    // and these don't get properly handled by the Moodle code that stores and recovers
+    // question step data.
+    public $html;
 
     public function __construct($html) {
         $this->html = $html;

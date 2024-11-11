@@ -229,6 +229,24 @@ class qtype_coderunner_renderer extends qtype_renderer {
     }
 
     /**
+     * If the serialisation is broken, it's probably because of Moodle's link updating.
+     * Try to fix that.
+     */
+    protected function fix_borked_serialisation($serializeddata) {
+        // Try to parse the serialised data, searching for the terminators whenever
+        // a block miss occurs.
+        $pattern = '/s:(\d+):"(.*PLUGINFILEBYCONTEXT[^>]+>)";/s';
+        print($serializeddata);
+        return preg_replace_callback($pattern, function ($matches) {
+            //echo "****** MATCHED ****\n ";
+            $s = $matches[2];
+            // Recalculate length and reconstruct.
+            $actuallength = strlen($s);
+            return 's:' . $actuallength . ':"' . $s . '";';
+        }, $serializeddata);
+    }
+
+    /**
      * Generate the specific feedback. This is feedback that varies according to
      * the response the student gave.
      * @param question_attempt $qa the question attempt to display.
@@ -241,10 +259,18 @@ class qtype_coderunner_renderer extends qtype_renderer {
         }
 
         $q = $qa->get_question();
-        $outcome = unserialize($toserialised);
+        $outcome = @unserialize($toserialised);
         if ($outcome === false) {
-            $outcome = new qtype_coderunner_testing_outcome(0, 0, false);
-            $outcome->set_status(qtype_coderunner_testing_outcome::STATUS_UNSERIALIZE_FAILED);
+            //print(json_encode($toserialised) . "\n\n");
+            //echo "\n===========================\n";
+            $fixed = $this->fix_borked_serialisation($toserialised);
+            //echo $fixed . "\n";
+            //echo "===========================";
+            $outcome = @unserialize($fixed);
+            if ($outcome === false) {
+                $outcome = new qtype_coderunner_testing_outcome(0, 0, false);
+                $outcome->set_status(qtype_coderunner_testing_outcome::STATUS_UNSERIALIZE_FAILED);
+            }
         }
         $resultsclass = $this->results_class($outcome, $q->allornothing);
 
