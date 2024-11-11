@@ -1,6 +1,6 @@
 # CodeRunner
 
-Version: 5.2.2 18 September 2023. Requires **MOODLE V4.0 or later**. Earlier versions
+Version: 5.4.1 November 12, 2024. Requires **MOODLE V4.0 or later**. Earlier versions
 of Moodle must use CodeRunner V4.
 
 
@@ -1623,6 +1623,53 @@ and label, which is checked only if ischecked is true.
 
 To reduce the risk that the UI element names conflict with existing UI element
 names in the Moodle page, all names are prefixed by `crui_`.
+
+## Use of the Precheck button
+
+The question authoring form allows the author to provide students
+with a *Precheck* button in addition to the normal *Check* button. 
+This is intended to allow students to do a penalty-free preliminary sanity check
+on their submission. The form of the sanity check can be controlled
+by the question author, but in the simplest case it is just a syntax
+check on their code.
+
+When the Precheck button is
+clicked, the answer is submitted for grading in the normal way except:
+
+  1. A Twig variable IS_PRECHECK is set to True. This is typically used by
+     template graders to control the feedback that is given to the student
+     when prechecking versus when doing a full check.
+  1. The set of testcases to be run is restricted according to the setting of
+     the Precheck dropdown menu in the authoring form. Options are:
+     * Empty: The list of testcases is a single empty testcase, which is
+      a hidden test with the empty string for testcode, stdin, expected and extra.
+     * Examples. The set of testcases is all the ones with the *Use as example*
+      checkbox checked.
+     * Selected. If this option has been chosen, each test case has a dropdown
+      menu labelled *Precheck test type*, with options *Check only*, *Precheck only*
+      and *Both*. The set of cases on a Precheck is then all those marked either
+      *Precheck only* or *Both*, while the set of cases on a full Check is
+      all those marked either *Check only* or *Both*.
+     * All. All testcases are included, as with a normal Check. This is
+      meaningful only if the question author has made use of the IS_PRECHECK
+      Twig variable to provide different feedback from the normal.
+
+The feedback presented to the student contains the output from the run,
+as with a full check, but no marking takes place, so there are no penalties.
+Additionally the correctness of the Precheck is indicated to the student by
+a striped background shading that is blue for an OK submission and red for a
+failed one. There may also be a "Precheck failed" warning message.
+
+The correctness of the precheck is determined as follows.
+
+  1. If the *Empty* precheck option has been set, and a combinator template grader has
+     not been used, any output (which is usually
+     compile errors) is taken to denote a failed precheck. In this case, there is also
+     an extra "Precheck failed" or "Precheck passed" message.
+  1. If a combinator template grader is being used, the Precheck is deemed correct
+     if the returned *Fraction* is 1. 
+  1. In all other cases, i.e. when a subset of test cases is being run, the
+     Precheck is correct only if all tests pass.
 
 ## Randomising questions
 
