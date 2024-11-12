@@ -28,6 +28,7 @@ Feature: test_combinator_grader
     And I set the field "id_customise" to "1"
     And I set the field "id_useace" to "0"
     And I set the field "id_uiplugin" to "None"
+    And I set CodeRunner behat testing flag
     And I set the field "id_template" to:
   """
   import subprocess, json, sys
