@@ -378,8 +378,12 @@ class qtype_coderunner extends question_type {
 
     /**
      * Move all the files belonging to this question from one context to another.
-     * Override superclass implementation to handle the extra data files,
-     * sample answer files and feedbackfiles we have in CodeRunner questions.
+     * Called during course restore.
+     * Override superclass implementation in order to handle the extra data files and
+     * sample answer files we have in CodeRunner questions.
+     *
+     * The feedbackfiles are stored in the course context so are not handled here,
+     * but in the restore_qtype_coderunner_plugin.after_restore_question() method.
      * @param int $questionid the question being moved.
      * @param int $oldcontextid the context it is moving from.
      * @param int $newcontextid the context it is moving to.
@@ -387,7 +391,7 @@ class qtype_coderunner extends question_type {
     public function move_files($questionid, $oldcontextid, $newcontextid) {
         parent::move_files($questionid, $oldcontextid, $newcontextid);
         $fs = get_file_storage();
-        foreach (['datafile', 'samplefile', 'feedbackfiles'] as $filetype) {
+        foreach (['datafile', 'samplefile'] as $filetype) {
             $fs->move_area_files_to_new_context(
                 $oldcontextid,
                 $newcontextid,
