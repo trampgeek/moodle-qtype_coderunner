@@ -451,7 +451,9 @@ class qtype_coderunner_question extends question_graded_automatically {
             $value = preg_replace("/[^A-Za-z0-9]/", '', $this->student->$key);
             $runargs[] = "$key=" . $value;
         }
-        $sandboxparams = ["runargs" => $runargs, "cputime" => 10];
+        $sandboxparams = $this->get_sandbox_params();
+        $sandboxparams["runargs"] = $runargs;
+        $sandboxparams["cputime"] = $sandboxparams["cputime"] ?? 10;  // Default to 10 secs execution time.
         $sandbox = $this->get_sandbox();
         $run = $sandbox->execute($templateparams, $lang, $input, $files, $sandboxparams);
         if ($run->error === qtype_coderunner_sandbox::SERVER_OVERLOAD) {
