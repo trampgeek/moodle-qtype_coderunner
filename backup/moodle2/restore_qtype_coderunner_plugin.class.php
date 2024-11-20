@@ -143,4 +143,29 @@ class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
         }
         // Nothing to remap if the question already existed.
     }
+
+    /**
+     * Move the feedback files from the old course context to the new course context during restore.
+     * Called after all CodeRunner questions have been restored, not after each question as the
+     * name rather implies.
+     * The function is called via the launch_after_restore_methods() function in the core
+     * restore_plugin class, using a dynamically-generated method name. This is a tad suspect as no
+     * other code in the base Moodle system uses this capability.
+     */
+    protected function after_restore_question() {
+        // Get old and new course ids and contexts.
+        $oldcourseid = $this->task->get_old_courseid();
+        $newcourseid = $this->task->get_courseid();
+        $oldcoursecontextid = context_course::instance($oldcourseid)->id;
+        $newcoursecontextid = context_course::instance($newcourseid)->id;
+
+        // Move the files.
+        $fs = get_file_storage();
+        $fs->move_area_files_to_new_context(
+            $oldcoursecontextid,
+            $newcoursecontextid,
+            'qtype_coderunner',
+            'feedbackfiles'
+        );
+    }
 }

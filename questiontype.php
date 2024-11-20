@@ -378,8 +378,12 @@ class qtype_coderunner extends question_type {
 
     /**
      * Move all the files belonging to this question from one context to another.
-     * Override superclass implementation to handle the extra data files and
+     * Called during course restore.
+     * Override superclass implementation in order to handle the extra data files and
      * sample answer files we have in CodeRunner questions.
+     *
+     * The feedbackfiles are stored in the course context so are not handled here,
+     * but in the restore_qtype_coderunner_plugin.after_restore_question() method.
      * @param int $questionid the question being moved.
      * @param int $oldcontextid the context it is moving from.
      * @param int $newcontextid the context it is moving to.

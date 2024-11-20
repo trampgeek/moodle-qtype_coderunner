@@ -1,111 +1,5 @@
 # CodeRunner
 
-Version: 5.4.1 November 12, 2024. Requires **MOODLE V4.0 or later**. Earlier versions
-of Moodle must use CodeRunner V4.
-
-
-Authors: Richard Lobb, University of Canterbury, New Zealand.
-         Tim Hunt, The Open University, UK.
-
-NOTE: A few sample quizzes containing example CodeRunner questions
-are available at [coderunner.org.nz](http://coderunner.org.nz). There's also
-[a forum](http://coderunner.org.nz/mod/forum/view.php?id=51) there, where you
-can post CodeRunner questions, such as
-requests for help if things go wrong, or are looking for ideas on how to write some
-unusual question type.
-
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
-
-- [Introduction](#introduction)
-- [Installation](#installation)
-  - [Installing CodeRunner](#installing-coderunner)
-  - [Upgrading from earlier versions of CodeRunner](#upgrading-from-earlier-versions-of-coderunner)
-  - [Preliminary testing of the CodeRunner question type](#preliminary-testing-of-the-coderunner-question-type)
-  - [Setting the quiz review options](#setting-the-quiz-review-options)
-  - [Sandbox Configuration](#sandbox-configuration)
-  - [Running the unit tests](#running-the-unit-tests)
-- [Uninstalling CodeRunner](#uninstalling-coderunner)
-- [The Architecture of CodeRunner](#the-architecture-of-coderunner)
-- [Question types](#question-types)
-  - [An example question type](#an-example-question-type)
-  - [Built-in question types](#built-in-question-types)
-  - [Some more-specialised question types](#some-more-specialised-question-types)
-- [Templates](#templates)
-  - [Per-test templates](#per-test-templates)
-  - [Combinator templates](#combinator-templates)
-  - [Customising templates](#customising-templates)
-- [Template debugging](#template-debugging)
-- [Using the template as a script for more advanced questions](#using-the-template-as-a-script-for-more-advanced-questions)
-  - [Twig Escapers](#twig-escapers)
-- [Template parameters](#template-parameters)
-  - [Twigging the whole question](#twigging-the-whole-question)
-  - [Preprocessing of template parameters](#preprocessing-of-template-parameters)
-    - [Preprocessing with Twig](#preprocessing-with-twig)
-    - [Preprocessing with other languages](#preprocessing-with-other-languages)
-    - [The template parameter preprocessor program](#the-template-parameter-preprocessor-program)
-    - [The Evaluate per run option](#the-evaluate-per-run-option)
-  - [The Twig TEST variable](#the-twig-test-variable)
-  - [The Twig TESTCASES variable](#the-twig-testcases-variable)
-  - [The Twig QUESTION variable](#the-twig-question-variable)
-  - [The Twig STUDENT variable](#the-twig-student-variable)
-  - [Twig macros](#twig-macros)
-- [Randomising questions](#randomising-questions)
-  - [How it works](#how-it-works)
-  - [Randomising per-student rather than per-question-attempt](#randomising-per-student-rather-than-per-question-attempt)
-  - [An important warning about editing template parameters](#an-important-warning-about-editing-template-parameters)
-  - [Hoisting the template parameters](#hoisting-the-template-parameters)
-  - [Miscellaneous tips](#miscellaneous-tips)
-- [Grading with templates](#grading-with-templates)
-  - [Per-test-case template grading](#per-test-case-template-grading)
-  - [Combinator-template grading](#combinator-template-grading)
-- [Template grader examples](#template-grader-examples)
-  - [A simple grading-template example](#a-simple-grading-template-example)
-  - [A more advanced grading-template example](#a-more-advanced-grading-template-example)
-- [Customising the result table](#customising-the-result-table)
-  - [Column specifiers](#column-specifiers)
-  - [HTML formatted columns](#html-formatted-columns)
-  - [Extended column specifier syntax (*obsolescent*)](#extended-column-specifier-syntax-obsolescent)
-  - [Default result columns](#default-result-columns)
-- [User-interface selection](#user-interface-selection)
-  - [Ace UI](#ace-ui)
-    - [Serialisation](#serialisation)
-    - [UI parameters](#ui-parameters)
-  - [Ace-gapfiller UI](#ace-gapfiller-ui)
-    - [Serialisation](#serialisation-1)
-    - [UI parameters](#ui-parameters-1)
-  - [Gap Filler UI](#gap-filler-ui)
-    - [Serialisation](#serialisation-2)
-    - [UI parameters](#ui-parameters-2)
-  - [Graph UI](#graph-ui)
-    - [Serialisation](#serialisation-3)
-    - [UI Parameters](#ui-parameters)
-  - [The Html UI](#the-html-ui)
-    - [UI parameters](#ui-parameters-3)
-    - [Serialisation](#serialisation-4)
-    - [The textareaId macro](#the-textareaid-macro)
-  - [Scratchpad UI](#scratchpad-ui)
-    - [Serialisation](#serialisation-5)
-    - [UI parameters](#ui-parameters-4)
-  - [Table UI](#table-ui)
-- [User-defined question types](#user-defined-question-types)
-  - [Prototype template parameters](#prototype-template-parameters)
-- [Supporting or implementing new languages](#supporting-or-implementing-new-languages)
-- [Multilanguage questions](#multilanguage-questions)
-- [The 'qtype_coderunner_run_in_sandbox' web service](#the-qtype_coderunner_run_in_sandbox-web-service)
-  - [Enabling and configuring the web service](#enabling-and-configuring-the-web-service)
-  - [Use of the web service.](#use-of-the-web-service)
-- [Administrator scripts](#administrator-scripts)
-- [A note on accessibility](#a-note-on-accessibility)
-- [APPENDIX 1: How questions get marked](#appendix-1-how-questions-get-marked)
-  - [When a question is first instantiated.](#when-a-question-is-first-instantiated)
-  - [Grading a submission](#grading-a-submission)
-  - [Lots more to come when I get a round TUIT](#lots-more-to-come-when-i-get-a-round-tuit)
-- [APPENDIX 2: How programming quizzes should work](#appendix-2-how-programming-quizzes-should-work)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 ## Introduction
 
 CodeRunner is a Moodle question type that allows teachers to run a program in
@@ -814,7 +708,7 @@ call the *Twig Context*. The default set of context variables is:
 
  * STUDENT\_ANSWER, which is the text that the student entered into the answer box.
  * TEST, which is a record containing the testcase. See [The Twig TEST variable](#the-twig-test-variable).
- * IS\_PRECHECK, which has the value 1 (True) if the template is being evaluated as
+ * IS\_PRECHECK, which has the value 1 (True) if the template is being evaluated asY
 a result of a student clicking the *Precheck* button or 0 (False) otherwise.
  * ANSWER\_LANGUAGE, which is meaningful only for multilanguage questions, for
 which it contains the language chosen by the student from a drop-down list. See
@@ -922,7 +816,9 @@ a per-test template as suggested above, but is the following combinator template
 
 The Twig template language control structures are wrapped in `{%`
 and `%}`. If a C-function question had two three test cases, the above template
-might expand to something like the following:
+might expand to something like the following (ignoring the extra braces that
+the template adds to isolate the different test contexts, unnecessary in this
+example):
 
     #include <stdio.h>
     #include <stdlib.h>
@@ -1623,53 +1519,6 @@ and label, which is checked only if ischecked is true.
 
 To reduce the risk that the UI element names conflict with existing UI element
 names in the Moodle page, all names are prefixed by `crui_`.
-
-## Use of the Precheck button
-
-The question authoring form allows the author to provide students
-with a *Precheck* button in addition to the normal *Check* button. 
-This is intended to allow students to do a penalty-free preliminary sanity check
-on their submission. The form of the sanity check can be controlled
-by the question author, but in the simplest case it is just a syntax
-check on their code.
-
-When the Precheck button is
-clicked, the answer is submitted for grading in the normal way except:
-
-  1. A Twig variable IS_PRECHECK is set to True. This is typically used by
-     template graders to control the feedback that is given to the student
-     when prechecking versus when doing a full check.
-  1. The set of testcases to be run is restricted according to the setting of
-     the Precheck dropdown menu in the authoring form. Options are:
-     * Empty: The list of testcases is a single empty testcase, which is
-      a hidden test with the empty string for testcode, stdin, expected and extra.
-     * Examples. The set of testcases is all the ones with the *Use as example*
-      checkbox checked.
-     * Selected. If this option has been chosen, each test case has a dropdown
-      menu labelled *Precheck test type*, with options *Check only*, *Precheck only*
-      and *Both*. The set of cases on a Precheck is then all those marked either
-      *Precheck only* or *Both*, while the set of cases on a full Check is
-      all those marked either *Check only* or *Both*.
-     * All. All testcases are included, as with a normal Check. This is
-      meaningful only if the question author has made use of the IS_PRECHECK
-      Twig variable to provide different feedback from the normal.
-
-The feedback presented to the student contains the output from the run,
-as with a full check, but no marking takes place, so there are no penalties.
-Additionally the correctness of the Precheck is indicated to the student by
-a striped background shading that is blue for an OK submission and red for a
-failed one. There may also be a "Precheck failed" warning message.
-
-The correctness of the precheck is determined as follows.
-
-  1. If the *Empty* precheck option has been set, and a combinator template grader has
-     not been used, any output (which is usually
-     compile errors) is taken to denote a failed precheck. In this case, there is also
-     an extra "Precheck failed" or "Precheck passed" message.
-  1. If a combinator template grader is being used, the Precheck is deemed correct
-     if the returned *Fraction* is 1. 
-  1. In all other cases, i.e. when a subset of test cases is being run, the
-     Precheck is correct only if all tests pass.
 
 ## Randomising questions
 

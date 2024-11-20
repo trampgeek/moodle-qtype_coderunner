@@ -34,7 +34,7 @@ define(['jquery'], function($) {
      * no communication between the questions.
      */
     function setupAllTAs() {
-        $('textarea.edit_code').each(initTextArea);
+        $('div.edit_code textarea').each(initTextArea);
     }
 
     /**

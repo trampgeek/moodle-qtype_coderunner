@@ -113,9 +113,6 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
      * @param string $input A string to use as standard input during execution
      * @param associative array $files either null or a map from filename to
      *         file contents, defining a file context at execution time.
-     * @param bool $usecache Will read and write to cache if set to True. Otherwise
-     *         won't use the cache. NOTE: global settings for cache <read>
-     *         are also factored in here.
      * @param associative array $params Sandbox parameters, depends on
      *         particular sandbox but most sandboxes should recognise
      *         at least cputime (secs) and memorylimit (Megabytes).
@@ -231,7 +228,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
             $runresult = $cache->get($key);  // Unserializes the returned value :) false if not found.
         }
 
-        if (!$runresult) {  // if cache read failed regrade, to be safe.
+        if (!$runresult) {  // If cache read failed regrade, to be safe.
             $this->currentjobid = sprintf('%08x', mt_rand());
 
             // Create a single curl object here, with support for cookies, and use it for all requests.

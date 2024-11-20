@@ -55,6 +55,9 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
     /** @var bool Whether or no show differences is selected */
     public $showdifferences;
 
+    /** @var ?int $outcomeid Random unique id for this testing outcome. */
+    private $outcomeid;
+
     // A list of the allowed attributes in the combinator template grader return value.
     public $allowedfields = ['fraction', 'prologuehtml', 'testresults', 'files', 'epiloguehtml',
                     'columnformats', 'showdifferences', 'showoutputonly', 'graderstate', 'instructorhtml',
@@ -69,6 +72,23 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
         $this->columnformats = null;
         $this->outputonly = false;
         $this->instructorhtml = null;
+
+        // Generate a (hopefully unique) id for this testoutcome object.
+        // Used as an itemid when saving feedback images/files that
+        // this class can generate. Strict uniqueness isn't actually
+        // required however as the filenames are prefixed by the Unix
+        // timestamp. So all we need is that the outcomeid is unique
+        // within a time window of 1 second.
+        $this->outcomeid = random_int(1, PHP_INT_MAX);
+    }
+
+    /**
+     * Get the hopefully-unique id of this testing outcome, for use
+     * as an itemid when saving/restoring feedback files.
+     * @return int The unique ID (a random int in the range 1 to PHP_INT_MAX).
+     */
+    public function get_id() {
+        return $this->outcomeid;
     }
 
 
@@ -81,52 +101,34 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
      * @param array An associate array mapping filenames to URLs that reference that file.
      */
     private function save_files($files) {
-        global $USER;
+        global $COURSE;
 
         $fileurls = [];
-        foreach ($files as $filename => $base64) {
-            $decoded = base64_decode($base64);
+        if ($files) {
+            $itemid = $this->get_id();
+            $contextid = context_course::instance($COURSE->id)->id;
+            foreach ($files as $filename => $base64) {
+                $extendedfilename = strval(time()) . $filename;
+                $decoded = base64_decode($base64);
 
-            // Prepare file record object.
-            $contextid = context_user::instance($USER->id)->id;
-            $fileinfo = [
-                'contextid' => $contextid,
-                'component' => 'qtype_coderunner',
-                'filearea'  => 'feedbackfiles', // Custom file area for your plugin.
-                'itemid'    => time(), // Item ID - use Unix time stamp.
-                'filepath'  => '/', // File path within the context.
-                'filename'  => $filename]; // Desired name of the file.
-
-            // Get the file storage object.
-            $fs = get_file_storage();
-
-            // Check if the file already exists to avoid duplicates.
-            if (
-                !$fs->file_exists(
-                    $contextid,
-                    $fileinfo['component'],
-                    $fileinfo['filearea'],
-                    $fileinfo['itemid'],
-                    $fileinfo['filepath'],
-                    $fileinfo['filename']
-                )
-            ) {
+                // Prepare file record object.
+                $fileinfo = [
+                    'contextid' => $contextid,
+                    'component' => 'qtype_coderunner',
+                    'filearea'  => 'feedbackfiles',
+                    'itemid'    => $itemid, // Item ID - question attempt step id.
+                    'filepath'  => '/', // File path within the context.
+                    'filename'  => $extendedfilename,
+                ];
+                
                 // Create the file in Moodle's filesystem.
+                $fs = get_file_storage();
                 $file = $fs->create_file_from_string($fileinfo, $decoded);
+
+                // Generate a URL to the saved file.
+                $url = '@@PLUGINFILE@@/' . $extendedfilename;
+                $fileurls[$filename] = $url;
             }
-
-            // Generate a URL to the saved file.
-            $url = moodle_url::make_pluginfile_url(
-                $contextid,
-                $fileinfo['component'],
-                $fileinfo['filearea'],
-                $fileinfo['itemid'],
-                $fileinfo['filepath'],
-                $fileinfo['filename'],
-                false
-            );
-
-            $fileurls[$filename] = $url;
         }
         return $fileurls;
     }

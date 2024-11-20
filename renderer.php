@@ -228,6 +228,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
         return parent::feedback($qa, $optionsclone);
     }
 
+
     /**
      * Generate the specific feedback. This is feedback that varies according to
      * the response the student gave.
@@ -235,17 +236,19 @@ class qtype_coderunner_renderer extends qtype_renderer {
      * @return string HTML fragment.
      */
     protected function specific_feedback(question_attempt $qa) {
+        global $COURSE;
         $toserialised = $qa->get_last_qt_var('_testoutcome');
         if (!$toserialised) { // Something broke?
             return '';
         }
 
         $q = $qa->get_question();
-        $outcome = unserialize($toserialised);
+        $outcome = @unserialize($toserialised);
         if ($outcome === false) {
             $outcome = new qtype_coderunner_testing_outcome(0, 0, false);
             $outcome->set_status(qtype_coderunner_testing_outcome::STATUS_UNSERIALIZE_FAILED);
         }
+
         $resultsclass = $this->results_class($outcome, $q->allornothing);
 
         $isoutputonly = $outcome->is_output_only();
@@ -319,8 +322,19 @@ class qtype_coderunner_renderer extends qtype_renderer {
         }
         $fb .= html_writer::end_tag('div');
 
-        // Need to pass the feedback through format_text to activate filters.
+        // If this is a combinator grader outcome, need to rewrite any embedded file URLs,
+        // which will be in @@PLUGINFILE@@ form. We use the current course context and the
+        // randomly generated test outcome id as an itemid. Note that the filenames are prefixed by
+        // the Unix timestamp, so the probability of a collision is infinitesimal.
+        if ($outcome->iscombinatorgrader()) {  // Only combinator grader outcomes have embedded files.
+            $itemid = $outcome->get_id();
+            $contextid = context_course::instance($COURSE->id)->id;
+            $fb = file_rewrite_pluginfile_urls($fb, 'pluginfile.php', $contextid, 'qtype_coderunner', 'feedbackfiles', $itemid);
+        }
+
+        // Pass the feedback through format_text to activate filters.
         // Try to ensure it makes minimal changes.
+
         $formatoptions = new stdClass();
         $formatoptions->trusted = true;
         $formatoptions->noclean = true;
@@ -406,13 +420,17 @@ class qtype_coderunner_renderer extends qtype_renderer {
         }
         $fb .= $outcome->get_epilogue();
 
-        // Issue a bright yellow warning if using jobe2, except when running behat.
+        // If jobe2 is being used with the default API key, display a bright yellow
+        // "Please don't use for production" message.
+        // If jobe2 is being used with a custom API key, display a much quieter message.
+        // Neither message is displayed if testing with behat.
         $sandboxinfo = $outcome->get_sandbox_info();
         if (isset($sandboxinfo['jobeserver'])) {
             $jobeserver = $sandboxinfo['jobeserver'];
             $apikey = $sandboxinfo['jobeapikey'];
-            if (qtype_coderunner_sandbox::is_canterbury_server($jobeserver)
-                    && (!qtype_coderunner_sandbox::is_using_test_sandbox())) {
+            $iscanterbury = qtype_coderunner_sandbox::is_canterbury_server($jobeserver);
+            $istesting = qtype_coderunner_sandbox::is_using_test_sandbox();
+            if ($iscanterbury && !$istesting) {
                 if ($apikey == constants::JOBE_HOST_DEFAULT_API_KEY) {
                     $fb .= get_string('jobe_warning_html', 'qtype_coderunner');
                 } else {
