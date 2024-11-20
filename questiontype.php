@@ -584,7 +584,9 @@ class qtype_coderunner extends question_type {
     public static function question_contextid($question) {
         global $DB;
 
-        if (isset($question->contextid)) {
+        if (is_array($question)) {
+            return null; // Multiple prototypes can cause this.
+        } else if (isset($question->contextid)) {
             return $question->contextid;
         } else {
             $questionid = isset($question->questionid) ? $question->questionid : $question->id;
