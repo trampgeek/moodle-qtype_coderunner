@@ -21,21 +21,20 @@
  *
  * @package    qtype
  * @subpackage coderunner
- * @copyright  2023 Paul McKeown, University of Canterbury
+ * @copyright  2024 Paul McKeown, University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$definitions = [
-    'coderunner_grading_cache' => [
-        'mode' => cache_store::MODE_APPLICATION,
-        'maxsize' => 50000000, // This will be ignored by the standard file cache
-        'simplekeys' => true,
-        'simpledata' => false,
-        'canuselocalstore' => true,
-        'staticacceleration' => true,
-        'ttl' => 60, // 14 * 24 * 60 * 60, // Time to live is two weeks. Change as you see fit and reload cache definitions.
-        'staticaccelerationsize' => 1000000,
+$tasks = [
+    [
+        'classname' => 'qtype_coderunner\task\cache_cleaner',
+        'blocking' => 0,
+        'minute' => 'R', // Random minute.
+        'hour' => '1',
+        'day' => '*',
+        'month' => '*',
+        'dayofweek' => '6', // 6=Saturday.
     ],
 ];
