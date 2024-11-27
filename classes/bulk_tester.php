@@ -120,16 +120,20 @@ class qtype_coderunner_bulk_tester {
         global $DB;
 
         return $DB->get_records_sql(
-            "
-                SELECT qc.id, qc.parent, qc.name as name,
-                       (SELECT count(1)
-                        FROM {question} q
-                        JOIN {question_versions} qv ON qv.questionid = q.id
-                        JOIN {question_bank_entries} qbe ON qv.questionbankentryid = qbe.id
-                        WHERE qc.id = qbe.questioncategoryid and q.qtype='coderunner') AS count
-                FROM {question_categories} qc
-                WHERE qc.contextid = :contextid
-                ORDER BY qc.name",
+           "SELECT qc.id, qc.parent, qc.name AS name, COUNT(DISTINCT q.id) AS count
+            FROM  {question_categories} qc
+            JOIN {question_bank_entries} qbe  ON qc.id = qbe.questioncategoryid
+            JOIN {question_versions} qv ON qbe.id = qv.questionbankentryid
+            JOIN {question} q  ON q.id = qv.questionid
+            WHERE qc.contextid = :contextid
+            AND q.qtype = 'coderunner'
+            AND qv.version = (
+                SELECT MAX(v.version)
+                FROM {question_versions} v
+                WHERE v.questionbankentryid = qbe.id
+            )
+            GROUP BY qc.id, qc.parent, qc.name
+            ORDER BY qc.name;",
             ['contextid' => $contextid]
         );
     }
