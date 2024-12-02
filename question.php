@@ -358,7 +358,7 @@ class qtype_coderunner_question extends question_graded_automatically {
     /**
      * Evaluate the template parameter field for this question alone (i.e.
      * not including its prototype).
-     * Note: the prototype is also a question and will cache it's own jsontemplateparams
+     * Note: the prototype is also a question and will cache its own jsontemplateparams
      *       eg, we call $prototype->template_params_json(..,.., '_prototype_template_params') in
      *           the evaulate_merged_parameters method.
      *
