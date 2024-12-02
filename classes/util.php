@@ -43,6 +43,9 @@ class qtype_coderunner_util {
                 self::load_ace();
             }
             $PAGE->requires->js_call_amd('qtype_coderunner/userinterfacewrapper', 'newUiWrapper', $params);
+            if ($uiplugin === 'html') {
+                $PAGE->requires->jquery_plugin('ui');  // Possibly needed by Parson's Problems.
+            }
         }
     }
 
