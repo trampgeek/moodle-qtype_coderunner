@@ -34,6 +34,13 @@ $PAGE->set_url('/question/type/coderunner/bulktestindex.php');
 $PAGE->set_context($context);
 $PAGE->set_title(get_string('bulktestindextitle', 'qtype_coderunner'));
 
+$nruns = 1;
+$nrunsfromsettings = get_config('qtype_coderunner', 'bulktestdefaultnruns');
+if (abs($nrunsfromsettings) > 1) {
+    $nruns = abs($nrunsfromsettings);
+}
+
+
 // Create the helper class.
 $bulktester = new qtype_coderunner_bulk_tester();
 
@@ -75,7 +82,7 @@ if (count($availablequestionsbycontext) == 0) {
         $contextid = $info['contextid'];
         $numcoderunnerquestions = $info['numquestions'];
 
-        $testallurl = new moodle_url('/question/type/coderunner/bulktest.php', ['contextid' => $contextid]);
+        $testallurl = new moodle_url('/question/type/coderunner/bulktest.php', ['contextid' => $contextid, 'nruns' => $nruns]);
         $testalllink = html_writer::link(
             $testallurl,
             get_string('bulktestallincontext', 'qtype_coderunner'),
@@ -110,7 +117,7 @@ if (count($availablequestionsbycontext) == 0) {
             if ($cat->count > 0) {
                 $url = new moodle_url(
                     '/question/type/coderunner/bulktest.php',
-                    ['contextid' => $contextid, 'categoryid' => $cat->id]
+                    ['contextid' => $contextid, 'categoryid' => $cat->id, 'nruns' => $nruns]
                 );
                 $linktext = $cat->name . ' (' . $cat->count . ')';
                 $link = html_writer::link($url, $linktext, ['style' => $buttonstyle]);

@@ -178,12 +178,13 @@ class qtype_coderunner_bulk_tester {
      *
      * @param context $context the context to run the tests for.
      * @param int $categoryid test only questions in this category. Default to all.
+     * @param int $nruns the number times to test each question. Default to 1.
      * @return array with three elements:
      *              int a count of how many tests passed
      *              array of messages relating to the questions with failures
      *              array of messages relating to the questions without sample answers
      */
-    public function run_all_tests_for_context(context $context, $categoryid = null) {
+    public function run_all_tests_for_context(context $context, $categoryid = null, $nruns = 1) {
         global $OUTPUT;
 
         // Load the necessary data.
@@ -221,33 +222,62 @@ class qtype_coderunner_bulk_tester {
                 );
                 $enhancedname = "{$question->name} (V{$question->version})";
                 $questionnamelink = html_writer::link($previewurl, $enhancedname, ['target' => '_blank']);
-                echo "<li>$questionnamelink:";
+                echo "<li><small>$questionnamelink: </small>";
                 flush(); // Force output to prevent timeouts and show progress.
 
+                $passstr = get_string('pass', 'qtype_coderunner');
+                $failstr = get_string('fail', 'qtype_coderunner');
+                $npasses = 0;
+                $nfails = 0;
                 // Now run the test.
-                try {
-                    [$outcome, $message] = $this->load_and_test_question($question->id);
-                } catch (Exception $e) {
-                    $message = $e->getMessage();
-                    $outcome = self::FAIL;
+                for ($i = 0; $i < $nruns; $i++) {
+                    // only records last outcome and message
+                    try {
+                        [$outcome, $message] = $this->load_and_test_question($question->id);
+                    } catch (Exception $e) {
+                        $message = $e->getMessage();
+                        $outcome = self::FAIL;
+                        echo "<i style='color:red'>x</i>";
+                    }
+                    if ($outcome == self::MISSINGANSWER) {
+                        echo " $message ";
+                        break;  // No point trying again as there is no answer to check.
+                    } else {
+                        if ($outcome == self::PASS) {
+                            $npasses += 1;
+                            echo "<i style='color:green;'>.</i>";
+                        } else {
+                            $nfails += 1;
+                            echo "<i style='color:red;'>.</i>";
+                        }
+                        //echo " $message, ";
+                    }
                 }
 
                 // Report the result, and record failures for the summary.
-                echo " $message</li>";
+                if ($outcome != self::MISSINGANSWER) {
+                    echo "&nbsp;&nbsp;&nbsp;<i style='color:green;'>" . $passstr . "=" . $npasses. "</i>";
+                    if ($nfails > 0) {
+                        echo ", <b style='color:red;'>" . $failstr . '=' . $nfails. "</b>";
+                    }
+                }
+                echo "</li>";
                 flush(); // Force output to prevent timeouts and show progress.
                 $qparams['category'] = $currentcategoryid . ',' . $context->id;
                 $qparams['lastchanged'] = $question->id;
                 $qparams['qperpage'] = 1000;
                 $questionbankurl = new moodle_url('/question/edit.php', $qparams);
                 $questionbanklink = html_writer::link($questionbankurl, $nameandcount->name, ['target' => '_blank']);
-                if ($outcome === self::PASS) {
+                if ($npasses == $nruns) {
                     $numpasses += 1;
                 } else if ($outcome === self::MISSINGANSWER) {
                     $missinganswers[] = "$coursename / $questionbanklink / $questionnamelink";
                 } else {
-                    $failingtests[] = "$coursename / $questionbanklink / $questionnamelink: $message";
+                    $failmessage = " <b style='color:red'>" . get_string('fail', 'qtype_coderunner') . '=' . $nfails. "</b>";
+                    $failingtests[] = "$coursename / $questionbanklink / $questionnamelink: $failmessage";
                 }
             }
+            // echo " $message ";
             echo "</ul>\n";
         }
 

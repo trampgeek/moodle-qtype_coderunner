@@ -172,7 +172,7 @@ class run_in_sandbox extends external_api {
             if ($filesarray === null || $paramsarray === null) {
                 throw new qtype_coderunner_exception(get_string('wsbadjson', 'qtype_coderunner'));
             }
-            $maxcputime = intval(get_config('qtype_coderunner', 'wsmaxcputime'));  // Limit CPU time through this service.
+            $maxcputime = floatval(get_config('qtype_coderunner', 'wsmaxcputime'));  // Limit CPU time through this service.
             if (isset($paramsarray['cputime'])) {
                 if ($paramsarray['cputime'] > $maxcputime) {
                     throw new qtype_coderunner_exception(get_string('wscputimeexcess', 'qtype_coderunner'));

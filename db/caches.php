@@ -34,8 +34,6 @@ $definitions = [
         'simplekeys' => true,
         'simpledata' => false,
         'canuselocalstore' => true,
-        'staticacceleration' => true,
-        'ttl' => 60, // 14 * 24 * 60 * 60, // Time to live is two weeks. Change as you see fit and reload cache definitions.
-        'staticaccelerationsize' => 1000000,
+        'ttl' => abs(get_config('qtype_coderunner', 'gradecachettl')), // Change this in Coderunner settings.
     ],
 ];

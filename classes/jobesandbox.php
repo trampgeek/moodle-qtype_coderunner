@@ -30,6 +30,9 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->libdir . '/filelib.php'); // Needed when run as web service.
 
+require_login();
+
+
 
 class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
     const DEBUGGING = 0;
@@ -152,7 +155,16 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
 
     public function execute($sourcecode, $language, $input, $files = null, $params = null, $usecache = true) {
         global $CFG;
-
+        global $COURSE;
+        global $PAGE;
+        // Get the current context.
+        $context = $PAGE->context;
+        $contextid = $context->id;
+        if ($context->contextlevel == CONTEXT_COURSE) {
+            $courseid = $context->instanceid;
+        } else {
+            $courseid = 1;  // seems to be the fall back if it's not a course, eg, when bulktesting all q's
+        }
         $language = strtolower($language);
         if (is_null($input)) {
             $input = '';
@@ -223,7 +235,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
             // eg, adding another jobeserver to a list of servers will mean the
             // jobeserver parameter has changed and therefore the key will change.
 
-            $key = hash("md5", serialize($runspec));
+            $key = hash("md5", serialize($runspec)) . '_courseid_' . $courseid .'_';
             // Debugger: echo '<pre>' . serialize($runspec) . '</pre>';.
             $runresult = $cache->get($key);  // Unserializes the returned value :) false if not found.
         }
@@ -296,7 +308,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
 
                 // Got a useable result from Jobe server so cache it if required.
                 if (get_config('qtype_coderunner', 'enablegradecache') && $usecache) {
-                    $key = hash("md5", serialize($runspec));
+                    $key = hash("md5", serialize($runspec)) . '_courseid_' . $courseid . '_';
                     $cache->set($key, $runresult); // Set serializes the result, get will unserialize.
                 }
             }
