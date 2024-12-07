@@ -99,7 +99,7 @@ $cachettlsetting = new admin_setting_configtext(
     PARAM_INT,
     10
 );
-// The following might be causing issues with tests
+// The following may have been causing issues with tests
 // and is now redundant as just use coderunner setting
 // directly..
 // $cachettlsetting->set_updatedcallback(function () {
