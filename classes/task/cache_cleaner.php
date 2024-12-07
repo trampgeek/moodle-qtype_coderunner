@@ -63,7 +63,8 @@ class cache_cleaner extends \core\task\scheduled_task {
         $purger = new cache_purger();
         $definition = $purger->get_coderunner_cache_definition();
         $store = $purger->get_first_file_store($definition);
-        $ttl = $definition->get_ttl();
+
+        $ttl = abs(get_config('qtype_coderunner', 'gradecachettl'));
         if ($ttl) {
             $days = round($ttl / 60 / 60 / 24, 4);
             mtrace("Time to live (TTL) is $ttl seconds (= $days days)");

@@ -34,6 +34,6 @@ $definitions = [
         'simplekeys' => true,
         'simpledata' => false,
         'canuselocalstore' => true,
-        'ttl' => abs(get_config('qtype_coderunner', 'gradecachettl')), // Change this in Coderunner settings.
+        // Set TTL on Coderunner settings page using the following here causes unit test crashes 'ttl' => abs(get_config('qtype_coderunner', 'gradecachettl')),
     ],
 ];

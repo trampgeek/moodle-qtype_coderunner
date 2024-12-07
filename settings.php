@@ -44,7 +44,7 @@ $settings->add(new admin_setting_heading(
     'codeRunnersettings',
     get_string('coderunnersettings', 'qtype_coderunner'),
     ''
-));
+));$ttl =
 
 $settings->add(new admin_setting_configtext(
     "qtype_coderunner/default_penalty_regime",
@@ -99,9 +99,12 @@ $cachettlsetting = new admin_setting_configtext(
     PARAM_INT,
     10
 );
-$cachettlsetting->set_updatedcallback(function () {
-    cache_helper::update_definitions();
-});
+// The following might be causing issues with tests
+// and is now redundant as just use coderunner setting
+// directly..
+// $cachettlsetting->set_updatedcallback(function () {
+//    cache_helper::update_definitions();
+//});
 $settings->add($cachettlsetting);
 
 

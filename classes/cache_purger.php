@@ -143,7 +143,7 @@ class cache_purger {
         }
         //echo $OUTPUT->heading("Purging cache for course " . $courseid, 4);
         $definition = self::get_coderunner_cache_definition();
-        $ttl = $definition->get_ttl();
+        $ttl = abs(get_config('qtype_coderunner', 'gradecachettl'));
         $days = round($ttl / 60 / 60 / 24, 4);
 
         if ($usettl) {
