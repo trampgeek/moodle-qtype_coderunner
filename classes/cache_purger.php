@@ -23,9 +23,7 @@
  *
  * @package   qtype_coderunner
  * @copyright 2024 Paul McKeown, The University of Canterbury
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or laterfunction local_qtype_coderunner_reload_cache_definitions_after_ttl_update(string $caller) {
-    cache_helper::update_definitions();
-}
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace qtype_coderunner;
@@ -41,10 +39,8 @@ use core\chart_series;
 
 defined('MOODLE_INTERNAL') || die();
 
-//require_once(__DIR__ . '/../../../../config.php');
 
 class cache_purger {
-
     /**
      * Get all the visible course contexts.
      *
