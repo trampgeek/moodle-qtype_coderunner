@@ -24,7 +24,6 @@
 
 defined('MOODLE_INTERNAL') || die();
 use qtype_coderunner\constants;
-require_once('__DIR__'.'/../lib.php');
 
 
 $links = [
