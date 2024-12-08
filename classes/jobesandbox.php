@@ -235,7 +235,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
             // eg, adding another jobeserver to a list of servers will mean the
             // jobeserver parameter has changed and therefore the key will change.
 
-            $key = hash("md5", serialize($runspec)) . '_courseid_' . $courseid .'_';
+            $key = hash("md5", serialize($runspec)) . '_courseid_' . $courseid . '_';
             // Debugger: echo '<pre>' . serialize($runspec) . '</pre>';.
             $runresult = $cache->get($key);  // Unserializes the returned value :) false if not found.
         }

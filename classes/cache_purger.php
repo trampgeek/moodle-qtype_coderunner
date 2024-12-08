@@ -196,20 +196,23 @@ class cache_purger {
             // $value = $store->get($key);  // Would delete old key if fixed in file store.
             }
             if ($originalcount > 0 && ($originalcount < 100  || $numprocessed % $onepercent == 0)){
-                $progressbar->update($numprocessed,
-                                    $originalcount,
-                                    "$numprocessed / $originalcount"
-                                    //get_string('regradingattemptxofywithdetails', //'quiz_overview', [$numprocessed, $originalcount])
-                                    );
+                $progressbar->update(
+                    $numprocessed,
+                    $originalcount,
+                    "$numprocessed / $originalcount"
+                    //get_string('regradingattemptxofywithdetails', //'quiz_overview', [$numprocessed, $originalcount])
+                );
             }
         }
+
         // Make sure it gets to 100%
         if ($originalcount > 0) {
-            $progressbar->update($numprocessed,
-                                 $originalcount,
-                                 "$numprocessed / $originalcount",
-                                //get_string('regradingattemptxofywithdetails', //'quiz_overview', [$numprocessed, $originalcount])
-                                );
+            $progressbar->update(
+                $numprocessed,
+                $originalcount,
+                "$numprocessed / $originalcount",
+                //get_string('regradingattemptxofywithdetails', //'quiz_overview', [$numprocessed, $originalcount])
+            );
         }
         echo "$originalcount keys scanned, in total. <br>";
         echo "$keysforcourse keys found for course. ";

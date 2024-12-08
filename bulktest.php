@@ -33,6 +33,7 @@ require_once($CFG->libdir . '/questionlib.php');
 $contextid = required_param('contextid', PARAM_INT);
 $categoryid = optional_param('categoryid', null, PARAM_INT);
 $nruns = optional_param('nruns', 1, PARAM_INT);
+$repeatrandomonly = optional_param('repeatrandomonly', 1, PARAM_INT);
 
 // Login and check permissions.
 $context = context::instance_by_id($contextid);
@@ -61,7 +62,7 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading($title);
 
 // Run the tests.
-[$numpasses, $failingtests, $missinganswers] = $bulktester->run_all_tests_for_context($context, $categoryid, $nruns);
+[$numpasses, $failingtests, $missinganswers] = $bulktester->run_all_tests_for_context($context, $categoryid, $repeatrandomonly, $nruns);
 
 // Display the final summary.
 $bulktester->print_overall_result($numpasses, $failingtests, $missinganswers);

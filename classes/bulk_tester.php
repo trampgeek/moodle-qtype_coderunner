@@ -184,7 +184,7 @@ class qtype_coderunner_bulk_tester {
      *              array of messages relating to the questions with failures
      *              array of messages relating to the questions without sample answers
      */
-    public function run_all_tests_for_context(context $context, $categoryid = null, $nruns = 1) {
+    public function run_all_tests_for_context(context $context, $categoryid = null, $repeatrandomonly = true, $nruns = 1) {
         global $OUTPUT;
 
         // Load the necessary data.
@@ -229,8 +229,13 @@ class qtype_coderunner_bulk_tester {
                 $failstr = get_string('fail', 'qtype_coderunner');
                 $npasses = 0;
                 $nfails = 0;
+                if ($repeatrandomonly && !preg_match('/random/', $question->name)) {
+                    $nrunsthistime = 1;
+                } else {
+                    $nrunsthistime = $nruns;
+                }
                 // Now run the test.
-                for ($i = 0; $i < $nruns; $i++) {
+                for ($i = 0; $i < $nrunsthistime; $i++) {
                     // only records last outcome and message
                     try {
                         [$outcome, $message] = $this->load_and_test_question($question->id);

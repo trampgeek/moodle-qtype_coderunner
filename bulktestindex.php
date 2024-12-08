@@ -82,7 +82,10 @@ if (count($availablequestionsbycontext) == 0) {
         $contextid = $info['contextid'];
         $numcoderunnerquestions = $info['numquestions'];
 
-        $testallurl = new moodle_url('/question/type/coderunner/bulktest.php', ['contextid' => $contextid, 'nruns' => $nruns]);
+        $testallurl = new moodle_url(
+            '/question/type/coderunner/bulktest.php',
+            ['contextid' => $contextid, 'repeatrandomonly' => 1, 'nruns' => $nruns]
+        );
         $testalllink = html_writer::link(
             $testallurl,
             get_string('bulktestallincontext', 'qtype_coderunner'),
@@ -117,7 +120,7 @@ if (count($availablequestionsbycontext) == 0) {
             if ($cat->count > 0) {
                 $url = new moodle_url(
                     '/question/type/coderunner/bulktest.php',
-                    ['contextid' => $contextid, 'categoryid' => $cat->id, 'nruns' => $nruns]
+                    ['contextid' => $contextid, 'categoryid' => $cat->id, 'repeatrandomonly' => 1, 'nruns' => $nruns]
                 );
                 $linktext = $cat->name . ' (' . $cat->count . ')';
                 $link = html_writer::link($url, $linktext, ['style' => $buttonstyle]);
