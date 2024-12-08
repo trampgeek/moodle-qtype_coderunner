@@ -178,13 +178,19 @@ class qtype_coderunner_bulk_tester {
      *
      * @param context $context the context to run the tests for.
      * @param int $categoryid test only questions in this category. Default to all.
+     * @param int $randomseed used to set random seed before runs for each question. Default = 0 --- which means seed is not set.
+     *             Use this to have more chance of the series of questions being generated for testing is the same for a new run
+     *             of the tests. This works well with grader caching as you won't keep getting new random variations. Also allows
+     *             you to mix up the space that is being tested.
+     * @param int $repeatrandomonly when true(or 1), only repeats tests for questions with random in the name.
+     *              Default = true (or really 1).
      * @param int $nruns the number times to test each question. Default to 1.
      * @return array with three elements:
      *              int a count of how many tests passed
      *              array of messages relating to the questions with failures
      *              array of messages relating to the questions without sample answers
      */
-    public function run_all_tests_for_context(context $context, $categoryid = null, $repeatrandomonly = true, $nruns = 1) {
+    public function run_all_tests_for_context(context $context, $categoryid = null, $randomseed = 0, $repeatrandomonly = 1, $nruns = 1) {
         global $OUTPUT;
 
         // Load the necessary data.
@@ -234,7 +240,10 @@ class qtype_coderunner_bulk_tester {
                 } else {
                     $nrunsthistime = $nruns;
                 }
-                // Now run the test.
+                if ($randomseed > 0) {
+                    mt_srand($randomseed);
+                }
+                // Now run the test for the required number of times.
                 for ($i = 0; $i < $nrunsthistime; $i++) {
                     // only records last outcome and message
                     try {
@@ -261,9 +270,9 @@ class qtype_coderunner_bulk_tester {
 
                 // Report the result, and record failures for the summary.
                 if ($outcome != self::MISSINGANSWER) {
-                    echo "&nbsp;&nbsp;&nbsp;<i style='color:green;'>" . $passstr . "=" . $npasses. "</i>";
+                    echo "&nbsp;&nbsp;&nbsp;<i style='color:green;'>" . $passstr . "=" . $npasses . "</i>";
                     if ($nfails > 0) {
-                        echo ", <b style='color:red;'>" . $failstr . '=' . $nfails. "</b>";
+                        echo ", <b style='color:red;'>" . $failstr . '=' . $nfails . "</b>";
                     }
                 }
                 echo "</li>";
@@ -273,12 +282,12 @@ class qtype_coderunner_bulk_tester {
                 $qparams['qperpage'] = 1000;
                 $questionbankurl = new moodle_url('/question/edit.php', $qparams);
                 $questionbanklink = html_writer::link($questionbankurl, $nameandcount->name, ['target' => '_blank']);
-                if ($npasses == $nruns) {
-                    $numpasses += 1;
-                } else if ($outcome === self::MISSINGANSWER) {
+                if ($outcome === self::MISSINGANSWER) {
                     $missinganswers[] = "$coursename / $questionbanklink / $questionnamelink";
+                } else if ($nfails == 0) {
+                        $numpasses += 1;
                 } else {
-                    $failmessage = " <b style='color:red'>" . get_string('fail', 'qtype_coderunner') . '=' . $nfails. "</b>";
+                    $failmessage = " <b style='color:red'>" . get_string('fail', 'qtype_coderunner') . '=' . $nfails . "</b>";
                     $failingtests[] = "$coursename / $questionbanklink / $questionnamelink: $failmessage";
                 }
             }
