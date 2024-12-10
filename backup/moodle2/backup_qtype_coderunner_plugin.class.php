@@ -118,7 +118,6 @@ class backup_qtype_coderunner_plugin extends backup_qtype_plugin {
      */
     public static function get_qtype_fileareas() {
         return ['datafile' => 'question_created',
-                'samplefile' => 'question_created',
-                'feedbackfiles' => 'question_created'];
+                'samplefile' => 'question_created'];
     }
 }
