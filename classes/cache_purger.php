@@ -90,12 +90,14 @@ class cache_purger {
         //print_r($keys);
         $pattern = '/_courseid_(\d+)_/';
         foreach ($keys as $key) {
-            preg_match($pattern, $key, $match);
-            $courseid = $match[1];
-            if (array_key_exists($courseid, $coursetocontext)) {
-                $contextid = $coursetocontext[$courseid];
-                $contextcounts[$contextid] += 1;
-            }
+            $found = preg_match($pattern, $key, $match);
+            if ($found) {
+                $courseid = $match[1];
+                if (array_key_exists($courseid, $coursetocontext)) {
+                    $contextid = $coursetocontext[$courseid];
+                    $contextcounts[$contextid] += 1;
+                }
+            } // Not found so ignore.
         }
         // go through all keys and count by context...
         return $contextcounts;
