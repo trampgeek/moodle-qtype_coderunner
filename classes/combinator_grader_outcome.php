@@ -120,12 +120,12 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
                     'filepath'  => '/', // File path within the context.
                     'filename'  => $extendedfilename,
                 ];
-                
+
                 // Create the file in Moodle's filesystem.
                 $fs = get_file_storage();
                 $file = $fs->create_file_from_string($fileinfo, $decoded);
 
-                // Generate a URL to the saved file.
+                // Generate a @@PLUGINFILE@@ URL to the saved file.
                 $url = '@@PLUGINFILE@@/' . $extendedfilename;
                 $fileurls[$filename] = $url;
             }

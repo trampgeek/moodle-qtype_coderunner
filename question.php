@@ -358,7 +358,7 @@ class qtype_coderunner_question extends question_graded_automatically {
     /**
      * Evaluate the template parameter field for this question alone (i.e.
      * not including its prototype).
-     * Note: the prototype is also a question and will cache it's own jsontemplateparams
+     * Note: the prototype is also a question and will cache its own jsontemplateparams
      *       eg, we call $prototype->template_params_json(..,.., '_prototype_template_params') in
      *           the evaulate_merged_parameters method.
      *
@@ -451,7 +451,9 @@ class qtype_coderunner_question extends question_graded_automatically {
             $value = preg_replace("/[^A-Za-z0-9]/", '', $this->student->$key);
             $runargs[] = "$key=" . $value;
         }
-        $sandboxparams = ["runargs" => $runargs, "cputime" => 10];
+        $sandboxparams = $this->get_sandbox_params();
+        $sandboxparams["runargs"] = $runargs;
+        $sandboxparams["cputime"] = $sandboxparams["cputime"] ?? 10;  // Default to 10 secs execution time.
         $sandbox = $this->get_sandbox();
         $run = $sandbox->execute($templateparams, $lang, $input, $files, $sandboxparams);
         if ($run->error === qtype_coderunner_sandbox::SERVER_OVERLOAD) {
