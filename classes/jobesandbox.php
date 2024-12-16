@@ -157,14 +157,19 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
         global $CFG;
         global $COURSE;
         global $PAGE;
+
+        // Course ID of 1 seems to be the fall back if it's not a course, eg, when bulktesting all q's.
+        // So, use 1 if we don't find context from the PAGE or the context is not a course.
+        $courseid = 1;
         // Get the current context.
-        $context = $PAGE->context;
-        $contextid = $context->id;
-        if ($context->contextlevel == CONTEXT_COURSE) {
-            $courseid = $context->instanceid;
-        } else {
-            $courseid = 1;  // seems to be the fall back if it's not a course, eg, when bulktesting all q's
+        if (isset($PAGE->context)) {
+            $context = $PAGE->context;
+            $contextid = $context->id;
+            if ($context->contextlevel == CONTEXT_COURSE) {
+                $courseid = $context->instanceid;
+            }
         }
+
         $language = strtolower($language);
         if (is_null($input)) {
             $input = '';
