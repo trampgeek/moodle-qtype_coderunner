@@ -1375,6 +1375,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
             $uiplugin = $this->formquestion->uiplugin ? $this->formquestion->uiplugin : 'ace';
             $uiparams = new qtype_coderunner_ui_parameters($uiplugin);
             $templateparamsnoprototype = json_decode($this->formquestion->template_params_json($seed), true);
+            $templateparamsnoprototype = $templateparamsnoprototype ?? [];  // In case it's empty or null.
             $alluiparamnames = $uiparams->all_names();
             $badparams = [];
             foreach (array_keys($templateparamsnoprototype) as $paramname) {

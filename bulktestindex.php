@@ -41,15 +41,13 @@ if (abs($nrunsfromsettings) > 1) {
 }
 
 
-// Create the helper class.
-$bulktester = new qtype_coderunner_bulk_tester();
 
 // Display.
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('coderunnercontexts', 'qtype_coderunner'));
 
 // Find in which contexts the user can edit questions.
-$questionsbycontext = $bulktester->get_num_coderunner_questions_by_context();
+$questionsbycontext = qtype_coderunner_bulk_tester::get_num_coderunner_questions_by_context();
 $availablequestionsbycontext = [];
 foreach ($questionsbycontext as $contextid => $numcoderunnerquestions) {
     $context = context::instance_by_id($contextid);
@@ -114,7 +112,7 @@ if (count($availablequestionsbycontext) == 0) {
         echo html_writer::start_tag('li', ['class' => $class]);
         echo $litext;
 
-        $categories = $bulktester->get_categories_for_context($contextid);
+        $categories = qtype_coderunner_bulk_tester::get_categories_for_context($contextid);
         echo html_writer::start_tag('ul', ['class' => 'expandable']);
         foreach ($categories as $cat) {
             if ($cat->count > 0) {

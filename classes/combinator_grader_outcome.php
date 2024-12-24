@@ -56,7 +56,7 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
     public $showdifferences;
 
     /** @var ?int $outcomeid Random unique id for this testing outcome. */
-    private $outcomeid;
+    public $outcomeid;
 
     // A list of the allowed attributes in the combinator template grader return value.
     public $allowedfields = ['fraction', 'prologuehtml', 'testresults', 'files', 'epiloguehtml',

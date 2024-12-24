@@ -137,7 +137,7 @@ class behat_coderunner extends behat_base {
      * @param string $expected The string that we expect to find
      */
     public function i_set_ace_field($elname, $value) {
-        $xpath = "//textarea[@name='$elname' or (contains(@name, '$elname') and contains(@class, 'edit_code'))]/../div/div ";
+        $xpath = "//textarea[@name='$elname' or (contains(@name, '$elname') and contains(@class, 'edit_code'))]/following-sibling::div[1]/div";
         $driver = $this->getSession()->getDriver();
         // Does the div managed by Ace exist?
         if (!$driver->find($xpath)) {

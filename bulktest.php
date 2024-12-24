@@ -30,21 +30,31 @@ require_once(__DIR__ . '/../../../config.php');
 require_once($CFG->libdir . '/questionlib.php');
 
 // Get the parameters from the URL.
-$contextid = required_param('contextid', PARAM_INT);
+$contextid = required_param('contextid', PARAM_INT); // Set to 0 if providing a list of question IDs to check.
 $categoryid = optional_param('categoryid', null, PARAM_INT);
 $randomseed = optional_param('randomseed', 0, PARAM_INT);
 $repeatrandomonly = optional_param('repeatrandomonly', 1, PARAM_INT);
 $nruns = optional_param('nruns', 1, PARAM_INT);
+$questionids = optional_param('questionids', '', PARAM_RAW);  // A list of specific questions to check, eg, for rechecking failed tests.
 
 
 // Login and check permissions.
 $context = context::instance_by_id($contextid);
 require_login();
 require_capability('moodle/question:editall', $context);
-$PAGE->set_url('/question/type/coderunner/bulktest.php', ['contextid' => $context->id]);
+
+$urlparams = ['contextid' => $context->id, 'categoryid' => $categoryid, 'randomseed' => $randomseed,
+            'repeatrandomonly' => $repeatrandomonly, 'nruns' => $nruns, 'questionids' => $questionids];
+$PAGE->set_url('/question/type/coderunner/bulktest.php', $urlparams);
 $PAGE->set_context($context);
 $title = get_string('bulktesttitle', 'qtype_coderunner', $context->get_context_name());
 $PAGE->set_title($title);
+
+if ($questionids != '') {
+    $questionids = array_map('intval', explode(',', $questionids));
+} else {
+    $questionids = [];
+}
 
 if ($context->contextlevel == CONTEXT_MODULE) {
     // Calling $PAGE->set_context should be enough, but it seems that it is not.
@@ -53,19 +63,32 @@ if ($context->contextlevel == CONTEXT_MODULE) {
     $PAGE->set_cm($cm, $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST));
 }
 
+
 // Create the helper class.
-$bulktester = new qtype_coderunner_bulk_tester();
+$bulktester = new qtype_coderunner_bulk_tester(
+    $context,
+    $categoryid,
+    $randomseed,
+    $repeatrandomonly,
+    $nruns
+);
 
 // Release the session, so the user can do other things while this runs.
 \core\session\manager::write_close();
 
 // Display.
 echo $OUTPUT->header();
-echo $OUTPUT->heading($title);
+echo $OUTPUT->heading($title, 4);
 
 // Run the tests.
-[$numpasses, $failingtests, $missinganswers] = $bulktester->run_all_tests_for_context($context, $categoryid, $randomseed, $repeatrandomonly, $nruns);
+if (count($questionids) == 0) {
+    $bulktester->run_all_tests_for_context();
+} else {
+    $bulktester->run_all_tests_for_context($questionids);
+}
 
-// Display the final summary.
-$bulktester->print_overall_result($numpasses, $failingtests, $missinganswers);
+// Prints the summary of failed/missing tests
+$bulktester->print_overall_result();
+
+
 echo $OUTPUT->footer();

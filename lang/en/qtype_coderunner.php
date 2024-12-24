@@ -462,7 +462,7 @@ $string['negativeorzeromark'] = 'Mark must be greater than zero';
 
 $string['options'] = 'Options';
 $string['ordering'] = 'Ordering';
-$string['overallresult'] = 'Overall result';
+$string['bulktestoverallresults'] = 'Overall results';
 $string['overloadoninit'] = 'Sandbox server overload prevented question initialisation';
 
 // Output Display Area Errors (Used in Scratchpad UI) for displaying code output. See outputdisplayarea.js.
@@ -1349,3 +1349,4 @@ $string['cachedef_coderunner_grading_cache'] = 'Caches grading results so we can
 $string['enablegradecache_desc'] = 'Experimental. The cache is a local Moodle cache (currently file cache) to store results of grading questions. Mainly to speed up regrading by using cached results for jobe runs where the same jobe submission has already been graded. Currently WS jobs (eg, try-it boxes and scratchpad runs) will never be cached. NOTE: If you turn off grade caching then it is usually good to empty the Coderunner grade cache before you turn it on again so you have a known state for the cache. You should also clear the cache if you change the Jobe back-end (eg, installing a new version of Python there) as results may now differ from what is in the cache.';
 $string['settingsgradecachettl'] = 'Grade cache Time to Live (TTL)';
 $string['settingsgradecachettl_desc'] = 'Number of seconds for grade cache entries to live. Default is 1209600 seconds (two weeks). Used by scheduled task and helpful cachepurgeindex/cachepurge scripts. Admins can set schedule for running TTL enforcer in Admin->Server->Scheduled tasks - look for the Coderunner entry.';
+$string['backtobulktestindex'] = 'Go back to the bulk test index page.';
