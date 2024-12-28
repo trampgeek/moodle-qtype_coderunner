@@ -286,7 +286,7 @@ class qtype_coderunner_bulk_tester {
         global $OUTPUT;
         global $PAGE;
         //$context = context::instance_by_id($contextid);
-        $PAGE->set_context($this -> context);
+        $PAGE->set_context($this->context);
         $this->failedquestionids = [];
         $this->failedtestdetails = [];
         $this->missinganswerdetails = [];

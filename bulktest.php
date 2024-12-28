@@ -39,8 +39,8 @@ $questionids = optional_param('questionids', '', PARAM_RAW);  // A list of speci
 
 
 // Login and check permissions.
-$context = context::instance_by_id($contextid);
 require_login();
+$context = context::instance_by_id($contextid);
 require_capability('moodle/question:editall', $context);
 
 $urlparams = ['contextid' => $context->id, 'categoryid' => $categoryid, 'randomseed' => $randomseed,

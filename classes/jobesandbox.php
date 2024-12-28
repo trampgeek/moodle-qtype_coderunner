@@ -161,12 +161,15 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
         // So, use 1 if we don't find context from the PAGE or the context is not a course.
         $courseid = 1;
         // Get the current context.
-        if (isset($PAGE->context->id)) {
+        try {
+            // Had to use try here as isset($PAGE->context) always seems to fail even if the context has been set.
             $context = $PAGE->context;
             $contextid = $context->id;
             if ($context->contextlevel == CONTEXT_COURSE) {
                 $courseid = $context->instanceid;
             }
+        } catch (Exception $e) {
+            ;  // Use default id/context of 1 as no $PAGE context is set, eg, could be a websocket/scratchpad UI run.
         }
 
         $language = strtolower($language);
