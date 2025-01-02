@@ -1,5 +1,24 @@
 # CHANGE HISTORY
 
+### 2 January 2025. 5.5.0
+
+ * New features:
+     * Addition of some unsupported question types, include an experimental C# dot net question type.
+     * Addition of an experimental capability for combinator grader questions to return files such as images
+       to be displayed in the response to the student. WARNING: these files do not survive 
+       course backup/restore cycles and would need to be rebuilt by regrading if wanted.
+ * Various code tidying and Behat testing tweaks.
+ * Bug fixes:
+    * The layout of the testcase options in the author editing form were squished together in Moodle 4.5
+    * The rudimentary tab handling that used to work in code textareas if Ace was disabled has
+      been reimplemented.
+    * Bulk tester was displaying the wrong count of CodeRunner questions by including all different
+      versions rather than just the final one.
+    * PHP warnings were being generated if a question was found to have multiple prototypes.
+    * Jobe-based question preprocessors were ignoring any sandbox parameters set in the advanced customisation panel.
+    * Some language strings relevant to the new CodeRunner run-cache were missing.
+    * Combinator grader templates using the html_wrapper class were causing deserialization errors with Moodle systems using pgsql.
+
 ### September 2024. 5.4.1
 
  * New features:
