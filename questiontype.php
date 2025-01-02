@@ -205,15 +205,15 @@ class qtype_coderunner extends question_type {
             if ($validation) {
                 $testcase->rownum = $i;  // The row number in the edit form - relevant only when validating.
             }
-            $testcase->questionid = isset($question->id) ? $question->id : 0;
-            $testcase->testtype = isset($question->testtype[$i]) ? $question->testtype[$i] : 0;
+            $testcase->questionid = $question->id ?? 0;
+            $testcase->testtype = $question->testtype[$i] ?? 0;
             $testcase->testcode = $testcode;
             $testcase->stdin = $stdin;
             $testcase->expected = $expected;
             $testcase->extra = $extra;
-            $testcase->useasexample = isset($question->useasexample[$i]);
+            $testcase->useasexample = $question->useasexample[$i] ?? 0;
             $testcase->display = $question->display[$i];
-            $testcase->hiderestiffail = isset($question->hiderestiffail[$i]);
+            $testcase->hiderestiffail = $question->hiderestiffail[$i] ?? 0;
             $testcase->mark = trim($question->mark[$i]) == '' ? 1.0 : floatval($question->mark[$i]);
             $testcase->ordering = intval($question->ordering[$i]);
             $testcases[] = $testcase;
