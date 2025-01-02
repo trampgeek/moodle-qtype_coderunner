@@ -24,6 +24,9 @@
 
 /**
  * Checks file access for CodeRunner questions.
+ * Feedbackfiles are stored in the course context, because they are generated
+ * by the grader, which does not have access to the questionattemptstepid.
+ * Hence, the special case for these files needs to use the course context.
  *
  * @param stdClass $course course object
  * @param stdClass $cm course module object
@@ -34,25 +37,20 @@
  * @param array $options additional options affecting the file serving
  */
 function qtype_coderunner_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options = []) {
-    global $CFG;
+    global $CFG, $COURSE;
     if ($filearea === 'feedbackfiles') {
         require_login($course, false, $cm);
-
-        // Note: Implement additional checks here, as needed, to ensure users are authorized to access the file
-
-        // Serve the file
         $fs = get_file_storage();
         $filename = array_pop($args);
         $itemid = intval(array_shift($args));
         $filepath = '/';
-        $contextid = $context->id;
+        $contextid = context_course::instance($COURSE->id)->id;
         $file = $fs->get_file($contextid, 'qtype_coderunner', $filearea, $itemid, $filepath, $filename);
         if (!$file) {
             send_file_not_found();
         }
-        send_stored_file($file, 0, 0, $forcedownload, $options); // Adjust options as necessary
+        send_stored_file($file, 0, 0, $forcedownload, $options); // Adjust options can be added here if reqd.
     }
     require_once($CFG->libdir . '/questionlib.php');
     question_pluginfile($course, $context, 'qtype_coderunner', $filearea, $args, $forcedownload, $options);
 }
-

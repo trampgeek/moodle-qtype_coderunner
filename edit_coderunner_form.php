@@ -387,7 +387,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
             ['rows' => 3, 'class' => 'testcaseresult edit_code']
         );
         $group[] = $mform->createElement(
-            'checkbox',
+            'advcheckbox',
             'useasexample',
             null,
             get_string('useasexample', 'qtype_coderunner')
@@ -405,7 +405,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
             $options
         );
         $group[] = $mform->createElement(
-            'checkbox',
+            'advcheckbox',
             'hiderestiffail',
             null,
             get_string('hiderestiffail', 'qtype_coderunner')
@@ -1132,7 +1132,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
             'text',
             'sandboxparams',
             get_string('sandboxparams', 'qtype_coderunner'),
-            ['size' => 15]
+            ['size' => 25]
         );
         $mform->addElement(
             'group',

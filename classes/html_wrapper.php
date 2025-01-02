@@ -18,7 +18,7 @@
  * to code that tries to use it that further conversion to HTML must not be done.
  *
  * @package    qtype_coderunner
- * @copyright  Richard Lobb, 2016, 2024, The University of Canterbury
+ * @copyright  Richard Lobb, 2016 -2024, The University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -27,7 +27,7 @@ class qtype_coderunner_html_wrapper {
 
     /** @var string $html The wrapped html. */
     // Public because PHP's serialise uses null bytes when serialising non-public attributes,
-    // and these don't get written into textarea by pgsql.
+    // and these don't get recorded by pgsql.
     public $html;
 
     public function __construct($html) {
