@@ -17,6 +17,7 @@
 /**
  * This script runs all the question tests for all deployed versions of all
  * questions in a given context and, optionally, a given question category.
+ * Question prototypes are not tested as they aren't expected to be runnable.
  * It is a modified version of the script from the qtype_stack plugin.
  *
  * @package   qtype_coderunner

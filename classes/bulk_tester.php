@@ -53,7 +53,7 @@ class qtype_coderunner_bulk_tester {
     /**
      * Get all the contexts that contain at least one CodeRunner question, with a
      * count of the number of those questions. Only the latest version of each
-     * question is counted.
+     * question is counted and prototypes are ignored.
      *
      * @return array context id => number of CodeRunner questions.
      */
@@ -67,7 +67,9 @@ class qtype_coderunner_bulk_tester {
             JOIN {question_bank_entries} qbe ON qbe.questioncategoryid = qc.id
             JOIN {question_versions} qv ON qv.questionbankentryid = qbe.id
             JOIN {question} q ON qv.questionid = q.id
+            JOIN {question_coderunner_options} opts ON opts.questionid = q.id
             WHERE q.qtype = 'coderunner'
+            AND opts.prototypetype = 0
             AND (qv.version = (SELECT MAX(v.version)
                                 FROM {question_versions} v
                                 JOIN {question_bank_entries} be ON be.id = v.questionbankentryid
@@ -81,7 +83,7 @@ class qtype_coderunner_bulk_tester {
 
     /**
      * Find all coderunner questions in a given category, returning only
-     * the latest version of each question.
+     * the latest version of each question and ignoring prototypes.
      * @param type $categoryid the id of a question category of interest
      * @return all coderunner question ids in any state and any version in the given
      * category. Each row in the returned list of rows has an id, name and version number.
@@ -94,7 +96,9 @@ class qtype_coderunner_bulk_tester {
             FROM {question} q
             JOIN {question_versions} qv ON qv.questionid = q.id
             JOIN {question_bank_entries} qbe ON qv.questionbankentryid = qbe.id
+            JOIN {question_coderunner_options} opts ON opts.questionid = q.id
             WHERE q.qtype = 'coderunner'
+            AND opts.prototypetype = 0
             AND (qv.version = (SELECT MAX(v.version)
                                 FROM {question_versions} v
                                 JOIN {question_bank_entries} be ON be.id = v.questionbankentryid
@@ -125,8 +129,10 @@ class qtype_coderunner_bulk_tester {
             JOIN {question_bank_entries} qbe  ON qc.id = qbe.questioncategoryid
             JOIN {question_versions} qv ON qbe.id = qv.questionbankentryid
             JOIN {question} q  ON q.id = qv.questionid
-            WHERE qc.contextid = :contextid
-            AND q.qtype = 'coderunner'
+            JOIN {question_coderunner_options} opts ON opts.questionid = q.id
+            WHERE q.qtype = 'coderunner'
+            AND opts.prototypetype = 0
+            AND qc.contextid = :contextid
             AND qv.version = (
                 SELECT MAX(v.version)
                 FROM {question_versions} v
