@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <quiz>
-<!-- question: 40480  -->
+<!-- question: 40486  -->
   <question type="coderunner">
     <name>
       <text>PROTOTYPE_DOTNET_C#</text>
@@ -137,7 +137,7 @@ times['Build'] = time.perf_counter()
 # is a precheck. Error lines have the trailing identifier of the CS project
 # name stripped.
 compile_ok = result.returncode == 0
-grader_response = {}
+grader_response = {'showdifferences': True}
 if not compile_ok:
     error_output = result.stderr + result.stdout
     error_lines = [re.sub(r' *\[/home/jobe/runs.*.csproj\] *', '', line) for line in error_output.splitlines()
