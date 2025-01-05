@@ -2001,59 +2001,41 @@ The ultimate in grading flexibility is achieved by use of a "Combinator
 template grader", i.e. a TemplateGrader with the `Is combinator` checkbox checked.
 In this mode, the JSON string output by the template grader
 should again contain a 'fraction' field, this time for the total mark,
-and may contain zero or more of 'prologuehtml', 'testresults', 'columnformats',
-'epiloguehtml', 'instructorhtml', 'files', 'showoutputonly', 'showdifferences' and 'graderstate'.
-attributes.
-The 'prologuehtml' and 'epiloguehtml' fields are html
-that is displayed respectively before and after the (optional) result table. The
-'testresults' field, if given, is a list of lists used to display some sort
-of result table. The first row is the column-header row and all other rows
-define the table body. Two special column header values exist: 'iscorrect'
+and may contain zero or more of the following attributes:
+
+ 1. prologuehtml: this is html that is displayed before the (optional) result table.
+ 1. epiloguehtml: this is html that is displayed after the (optional) result table.
+ 1. introductorhtml: this is like epiloguehtml except that it is visible only to
+    instructors.
+ 1. testresults: is a list of lists used to display a result table similar to
+that displayed by the built-in question types. The first row is the column-header
+row and all other rows define the table body. Two special column header values exist: 'iscorrect'
 and 'ishidden'. The \'iscorrect\' column(s) are used to display ticks or
 crosses for 1 or 0 row values respectively. The 'ishidden' column isn't
 actually displayed but 0 or 1 values in the column can be used to turn on and
 off row visibility. Students do not see hidden rows but markers and other
 staff do.
-
-'instructorhtml' is a special version of 'epiloguehtml' that is displayed only
-to teachers.
-
-If a 'testresults' field is present, there can also be a 'columnformats' field.
-This should have one format specifier per table column and each format specifier
+ 1. columnformats: this field is only meaningful if there is a testresults field.
+It is a list of format specifier strings, one per table column excluding the optional
+ishidden and iscorrect columns. Each format specifier
 should either be '%s', in which case all formatting is left to the renderer
 (which sanitises the field and encloses it in a &lt;pre&gt; element)
 or '%h' in which case the table cell is displayed directly without further
 processing. '%s' formatting is the default in the absence of an explicit
 'columnformats' field.
-
-The 'showoutputonly' attribute, if set true, results in the prologuehtml and
+ 1. showoutputonly: if set true, this results in the prologuehtml and
 epiloguehtml fields being displayed against a neutral background with the
 usual outcome message (e.g. "Passed all tests") suppressed. The mode is intended
 for use in pseudo-questions that can be used by students to experiment with a
-given bit of code. If this attribute is true the 'fraction' attribute is not
+given bit of code. The 'fraction' attribute is not
 required and is ignored if given. Since a mark is still required by the framework
 when a question is checked, full marks are awarded regardless of the result of
 the run but questions of this sort would normally not contribute marks towards
 a student's grade.
-
-The 'showdifferences' attribute can be added to the JSON outcome to render
-the standard 'Show differences' button after the result table; it is displayed
-only if there is actually a result table present and if full marks were not
+ 1. showdifferences: if set true, the standard 'Show differences' button
+ will be displayedafter the result table if full marks were not
 awarded to the question.
-
-The 'files' attribute is a JSON object mapping from filenames to the corresponding
-base4 encoded
-file contents. This parameter is intended primarily for returning image files
-that will be displayed in the feedback, but could have other uses. If a 'files'
-attribute is present, the files are written to the Moodle file area and download
-URLs generated. files are timestamped so the same filename can be used unambiguously
-in multiple grade responses. The URLs are then used to update any occurrences of the strings
- `src="filename"` or `href="filename"` within the 'prologuehtml', 'testresults',
- 'epiloguehtml' and 'instructorhtml' attributes to use the full URL instead of just the
- filename. Unmatched filenames are disregarded. Single quotes instead of double 
- quotes can also be used in the 'src' and 'href' attribute assignments.
-
-The 'graderstate' attribute is a string value that is stored in the database
+ 1. graderstate: this is a string value that is stored in the database
 with the question attempt and is passed back to the combinator template grader
 code on the next attempt of that question as the field 'graderstate' of the
 'QUESTION.stepinfo' object. The use of this variable is entirely at the
@@ -2061,6 +2043,20 @@ discretion of the question author; the facility is available only to allow
 question authors to grade a submission differently according to what was
 previously submitted. It could, for example, be a json-encoded record of the
 correctness of the different tests.
+ 1. files (new, experimental): this allows the question author to return
+temporary files that are displayed within the response page. It is
+a JSON object mapping filenames to the corresponding
+base4 encoded file contents. This parameter is intended primarily for returning image files
+that will be displayed in the feedback, but could have other uses. If a 'files'
+attribute is present, the files are written to the Moodle file area and
+URLs generated to reference those files. The URLs are then used to update any
+occurrences of the strings
+ `src="filename"` or `href="filename"` within the 'prologuehtml', 'testresults',
+ 'epiloguehtml' and 'instructorhtml' attributes to use the full URL instead of just the
+ filename. Unmatched filenames are disregarded. Single quotes instead of double 
+ quotes can also be used in the 'src' and 'href' attribute assignments.
+Files are timestamped so the same filename can be used unambiguously
+in multiple grade responses. 
 
 Combinator-template grading gives the user complete control of the feedback to
 the student as well as of the grading process. The ability to include HTML
@@ -2083,6 +2079,9 @@ student submission that isn't actually code to be run but is some text to
 be graded by a program. The second example, which is a bit more complicated,
 shows how we can test student code in a more complex manner than simply running
 tests and matching the output against the expected output.
+
+For a more comprehensive example, inspect the dotnet C# question prototype
+in the distribution's unsupported question types folder.
 
 ### A simple grading-template example
 A simple case in which one might use a template grader is where the
