@@ -22,6 +22,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+
 /**
  * Checks file access for CodeRunner questions.
  * Feedbackfiles are stored in the course context, because they are generated
@@ -53,4 +54,8 @@ function qtype_coderunner_pluginfile($course, $cm, $context, $filearea, $args, $
     }
     require_once($CFG->libdir . '/questionlib.php');
     question_pluginfile($course, $context, 'qtype_coderunner', $filearea, $args, $forcedownload, $options);
+}
+
+function qtype_coderunner_reload_cache_definitions_after_ttl_update(string $caller) {
+    cache_helper::update_definitions();
 }

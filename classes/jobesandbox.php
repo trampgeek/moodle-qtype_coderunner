@@ -21,7 +21,7 @@
  * firewalled to accept connections only from Moodle.
  *
  * @package    qtype_coderunner
- * @copyright  2014, 2015 Richard Lobb, University of Canterbury
+ * @copyright  2014, 2015, 2024 Richard Lobb and Paul McKeown, University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -29,6 +29,9 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once($CFG->libdir . '/filelib.php'); // Needed when run as web service.
+
+require_login();
+
 
 
 class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
@@ -152,6 +155,22 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
 
     public function execute($sourcecode, $language, $input, $files = null, $params = null, $usecache = true) {
         global $CFG;
+        global $COURSE;
+        global $PAGE;
+        // Course ID of 1 seems to be the fall back if it's not a course, eg, when bulktesting all q's.
+        // So, use 1 if we don't find context from the PAGE or the context is not a course.
+        $courseid = 1;
+        // Get the current context.
+        try {
+            // Had to use try here as isset($PAGE->context) always seems to fail even if the context has been set.
+            $context = $PAGE->context;
+            $contextid = $context->id;
+            if ($context->contextlevel == CONTEXT_COURSE) {
+                $courseid = $context->instanceid;
+            }
+        } catch (Exception $e) {
+            ; // Use default id/context of 1 as no $PAGE context is set, eg, could be a websocket UI run.
+        }
 
         $language = strtolower($language);
         if (is_null($input)) {
@@ -223,7 +242,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
             // eg, adding another jobeserver to a list of servers will mean the
             // jobeserver parameter has changed and therefore the key will change.
 
-            $key = hash("md5", serialize($runspec));
+            $key = hash("md5", serialize($runspec)) . '_courseid_' . $courseid . '_';
             // Debugger: echo '<pre>' . serialize($runspec) . '</pre>';.
             $runresult = $cache->get($key);  // Unserializes the returned value :) false if not found.
         }
@@ -296,7 +315,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
 
                 // Got a useable result from Jobe server so cache it if required.
                 if (get_config('qtype_coderunner', 'enablegradecache') && $usecache) {
-                    $key = hash("md5", serialize($runspec));
+                    $key = hash("md5", serialize($runspec)) . '_courseid_' . $courseid . '_';
                     $cache->set($key, $runresult); // Set serializes the result, get will unserialize.
                 }
             }

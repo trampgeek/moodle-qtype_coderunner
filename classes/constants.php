@@ -54,5 +54,7 @@ class constants {
 
     const DEFAULT_NUM_ROWS = 18;     // Default answerbox size.
 
-    const ANSWER_CODE_KEY = 'answer_code'; // The key to the code in a Scratchpad UI question .
+    const ANSWER_CODE_KEY = 'answer_code'; // The key to the code in a Scratchpad UI question.
+
+    const GRADING_CACHE_DEFAULT_TTL = 1209600;  // Two weeks in seconds.
 }
