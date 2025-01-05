@@ -15,8 +15,7 @@
 // along with CodeRunner.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This script provides a class with support methods for running question tests in bulk.
- * It is taken from the qtype_stack plugin with slight modifications.
+ * This script provides a class with support methods for purging grading cache entries.
  *
  * Modified to provide services for the prototype usage script and the
  * autotagger script.
@@ -34,25 +33,92 @@ use cachestore_file;
 use cache_definition;
 use context;
 use moodle_url;
-use core\chart_bar;
-use core\chart_series;
 
 defined('MOODLE_INTERNAL') || die();
 
 
 class cache_purger {
+    /** @var int Jobe server host name. */
+    public $contextid;
+
+    /** @var bool Whether or not to purge based on Time To Live (TTL) */
+    public $usettl;
+
+    /** @var int Coderunner Time To Live (TTL) in seconds */
+    public $ttl;
+
+    /** @var cache_definition The Coderunner cache definition */
+    private $definition;
+
+    /** @var cache_store The actual file store used for the Coderunner cache */
+    private $store;
+
+    /** @var reflection Used to gain access to the private filepath method of the cache store */
+    private $reflection;
+
+    /** @var method Used to access the filepath method of the cache store */
+    private $filepathmethod;
+
+    /** @var list The list of all keys in the cache store */
+    public $keys;
+
+    /** @var int The total number of keys in the cache store */
+    public $originalcount;
+
+    /** @var int Baically now less the TTL, ie, if a file is before this time then it is too old */
+    public $maxtime;
+
+    /** @var int Roughly one percent of the total number of keys - so we can update the progress every one percent only */
+    public $onepercent;
+
+    /** @var int The number of keys that were deleted when purging */
+    private $numdeleted;
+
+    /** @var int The number of keys that were too young to die */
+    private $tooyoungtodie;
+
+    /** The number of keys in the course/context */
+    private $keysforcourse;
+
+    /** The number of keys that have been processed during a purge */
+    private $numprocessed;
+
+
+    public function __construct(int $contextid, bool $usettl) {
+        global $CFG;
+        $this->contextid = $contextid;
+        $this->usettl = $usettl;
+        $this->ttl = abs(get_config('qtype_coderunner', 'gradecachettl'));  // Correct for any crazy negative TTL's.
+        $this->definition = self::get_coderunner_cache_definition();
+        $this->store = self::get_first_file_store($this->definition);
+
+        // Use reflection to access the private cachestore_file method file_path_for_key.
+        $this->reflection = new \ReflectionClass($this->store);
+        $this->filepathmethod = $this->reflection->getMethod('file_path_for_key');
+        $this->filepathmethod->setAccessible(true);
+
+        $this->keys = $this->store->find_all();
+        $this->originalcount = count($this->keys);
+        $this->maxtime = cache::now() - $this->ttl;
+        $this->onepercent = round($this->originalcount / 100, 0);
+        $this->numdeleted = 0;
+        $this->tooyoungtodie = 0;
+        $this->keysforcourse = 0;
+        $this->numprocessed = 0;
+    }
+
     /**
      * Get all the visible course contexts.
      *
      * @return array context ids
      */
-    public function get_all_visible_course_contextids() {
+    public static function get_all_visible_course_contextids() {
         global $DB;
 
         $allcontexts = $DB->get_records_sql("
             SELECT ctx.id as contextid
               FROM {context} ctx
-              ORDER BY contextid"); //, ['contextid' => $contextid]);
+              ORDER BY contextid");
         $result = [];
         foreach ($allcontexts as $record) {
             $contextid = $record->contextid;
@@ -69,8 +135,12 @@ class cache_purger {
 
 
 
-    // Returns a map from contextid to count of keys
-    public function key_count_by_course(array $contextids) {
+    /**
+     * Get count of keys for each course/context.
+     * @param array $contextids A list of the context ids that should all be for courses.
+     * @return array mapping contextids to counts of keys.
+     */
+    public static function key_count_by_course(array $contextids) {
         $contextcounts = [];
         $coursetocontext = [];  // Maps courseid to contextid.
         foreach ($contextids as $contextid) {
@@ -81,13 +151,12 @@ class cache_purger {
                 $courseid = $context->instanceid;
                 $coursetocontext[$courseid] = $contextid;
             } else {
-                // should be an error here
+                ; // Ignore non-course contexts, which we shouldn't get anyway...
             }
         }
-        $definition = $this->get_coderunner_cache_definition();
-        $store = $this->get_first_file_store($definition);
+        $definition = self::get_coderunner_cache_definition();
+        $store = self::get_first_file_store($definition);
         $keys = $store->find_all();
-        //print_r($keys);
         $pattern = '/_courseid_(\d+)_/';
         foreach ($keys as $key) {
             $found = preg_match($pattern, $key, $match);
@@ -99,12 +168,12 @@ class cache_purger {
                 }
             } // Not found so ignore.
         }
-        // go through all keys and count by context...
+        // Go through all keys and count by context...
         return $contextcounts;
     }
 
 
-    public function get_coderunner_cache_definition() {
+    public static function get_coderunner_cache_definition() {
         $configerer = \cache_config::instance();
         $defs = $configerer->get_definitions();
         foreach ($defs as $id => $def) {
@@ -113,11 +182,15 @@ class cache_purger {
                 return $definition;
             }
         }
-        return null;  // Probably should raise an exception here...
+        $error = get_string(
+            'gradingcachedefintionnotfound',
+            'qtype_coderunner'
+        );
+        throw new Exception($error);
     }
 
 
-    public function get_first_file_store(cache_definition $definition) {
+    public static function get_first_file_store(cache_definition $definition) {
         $stores = cache_helper::get_cache_stores($definition);
         // Should really only be one file store but go through them if needed...
         foreach ($stores as $store) {
@@ -125,102 +198,93 @@ class cache_purger {
                 return $store;
             }
         }
-        return null;  // whoops!
+        $error = get_string(
+            'gradingcachefilestorenotfound',
+            'qtype_coderunner'
+        );
+        throw new Exception($error);
     }
 
 
-
-
-    public function purge_cache_for_context(int $contextid, int $usettl) {
+    public function purge_cache_for_context() {
         global $OUTPUT;
         global $CFG;
-        // Load the necessary data.
-        $context = context::instance_by_id($contextid);
+        $context = context::instance_by_id($this->contextid);
         $coursename = $context->get_context_name(true, true);
         if ($context->contextlevel == CONTEXT_COURSE) {
             $courseid = $context->instanceid;
         } else {
-            echo 'Nothing to do as context_id $contextid is not a course.';
+            // Nothing to do - can only run for courses.
+            echo get_string('contextidnotacourse');
             return;
         }
-        //echo $OUTPUT->heading("Purging cache for course " . $courseid, 4);
-        $definition = self::get_coderunner_cache_definition();
-        $ttl = abs(get_config('qtype_coderunner', 'gradecachettl'));
-        $days = round($ttl / 60 / 60 / 24, 4);
 
-        if ($usettl) {
-            echo "<p>Purging only old keys for course, based on Time to Live. TTL=";
-            echo "$ttl seconds (= $days days)</p>";
-        } else {
-            echo "<p>Purging all keys for course, regardless of Time to Live (TTL).</p>";
-        }
-        $store = $this->get_first_file_store($definition);
-        // $store->purge_old_entries();
+        $this->display_ttl_info();
 
-        // Use reflection to access the private cachestore_file method file_path_for_key
-        $reflection = new \ReflectionClass($store);
-        $filepathmethod = $reflection->getMethod('file_path_for_key');
-        $filepathmethod->setAccessible(true);
-
-        $keys = $store->find_all();
-        $originalcount = count($keys);
 
         // Delete all keys for course if usettl is false otherwise only old ones.
-        $maxtime = cache::now() - $ttl;
-        $onepercent = round($originalcount / 100, 0);
-        $numdeleted = 0;
-        $tooyoungtodie = 0;
-        $keysforcourse = 0;
-        $numprocessed = 0;
-        if ($originalcount > 0){
+        if ($this->originalcount > 0) {
             $progressbar = new \progress_bar('cache_purge_progress_bar', width:800, autostart:true);
         }
-        foreach ($keys as $key) {
-            $numprocessed += 1;
+        $pattern = '/_courseid_' . $courseid . '_/';
+        foreach ($this->keys as $key) {
+            $this->numprocessed += 1;
             // Call the private file_path_for_key method on the cache store.
-            $path = $filepathmethod->invoke($store, $key);
-            $pattern = '/_courseid_' . $courseid . '_/';
+            $path = $this->filepathmethod->invoke($this->store, $key);
             $file = basename($path);
             if (preg_match($pattern, $file)) {
-                $keysforcourse += 1;
-                if (!$usettl) {
-                    $store->delete($key);
-                    $numdeleted += 1;
+                $this->keysforcourse += 1;
+                if (!$this->usettl) {
+                    $this->store->delete($key);
+                    $this->numdeleted += 1;
                 } else {
                     $filetime = filemtime($path);
-                    if ($ttl && $filetime < $maxtime) {
-                            $store->delete($key);
-                            $numdeleted += 1;
+                    if ($this->ttl && $filetime < $this->maxtime) {
+                            $this->store->delete($key);
+                            $this->numdeleted += 1;
                     } else {
-                        $tooyoungtodie += 1;
+                        $this->tooyoungtodie += 1;
                     }
                 }
-            // $value = $store->get($key);  // Would delete old key if fixed in file store.
+            // Could have used $value = $store->get($key) to delete to delete old key if TTL exceeded, if this worked in file store.
             }
-            if ($originalcount > 0 && ($originalcount < 100  || $numprocessed % $onepercent == 0)){
-                $progressbar->update(
-                    $numprocessed,
-                    $originalcount,
-                    "$numprocessed / $originalcount"
-                    //get_string('regradingattemptxofywithdetails', //'quiz_overview', [$numprocessed, $originalcount])
+            if (
+                $this->originalcount > 0 && ($this->originalcount < 100  ||
+                $this->numprocessed % $this->onepercent == 0)
+            ) {
+                $progressstring = get_string(
+                    'cachepurgecheckingkeyxoftotalnum',
+                    'qtype_coderunner',
+                    ['x' => $this->numprocessed, 'totalnumkeys' => $this->originalcount]
                 );
+                $progressbar->update($this->numprocessed, $this->originalcount, $progressstring);
             }
         }
 
-        // Make sure it gets to 100%
-        if ($originalcount > 0) {
-            $progressbar->update(
-                $numprocessed,
-                $originalcount,
-                "$numprocessed / $originalcount",
-                //get_string('regradingattemptxofywithdetails', //'quiz_overview', [$numprocessed, $originalcount])
+        // Make sure progress bar gets to 100%.
+        if ($this->originalcount > 0) {
+            $progressstring = get_string(
+                'cachepurgecheckingkeyxoftotalnum',
+                'qtype_coderunner',
+                ['x' => $this->numprocessed, 'totalnumkeys' => $this->originalcount]
             );
+            $progressbar->update($this->numprocessed, $this->originalcount, $progressstring);
         }
-        echo "$originalcount keys scanned, in total. <br>";
-        echo "$keysforcourse keys found for course. ";
-        echo "$numdeleted keys purged for course.<br>";
-        echo "$tooyoungtodie keys were too young to die.<br>";
+        echo "$this->originalcount keys scanned, in total. <br>";
+        echo "$this->keysforcourse keys found for course.<br>";
+        echo "<b>$this->numdeleted</b> keys purged for course.<br>";
+        echo "$this->tooyoungtodie keys were too young to die.<br>";
     }
 
 
+    private function display_ttl_info() {
+        global $OUTPUT;
+        $ttldays = round($this->ttl / 60 / 60 / 24, 4);
+        if ($this->usettl) {
+            $message = get_string('purgingoldkeysmessage', 'qtype_coderunner', ['seconds' => $this->ttl, 'days' => $ttldays]);
+        } else {
+            $message = get_string('purgingallkeysmessage', 'qtype_coderunner');
+        }
+        echo \html_writer::tag('p', $message);
+    }
 }

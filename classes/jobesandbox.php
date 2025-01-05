@@ -21,7 +21,7 @@
  * firewalled to accept connections only from Moodle.
  *
  * @package    qtype_coderunner
- * @copyright  2014, 2015 Richard Lobb, University of Canterbury
+ * @copyright  2014, 2015, 2024 Richard Lobb and Paul McKeown, University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -169,7 +169,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
                 $courseid = $context->instanceid;
             }
         } catch (Exception $e) {
-            ;  // Use default id/context of 1 as no $PAGE context is set, eg, could be a websocket/scratchpad UI run.
+            ; // Use default id/context of 1 as no $PAGE context is set, eg, could be a websocket UI run.
         }
 
         $language = strtolower($language);

@@ -29,9 +29,11 @@ use context;
 use html_writer;
 use moodle_url;
 
-
 require_once(__DIR__ . '/../../../config.php');
 require_once($CFG->libdir . '/questionlib.php');
+
+const GREENY = 'border: 1px solid #F0F0F0; background-color:rgb(232, 249, 213); padding: 2px 2px 0px 2px;';
+const ORANGY = 'border: 1px solid #F0F0F0; background-color:rgb(249, 242, 213); padding: 2px 2px 0px 2px;';
 
 // Login and check permissions.
 $context = context_system::instance();
@@ -39,7 +41,7 @@ require_login();
 
 $PAGE->set_url('/question/type/coderunner/cachepurgeindex.php');
 $PAGE->set_context($context);
-$PAGE->set_title('Coderunner Cache Purge Index'); //get_string('bulktestindextitle', 'qtype_coderunner'));
+$PAGE->set_title(get_string('cachepurgeindextitle', 'qtype_coderunner'));
 
 
 // Display.
@@ -47,61 +49,58 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('coderunnercontexts', 'qtype_coderunner'));
 
 // Find in which contexts the user can edit questions.
-//$questionsbycontext = $bulktester->get_num_coderunner_questions_by_context();
-
-
-$cachepurger = new cache_purger();
-$allvisiblecoursecontexts = $cachepurger->get_all_visible_course_contextids();
+$allvisiblecoursecontexts = cache_purger::get_all_visible_course_contextids();
 krsort($allvisiblecoursecontexts);  // Effectively newest first.
-$keycounts = $cachepurger->key_count_by_course($allvisiblecoursecontexts);
+$keycounts = cache_purger::key_count_by_course($allvisiblecoursecontexts);
 
 // List all contexts available to the user.
 if (count($allvisiblecoursecontexts) == 0) {
-    echo html_writer::tag('p', get_string('unauthorisedbulktest', 'qtype_coderunner'));
+    echo html_writer::tag('p', get_string('unauthorisedcachepurging', 'qtype_coderunner'));
 } else {
+    echo html_writer::tag('p', get_string('cachepurgeindexinfo', 'qtype_coderunner'));
+    $ttl = abs(get_config('qtype_coderunner', 'gradecachettl'));
+    $ttldays = round($ttl / 60 / 60 / 24, 4);
+    echo html_writer::tag('p', get_String('currentttlinfo', 'qtype_coderunner', ['seconds' => $ttl, 'days' => $ttldays]));
     echo html_writer::start_tag('ul');
-    //$buttonstyle = 'border: 1px solid gray; padding: 2px 2px 0px 2px;';
-    $buttonstyle = 'border: 1px solid #F0F0F0; background-color: #FFFFC0; padding: 2px 2px 0px 2px;border: 4px solid white';
+    $oldbuttongtext = get_string('purgeoldcachekeysbutton', 'qtype_coderunner');
+    $allbuttongtext = get_string('purgeallcachekeysbutton', 'qtype_coderunner');
     foreach ($allvisiblecoursecontexts as $contextid) {
         $context = context::instance_by_id($contextid);
         $name = $context->get_context_name(true, true);
         $courseid = $context->instanceid;
-
         $purgeusingttlurl = new moodle_url('/question/type/coderunner/cachepurge.php', ['contextid' => $contextid, 'usettl' => 1]);
+        $buttonstyle = GREENY;
         $purgeusingttllink = html_writer::link(
             $purgeusingttlurl,
-            'Purge all old cache entries (ie, using TTL)',
-            // get_string('bulktestallincontext', 'qtype_coderunner'),
-            ['title' => 'Purge all old',  //get_string('testalltitle', 'qtype_coderunner'),
+            $oldbuttongtext,
+            ['title' => $oldbuttongtext,
             'style' => $buttonstyle]
         );
-
         $purgeallurl = new moodle_url('/question/type/coderunner/cachepurge.php', ['contextid' => $contextid, 'usettl' => 0]);
+        $buttonstyle = ORANGY;
         $purgealllink = html_writer::link(
             $purgeallurl,
-            'Purge all in context',
-            // get_string('bulktestallincontext', 'qtype_coderunner'),
-            ['title' => 'Purge all',  //get_string('testalltitle', 'qtype_coderunner'),
+            $allbuttongtext,
+            ['title' => $allbuttongtext,
             'style' => $buttonstyle]
         );
-
-
-        $litext = $name . ' [Course id= ' . $courseid . '] &nbsp;&nbsp; cache size=' . $keycounts[$contextid] . '&nbsp;&nbsp;&nbsp;' .  $purgeusingttllink . '&nbsp;&nbsp;&nbsp;' . $purgealllink;
+        $litext = $name .
+            ' [Course id= ' .
+            $courseid .
+            '] &nbsp;&nbsp; cache size=' .
+            $keycounts[$contextid] .
+            '&nbsp;&nbsp;&nbsp;' .
+            $purgeusingttllink .
+            '&nbsp;&nbsp;&nbsp;' .
+            $purgealllink;
         $class = 'cachepurge coderunner context normal';
         echo html_writer::start_tag('li', ['class' => $class]);
         echo $litext;
         echo html_writer::end_tag('li');
     }
     echo html_writer::end_tag('ul');
-
-    // Maybe do a purge all later...
-    // if (has_capability('moodle/site:config', context_system::instance())) {
-    //     echo html_writer::tag('p', html_writer::link(
-    //         new moodle_url('/question/type/coderunner/bulktestall.php'),
-    //         get_string('bulktestrun', 'qtype_coderunner')
-    //     ));
-    // }
+    // Maybe do a purge all later or simply link to the admin cache purging page
+    // and say to purge the coderunner grading cache ...
 }
-
 
 echo $OUTPUT->footer();

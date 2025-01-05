@@ -40,62 +40,58 @@ if (abs($nrunsfromsettings) > 1) {
     $nruns = abs($nrunsfromsettings);
 }
 
-
+// Find in which contexts the user can edit questions.
+$questionsbycontext = qtype_coderunner_bulk_tester::get_num_coderunner_questions_by_context();
+    $availablequestionsbycontext = [];
+    foreach ($questionsbycontext as $contextid => $numcoderunnerquestions) {
+        $context = context::instance_by_id($contextid);
+        if (has_capability('moodle/question:editall', $context)) {
+            $name = $context->get_context_name(true, true);
+            if (strpos($name, 'Quiz:') === 0) { // Quiz-specific question category.
+                $course = $context->get_course_context(false);
+                if ($course === false) {
+                    $name = 'UnknownCourse: ' . $name;
+                } else {
+                    $name = $course->get_context_name(true, true) . ': ' . $name;
+                }
+            }
+            $availablequestionsbycontext[$name] = [
+                'contextid' => $contextid,
+                'numquestions' => $numcoderunnerquestions];
+        }
+    }
+ksort($availablequestionsbycontext);
 
 // Display.
 echo $OUTPUT->header();
-echo $OUTPUT->heading(get_string('coderunnercontexts', 'qtype_coderunner'));
-
-// Find in which contexts the user can edit questions.
-$questionsbycontext = qtype_coderunner_bulk_tester::get_num_coderunner_questions_by_context();
-$availablequestionsbycontext = [];
-foreach ($questionsbycontext as $contextid => $numcoderunnerquestions) {
-    $context = context::instance_by_id($contextid);
-    if (has_capability('moodle/question:editall', $context)) {
-        $name = $context->get_context_name(true, true);
-        if (strpos($name, 'Quiz:') === 0) { // Quiz-specific question category.
-            $course = $context->get_course_context(false);
-            if ($course === false) {
-                $name = 'UnknownCourse: ' . $name;
-            } else {
-                $name = $course->get_context_name(true, true) . ': ' . $name;
-            }
-        }
-        $availablequestionsbycontext[$name] = [
-            'contextid' => $contextid,
-            'numquestions' => $numcoderunnerquestions];
-    }
-}
-
-ksort($availablequestionsbycontext);
 
 // List all contexts available to the user.
 if (count($availablequestionsbycontext) == 0) {
     echo html_writer::tag('p', get_string('unauthorisedbulktest', 'qtype_coderunner'));
 } else {
+    echo get_string('bulktestinfo', 'qtype_coderunner');
+    echo $OUTPUT->heading(get_string('coderunnercontexts', 'qtype_coderunner'));
+
     echo html_writer::start_tag('ul');
-    $buttonstyle = 'border: 1px solid gray; padding: 2px 2px 0px 2px;';
-    $buttonstyle = 'border: 1px solid #F0F0F0; background-color: #FFFFC0; padding: 2px 2px 0px 2px;border: 4px solid white';
+    $buttonstyle = 'background-color: #FFFFD0; padding: 2px 2px 0px 2px;border: 4px solid white';
     foreach ($availablequestionsbycontext as $name => $info) {
         $contextid = $info['contextid'];
         $numcoderunnerquestions = $info['numquestions'];
+        // Random seed of zero means randomseed is not set.
+        $urlargs = ['contextid' => $contextid,
+        'randomseed' => 0,
+        'repeatrandomonly' => 1,
+        'nruns' => $nruns];
 
-        $testallurl = new moodle_url(
-            '/question/type/coderunner/bulktest.php',
-            ['contextid' => $contextid, 'randomseed' => 0, 'repeatrandomonly' => 1, 'nruns' => $nruns]
-        );
-        $testalllink = html_writer::link(
-            $testallurl,
-            get_string('bulktestallincontext', 'qtype_coderunner'),
-            ['title' => get_string('testalltitle', 'qtype_coderunner'),
-            'style' => $buttonstyle]
-        );
+        $testallurl = new moodle_url('/question/type/coderunner/bulktest.php', $urlargs);
+        $testallstr = get_string('bulktestallincontext', 'qtype_coderunner');
+        $testalltitledetails = ['title' => get_string('testalltitle', 'qtype_coderunner'), 'style' => $buttonstyle];
+        $testalllink = html_writer::link($testallurl, $testallstr, $testalltitledetails);
+
         $expandlink = html_writer::link(
             '#expand',
             get_string('expand', 'qtype_coderunner'),
-            ['class' => 'expander',
-                      'title' => get_string('expandtitle', 'qtype_coderunner'),
-            'style' => $buttonstyle]
+            ['class' => 'expander', 'title' => get_string('expandtitle', 'qtype_coderunner'), 'style' => $buttonstyle]
         );
         $litext = $name . ' (' . $numcoderunnerquestions . ') ' . $testalllink . ' ' . $expandlink;
         if (strpos($name, 'Quiz:') === 0) {
@@ -114,19 +110,19 @@ if (count($availablequestionsbycontext) == 0) {
 
         $categories = qtype_coderunner_bulk_tester::get_categories_for_context($contextid);
         echo html_writer::start_tag('ul', ['class' => 'expandable']);
+
+        $titledetails = ['title' => get_string('testallincategory', 'qtype_coderunner')];
         foreach ($categories as $cat) {
             if ($cat->count > 0) {
-                $url = new moodle_url(
-                    '/question/type/coderunner/bulktest.php',
-                    ['contextid' => $contextid, 'categoryid' => $cat->id, 'randomseed' => 0, 'repeatrandomonly' => 1, 'nruns' => $nruns]
-                );
+                $urlargs = ['contextid' => $contextid,
+                'categoryid' => $cat->id,
+                'randomseed' => 0,
+                'repeatrandomonly' => 1,
+                'nruns' => $nruns];
+                $url = new moodle_url('/question/type/coderunner/bulktest.php', $urlargs);
                 $linktext = $cat->name . ' (' . $cat->count . ')';
                 $link = html_writer::link($url, $linktext, ['style' => $buttonstyle]);
-                echo html_writer::tag(
-                    'li',
-                    $link,
-                    ['title' => get_string('testallincategory', 'qtype_coderunner')]
-                );
+                echo html_writer::tag('li', $link, $titledetails);
             }
         }
         echo html_writer::end_tag('ul');

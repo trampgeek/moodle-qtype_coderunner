@@ -217,7 +217,7 @@ class qtype_coderunner_bulk_tester {
         global $DB;
 
         return $DB->get_records_sql(
-           "SELECT qc.id, qc.parent, qc.name AS name, COUNT(DISTINCT q.id) AS count
+            "SELECT qc.id, qc.parent, qc.name AS name, COUNT(DISTINCT q.id) AS count
             FROM  {question_categories} qc
             JOIN {question_bank_entries} qbe  ON qc.id = qbe.questioncategoryid
             JOIN {question_versions} qv ON qbe.id = qv.questionbankentryid
@@ -285,7 +285,6 @@ class qtype_coderunner_bulk_tester {
     public function run_all_tests_for_context($questionidstoinclude = []) {
         global $OUTPUT;
         global $PAGE;
-        //$context = context::instance_by_id($contextid);
         $PAGE->set_context($this->context);
         $this->failedquestionids = [];
         $this->failedtestdetails = [];
@@ -343,9 +342,12 @@ class qtype_coderunner_bulk_tester {
                 if ($this->randomseed > 0) {
                     mt_srand($this->randomseed);
                 }
+                if ($question->id == 6273) {
+                    echo $question->id;
+                }
                 // Now run the test for the required number of times.
                 for ($i = 0; $i < $nrunsthistime; $i++) {
-                    // only records last outcome and message
+                    // Only records last outcome and message.
                     try {
                         [$outcome, $message] = $this->load_and_test_question($question->id);
                     } catch (Exception $e) {
@@ -364,8 +366,8 @@ class qtype_coderunner_bulk_tester {
                             $nfailsforq += 1;
                             echo "<i style='color:red;'>.</i>";
                         }
-                        //echo " $message, ";
                     }
+                    flush();
                 }
                 // Report the result, and record failures for the summary.
                 if ($outcome != self::MISSINGANSWER) {
@@ -375,8 +377,8 @@ class qtype_coderunner_bulk_tester {
                     }
                 }
                 echo "</li>";
-                flush(); // Force output to prevent timeouts and show progress.
-
+                gc_collect_cycles(); // Because PHP's default memory management is rubbish.
+                flush(); // Force output tmemory_limito prevent timeouts and show progress.
                 $qparams['category'] = $currentcategoryid . ',' . $this->context->id;
                 $qparams['lastchanged'] = $question->id;
                 $qparams['qperpage'] = 1000;
@@ -388,17 +390,11 @@ class qtype_coderunner_bulk_tester {
                 } else if ($nfailsforq == 0) {
                         $this->numpasses += 1;
                 } else {  // Had at least one fail.
-                    // if (array_key_exists($categoryname, $this->failedquestionsbycategory)) {
-                    //     $this->failedquestionsbycategory[$categoryname] = [$question->id];
-                    // } else {
-                    //     $this->failedquestionsbycategory[$categoryname][] = $question->id;
-                    // }
                     $this->failedquestionids[] = $question->id;
                     $failmessage = " <b style='color:red'>" . get_string('fail', 'qtype_coderunner') . '=' . $nfailsforq . "</b>";
                     $this->failedtestdetails[] = "$this->coursename / $questionbanklink / $questionnamelink: $failmessage";
                 }
             }
-            // echo " $message ";
             echo "</ul>\n";
         }
         return;
@@ -444,12 +440,12 @@ class qtype_coderunner_bulk_tester {
     /**
      * Run the sample answer for the given question (if there is one).
      *
-     * @param qtype_coderunner_question $question the question to test.
+     * @param qtype_coderunner_question $question the questipon to test.
      * @return bool true if the sample answer passed, else false.
      */
     private function test_question($question) {
         core_php_time_limit::raise(60); // Prevent PHP timeouts.
-        gc_collect_cycles(); // Because PHP's default memory management is rubbish.
+
         $question->start_attempt(null);
         $response = $question->get_correct_response();
         // Check if it's a multilanguage question; if so need to determine
@@ -504,8 +500,9 @@ class qtype_coderunner_bulk_tester {
             }
             echo html_writer::end_tag('ul');
 
-            // Give a link for retesting if anything failed
-            $buttonstyle = 'font-size: large; border: 2px solid rgb(230, 211, 195); background-color:rgb(240, 240, 233); padding: 2px 2px 0px 2px;';
+            // Give a link for retesting if anything failed.
+            $buttonstyle = 'font-size: large; border:2px solid rgb(230, 211, 195);';
+            $buttonstyle .= 'background-color:rgb(240, 240, 233);padding: 2px 2px 0px 2px;';
             $retestallurl = new moodle_url(
                 '/question/type/coderunner/bulktest.php',
                 ['contextid' => $this->context->id,
@@ -516,19 +513,16 @@ class qtype_coderunner_bulk_tester {
             );
             $retestalllink = html_writer::link(
                 $retestallurl,
-                'Re-test failed questions', // get_string('retestfailedquestions', 'qtype_coderunner'),
-                ['title' => 'Re-test failed questions', // get_string('retestfailedquestionstitle', 'qtype_coderunner'),
+                get_string('retestfailedquestions', 'qtype_coderunner'),
+                ['title' => get_string('retestfailedquestions', 'qtype_coderunner'),
                 'style' => $buttonstyle]
             );
 
             echo html_writer::tag('p', '&nbsp;&nbsp;-------> ' . $retestalllink);
-
-            echo html_writer::tag('p', html_writer::link(
-                new moodle_url('/question/type/coderunner/bulktestindex.php'),
-                get_string('backtobulktestindex', 'qtype_coderunner')
-            ));
-
         }
+        $url = new moodle_url('/question/type/coderunner/bulktestindex.php');
+        $link = html_writer::link($url, get_string('backtobulktestindex', 'qtype_coderunner'));
+        echo html_writer::tag('p', $link);
     }
 
 

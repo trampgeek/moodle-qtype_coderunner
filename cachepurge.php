@@ -15,12 +15,13 @@
 // along with CodeRunner.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This script runs all the question tests for all deployed versions of all
- * questions in a given context and, optionally, a given question category.
- * It is a modified version of the script from the qtype_stack plugin.
+ * This script purges the Coderunner grading cache entries for all the
+ * questions in a given course. If useTTL is set then it will only
+ * purge cache entries that are older than the TTL (Time To Live) as
+ * set in the Coderunner admin settings.
  *
  * @package   qtype_coderunner
- * @copyright 2016 Richard Lobb, The University of Canterbury
+ * @copyright 2024 Paul McKeown, The University of Canterbury
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 namespace qtype_coderunner;
@@ -36,7 +37,8 @@ require_once(__DIR__ . '/../../../config.php');
 
 // Get the parameters from the URL.
 $contextid = required_param('contextid', PARAM_INT);
-$usettl = required_param('usettl', PARAM_INT);  // 1 for use, 0 for don't use.
+$usettl = required_param('usettl', PARAM_INT);
+$usettl = $usettl === 1; // 1 for use, 0 for don't use.
 
 // Login and check permissions.
 $context = context::instance_by_id($contextid);
@@ -44,22 +46,14 @@ require_login();
 require_capability('moodle/question:editall', $context);
 $PAGE->set_url('/question/type/coderunner/cachepurge.php', ['contextid' => $context->id, 'useTTL' => $usettl]);
 $PAGE->set_context($context);
-$title = 'Purging cache for ' . $context->get_context_name(); //get_string('bulktesttitle', 'qtype_coderunner', $context->get_context_name());
+$title = get_string('cachepurgepagetitle', 'qtype_coderunner', $context->get_context_name()); // 'Purging cache for $a' . $context->get_context_name(); //
 $PAGE->set_title($title);
-
-
 
 // Release the session, so the user can do other things while this runs.
 \core\session\manager::write_close();
 
-// Create the helper class.
-$purger = new cache_purger();
-
-
+$purger = new cache_purger($context->id, $usettl);
 echo $OUTPUT->header();
 echo $OUTPUT->heading($title, 4);
-
-$purger->purge_cache_for_context($context->id, $usettl);
-
-
+$purger->purge_cache_for_context();
 echo $OUTPUT->footer();
