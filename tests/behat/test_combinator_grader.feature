@@ -70,7 +70,6 @@ Feature: test_combinator_grader
       | id_ordering_1     | 20                                       |
       | id_answer         | def sqr(n): return n * n                 |
 
-    And I wait "180" seconds
     Then I should see "Failed testing"
     And I should see "Click on the << button to replace the expected output of this testcase with actual output."
 
