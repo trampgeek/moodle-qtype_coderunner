@@ -53,8 +53,10 @@ if ($context->contextlevel == CONTEXT_MODULE) {
 // Create the helper class.
 $bulktester = new qtype_coderunner_bulk_tester();
 
-// Release the session, so the user can do other things while this runs.
-\core\session\manager::write_close();
+// Was: Release the session, so the user can do other things while this runs.
+// Seems like Moodle 4.5 doesn't like this - gives an error. So commented out.
+// User will have to use an incognito window instead.
+// \core\session\manager::write_close();
 
 // Display.
 echo $OUTPUT->header();
