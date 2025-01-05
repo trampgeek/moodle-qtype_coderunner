@@ -1,0 +1,652 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<quiz>
+<!-- question: 32443  -->
+  <question type="coderunner">
+    <name>
+      <text>PROTOTYPE_python3_sst</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<p>The prototype for a question type that asks a student to step through the execution of a given bit of code line-by-line, updating the program state at each step in a given table.</p>
+<p>To create a new question of this type:</p>
+<ol>
+<li>Create a new coderunner question of type python3_sst</li>
+<li>Fill in the question name and question text and set the output for the first test case to OK.</li>
+<li>Save.</li>
+<li>Open the Answer Preload section.</li>
+<li>Set the parameters in the answer to whatever you want.</li>
+<li>Fill in the answer SST with the required values.</li>
+<li>Save</li>
+</ol>
+<p> </p>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1</defaultgrade>
+    <penalty>0</penalty>
+    <hidden>0</hidden>
+    <idnumber></idnumber>
+    <coderunnertype>python3_sst</coderunnertype>
+    <prototypetype>2</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime>10, 20, ...</penaltyregime>
+    <precheck>0</precheck>
+    <hidecheck>0</hidecheck>
+    <showsource>0</showsource>
+    <answerboxlines>10</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload><![CDATA[{"num_vars":["3"],"num_rows":["5"],"var_widths":["[100,100,100]"],"output_width":["100"],"return_width":["0"],"var_classes":[""],"variable_name":["","",""],"line_number":["","","","",""],"variable_value":["","","","","","","","","","","","","","",""],"output":["","","","",""]}]]></answerpreload>
+    <globalextra></globalextra>
+    <useace>1</useace>
+    <resultcolumns></resultcolumns>
+    <template><![CDATA[import json
+import ast
+
+class BadLiteral(Exception): pass
+
+def partition(values, num_cols):
+    """Return the given list of values partitioned into a 2D array with given number of columns"""
+    num_rows = len(values) // num_cols
+    table = [[values[row * num_cols + col] for col in range(num_cols)] for row in range(num_rows)]
+    return table
+
+def first_error(got_cells, expected_cells):
+    """Return the index of the first difference"""
+    for i, (got, expect) in enumerate(zip(got_cells, expected_cells)):
+        if got != expect:
+            return i
+    return None  # Shouldn't happen
+
+
+def parse_literals(lits):
+    """Use ast.eval_literal to convert a list of string values into
+       a list of Python literal values, which is returned.
+       Any parse errors raise BadLiteral(bad_string).
+    """
+    values = []
+    for lit in lits:
+        if lit == '':
+            values.append(lit)
+        else:
+            try:
+                values.append(ast.literal_eval(lit))
+            except:
+                raise BadLiteral(lit)
+    return values
+    
+
+def check_return(got_return, expected_return):
+    """Return true if return value is correct, print and
+       error and return false otherwise
+    """
+    try:
+        expected_return_value = ast.literal_eval(expected_return)
+    except:
+        print("Naughty question author: invalid literal for expected return value")
+        return False
+        
+    try:
+        got_return_value = ast.literal_eval(got_return)
+    except:
+        print("Your return value is not valid. Missing quotes perhaps?")
+        
+    if type(got_return_value) != type(expected_return_value):
+        print("Your return value is of the wrong type.")
+        print(f"Expected {type(expected_return_value)}, got {type(got_return_value)}")
+        return False
+        
+    if got_return_value != expected_return_value:
+        print("Your return value is wrong")
+        return False
+    
+    return True
+
+got = json.loads("""{{ STUDENT_ANSWER | e('py') }}""")
+expected = json.loads("""{{ QUESTION.answer | e('py') }}""")
+
+ok = True
+got_vars = [s.strip() for s in got['variable_name']]
+got_vars_lc = [s.lower() for s in got_vars]
+expected_vars = [s.strip() for s in expected['variable_name']]
+num_vars = len(expected_vars)
+expected_vars_lc = [s.lower() for s in expected_vars]
+has_output = 'output' in expected
+has_return = 'return_value' in expected
+
+if has_output:
+    expected_output = [s.strip() for s in expected['output']]
+    got_output = [s.strip() for s in got['output']]
+
+if has_return:
+    expected_return = expected['return_value'][0].strip()
+    got_return = got['return_value'][0].strip()
+
+if  got_vars != expected_vars:
+    # Deal with wrong list of variable names
+    if set(got_vars) == set(expected_vars):
+        print("Your variable names are in the wrong order")
+    elif got_vars_lc == expected_vars_lc:
+        print('Variable names must be lower case')
+    else:
+        print("The variable names in the top row are not right.")
+        #print(expected_vars, got_vars)
+    ok = False
+
+if ok:
+    # Process the list of line numbers
+    got_line_nums = [s.strip().lower() for s in got['line_number']]
+    expected_line_nums  = [s.strip().lower() for s in expected['line_number']]
+    if got_line_nums != expected_line_nums:
+        print("The sequence of line numbers is wrong.")
+        ok = False
+
+if ok:
+    # Process the list of variables
+    got_values = partition([s.strip() for s in got['variable_value']], num_vars)
+    expected_values = partition([s.strip() for s in expected['variable_value']], num_vars)
+    for i, var in enumerate(got_vars):
+        try:
+            got_var_values = parse_literals([got_values[row][i] for row in range(len(got_values))])
+            expected_var_values = parse_literals([expected_values[row][i] for row in range(len(expected_values))])
+            if got_var_values != expected_var_values:
+                print(f"Your values for the variable '{var}' aren't right.")
+                line = first_error(got_var_values, expected_var_values)
+                print(f"The first error is at step {line + 1} (line number {got_line_nums[line]}).")
+                got = got_var_values[line]
+                expected = expected_var_values[line]
+                if type(got) != type(expected):
+                    print("Your value is of the wrong type.")
+                    print(f"Expected {type(expected)}, got {type(got)}")
+                ok = False
+        except BadLiteral as bl:
+            print(f"'{bl}' is an invalid value. Might be missing quotes?")
+            ok = False
+
+            
+if ok and has_output:
+    # Process the output
+    if got_output != expected_output:
+        print("The output table is wrong")
+        step = first_error(got_output, expected_output)
+        line_number = got_line_nums[step]
+        print(f"The first error is at step {step + 1} (line number {line_number}).")
+        ok = False
+
+if ok and has_return:
+    ok = check_return(got_return, expected_return)
+
+if ok:
+    print("OK")
+]]></template>
+    <iscombinatortemplate>0</iscombinatortemplate>
+    <allowmultiplestdins>0</allowmultiplestdins>
+    <answer><![CDATA[{"num_vars":["3"],"num_rows":["5"],"var_widths":["100"],"output_width":["100"],"return_width":["0"],"var_classes":[""],"variable_name":["","",""],"line_number":["","","","",""],"variable_value":["","","","","","","","","","","","","","",""],"output":["","","","",""]}]]></answer>
+    <validateonsave>0</validateonsave>
+    <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
+    <language>python3</language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader>EqualityGrader</grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams></templateparams>
+    <hoisttemplateparams>1</hoisttemplateparams>
+    <extractcodefromjson>1</extractcodefromjson>
+    <templateparamslang>None</templateparamslang>
+    <templateparamsevalpertry>0</templateparamsevalpertry>
+    <templateparamsevald>{}</templateparamsevald>
+    <twigall>1</twigall>
+    <uiplugin>html</uiplugin>
+    <uiparameters><![CDATA[{ "html_src": "prototypeextra" }]]></uiparameters>
+    <attachments>0</attachments>
+    <attachmentsrequired>0</attachmentsrequired>
+    <maxfilesize>10240</maxfilesize>
+    <filenamesregex></filenamesregex>
+    <filenamesexplain></filenamesexplain>
+    <displayfeedback>1</displayfeedback>
+    <giveupallowed>0</giveupallowed>
+    <prototypeextra><![CDATA[<script>
+    // If the DOM header does not already contain the style sheet for this
+    // question type, insert it.
+    if (document.getElementsByClassName('qtype-coderunner-sst').length === 0) {
+            const styleElement = document.createElement('style');
+            styleElement.textContent = `
+        table.cr-sst-ctl {
+            width:auto;
+        }
+    
+        table.cr-sst-ctl td, table.cr-sst-ctl th {
+            padding: 8px;
+        }
+    
+        div.sst-ui {
+            padding: 10px;
+            overflow: scroll;
+        }
+        
+        /* Table, th and td styles */
+        table.sst {
+            border: none;
+            border-collapse: collapse; 
+        }
+        
+        table.sst tr {
+            height:27px;
+        }
+        
+        table.sst td, table.sst th {
+            background-color: #d2d2e8;
+            text-align:center;
+            padding: 2px 5px 2px 5px;
+        }
+        
+        table.sst td {
+            border: 1px solid #7e7e7e;
+        }
+        
+        table.sst th {
+            font-weight: bold;
+            border: 3px solid black;
+        }
+        
+        table.sst th.cr-variables-header {
+            border-bottom: 1px solid black;
+        }
+        
+        table.sst .cr-step-col,
+        table.sst .cr-blank {
+            background-color: inherit;
+            border: none;
+            padding: 0px 7px 0px 7px;
+        }
+        
+        table.sst td.cr-bottom {
+            border-bottom: 3px solid black;
+        }
+        
+        table.sst .cr-output-col,
+        table.sst .cr-linenumber-col,
+        table.sst .cr-return-row,
+        table.sst td.cr-separator {
+            border-right: 3px solid black;
+            border-left: 3px solid black;
+        }
+        
+        table.sst td.cr-last-col {
+            border-right: 3px solid black;
+        }
+        
+        table.sst td.cr-variable-name {
+            border-bottom: 3px solid black;
+        }
+        
+        /* Input styles */
+        table.sst input {
+            border: 1px solid gray;
+            margin: 5px;
+            font-family: monospace;
+        }
+       
+        table.sst input.cr-variable-name {
+            font-weight: bold;
+        }
+        
+        table.sst input.cr-linenumber {
+            width: 40px;
+        }
+          
+        table.sst input.cr-undefined {
+            background-color: white;
+        }
+        
+        table.sst input.cr-explicit {
+            background-color: #e2e5ff;
+        }
+        
+        table.sst input.cr-filled-down {
+            background: repeating-linear-gradient(45deg,white,white 5px,#e2e5ff 5px,#e2e5ff 10px);
+        }
+    `;
+        styleElement.classList.add('qtype-coderunner-sst');
+        document.head.append(styleElement);
+    }
+    </script>
+    
+    <div id="___textareaId___-controlpanel" style="display:none">
+        <h3>SST parameters</h3>
+        <p><b>Warning: changing these may clobber existing table content!</b></p>
+        <table class="table table-bordered cr-sst-ctl">
+            <tr><th>Variable</th><th>Value</th></tr>
+        <tr><td>num_vars</td><td><input id="___textareaId___-num_vars" type="text" name="num_vars" class="coderunner-ui-element" value="3"></td></tr>
+        <tr><td>num_rows</td><td><input id="___textareaId___-num_rows" type="text" name="num_rows" class="coderunner-ui-element" value="3"></td></tr>
+        <tr><td>var_widths</td><td><input id="___textareaId___-var_widths" type="text" name="var_widths" class="coderunner-ui-element" value="100"></td></tr>
+        <tr><td>output_width</td><td><input id="___textareaId___-output_width" type="text" name="output_width" class="coderunner-ui-element" value="100"></td></tr>
+        <tr><td>return_width</td><td><input id="___textareaId___-return_width" type="text" name="return_width" class="coderunner-ui-element" value="0"></td></tr>
+        </table>
+    </div>
+        <input type="hidden" id="___textareaId___-cr-var-classes" class="coderunner-ui-element" name="var_classes">  
+        <div id="___textareaId___-sst-ui-div" class="sst-ui">
+        </div>
+        
+        <script>
+        (()=> {
+    
+        //jshint esversion: 6 
+        
+        //const num_vars = 3; // Dummy - now defined by the control panel (see above)
+        //const num_rows = 5; // Dummy - now defined by the control panel (see above)
+        //const output_width = 100; // Dummy - now defined by the control panel (see above)
+        //const var_widths = 100; // Dummy - now defined by the control panel (see above)
+        //const return_width = 0; // Dummy - now defined by the control panel (see above)
+      
+        /**
+         *  Return the value of the ith element of the attribute with the given name
+         *  from the data object, if it exists, or the empty string otherwise.
+         *  Double-quotes are replaced with &quot; as the returned value is for substituting
+         *  into an HTML table.
+         */
+        function getValue(data, name, i) {
+            if (data.hasOwnProperty(name) && data[name].length > i) {
+                value = data[name][i].replace(/"/g, "&quot;");
+                return value;
+            } else {
+                return '';
+            }
+        }
+        
+        /**
+         * Return the HTML for the SST table element to insert into the DOM.
+         * A complication here is that this script runs *after* the HTML-UI has
+         * attempted to load all the fields with the values from the textarea.
+         * Since the table didn't exist at that time, all the values have been
+         * placed into the data-leftovers attribute of the HTML outer div and
+         * need to be fetched from there.
+         */
+        function buildTable(data, params) {
+            const has_output = params.output_width > 0;
+            const outputColSpacer = has_output ? '<td class="cr-blank" colspan="2"></td>' : '';
+            let value = '';
+            let table_html = `
+        <table class="sst" border="1">
+        <thead>
+        <tr>
+        <td class="cr-blank" colspan="2"></td>
+        <th class="cr-variables-header" colspan="${params.num_vars}">Variables</th>
+        ${outputColSpacer}
+        </tr>
+        
+        <tr>
+        <td class="cr-step-col"><strong>Step</strong></th>
+        <th class="cr-linenumber-col cr-linenumber-hdr">Line number</th>`;
+            for (let j=1; j <= params.num_vars; j++) {
+                let last_col = j == params.num_vars ? ' cr-last-col' : '';
+                value = getValue(data, 'variable_name', j - 1);
+                let col_width_style = `style="width:${params.var_widths[j - 1]}px"`;
+                table_html += `
+        <td class="cr-variable-col cr-variable-name${last_col}">
+        <input id="___textareaId___-cr-sst-var-0-${j}" class="coderunner-ui-element" ${col_width_style} cr-variable-name" name="variable_name" value="${value}">
+        </td>`;
+            }
+            if (has_output) {
+                table_html += `<td class="cr-blank cr-separator"></td>
+        <th class="cr-output-col cr-output-hdr">Printed output</th>`;
+            }
+            table_html += '</thead><tbody>';
+        
+            for (let i=1; i <= params.num_rows; i++) {
+                let bottom = i == params.num_rows ? ' cr-bottom' : '';
+                let lineNumber = getValue(data, 'line_number', i - 1);
+                table_html += ` 
+        <tr>
+        
+        <td class="cr-step-col">${i}</td>
+        <td class="cr-linenumber-col${bottom}"><input class="coderunner-ui-element cr-linenumber" name="line_number" value="${lineNumber}"></td>`;
+                if (params.return_width && i == params.num_rows) {
+                    let returnValue = getValue(data, 'return_value', 0);
+                    table_html += `
+        <td class="cr-return-row cr-bottom" colspan="${params.num_vars}"><strong>Return value:&nbsp;</strong>
+            <input class="coderunner-ui-element cr-return-value" name="return_value" value="${returnValue}" style="width:${params.return_width}px">
+        </td>`;
+                } else {
+                    for (let j = 1; j <= params.num_vars; j++) {
+                        let last_col = j == params.num_vars ? ' cr-last-col' : '';
+                        let variable_num = (i - 1) * params.num_vars + j - 1;
+                        value = getValue(data, 'variable_value', variable_num);
+                        let col_width_style = `style="width:${params.var_widths[j - 1]}px"`;
+                        table_html += `
+        <td class="cr-variable-col${bottom}${last_col}"><input id="___textareaId___-cr-sst-var-${i}-${j}" ${col_width_style} class="coderunner-ui-element cr-variable cr-undefined" name="variable_value" value="${value}"></td>`;
+                    }
+                    if (has_output) {
+                        bottom = (params.output_width && i == params.num_rows) ? ' cr-bottom' : '';
+                        value = getValue(data, 'output', i - 1)
+                        table_html += `
+        <td class="cr-blank cr-separator">
+        </td><td class="cr-output-col${bottom}"><input class="coderunner-ui-element cr-output" name="output" value="${value}" style="width:${params.output_width}px"></td>`;
+                    }
+                } 
+                table_html += '</tr>';
+            }
+            table_html += `
+        </tbody>
+        </table>
+        </div>`;
+            return table_html;
+        }
+        
+        
+        function cr_varChanged(element, event) {
+            // Called on change event in a variable input element. 
+            // Sets values and classes of all elements in the column of
+            // the element by filling down any explicitly-entered
+            // elements until the next such element is encountered.
+            // Classes of the input elements in the column are set
+            // to 'cr-underfined', 'cr-filled-down' or 'cr-explicit'.
+            element.classList.remove('cr-filled-down', 'cr-undefined', 'cr-explicit');
+            const inputId = element.id;
+            const bits = inputId.split('-');
+            const colNum = parseInt(bits[bits.length - 1]);
+        
+            const value = element.value.trim();
+            if (value === '') {
+                element.classList.add('cr-undefined');
+            } else {
+                element.classList.add('cr-explicit');
+            }
+        
+            // Work down column from top to bottom, filling as appropriate.
+            let fillValue = '';
+            let varStates = document.getElementById("___textareaId___-cr-var-classes");
+            let allStates = varStates.value === '' ? {} : JSON.parse(varStates.value);
+            let rowNum = 1; // Start at top row.
+            while (1) {
+                let displayClass = 'cr-undefined';
+                bits[bits.length - 2] = rowNum.toString(); // Set the row number.
+                const inputId = bits.join('-');
+                const input = document.getElementById(inputId);
+                if (input === null) {
+                    break;
+                }
+                if (input.classList.contains('cr-explicit')) {
+                    fillValue = input.value;
+                    displayClass = 'cr-explicit';
+                } else {
+                    input.value = fillValue;
+                    input.classList.remove('cr-filled-down', 'cr-undefined', 'cr-explicit');
+                    if (fillValue === '') {
+                        displayClass = 'cr-undefined';
+                    } else {
+                        displayClass = 'cr-filled-down';
+                    }
+                    input.classList.add(displayClass);
+                }
+                // Record display class of this input element if not undefined.
+                if (displayClass !== 'cr-undefined') {
+                    allStates[`cr-sst-var-${rowNum}-${colNum}`] = displayClass;
+                }
+                rowNum += 1;
+            }
+            varStates.value = JSON.stringify(allStates);
+            if (varStates.value == '{}') {
+                varStates.value = '';  // So HTML UI serialisation is empty.
+            }
+        }
+        
+        // Called when the UI has been loaded and initialised to set the appropriate
+        // display class. The initial state is undefined so only cr-explicit and
+        // cr-filled-down are explicitly set.
+        function loadClasses() {
+            const classesInput = document.getElementById('___textareaId___-cr-var-classes');
+            const classesStatesJson = classesInput.value;
+            if (classesStatesJson) {
+                const allStates = JSON.parse(classesInput.value);
+        
+                for(const key in allStates) {
+                    const displayClass = allStates[key];
+                    const id = `___textareaId___-${key}`;
+                    const input = document.getElementById(id);
+                    if (input) { // Ignore unmatchable cells, which happen during editing.
+                        input.classList.remove('cr-undefined');
+                        input.classList.add(displayClass);
+                    }
+                }
+            }
+        
+        }
+        
+        // Kill the enter key from submitting the form.
+        function kill_enter() {
+            const div = document.getElementById("___textareaId___-sst-ui-div");
+            div.addEventListener("keydown", event=> {
+                        if (event.keyCode === 13) {
+                            event.preventDefault();
+                        }
+            });
+        }
+        
+        // Set up a handler for each variable value (change or Enter key)
+        function addVarChangedHandlers() {
+            const parentDiv = document.getElementById("___textareaId___-sst-ui-div");
+            const elements = parentDiv.querySelectorAll(".cr-variable");
+            for (let i=0; i < elements.length; i++) {
+                const element = elements[i];
+                if (element.crEventSet === undefined || element.crEventSet === null) {
+                    element.addEventListener("change", event=>cr_varChanged(element, event));
+                    element.addEventListener("keydown", event=>{
+                            if (event.keyCode === 13) { // Enter key
+                                cr_varChanged(element, event);
+                                event.preventDefault();
+                            }
+                        });
+                    element.crEventSet = 1;
+                }
+            }
+        }
+    
+    
+        // Given the value of the var-widths field from the Control Panel (when authoring) 
+        // or the hidden field (in a live question) return a list of the widths of all variable columns. 
+        // var-widths might be an int or a json list of ints.
+        function getVariableWidths(field, num_vars) {
+            let widths = [];
+            let width = parseInt(field);
+            if (isNaN(width)) {
+                widths = JSON.parse(field);
+                width = widths[widths.length - 1];
+            }
+            // Fill the widths array with the single value, or expand it until there are enough.
+            while (widths.length < num_vars) {
+                widths.push(width);
+            }
+            return widths;
+        }
+    
+    
+        // Construct the SST table 
+        function buildUI(textareaId) {
+            const params = getParams(textareaId);
+            const outerDiv = document.getElementById("qtype-coderunner-outer-div-" + textareaId);
+            const dataLeftovers = outerDiv.getAttribute('data-leftovers');
+            const data = dataLeftovers ? JSON.parse(dataLeftovers) : {};
+            const sst_div = document.getElementById(textareaId + '-sst-ui-div');
+            sst_div.innerHTML = '';  // Purge any existing contents
+            const table_html = buildTable(data, params);
+            sst_div.insertAdjacentHTML('beforeend', table_html, );
+            loadClasses();
+            addVarChangedHandlers();
+            kill_enter();
+        }
+    
+        // Get a params record for the given textarea.
+        function getParams(textareaId) {
+            const num_vars = parseInt(document.getElementById(textareaId + '-num_vars').value);
+            return {
+               num_vars: num_vars,
+               num_rows: parseInt(document.getElementById(textareaId + '-num_rows').value),
+               output_width: parseInt(document.getElementById(textareaId + '-output_width').value),
+               return_width: parseInt(document.getElementById(textareaId + '-return_width').value),
+               var_widths: getVariableWidths(document.getElementById(textareaId + '-var_widths').value, num_vars)
+            }
+        }
+    
+        // Plug the given params into the control panel for the given textarea.
+        // Used only during authoring, to copy the control panel info from the
+        // answer control panel to the hidden answer_preload panel.
+        function setParams(textareaId, params) {
+            document.getElementById(textareaId + '-num_vars').value = params.num_vars;
+            document.getElementById(textareaId + '-num_rows').value = params.num_rows;
+            document.getElementById(textareaId + '-output_width').value = params.output_width;
+            document.getElementById(textareaId + '-return_width').value = params.return_width;
+            document.getElementById(textareaId + '-var_widths').value = `[${params.var_widths.join(',')}]`;
+        }
+    
+        // Rebuild both the answer and answer preload tables.
+        // Called only from the control panel event handlers, so the parameters are taken from the
+        // control panel (which is only in the answer textarea).
+        function buildBothUis() {
+            buildUI('id_answer');
+            // Copy the params to the answerpreload and build that UI too.
+            setParams('id_answerpreload', getParams('id_answer'));
+            buildUI('id_answerpreload');
+        }
+        
+        // When any of the control panel UI parameters change, rebuild the SST tables in both
+        // the answer and the answer preload areas.
+        document.getElementById('___textareaId___-num_vars').onchange = buildBothUis;
+        document.getElementById('___textareaId___-num_rows').onchange = buildBothUis;
+        document.getElementById('___textareaId___-output_width').onchange = buildBothUis;
+        document.getElementById('___textareaId___-return_width').onchange = buildBothUis;
+        document.getElementById('___textareaId___-var_widths').onchange = buildBothUis;
+        
+        const sourceId = '___textareaId___' === 'id_answerpreload' ? 'id_answer' : '___textareaId___';
+        buildUI('___textareaId___', sourceId);  // The initial load of the UI.
+    
+        // Show the control panel only in the sample answer.
+        if("___textareaId___" === "id_answer"){
+            document.getElementById("___textareaId___-controlpanel").style.display = "inline";
+        }
+        
+        })();
+        </script>]]></prototypeextra>
+    <testcases>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>OK</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+    </testcases>
+  </question>
+
+</quiz>

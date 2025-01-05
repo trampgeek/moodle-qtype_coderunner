@@ -1,0 +1,851 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<quiz>
+<!-- question: 21973  -->
+  <question type="coderunner">
+    <name>
+      <text>PROTOTYPE_python3_parsons_problem</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<h2>The prototype for a Parson's Problem in Python</h2>
+<p>This prototype defines a simplified Parson's Problem question. To use:</p>
+<ol>
+<li>Open the Answer preload section.</li>
+<li>Paste into both the preload and the answer the code you want the student to construct.</li>
+<li>Add further distractor lines to the answer preload if desired.</li>
+<li>Use the <em>Unindent</em> and <em>Shuffle</em> buttons in the answer preload to get a suitable set of code lines.</li>
+<li>Click the <em>Twig all </em>checkbox. [If you don't do this you'll get ridiculously wide lines.]</li>
+<li>Save.</li>
+</ol>
+<p>Template parameters:</p>
+<ul>
+<li><strong>code_width</strong> can be used to define the width of both the 'Drag from' and 'Drag to' areas, e.g.
+<pre>{"code_width": "400px"}</pre>
+Default is "500px".</li>
+<li style="padding-top: 10px;"><strong>maxreturndepth</strong> can be used to limit the maximum indentation that can be applied to <code>return</code> statements. If this parameter is not present, there is no limit.</li>
+</ul>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1</defaultgrade>
+    <penalty>0</penalty>
+    <hidden>0</hidden>
+    <idnumber></idnumber>
+    <coderunnertype>python3_parsons_problem</coderunnertype>
+    <prototypetype>2</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime>0</penaltyregime>
+    <precheck>0</precheck>
+    <hidecheck>0</hidecheck>
+    <showsource>0</showsource>
+    <answerboxlines>5</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload><![CDATA[{"CR-parsons-target":[""],"CR-parsons-source":["    "]}]]></answerpreload>
+    <globalextra></globalextra>
+    <useace>1</useace>
+    <resultcolumns></resultcolumns>
+    <template><![CDATA[import json
+import sys
+from __pystylechecker import StyleChecker
+
+SEPARATOR = "#<ab@17943918#@>#"
+__saved_input__ = input
+def input(prompt=''):
+    s = __saved_input__(prompt)
+    print(s)
+    return s
+
+student_code = json.loads("""{{ STUDENT_ANSWER | e('py') }}""")["CR-parsons-target"][0]
+params = json.loads("""{{ QUESTION.parameters | json_encode | e('py') }}""")
+
+if 'maxreturndepth' in params:
+    checker = StyleChecker('', student_code, {})
+    max_depth = params['maxreturndepth']
+    bad_returns = checker.find_nested_returns(max_depth)
+    if bad_returns:
+        s = 's' if max_depth > 1 else ''
+        print(f'Return statements may not be indented more than {max_depth} level{s} in this question', file=sys.stderr)
+        sys.exit('Testing aborted')
+exec(student_code)
+
+{% for TEST in TESTCASES %}
+{{ TEST.testcode }}
+{% if not loop.last %}
+print(SEPARATOR)
+{% endif %}
+{% endfor %}]]></template>
+    <iscombinatortemplate>1</iscombinatortemplate>
+    <allowmultiplestdins>0</allowmultiplestdins>
+    <answer><![CDATA[{"CR-parsons-target":["    "],"CR-parsons-source":[""]}]]></answer>
+    <validateonsave>0</validateonsave>
+    <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
+    <language>python3</language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader>NearEqualityGrader</grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams><![CDATA[{
+    "code_width": "500px"
+}]]></templateparams>
+    <hoisttemplateparams>1</hoisttemplateparams>
+    <extractcodefromjson>1</extractcodefromjson>
+    <templateparamslang>None</templateparamslang>
+    <templateparamsevalpertry>0</templateparamsevalpertry>
+    <templateparamsevald><![CDATA[{
+    "code_width": "500px"
+}]]></templateparamsevald>
+    <twigall>0</twigall>
+    <uiplugin>html</uiplugin>
+    <uiparameters><![CDATA[{"html_src": "prototypeextra"}]]></uiparameters>
+    <attachments>0</attachments>
+    <attachmentsrequired>0</attachmentsrequired>
+    <maxfilesize>10240</maxfilesize>
+    <filenamesregex></filenamesregex>
+    <filenamesexplain></filenamesexplain>
+    <displayfeedback>1</displayfeedback>
+    <giveupallowed>0</giveupallowed>
+    <prototypeextra><![CDATA[<!--
+Code for use within the CodeRunner HTML UI to implement a Parsons
+Problem question type.
+
+Much of this code is derived from the jsparson project by Ihantola
+and Karavirta, licensed as below.
+
+-- Richard Lobb, August 2021.
+
+jsparsons licence:
+=================
+The MIT License
+
+Copyright (c) 2010- Petri Ihantola and Ville Karavirta
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+-->
+<style>
+    /** Stylesheet for the puzzles */
+    
+    .CR-parsons-authoring {
+        display: none;
+    }
+    
+    .CR-parsons-error {
+        display: none;
+        background-color:yellow;
+    }
+    
+    .source-code, target-code {
+        font-size: 90%;
+        font-family: monospace;
+        width: 100%;
+    }
+    
+    .target-code {
+        display: none;
+    }
+    
+    .sortable-code {
+        position: static;
+        padding-left: 0px;
+        margin-left: 2%;
+        float: left;
+        width: 94%;
+        max-width: {{ code_width}};
+    }
+    
+    
+    .sortable-code ul {
+        font-size: 90%;
+        font-family: monospace;
+        list-style: none;
+        background-color: #cbcff7;
+        padding-bottom: 20px;
+        padding-left: 0;
+        margin-left: 0;
+        border: 1px solid #efefff;;
+    }
+    .sortable-code ul:empty {
+      padding-bottom: 30px;
+    }
+    .sortable-code li, .sortable-code li:before, .sortable-code li:after {
+      box-sizing: content-box;
+    }
+    ul.output {
+        background-color: #FFA;
+    }
+    .sortable-code li {
+        -moz-border-radius:10px;
+        -webkit-border-radius:10px;
+        border-radius: 10px;
+        background-color: white;
+        border:1px solid lightgray;
+        padding:4px;
+        padding-left:8px;
+        margin-top: 4px;
+        white-space: nowrap;
+        overflow: hidden;
+        cursor: move;
+    }
+    .sortable-code li:hover {
+        overflow: visible;
+    }
+    
+    
+    </style>
+    <script>
+    /* jshint esversion: 6 */
+    //# sourceURL=ParsonsProbem.js
+    require(['jquery', 'jqueryui'], function($, jqui) {
+    
+        function turn_on_touch() {
+            // Turn on touch functionality
+            // Detect touch support
+    
+            /*!
+            * jQuery UI Touch Punch 0.2.3
+            *
+            * Copyright 2011–2014, Dave Furfero
+            * Dual licensed under the MIT or GPL Version 2 licenses.
+            *
+            * Depends:
+            *  jquery.ui.widget.js
+            *  jquery.ui.mouse.js
+            */
+            $.support.touch = 'ontouchend' in document;
+    
+            // Ignore browsers without touch support
+            if (!$.support.touch) {
+                return;
+            }
+    
+          var mouseProto = $.ui.mouse.prototype,
+              _mouseInit = mouseProto._mouseInit,
+              _mouseDestroy = mouseProto._mouseDestroy,
+              touchHandled;
+    
+            /**
+            * Simulate a mouse event based on a corresponding touch event
+            * @param {Object} event A touch event
+            * @param {String} simulatedType The corresponding mouse event
+            */
+            function simulateMouseEvent (event, simulatedType) {
+    
+            // Ignore multi-touch events
+            if (event.originalEvent.touches.length > 1) {
+              return;
+            }
+    
+            event.preventDefault();
+    
+            var touch = event.originalEvent.changedTouches[0],
+                simulatedEvent = document.createEvent('MouseEvents');
+    
+            // Initialize the simulated mouse event using the touch event's coordinates
+            simulatedEvent.initMouseEvent(
+              simulatedType,    // type
+              true,             // bubbles
+              true,             // cancelable
+              window,           // view
+              1,                // detail
+              touch.screenX,    // screenX
+              touch.screenY,    // screenY
+              touch.clientX,    // clientX
+              touch.clientY,    // clientY
+              false,            // ctrlKey
+              false,            // altKey
+              false,            // shiftKey
+              false,            // metaKey
+              0,                // button
+              null              // relatedTarget
+            );
+    
+            // Dispatch the simulated event to the target element
+            event.target.dispatchEvent(simulatedEvent);
+            }
+    
+            /**
+            * Handle the jQuery UI widget's touchstart events
+            * @param {Object} event The widget element's touchstart event
+            */
+            mouseProto._touchStart = function (event) {
+    
+            var self = this;
+    
+            // Ignore the event if another widget is already being handled
+            if (touchHandled || !self._mouseCapture(event.originalEvent.changedTouches[0])) {
+              return;
+            }
+    
+            // Set the flag to prevent other widgets from inheriting the touch event
+            touchHandled = true;
+    
+            // Track movement to determine if interaction was a click
+            self._touchMoved = false;
+    
+            // Simulate the mouseover event
+            simulateMouseEvent(event, 'mouseover');
+    
+            // Simulate the mousemove event
+            simulateMouseEvent(event, 'mousemove');
+    
+            // Simulate the mousedown event
+            simulateMouseEvent(event, 'mousedown');
+            };
+    
+            /**
+            * Handle the jQuery UI widget's touchmove events
+            * @param {Object} event The document's touchmove event
+            */
+            mouseProto._touchMove = function (event) {
+    
+            // Ignore event if not handled
+            if (!touchHandled) {
+              return;
+            }
+    
+            // Interaction was not a click
+            this._touchMoved = true;
+    
+            // Simulate the mousemove event
+            simulateMouseEvent(event, 'mousemove');
+            };
+    
+            /**
+            * Handle the jQuery UI widget's touchend events
+            * @param {Object} event The document's touchend event
+            */
+            mouseProto._touchEnd = function (event) {
+    
+            // Ignore event if not handled
+            if (!touchHandled) {
+              return;
+            }
+    
+            // Simulate the mouseup event
+            simulateMouseEvent(event, 'mouseup');
+    
+            // Simulate the mouseout event
+            simulateMouseEvent(event, 'mouseout');
+    
+            // If the touch interaction did not move, it should trigger a click
+            if (!this._touchMoved) {
+    
+              // Simulate the click event
+              simulateMouseEvent(event, 'click');
+            }
+    
+            // Unset the flag to allow other widgets to inherit the touch event
+            touchHandled = false;
+          };
+    
+          /**
+           * A duck punch of the $.ui.mouse _mouseInit method to support touch events.
+           * This method extends the widget with bound touch event handlers that
+           * translate touch events to mouse events and pass them to the widget's
+           * original mouse event handling methods.
+           */
+          mouseProto._mouseInit = function () {
+    
+            var self = this;
+    
+            // Delegate the touch handlers to the widget's element
+            self.element.bind({
+              touchstart: $.proxy(self, '_touchStart'),
+              touchmove: $.proxy(self, '_touchMove'),
+              touchend: $.proxy(self, '_touchEnd')
+            });
+    
+            // Call the original $.ui.mouse init method
+            _mouseInit.call(self);
+          };
+    
+          /**
+           * Remove the touch event handlers
+           */
+          mouseProto._mouseDestroy = function () {
+    
+            var self = this;
+    
+            // Delegate the touch handlers to the widget's element
+            self.element.unbind({
+              touchstart: $.proxy(self, '_touchStart'),
+              touchmove: $.proxy(self, '_touchMove'),
+              touchend: $.proxy(self, '_touchEnd')
+            });
+    
+            // Call the original $.ui.mouse destroy method
+            _mouseDestroy.call(self);
+          };
+        }
+    
+        turn_on_touch(); // Run the jquery ui touch code.
+    
+        // =====================================================
+        //
+        // Now the code based on jsparsons (see licence at top)
+        // ----------------------------------------------------
+        // =====================================================
+    
+        var MAX_INDENT = 7;
+    
+        // regexp used for trimming
+        var trimRegexp = /^\s*(.*?)\s*$/;
+        var translations = {
+            en: {
+                source_panel_label: 'Drag from here.',
+                target_panel_label: 'Construct solution here.',
+            }
+        };
+    
+        // =================================================================
+        //
+        // ParsonsCodeLine object definition
+        // ---------------------------------
+        //
+        // Defines a line object skeleton with only code and indentation from
+        // a code string of the problem definition string (see parseCode)
+        // =================================================================
+        var ParsonsCodeLine = function(codestring, widget, allow_indent) {
+            this.widget = widget;
+            this.code = "";
+            this.indent = 0;
+            if (codestring) {
+                // Consecutive lines to be dragged as a single block of code have strings "\\n" to
+                // represent newlines => replace them with actual new line characters "\n"
+                this.code = codestring.replace(/#distractor\s*$/, "").replace(trimRegexp, "$1").replace(/\\n/g, "\n");
+                if (allow_indent) {
+                    this.indent = (codestring.length - codestring.replace(/^\s+/, "").length) / 4;
+                    this.indent = Math.min(this.indent, MAX_INDENT);
+                }
+                this.id = widget.id_prefix + ParsonsCodeLine.next_id++;
+            }
+        };
+    
+        ParsonsCodeLine.next_id = 0; // Effectively a static variable of the 'class'.
+    
+    
+        // =================================================================
+        //
+        // ParsonsWidget object definition
+        // -------------------------------
+        // Creates a parsons widget.
+        // Init must be called after creating an object.
+        //
+        // ==================================================================
+        var ParsonsWidget = function(options) {
+            var defaults = {
+                'incorrectSound': false,
+                'x_indent': 35,
+                'feedback_cb': false,
+                'lang': 'en'
+            };
+    
+            this.options = $.extend({}, defaults, options);
+            this.id_prefix = options.targetDivId + 'codeline';
+            if (translations.hasOwnProperty(this.options.lang)) {
+                this.translations = translations[this.options.lang];
+            } else {
+                this.translations = translations['en'];
+            }
+    
+            // translate panel_labels
+            if (!this.options.hasOwnProperty("source_panel_label")) {
+                this.options.source_panel_label = this.translations.source_panel_label;
+            }
+            if (!this.options.hasOwnProperty("target_panel_label")) {
+                this.options.target_panel_label = this.translations.target_panel_label;
+            }
+        };
+    
+        // Parse a problem definition given as a string and returns
+        // a list of ParsonCodeLines.
+        ParsonsWidget.prototype.parseCode = function(lines, allow_indent) {
+            var lineList = [],
+                lineObject,
+                that = this;
+            // Create line objects out of each codeline.
+            // Fields in line objects:
+            //   code: a string of the code, may include newline characters and
+            //     thus in fact represents a block of consecutive lines
+            //   indent: indentation level.
+            $.each(lines, function(index, item) {
+                lineObject = new ParsonsCodeLine(item, that, allow_indent);
+                // Initialize line object with code and indentation properties
+                if (lineObject.code.length > 0) {
+                    // The line is non-empty, not just whitespace
+                    lineList.push(lineObject);
+                }
+            });
+    
+            return lineList;
+        };
+    
+        ParsonsWidget.prototype.loadFromTa = function(fromTaId, toDivId, panelLabel) {
+            // Load the div element with the given toDivId with a sortable UL
+            // element of code lines from text area with the given ID (fromTaId).
+            // Can't use jQuery to get element directly as it can't parse
+            // the element ID properly due to ___textareaId___ macro.
+            const fromTa = document.getElementById(fromTaId);
+            const code = fromTa.value;
+            const lines = this.parseCode(code.split("\n"), true);
+            const html = '<p>' + panelLabel + '</p>' +
+                this.codeLinesToHTML(lines, toDivId);
+            const toElement = document.getElementById(toDivId);
+            $(toElement).html(html);
+        };
+    
+        ParsonsWidget.prototype.init = function(sourceTaId, targetTaId) {
+            // Set up the widget, given the IDs of the textareas containing the
+            // source and target code to be displayed.
+            this.loadFromTa(sourceTaId, this.options.sourceDivId, this.options.source_panel_label);
+            this.loadFromTa(targetTaId, this.options.targetDivId, this.options.target_panel_label);
+            this.manageDrags();
+        };
+    
+    
+        ParsonsWidget.prototype.calcIndent = function(leftDiff) {
+            // Return the indent based on the pixel difference given.
+            return Math.max(0, Math.round(leftDiff / this.options.x_indent));
+        };
+    
+        ParsonsWidget.prototype.getCodeString = function(ulElement) {
+            // Extract and return the code from the given UL element.
+            // as a single string.
+            var codeLines = ulElement.childNodes;
+            var code = "";
+            codeLines.forEach(item => {
+                var line = item.innerText.trim();
+                var indent = parseInt(item.style.marginLeft, 10);
+                indent = indent / this.options.x_indent;
+                var newLine = " ".repeat(indent * 4) + line + '\n';
+                code += newLine;
+            });
+            return code;
+        };
+    
+        ParsonsWidget.prototype.displayError = function(message) {
+            if (this.options.incorrectSound && $.sound) {
+                $.sound.play(this.options.incorrectSound);
+            }
+            alert(message);
+        };
+    
+        ParsonsWidget.prototype.setHTMLIndent = function(codelineID, indent) {
+            var codeLine = $(document.getElementById(codelineID));
+            codeLine.css("margin-left", this.cssIndent(indent));
+        };
+    
+        ParsonsWidget.prototype.cssIndent = function(indent) {
+            return this.options.x_indent * Math.min(MAX_INDENT, indent) + "px";
+        };
+    
+        ParsonsWidget.prototype.codeLineToHTML = function(codeline) {
+            var style = codeline.indent ? ' style="margin-left:' + this.cssIndent(codeline.indent) + '" ' : '';
+            return '<li id="' + codeline.id + '" class="ace-static-highlight lang-py"' + style + '>' + codeline.code + '<\/li>';
+        };
+    
+        ParsonsWidget.prototype.codeLinesToHTML = function(codeLines, destinationID) {
+            // Construct and return a single <ul> element with the HTML
+            // for the given list of lines as embedded LI elements. The UL
+            // element's ID is destinationID.
+            var lineHTML = [];
+            codeLines.forEach(line => {
+                lineHTML.push(this.codeLineToHTML(line));
+            });
+            return '<ul id="ul-' + destinationID + '">' + lineHTML.join('') + '</ul>';
+        };
+    
+        ParsonsWidget.prototype.manageDrags = function() {
+            // Set up both the source and target panes as sortable UI elements
+            // with drag management between panes and for indentation (target only.)
+            // An annoying issue here is that
+            // the ___textareaId___ macro produces IDs that jQuery cannot
+            // handle, so we have to use getElementById everywhere.
+            let that = this;
+            let targetElement = document.getElementById('ul-' + this.options.targetDivId);
+            let target = $(targetElement).sortable({
+                start: function(event, ui) { },
+                stop: function(event, ui) {
+                    if ($(event.target)[0] !== ui.item.parent()[0]) {
+                        return;
+                    }
+                    // The helper isn't where it seems to be because of the margin!
+                    var currentMargin = parseInt(ui.item.css('margin-left'));
+                    var realPosition = currentMargin + ui.position.left - ui.item.parent().position().left;
+                    var indent = that.calcIndent(realPosition);
+                    that.setHTMLIndent(ui.item[0].id, indent);
+                },
+                receive: function(event, ui) {
+                    var currentMargin = parseInt(ui.item.css('margin-left'));
+                    var realPosition = currentMargin + ui.position.left - ui.item.parent().position().left;
+                    var indent = that.calcIndent(realPosition);
+                    that.setHTMLIndent(ui.item[0].id, indent);
+                },
+                grid: [this.options.x_indent, 1]
+            });
+    
+            target.addClass("output");
+    
+            let sourceElement = document.getElementById('ul-' + this.options.sourceDivId);
+            let source = $(sourceElement).sortable({
+                connectWith: target,
+                start: function() { },
+                receive: function(event, ui) {
+                    that.setHTMLIndent(ui.item[0].id, 0);
+                },
+                stop: function(event, ui) {}
+            });
+    
+            target.sortable('option', 'connectWith', source);
+        };
+    
+        window.ParsonsWidget = ParsonsWidget;
+    
+        function shuffleArray(array) {
+            for (var i = array.length - 1; i > 0; i--) {
+                var j = Math.floor(Math.random() * (i + 1));
+                var temp = array[i];
+                array[i] = array[j];
+                array[j] = temp;
+            }
+        }
+    
+        // Check that the target (aka answer) textarea contains only lines
+        // that are present in the source textarea. Turns on the error
+        // message (yellow highlighted) if not.
+        // Also rebuilds the source field for the answer to contain all unused
+        // lines in the target.
+        // Works only in the question authoring context.
+        function checkAnswer() {
+            const sourceTa = document.getElementById('CR-parsons-source-ta-id_answerpreload');
+            const targetTa = document.getElementById('CR-parsons-target-ta-id_answer');
+            const answerUnused = document.getElementById('CR-parsons-source-ta-id_answer');
+            const errorPara = document.getElementById('CR-parsons-answer-error-id_answer');
+            const sourceCode = sourceTa.value.trim();
+            const sourceLines = sourceCode.split("\n");
+            const answerLines = targetTa.value.trim().split("\n");
+    
+            errorPara.style.display = 'none';
+            let used = [];
+            for (let i=0; i < answerLines.length; i++) {
+                let found = false;
+                for (let j=0; j < sourceLines.length; j++) {
+                    if (used.includes(j)) continue;
+                    if (sourceLines[j].trim() === answerLines[i].trim()) {
+                        used.push(j);
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    errorPara.style.display = 'inline';
+                }
+            }
+    
+            answerUnused.value = '';
+            for(let i=0; i < sourceLines.length; i++) {
+                if (!used.includes(i)) {
+                    answerUnused.value += sourceLines[i] + "\n";
+                }
+            }
+        }
+    
+        function setupMutationObservers(sourceTextArea, targetTextArea, sourceDivId, targetDivId, parson) {
+            // In the live question we monitor changes in the source or drop zone
+            // and update the corresponding CodeRunner textareas when anything changes.
+            const sortables = document.getElementById("CR-parsons-sortables-___textareaId___");
+            const sourceUl = document.getElementById('ul-' + sourceDivId);
+            const targetUl = document.getElementById('ul-' + targetDivId);
+    
+            function syncToCoderunner() {
+                sourceTextArea.value = parson.getCodeString(sourceUl);
+                targetTextArea.value = parson.getCodeString(targetUl);
+            }
+    
+            const observer = new MutationObserver(syncToCoderunner);
+            const observerOptions = {
+                childList: true,
+                attributes: true,
+                characterData: false,
+                subtree: true,
+                attributeFilter: ['style'],
+                attributeOldValue: false,
+                characterDataOldValue: false
+            };
+            observer.observe(sortables, observerOptions);
+            if (window.ace && window.applyAceHighlighting) {
+                window.applyAceHighlighting(window.ace, sourceUl);
+                window.applyAceHighlighting(window.ace, targetUl);
+            }
+        }
+    
+        function setupAuthoring(sourceTextArea, targetTextArea) {
+            // In the question authoring page we disable the drag-and-drop zones
+            // and instead display the textareas containing the available code
+            // lines and the required answer in the answer preload and preload
+            // sections respectively. Buttons are available to shuffle and deindent
+            // in the answer preload section.
+    
+            $(".sortable-code").hide();
+    
+            const isPreload = $(sourceTextArea).closest('.preloadanswer').length > 0;
+            if (isPreload) {
+                // In the answer preload the source TA plus shuffle and unindent are visible.
+                // The target TA must be cleared.
+                const preloadAuthoring = document.getElementById("CR-parsons-preload-authoring-div-___textareaId___");
+                preloadAuthoring.style.display = "block";
+                targetTextArea.value = '';
+    
+                // Set up event handlers for the button and for changes to the source.
+                const shuffle = document.getElementById("CR-parsons-shuffle-___textareaId___");
+                shuffle.onclick = function () {
+                    let code = sourceTextArea.value.trim();
+                    let lines = code.split('\n');
+                    shuffleArray(lines);
+                    sourceTextArea.value = lines.join('\n');
+                };
+    
+                const unindent = document.getElementById("CR-unindent-___textareaId___");
+                unindent.onclick = function () {
+                    let code = sourceTextArea.value.trim();
+                    let lines = code.split('\n');
+                    for (var i=0; i < lines.length; i++) {
+                        lines[i] = lines[i].trim();
+                    }
+                    sourceTextArea.value = lines.join('\n');
+                };
+                sourceTextArea.oninput = checkAnswer;
+    
+            } else {
+                // In the answer area, only the target TA is visible. The
+                // source TA must contain all the lines unused by the answer.
+                // This is (re)calculated by the checkAnswer function whenever the
+                // preload source TA or the answer target TA is edited.
+                const answerAuthoring = document.getElementById("CR-parsons-answer-authoring-div-___textareaId___");
+                answerAuthoring.style.display = "block";
+                targetTextArea.oninput = checkAnswer;
+            }
+            checkAnswer();
+        }
+    
+    
+        function doAceHighlighting(parentQuestionDiv) {
+            if (window.ace) {
+                const highlight = window.ace.require("ace/ext/static_highlight");
+                const codeElements = parentQuestionDiv.getElementsByClassName('ace-static-highlight');
+    
+                for (let i = 0; i < codeElements.length; i++) {
+                    let element = codeElements[i];
+    
+                    const mode = "ace/mode/python";
+                    if (element.hasAttribute("lang")) {
+                        mode = "ace/mode/" + element.getAttribute("lang");
+                    }
+    
+    
+    
+                    highlight(element, {
+                        mode: mode,
+                        showGutter: false,
+                    }, function(highlighted) {
+                            const fontSize = "14px";
+                            if (element.hasAttribute("font-size")) {
+                                fontSize = element.getAttribute("font-size");
+                            }
+                            // The class ace_static_highlight (with underscores)
+                            // is not to be confused with ace-static-highlight.
+                            // The latter is generated by the Ace highlighter.
+                            element.getElementsByClassName('ace_static_highlight')[0].style['font-size'] = fontSize;
+                    });
+                }
+            }
+        }
+    
+        function startUp() {
+            const sourceDivId = 'CR-parsons-source-div-___textareaId___';
+            const targetDivId = 'CR-parsons-target-div-___textareaId___';
+            const sourceTaId = 'CR-parsons-source-ta-___textareaId___';
+            const targetTaId = 'CR-parsons-target-ta-___textareaId___';
+            const sourceTextArea = document.getElementById(sourceTaId);
+            const targetTextArea = document.getElementById(targetTaId);
+            const parentQuestions = $(sourceTextArea).closest(".que");
+            const isQuestion = parentQuestions.length > 0;
+    
+            const parson = new ParsonsWidget({
+                'sourceDivId': sourceDivId,
+                'targetDivId' : targetDivId
+            });
+            parson.init(sourceTaId, targetTaId);
+    
+            if (!isQuestion) {
+                // If this is not an actual question, set up the appropriate authoring panel.
+                setupAuthoring(sourceTextArea, targetTextArea);
+            }
+            setupMutationObservers(sourceTextArea, targetTextArea, sourceDivId, targetDivId, parson);
+            doAceHighlighting(parentQuestions[0]);
+    
+        }
+    
+        $(document).ready(startUp);
+    });
+    </script>
+    
+    <html>
+        <head>
+            <title>Simple js-parsons example</title>
+        </head>
+        <body>
+            <div id="CR-parsons-answer-authoring-div-___textareaId___" class="CR-parsons-authoring">
+            <h4>Answer:</h4>
+            <p id="CR-parsons-answer-error-___textareaId___" class="CR-parsons-error">
+    The answer contains line(s) not available in the preload!
+            </p>
+    <textarea id="CR-parsons-target-ta-___textareaId___" name='CR-parsons-target' class="coderunner-ui-element" rows="8">
+    </textarea>
+            </div>
+    
+            <div id="CR-parsons-preload-authoring-div-___textareaId___" class="CR-parsons-authoring">
+                <h4>Drag-able code lines:</h4>
+    <textarea id="CR-parsons-source-ta-___textareaId___" name='CR-parsons-source' class="coderunner-ui-element CR-parsons-answer-edit" rows="8">
+    </textarea>
+    
+                <div id="CR-parsons-button-div-___textareaId___">
+                    <button id="CR-parsons-shuffle-___textareaId___" type="button">Shuffle</button>
+                    <button id="CR-unindent-___textareaId___" type="button">Remove indentation</button>
+                </div>
+    
+            </div>
+    
+            <div id="CR-parsons-sortables-___textareaId___">
+                <div id="CR-parsons-source-div-___textareaId___" class="sortable-code">
+                </div>
+                <div id="CR-parsons-target-div-___textareaId___" class="sortable-code">
+                </div>
+                    <div style="clear:both;">
+                    </div>
+            </div>
+        </body>
+    </html>]]></prototypeextra>
+    <testcases>
+<file name="__pystylechecker.py" path="/" encoding="base64">IiIiQWxsIHRoZSBzdHlsZSBjaGVja2luZyBjb2RlIGZvciBQeXRob24zIiIiCgpmcm9tIGlvIGltcG9ydCBCeXRlc0lPCmltcG9ydCBvcwppbXBvcnQgc3lzCmltcG9ydCBzdWJwcm9jZXNzCmltcG9ydCBhc3QKaW1wb3J0IHRva2VuaXplCmltcG9ydCB0b2tlbgppbXBvcnQgcmUKaW1wb3J0IHNodXRpbApmcm9tIGNvbGxlY3Rpb25zIGltcG9ydCBkZWZhdWx0ZGljdAoKY2xhc3MgU3R5bGVDaGVja2VyOgogICAgZGVmIF9faW5pdF9fKHNlbGYsIHByZWx1ZGUsIHN0dWRlbnRfYW5zd2VyLCBwYXJhbXMpOgogICAgICAgIHNlbGYucHJlbHVkZSA9IHByZWx1ZGUKICAgICAgICBzZWxmLnN0dWRlbnRfYW5zd2VyID0gc3R1ZGVudF9hbnN3ZXIKICAgICAgICBzZWxmLnBhcmFtcyA9IHBhcmFtcwogICAgICAgIHNlbGYuZnVuY3Rpb25fY2FsbF9tYXAgPSBOb25lCiAgICAgICAgc2VsZi5fdHJlZSA9IE5vbmUKCiAgICBAcHJvcGVydHkKICAgIGRlZiB0cmVlKHNlbGYpOgogICAgICAgIGlmIHNlbGYuX3RyZWUgaXMgTm9uZToKICAgICAgICAgICAgc2VsZi5fdHJlZSA9IGFzdC5wYXJzZShzZWxmLnN0dWRlbnRfYW5zd2VyKQogICAgICAgIHJldHVybiBzZWxmLl90cmVlCgogICAgZGVmIHN0eWxlX2Vycm9ycyhzZWxmKToKICAgICAgICAiIiJSZXR1cm4gYSBsaXN0IG9mIGVycm9ycyBmcm9tIGxvY2FsIHN0eWxlIGNoZWNrcyBwbHVzIHB5bGludCBhbmQvb3IgbXlweQogICAgICAgICIiIgogICAgICAgIGVycm9ycyA9IFtdCiAgICAgICAgc291cmNlID0gb3BlbignX19zb3VyY2UucHknLCAndycsIGVuY29kaW5nPSJ1dGYtOCIpCiAgICAgICAgY29kZV90b19jaGVjayA9IHNlbGYucHJlbHVkZSArIHNlbGYuc3R1ZGVudF9hbnN3ZXIKICAgICAgICBwcmVsdWRlX2xlbiA9IGxlbihzZWxmLnByZWx1ZGUuc3BsaXRsaW5lcygpKQogICAgICAgIHNvdXJjZS53cml0ZShjb2RlX3RvX2NoZWNrKQogICAgICAgIHNvdXJjZS5jbG9zZSgpCiAgICAgICAgZW52ID0gb3MuZW52aXJvbi5jb3B5KCkKICAgICAgICBlbnZbJ0hPTUUnXSA9IG9zLmdldGN3ZCgpCiAgICAgICAgcHlsaW50X29wdHMgPSBzZWxmLnBhcmFtcy5nZXQoJ3B5bGludG9wdGlvbnMnLFtdKQogICAgICAgIHJ1ZmZfb3B0cyA9IHNlbGYucGFyYW1zLmdldCgncnVmZm9wdGlvbnMnLCBbXSkKCiAgICAgICAgcHJlY2hlY2tlcnMgPSBzZWxmLnBhcmFtcy5nZXQoJ3ByZWNoZWNrZXJzJywgWydweWxpbnQnXSkKICAgICAgICByZXN1bHQgPSAnJwoKICAgICAgICAjIEZpcnN0IHRyeSBjaGVja2luZyB3aXRoIHB5bGludCBhbmQvb3IgcnVmZi4KICAgICAgICAjIFJ1ZmYgdHJlYXRzIGZpbGVuYW1lcyBzdGFydGluZyB3aXRoIHVuZGVyc2NvcmUgYXMgcHJpdmF0ZSwgY2hhbmdpbmcgaXRzIGJlaGF2aW91ci4KICAgICAgICAjIFNvIHdlIGNyZWF0ZSBhIHRlbXBvcmFyeSBmaWxlIHNvdXJjZS5weSB0aGVuIGRlbGV0ZSBpdCBhZ2Fpbi4KICAgICAgICBsaW50ZXJzID0gWwogICAgICAgICAgICAoJ3B5bGludCcsIGYne3N5cy5leGVjdXRhYmxlfSAtbSBweWxpbnQgJyArICcgJy5qb2luKHB5bGludF9vcHRzKSArICcgX19zb3VyY2UucHknLCAncHlsaW50OicpLAogICAgICAgICAgICAoJ3J1ZmYnLCBmJ2NwIF9fc291cmNlLnB5IHNvdXJjZS5weTsvdXNyL2xvY2FsL2Jpbi9ydWZmIGNoZWNrIC0tcXVpZXQgeyIgIi5qb2luKHJ1ZmZfb3B0cyl9IHNvdXJjZS5weTsgcm0gc291cmNlLnB5JywgJ25vcWEnKSwKICAgICAgICBdCgogICAgICAgIGZvciBsaW50ZXIsIGNtZCwgZGlzYWJsZV9rZXl3b3JkIGluIGxpbnRlcnM6CiAgICAgICAgICAgIGlmIGxpbnRlciBpbiBwcmVjaGVja2VyczoKICAgICAgICAgICAgICAgIHRyeTogICMgUnVuIHB5bGludCBvciBydWZmCiAgICAgICAgICAgICAgICAgICAgcmVzdWx0ID0gc3VicHJvY2Vzcy5jaGVja19vdXRwdXQoY21kLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBzdGRlcnI9c3VicHJvY2Vzcy5TVERPVVQsCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHVuaXZlcnNhbF9uZXdsaW5lcz1UcnVlLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBlbnY9ZW52LAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBzaGVsbD1UcnVlKQogICAgICAgICAgICAgICAgZXhjZXB0IEV4Y2VwdGlvbiBhcyBlOgogICAgICAgICAgICAgICAgICAgIHJlc3VsdCA9IGUub3V0cHV0CiAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICBlbHNlOgogICAgICAgICAgICAgICAgICAgICMgKG1jdDYzKSBBYm9ydCBpZiB0aGVyZSBhcmUgYW55IGNvbW1lbnRzIGRpc2FibGluZyB0aGUgbGludGVyJy4KICAgICAgICAgICAgICAgICAgICB0cnk6CiAgICAgICAgICAgICAgICAgICAgICAgIHRva2VuaXplciA9IHRva2VuaXplLnRva2VuaXplKEJ5dGVzSU8oc2VsZi5zdHVkZW50X2Fuc3dlci5lbmNvZGUoJ3V0Zi04JykpLnJlYWRsaW5lKQogICAgICAgICAgICAgICAgICAgICAgICBmb3IgdG9rZW5fdHlwZSwgdG9rZW5fdGV4dCwgKl8gaW4gdG9rZW5pemVyOgogICAgICAgICAgICAgICAgICAgICAgICAgICAgaWYgdG9rZW5fdHlwZSA9PSB0b2tlbml6ZS5DT01NRU5UIGFuZCBkaXNhYmxlX2tleXdvcmQgaW4gdG9rZW5fdGV4dDoKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBlcnJvcnMuYXBwZW5kKGYiQ29tbWVudHMgY2FuIG5vdCBpbmNsdWRlICd7ZGlzYWJsZV9rZXl3b3JkfSciKQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGJyZWFrCiAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgIGV4Y2VwdCBFeGNlcHRpb246CiAgICAgICAgICAgICAgICAgICAgICAgIGVycm9ycy5hcHBlbmQoIlNvbWV0aGluZyB3ZW50IHdyb25nIHdoaWxlIHBhcnNpbmcgY29tbWVudHMuIFJlcG9ydCB0aGlzLiIpCgogICAgICAgICAgICAgICAgaWYgIlVzaW5nIGNvbmZpZyBmaWxlIiBpbiByZXN1bHQ6CiAgICAgICAgICAgICAgICAgICAgcmVzdWx0ID0gJ1xuJy5qb2luKHJlc3VsdC5zcGxpdGxpbmVzKClbMTpdKS5zcGxpdCgpCgoKICAgICAgICBpZiByZXN1bHQgPT0gJycgYW5kICdteXB5JyBpbiBwcmVjaGVja2VyczoKICAgICAgICAgICAgY29kZV90b19jaGVjayA9ICdmcm9tIHR5cGluZyBpbXBvcnQgTGlzdCBhcyBsaXN0LCBEaWN0IGFzIGRpY3QsIFR1cGxlIGFzIHR1cGxlLCBTZXQgYXMgc2V0LCBBbnlcbicgKyBjb2RlX3RvX2NoZWNrCiAgICAgICAgICAgIHdpdGggb3BlbignX19zb3VyY2UyLnB5JywgJ3cnLCBlbmNvZGluZz0ndXRmLTgnKSBhcyBvdXRmaWxlOgogICAgICAgICAgICAgICAgb3V0ZmlsZS53cml0ZShjb2RlX3RvX2NoZWNrKQogICAgICAgICAgICBjbWQgPSBmJ3tzeXMuZXhlY3V0YWJsZX0gLW0gbXlweSAtLW5vLWVycm9yLXN1bW1hcnkgLS1uby1zdHJpY3Qtb3B0aW9uYWwgX19zb3VyY2UyLnB5JwogICAgICAgICAgICB0cnk6ICMgUnVuIG15cHkKICAgICAgICAgICAgICAgIHN1YnByb2Nlc3MuY2hlY2tfb3V0cHV0KGNtZCwgICMgUmFpc2VzIGFuIGV4Y2VwdGlvbiBpZiB0aGVyZSBhcmUgZXJyb3JzCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBzdGRlcnI9c3VicHJvY2Vzcy5TVERPVVQsCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB1bml2ZXJzYWxfbmV3bGluZXM9VHJ1ZSwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGVudj1lbnYsCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBzaGVsbD1UcnVlKQogICAgICAgICAgICBleGNlcHQgRXhjZXB0aW9uIGFzIGU6CiAgICAgICAgICAgICAgICByZXN1bHQgPSBlLm91dHB1dAogICAgICAgICAgICAgICAgbGluZV9udW1fZml4ID0gbGFtYmRhIG1hdGNoOiAiTGluZSAiICsgc3RyKGludChtYXRjaFsxXSkgLSAxIC0gcHJlbHVkZV9sZW4pICsgbWF0Y2hbMl0KICAgICAgICAgICAgICAgIHJlc3VsdCA9IHJlLnN1YihyJ19fc291cmNlMi5weTooXGQrKSguKiknLCBsaW5lX251bV9maXgsIHJlc3VsdCkKCiAgICAgICAgaWYgcmVzdWx0ID09ICcnIGFuZCBzZWxmLnBhcmFtcy5nZXQoJ3JlcXVpcmV0eXBlaGludHMnLCBGYWxzZSk6CiAgICAgICAgICAgIGJhZF9mdW5jcyA9IHNlbGYuY2hlY2tfdHlwZV9oaW50cygpCiAgICAgICAgICAgIGZvciBmdW4gaW4gYmFkX2Z1bmNzOgogICAgICAgICAgICAgICAgcmVzdWx0ICs9IGYiRnVuY3Rpb24gJ3tmdW59JyBkb2VzIG5vdCBoYXZlIGNvcnJlY3QgdHlwZSBoaW50c1xuIgoKICAgICAgICBpZiByZXN1bHQ6CiAgICAgICAgICAgIGVycm9ycyA9IHJlc3VsdC5zdHJpcCgpLnNwbGl0bGluZXMoKQoKICAgICAgICByZXR1cm4gZXJyb3JzCiAgICAKICAgIGRlZiBwcmV0dGllZChzZWxmLCBjb25zdHJ1Y3QpOgogICAgICAgICIiIkV4cGFuZCwgaWYgcG9zc2libGUsIHRoZSBuYW1lIG9mIHRoZSBnaXZlbiBQeXRob24gY29uc3RydWN0IHRvIGEgbW9yZQogICAgICAgICAgIHVzZXIgZnJpZW5kbHkgdmVyc2lvbiwgZS5nLiAnbGlzdGNvbXByZWhlbnNpb24nIC0+ICdsaXN0IGNvbXByZWhlbnNpb24nCiAgICAgICAgIiIiCiAgICAgICAgZXhwYW5kZWQgPSB7CiAgICAgICAgICAgICdsaXN0Y29tcHJlaGVuc2lvbic6ICdsaXN0IGNvbXByZWhlbnNpb24nLAogICAgICAgICAgICAnd2hpbGUnOiAnd2hpbGUgbG9vcCcsCiAgICAgICAgICAgICdmb3InOiAnZm9yIGxvb3AnLAogICAgICAgICAgICAndHJ5JzogJ3RyeSAuLi4gZXhjZXB0IHN0YXRlbWVudCcsCiAgICAgICAgICAgICdkaWN0Y29tcHJlaGVuc2lvbic6ICdkaWN0aW9uYXJ5IGNvbXByZWhlbnNpb24nLAogICAgICAgICAgICAnc2xpY2UnOiAnc2xpY2UnCiAgICAgICAgfQogICAgICAgIGlmIGNvbnN0cnVjdCBpbiBleHBhbmRlZDoKICAgICAgICAgICAgcmV0dXJuIGV4cGFuZGVkW2NvbnN0cnVjdF0KICAgICAgICBlbHNlOgogICAgICAgICAgICByZXR1cm4gZiJ7Y29uc3RydWN0fSBzdGF0ZW1lbnQiCgogICAgZGVmIGxvY2FsX2Vycm9ycyhzZWxmKToKICAgICAgICAiIiJQZXJmb3JtIHZhcmlvdXMgbG9jYWwgY2hlY2tzIGFzIHNwZWNpZmllZCBieSB0aGUgY3VycmVudCBzZXQgb2YKICAgICAgICAgICB0ZW1wbGF0ZSBwYXJhbWV0ZXJzLgogICAgICAgICIiIgogICAgICAgIGVycm9ycyA9IFtdCgogICAgICAgIGZvciBiYW5uZWQgaW4gc2VsZi5wYXJhbXMuZ2V0KCdwcm9zY3JpYmVkc3Vic3RyaW5ncycsIFtdKToKICAgICAgICAgICAgaWYgYmFubmVkIGluIHNlbGYuc3R1ZGVudF9hbnN3ZXI6CiAgICAgICAgICAgICAgICBlcnJvcnMuYXBwZW5kKGYiVGhlIHN0cmluZyAne2Jhbm5lZH0nIGlzIG5vdCBwZXJtaXR0ZWQgYW55d2hlcmUgaW4geW91ciBjb2RlLiIpCgogICAgICAgIGZvciByZXF1aXJlZCBpbiBzZWxmLnBhcmFtcy5nZXQoJ3JlcXVpcmVkc3Vic3RyaW5ncycsIFtdKToKICAgICAgICAgICAgaWYgaXNpbnN0YW5jZShyZXF1aXJlZCwgc3RyKSBhbmQgcmVxdWlyZWQgbm90IGluIHNlbGYuc3R1ZGVudF9hbnN3ZXI6CiAgICAgICAgICAgICAgICBlcnJvcnMuYXBwZW5kKGYnVGhlIHN0cmluZyAie3JlcXVpcmVkfSIgbXVzdCBvY2N1ciBzb21ld2hlcmUgaW4geW91ciBjb2RlLicpCiAgICAgICAgICAgIGVsaWYgaXNpbnN0YW5jZShyZXF1aXJlZCwgZGljdCk6IAogICAgICAgICAgICAgICAgaWYgJ3BhdHRlcm4nIGluIHJlcXVpcmVkIGFuZCBub3QgcmUuZmluZGFsbChyZXF1aXJlZFsncGF0dGVybiddLCBzZWxmLnN0dWRlbnRfYW5zd2VyKToKICAgICAgICAgICAgICAgICAgICBlcnJvcnMuYXBwZW5kKHJlcXVpcmVkWydlcnJvcm1lc3NhZ2UnXSkKICAgICAgICAgICAgICAgIGVsaWYgJ3N0cmluZycgaW4gcmVxdWlyZWQgYW5kIHJlcXVpcmVkWydzdHJpbmcnXSBub3QgaW4gc2VsZi5zdHVkZW50X2Fuc3dlcjoKICAgICAgICAgICAgICAgICAgICBlcnJvcnMuYXBwZW5kKHJlcXVpcmVkWydlcnJvcm1lc3NhZ2UnXSkKCiAgICAgICAgaWYgc2VsZi5wYXJhbXMuZ2V0KCdiYW5nbG9iYWxjb2RlJywgVHJ1ZSk6CiAgICAgICAgICAgIGVycm9ycyArPSBzZWxmLmZpbmRfZ2xvYmFsX2NvZGUoKQoKICAgICAgICBpZiBub3Qgc2VsZi5wYXJhbXMuZ2V0KCdhbGxvd25lc3RlZGZ1bmN0aW9ucycsIFRydWUpOgogICAgICAgICAgICAjIEV4Y2VwdCBmb3IgbGVnYWN5IHF1ZXN0aW9ucyBvciB3aGVyZSBleHBsaWNpdGx5IGFsbG93ZWQsIG5lc3RlZCBmdW5jdGlvbnMgYXJlIGJhbm5lZAogICAgICAgICAgICBuZXN0ZWRfZnVuY3MgPSBzZWxmLmZpbmRfbmVzdGVkX2Z1bmN0aW9ucygpCiAgICAgICAgICAgIGZvciBmdW5jIGluIG5lc3RlZF9mdW5jczoKICAgICAgICAgICAgICAgIGVycm9ycy5hcHBlbmQoIkZ1bmN0aW9uICd7fScgaXMgZGVmaW5lZCBpbnNpZGUgYW5vdGhlciBmdW5jdGlvbiIuZm9ybWF0KGZ1bmMpKQoKICAgICAgICBtYXhfbGVuZ3RoID0gc2VsZi5wYXJhbXNbJ21heGZ1bmN0aW9ubGVuZ3RoJ10KICAgICAgICBiYWRfZnVuY3MgPSBzZWxmLmZpbmRfdG9vX2xvbmdfZnVuY3MobWF4X2xlbmd0aCkKICAgICAgICBmb3IgZnVuYywgY291bnQgaW4gYmFkX2Z1bmNzOgogICAgICAgICAgICBlcnJvcnMuYXBwZW5kKCJGdW5jdGlvbiAne30nIGlzIHRvbyBsb25nXG4oe30gc3RhdGVtZW50cywgbWF4IGlzIHt9KSIKICAgICAgICAgICAgICAgICAgICAgICAgICAiIi5mb3JtYXQoZnVuYywgY291bnQsIG1heF9sZW5ndGgpKQoKICAgICAgICBiYWRfdXNlZCA9IHNlbGYuZmluZF9pbGxlZ2FsX2Z1bmN0aW9ucygpCiAgICAgICAgZm9yIG5hbWUgaW4gYmFkX3VzZWQ6CiAgICAgICAgICAgIGVycm9ycy5hcHBlbmQoIllvdSBjYWxsZWQgdGhlIGJhbm5lZCBmdW5jdGlvbiAne30nLiIuZm9ybWF0KG5hbWUpKQoKICAgICAgICBtaXNzaW5nX2Z1bmNzID0gc2VsZi5maW5kX21pc3NpbmdfcmVxdWlyZWRfZnVuY3Rpb25fY2FsbHMoKQogICAgICAgIGZvciBuYW1lIGluIG1pc3NpbmdfZnVuY3M6CiAgICAgICAgICAgIGVycm9ycy5hcHBlbmQoIllvdSBmb3Jnb3QgdG8gdXNlIHRoZSByZXF1aXJlZCBmdW5jdGlvbiAne30nLiIuZm9ybWF0KG5hbWUpKQoKICAgICAgICBtaXNzaW5nX2Z1bmNzID0gc2VsZi5maW5kX21pc3NpbmdfcmVxdWlyZWRfZnVuY3Rpb25fZGVmaW5pdGlvbnMoKQogICAgICAgIGZvciBuYW1lIGluIG1pc3NpbmdfZnVuY3M6CiAgICAgICAgICAgIGVycm9ycy5hcHBlbmQoIllvdSBmb3Jnb3QgdG8gZGVmaW5lIHRoZSByZXF1aXJlZCBmdW5jdGlvbiAne30nLiIuZm9ybWF0KG5hbWUpKQoKICAgICAgICBtaXNzaW5nX2NvbnN0cnVjdHMgPSBzZWxmLmZpbmRfbWlzc2luZ19yZXF1aXJlZF9jb25zdHJ1Y3RzKCkKICAgICAgICBmb3IgcmVxZCBpbiBtaXNzaW5nX2NvbnN0cnVjdHM6CiAgICAgICAgICAgIGV4cGFuZGVkID0gc2VsZi5wcmV0dGllZChyZXFkKQogICAgICAgICAgICBlcnJvcnMuYXBwZW5kKGYiWW91ciBwcm9ncmFtIG11c3QgaW5jbHVkZSBhdCBsZWFzdCBvbmUge2V4cGFuZGVkfS4iKQoKICAgICAgICBiYWRfY29uc3RydWN0cyA9IHNlbGYuZmluZF9pbGxlZ2FsX2NvbnN0cnVjdHMoKQogICAgICAgIGZvciBub3RhbGxvd2VkIGluIGJhZF9jb25zdHJ1Y3RzOgogICAgICAgICAgICBleHBhbmRlZCA9IHNlbGYucHJldHRpZWQobm90YWxsb3dlZCkKICAgICAgICAgICAgZXJyb3JzLmFwcGVuZChmIllvdXIgcHJvZ3JhbSBtdXN0IG5vdCBpbmNsdWRlIGFueSB7ZXhwYW5kZWR9cy4iKQoKICAgICAgICBudW1fY29uc3RhbnRzID0gbGVuKFtsaW5lIGZvciBsaW5lIGluIHNlbGYuc3R1ZGVudF9hbnN3ZXIuc3BsaXQoJ1xuJykgaWYgcmUubWF0Y2goJyAqW0EtWl9dW0EtWl8wLTldKiAqPScsIGxpbmUpXSkKICAgICAgICBpZiBudW1fY29uc3RhbnRzID4gc2VsZi5wYXJhbXNbJ21heG51bWNvbnN0YW50cyddOgogICAgICAgICAgICBlcnJvcnMuYXBwZW5kKCJZb3UgbWF5IG5vdCB1c2UgbW9yZSB0aGFuICIgKyBzdHIoc2VsZi5wYXJhbXNbJ21heG51bWNvbnN0YW50cyddKSArICIgY29uc3RhbnRzLiIpCgogICAgICAgICMgKG1jdDYzKSBDaGVjayBpZiBhbnl0aGluZyByZXN0cmljdGVkIGlzIGJlaW5nIGltcG9ydGVkLgogICAgICAgIGlmICdyZXN0cmljdGVkbW9kdWxlcycgaW4gc2VsZi5wYXJhbXM6CiAgICAgICAgICAgIHJlc3RyaWN0ZWQgPSBzZWxmLnBhcmFtc1sncmVzdHJpY3RlZG1vZHVsZXMnXQogICAgICAgICAgICBmb3IgaW1wb3J0X25hbWUsIG5hbWVzIGluIHNlbGYuZmluZF9hbGxfaW1wb3J0cygpLml0ZW1zKCk6CiAgICAgICAgICAgICAgICBpZiBpbXBvcnRfbmFtZSBpbiByZXN0cmljdGVkOgogICAgICAgICAgICAgICAgICAgIGlmIHJlc3RyaWN0ZWRbaW1wb3J0X25hbWVdLmdldCgnb25seWFsbG93JywgTm9uZSkgPT0gW106CiAgICAgICAgICAgICAgICAgICAgICAgIGVycm9ycy5hcHBlbmQoIllvdXIgcHJvZ3JhbSBzaG91bGQgbm90IGltcG9ydCBhbnl0aGluZyBmcm9tICd7fScuIi5mb3JtYXQoaW1wb3J0X25hbWUpKQogICAgICAgICAgICAgICAgICAgIGVsc2U6CiAgICAgICAgICAgICAgICAgICAgICAgIGZvciBuYW1lIGluIG5hbWVzOgogICAgICAgICAgICAgICAgICAgICAgICAgICAgaWYgKCgnb25seWFsbG93JyBpbiByZXN0cmljdGVkW2ltcG9ydF9uYW1lXSBhbmQgbmFtZSBub3QgaW4gcmVzdHJpY3RlZFtpbXBvcnRfbmFtZV1bJ29ubHlhbGxvdyddKSBvcgogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBuYW1lIGluIHJlc3RyaWN0ZWRbaW1wb3J0X25hbWVdLmdldCgnZGlzYWxsb3cnLCBbXSkpOgogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGVycm9ycy5hcHBlbmQoIllvdXIgcHJvZ3JhbSBzaG91bGQgbm90IGltcG9ydCAne30nIGZyb20gJ3t9Jy4iLmZvcm1hdChuYW1lLCBpbXBvcnRfbmFtZSkpCgogICAgICAgIGlmICdtYXhyZXR1cm5kZXB0aCcgaW4gc2VsZi5wYXJhbXMgYW5kIChtYXhfZGVwdGggOj0gc2VsZi5wYXJhbXNbJ21heHJldHVybmRlcHRoJ10pIGlzIG5vdCBOb25lOgogICAgICAgICAgICBiYWRfcmV0dXJucyA9IHNlbGYuZmluZF9uZXN0ZWRfcmV0dXJucyhtYXhfZGVwdGgpCiAgICAgICAgICAgIGlmIGJhZF9yZXR1cm5zOgogICAgICAgICAgICAgICAgaWYgbWF4X2RlcHRoID09IDE6CiAgICAgICAgICAgICAgICAgICAgZXJyb3JzLmFwcGVuZCgiVGhpcyBxdWVzdGlvbiBkb2VzIG5vdCBhbGxvdyByZXR1cm4gc3RhdGVtZW50cyB3aXRoaW4gbG9vcHMsIGlmIHN0YXRlbWVudHMgZXRjIikKICAgICAgICAgICAgICAgIGVsc2U6CiAgICAgICAgICAgICAgICAgICAgZXJyb3JzLmFwcGVuZChmIlRoaXMgcXVlc3Rpb24gZG9lcyBub3QgYWxsb3cgcmV0dXJuIHN0YXRlbWVudHMgdG8gYmUgaW5kZW50ZWQgbW9yZSB0aGFuICd7bWF4X2RlcHRofScgbGV2ZWxzIikKICAgICAgICByZXR1cm4gZXJyb3JzCgogICAgZGVmIGZpbmRfYWxsX2ltcG9ydHMoc2VsZik6CiAgICAgICAgIiIiUmV0dXJucyBhIGRpY3Rpb25hcnkgbWFwcGluZyBpbiB3aGljaCB0aGUga2V5cyBhcmUgYWxsIG1vZHVsZXMKICAgICAgICAgICBiZWluZyBpbXBvcnRlZCBhbmQgdGhlIHZhbHVlcyBhcmUgYSBsaXN0IG9mIHdoYXQgdGhpbmdzIHdpdGhpbgogICAgICAgICAgIHRoZSBtb2R1bGUgYXJlIGJlaW5nIG1vZHVsZXMuIEFuIGVtcHR5IGxpc3QgaW5kaWNhdGVzIHRoZSBlbnRpcmUKICAgICAgICAgICBtb2R1bGUgaXMgaW1wb3J0ZWQuIiIiCiAgICAgICAgZm91bmRfaW1wb3J0cyA9IHt9CiAgICAgICAgY2xhc3MgSW1wb3J0RmluZGVyKGFzdC5Ob2RlVmlzaXRvcik6CiAgICAgICAgICAgIGRlZiB2aXNpdF9JbXBvcnQoc2VsZiwgbm9kZSk6CiAgICAgICAgICAgICAgICBmb3IgYWxpYXMgaW4gbm9kZS5uYW1lczoKICAgICAgICAgICAgICAgICAgICBpZiBhbGlhcy5uYW1lIG5vdCBpbiBmb3VuZF9pbXBvcnRzOgogICAgICAgICAgICAgICAgICAgICAgICBmb3VuZF9pbXBvcnRzW2FsaWFzLm5hbWVdID0gW10KICAgICAgICAgICAgICAgIHNlbGYuZ2VuZXJpY192aXNpdChub2RlKQogICAgICAgICAgICBkZWYgdmlzaXRfSW1wb3J0RnJvbShzZWxmLCBub2RlKToKICAgICAgICAgICAgICAgIGlmIG5vZGUubW9kdWxlIG5vdCBpbiBmb3VuZF9pbXBvcnRzOgogICAgICAgICAgICAgICAgICAgIGZvdW5kX2ltcG9ydHNbbm9kZS5tb2R1bGVdID0gW10KICAgICAgICAgICAgICAgIGZvciBhbGlhcyBpbiBub2RlLm5hbWVzOgogICAgICAgICAgICAgICAgICAgIGZvdW5kX2ltcG9ydHNbbm9kZS5tb2R1bGVdLmFwcGVuZChhbGlhcy5uYW1lKQogICAgICAgICAgICAgICAgc2VsZi5nZW5lcmljX3Zpc2l0KG5vZGUpCgogICAgICAgIHZpc2l0b3IgPSBJbXBvcnRGaW5kZXIoKQogICAgICAgIHZpc2l0b3IudmlzaXQoc2VsZi50cmVlKQogICAgICAgIHJldHVybiBmb3VuZF9pbXBvcnRzCgogICAgZGVmIGZpbmRfYWxsX2Z1bmN0aW9uX2NhbGxzKHNlbGYpOgogICAgICAgICIiIlJldHVybiBhIGRpY3Rpb25hcnkgbWFwcGluZyBpbiB3aGljaCB0aGUga2V5cyBhcmUgYWxsIGZ1bmN0aW9ucwogICAgICAgICAgIGNhbGxlZCBieSB0aGUgc291cmNlIGNvZGUgYW5kIHZhbHVlcyBhcmUgYSBsaXN0IG9mCiAgICAgICAgICAgKGxpbmVfbnVtYmVyLCBuZXN0aW5nX2RlcHRoKSB0dXBsZXMuIiIiCiAgICAgICAgY2xhc3MgRnVuY0ZpbmRlcihhc3QuTm9kZVZpc2l0b3IpOgoKICAgICAgICAgICAgZGVmIF9faW5pdF9fKHNlbGYsICphcmdzLCAqKmt3YXJncyk6CiAgICAgICAgICAgICAgICBzZWxmLmRlcHRoID0gMAogICAgICAgICAgICAgICAgc2VsZi5mb3VuZF9mdW5jcyA9IGRlZmF1bHRkaWN0KGxpc3QpCiAgICAgICAgICAgICAgICBzdXBlcigpLl9faW5pdF9fKCphcmdzLCAqKmt3YXJncykKCiAgICAgICAgICAgIGRlZiB2aXNpdF9GdW5jdGlvbkRlZihzZWxmLCBub2RlKToKICAgICAgICAgICAgICAgICIiIiBFdmVyeSB0aW1lIHdlIGVudGVyIGEgZnVuY3Rpb24sIHdlIGdldCAnZGVlcGVyJyBpbnRvIHRoZSBjb2RlLgogICAgICAgICAgICAgICAgICAgIFdlIHdhbnQgdG8gbm90ZSBob3cgZGVlcCBhIGZ1bmN0aW9uIGlzIHdoZW4gd2UgZmluZCBpdHMgY2FsbC4iIiIKICAgICAgICAgICAgICAgIHNlbGYuZGVwdGggKz0gMQogICAgICAgICAgICAgICAgc2VsZi5nZW5lcmljX3Zpc2l0KG5vZGUpCiAgICAgICAgICAgICAgICBzZWxmLmRlcHRoIC09IDEKCiAgICAgICAgICAgIGRlZiB2aXNpdF9DYWxsKHNlbGYsIG5vZGUpOgogICAgICAgICAgICAgICAgIiIiQSBmdW5jdGlvbiBoYXMgYmVlbiBjYWxsZWQsIHNvIGNoZWNrIGl0cyBuYW1lCiAgICAgICAgICAgICAgICAgICBhZ2FpbnN0IHRoZSBnaXZlbiBvbmUuIiIiCiAgICAgICAgICAgICAgICB0cnk6CiAgICAgICAgICAgICAgICAgICAgaWYgJ2lkJyBpbiBkaXIobm9kZS5mdW5jKToKICAgICAgICAgICAgICAgICAgICAgICAgbmFtZSA9IG5vZGUuZnVuYy5pZAogICAgICAgICAgICAgICAgICAgIGVsc2U6CiAgICAgICAgICAgICAgICAgICAgICAgIG5hbWUgPSBub2RlLmZ1bmMuYXR0cgogICAgICAgICAgICAgICAgICAgICMgTGluZSBudW1iZXJzIGFyZSAxLWluZGV4ZWQsIHNvIGRlY3JlbWVudCBieSAxCiAgICAgICAgICAgICAgICAgICAgc2VsZi5mb3VuZF9mdW5jc1tuYW1lXS5hcHBlbmQoKG5vZGUubGluZW5vIC0gMSwgc2VsZi5kZXB0aCkpCiAgICAgICAgICAgICAgICBleGNlcHQgQXR0cmlidXRlRXJyb3I6CiAgICAgICAgICAgICAgICAgICAgcGFzcyAgIyBlaXRoZXIgbm90IGNhbGxpbmcgYSBmdW5jdGlvbiAoPz8pIG9yIGl0J3Mgbm90IG5hbWVkLgogICAgICAgICAgICAgICAgc2VsZi5nZW5lcmljX3Zpc2l0KG5vZGUpCgogICAgICAgIGlmIHNlbGYuZnVuY3Rpb25fY2FsbF9tYXAgaXMgTm9uZToKICAgICAgICAgICAgdmlzaXRvciA9IEZ1bmNGaW5kZXIoKQogICAgICAgICAgICB2aXNpdG9yLnZpc2l0KHNlbGYudHJlZSkKICAgICAgICAgICAgc2VsZi5mdW5jdGlvbl9jYWxsX21hcCA9IHZpc2l0b3IuZm91bmRfZnVuY3MKICAgICAgICByZXR1cm4gc2VsZi5mdW5jdGlvbl9jYWxsX21hcAoKCiAgICBkZWYgZmluZF9kZWZpbmVkX2Z1bmN0aW9ucyhzZWxmKToKICAgICAgICAiIiJGaW5kIGFsbCB0aGUgZnVuY3Rpb25zIGRlZmluZWQuIiIiCiAgICAgICAgZGVmaW5lZCA9IHNldCgpCiAgICAgICAgY2xhc3MgRnVuY0ZpbmRlcihhc3QuTm9kZVZpc2l0b3IpOgoKICAgICAgICAgICAgZGVmIF9faW5pdF9fKHNlbGYpOgogICAgICAgICAgICAgICAgc2VsZi5wcmVmaXggPSAnJwoKICAgICAgICAgICAgZGVmIHZpc2l0X0NsYXNzRGVmKHNlbGYsIG5vZGUpOgogICAgICAgICAgICAgICAgb2xkX3ByZWZpeCA9IHNlbGYucHJlZml4CiAgICAgICAgICAgICAgICBzZWxmLnByZWZpeCArPSBub2RlLm5hbWUgKyAnLicKICAgICAgICAgICAgICAgIHNlbGYuZ2VuZXJpY192aXNpdChub2RlKQogICAgICAgICAgICAgICAgc2VsZi5wcmVmaXggPSBvbGRfcHJlZml4CgogICAgICAgICAgICBkZWYgdmlzaXRfRnVuY3Rpb25EZWYoc2VsZiwgbm9kZSk6CiAgICAgICAgICAgICAgICBkZWZpbmVkLmFkZChzZWxmLnByZWZpeCArIG5vZGUubmFtZSkKICAgICAgICAgICAgICAgIG9sZF9wcmVmaXggPSBzZWxmLnByZWZpeAogICAgICAgICAgICAgICAgc2VsZi5wcmVmaXggKz0gbm9kZS5uYW1lICsgJy4nCiAgICAgICAgICAgICAgICBzZWxmLmdlbmVyaWNfdmlzaXQobm9kZSkKICAgICAgICAgICAgICAgIHNlbGYucHJlZml4ID0gb2xkX3ByZWZpeAoKICAgICAgICAgICAgZGVmIHZpc2l0X0FzeW5jRnVuY3Rpb25EZWYoc2VsZiwgbm9kZSk6CiAgICAgICAgICAgICAgICBzZWxmLnZpc2l0X0Z1bmN0aW9uRGVmKG5vZGUpCgogICAgICAgIHZpc2l0b3IgPSBGdW5jRmluZGVyKCkKICAgICAgICB2aXNpdG9yLnZpc2l0KHNlbGYudHJlZSkKICAgICAgICByZXR1cm4gZGVmaW5lZAogICAgCgogICAgZGVmIG5lc3RlZF9yZXR1cm5zKHNlbGYpOgogICAgICAgICIiIlJldHVybiBhIGRpY3Rpb25hcnkgaW4gd2hpY2ggdGhlIGtleXMgYXJlIG5lc3RpbmcgZGVwdGggKDAsIDEsIDIsIC4uOSkgYW5kIHRoZQogICAgICAgICAgIHZhbHVlcyBhcmUgY291bnRzIG9mIHRoZSBudW1iZXIgb2YgcmV0dXJuIHN0YXRlbWVudHMgYXQgdGhhdCBsZXZlbC4gTmVzdGluZwogICAgICAgICAgIGxldmVsIGlzIGRlZW1lZCB0byBpbmNyZWFzZSB3aXRoIGRlZiwgaWYsIGZvciwgd2hpbGUsIHRyeSwgZXhjZXB0IGFuZCB3aXRoCiAgICAgICAgICAgc3RhdGVtZW50cy4KICAgICAgICAiIiIKICAgICAgICBjb3VudHMgPSB7aTogMCBmb3IgaSBpbiByYW5nZSgxMCl9CiAgICAgICAgZGVwdGggPSAwCiAgICAgICAgY2xhc3MgUmV0dXJuRmluZGVyKGFzdC5Ob2RlVmlzaXRvcik6CiAgICAgICAgICAgIGRlZiB2aXNpdF9ib2R5KHNlbGYsIG5vZGUpOgogICAgICAgICAgICAgICAgbm9ubG9jYWwgZGVwdGgKICAgICAgICAgICAgICAgIGRlcHRoICs9IDEKICAgICAgICAgICAgICAgIHNlbGYuZ2VuZXJpY192aXNpdChub2RlKQogICAgICAgICAgICAgICAgZGVwdGggLT0gMQogICAgICAgICAgICBkZWYgdmlzaXRfRm9yKHNlbGYsIG5vZGUpOgogICAgICAgICAgICAgICAgc2VsZi52aXNpdF9ib2R5KG5vZGUpCiAgICAgICAgICAgIGRlZiB2aXNpdF9XaGlsZShzZWxmLCBub2RlKToKICAgICAgICAgICAgICAgIHNlbGYudmlzaXRfYm9keShub2RlKQogICAgICAgICAgICBkZWYgdmlzaXRfRnVuY3Rpb25EZWYoc2VsZiwgbm9kZSk6CiAgICAgICAgICAgICAgICBzZWxmLnZpc2l0X2JvZHkobm9kZSkKICAgICAgICAgICAgZGVmIHZpc2l0X0lmKHNlbGYsIG5vZGUpOgogICAgICAgICAgICAgICAgc2VsZi52aXNpdF9ib2R5KG5vZGUpCiAgICAgICAgICAgIGRlZiB2aXNpdF9Ucnkoc2VsZiwgbm9kZSk6CiAgICAgICAgICAgICAgICBzZWxmLnZpc2l0X2JvZHkobm9kZSkKICAgICAgICAgICAgZGVmIHZpc2l0X1RyeUV4Y2VwdChzZWxmLCBub2RlKToKICAgICAgICAgICAgICAgIHNlbGYudmlzaXRfYm9keShub2RlKQogICAgICAgICAgICBkZWYgdmlzaXRfVHJ5RmluYWxseShzZWxmLCBub2RlKToKICAgICAgICAgICAgICAgIHNlbGYudmlzaXRfYm9keShub2RlKQogICAgICAgICAgICBkZWYgdmlzaXRfRXhjZXB0SGFuZGxlcihzZWxmLCBub2RlKToKICAgICAgICAgICAgICAgIHNlbGYudmlzaXRfYm9keShub2RlKQogICAgICAgICAgICBkZWYgdmlzaXRfV2l0aChzZWxmLCBub2RlKToKICAgICAgICAgICAgICAgIHNlbGYudmlzaXRfYm9keShub2RlKQogICAgICAgICAgICBkZWYgdmlzaXRfUmV0dXJuKHNlbGYsIG5vZGUpOgogICAgICAgICAgICAgICAgbm9ubG9jYWwgZGVwdGgKICAgICAgICAgICAgICAgIGNvdW50c1tkZXB0aF0gKz0gMQogICAgICAgICAgICAgICAgc2VsZi5nZW5lcmljX3Zpc2l0KG5vZGUpCgogICAgICAgIHZpc2l0b3IgPSBSZXR1cm5GaW5kZXIoKQogICAgICAgIHZpc2l0b3IudmlzaXQoc2VsZi50cmVlKQogICAgICAgIHJldHVybiBjb3VudHMKCgogICAgZGVmIGNvbnN0cnVjdHNfdXNlZChzZWxmKToKICAgICAgICAiIiJSZXR1cm4gYSBzZXQgb2YgYWxsIGNvbnN0cnVjdHMgZW5jb3VudGVyZWQgaW4gdGhlIHBhcnNlIHRyZWUiIiIKICAgICAgICBjb25zdHJ1Y3RzX3NlZW4gPSBzZXQoKQogICAgICAgIGNsYXNzIENvbnN0cnVjdEZpbmRlcihhc3QuTm9kZVZpc2l0b3IpOgogICAgICAgICAgICBkZWYgdmlzaXRfQXNzZXJ0KHNlbGYsIG5vZGUpOgogICAgICAgICAgICAgICAgY29uc3RydWN0c19zZWVuLmFkZCgnYXNzZXJ0JykKICAgICAgICAgICAgICAgIHNlbGYuZ2VuZXJpY192aXNpdChub2RlKQogICAgICAgICAgICBkZWYgdmlzaXRfUmFpc2Uoc2VsZiwgbm9kZSk6CiAgICAgICAgICAgICAgICBjb25zdHJ1Y3RzX3NlZW4uYWRkKCdyYWlzZScpCiAgICAgICAgICAgICAgICBzZWxmLmdlbmVyaWNfdmlzaXQobm9kZSkKICAgICAgICAgICAgZGVmIHZpc2l0X0xhbWJkYShzZWxmLCBub2RlKToKICAgICAgICAgICAgICAgIGNvbnN0cnVjdHNfc2Vlbi5hZGQoJ2xhbWJkYScpCiAgICAgICAgICAgICAgICBzZWxmLmdlbmVyaWNfdmlzaXQobm9kZSkKICAgICAgICAgICAgZGVmIHZpc2l0X0ltcG9ydChzZWxmLCBub2RlKToKICAgICAgICAgICAgICAgIGNvbnN0cnVjdHNfc2Vlbi5hZGQoJ2ltcG9ydCcpCiAgICAgICAgICAgICAgICBzZWxmLmdlbmVyaWNfdmlzaXQobm9kZSkKICAgICAgICAgICAgZGVmIHZpc2l0X0ltcG9ydEZyb20oc2VsZiwgbm9kZSk6CiAgICAgICAgICAgICAgICBjb25zdHJ1Y3RzX3NlZW4uYWRkKCdpbXBvcnQnKQogICAgICAgICAgICAgICAgc2VsZi5nZW5lcmljX3Zpc2l0KG5vZGUpCiAgICAgICAgICAgIGRlZiB2aXNpdF9Gb3Ioc2VsZiwgbm9kZSk6CiAgICAgICAgICAgICAgICBjb25zdHJ1Y3RzX3NlZW4uYWRkKCdmb3InKQogICAgICAgICAgICAgICAgc2VsZi5nZW5lcmljX3Zpc2l0KG5vZGUpCiAgICAgICAgICAgIGRlZiB2aXNpdF9XaGlsZShzZWxmLCBub2RlKToKICAgICAgICAgICAgICAgIGNvbnN0cnVjdHNfc2Vlbi5hZGQoJ3doaWxlJykKICAgICAgICAgICAgICAgIGlmIG5vZGUub3JlbHNlOgogICAgICAgICAgICAgICAgICAgIGNvbnN0cnVjdHNfc2Vlbi5hZGQoJ3doaWxlX3dpdGhfZWxzZScpCiAgICAgICAgICAgICAgICBzZWxmLmdlbmVyaWNfdmlzaXQobm9kZSkKICAgICAgICAgICAgZGVmIHZpc2l0X0NvbXByZWhlbnNpb24oc2VsZiwgbm9kZSk6CiAgICAgICAgICAgICAgICBjb25zdHJ1Y3RzX3NlZW4uYWRkKCdjb21wcmVoZW5zaW9uJykKICAgICAgICAgICAgICAgIHNlbGYuZ2VuZXJpY192aXNpdChub2RlKQogICAgICAgICAgICBkZWYgdmlzaXRfTGlzdENvbXAoc2VsZiwgbm9kZSk6CiAgICAgICAgICAgICAgICBjb25zdHJ1Y3RzX3NlZW4uYWRkKCdsaXN0Y29tcHJlaGVuc2lvbicpCiAgICAgICAgICAgICAgICBzZWxmLmdlbmVyaWNfdmlzaXQobm9kZSkKICAgICAgICAgICAgZGVmIHZpc2l0X1NldENvbXAoc2VsZiwgbm9kZSk6CiAgICAgICAgICAgICAgICBjb25zdHJ1Y3RzX3NlZW4uYWRkKCdzZXRjb21wcmVoZW5zaW9uJykKICAgICAgICAgICAgICAgIHNlbGYuZ2VuZXJpY192aXNpdChub2RlKQogICAgICAgICAgICBkZWYgdmlzaXRfRGljdENvbXAoc2VsZiwgbm9kZSk6CiAgICAgICAgICAgICAgICBjb25zdHJ1Y3RzX3NlZW4uYWRkKCdkaWN0Y29tcHJlaGVuc2lvbicpCiAgICAgICAgICAgICAgICBzZWxmLmdlbmVyaWNfdmlzaXQobm9kZSkKICAgICAgICAgICAgZGVmIHZpc2l0X1NsaWNlKHNlbGYsIG5vZGUpOgogICAgICAgICAgICAgICAgY29uc3RydWN0c19zZWVuLmFkZCgnc2xpY2UnKQogICAgICAgICAgICBkZWYgdmlzaXRfSWYoc2VsZiwgbm9kZSk6CiAgICAgICAgICAgICAgICBjb25zdHJ1Y3RzX3NlZW4uYWRkKCdpZicpCiAgICAgICAgICAgICAgICBzZWxmLmdlbmVyaWNfdmlzaXQobm9kZSkKICAgICAgICAgICAgZGVmIHZpc2l0X0JyZWFrKHNlbGYsIG5vZGUpOgogICAgICAgICAgICAgICAgY29uc3RydWN0c19zZWVuLmFkZCgnYnJlYWsnKQogICAgICAgICAgICAgICAgc2VsZi5nZW5lcmljX3Zpc2l0KG5vZGUpCiAgICAgICAgICAgIGRlZiB2aXNpdF9Db250aW51ZShzZWxmLCBub2RlKToKICAgICAgICAgICAgICAgIGNvbnN0cnVjdHNfc2Vlbi5hZGQoJ2NvbnRpbnVlJykKICAgICAgICAgICAgICAgIHNlbGYuZ2VuZXJpY192aXNpdChub2RlKQogICAgICAgICAgICBkZWYgdmlzaXRfVHJ5KHNlbGYsIG5vZGUpOgogICAgICAgICAgICAgICAgY29uc3RydWN0c19zZWVuLmFkZCgndHJ5JykKICAgICAgICAgICAgICAgIHNlbGYuZ2VuZXJpY192aXNpdChub2RlKQogICAgICAgICAgICBkZWYgdmlzaXRfVHJ5RXhjZXB0KHNlbGYsIG5vZGUpOgogICAgICAgICAgICAgICAgY29uc3RydWN0c19zZWVuLmFkZCgndHJ5JykKICAgICAgICAgICAgICAgIGNvbnN0cnVjdHNfc2Vlbi5hZGQoJ2V4Y2VwdCcpCiAgICAgICAgICAgICAgICBzZWxmLmdlbmVyaWNfdmlzaXQobm9kZSkKICAgICAgICAgICAgZGVmIHZpc2l0X1RyeUZpbmFsbHkoc2VsZiwgbm9kZSk6CiAgICAgICAgICAgICAgICBjb25zdHJ1Y3RzX3NlZW4uYWRkKCd0cnknKQogICAgICAgICAgICAgICAgY29uc3RydWN0c19zZWVuLmFkZCgnZmluYWxseScpCiAgICAgICAgICAgICAgICBzZWxmLmdlbmVyaWNfdmlzaXQobm9kZSkKICAgICAgICAgICAgZGVmIHZpc2l0X0V4Y2VwdEhhbmRsZXIoc2VsZiwgbm9kZSk6CiAgICAgICAgICAgICAgICBjb25zdHJ1Y3RzX3NlZW4uYWRkKCdleGNlcHQnKQogICAgICAgICAgICAgICAgc2VsZi5nZW5lcmljX3Zpc2l0KG5vZGUpCiAgICAgICAgICAgIGRlZiB2aXNpdF9XaXRoKHNlbGYsIG5vZGUpOgogICAgICAgICAgICAgICAgY29uc3RydWN0c19zZWVuLmFkZCgnd2l0aCcpCiAgICAgICAgICAgICAgICBzZWxmLmdlbmVyaWNfdmlzaXQobm9kZSkKICAgICAgICAgICAgZGVmIHZpc2l0X1lpZWxkKHNlbGYsIG5vZGUpOgogICAgICAgICAgICAgICAgY29uc3RydWN0c19zZWVuLmFkZCgneWllbGQnKQogICAgICAgICAgICAgICAgc2VsZi5nZW5lcmljX3Zpc2l0KG5vZGUpCiAgICAgICAgICAgIGRlZiB2aXNpdF9ZaWVsZEZyb20oc2VsZiwgbm9kZSk6CiAgICAgICAgICAgICAgICBjb25zdHJ1Y3RzX3NlZW4uYWRkKCd5aWVsZCcpCiAgICAgICAgICAgICAgICBzZWxmLmdlbmVyaWNfdmlzaXQobm9kZSkKICAgICAgICAgICAgZGVmIHZpc2l0X1JldHVybihzZWxmLCBub2RlKToKICAgICAgICAgICAgICAgIGNvbnN0cnVjdHNfc2Vlbi5hZGQoJ3JldHVybicpCiAgICAgICAgICAgICAgICBzZWxmLmdlbmVyaWNfdmlzaXQobm9kZSkKCiAgICAgICAgdmlzaXRvciA9IENvbnN0cnVjdEZpbmRlcigpCiAgICAgICAgdmlzaXRvci52aXNpdChzZWxmLnRyZWUpCiAgICAgICAgcmV0dXJuIGNvbnN0cnVjdHNfc2VlbgoKICAgIGRlZiBjaGVja190eXBlX2hpbnRzKHNlbGYpOgogICAgICAgICIiIlJldHVybiBhIGxpc3Qgb2YgdGhlIG5hbWVzIG9mIGZ1bmN0aW9ucyB0aGF0IGRvbid0IGhhdmUgZnVsbCB0eXBlIGhpbnRpbmcuIiIiCiAgICAgICAgdW5oaW50ZWQgPSBbXQogICAgICAgIGNsYXNzIE15VmlzaXRvcihhc3QuTm9kZVZpc2l0b3IpOgogICAgICAgICAgICBkZWYgdmlzaXRfRnVuY3Rpb25EZWYoc2VsZiwgbm9kZSk6CiAgICAgICAgICAgICAgICBpZiBub2RlLnJldHVybnMgaXMgTm9uZSBvciBhbnkoW2FyZy5hbm5vdGF0aW9uIGlzIE5vbmUgZm9yIGFyZyBpbiBub2RlLmFyZ3MuYXJnc10pOgogICAgICAgICAgICAgICAgICAgIHVuaGludGVkLmFwcGVuZChub2RlLm5hbWUpCgogICAgICAgIHZpc2l0b3IgPSBNeVZpc2l0b3IoKQogICAgICAgIHRyZWUgPSBzZWxmLnRyZWUKICAgICAgICB2aXNpdG9yLnZpc2l0KHNlbGYudHJlZSkKICAgICAgICByZXR1cm4gdW5oaW50ZWQKCiAgICBkZWYgZmluZF9mdW5jdGlvbl9jYWxscyhzZWxmLCBuYW1lKToKICAgICAgICAiIiJMb29rIGZvciBvY2N1cmFuY2VzIG9mIGEgc3BlY2lmaWMgZnVuY3Rpb24gY2FsbCIiIgogICAgICAgIHJldHVybiBzZWxmLmZpbmRfYWxsX2Z1bmN0aW9uX2NhbGxzKCkuZ2V0KG5hbWUsIFtdKQoKCiAgICBkZWYgZmluZF9pbGxlZ2FsX2Z1bmN0aW9ucyhzZWxmKToKICAgICAgICAiIiJGaW5kIGEgc2V0IG9mIGFsbCB0aGUgZnVuY3Rpb25zIHRoYXQgdGhlIHN0dWRlbnQgdXNlcwogICAgICAgICAgIHRoYXQgdGhleSBhcmUgbm90IGFsbG93ZWQgdG8gdXNlLiAiIiIKICAgICAgICBmdW5jX2NhbGxzID0gc2VsZi5maW5kX2FsbF9mdW5jdGlvbl9jYWxscygpCiAgICAgICAgcmV0dXJuIGZ1bmNfY2FsbHMua2V5cygpICYgc2V0KHNlbGYucGFyYW1zWydwcm9zY3JpYmVkZnVuY3Rpb25zJ10pCgoKICAgIGRlZiBmaW5kX21pc3NpbmdfcmVxdWlyZWRfZnVuY3Rpb25fY2FsbHMoc2VsZik6CiAgICAgICAgIiIiRmluZCBhIHNldCBvZiB0aGUgcmVxdWlyZWQgZnVuY3Rpb25zIHRoYXQgdGhlIHN0dWRlbnQgZmFpbHMgdG8gdXNlIiIiCiAgICAgICAgZnVuY19jYWxscyA9IHNlbGYuZmluZF9hbGxfZnVuY3Rpb25fY2FsbHMoKQogICAgICAgIHJldHVybiBzZXQoc2VsZi5wYXJhbXNbJ3JlcXVpcmVkZnVuY3Rpb25jYWxscyddKSAtIGZ1bmNfY2FsbHMua2V5cygpCgoKICAgIGRlZiBmaW5kX21pc3NpbmdfcmVxdWlyZWRfZnVuY3Rpb25fZGVmaW5pdGlvbnMoc2VsZik6CiAgICAgICAgIiIiRmluZCBhIHNldCBvZiByZXF1aXJlZCBmdW5jdGlvbnMgdGhhdCB0aGUgc3R1ZGVudCBmYWlscyB0byBkZWZpbmUiIiIKICAgICAgICBmdW5jX2RlZnMgPSBzZWxmLmZpbmRfZGVmaW5lZF9mdW5jdGlvbnMoKQogICAgICAgIHJldHVybiBzZXQoc2VsZi5wYXJhbXNbJ3JlcXVpcmVkZnVuY3Rpb25kZWZpbml0aW9ucyddKSAtIGZ1bmNfZGVmcwoKCiAgICBkZWYgZmluZF9pbGxlZ2FsX2NvbnN0cnVjdHMoc2VsZik6CiAgICAgICAgIiIiRmluZCBhbGwgdGhlIGNvbnN0cnVjdHMgdGhhdCB3ZXJlIHVzZWQgYnV0IG5vdCBhbGxvd2VkIiIiCiAgICAgICAgY29uc3RydWN0cyA9IHNlbGYuY29uc3RydWN0c191c2VkKCkKICAgICAgICByZXR1cm4gY29uc3RydWN0cyAmIHNldChzZWxmLnBhcmFtc1sncHJvc2NyaWJlZGNvbnN0cnVjdHMnXSkKCgogICAgZGVmIGZpbmRfbWlzc2luZ19yZXF1aXJlZF9jb25zdHJ1Y3RzKHNlbGYpOgogICAgICAgICIiIkZpbmQgd2hpY2ggb2YgdGhlIHJlcXVpcmVkIGNvbnN0cnVjdHMgd2VyZSBub3QgdXNlZCIiIgogICAgICAgIGNvbnN0cnVjdHMgPSBzZWxmLmNvbnN0cnVjdHNfdXNlZCgpCiAgICAgICAgcmV0dXJuIHNldChzZWxmLnBhcmFtc1sncmVxdWlyZWRjb25zdHJ1Y3RzJ10pIC0gY29uc3RydWN0cwoKCiAgICBkZWYgZmluZF90b29fbG9uZ19mdW5jcyhzZWxmLCBtYXhfbGVuZ3RoKToKICAgICAgICAiIiJSZXR1cm4gYSBsaXN0IG9mIHRoZSBmdW5jdGlvbnMgdGhhdCBleGNlZWQgdGhlIGdpdmVuIG1heF9sZW5ndGgKICAgICAgICAgICBFYWNoIGxpc3QgZWxlbWVudCBpcyBhIHR1cGxlIG9mIHRoZSBmdW5jdGlvbiBuYW1lIGFuZCB0aGUgbnVtYmVyIG9mIHN0YXRlbWVudHMKICAgICAgICAgICBpbiBpdHMgYm9keS4iIiIKCiAgICAgICAgYmFkX2Z1bmNzID0gW10KCiAgICAgICAgY2xhc3MgTXlWaXNpdG9yKGFzdC5Ob2RlVmlzaXRvcik6CgogICAgICAgICAgICBkZWYgdmlzaXRfRnVuY3Rpb25EZWYoc2VsZiwgbm9kZSk6CgogICAgICAgICAgICAgICAgZGVmIGNvdW50X3N0YXRlbWVudHMobm9kZSk6CiAgICAgICAgICAgICAgICAgICAgIiIiTnVtYmVyIG9mIHN0YXRlbWVudHMgaW4gdGhlIGdpdmVuIG5vZGUgYW5kIGl0cyBjaGlsZHJlbiIiIgogICAgICAgICAgICAgICAgICAgIGNvdW50ID0gMQogICAgICAgICAgICAgICAgICAgIGlmIGlzaW5zdGFuY2Uobm9kZSwgYXN0LkV4cHIpIGFuZCBpc2luc3RhbmNlKG5vZGUudmFsdWUsIGFzdC5TdHIpOgogICAgICAgICAgICAgICAgICAgICAgICBjb3VudCA9IDAKICAgICAgICAgICAgICAgICAgICBlbHNlOgogICAgICAgICAgICAgICAgICAgICAgICBmb3IgYXR0ciBpbiBbJ2JvZHknLCAnb3JlbHNlJywgJ2ZpbmFsYm9keSddOgogICAgICAgICAgICAgICAgICAgICAgICAgICAgaWYgaGFzYXR0cihub2RlLCBhdHRyKToKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBjaGlsZHJlbiA9IG5vZGUuX19kaWN0X19bYXR0cl0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBjb3VudCArPSBzdW0oY291bnRfc3RhdGVtZW50cyhjaGlsZCkgZm9yIGNoaWxkIGluIGNoaWxkcmVuKQogICAgICAgICAgICAgICAgICAgIHJldHVybiBjb3VudAoKICAgICAgICAgICAgICAgIG51bV9zdGF0ZW1lbnRzID0gY291bnRfc3RhdGVtZW50cyhub2RlKSAtIDEgIyBEaXNyZWdhcmQgZGVmIGl0c2VsZgogICAgICAgICAgICAgICAgaWYgbnVtX3N0YXRlbWVudHMgPiBtYXhfbGVuZ3RoOgogICAgICAgICAgICAgICAgICAgIGJhZF9mdW5jcy5hcHBlbmQoKG5vZGUubmFtZSwgbnVtX3N0YXRlbWVudHMpKQoKICAgICAgICAgICAgZGVmIHZpc2l0X0FzeW5jRnVuY3Rpb25EZWYoc2VsZiwgbm9kZSk6CiAgICAgICAgICAgICAgICBzZWxmLnZpc2l0X0Z1bmN0aW9uRGVmKG5vZGUpCgogICAgICAgIHZpc2l0b3IgPSBNeVZpc2l0b3IoKQogICAgICAgIHZpc2l0b3IudmlzaXQoc2VsZi50cmVlKQogICAgICAgIHJldHVybiBiYWRfZnVuY3MKCgogICAgZGVmIGZpbmRfZ2xvYmFsX2NvZGUoc2VsZik6CiAgICAgICAgIiIiUmV0dXJuIGEgbGlzdCBvZiBlcnJvciBtZXNzYWdlcyByZWxhdGluZyB0byB0aGUgZXhpc3RlbmNlIG9mCiAgICAgICAgICAgYW55IGdsb2JhbCBhc3NpZ25tZW50LCBmb3IsIHdoaWxlIGFuZCBpZiBub2Rlcy4gSWdub3JlcwogICAgICAgICAgIGdsb2JhbCBhc3NpZ25tZW50IHN0YXRlbWVudHMgd2l0aCBhbiBBTExfQ0FQUyB0YXJnZXQgYW5kCiAgICAgICAgICAgaWYgX19uYW1lX18gPT0gIl9fbWFpbl9fIgogICAgICAgICIiIgogICAgICAgIHN0eWxlX2NoZWNrZXIgPSBzZWxmCiAgICAgICAgZ2xvYmFsX2Vycm9ycyA9IFtdCiAgICAgICAgY2xhc3MgTXlWaXNpdG9yKGFzdC5Ob2RlVmlzaXRvcik6CiAgICAgICAgICAgIGRlZiB2aXNpdF9Bc3NpZ24oc2VsZiwgbm9kZSk6CiAgICAgICAgICAgICAgICBpZiBub2RlLmNvbF9vZmZzZXQgPT0gMDoKICAgICAgICAgICAgICAgICAgICBpZiBsZW4obm9kZS50YXJnZXRzKSA+IDEgb3IgaXNpbnN0YW5jZShub2RlLnRhcmdldHNbMF0sIGFzdC5UdXBsZSk6CiAgICAgICAgICAgICAgICAgICAgICAgIGdsb2JhbF9lcnJvcnMuYXBwZW5kKGYiTXVsdGlwbGUgdGFyZ2V0cyBpbiBnbG9iYWwgYXNzaWdubWVudCBzdGF0ZW1lbnQgYXQgbGluZSB7bm9kZS5saW5lbm99IikKICAgICAgICAgICAgICAgICAgICBlbGlmIG5vdCAobm9kZS50YXJnZXRzWzBdLmlkLmlzdXBwZXIoKSBvciBpc2luc3RhbmNlKG5vZGUudmFsdWUsIGFzdC5MYW1iZGEpKToKICAgICAgICAgICAgICAgICAgICAgICAgZ2xvYmFsX2Vycm9ycy5hcHBlbmQoZiJHbG9iYWwgYXNzaWdubWVudCBzdGF0ZW1lbnQgYXQgbGluZSB7bm9kZS5saW5lbm99IikKCiAgICAgICAgICAgIGRlZiB2aXNpdF9Gb3Ioc2VsZiwgbm9kZSk6CiAgICAgICAgICAgICAgICBpZiBub2RlLmNvbF9vZmZzZXQgPT0gMDoKICAgICAgICAgICAgICAgICAgICBnbG9iYWxfZXJyb3JzLmFwcGVuZChmIkdsb2JhbCBmb3IgbG9vcCBhdCBsaW5lIHtub2RlLmxpbmVub30iKQoKICAgICAgICAgICAgZGVmIHZpc2l0X1doaWxlKHNlbGYsIG5vZGUpOgogICAgICAgICAgICAgICAgaWYgbm9kZS5jb2xfb2Zmc2V0ID09IDA6CiAgICAgICAgICAgICAgICAgICAgZ2xvYmFsX2Vycm9ycy5hcHBlbmQoZiJHbG9iYWwgd2hpbGUgbG9vcCBhdCBsaW5lIHtub2RlLmxpbmVub30iKQoKICAgICAgICAgICAgZGVmIHZpc2l0X0lmKHNlbGYsIG5vZGUpOgogICAgICAgICAgICAgICAgaWYgbm9kZS5jb2xfb2Zmc2V0ID09IDAgYW5kIG5vdCBzdHlsZV9jaGVja2VyLmlzX21haW5fY2hlY2sobm9kZSk6CiAgICAgICAgICAgICAgICAgICAgZ2xvYmFsX2Vycm9ycy5hcHBlbmQoZiJHbG9iYWwgaWYgc3RhdGVtZW50IGF0IGxpbmUge25vZGUubGluZW5vfSIpCgogICAgICAgIHZpc2l0b3IgPSBNeVZpc2l0b3IoKQogICAgICAgIHZpc2l0b3IudmlzaXQoc2VsZi50cmVlKQogICAgICAgIHJldHVybiBnbG9iYWxfZXJyb3JzCgoKICAgIGRlZiBpc19tYWluX2NoZWNrKHNlbGYsIG5vZGUpOgogICAgICAgICIiIlJldHVybiBUcnVlIGlmZiB0aGUgZ2l2ZW4gbm9kZSBpcyBhIGNoZWNrIGlmIHRoZSBjdXJyZW50IG1vZHVsZSBpcyAnX19tYWluX18nLgogICAgICAgICAgIEp1c3QgY2hlY2tzIGlmIGJvdGggdGhlIHN0cmluZ3MgJ19fbmFtZV9fJyBhbmQgJ19fbWFpbl9fJyBhcmUgcHJlc2VudCBpbiB0aGUgbGluZS4KICAgICAgICAiIiIKICAgICAgICBsaW5lID0gc2VsZi5zdHVkZW50X2Fuc3dlci5zcGxpdGxpbmVzKClbbm9kZS5saW5lbm8gLSAxXQogICAgICAgIHJldHVybiAnX19tYWluX18nIGluIGxpbmUgYW5kICdfX25hbWVfXycgaW4gbGluZQoKCiAgICBkZWYgZmluZF9uZXN0ZWRfZnVuY3Rpb25zKHNlbGYpOgogICAgICAgICIiIlJldHVybiBhIGxpc3Qgb2YgZnVuY3Rpb25zIHRoYXQgYXJlIGRlY2xhcmVkIHdpdGggbm9uLWdsb2JhbCBzY29wZSIiIgogICAgICAgIGJhZF9mdW5jcyA9IFtdCgogICAgICAgIGNsYXNzIE15VmlzaXRvcihhc3QuTm9kZVZpc2l0b3IpOgogICAgICAgICAgICBpc192aXNpdGluZ19mdW5jID0gRmFsc2UKCiAgICAgICAgICAgIGRlZiB2aXNpdF9GdW5jdGlvbkRlZihzZWxmLCBub2RlKToKICAgICAgICAgICAgICAgIGlmIHNlbGYuaXNfdmlzaXRpbmdfZnVuYzoKICAgICAgICAgICAgICAgICAgICBiYWRfZnVuY3MuYXBwZW5kKG5vZGUubmFtZSkKICAgICAgICAgICAgICAgIHNlbGYuaXNfdmlzaXRpbmdfZnVuYyA9IFRydWUKICAgICAgICAgICAgICAgIHNlbGYuZ2VuZXJpY192aXNpdChub2RlKSAjIFZpc2l0IGFsbCBjaGlsZHJlbiByZWN1cnNpdmVseQogICAgICAgICAgICAgICAgc2VsZi5pc192aXNpdGluZ19mdW5jID0gRmFsc2UKCiAgICAgICAgICAgIGRlZiB2aXNpdF9Bc3luY0Z1bmN0aW9uRGVmKHNlbGYsIG5vZGUpOgogICAgICAgICAgICAgICAgc2VsZi52aXNpdF9GdW5jdGlvbkRlZihub2RlKQoKICAgICAgICB2aXNpdG9yID0gTXlWaXNpdG9yKCkKICAgICAgICB2aXNpdG9yLnZpc2l0KHNlbGYudHJlZSkKICAgICAgICByZXR1cm4gYmFkX2Z1bmNzCiAgICAKCiAgICBkZWYgZmluZF9uZXN0ZWRfcmV0dXJucyhzZWxmLCBtYXhfZGVwdGgpOgogICAgICAgICIiIlJldHVybiBhIGNvdW50IG9mIHRoZSBudW1iZXIgb2YgcmV0dXJuIHN0YXRlbWVudHMKICAgICAgICAgICBhdCBhIG5lc3RpbmcgZGVwdGggaW4gZXhjZXNzIG9mIG1heF9kZXB0aC4KICAgICAgICAiIiIKICAgICAgICByZXR1cm5zID0gc2VsZi5uZXN0ZWRfcmV0dXJucygpCiAgICAgICAgcmV0dXJuIHN1bShyZXR1cm5zW2RlcHRoXSBmb3IgZGVwdGggaW4gcmFuZ2UobWF4X2RlcHRoICsgMSwgMTApKQo=</file>
+    </testcases>
+  </question>
+
+</quiz>
