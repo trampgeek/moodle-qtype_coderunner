@@ -60,17 +60,18 @@ class cache_cleaner extends \core\task\scheduled_task {
      * Execute the task.
      */
     public function execute() {
-        $purger = new cache_purger();
+        // Use system context as purging everything
+        // ... and set use TTL to true so that only old
+        // ... entries are purged.
+        $purger = new cache_purger(1, true);
         $definition = $purger->get_coderunner_cache_definition();
         $store = $purger->get_first_file_store($definition);
-
-        $ttl = abs(get_config('qtype_coderunner', 'gradecachettl'));
+        $ttl = $purger->ttl;
         if ($ttl) {
             $days = round($ttl / 60 / 60 / 24, 4);
             mtrace("Time to live (TTL) is $ttl seconds (= $days days)");
         }
         // $store->purge_old_entries();
-
         // Use reflection to access the private cachestore_file method file_path_for_key
         $reflection = new \ReflectionClass($store);
         $filepathmethod = $reflection->getMethod('file_path_for_key');
@@ -79,7 +80,7 @@ class cache_cleaner extends \core\task\scheduled_task {
         $keys = $store->find_all();
         $originalcount = count($keys);
         // Do a get on every key.
-        // The file cache get method should delete keys that are older than ttl
+        // The file cache get method should delete keys that are older than ttl but it doesn't...
         $maxtime = cache::now() - $ttl;
         foreach ($keys as $key) {
             // Call the private method
@@ -92,7 +93,9 @@ class cache_cleaner extends \core\task\scheduled_task {
             // $value = $store->get($key);  // Would delete old key if fixed in file store.
         $remainingkeys = $store->find_all();
         $newcount = count($remainingkeys);
+        $purgedcount = $originalcount - $newcount;
         mtrace("Originally found $originalcount keys.");
-        mtrace("There are $newcount keys remaining.");
+        mtrace("$purgedcount keys pruged.");
+        mtrace("$newcount keys were too young to die.");
     }
 }
