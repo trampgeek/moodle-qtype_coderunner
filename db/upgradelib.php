@@ -29,7 +29,9 @@ global $CFG;
 require_once($CFG->dirroot . '/question/format/xml/format.php');
 require_once($CFG->dirroot . '/lib/questionlib.php');
 
+use core\task\manager;
 use core_question\local\bank\question_bank_helper;
+
 
 /**
  * Add/replace standard question types by deleting all questions in the
@@ -50,14 +52,55 @@ use core_question\local\bank\question_bank_helper;
  * move the old top category across to the new question bank instance
  * before loading the new prototypes.
  *
+ * A further complication is that during an install of both Moodle and
+ * CodeRunner together, the question bank module is installed after the question
+ * type, so we can't load the prototypes during the install. Instead we
+ * schedule a task to do it later.
+ *
  * @return bool true if successful
  */
-function update_question_types() {
-    if (using_mod_qbank()) {
-        return update_question_types_with_qbank();
+
+ /**
+  * Schedule or perform the question type update depending on whether this is an
+  * install or an upgrade.
+  * @param bool $isinstall true if this is being called during install.
+  * @return bool true if successful
+  */
+function update_question_types($isinstall = false) {
+    if ($isinstall) {
+        // During install, schedule the task for later execution.
+        $task = new qtype_coderunner\task\qtype_coderunner_setup_question_prototypes();
+        core\task\manager::queue_adhoc_task($task);
+        return true;
     } else {
-        return update_question_types_legacy();
+        // During upgrade, execute immediately.
+        return update_question_types_internal();
     }
+}
+
+/**
+ * The function that actually does the update. May be called directly during update
+ * or indirectly from the queued task during install.
+ */
+function update_question_types_internal() {
+    mtrace("Setting up CodeRunner question prototypes...");
+    $result = false;
+    try {
+        if (using_mod_qbank()) {
+            $result = update_question_types_with_qbank();
+        } else {
+            $result = update_question_types_legacy();
+        }
+        if ($result) {
+            mtrace("CodeRunner question prototypes successfully installed.");
+        } else {
+            mtrace("Error installing CodeRunner question prototypes.");
+        }
+    } catch (Exception $e) {
+        mtrace("Exception while installing CodeRunner question prototypes: " . $e->getMessage());
+        throw $e;  // Re-throw to ensure proper error handling up the chain.
+    }
+    return $result;
 }
 
 /**
@@ -69,14 +112,17 @@ function update_question_types() {
  */
 function update_question_types_with_qbank() {
     global $DB;
+    mtrace("CodeRunner prototypes set up using qbank");
     $topcategory = moodle5_top_category();
     $topcategorycontextid = $topcategory->contextid;
     $oldprototypecategory = get_old_prototype_category();
     if ($oldprototypecategory) {
+        mtrace("CodeRunner is moving old CR_PROTOTYPES category to new qbank category");
         $sourcecategoryid = $oldprototypecategory->id;
         question_move_category_to_context($sourcecategoryid, $sourcecategoryid, $topcategorycontextid);
         $DB->set_field('question_categories', 'parent', $topcategory->id, ['parent' => $sourcecategoryid]);
     }
+    mtrace("CodeRunner: replacing existing prototypes with new ones");
     delete_existing_prototypes($topcategorycontextid);
     $prototypescategory = find_or_make_prototype_category($topcategorycontextid, $topcategory->id);
     load_new_prototypes($topcategorycontextid, $prototypescategory);
@@ -88,9 +134,10 @@ function update_question_types_with_qbank() {
  * @return bool true if successful
  */
 function update_question_types_legacy() {
+    mtrace("CodeRunner prototypes set up in system context");
     $systemcontext = context_system::instance();
     $systemcontextid = $systemcontext->id;
-
+    mtrace("CodeRunner: replacing existing prototypes with new ones");
     delete_existing_prototypes($systemcontextid);
     if (function_exists('question_get_top_category')) { // Moodle version >= 3.5.
         $parentid = get_top_id($systemcontextid);
@@ -149,10 +196,9 @@ function moodle5_top_category() {
     $course = get_site();
     $bankname = get_string('systembank', 'question');
     try {
-        // WARNING - dangerous code ahead ...
-        $savedupgradestatus = $CFG->upgraderunning;  // Should be true, but let's play it safe.
-        $CFG->upgraderunning = false;
-        if (!$newmod = question_bank_helper::get_default_open_instance_system_type($course)) {
+        $newmod = question_bank_helper::get_default_open_instance_system_type($course);
+        if (!$newmod) {
+            mtrace('CodeRunner: creating new system question bank');
             $newmod = question_bank_helper::create_default_open_instance($course, $bankname, question_bank_helper::TYPE_SYSTEM);
         }
         $CFG->upgraderunning = $savedupgradestatus;

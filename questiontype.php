@@ -578,12 +578,12 @@ class qtype_coderunner extends question_type {
      */
     private static function prototype_contexts($context) {
         // Get the course in which the context is located.
-        $course = $context->get_course_context();
         $contextids = [];
         if (self::using_mod_qbank()) {
             // Code for Moodle >= 4.6.
             $frontpageqbank = question_bank_helper::get_default_open_instance_system_type(get_site());
             $contextids[] = $frontpageqbank->context->id;
+            $course = $context->get_course_context(false);
             if ($course) {
                 $allcaps = array_merge(question_edit_contexts::$caps['editq'], question_edit_contexts::$caps['categories']);
                 $sharedbanks = question_bank_helper::get_activity_instances_with_shareable_questions([$course->id], [], $allcaps);
