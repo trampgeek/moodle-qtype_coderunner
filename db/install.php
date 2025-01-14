@@ -20,5 +20,5 @@
 
 function xmldb_qtype_coderunner_install() {
     require_once(__DIR__ . '/upgradelib.php');
-    update_question_types();
+    update_question_types(true);
 }

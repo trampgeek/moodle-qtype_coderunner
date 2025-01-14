@@ -434,7 +434,7 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
     }
 
     require_once(__DIR__ . '/upgradelib.php');
-    update_question_types();
+    update_question_types(false);
 
     return true;
 }

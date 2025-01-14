@@ -14,21 +14,26 @@
 // You should have received a copy of the GNU General Public License
 // along with CodeRunner.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace qtype_coderunner\task;
+
 /**
+ * An ad hoc task to set up CodeRunner question prototypes after installation.
+ * Can't be done in the install.php script because the question type is installed
+ * before the question bank module is installed.
+ *
  * @package   qtype_coderunner
- * @copyright Richard Lobb, The University of Canterbury, New Zealand.
+ * @copyright 2025 Richard Lobb, The University of Canterbury
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 defined('MOODLE_INTERNAL') || die();
+require_once($CFG->dirroot . '/question/type/coderunner/db/upgradelib.php');
 
-$plugin->version  = 2025011009;
-$plugin->requires = 2022041900;
-$plugin->cron = 0;
-$plugin->component = 'qtype_coderunner';
-$plugin->maturity = MATURITY_STABLE;
-$plugin->release = '5.5.0';
-
-$plugin->dependencies = [
-    'qbehaviour_adaptive_adapted_for_coderunner' => 2024041800,
-];
+class qtype_coderunner_setup_question_prototypes extends \core\task\adhoc_task {
+    /**
+     * Execute the task
+     */
+    public function execute() {
+        global $CFG;
+        return update_question_types_internal();
+    }
+}
