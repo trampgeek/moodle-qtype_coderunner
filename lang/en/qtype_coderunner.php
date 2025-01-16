@@ -232,6 +232,7 @@ $string['giveup_never'] = 'Never available';
 $string['globalextra'] = 'Global extra';
 $string['globalextra_help'] = 'A field of text for general-purpose use by template authors, like the extra field of each test case, but global to all tests. Available to the template author as {{ QUESTION.globalextra }}.';
 $string['graphhelp'] = '- Double click at a blank space to create a new node/state.
+- Click on a link/node then press the Delete key to remove it (or function-delete on a Mac).
 - Double click an existing node to "mark" it e.g. as an accept state for Finite State Machines
   (FSMs). Double click again to unmark it.
 - Click and drag to move a node.
@@ -243,7 +244,6 @@ $string['graphhelp'] = '- Double click at a blank space to create a new node/sta
 - Click in link text and drag to move it.
 - Typing _ followed by a digit makes that digit a subscript.
 - Typing \\epsilon creates an epsilon character (and similarly for \\alpha, \\beta etc).
-- Click on a link/node then press the Delete key to remove it (or function-delete on a Mac).
 - Ctrl+z to undo and Ctrl+y or Ctrl+Shift+z to redo.';
 $string['goodemptyprecheck'] = 'Passed';
 $string['gotcolhdr'] = 'Got';
@@ -462,7 +462,7 @@ $string['negativeorzeromark'] = 'Mark must be greater than zero';
 
 $string['options'] = 'Options';
 $string['ordering'] = 'Ordering';
-$string['overallresult'] = 'Overall result';
+$string['bulktestoverallresults'] = 'Overall results';
 $string['overloadoninit'] = 'Sandbox server overload prevented question initialisation';
 
 // Output Display Area Errors (Used in Scratchpad UI) for displaying code output. See outputdisplayarea.js.
@@ -614,7 +614,13 @@ once for each test case. The values of the test code and extra fields of each
 test case are ignored.</p>';
 
 $string['qtype_directed_graph'] = '<p>A python3 question type that asks the student to draw
-a directed graph to satisfy some specification. The question author has to write
+a directed graph to satisfy some specification.
+<h4>Template parameter</h4>
+<p><b>extra</b>: can be set to <i>pretest</i> or <i>posttest</i> to have the <i>extra</i> code
+run before/after the test code, respectively. Default: <i>posttest</i> - for backward
+compatibility (originally the extra code always ran after the test code).</p>
+<h4>Usage information</h4>
+The question author has to write
 Python3 code to check the resulting graph.</p><p>Note that it is not actually
 necessary to use this question type for directed graphs, as the functionality
 is mainly provided by the GraphUI plugin. If the graph pre-processing performed
@@ -640,7 +646,8 @@ edges, sorted by neighbour node name or identifier, each edge being a tuple
 as node identifiers, otherwise the names #1, #2 etc are used. The adjacency
 list and the neighbour list are both sorted in order of node name or identifier.</p>
 <p>The template is a combinator one: the <i>testcode</i>&nbsp;and
-<i>extra</i>&nbsp;code are both executed for each test case.</p><p>As a simple
+<i>extra</i>&nbsp;code are both executed for each test cae. With the <i>extra</i>
+code running after (posttest) the test case, by default.</p><p>As a simple
 example, if the specification were just "Draw a directed graph with two nodes
 labelled A and B, with an edge from A to B", a suitable test case (albeit with
 unhelpful error output) might be:</p><pre>
@@ -800,7 +807,13 @@ one of the test case standard input fields to be a non-empty value - this
 forces CodeRunner into a fallback mode of running each test case separately.</p>';
 
 $string['qtype_undirected_graph'] = '<p>A python3 question type that asks the student to draw
-an undirected graph to satisfy some specification. The question author has to write
+an undirected graph to satisfy some specification. </p>
+<h4>Template parameter</h4>
+<p><b>extra</b>: can be set to <i>pretest</i> or <i>posttest</i> to have the <i>extra</i> code
+run before/after the test code, respectively. Default: <i>posttest</i> - for backward
+compatibility (originally the extra code always ran after the test code).</p>
+<h4>Usage information</h4>
+<p>The question author has to write
 Python3 code to check the resulting graph.</p><p>Note that it is not actually
 necessary to use this question type for undirected graphs, as the functionality
 is mainly provided by the GraphUI plugin. If the graph pre-processing performed
@@ -826,7 +839,9 @@ sorted by neighbour node name or identifier, each edge being a tuple
 as node identifiers, otherwise the names #1, #2 etc are used. The adjacency
 list and the neighbour list are both sorted in order of node name or identifier.</p>
 <p>The template is a combinator one: the <i>testcode</i>&nbsp;and
-<i>extra</i>&nbsp;code are both executed for each test case.</p><p>As a simple
+<i>extra</i>&nbsp;code are both executed for each test cae. With the <i>extra</i>
+code running after (posttest) the test case, by default.</p>
+<p>As a simple
 example, if the specification were just "Draw an undirected graph with two nodes
 labelled A and B, with an edge between the two nodes", a suitable test case (albeit with
 unhelpful error output) might be:</p><pre>
@@ -1347,3 +1362,30 @@ $string['enablegradecache'] = 'Enable reading/writing of job,result pairs from/t
 $string['coderunner_grading_cache'] = 'Caches grading results so we can avoid going to Jobe so often.';
 $string['cachedef_coderunner_grading_cache'] = 'Caches grading results so we can avoid going to Jobe so often.';
 $string['enablegradecache_desc'] = 'Experimental. The cache is a local Moodle cache (currently file cache) to store results of grading questions. Mainly to speed up regrading by using cached results for jobe runs where the same jobe submission has already been graded. Currently WS jobs (eg, try-it boxes and scratchpad runs) will never be cached. NOTE: If you turn off grade caching then it is usually good to empty the Coderunner grade cache before you turn it on again so you have a known state for the cache. You should also clear the cache if you change the Jobe back-end (eg, installing a new version of Python there) as results may now differ from what is in the cache.';
+$string['settingsgradecachettl'] = 'Grade cache Time to Live (TTL)';
+$string['settingsgradecachettl_desc'] = 'Number of seconds for grade cache entries to live. Default is 1209600 seconds (two weeks). Used by scheduled task and helpful cachepurgeindex/cachepurge scripts. Admins can set schedule for running TTL enforcer in Admin->Server->Scheduled tasks - look for the Coderunner entry.';
+$string['backtobulktestindex'] = 'Go back to the bulk test index page.';
+$string['retestfailedquestions'] = 'Re-test failed questions';
+$string['cachepurgecheckingkeyxoftotalnum'] = 'Procesing key {$a->x} of {$a->totalnumkeys} keys in total (for all courses)';
+$string['gradingcachedefinitionnotfound'] = 'Strange... the Coderunner grading cache definition cannot be found!?';
+$string['gradingcachefilestorenotfound'] = 'Strange... the Coderunner grading cache file store cannot be found!?';
+$string['purgingallkeysmessage'] = 'Purging all keys for course, regardless of Time to Live (TTL).';
+$string['purgingoldkeysmessage'] = 'Purging only old keys for course, based on Time to Live. TTL={$a->seconds} seconds (={$a->days} days)';
+
+$string['purgeoldcachekeysbutton'] = 'Purge only OLD keys';
+$string['purgeallcachekeysbutton'] = 'Purge ALL keys';
+$string['bulktestinfo'] = 'By default clicking on test links will test with <b>...&randomseed=0&repeatrandomonly=1&nruns=1</b>. Feel free to change the url as you see fit.<br>
+By default each question with \'random\' in the name will be tested <i>nruns</i> times
+unless <i>repeatrandomonly</i> is 0, in which case all questions are tested that many times.<br>A randomseed of 0 means the seed is not set.
+Setting it to another value (eg, 1) will mean that the php randomseed is set before doing the test(s) for each question with random in its name.<br>
+If you don\'t set the random seed then each time you do a bulk test you will get random sequences of question instances, which may mean the grade
+cache isn\'t so useful and more questions have to actually be run on the Jobe server (depending on how random your questions are).<br>
+For a given seed the sequence of random question instances should be the same (assuming your question template uses the random seed it is given correctly).
+Setting the random seed allows you to recreate a specific sequences of random question instances (eg, you could do 100 runs with 1 being
+the initial seed, then try 100 runs with 200 being the seed, etc, hopefully getting more coverage).';
+$string['cachepurgeindextitle'] = 'Coderunner Cache Purge Index';
+$string['cachepurgepagetitle'] = 'Purging cache for {$a}';
+$string['cachepurgeindexinfo'] = 'Purging OLD keys will only delete cache entries for grading runs that are older than the Coderunner cache Time To Live (TTL) as set in the admin settings. Pruging ALL will delete all cache entries for the given course.';
+$string['currentttlinfo'] = 'Coderunner grading cache Time to Live is currently set to TTL = {$a->seconds} seconds (={$a->days} days)';
+$string['unauthorisedcachepurging'] = 'You do not have suitable access to any CodeRunner questions!';
+$string['contextidnotacourse'] = 'Nothing to do as context_id $contextid is not a course.';

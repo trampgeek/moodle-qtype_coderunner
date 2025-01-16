@@ -25,6 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 use qtype_coderunner\constants;
 
+
 $links = [
     get_string(
         'bulkquestiontester',
@@ -43,13 +44,15 @@ $settings->add(new admin_setting_heading(
     'codeRunnersettings',
     get_string('coderunnersettings', 'qtype_coderunner'),
     ''
-));
+));$ttl =
 
 $settings->add(new admin_setting_configtext(
     "qtype_coderunner/default_penalty_regime",
     get_string('default_penalty_regime', 'qtype_coderunner'),
     get_string('default_penalty_regime_desc', 'qtype_coderunner'),
-    '10, 20, ...'
+    '10, 20, ...',
+    PARAM_RAW,
+    20
 ));
 
 $sandboxes = qtype_coderunner_sandbox::available_sandboxes();
@@ -75,7 +78,9 @@ $settings->add(new admin_setting_configtext(
     "qtype_coderunner/jobe_apikey",
     get_string('jobe_apikey', 'qtype_coderunner'),
     get_string('jobe_apikey_desc', 'qtype_coderunner'),
-    constants::JOBE_HOST_DEFAULT_API_KEY
+    constants::JOBE_HOST_DEFAULT_API_KEY,
+    PARAM_RAW,
+    40
 ));
 
 $settings->add(new admin_setting_configcheckbox(
@@ -84,6 +89,25 @@ $settings->add(new admin_setting_configcheckbox(
     get_string('enablegradecache_desc', 'qtype_coderunner'),
     false
 ));
+
+
+$cachettlsetting = new admin_setting_configtext(
+    "qtype_coderunner/gradecachettl",
+    get_string('settingsgradecachettl', 'qtype_coderunner'),
+    get_string('settingsgradecachettl_desc', 'qtype_coderunner'),
+    constants::GRADING_CACHE_DEFAULT_TTL,
+    PARAM_INT,
+    10
+);
+// The following may have been causing issues with tests
+// and is now redundant as just use coderunner setting
+// directly..
+// $cachettlsetting->set_updatedcallback(function () {
+//    cache_helper::update_definitions();
+//});
+$settings->add($cachettlsetting);
+
+
 
 
 $settings->add(new admin_setting_configtext(
@@ -135,12 +159,16 @@ $settings->add(new admin_setting_configtext(
     "qtype_coderunner/wsmaxhourlyrate",
     get_string('wsmaxhourlyrate', 'qtype_coderunner'),
     get_string('wsmaxhourlyrate_desc', 'qtype_coderunner'),
-    '200'
+    200,
+    PARAM_INT,
+    10
 ));
 
 $settings->add(new admin_setting_configtext(
     "qtype_coderunner/wsmaxcputime",
     get_string('wsmaxcputime', 'qtype_coderunner'),
     get_string('wsmaxcputime_desc', 'qtype_coderunner'),
-    '5'
+    5.0,
+    PARAM_FLOAT,
+    10
 ));
