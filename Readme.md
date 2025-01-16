@@ -131,10 +131,10 @@ CodeRunner has been in use at the University of Canterbury for over ten years
 running many millions of student quiz question submissions in Python, C, JavaScript,
 PHP, Octave and Matlab. It is used in laboratory work, assignments, tests and
 exams in multiple courses. In recent years CodeRunner has spread around the
-world and as of January 2021 is installed on over 1800 Moodle sites worldwide
-(see [here](https://moodle.org/plugins/stats.php?plugin=qtype_coderunner)), with
-at least some of its language strings translated into 19 other languages (see
-[here](https://moodle.org/plugins/translations.php?plugin=qtype_coderunner])).
+world and as of December 2024 is installed on over 3400 Moodle sites worldwide
+(see [here](https://moodle.org/plugins/qtype_coderunner/stats)), with
+at least some of its language strings translated into 21 other languages (see
+[here](https://moodle.org/plugins/qtype_coderunner/translations)).
 
 CodeRunner supports the following languages: Python2 (considered obsolete),
 Python3, C, C++, Java, PHP, Pascal, JavaScript (NodeJS), Octave and Matlab.
