@@ -42,24 +42,24 @@ if (abs($nrunsfromsettings) > 1) {
 
 // Find in which contexts the user can edit questions.
 $questionsbycontext = qtype_coderunner_bulk_tester::get_num_coderunner_questions_by_context();
-    $availablequestionsbycontext = [];
-    foreach ($questionsbycontext as $contextid => $numcoderunnerquestions) {
-        $context = context::instance_by_id($contextid);
-        if (has_capability('moodle/question:editall', $context)) {
-            $name = $context->get_context_name(true, true);
-            if (strpos($name, 'Quiz:') === 0) { // Quiz-specific question category.
-                $course = $context->get_course_context(false);
-                if ($course === false) {
-                    $name = 'UnknownCourse: ' . $name;
-                } else {
-                    $name = $course->get_context_name(true, true) . ': ' . $name;
-                }
-            }
-            $availablequestionsbycontext[$name] = [
-                'contextid' => $contextid,
-                'numquestions' => $numcoderunnerquestions];
+$availablequestionsbycontext = [];
+foreach ($questionsbycontext as $contextid => $numcoderunnerquestions) {
+    $context = context::instance_by_id($contextid);
+    if (has_capability('moodle/question:editall', $context)) {
+        $coursecontext = $context->get_course_context(false);
+        $coursename = $coursecontext->get_context_name(true, true);
+        $contextname = $context->get_context_name(true, true);
+        if ($contextname === "Question bank: System shared question bank") {
+            $name = "$coursename: System shared question bank";
+        } else if (strpos($contextname, 'Quiz:') === 0) { // Quiz-specific question category.
+            $name = "$coursename: $contextname";
         }
+        $availablequestionsbycontext[$name] = [
+            'contextid' => $contextid,
+            'numquestions' => $numcoderunnerquestions,
+        ];
     }
+}
 ksort($availablequestionsbycontext);
 
 // Display.

@@ -579,15 +579,16 @@ class qtype_coderunner extends question_type {
     private static function prototype_contexts($context) {
         // Get the course in which the context is located.
         $contextids = [];
-        if (self::using_mod_qbank()) {
+        if (qtype_coderunner_util::using_mod_qbank()) {
             // Code for Moodle >= 4.6.
             $frontpageqbank = question_bank_helper::get_default_open_instance_system_type(get_site());
             $contextids[] = $frontpageqbank->context->id;
             $course = $context->get_course_context(false);
+            $courseid = $course->instanceid;
             if ($course) {
                 $allcaps = array_merge(question_edit_contexts::$caps['editq'], question_edit_contexts::$caps['categories']);
-                $sharedbanks = question_bank_helper::get_activity_instances_with_shareable_questions([$course->id], [], $allcaps);
-                $privatebanks = question_bank_helper::get_activity_instances_with_private_questions([$course->id], [], $allcaps);
+                $sharedbanks = question_bank_helper::get_activity_instances_with_shareable_questions([$courseid], [], $allcaps);
+                $privatebanks = question_bank_helper::get_activity_instances_with_private_questions([$courseid], [], $allcaps);
                 foreach (array_merge($sharedbanks, $privatebanks) as $bank) {
                     $contextids[] = $bank->contextid;
                 }
@@ -597,13 +598,6 @@ class qtype_coderunner extends question_type {
             $contextids = $context->get_parent_context_ids(true);
         }
         return $contextids;
-    }
-
-    /**
-     * Return true if we're running on Moodle 4.6 or later.
-     */
-    private static function using_mod_qbank() {
-        return class_exists('mod_qbank\\task\\transfer_question_categories');
     }
 
     /**

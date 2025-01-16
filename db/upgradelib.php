@@ -86,7 +86,7 @@ function update_question_types_internal() {
     mtrace("Setting up CodeRunner question prototypes...");
     $result = false;
     try {
-        if (using_mod_qbank()) {
+        if (qtype_coderunner_util::using_mod_qbank()) {
             $result = update_question_types_with_qbank();
         } else {
             $result = update_question_types_legacy();
@@ -149,12 +149,6 @@ function update_question_types_legacy() {
     return true;
 }
 
-/**
- * Return true if we're running on Moodle 4.6 or later.
- */
-function using_mod_qbank() {
-    return class_exists('mod_qbank\\task\\transfer_question_categories');
-}
 
 /**
  * Get the pre-Moodle-4.6 CR_PROTOTYPES category if it exists.
