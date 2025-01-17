@@ -155,21 +155,16 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
 
     public function execute($sourcecode, $language, $input, $files = null, $params = null, $usecache = true) {
         global $CFG;
-        global $COURSE;
         global $PAGE;
         // Course ID of 1 seems to be the fall back if it's not a course, eg, when bulktesting all q's.
         // So, use 1 if we don't find context from the PAGE or the context is not a course.
-        $courseid = 1;
         // Get the current context.
         try {
             // Had to use try here as isset($PAGE->context) always seems to fail even if the context has been set.
             $context = $PAGE->context;
-            $contextid = $context->id;
-            if ($context->contextlevel == CONTEXT_COURSE) {
-                $courseid = $context->instanceid;
-            }
+            $courseid = $context->get_course_context(strict: true)->instanceid;
         } catch (Exception $e) {
-            ; // Use default id/context of 1 as no $PAGE context is set, eg, could be a websocket UI run.
+            $courseid = 1; // Use context of 1 as no $PAGE context is set, eg, could be a websocket UI run.
         }
 
         $language = strtolower($language);
