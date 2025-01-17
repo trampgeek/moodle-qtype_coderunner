@@ -40,11 +40,7 @@ foreach ($questionsbycontext as $contextid => $numcoderunnerquestions) {
         $coursecontext = $context->get_course_context(false);
         $coursename = $coursecontext->get_context_name(true, true);
         $contextname = $context->get_context_name(true, true);
-        if ($contextname === "Question bank: System shared question bank") {
-            $name = "$coursename: System shared question bank";
-        } else if (strpos($contextname, 'Quiz:') === 0) {
-            $name = "$coursename: $contextname";
-        }
+        $name = "$coursename: $contextname";
         $availablequestionsbycontext[$name] = [
             'contextid' => $contextid,
             'numquestions' => $numcoderunnerquestions,
