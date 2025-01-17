@@ -14,15 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * This script provides an index for running the question tests in bulk.
- * [A modified version of the script in qtype_stack with the same name.]
- *
- * @package   qtype_coderunner
- * @copyright 2016, 2017 Richard Lobb, The University of Canterbury
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
 require_once(__DIR__ . '/../../../config.php');
 require_once($CFG->libdir . '/questionlib.php');
 
@@ -51,7 +42,7 @@ foreach ($questionsbycontext as $contextid => $numcoderunnerquestions) {
         $contextname = $context->get_context_name(true, true);
         if ($contextname === "Question bank: System shared question bank") {
             $name = "$coursename: System shared question bank";
-        } else if (strpos($contextname, 'Quiz:') === 0) { // Quiz-specific question category.
+        } else if (strpos($contextname, 'Quiz:') === 0) {
             $name = "$coursename: $contextname";
         }
         $availablequestionsbycontext[$name] = [
@@ -65,6 +56,25 @@ ksort($availablequestionsbycontext);
 // Display.
 echo $OUTPUT->header();
 
+// Add the configuration form
+echo <<<HTML
+<div class="bulk-test-config" style="margin-bottom: 20px; padding: 10px; background-color: #f5f5f5; border: 1px solid #ddd;">
+    <h3>Test Configuration</h3>
+    <div style="margin-bottom: 10px; display: grid; grid-template-columns: auto 80px; gap: 10px; align-items: center; max-width: 240px;">
+        <label for="nruns">Number of runs:</label>
+        <input type="number" id="nruns" value="{$nruns}" min="1" style="width: 80px;">
+        
+        <label for="randomseed">Random seed:</label>
+        <input type="number" id="randomseed" value="0" min="0" style="width: 80px;">
+        
+        <label for="repeatrandomonly">Repeat random only:</label>
+        <div>
+            <input type="checkbox" id="repeatrandomonly" checked>
+        </div>
+    </div>
+</div>
+HTML;
+
 // List all contexts available to the user.
 if (count($availablequestionsbycontext) == 0) {
     echo html_writer::tag('p', get_string('unauthorisedbulktest', 'qtype_coderunner'));
@@ -77,34 +87,28 @@ if (count($availablequestionsbycontext) == 0) {
     foreach ($availablequestionsbycontext as $name => $info) {
         $contextid = $info['contextid'];
         $numcoderunnerquestions = $info['numquestions'];
-        // Random seed of zero means randomseed is not set.
-        $urlargs = ['contextid' => $contextid,
-        'randomseed' => 0,
-        'repeatrandomonly' => 1,
-        'nruns' => $nruns];
 
-        $testallurl = new moodle_url('/question/type/coderunner/bulktest.php', $urlargs);
         $testallstr = get_string('bulktestallincontext', 'qtype_coderunner');
         $testalltitledetails = ['title' => get_string('testalltitle', 'qtype_coderunner'), 'style' => $buttonstyle];
-        $testalllink = html_writer::link($testallurl, $testallstr, $testalltitledetails);
+        $testallspan = html_writer::tag('span', $testallstr, 
+            ['class' => 'test-link', 
+             'data-contextid' => $contextid,
+             'style' => $buttonstyle . ';cursor:pointer;']);
 
         $expandlink = html_writer::link(
             '#expand',
             get_string('expand', 'qtype_coderunner'),
             ['class' => 'expander', 'title' => get_string('expandtitle', 'qtype_coderunner'), 'style' => $buttonstyle]
         );
-        $litext = $name . ' (' . $numcoderunnerquestions . ') ' . $testalllink . ' ' . $expandlink;
-        if (strpos($name, 'Quiz:') === 0) {
-            $class = 'bulktest coderunner context quiz';
-        } else {
-            $class = 'bulktest coderunner context normal';
-        }
-
+        
+        $litext = $name . ' (' . $numcoderunnerquestions . ') ' . $testallspan . ' ' . $expandlink;
+        
         if (strpos($name, ": Quiz: ") === false) {
             $class = 'bulktest coderunner context normal';
         } else {
             $class = 'bulktest coderunner context quiz';
         }
+        
         echo html_writer::start_tag('li', ['class' => $class]);
         echo $litext;
 
@@ -114,15 +118,13 @@ if (count($availablequestionsbycontext) == 0) {
         $titledetails = ['title' => get_string('testallincategory', 'qtype_coderunner')];
         foreach ($categories as $cat) {
             if ($cat->count > 0) {
-                $urlargs = ['contextid' => $contextid,
-                'categoryid' => $cat->id,
-                'randomseed' => 0,
-                'repeatrandomonly' => 1,
-                'nruns' => $nruns];
-                $url = new moodle_url('/question/type/coderunner/bulktest.php', $urlargs);
                 $linktext = $cat->name . ' (' . $cat->count . ')';
-                $link = html_writer::link($url, $linktext, ['style' => $buttonstyle]);
-                echo html_writer::tag('li', $link, $titledetails);
+                $span = html_writer::tag('span', $linktext, 
+                    ['class' => 'test-link',
+                     'data-contextid' => $contextid,
+                     'data-categoryid' => $cat->id,
+                     'style' => $buttonstyle . ';cursor:pointer;']);
+                echo html_writer::tag('li', $span, $titledetails);
             }
         }
         echo html_writer::end_tag('ul');
@@ -142,10 +144,12 @@ if (count($availablequestionsbycontext) == 0) {
 echo <<<SCRIPT_END
 <script>
 document.addEventListener("DOMContentLoaded", function(event) {
+    // Handle expandable sections
     var expandables = document.getElementsByClassName('expandable');
     Array.from(expandables).forEach(function (expandable) {
         expandable.style.display = 'none';
     });
+    
     var expanders = document.getElementsByClassName('expander');
     Array.from(expanders).forEach(function(expander) {
         expander.addEventListener('click', function(event) {
@@ -157,6 +161,35 @@ document.addEventListener("DOMContentLoaded", function(event) {
                 expander.innerHTML = 'Expand';
                 expander.nextSibling.style.display = 'none';
             }
+        });
+    });
+
+    // Handle test links
+    var testLinks = document.getElementsByClassName('test-link');
+    Array.from(testLinks).forEach(function(link) {
+        link.addEventListener('click', function(event) {
+            event.preventDefault();
+            
+            // Get configuration values
+            var nruns = document.getElementById('nruns').value;
+            var randomseed = document.getElementById('randomseed').value;
+            var repeatrandomonly = document.getElementById('repeatrandomonly').checked ? 1 : 0;
+            
+            // Build URL parameters
+            var params = new URLSearchParams();
+            params.append('contextid', link.dataset.contextid);
+            params.append('randomseed', randomseed);
+            params.append('repeatrandomonly', repeatrandomonly);
+            params.append('nruns', nruns);
+            
+            // Add category ID if present
+            if (link.dataset.categoryid) {
+                params.append('categoryid', link.dataset.categoryid);
+            }
+            
+            // Construct and navigate to URL
+            var url = M.cfg.wwwroot + '/question/type/coderunner/bulktest.php?' + params.toString();
+            window.location.href = url;
         });
     });
 });
