@@ -45,8 +45,7 @@ $PAGE->set_context($context);
 $title = get_string('bulktesttitle', 'qtype_coderunner', $context->get_context_name());
 $PAGE->set_title($title);
 
-// Create the helper class.
-$bulktester = new qtype_coderunner_bulk_tester($context);
+
 $numpasses = 0;
 $allfailingtests = [];
 $allmissinganswers = [];
@@ -60,14 +59,16 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading($title, 1);
 
 // Run the tests.
-foreach ($bulktester->get_num_coderunner_questions_by_context() as $contextid => $numcoderunnerquestions) {
+$contextdata = qtype_coderunner_bulk_tester::get_num_coderunner_questions_by_context();
+foreach ($contextdata as $contextid => $numcoderunnerquestions) {
     if ($skipping && $contextid != $startfromcontextid) {
         continue;
     }
     $skipping = false;
-
     $testcontext = context::instance_by_id($contextid);
     if (has_capability('moodle/question:editall', $context)) {
+        $PAGE->set_context($testcontext);  // Helps grading cache pickup right course id.
+        $bulktester = new qtype_coderunner_bulk_tester($testcontext);
         echo $OUTPUT->heading(get_string('bulktesttitle', 'qtype_coderunner', $testcontext->get_context_name()));
         echo html_writer::tag('p', html_writer::link(
             new moodle_url(
@@ -77,7 +78,7 @@ foreach ($bulktester->get_num_coderunner_questions_by_context() as $contextid =>
             get_string('bulktestcontinuefromhere', 'qtype_coderunner')
         ));
 
-        [$passes, $failingtests, $missinganswers] = $bulktester->run_all_tests_for_context($testcontext);
+        [$passes, $failingtests, $missinganswers] = $bulktester->run_all_tests_for_context();
         $numpasses += $passes;
         $allfailingtests = array_merge($allfailingtests, $failingtests);
         $allmissinganswers = array_merge($allmissinganswers, $missinganswers);
@@ -85,5 +86,5 @@ foreach ($bulktester->get_num_coderunner_questions_by_context() as $contextid =>
 }
 
 // Display the final summary.
-$bulktester->print_overall_result($numpasses, $allfailingtests, $allmissinganswers);
+qtype_coderunner_bulk_tester::print_summary_after_bulktestall($numpasses, $allfailingtests, $allmissinganswers);
 echo $OUTPUT->footer();
