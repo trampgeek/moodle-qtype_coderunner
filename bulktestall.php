@@ -46,7 +46,7 @@ $title = get_string('bulktesttitle', 'qtype_coderunner', $context->get_context_n
 $PAGE->set_title($title);
 
 // Create the helper class.
-$bulktester = new qtype_coderunner_bulk_tester();
+$bulktester = new qtype_coderunner_bulk_tester($context);
 $numpasses = 0;
 $allfailingtests = [];
 $allmissinganswers = [];

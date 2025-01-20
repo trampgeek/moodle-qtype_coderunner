@@ -71,7 +71,7 @@ class qtype_coderunner_bulk_tester {
     /**
      * @param context $context the context to run the tests for.
      * @param int $categoryid test only questions in this category. Default to all.
-     * @param int $randomseed used to set random seed before runs for each question. Default = 0   ---  meaning seed is not set.
+     * @param int $randomseed used to set random seed before runs for each question. Default = -1   ---  meaning seed is not set.
      *             Use this to have more chance of the series of questions being generated for testing is the same for a new run
      *             of the tests. This works well with grader caching as you won't keep getting new random variations.
      *             Also allows you to mix up the space that is being tested.
@@ -80,12 +80,16 @@ class qtype_coderunner_bulk_tester {
      * @param int $nruns the number times to test each question. Default to 1.
      */
     public function __construct(
-        $context,
+        $context = null,
         $categoryid = null,
-        $randomseed = 0,
+        $randomseed = -1,
         $repeatrandomonly = 1,
         $nruns = 1
     ) {
+        if ($context === null) {
+            $site = get_site(); // Get front page course.
+             $context = context_course::instance($site->id);
+        }
         $this->context = $context;
         $this->categoryid = $categoryid;
         $this->randomseed = $randomseed;
@@ -345,11 +349,8 @@ class qtype_coderunner_bulk_tester {
                 } else {
                     $nrunsthistime = $this->nruns;
                 }
-                if ($this->randomseed > 0) {
+                if ($this->randomseed >= 0) {
                     mt_srand($this->randomseed);
-                }
-                if ($question->id == 6273) {
-                    echo $question->id;
                 }
                 // Now run the test for the required number of times.
                 for ($i = 0; $i < $nrunsthistime; $i++) {

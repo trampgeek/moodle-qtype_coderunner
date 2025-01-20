@@ -37,9 +37,7 @@ $PAGE->set_url('/question/type/coderunner/prototypeusageindex.php');
 $PAGE->set_context($context);
 $PAGE->set_title(get_string('prototypeusageindex', 'qtype_coderunner'));
 
-// Create the helper class.
-$bulktester = new qtype_coderunner_bulk_tester();
-$allcourses = $bulktester->get_all_courses();
+$allcourses = qtype_coderunner_bulk_tester::get_all_courses();
 
 // Start display.
 echo $OUTPUT->header();

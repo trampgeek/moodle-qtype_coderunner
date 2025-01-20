@@ -1374,18 +1374,17 @@ $string['purgingoldkeysmessage'] = 'Purging only old keys for course, based on T
 
 $string['purgeoldcachekeysbutton'] = 'Purge only OLD keys';
 $string['purgeallcachekeysbutton'] = 'Purge ALL keys';
-$string['bulktestinfo'] = 'By default clicking on test links will test with <b>...&randomseed=0&repeatrandomonly=1&nruns=1</b>. Feel free to change the url as you see fit.<br>
-By default each question with \'random\' in the name will be tested <i>nruns</i> times
-unless <i>repeatrandomonly</i> is 0, in which case all questions are tested that many times.<br>A randomseed of 0 means the seed is not set.
-Setting it to another value (eg, 1) will mean that the php randomseed is set before doing the test(s) for each question with random in its name.<br>
-If you don\'t set the random seed then each time you do a bulk test you will get random sequences of question instances, which may mean the grade
-cache isn\'t so useful and more questions have to actually be run on the Jobe server (depending on how random your questions are).<br>
+$string['bulktestinfo'] = '<ul>
+<li><b>Number of runs:</b> How many times each included question will be tested.</li>
+<li><b>Repeat random only:</b> Limits repeated runs to questions with <emph>random</emph> in their names.</li>
+<li><b>randomseed:</b> If set to a postive integer then the PHP randomseed is set to this value before running the test(s) for each question that has <emph>random</emph> in its name.<br>
+If you don\'t set the random seed then each time you do a bulk test you will get random sequences of question instances, which may mean the grade cache isn\'t so useful and more questions have to actually be run on the Jobe server (depending on how random your questions are).<br>
 For a given seed the sequence of random question instances should be the same (assuming your question template uses the random seed it is given correctly).
 Setting the random seed allows you to recreate a specific sequences of random question instances (eg, you could do 100 runs with 1 being
-the initial seed, then try 100 runs with 200 being the seed, etc, hopefully getting more coverage).';
+the initial seed, then try 100 runs with 200 being the seed, etc, hopefully getting more coverage).</li>';
 $string['cachepurgeindextitle'] = 'Coderunner Cache Purge Index';
 $string['cachepurgepagetitle'] = 'Purging cache for {$a}';
-$string['cachepurgeindexinfo'] = 'Purging OLD keys will only delete cache entries for grading runs that are older than the Coderunner cache Time To Live (TTL) as set in the admin settings. Pruging ALL will delete all cache entries for the given course.';
+$string['cachepurgeindexinfo'] = 'Purging OLD keys will only delete cache entries for grading runs that are older than the Coderunner cache Time To Live (TTL) as set in the admin settings. Purging ALL will delete all cache entries for the given course.';
 $string['currentttlinfo'] = 'Coderunner grading cache Time to Live is currently set to TTL = {$a->seconds} seconds (={$a->days} days)';
 $string['unauthorisedcachepurging'] = 'You do not have suitable access to any CodeRunner questions!';
 $string['contextidnotacourse'] = 'Nothing to do as context_id $contextid is not a course.';
