@@ -47,9 +47,7 @@ $PAGE->requires->jquery();
 $PAGE->requires->jquery_plugin('ui');
 $PAGE->requires->jquery_plugin('ui-css');
 
-// Create the helper class.
-$bulktester = new qtype_coderunner_bulk_tester();
-$courses = $bulktester->get_all_courses();
+$courses = qtype_coderunner_bulk_tester::get_all_courses();
 
 // Start display.
 echo $OUTPUT->header();

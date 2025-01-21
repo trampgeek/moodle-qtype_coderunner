@@ -71,7 +71,7 @@ class qtype_coderunner_bulk_tester {
     /**
      * @param context $context the context to run the tests for.
      * @param int $categoryid test only questions in this category. Default to all.
-     * @param int $randomseed used to set random seed before runs for each question. Default = 0   ---  meaning seed is not set.
+     * @param int $randomseed used to set random seed before runs for each question. Default = -1   ---  meaning seed is not set.
      *             Use this to have more chance of the series of questions being generated for testing is the same for a new run
      *             of the tests. This works well with grader caching as you won't keep getting new random variations.
      *             Also allows you to mix up the space that is being tested.
@@ -80,12 +80,16 @@ class qtype_coderunner_bulk_tester {
      * @param int $nruns the number times to test each question. Default to 1.
      */
     public function __construct(
-        $context,
+        $context = null,
         $categoryid = null,
-        $randomseed = 0,
+        $randomseed = -1,
         $repeatrandomonly = 1,
         $nruns = 1
     ) {
+        if ($context === null) {
+            $site = get_site(); // Get front page course.
+             $context = context_course::instance($site->id);
+        }
         $this->context = $context;
         $this->categoryid = $categoryid;
         $this->randomseed = $randomseed;
@@ -309,7 +313,7 @@ class qtype_coderunner_bulk_tester {
         } else {
             $qparams['courseid'] = SITEID;
         }
-        $questiontestsurl = new moodle_url('/question/type/coderunner/questiontestrun.php');
+         $questiontestsurl = new moodle_url('/question/type/coderunner/questiontestrun.php');
         $questiontestsurl->params($qparams);
 
         $this->numpasses = 0;
@@ -345,11 +349,8 @@ class qtype_coderunner_bulk_tester {
                 } else {
                     $nrunsthistime = $this->nruns;
                 }
-                if ($this->randomseed > 0) {
+                if ($this->randomseed >= 0) {
                     mt_srand($this->randomseed);
-                }
-                if ($question->id == 6273) {
-                    echo $question->id;
                 }
                 // Now run the test for the required number of times.
                 for ($i = 0; $i < $nrunsthistime; $i++) {
@@ -403,7 +404,7 @@ class qtype_coderunner_bulk_tester {
             }
             echo "</ul>\n";
         }
-        return;
+        return [$this->numpasses, $this->failedtestdetails, $this->missinganswerdetails];
     }
 
 
@@ -496,8 +497,6 @@ class qtype_coderunner_bulk_tester {
             }
             echo html_writer::end_tag('ul');
         }
-
-
         if (count($this->failedtestdetails) > 0) {
             echo $OUTPUT->heading(get_string('coderunner_install_testsuite_failures', 'qtype_coderunner'), 5);
             echo html_writer::start_tag('ul');
@@ -529,6 +528,36 @@ class qtype_coderunner_bulk_tester {
         $url = new moodle_url('/question/type/coderunner/bulktestindex.php');
         $link = html_writer::link($url, get_string('backtobulktestindex', 'qtype_coderunner'));
         echo html_writer::tag('p', $link);
+    }
+
+    /**
+     * Print an overall summary of the failed tests.
+     */
+    public static function print_summary_after_bulktestall($numpasses, $allfailingtests, $allmissinganswers) {
+        global $OUTPUT;
+        echo $OUTPUT->heading(get_string('bulktestoverallresults', 'qtype_coderunner'), 5);
+        $spacer = '&nbsp;&nbsp;|&nbsp;&nbsp;';
+        $passstr = $numpasses . ' ' . get_string('passes', 'qtype_coderunner') . $spacer;
+        $failstr = count($allfailingtests) . ' ' . get_string('fails', 'qtype_coderunner') . $spacer;
+        $missingstr = count($allmissinganswers) . ' ' . get_string('missinganswers', 'qtype_coderunner');
+        echo html_writer::tag('p', $passstr . $failstr . $missingstr);
+
+        if (count($allmissinganswers) > 0) {
+            echo $OUTPUT->heading(get_string('coderunner_install_testsuite_noanswer', 'qtype_coderunner'), 5);
+            echo html_writer::start_tag('ul');
+            foreach ($allmissinganswers as $message) {
+                echo html_writer::tag('li', $message);
+            }
+            echo html_writer::end_tag('ul');
+        }
+        if (count($allfailingtests) > 0) {
+            echo $OUTPUT->heading(get_string('coderunner_install_testsuite_failures', 'qtype_coderunner'), 5);
+            echo html_writer::start_tag('ul');
+            foreach ($allfailingtests as $message) {
+                echo html_writer::tag('li', $message);
+            }
+            echo html_writer::end_tag('ul');
+        }
     }
 
 
