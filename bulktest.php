@@ -33,7 +33,7 @@ require_once($CFG->libdir . '/questionlib.php');
 // Get the parameters from the URL.
 $contextid = required_param('contextid', PARAM_INT); // Set to 0 if providing a list of question IDs to check.
 $categoryid = optional_param('categoryid', null, PARAM_INT);
-$randomseed = optional_param('randomseed', 0, PARAM_INT);
+$randomseed = optional_param('randomseed', -1, PARAM_INT);
 $repeatrandomonly = optional_param('repeatrandomonly', 1, PARAM_INT);
 $nruns = optional_param('nruns', 1, PARAM_INT);
 $questionids = optional_param('questionids', '', PARAM_RAW);  // A list of specific questions to check, eg, for rechecking failed tests.

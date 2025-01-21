@@ -59,10 +59,10 @@ echo <<<HTML
     <div style="margin-bottom: 10px; display: grid; grid-template-columns: auto 80px; gap: 10px; align-items: center; max-width: 240px;">
         <label for="nruns">Number of runs:</label>
         <input type="number" id="nruns" value="{$nruns}" min="1" style="width: 80px;">
-        
+
         <label for="randomseed">Random seed:</label>
-        <input type="number" id="randomseed" value="0" min="0" style="width: 80px;">
-        
+        <input type="number" id="randomseed" value="" min="0" style="width: 80px;">
+
         <label for="repeatrandomonly">Repeat random only:</label>
         <div>
             <input type="checkbox" id="repeatrandomonly" checked>
@@ -86,25 +86,23 @@ if (count($availablequestionsbycontext) == 0) {
 
         $testallstr = get_string('bulktestallincontext', 'qtype_coderunner');
         $testalltitledetails = ['title' => get_string('testalltitle', 'qtype_coderunner'), 'style' => $buttonstyle];
-        $testallspan = html_writer::tag('span', $testallstr, 
-            ['class' => 'test-link', 
+        $testallspan = html_writer::tag(
+            'span', $testallstr,
+            ['class' => 'test-link',
              'data-contextid' => $contextid,
-             'style' => $buttonstyle . ';cursor:pointer;']);
-
+             'style' => $buttonstyle . ';cursor:pointer;']
+        );
         $expandlink = html_writer::link(
             '#expand',
             get_string('expand', 'qtype_coderunner'),
             ['class' => 'expander', 'title' => get_string('expandtitle', 'qtype_coderunner'), 'style' => $buttonstyle]
         );
-        
         $litext = $name . ' (' . $numcoderunnerquestions . ') ' . $testallspan . ' ' . $expandlink;
-        
         if (strpos($name, ": Quiz: ") === false) {
             $class = 'bulktest coderunner context normal';
         } else {
             $class = 'bulktest coderunner context quiz';
         }
-        
         echo html_writer::start_tag('li', ['class' => $class]);
         echo $litext;
 
@@ -115,11 +113,12 @@ if (count($availablequestionsbycontext) == 0) {
         foreach ($categories as $cat) {
             if ($cat->count > 0) {
                 $linktext = $cat->name . ' (' . $cat->count . ')';
-                $span = html_writer::tag('span', $linktext, 
+                $span = html_writer::tag('span', $linktext,
                     ['class' => 'test-link',
                      'data-contextid' => $contextid,
                      'data-categoryid' => $cat->id,
-                     'style' => $buttonstyle . ';cursor:pointer;']);
+                     'style' => $buttonstyle . ';cursor:pointer;']
+                );
                 echo html_writer::tag('li', $span, $titledetails);
             }
         }
@@ -145,7 +144,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
     Array.from(expandables).forEach(function (expandable) {
         expandable.style.display = 'none';
     });
-    
+
     var expanders = document.getElementsByClassName('expander');
     Array.from(expanders).forEach(function(expander) {
         expander.addEventListener('click', function(event) {
@@ -165,24 +164,24 @@ document.addEventListener("DOMContentLoaded", function(event) {
     Array.from(testLinks).forEach(function(link) {
         link.addEventListener('click', function(event) {
             event.preventDefault();
-            
+
             // Get configuration values
             var nruns = document.getElementById('nruns').value;
             var randomseed = document.getElementById('randomseed').value;
             var repeatrandomonly = document.getElementById('repeatrandomonly').checked ? 1 : 0;
-            
+
             // Build URL parameters
             var params = new URLSearchParams();
             params.append('contextid', link.dataset.contextid);
             params.append('randomseed', randomseed);
             params.append('repeatrandomonly', repeatrandomonly);
             params.append('nruns', nruns);
-            
+
             // Add category ID if present
             if (link.dataset.categoryid) {
                 params.append('categoryid', link.dataset.categoryid);
             }
-            
+
             // Construct and navigate to URL
             var url = M.cfg.wwwroot + '/question/type/coderunner/bulktest.php?' + params.toString();
             window.location.href = url;
