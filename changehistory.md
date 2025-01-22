@@ -1,12 +1,17 @@
 # CHANGE HISTORY
 
-### 2 January 2025. 5.5.0
+### 23 January 2025. 5.5.0
 
  * New features:
      * Addition of some unsupported question types, include an experimental C# dot net question type.
      * Addition of an experimental capability for combinator grader questions to return files such as images
        to be displayed in the response to the student. WARNING: these files do not survive 
        course backup/restore cycles and would need to be rebuilt by regrading if wanted.
+     * An enhanced bulk tester that supports multiple tests of randomised questions, setting of
+       the random seed for such runs, and rerunning of failed tests.
+     * Addition of a script to purge the Jobe cache.
+     * Improved styling of question authoring window (thanks Luca Bösch).
+     * Preliminary updates for Moodle 5 compatability (a work in progress still).
  * Various code tidying and Behat testing tweaks.
  * Bug fixes:
     * The layout of the testcase options in the author editing form were squished together in Moodle 4.5
