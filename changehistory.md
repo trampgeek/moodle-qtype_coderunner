@@ -18,7 +18,7 @@
 ### 23 January 2025. 5.5.0
 
  * New features:
-     * Addition of some unsupported question types, include an experimental C# dot net question type.
+     * Addition of some unsupported question types, include two experimental C# dot net question types.
      * Addition of an experimental capability for combinator grader questions to return files such as images
        to be displayed in the response to the student. WARNING: these files do not survive 
        course backup/restore cycles and would need to be rebuilt by regrading if wanted.
