@@ -295,7 +295,6 @@ class qtype_coderunner_bulk_tester {
     public function run_all_tests_for_context($questionidstoinclude = []) {
         global $OUTPUT;
         global $PAGE;
-        ini_set('memory_limit', '1024M');  // For big question banks - TODO: make this a setting?
         $PAGE->set_context($this->context);
         $this->failedquestionids = [];
         $this->failedtestdetails = [];

@@ -195,9 +195,7 @@ function moodle5_top_category() {
             mtrace('CodeRunner: creating new system question bank');
             $newmod = question_bank_helper::create_default_open_instance($course, $bankname, question_bank_helper::TYPE_SYSTEM);
         }
-        $CFG->upgraderunning = $savedupgradestatus;
     } catch (Exception $e) {
-        $CFG->upgraderunning = $savedupgradestatus;
         throw new coding_exception('Upgrade failed: error creating system question bank');
     }
     $newtopcategory = question_get_top_category($newmod->context->id, true);
