@@ -59,6 +59,7 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading($title, 1);
 
 // Run the tests.
+ini_set('memory_limit', '2048M');  // For big question banks - TODO: make this a setting?
 $contextdata = qtype_coderunner_bulk_tester::get_num_coderunner_questions_by_context();
 foreach ($contextdata as $contextid => $numcoderunnerquestions) {
     if ($skipping && $contextid != $startfromcontextid) {

@@ -83,6 +83,12 @@ $bulktester = new qtype_coderunner_bulk_tester(
 echo $OUTPUT->header();
 echo $OUTPUT->heading($title, 4);
 
+// Release the session, so the user can do other things while this runs.
+\core\session\manager::write_close();
+
+
+ini_set('memory_limit', '1024M');  // For big question banks - TODO: make this a setting?
+
 // Run the tests.
 if (count($questionids) == 0) {
     $bulktester->run_all_tests_for_context();

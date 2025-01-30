@@ -295,6 +295,7 @@ class qtype_coderunner_bulk_tester {
     public function run_all_tests_for_context($questionidstoinclude = []) {
         global $OUTPUT;
         global $PAGE;
+        ini_set('memory_limit', '1024M');  // For big question banks - TODO: make this a setting?
         $PAGE->set_context($this->context);
         $this->failedquestionids = [];
         $this->failedtestdetails = [];
@@ -356,7 +357,7 @@ class qtype_coderunner_bulk_tester {
                 for ($i = 0; $i < $nrunsthistime; $i++) {
                     // Only records last outcome and message.
                     try {
-                        [$outcome, $message] = $this->load_and_test_question($question->id);
+                         [$outcome, $message] = $this->load_and_test_question($question->id);
                     } catch (Exception $e) {
                         $message = $e->getMessage();
                         $outcome = self::FAIL;
@@ -385,7 +386,7 @@ class qtype_coderunner_bulk_tester {
                 }
                 echo "</li>";
                 gc_collect_cycles(); // Because PHP's default memory management is rubbish.
-                flush(); // Force output tmemory_limito prevent timeouts and show progress.
+                flush(); // Force output to prevent timeouts and show progress.
                 $qparams['category'] = $currentcategoryid . ',' . $this->context->id;
                 $qparams['lastchanged'] = $question->id;
                 $qparams['qperpage'] = 1000;

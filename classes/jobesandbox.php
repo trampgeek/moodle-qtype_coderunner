@@ -162,7 +162,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
         try {
             // Had to use try here as isset($PAGE->context) always seems to fail even if the context has been set.
             $context = $PAGE->context;
-            $courseid = $context->get_course_context(true)->instanceid;  // raises exception if context is unknown.
+            $courseid = $context->get_course_context(true)->instanceid;  // Raises exception if context is unknown.
         } catch (Exception $e) {
             $courseid = 1; // Use context of 1 as no $PAGE context is set, eg, could be a websocket UI run.
         }
