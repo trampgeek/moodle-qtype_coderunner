@@ -229,7 +229,8 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
             }
         }
 
-
+        // Add jobserver name(s) to runspec so jobs with different jobeservers are treated as different.
+        $runspec['jobeserver'] = $this->jobeserver;
         $cache = cache::make('qtype_coderunner', 'coderunner_grading_cache');
         $runresult = null;
         if (get_config('qtype_coderunner', 'enablegradecache') && $usecache) {

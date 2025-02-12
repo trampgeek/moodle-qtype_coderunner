@@ -13,6 +13,12 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
+namespace qtype_coderunner;
+
+use context_system;
+use context;
+use html_writer;
+use moodle_url;
 
 require_once(__DIR__ . '/../../../config.php');
 require_once($CFG->libdir . '/questionlib.php');
@@ -32,7 +38,7 @@ if (abs($nrunsfromsettings) > 1) {
 }
 
 // Find in which contexts the user can edit questions.
-$questionsbycontext = qtype_coderunner_bulk_tester::get_num_coderunner_questions_by_context();
+$questionsbycontext = bulk_tester::get_num_coderunner_questions_by_context();
 $availablequestionsbycontext = [];
 foreach ($questionsbycontext as $contextid => $numcoderunnerquestions) {
     $context = context::instance_by_id($contextid);
@@ -56,7 +62,7 @@ echo $OUTPUT->header();
 echo <<<HTML
 <div class="bulk-test-config" style="margin-bottom: 20px; padding: 10px; background-color: #f5f5f5; border: 1px solid #ddd;">
     <h3>Test Configuration</h3>
-    <div style="margin-bottom: 10px; display: grid; grid-template-columns: auto 80px; gap: 10px; align-items: center; max-width: 240px;">
+    <div style="margin-bottom: 10px; display: grid; grid-template-columns: auto 80px; gap: 10px; align-items: center; max-width:400px;">
         <label for="nruns">Number of runs:</label>
         <input type="number" id="nruns" value="{$nruns}" min="1" style="width: 80px;">
 
@@ -66,6 +72,10 @@ echo <<<HTML
         <label for="repeatrandomonly">Repeat random only:</label>
         <div>
             <input type="checkbox" id="repeatrandomonly" checked>
+        </div>
+        <label for="clearcachefirst">Clear course grading cache first (be careful):</label>
+        <div>
+            <input type="checkbox" id="clearcachefirst" onchange="confirmCheckboxChange(this)">
         </div>
     </div>
 </div>
@@ -77,7 +87,8 @@ if (count($availablequestionsbycontext) == 0) {
 } else {
     echo get_string('bulktestinfo', 'qtype_coderunner');
     echo $OUTPUT->heading(get_string('coderunnercontexts', 'qtype_coderunner'));
-
+    $jobehost = get_config('qtype_coderunner', 'jobe_host');
+    echo html_writer::tag('p', '<b>jobe_host:</b> ' . $jobehost);
     echo html_writer::start_tag('ul');
     $buttonstyle = 'background-color: #FFFFD0; padding: 2px 2px 0px 2px;border: 4px solid white';
     foreach ($availablequestionsbycontext as $name => $info) {
@@ -87,7 +98,8 @@ if (count($availablequestionsbycontext) == 0) {
         $testallstr = get_string('bulktestallincontext', 'qtype_coderunner');
         $testalltitledetails = ['title' => get_string('testalltitle', 'qtype_coderunner'), 'style' => $buttonstyle];
         $testallspan = html_writer::tag(
-            'span', $testallstr,
+            'span',
+            $testallstr,
             ['class' => 'test-link',
              'data-contextid' => $contextid,
              'style' => $buttonstyle . ';cursor:pointer;']
@@ -106,14 +118,16 @@ if (count($availablequestionsbycontext) == 0) {
         echo html_writer::start_tag('li', ['class' => $class]);
         echo $litext;
 
-        $categories = qtype_coderunner_bulk_tester::get_categories_for_context($contextid);
+        $categories = bulk_tester::get_categories_for_context($contextid);
         echo html_writer::start_tag('ul', ['class' => 'expandable']);
 
         $titledetails = ['title' => get_string('testallincategory', 'qtype_coderunner')];
         foreach ($categories as $cat) {
             if ($cat->count > 0) {
                 $linktext = $cat->name . ' (' . $cat->count . ')';
-                $span = html_writer::tag('span', $linktext,
+                $span = html_writer::tag(
+                    'span',
+                    $linktext,
                     ['class' => 'test-link',
                      'data-contextid' => $contextid,
                      'data-categoryid' => $cat->id,
@@ -127,7 +141,9 @@ if (count($availablequestionsbycontext) == 0) {
     }
 
     echo html_writer::end_tag('ul');
-
+    echo html_writer::empty_tag('br');
+    echo html_writer::tag('hr', '');
+    echo html_writer::empty_tag('br');
     if (has_capability('moodle/site:config', context_system::instance())) {
         echo html_writer::tag('p', html_writer::link(
             new moodle_url('/question/type/coderunner/bulktestall.php'),
@@ -138,6 +154,17 @@ if (count($availablequestionsbycontext) == 0) {
 
 echo <<<SCRIPT_END
 <script>
+function confirmCheckboxChange(checkbox) {
+    if (checkbox.checked) {
+        var prompt = "Are you sure you want to clear the cache for the selected course?";
+        prompt = prompt + " This will clear the cache for all attempts on all questions!";
+        const confirmed = confirm(prompt);
+        if (!confirmed) {
+            checkbox.checked = false;
+        }
+    }
+}
+
 document.addEventListener("DOMContentLoaded", function(event) {
     // Handle expandable sections
     var expandables = document.getElementsByClassName('expandable');
@@ -169,18 +196,19 @@ document.addEventListener("DOMContentLoaded", function(event) {
             var nruns = document.getElementById('nruns').value;
             var randomseed = document.getElementById('randomseed').value;
             var repeatrandomonly = document.getElementById('repeatrandomonly').checked ? 1 : 0;
+            var clearcachefirst = document.getElementById('clearcachefirst').checked ? 1 : 0;
 
             // Build URL parameters
             var params = new URLSearchParams();
             params.append('contextid', link.dataset.contextid);
-            params.append('randomseed', randomseed);
-            params.append('repeatrandomonly', repeatrandomonly);
-            params.append('nruns', nruns);
-
             // Add category ID if present
             if (link.dataset.categoryid) {
                 params.append('categoryid', link.dataset.categoryid);
             }
+            params.append('nruns', nruns);
+            params.append('randomseed', randomseed);
+            params.append('repeatrandomonly', repeatrandomonly);
+            params.append('clearcachefirst', clearcachefirst);
 
             // Construct and navigate to URL
             var url = M.cfg.wwwroot + '/question/type/coderunner/bulktest.php?' + params.toString();
