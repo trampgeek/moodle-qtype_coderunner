@@ -25,6 +25,9 @@
  * @copyright 2018 and beyond Richard Lobb, The University of Canterbury
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+namespace qtype_coderunner;
+
+use context;
 
 define('NO_OUTPUT_BUFFERING', true);
 
@@ -57,7 +60,7 @@ echo $OUTPUT->heading($title);
 echo "<table class='table table-bordered table-striped'>\n";
 echo "<tr><th>Q1 name</th><th>Q1 Category</th><th>Q2 name</th><th>Q2 category</th></tr>\n";
 // Find all the duplicates.
-$allquestionsmap = qtype_coderunner_bulk_tester::get_all_coderunner_questions_in_context($contextid);
+$allquestionsmap = bulk_tester::get_all_coderunner_questions_in_context($contextid);
 $allquestions = array_values($allquestionsmap);
 $numduplicates = 0;
 for ($i = 0; $i < count($allquestions); $i++) {
