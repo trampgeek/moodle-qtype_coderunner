@@ -24,6 +24,13 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace qtype_coderunner;
+
+use context;
+use context_system;
+use html_writer;
+use moodle_url;
+
 require_once(__DIR__ . '/../../../config.php');
 require_once($CFG->libdir . '/questionlib.php');
 
@@ -40,7 +47,7 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading('Courses containing CodeRunner questions');
 
 // Find in which contexts the user can edit questions.
-$questionsbycontext = qtype_coderunner_bulk_tester::get_num_coderunner_questions_by_context();
+$questionsbycontext = bulk_tester::get_num_coderunner_questions_by_context();
 $availablequestionsbycontext = [];
 foreach ($questionsbycontext as $contextid => $numcoderunnerquestions) {
     $context = context::instance_by_id($contextid);

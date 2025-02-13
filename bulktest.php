@@ -25,6 +25,8 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace qtype_coderunner;
+
 define('NO_OUTPUT_BUFFERING', true);
 
 require_once(__DIR__ . '/../../../config.php');
@@ -37,15 +39,16 @@ $randomseed = optional_param('randomseed', -1, PARAM_INT);
 $repeatrandomonly = optional_param('repeatrandomonly', 1, PARAM_INT);
 $nruns = optional_param('nruns', 1, PARAM_INT);
 $questionids = optional_param('questionids', '', PARAM_RAW);  // A list of specific questions to check, eg, for rechecking failed tests.
+$clearcachefirst = optional_param('clearcachefirst', 0, PARAM_INT);
 
 
 // Login and check permissions.
 require_login();
-$context = context::instance_by_id($contextid);
+$context = \context::instance_by_id($contextid);
 require_capability('moodle/question:editall', $context);
 
 $urlparams = ['contextid' => $context->id, 'categoryid' => $categoryid, 'randomseed' => $randomseed,
-            'repeatrandomonly' => $repeatrandomonly, 'nruns' => $nruns, 'questionids' => $questionids];
+            'repeatrandomonly' => $repeatrandomonly, 'nruns' => $nruns, 'clearcachefirst' => $clearcachefirst, 'questionids' => $questionids];
 $PAGE->set_url('/question/type/coderunner/bulktest.php', $urlparams);
 $PAGE->set_context($context);
 $title = get_string('bulktesttitle', 'qtype_coderunner', $context->get_context_name());
@@ -66,12 +69,13 @@ if ($context->contextlevel == CONTEXT_MODULE) {
 
 
 // Create the helper class.
-$bulktester = new qtype_coderunner_bulk_tester(
+$bulktester = new bulk_tester(
     $context,
     $categoryid,
     $randomseed,
     $repeatrandomonly,
-    $nruns
+    $nruns,
+    $clearcachefirst
 );
 
 // Was: Release the session, so the user can do other things while this runs.
@@ -82,6 +86,12 @@ $bulktester = new qtype_coderunner_bulk_tester(
 // Display.
 echo $OUTPUT->header();
 echo $OUTPUT->heading($title, 4);
+
+// Release the session, so the user can do other things while this runs.
+\core\session\manager::write_close();
+
+
+ini_set('memory_limit', '1024M');  // For big question banks - TODO: make this a setting?
 
 // Run the tests.
 if (count($questionids) == 0) {

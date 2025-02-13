@@ -26,7 +26,16 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-class qtype_coderunner_bulk_tester {
+namespace qtype_coderunner;
+
+use moodle_url;
+use html_writer;
+use question_bank;
+use core_php_time_limit;
+use question_state;
+use qtype_coderunner_util;
+
+class bulk_tester {
     /** @var context Context to run bulktester for. */
     public $context;
 
@@ -41,6 +50,9 @@ class qtype_coderunner_bulk_tester {
 
     /** @var int How many runs to do for each question. */
     public $nruns;
+
+    /** @var int Whether or not to clear the grading cache for this context first Default: 0 . */
+    public $clearcachefirst;
 
     /** @var int The number of questions that passed tests. */
     public $numpasses;
@@ -78,23 +90,26 @@ class qtype_coderunner_bulk_tester {
      * @param int $repeatrandomonly when true(or 1), only repeats tests for questions with random in the name.
      *              Default = true (or really 1).
      * @param int $nruns the number times to test each question. Default to 1.
+     * @param int $clearcachefirst If 1 then clears the grading cache (ignoring ttl) for the given context before running the tests. Default is 0.
      */
     public function __construct(
         $context = null,
         $categoryid = null,
         $randomseed = -1,
         $repeatrandomonly = 1,
-        $nruns = 1
+        $nruns = 1,
+        $clearcachefirst = 0
     ) {
         if ($context === null) {
             $site = get_site(); // Get front page course.
-             $context = context_course::instance($site->id);
+             $context = \context_course::instance($site->id);
         }
         $this->context = $context;
         $this->categoryid = $categoryid;
         $this->randomseed = $randomseed;
         $this->repeatrandomonly = $repeatrandomonly;
         $this->nruns = $nruns;
+        $this->clearcachefirst = $clearcachefirst;
         $this->numpasses = 0;
         $this->numfails = 0;
         $this->failedquestionids = [];
@@ -316,6 +331,13 @@ class qtype_coderunner_bulk_tester {
          $questiontestsurl = new moodle_url('/question/type/coderunner/questiontestrun.php');
         $questiontestsurl->params($qparams);
 
+        // Clear grading cache if requested. usettl is set to false here.
+        if ($this->clearcachefirst) {
+            $purger = new cache_purger($this->context->id, false);
+            $purger->purge_cache_for_context();
+        }
+        $jobehost = get_config('qtype_coderunner', 'jobe_host');
+        echo html_writer::tag('p', '<b>jobe_host:</b> ' . $jobehost);
         $this->numpasses = 0;
         foreach ($categories as $currentcategoryid => $nameandcount) {
             $categoryname = $nameandcount->name;
@@ -356,7 +378,7 @@ class qtype_coderunner_bulk_tester {
                 for ($i = 0; $i < $nrunsthistime; $i++) {
                     // Only records last outcome and message.
                     try {
-                        [$outcome, $message] = $this->load_and_test_question($question->id);
+                         [$outcome, $message] = $this->load_and_test_question($question->id);
                     } catch (Exception $e) {
                         $message = $e->getMessage();
                         $outcome = self::FAIL;
@@ -385,7 +407,7 @@ class qtype_coderunner_bulk_tester {
                 }
                 echo "</li>";
                 gc_collect_cycles(); // Because PHP's default memory management is rubbish.
-                flush(); // Force output tmemory_limito prevent timeouts and show progress.
+                flush(); // Force output to prevent timeouts and show progress.
                 $qparams['category'] = $currentcategoryid . ',' . $this->context->id;
                 $qparams['lastchanged'] = $question->id;
                 $qparams['qperpage'] = 1000;
@@ -431,7 +453,7 @@ class qtype_coderunner_bulk_tester {
                     $status = self::FAIL;
                 }
             }
-        } catch (qtype_coderunner_exception $e) {
+        } catch (exception $e) {
             if (isset($question)) {
                 $questionname = ' ' . format_string($question->name);
             } else {
@@ -471,7 +493,7 @@ class qtype_coderunner_bulk_tester {
         try {
             [$fraction, $state] = $question->grade_response($response, false);
             $ok = $state == question_state::$gradedright;
-        } catch (qtype_coderunner_exception $e) {
+        } catch (exception $e) {
             $ok = false; // If user clicks link to see why, they'll get the same exception.
         }
         return $ok;

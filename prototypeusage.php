@@ -24,6 +24,14 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace qtype_coderunner;
+
+use context;
+use context_system;
+use html_writer;
+use moodle_url;
+use qtype_coderunner;
+
 define('NO_OUTPUT_BUFFERING', true);
 
 require_once(__DIR__ . '/../../../config.php');
@@ -44,7 +52,7 @@ $PAGE->set_context($context);
 $PAGE->set_title(get_string('prototypeusage', 'qtype_coderunner'));
 
 // Create the helper class.
-$bulktester = new qtype_coderunner_bulk_tester();
+$bulktester = new bulk_tester();
 
 // Start display.
 echo $OUTPUT->header();
