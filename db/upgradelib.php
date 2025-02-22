@@ -54,33 +54,34 @@ use core_question\local\bank\question_bank_helper;
  *
  * A further complication is that during an install of both Moodle and
  * CodeRunner together, the question bank module is installed after the question
- * type, so we can't load the prototypes during the install. Instead we
- * schedule a task to do it later.
+ * type, so we can't load the prototypes during the install.
  *
  * @return bool true if successful
  */
 
  /**
-  * Schedule or perform the question type update depending on whether this is an
-  * install or an upgrade.
-  * @param bool $isinstall true if this is being called during install.
+  * Update the question types. In Moode 4.6 or later, this is done in a
+  * scheduled task that runs after the install/update.
   * @return bool true if successful
   */
-function update_question_types($isinstall = false) {
-    if ($isinstall) {
-        // During install, schedule the task for later execution.
+function update_question_types() {
+    if (qtype_coderunner_util::using_mod_qbank()) {
+        // In Moodle >=4.6, we need to update the question prototypes in a scheduled task
+        // because (a) if this is an install, the qbank module hasn't been installed yet and
+        // (b) we need to call question_bank_helper::get_default_open_instance_system_type
+        // which cannot be used during install/upgrade.
         $task = new qtype_coderunner\task\qtype_coderunner_setup_question_prototypes();
         core\task\manager::queue_adhoc_task($task);
         return true;
     } else {
-        // During upgrade, execute immediately.
+        // In Moodle 4.5 or earlier, we can execute the update immediately.
         return update_question_types_internal();
     }
 }
 
 /**
- * The function that actually does the update. May be called directly during update
- * or indirectly from the queued task during install.
+ * The function that actually does the update. May be called directly during update if using
+ * moodle4.5 or earier, or indirectly from the queued task with later versions.
  */
 function update_question_types_internal() {
     mtrace("Setting up CodeRunner question prototypes...");
@@ -108,6 +109,10 @@ function update_question_types_internal() {
  * If we can find an existing CR_PROTOTYPES category in the (defunct) system context,
  * move it to the new top category in the question bank instance on the front page.
  * Then delete all existing prototypes in the new top category and reload them.
+ * Note that this code is always running in a post-update scheduled task, because
+ * question_bank_helper::get_default_open_instance_system_type, needed by
+ * moodle5_top_category, cannot be used during update/install.
+ *
  * @return bool true if successful
  */
 function update_question_types_with_qbank() {
@@ -196,7 +201,7 @@ function moodle5_top_category() {
             $newmod = question_bank_helper::create_default_open_instance($course, $bankname, question_bank_helper::TYPE_SYSTEM);
         }
     } catch (Exception $e) {
-        throw new coding_exception('Upgrade failed: error creating system question bank');
+        throw new coding_exception("Upgrade failed: error creating system question bank: $e");
     }
     $newtopcategory = question_get_top_category($newmod->context->id, true);
     return $newtopcategory;

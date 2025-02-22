@@ -1,5 +1,20 @@
 # CHANGE HISTORY
 
+
+### 23 February 2025. 5.6.2
+
+  * Bug fix: With Moodle 4.6 or later, updates were not working.
+
+### 13 February 2025. 5.6.1
+
+  * New features:
+     * Preliminary implementation of Moodle 5 compatibility. Tested only with courses imported
+       from earlier Moodles, which do not include shared question banks.
+     * Bulk tester includes an option to purge the grade cache for the course(s) being tested.
+     * jobe-host is now displayed in bulk-tester results.
+
+   * Some on-going code tidying.
+     
 ### 23 January 2025. 5.5.0
 
  * New features:
