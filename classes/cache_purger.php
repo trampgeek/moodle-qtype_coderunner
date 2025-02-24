@@ -133,7 +133,89 @@ class cache_purger {
         return $result;
     }
 
+    /**
+     * Get all the visible course contexts.
+     *
+     * @return array context ids
+     */
+    public static function get_all_visible_course_and_coursecat_contextids() {
+        global $DB;
+        $query = "SELECT ctx.id as contextid
+              FROM {context} ctx
+              WHERE contextlevel IN (:course, :coursecat)
+              ORDER BY contextid";
+        $params = [
+            'course' => CONTEXT_COURSE,
+            'coursecat' => CONTEXT_COURSECAT,
+        ];
+        $allcontexts = $DB->get_records_sql($query, $params);
+        $result = [];
+        foreach ($allcontexts as $record) {
+            $contextid = $record->contextid;
+            $context = context::instance_by_id($contextid);
+            if (has_capability('moodle/question:editall', $context)) {
+                $result[] = $contextid;
+            }
+        } // endfor each contextid
+        return $result;
+    }
 
+
+    /**
+     * Get count of keys for each course/context.
+     * @param array $contextids A list of the context ids.
+     * @return array mapping contextids to counts of keys.
+     */
+    public static function key_count_by_context(array $contextids) {
+        $contextcounts = [];
+        foreach ($contextids as $contextid) {
+            $contextcounts[$contextid] = 0;
+        }
+        $definition = self::get_coderunner_cache_definition();
+        $store = self::get_first_file_store($definition);
+        $keys = $store->find_all();
+        $pattern = '/___contextid_(\d+)___/';
+        // Go through all keys and count by context...
+        foreach ($keys as $key) {
+            $found = preg_match($pattern, $key, $match);
+            if ($found) {
+                $contextid = (int)$match[1];
+                // Just in case a weird context id came through, ignore it.
+                if (array_key_exists($contextid, $contextcounts)) {
+                    $contextcounts[$contextid] += 1;
+                }
+            } // Not found so ignore.
+        }
+        return $contextcounts;
+    }
+
+    /**
+     * Get count of keys for all cache categories.
+     * Has to scan all cache keys!
+     * @return array mapping cachecategories to counts of keys.
+     */
+    public static function key_counts_for_all_cachecategories() {
+        $categorycounts = [];
+        $categorycounts['unknown'] = 0;
+        $definition = self::get_coderunner_cache_definition();
+        $store = self::get_first_file_store($definition);
+        $keys = $store->find_all();
+        $pattern = '/___([a-zA-Z0-9_]+)___/';
+        foreach ($keys as $key) {
+            $found = preg_match($pattern, $key, $match);
+            if ($found) {
+                $categoryid = $match[1];
+                if (array_key_exists($categoryid, $categorycounts)) {
+                    $categorycounts[$categoryid] += 1;
+                } else {
+                    $categorycounts[$categoryid] = 1;
+                }
+            } else { // Strange key without category!
+                $categorycounts['unknown'] += 1;
+            }
+        }
+        return $categorycounts;
+    }
 
     /**
      * Get count of keys for each course/context.
@@ -157,7 +239,7 @@ class cache_purger {
         $definition = self::get_coderunner_cache_definition();
         $store = self::get_first_file_store($definition);
         $keys = $store->find_all();
-        $pattern = '/_courseid_(\d+)_/';
+        $pattern = '/___courseid_(\d+)___/';
         foreach ($keys as $key) {
             $found = preg_match($pattern, $key, $match);
             if ($found) {
@@ -211,13 +293,13 @@ class cache_purger {
         global $CFG;
         $context = context::instance_by_id($this->contextid);
         $coursename = $context->get_context_name(true, true);
-        if ($context->contextlevel == CONTEXT_COURSE) {
-            $courseid = $context->instanceid;
-        } else {
-            // Nothing to do - can only run for courses.
-            echo get_string('contextidnotacourse');
-            return;
-        }
+        // if ($context->contextlevel == CONTEXT_COURSE) {
+        //     $courseid = $context->instanceid;
+        // } else {
+        //     // Nothing to do - can only run for courses.
+        //     echo get_string('contextidnotacourseincachepurgerequest', 'qtype_coderunner', $this->contextid);
+        //     return;
+        // }
 
         $this->display_ttl_info();
 
@@ -226,7 +308,7 @@ class cache_purger {
         if ($this->originalcount > 0) {
             $progressbar = new \progress_bar('cache_purge_progress_bar', width:800, autostart:true);
         }
-        $pattern = '/_courseid_' . $courseid . '_/';
+        $pattern = '/___contextid_' . $this->contextid . '___/';
         foreach ($this->keys as $key) {
             $this->numprocessed += 1;
             // Call the private file_path_for_key method on the cache store.

@@ -43,10 +43,11 @@ $availablequestionsbycontext = [];
 foreach ($questionsbycontext as $contextid => $numcoderunnerquestions) {
     $context = context::instance_by_id($contextid);
     if (has_capability('moodle/question:editall', $context)) {
-        $coursecontext = $context->get_course_context(false);
-        $coursename = $coursecontext->get_context_name(true, true);
-        $contextname = $context->get_context_name(true, true);
-        $name = "$coursename: $contextname";
+        //$coursecontext = $context->get_course_context(false);
+        //$coursename = $coursecontext->get_context_name(true, true);  // With context prefix, short version.
+        $contextname = $context->get_context_name(true, true); // With context prefix, short version.
+        //$name = "$coursename: $contextname";
+        $name = $contextname;
         $availablequestionsbycontext[$name] = [
             'contextid' => $contextid,
             'numquestions' => $numcoderunnerquestions,
@@ -59,24 +60,56 @@ ksort($availablequestionsbycontext);
 echo $OUTPUT->header();
 
 // Add the configuration form
+
+
+$numrunslabel = get_string('bulktestnumrunslabel', 'qtype_coderunner');
+$numrunsexplanation = get_string('bulktestnumrunsexplanation', 'qtype_coderunner');
+
+$randomseedlabel = get_string('bulktestrandomseedlabel', 'qtype_coderunner');
+$randomseedexplanation = get_string('bulktestrandomseedexplanation', 'qtype_coderunner');
+
+$repeatrandomonlylabel = get_string('bulktestrepeatrandomonlylabel', 'qtype_coderunner');
+$repeatrandomonlyexplanation = get_string('bulktestrepeatrandomonlyexplanation', 'qtype_coderunner');
+
+$clearcachefirstlabel = get_string('bulktestclearcachefirstlabel', 'qtype_coderunner');
+$clearcachefirstexplanation = get_string('bulktestclearcachefirstexplanation', 'qtype_coderunner');
+
+$usecachelabel = get_string('bulktestusecachelabel', 'qtype_coderunner');
+$usecacheexplanation = get_string('bulktestusecacheexplanation', 'qtype_coderunner');
+
+
 echo <<<HTML
 <div class="bulk-test-config" style="margin-bottom: 20px; padding: 10px; background-color: #f5f5f5; border: 1px solid #ddd;">
     <h3>Test Configuration</h3>
-    <div style="margin-bottom: 10px; display: grid; grid-template-columns: auto 80px; gap: 10px; align-items: center; max-width:400px;">
-        <label for="nruns">Number of runs:</label>
+    <div style="margin-bottom: 10px; display: grid; grid-template-columns: 180pt 80pt auto; gap: 10px; align-items: center; max-width:1000;">
+        <div style="grid-column: span 3; border-top: 1px solid rgb(10, 16, 74);"> </div>
+        <label for="nruns">$numrunslabel</label>
         <input type="number" id="nruns" value="{$nruns}" min="1" style="width: 80px;">
+        <span>$numrunsexplanation</span>
+        <div style="grid-column: span 3; border-bottom: 1px solid rgb(10, 16, 74);"> </div>
 
-        <label for="randomseed">Random seed:</label>
+        <label for="randomseed">$randomseedlabel</label>
         <input type="number" id="randomseed" value="" min="0" style="width: 80px;">
-
-        <label for="repeatrandomonly">Repeat random only:</label>
+        <span>$randomseedexplanation</span>
+        <div style="grid-column: span 3; border-bottom: 1px solid rgb(10, 16, 74);"> </div>
+        <label for="repeatrandomonly">$repeatrandomonlylabel</label>
         <div>
             <input type="checkbox" id="repeatrandomonly" checked>
         </div>
-        <label for="clearcachefirst">Clear course grading cache first (be careful):</label>
+        <span>$repeatrandomonlyexplanation</span>
+        <div style="grid-column: span 3; border-bottom: 1px solid rgb(10, 16, 74);"> </div>
+        <label for="clearcachefirst">$clearcachefirstlabel</label>
         <div>
             <input type="checkbox" id="clearcachefirst" onchange="confirmCheckboxChange(this)">
         </div>
+        <span>$clearcachefirstexplanation</span>
+        <div style="grid-column: span 3; border-bottom: 1px solid rgb(10, 16, 74);"> </div>
+        <label for="usecache">$usecachelabel</label>
+        <div>
+            <input type="checkbox" id="usecache" checked>
+        </div>
+        <span>$usecacheexplanation</span>
+        <div style="grid-column: span 3; border-bottom: 1px solid rgb(10, 16, 74);"> </div>
     </div>
 </div>
 HTML;
@@ -85,7 +118,6 @@ HTML;
 if (count($availablequestionsbycontext) == 0) {
     echo html_writer::tag('p', get_string('unauthorisedbulktest', 'qtype_coderunner'));
 } else {
-    echo get_string('bulktestinfo', 'qtype_coderunner');
     echo $OUTPUT->heading(get_string('coderunnercontexts', 'qtype_coderunner'));
     $jobehost = get_config('qtype_coderunner', 'jobe_host');
     echo html_writer::tag('p', '<b>jobe_host:</b> ' . $jobehost);
@@ -147,7 +179,10 @@ if (count($availablequestionsbycontext) == 0) {
     if (has_capability('moodle/site:config', context_system::instance())) {
         echo html_writer::tag('p', html_writer::link(
             new moodle_url('/question/type/coderunner/bulktestall.php'),
-            get_string('bulktestrun', 'qtype_coderunner')
+            get_string('bulktestrun', 'qtype_coderunner'),
+            ['class' => 'test-all-link',
+             'data-contextid' => 0,
+             'style' => $buttonstyle . ';cursor:pointer;']
         ));
     }
 }
@@ -197,10 +232,12 @@ document.addEventListener("DOMContentLoaded", function(event) {
             var randomseed = document.getElementById('randomseed').value;
             var repeatrandomonly = document.getElementById('repeatrandomonly').checked ? 1 : 0;
             var clearcachefirst = document.getElementById('clearcachefirst').checked ? 1 : 0;
+            var usecache = document.getElementById('usecache').checked ? 1 : 0;
 
             // Build URL parameters
             var params = new URLSearchParams();
             params.append('contextid', link.dataset.contextid);
+
             // Add category ID if present
             if (link.dataset.categoryid) {
                 params.append('categoryid', link.dataset.categoryid);
@@ -209,9 +246,44 @@ document.addEventListener("DOMContentLoaded", function(event) {
             params.append('randomseed', randomseed);
             params.append('repeatrandomonly', repeatrandomonly);
             params.append('clearcachefirst', clearcachefirst);
+            params.append('usecache', usecache);
 
             // Construct and navigate to URL
             var url = M.cfg.wwwroot + '/question/type/coderunner/bulktest.php?' + params.toString();
+            window.location.href = url;
+        });
+    });
+
+
+    // Handle test all link
+    var testLinks = document.getElementsByClassName('test-all-link');
+    Array.from(testLinks).forEach(function(link) {
+        link.addEventListener('click', function(event) {
+            event.preventDefault();
+
+            // Get configuration values
+            var nruns = document.getElementById('nruns').value;
+            var randomseed = document.getElementById('randomseed').value;
+            var repeatrandomonly = document.getElementById('repeatrandomonly').checked ? 1 : 0;
+            var clearcachefirst = document.getElementById('clearcachefirst').checked ? 1 : 0;
+            var usecache = document.getElementById('usecache').checked ? 1 : 0;
+
+            // Build URL parameters
+            var params = new URLSearchParams();
+            params.append('contextid', link.dataset.contextid);
+
+            // Add category ID if present
+            if (link.dataset.categoryid) {
+                params.append('categoryid', link.dataset.categoryid);
+            }
+            params.append('nruns', nruns);
+            params.append('randomseed', randomseed);
+            params.append('repeatrandomonly', repeatrandomonly);
+            params.append('clearcachefirst', clearcachefirst);
+            params.append('usecache', usecache);
+
+            // Construct and navigate to URL
+            var url = M.cfg.wwwroot + '/question/type/coderunner/bulktestall.php?' + params.toString();
             window.location.href = url;
         });
     });

@@ -39,6 +39,7 @@ require_once($CFG->libdir . '/questionlib.php');
 // Get the parameters from the URL. This is an option to restart the process
 // in the middle. Useful if it crashes.
 $startfromcontextid = optional_param('startfromcontextid', 0, PARAM_INT);
+$usecache = optional_param('usecache', 1, PARAM_INT);
 
 // Login.
 $context = context_system::instance();
@@ -65,6 +66,13 @@ $skipping = $startfromcontextid != 0;
 echo $OUTPUT->header();
 echo $OUTPUT->heading($title, 1);
 
+$jobehost = get_config('qtype_coderunner', 'jobe_host');
+$usecachelabel = get_string('bulktestusecachelabel', 'qtype_coderunner');
+$usecachevalue = $usecache ? "true" : "false";
+echo html_writer::tag('p', '<b>jobe_host:</b> ' . $jobehost);
+echo html_writer::tag('p', "<b>$usecachelabel</b> $usecachevalue");
+echo html_writer::tag('p', get_string('bulktestallcachenotclearedmessage', 'qtype_coderunner'));
+
 // Run the tests.
 ini_set('memory_limit', '2048M');  // For big question banks - TODO: make this a setting?
 $contextdata = bulk_tester::get_num_coderunner_questions_by_context();
@@ -75,10 +83,11 @@ foreach ($contextdata as $contextid => $numcoderunnerquestions) {
     $skipping = false;
     $testcontext = context::instance_by_id($contextid);
     if (has_capability('moodle/question:editall', $context)) {
-        $PAGE->set_context($testcontext);  // Helps grading cache pickup right course id.
+        if ($context->contextlevel == CONTEXT_COURSE) {
+            $PAGE->set_context($testcontext);  // Helps grading cache pickup right course id.
+        }  // Otherwise don't change context as it could be higher level, eg, course category
         $bulktester = new bulk_tester($testcontext);
         echo $OUTPUT->heading(get_string('bulktesttitle', 'qtype_coderunner', $testcontext->get_context_name()));
-        echo html_writer::tag('p', 'Note: Grading cache not cleared -- do it from admin-plugins-cache if you really want to clear the cache for all course!');
         echo html_writer::tag('p', html_writer::link(
             new moodle_url(
                 '/question/type/coderunner/bulktestall.php',

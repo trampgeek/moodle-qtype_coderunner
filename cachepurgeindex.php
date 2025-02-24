@@ -49,9 +49,12 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('coderunnercontexts', 'qtype_coderunner'));
 
 // Find in which contexts the user can edit questions.
-$allvisiblecoursecontexts = cache_purger::get_all_visible_course_contextids();
+
+// TRIAL CALL $categorycounts = cache_purger::key_counts_for_all_cachecategories();
+
+$allvisiblecoursecontexts = cache_purger::get_all_visible_course_and_coursecat_contextids();
 krsort($allvisiblecoursecontexts);  // Effectively newest first.
-$keycounts = cache_purger::key_count_by_course($allvisiblecoursecontexts);
+$keycounts = cache_purger::key_count_by_context($allvisiblecoursecontexts);
 
 // List all contexts available to the user.
 if (count($allvisiblecoursecontexts) == 0) {
@@ -64,10 +67,10 @@ if (count($allvisiblecoursecontexts) == 0) {
     echo html_writer::start_tag('ul');
     $oldbuttongtext = get_string('purgeoldcachekeysbutton', 'qtype_coderunner');
     $allbuttongtext = get_string('purgeallcachekeysbutton', 'qtype_coderunner');
-    foreach ($allvisiblecoursecontexts as $contextid) {
+    foreach ($keycounts as $contextid => $keycount) {
         $context = context::instance_by_id($contextid);
         $name = $context->get_context_name(true, true);
-        $courseid = $context->instanceid;
+        // $courseid = $context->instanceid;
         $purgeusingttlurl = new moodle_url('/question/type/coderunner/cachepurge.php', ['contextid' => $contextid, 'usettl' => 1]);
         $buttonstyle = GREENY;
         $purgeusingttllink = html_writer::link(
@@ -85,10 +88,10 @@ if (count($allvisiblecoursecontexts) == 0) {
             'style' => $buttonstyle]
         );
         $litext = $name .
-            ' [Course id= ' .
-            $courseid .
+            ' [Context id= ' .
+            $contextid .
             '] &nbsp;&nbsp; cache size=' .
-            $keycounts[$contextid] .
+            $keycount .
             '&nbsp;&nbsp;&nbsp;' .
             $purgeusingttllink .
             '&nbsp;&nbsp;&nbsp;' .

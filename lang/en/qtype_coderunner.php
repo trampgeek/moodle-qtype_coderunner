@@ -474,7 +474,6 @@ $string['outputdisplayarea_missing_image_extension'] = 'Cannot display image, in
 $string['passes'] = 'passes';
 $string['penaltyregime'] = '(penalty regime: {$a} %)';
 $string['penaltyregimelabel'] = 'Penalty regime:';
-
 $string['pass'] = 'Pass';
 $string['pluginname'] = 'CodeRunner';
 $string['pluginnameadding'] = 'Adding a CodeRunner question';
@@ -1366,7 +1365,7 @@ $string['settingsgradecachettl'] = 'Grade cache Time to Live (TTL)';
 $string['settingsgradecachettl_desc'] = 'Number of seconds for grade cache entries to live. Default is 1209600 seconds (two weeks). Used by scheduled task and helpful cachepurgeindex/cachepurge scripts. Admins can set schedule for running TTL enforcer in Admin->Server->Scheduled tasks - look for the Coderunner entry.';
 $string['backtobulktestindex'] = 'Go back to the bulk test index page.';
 $string['retestfailedquestions'] = 'Re-test failed questions';
-$string['cachepurgecheckingkeyxoftotalnum'] = 'Procesing key {$a->x} of {$a->totalnumkeys} keys in total (for all courses)';
+$string['cachepurgecheckingkeyxoftotalnum'] = 'Procesing key {$a->x} of {$a->totalnumkeys} contextidkeys in total (for all courses)';
 $string['gradingcachedefinitionnotfound'] = 'Strange... the Coderunner grading cache definition cannot be found!?';
 $string['gradingcachefilestorenotfound'] = 'Strange... the Coderunner grading cache file store cannot be found!?';
 $string['purgingallkeysmessage'] = 'Purging all keys for course, regardless of Time to Live (TTL).';
@@ -1374,17 +1373,25 @@ $string['purgingoldkeysmessage'] = 'Purging only old keys for course, based on T
 
 $string['purgeoldcachekeysbutton'] = 'Purge only OLD keys';
 $string['purgeallcachekeysbutton'] = 'Purge ALL keys';
-$string['bulktestinfo'] = '<ul>
-<li><b>Number of runs:</b> How many times each included question will be tested.</li>
-<li><b>Repeat random only:</b> Limits repeated runs to questions with <emph>random</emph> in their names.</li>
-<li><b>randomseed:</b> If set to a postive integer then the PHP randomseed is set to this value before running the test(s) for each question that has <emph>random</emph> in its name.<br>
-If you don\'t set the random seed then each time you do a bulk test you will get random sequences of question instances, which may mean the grade cache isn\'t so useful and more questions have to actually be run on the Jobe server (depending on how random your questions are).<br>
-For a given seed the sequence of random question instances should be the same (assuming your question template uses the random seed it is given correctly).
-Setting the random seed allows you to recreate a specific sequences of random question instances (eg, you could do 100 runs with 1 being
-the initial seed, then try 100 runs with 200 being the seed, etc, hopefully getting more coverage).</li>';
 $string['cachepurgeindextitle'] = 'Coderunner Cache Purge Index';
 $string['cachepurgepagetitle'] = 'Purging cache for {$a}';
 $string['cachepurgeindexinfo'] = 'Purging OLD keys will only delete cache entries for grading runs that are older than the Coderunner cache Time To Live (TTL) as set in the admin settings. Purging ALL will delete all cache entries for the given course.';
 $string['currentttlinfo'] = 'Coderunner grading cache Time to Live is currently set to TTL = {$a->seconds} seconds (={$a->days} days)';
 $string['unauthorisedcachepurging'] = 'You do not have suitable access to any CodeRunner questions!';
-$string['contextidnotacourse'] = 'Nothing to do as context_id $contextid is not a course.';
+$string['contextidnotacourseincachepurgerequest'] = 'Grade cache not purged as context_id {$a} is not a course.';
+$string['bulktestnumrunslabel'] = 'Number of runs per question: ';
+$string['bulktestnumrunsexplanation'] = 'How many times each included question will be tested. Repeatitions will depend on <emph>Repeat random only</emph> setting.';
+$string['bulktestrandomseedlabel'] = 'Random seed: ';
+$string['bulktestrandomseedexplanation'] = 'If set to a postive integer then the PHP randomseed is set to this value before running the test(s) for each question that has <emph>random</emph> in its name.<br>
+If you don\'t set the random seed then each time you do a bulk test you will get random sequences of question instances, which may mean the grade cache isn\'t so useful and more questions have to actually be run on the Jobe server (depending on how random your questions are).<br>
+For a given seed the sequence of random question instances should be the same (assuming your question template uses the random seed it is given correctly).
+Setting the random seed allows you to recreate a specific sequences of random question instances (eg, you could do 100 runs with 1 being
+the initial seed, then try 100 runs with 200 being the seed, etc, hopefully getting more coverage).';
+$string['bulktestrepeatrandomonlylabel'] = 'Repeat random only: ';
+$string['bulktestrepeatrandomonlyexplanation'] = 'Limits repeated runs to questions with <emph>random</emph> in their names.';
+$string['bulktestclearcachefirstlabel'] = 'Clear course grading cache first: ';
+$string['bulktestclearcachefirstexplanation'] = 'This will clear the whole grading cache for the course being tested. Be careful as you will lose the whole grading cache for all student attempts on all questions in the course! This option is useful when jobe servers are being changed/updated, ie, to ensure new results are generated.';
+$string['bulktestusecachelabel'] = 'Use grading cache: ';
+$string['bulktestusecacheexplanation'] = 'Whether or not to use the Coderunner grading cache. Turning it off means that questions will always be run on the
+jobe server. When doing multiple runs, this setting will help show issues with individual jobe servers when you are using a list of servers or a jobe proxy that is load sharing to multiple jobes. Deafult: true';
+$string['bulktestallcachenotclearedmessage'] = '<b>Note:</b> Grading cache not cleared -- do it from admin-plugins-cache if you really want to clear the cache for all courses!';

@@ -827,13 +827,15 @@ class qtype_coderunner_question extends question_graded_automatically {
      * student clicked the precheck button
      * @param bool $isvalidationrun true iff this is a validation run when saving
      * a question.
+     * @param bool $usecache Whether or not to use grading cache (Coderunner grading
+     * cache needs to be enabled for usecache to work). Default is true.
      * @return 3-element array of the mark (0 - 1), the question_state (
      * gradedright, gradedwrong, gradedpartial, invalid) and the full
      * qtype_coderunner_testing_outcome object to be cached. The invalid
      * state is used when a sandbox error occurs.
      * @throws coding_exception
      */
-    public function grade_response(array $response, bool $isprecheck = false, $isvalidationrun = false) {
+    public function grade_response(array $response, bool $isprecheck = false, $isvalidationrun = false, $usecache = true) {
         if ($isprecheck && empty($this->precheck)) {
             throw new coding_exception("Unexpected precheck");
         }
@@ -875,7 +877,8 @@ class qtype_coderunner_question extends question_graded_automatically {
                 $attachments,
                 $testcases,
                 $isprecheck,
-                $language
+                $language,
+                $usecache
             );
             $testoutcomeserial = serialize($testoutcome);
         }

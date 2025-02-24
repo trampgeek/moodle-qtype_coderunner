@@ -130,6 +130,15 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
      *         is true and enablegradecache is true then this function
      *         will try to read the result from the grading cache but if
      *         either is false then it won't.
+     * @param string $cachecategory A string the will be used as a suffix to the cache key.
+     *         The cachecategory will be used to allow purging of categories of cache entries.
+     *         Only letters, numbers, and underscores should be used and underscores shouldn't
+     *         be used at the start or the end as this value will be put inside triple _'s so
+     *         that it can be extracted from cache keys, eg, maincachekey___categoryid___etc.
+     *         The normal jobrunner will use "context_xyz" where xyz is the question's contextid.
+     *         The default value will be used if nothing is provided, eg, web-server runs
+     *         probably don't provide anything and probably aren't cached either. But they could
+     *         be and then they might set a category, eg, tryitbox_run,
      * @return an object with at least the attribute 'error'.
      *         The error attribute is one of the
      *         values 0 through 9 (OK to UNKNOWN_SERVER_ERROR, OVERLOAD)
@@ -153,19 +162,25 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
      *         showing which jobeserver was used and what key was used (if any).
      */
 
-    public function execute($sourcecode, $language, $input, $files = null, $params = null, $usecache = true) {
+    public function execute(
+        $sourcecode,
+        $language,
+        $input,
+        $files = null,
+        $params = null,
+        $usecache = true,
+        $cachecategory = 'uncategorized'
+    ) {
         global $CFG;
         global $PAGE;
-        // Course ID of 1 seems to be the fall back if it's not a course, eg, when bulktesting all q's.
-        // So, use 1 if we don't find context from the PAGE or the context is not a course.
-        // Get the current context.
-        try {
-            // Had to use try here as isset($PAGE->context) always seems to fail even if the context has been set.
-            $context = $PAGE->context;
-            $courseid = $context->get_course_context(true)->instanceid;  // Raises exception if context is unknown.
-        } catch (Exception $e) {
-            $courseid = 1; // Use context of 1 as no $PAGE context is set, eg, could be a websocket UI run.
-        }
+
+        $cachesuffix = "___{$cachecategory}___";
+
+        // if ($context->context_level == CONTEXT_COURSECAT) {
+        //     $cachesuffix = "_coursecatcontextid_{$courseid}";
+        // } else {
+        //     $cachesuffix = "_courseid_{$courseid}";
+        // }
 
         $language = strtolower($language);
         if (is_null($input)) {
@@ -238,7 +253,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
             // eg, adding another jobeserver to a list of servers will mean the
             // jobeserver parameter has changed and therefore the key will change.
 
-            $key = hash("md5", serialize($runspec)) . '_courseid_' . $courseid . '_';
+            $key = hash("md5", serialize($runspec)) . $cachesuffix;
             // Debugger: echo '<pre>' . serialize($runspec) . '</pre>';.
             $runresult = $cache->get($key);  // Unserializes the returned value :) false if not found.
         }
@@ -311,7 +326,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
 
                 // Got a useable result from Jobe server so cache it if required.
                 if (get_config('qtype_coderunner', 'enablegradecache') && $usecache) {
-                    $key = hash("md5", serialize($runspec)) . '_courseid_' . $courseid . '_';
+                    $key = hash("md5", serialize($runspec)) . $cachesuffix;
                     $cache->set($key, $runresult); // Set serializes the result, get will unserialize.
                 }
             }

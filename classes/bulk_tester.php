@@ -54,6 +54,9 @@ class bulk_tester {
     /** @var int Whether or not to clear the grading cache for this context first Default: 0 . */
     public $clearcachefirst;
 
+    /** @var int Whether or not to use the grading cache (assuming it's turned on in Coderunner settings) Default: 1 . */
+    public $usecache;
+
     /** @var int The number of questions that passed tests. */
     public $numpasses;
 
@@ -91,6 +94,7 @@ class bulk_tester {
      *              Default = true (or really 1).
      * @param int $nruns the number times to test each question. Default to 1.
      * @param int $clearcachefirst If 1 then clears the grading cache (ignoring ttl) for the given context before running the tests. Default is 0.
+     * @param int $usecache Set to 0 to not use the grading cache when testing. Helpful for multiple runs of fixed, non-randomised, questions. Default is 1.
      */
     public function __construct(
         $context = null,
@@ -98,7 +102,8 @@ class bulk_tester {
         $randomseed = -1,
         $repeatrandomonly = 1,
         $nruns = 1,
-        $clearcachefirst = 0
+        $clearcachefirst = 0,
+        $usecache = 0
     ) {
         if ($context === null) {
             $site = get_site(); // Get front page course.
@@ -110,6 +115,7 @@ class bulk_tester {
         $this->repeatrandomonly = $repeatrandomonly;
         $this->nruns = $nruns;
         $this->clearcachefirst = $clearcachefirst;
+        $this->usecache = (bool) $usecache;
         $this->numpasses = 0;
         $this->numfails = 0;
         $this->failedquestionids = [];
@@ -310,7 +316,9 @@ class bulk_tester {
     public function run_all_tests_for_context($questionidstoinclude = []) {
         global $OUTPUT;
         global $PAGE;
-        $PAGE->set_context($this->context);
+        if ($this->context->contextlevel == CONTEXT_COURSE) {
+            $PAGE->set_context($this->context);  // Helps grading cache pickup right course id.
+        }  // Otherwise don't change context as it could be higher level, eg, course category
         $this->failedquestionids = [];
         $this->failedtestdetails = [];
         $this->missinganswerdetails = [];
@@ -336,8 +344,6 @@ class bulk_tester {
             $purger = new cache_purger($this->context->id, false);
             $purger->purge_cache_for_context();
         }
-        $jobehost = get_config('qtype_coderunner', 'jobe_host');
-        echo html_writer::tag('p', '<b>jobe_host:</b> ' . $jobehost);
         $this->numpasses = 0;
         foreach ($categories as $currentcategoryid => $nameandcount) {
             $categoryname = $nameandcount->name;
@@ -375,6 +381,7 @@ class bulk_tester {
                     mt_srand($this->randomseed);
                 }
                 // Now run the test for the required number of times.
+                $start = microtime(true);
                 for ($i = 0; $i < $nrunsthistime; $i++) {
                     // Only records last outcome and message.
                     try {
@@ -398,12 +405,17 @@ class bulk_tester {
                     }
                     flush();
                 }
+                $end = microtime(true);
+                $timetakenpertest = number_format(($end - $start) / $nrunsthistime, 4);
                 // Report the result, and record failures for the summary.
                 if ($outcome != self::MISSINGANSWER) {
                     echo "&nbsp;&nbsp;&nbsp;<i style='color:green;'>" . $passstr . "=" . $npassesforq . "</i>";
                     if ($nfailsforq > 0) {
                         echo ", <b style='color:red;'>" . $failstr . '=' . $nfailsforq . "</b>";
                     }
+                    echo "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+                    echo "<span style='font-size:smaller'>$timetakenpertest</span>";
+                    echo "<span style='color:gray; font-size:smaller'> sec/test</span>";
                 }
                 echo "</li>";
                 gc_collect_cycles(); // Because PHP's default memory management is rubbish.
@@ -491,7 +503,8 @@ class bulk_tester {
             $response['language'] = $defaultlang;
         }
         try {
-            [$fraction, $state] = $question->grade_response($response, false);
+            // Precheck: false, isvalidation: false for the run.
+            [$fraction, $state] = $question->grade_response($response, false, false, $this->usecache);
             $ok = $state == question_state::$gradedright;
         } catch (exception $e) {
             $ok = false; // If user clicks link to see why, they'll get the same exception.
@@ -536,6 +549,8 @@ class bulk_tester {
                 'randomseed' => $this->randomseed,
                 'repeatrandomonly' => $this->repeatrandomonly,
                 'nruns' => $this->nruns,
+                'clearcachefirst' => $this->clearcachefirst,
+                'usecache' => $this->usecache,
                 'questionids' => implode(',', $this->failedquestionids)]
             );
             $retestalllink = html_writer::link(
@@ -586,7 +601,7 @@ class bulk_tester {
     /**
      *  Display the results of scanning all the CodeRunner questions to
      *  find all prototype usages in a particular course
-     * @param $course an array of stdObj course objects
+     * @param $courseid The id of the course.
      * @param $prototypes an associative array of coderunnertype => question
      * @param $missingprototypes an array of questions for which no prototype
      * could be found.
