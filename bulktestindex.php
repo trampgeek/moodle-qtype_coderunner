@@ -64,18 +64,18 @@ echo <<<HTML
     <h3>Test Configuration</h3>
     <div style="margin-bottom: 10px; display: grid; grid-template-columns: auto 80px; gap: 10px; align-items: center; max-width:400px;">
         <label for="nruns">Number of runs:</label>
-        <input type="number" id="nruns" value="{$nruns}" min="1" style="width: 80px;">
+        <input type="number" id="nruns" class="form-control" value="{$nruns}" min="1" style="width: 80px;">
 
         <label for="randomseed">Random seed:</label>
-        <input type="number" id="randomseed" value="" min="0" style="width: 80px;">
+        <input type="number" id="randomseed" class="form-control" value="" min="0" style="width: 80px;">
 
         <label for="repeatrandomonly">Repeat random only:</label>
         <div>
-            <input type="checkbox" id="repeatrandomonly" checked>
+            <input type="checkbox" id="repeatrandomonly" class="btn-check" checked>
         </div>
         <label for="clearcachefirst">Clear course grading cache first (be careful):</label>
         <div>
-            <input type="checkbox" id="clearcachefirst" onchange="confirmCheckboxChange(this)">
+            <input type="checkbox" id="clearcachefirst" class="btn-check" onchange="confirmCheckboxChange(this)">
         </div>
     </div>
 </div>
