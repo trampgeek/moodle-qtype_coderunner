@@ -78,7 +78,8 @@ foreach ($contextdata as $contextid => $numcoderunnerquestions) {
         $PAGE->set_context($testcontext);  // Helps grading cache pickup right course id.
         $bulktester = new bulk_tester($testcontext);
         echo $OUTPUT->heading(get_string('bulktesttitle', 'qtype_coderunner', $testcontext->get_context_name()));
-        echo html_writer::tag('p', 'Note: Grading cache not cleared -- do it from admin-plugins-cache if you really want to clear the cache for all course!');
+        $adminpluginscachelink = html_writer::link(new moodle_url('/cache/admin.php'), 'admin-plugins-cache', ['target' => '_blank']);
+        echo html_writer::tag('p', 'Note: Grading cache not cleared -- do it from ' . $adminpluginscachelink . ' if you really want to clear the cache for all course!');
         echo html_writer::tag('p', html_writer::link(
             new moodle_url(
                 '/question/type/coderunner/bulktestall.php',
