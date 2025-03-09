@@ -453,7 +453,18 @@ class qtype_coderunner_question extends question_graded_automatically {
         }
         $sandboxparams = ["runargs" => $runargs, "cputime" => 10];
         $sandbox = $this->get_sandbox();
-        $run = $sandbox->execute($templateparams, $lang, $input, $files, $sandboxparams);
+        $cachecategory = "contextid_{$this->contextid}";
+        $usecache = true;
+        // Use cache set to true.
+        $run = $sandbox->execute(
+            $templateparams,
+            $lang,
+            $input,
+            $files,
+            $sandboxparams,
+            $usecache,
+            $cachecategory
+        );
         if ($run->error === qtype_coderunner_sandbox::SERVER_OVERLOAD) {
             // Ugly. Probably a major test is running and we overloaded the server.
             $message = get_string('overloadoninit', 'qtype_coderunner');

@@ -50,14 +50,20 @@ echo $OUTPUT->heading(get_string('coderunnercontexts', 'qtype_coderunner'));
 
 // Find in which contexts the user can edit questions.
 
-// TRIAL CALL $categorycounts = cache_purger::key_counts_for_all_cachecategories();
 
-$allvisiblecoursecontexts = cache_purger::get_all_visible_course_and_coursecat_contextids();
-krsort($allvisiblecoursecontexts);  // Effectively newest first.
-$keycounts = cache_purger::key_count_by_context($allvisiblecoursecontexts);
+
+// TRIAL reading counts for full cache
+$categorycounts = cache_purger::key_counts_for_all_cachecategories();
+// NOTE: Should probably echo out the Uncategorized and Unknown categories.
+$keycountsbycontextid = cache_purger::key_counts_for_available_contextids($categorycounts);
+
+
+//$allvisiblecoursecontexts = cache_purger::get_all_visible_course_and_coursecat_contextids();
+//krsort($allvisiblecoursecontexts);  // Effectively newest first.
+//$keycounts = cache_purger::key_count_by_context($allvisiblecoursecontexts);
 
 // List all contexts available to the user.
-if (count($allvisiblecoursecontexts) == 0) {
+if (count($keycountsbycontextid) == 0) {
     echo html_writer::tag('p', get_string('unauthorisedcachepurging', 'qtype_coderunner'));
 } else {
     echo html_writer::tag('p', get_string('cachepurgeindexinfo', 'qtype_coderunner'));
@@ -67,7 +73,7 @@ if (count($allvisiblecoursecontexts) == 0) {
     echo html_writer::start_tag('ul');
     $oldbuttongtext = get_string('purgeoldcachekeysbutton', 'qtype_coderunner');
     $allbuttongtext = get_string('purgeallcachekeysbutton', 'qtype_coderunner');
-    foreach ($keycounts as $contextid => $keycount) {
+    foreach ($keycountsbycontextid as $contextid => $keycount) {
         $context = context::instance_by_id($contextid);
         $name = $context->get_context_name(true, true);
         // $courseid = $context->instanceid;

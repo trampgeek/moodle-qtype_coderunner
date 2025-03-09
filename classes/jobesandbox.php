@@ -182,6 +182,10 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
         //     $cachesuffix = "_courseid_{$courseid}";
         // }
 
+        if ($cachecategory === 'uncategorized') {
+            echo $cachecategory;
+        }
+
         $language = strtolower($language);
         if (is_null($input)) {
             $input = '';

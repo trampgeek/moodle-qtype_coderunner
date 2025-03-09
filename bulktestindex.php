@@ -19,12 +19,15 @@ use context;
 use html_writer;
 use moodle_url;
 use qtype_coderunner_util;
-// Moodle 5.0 bits.
 use core_question\local\bank\question_bank_helper;
 use core_question\local\bank\question_edit_contexts;
 
 require_once(__DIR__ . '/../../../config.php');
 require_once($CFG->libdir . '/questionlib.php');
+
+// We are Moodle 4 or less if don't have mod_qbank.
+$oldskool = !(qtype_coderunner_util::using_mod_qbank());
+
 
 // Login and check permissions.
 $context = context_system::instance();
@@ -33,8 +36,23 @@ require_login();
 const BUTTONSTYLE = 'background-color: #FFFFD0; padding: 2px 2px 0px 2px;border: 4px solid white';
 
 
-function display_questions_for_context($contextid, $name, $numcoderunnerquestions) {
 
+function display_course_header_and_link($coursecontextid, $coursename) {
+    $testalltitledetails = ['title' => get_string('testalltitle', 'qtype_coderunner')];  //,'style' => BUTTONSTYLE
+    $linktext = $coursename;
+    $testallspan = html_writer::tag(
+        'span',
+        $linktext,
+        ['class' => 'test-link',
+        'data-contextid' => $coursecontextid,
+        'style' => BUTTONSTYLE . ';cursor:pointer;']
+    );
+    $litext = $coursecontextid . ' - ' . $coursename . ' ' . $testallspan;
+    echo html_writer::tag('h2', $litext, $testalltitledetails);
+}
+
+
+function display_questions_for_context($contextid, $name, $numcoderunnerquestions) {
     $testallstr = get_string('bulktestallincontext', 'qtype_coderunner');
     $testalltitledetails = ['title' => get_string('testalltitle', 'qtype_coderunner'), 'style' => BUTTONSTYLE];
     $testallspan = html_writer::tag(
@@ -88,13 +106,11 @@ function display_questions_for_context($contextid, $name, $numcoderunnerquestion
  *    from contextid to [name, numquestions] associative arrays.
  */
 function display_questions_for_all_contexts($availablequestionsbycontext) {
-    //echo html_writer::start_tag('ul');
     foreach ($availablequestionsbycontext as $contextid => $info) {
         $name = $info['name'];
         $numcoderunnerquestions = $info['numquestions'];
         display_questions_for_context($contextid, $name, $numcoderunnerquestions);
     }
-    //echo html_writer::end_tag('ul');
 }
 
 
@@ -105,7 +121,6 @@ function display_questions_for_all_contexts($availablequestionsbycontext) {
  *    contextid to [name, numquestions] associative arrays.
  */
 function display_questions_for_all_course_contexts($availablequestionsbycontext) {
-    //echo html_writer::start_tag('ul');
     foreach ($availablequestionsbycontext as $contextid => $info) {
         $context = context::instance_by_id($contextid);
         if ($context->contextlevel === CONTEXT_COURSE || $context->contextlevel === CONTEXT_COURSECAT) {
@@ -114,7 +129,6 @@ function display_questions_for_all_course_contexts($availablequestionsbycontext)
             display_questions_for_context($contextid, $name, $numcoderunnerquestions);
         }
     }
-    //echo html_writer::end_tag('ul');
 }
 
 
@@ -207,7 +221,6 @@ foreach ($questionsbycontext as $contextid => $numcoderunnerquestions) {
 ksort($availablequestionsbycontext);
 
 $jobehost = get_config('qtype_coderunner', 'jobe_host');
-$oldskool = (qtype_coderunner_util::using_mod_qbank());
 if (count($availablequestionsbycontext) == 0) {
     echo html_writer::tag('p', get_string('unauthorisedbulktest', 'qtype_coderunner'));
 } else {
@@ -218,14 +231,17 @@ if (count($availablequestionsbycontext) == 0) {
         echo $OUTPUT->heading(get_string('coderunnercontexts', 'qtype_coderunner'));
         display_questions_for_all_course_contexts($availablequestionsbycontext);
     } else {
-        // Deal with funky questionbank madness in Moodle 5.0.
-        echo html_writer::tag('p',"Moodle >= 5.0 detected. Listing by course then qbank.");
+        // Deal with funky question bank madness in Moodle 5.0.
+        echo html_writer::tag('p', "Moodle >= 5.0 detected. Listing by course then qbank.");
         $allcaps = array_merge(question_edit_contexts::$caps['editq'], question_edit_contexts::$caps['categories']);
         $allcourses = bulk_tester::get_all_courses();
         $coursebanks = [];
         foreach ($allcourses as $courseid => $course) {
-            echo html_writer::tag('h2', "{$course->id} - {$course->name}");
+            $coursecontext = context_course::instance($courseid);
+            display_course_header_and_link($coursecontext->id, $course->name);
+            // Shared banks will be activites of type qbank.
             $sharedbanks = question_bank_helper::get_activity_instances_with_shareable_questions([$course->id], [], $allcaps);
+            // Private banks are actually just other modules that can contain questions, eg, quizzes.
             $privatebanks = question_bank_helper::get_activity_instances_with_private_questions([$course->id], [], $allcaps);
             $allbanks = array_merge($sharedbanks, $privatebanks);
             if (count($allbanks) > 0) {

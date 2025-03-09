@@ -32,13 +32,14 @@ use cache_helper;
 use cachestore_file;
 use cache_definition;
 use context;
+use context_module;
 use moodle_url;
 
 defined('MOODLE_INTERNAL') || die();
 
 
 class cache_purger {
-    /** @var int Jobe server host name. */
+    /** @var int ID of context to be purged. */
     public $contextid;
 
     /** @var bool Whether or not to purge based on Time To Live (TTL) */
@@ -140,7 +141,7 @@ class cache_purger {
      */
     public static function get_all_visible_course_and_coursecat_contextids() {
         global $DB;
-        $query = "SELECT ctx.id as contextid
+        $query = "SELECT ctx.id as contextid, contextlevel
               FROM {context} ctx
               WHERE contextlevel IN (:course, :coursecat, :module)
               ORDER BY contextid";
@@ -153,6 +154,7 @@ class cache_purger {
         $result = [];
         foreach ($allcontexts as $record) {
             $contextid = $record->contextid;
+            $contextlevel = $record->contextlevel;
             $context = context::instance_by_id($contextid);
             if (has_capability('moodle/question:editall', $context)) {
                 $result[] = $contextid;
@@ -160,7 +162,6 @@ class cache_purger {
         } // endfor each contextid
         return $result;
     }
-
 
     /**
      * Get count of keys for each course/context.
@@ -211,15 +212,41 @@ class cache_purger {
                 } else {
                     $categorycounts[$categoryid] = 1;
                 }
-            } else { // Strange key without category!
+            } else { // Strange key without category! This shouldn't happen...
                 $categorycounts['unknown'] += 1;
             }
         }
         return $categorycounts;
     }
 
+
+
     /**
-     * Get count of keys for each course/context.
+     * Get count of keys for each editable context.
+     *
+     * @param array $categorycounts An array containing category, count pairs.
+     * where the category is the string that is used in the cache key suffix.
+     * @return array mapping contextids to counts of keys.
+     */
+    public static function key_counts_for_available_contextids($categorycounts) {
+        $keycounts = [];
+        foreach ($categorycounts as $category => $count) {
+            if (preg_match('/contextid_(\d+)/', $category, $match)) {
+                $contextid = (int)$match[1];
+                $context = context::instance_by_id($contextid);
+                if (has_capability('moodle/question:editall', $context)) {
+                    $keycounts[$contextid] = $count;
+                }
+            }
+        }
+        krsort($keycounts);  // Effectively in order from newest to oldest.
+        return $keycounts;
+    }
+
+
+
+    /**
+     * Get count of keys for each course context.
      * @param array $contextids A list of the context ids that should all be for courses.
      * @return array mapping contextids to counts of keys.
      */
@@ -293,18 +320,8 @@ class cache_purger {
         global $OUTPUT;
         global $CFG;
         $context = context::instance_by_id($this->contextid);
-        $coursename = $context->get_context_name(true, true);
-        // if ($context->contextlevel == CONTEXT_COURSE) {
-        //     $courseid = $context->instanceid;
-        // } else {
-        //     // Nothing to do - can only run for courses.
-        //     echo get_string('contextidnotacourseincachepurgerequest', 'qtype_coderunner', $this->contextid);
-        //     return;
-        // }
-
+        $contextname = $context->get_context_name(true, true);
         $this->display_ttl_info();
-
-
         // Delete all keys for course if usettl is false otherwise only old ones.
         if ($this->originalcount > 0) {
             $progressbar = new \progress_bar('cache_purge_progress_bar', width:800, autostart:true);
