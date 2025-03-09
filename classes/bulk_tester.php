@@ -107,7 +107,7 @@ class bulk_tester {
     ) {
         if ($context === null) {
             $site = get_site(); // Get front page course.
-             $context = \context_course::instance($site->id);
+            $context = \context_course::instance($site->id);
         }
         $this->context = $context;
         $this->categoryid = $categoryid;
@@ -139,7 +139,7 @@ class bulk_tester {
               FROM {course} crs
               JOIN {context} ctx ON ctx.instanceid = crs.id
             WHERE ctx.contextlevel = 50
-            ORDER BY name");
+            ORDER BY ctx.id");
     }
 
 

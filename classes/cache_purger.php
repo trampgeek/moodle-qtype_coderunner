@@ -142,11 +142,12 @@ class cache_purger {
         global $DB;
         $query = "SELECT ctx.id as contextid
               FROM {context} ctx
-              WHERE contextlevel IN (:course, :coursecat)
+              WHERE contextlevel IN (:course, :coursecat, :module)
               ORDER BY contextid";
         $params = [
             'course' => CONTEXT_COURSE,
             'coursecat' => CONTEXT_COURSECAT,
+            'module' => CONTEXT_MODULE,
         ];
         $allcontexts = $DB->get_records_sql($query, $params);
         $result = [];
