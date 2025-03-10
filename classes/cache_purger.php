@@ -33,7 +33,11 @@ use cachestore_file;
 use cache_definition;
 use context;
 use context_module;
+use context_course;
 use moodle_url;
+use core_question\local\bank\question_bank_helper;
+use core_question\local\bank\question_edit_contexts;
+
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -123,11 +127,13 @@ class cache_purger {
         $result = [];
         foreach ($allcontexts as $record) {
             $contextid = $record->contextid;
-            $context = context::instance_by_id($contextid);
-            if (has_capability('moodle/question:editall', $context)) {
-                // Only add in courses for now.
-                if ($context->contextlevel == CONTEXT_COURSE) {
-                    $result[] = $contextid;
+            $context = context::instance_by_id($contextid, IGNORE_MISSING);
+            if ($context) {
+                if (has_capability('moodle/question:editall', $context)) {
+                    // Only add in courses for now.
+                    if ($context->contextlevel == CONTEXT_COURSE) {
+                        $result[] = $contextid;
+                    }
                 }
             }
         } // endfor each contextid
@@ -233,14 +239,71 @@ class cache_purger {
         foreach ($categorycounts as $category => $count) {
             if (preg_match('/contextid_(\d+)/', $category, $match)) {
                 $contextid = (int)$match[1];
-                $context = context::instance_by_id($contextid);
-                if (has_capability('moodle/question:editall', $context)) {
-                    $keycounts[$contextid] = $count;
+                // Deleted courses/contexts will get a null.
+                // Could make it so anyone can remove the cache for such contexts?
+                // That is report them with (deleted) suffix or such.
+                $context = context::instance_by_id($contextid, IGNORE_MISSING);
+                if ($context) {
+                    if (has_capability('moodle/question:editall', $context)) {
+                        $keycounts[$contextid] = $count;
+                    }
                 }
             }
         }
         krsort($keycounts);  // Effectively in order from newest to oldest.
         return $keycounts;
+    }
+
+
+    /**
+     * Get mapping from key contextid to the contextid of containing course.
+     * This allows us to quickly check if the context in a cache key
+     * corresponds to a course - used when clearing cache for all contexts
+     * in a course
+     *
+     * @param array $categorycounts An array containing category, count pairs.
+     * where the category is the string that is used in the cache key suffix.
+     * @return array mapping contextids to coursecontextids.
+     */
+    public static function get_context_to_course_context_map($contextkeycounts) {
+        $contextidtocoursecontextid = [];
+        $allcaps = array_merge(question_edit_contexts::$caps['editq'], question_edit_contexts::$caps['categories']);
+        $allcourses = bulk_tester::get_all_courses();
+        $coursebanks = [];
+        foreach ($allcourses as $courseid => $course) {
+            $coursecontext = context_course::instance($courseid);
+            echo $coursecontext->id . '; ';
+            // Shared banks will be activites of type qbank.
+            $sharedbanks = question_bank_helper::get_activity_instances_with_shareable_questions([$course->id], [], $allcaps);
+            // Private banks are actually just other modules that can contain questions, eg, quizzes.
+            $privatebanks = question_bank_helper::get_activity_instances_with_private_questions([$course->id], [], $allcaps);
+            $allbanks = array_merge($sharedbanks, $privatebanks);
+            if (count($allbanks) > 0) {
+                foreach ($allbanks as $bank) {
+                    $contextid = $bank->contextid;
+                    $contextidtocoursecontextid[$contextid] = $coursecontext->id;
+                }
+            }
+        }
+        return $contextidtocoursecontextid;
+    }
+
+    /**
+     * Used for inverting and array.
+     * Used to invert the contextid -> coursecontextid array
+     * to give coursecontextid -> list of contextids array.
+     * @param array Associative array.
+     * @return array Maps from original values to lists of keys associated with them.
+     */
+    public static function invert_array($array) {
+        $result = [];
+        foreach ($array as $key => $value) {
+            if (!isset($result[$value])) {
+                $result[$value] = [$key];
+            }
+            $result[$value][] = $key;
+        }
+        return $result;
     }
 
 

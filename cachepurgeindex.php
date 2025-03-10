@@ -57,6 +57,21 @@ $categorycounts = cache_purger::key_counts_for_all_cachecategories();
 // NOTE: Should probably echo out the Uncategorized and Unknown categories.
 $keycountsbycontextid = cache_purger::key_counts_for_available_contextids($categorycounts);
 
+// $contexttocoursecontextmap = cache_purger::get_context_to_course_context_map($keycountsbycontextid);
+// echo '<br>';
+// foreach ($contexttocoursecontextmap as $context => $coursecontext) {
+//     echo "{$context} -> {$coursecontext}<br>";
+// }
+// $coursetocontextsmap = cache_purger::invert_array($contexttocoursecontextmap);
+// echo '<br>';
+// foreach ($coursetocontextsmap as $coursecontext => $contexts) {
+//     echo "{$coursecontext} -> ";
+//     print_r($contexts);
+//     echo "<br>";
+// }
+
+
+
 
 //$allvisiblecoursecontexts = cache_purger::get_all_visible_course_and_coursecat_contextids();
 //krsort($allvisiblecoursecontexts);  // Effectively newest first.

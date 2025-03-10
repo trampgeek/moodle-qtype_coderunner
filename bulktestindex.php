@@ -16,6 +16,7 @@
 namespace qtype_coderunner;
 use context_system;
 use context;
+use context_course;
 use html_writer;
 use moodle_url;
 use qtype_coderunner_util;
@@ -48,7 +49,7 @@ function display_course_header_and_link($coursecontextid, $coursename) {
         'style' => BUTTONSTYLE . ';cursor:pointer;']
     );
     $litext = $coursecontextid . ' - ' . $coursename . ' ' . $testallspan;
-    echo html_writer::tag('h2', $litext, $testalltitledetails);
+    echo html_writer::tag('h3', $litext, $testalltitledetails);
 }
 
 

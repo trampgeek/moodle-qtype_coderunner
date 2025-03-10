@@ -95,7 +95,7 @@ class cache_cleaner extends \core\task\scheduled_task {
         $newcount = count($remainingkeys);
         $purgedcount = $originalcount - $newcount;
         mtrace("Originally found $originalcount keys.");
-        mtrace("$purgedcount keys pruged.");
+        mtrace("$purgedcount keys purged.");
         mtrace("$newcount keys were too young to die.");
     }
 }
