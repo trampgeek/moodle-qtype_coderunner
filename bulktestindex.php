@@ -49,7 +49,7 @@ function display_course_header_and_link($coursecontextid, $coursename) {
         'style' => BUTTONSTYLE . ';cursor:pointer;']
     );
     $litext = $coursecontextid . ' - ' . $coursename . ' ' . $testallspan;
-    echo html_writer::tag('h3', $litext, $testalltitledetails);
+    echo html_writer::tag('h5', $litext, $testalltitledetails);
 }
 
 
