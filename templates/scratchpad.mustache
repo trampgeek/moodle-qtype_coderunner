@@ -43,9 +43,12 @@
 }}
 <a role='button'
    id='{{ id }}_show-scratchpad-btn'
-   href="#{{#jquery_escape}}{{ id }}{{/jquery_escape}}_scratchpad"
+   href="javascript:void(0);"  {{! Prevent default link behavior }}
    title='show_hide'
    data-toggle="collapse"
+   data-bs-toggle="collapse" {{! Bootstrap 5 version}}
+   data-target="#{{#jquery_escape}}{{ id }}_scratchpad{{/jquery_escape}}" 
+   data-bs-target="#{{ id }}_scratchpad" {{! Bootstrap 5 version}}
    class="btn btn-sm btn-icon icons-collapse-expand {{^ show_hide.show }}collapsed{{/ show_hide.show }} text-info"
    style="margin-top: 5px;margin-left: 5px;margin-bottom: 5px;width: 30px;height: 30px;">
         <span class="expanded-icon icon-no-margin p-2" title="Collapse">
