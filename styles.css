@@ -78,6 +78,17 @@ body#page-question-type-coderunner .ace_editor {
     margin-bottom: 5px;
 }
 
+.que.coderunner button[id$=answer_run-btn] {
+    color: whitesmoke !important;
+    background-color: darkgreen !important;
+    font-weight: bold !important;
+    padding: 10px 40px !important;
+}
+
+.que.coderunner pre[id$=answer_run-output-text] {
+    border-bottom: solid 5px darkgreen;
+}
+
 #page-question-type-coderunner table.coderunner-test-results td,
 #page-question-type-coderunner table.coderunner-test-results th,
 .que.coderunner table.coderunner-test-results td,

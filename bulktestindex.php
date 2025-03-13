@@ -181,13 +181,13 @@ echo <<<HTML
         <div style="grid-column: span 3; border-bottom: 1px solid rgb(10, 16, 74);"> </div>
         <label for="repeatrandomonly">$repeatrandomonlylabel</label>
         <div>
-            <input type="checkbox" id="repeatrandomonly" checked>
+            <input type="checkbox" id="repeatrandomonly" class="btn-check" checked>
         </div>
         <span>$repeatrandomonlyexplanation</span>
         <div style="grid-column: span 3; border-bottom: 1px solid rgb(10, 16, 74);"> </div>
         <label for="clearcachefirst">$clearcachefirstlabel</label>
         <div>
-            <input type="checkbox" id="clearcachefirst" onchange="confirmCheckboxChange(this)">
+            <input type="checkbox" id="clearcachefirst" class="btn-check" onchange="confirmCheckboxChange(this)">
         </div>
         <span>$clearcachefirstexplanation</span>
         <div style="grid-column: span 3; border-bottom: 1px solid rgb(10, 16, 74);"> </div>
