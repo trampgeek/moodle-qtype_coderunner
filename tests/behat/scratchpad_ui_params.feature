@@ -101,7 +101,7 @@ Feature: Test the Scratchpad UI, UI Params
     And I should not see "Run"
     And I should not see "Prefix Answer?"
 
-  Scenario: Change UI param for run button name
+  Scenario: Change UI param for prefix name
     And I set the field "id_answer" to ""
     And I set the following fields to these values:
       | id_customise    | 1                                     |
@@ -451,7 +451,7 @@ Feature: Test the Scratchpad UI, UI Params
     And I set the ace field "test_code" to ""
     And I should see "<div hidden>Hi</div>"
 
-  Scenario: Set output_display_mode to json, 'print' a hidden div to output area
+  Scenario: Set output_display_mode to json, get json parsing error
     And I set the field "id_answer" to ""
     And I set the following fields to these values:
       | id_customise    | 1                               |
@@ -473,7 +473,7 @@ Feature: Test the Scratchpad UI, UI Params
     And I press "Run"
     Then I should see "Error parsing JSON. Output from wrapper:"
 
-  Scenario: Set output_display_mode to json, 'print' a hidden div to output area
+  Scenario: Set output_display_mode to json, get a stderr
     And I set the field "id_answer" to ""
     And I set the following fields to these values:
       | id_customise    | 1                               |
