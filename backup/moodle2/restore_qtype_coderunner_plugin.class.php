@@ -149,9 +149,6 @@ class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
     public static function convert_backup_to_questiondata(array $backupdata): stdClass {
         $questiondata = parent::convert_backup_to_questiondata($backupdata);
         $qtype = $questiondata->qtype;
-        if ($qtype !== 'coderunner' || !isset($backupdata["plugin_qtype_{$qtype}_question"]['coderunner_testcases'])) {
-            return $questiondata;
-        }
 
         $questiondata->options->testcases = [];
         foreach ($backupdata["plugin_qtype_{$qtype}_question"]['coderunner_testcases']['coderunner_testcase'] as $record) {
@@ -180,6 +177,7 @@ class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
             '/hints',
             '/prototype',
             '/options/customise',
+            '/options/templateparamsevald',
             '/options/testcases/id',
             '/options/testcases/questionid',
         ];
@@ -195,6 +193,9 @@ class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
         }
         if (isset($questiondata->answers)) {
             unset($questiondata->answers);
+        }
+        if (isset($questiondata->options->answers)) {
+            unset($questiondata->options->answers);
         }
         if (isset($questiondata->hints)) {
             unset($questiondata->hints);
