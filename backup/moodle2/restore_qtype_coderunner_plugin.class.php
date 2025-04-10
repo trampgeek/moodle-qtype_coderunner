@@ -150,16 +150,19 @@ class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
         $questiondata = parent::convert_backup_to_questiondata($backupdata);
         $qtype = $questiondata->qtype;
 
-        $questiondata->options->testcases = [];
-        foreach ($backupdata["plugin_qtype_{$qtype}_question"]['coderunner_testcases']['coderunner_testcase'] as $record) {
-            $testcase = new stdClass();
-            $fields = [ 'testcode', 'testtype', 'expected', 'useasexample', 'display',
-                'hiderestiffail', 'mark', 'stdin', 'extra'];
-            foreach ($fields as $field) {
-                $testcase->$field = $record[$field];
+        if (isset($backupdata["plugin_qtype_{$qtype}_question"]['coderunner_testcases'])) {
+            $questiondata->options->testcases = [];
+            foreach ($backupdata["plugin_qtype_{$qtype}_question"]['coderunner_testcases']['coderunner_testcase'] as $record) {
+                $testcase = new stdClass();
+                $fields = [ 'testcode', 'testtype', 'expected', 'useasexample', 'display',
+                    'hiderestiffail', 'mark', 'stdin', 'extra'];
+                foreach ($fields as $field) {
+                    $testcase->$field = $record[$field];
+                }
+                $questiondata->options->testcases[] = $testcase;
             }
-            $questiondata->options->testcases[] = $testcase;
         }
+
         if (isset($backupdata["plugin_qtype_{$qtype}_question"]['coderunner_options'])) {
             $questiondata->options = (object) array_merge(
                 (array) $questiondata->options,
