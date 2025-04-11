@@ -157,7 +157,9 @@ class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
                 $fields = [ 'testcode', 'testtype', 'expected', 'useasexample', 'display',
                     'hiderestiffail', 'mark', 'stdin', 'extra'];
                 foreach ($fields as $field) {
-                    $testcase->$field = $record[$field];
+                    if (isset($record[$field])) {   // Old backups don't have testtype.
+                        $testcase->$field = $record[$field];
+                    }
                 }
                 $questiondata->options->testcases[] = $testcase;
             }

@@ -115,11 +115,11 @@ class restore_test extends \advanced_testcase {
                 )];
     }
 
-    public function test_restore() {
+    public function test_restore_from_v3_1_2(): void {
         global $CFG;
 
         $this->restore_backup($CFG->dirroot .
-                '/question/type/coderunner/tests/fixtures/loadtesting_pseudocourse_backup.mbz');
+                '/question/type/coderunner/tests/fixtures/loadtesting_pseudocourse_backup_V3.1.2.mbz');
 
         // Verify some restored questions look OK.
         [$options, $tests] = $this->load_question_data_by_name('c_to_fpy3');
@@ -131,11 +131,11 @@ class restore_test extends \advanced_testcase {
         $this->assertStringStartsWith('import subprocess', $options->template);
     }
 
-    public function test_restore_from_v3_0_0() {
+    public function test_restore_from_v4_5_3(): void {
         global $CFG;
 
         $this->restore_backup($CFG->dirroot .
-                '/question/type/coderunner/tests/fixtures/loadtesting_pseudocourse_backup_V3.0.0.mbz');
+                '/question/type/coderunner/tests/fixtures/loadtesting_pseudocourse_backup_V4.5.3.mbz');
 
         // Verify some restored questions look OK.
         [$options, $tests] = $this->load_question_data_by_name('c_to_fpy3');
