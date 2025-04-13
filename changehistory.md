@@ -1,9 +1,21 @@
 # CHANGE HISTORY
 
+### 13 April 2025, 5.6.4
+
+  * Address issue #249: "Implement changes made necessary by the fix for MDL-83541". After that fix, all CodeRunner questions
+    in a course being duplicated whenever a quiz was duplicated. This update to coderunner implements the new API calls that
+    Moodle added.
+  * Various bulktester improvements.
+  * Scratchpad Run button made much larger and coloured green to reduce confusion with Check button.
+  * README.md updates to correct wrong indentation on many code examples.
+  * README.md documentation of the Twig TEST variable was corrected by removing some fields present only during editin.
+  * Bug fix: the "Copy expected to got" functionality broke if using combinator template
+    graders when the testcase ordering was changed from the default.
 
 ### 23 February 2025. 5.6.2
 
-  * Bug fix: With Moodle 4.6 or later, updates were not working.
+  * Bug fix: With Moodle 4.6 or later, updates were not working
+
 
 ### 13 February 2025. 5.6.1
 
