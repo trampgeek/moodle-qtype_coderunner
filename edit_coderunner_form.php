@@ -54,6 +54,9 @@ class qtype_coderunner_edit_form extends question_edit_form {
     /** @var string */
     private $cacheduiparamsjson;
 
+    /** @var bool */
+    private $iscombinatorgrader; // True if the question uses a combinator template grader.
+
     public function qtype() {
         return 'coderunner';
     }
@@ -1251,10 +1254,8 @@ class qtype_coderunner_edit_form extends question_edit_form {
             }
         }
 
-        if (
-            $data['prototypetype'] == 0 && ($data['grader'] !== 'TemplateGrader'
-                || $data['iscombinatortemplate'] === false)
-        ) {
+        $this->iscombinatorgrader = $data['grader'] === 'TemplateGrader' && $data['iscombinatortemplate'];
+        if ($data['prototypetype'] == 0 && !$this->iscombinatorgrader) {
             // Unless it's a prototype or uses a combinator-template grader,
             // it needs at least one testcase.
             $testcaseerrors = $this->validate_test_cases($data);
@@ -1592,7 +1593,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
     // Return an empty string if there is no sample answer and no attachments,
     // or if the sample answer passes all the tests.
     // Otherwise return a suitable error message for display in the form.
-    private function validate_sample_answer() {
+    private function validate_sample_answer($data) {
         $attachmentssaver = $this->get_sample_answer_file_saver();
         $files = $attachmentssaver ? $attachmentssaver->get_files() : [];
         $answer = $this->formquestion->answer;
@@ -1649,6 +1650,9 @@ class qtype_coderunner_edit_form extends question_edit_form {
         } else {
             $outcome = unserialize($cachedata['_testoutcome']);
             $error = $outcome->validation_error_message();
+            if ($this->iscombinatorgrader) {
+                $error = $this->fix_template_grader_error($error);
+            }
             return $error;
         }
     }
@@ -1807,5 +1811,66 @@ class qtype_coderunner_edit_form extends question_edit_form {
             }
         }
         return $draftid;
+    }
+
+    // If we're using a combinator template grader, any links back to the failing
+    // test case, needed by the "copy got to expected" button, will be incorrect
+    // if the ordering of the test cases is not the same as the ordering of
+    // the rows in the (as yet unsaved) testcases table. This function fixes
+    // the error message to include the correct test case number. It's a bit
+    // of a hack, but it's the best I can do, since the testresults table built
+    // by the question author does not know about the original test ordering.
+    private function fix_template_grader_error($error) {
+        $tests = $this->formquestion->testcases;
+
+        // First make a map from rownum at test time to rownum in the edit form.
+        $pairs = [];
+        foreach ($tests as $test) {
+            $pairs[] = [$test->ordering, $test->rownum];  // List of (ordering, rownum) pairs.
+        }
+
+        // Sort the list by ordering.
+        $orderings = array_column($pairs, 0);
+        array_multisort($orderings, SORT_ASC, $pairs);
+
+        // Build the map from rownum at test time to rownum in the edit form.
+        $map = [];
+        $i = 0;
+        foreach (array_column($pairs, 1) as $oldrownum) {
+            $map[strval($i++)] = strval($oldrownum);
+        }
+
+        // We're now ready to do all the remapping of row numbers.
+        // First convert all the test numbers to 0 origin.
+        $error = preg_replace_callback('/>Test case (\d+)</', function ($matches) {
+            return '>Test case ' . strval(intval($matches[1] - 1) . '<');
+        }, $error);
+
+        // Need a 2-pass process to do the substitutions.
+        // Pass 1.
+        $leadinstrings = ['#id_testcode_', '#id_expected_', 'id_fail_expected_', 'id_got_',
+            '>Test case ', 'coderunner-failed-test failrow_'];
+        foreach ($leadinstrings as $leadinstring) {
+            $pattern = '/' . $leadinstring . '([0-9]+)/';
+            $error = preg_replace_callback(
+                $pattern,
+                function ($matches) use ($map, $leadinstring) {
+                    return $leadinstring . 'XXX' . $map[intval($matches[1])];
+                },
+                $error
+            );
+        }
+
+        // Pass 2. Delete all the 'XXX's.
+        foreach ($leadinstrings as $leadinstring) {
+            $error = str_replace($leadinstring . 'XXX', $leadinstring, $error);
+        }
+
+        // Lastly convert the test numbers back to 1 origin.
+        $error = preg_replace_callback('/>Test case (\d+)</', function ($matches) {
+            return '>Test case ' . strval(intval($matches[1]) + 1 . '<');
+        }, $error);
+
+        return $error;
     }
 }

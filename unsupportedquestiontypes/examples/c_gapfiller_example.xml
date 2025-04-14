@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<quiz>
+<!-- question: 40576  -->
+  <question type="coderunner">
+    <name>
+      <text>C gapfiller example</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<p>The answer box has been preloaded with a program that should read a single character from standard input and (in a very roundabout way) print it to standard output. There are three missing fragments of code. Your task is to fill in those fields so that the program behaves as expected.</p>
+<p></p>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1</defaultgrade>
+    <penalty>0</penalty>
+    <hidden>0</hidden>
+    <idnumber></idnumber>
+    <coderunnertype>C_gapfiller</coderunnertype>
+    <prototypetype>0</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime>10, 20, ...</penaltyregime>
+    <precheck>0</precheck>
+    <hidecheck>0</hidecheck>
+    <showsource>0</showsource>
+    <answerboxlines>14</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
+    <globalextra><![CDATA[// A program that reads a single character from stdin then outputs it in
+// a very roundabout way to stdout.
+#include <stdio.h>
+void oof(char* p1, char* p2)
+{
+    {[ 10 ]} = {[ 10 ]};
+}
+
+int main(void)
+{
+    char c = 0;
+    char other = '#';
+    scanf("%c", &c); // Reads a single character into c
+    oof(&other, {[ 10 ]});
+    printf("%c\n", other);
+}]]></globalextra>
+    <useace></useace>
+    <resultcolumns></resultcolumns>
+    <template></template>
+    <iscombinatortemplate></iscombinatortemplate>
+    <allowmultiplestdins></allowmultiplestdins>
+    <answer><![CDATA[["*p1","*p2","&c"]]]></answer>
+    <validateonsave>1</validateonsave>
+    <testsplitterre></testsplitterre>
+    <language></language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader></grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams></templateparams>
+    <hoisttemplateparams>1</hoisttemplateparams>
+    <extractcodefromjson>1</extractcodefromjson>
+    <templateparamslang>twig</templateparamslang>
+    <templateparamsevalpertry>0</templateparamsevalpertry>
+    <templateparamsevald>{}</templateparamsevald>
+    <twigall>1</twigall>
+    <uiplugin></uiplugin>
+    <uiparameters></uiparameters>
+    <attachments>0</attachments>
+    <attachmentsrequired>0</attachmentsrequired>
+    <maxfilesize>10240</maxfilesize>
+    <filenamesregex></filenamesregex>
+    <filenamesexplain></filenamesexplain>
+    <displayfeedback>1</displayfeedback>
+    <giveupallowed>0</giveupallowed>
+    <prototypeextra></prototypeextra>
+    <testcases>
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text></text>
+      </testcode>
+      <stdin>
+                <text>A</text>
+      </stdin>
+      <expected>
+                <text>A</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text></text>
+      </testcode>
+      <stdin>
+                <text>B</text>
+      </stdin>
+      <expected>
+                <text>B</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text></text>
+      </testcode>
+      <stdin>
+                <text>Q</text>
+      </stdin>
+      <expected>
+                <text>Q</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text></text>
+      </testcode>
+      <stdin>
+                <text>*</text>
+      </stdin>
+      <expected>
+                <text>*</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+    </testcases>
+  </question>
+
+</quiz>
