@@ -114,7 +114,7 @@ class run_in_sandbox extends external_api {
         $files = '',
         $params = ''
     ) {
-        global $USER, $SESSION;
+        global $USER, $PAGE, $SESSION;
         // First, see if the web service is enabled.
         if (!get_config('qtype_coderunner', 'wsenabled')) {
             throw new qtype_coderunner_exception(get_string('wsdisabled', 'qtype_coderunner'));
@@ -138,6 +138,7 @@ class run_in_sandbox extends external_api {
             throw new qtype_coderunner_exception(get_string('wsnoaccess', 'qtype_coderunner'));
         }
 
+        $PAGE->set_context($context);  // *** Temporary hack - to be removed after the rewrite of the grade caching module.
         $sandbox = qtype_coderunner_sandbox::get_best_sandbox($language, true);
         if ($sandbox === null) {
             throw new qtype_coderunner_exception(get_string('wsnolanguage', 'qtype_coderunner', $language));
