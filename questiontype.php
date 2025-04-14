@@ -82,6 +82,12 @@ class qtype_coderunner extends question_type {
      * @return mixed array as above, or null to tell the base class to do nothing.
      */
     public function extra_question_fields() {
+        return self::extra_question_fields_static();
+    }
+
+    // We need access to this list of extra question fields during quiz duplication
+    // (when no actual question exists) so I make it static.
+    public static function extra_question_fields_static() {
         return ['question_coderunner_options',
             'coderunnertype',
             'prototypetype',
@@ -420,8 +426,12 @@ class qtype_coderunner extends question_type {
         } else {
             $qtype = $options->coderunnertype;
             $context = $this->question_context($question);
-            $question->prototype = $this->get_prototype($qtype, $context);
-            $this->set_inherited_fields($options, $question->prototype);
+            $prototype = $this->get_prototype($qtype, $context);
+            if (!($question->export_process ?? false)) {
+                // Don't inherit fields when exporting during quiz duplication or backup restore.
+                $this->set_inherited_fields($options, $prototype);
+                $question->prototype = $prototype;
+            }
         }
 
         // Add in any testcases.

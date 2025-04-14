@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<quiz>
+<!-- question: 40593  -->
+  <question type="coderunner">
+    <name>
+      <text>PROTOTYPE_c_gapfiller</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<p>A C write-a-program gap filler. For this question, a C program must be pasted into the globalextra field. Portions of that C program can then be replaced with gap markers<span style="font-size: 1rem; text-align: initial;"> using one of the following formats:</span></p>
+<pre>{[20]}
+{[10-20]}</pre>
+<p>where the first example is a single text field of width 20 (which can contain a string of at most 20 characters) and the second is a field with a width that is initially 10 characters but that can expand to up to 20 characters. Do not insert extra spaces into these patterns.</p>
+<p>The values entered into the gap-marker fields by the student are inserted back into the program, which is then compiled and run against all tests in the usual way.</p>
+<p>When creating a new question of this sort, you need to save the question immediately after entering the global extra field, and you can then fill in the gaps in the answer field.</p>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1</defaultgrade>
+    <penalty>0</penalty>
+    <hidden>0</hidden>
+    <idnumber></idnumber>
+    <coderunnertype>C_gapfiller</coderunnertype>
+    <prototypetype>2</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime>10, 20, ...</penaltyregime>
+    <precheck>0</precheck>
+    <hidecheck>0</hidecheck>
+    <showsource>0</showsource>
+    <answerboxlines>14</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
+    <globalextra></globalextra>
+    <useace>1</useace>
+    <resultcolumns></resultcolumns>
+    <template><![CDATA[""" The prototype template for a C-program gap-filler.
+"""
+
+import subprocess, sys, json, re
+from collections import OrderedDict
+
+field_values = json.loads(""" {{ STUDENT_ANSWER | e('py') }}""")
+raw_prog = """{{ QUESTION.globalextra | e('py') }}"""
+bits = re.split(r"{\[.+?\]}", raw_prog)
+if len(bits) != len(field_values) + 1:
+    print("The question author has goofed. Please report", file=sys.stderr)
+    sys.exit()
+    
+prog = bits[0]
+i = 1
+for value in field_values:
+    prog += value + bits[i]
+    i += 1
+        
+# Write the student code to a file prog.c
+with open("prog.c", "w") as src:
+    print(prog, file=src)
+
+# Compile
+return_code = subprocess.call(['gcc', '-Wall', '--std=c99', '-Werror', '-o', 'prog', 'prog.c'])
+if return_code != 0:
+    print("** Compilation failed. Testing aborted **", file=sys.stderr)
+
+{% if not IS_PRECHECK %}
+if return_code == 0:
+    # If compile succeeded and it's not a precheck run all the tests.
+{% for TEST in TESTCASES %}
+    testcode = """{{ TEST.testcode | e('py') }}\n"""
+    standard_input = """{{ TEST.stdin | e('py') }}\n""".rstrip() + '\n'
+
+    try:
+        output = subprocess.check_output(
+            ["./prog"],
+            input=standard_input,
+            universal_newlines=True,
+            shell=True
+        )
+        print(output)
+    except subprocess.CalledProcessError as e:
+        if e.returncode > 0:
+            # Ignore non-zero positive return codes
+            if e.output:
+                print(e.output)
+        else:
+            # But negative return codes are signals - abort
+            if e.output:
+                print(e.output, file=sys.stderr)
+            if e.returncode < 0:
+                print("Task failed with signal", -e.returncode, file=sys.stderr)
+            print("** Further testing aborted **", file=sys.stderr)
+            sys.exit(1);
+{% if not loop.last %}
+    print('#<ab@17943918#@>#');   # Testcase separator
+{% endif %}
+{% endfor %}
+{% endif %}]]></template>
+    <iscombinatortemplate>1</iscombinatortemplate>
+    <allowmultiplestdins>1</allowmultiplestdins>
+    <answer></answer>
+    <validateonsave>0</validateonsave>
+    <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
+    <language>python3</language>
+    <acelang>c</acelang>
+    <sandbox></sandbox>
+    <grader>EqualityGrader</grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams></templateparams>
+    <hoisttemplateparams>1</hoisttemplateparams>
+    <extractcodefromjson>1</extractcodefromjson>
+    <templateparamslang>twig</templateparamslang>
+    <templateparamsevalpertry>0</templateparamsevalpertry>
+    <templateparamsevald>{}</templateparamsevald>
+    <twigall>1</twigall>
+    <uiplugin>ace_gapfiller</uiplugin>
+    <uiparameters></uiparameters>
+    <attachments>0</attachments>
+    <attachmentsrequired>0</attachmentsrequired>
+    <maxfilesize>10240</maxfilesize>
+    <filenamesregex></filenamesregex>
+    <filenamesexplain></filenamesexplain>
+    <displayfeedback>1</displayfeedback>
+    <giveupallowed>0</giveupallowed>
+    <prototypeextra></prototypeextra>
+    <testcases>
+    </testcases>
+  </question>
+
+</quiz>
