@@ -28,6 +28,7 @@ use context_system;
 use context;
 use html_writer;
 use moodle_url;
+use cache_config_writer;
 
 require_once(__DIR__ . '/../../../config.php');
 require_once($CFG->libdir . '/questionlib.php');
@@ -38,6 +39,8 @@ const ORANGY = 'border: 1px solid #F0F0F0; background-color:rgb(249, 242, 213); 
 // Login and check permissions.
 $context = context_system::instance();
 require_login();
+
+cache_config_writer::update_definitions();
 
 $PAGE->set_url('/question/type/coderunner/cachepurgeindex.php');
 $PAGE->set_context($context);
@@ -54,7 +57,7 @@ echo $OUTPUT->heading(get_string('coderunnercontexts', 'qtype_coderunner'));
 
 // TRIAL reading counts for full cache
 $categorycounts = cache_purger::key_counts_for_all_cachecategories();
-// NOTE: Should probably echo out the Uncategorized and Unknown categories.
+// NOTE: Should probably echo out the 'Uncategorized' and 'Unknown' category totals.
 $keycountsbycontextid = cache_purger::key_counts_for_available_contextids($categorycounts);
 
 // $contexttocoursecontextmap = cache_purger::get_context_to_course_context_map($keycountsbycontextid);

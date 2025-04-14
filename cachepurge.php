@@ -59,8 +59,8 @@ if ($context->contextlevel == CONTEXT_MODULE) {
 // Release the session, so the user can do other things while this runs.
 \core\session\manager::write_close();
 
-$purger = new cache_purger($context->id, $usettl);
+$purger = new cache_purger($usettl);
 echo $OUTPUT->header();
 echo $OUTPUT->heading($title, 4);
-$purger->purge_cache_for_context();
+$purger->purge_cache_for_context($context->id);
 echo $OUTPUT->footer();

@@ -19,6 +19,10 @@
  * If a jobe submission is cached we don't need to call jobe again
  * as the result will be known :)
  *
+ * IMPORTANT:
+ * You probably shouldn't use anything other than a filestore for this cache.
+ * For example, a Redis cache might fill up and cause all kinds of issues.
+ *
  * @package    qtype
  * @subpackage coderunner
  * @copyright  2023 Paul McKeown, University of Canterbury
@@ -30,10 +34,30 @@ defined('MOODLE_INTERNAL') || die();
 $definitions = [
     'coderunner_grading_cache' => [
         'mode' => cache_store::MODE_APPLICATION,
-        'maxsize' => 50000000, // This will be ignored by the standard file cache.
+        // The maxsize will be ignored by the standard file cache but
+        // other caches might respect it...
+        'maxsize' => 50000000,
         'simplekeys' => true,
         'simpledata' => false,
         'canuselocalstore' => true,
-        // Set TTL on Coderunner settings page using the following here causes unit test crashes 'ttl' => abs(get_config('qtype_coderunner', 'gradecachettl')),
+        // This ttl setting is a backup in case you are using a cache
+        // that actually uses the ttl (eg, Redis).
+        'ttl' => 1209600, // 14 days.
+        // When using a file store for the cache the gradecachettl setting
+        // will be used by the cache purger and for scheduling the cache purging.
+        // The scheduled coderunner cache purging will only run for file store caches.
+        // You should try to set the coderunner one the same as this one.
+        // The file cache will respect this ttl and not serve up anything older,
+        // but it doesn't remove old entries.
+        // Important:
+        // If you must use another type of store then should make sure that
+        // you've set the ttl and cache settings appropriately, eg,
+        // Redi will schedule a clean-up based on ttl but you will also
+        // need to set maxmemory to something sensible and maxmemory-policy
+        // so that you don't run out of memory!
+        // Helpful note:
+        // If you change this file you can get Moodle to update its settings
+        // by using the Rescan definitions link on the Admin Settings,
+        // plugins cache configuration page.
     ],
 ];

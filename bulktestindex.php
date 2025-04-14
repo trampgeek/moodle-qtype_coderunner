@@ -171,23 +171,23 @@ echo <<<HTML
     <div style="margin-bottom: 10px; display: grid; grid-template-columns: 180pt 80pt auto; gap: 10px; align-items: center; max-width:1000;">
         <div style="grid-column: span 3; border-top: 1px solid rgb(10, 16, 74);"> </div>
         <label for="nruns">$numrunslabel</label>
-        <input type="number" id="nruns" value="{$nruns}" min="1" style="width: 80px;">
+        <input type="number" id="nruns" class="form-control" value="{$nruns}" min="1" style="width: 80px;">
         <span>$numrunsexplanation</span>
         <div style="grid-column: span 3; border-bottom: 1px solid rgb(10, 16, 74);"> </div>
 
         <label for="randomseed">$randomseedlabel</label>
-        <input type="number" id="randomseed" value="" min="0" style="width: 80px;">
+        <input type="number" id="randomseed" class="form-control" value="" min="0" style="width: 80px;">
         <span>$randomseedexplanation</span>
         <div style="grid-column: span 3; border-bottom: 1px solid rgb(10, 16, 74);"> </div>
         <label for="repeatrandomonly">$repeatrandomonlylabel</label>
         <div>
-            <input type="checkbox" id="repeatrandomonly" class="btn-check" checked>
+            <input type="checkbox" id="repeatrandomonly" checked>
         </div>
         <span>$repeatrandomonlyexplanation</span>
         <div style="grid-column: span 3; border-bottom: 1px solid rgb(10, 16, 74);"> </div>
         <label for="clearcachefirst">$clearcachefirstlabel</label>
         <div>
-            <input type="checkbox" id="clearcachefirst" class="btn-check" onchange="confirmCheckboxChange(this)">
+            <input type="checkbox" id="clearcachefirst"  onchange="confirmCheckboxChange(this)">
         </div>
         <span>$clearcachefirstexplanation</span>
         <div style="grid-column: span 3; border-bottom: 1px solid rgb(10, 16, 74);"> </div>
@@ -208,14 +208,12 @@ $availablequestionsbycontext = [];
 foreach ($questionsbycontext as $contextid => $numcoderunnerquestions) {
     $context = context::instance_by_id($contextid);
     if (has_capability('moodle/question:editall', $context)) {
-        //$coursecontext = $context->get_course_context(false);
-        //$coursename = $coursecontext->get_context_name(true, true);  // With context prefix, short version.
         $contextname = $context->get_context_name(true, true); // With context prefix, short version.
-        //$name = "$coursename: $contextname";
         $name = $contextname;
         $availablequestionsbycontext[$contextid] = [
             'name' => $name,
             'numquestions' => $numcoderunnerquestions,
+            'contextid' => $contextid, // For legacy usage.
         ];
     }
 }

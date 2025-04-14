@@ -341,8 +341,8 @@ class bulk_tester {
 
         // Clear grading cache if requested. usettl is set to false here.
         if ($this->clearcachefirst) {
-            $purger = new cache_purger($this->context->id, false);
-            $purger->purge_cache_for_context();
+            $purger = new cache_purger(usettl: false);
+            $purger->purge_cache_for_context($this->context->id);
         }
         $this->numpasses = 0;
         foreach ($categories as $currentcategoryid => $nameandcount) {
