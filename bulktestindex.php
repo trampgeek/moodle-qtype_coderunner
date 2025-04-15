@@ -43,13 +43,17 @@ $availablequestionsbycontext = [];
 foreach ($questionsbycontext as $contextid => $numcoderunnerquestions) {
     $context = context::instance_by_id($contextid);
     if (has_capability('moodle/question:editall', $context)) {
-        //$coursecontext = $context->get_course_context(false);
-        //$coursename = $coursecontext->get_context_name(true, true);  // With context prefix, short version.
-        $contextname = $context->get_context_name(true, true); // With context prefix, short version.
-        //$name = "$coursename: $contextname";
-        $name = $contextname;
-        $availablequestionsbycontext[$name] = [
-            'contextid' => $contextid,
+        $coursecontext = $context->get_course_context(false);
+        if ($coursecontext) {
+            $coursename = $coursecontext->get_context_name(true, true);
+            $contextname = $context->get_context_name(false, true); // Without context prefix, short version.
+            $name = "$coursename -> Context: $contextname";
+        } else {
+            // Just use this part in Moodle 5...
+            $name = $context->get_context_name(true, true); // With context prefix, short version.
+        }
+        $availablequestionsbycontext[$contextid] = [
+            'name' => $name,
             'numquestions' => $numcoderunnerquestions,
         ];
     }
@@ -123,8 +127,8 @@ if (count($availablequestionsbycontext) == 0) {
     echo html_writer::tag('p', '<b>jobe_host:</b> ' . $jobehost);
     echo html_writer::start_tag('ul');
     $buttonstyle = 'background-color: #FFFFD0; padding: 2px 2px 0px 2px;border: 4px solid white';
-    foreach ($availablequestionsbycontext as $name => $info) {
-        $contextid = $info['contextid'];
+    foreach ($availablequestionsbycontext as $contextid => $info) {
+        $name = $info['name'];
         $numcoderunnerquestions = $info['numquestions'];
 
         $testallstr = get_string('bulktestallincontext', 'qtype_coderunner');
