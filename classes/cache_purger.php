@@ -186,7 +186,7 @@ class cache_purger {
             'gradingcachedefintionnotfound',
             'qtype_coderunner'
         );
-        throw new Exception($error);
+        throw new \Exception($error);
     }
 
 
@@ -202,7 +202,7 @@ class cache_purger {
             'gradingcachefilestorenotfound',
             'qtype_coderunner'
         );
-        throw new Exception($error);
+        throw new \Exception($error);
     }
 
 
