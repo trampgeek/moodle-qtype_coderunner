@@ -60,6 +60,14 @@ class qtype_coderunner_util {
     }
 
 
+    /**
+     * Return true if we're running on Moodle 4.6 or later.
+     */
+    public static function using_mod_qbank() {
+        return class_exists('mod_qbank\\task\\transfer_question_categories');
+    }
+
+
     // A utility method used for iterating over multibyte (utf-8) strings
     // in php. Taken from https://stackoverflow.com/questions/3666306/how-to-iterate-utf-8-string-in-php
     // We can't simply use mb_substr to extract the ith characters from a multibyte

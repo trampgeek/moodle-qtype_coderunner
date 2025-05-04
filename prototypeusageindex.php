@@ -26,6 +26,14 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace qtype_coderunner;
+
+use context;
+use context_system;
+use context_course;
+use html_writer;
+use moodle_url;
+
 require_once(__DIR__ . '/../../../config.php');
 require_once($CFG->libdir . '/questionlib.php');
 
@@ -37,9 +45,7 @@ $PAGE->set_url('/question/type/coderunner/prototypeusageindex.php');
 $PAGE->set_context($context);
 $PAGE->set_title(get_string('prototypeusageindex', 'qtype_coderunner'));
 
-// Create the helper class.
-$bulktester = new qtype_coderunner_bulk_tester();
-$allcourses = $bulktester->get_all_courses();
+$allcourses = bulk_tester::get_all_courses();
 
 // Start display.
 echo $OUTPUT->header();

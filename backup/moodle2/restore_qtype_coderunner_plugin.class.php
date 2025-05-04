@@ -143,4 +143,84 @@ class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
         }
         // Nothing to remap if the question already existed.
     }
+
+    // Add the extra methods required by MDL-83541.
+    // #[Override]  // This breaks the restore at run time if used with older versions of moodle so commented out.
+    public static function convert_backup_to_questiondata(array $backupdata): stdClass {
+        $questiondata = parent::convert_backup_to_questiondata($backupdata);
+        $qtype = $questiondata->qtype;
+
+        if (isset($backupdata["plugin_qtype_{$qtype}_question"]['coderunner_testcases'])) {
+            $questiondata->options->testcases = [];
+            foreach ($backupdata["plugin_qtype_{$qtype}_question"]['coderunner_testcases']['coderunner_testcase'] as $record) {
+                $testcase = new stdClass();
+                $fields = [ 'testcode', 'testtype', 'expected', 'useasexample', 'display',
+                    'hiderestiffail', 'mark', 'stdin', 'extra'];
+                foreach ($fields as $field) {
+                    if (isset($record[$field])) {   // Old backups don't have testtype.
+                        $testcase->$field = $record[$field];
+                    }
+                }
+                $questiondata->options->testcases[] = $testcase;
+            }
+        }
+
+        if (isset($backupdata["plugin_qtype_{$qtype}_question"]['coderunner_options'])) {
+            $questiondata->options = (object) array_merge(
+                (array) $questiondata->options,
+                $backupdata["plugin_qtype_{$qtype}_question"]['coderunner_options']['coderunner_option'][0]
+            );
+        }
+
+        return $questiondata;
+    }
+
+    // #[Override]  // This breaks the restore at run time if used with older versions of moodle so commented out.
+    protected function define_excluded_identity_hash_fields(): array {
+        return [
+            '/answers',
+            '/hints',
+            '/prototype',
+            '/options/customise',
+            '/options/templateparamsevald',
+            '/options/testcases/id',
+            '/options/testcases/questionid',
+        ];
+    }
+
+    // #[Override]  // This breaks the restore at run time if used with older versions of moodle so commented out.
+    public static function remove_excluded_question_data(stdClass $questiondata, array $excludefields = []): stdClass {
+        if (isset($questiondata->options->customise)) {
+            unset($questiondata->options->customise);
+        }
+        if (isset($questiondata->prototype)) {
+            unset($questiondata->prototype);
+        }
+        if (isset($questiondata->answers)) {
+            unset($questiondata->answers);
+        }
+        if (isset($questiondata->options->answers)) {
+            unset($questiondata->options->answers);
+        }
+        if (isset($questiondata->hints)) {
+            unset($questiondata->hints);
+        }
+
+        // Hack: convert all cases of allowmultiplestdins being false to null.
+        if (isset($questiondata->options) && ! ($questiondata->options->allowmultiplestdins ?? null)) {
+            $questiondata->options->allowmultiplestdins = null;
+        }
+
+        if (isset($questiondata->options->testcases)) {
+            foreach ($questiondata->options->testcases as $testcase) {
+                if (isset($testcase->id)) {
+                    unset($testcase->id);
+                }
+                if (isset($testcase->questionid)) {
+                    unset($testcase->questionid);
+                }
+            }
+        }
+        return parent::remove_excluded_question_data($questiondata, $excludefields);
+    }
 }

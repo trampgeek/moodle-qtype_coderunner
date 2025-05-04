@@ -3,7 +3,7 @@
 <!-- question: 0  -->
   <question type="category">
     <category>
-      <text>top/CR_PROTOTYPES</text>
+      <text>$system$/top/CR_PROTOTYPES</text>
     </category>
     <info format="moodle_auto_format">
       <text>Category for CodeRunner question built-in prototypes. FOR SYSTEM USE ONLY.</text>
@@ -11,7 +11,7 @@
     <idnumber></idnumber>
   </question>
 
-<!-- question: 37490  -->
+<!-- question: 32444  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_c_function</text>
@@ -91,69 +91,7 @@ int main() {
     </testcases>
   </question>
 
-<!-- question: 37491  -->
-  <question type="coderunner">
-    <name>
-      <text>BUILT_IN_PROTOTYPE_c_program</text>
-    </name>
-    <questiontext format="html">
-      <text>Built-in prototypes are documented in the language strings.</text>
-    </questiontext>
-    <generalfeedback format="html">
-      <text></text>
-    </generalfeedback>
-    <defaultgrade>1.0000000</defaultgrade>
-    <penalty>0.0000000</penalty>
-    <hidden>0</hidden>
-    <idnumber></idnumber>
-    <coderunnertype>c_program</coderunnertype>
-    <prototypetype>1</prototypetype>
-    <allornothing>1</allornothing>
-    <penaltyregime>33.3, 66.7, ...</penaltyregime>
-    <precheck>0</precheck>
-    <hidecheck>0</hidecheck>
-    <showsource>0</showsource>
-    <answerboxlines>18</answerboxlines>
-    <answerboxcolumns>100</answerboxcolumns>
-    <answerpreload></answerpreload>
-    <globalextra></globalextra>
-    <useace>1</useace>
-    <resultcolumns></resultcolumns>
-    <template>{{ STUDENT_ANSWER }}</template>
-    <iscombinatortemplate>0</iscombinatortemplate>
-    <allowmultiplestdins>0</allowmultiplestdins>
-    <answer></answer>
-    <validateonsave>0</validateonsave>
-    <testsplitterre></testsplitterre>
-    <language>C</language>
-    <acelang></acelang>
-    <sandbox></sandbox>
-    <grader>EqualityGrader</grader>
-    <cputimelimitsecs></cputimelimitsecs>
-    <memlimitmb></memlimitmb>
-    <sandboxparams><![CDATA[{"linkargs": ["-lm"]}]]></sandboxparams>
-    <templateparams></templateparams>
-    <hoisttemplateparams>0</hoisttemplateparams>
-    <extractcodefromjson>1</extractcodefromjson>
-    <templateparamslang>twig</templateparamslang>
-    <templateparamsevalpertry>0</templateparamsevalpertry>
-    <templateparamsevald></templateparamsevald>
-    <twigall>0</twigall>
-    <uiplugin>ace</uiplugin>
-    <uiparameters></uiparameters>
-    <attachments>0</attachments>
-    <attachmentsrequired>0</attachmentsrequired>
-    <maxfilesize>0</maxfilesize>
-    <filenamesregex></filenamesregex>
-    <filenamesexplain></filenamesexplain>
-    <displayfeedback>0</displayfeedback>
-    <giveupallowed>0</giveupallowed>
-    <prototypeextra></prototypeextra>
-    <testcases>
-    </testcases>
-  </question>
-
-<!-- question: 37492  -->
+<!-- question: 32446  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_cpp_function</text>
@@ -236,7 +174,7 @@ int main() {
     </testcases>
   </question>
 
-<!-- question: 37493  -->
+<!-- question: 32447  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_cpp_program</text>
@@ -298,7 +236,69 @@ int main() {
     </testcases>
   </question>
 
-<!-- question: 37527  -->
+<!-- question: 32445  -->
+  <question type="coderunner">
+    <name>
+      <text>BUILT_IN_PROTOTYPE_c_program</text>
+    </name>
+    <questiontext format="html">
+      <text>Built-in prototypes are documented in the language strings.</text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.0000000</penalty>
+    <hidden>0</hidden>
+    <idnumber></idnumber>
+    <coderunnertype>c_program</coderunnertype>
+    <prototypetype>1</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime>33.3, 66.7, ...</penaltyregime>
+    <precheck>0</precheck>
+    <hidecheck>0</hidecheck>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
+    <globalextra></globalextra>
+    <useace>1</useace>
+    <resultcolumns></resultcolumns>
+    <template>{{ STUDENT_ANSWER }}</template>
+    <iscombinatortemplate>0</iscombinatortemplate>
+    <allowmultiplestdins>0</allowmultiplestdins>
+    <answer></answer>
+    <validateonsave>0</validateonsave>
+    <testsplitterre></testsplitterre>
+    <language>C</language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader>EqualityGrader</grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams><![CDATA[{"linkargs": ["-lm"]}]]></sandboxparams>
+    <templateparams></templateparams>
+    <hoisttemplateparams>0</hoisttemplateparams>
+    <extractcodefromjson>1</extractcodefromjson>
+    <templateparamslang>twig</templateparamslang>
+    <templateparamsevalpertry>0</templateparamsevalpertry>
+    <templateparamsevald></templateparamsevald>
+    <twigall>0</twigall>
+    <uiplugin>ace</uiplugin>
+    <uiparameters></uiparameters>
+    <attachments>0</attachments>
+    <attachmentsrequired>0</attachmentsrequired>
+    <maxfilesize>0</maxfilesize>
+    <filenamesregex></filenamesregex>
+    <filenamesexplain></filenamesexplain>
+    <displayfeedback>0</displayfeedback>
+    <giveupallowed>0</giveupallowed>
+    <prototypeextra></prototypeextra>
+    <testcases>
+    </testcases>
+  </question>
+
+<!-- question: 32469  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_directed_graph</text>
@@ -359,8 +359,15 @@ except json.JSONDecodeError as e:
     raise Exception("Oops. Illegal graph received (exception {}). Please report (unless you did something silly yourself)".format(e))
 
 {% for TEST in TESTCASES %}
-{{ TEST.testcode }}
-{{ TEST.extra }}
+{# note: also check unhoisted variable name in case someone turned off hoisting #}
+{% if extra == "pretest" or QUESTION.parameters.extra == "pretest" %}
+{{TEST.extra}}
+{% endif %}
+{{TEST.testcode}}
+{# note: also check unhoisted variable name in case someone turned off hoisting #}
+{% if extra == "posttest" or QUESTION.parameters.extra == "posttest" %}
+{{TEST.extra}}
+{% endif %}
 {% if not loop.last %}
 print(SEPARATOR)
 {% endif %}
@@ -377,12 +384,12 @@ print(SEPARATOR)
     <cputimelimitsecs></cputimelimitsecs>
     <memlimitmb></memlimitmb>
     <sandboxparams></sandboxparams>
-    <templateparams></templateparams>
-    <hoisttemplateparams>0</hoisttemplateparams>
+    <templateparams><![CDATA[{"extra":"posttest"}]]></templateparams>
+    <hoisttemplateparams>1</hoisttemplateparams>
     <extractcodefromjson>1</extractcodefromjson>
     <templateparamslang>twig</templateparamslang>
     <templateparamsevalpertry>0</templateparamsevalpertry>
-    <templateparamsevald>{}</templateparamsevald>
+    <templateparamsevald><![CDATA[{"extra":"posttest"}]]></templateparamsevald>
     <twigall>0</twigall>
     <uiplugin>graph</uiplugin>
     <uiparameters><![CDATA[{"isdirected": true, "isfsm": false}]]></uiparameters>
@@ -398,7 +405,7 @@ print(SEPARATOR)
     </testcases>
   </question>
 
-<!-- question: 37495  -->
+<!-- question: 32449  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_java_class</text>
@@ -473,7 +480,7 @@ public class __tester__ {
     </testcases>
   </question>
 
-<!-- question: 37496  -->
+<!-- question: 32450  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_java_method</text>
@@ -554,7 +561,7 @@ public class __tester__ {
     </testcases>
   </question>
 
-<!-- question: 37497  -->
+<!-- question: 32451  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_java_program</text>
@@ -616,7 +623,7 @@ public class __tester__ {
     </testcases>
   </question>
 
-<!-- question: 37508  -->
+<!-- question: 32452  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_multilanguage</text>
@@ -783,7 +790,78 @@ except subprocess.CalledProcessError as e:
     </testcases>
   </question>
 
-<!-- question: 37498  -->
+<!-- question: 32461  -->
+  <question type="coderunner">
+    <name>
+      <text>BUILTIN_PROTOTYPE_nodejs</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<p>Built-in prototypes are documented in the language strings.</p>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.0000000</penalty>
+    <hidden>0</hidden>
+    <idnumber></idnumber>
+    <coderunnertype>nodejs</coderunnertype>
+    <prototypetype>1</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime>33.3, 66.7, ...</penaltyregime>
+    <precheck>0</precheck>
+    <hidecheck>0</hidecheck>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
+    <globalextra></globalextra>
+    <useace>1</useace>
+    <resultcolumns></resultcolumns>
+    <template><![CDATA[{{ STUDENT_ANSWER }}
+
+var SEPARATOR = "#<ab@17943918#@>#";
+
+{% for TEST in TESTCASES %}
+{{ TEST.testcode }}
+{% if not loop.last %}
+console.log(SEPARATOR);
+{% endif %}
+{% endfor %}]]></template>
+    <iscombinatortemplate>1</iscombinatortemplate>
+    <allowmultiplestdins>0</allowmultiplestdins>
+    <answer></answer>
+    <validateonsave>0</validateonsave>
+    <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
+    <language>nodejs</language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader>EqualityGrader</grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb>1000</memlimitmb>
+    <sandboxparams><![CDATA[{"sourcefilename": "__tester__.js"}]]></sandboxparams>
+    <templateparams></templateparams>
+    <hoisttemplateparams>0</hoisttemplateparams>
+    <extractcodefromjson>1</extractcodefromjson>
+    <templateparamslang>twig</templateparamslang>
+    <templateparamsevalpertry>0</templateparamsevalpertry>
+    <templateparamsevald></templateparamsevald>
+    <twigall>0</twigall>
+    <uiplugin>ace</uiplugin>
+    <uiparameters></uiparameters>
+    <attachments>0</attachments>
+    <attachmentsrequired>0</attachmentsrequired>
+    <maxfilesize>0</maxfilesize>
+    <filenamesregex></filenamesregex>
+    <filenamesexplain></filenamesexplain>
+    <displayfeedback>0</displayfeedback>
+    <giveupallowed>0</giveupallowed>
+    <prototypeextra></prototypeextra>
+    <testcases>
+    </testcases>
+  </question>
+
+<!-- question: 32453  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_octave_function</text>
@@ -856,7 +934,7 @@ disp('#<ab@17943918#@>#');
     </testcases>
   </question>
 
-<!-- question: 37499  -->
+<!-- question: 32454  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_pascal_function</text>
@@ -874,7 +952,7 @@ disp('#<ab@17943918#@>#');
     <coderunnertype>pascal_function</coderunnertype>
     <prototypetype>1</prototypetype>
     <allornothing>1</allornothing>
-    <penaltyregime>33.3, 66.7, ...</penaltyregime>
+    <penaltyregime>10, 20, ...</penaltyregime>
     <precheck>0</precheck>
     <hidecheck>0</hidecheck>
     <showsource>0</showsource>
@@ -923,7 +1001,7 @@ end.
     </testcases>
   </question>
 
-<!-- question: 37500  -->
+<!-- question: 32455  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_pascal_program</text>
@@ -941,7 +1019,7 @@ end.
     <coderunnertype>pascal_program</coderunnertype>
     <prototypetype>1</prototypetype>
     <allornothing>1</allornothing>
-    <penaltyregime>33.3, 66.7, ...</penaltyregime>
+    <penaltyregime>10, 20, ...</penaltyregime>
     <precheck>0</precheck>
     <hidecheck>0</hidecheck>
     <showsource>0</showsource>
@@ -985,7 +1063,7 @@ end.
     </testcases>
   </question>
 
-<!-- question: 37501  -->
+<!-- question: 32456  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_php</text>
@@ -1056,7 +1134,7 @@ echo SEPARATOR;
     </testcases>
   </question>
 
-<!-- question: 37502  -->
+<!-- question: 32457  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_python2</text>
@@ -1129,7 +1207,7 @@ print(SEPARATOR)
     </testcases>
   </question>
 
-<!-- question: 37503  -->
+<!-- question: 32458  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_python3</text>
@@ -1202,7 +1280,83 @@ print(SEPARATOR)
     </testcases>
   </question>
 
-<!-- question: 37504  -->
+<!-- question: 32462  -->
+  <question type="coderunner">
+    <name>
+      <text>BUILTIN_PROTOTYPE_python3_w_input</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<p>Built-in prototypes are documented in the language strings.</p>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.0000000</penalty>
+    <hidden>0</hidden>
+    <idnumber></idnumber>
+    <coderunnertype>python3_w_input</coderunnertype>
+    <prototypetype>1</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime>33.3, 66.7, ...</penaltyregime>
+    <precheck>0</precheck>
+    <hidecheck>0</hidecheck>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
+    <globalextra></globalextra>
+    <useace>1</useace>
+    <resultcolumns></resultcolumns>
+    <template><![CDATA[__saved_input__ = input
+def input(prompt=''):
+    s = __saved_input__(prompt)
+    print(s)
+    return s
+
+{{ STUDENT_ANSWER }}
+SEPARATOR = "#<ab@17943918#@>#"
+
+{% for TEST in TESTCASES %}
+{{ TEST.testcode }}
+{% if not loop.last %}
+print(SEPARATOR)
+{% endif %}
+{% endfor %}]]></template>
+    <iscombinatortemplate>1</iscombinatortemplate>
+    <allowmultiplestdins>0</allowmultiplestdins>
+    <answer></answer>
+    <validateonsave>0</validateonsave>
+    <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
+    <language>python3</language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader>EqualityGrader</grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams></templateparams>
+    <hoisttemplateparams>0</hoisttemplateparams>
+    <extractcodefromjson>1</extractcodefromjson>
+    <templateparamslang>twig</templateparamslang>
+    <templateparamsevalpertry>0</templateparamsevalpertry>
+    <templateparamsevald></templateparamsevald>
+    <twigall>0</twigall>
+    <uiplugin>ace</uiplugin>
+    <uiparameters></uiparameters>
+    <attachments>0</attachments>
+    <attachmentsrequired>0</attachmentsrequired>
+    <maxfilesize>0</maxfilesize>
+    <filenamesregex></filenamesregex>
+    <filenamesexplain></filenamesexplain>
+    <displayfeedback>0</displayfeedback>
+    <giveupallowed>0</giveupallowed>
+    <prototypeextra></prototypeextra>
+    <testcases>
+    </testcases>
+  </question>
+
+<!-- question: 32459  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_sql</text>
@@ -1309,7 +1463,7 @@ print(SEPARATOR)
     </testcases>
   </question>
 
-<!-- question: 37526  -->
+<!-- question: 32468  -->
   <question type="coderunner">
     <name>
       <text>BUILT_IN_PROTOTYPE_undirected_graph</text>
@@ -1373,8 +1527,15 @@ except json.JSONDecodeError as e:
     raise Exception("Oops. Illegal graph received (exception {}). Please report (unless you did something silly yourself)".format(e))
 
 {% for TEST in TESTCASES %}
-{{ TEST.testcode }}
-{{ TEST.extra }}
+{# note: also check unhoisted variable name in case someone turned off hoisting #}
+{% if extra == "pretest" or QUESTION.parameters.extra == "pretest" %}
+{{TEST.extra}}
+{% endif %}
+{{TEST.testcode}}
+{# note: also check unhoisted variable name in case someone turned off hoisting #}
+{% if extra == "posttest" or QUESTION.parameters.extra == "posttest" %}
+{{TEST.extra}}
+{% endif %}
 {% if not loop.last %}
 print(SEPARATOR)
 {% endif %}
@@ -1391,162 +1552,15 @@ print(SEPARATOR)
     <cputimelimitsecs></cputimelimitsecs>
     <memlimitmb></memlimitmb>
     <sandboxparams></sandboxparams>
-    <templateparams></templateparams>
-    <hoisttemplateparams>0</hoisttemplateparams>
+    <templateparams><![CDATA[{"extra":"posttest"}]]></templateparams>
+    <hoisttemplateparams>1</hoisttemplateparams>
     <extractcodefromjson>1</extractcodefromjson>
     <templateparamslang>twig</templateparamslang>
     <templateparamsevalpertry>0</templateparamsevalpertry>
-    <templateparamsevald>{}</templateparamsevald>
+    <templateparamsevald><![CDATA[{"extra":"posttest"}]]></templateparamsevald>
     <twigall>0</twigall>
     <uiplugin>graph</uiplugin>
     <uiparameters><![CDATA[{"isdirected": false, "isfsm": false}]]></uiparameters>
-    <attachments>0</attachments>
-    <attachmentsrequired>0</attachmentsrequired>
-    <maxfilesize>0</maxfilesize>
-    <filenamesregex></filenamesregex>
-    <filenamesexplain></filenamesexplain>
-    <displayfeedback>0</displayfeedback>
-    <giveupallowed>0</giveupallowed>
-    <prototypeextra></prototypeextra>
-    <testcases>
-    </testcases>
-  </question>
-
-<!-- question: 37506  -->
-  <question type="coderunner">
-    <name>
-      <text>BUILTIN_PROTOTYPE_nodejs</text>
-    </name>
-    <questiontext format="html">
-      <text><![CDATA[<p>Built-in prototypes are documented in the language strings.</p>]]></text>
-    </questiontext>
-    <generalfeedback format="html">
-      <text></text>
-    </generalfeedback>
-    <defaultgrade>1.0000000</defaultgrade>
-    <penalty>0.0000000</penalty>
-    <hidden>0</hidden>
-    <idnumber></idnumber>
-    <coderunnertype>nodejs</coderunnertype>
-    <prototypetype>1</prototypetype>
-    <allornothing>1</allornothing>
-    <penaltyregime>33.3, 66.7, ...</penaltyregime>
-    <precheck>0</precheck>
-    <hidecheck>0</hidecheck>
-    <showsource>0</showsource>
-    <answerboxlines>18</answerboxlines>
-    <answerboxcolumns>100</answerboxcolumns>
-    <answerpreload></answerpreload>
-    <globalextra></globalextra>
-    <useace>1</useace>
-    <resultcolumns></resultcolumns>
-    <template><![CDATA[{{ STUDENT_ANSWER }}
-
-var SEPARATOR = "#<ab@17943918#@>#";
-
-{% for TEST in TESTCASES %}
-{{ TEST.testcode }}
-{% if not loop.last %}
-console.log(SEPARATOR);
-{% endif %}
-{% endfor %}]]></template>
-    <iscombinatortemplate>1</iscombinatortemplate>
-    <allowmultiplestdins>0</allowmultiplestdins>
-    <answer></answer>
-    <validateonsave>0</validateonsave>
-    <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
-    <language>nodejs</language>
-    <acelang></acelang>
-    <sandbox></sandbox>
-    <grader>EqualityGrader</grader>
-    <cputimelimitsecs></cputimelimitsecs>
-    <memlimitmb>1000</memlimitmb>
-    <sandboxparams><![CDATA[{"sourcefilename": "__tester__.js"}]]></sandboxparams>
-    <templateparams></templateparams>
-    <hoisttemplateparams>0</hoisttemplateparams>
-    <extractcodefromjson>1</extractcodefromjson>
-    <templateparamslang>twig</templateparamslang>
-    <templateparamsevalpertry>0</templateparamsevalpertry>
-    <templateparamsevald></templateparamsevald>
-    <twigall>0</twigall>
-    <uiplugin>ace</uiplugin>
-    <uiparameters></uiparameters>
-    <attachments>0</attachments>
-    <attachmentsrequired>0</attachmentsrequired>
-    <maxfilesize>0</maxfilesize>
-    <filenamesregex></filenamesregex>
-    <filenamesexplain></filenamesexplain>
-    <displayfeedback>0</displayfeedback>
-    <giveupallowed>0</giveupallowed>
-    <prototypeextra></prototypeextra>
-    <testcases>
-    </testcases>
-  </question>
-
-<!-- question: 37507  -->
-  <question type="coderunner">
-    <name>
-      <text>BUILTIN_PROTOTYPE_python3_w_input</text>
-    </name>
-    <questiontext format="html">
-      <text><![CDATA[<p>Built-in prototypes are documented in the language strings.</p>]]></text>
-    </questiontext>
-    <generalfeedback format="html">
-      <text></text>
-    </generalfeedback>
-    <defaultgrade>1.0000000</defaultgrade>
-    <penalty>0.0000000</penalty>
-    <hidden>0</hidden>
-    <idnumber></idnumber>
-    <coderunnertype>python3_w_input</coderunnertype>
-    <prototypetype>1</prototypetype>
-    <allornothing>1</allornothing>
-    <penaltyregime>33.3, 66.7, ...</penaltyregime>
-    <precheck>0</precheck>
-    <hidecheck>0</hidecheck>
-    <showsource>0</showsource>
-    <answerboxlines>18</answerboxlines>
-    <answerboxcolumns>100</answerboxcolumns>
-    <answerpreload></answerpreload>
-    <globalextra></globalextra>
-    <useace>1</useace>
-    <resultcolumns></resultcolumns>
-    <template><![CDATA[__saved_input__ = input
-def input(prompt=''):
-    s = __saved_input__(prompt)
-    print(s)
-    return s
-
-{{ STUDENT_ANSWER }}
-SEPARATOR = "#<ab@17943918#@>#"
-
-{% for TEST in TESTCASES %}
-{{ TEST.testcode }}
-{% if not loop.last %}
-print(SEPARATOR)
-{% endif %}
-{% endfor %}]]></template>
-    <iscombinatortemplate>1</iscombinatortemplate>
-    <allowmultiplestdins>0</allowmultiplestdins>
-    <answer></answer>
-    <validateonsave>0</validateonsave>
-    <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
-    <language>python3</language>
-    <acelang></acelang>
-    <sandbox></sandbox>
-    <grader>EqualityGrader</grader>
-    <cputimelimitsecs></cputimelimitsecs>
-    <memlimitmb></memlimitmb>
-    <sandboxparams></sandboxparams>
-    <templateparams></templateparams>
-    <hoisttemplateparams>0</hoisttemplateparams>
-    <extractcodefromjson>1</extractcodefromjson>
-    <templateparamslang>twig</templateparamslang>
-    <templateparamsevalpertry>0</templateparamsevalpertry>
-    <templateparamsevald></templateparamsevald>
-    <twigall>0</twigall>
-    <uiplugin>ace</uiplugin>
-    <uiparameters></uiparameters>
     <attachments>0</attachments>
     <attachmentsrequired>0</attachmentsrequired>
     <maxfilesize>0</maxfilesize>

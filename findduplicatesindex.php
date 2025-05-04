@@ -24,6 +24,13 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace qtype_coderunner;
+
+use context;
+use context_system;
+use html_writer;
+use moodle_url;
+
 require_once(__DIR__ . '/../../../config.php');
 require_once($CFG->libdir . '/questionlib.php');
 
@@ -35,15 +42,12 @@ $PAGE->set_url('/question/type/coderunner/findduplicatesindex.php');
 $PAGE->set_context($context);
 $PAGE->set_title('Find duplicate questions');
 
-// Create the helper class.
-$bulktester = new qtype_coderunner_bulk_tester();
-
 // Display.
 echo $OUTPUT->header();
 echo $OUTPUT->heading('Courses containing CodeRunner questions');
 
 // Find in which contexts the user can edit questions.
-$questionsbycontext = $bulktester->get_num_coderunner_questions_by_context();
+$questionsbycontext = bulk_tester::get_num_coderunner_questions_by_context();
 $availablequestionsbycontext = [];
 foreach ($questionsbycontext as $contextid => $numcoderunnerquestions) {
     $context = context::instance_by_id($contextid);

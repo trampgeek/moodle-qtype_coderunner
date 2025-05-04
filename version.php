@@ -22,12 +22,12 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version  = 2025010200;
-$plugin->requires = 2022041900;
+$plugin->version  = 2025041300;
+$plugin->requires = 2023100900; // Moodle 4.3.0 or later.
 $plugin->cron = 0;
 $plugin->component = 'qtype_coderunner';
 $plugin->maturity = MATURITY_STABLE;
-$plugin->release = '5.5.0';
+$plugin->release = '5.6.4';
 
 $plugin->dependencies = [
     'qbehaviour_adaptive_adapted_for_coderunner' => 2024041800,

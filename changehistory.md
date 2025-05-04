@@ -1,12 +1,44 @@
 # CHANGE HISTORY
 
-### 2 January 2025. 5.5.0
+### 13 April 2025, 5.6.4
+
+  * Address issue #249: "Implement changes made necessary by the fix for MDL-83541". After that fix, all CodeRunner questions
+    in a course being duplicated whenever a quiz was duplicated. This update to coderunner implements the new API calls that
+    Moodle added.
+  * Various bulktester improvements.
+  * Scratchpad Run button made much larger and coloured green to reduce confusion with Check button.
+  * README.md updates to correct wrong indentation on many code examples.
+  * README.md documentation of the Twig TEST variable was corrected by removing some fields present only during editin.
+  * Bug fix: the "Copy expected to got" functionality broke if using combinator template
+    graders when the testcase ordering was changed from the default.
+
+### 23 February 2025. 5.6.2
+
+  * Bug fix: With Moodle 4.6 or later, updates were not working
+
+
+### 13 February 2025. 5.6.1
+
+  * New features:
+     * Preliminary implementation of Moodle 5 compatibility. Tested only with courses imported
+       from earlier Moodles, which do not include shared question banks.
+     * Bulk tester includes an option to purge the grade cache for the course(s) being tested.
+     * jobe-host is now displayed in bulk-tester results.
+
+   * Some on-going code tidying.
+     
+### 23 January 2025. 5.5.0
 
  * New features:
      * Addition of some unsupported question types, include two experimental C# dot net question types.
      * Addition of an experimental capability for combinator grader questions to return files such as images
        to be displayed in the response to the student. WARNING: these files do not survive 
        course backup/restore cycles and would need to be rebuilt by regrading if wanted.
+     * An enhanced bulk tester that supports multiple tests of randomised questions, setting of
+       the random seed for such runs, and rerunning of failed tests.
+     * Addition of a script to purge the Jobe cache.
+     * Improved styling of question authoring window (thanks Luca Bösch).
+     * Preliminary updates for Moodle 5 compatability (a work in progress still).
  * Various code tidying and Behat testing tweaks.
  * Bug fixes:
     * The layout of the testcase options in the author editing form were squished together in Moodle 4.5

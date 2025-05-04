@@ -47,6 +47,9 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/question/engine/bank.php');
 require_once($CFG->dirroot . '/lib/questionlib.php');
 
+use core_question\local\bank\question_bank_helper;
+use core_question\local\bank\question_edit_contexts;
+
 /**
  * qtype_coderunner extends the base question_type to coderunner-specific functionality.
  * A coderunner question requires an additional DB table
@@ -79,6 +82,12 @@ class qtype_coderunner extends question_type {
      * @return mixed array as above, or null to tell the base class to do nothing.
      */
     public function extra_question_fields() {
+        return self::extra_question_fields_static();
+    }
+
+    // We need access to this list of extra question fields during quiz duplication
+    // (when no actual question exists) so I make it static.
+    public static function extra_question_fields_static() {
         return ['question_coderunner_options',
             'coderunnertype',
             'prototypetype',
@@ -417,8 +426,12 @@ class qtype_coderunner extends question_type {
         } else {
             $qtype = $options->coderunnertype;
             $context = $this->question_context($question);
-            $question->prototype = $this->get_prototype($qtype, $context);
-            $this->set_inherited_fields($options, $question->prototype);
+            $prototype = $this->get_prototype($qtype, $context);
+            if (!($question->export_process ?? false)) {
+                // Don't inherit fields when exporting during quiz duplication or backup restore.
+                $this->set_inherited_fields($options, $prototype);
+                $question->prototype = $prototype;
+            }
         }
 
         // Add in any testcases.
@@ -495,7 +508,8 @@ class qtype_coderunner extends question_type {
     public static function get_all_prototypes($courseid) {
         global $DB;
         $coursecontext = context_course::instance($courseid);
-        [$contextcondition, $params] = $DB->get_in_or_equal($coursecontext->get_parent_context_ids(true));
+        $contextids = self::prototype_contexts($coursecontext);
+        [$contextcondition, $params] = $DB->get_in_or_equal($contextids);
 
         $rows = $DB->get_records_sql("
                 SELECT qco.coderunnertype, count(qco.coderunnertype) as count
@@ -534,7 +548,8 @@ class qtype_coderunner extends question_type {
      */
     public static function get_prototype($coderunnertype, $context, $checkexistenceonly = false) {
         global $DB;
-        [$contextcondition, $params] = $DB->get_in_or_equal($context->get_parent_context_ids(true));
+        $contextids = self::prototype_contexts($context);
+        [$contextcondition, $params] = $DB->get_in_or_equal($contextids);
         $params[] = $coderunnertype;
 
         $sql = "SELECT q.id, q.name, qc.name as category
@@ -563,6 +578,36 @@ class qtype_coderunner extends question_type {
             self::update_question_text_maybe($prototype);
             return $prototype;
         }
+    }
+
+
+    /**
+     * Return a list of the contexts in which accessible prototypes might exist.
+     * @param context $context The context in which we're asking for prototypes.
+     * @return a list of contextids in which we'll look for prototypes.
+     */
+    private static function prototype_contexts($context) {
+        // Get the course in which the context is located.
+        $contextids = [];
+        if (qtype_coderunner_util::using_mod_qbank()) {
+            // Code for Moodle >= 4.6.
+            $frontpageqbank = question_bank_helper::get_default_open_instance_system_type(get_site());
+            $contextids[] = $frontpageqbank->context->id;
+            $course = $context->get_course_context(false);
+            $courseid = $course->instanceid;
+            if ($course) {
+                $allcaps = array_merge(question_edit_contexts::$caps['editq'], question_edit_contexts::$caps['categories']);
+                $sharedbanks = question_bank_helper::get_activity_instances_with_shareable_questions([$courseid], [], $allcaps);
+                $privatebanks = question_bank_helper::get_activity_instances_with_private_questions([$courseid], [], $allcaps);
+                foreach (array_merge($sharedbanks, $privatebanks) as $bank) {
+                    $contextids[] = $bank->contextid;
+                }
+            }
+        } else {
+            // Pre 4.6 code.
+            $contextids = $context->get_parent_context_ids(true);
+        }
+        return $contextids;
     }
 
     /**

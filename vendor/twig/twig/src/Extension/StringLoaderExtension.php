@@ -9,33 +9,31 @@
  * file that was distributed with this source code.
  */
 
-namespace Twig\Extension {
-    use Twig\TwigFunction;
+namespace Twig\Extension;
 
-    final class StringLoaderExtension extends AbstractExtension
+use Twig\Environment;
+use Twig\TemplateWrapper;
+use Twig\TwigFunction;
+
+final class StringLoaderExtension extends AbstractExtension
+{
+    public function getFunctions(): array
     {
-        public function getFunctions(): array
-        {
-            return [
-            new TwigFunction('template_from_string', 'twig_template_from_string', ['needs_environment' => true]),
-            ];
-        }
+        return [
+            new TwigFunction('template_from_string', [self::class, 'templateFromString'], ['needs_environment' => true]),
+        ];
     }
-}
-
-namespace {
-    use Twig\Environment;
-    use Twig\TemplateWrapper;
 
     /**
      * Loads a template from a string.
      *
      *     {{ include(template_from_string("Hello {{ name }}")) }}
      *
-     * @param string $template A template as a string or object implementing __toString()
-     * @param string $name     An optional name of the template to be used in error messages
+     * @param string|null $name An optional name of the template to be used in error messages
+     *
+     * @internal
      */
-    function twig_template_from_string(Environment $env, $template, string $name = null): TemplateWrapper
+    public static function templateFromString(Environment $env, string|\Stringable $template, ?string $name = null): TemplateWrapper
     {
         return $env->createTemplate((string) $template, $name);
     }

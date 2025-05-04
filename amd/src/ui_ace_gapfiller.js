@@ -592,6 +592,8 @@ define(['jquery'], function($) {
         // Create markers
         this.editor.session.addMarker(this.range, "ace-gap-outline", "text", true);
         this.editor.session.addMarker(this.range, "ace-gap-background", "text", false);
+        const startPosition = this.range.start;
+        this.editor.session.insert(startPosition, "<!-- BEGIN CODE GAP -->");
     }
 
     Gap.prototype.cursorInGap = function(cursor) {

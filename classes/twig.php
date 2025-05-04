@@ -202,16 +202,20 @@ function qtype_coderunner_twig_random(Twig\Environment $env, $values = null, $ma
             return $values[mt_rand(0, \strlen($values) - 1)];
         }
     }
-    if (!twig_test_iterable($values)) {
+
+    if (!is_iterable($values)) {
         return $values;
     }
-    $values = twig_to_array($values);
+
+    $coreExtension = $env->getExtension(Twig\Extension\CoreExtension::class);
+    $values = $coreExtension->toArray($values);
+
     if (0 === \count($values)) {
-        throw new RuntimeError('The random function cannot pick from an empty array.');
+        throw new RuntimeError('The "random" function cannot pick from an empty  sequence or mapping.');
     }
 
-    $keys = array_keys($values);
-    $key = $keys[mt_rand(0, count($keys) - 1)];
+    $keys = \array_keys($values);
+    $key = $keys[mt_rand(0, \count($keys) - 1)];
     return $values[$key];
 }
 

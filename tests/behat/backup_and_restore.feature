@@ -1,4 +1,4 @@
-@qtype @qtype_coderunner
+@qtype @qtype_coderunner @coderunner_backup_and_restore
 Feature: Duplicate a course containing a CodeRunner question
   In order re-use my courses containing CodeRunner questions
   As a teacher
@@ -30,8 +30,13 @@ Feature: Duplicate a course containing a CodeRunner question
       | Confirmation | Filename | test_backup.mbz |
     And I restore "test_backup.mbz" backup into a new course using this options:
       | Schema | Course name | Course 2 |
-    And I navigate to "Question bank" in current page administration
+
+    And I am on the "Course 2 copy 1" "core_question > course question bank" page
+    And I should see "Square function"
+
+    # Edit the copy and verify the form field contents.
     And I choose "Edit question" action for "Square function" in the question bank
+
     Then the following fields match these values:
       | Question name                  | Square function                                 |
       | Question text                  | Write a function sqr(n) that returns n squared. |

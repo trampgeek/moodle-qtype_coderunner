@@ -239,7 +239,13 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
 
 
     /**
-     * Return a table describing all the validation failures.
+     * Return a table describing all the validation failures. An issue here is
+     * that the replaceExpectedWithGot button contains a link to the failed test
+     * based on the row number in the question-author-generated result table.
+     * This row number is not necessarily the same as the row number in the
+     * actual test results table, due to reordering (tests are actually
+     * run in the order defined by the 'ordering' field in the test case).
+     * This must be fixed by a post-processing step.
      * @param int $correctcol The table column number of the 'iscorrect' column.
      * @param int $expectedcol The table column number of the 'Expected' column.
      * @param int $gotcol The table column number of the 'Got' column.

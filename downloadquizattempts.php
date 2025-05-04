@@ -27,14 +27,20 @@
  * @copyright 2017 Richard Lobb, The University of Canterbury
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+namespace qtype_coderunner;
+
+use context_system;
+use context_course;
+use html_writer;
+use moodle_url;
+
+require_once(__DIR__ . '/../../../config.php');
+require_once($CFG->libdir . '/questionlib.php');
 
 define('NO_OUTPUT_BUFFERING', true);
 if (!defined('ANONYMISE')) {
     define('ANONYMISE', 0);
 }
-
-require_once(__DIR__ . '/../../../config.php');
-require_once($CFG->libdir . '/questionlib.php');
 
 // Login and check permissions.
 $context = context_system::instance();
@@ -47,9 +53,7 @@ $PAGE->requires->jquery();
 $PAGE->requires->jquery_plugin('ui');
 $PAGE->requires->jquery_plugin('ui-css');
 
-// Create the helper class.
-$bulktester = new qtype_coderunner_bulk_tester();
-$courses = $bulktester->get_all_courses();
+$courses = bulk_tester::get_all_courses();
 
 // Start display.
 echo $OUTPUT->header();

@@ -30,11 +30,10 @@ defined('MOODLE_INTERNAL') || die();
 $definitions = [
     'coderunner_grading_cache' => [
         'mode' => cache_store::MODE_APPLICATION,
-        'maxsize' => 50000000,
+        'maxsize' => 50000000, // This will be ignored by the standard file cache.
         'simplekeys' => true,
         'simpledata' => false,
         'canuselocalstore' => true,
-        'staticacceleration' => true,
-        'staticaccelerationsize' => 1000000,
+        // Set TTL on Coderunner settings page using the following here causes unit test crashes 'ttl' => abs(get_config('qtype_coderunner', 'gradecachettl')),
     ],
 ];
