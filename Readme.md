@@ -1,6 +1,6 @@
 # CodeRunner
 
-Version: 5.4.1 November 12, 2024. Requires **MOODLE V4.0 or later**. Earlier versions
+Version: 5.6.4 April 13, 2025. Requires **MOODLE V4.3 or later + PHP >=8.1**. Earlier versions
 of Moodle must use CodeRunner V4.
 
 
@@ -1449,8 +1449,6 @@ Not recommended!
 The template variable `TEST`, which is defined in the Twig context only when
 Twig is rendering a per-test template, contains the following attributes:
 
- * `TEST.rownum` The sequence number of this test (0, 1, 2 ...).
- * `TEST.questionid` The ID of the question being run. Not generally useful.
  * `TEST.testtype` The type of test, relevant only when Precheck is enabled
 for the question and is set to *Selected* so that the author has control over
 which tests get run. 0 denotes "run this test only when *Check* is clicked, 1 denotes "run this
@@ -1469,8 +1467,6 @@ this test.
 for this test.
  * `TEST.mark` How many marks to allocate to this test. Meaningful only if
 not using "All or nothing" grading.
- * `TEST.ordering` The number entered by the question author into the *Ordering*
-field of the test.
 
 ### The Twig TESTCASES variable
 
