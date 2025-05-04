@@ -1,5 +1,9 @@
 # CHANGE HISTORY
 
+### 04 April 2025, 5.7.0
+
+ * Change version number to 5.7.0 after merging from development as there is significant extra functionality.
+
 ### 13 April 2025, 5.6.4
 
   * Address issue #249: "Implement changes made necessary by the fix for MDL-83541". After that fix, all CodeRunner questions
