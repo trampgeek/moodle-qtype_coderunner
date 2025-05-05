@@ -33,6 +33,7 @@ use context_system;
 use context_course;
 use html_writer;
 use moodle_url;
+use html_table;
 
 require_once(__DIR__ . '/../../../config.php');
 require_once($CFG->libdir . '/questionlib.php');

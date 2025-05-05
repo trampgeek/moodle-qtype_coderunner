@@ -52,6 +52,9 @@ class table_dataformat_export_format_fixed extends table_dataformat_export_forma
     }
 }
 
+// A version of Moodle's table_sql that handles the screw up with formatting
+// of code (converting it all to HTML, stripping newlines etc - stupid, stupid, stupid -
+// and which formats the datetime field (a Unix timestamp) in a DB independent manner.
 class UnscrewedSqlTable extends table_sql {
     /**
      * Get, and optionally set, the export class.
@@ -74,6 +77,22 @@ class UnscrewedSqlTable extends table_sql {
             }
         }
         return $this->exportclass;
+    }
+
+    /**
+     * Format Unix timestamp into readable date/time
+     * This method will be automatically called for the 'datetime' column
+     *
+     * @param object $row The row of data
+     * @return string Formatted date
+     */
+    public function col_datetime($row) {
+        if (empty($row->datetime)) {
+            return '-';
+        }
+        
+        // Use Moodle's built-in time formatting function
+        return userdate($row->datetime);
     }
     //phpcs:enable
 }
@@ -125,7 +144,7 @@ if (!has_capability('moodle/grade:viewall', $coursecontext)) {
         quest.name as qname,
         slot.maxmark as mark,
         qattsteps.timecreated as timestamp,
-        FROM_UNIXTIME(qattsteps.timecreated,'%Y/%m/%d %H:%i:%s') as datetime,
+        qattsteps.timecreated as datetime,
         qattsteps.fraction,
         qattsteps.state,
         qasd.attemptstepid,
