@@ -1,5 +1,11 @@
 # CHANGE HISTORY
 
+
+### 14 May 2025, 5.7.1
+
+  * Bug fix: with Moodle 5.0, questions using prototypes that were not in the Front Page question
+    bank were working for teachers but not students.
+
 ### 04 April 2025, 5.7.0
 
  * Change version number to 5.7.0 after merging from development as there is significant extra functionality.
